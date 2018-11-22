@@ -124,12 +124,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   @ViewChild('editorResultListMax')
   private _editorResultListMax: ElementRef;
 
-  @ViewChild('questionLayout')
-  private _questionLayout: ElementRef;
-
-  @ViewChild('questionWrap')
-  private _questionWrap: ElementRef;
-
   // request reconnect count
   private _executeSqlReconnectCnt: number = 0;
   private _checkQueryStatusReconnectCnt: number = 0;
@@ -320,6 +314,17 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public tableSchemaParams:any;   // table schema search parameter
   public isOpenTableSchema:boolean = false;
 
+  // 쿼리 히스토리 팝업
+  public isQueryHistoryLogPopup : boolean = false;
+  // 쿼리 히스토리 item
+  public queryHistoryItem : any;
+  // 쿼리 히스토리 삭제 팝업
+  public isQueryHistoryDeletePopup : boolean = false;
+  // 쿼리 삭제 여부
+  public isQueryHistoryDelete : boolean = false;
+  // 하단 팝업 닫힘 체크
+  public isFootAreaPopupCheck : boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -379,6 +384,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this._splitVertical = Split(['.sys-workbench-top-panel', '.sys-workbench-bottom-panel'], {
           direction: 'vertical',
           onDragEnd : () => {
+            this.isFootAreaPopupCheck = true;
             this.onEndedResizing();
           }
         });
@@ -957,6 +963,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public editorKeyEvent(event) {
     // 쿼리 실행.
     if (event.ctrlKey && event.keyCode === 13) {
+      this.checkFooterPopup();
       this.setExecuteSql('SELECTED');
       return;
     }
@@ -972,6 +979,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
 
     if (event.altKey && event.keyCode === 13) {
+      this.checkFooterPopup();
       this.setExecuteSql('ALL');
       return;
     }
@@ -1043,6 +1051,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       dataconnection: this.workbench.dataConnection,
       webSocketId: this.websocketId
     };
+
+    // user 정보 체크
+    this.setUserInfoTableParam();
+
     // 보고있는 schemalayer hide
     this.closeEvent = { name: 'closeSchema' };
   } // function - setInitDatabase
@@ -1057,6 +1069,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       dataconnection: this.workbench.dataConnection,
       webSocketId: this.websocketId
     };
+
+    // user 정보 체크
+    this.setUserInfoTableParam();
+
     this.saveLocalStorageGeneralSchema();
     // 보고있는 schemalayer hide
     this.closeEvent = { name: 'closeSchema' };
@@ -1067,17 +1083,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public openGlobalVariableMenu() {
     this.isGlobalVariableMenuShow = !this.isGlobalVariableMenuShow;
-    this.isQueryHistoryMenuShow = false;
-    this.isNavigationMenuShow = false;
-    // this.isWorkbenchOptionShow = false;
-  }
-
-  /**
-   * 우측 패널 구성 - 두번째 : 쿼리 히스토리 리스트
-   */
-  public openQueryHistoryMenu() {
-    this.isQueryHistoryMenuShow = !this.isQueryHistoryMenuShow;
-    this.isGlobalVariableMenuShow = false;
     this.isNavigationMenuShow = false;
     // this.isWorkbenchOptionShow = false;
   }
@@ -1088,7 +1093,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public openNavigationMenu() {
     this.isNavigationMenuShow = !this.isNavigationMenuShow;
     this.isGlobalVariableMenuShow = false;
-    this.isQueryHistoryMenuShow = false;
   }
 
   /**
@@ -1096,6 +1100,38 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public showOption() {
     this.isWorkbenchOptionShow = !this.isWorkbenchOptionShow;
+  }
+
+  /**
+   * 팝업 구성 - 쿼리 히스토리 리스트
+   */
+  public openQueryHistoryMenu() {
+    this.isQueryHistoryMenuShow = !this.isQueryHistoryMenuShow;
+    this.shortcutsFl = false;
+    this.isQueryHistoryDelete = false;
+  }
+
+  /**
+   * 팝업 구성 -  워크벤치 에디터 단축키 보기 팝업
+   */
+  public openShowShortcutsMenu() {
+
+    this.shortcutsFl = !this.shortcutsFl;
+    this.isQueryHistoryMenuShow = false;
+  }
+
+  /**
+   * 하단 팝업 닫힘 체크
+   */
+  public checkFooterPopup() {
+
+    if( this.isFootAreaPopupCheck || this.isQueryHistoryLogPopup || this.isQueryHistoryDeletePopup ) {
+      this.isFootAreaPopupCheck = false;
+      return false;
+    }
+    this.shortcutsFl = false;
+    this.isQueryHistoryMenuShow = false;
+
   }
 
   /**
@@ -1358,6 +1394,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * 선택한 탭에 대한 SQL Clear
    */
   public clearSql() {
+    this.checkFooterPopup();
     this.setSelectedTabText('');
     // 쿼리 저장
     this.textList[this.selectedTabNum]['query'] = this.getSelectedTabText();
@@ -1505,6 +1542,37 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // 로컬 스토리지에 쿼리에 저장
     this.saveLocalStorage(this.getSelectedTabText(), this.textList[this.selectedTabNum]['editorId']);
     // }
+  }
+
+  // 에디터 컴포넌트에 COLUMN NAME 주입
+  public columnIntoEditorEvent(tableSql: string): void {
+
+    // 에디터 포커싱 위치에 SQL 주입
+    this.editor.insertColumn(tableSql);
+    // 쿼리 저장
+    this.textList[this.selectedTabNum]['query'] = this.getSelectedTabText();
+    // 로컬 스토리지에 쿼리에 저장
+    this.saveLocalStorage(this.getSelectedTabText(), this.textList[this.selectedTabNum]['editorId']);
+  }
+
+  /**
+   * 쿼리 히스토리 로그 팝업 - fail 일 경우에만
+   */
+  public sqlQueryPopupEvent(item : any){
+
+    this.isQueryHistoryLogPopup = true;
+    this.queryHistoryItem = item;
+
+  }
+
+  /**
+   * 쿼리 히스토리 삭제 팝업
+   */
+  public deleteQueryHistory(){
+
+    this.isQueryHistoryDelete = true;
+    this.isQueryHistoryDeletePopup = false;
+
   }
 
   /**
@@ -1705,34 +1773,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       && listObj.index < listObj.list.length - 1) {
       listObj.index++;
     }
-  }
-
-  /**
-   * 워크벤치 에디터 단축키 보기 클릭 이벤트
-   */
-  public onClickShowShortcutsBtn(): void {
-
-    this.shortcutsFl = true;
-
-    let editorLayoutHeight = $('.CodeMirror.cm-s-default').height();
-    let editorFootLayoutHeight = $('.ddp-wrap-edit-foot').height();
-    let popupLayoutHeight = $('.ddp-box-layout4').height();
-
-    // editor 영역에 따른 위치 변경
-    if( editorLayoutHeight < (popupLayoutHeight + editorFootLayoutHeight + 19 ) ) {
-
-      this._questionLayout.nativeElement.style.top
-        = this._questionWrap.nativeElement.getBoundingClientRect().top
-        + window.pageYOffset - document.documentElement.clientTop + 42 + 'px';
-
-    } else {
-
-      this._questionLayout.nativeElement.style.top
-        = this._questionWrap.nativeElement.getBoundingClientRect().top
-        + window.pageYOffset - document.documentElement.clientTop - 265 + 'px';
-    }
-
-
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -2029,6 +2069,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   private createWebSocket(callback?: Function): void {
     this.workbench = this.workbenchTemp;
+    // connection database 정보
+    this.workbench.dataConnection.connectionDatabase = this.workbenchTemp.dataConnection.database;
     this.websocketId = CommonConstant.websocketId;
     try {
       console.info('this.websocketId', this.websocketId);
@@ -2423,6 +2465,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   // sql 포맷터
   public setSqlFormatter() {
+
+    this.checkFooterPopup();
 
     // let textAll: string = this.editor.value;
     const textSelected: string = this.editor.getSelection();
@@ -2966,6 +3010,22 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public getConnectionType(connType: string) {
     return DataConnectionType[connType];
+  }
+
+  /**
+   * tableParam 사용자 정보 체크
+   */
+  private setUserInfoTableParam() {
+    const selectedSecurityType = [
+        { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
+        { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
+        { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
+      ].find(type => type.value === this.workbench.dataConnection.authenticationType) || {
+        label: this.translateService.instant('msg.storage.li.connect.always'),
+        value: 'MANUAL'
+      };
+    this.tableParam.dataconnection.username = selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginId : this.workbench.dataConnection.username;
+    this.tableParam.dataconnection.password = selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginPw : this.workbench.dataConnection.password;
   }
 
 }

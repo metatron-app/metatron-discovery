@@ -2987,8 +2987,20 @@ if (typeof Slick === "undefined") {
             }
         }
 
+        var sortingEnabled = true;    // #20181119-01 - delay sort click
         function setupColumnSort() {
             $headers.click(function (e) {
+
+              // #20181119-01 - delay sort click - Start
+              if (!sortingEnabled) {
+                return;
+              }
+
+              setTimeout(function(){ sortingEnabled = true; }, 300 );
+
+              sortingEnabled = false;
+              // #20181119-01 - delay sort click - End
+
                 // temporary workaround for a bug in jQuery 1.7.1 (http://bugs.jquery.com/ticket/11328)
                 e.metaKey = e.metaKey || e.ctrlKey;
 
@@ -3790,7 +3802,8 @@ if (typeof Slick === "undefined") {
             var rowCss = "slick-row" +
                 (dataLoading ? " loading" : "") +
                 (row === activeRow ? " active" : "") +
-                (row % 2 == 1 ? " odd" : " even");
+                (row % 2 == 1 ? " odd" : " even") +
+                (row === dataLength - 1 ? " last" : "" ); // #20181119-02 : 마지막 줄 클래스 추가
 
             if (!d) {
                 rowCss += " " + options.addNewRowCssClass;

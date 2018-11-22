@@ -78,7 +78,7 @@
 
           <!-- input form -->
           <div class="ddp-ui-input-form">
-            <label class="ddp-label-type">{{'msg.comm.ui.profile.id' | translate}}</label>
+            <label class="ddp-label-type">{{'msg.comm.ui.profile.name' | translate}}</label>
             <div class="ddp-data-form">
               {{user.username}}
             </div>
@@ -118,19 +118,19 @@
           <!-- input form -->
           <!-- error 일때 ddp-type-error 추가 -->
           <div class="ddp-ui-input-form" [class.ddp-type-error]="resultName === false">
-            <label class="ddp-label-type">{{'msg.comm.ui.profile.name' | translate}}
+            <label class="ddp-label-type">{{'msg.comm.ui.profile.fullname' | translate}}
               <!-- tooltip -->
               <div class="ddp-ui-tooltip">
                 <em class="ddp-icon-question"></em>
                 <div class="ddp-ui-tooltip-info">
                   <em class="ddp-icon-view-left"></em>
-                  {{'msg.comm.ui.profile.name.desc' | translate}}
+                  {{'msg.comm.ui.profile.fullname.desc' | translate}}
                 </div>
               </div>
               <!-- //tooltip -->
             </label>
             <div class="ddp-input-check">
-              <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ph.profile.name' | translate}}"
+              <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ph.profile.fullname' | translate}}"
                      [(ngModel)]="user.fullName"
                      maxlength="50"
                      (keyup)="initNameValidation()"

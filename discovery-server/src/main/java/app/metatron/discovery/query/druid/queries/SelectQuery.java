@@ -50,6 +50,8 @@ public class SelectQuery extends Query {
 
   String concatString = ",";
 
+  Boolean descending;
+
   @NotNull
   PagingSpec pagingSpec;
 
@@ -121,6 +123,14 @@ public class SelectQuery extends Query {
 
   public void setVirtualColumns(List<VirtualColumn> virtualColumns) {
     this.virtualColumns = virtualColumns;
+  }
+
+  public Boolean getDescending() {
+    return descending;
+  }
+
+  public void setDescending(Boolean descending) {
+    this.descending = descending;
   }
 
   public Map<String, Object> getContext() {

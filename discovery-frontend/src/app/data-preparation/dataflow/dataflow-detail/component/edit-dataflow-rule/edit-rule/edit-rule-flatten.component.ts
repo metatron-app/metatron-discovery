@@ -17,6 +17,7 @@ import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } fro
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
+import * as _ from 'lodash';
 
 @Component({
   selector : 'edit-rule-flatten',
@@ -92,7 +93,7 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
       return undefined
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
       if (-1 !== item.name.indexOf(' ')) {
         item.name = '`' + item.name + '`';
       }

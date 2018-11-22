@@ -148,10 +148,11 @@ export class WidgetService extends AbstractService {
    * 위젯 정보 미리보기
    * @param {string} widgetId
    * @param {boolean} original
+   * @param {boolean} preview
    * @returns {Promise<any>}
    */
-  public previewWidget(widgetId: string, original: boolean): Promise<any> {
-    const url = this.API_URL + `widgets/${widgetId}/data?original=${original}&preview=true`;
+  public previewWidget(widgetId: string, original: boolean, preview:boolean ): Promise<any> {
+    const url = this.API_URL + `widgets/${widgetId}/data?original=${original}&preview=${preview}`;
     return this.post(url, null);
   } // function - previewWidget
 
