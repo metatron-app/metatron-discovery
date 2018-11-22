@@ -15,11 +15,11 @@
 package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.exception.ErrorCodes;
 import app.metatron.discovery.domain.dataprep.PrepSnapshot;
 import app.metatron.discovery.domain.dataprep.PrepSnapshot.COMPRESSION;
 import app.metatron.discovery.domain.dataprep.PrepSnapshot.FORMAT;
 import app.metatron.discovery.domain.dataprep.PrepSnapshotService;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -528,16 +528,20 @@ public class TeddyExecutor {
     LOGGER.trace("applyRuleStrings(): end");
   }
 
-  private void loadCsvFile(String dsId, String filePath, String delimiter) throws URISyntaxException {
+  private void loadLocalCsvFile(String dsId, String filePath, String delimiter) throws URISyntaxException {
     DataFrame df = new DataFrame();
 
-    LOGGER.info(String.format("loadCsvFile(): dsId=%s filePath=%s delemiter=%s", dsId, filePath, delimiter));
+    LOGGER.info(String.format("loadLocalCsvFile(): dsId=%s filePath=%s delemiter=%s", dsId, filePath, delimiter));
 
-    List<String[]> grid = Util.loadGridLocalCsv(filePath, delimiter, limitRows, conf, null);
+//    List<String[]> grid = Util.loadGridLocalCsv(filePath, delimiter, limitRows, conf, null);
     //List<String[]> grid = Util.loadGridLocalCsv(filePath, delimiter, limitRows);
-    df.setByGrid(grid, null);
+//    df.setByGrid(grid, null);
 
-    LOGGER.info("loadCsvFile(): done");
+    String strUri = "file://" + filePath;
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null, false);
+    df.setByGrid(result);
+
+    LOGGER.info("loadLocalCsvFile(): done");
     cache.put(dsId, df);
   }
 
@@ -548,7 +552,7 @@ public class TeddyExecutor {
 
     switch ((String) datasetInfo.get("importType")) {
       case "FILE":
-        loadCsvFile(newFullDsId, (String) datasetInfo.get("filePath"), (String) datasetInfo.get("delimiter"));
+        loadLocalCsvFile(newFullDsId, (String) datasetInfo.get("filePath"), (String) datasetInfo.get("delimiter"));
         break;
       case "HIVE":
         loadHiveTable(newFullDsId, (String) datasetInfo.get("sourceQuery"));
