@@ -174,7 +174,8 @@ export namespace OptionGenerator {
     }
 
     // set default limit
-    if( type !== ChartType.SANKEY && type !== ChartType.NETWORK && type !== ChartType.GAUGE && type !== ChartType.TREEMAP ) {
+    if( type !== ChartType.WORDCLOUD && type !== ChartType.SANKEY && type !== ChartType.NETWORK
+      && type !== ChartType.GAUGE && type !== ChartType.TREEMAP ) {
       uiOption.limitCheck = true;
       uiOption.limit = OptionGenerator.defaultLimit( type );
     }

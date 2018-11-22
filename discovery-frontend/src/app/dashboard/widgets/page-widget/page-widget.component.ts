@@ -63,7 +63,7 @@ import {
 } from '../../../domain/dashboard/dashboard.globalOptions';
 import {DataDownloadComponent} from '../../../common/component/data-download/data.download.component';
 import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
-import {DashboardUtil} from '../../util/dashboard.util';
+import {ChartLimitInfo, DashboardUtil} from '../../util/dashboard.util';
 import {isNullOrUndefined} from 'util';
 import {Datasource, Field} from '../../../domain/datasource/datasource';
 import {CommonUtil} from '../../../common/util/common.util';
@@ -144,10 +144,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isInvalidPivot: boolean = false;          // 선반정보를 확인해야 하는 경우
   public isShowNoData: boolean = false;           // No-Data 표시 여부
   public isError: boolean = false;                // 에러 상태 표시 여부
-  public isShowLimitInfo: boolean = false;         // Limit 표시 여부
   public isShowDownloadPopup: boolean = false;    // 다운로드 팝업 표시 여부
   public duringDataDown: boolean = false;         // 데이터 다운로드 진행 여부
   public duringImageDown: boolean = false;        // 이미지 다운로드 진행 여부
+
+  // Limit 정보
+  public limitInfo: ChartLimitInfo = { id: '', isShow: false, currentCnt: 0, maxCnt: 0 };
 
   // Pivot 내 사용자 정의 컬럼 사용 여부
   public useCustomField: boolean = false;
@@ -1344,16 +1346,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         }
 
         // Set Limit Info
-        if (!isNullOrUndefined(data.columns) && !isNullOrUndefined(data.info)) {
-          this.isShowLimitInfo = data.columns[0].value.length < data.info.totalCategory;
-          if (this.layoutMode === LayoutMode.EDIT ) {
-            this.broadCaster.broadcast('WIDGET_LIMIT_INFO', {
-              id: this.widget.id,
-              isShow: this.isShowLimitInfo,
-              currentCnt: data.columns[0].value.length,
-              maxCnt: data.info.totalCategory
-            });
-          }
+        this.limitInfo = DashboardUtil.getChartLimitInfo( this.widget.id, ChartType[this.chartType.toUpperCase()], data );
+        if (this.layoutMode === LayoutMode.EDIT ) {
+          this.broadCaster.broadcast('WIDGET_LIMIT_INFO', this.limitInfo);
         }
 
       }, 1000);

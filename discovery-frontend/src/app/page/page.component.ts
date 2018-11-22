@@ -91,7 +91,7 @@ import { ConfigureFiltersComponent } from '../dashboard/filters/configure-filter
 import { PageFilterPanel } from './filter/filter-panel.component';
 import { SecondaryIndicatorComponent } from './chart-style/secondary-indicator.component';
 import { DataLabelOptionComponent } from './chart-style/datalabel-option.component';
-import { DashboardUtil } from '../dashboard/util/dashboard.util';
+import {ChartLimitInfo, DashboardUtil} from '../dashboard/util/dashboard.util';
 import {BoardConfiguration, LayoutMode} from '../domain/dashboard/dashboard';
 import { CommonUtil } from '../common/util/common.util';
 import { MapChartComponent } from '../common/component/chart/type/map-chart/map-chart.component';
@@ -319,7 +319,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
   public isNoData: boolean = false;         // No Data 여부
   public isError: boolean = false;          // 에러 상태 표시 여부
-  public isShowLimitInfo: boolean = false;  // Limit 표시 여부
+
+  // Limit 정보
+  public limitInfo: ChartLimitInfo = { id: '', isShow: false, currentCnt: 0, maxCnt: 0 };
 
   // 센키차트 모든노트 표시안함 여부
   public isSankeyNotAllNode: boolean = false;
@@ -3646,9 +3648,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         this.initGridChart();
 
         // Set Limit Info
-        if (!isNullOrUndefined(data.columns) && !isNullOrUndefined(data.info)) {
-          this.isShowLimitInfo = data.columns[0].value.length < data.info.totalCategory;
-        }
+        this.limitInfo = DashboardUtil.getChartLimitInfo( this.widget.id, this.widget.configuration.chart.type, data );
 
         // 라인차트이고 고급분석 예측선 사용하는 경우
         if (this.selectChart === 'line') {
