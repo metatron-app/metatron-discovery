@@ -1386,6 +1386,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public resizeQueryEditor() {
     this.isQueryEditorFull = !this.isQueryEditorFull;
+
+    const element = $('html');
+    ( this.isQueryEditorFull ? element.addClass('ddp-width-auto') : element.removeClass('ddp-width-auto') );
+
     this._toggleHorizontalSlider();
     this.onEndedResizing();
   } // function - resizeQueryEditor
