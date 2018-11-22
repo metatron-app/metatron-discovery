@@ -127,6 +127,16 @@ public class ColumnDictionary extends AbstractHistoryEntity implements MetatronD
   @OneToMany(mappedBy = "dictionary", cascade = {CascadeType.MERGE})
   private List<MetadataColumn> columns;
 
+  @PreRemove
+  private void removeColumnDictFromChilds(){
+    columns.forEach(metadataColumn -> {
+      if(metadataColumn.getDictionary().id.equals(this.id)){
+        metadataColumn.setDictionary(null);
+      }
+    });
+  }
+
+
   public ColumnDictionary() {
   }
 
