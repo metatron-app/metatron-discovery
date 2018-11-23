@@ -583,7 +583,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       // add period
       ingestion['period'] = this._getPeriodParams();
       // add row size
-      ingestion['size'] = Number.parseInt(this.getIngestionBatchRow().replace(/(,)/g, ''));
+      ingestion['maxLimit'] = Number.parseInt(this.getIngestionBatchRow().replace(/(,)/g, ''));
       // add data range
       ingestion['range'] = this.getIngestionData.selectedIngestionScopeType.value;
     } else if (this.getIngestionData.selectedIngestionType.value === 'single') {
@@ -591,7 +591,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       ingestion['scope'] = this.getIngestionData.selectedIngestionScopeType.value;
       // add row size
       if (this.getIngestionData.selectedIngestionScopeType.value === 'ROW') {
-        ingestion['size'] = Number.parseInt(this.getIngestionOnceRow().replace(/(,)/g, ''));
+        ingestion['maxLimit'] = Number.parseInt(this.getIngestionOnceRow().replace(/(,)/g, ''));
       }
     }
     // if not exist connection preset

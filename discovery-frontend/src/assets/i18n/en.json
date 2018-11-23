@@ -1990,7 +1990,7 @@
   "msg.storage.ui.method": "Method",
   "msg.storage.ui.geo.coordinate": "Geo coordienates",
   "msg.storage.ui.config.extension.no.data": "Extension type does not support preview",
-  "msg.storage.ui.config.no.data": "There is no data",
+  "msg.storage.ui.config.no.data": "No data",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",
