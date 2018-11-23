@@ -63,7 +63,7 @@ import {
 } from '../../../domain/dashboard/dashboard.globalOptions';
 import {DataDownloadComponent} from '../../../common/component/data-download/data.download.component';
 import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
-import {DashboardUtil} from '../../util/dashboard.util';
+import {ChartLimitInfo, DashboardUtil} from '../../util/dashboard.util';
 import {isNullOrUndefined} from 'util';
 import {Datasource, Field} from '../../../domain/datasource/datasource';
 import {CommonUtil} from '../../../common/util/common.util';
@@ -147,6 +147,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isShowDownloadPopup: boolean = false;    // 다운로드 팝업 표시 여부
   public duringDataDown: boolean = false;         // 데이터 다운로드 진행 여부
   public duringImageDown: boolean = false;        // 이미지 다운로드 진행 여부
+
+  // Limit 정보
+  public limitInfo: ChartLimitInfo = { id: '', isShow: false, currentCnt: 0, maxCnt: 0 };
 
   // Pivot 내 사용자 정의 컬럼 사용 여부
   public useCustomField: boolean = false;
@@ -1325,7 +1328,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           // 현재 차트가 선택한 필터목록
           selectFilterListList: this._selectFilterList
         }
-
       };
 
       let optionKeys = Object.keys(this.uiOption);
@@ -1348,6 +1350,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         } else {
           this.chart.resultData = this.resultData;
         }
+
+        // Set Limit Info
+        this.limitInfo = DashboardUtil.getChartLimitInfo( this.widget.id, ChartType[this.chartType.toUpperCase()], data );
+        if (this.layoutMode === LayoutMode.EDIT ) {
+          this.broadCaster.broadcast('WIDGET_LIMIT_INFO', this.limitInfo);
+        }
+
       }, 1000);
 
       this.isValidWidget = true;

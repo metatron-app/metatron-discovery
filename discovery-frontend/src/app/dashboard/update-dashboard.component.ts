@@ -35,7 +35,7 @@ import {
   Dashboard,
   LayoutMode
 } from '../domain/dashboard/dashboard';
-import {ConnectionType, Datasource, Field, FieldRole, TempDsStatus} from '../domain/datasource/datasource';
+import {ConnectionType, Datasource, Field, FieldRole} from '../domain/datasource/datasource';
 import {TextWidget} from '../domain/dashboard/widget/text-widget';
 import {PageWidget, PageWidgetConfiguration} from 'app/domain/dashboard/widget/page-widget';
 import {Widget} from '../domain/dashboard/widget/widget';

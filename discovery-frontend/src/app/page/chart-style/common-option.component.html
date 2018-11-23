@@ -60,18 +60,6 @@
             </ul>
           </div>
           <!-- //divide -->
-          <!-- divide -->
-          <div class="ddp-divide2">
-            <ul class="ddp-list-express ddp-type2">
-              <li [ngClass]="{'ddp-selected': uiOption.measureLayout === 'VERTICAL'}" (click)="gridLayout('VERTICAL');">
-                <em class="ddp-icon-column-view"></em> {{'msg.page.btn.vertically' | translate}}
-              </li>
-              <li [ngClass]="{'ddp-selected': uiOption.measureLayout === 'HORIZONTAL'}" (click)="gridLayout('HORIZONTAL');">
-                <em class="ddp-icon-horizontal-view"></em> {{'msg.page.btn.horizontally' | translate}}
-              </li>
-            </ul>
-          </div>
-          <!-- //divide -->
         </div>
 
         <!-- wrap divide -->
@@ -93,6 +81,7 @@
                 <!-- //Slide THREE -->
               </div>
               <!-- //slider -->
+
               <!-- multy -->
               <div class="ddp-wrap-option-multy ddp-clear">
                 <div class="ddp-col-6">
@@ -208,15 +197,32 @@
           <div class="ddp-divide2">
             <div class="ddp-list-label">{{'msg.page.common.grid.body.style.title' | translate}}</div>
             <div class="ddp-list-sub2">
-              <!-- checkbox -->
-              <div class="ddp-part-check-b">
-                <label class="ddp-label-checkbox ddp-position">
-                  <input type="checkbox" [ngModel]="uiOption?.contentStyle?.showHeader" (click)="showValueColumn(!uiOption?.contentStyle?.showHeader)">
-                  <i class="ddp-icon-checkbox"></i>
-                  <span class="ddp-txt-checkbox">{{'msg.page.th.head.col' | translate}}</span>
-                </label>
+
+              <!-- slider -->
+              <div class="ddp-wrap-option-slider">
+                <span class="ddp-label-slider">{{'msg.page.th.head.col' | translate}}</span>
+                <!-- Slide THREE -->
+                <div [class.ddp-disabled]="uiOption.dataType === 'MASTER'" class="ddp-checkbox-slide ddp-checkbox-automatic2">
+                  <input type="checkbox" value="None" id="ckShowAggr" [checked]="uiOption?.contentStyle?.showHeader"
+                         (click)="showValueColumn(!uiOption?.contentStyle?.showHeader)">
+                  <label for="ckShowAggr"><span class="ddp-slide"></span></label>
+                </div>
+                <!-- //Slide THREE -->
               </div>
-              <!-- //checkbox -->
+              <!-- //slider -->
+
+              <!-- divide - select horizontal/vertical -->
+              <div *ngIf="uiOption?.contentStyle?.showHeader" class="ddp-divide2">
+                <ul [class.ddp-disabled]="uiOption.dataType === 'MASTER'" class="ddp-list-express ddp-type2">
+                  <li [ngClass]="{'ddp-selected': uiOption.measureLayout === 'VERTICAL'}" (click)="gridLayout('VERTICAL');">
+                    <em class="ddp-icon-column-view"></em> {{'msg.page.btn.vertically' | translate}}
+                  </li>
+                  <li [ngClass]="{'ddp-selected': uiOption.measureLayout === 'HORIZONTAL'}" (click)="gridLayout('HORIZONTAL');">
+                    <em class="ddp-icon-horizontal-view"></em> {{'msg.page.btn.horizontally' | translate}}
+                  </li>
+                </ul>
+              </div>
+              <!-- // divide - select horizontal/vertical -->
 
               <!-- multy -->
               <div class="ddp-wrap-option-multy ddp-clear">
@@ -416,30 +422,6 @@
         <!-- //divide -->
       </div>
       <!-- //wrap divide -->
-      <!--<div class="ddp-wrap-express" *ngIf="possibleChartCheck('barExpress', uiOption.type)">-->
-        <!--<div *ngIf="uiOption.type.toString() === 'bar'" class="ddp-wrap-option-checkbox ddp-clear">-->
-          <!--<div class="ddp-col-5">-->
-            <!--<label class="ddp-label-checkbox" (click)="-->
-              <!--$event.preventDefault();-->
-              <!--onLimitChange(uiOption.size);uiOption.limitCheck = !uiOption.limitCheck">-->
-              <!--<input type="checkbox" [(ngModel)]="uiOption.limitCheck">-->
-              <!--<i class="ddp-icon-checkbox"></i>-->
-              <!--<span class="ddp-txt-checkbox">{{'msg.page.chart.presentation.checkbox.limit' | translate}}</span>-->
-            <!--</label>-->
-          <!--</div>-->
-          <!--<div class="ddp-col-7">-->
-            <!--&lt;!&ndash; input number &ndash;&gt;-->
-            <!--<div class="ddp-input-number" [ngClass]="{'ddp-disabled' : !uiOption.limitCheck}">-->
-              <!--<input (keyup.enter)="onLimitChange(uiOption.size)" [readonly]="!uiOption.limitCheck" [(ngModel)]="uiOption.size" type="number" input-mask="number">-->
-              <!--<div class="ddp-input-number-nav">-->
-                <!--<div (click)="onLimitChange(uiOption.size - 1)" class="ddp-input-number-button ddp-input-number-down"></div>-->
-                <!--<div (click)="onLimitChange(uiOption.size + 1)" class="ddp-input-number-button ddp-input-number-up"></div>-->
-              <!--</div>-->
-            <!--</div>-->
-            <!--&lt;!&ndash; //input number &ndash;&gt;-->
-          <!--</div>-->
-        <!--</div>-->
-      <!--</div>-->
       <!-- //[막대 차트] -->
 
       <!-- 표현 그래프 line -->
@@ -721,6 +703,7 @@
       <!-- //wrap divide -->
       <!-- //표현 그래프 radar -->
 
+      <!-- 표현 그래프 KPI -->
       <ng-container *ngIf="possibleChartCheck('kpiExpress', uiOption.type)">
         <!-- wrap divide -->
         <div class="ddp-wrap-divide ">
@@ -1020,6 +1003,41 @@
         <!-- //divide -->
       </div>
       <!-- //[파이] wrap divide -->
+
+      <!-- Set Limit -->
+      <div *ngIf="'network' !== uiOption.type.toString() && 'sankey' !== uiOption.type.toString()
+      && 'gauge' !== uiOption.type.toString() && 'treemap' !== uiOption.type.toString() " class="ddp-wrap-divide" >
+        <!-- divide -->
+        <div class="ddp-divide2">
+          <div class="ddp-wrap-express" >
+            <div class="ddp-wrap-option-checkbox ddp-clear">
+              <div class="ddp-col-5">
+                <label class="ddp-label-checkbox" (click)="$event.preventDefault();onLimitChange(uiOption.limit, !uiOption.limitCheck);">
+                  <input type="checkbox" [(ngModel)]="uiOption.limitCheck" >
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.page.chart.presentation.checkbox.limit' | translate}}</span>
+                </label>
+              </div>
+              <div class="ddp-col-7">
+                <!-- input number -->
+                <div class="ddp-input-number" [ngClass]="{'ddp-disabled' : !uiOption.limitCheck}">
+                  <input (keyup.enter)="onLimitChange(uiOption.limit)" [readonly]="!uiOption.limitCheck" [(ngModel)]="uiOption.limit"
+                         placeholder="{{limitPlaceHolder}}"
+                         type="number" input-mask="number">
+                  <div class="ddp-input-number-nav">
+                    <div (click)="onLimitChange(uiOption.limit - 1)" class="ddp-input-number-button ddp-input-number-down"></div>
+                    <div (click)="onLimitChange(uiOption.limit + 1)" class="ddp-input-number-button ddp-input-number-up"></div>
+                  </div>
+                </div>
+                <!-- //input number -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- // divide -->
+      </div>
+      <!-- // Set Limit -->
+
     </div>
   </div>
 </div>

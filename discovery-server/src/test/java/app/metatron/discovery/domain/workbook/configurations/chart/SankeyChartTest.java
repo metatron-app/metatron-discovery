@@ -14,27 +14,28 @@
 
 package app.metatron.discovery.domain.workbook.configurations.chart;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import org.junit.Test;
+
+import java.io.IOException;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 
 /**
- * Created by kyungtaak on 2016. 4. 18..
+ * Sankey chart spec. Test
  */
 public class SankeyChartTest extends ChartTest {
 
   @Test
-  public void de_serialize() throws JsonProcessingException {
+  public void de_serialize() throws IOException {
 
-    SankeyChart chart = new SankeyChart(colorByMeasureForSection(), null, null, fontLargerSize(), null, null);
+    SankeyChart chart = new SankeyChart(colorByMeasureForSection(), null, null,
+                                        fontLargerSize(), null, null, 500);
 
-    String sankeyChartStr = GlobalObjectMapper.writeValueAsString(chart);
+    String chartStr = GlobalObjectMapper.writeValueAsString(chart);
 
-    System.out.println(sankeyChartStr);
+    System.out.println(chartStr);
 
-    Chart deSerialized = GlobalObjectMapper.readValue(sankeyChartStr, Chart.class);
+    Chart deSerialized = GlobalObjectMapper.getDefaultMapper().readValue(chartStr, Chart.class);
 
     System.out.println("Result : " + deSerialized.toString());
 

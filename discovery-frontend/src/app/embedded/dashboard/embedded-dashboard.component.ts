@@ -12,17 +12,14 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { Dashboard } from '../../domain/dashboard/dashboard';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { ActivatedRoute } from '@angular/router';
 import { CookieConstant } from '../../common/constant/cookie.constant';
 import { DashboardService } from '../../dashboard/service/dashboard.service';
-import {SelectionFilter} from "../../dashboard/component/selection-filter/selection-filter.component";
 import {Filter} from "../../domain/workbook/configurations/filter/filter";
-import {Widget} from "../../domain/dashboard/widget/widget";
 import {FilterWidgetConfiguration} from "../../domain/dashboard/widget/filter-widget";
-import {InclusionFilter} from "../../domain/workbook/configurations/filter/inclusion-filter";
 import {FilterUtil} from "../../dashboard/util/filter.util";
 import * as $ from "jquery";
 import { DashboardComponent } from '../../dashboard/dashboard.component';
@@ -39,8 +36,9 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
 
   // 대시보드 컴포넌트
   @ViewChild(DashboardComponent)
-  private dashboardComponent: DashboardComponent;
+  private _boardComp: DashboardComponent;
 
+  private _boardId:string;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -84,6 +82,7 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
       (params['loginType']) && (this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN_TYPE, params['loginType'], 0, '/'));
       (params['refreshToken']) && (this.cookieService.set(CookieConstant.KEY.REFRESH_LOGIN_TOKEN, params['refreshToken'], 0, '/'));
       if (params['dashboardId']) {
+        this._boardId = params['dashboardId'];
         this.getDashboardDetail(params['dashboardId']);
       }
     });
@@ -115,6 +114,7 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
   protected getDashboardDetail(dashboardId: string) {
     // 로딩 show
     this.loadingShow();
+    this._boardComp.hideError();
 
     this.dashboardService.getDashboard(dashboardId)
       .then((result: Dashboard) => {
@@ -123,6 +123,10 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
         this.dashboard = result;
 
         // 로딩 hide
+        this.loadingHide();
+      })
+      .catch(() => {
+        this._boardComp.showError();
         this.loadingHide();
       });
   }
@@ -134,7 +138,9 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
   public onDashboardEvent(event: { name: string, data?: any }) {
     if ('LAYOUT_INITIALISED' === event.name) {
       $('body').removeClass('body-hidden');
-      this.dashboardComponent.hideBoardLoading();
+      this._boardComp.hideBoardLoading();
+    } else if ('RELOAD_BOARD' === event.name) {
+      this.getDashboardDetail( this._boardId );
     }
   } // function - onDashboardEvent
 
