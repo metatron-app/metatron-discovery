@@ -369,7 +369,8 @@ public class PrepTransformRuleService {
         // N columns
         String strColumns = "a new column";
         if (((Map) val).size() == 1) {
-          strColumns = ((Map) val).size() + " columns";
+          List functions = (List) ((Map) val).get("functions");
+          strColumns = functions.size() + " columns";
         }
 
         // order
