@@ -19,8 +19,6 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
-import java.util.Map;
-
 /**
  * Created by kyungtaak on 2016. 11. 12..
  */
@@ -73,7 +71,7 @@ public class DataConnectionProjections {
 
     DateTime getModifiedTime();
 
-    @Value("#{target.getPropertiesMap()}")
+    @Value("#{target instanceof T(app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection) ? target.getPropertiesMap() : null}")
     Object getProperties();
   }
 
