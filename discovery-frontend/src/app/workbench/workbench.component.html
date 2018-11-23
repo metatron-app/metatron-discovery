@@ -104,7 +104,8 @@
     <!-- lnb --->
     <div class="sys-workbench-lnb-panel ddp-ui-benchlnb"
          [ngClass]="{
-         'ddp-close':!isLeftMenuOpen || isQueryEditorFull,
+         'ddp-close':!isLeftMenuOpen,
+         'ddp-none':isQueryEditorFull,
          'ddp-fold' : !isOpenTableSchema && isLeftMenuOpen && !isQueryEditorFull }"
          style="width:20%;">
       <div class="ddp-view-benchlnb" >

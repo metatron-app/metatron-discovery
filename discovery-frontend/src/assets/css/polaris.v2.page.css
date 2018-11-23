@@ -6262,6 +6262,7 @@ ul.ddp-ui-tab.ddp-type li .ddp-box-layout4.ddp-information a {padding:0px; borde
 .ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold .ddp-ui-benchtable {display:none;}
 .ddp-wrap-workbench .ddp-ui-benchlnb .ddp-view-benchlnb {position:relative; float:left; height:100%; width:55%;}
 .ddp-ui-benchlnb.ddp-close {width:9px ;}
+.ddp-ui-benchlnb.ddp-none {display:none;}
 .ddp-ui-benchlnb.ddp-close .ddp-view-benchlnb {width:9px;}
 .ddp-ui-benchlnb.ddp-close .ddp-box-benchlnb {display:none;}
 .ddp-ui-benchlnb.ddp-close .ddp-ui-benchtable {display:none;}
@@ -6549,7 +6550,7 @@ table.ddp-table-simple tr td .ddp-ui-time {width:100%; color:#90969f; font-size:
 .ddp-ui-query {display:table-cell; position:relative; padding:0 13px 11px 2px; z-index:5; vertical-align:top; box-sizing:border-box;}
 /*.ddp-ui-query.ddp-tablepop {left:500px}*/
 /*.ddp-ui-query.ddp-full {left:13px;}*/
-.ddp-box-editer.ddp-full {position:fixed !important; left:26px !important; right:64px !important; bottom:2px !important; top:101px !important; height:auto !important; background-color:#fff; z-index:15;}
+.ddp-box-editer.ddp-full {position:fixed !important; left:13px !important; right:64px !important; bottom:2px !important; top:101px !important; height:auto !important; background-color:#fff; z-index:15;}
 .ddp-box-editer.ddp-full .ddp-box-full {display:none;}
 .ddp-box-editer.ddp-full .ddp-box-reduce {display:block;}
 .ddp-box-editer {position:absolute; top:0; left:12px; right:13px; bottom:60%; padding-bottom:33px; border:1px solid #ddd; background-color:#fff; overflow:hidden;}
