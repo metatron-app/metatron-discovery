@@ -118,7 +118,7 @@ public class DataSourcePredicate {
           .in(JPAExpressions.select(dataSource.id)
                             .from(dataSource)
                             .innerJoin(dataSource.workspaces)
-                            .where(dataSource.workspaces.any().eq(workspace)));
+                            .where(dataSource.workspaces.any().eq(workspace), dataSource.status.eq(DataSource.Status.ENABLED)));
       builder.andAnyOf(workspaceContains, published);
     }
 
