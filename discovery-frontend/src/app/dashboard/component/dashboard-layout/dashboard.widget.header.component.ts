@@ -76,7 +76,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
 
   public isMiniHeader: boolean = false;  // 미니 헤더 적용 여부
   public isShowMore: boolean = false;    // 미니 헤더 More 적용 여부
-  public isValidWidget: boolean = false;
+  public isMissingDataSource: boolean = false;
 
   public limitInfo: { id: string, isShow: boolean, currentCnt: number, maxCnt: number } = {
     id: '',
@@ -120,11 +120,10 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
           this.widget.dashBoard, (<PageWidgetConfiguration>this.widget.configuration).dataSource
         );
 
-        if (widgetDataSource) {
-          this.isValidWidget = true;
-        }
+        this.isMissingDataSource = !widgetDataSource;
+
       } else {
-        this.isValidWidget = true;
+        this.isMissingDataSource = false;
       }
 
       this.safelyDetectChanges();
@@ -414,18 +413,22 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    * 위젯 수정
    */
   public editWidget() {
-    if (this.isValidWidget) {
-      this.broadCaster.broadcast('EDIT_WIDGET', {widgetId: this.widget.id, widgetType: this.widget.type});
+    if (this.isMissingDataSource) {
+      Alert.warning( this.translateService.instant('msg.board.alert.can-not-edit-missing-datasource') );
+      return;
     }
+    this.broadCaster.broadcast('EDIT_WIDGET', { widgetId: this.widget.id, widgetType: this.widget.type });
   } // function - editWidget
 
   /**
    * 위젯 복제
    */
   public copyPageWidget() {
-    if (this.isValidWidget) {
-      this.broadCaster.broadcast('COPY_WIDGET', {widgetId: this.widget.id});
+    if (this.isMissingDataSource) {
+      Alert.warning( this.translateService.instant('msg.board.alert.can-not-copy-missing-datasource') );
+      return;
     }
+    this.broadCaster.broadcast('COPY_WIDGET', { widgetId: this.widget.id });
   } // function - copyPageWidget
 
   /**

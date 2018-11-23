@@ -17,7 +17,7 @@
      class="ddp-box-widget ddp-box-graph">
 
   <!-- Top Control -->
-  <div class="ddp-top-control ddp-clear" *ngIf="isViewMode && !isShowHierarchyView">
+  <div class="ddp-top-control ddp-clear" *ngIf="isViewMode && ( !errorInfo || !errorInfo.show )">
 
     <!-- 버튼 목록 -->
     <div class="ddp-ui-buttons" >
@@ -38,7 +38,7 @@
 
       <!-- 차트 영역 선택 버튼 -->
       <div class="ddp-box-btn-hover"
-           *ngIf="!isGridType() && chartFuncValidator.checkUseMultiSelectionByTypeString( chartType )">
+           *ngIf="isShowChartTools && !isGridType() && chartFuncValidator.checkUseMultiSelectionByTypeString( chartType )">
         <a href="javascript:" class="ddp-btn-tool">
           <em [ngClass]="{'ddp-icon-tool-pointer' : 'SINGLE' === mouseMode,
                 'ddp-icon-tool-elliptical' : 'MULTI_RECT' === mouseMode,
@@ -58,7 +58,7 @@
 
       <!-- 차트 확대 버튼 -->
       <div class="ddp-box-btn-hover"
-           *ngIf="!isGridType() && chartFuncValidator.checkUseZoomByTypeString( chartType )">
+           *ngIf="isShowChartTools && !isGridType() && chartFuncValidator.checkUseZoomByTypeString( chartType )">
         <a (click)="changeMouseZoomMode( 'dragzoomin' )" href="javascript:" class="ddp-btn-tool">
           <em class="ddp-icon-tool-rectangular"></em>
         </a>
@@ -117,18 +117,24 @@
       <!-- // 차트 정보 영역 -->
 
       <!-- 데이터 저장 버튼 -->
-      <div (click)="showPreviewDownData($event)" [class.ddp-box-download]="duringDataDown" class="ddp-box-btn2" >
+      <div *ngIf="isShowChartTools" (click)="showPreviewDownData($event)" [class.ddp-box-download]="duringDataDown" class="ddp-box-btn2" >
         <em *ngIf="duringDataDown" class="ddp-icon-widget-loading"></em>
         <span *ngIf="duringDataDown" class="ddp-txt">{{ 'msg.comm.ui.downloading' | translate }}</span>
         <em *ngIf="!duringDataDown" class="ddp-icon-widget-gridsave" ></em>
         <!-- 툴팁 -->
         <div class="ddp-ui-tooltip-info" >
           <em class="ddp-icon-view-down"></em>
+          {{ 'msg.book.widget.header.savetable' | translate }}
+        </div>
+        <!--
+        <div class="ddp-ui-tooltip-info" >
+          <em class="ddp-icon-view-down"></em>
           {{ useCustomField ? ( 'msg.book.widget.header.notsavetable' | translate ) : ( 'msg.book.widget.header.savetable' | translate ) }}
         </div>
+        -->
         <!-- //툴팁 -->
       </div>
-      <div *ngIf="!isGridType()" (click)="downloadChartImage()" class="ddp-box-btn2" >
+      <div *ngIf="isShowChartTools && !isGridType()" (click)="downloadChartImage()" class="ddp-box-btn2" >
         <em *ngIf="duringImageDown" class="ddp-icon-widget-loading"></em>
         <em *ngIf="!duringImageDown" class="ddp-icon-widget-save"></em>
         <!-- 툴팁 -->
@@ -435,19 +441,10 @@
   <!-- // No Data 영역 -->
 
   <!-- Error 표시 영역 -->
-  <div *ngIf="isError" class="ddp-view-widget ddp-view-widget-grid">
-    <div class="ddp-box-data-none">
-      <div class="ddp-wrap-data-none">
-        <div class="ddp-ui-data-none">
-          <div class="ddp-txt-none">
-            <em class="{{boardUtil.getChartIconClass(widget)}} ddp-error"></em>
-            <span class="ddp-data-name">{{widget.name}}</span>
-            <span class="ddp-txt-det">{{ 'msg.page.ui.no.data.error' | translate }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <error-widget [isShow]="isError"
+                [iconClass]="boardUtil.getChartIconClass(widget)"
+                [widgetName]="widget.name"
+                [errorInfo]="errorInfo"></error-widget>
   <!-- // Error 표시 영역 -->
 
   <!-- 수정 버튼 레이어 -->
@@ -492,7 +489,9 @@
               </a>
             </div>
             <!-- popup -->
-            <data-download (startDownload)="duringDataDown = true" (endDownload)="duringDataDown = false"></data-download>
+            <data-download
+              [title]="isOriginDown ? ( 'msg.board.download.title-org' | translate ) : ( 'msg.board.download.title-aggr' | translate )"
+              (startDownload)="duringDataDown = true" (endDownload)="duringDataDown = false"></data-download>
             <!-- // popup -->
           </div>
           <!-- //right -->

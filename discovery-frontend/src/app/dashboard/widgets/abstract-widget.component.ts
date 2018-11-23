@@ -18,6 +18,8 @@ import { Widget } from '../../domain/dashboard/widget/widget';
 import { EventBroadcaster } from '../../common/event/event.broadcaster';
 import { LayoutMode } from '../../domain/dashboard/dashboard';
 import * as $ from "jquery";
+import {Alert} from "../../common/util/alert.util";
+import {isNullOrUndefined} from "util";
 
 export abstract class AbstractWidgetComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -34,9 +36,12 @@ export abstract class AbstractWidgetComponent extends AbstractComponent implemen
   public isEditMode: boolean = false;
   public isViewMode: boolean = false;
   public isAuthMgmtViewMode: boolean = false;
-  public isValidWidget:boolean = false;
 
   public isVisibleScrollbar: boolean = false;   // 스크롤바 표시 여부 체크
+
+  public isMissingDataSource:boolean = false;
+  public isError: boolean = false;                // 에러 상태 표시 여부
+  public errorInfo: { show?: boolean, code?: string, details?: string };    // 에러 정보
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables - Input & Output
@@ -93,17 +98,19 @@ export abstract class AbstractWidgetComponent extends AbstractComponent implemen
    * 위젯 수정
    */
   public editWidget() {
-    if( this.isValidWidget ) {
-      // workbook.component 로 이벤트 전달 -> 워크북에서 대시보드 편집 화면으로 이동시킴
-      this.broadCaster.broadcast(
-        'MOVE_EDIT_WIDGET',
-        {
-          cmd: 'MODIFY',
-          id: this.widget.id,
-          type: this.widget.type.toUpperCase()
-        }
-      );
+    if( this.isMissingDataSource ) {
+      Alert.warning( this.translateService.instant('msg.board.alert.can-not-edit-missing-datasource') );
+      return;
     }
+    // workbook.component 로 이벤트 전달 -> 워크북에서 대시보드 편집 화면으로 이동시킴
+    this.broadCaster.broadcast(
+      'MOVE_EDIT_WIDGET',
+      {
+        cmd: 'MODIFY',
+        id: this.widget.id,
+        type: this.widget.type.toUpperCase()
+      }
+    );
   } // function - editWidget
 
   /**
@@ -123,6 +130,30 @@ export abstract class AbstractWidgetComponent extends AbstractComponent implemen
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 에러 표시
+   * @param {{show:boolean, code:string, details:string}} error
+   */
+  protected _showError(error: { show?: boolean, code?: string, details?: string }) {
+    if( this.isEditMode ) {
+      this.commonExceptionHandler(error);
+    } else {
+      (isNullOrUndefined(error)) && (error = {});
+      error.show = false;
+      this.errorInfo = error;
+    }
+    this.isError = true;
+
+  } // function - _showError
+
+  /**
+   * 에러 숨김
+   */
+  protected _hideError() {
+    this.errorInfo = undefined;
+    this.isError = false;
+  } // function - _hideError
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

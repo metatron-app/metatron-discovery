@@ -692,7 +692,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   protected commonExceptionHandler(err: any, errMessage?: string) {
     console.error(err);
     const url: string = this.router.url;
-    if (-1 < url.indexOf('/management') || -1 < url.indexOf('/admin')) {
+    if (-1 < url.indexOf('/management') || -1 < url.indexOf('/admin') || -1 < url.indexOf('/workbook')) {
       Alert.errorDetail(err.message, err.details);
     } else {
       if (err && err.details) {

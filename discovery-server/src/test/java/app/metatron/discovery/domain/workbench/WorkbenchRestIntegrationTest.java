@@ -14,32 +14,44 @@
 
 package app.metatron.discovery.domain.workbench;
 
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.domain.workspace.folder.Folder;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hive.jdbc.HiveDriver;
 import org.apache.http.HttpStatus;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.util.Assert;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.workspace.folder.Folder;
-
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * Created by kyungtaak on 2016. 11. 29..
@@ -47,6 +59,9 @@ import static com.jayway.restassured.path.json.JsonPath.from;
 @TestExecutionListeners(value = OAuthTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Sql({"/sql/workbench.sql"})
 public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
+
+  @Autowired
+  WorkbenchProperties workbenchProperties;
 
   @Before
   public void setUp() {
@@ -471,5 +486,75 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
     // @formatter:on
   }
 
+  @Test
+  @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK"})
+  public void importFileToPersonalDatabase_when_csv_file() throws IOException {
+    // given
+    final String webSocketId = "test-ws";
+    final String fileName = "product_sales.csv";
+    final String hdfsConfPath = "/tmp/hdfs-conf";
+    Files.copy(Paths.get(getClass().getClassLoader().getResource(fileName).getPath()),
+        Paths.get(String.format("%s/%s", workbenchProperties.getTempCSVPath(), fileName)), REPLACE_EXISTING);
 
+    final String loginUserId = "polaris";
+
+    HiveConnection hiveConnection = new HiveConnection();
+    hiveConnection.setUsername("read_only");
+    hiveConnection.setPassword("1111");
+    hiveConnection.setHostname("localhost");
+    hiveConnection.setPort(10000);
+    hiveConnection.setProperties("{" +
+        "  \"metatron.hdfs.conf.path\": \"" + hdfsConfPath + "\"," +
+        "  \"metatron.hive.admin.name\": \"hive_admin\"," +
+        "  \"metatron.hive.admin.password\": \"1111\"," +
+        "  \"metatron.personal.database.prefix\": \"private\"" +
+        "}");
+    WorkbenchDataSourceUtils.createDataSourceInfo(hiveConnection, webSocketId, hiveConnection.getUsername(), hiveConnection.getPassword(), false);
+
+    cleanUpHivePersonalDatabaseTestFixture(hiveConnection, loginUserId);
+
+    // REST when, then
+    final String workbenchId = "workbench-05";
+    final String requestBody = "{" +
+        "  \"type\": \"csv\"," +
+        "  \"tableName\": \"product_sales_2018\"," +
+        "  \"firstRowHeadColumnUsed\": true," +
+        "  \"uploadedFile\": \"" + fileName + "\"," +
+        "  \"loginUserId\": \"" + loginUserId + "\"," +
+        "  \"webSocketId\": \"" + webSocketId + "\"" +
+        "}";
+
+    given()
+        .auth().oauth2(oauth_token)
+        .contentType(ContentType.JSON)
+        .body(requestBody)
+    .when()
+        .post("/api/workbenchs/{id}/import", workbenchId)
+    .then()
+        .log().all()
+        .statusCode(HttpStatus.SC_NO_CONTENT);
+  }
+
+  private void cleanUpHivePersonalDatabaseTestFixture(HiveConnection hiveConnection, String loginUserId) {
+    final String URL = String.format("jdbc:hive2://%s:%s", hiveConnection.getHostname(), hiveConnection.getPort());
+
+    Connection conn = null;
+    try{
+      Class.forName(HiveDriver.class.getName());
+      conn = DriverManager.getConnection(URL,
+          hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_ADMIN_NAME),
+          hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_ADMIN_PASSWORD));
+
+      StringBuffer script = new StringBuffer();
+      script.append(String.format("DROP DATABASE IF EXISTS %s_%s CASCADE;",
+          hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX),
+          loginUserId));
+
+      ScriptUtils.executeSqlScript(conn, new InputStreamResource(new ByteArrayInputStream(script.toString().getBytes())));
+    } catch(Exception e){
+      e.printStackTrace();
+    } finally{
+      JdbcUtils.closeConnection(conn);
+    }
+  }
 }

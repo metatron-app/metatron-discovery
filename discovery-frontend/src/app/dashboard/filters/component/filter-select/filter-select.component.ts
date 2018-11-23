@@ -78,7 +78,7 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
   public isUpSelect = false;
   // 어디에서 사용하는지 여부 기본은 필터 패널
   @Input()
-  public viewType = 'panel';
+  public viewType = 'widget';
 
   // 모형 모드 ( 기능은 동작하지 않고, 형태만 표시한다 )
   @Input('mockup')
@@ -245,7 +245,7 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
       const $dropboxTop = $ddpOffSetEl.offset();
       const $dropboxWidth = $ddpOffSetEl.width();
       $ddpOffSetEl.find('.ddp-drop').css({
-        top : $dropboxTop.top + 28 ,
+        top : $dropboxTop.top,
         left : $dropboxTop.left ,
         width : $dropboxWidth
       });

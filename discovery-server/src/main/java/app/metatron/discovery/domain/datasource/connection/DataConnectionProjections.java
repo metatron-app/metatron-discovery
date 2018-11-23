@@ -73,6 +73,9 @@ public class DataConnectionProjections {
 
     @Value("#{target instanceof T(app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection) ? target.getPropertiesMap() : null}")
     Object getProperties();
+
+    @Value("#{target instanceof T(app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection) ? target.supportSaveAsHiveTable : null}")
+    Boolean isSupportSaveAsHiveTable();
   }
 
   @Projection(name = "forSimpleListView", types = { DataConnection.class })
