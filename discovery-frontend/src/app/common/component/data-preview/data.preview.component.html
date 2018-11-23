@@ -386,7 +386,7 @@
                       {{'msg.metadata.th.physical.role' | translate}}
                     </th>
                     <td>
-                      <span class="ddp-box-tag-value {{getFieldRoleTypeIconClass(selectedField.role.toString())}}">{{(selectedField.role === 'MEASURE' ? 'msg.comm.name.mea' : 'msg.comm.name.dim') | translate}}</span>
+                      <span class="ddp-box-tag-value {{getFieldRoleTypeIconClass(selectedField.role.toString())}}">{{(selectedField.role.toString() === 'MEASURE' ? 'msg.comm.name.mea' : 'msg.comm.name.dim') | translate}}</span>
                     </td>
                   </tr>
                   <!-- //physical role -->
@@ -653,7 +653,7 @@
               </div>
               <!-- //statistic -->
               <!-- value list -->
-              <div class="ddp-ui-detail ddp-clear " *ngIf="!selectedField.role === 'DIMENSION' && selectedField.logicalType.toString() !== 'TIMESTAMP'">
+              <div class="ddp-ui-detail ddp-clear " *ngIf="!selectedField.role.toString() === 'DIMENSION' && selectedField.logicalType.toString() !== 'TIMESTAMP'">
                 <!-- col -->
                 <div class="ddp-col-12">
                   <div class="ddp-ui-title">
@@ -682,7 +682,7 @@
             </ng-container>
             <!-- //not LINKED source -->
             <!-- table detail -->
-            <div class="ddp-wrap-table-detail" [style.display]="!isLinkedTypeSource(selectedSource) && (selectedField.role === 'MEASURE' || selectedField.logicalType.toString() === 'TIMESTAMP') ? 'block' : 'none'">
+            <div class="ddp-wrap-table-detail" [style.display]="!isLinkedTypeSource(selectedSource) && (selectedField.role.toString() === 'MEASURE' || selectedField.logicalType.toString() === 'TIMESTAMP') ? 'block' : 'none'">
               <!-- histogram -->
               <label class="ddp-label-detail">{{'msg.storage.ui.dsource.preview.histogram' | translate}}</label>
               <div class="ddp-ui-detail-in">
