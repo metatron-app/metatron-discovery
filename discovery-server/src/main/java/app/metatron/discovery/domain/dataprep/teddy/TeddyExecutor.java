@@ -19,7 +19,11 @@ import app.metatron.discovery.domain.dataprep.PrepSnapshot;
 import app.metatron.discovery.domain.dataprep.PrepSnapshot.COMPRESSION;
 import app.metatron.discovery.domain.dataprep.PrepSnapshot.FORMAT;
 import app.metatron.discovery.domain.dataprep.PrepSnapshotService;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.jdbc.JdbcDataPrepService;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedException;
@@ -31,6 +35,7 @@ import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -192,6 +197,40 @@ public class TeddyExecutor {
     return result;
   }
 
+  private int writeCsv(String strUri, DataFrame df, String ssId) {
+    CSVPrinter printer = PrepCsvUtil.getPrinter(strUri, conf);
+    String errmsg = null;
+
+    try {
+      for(int colno=0; colno < df.getColCnt(); colno++) {
+        printer.print(df.getColName(colno));
+      }
+      printer.println();
+
+      for (int rowno = 0; rowno < df.rows.size(); cancelCheck(ssId, ++rowno)) {
+        Row row = df.rows.get(rowno);
+        for (int colno = 0; colno < df.getColCnt(); ++colno) {
+          printer.print(row.get(colno));
+        }
+        printer.println();
+      }
+    } catch (IOException e) {
+      errmsg = e.getMessage();
+    }
+
+    try {
+      printer.close(true);
+    } catch (IOException e) {
+      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_CSV, e.getMessage());
+    }
+
+    if (errmsg != null) {
+      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV, errmsg);
+    }
+
+    return df.rows.size();
+  }
+
   private Future<String> createFileSnapshot(String[] argv) throws Throwable {
     LOGGER.info("createFileSnapshot(): started");
 
@@ -206,33 +245,35 @@ public class TeddyExecutor {
 
     updateAsWriting(ssId);
 
-    String ssDir = (String) snapshotInfo.get("fileUri");
-    if(null==ssDir) {
+    DataFrame df = cache.get(masterFullDsId);
+
+    String fileUri = (String) snapshotInfo.get("fileUri");
+    if(fileUri == null) {
       String localBaseDir = (String) snapshotInfo.get("localBaseDir");
       String ssName = (String) snapshotInfo.get("ssName");
-      ssDir = this.snapshotService.getSnapshotDir(localBaseDir, ssName);
-    }
-    ssDir = this.snapshotService.escapeSsNameOfUri(ssDir);
-    Files.createDirectories(Paths.get(ssDir));
+      fileUri = this.snapshotService.getSnapshotDir(localBaseDir, ssName);
+      fileUri = this.snapshotService.escapeSsNameOfUri(fileUri);
+      Files.createDirectories(Paths.get(fileUri));
 
-    DataFrame df = cache.get(masterFullDsId);
-    String filePath = Paths.get(ssDir, "part-00000-" + masterTeddyDsId + ".csv").toString();
-    BufferedWriter br = new BufferedWriter(new FileWriter(filePath));
-    int totalLines = writeCsv(ssId, df, br, df.colNames);
+      fileUri = fileUri.replace(" ",  "%20");
+    }
+    String fullPath = fileUri + "/part-00000-" + masterTeddyDsId + ".csv";
+    String strUri = "file://" + fullPath;
+
+    writeCsv(strUri, df, ssId);
 
     // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
     for (String fullDsId : reverseMap.keySet()) {
       cache.remove(fullDsId);
     }
 
-    ssDir = this.snapshotService.unescapeSsNameOfUri(ssDir);
-    updateSnapshot("uri", ssDir, ssId);   // 필드명은 uri지만, local full path가 들어간다.
+    updateSnapshot("uri", fileUri, ssId);   // 필드명은 uri지만, local full path가 들어간다.
 
-    LOGGER.info("createFileSnapshot() finished: totalLines={}", totalLines);
+    LOGGER.info("createFileSnapshot() finished: totalLines={}", df.rows.size());
 
     DateTime finishTime = DateTime.now(DateTimeZone.UTC);
     updateSnapshot("finishTime", finishTime.toString(), ssId);
-    updateSnapshot("totalLines", String.valueOf(totalLines), ssId);
+    updateSnapshot("totalLines", String.valueOf(df.rows.size()), ssId);
     updateAsSucceeded(ssId);
 
     return new AsyncResult<>("Success");
@@ -271,13 +312,18 @@ public class TeddyExecutor {
     }
 
     Path file = new Path(ssDir.toString() + File.separator + "part-00000-" + ssId + ".csv"); // masterTeddyDsId 대신 ssId를 쓰고 있었음
-    OutputStream os = fs.create(file);
-    BufferedWriter br = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-
-    LOGGER.info("createHdfsSnapshot() path={}", file.toString());
+//    OutputStream os = fs.create(file);
+//    BufferedWriter br = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+//
+//    LOGGER.info("createHdfsSnapshot() path={}", file.toString());
 
     DataFrame df = cache.get(masterFullDsId);
-    int totalLines = writeCsv(ssId, df, br, df.colNames);
+//    int totalLines = writeCsv(ssId, df, br, df.colNames);
+
+    String strUri = ssUri + File.separator + "part-00000-" + ssId + ".csv";
+
+    LOGGER.info("createHdfsSnapshot() strUri={}", strUri);
+    int totalLines = writeCsv(strUri, df, ssId);
 
     // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
     for (String fullDsId : reverseMap.keySet()) {
@@ -483,9 +529,19 @@ public class TeddyExecutor {
 
     LOGGER.info(String.format("loadCsvFile(): dsId=%s filePath=%s delemiter=%s", dsId, filePath, delimiter));
 
-    List<String[]> grid = Util.loadGridLocalCsv(filePath, delimiter, limitRows, conf, null);
+//    List<String[]> grid = Util.loadGridLocalCsv(filePath, delimiter, limitRows, conf, null);
     //List<String[]> grid = Util.loadGridLocalCsv(filePath, delimiter, limitRows);
-    df.setByGrid(grid, null);
+//    df.setByGrid(grid, null);
+
+    String strUri;
+    if (filePath.startsWith("hdfs://")) {
+      strUri = filePath;
+    } else {
+      strUri = "file://" + filePath;
+    }
+
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, conf, false);
+    df.setByGrid(result);
 
     LOGGER.info("loadCsvFile(): done");
     cache.put(dsId, df);
@@ -607,18 +663,18 @@ public class TeddyExecutor {
         // 아래 방법으로 table을 만들면 quote 문자를 지정하지 못한다.
         // 내용 중간에 comma가 있는 경우 다음 컬럼으로 인식된다.
         // 대신 type이 모두 string이 되는 현상은 없다.
-        //createTable.append(String.format(" ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '%s'", location));
+        createTable.append(String.format(" ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '%s'", location));
 
         // 아래 방법으로 table을 만들면 quote 문자를 지정할 수 있다.
         // 하지만 모든 컬럼이 string이 된다.
-        String quote = "\"";
-        String slash = "\\";
-        createTable.append(" ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde' ");
-        createTable.append("WITH SERDEPROPERTIES (");
-        createTable.append(String.format("%sseparatorChar%s = %s%s,%s, ", quote, quote, quote, slash, quote));        // "separatorChar" = "\,",
-        createTable.append(String.format("%squoteChar%s     = %s%s%s%s", quote, quote, quote, slash, quote, quote));  // "quoteChar"     = "\""
-        createTable.append(")");
-        createTable.append(String.format(" STORED AS TEXTFILE LOCATION '%s'", location));
+//        String quote = "\"";
+//        String slash = "\\";
+//        createTable.append(" ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde' ");
+//        createTable.append("WITH SERDEPROPERTIES (");
+//        createTable.append(String.format("%sseparatorChar%s = %s%s,%s, ", quote, quote, quote, slash, quote));        // "separatorChar" = "\,",
+//        createTable.append(String.format("%squoteChar%s     = %s%s%s%s", quote, quote, quote, slash, quote, quote));  // "quoteChar"     = "\""
+//        createTable.append(")");
+//        createTable.append(String.format(" STORED AS TEXTFILE LOCATION '%s'", location));
         break;
       case ORC:
         createTable.append(String.format(" STORED AS ORC LOCATION '%s' TBLPROPERTIES (\"orc.compress\"=\"%s\")", location, compression.name()));
@@ -717,9 +773,12 @@ public class TeddyExecutor {
     switch (format) {
       case CSV:
         Path file = new Path(dir.toString() + File.separator + "part-00000-" + dsId + ".csv");
-        OutputStream os = fs.create(file);
-        BufferedWriter br = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-        rowCnt[0] = writeCsv(ssId, df, br, null);
+//        OutputStream os = fs.create(file);
+//        BufferedWriter br = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+//        rowCnt[0] = writeCsv(ssId, df, br, null);
+
+        String strUri = dir.toString() + File.separator + "part-00000-" + dsId + ".csv";
+        rowCnt[0] = writeCsv(strUri, df, ssId);
         break;
       case ORC:
         df.lowerColNames();

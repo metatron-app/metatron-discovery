@@ -12,14 +12,40 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.datasource.ingestion;
+package app.metatron.discovery.query.druid.aggregations;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-@JsonTypeName("discard")
-public class DiscardRule implements IngestionRule {
+import app.metatron.discovery.query.druid.Aggregation;
 
-  public DiscardRule() {
+@JsonTypeName("count")
+public class RelayAggregation implements Aggregation {
+
+  String name;
+
+  String typeName;
+
+  public RelayAggregation() {
   }
 
+  public RelayAggregation(String name, String typeName) {
+    this.name = name;
+    this.typeName = typeName;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getTypeName() {
+    return typeName;
+  }
+
+  public void setTypeName(String typeName) {
+    this.typeName = typeName;
+  }
 }

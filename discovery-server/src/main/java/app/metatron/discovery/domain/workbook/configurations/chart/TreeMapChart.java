@@ -39,8 +39,9 @@ public class TreeMapChart extends Chart {
                       @JsonProperty("chartZooms") List<ChartZoom> chartZooms,
                       @JsonProperty("fontSize") String fontSize,
                       @JsonProperty("dataLabel") ChartDataLabel dataLabel,
-                      @JsonProperty("toolTip") ChartToolTip toolTip) {
-    super(color, valueFormat, null, chartZooms, fontSize, dataLabel, toolTip);
+                      @JsonProperty("toolTip") ChartToolTip toolTip,
+                      @JsonProperty("limit") Integer limit) {
+    super(color, valueFormat, null, chartZooms, fontSize, dataLabel, toolTip, limit);
   }
 
   @Override

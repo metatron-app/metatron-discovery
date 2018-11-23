@@ -92,6 +92,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
         Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
         this.loadingHide();
       } else{
+        this.uploader.setOptions({ additionalParameter: { dest: 'LOCAL'}});
         this.uploader.uploadAll();
       }
     };

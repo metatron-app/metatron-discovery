@@ -296,7 +296,12 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
       if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
         this.name = `${fileName} - ${this.datasetFile.sheetname} (EXCEL)`;
+      } else if(extension.toUpperCase() === 'JSON') {
+        this.name = `${fileName} (JSON)`;
       } else if(extension.toUpperCase() === 'CSV') {
+        this.name = `${fileName} (CSV)`;
+      } else {
+        // 불명의 확장자는 CSV로 간주함
         this.name = `${fileName} (CSV)`;
       }
     } else if ('DB' === type) {

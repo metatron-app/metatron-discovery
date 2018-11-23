@@ -16,11 +16,15 @@ package app.metatron.discovery.domain.dataprep.transform;
 
 import app.metatron.discovery.domain.dataprep.PrepHdfsService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.jdbc.JdbcDataPrepService;
-import app.metatron.discovery.domain.dataprep.teddy.*;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
+import app.metatron.discovery.domain.dataprep.teddy.Revision;
+import app.metatron.discovery.domain.dataprep.teddy.RevisionSet;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
@@ -29,7 +33,6 @@ import com.facebook.presto.jdbc.internal.guava.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -140,7 +143,7 @@ public class TeddyImpl {
   }
 
   // APPEND *AFTER* stageIdx
-  public DataFrame append(String dsId, int stageIdx, String ruleString, boolean forced) throws TeddyException {
+  public DataFrame append(String dsId, int stageIdx, String ruleString, boolean forced) {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
     Revision newRev = new Revision(rev, stageIdx + 1);
     DataFrame newDf = null;
@@ -150,9 +153,10 @@ public class TeddyImpl {
       newDf = apply(rev.get(stageIdx), ruleString);
     } catch (TeddyException te) {
       if (forced == false) {
-        throw te;
+        throw PrepException.fromTeddyException(te);   // RuntimeException
       }
       suppressed = true;
+      LOGGER.info("append(): TeddyException is suppressed: {}", te.getMessage());
     }
 
     if (suppressed) {
@@ -246,7 +250,8 @@ public class TeddyImpl {
 
   public DataFrame loadFileDataset(String dsId, String targetUrl, String delimiter, String dsName) {
     DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
-    df.setByGrid(Util.loadGridLocalCsv( targetUrl, delimiter, prepProperties.getSamplingLimitRows(), this.hdfsService.getConf(), null ), null);
+    String strUri = targetUrl.startsWith("hdfs") ? targetUrl : "file://" + targetUrl;
+    df.setByGrid(PrepCsvUtil.parse(strUri, delimiter, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
 
     return createStage0(dsId, df);
   }

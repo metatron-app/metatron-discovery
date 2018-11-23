@@ -12,13 +12,15 @@
  * limitations under the License.
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren} from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { Filter } from '../../../../../../domain/workbook/configurations/filter/filter';
 import {PreparationCommonUtil} from "../../../../../util/preparation-common.util";
+import {RuleConditionInputComponent} from "./rule-condition-input.component";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'edit-rule-aggregate',
@@ -28,7 +30,8 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
+  @ViewChildren(RuleConditionInputComponent)
+  private ruleConditionInputComponent : RuleConditionInputComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -91,7 +94,7 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
       Alert.warning(this.translateService.instant('msg.dp.alert.enter.groupby'));
       return undefined;
     }
-    const columnsStr: string = this.selectedFields.map((item) => {
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
       if (-1 !== item.name.indexOf(' ')) {
         item.name = '`' + item.name + '`';
       }
@@ -105,7 +108,10 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
     }
 
     const validFormulaList:string[] = [];
-    const invalidFormula:boolean = this.formulaList.some( formula => {
+    const invalidFormula:boolean = this.formulaList.some( (formula, index) => {
+
+      formula = this.ruleConditionInputComponent['_results'][index].getCondition();
+
       if( StringUtil.checkSingleQuote(formula, { isWrapQuote: false, isAllowBlank: false })[0] ) {
         if( StringUtil.checkFormula( formula ) ) {
           validFormulaList.push( '\'' + formula + '\'' );

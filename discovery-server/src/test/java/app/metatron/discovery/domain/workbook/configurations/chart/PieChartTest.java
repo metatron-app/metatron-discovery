@@ -16,18 +16,14 @@ package app.metatron.discovery.domain.workbook.configurations.chart;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-
 import app.metatron.discovery.common.GlobalObjectMapper;
 
 /**
- * Created by kyungtaak on 2016. 4. 18..
+ * Pie chart spec. Test
  */
 public class PieChartTest extends ChartTest {
 
@@ -39,8 +35,9 @@ public class PieChartTest extends ChartTest {
   public void de_serialize() throws JsonProcessingException {
 
     PieChart chart = new PieChart(colorByMeasureForSection(), null, new ChartLegend(), null, fontLargerSize(), null, null,
-                                    PieChart.MarkType.SECTOR.name(),
-                                    PieChart.SplitLayout.HORIZONTAL.name(), 10);
+                                  500,
+                                  PieChart.MarkType.SECTOR.name(),
+                                  PieChart.SplitLayout.HORIZONTAL.name(), 10);
 
 
     String chartStr = GlobalObjectMapper.getDefaultMapper().writeValueAsString(chart);
@@ -53,7 +50,7 @@ public class PieChartTest extends ChartTest {
     Assert.assertEquals(chart.getSplitLayout(), deSerialized.getSplitLayout());
     Assert.assertEquals(chart.getMaxCategory(), deSerialized.getMaxCategory());
 
-//    System.out.println("Result : " + deSerialized.toString());
+    System.out.println("Result : " + deSerialized.toString());
 
   }
 

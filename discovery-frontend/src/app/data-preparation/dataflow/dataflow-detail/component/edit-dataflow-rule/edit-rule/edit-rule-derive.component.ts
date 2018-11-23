@@ -138,11 +138,11 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 수식 입력 팝업 오픈
-   * @param {string} command 수식 입력 실행 커맨드
+`   * Open advanced editor popup
    */
-  public openPopupFormulaInput(command: string) {
-    this.advancedEditorClickEvent.emit();
+  public openPopupFormulaInput() {
+    this.deriveVal = this.ruleConditionInputComponent.getCondition();
+    this.advancedEditorClickEvent.emit({command :'derive', val : 'deriveVal' });
   } // function - openPopupFormulaInput
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

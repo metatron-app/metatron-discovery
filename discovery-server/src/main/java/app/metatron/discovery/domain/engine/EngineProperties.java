@@ -3,6 +3,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -22,6 +36,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -102,6 +117,15 @@ public class EngineProperties {
 
   public EngineApi getCancelQueryApi() {
     return api.get(CANCEL_QUERY);
+  }
+
+  public String getHostnameByType(String type, boolean exceptSchema) {
+    if(exceptSchema) {
+      URI uri = URI.create(hostname.get(type));
+      return uri.getHost() + ":" + uri.getPort();
+    }
+
+    return hostname.get(type);
   }
 
   public Map<String, String> getHostname() {

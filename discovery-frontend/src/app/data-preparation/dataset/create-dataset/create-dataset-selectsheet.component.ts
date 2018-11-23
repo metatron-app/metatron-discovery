@@ -19,7 +19,7 @@ import {
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
-import { DatasetFile } from '../../../domain/data-preparation/dataset';
+import { DatasetFile, FileType } from '../../../domain/data-preparation/dataset';
 import { Alert } from '../../../common/util/alert.util';
 import { DatasetService } from '../service/dataset.service';
 import { FileLikeObject, FileUploader } from 'ng2-file-upload';
@@ -72,6 +72,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
   // 파일 업로드
   public uploader: FileUploader;
+
+  public uploadLocation: string = 'LOCAL';
+  public uploadLocationList: any;
 
   // 파일 업로드 결과
   public uploadResult;
@@ -129,6 +132,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
         this.loadingHide();
       } else{
+        this.uploader.setOptions({ additionalParameter: { dest: `${this.uploadLocation}`}});
         this.uploader.uploadAll();
       }
     };
@@ -205,6 +209,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       this.getDataFile();
     }
 
+    this.setUploadLcationList();
   }
 
 
@@ -395,7 +400,28 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     });
   }
 
+  public setUploadLcationList(){
+    this.uploadLocationList = [{ name:'Local', value:'LOCAL' }, { name: 'HDFS', value: 'HDFS'}];
+    this.datasetFile.fileType = FileType.LOCAL;
+  }
 
+  public onChangeUploadLocation($event: any) {
+    if($event.hasOwnProperty('name') && $event.hasOwnProperty('value')) {
+      this.uploadLocation = $event['value'];
+
+      this.uploader.setOptions({ additionalParameter: { dest: `${this.uploadLocation}`}});
+
+      switch(this.uploadLocation ) {
+        case 'HDFS':
+          this.datasetFile.fileType = FileType.HDFS;
+          break;
+        case 'LOCAL':
+        default:
+          this.datasetFile.fileType = FileType.LOCAL;
+          break;
+      }
+    }
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -492,6 +518,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       if (result.grids.length > 0) {
         this.clearGrid = false;
         this.gridInfo = result.grids;
+        this.datasetFile.sheetname = this.gridInfo[this.defaultSheetIndex].sheetName;
         this.updateGrid(this.gridInfo[this.defaultSheetIndex].data , this.gridInfo[this.defaultSheetIndex].fields);
       } else {
         this.gridInfo = [];

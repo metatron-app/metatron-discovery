@@ -45,6 +45,7 @@ export class ScrollLoadingGridModel {
   // events
   public onDataLoading = new Slick.Event();
   public onDataLoaded = new Slick.Event();
+  public onMoreDataComplete = new Slick.Event();
 
   /**
    * 데이터 조회
@@ -114,6 +115,74 @@ export class ScrollLoadingGridModel {
     }
 
   }
+
+  /**
+   *  pageInfo
+   */
+  public getPageInfo(): any {
+    const pageInfo:any = {};
+    let lastPageNumber: number = Math.floor(this.totalRowCnt / this._pageSize) - 1;
+    if(this.totalRowCnt % this._pageSize !== 0) lastPageNumber = lastPageNumber + 1;
+    // lastPageNumber =  lastPageNumber - 1;
+
+    pageInfo.currentPage = this._currentPage;
+    pageInfo.totalRowCnt =  this.totalRowCnt;
+    pageInfo.lastPage = false;
+    if(lastPageNumber <= this._currentPage){pageInfo.lastPage = true;}
+    pageInfo.lastPageNumber = lastPageNumber;
+    pageInfo.pageSize = this._pageSize;
+    pageInfo.ruleIndex = this.ruleIndex;
+    pageInfo.length = this.data.length;
+    return pageInfo;
+  }
+
+  /**
+   *  setExternalData
+   */
+  public setExternalData(data:any, currentPage:number): void {
+    const result = this.loadSuccess(data);
+    if (result) {
+      this.totalRowCnt = data.totalRowCnt;
+      let currLength: number = this.data.length;
+
+      // 검색을 위한 원본 데이터 목록 저장
+      this._orgData = this._orgData.concat(result);
+
+      this._filteringData(result)
+        .forEach((item: any, idx: number) => {
+          // 아이디 중복나지 않도록 처리
+          item[ScrollLoadingGridComponent.ID_PROPERTY] = currLength + idx + 1;
+          this.data[currLength + idx] = item;
+          this.data.length = this.data.length + 1;
+        });
+      this._currentPage = currentPage;
+    }
+    this._isLoadingData = false;
+  }
+
+  /**
+   *  검색 이전 단계로 초기화 Reset
+   */
+  public searchProcessReset(): void {
+    if (0 < this._orgData.length) {
+      this._searchText = '';
+      this.data =
+        this._filteringData(this._orgData)
+          .reduce((acc, currVal, currIndex) => {
+            currVal[ScrollLoadingGridComponent.ID_PROPERTY] = currIndex + 1;
+            acc[currIndex] = currVal;
+            acc.length = acc.length + 1;
+            return acc;
+          }, { length: 0 });
+
+      this.onDataLoaded.notify({ from: 0, to: this.data.length });
+    }
+
+  }
+
+
+
+
 
 
   /**
@@ -193,6 +262,7 @@ export class ScrollLoadingGridModel {
 
           }
           this.onDataLoaded.notify({ from: startIdx, to: (startIdx + this._pageSize) });
+          this.onMoreDataComplete.notify('complete');
           this._isLoadingData = false;
         })
         .catch((error) => {

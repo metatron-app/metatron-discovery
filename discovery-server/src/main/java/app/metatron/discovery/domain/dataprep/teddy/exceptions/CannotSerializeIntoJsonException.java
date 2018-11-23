@@ -12,31 +12,10 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.datasource.ingestion;
+package app.metatron.discovery.domain.dataprep.teddy.exceptions;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
-
-@JsonTypeName("replace")
-public class ReplaceRule implements IngestionRule {
-
-  /**
-   * 치환할 기본값
-   *
-   */
-  Object value;
-
-  public ReplaceRule() {
-  }
-
-  public ReplaceRule(Object value) {
-    this.value = value;
-  }
-
-  public Object getValue() {
-    return value;
-  }
-
-  public void setValue(Object value) {
-    this.value = value;
+public class CannotSerializeIntoJsonException extends TeddyException {
+  public CannotSerializeIntoJsonException(String message) {
+    super(message);
   }
 }

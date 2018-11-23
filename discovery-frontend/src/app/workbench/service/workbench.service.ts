@@ -211,15 +211,12 @@ export class WorkbenchService extends AbstractService {
       connInfo.password = connection.password;
     }
     connInfo.authenticationType = connection.authenticationType;
-    connInfo.database = connection.database;
-    connInfo.id = connection.id;
+    connInfo.database = connection.connectionDatabase;
     connInfo.implementor = connection.implementor;
     connInfo.name = connection.name;
-    connInfo.published = connection.published;
     connInfo.type = connection.type;
     connInfo.catalog = connection.catalog;
     connInfo.table = table;
-    connInfo.linkedWorkspaces = connection.linkedWorkspaces;
     connInfo.url = connection.url;
 
     params.connection = connInfo;
@@ -228,6 +225,10 @@ export class WorkbenchService extends AbstractService {
     params.query = table;
 
     return this.post(this.API_URL + 'connections/query/data', params);
+  }
+
+  public importFile(workbenchId: string, params: any) {
+    return this.post(this.API_URL + `workbenchs/${workbenchId}/import`, params);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

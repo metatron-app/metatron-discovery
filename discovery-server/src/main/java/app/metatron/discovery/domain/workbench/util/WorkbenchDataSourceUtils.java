@@ -14,6 +14,9 @@
 
 package app.metatron.discovery.domain.workbench.util;
 
+import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnectionException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -27,10 +30,7 @@ import org.springframework.util.Assert;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnectionException;
+import java.util.Properties;
 
 /**
  * The type Work bench data source utils.
@@ -109,9 +109,36 @@ public class WorkbenchDataSourceUtils {
         e.printStackTrace();
       }
     }
+
+    Properties properties = new Properties();
+    properties.setProperty("user", username);
+    properties.setProperty("password", password);
+
+    //ad native properties
+    if(connection.getPropertiesMap() != null){
+      for(String propertyKey : connection.getPropertiesMap().keySet()){
+        if(StringUtils.startsWith(propertyKey, JdbcDataConnection.JDBC_PROPERTY_PREFIX)){
+          String nativePropertyKey = StringUtils.replaceFirst(propertyKey, JdbcDataConnection.JDBC_PROPERTY_PREFIX, "");
+          properties.setProperty(nativePropertyKey, connection.getPropertiesMap().get(propertyKey));
+        }
+      }
+    }
+
     ds = new SingleConnectionDataSource(connUrl, username, password, true);
+    ds.setConnectionProperties(properties);
 
     WorkbenchDataSource dataSourceInfo = new WorkbenchDataSource(connection.getId(), webSocketId, ds);
+
+    if(connection instanceof HiveConnection && ((HiveConnection) connection).isSupportSaveAsHiveTable()) {
+      HiveConnection hiveConnection = (HiveConnection)connection;
+
+      String hiveAdminUserName = hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_ADMIN_NAME);
+      String hiveAdminUserPassword = hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_ADMIN_PASSWORD);
+
+      dataSourceInfo.setSecondarySingleConnectionDataSource(
+          new SingleConnectionDataSource(connUrl, hiveAdminUserName, hiveAdminUserPassword, true)
+      );
+    }
     pooledDataSourceList.put(webSocketId, dataSourceInfo);
     LOGGER.debug("Created datasource : {}", connUrl);
     return dataSourceInfo;

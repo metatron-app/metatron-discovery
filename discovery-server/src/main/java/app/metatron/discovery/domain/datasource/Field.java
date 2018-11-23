@@ -3,6 +3,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -52,7 +66,7 @@ import app.metatron.discovery.common.entity.Spec;
 import app.metatron.discovery.domain.CollectionPatch;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionRule;
+import app.metatron.discovery.domain.datasource.ingestion.rule.IngestionRule;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
@@ -68,6 +82,7 @@ import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericMinAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
 import app.metatron.discovery.query.druid.aggregations.RangeAggregation;
+import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
 import app.metatron.discovery.query.druid.aggregations.VarianceAggregation;
 import app.metatron.discovery.spec.druid.ingestion.parser.TimestampSpec;
 import app.metatron.discovery.util.TimeUnits;
@@ -191,6 +206,22 @@ public class Field implements MetatronDomain<Long> {
   private Long seq;
 
   /**
+   * Whether to derived field (not physical field)
+   */
+  @Column(name = "field_derived")
+  private Boolean derived;
+
+  /**
+   * Derivation rule
+   */
+  @Column(name = "field_derivation_rule", length = 65535, columnDefinition = "TEXT")
+  @Basic(fetch = FetchType.LAZY)
+  @Spec(target = IngestionRule.class)
+  @JsonRawValue
+  @JsonDeserialize(using = KeepAsJsonDeserialzier.class)
+  private String derivationRule;
+
+  /**
    * Ingestion rule (Discard or Set Default Value)
    */
   @Column(name = "field_ingestion_rule", length = 65535, columnDefinition = "TEXT")
@@ -225,13 +256,6 @@ public class Field implements MetatronDomain<Long> {
 
   @Transient
   private String originalType;
-
-  /**
-   * deprecated
-   */
-  @Transient
-  @JsonProperty
-  private Boolean removed;
 
   public Field() {
     // Empty Constructor
@@ -293,7 +317,11 @@ public class Field implements MetatronDomain<Long> {
    * Ingestion spec. 처리시 확인 할 것
    */
   @JsonIgnore
-  public Aggregation getAggregation() {
+  public Aggregation getAggregation(boolean isRelay) {
+
+    if(isRelay) {
+      return new RelayAggregation(name,type.toEngineType());
+    }
 
     if (aggrType == null) {
       return new GenericSumAggregation(name, name, "double");
@@ -318,6 +346,14 @@ public class Field implements MetatronDomain<Long> {
       default:
         return new GenericSumAggregation(name, name, "double");
     }
+  }
+
+  @JsonIgnore
+  public boolean isGeoType() {
+    LogicalType logicalType = getLogicalType();
+    return logicalType == LogicalType.GEO_POINT
+        || logicalType == LogicalType.GEO_LINE
+        || logicalType == LogicalType.GEO_POLYGON;
   }
 
   public void setColumnType(JdbcDataConnection connection, String columnType) {
@@ -426,6 +462,11 @@ public class Field implements MetatronDomain<Long> {
     return timestampSpec;
   }
 
+  @JsonIgnore
+  public boolean isNotPhysicalField() {
+    return BooleanUtils.isTrue(derived) || BooleanUtils.isTrue(unloaded);
+  }
+
   public Long getId() {
     return id;
   }
@@ -513,6 +554,19 @@ public class Field implements MetatronDomain<Long> {
     this.alias = alias;
   }
 
+  @JsonIgnore
+  public IngestionRule getDerivationRuleObject() {
+    return GlobalObjectMapper.readValue(derivationRule, IngestionRule.class);
+  }
+
+  public String getDerivationRule() {
+    return derivationRule;
+  }
+
+  public void setDerivationRule(String derivationRule) {
+    this.derivationRule = derivationRule;
+  }
+
   public String getIngestionRule() {
     return ingestionRule;
   }
@@ -557,9 +611,6 @@ public class Field implements MetatronDomain<Long> {
   }
 
   public Boolean getUnloaded() {
-    if(unloaded == null) {
-      return BooleanUtils.isTrue(removed);
-    }
     return unloaded;
   }
 
@@ -616,6 +667,14 @@ public class Field implements MetatronDomain<Long> {
     this.mappedField = mappedField;
   }
 
+  public Boolean getDerived() {
+    return derived;
+  }
+
+  public void setDerived(Boolean derived) {
+    this.derived = derived;
+  }
+
   public String getOriginalName() {
     return originalName;
   }
@@ -630,14 +689,6 @@ public class Field implements MetatronDomain<Long> {
 
   public void setOriginalType(String originalType) {
     this.originalType = originalType;
-  }
-
-  public Boolean getRemoved() {
-    return removed;
-  }
-
-  public void setRemoved(Boolean removed) {
-    this.removed = removed;
   }
 
   @Override

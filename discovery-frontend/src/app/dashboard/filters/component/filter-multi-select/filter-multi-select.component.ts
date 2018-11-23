@@ -66,7 +66,7 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
 
   // 어디에서 사용하는지 여부 기본은 필터 패널
   @Input()
-  public viewType = 'panel';
+  public viewType = 'widget';
 
   @Input()
   public isShowAll = true;
@@ -269,8 +269,8 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
       const $dropboxTop = $ddpOffSetEl.offset();
       const $dropboxWidth = $ddpOffSetEl.width();
       $ddpOffSetEl.find('.ddp-drop').css({
-        top : $dropboxTop.top + 28 ,
-        left : $dropboxTop.left ,
+        top : $dropboxTop.top,
+        left : $dropboxTop.left,
         width : $dropboxWidth
       });
     }

@@ -19,6 +19,7 @@ import org.apache.commons.collections4.MapUtils;
 
 import java.util.Map;
 
+import app.metatron.discovery.spec.druid.ingestion.index.IndexSpec;
 import app.metatron.discovery.spec.druid.ingestion.partition.PartitionSpec;
 
 /**
@@ -48,7 +49,7 @@ public class BatchTuningConfig implements TuningConfig {
 
   Integer numBackgroundPersistThreads;
 
-  Object jobProperties;
+  IndexSpec indexSpec;
 
   public BatchTuningConfig() {
   }
@@ -58,6 +59,8 @@ public class BatchTuningConfig implements TuningConfig {
   }
 
   public void overrideConfig(Map<String, Object> tuningConfig) {
+
+    this.buildV9Directly = true;
 
     if(MapUtils.isNotEmpty(tuningConfig)) {
       for (String key : tuningConfig.keySet()) {
@@ -158,11 +161,13 @@ public class BatchTuningConfig implements TuningConfig {
     this.numBackgroundPersistThreads = numBackgroundPersistThreads;
   }
 
-  public Object getJobProperties() {
-    return jobProperties;
+  @Override
+  public IndexSpec getIndexSpec() {
+    return indexSpec;
   }
 
-  public void setJobProperties(Object jobProperties) {
-    this.jobProperties = jobProperties;
+  @Override
+  public void setIndexSpec(IndexSpec indexSpec) {
+    this.indexSpec = indexSpec;
   }
 }

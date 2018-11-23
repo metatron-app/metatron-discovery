@@ -726,6 +726,42 @@ public class PrepDatasetSparkHiveService {
         }
     }
 
+    public void dropHiveSnapshotTable(String sql) throws PrepException {
+        try {
+            StageDataConnection stageDataConnection = new StageDataConnection();
+            stageDataConnection.setHostname(    prepProperties.getHiveHostname(true));
+            stageDataConnection.setPort(        prepProperties.getHivePort(true));
+            stageDataConnection.setUsername(    prepProperties.getHiveUsername(true));
+            stageDataConnection.setPassword(    prepProperties.getHivePassword(true));
+            stageDataConnection.setUrl(         prepProperties.getHiveCustomUrl(true));
+            stageDataConnection.setMetastoreUrl(prepProperties.getHiveMetastoreUris(true));     // FIXME: metastore는 spark에서만 필요
+
+            String connectUrl = stageDataConnection.getConnectUrl();
+            String username = stageDataConnection.getUsername();
+            String password = stageDataConnection.getPassword();
+            String customUrl = stageDataConnection.getUrl();
+
+            Connection connection;
+            if (customUrl != null) {
+                connection = DriverManager.getConnection(customUrl);
+            } else {
+                connection = DriverManager.getConnection(connectUrl, username, password);
+            }
+            if (connection != null && connection instanceof HiveConnection) {
+                HiveConnection conn = (HiveConnection) connection;
+                Statement statement = conn.createStatement();
+
+                statement.execute(sql);
+
+                JdbcUtils.closeStatement(statement);
+                JdbcUtils.closeConnection(conn);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Failed to drop hive table: {}", e.getMessage());
+            throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
+        }
+    }
+
     public String escapeCsvField(String value) {
         if( value.contains("\"") || value.contains(",") ) {
             value.replaceAll("\"","\\\"");

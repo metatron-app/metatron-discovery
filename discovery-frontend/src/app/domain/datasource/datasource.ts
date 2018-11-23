@@ -156,10 +156,16 @@ export class Field {
   // IngestionRule
   ingestionRule: IngestionRule;
 
+  // derivationRule
+  derivationRule?: DerivationRule;
+
   // format
   // TODO 추후 FieldFormat으로 변환
   // format: FieldFormat;
   format: any;
+
+  // is create field (optional)
+  derived?: boolean;
 
   // description
   description: string;
@@ -183,7 +189,7 @@ export class Field {
   isValidReplaceValue?: boolean;
   replaceValidMessage?: string;
   timeFormatValidMessage?: string;
-  removed?: boolean;
+  unloaded?: boolean;
 
   // [UI] for Alias
   dsId?:string;                   // 데이터소스 아이디
@@ -281,10 +287,21 @@ export class DatasourceInfo {
 export class IngestionRule {
 
   // type
-  public type: string;
+  public type: IngestionRuleType;
 
   // value
   public value: string;
+}
+
+export class DerivationRule {
+  // type
+  public type: string;
+  // latField
+  public latField: string;
+  // lonField
+  public lonField: string;
+  // expr
+  public expr: string;
 }
 
 // batch history 조회
@@ -364,7 +381,11 @@ export enum LogicalType {
   LNG = <any>'LNG',
   POSTAL_CODE = <any>'POSTAL_CODE',
   PHONE_NUMBER = <any>'PHONE_NUMBER',
-  ETC = <any>'ETC'
+  ETC = <any>'ETC',
+  GEO_POINT = <any>'GEO_POINT',
+  GEO_LINE = <any>'GEO_LINE',
+  GEO_POLYGON = <any>'GEO_POLYGON',
+  USER_DEFINED = <any>'user_defined',
 }
 
 export enum FieldRole {
@@ -435,4 +456,11 @@ export enum FieldFormatType {
 export enum FieldFormatUnit {
   SECOND = <any>'second',
   MILLISECOND = <any>'millisecond'
+}
+
+export enum IngestionRuleType {
+  DISCARD = <any>'discard',
+  REPLACE = <any>'replace',
+  // only used in UI
+  DEFAULT = <any>'default'
 }

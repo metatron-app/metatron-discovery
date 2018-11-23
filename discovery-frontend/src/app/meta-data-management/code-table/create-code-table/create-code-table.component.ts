@@ -12,19 +12,19 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
 import { CodeTableService } from '../service/code-table.service';
 import { Alert } from '../../../common/util/alert.util';
 import * as _ from 'lodash';
 import { CodeValuePair } from '../../../domain/meta-data-management/code-value-pair';
 import { CommonUtil } from '../../../common/util/common.util';
+import { AbstractComponent } from '../../../common/component/abstract.component';
 
 @Component({
   selector: 'app-create-code-table',
   templateUrl: './create-code-table.component.html'
 })
-export class CreateCodeTableComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+export class CreateCodeTableComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables

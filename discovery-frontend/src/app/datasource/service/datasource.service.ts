@@ -41,6 +41,7 @@ import {FilteringType} from '../../domain/workbook/configurations/field/timestam
 import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
 import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
+import {Limit} from "../../domain/workbook/configurations/limit";
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -299,6 +300,13 @@ export class DatasourceService extends AbstractService {
       if (_.eq(pageConf.chart.type, 'grid') && (<UIGridChart>pageConf.chart).dataType == GridViewType.MASTER) {
         field['aggregationType'] = 'NONE';
       }
+    }
+
+    if( 0 < pageConf.chart.limit ) {
+      pageConf.limit.limit = pageConf.chart.limit;
+    } else {
+      pageConf.limit = new Limit();
+      pageConf.limit.limit = 100000;
     }
     query.limits = _.cloneDeep(pageConf.limit);
 

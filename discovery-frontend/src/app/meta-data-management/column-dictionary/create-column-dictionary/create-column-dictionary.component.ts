@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ColumnDictionaryService } from '../service/column-dictionary.service';
 import { Alert } from '../../../common/util/alert.util';
@@ -20,12 +19,13 @@ import { CommonUtil } from '../../../common/util/common.util';
 import { ChooseCodeTableComponent } from '../../component/choose-code-table/choose-code-table.component';
 import { CodeTable } from '../../../domain/meta-data-management/code-table';
 import { FieldFormat, FieldFormatType } from '../../../domain/datasource/datasource';
+import { AbstractComponent } from '../../../common/component/abstract.component';
 
 @Component({
   selector: 'app-create-column-dictionary',
   templateUrl: './create-column-dictionary.component.html'
 })
-export class CreateColumnDictionaryComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+export class CreateColumnDictionaryComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables

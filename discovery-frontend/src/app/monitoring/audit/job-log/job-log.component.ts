@@ -272,6 +272,8 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
     this.statusTypes = [
       { label: 'All', value: 'all' },
       { label: 'Success', value: 'SUCCESS' },
+      { label: 'Running', value: 'RUNNING' },
+      { label: 'Cancelled', value: 'CANCELLED' },
       { label: 'Fail', value: 'FAIL' }
     ];
     this.selectedStatus = this.statusTypes[0];

@@ -12,17 +12,8 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.datasource.ingestion;
+package app.metatron.discovery.util.csv;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import java.io.Serializable;
-
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = DiscardRule.class, name = "discard"),
-    @JsonSubTypes.Type(value = ReplaceRule.class, name = "replace")
-})
-public interface IngestionRule extends Serializable {
+public interface CsvRowMapper<T> {
+  T mapRow(int rowNumber, String[] row);
 }

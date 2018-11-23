@@ -25,6 +25,7 @@ public class WorkbenchProperties {
   private Integer maxFetchSize = 2000;
   private String tempHdfsPath = "/tmp/hive";
   private String tempCSVPath = "/tmp";
+  private String tempDataTableHdfsPath = "/tmp/metatron";
 
   public static String TEMP_SCHEMA_PREFIX = "temp_";
   public static String TEMP_TABLE_PREFIX = "wb_";
@@ -68,5 +69,13 @@ public class WorkbenchProperties {
 
   public void setDefaultResultSize(Integer defaultResultSize) {
     this.defaultResultSize = defaultResultSize;
+  }
+
+  public String getTempDataTableHdfsPath() {
+    return tempDataTableHdfsPath;
+  }
+
+  public void setTempDataTableHdfsPath(String tempDataTableHdfsPath) {
+    this.tempDataTableHdfsPath = tempDataTableHdfsPath;
   }
 }

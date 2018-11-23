@@ -35,6 +35,7 @@ import { CreateSnapshotPopup } from '../../../../component/create-snapshot-popup
 import { RuleListComponent } from './rule-list.component';
 import { DataSnapshotDetailComponent } from '../../../../data-snapshot/data-snapshot-detail.component';
 import { EventBroadcaster } from '../../../../../common/event/event.broadcaster';
+import {PreparationCommonUtil} from "../../../../util/preparation-common.util";
 
 declare let Split;
 
@@ -121,7 +122,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   // Add rule / editor or builder
   public editorUseFlag: boolean = false;
-  public editorUseLabel: string = 'switch to editor';
+  public editorUseLabel: string = this.translateService.instant('msg.dp.btn.switch.editor');
 
   // input cmd line
   public inputRuleCmd: string = ''; // Rule을 직접 입력시
@@ -194,7 +195,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         if(enCheckReg.test(this.commandSearchText)) {
           return item.command.toLowerCase().indexOf(this.commandSearchText.toLowerCase()) > -1;
         } else {
-          return item.command_h.indexOf(this.commandSearchText) > -1;
+          return item.command_h.some(v=> v.indexOf(this.commandSearchText) > -1 );
         }
       });
     }
@@ -381,13 +382,13 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public switchEditor() {
     if (this.editorUseFlag === true) {
       this.editorUseFlag = false;
-      this.editorUseLabel = 'switch to editor';
+      this.editorUseLabel = this.translateService.instant('msg.dp.btn.switch.editor');
 
       // Reset command when switch to builder
       // this.initRule();
     } else {
       this.editorUseFlag = true;
-      this.editorUseLabel = 'switch to builder';
+      this.editorUseLabel = this.translateService.instant('msg.dp.btn.switch.builder');
     }
   }
 
@@ -1119,23 +1120,23 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * Open advanced formula input popup (set, keep, derive, delete)
    * @param {string} command
    */
-  public openPopupFormulaInput(command: string) {
+  public openPopupFormulaInput(data: {command : string, val : string}) {
     const fields: Field[] = this.selectedDataSet.gridData.fields;
 
     // variables vary according to the rule name
     // use this._editRuleComp.getValue({}) to get condition of each rule
-    let val : string = 'rowNum';
-    if (command === 'derive') {
-      val = 'deriveVal';
-    } else if (command === 'set') {
-      val = 'inputValue';
-    } else if (command === 'replace' || command === 'setCondition') {
-      val = 'condition';
-    } else if (command === 'keep') {
-      val = 'keepRow';
-    }
+    // let val : string = 'rowNum';
+    // if (command === 'derive') {
+    //   val = 'deriveVal';
+    // } else if (command === 'set') {
+    //   val = 'inputValue';
+    // } else if (command === 'replace' || command === 'setCondition') {
+    //   val = 'condition';
+    // } else if (command === 'keep') {
+    //   val = 'keepRow';
+    // }
 
-    this.extendInputFormulaComponent.open(fields, command, this._editRuleComp.getValue( val ));
+    this.extendInputFormulaComponent.open(fields, data.command, this._editRuleComp.getValue( data.val ));
   }
 
   /**
@@ -1445,7 +1446,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ), {ruleString : '', jsonRuleString : data.more});
           break;
         case 'set':
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ));
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ), {ruleString : '', jsonRuleString : data.more});
           break;
         case 'derive':
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, []);
@@ -1479,13 +1480,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     if (this.inputRuleCmd !== '') {
       this.inputRuleCmd = ''; // Empty builder rule string
     } else {
-      return;
-    }
-
-    if (!this.editorUseFlag) {
-      // If no command is selected nothing happens
-      if (this.ruleVO.command === '' || isNullOrUndefined(this.ruleVO.command)) {
-        return;
+      if (!this.editorUseFlag) {
+        // If no command is selected nothing happens
+        if (this.ruleVO.command === '' || isNullOrUndefined(this.ruleVO.command)) {
+          return;
+        }
       }
     }
 
@@ -1678,9 +1677,19 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         rule['command'] = this.commandList[idx].command;
         rule['alias'] = this.commandList[idx].alias;
         rule['desc'] = this.commandList[idx].desc;
-        rule['simplifiedRule'] = this.simplifyRule(rule['ruleVO'], rule.ruleString);
+
+        if (rule.shortRuleString) {
+          rule['simplifiedRule'] = rule.shortRuleString
+        } else {
+          const ruleStr = PreparationCommonUtil.simplifyRule(rule['ruleVO'], this.selectedDataSet.gridResponse.slaveDsNameMap, rule.ruleString)
+          if (!isUndefined(ruleStr)) {
+            rule['simplifiedRule'] = ruleStr;
+          } else {
+            rule['simplifiedRule'] = rule.ruleString;
+          }
+        }
       } else {
-        rule['simplifiedRule'] = rule.ruleString;
+        rule['simplifiedRule'] = rule.shortRuleString ? rule.shortRuleString : rule.ruleString;
         rule['command'] = 'Create';
         rule['alias'] = 'Cr';
         rule['desc'] = '';
@@ -1697,170 +1706,170 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         alias: 'He',
         desc: this.translateService.instant('msg.dp.li.he.description'),
         isHover: false,
-        command_h: 'ㅗㄷㅁㅇㄷㄱ'
+        command_h: ['ㅗㄷㅁㅇㄷㄱ']
       },
       { command: 'keep',
         alias: 'Ke',
         desc: this.translateService.instant('msg.dp.li.ke.description'),
         isHover: false,
-        command_h: 'ㅏㄷ데'
+        command_h: ['ㅏㄸ','ㅏ떼','ㅏㄷ','ㅏㄷ데']
       },
       {
         command: 'replace',
         alias: 'Rp',
         desc: this.translateService.instant('msg.dp.li.rp.description'),
         isHover: false,
-        command_h: 'ㄱ데ㅣㅁㅊㄷ'
+        command_h: ['ㄱㄷ','ㄱ데ㅣㅁㅊㄷ']
       },
       {
         command: 'rename',
         alias: 'Rn',
         desc: this.translateService.instant('msg.dp.li.rn.description'),
         isHover: false,
-        command_h: 'ㄱ두믇'
+        command_h: ['ㄱㄷ','ㄱ둠','ㄱ두므','ㄱ두믇']
       },
       { command: 'set',
         alias: 'Se',
         desc: this.translateService.instant('msg.dp.li.se.description'),
         isHover: false,
-        command_h: 'ㄴㄷㅅ'
+        command_h: ['ㄴㄷㅅ']
       },
       {
         command: 'settype',
         alias: 'St',
         desc: this.translateService.instant('msg.dp.li.st.description'),
         isHover: false,
-        command_h: 'ㄴㄷㅅ쇼ㅔㄷ'
+        command_h: ['ㄴㄷㅆ','ㄴㄷ쑈ㅔㄷ','ㄴㄷㅅ','ㄴㄷㅅ쇼ㅔㄷ']
       },
       {
         command: 'countpattern',
         alias: 'Co',
         desc: this.translateService.instant('msg.dp.li.co.description'),
         isHover: false,
-        command_h: '채ㅕㅜ셈ㅅㅅㄷ구'
+        command_h: ['ㅊ','채ㅕㅜㅅ','채ㅕㅜ세','채ㅕㅜ셈ㅆㄷㄱ','채ㅕㅜ셈ㅆㄷ구','채ㅕㅜ셈ㅅㅅㄷ','채ㅕㅜ셈ㅅㅅㄷ구']
       },
       {
         command: 'split',
         alias: 'Sp',
         desc: this.translateService.instant('msg.dp.li.sp.description'),
         isHover: false,
-        command_h: '네ㅣㅑㅅ'
+        command_h: ['ㄴ','네ㅣㅑㅅ']
       },
       {
         command: 'derive',
         alias: 'Dr',
         desc: this.translateService.instant('msg.dp.li.dr.description'),
         isHover: false,
-        command_h: 'ㅇㄷ걒ㄷ'
+        command_h: ['ㅇㄷ갸','ㅇㄷ걒ㄷ']
       },
       {
         command: 'delete',
         alias: 'De',
         desc: this.translateService.instant('msg.dp.li.de.description'),
         isHover: false,
-        command_h: 'ㅇ딛ㅅㄷ'
+        command_h: ['ㅇㄷ','ㅇ디','ㅇ딛ㅅㄷ']
       },
       { command: 'drop',
         alias: 'Dp',
         desc: this.translateService.instant('msg.dp.li.dp.description'),
         isHover: false,
-        command_h: 'ㅇ개ㅔ'
+        command_h: ['ㅇㄱ','ㅇ개ㅔ']
       },
       {
         command: 'pivot',
         alias: 'Pv',
         desc: this.translateService.instant('msg.dp.li.pv.description'),
         isHover: false,
-        command_h: 'ㅔㅑ팻'
+        command_h: ['ㅔㅑㅍ','ㅔㅑ패','ㅔㅑ팻']
       },
       {
         command: 'unpivot',
         alias: 'Up',
         desc: this.translateService.instant('msg.dp.li.up.description'),
         isHover: false,
-        command_h: 'ㅕㅞㅑ팻'
+        command_h: ['ㅕㅜ','ㅕㅞㅑ','ㅕㅞㅑㅍ','ㅕㅞㅑ패','ㅕㅞㅑ팻']
       },
       { command: 'Join',
         alias: 'Jo',
         desc: this.translateService.instant('msg.dp.li.jo.description'),
         isHover: false,
-        command_h:'ㅓㅐㅑㅜ'
+        command_h: ['ㅓㅐㅑㅜ']
       },
       {
         command: 'extract',
         alias: 'Ex',
         desc: this.translateService.instant('msg.dp.li.ex.description'),
         isHover: false,
-        command_h: 'ㄷㅌㅅㄱㅁㅊㅅ'
+        command_h: ['ㄷㅌㅅㄱㅁㅊㅅ']
       },
       {
         command: 'flatten',
         alias: 'Fl',
         desc: this.translateService.instant('msg.dp.li.fl.description'),
         isHover: false,
-        command_h: '림ㅅㅅ두'
+        command_h: ['ㄹ','리','림ㅆㄷ','림ㅆ두','림ㅅㅅㄷ','림ㅅㅅ두']
       },
       {
         command: 'merge',
         alias: 'Me',
         desc: this.translateService.instant('msg.dp.li.me.description'),
         isHover: false,
-        command_h: 'ㅡㄷㄱㅎㄷ'
+        command_h: ['ㅡㄷㄱㅎㄷ']
       },
       { command: 'nest',
         alias: 'Ne',
         desc: this.translateService.instant('msg.dp.li.ne.description'),
         isHover: false,
-        command_h: 'ㅜㄷㄴㅅ'
+        command_h: ['ㅜㄷㄴㅅ']
       },
       {
         command: 'unnest',
         alias: 'Un',
         desc: this.translateService.instant('msg.dp.li.un.description'),
         isHover: false,
-        command_h: 'ㅕㅜㅜㄷㄴㅅ'
+        command_h: ['ㅕㅜㅜㄷㄴㅅ']
       },
       {
         command: 'aggregate',
         alias: 'Ag',
         desc: this.translateService.instant('msg.dp.li.ag.description'),
         isHover: false,
-        command_h: 'ㅁㅎㅎㄱㄷㅎㅁㅅㄷ'
+        command_h: ['ㅁㅎㅎㄱㄷㅎㅁㅅㄷ']
       },
       {
         command: 'sort',
         alias: 'So',
         desc: this.translateService.instant('msg.dp.li.so.description'),
         isHover: false,
-        command_h: '낷'
+        command_h: ['ㄴ','내','낵','낷']
       },
       {
         command: 'move',
         alias: 'Mv',
         desc: this.translateService.instant('msg.dp.li.mv.description'),
         isHover: false,
-        command_h: 'ㅡㅐㅍㄷ'
+        command_h: ['ㅡㅐㅍㄷ']
       },
       {
         command: 'Union',
         alias: 'Ui',
         desc: this.translateService.instant('msg.dp.li.ui.description'),
         isHover: false,
-        command_h: 'ㅕㅜㅑㅐㅜ'
+        command_h: ['ㅕㅜㅑㅐㅜ']
       },
       {
         command: 'setformat',
         alias: 'Sf',
         desc: this.translateService.instant('msg.dp.li.sf.description'),
         isHover: false,
-        command_h: 'ㄴㄷㅅ래금ㅅ'
+        command_h: ['ㄴㄷㅅ랙','ㄴㄷㅅ래그','ㄴㄷㅅ래금ㅅ']
       },
       {
         command: 'window',
         alias: 'Wn',
         desc: this.translateService.instant('msg.dp.li.wd.description'),
         isHover: false,
-        command_h: '쟈ㅜ앶'
+        command_h: ['ㅈ','쟈ㅜㅇ','쟈ㅜ애','쟈ㅜ앶']
       }
     ];
 
