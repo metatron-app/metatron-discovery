@@ -102,7 +102,9 @@
         </tr>
         </tbody>
       </table>
-      <!--<a href="javascript:" class="ddp-btn-more">+ more</a>-->
+
+      <a href="javascript:" class="ddp-btn-more" *ngIf="page.page < (pageResult.totalPages-1)" (click)="moreButton();">+ {{'msg.comm.ui.more' | translate}}</a>
+
     </div>
     <!-- //tbody -->
 
