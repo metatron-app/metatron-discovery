@@ -45,11 +45,6 @@
     {{pageResult.totalElements}} Results of '{{completeSearchText}}'
   </div>
   <!-- //검색어 -->
-  <!-- No data -->
-  <div *ngIf="histories.length === 0" class="ddp-nodata">
-    No list
-  </div>
-  <!-- //No data -->
 
   <ul class="ddp-list-history">
     <li *ngFor="let item of histories; let idx = index" (click)="setTableSql(item)">
