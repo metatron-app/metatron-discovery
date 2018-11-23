@@ -46,7 +46,6 @@
                                      [array]="candidateList"
                                      [selectedArray]="selectedItems"
                                      [viewKey]="'name'"
-                                     [viewType]="'widget'"
                                      [mockup]="isEditMode"
                                      (onSelected)="onSelectInclude($event)"
                                      (changeDisplayOptions)="toggleOptionsSelectComp($event)">
@@ -58,7 +57,6 @@
                                [array]="candidateList"
                                [selectedItem]="selectedItems ? selectedItems[0] : null"
                                [viewKey]="'name'"
-                               [viewType]="'widget'"
                                [mockup]="isEditMode"
                                (onSelected)="onSelectInclude($event)"
                                (onCheckAll)="checkAllInclude()"
@@ -164,6 +162,13 @@
     </div>
     <!-- // Timestamp Filter -->
   </div>
+
+  <!-- Error 표시 영역 -->
+  <error-widget [isShow]="isError"
+                [iconClass]="'ddp-chart-filter'"
+                [widgetName]="getWidgetName()"
+                [errorInfo]="errorInfo"></error-widget>
+  <!-- // Error 표시 영역 -->
 
   <!-- 수정 버튼 레이어 -->
   <div *ngIf="isEditMode" class="ddp-hover-edit">

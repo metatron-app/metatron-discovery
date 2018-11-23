@@ -144,7 +144,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isShowHierarchyView: boolean = false;    // 차트 계층 표시 여부
   public isInvalidPivot: boolean = false;          // 선반정보를 확인해야 하는 경우
   public isShowNoData: boolean = false;           // No-Data 표시 여부
-  public isError: boolean = false;                // 에러 상태 표시 여부
   public isShowDownloadPopup: boolean = false;    // 다운로드 팝업 표시 여부
   public duringDataDown: boolean = false;         // 데이터 다운로드 진행 여부
   public duringImageDown: boolean = false;        // 이미지 다운로드 진행 여부
@@ -168,6 +167,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   set uiOption(uiOption: UIOption) {
     this.widgetConfiguration.chart = uiOption;
   }
+
+  get isShowChartTools() {
+    return !this.isShowHierarchyView && !this.isError && !this.isShowNoData;
+  } // get - isShowChartTools
 
   // is Origin data down
   public isOriginDown: boolean = false;
@@ -718,14 +721,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   } // function - showNoData
 
   /**
-   * 에러 표시
-   */
-  public showError() {
-    this.isError = true;
-    this.updateComplete();
-  } // function - showError
-
-  /**
    * 위젯 이름 표시 여부
    * @return {boolean}
    */
@@ -979,6 +974,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this.isOriginDown = isOriginal;
     this.widgetService.previewWidget(this.widget.id, isOriginal, false).then(result => {
 
+
+
       let fields = [];
       const clonePivot: Pivot = _.cloneDeep(this.widgetConfiguration.pivot);
       (clonePivot.rows) && (fields = fields.concat(clonePivot.rows));
@@ -999,7 +996,11 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
         return new SlickGridHeader()
           .Id(headerName)
-          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(logicalType) + '"></em>' + headerName + '</span>')
+          .Name('<span style="padding-left:20px;">'
+            + '<em style="margin-top: -2px;" class="' + this.getFieldTypeIconClass(logicalType) + '"></em>'
+            + headerName
+            + '</span>'
+          )
           .Field(headerName)
           .Behavior('select')
           .Selectable(false)
@@ -1091,12 +1092,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         // If the widget does not have a data source
         this.processStart();
         this._isDuringProcess = true;
-        this.isValidWidget = false;
-        this.showError();
+        this.isMissingDataSource = true;
+        this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.missing-datasource')});
+        this.updateComplete();
       } else {
         // If the widget has a data source
 
-        this.isValidWidget = true;
+        this.isMissingDataSource = false;
 
         const fields: Field[] = DashboardUtil.getFieldsForMainDataSource(this.widget.dashBoard.configuration, widgetDataSource.engineName);
         fields.forEach((field) => {
@@ -1269,8 +1271,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     const widgetDataSource: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
 
     if (isNullOrUndefined(widgetDataSource)) {
-      this.isValidWidget = false;
-      this.showError();
+      this.isMissingDataSource = true;
+      this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.missing-datasource')});
+      this.updateComplete();
       return;
     }
 
@@ -1287,7 +1290,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     }
 
     this.isShowNoData = false;
-    this.isError = false;
+    this._hideError();
 
     // 서버 조회용 파라미터 (서버 조회시 필요없는 파라미터 제거)
     const cloneQuery = this._makeSearchQueryParam(_.cloneDeep(uiCloneQuery));
@@ -1368,16 +1371,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
       }, 1000);
 
-      this.isValidWidget = true;
-
       // 변경 적용
       this.safelyDetectChanges();
 
     }).catch((error) => {
-      console.error(error);
       // 프로세스 종료 등록 및 No Data 표시
-      this.isValidWidget = false;
-      this.showError();
+      this._showError(error);
+      this.updateComplete();
       // 변경 적용
       this.safelyDetectChanges();
     });
@@ -1472,6 +1472,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * 자식 위젯 아이디 탐색
    * @param {string} widgetId
    * @param {DashboardPageRelation[]} relations
+   * @param {boolean} isCollect
    * @return {string}
    * @private
    */
@@ -1522,8 +1523,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         .then(() => {
           if (this.isAnalysisPredictionEnabled()) {
             this.analysisPredictionService.getAnalysisPredictionLineFromDashBoard(this.widgetConfiguration, this.widget, this.chart, this.resultData)
-              .catch(() => {
-                this.showError();
+              .catch((error) => {
+                this._showError(error);
+                this.updateComplete();
               });
           } else {
             this.predictionLineDisabled();

@@ -35,6 +35,7 @@ export class Dataconnection extends AbstractHistoryEntity {
   public dbname: string;
   // properties
   public properties: any;
+  public supportSaveAsHiveTable: boolean;
 
   public dataSources: any[];
   public workbenches: any[];

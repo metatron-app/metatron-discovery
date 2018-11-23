@@ -147,6 +147,7 @@ ul.ddp-list-popup li.ddp-sub:hover {background-color:#f6f6f7;}
 
 ul.ddp-list-selectbox2.ddp-hover-none li:hover {background:none !important;}
 
+
 .ddp-type-selectbox.ddp-selected {border:1px solid #8f96a0;}
 .ddp-type-selectbox.ddp-selected .ddp-wrap-popup2 {display:block;}
 .ddp-type-selectbox.ddp-selected ul.ddp-list-selectbox {display:block;}
@@ -180,6 +181,7 @@ ul.ddp-list-selectbox2.ddp-hover-none li:hover {background:none !important;}
 .ddp-type-selectbox span.ddp-txt-selectbox span.ddp-column-type {display:block; position:relative; padding-left:20px;}
 .ddp-type-selectbox span.ddp-txt-selectbox span.ddp-column-type [class*="ddp-icon"] {left:0;}
 .ddp-type-selectbox span.ddp-txt-selectbox.ddp-icon {padding-left:25px;}
+
 /**************************************************************
 	selectbox - 2 disabled
 **************************************************************/

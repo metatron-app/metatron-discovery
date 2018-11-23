@@ -1364,6 +1364,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         .catch((error) => {
           this.isError = true;
           this.loadingHide();
+          this.commonExceptionHandler( error );
           console.info('error', error);
         });
     }
@@ -3901,9 +3902,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
                   this.loadingShow();
                   this.analysisPredictionService
                     .getAnalysisPredictionLineFromPage(this.widgetConfiguration, this.widget, this.lineChartComponent, resultData)
-                    .catch(() => {
+                    .catch((err) => {
                       this.loadingHide();
                       this.isError = true;
+                      this.commonExceptionHandler( err );
                     });
                 } else {
                   this.lineChartComponent.analysis = null;
@@ -3930,6 +3932,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       console.error('Search Query Error =>', reason);
       this.isChartShow = false;
       this.isError = true;
+      this.commonExceptionHandler( reason );
 
       // 변경사항 반영
       this.changeDetect.detectChanges();

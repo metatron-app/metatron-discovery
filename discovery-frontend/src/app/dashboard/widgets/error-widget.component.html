@@ -1,0 +1,32 @@
+
+<!-- Error 표시 영역 -->
+<div *ngIf="isShow" class="ddp-view-widget ddp-view-widget-grid">
+  <!-- Error Detail -->
+  <div *ngIf="errorInfo && errorInfo.show" (mousedown)="errorInfo.show = false" class="ddp-ui-error-detail" >
+    <a href="javascript:" class="ddp-btn-close"></a>
+    <dl>
+      <dt>code :</dt>
+      <dd>{{errorInfo.code}}</dd>
+    </dl>
+    <dl>
+      <dt>message :</dt>
+      <dd>{{errorInfo.details}}</dd>
+    </dl>
+  </div>
+  <!-- // Error Detail -->
+  <!-- Error Summary -->
+  <div class="ddp-box-data-none">
+    <div class="ddp-wrap-data-none">
+      <div class="ddp-ui-data-none">
+        <div class="ddp-txt-none">
+          <em class="{{iconClass}} ddp-error"></em>
+          <span class="ddp-data-name">{{widgetName}}</span>
+          <span class="ddp-txt-det">{{ 'msg.page.ui.no.data.error' | translate }}</span>
+          <a *ngIf="errorInfo && errorInfo.details" (click)="errorInfo.show=true" href="javascript:" class="ddp-link-error" >Detail</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- // Error Summary -->
+</div>
+<!-- // Error 표시 영역 -->

@@ -17,7 +17,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  Injector,
+  Injector, Input,
   OnChanges,
   OnDestroy,
   OnInit, Output,
@@ -46,6 +46,9 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
   // 그리드 컴포넌트
   private _gridComp: GridComponent;
 
+  // 다운로드 데이터
+  private _downData: { cols: any[], rows: any[] };
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -54,15 +57,20 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   // 위젯 데이터 다운로드 모드
-  public isWidgetMode: boolean = false;
+  public mode: ('WIDGET' | 'GRID' | 'DATA') = 'WIDGET';
 
   public isShow: boolean = false;
+
+  public isOriginDown: boolean = true;
 
   public downloadType: string = 'ALL';
   public downloadRow: number = 0;
   public preview: PreviewResult;
 
   public commonUtil = CommonUtil;
+
+  @Input()
+  public title: string = '';
 
   @Output('close')
   public closeEvent: EventEmitter<any> = new EventEmitter<any>();
@@ -72,8 +80,6 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
 
   @Output('endDownload')
   public endDownEvent: EventEmitter<any> = new EventEmitter();
-
-  public isOriginDown: boolean = true;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -136,9 +142,9 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    * @param {boolean} isOriginDown
    */
   public openWidgetDown(event: MouseEvent, widgetId: string, isOriginDown: boolean = true) {
-    this._openComponent('RIGHT');
+    this._openComponent(event, 'RIGHT');
     this._downloadId = widgetId;
-    this.isWidgetMode = true;
+    this.mode = 'WIDGET';
     this.isOriginDown = isOriginDown;
     this.preview = undefined;
 
@@ -155,6 +161,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     }
   } // function - openWidgetDown
 
+  // noinspection JSUnusedGlobalSymbols
   /**
    * 그리드 컴포넌트 다운로드 팝업 오픈
    * @param {MouseEvent} event
@@ -162,12 +169,27 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    * @param {PreviewResult} preview
    */
   public openGridDown(event: MouseEvent, gridComp: GridComponent, preview?:PreviewResult ) {
-    this._openComponent('RIGHT');
-    ( preview ) && ( this.preview = preview );
-    this.isWidgetMode = false;
+    this._openComponent(event, 'RIGHT');
+    (preview) && (this.preview = preview);
+    this.mode = 'GRID';
     this.isOriginDown = true;
     this._gridComp = gridComp;
   } // function - openGridDown
+
+  /**
+   * 데이터 다운로드 팝업 오픈
+   * @param {MouseEvent} event
+   * @param {any[]} cols
+   * @param {any[]} rows
+   * @param {PreviewResult} preview
+   */
+  public openDataDown(event: MouseEvent, cols: any[], rows: any[], preview?: PreviewResult) {
+    this._openComponent(event, 'RIGHT');
+    (preview) && (this.preview = preview);
+    this.mode = 'DATA';
+    this.isOriginDown = true;
+    this._downData = {cols: cols, rows: rows};
+  } // function - openDataDown
 
   /**
    * 컴포넌트 닫기
@@ -182,7 +204,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    */
   public downloadCSV() {
     this.close();
-    if (this.isWidgetMode) {
+    if ('WIDGET' === this.mode) {
       this.startDownEvent.emit();
       this.widgetService.downloadWidget(this._downloadId, this.isOriginDown, 1000000, 'CSV').subscribe(
         result => {
@@ -190,12 +212,14 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
           saveAs(result, 'data.csv');
           this.endDownEvent.emit();
         },
-        error => {
+        () => {
           Alert.error(this.translateService.instant('msg.comm.alert.save.fail'));
           this.endDownEvent.emit();
         });
-    } else {
+    } else if ('GRID' === this.mode) {
       this._gridComp.csvDownload('data');
+    } else if ('DATA' === this.mode) {
+      this._dataDownload( this._downData.cols, this._downData.rows, 'CSV' );
     }
   } // function - downloadCSV
 
@@ -204,7 +228,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    */
   public downloadExcel() {
     this.close();
-    if (this.isWidgetMode) {
+    if ('WIDGET' === this.mode) {
       this.startDownEvent.emit();
       this.widgetService.downloadWidget(this._downloadId, this.isOriginDown, 1000000, 'EXCEL').subscribe(
         result => {
@@ -212,12 +236,14 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
           saveAs(result, 'data.xlsx');
           this.endDownEvent.emit();
         },
-        error => {
+        () => {
           Alert.error(this.translateService.instant('msg.comm.alert.save.fail'));
           this.endDownEvent.emit();
         });
-    } else {
+    } else if ('GRID' === this.mode) {
       this._gridComp.excelDownload('data');
+    } else if ('DATA' === this.mode) {
+      this._dataDownload( this._downData.cols, this._downData.rows, 'EXCEL' );
     }
   } // function - downloadExcel
 
@@ -230,10 +256,11 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
    * 컴포넌트 열기
+   * @param {MouseEvent} event
    * @param {string} position
    * @private
    */
-  private _openComponent(position: string) {
+  private _openComponent(event: MouseEvent, position: string) {
     this.downloadType = 'ALL';
     this.downloadRow = 0;
     this.isShow = true;
@@ -257,6 +284,39 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     }
   } // function - _openComponent
 
+  /**
+   * Data Download
+   */
+  private _dataDownload(cols: any[], rows: any[], type: ('CSV' | 'EXCEL'), fileName: string = 'data'): void {
+
+    if (cols && rows) {
+
+      let downRows: any[] = [];
+
+      // Header
+      const header: any[] = cols.map(col => '"' + col.name + '"');
+      downRows.push(header.join(','));
+
+      // Row
+      downRows = downRows.concat(
+        rows.map(row => {
+          const obj: any[] = [];
+          cols.forEach(col => {
+            obj.push('"' + row[col.name] + '"');
+          });
+          return obj.join(',');
+        })
+      );
+
+      if( 'CSV' === type ) {
+        saveAs(new Blob(['\ufeff' + downRows.join('\n')], { type: 'application/csv;charset=utf-8' }), fileName + '.csv');
+      } else {
+        saveAs(new Blob(['\ufeff' + downRows.join('\n')], { type: 'application/vnd.ms-excel;charset=charset=utf-8' }), fileName + '.xls');
+      }
+
+    }
+  } // function - _dataDownload
+
 }
 
 export class PreviewResult {
@@ -264,8 +324,8 @@ export class PreviewResult {
   public count: number;
 
   constructor(size: number, count: number) {
-    this.size = size;
-    this.count = count;
+    this.size = size ? size : 0;
+    this.count = count ? count : 0;
   }
 }
 
