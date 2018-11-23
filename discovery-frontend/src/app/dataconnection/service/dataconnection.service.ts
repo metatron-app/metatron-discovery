@@ -126,10 +126,10 @@ export class DataconnectionService extends AbstractService {
    * @param page
    * @returns {Promise<any>}
    */
-  public getTableListInConnectionQuery(dataconnection: any, page: any): Promise<any> {
+  public getTableListInConnectionQuery(dataconnection: any, param: any): Promise<any> {
     let url: string = this.API_URL + `connections/query/tables`;
-    if (page) {
-      url += '?' + CommonUtil.objectToUrlString(page);
+    if (param) {
+      url += '?' + CommonUtil.objectToUrlString(param);
     }
     const params:any = {};
     let connInfo: any = {};
@@ -148,6 +148,7 @@ export class DataconnectionService extends AbstractService {
 
     params.connection = connInfo;
     params.database = dataconnection.database;
+    params.table = param.tableName;
 
     return this.post(url, params);
   }
