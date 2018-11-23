@@ -19,7 +19,7 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
-import app.metatron.discovery.prep.parser.preparation.rule.*;
+import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;

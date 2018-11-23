@@ -16,23 +16,23 @@ import {
   AfterViewInit,
   Component, DoCheck, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Widget } from '../../../domain/dashboard/widget/widget';
-import { PageWidget, PageWidgetConfiguration } from 'app/domain/dashboard/widget/page-widget';
-import { saveAs } from 'file-saver';
-import { Alert } from '../../../common/util/alert.util';
-import { CommonUtil } from '../../../common/util/common.util';
-import { FunctionValidator } from '../../../common/component/chart/option/define/common';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import { LayoutMode } from '../../../domain/dashboard/dashboard';
-import { FilterWidgetConfiguration } from '../../../domain/dashboard/widget/filter-widget';
-import { Filter } from '../../../domain/workbook/configurations/filter/filter';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Widget} from '../../../domain/dashboard/widget/widget';
+import {PageWidget, PageWidgetConfiguration} from 'app/domain/dashboard/widget/page-widget';
+import {saveAs} from 'file-saver';
+import {Alert} from '../../../common/util/alert.util';
+import {CommonUtil} from '../../../common/util/common.util';
+import {FunctionValidator} from '../../../common/component/chart/option/define/common';
+import {EventBroadcaster} from '../../../common/event/event.broadcaster';
+import {LayoutMode} from '../../../domain/dashboard/dashboard';
+import {FilterWidgetConfiguration} from '../../../domain/dashboard/widget/filter-widget';
+import {Filter} from '../../../domain/workbook/configurations/filter/filter';
 import {
   InclusionFilter,
   InclusionSelectorType
 } from '../../../domain/workbook/configurations/filter/inclusion-filter';
-import { DashboardUtil } from '../../util/dashboard.util';
-import { Datasource } from '../../../domain/datasource/datasource';
+import {DashboardUtil} from '../../util/dashboard.util';
+import {Datasource} from '../../../domain/datasource/datasource';
 
 @Component({
   selector: 'dashboard-widget-header',
@@ -78,6 +78,13 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
   public isShowMore: boolean = false;    // 미니 헤더 More 적용 여부
   public isMissingDataSource: boolean = false;
 
+  public limitInfo: { id: string, isShow: boolean, currentCnt: number, maxCnt: number } = {
+    id: '',
+    isShow: false,
+    currentCnt: 0,
+    maxCnt: 0
+  };
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -114,13 +121,26 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
         );
 
         this.isMissingDataSource = !widgetDataSource;
+
       } else {
         this.isMissingDataSource = false;
       }
 
       this.safelyDetectChanges();
     }, 200);
-  }
+
+    // Event for Chart Limit
+    this.subscriptions.push(
+      this.broadCaster.on<any>('WIDGET_LIMIT_INFO').subscribe(
+        (data: { id: string, isShow: boolean, currentCnt: number, maxCnt: number }) => {
+          if (this.widget.id === data.id) {
+            this.limitInfo = data;
+            this.safelyDetectChanges();
+          }
+        })
+    );
+
+  } // function - ngAfterViewInit
 
   // Destory
   public ngOnDestroy() {
@@ -379,14 +399,14 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    * 범례 표시 변경
    */
   public toggleLegend() {
-    this.broadCaster.broadcast('TOGGLE_LEGEND', { widgetId: this.widget.id });
+    this.broadCaster.broadcast('TOGGLE_LEGEND', {widgetId: this.widget.id});
   } // function - toggleLegend
 
   /**
    * 미니맵 표시 변경
    */
   public toggleMiniMap() {
-    this.broadCaster.broadcast('TOGGLE_MINIMAP', { widgetId: this.widget.id });
+    this.broadCaster.broadcast('TOGGLE_MINIMAP', {widgetId: this.widget.id});
   } // function - toggleMiniMap
 
   /**
@@ -418,7 +438,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
   public onChangeWidgetMode(mode: string) {
     if (this.isPageWidget) {
       (<PageWidget>this.widget).mode = mode;
-      this.broadCaster.broadcast('CHANGE_MODE', { widgetId: this.widget.id, mode: mode });
+      this.broadCaster.broadcast('CHANGE_MODE', {widgetId: this.widget.id, mode: mode});
     }
   } // function - onChangeWidgetMode
 
@@ -426,7 +446,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    * 위젯 삭제
    */
   public removeWidget() {
-    this.broadCaster.broadcast('REMOVE', { widgetId: this.widget.id, widgetType: this.widget.type });
+    this.broadCaster.broadcast('REMOVE', {widgetId: this.widget.id, widgetType: this.widget.type});
   } // function - removeWidget
 
   /**
@@ -458,7 +478,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
           break;
       }
       (<FilterWidgetConfiguration>this.widget.configuration).filter = filter;
-      this.broadCaster.broadcast('CHANGE_FILTER_SELECTOR', { widget: this.widget, filter: filter });
+      this.broadCaster.broadcast('CHANGE_FILTER_SELECTOR', {widget: this.widget, filter: filter});
     }
   } // function - setSelectorTypeList
 
@@ -480,7 +500,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
           break;
       }
       (<FilterWidgetConfiguration>this.widget.configuration).filter = filter;
-      this.broadCaster.broadcast('CHANGE_FILTER_SELECTOR', { widget: this.widget, filter: filter });
+      this.broadCaster.broadcast('CHANGE_FILTER_SELECTOR', {widget: this.widget, filter: filter});
     }
   } // function - setSelectorTypeCombo
 

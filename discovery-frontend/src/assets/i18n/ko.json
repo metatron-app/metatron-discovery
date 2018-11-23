@@ -2612,6 +2612,8 @@
   "msg.page.ui.show.label.chart" : "Show Label on Chart",
   "msg.page.ui.x-axis.title.ph" : "X Axis Title",
   "msg.page.ui.y-axis.title.ph" : "Y Axis Title",
+  "msg.page.ui.limit-msg-1" : "<strong>{{currentCnt}}건 표시중</strong>(총 {{maxCnt}}건)",
+  "msg.page.ui.limit-msg-2" : "데이터가 많아서 일부만 표현되고 있습니다.",
   "msg.page.alert.axis.label.warn" : "축명은 50자 이하만 가능합니다",
   "msg.page.alert.chart.title.maxlength.warn" : "50자 이하만 가능합니다",
   "msg.page.alert.chart.alias.empty.warn" : "내용을 입력해야 합니다",

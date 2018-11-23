@@ -422,30 +422,6 @@
         <!-- //divide -->
       </div>
       <!-- //wrap divide -->
-      <!--<div class="ddp-wrap-express" *ngIf="possibleChartCheck('barExpress', uiOption.type)">-->
-        <!--<div *ngIf="uiOption.type.toString() === 'bar'" class="ddp-wrap-option-checkbox ddp-clear">-->
-          <!--<div class="ddp-col-5">-->
-            <!--<label class="ddp-label-checkbox" (click)="-->
-              <!--$event.preventDefault();-->
-              <!--onLimitChange(uiOption.size);uiOption.limitCheck = !uiOption.limitCheck">-->
-              <!--<input type="checkbox" [(ngModel)]="uiOption.limitCheck">-->
-              <!--<i class="ddp-icon-checkbox"></i>-->
-              <!--<span class="ddp-txt-checkbox">{{'msg.page.chart.presentation.checkbox.limit' | translate}}</span>-->
-            <!--</label>-->
-          <!--</div>-->
-          <!--<div class="ddp-col-7">-->
-            <!--&lt;!&ndash; input number &ndash;&gt;-->
-            <!--<div class="ddp-input-number" [ngClass]="{'ddp-disabled' : !uiOption.limitCheck}">-->
-              <!--<input (keyup.enter)="onLimitChange(uiOption.size)" [readonly]="!uiOption.limitCheck" [(ngModel)]="uiOption.size" type="number" input-mask="number">-->
-              <!--<div class="ddp-input-number-nav">-->
-                <!--<div (click)="onLimitChange(uiOption.size - 1)" class="ddp-input-number-button ddp-input-number-down"></div>-->
-                <!--<div (click)="onLimitChange(uiOption.size + 1)" class="ddp-input-number-button ddp-input-number-up"></div>-->
-              <!--</div>-->
-            <!--</div>-->
-            <!--&lt;!&ndash; //input number &ndash;&gt;-->
-          <!--</div>-->
-        <!--</div>-->
-      <!--</div>-->
       <!-- //[막대 차트] -->
 
       <!-- 표현 그래프 line -->
@@ -1027,6 +1003,41 @@
         <!-- //divide -->
       </div>
       <!-- //[파이] wrap divide -->
+
+      <!-- Set Limit -->
+      <div *ngIf="'network' !== uiOption.type.toString() && 'sankey' !== uiOption.type.toString()
+      && 'gauge' !== uiOption.type.toString() && 'treemap' !== uiOption.type.toString() " class="ddp-wrap-divide" >
+        <!-- divide -->
+        <div class="ddp-divide2">
+          <div class="ddp-wrap-express" >
+            <div class="ddp-wrap-option-checkbox ddp-clear">
+              <div class="ddp-col-5">
+                <label class="ddp-label-checkbox" (click)="$event.preventDefault();onLimitChange(uiOption.limit, !uiOption.limitCheck);">
+                  <input type="checkbox" [(ngModel)]="uiOption.limitCheck" >
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.page.chart.presentation.checkbox.limit' | translate}}</span>
+                </label>
+              </div>
+              <div class="ddp-col-7">
+                <!-- input number -->
+                <div class="ddp-input-number" [ngClass]="{'ddp-disabled' : !uiOption.limitCheck}">
+                  <input (keyup.enter)="onLimitChange(uiOption.limit)" [readonly]="!uiOption.limitCheck" [(ngModel)]="uiOption.limit"
+                         placeholder="{{limitPlaceHolder}}"
+                         type="number" input-mask="number">
+                  <div class="ddp-input-number-nav">
+                    <div (click)="onLimitChange(uiOption.limit - 1)" class="ddp-input-number-button ddp-input-number-down"></div>
+                    <div (click)="onLimitChange(uiOption.limit + 1)" class="ddp-input-number-button ddp-input-number-up"></div>
+                  </div>
+                </div>
+                <!-- //input number -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- // divide -->
+      </div>
+      <!-- // Set Limit -->
+
     </div>
   </div>
 </div>

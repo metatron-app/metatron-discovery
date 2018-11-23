@@ -2612,6 +2612,8 @@
   "msg.page.ui.show.label.chart" : "Show Label on Chart",
   "msg.page.ui.x-axis.title.ph" : "X Axis Title",
   "msg.page.ui.y-axis.title.ph" : "Y Axis Title",
+  "msg.page.ui.limit-msg-1" : "<strong>Displaying {{currentCnt}} of them </strong>(total {{maxCnt}} cases)",
+  "msg.page.ui.limit-msg-2" : "There is a lot of data and only a part is expressed.",
   "msg.page.alert.axis.label.warn" : "Axis names can only be 50 characters or less.",
   "msg.page.alert.chart.title.maxlength.warn" : "It can only be 50 characters or less.",
   "msg.page.alert.chart.alias.empty.warn" : "Do not allow empty aliases",
