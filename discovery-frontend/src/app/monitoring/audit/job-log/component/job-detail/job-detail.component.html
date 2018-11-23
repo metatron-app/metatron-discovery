@@ -61,7 +61,10 @@
           </th>
           <td>
             <span class="ddp-data-state"
-                  [ngClass]="{'ddp-fail' : audit.status.toString() === 'FAIL', 'ddp-success' : audit.status.toString() === 'SUCCESS'}">
+                  [class.ddp-fail]="audit.status && audit.status.toString() === 'FAIL'"
+                  [class.ddp-success]="audit.status && audit.status.toString() === 'SUCCESS'"
+                  [class.ddp-running]="audit.status && audit.status.toString() === 'RUNNING'"
+                  [class.ddp-ddp-cancelled]="audit.status && audit.status.toString() === 'CANCELLED'">
               {{audit.status}}
             </span>
           </td>
@@ -321,7 +324,10 @@
                 </td>
                 <td>
               <span class="ddp-data-state"
-                    [ngClass]="{'ddp-fail' : query.queryResultStatus.toString() === 'FAIL', 'ddp-success' : query.queryResultStatus.toString() === 'SUCCESS'}">
+                    [class.ddp-fail]="audit.status && audit.status.toString() === 'FAIL'"
+                    [class.ddp-success]="audit.status && audit.status.toString() === 'SUCCESS'"
+                    [class.ddp-running]="audit.status && audit.status.toString() === 'RUNNING'"
+                    [class.ddp-ddp-cancelled]="audit.status && audit.status.toString() === 'CANCELLED'">
                 {{query.queryResultStatus}}
               </span>
                 </td>
