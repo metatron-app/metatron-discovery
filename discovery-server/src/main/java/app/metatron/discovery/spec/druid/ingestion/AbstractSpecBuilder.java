@@ -208,68 +208,50 @@ public class AbstractSpecBuilder {
       throw new IllegalArgumentException("Required file format.");
     }
 
-    boolean hadoopIngestion = (ingestionInfo instanceof HdfsIngestionInfo)
-        || (ingestionInfo instanceof HiveIngestionInfo);
-
-    Parser parser = null;
+    Parser parser;
 
     if (fileFormat instanceof CsvFileFormat || fileFormat instanceof ExcelFileFormat) {
+
       // get Columns
       List<String> columns = dataSource.getFields().stream()
                                        .filter(field -> BooleanUtils.isNotTrue(field.getDerived()))
                                        .map((field) -> field.getName())
                                        .collect(Collectors.toList());
 
+      CsvStreamParser csvStreamParser = new CsvStreamParser();
 
-      CsvFileFormat csvFormat = (CsvFileFormat) fileFormat;
+      if ( ingestionInfo instanceof LocalFileIngestionInfo ) {
+        boolean skipHeaderRow = ((LocalFileIngestionInfo) ingestionInfo).getRemoveFirstRow();
+        csvStreamParser.setSkipHeaderRecord(skipHeaderRow);
+      }
 
-      if (hadoopIngestion) {
+      if (fileFormat instanceof CsvFileFormat){
 
-        if (csvFormat.isDefaultCsvMode()) {
-          CsvParseSpec parseSpec = new CsvParseSpec();
-          parseSpec.setTimestampSpec(timestampSpec);
-          parseSpec.setDimensionsSpec(dimensionsSpec);
-          parseSpec.setColumns(columns);
+        CsvFileFormat csvFormat = (CsvFileFormat) fileFormat;
 
-          parser = new StringParser(parseSpec);
-        } else {
-          TsvParseSpec parseSpec = new TsvParseSpec();
-          parseSpec.setTimestampSpec(timestampSpec);
-          parseSpec.setDimensionsSpec(dimensionsSpec);
-          parseSpec.setColumns(columns);
-          parseSpec.setDelimiter(csvFormat.getDelimeter());
-          parseSpec.setListDelimiter(csvFormat.getLineSeparator());
-
-          parser = new StringParser(parseSpec);
-        }
-
-      } else {
-
-        CsvStreamParser csvStreamParser = new CsvStreamParser();
-
-        if ( ingestionInfo instanceof LocalFileIngestionInfo ) {
-          boolean skipHeaderRow = ((LocalFileIngestionInfo) ingestionInfo).getRemoveFirstRow();
-          csvStreamParser.setSkipHeaderRecord(skipHeaderRow);
-        }
-
-        if (csvFormat.isDefaultCsvMode()) {
-          csvStreamParser.setTimestampSpec(timestampSpec);
-          csvStreamParser.setDimensionsSpec(dimensionsSpec);
-          csvStreamParser.setColumns(columns);
-
-          parser = csvStreamParser;
-
-        } else {
-
+        if (!csvFormat.isDefaultCsvMode()) {
           csvStreamParser.setTimestampSpec(timestampSpec);
           csvStreamParser.setDimensionsSpec(dimensionsSpec);
           csvStreamParser.setColumns(columns);
           csvStreamParser.setDelimiter(csvFormat.getDelimeter());
 
           parser = csvStreamParser;
+        } else {
+          csvStreamParser.setTimestampSpec(timestampSpec);
+          csvStreamParser.setDimensionsSpec(dimensionsSpec);
+          csvStreamParser.setColumns(columns);
+          csvStreamParser.setDelimiter(csvFormat.getDelimeter());
 
+          parser = csvStreamParser;
         }
+      } else {
+        csvStreamParser.setTimestampSpec(timestampSpec);
+        csvStreamParser.setDimensionsSpec(dimensionsSpec);
+        csvStreamParser.setColumns(columns);
+
+        parser = csvStreamParser;
       }
+
     } else if (fileFormat instanceof JsonFileFormat) {
       JsonFileFormat jsonFileFormat = (JsonFileFormat) fileFormat;
 
