@@ -2533,7 +2533,7 @@
   "msg.page.layer.map.clustering": "클러스터링",
   "msg.page.layer.map.stroke.max.width": "굵기 최대값",
   "msg.page.layer.map.view": "원본보기",
-  "msg.age.format.format.title": "표시 형식",
+  "msg.page.format.format.title": "표시 형식",
   "msg.page.format.xaxis.rotation": "{{value}} 도",
   "msg.page.format.custom.symbol": "사용자 기호 설정",
   "msg.page.format.custom.symbol.enter": "사용자 기호 입력",
