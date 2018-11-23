@@ -3,6 +3,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -25,6 +39,7 @@ import java.util.List;
 import java.util.Set;
 
 import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
 import app.metatron.discovery.domain.datasource.data.forward.ResultForward;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.Sort;
@@ -106,11 +121,25 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
 
       String aliasName = reqField.getAlias();
 
+      if(UserDefinedField.REF_NAME.equals(reqField.getRef())) {
+        if(reqField instanceof DimensionField) {
+          dimensions.add(new DefaultDimension(fieldName, aliasName));
+        } else {
+          metrics.add(fieldName);
+        }
+        unUsedVirtualColumnName.remove(fieldName);
+        continue;
+      }
+
       if (reqField instanceof DimensionField) {
 
         DimensionField dimensionField = (DimensionField) reqField;
         FieldFormat format = dimensionField.getFormat();
         app.metatron.discovery.domain.datasource.Field datasourceField = metaFieldMap.get(fieldName);
+
+        if(datasourceField == null) {
+          throw new QueryTimeExcetpion("'"+ fieldName +"' not found  in datasource ( " + dataSource.getName() + " )");
+        }
 
         // In case of GEO Type, druid engine recognizes it as metric
         if (datasourceField.getLogicalType() == LogicalType.GEO_POINT
@@ -260,6 +289,9 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
     }
 
     if (virtualColumns != null) {
+      for (String removeColumnName : unUsedVirtualColumnName) {
+        virtualColumns.remove(removeColumnName);
+      }
       selectQuery.setVirtualColumns(Lists.newArrayList(virtualColumns.values()));
     }
 
