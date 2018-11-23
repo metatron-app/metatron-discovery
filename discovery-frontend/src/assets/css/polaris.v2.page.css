@@ -1842,6 +1842,7 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-div-tablecell .ddp-btn-line {padding:9px 19px;}
 
 .ddp-view-widget .ddp-ui-error-detail {position:absolute; top:0; left:0; right:0; bottom:0; padding:30px 28px; background-color:#eeeef0; z-index:1; overflow:auto; cursor:default;}
+.ddp-view-widget .ddp-ui-error-detail .ddp-btn-close {display:inline-block; position:absolute; top:20px; right:20px; width:16px; height:16px; background:url(../images/btn_close.png) no-repeat; background-position:left -17px; }
 .ddp-view-widget .ddp-ui-error-detail dl + dl {margin-top:20px;}
 .ddp-view-widget .ddp-ui-error-detail dl dt {color:#6f737a; font-weight:bold; font-size:13px;}
 .ddp-view-widget .ddp-ui-error-detail dl dd {color:#6f737a; font-size:13px; line-height:18px;}
@@ -2578,6 +2579,8 @@ table.ddp-table-form2 tbody tr td span.ddp-data-username {display:block; overflo
 .ddp-ui-selected-option .ddp-wrap-popup2 {display:none; position:absolute; top:32px; left:30px; white-space:nowrap; max-height:190px; overflow:auto;}
 .ddp-ui-selected-option .ddp-wrap-popup2.ddp-scroll-none {max-height:inherit; overflow:inherit;}
 .ddp-ui-selected-option.ddp-selected .ddp-wrap-popup2 {display:block;}
+.ddp-ui-selected-option.ddp-selected .ddp-types ul.ddp-list-popup li .ddp-wrap-popup2{display:none; position:absolute; top:-3px; left:100%;}
+.ddp-ui-selected-option.ddp-selected .ddp-types ul.ddp-list-popup li:hover .ddp-wrap-popup2 {display:block;}
 
 .ddp-wrap-share-set {position:relative; height:100%;}
 .ddp-wrap-share-set .ddp-data-total {display:block;color:#4b515b; font-size:13px; font-weight: bold;}
@@ -5551,7 +5554,6 @@ ul.ddp-list-detail li .ddp-wrap-detailinfo .ddp-data-history .ddp-data-success {
 .ddp-ui-union-table {display:inline-block;  white-space:nowrap;}
 .ddp-ui-union-table table.ddp-table-union:first-of-type tr th,
 .ddp-ui-union-table table.ddp-table-union:first-of-type tr td {padding-left:23px;}
-
 table.ddp-table-union {display:inline-block; width:auto; margin-left:-3px; white-space:nowrap; vertical-align: top;}
 table.ddp-table-union tr th {position:relative; padding:0 5px 5px 12px; text-align:left;}
 table.ddp-table-union tr th:first-of-type {padding-left:23px;}
@@ -5869,7 +5871,6 @@ ul.ddp-list-form-join li em.ddp-icon-control-cut {position:absolute; top:5px; ri
 .ddp-wrap-errortxt {position:absolute; top:0; left:0; right:0; bottom:0; text-align: center;}
 .ddp-wrap-errortxt:before {content: ""; display: inline-block; width: 1px; height: 100%; margin-right: 0; vertical-align: middle;}
 .ddp-txt-error {display: inline-block; color:#ca4b4b; font-size:13px;}
-.ddp-txt-error em.ddp-icon-error {display:inline-block; position:relative; top:-1px; width:15px; height:15px; margin-right:6px; background:url(../images/icon_error.png) no-repeat; vertical-align: middle;}
 .ddp-txt-error em.ddp-icon-error-s {margin-right:8px; background-position:-16px 0;}
 .ddp-type-selectbox.ddp-type {position:relative; padding-left:28px; height:28px; box-sizing:border-box;}
 .ddp-type-selectbox.ddp-type ul.ddp-list-selectbox {position:relative; bottom:inherit; box-shadow:none; border:none;}
@@ -6386,11 +6387,10 @@ ul.ddp-list-table li em.ddp-icon-tableinfo.ddp-disabled:hover:before {background
 .ddp-box-layout4.ddp-layout-tableinfo .ddp-data-title {padding-left:0; padding-right:0;}
 .ddp-box-layout4.ddp-layout-tableinfo .ddp-ui-list-type {margin:10px -20px 10px -20px;}
 .ddp-box-layout4.ddp-layout-tableinfo .ddp-ui-list-type ul {padding:0 ;}
-.ddp-box-layout4 a.ddp-btn-close {display:inline-block; position:absolute; top:17px; right:20px; width:11px; height:11px; background:url(../images/btn_close.png) no-repeat; background-position:-12px -58px;}
+.ddp-box-layout4 a.ddp-btn-close {display:inline-block; position:absolute; top:17px; right:20px; width:11px; height:11px !important; background:url(../images/btn_close.png) no-repeat; background-position:-12px -58px;}
 
 .ddp-box-layout4 .ddp-data-explain {padding:11px 15px; color:#b7bac1; font-size:12px; border-bottom:1px solid #e7e7ea; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; overflow:hidden; box-sizing:border-box;}
-.ddp-box-layout4 .ddp-data-title {padding:15px 14px 15px 14px; color:#4b515b; font-size:12px; font-weight:bold;}
-.ddp-box-layout4 .ddp-data-title + .ddp-data-det {padding-top:0;}
+
 .ddp-box-layout4 .ddp-txt-strong {padding:20px 0 0 0; color:#d62d1f; font-size:12px;}
 .ddp-box-layout4 table.ddp-table-info {width:100%;padding:10px 0;}
 .ddp-box-layout4 table.ddp-table-info tr th {padding:2px 15px 2px 15px; color:#b7bac1; text-align:left; font-size:12px; vertical-align:top;}
@@ -7419,6 +7419,9 @@ table.ddp-table-type3.ddp-popup tr td {padding:10px 10px 11px 10px;}
 .ddp-data-details.ddp-ui-preview-contents .ddp-table-form {white-space:nowrap;}
 .ddp-data-details.ddp-ui-preview-contents table tr th {border-bottom:1px solid #e9e9ec;}
 .ddp-data-details.ddp-ui-preview-contents .ddp-ui-selected-option.ddp-selected .ddp-wrap-popup2 {left:inherit; right:0px; width:140px;}
+
+
+
 .ddp-ui-preview-contents table.ddp-table-form.ddp-table-details tbody tr:nth-child(odd):hover td {background-color:#fafafa;}
 .ddp-ui-preview-contents table.ddp-table-form.ddp-table-details tbody tr:nth-child(even):hover td {background-color:#fff;}
 /*.ddp-ui-preview-contents table.ddp-table-form.ddp-table-details tbody tr td:hover {background-color:#f1f1f3 !important; cursor:pointer;}*/
@@ -8387,12 +8390,10 @@ em.ddp-icon-mapview3-w:before {background-position-x:0;}
 .ddp-map-tooltip .ddp-label {display:block; padding-bottom:6px; color:#fff; font-size:14px; font-weight:bold; vertical-align:middle;}
 .ddp-map-tooltip .ddp-label [class*="ddp-icon-mapview"] {margin-right:5px;}
 
-
-.ddp-map-tooltip .ddp-data-tooltip + .ddp-data-tooltip{padding:8px 0 0 0;}
-.ddp-map-tooltip .ddp-data-tooltip dt {color:#d0d1d8; font-size:13px; font-weight:normal; text-align:left; white-space:normal;}
-.ddp-map-tooltip .ddp-data-tooltip dd {color:#fff; font-size:13px; white-space:normal;}
-
-
+.ddp-map-tooltip .ddp-data-tooltip {margin-bottom:8px;}
+.ddp-map-tooltip .ddp-data-tooltip:last-of-type {margin-bottom:0px;}
+.ddp-map-tooltip .ddp-data-tooltip .ddp-title {color:#d0d1d8; font-size:13px; font-weight:normal; text-align:left; white-space:normal;}
+.ddp-map-tooltip .ddp-data-tooltip .ddp-det {color:#fff; font-size:13px; white-space:normal;}
 
 .ddp-list-datavalue > li {position:relative; padding:5px 28px 5px 10px; background-color:#eeeef0; color:#4a525c; font-size:13px; cursor:pointer;}
 .ddp-list-datavalue > li + li {margin-top:2px;}

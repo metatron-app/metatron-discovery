@@ -14,28 +14,26 @@
 
 package app.metatron.discovery.domain.workbook.configurations.chart;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import org.junit.Test;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 
 /**
- * Created by kyungtaak on 2016. 4. 18..
+ * Gauge chart spec. Test
  */
 public class GaugeChartTest extends ChartTest {
 
   @Test
-  public void de_serialize() throws JsonProcessingException {
+  public void de_serialize() {
 
-    // 범례
-    //
     ChartLegend legend = new ChartLegend();
 
     ChartAxis xAxis = new ChartAxis(true, "test", true, null, null, null);
     ChartAxis yAxis = new ChartAxis(true, null, true, null, null, null);
 
-    GaugeChart chart = new GaugeChart(colorByDimensionForGauge(), valueNumberFormat(), legend, null, fontLargerSize(), null, null, xAxis, yAxis);
+    GaugeChart chart = new GaugeChart(colorByDimensionForGauge(), valueNumberFormat(), legend, null, fontLargerSize(), null, null,
+                                      500,
+                                      xAxis, yAxis);
 
     String gaugeChartStr = GlobalObjectMapper.writeValueAsString(chart);
 

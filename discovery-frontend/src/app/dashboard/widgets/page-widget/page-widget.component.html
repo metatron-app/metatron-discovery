@@ -21,6 +21,21 @@
 
     <!-- 버튼 목록 -->
     <div class="ddp-ui-buttons" >
+
+      <!-- Data Limit Info -->
+      <div class="ddp-box-btn2" *ngIf="limitInfo.isShow">
+        <em class="ddp-icon-widget-info2"></em>
+        <!-- box info -->
+        <div class="ddp-box-info ddp-limitation">
+          <em class="ddp-icon-info"></em>
+          <span class="ddp-total"
+                [innerHTML]="'msg.page.ui.limit-msg-1' | translate : { currentCnt : limitInfo.currentCnt | numberCommas , maxCnt : limitInfo.maxCnt | numberCommas }" ></span>
+          {{'msg.page.ui.limit-msg-2' | translate}}
+        </div>
+        <!-- box info -->
+      </div>
+      <!-- // Data Limit Info -->
+
       <!-- 차트 영역 선택 버튼 -->
       <div class="ddp-box-btn-hover"
            *ngIf="!isGridType() && chartFuncValidator.checkUseMultiSelectionByTypeString( chartType )">
@@ -130,7 +145,7 @@
         <em class="ddp-icon-widget-edit"></em>
         <!-- 툴팁 -->
         <div class="ddp-ui-tooltip-info">
-          <em class="ddp-icon-view-down"></em> {{  'msg.comm.ui.edit' | translate }}
+          <em class="ddp-icon-view-down"></em> {{ 'msg.comm.ui.edit' | translate }}
         </div>
         <!-- // 툴팁 -->
       </div>

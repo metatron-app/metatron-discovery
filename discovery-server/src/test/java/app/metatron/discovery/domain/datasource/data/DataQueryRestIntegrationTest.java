@@ -12,20 +12,6 @@
  * limitations under the License.
  */
 
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package app.metatron.discovery.domain.datasource.data;
 
 import com.google.common.collect.Lists;
@@ -84,7 +70,6 @@ import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFor
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
 
-import static app.metatron.discovery.domain.datasource.data.result.ChartResultFormat.OPTION_INTERSECION_VALUE;
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 
@@ -1235,7 +1220,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Limit
     Limit limit = new Limit();
-    limit.setLimit(1000000);
+    limit.setLimit(2);
     limit.setSort(Lists.newArrayList(
         //new Sort("OrderDate", Sort.Direction.ASC)
     ));
@@ -1312,9 +1297,9 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     ChartResultFormat format = new ChartResultFormat("bar");
     format.addOptions("showPercentage", true);
     format.addOptions("showCategory", true);
-    format.addOptions(OPTION_INTERSECION_VALUE, 30.59);
     format.addOptions("addMinMax", true);
     request.setResultFormat(format);
+    //request.setMetaQuery(true);
 
 
     // @formatter:off
@@ -1574,14 +1559,14 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Limit
     Limit limit = new Limit();
-    limit.setLimit(1000000);
+    limit.setLimit(5);
 
     List<Filter> filters = Lists.newArrayList();
 
     // Case 1. 교차에 차원값 1개, 측정값 1개씩
     Pivot pivot1 = new Pivot();
     pivot1.setAggregations(Lists.newArrayList(
-        new DimensionField("Category"),
+        new DimensionField("City"),
         new MeasureField("Sales", MeasureField.AggregationType.AVG)
     ));
 
@@ -1721,7 +1706,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Limit
     Limit limit = new Limit();
-    limit.setLimit(1000000);
+    limit.setLimit(5);
 
     List<Filter> filters = Lists.newArrayList();
     //List<Filter> filters = Lists.newArrayList(new IntervalFilter("OrderDate", 1, "MINUTES"));
@@ -1752,7 +1737,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         new MeasureField("Sales", MeasureField.AggregationType.AVG)
     ));
 
-    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot3, limit);
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot1, limit);
     ChartResultFormat format = new ChartResultFormat("heatmap");
     format.addOptions("showPercentage", true);
     format.addOptions("showCategory", true);
@@ -1832,7 +1817,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Limit
     Limit limit = new Limit();
-    limit.setLimit(1000000);
+    limit.setLimit(5);
 
     List<Filter> filters = Lists.newArrayList();
 
@@ -1840,7 +1825,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     Pivot pivot1 = new Pivot();
     pivot1.setAggregations(Lists.newArrayList(
         new MeasureField("Sales", MeasureField.AggregationType.AVG),
-        new DimensionField("Category")
+        new DimensionField("City")
     ));
 
     // Case 1. 교차에 측정값 1개 + 차원값 1개씩
@@ -1850,7 +1835,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         new DimensionField("Category"), new DimensionField("Sub-Category")
     ));
 
-    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot2, limit);
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot1, limit);
     ChartResultFormat format = new ChartResultFormat("pie");
     format.addOptions("showPercentage", true);
     format.addOptions("showCategory", true);
