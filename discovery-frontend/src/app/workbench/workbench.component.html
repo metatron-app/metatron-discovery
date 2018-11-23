@@ -108,7 +108,7 @@
          'ddp-none':isQueryEditorFull,
          'ddp-fold' : !isOpenTableSchema && isLeftMenuOpen && !isQueryEditorFull }"
          style="width:20%;">
-      <div class="ddp-view-benchlnb" >
+      <div class="ddp-view-benchlnb" [ngStyle]="{'min-width': isLeftMenuOpen ? '260px;':''}">
         <a href="javascript:" class="ddp-btn-folding" (click)="leftMenuOpen()"></a>
         <div class="ddp-box-benchlnb">
           <!-- wrap name -->
