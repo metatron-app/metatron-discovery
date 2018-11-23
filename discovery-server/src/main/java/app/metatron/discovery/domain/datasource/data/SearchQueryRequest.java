@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.datasource.data;
 import com.google.common.collect.Lists;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -113,6 +114,12 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
    * Optional, Configure to not be affected by recommendation filters, if true
    */
   Boolean preview = false;
+
+  /**
+   *
+   */
+  @JsonIgnore
+  Boolean includeTotalCount;
 
   public SearchQueryRequest() {
     // Empty Constructor
@@ -367,6 +374,14 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
 
   public void setGroupingSets(List<List<String>> groupingSets) {
     this.groupingSets = groupingSets;
+  }
+
+  public Boolean getIncludeTotalCount() {
+    return includeTotalCount;
+  }
+
+  public void setIncludeTotalCount(Boolean includeTotalCount) {
+    this.includeTotalCount = includeTotalCount;
   }
 
   @Override

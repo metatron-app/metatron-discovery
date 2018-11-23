@@ -14,8 +14,6 @@
 
 package app.metatron.discovery.domain.workbook.configurations.chart;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +28,7 @@ import app.metatron.discovery.domain.workbook.configurations.format.CurrencyForm
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 
 /**
- * Created by kyungtaak on 2016. 4. 18..
+ * Text Table spec. Test
  */
 public class GridChartTest {
 
@@ -41,8 +39,6 @@ public class GridChartTest {
   @Test
   public void de_serialize() throws IOException {
 
-    // 색상
-    //
     ChartColor color = new ChartColorByMeasure("schema1");
 
     FieldFormat valueFormat = new CurrencyFormat(5, true, "$");
@@ -57,11 +53,13 @@ public class GridChartTest {
 
     GridChart.TotalValueStyle totalValueStyle =
         new GridChart.TotalValueStyle("총합", "SUM", HAlign.LEFT.name(), VAlign.CENTER.name(),
-                                 FontSize.NORMAL.name(), "#COLOR", Lists.newArrayList(GridChart.FontStyle.BOLD.name()), "#COLOR");
+                                      FontSize.NORMAL.name(), "#COLOR", Lists.newArrayList(GridChart.FontStyle.BOLD.name()), "#COLOR");
 
     GridChart.Annotation annotation = new GridChart.Annotation("단위: 000원", GridChart.AnnotationPosition.BOTTOM_LEFT.name());
 
-    GridChart chart = new GridChart(color, valueFormat, GridChart.DataType.PIVOT.name(), GridChart.MeasureLayout.VERTICAL.name(),
+    GridChart chart = new GridChart(color, valueFormat,
+                                    500,
+                                    GridChart.DataType.PIVOT.name(), GridChart.MeasureLayout.VERTICAL.name(),
                                     headerStyle, contentStyle, totalValueStyle, annotation);
 
     System.out.println(chart.toString());
@@ -76,47 +74,4 @@ public class GridChartTest {
 
   }
 
-  @Test
-  public void deserialize() throws IOException {
-
-    String chartSpec = "{\n" +
-        "  \"type\": \"grid\",\n" +
-        "  \"color\": {\n" +
-        "    \"type\": \"measure\",\n" +
-        "    \"schema\": \"schema1\"\n" +
-        "  },\n" +
-        "  \"dataType\": \"PIVOT\",\n" +
-        "  \"measureLayout\": \"VERTICAL\",\n" +
-        "  \"headerStyle\": {\n" +
-        "    \"showHeader\": true,\n" +
-        "    \"hAlign\": \"CENTER\",\n" +
-        "    \"vAlign\": \"CENTER\",\n" +
-        "    \"fontSize\": \"NORMAL\",\n" +
-        "    \"fontColor\": \"#COLOR\",\n" +
-        "    \"fontStyles\": [\n" +
-        "      \"BOLD\"\n" +
-        "    ],\n" +
-        "    \"backgroudColor\": \"#COLOR\"\n" +
-        "  },\n" +
-        "  \"contentStyle\": {\n" +
-        "    \"showHeader\": true,\n" +
-        "    \"hAlign\": \"LEFT\",\n" +
-        "    \"vAlign\": \"CENTER\",\n" +
-        "    \"fontSize\": \"NORMAL\",\n" +
-        "    \"fontColor\": \"#COLOR\",\n" +
-        "    \"fontStyles\": [\n" +
-        "      \"BOLD\"\n" +
-        "    ],\n" +
-        "    \"backgroudColor\": \"#COLOR\"\n" +
-        "  },\n" +
-        "  \"annotation\": {\n" +
-        "    \"label\": \"단위: 000원\",\n" +
-        "    \"pos\": \"BOTTOM_LEFT\"\n" +
-        "  }\n" +
-        "}";
-
-    Chart chart = GlobalObjectMapper.readValue(chartSpec, Chart.class);
-
-    System.out.println("ToString Result - \n" + ToStringBuilder.reflectionToString(chart, ToStringStyle.MULTI_LINE_STYLE));
-  }
 }

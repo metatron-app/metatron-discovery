@@ -14,10 +14,6 @@
 
 package app.metatron.discovery.domain.workbook.configurations.chart;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,7 +22,7 @@ import java.io.IOException;
 import app.metatron.discovery.common.GlobalObjectMapper;
 
 /**
- * Created by kyungtaak on 2016. 4. 18..
+ * Scatter chart spec. Test
  */
 public class ScatterChartTest extends ChartTest {
 
@@ -35,62 +31,27 @@ public class ScatterChartTest extends ChartTest {
   }
 
   @Test
-  public void serialize() throws JsonProcessingException {
+  public void de_serialize() throws IOException {
 
-    // 범례
-    //
     ChartLegend legend = new ChartLegend();
 
     ChartAxis xAxis = new ChartAxis(true, "test", true, null, null, null);
     ChartAxis yAxis = new ChartAxis(true, null, true, null, null, null);
 
     ScatterChart chart = new ScatterChart(colorByMeasureForSection(), null, legend, null, fontLargerSize(), null, null,
+                                          500,
                                           ScatterChart.PointShape.RECT.name(),
                                           ScatterChart.PointSize.XLARGE.name(), 0,
                                           xAxis, yAxis);
 
-    System.out.println(GlobalObjectMapper.writeValueAsString(chart));
+    String chartStr = GlobalObjectMapper.writeValueAsString(chart);
 
-  }
+    System.out.println(chartStr);
 
-  @Test
-  public void deserialize() throws IOException {
+    Chart deSerialized = GlobalObjectMapper.getDefaultMapper().readValue(chartStr, Chart.class);
 
-    String chartSpec = "{\n" +
-        "  \"type\": \"scatter\",\n" +
-        "  \"color\": {\n" +
-        "    \"type\": \"measure\",\n" +
-        "    \"ranges\": [\n" +
-        "      {\n" +
-        "        \"gt\": 0,\n" +
-        "        \"lte\": 20,\n" +
-        "        \"color\": \"#FFFFFF\"\n" +
-        "      },\n" +
-        "      {\n" +
-        "        \"gt\": 21.0,\n" +
-        "        \"lte\": 203.12,\n" +
-        "        \"color\": \"#FFFFFD\"\n" +
-        "      }\n" +
-        "    ]\n" +
-        "  },\n" +
-        "  \"legend\": {},\n" +
-        "  \"pointShape\": \"RECT\",\n" +
-        "  \"pointSize\": \"XLARGE\",\n" +
-        "  \"pointTransparency\": 0,\n" +
-        "  \"xAxis\": {\n" +
-        "    \"showName\": true,\n" +
-        "    \"customName\": \"test\",\n" +
-        "    \"showLabel\": true\n" +
-        "  },\n" +
-        "  \"yAxis\": {\n" +
-        "    \"showName\": true,\n" +
-        "    \"showLabel\": true\n" +
-        "  }\n" +
-        "}";
+    System.out.println("Result : " + deSerialized.toString());
 
-    Chart chart = GlobalObjectMapper.readValue(chartSpec, Chart.class);
-
-    System.out.println("ToString Result - \n" + ToStringBuilder.reflectionToString(chart, ToStringStyle.MULTI_LINE_STYLE));
   }
 
 }

@@ -253,8 +253,10 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
     this.dashboard = DashboardUtil.setUseWidgetInLayout(this.dashboard, widgetId, false);
 
     const widgetComponent = this._getWidgetComponentRef(widgetId);
+    const widgetHeaderComp = this._getWidgetHeaderComp(widgetId);
     if (widgetComponent) {
       widgetComponent.destroy();
+      ( widgetHeaderComp ) && ( widgetHeaderComp.ngOnDestroy() );
       this._getLayoutCompContainerByWidgetId(widgetId).remove();
     }
     this._widgetComps = this._widgetComps.filter(item => item.instance.getWidgetId() !== widgetId);
@@ -1206,6 +1208,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    */
   public destroyDashboard() {
     if (this._widgetComps && 0 < this._widgetComps.length) {
+      this._widgetHeaderComps.forEach(item => item.destroy());
       this._widgetComps.forEach(item => item.destroy());
     }
     (this._layoutObj) && (this._layoutObj.destroy());
@@ -1308,7 +1311,6 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
               filterWidgets.forEach((item, index) => {
                 if (0 < index) {
                   promises.push(new Promise((res) => {
-                    console.info('>>>>> remove widget', item.id);
                     this.widgetService.deleteWidget(item.id)
                       .then(() => {
                         boardInfo.widgets = boardInfo.widgets.filter(widgetItem => widgetItem.id !== item.id);

@@ -15,7 +15,6 @@
 
 @charset "utf-8";
 
-
 /**************************************************************
 	라벨 인풋 폼 (사용자필드)
 **************************************************************/
@@ -170,7 +169,6 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .ddp-type-selectbox.ddp-type-filter .ddp-list-selectbox li a {font-size:13px; cursor:default;}
 .ddp-box-board-filter.ddp-calen .ddp-type-selectbox.ddp-type-filter .ddp-list-selectbox li a {font-size:12px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
 .ddp-type-selectbox.ddp-type-filter .ddp-list-selectbox li a:hover {background:#fff;}
-
 
 
 
@@ -715,10 +713,10 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 /**************************************************************
   meta-grid
 **************************************************************/
-.meta-grid[_nghost-c1] .slick-headerrow-columns {height:25px !important;}
-.meta-grid[_nghost-c1] .slick-headerrow.ui-state-default {margin-top:-1px; border-top:1px solid #fff;}
-.meta-grid[_nghost-c1] .slick-headerrow .slick-data {padding:0 10px 10px 10px; text-align:left; color:#b7b9c2; font-size:12px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
-.meta-grid[_nghost-c1] .slick-viewport {top:55px !important;}
+.meta-grid .slick-headerrow-columns {height:25px !important;}
+.meta-grid .slick-headerrow.ui-state-default {margin-top:-1px; border-top:1px solid #fff;}
+.meta-grid .slick-headerrow .slick-data {padding:0 10px 10px 10px; text-align:left; color:#b7b9c2; font-size:12px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
+.meta-grid .slick-viewport {top:55px !important;}
 
 /**************************************************************
   split
