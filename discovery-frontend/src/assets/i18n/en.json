@@ -1219,7 +1219,10 @@
   "msg.dp.btn.switch.editor" : "Switch to editor",
   "msg.dp.btn.switch.builder" : "Switch to builder",
   "msg.dp.btn.create.dataflow.dataset" : "Create dataflow with this dataset",
-
+  "msg.dp.ui.swap.dataset" : "Swap dataset",
+  "msg.dp.ui.change.input.dataset" : "Change input dataset",
+  "msg.dp.ui.search-by.dataset" :"Search by dataset name",
+  "msg.dp.ui.one.col.required" : "At least one column is required",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",
