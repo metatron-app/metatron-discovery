@@ -61,7 +61,10 @@
           </th>
           <td>
             <span class="ddp-data-state"
-                  [ngClass]="{'ddp-fail' : audit.status.toString() === 'FAIL', 'ddp-success' : audit.status.toString() === 'SUCCESS'}">
+                  [ngClass]="{'ddp-fail' : (audit.status && audit.status.toString() === 'FAIL')
+              , 'ddp-success' : (audit.status && audit.status.toString() === 'SUCCESS')
+              , 'ddp-cancelled' : (audit.status && audit.status.toString() === 'CANCELLED')
+              , 'ddp-running' : (audit.status && audit.status.toString() === 'RUNNING')}">
               {{audit.status}}
             </span>
           </td>
