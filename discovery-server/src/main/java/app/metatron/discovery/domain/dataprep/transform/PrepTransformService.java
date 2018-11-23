@@ -680,11 +680,7 @@ public class PrepTransformService {
 
     for (int i = 1; i < ruleStrings.size(); i++) {
       String ruleString = ruleStrings.get(i);
-      try {
-        gridResponse = teddyImpl.append(dsId, i - 1, ruleString, true);
-      } catch (TeddyException te) {
-        LOGGER.info("load_internal(): A TeddyException is suppressed: {}", te.getMessage());
-      }
+      gridResponse = teddyImpl.append(dsId, i - 1, ruleString, true);
     }
     updateTransformRules(dsId);
     adjustStageIdx(dsId, ruleStrings.size() - 1, true);

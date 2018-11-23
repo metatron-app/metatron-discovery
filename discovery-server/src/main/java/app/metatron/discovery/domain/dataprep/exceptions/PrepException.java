@@ -93,6 +93,7 @@ public class PrepException extends MetatronException {
         return new PrepException(code, messageKey.getMessageKey(), detail);
     }
 
+    // FIXME: convert all TeddyException into PrepException WITH the detail messages.
     static public PrepException fromTeddyException(TeddyException e) {
         if (e instanceof CannotCastFromException)
             return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_CANNOT_CAST_FROM);
