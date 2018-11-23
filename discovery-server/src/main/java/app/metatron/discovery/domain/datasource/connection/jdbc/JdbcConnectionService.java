@@ -1843,7 +1843,7 @@ public class JdbcConnectionService {
     if(connection.getPropertiesMap() != null){
       for(String propertyKey : connection.getPropertiesMap().keySet()){
         if(StringUtils.startsWith(propertyKey, JdbcDataConnection.JDBC_PROPERTY_PREFIX)){
-          String nativePropertyKey = StringUtils.replaceFirst(propertyKey, JdbcDataConnection.JDBC_PROPERTY_PREFIX + ".'", "");
+          String nativePropertyKey = StringUtils.replaceFirst(propertyKey, JdbcDataConnection.JDBC_PROPERTY_PREFIX, "");
           properties.setProperty(nativePropertyKey, connection.getPropertiesMap().get(propertyKey));
         }
       }
