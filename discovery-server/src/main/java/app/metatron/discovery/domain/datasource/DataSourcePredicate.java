@@ -107,7 +107,7 @@ public class DataSourcePredicate {
     BooleanExpression published = dataSource.id
         .in(JPAExpressions.select(dataSource.id)
                           .from(dataSource)
-                          .where(dataSource.published.eq(true)));
+                          .where(dataSource.published.eq(true), dataSource.status.eq(DataSource.Status.ENABLED)));
 
     BooleanBuilder builder = new BooleanBuilder();
 
