@@ -186,7 +186,7 @@
               [class.ddp-fail]="audit.status && audit.status.toString() === 'FAIL'"
               [class.ddp-success]="audit.status && audit.status.toString() === 'SUCCESS'"
               [class.ddp-running]="audit.status && audit.status.toString() === 'RUNNING'"
-              [class.ddp-ddp-cancelled]="audit.status && audit.status.toString() === 'CANCELLED'">
+              [class.ddp-cancelled]="audit.status && audit.status.toString() === 'CANCELLED'">
           {{audit.status}}
         </span>
         </td>
