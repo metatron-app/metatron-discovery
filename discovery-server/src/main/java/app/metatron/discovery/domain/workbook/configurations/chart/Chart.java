@@ -84,6 +84,11 @@ public abstract class Chart implements Serializable {
    */
   ChartToolTip toolTip;
 
+  /**
+   * Limitation value of category
+   */
+  Integer limit;
+
   public Chart() {
   }
 
@@ -94,6 +99,17 @@ public abstract class Chart implements Serializable {
                String fontSize,
                ChartDataLabel dataLabel,
                ChartToolTip toolTip) {
+    this(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip, null);
+  }
+
+  public Chart(ChartColor color,
+               FieldFormat valueFormat,
+               ChartLegend legend,
+               List<ChartZoom> chartZooms,
+               String fontSize,
+               ChartDataLabel dataLabel,
+               ChartToolTip toolTip,
+               Integer limit) {
     this.color = color;
     this.valueFormat = valueFormat;
     this.legend = legend;
@@ -101,6 +117,7 @@ public abstract class Chart implements Serializable {
     this.fontSize = EnumUtils.getUpperCaseEnum(FontSize.class, fontSize, FontSize.NORMAL);
     this.dataLabel = dataLabel;
     this.toolTip = toolTip;
+    this.limit = limit;
   }
 
   public ChartColor getColor() {
@@ -129,6 +146,10 @@ public abstract class Chart implements Serializable {
 
   public ChartToolTip getToolTip() {
     return toolTip;
+  }
+
+  public Integer getLimit() {
+    return limit;
   }
 
   @Override

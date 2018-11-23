@@ -74,6 +74,8 @@ import {UIChartDataLabel} from '../../common/component/chart/option/ui-option/ui
 import {ColorPickerComponent} from '../../common/component/color-picker/color.picker.component';
 import {ColorPicker} from '../../common/component/color-picker/colorpicker';
 import {BarColor, UIWaterfallChart} from '../../common/component/chart/option/ui-option/ui-waterfall-chart';
+import {isNullOrUndefined} from "util";
+import {OptionGenerator} from "../../common/component/chart/option/util/option-generator";
 
 @Component({
   selector: 'common-option',
@@ -136,6 +138,8 @@ export class CommonOptionComponent extends BaseOptionComponent {
   public pivot: Pivot;
   public pivotTemp: Pivot;
 
+  public limitPlaceHolder:number;
+
   // 차트정보
   @Input('uiOption')
   public set setUiOption(uiOption: UIOption) {
@@ -144,9 +148,8 @@ export class CommonOptionComponent extends BaseOptionComponent {
     this.uiOption = uiOption;
 
     // limit값이 체크되고 size값이 없는경우 기본값 설정
-    if (!this.uiOption.limitCheck) {
-      this.uiOption.size = this.DEFAULT_LIMIT;
-    }
+    this._setLimit( uiOption.limit );
+    this.limitPlaceHolder = OptionGenerator.defaultLimit( this.uiOption.type );
 
     // Pivot 설정
     if (_.isUndefined(this.pivot)) {
@@ -413,7 +416,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
   public kpiTextTemp: string = "";
 
   // 기본 limit값
-  public DEFAULT_LIMIT: number = 10;
+  public DEFAULT_LIMIT: number = 1000;
 
   // grid position 리스트
   public remarkPositionList: Object[] = [
@@ -1300,17 +1303,24 @@ export class CommonOptionComponent extends BaseOptionComponent {
   }
 
   /**
-   * Bar - Limit 변경
-   * @param limit
+   * Limit 변경
+   * @param {number} limit
+   * @param {boolean} isLimitCheck
    */
-  // public onLimitChange(limit: number): void {
-  //
-  //   // limit값이 null인경우 limitCheck값 false로 설정
-  //   if (_.isNull(limit)) this.uiOption.limitCheck = false;
-  //
-  //   this.uiOption.size = limit;
-  //   this.update({});
-  // }
+  public onLimitChange(limit: number, isLimitCheck?:boolean): void {
+
+    if( !isNullOrUndefined(isLimitCheck) ) {
+      this.uiOption.limitCheck = isLimitCheck;
+    }
+
+    this.safelyDetectChanges();
+
+    // limit값이 null인경우 limitCheck값 false로 설정
+    if (_.isNull(limit)) this.uiOption.limitCheck = false;
+
+    this._setLimit(limit);
+    this.update({});
+  }
 
   /**
    * Grid - 설명추가 버튼클릭시
@@ -1570,6 +1580,20 @@ export class CommonOptionComponent extends BaseOptionComponent {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Limit 설정
+   * @param limit
+   * @private
+   */
+  private _setLimit( limit:number ) {
+    // limit값이 체크되고 size값이 없는경우 기본값 설정
+    if (this.uiOption.limitCheck) {
+      this.uiOption.limit = ( limit ) ? limit : OptionGenerator.defaultLimit( this.uiOption.type );
+    } else {
+      this.uiOption.limit = undefined;
+    }
+    this.safelyDetectChanges();
+  } // function - _setLimit
 
   /**
    * 차트표시방향에 따라 dataLabel position값 설정

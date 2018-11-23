@@ -70,7 +70,7 @@
 /**************************************************************
    맵 차트 tooltip
 **************************************************************/
-.ddp-page-mapview .ddp-map-tooltip .ddp-tooltip-view {display:inline-block; position:absolute; left:90px; bottom:-6px; width:4px; height:8px; background:url(../../../images/icon_tagview.png) no-repeat; transform:rotate(-90deg);}
+.ddp-map-tooltip .ddp-tooltip-view {display:inline-block; position:absolute; left:90px; bottom:-6px; width:4px; height:8px; background:url(../../../images/icon_tagview.png) no-repeat; transform:rotate(-90deg);}
 
 /* 라이브러리 tooltip */
 .ol-viewport {overflow:inherit !important;}

@@ -401,12 +401,14 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public webSocketCheck(callback?: Function) {
     this.checkAndConnectWebSocket(true).then(() => {
       try {
-        this.createWebSocket(callback);
+        this.createWebSocket(() => {
+          this.websocketId = CommonConstant.websocketId;
+          WorkbenchService.websocketId = CommonConstant.websocketId;
+          (callback) && (callback.call(this));
+        });
       } catch (e) {
         console.log(e);
       }
-      this.websocketId = CommonConstant.websocketId;
-      WorkbenchService.websocketId = CommonConstant.websocketId;
     });
   } // function - webSocketCheck
 
@@ -1246,13 +1248,16 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         }
       })
       .catch((error) => {
+        this.isExecutingQuery = false;
+        this.loadingBar.hide();
         if (!isUndefined(error.details) && this._executeSqlReconnectCnt <= 5) {
-          // Alert.error(error.details);
           this.webSocketCheck(() => {
-            this.setExecuteSql(param)
+            this.setExecuteSql(param);
           });
         } else {
-          Alert.error(error);
+          // count 초기화
+          this._executeSqlReconnectCnt = 0;
+          Alert.error(error.message);
         }
       });
 
@@ -1265,6 +1270,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public runQueries(resultTabId: string) {
 
     const resultTab: ResultTab = this._getResultTab(resultTabId);
+    resultTab.queryEditor.webSocketId = this.websocketId;
     resultTab.initialize();
     resultTab.executeTimer();
     this.runningResultTabId = resultTab.id;
@@ -1331,9 +1337,14 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         }
       })
       .catch((error) => {
+        this.isExecutingQuery = false;
+        this.loadingBar.hide();
         if (!isUndefined(error.details) && this._executeSqlReconnectCnt <= 5) {
-          this.webSocketCheck(() => this.retryQuery(item));
+          this.webSocketCheck(() => {
+            this.retryQuery(item);
+          });
         } else {
+          this._executeSqlReconnectCnt = 0;
           Alert.error(error);
         }
       });
@@ -1386,6 +1397,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public resizeQueryEditor() {
     this.isQueryEditorFull = !this.isQueryEditorFull;
+
+    const element = $('html');
+    ( this.isQueryEditorFull ? element.addClass('ddp-width-auto') : element.removeClass('ddp-width-auto') );
+
     this._toggleHorizontalSlider();
     this.onEndedResizing();
   } // function - resizeQueryEditor
@@ -2137,7 +2152,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           };
         }
 
-        (callback) && (callback.call(this));
+        if( 'CONNECT' == data.command ){
+          (callback) && (callback.call(this));
+        }
+
       }, headers);
       // 메세지 발신
       const params = {

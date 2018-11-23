@@ -51,9 +51,10 @@ public class HeatMapChart extends Chart {
                       @JsonProperty("fontSize") String fontSize,
                       @JsonProperty("dataLabel") ChartDataLabel dataLabel,
                       @JsonProperty("toolTip") ChartToolTip toolTip,
+                      @JsonProperty("limit") Integer limit,
                       @JsonProperty("xAxis") ChartAxis xAxis,
                       @JsonProperty("yAxis") ChartAxis yAxis) {
-    super(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip);
+    super(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip, limit);
     this.xAxis = xAxis;
     this.yAxis = yAxis;
   }

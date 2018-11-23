@@ -103,6 +103,10 @@ import { MapType } from '../define/map/map-common';
 
 export namespace OptionGenerator {
 
+  // 축 라인
+  export function defaultLimit( type:ChartType ):number {
+    return (ChartType.SANKEY == type) ? 50 : 1000;
+  }
 
   export function initUiOption(uiOption: UIOption): UIOption {
 
@@ -167,6 +171,14 @@ export namespace OptionGenerator {
         console.info('스타일 초기화 실패 => ', type);
         break;
     }
+
+    // set default limit
+    if( type !== ChartType.WORDCLOUD && type !== ChartType.SANKEY && type !== ChartType.NETWORK
+      && type !== ChartType.GAUGE && type !== ChartType.TREEMAP ) {
+      uiOption.limitCheck = true;
+      uiOption.limit = OptionGenerator.defaultLimit( type );
+    }
+
     console.info('== initUiOption ==');
     console.info(uiOption);
     console.info('==================');

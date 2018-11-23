@@ -17,7 +17,6 @@ package app.metatron.discovery.domain.dataprep.teddy;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumnExpressionException;
-import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.SetType;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.ExprType;

@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-layout-chart" [ngClass]="{'ddp-page-mapview' : selectChart == 'map'}">
+<div class="ddp-layout-chart page-chart" [ngClass]="{'ddp-page-mapview' : selectChart == 'map'}">
 
   <div class="ddp-layout-contents2">
 
@@ -1188,6 +1188,22 @@
 
                 <!-- 차트 영역 -->
                 <div [class.ddp-sankey]="isSankeyNotAllNode && !isNoData && isChartView && selectChart == 'sankey'" class="ddp-ui-chart-area">
+
+                  <!-- Data Limit Info -->
+                  <div *ngIf="limitInfo.isShow" class="ddp-top-control ddp-clear" style="right:5px;">
+                    <div class="ddp-box-btn2" >
+                      <em class="ddp-icon-widget-info2"></em>
+                      <!-- box info -->
+                      <div class="ddp-box-info ddp-limitation">
+                        <em class="ddp-icon-info"></em>
+                        <span class="ddp-total"
+                              [innerHTML]="'msg.page.ui.limit-msg-1' | translate : { currentCnt : limitInfo.currentCnt | numberCommas , maxCnt : limitInfo.maxCnt | numberCommas }" ></span>
+                        {{'msg.page.ui.limit-msg-2' | translate}}
+                      </div>
+                      <!-- box info -->
+                    </div>
+                  </div>
+                  <!-- // Data Limit Info -->
 
                   <!-- Sankey Information -->
                   <div *ngIf="isSankeyNotAllNode && !isNoData && isChartView && selectChart == 'sankey'" class="ddp-txt-detail">※ {{'msg.page.ui.sankey.data.part' | translate}}</div>
