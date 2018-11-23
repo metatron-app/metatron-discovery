@@ -474,14 +474,14 @@ export class DatasourceService extends AbstractService {
 
               let measureList = _.filter(_.cloneDeep(pageConf.shelf.layers[layerNum]), (item) => {if (item.type === 'measure') return item});
 
-              // when it has measures
-              if (measureList && measureList.length > 0) {
-                layer.format = <GeoHashFormat>{
-                  type: FormatType.GEO_HASH.toString(),
-                  method: "h3",
-                  precision: precision
-                }
-              }
+              // TODO when it has measures => geo_hash is only used in hexagon
+              // if (measureList && measureList.length > 0) {
+              //   layer.format = <GeoHashFormat>{
+              //     type: FormatType.GEO_HASH.toString(),
+              //     method: "h3",
+              //     precision: precision
+              //   }
+              // }
 
               // when they have multiple geo values
               if(geoFieldCnt > 1) {
