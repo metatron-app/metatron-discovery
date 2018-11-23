@@ -197,6 +197,14 @@ public class JdbcConnectionService {
    * Find list of table from database
    */
   public Map<String, Object> findTablesInDatabase(JdbcDataConnection connection, String databaseName,
+                                                  String tableNamePattern, Pageable pageable) {
+    return findTablesInDatabase(connection, databaseName, tableNamePattern, null, pageable);
+  }
+
+  /**
+   * Find list of table from database
+   */
+  public Map<String, Object> findTablesInDatabase(JdbcDataConnection connection, String databaseName,
                                                   String tableName, String webSocketId, Pageable pageable) {
 
     DataSource dataSource = getDataSource(connection, true, webSocketId);
