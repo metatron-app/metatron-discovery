@@ -75,7 +75,7 @@
       <!-- // 차트 확대 버튼 -->
 
       <!-- 차트 정보 영역 -->
-      <div *ngIf="isShowChartTools" class="ddp-box-btn2" >
+      <div class="ddp-box-btn2" >
         <em (dblclick)="copyWidgetIdToClipboard()" class="ddp-icon-widget-info" (mouseover)="showInfoLayer($event)"></em>
         <!-- popup -->
         <div class="ddp-box-layout4" style="position:fixed;">
@@ -152,7 +152,7 @@
       <!-- // 차트 편집 버튼 -->
 
       <!-- 확대/축소 버튼 -->
-      <div *ngIf="isShowChartTools" class="ddp-box-btn2">
+      <div class="ddp-box-btn2">
         <em [ngClass]="{'ddp-icon-widget-downsize': isMaximize, 'ddp-icon-widget-full': !isMaximize}"
             (click)="toggleWidgetSize()"></em>
         <!-- 툴팁 -->

@@ -199,8 +199,6 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
       this.dashboard = this.widget.dashBoard;
       this.field = DashboardUtil.getFieldByName(this.widget.dashBoard, filter.dataSource, filter.field, filter.ref);
 
-      this.field = null;
-
       if (this.field) {
         // 필터 후보값 조회
         this._candidate(filter);
