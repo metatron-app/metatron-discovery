@@ -22,6 +22,7 @@ import app.metatron.discovery.query.druid.aggregations.*;
 @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.EXTERNAL_PROPERTY, property="type")
 @JsonSubTypes({
     @JsonSubTypes.Type(value = CountAggregation.class, name = "count"),
+    @JsonSubTypes.Type(value = RelayAggregation.class, name = "relay"),
     @JsonSubTypes.Type(value = LongSumAggregation.class, name = "longSum"),
     @JsonSubTypes.Type(value = DoubleSumAggregation.class, name = "doubleSum"),
     @JsonSubTypes.Type(value = DoubleMinAggregation.class, name = "doubleMin"),

@@ -36,6 +36,7 @@ public enum DataType {
   BOOLEAN,
   ARRAY,
   STRUCT,
+  WKT,
   MAP,
   UNKNOWN;
 
@@ -75,6 +76,31 @@ public enum DataType {
         return LogicalType.ARRAY;
       default:
         return LogicalType.STRING;
+    }
+  }
+
+  public String toEngineType() {
+    switch (this) {
+      case TEXT:
+      case STRING:
+        return "string";
+      case NUMBER:
+        return "number";
+      case INTEGER:
+        return "integer";
+      case LONG:
+        return "long";
+      case FLOAT:
+        return "float";
+      case DOUBLE:
+        return "double";
+      case TIMESTAMP:
+      case BOOLEAN:
+      case MAP:
+      case STRUCT:
+      case ARRAY:
+      default:
+        return "string";
     }
   }
 
@@ -174,16 +200,16 @@ public enum DataType {
       case "date":
       case "timestamp":
         return DataType.TIMESTAMP;
-//
-//      default:
-//        return DataType.STRING;
+      //
+      //      default:
+      //        return DataType.STRING;
     }
 
-    if(StringUtils.contains(type,"decimal")){
+    if (StringUtils.contains(type, "decimal")) {
       return DataType.DOUBLE;
     }
 
-    if(StringUtils.contains(type,"varchar")){
+    if (StringUtils.contains(type, "varchar")) {
       return DataType.STRING;
     }
 

@@ -36,6 +36,11 @@ public class Validation {
   public Validation() {
   }
 
+  public Validation(String columnName, String... exclusions) {
+    this.columnName = columnName;
+    this.exclusions = Lists.newArrayList(exclusions);
+  }
+
   public static Validation discardNullValidation(String columnName) {
     Validation validation = new Validation();
     validation.setColumnName(columnName);

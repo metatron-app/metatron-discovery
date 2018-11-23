@@ -12,14 +12,24 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.datasource.ingestion;
+package app.metatron.discovery.domain.datasource.ingestion.rule;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-@JsonTypeName("discard")
-public class DiscardRule implements IngestionRule {
+import app.metatron.discovery.spec.druid.ingestion.Validation;
 
-  public DiscardRule() {
+@JsonTypeName("discard")
+public class DiscardNullRule extends ValidationRule implements IngestionRule {
+
+  public DiscardNullRule() {
   }
 
+  @Override
+  public Validation toValidation(String name) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("\"").append(name).append("\"")
+      .append(" == ").append("null");
+
+    return new Validation(name, sb.toString());
+  }
 }

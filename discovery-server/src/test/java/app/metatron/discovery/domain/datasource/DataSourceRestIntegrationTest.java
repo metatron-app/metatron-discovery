@@ -59,12 +59,10 @@ import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
 import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
 import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
 import app.metatron.discovery.domain.datasource.ingestion.BatchPeriod;
-import app.metatron.discovery.domain.datasource.ingestion.DiscardRule;
 import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.ReplaceRule;
 import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.ExcelFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.JsonFileFormat;
@@ -74,10 +72,16 @@ import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInf
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.rule.DiscardNullRule;
+import app.metatron.discovery.domain.datasource.ingestion.rule.GeoPointRule;
+import app.metatron.discovery.domain.datasource.ingestion.rule.ReplaceNullRule;
 import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJobIntegrationTest;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+import app.metatron.discovery.domain.workbook.configurations.format.GeoFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.GeoPointFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.TemporaryTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
 import app.metatron.discovery.util.JsonPatch;
 import app.metatron.discovery.util.PolarisUtils;
@@ -1236,6 +1240,107 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  public void createDataSourceWithGeoCsvFileIngestionByAsync() throws JsonProcessingException {
+
+    StompHeaders stompHeaders = new StompHeaders();
+    stompHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    StompSession session = null;
+    try {
+      session = stompClient
+          .connect("ws://localhost:{port}/stomp", webSocketHttpHeaders, stompHeaders, new StompSessionHandlerAdapter() {}, serverPort)
+          .get(3, SECONDS);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_estate.csv").getPath();
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName("localFileIngestion_geo_" + PolarisUtils.randomString(5));
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(DAY);
+    dataSource.setSegGranularity(MONTH);
+    dataSource.setSrcType(FILE);
+
+    List<Field> fields = Lists.newArrayList();
+
+    Field timestampField = new Field("current_time", DataType.TIMESTAMP, TIMESTAMP, 0L);
+    timestampField.setDerived(true);
+    timestampField.setFormat(GlobalObjectMapper.writeValueAsString(new TemporaryTimeFormat()));
+    fields.add(timestampField);
+
+    fields.add(new Field("idx", DataType.STRING, DIMENSION, 1L));
+    fields.add(new Field("gu", DataType.STRING, DIMENSION, 2L));
+    fields.add(new Field("py", DataType.DOUBLE, MEASURE, 3L));
+    fields.add(new Field("amt", DataType.DOUBLE, MEASURE, 4L));
+
+    Field lonField = new Field("x", DataType.DOUBLE, DIMENSION, 4L);
+    lonField.setUnloaded(true);
+    fields.add(lonField);
+
+    Field latField = new Field("y", DataType.DOUBLE, DIMENSION, 4L);
+    latField.setUnloaded(true);
+    fields.add(latField);
+
+    fields.add(new Field("addr", DataType.STRING, DIMENSION, 5L));
+
+    Field locationField = new Field("location", DataType.STRUCT, DIMENSION, 4L);
+    locationField.setLogicalType(LogicalType.GEO_POINT);
+    locationField.setDerived(true);
+    locationField.setDerivationRule(GlobalObjectMapper.writeValueAsString(new GeoPointRule(null, latField.getName(), lonField.getName())));
+    locationField.setIngestionRule(GlobalObjectMapper.writeValueAsString(new DiscardNullRule()));
+    locationField.setFormat(GlobalObjectMapper.writeValueAsString(new GeoPointFormat(GeoFormat.DEFAULT_SRSNAME, null)));
+    fields.add(locationField);
+
+    dataSource.setFields(fields);
+
+    LocalFileIngestionInfo localFileIngestionInfo = new LocalFileIngestionInfo();
+    localFileIngestionInfo.setPath(targetFile);
+    localFileIngestionInfo.setRemoveFirstRow(false);
+    localFileIngestionInfo.setFormat(new CsvFileFormat(",", "\n"));
+
+    dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(localFileIngestionInfo));
+
+    String reqBody = GlobalObjectMapper.writeValueAsString(dataSource);
+
+    System.out.println(reqBody);
+
+    // @formatter:off
+    Response dsRes =
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(reqBody)
+      .log().all()
+    .when()
+      .post("/api/datasources");
+
+    dsRes.then()
+      .statusCode(HttpStatus.SC_CREATED)
+    .log().all();
+    // @formatter:on
+
+    String id = from(dsRes.asString()).get("id");
+
+    StompHeaders stompSubscribeHeaders = new StompHeaders();
+    stompSubscribeHeaders.setDestination("/topic/datasources/" + id + "/progress");
+    stompSubscribeHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    session.subscribe(stompSubscribeHeaders, new DefaultStompFrameHandler());
+
+    try {
+      System.out.println("Sleep!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      Thread.sleep(1000000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithLocalCsvFileIngestion_UnixTimestamp() throws JsonProcessingException {
 
     String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_unix_timestamp_millis.csv").getPath();
@@ -2163,11 +2268,11 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
     Field dimReplaceField = new Field("d", DataType.STRING, DIMENSION, 1L);
     dimReplaceField.setIngestionRule(
-        GlobalObjectMapper.writeValueAsString(new ReplaceRule("null_replace_test")));
+        GlobalObjectMapper.writeValueAsString(new ReplaceNullRule("null_replace_test")));
 
     Field dimDiscardField = new Field("sd", DataType.STRING, DIMENSION, 2L);
     dimDiscardField.setIngestionRule(
-        GlobalObjectMapper.writeValueAsString(new DiscardRule()));
+        GlobalObjectMapper.writeValueAsString(new DiscardNullRule()));
 
     List<Field> fields = Lists.newArrayList();
     fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
@@ -2931,6 +3036,12 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
     testEngineIngestion.ingestionLocalFile(engineDataSourceName, ingestionSpec);
 
+  }
+
+
+  public class DataSourceCreationStompHander extends StompSessionHandlerAdapter {
+    public void handleFrame(StompHeaders headers, Object payload) {
+    }
   }
 
 }

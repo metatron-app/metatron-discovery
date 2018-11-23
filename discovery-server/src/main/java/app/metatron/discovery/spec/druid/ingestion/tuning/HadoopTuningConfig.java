@@ -294,10 +294,12 @@ public class HadoopTuningConfig implements TuningConfig {
     this.partitionsSpec = partitionsSpec;
   }
 
+  @Override
   public IndexSpec getIndexSpec() {
     return indexSpec;
   }
 
+  @Override
   public void setIndexSpec(IndexSpec indexSpec) {
     this.indexSpec = indexSpec;
   }

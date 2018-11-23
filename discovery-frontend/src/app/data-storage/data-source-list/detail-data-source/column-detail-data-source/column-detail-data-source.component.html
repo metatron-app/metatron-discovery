@@ -212,15 +212,15 @@
                   {{'msg.metadata.th.physical.type' | translate}}
                 </th>
                 <td>
-                  <span class="ddp-icon-type-txt" *ngIf="selectedField.role === 'TIMESTAMP'"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em>{{'msg.storage.ui.list.timestamp' | translate}}</span>
+                  <span class="ddp-icon-type-txt" *ngIf="selectedField.role === 'TIMESTAMP' || isGeoType(selectedField)"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em>{{getColumnTypeLabel(selectedField.logicalType, physicalTypeList)}}</span>
                   <!-- 클릭시 ddp-selected 추가 -->
                   <div class="ddp-hover-selectbox" [class.ddp-selected]="isShowPhysicalTypeFl"
-                       *ngIf="selectedField.role !== 'TIMESTAMP'"
+                       *ngIf="selectedField.role !== 'TIMESTAMP' && !isGeoType(selectedField)"
                        (click)="isShowPhysicalTypeFl = !isShowPhysicalTypeFl" (clickOutside)="isShowPhysicalTypeFl = false">
                     <a href="javascript:" class="ddp-icon-type"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em> {{getColumnTypeLabel(selectedField.logicalType, physicalTypeList)}}</a>
                     <div class="ddp-wrap-popup2 ddp-types">
                       <ul class="ddp-list-popup">
-                        <li [class.ddp-selected]="" *ngFor="let physicalType of physicalTypeList">
+                        <li [class.ddp-selected]="" *ngFor="let physicalType of getEnableChangePhysicalTypeList()">
                           <a href="javascript:" (click)="onChangeFieldPhysicalType(selectedField, physicalType)">
                             <em class="{{getFieldTypeIconClass(physicalType.value)}}"></em>
                             {{physicalType.label}}

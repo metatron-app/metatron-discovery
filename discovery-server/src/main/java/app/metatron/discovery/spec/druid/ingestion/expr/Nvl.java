@@ -15,9 +15,18 @@
 package app.metatron.discovery.spec.druid.ingestion.expr;
 
 /**
- * Created by kyungtaak on 2017. 2. 17..
+ * Null to value
  */
-public class NVL implements Function {
+public class Nvl implements Function {
+
+  String target;
+
+  Object defaultValue;
+
+  public Nvl(String target, Object defaultValue) {
+    this.target = target;
+    this.defaultValue = defaultValue;
+  }
 
   @Override
   public String getName() {
@@ -26,8 +35,16 @@ public class NVL implements Function {
 
   @Override
   public String expr() {
-    StringBuilder builder = new StringBuilder();
-    builder.append(getName()).append("(").append("");
-    return builder.toString();
+    StringBuilder sb = new StringBuilder();
+    sb.append(getName()).append("(")
+           .append("\"").append(target).append("\", ");
+
+    if(defaultValue instanceof String) {
+      sb.append("'").append(defaultValue).append("')");
+    } else {
+      sb.append(defaultValue).append(")");
+    }
+
+    return sb.toString();
   }
 }
