@@ -604,7 +604,9 @@ public class PrepTransformService {
     for (PrepDataset dataset : datasets) {
       if (dataset.getDsId().equals(oldDsId)) {
         datasets.remove(dataset);
-        datasets.add(newDataset);
+        if (!datasets.contains(newDataset)) {
+          datasets.add(newDataset);
+        }
         dataflow.setDatasets(datasets);
         dataflowRepository.save(dataflow);
         break;
