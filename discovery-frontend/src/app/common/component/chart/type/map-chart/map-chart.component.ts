@@ -1244,7 +1244,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
                   points: 3,
                   radius: featureSize,
                   rotation: Math.PI / 4,
-                  angle: 0,
+                  angle: -28,
                   stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
                 }),
                 stroke: new ol.style.Stroke({
