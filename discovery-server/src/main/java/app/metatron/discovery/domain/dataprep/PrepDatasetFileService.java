@@ -48,6 +48,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Future;
@@ -744,6 +746,7 @@ public class PrepDatasetFileService {
 
     DataFrame getPreviewLinesFromFileForDataFrame( PrepDataset dataset, String fileKey, String sheetindex, String size) throws IOException {
         DataFrame dataFrame = new DataFrame();
+        String strUri = null;
 
         try {
             if(dataset==null) {
@@ -771,7 +774,12 @@ public class PrepDatasetFileService {
                 Path thePath = new Path(filePath);
 
                 if( false==fs.exists(thePath) ) {
-                    throw new IllegalArgumentException("Invalid filekey.");
+                    strUri = prepProperties.getStagingBaseDir() + "/uploads/" + fileKey;
+                    thePath = new Path(new URI(strUri));
+                    if( false==fs.exists(thePath) ) {
+                        throw new IllegalArgumentException("Invalid filekey.");
+                    }
+                    // TODO: amend the dataset entity with the new path
                 }
                 ContentSummary cSummary = fs.getContentSummary(thePath);
                 totalBytes = cSummary.getLength();
@@ -902,6 +910,8 @@ public class PrepDatasetFileService {
                 dataset.setTotalBytes(totalBytes);
                 dataset.setTotalLines(totalRows);
             }
+        } catch (URISyntaxException e1) {
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strUri);
         } catch (Exception e) {
             LOGGER.error("Failed to read file : {}", e.getMessage());
             throw e;

@@ -198,6 +198,15 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   }
 
   /**
+   * Is GEO type column
+   * @param column
+   * @returns {boolean}
+   */
+  public isGeoType(column: any): boolean {
+    return column.derived && column.logicalType.indexOf('GEO_') !== -1;
+  }
+
+  /**
    * Is tooltip class changed
    * @param columnList
    * @param {number} index
@@ -207,6 +216,9 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   //   return index > (columnList.length / 2 - 1) ? true : false;
   // }
 
+  public getEnableChangePhysicalTypeList(): any {
+    return this.physicalTypeList.filter(type => !type.derived);
+  }
   /**
    * Get column type label
    * @param {string} type
@@ -479,7 +491,10 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
       { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', measure: true  },
       { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
       { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
-      { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
+      { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' },
+      { label: this.translateService.instant('msg.storage.ui.list.geo.point'), value: 'GEO_POINT', derived: true },
+      { label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), value: 'GEO_POLYGON', derived: true },
+      { label: this.translateService.instant('msg.storage.ui.list.geo.line'), value: 'GEO_LINE', derived: true },
     ];
     this.selectedTypeFilter = this.typeFilterList[0];
     this.roleTypeFilterList = [

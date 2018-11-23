@@ -132,8 +132,9 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
    * 수식 입력 팝업 오픈
    * @param {string} command 수식 입력 실행 커맨드
    */
-  public openPopupFormulaInput(command: string) {
-    this.advancedEditorClickEvent.emit();
+  public openPopupFormulaInput() {
+    this.rowNum = this.ruleConditionInputComponent.getCondition();
+    this.advancedEditorClickEvent.emit({command :'delete', val : 'rowNum' });
   } // function - openPopupFormulaInput
 
 

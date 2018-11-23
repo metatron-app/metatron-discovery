@@ -1,3 +1,18 @@
+/*
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 @charset "utf-8";
 
 /**************************************************************
@@ -92,7 +107,6 @@ ul.ddp-list-popup li a span.ddp-column-type [class*="ddp-icon"] {left:0;}
 ul.ddp-list-popup li a em.ddp-icon-view {display:inline-block; position:absolute; top:50%; right:10px; margin-top:-4px;width:4px; height:7px; background:url(../../../images/icon_tagview.png) no-repeat; transform:rotate(180deg);}
 ul.ddp-list-popup li.ddp-sub a em.ddp-icon-view {background:url(../../../images/icon_dataview.png) no-repeat; background-position:left -19px; transform:rotate(0);}
 ul.ddp-list-popup li a em.ddp-icon-check {display:none; position:absolute; top:50%; right:10px; width:11px; height:8px; margin-top:-6px; background:url(../../../images/icon_select2.png) no-repeat; background-position:-15px top;}
-
 
 .ddp-types ul.ddp-list-popup li a em.ddp-icon-add2 {display:inline-block; position:absolute; top:50%; left:12px; margin-top:-7px;  width:13px; height:13px; background:url(../../../images/icon_add.png) no-repeat; background-position:-84px -22px;}
 .ddp-types ul.ddp-list-popup li a em.ddp-icon-clone {display:inline-block; position:absolute; top:50%; left:12px; margin-top:-7px; width:13px; height:13px; background:url(../../../images/icon_clone.png) no-repeat;}

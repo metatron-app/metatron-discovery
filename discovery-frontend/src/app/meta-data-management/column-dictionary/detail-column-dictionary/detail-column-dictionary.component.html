@@ -204,13 +204,14 @@
             {{'msg.metadata.ui.dictionary.create.code-table' | translate}}
           </th>
           <td>
-            <div class="ddp-hover-search">
-              <a href="javascript:" class="ddp-ui-search2" (click)="onClickChooseCodeTable()">
+            <div class="ddp-select-search" [class.ddp-selected]="isShowCodeTableDetail" (clickOutside)="isShowCodeTableDetail = false">
+              <a href="javascript:" class="ddp-ui-search2" (click)="onClickShowCodeTableDetail()">
                 {{columnDictionary.codeTable?.name}}
-                <span class="ddp-icon-search"></span>
+                <span class="ddp-icon-search" (click)="onClickChooseCodeTable(); $event.stopImmediatePropagation()"></span>
               </a>
               <!-- hover -->
               <div class="ddp-box-layout4 " style="" *ngIf="columnDictionary.linkCodeTable">
+                <a href="javascript:" class="ddp-btn-close" (click)="isShowCodeTableDetail = false"></a>
                 <div class="ddp-data-title">
                   {{'msg.metadata.ui.codetable.choose.code.table.preview.title' | translate}}
                 </div>

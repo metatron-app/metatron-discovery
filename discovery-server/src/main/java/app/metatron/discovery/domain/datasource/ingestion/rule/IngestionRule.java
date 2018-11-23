@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.datasource.ingestion;
+package app.metatron.discovery.domain.datasource.ingestion.rule;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -21,8 +21,11 @@ import java.io.Serializable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = DiscardRule.class, name = "discard"),
-    @JsonSubTypes.Type(value = ReplaceRule.class, name = "replace")
+    @JsonSubTypes.Type(value = DiscardNullRule.class, name = "discard"),
+    @JsonSubTypes.Type(value = ReplaceNullRule.class, name = "replace"),
+    @JsonSubTypes.Type(value = GeoPointRule.class, name = "geo_point"),
+    @JsonSubTypes.Type(value = UserDefinedRule.class, name = "user_defined"),
+    @JsonSubTypes.Type(value = ExclusionRule.class, name = "exclusion")
 })
 public interface IngestionRule extends Serializable {
 }

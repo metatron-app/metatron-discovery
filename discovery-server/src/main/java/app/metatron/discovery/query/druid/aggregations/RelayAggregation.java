@@ -12,31 +12,40 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.datasource.ingestion;
+package app.metatron.discovery.query.druid.aggregations;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-@JsonTypeName("replace")
-public class ReplaceRule implements IngestionRule {
+import app.metatron.discovery.query.druid.Aggregation;
 
-  /**
-   * 치환할 기본값
-   *
-   */
-  Object value;
+@JsonTypeName("count")
+public class RelayAggregation implements Aggregation {
 
-  public ReplaceRule() {
+  String name;
+
+  String typeName;
+
+  public RelayAggregation() {
   }
 
-  public ReplaceRule(Object value) {
-    this.value = value;
+  public RelayAggregation(String name, String typeName) {
+    this.name = name;
+    this.typeName = typeName;
   }
 
-  public Object getValue() {
-    return value;
+  public String getName() {
+    return name;
   }
 
-  public void setValue(Object value) {
-    this.value = value;
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getTypeName() {
+    return typeName;
+  }
+
+  public void setTypeName(String typeName) {
+    this.typeName = typeName;
   }
 }
