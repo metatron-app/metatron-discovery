@@ -92,6 +92,9 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
   // select box show flag
   public logicalTypeShowFl: boolean = false;
 
+  // code table detail
+  public isShowCodeTableDetail: boolean = false;
+
   @ViewChild('logicalNameElement')
   public logicalNameElement: ElementRef;
 
@@ -268,6 +271,10 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
    */
   public onClickChooseCodeTable(): void {
     this._chooseCodeTableComp.init('UPDATE', this.columnDictionary.codeTable, this._columnDictionaryId);
+  }
+
+  public onClickShowCodeTableDetail(): void {
+    this.isShowCodeTableDetail = !this.isShowCodeTableDetail;
   }
 
   /**
