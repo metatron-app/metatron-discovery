@@ -39,17 +39,12 @@
 
   <!-- 검색어 -->
   <div class="ddp-data-list-num" *ngIf="completeSearchText === ''">
-    {{pageResult.totalElements}} Results
+    {{pageResult.totalElements}} Result(s)
   </div>
   <div class="ddp-data-list-num" *ngIf="completeSearchText !== ''">
-    {{pageResult.totalElements}} Results of '{{completeSearchText}}'
+    {{pageResult.totalElements}} Result(s) of '{{completeSearchText}}'
   </div>
   <!-- //검색어 -->
-  <!-- No data -->
-  <div *ngIf="histories.length === 0" class="ddp-nodata">
-    No list
-  </div>
-  <!-- //No data -->
 
   <ul class="ddp-list-history">
     <li *ngFor="let item of histories; let idx = index" (click)="setTableSql(item)">
