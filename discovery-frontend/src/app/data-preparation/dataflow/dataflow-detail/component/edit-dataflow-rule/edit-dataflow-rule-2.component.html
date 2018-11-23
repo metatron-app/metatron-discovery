@@ -171,11 +171,15 @@
                 <!-- //endHeader-->
 
                 <!--startKeep-->
-                <edit-rule-keep #editRule *ngIf="'keep' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('keep')"></edit-rule-keep>
+                <edit-rule-keep #editRule *ngIf="'keep' === ruleVO.command"
+                                (advancedEditorClickEvent)="openPopupFormulaInput($event)">
+                </edit-rule-keep>
                 <!-- //endKeep-->
 
                 <!-- startReplace -->
-                <edit-rule-replace #editRule *ngIf="'replace' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('replace')"></edit-rule-replace>
+                <edit-rule-replace #editRule *ngIf="'replace' === ruleVO.command"
+                                   (advancedEditorClickEvent)="openPopupFormulaInput($event)">
+                </edit-rule-replace>
                 <!-- // endReplace -->
 
                 <!-- startRename -->
@@ -184,8 +188,9 @@
                 <!-- // endRename -->
 
                 <!--startSet-->
-                <edit-rule-set #editRule *ngIf="'set' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('set')"
-                               (conditionClickEvent)="openPopupFormulaInput('setCondition')"></edit-rule-set>
+                <edit-rule-set #editRule *ngIf="'set' === ruleVO.command"
+                               (advancedEditorClickEvent)="openPopupFormulaInput($event)">
+                </edit-rule-set>
                 <!--//endSet-->
 
                 <!--startSettype-->
@@ -201,11 +206,15 @@
                 <!--//endSplit-->
 
                 <!--startDerive-->
-                <edit-rule-derive #editRule *ngIf="'derive' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('derive')"></edit-rule-derive>
+                <edit-rule-derive #editRule *ngIf="'derive' === ruleVO.command"
+                                  (advancedEditorClickEvent)="openPopupFormulaInput($event)">
+                </edit-rule-derive>
                 <!--//endDerive-->
 
                 <!--startDelete-->
-                <edit-rule-delete #editRule *ngIf="'delete' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('delete')"></edit-rule-delete>
+                <edit-rule-delete #editRule *ngIf="'delete' === ruleVO.command"
+                                  (advancedEditorClickEvent)="openPopupFormulaInput($event)">
+                </edit-rule-delete>
                 <!--//endDelete-->
 
                 <!--startDrop-->

@@ -14,7 +14,7 @@
 
 <div class="ddp-wrap-popup2 ddp-types ddp-type-rulepop" style="display:block;" *ngIf="isShow" [ngStyle]="{'top':contextInfo.top, 'left':contextInfo.left}">
   <ul class="ddp-list-popup" (clickOutside)="isShow = false">
-    <li *ngFor="let command of commandList">
+    <li *ngFor="let command of commandList" [ngClass]="{'ddp-disabled': command.disabled}">
       <a href="javascript:" (click)="_selectCommand(command)">
         <em class="{{command.iconClass}}"></em>
         {{command.label}}
@@ -30,7 +30,7 @@
             <div class="ddp-wrap-popup2" *ngIf="depth2.children && 0 < depth2.children.length">
               <ul class="ddp-list-popup ddp-padd">
                 <li *ngFor="let depth3 of depth2.children" [ngClass]="{'ddp-disabled': depth3.disabled}">
-                  <a href="javascript:" (click)="_selectCommand(depth3)">
+                  <a href="javascript:" (click)="_selectCommand(depth3)" title="{{depth3.label}}">
                     {{depth3.label}}
                   </a>
                 </li>

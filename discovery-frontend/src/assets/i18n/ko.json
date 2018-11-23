@@ -847,6 +847,7 @@
   "msg.dp.alert.check.ignore.char" : "다음 문자 사이 무시를 확인하세요",
   "msg.dp.alert.check.insert.expression" : "수식을 입력하십시요",
   "msp.dp.alert.col.empty" : "컬럼 이름을 반드시 입력해야합니다",
+  "msg.dp.alert.teddy.parse.failed.by.delete.expression" : "Delete 수식을 확인하세요",
   "msg.dp.alert.merge.col.error" : "새로운 컬럼 이름을 확인하세요",
 
   "msg.dp.ui.no.snapshot.history" : "스냅 샷 생성 기록 없음",
