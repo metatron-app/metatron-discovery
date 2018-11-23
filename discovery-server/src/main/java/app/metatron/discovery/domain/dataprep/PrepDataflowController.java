@@ -222,6 +222,9 @@ public class PrepDataflowController {
             @PathVariable("dfId") String dfId,
             @RequestBody PrepParamDatasetIdList dsIds
     ) {
+        // If an I.DS is new to the dataflow, we create a corresponding W.DS, except the case of dataset swapping.
+        boolean autoCreate = (dsIds.getForSwap() != null && dsIds.getForSwap() == true) ? false : true;
+
         PrepDataflow dataflow = dataflowRepository.findOne(dfId);
         try {
             if( dataflow!=null ) {
@@ -254,8 +257,10 @@ public class PrepDataflowController {
                     }
                     dataflowRepository.saveAndFlush(dataflow);
 
-                    for(String newId : newIds) {
-                        PrepTransformResponse response = this.transformService.create(newId, dataflow.getDfId(), true);
+                    if (autoCreate) {
+                        for (String newId : newIds) {
+                            PrepTransformResponse response = this.transformService.create(newId, dataflow.getDfId(), true);
+                        }
                     }
                 }
             } else {
@@ -361,6 +366,24 @@ public class PrepDataflowController {
         }
         catch (Exception e) {
             LOGGER.error("removeDatasets(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, e);
+        }
+
+        return ResponseEntity.status(HttpStatus.SC_OK).body(dataflow);
+    }
+
+    @RequestMapping(value = "/{dfId}/swap_upstream", method = RequestMethod.POST, produces = "application/json")
+    public @ResponseBody ResponseEntity<?> swapUpstream (
+            @PathVariable("dfId") String dfId,
+            @RequestBody PrepSwapRequest swapRequest
+    ) {
+        PrepDataflow dataflow = dataflowRepository.findOne(dfId);
+
+        try {
+            List<String> affectedDsIds = transformService.swap_upstream(dataflow, swapRequest);
+            transformService.after_swap(affectedDsIds);
+        } catch (Exception e) {
+            LOGGER.error("swap_upstream(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, e);
         }
 

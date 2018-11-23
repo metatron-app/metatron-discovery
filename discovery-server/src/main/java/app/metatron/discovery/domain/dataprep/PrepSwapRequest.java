@@ -15,31 +15,34 @@
 package app.metatron.discovery.domain.dataprep;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
-public class PrepParamDatasetIdList implements Serializable {
-    List<String> dsIds;
-    Boolean forSwap;
+public class PrepSwapRequest implements Serializable {
+  String oldDsId;
+  String newDsId;
+  String wrangledDsId;
 
-    public PrepParamDatasetIdList() {
-        this.dsIds = new ArrayList<String>();
-    }
+  public String getOldDsId() {
+    return oldDsId;
+  }
 
-    public List<String> getDsIds() {
-        return dsIds;
-    }
+  public void setOldDsId(String oldDsId) {
+    this.oldDsId = oldDsId;
+  }
 
-    public void setDsIds(List<String> dsIds) {
-        this.dsIds = dsIds;
-    }
+  public String getNewDsId() {
+    return newDsId;
+  }
 
-    public Boolean getForSwap() {
-        return forSwap;
-    }
+  public void setNewDsId(String newDsId) {
+    this.newDsId = newDsId;
+  }
 
-    public void setForSwap(Boolean forSwap) {
-        this.forSwap = forSwap;
-    }
+  public String getWrangledDsId() {
+    return wrangledDsId;
+  }
+
+  public void setWrangledDsId(String wrangledDsId) {
+    this.wrangledDsId = wrangledDsId;
+  }
 }
 
