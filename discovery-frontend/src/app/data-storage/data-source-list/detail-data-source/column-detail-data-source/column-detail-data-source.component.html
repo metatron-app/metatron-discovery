@@ -212,10 +212,10 @@
                   {{'msg.metadata.th.physical.type' | translate}}
                 </th>
                 <td>
-                  <span class="ddp-icon-type-txt" *ngIf="selectedField.role === 'TIMESTAMP' || isGeoType(selectedField)"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em>{{getColumnTypeLabel(selectedField.logicalType, physicalTypeList)}}</span>
+                  <span class="ddp-icon-type-txt" *ngIf="selectedField.role === 'TIMESTAMP' || isDerivedColumn(selectedField)"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em>{{getColumnTypeLabel(selectedField.logicalType, physicalTypeList)}}</span>
                   <!-- 클릭시 ddp-selected 추가 -->
                   <div class="ddp-hover-selectbox" [class.ddp-selected]="isShowPhysicalTypeFl"
-                       *ngIf="selectedField.role !== 'TIMESTAMP' && !isGeoType(selectedField)"
+                       *ngIf="selectedField.role !== 'TIMESTAMP' && !isDerivedColumn(selectedField)"
                        (click)="isShowPhysicalTypeFl = !isShowPhysicalTypeFl" (clickOutside)="isShowPhysicalTypeFl = false">
                     <a href="javascript:" class="ddp-icon-type"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em> {{getColumnTypeLabel(selectedField.logicalType, physicalTypeList)}}</a>
                     <div class="ddp-wrap-popup2 ddp-types">

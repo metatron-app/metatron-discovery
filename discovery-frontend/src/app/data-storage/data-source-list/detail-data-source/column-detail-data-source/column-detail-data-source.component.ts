@@ -203,7 +203,16 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    * @returns {boolean}
    */
   public isGeoType(column: any): boolean {
-    return column.derived && column.logicalType.indexOf('GEO_') !== -1;
+    return column.logicalType.indexOf('GEO_') !== -1;
+  }
+
+  /**
+   * Is derived column
+   * @param {Field} column
+   * @returns {boolean}
+   */
+  public isDerivedColumn(column: Field): boolean {
+    return column.derived;
   }
 
   /**
@@ -216,9 +225,14 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   //   return index > (columnList.length / 2 - 1) ? true : false;
   // }
 
+  /**
+   * Get enable change physical type list
+   * @returns {any}
+   */
   public getEnableChangePhysicalTypeList(): any {
     return this.physicalTypeList.filter(type => !type.derived);
   }
+
   /**
    * Get column type label
    * @param {string} type
