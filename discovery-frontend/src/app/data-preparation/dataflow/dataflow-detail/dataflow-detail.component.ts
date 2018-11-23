@@ -1042,7 +1042,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
         });
 
         let currentUpstreamId = upstreamDsIds[currentIdx].upstreamDsId;
-        upstreamDsIds = upstreamDsIds.splice(currentIdx,1);
+        upstreamDsIds.splice(currentIdx,1);
 
         let index = upstreamDsIds.findIndex((item) => {
           return item.upstreamDsId === currentUpstreamId
@@ -1071,7 +1071,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
   private _addDatasetToDataflow(dfId, datasetLists) {
     return new Promise(((resolve, reject) => {
-      this.dataflowService.updateDataSets(dfId, { dsIds : datasetLists })
+      this.dataflowService.updateDataSets(dfId, { dsIds : datasetLists, forSwap: true })
         .then((result) => {
           this.loadingHide();
           Alert.success(this.translateService.instant('msg.dp.alert.add.ds.success'));
