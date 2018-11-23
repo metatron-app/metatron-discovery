@@ -366,7 +366,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               break;
 
             case 'mismatch':
-              rule['more'] = {contextMenu : true,  command : 'set', col : {value : this.originalSelectedColIds}, condition : `ismismatched(${selCol})`};
+              rule['more'] = {contextMenu : true,  command : 'set', col : {value : this.originalSelectedColIds}, condition : `ismismatched(${selCol},'${this.contextInfo.columnType}')`};
               break;
             case 'missing':
               rule['more'] = {contextMenu : true, command : 'set', col : {value : this.originalSelectedColIds}, condition : `ismissing(${selCol})`};
