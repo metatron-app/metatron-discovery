@@ -112,6 +112,11 @@ public class PrepTransformRuleService {
         return Strings.join((List) val, ", ");
       }
 
+      Object func = map.get("functions");
+      if(func instanceof List) {
+        return nodeToString(func);
+      }
+
       return map.get("value").toString();
     }
 
@@ -363,8 +368,8 @@ public class PrepTransformRuleService {
 
         // N columns
         String strColumns = "a new column";
-        if (val instanceof List) {
-          strColumns = ((List) val).size() + " columns";
+        if (((Map) val).size() == 1) {
+          strColumns = ((Map) val).size() + " columns";
         }
 
         // order
