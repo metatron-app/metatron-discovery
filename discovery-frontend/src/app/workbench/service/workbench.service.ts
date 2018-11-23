@@ -227,6 +227,10 @@ export class WorkbenchService extends AbstractService {
     return this.post(this.API_URL + 'connections/query/data', params);
   }
 
+  public importFile(workbenchId: string, params: any) {
+    return this.post(this.API_URL + `workbenchs/${workbenchId}/import`, params);
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

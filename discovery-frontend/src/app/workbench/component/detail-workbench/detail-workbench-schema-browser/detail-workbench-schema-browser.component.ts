@@ -29,6 +29,7 @@ import * as _ from 'lodash';
 import { isUndefined } from 'util';
 import { AbstractWorkbenchComponent } from '../../abstract-workbench.component';
 import { StringUtil } from '../../../../common/util/string.util';
+import {CommonUtil} from "../../../../common/util/common.util";
 
 @Component({
   selector: 'detail-workbench-schema-browser',
@@ -1169,7 +1170,8 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    */
   private _getParameterForDatabase(webSocketId: string, page?: Page, databaseName?: string): any {
     const params = {
-      webSocketId: webSocketId
+      webSocketId: webSocketId,
+      loginUserId: CommonUtil.getLoginUserId()
     };
     if (page) {
       params['sort'] = page.sort;
