@@ -247,9 +247,8 @@ public class AbstractSpecBuilder {
 
         CsvStreamParser csvStreamParser = new CsvStreamParser();
 
-        if (dataSource.getIngestionInfoByType().equals("local")) {
-          LocalFileIngestionInfo localFileIngestionInfo = dataSource.getIngestionInfoByType();
-          boolean skipHeaderRow = localFileIngestionInfo.getRemoveFirstRow();
+        if ( ingestionInfo instanceof LocalFileIngestionInfo ) {
+          boolean skipHeaderRow = ((LocalFileIngestionInfo) ingestionInfo).getRemoveFirstRow();
           csvStreamParser.setSkipHeaderRecord(skipHeaderRow);
         }
 
