@@ -971,8 +971,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this.isOriginDown = isOriginal;
     this.widgetService.previewWidget(this.widget.id, isOriginal, false).then(result => {
 
-
-
       let fields = [];
       const clonePivot: Pivot = _.cloneDeep(this.widgetConfiguration.pivot);
       (clonePivot.rows) && (fields = fields.concat(clonePivot.rows));
@@ -981,7 +979,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       // 헤더정보 생성
       const headers: header[]
         = fields.map((field: Field) => {
-        const logicalType:string = field['field'] ? field['field'].logicalType.toString() : '';
+        const logicalType:string = ( field['field'] && field['field'].logicalType ) ? field['field'].logicalType.toString() : '';
         let headerName: string = field.name;
         if( field['aggregationType'] ) {
           if( !isOriginal ) {
