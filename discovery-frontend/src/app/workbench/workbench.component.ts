@@ -2931,6 +2931,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this._splitHorizontal = Split(['.sys-workbench-lnb-panel', '.sys-workbench-content-panel'], {
       direction: 'horizontal',
       sizes: [18, 82],
+      minSize: [230, 300],
       elementStyle: (dimension, size, gutterSize) => {
         return { 'width': `${size}%` };
       },
