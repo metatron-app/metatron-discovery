@@ -64,7 +64,7 @@
                   [class.ddp-fail]="audit.status && audit.status.toString() === 'FAIL'"
                   [class.ddp-success]="audit.status && audit.status.toString() === 'SUCCESS'"
                   [class.ddp-running]="audit.status && audit.status.toString() === 'RUNNING'"
-                  [class.ddp-ddp-cancelled]="audit.status && audit.status.toString() === 'CANCELLED'">
+                  [class.ddp-cancelled]="audit.status && audit.status.toString() === 'CANCELLED'">
               {{audit.status}}
             </span>
           </td>
@@ -327,7 +327,7 @@
                     [class.ddp-fail]="query.queryResultStatus && query.queryResultStatus.toString() === 'FAIL'"
                     [class.ddp-success]="query.queryResultStatus && query.queryResultStatus.toString() === 'SUCCESS'"
                     [class.ddp-running]="query.queryResultStatus && query.queryResultStatus.toString() === 'RUNNING'"
-                    [class.ddp-ddp-cancelled]="query.queryResultStatus && query.queryResultStatus.toString() === 'CANCELLED'">
+                    [class.ddp-cancelled]="query.queryResultStatus && query.queryResultStatus.toString() === 'CANCELLED'">
                 {{query.queryResultStatus}}
               </span>
                 </td>
