@@ -971,6 +971,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this.isOriginDown = isOriginal;
     this.widgetService.previewWidget(this.widget.id, isOriginal, false).then(result => {
 
+
+
       let fields = [];
       const clonePivot: Pivot = _.cloneDeep(this.widgetConfiguration.pivot);
       (clonePivot.rows) && (fields = fields.concat(clonePivot.rows));
@@ -991,7 +993,11 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
         return new SlickGridHeader()
           .Id(headerName)
-          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(logicalType) + '"></em>' + headerName + '</span>')
+          .Name('<span style="padding-left:20px;">'
+            + '<em style="margin-top: -2px;" class="' + this.getFieldTypeIconClass(logicalType) + '"></em>'
+            + headerName
+            + '</span>'
+          )
           .Field(headerName)
           .Behavior('select')
           .Selectable(false)
