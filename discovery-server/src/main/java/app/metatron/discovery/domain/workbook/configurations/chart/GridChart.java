@@ -73,13 +73,14 @@ public class GridChart extends Chart {
   @JsonCreator
   public GridChart(@JsonProperty("color") ChartColor color,
                    @JsonProperty("valueFormat") FieldFormat valueFormat,
+                   @JsonProperty("limit") Integer limit,
                    @JsonProperty("dataType") String dataType,
                    @JsonProperty("measureLayout") String measureLayout,
                    @JsonProperty("headerStyle") ValueStyle headerStyle,
                    @JsonProperty("contentStyle") ValueStyle contentStyle,
                    @JsonProperty("totalValueStyle") TotalValueStyle totalValueStyle,
                    @JsonProperty("annotation") Annotation annotation) {
-    super(color, valueFormat, null, null, null, null, null);
+    super(color, valueFormat, null, null, null, null, null, limit);
     this.dataType = EnumUtils.getUpperCaseEnum(DataType.class, dataType, DataType.PIVOT);
     this.measureLayout = EnumUtils.getUpperCaseEnum(MeasureLayout.class, measureLayout, MeasureLayout.HORIZONTAL);
     this.headerStyle = headerStyle;
