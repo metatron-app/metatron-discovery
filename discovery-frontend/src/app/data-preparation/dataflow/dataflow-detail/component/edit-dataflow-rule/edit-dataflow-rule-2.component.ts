@@ -122,7 +122,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   // Add rule / editor or builder
   public editorUseFlag: boolean = false;
-  public editorUseLabel: string = 'switch to editor';
+  public editorUseLabel: string = this.translateService.instant('msg.dp.btn.switch.editor');
 
   // input cmd line
   public inputRuleCmd: string = ''; // Rule을 직접 입력시
@@ -382,13 +382,13 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public switchEditor() {
     if (this.editorUseFlag === true) {
       this.editorUseFlag = false;
-      this.editorUseLabel = 'switch to editor';
+      this.editorUseLabel = this.translateService.instant('msg.dp.btn.switch.editor');
 
       // Reset command when switch to builder
       // this.initRule();
     } else {
       this.editorUseFlag = true;
-      this.editorUseLabel = 'switch to builder';
+      this.editorUseLabel = this.translateService.instant('msg.dp.btn.switch.builder');
     }
   }
 

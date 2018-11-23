@@ -319,7 +319,9 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
             if (suggest.type != '@_OPERATOR_@'
               && suggest.type != '@_STRING_@'
               && suggest.type != '@_FUNCTION_EXPRESSION_@'
-              && suggest.type != '@_AGGREGATE_FUNCTION_EXPRESSION_@') {
+              && suggest.type != '@_AGGREGATE_FUNCTION_EXPRESSION_@'
+              && suggest.type != '@_WINDOW_FUNCTION_EXPRESSION_@'
+            ) {
               let lastIdx = rulePart.lastIndexOf(suggest.value);
               rulePart = rulePart.substring(0, lastIdx) + suggest.type + rulePart.substring(lastIdx + suggest.value.length);
             }
@@ -342,6 +344,9 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
       ];
       let functionAggrNames = [
         'sum', 'avg', 'max', 'min', 'count',
+      ];
+      let functionWindowNames = [
+        'row_number', 'rolling_sum', 'rolling_avg', 'lag', 'lead', 'sum', 'avg', 'max', 'min', 'count',
       ];
       if (!isUndefined(data.suggest)) {
         let suggests: any = [];
@@ -425,10 +430,32 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
                   suggests.push(suggest);
                 }
               }
+            } else if (item.tokenString == '@_WINDOW_FUNCTION_EXPRESSION_@') {
+              for (let functionName of functionWindowNames) {
+                if (functionName.startsWith(item.tokenSource)) {
+                  let suggest = {
+                    'type': item.tokenString,
+                    'class': 'Olive',
+                    'source': item.tokenSource,
+                    'value': functionName
+                  };
+                  suggests.push(suggest);
+                }
+              }
             } else if (item.tokenString == 'count' || item.tokenString == 'avg' || item.tokenString == 'sum' || item.tokenString == 'min' || item.tokenString == 'max') {
               if (item.tokenString.startsWith(item.tokenSource)) {
                 let suggest = {
                   'type': '@_AGGREGATE_FUNCTION_EXPRESSION_@', // item.tokenString,
+                  'class': 'Olive',
+                  'source': item.tokenSource,
+                  'value': item.tokenString
+                };
+                suggests.push(suggest);
+              }
+            } else if (item.tokenString == 'row_number' || item.tokenString == 'rolling_sum' || item.tokenString == 'rolling_avg' || item.tokenString == 'lag' || item.tokenString == 'lead') {
+              if (item.tokenString.startsWith(item.tokenSource)) {
+                let suggest = {
+                  'type': '@_WINDOW_FUNCTION_EXPRESSION_@', // item.tokenString,
                   'class': 'Olive',
                   'source': item.tokenSource,
                   'value': item.tokenString
@@ -500,6 +527,8 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
     let result: any[] = [];
     if ('pivot' === this.command || 'aggregate' === this.command) {
       result = this.formulaSuggestionPivot(item, inputVal, start, end);
+    } else if ('window' === this.command ) {
+      result = this.formulaSuggestionWindow(item, inputVal, start, end);
     } else {
       result = this.formulaSuggestion(item, inputVal, start, end);
     }
@@ -552,6 +581,31 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
     let value = inputVal.substring(0, start);
 
     if (item.type == '@_AGGREGATE_FUNCTION_EXPRESSION_@') {
+      value = item.value;
+    } else if (item.type == '@_COLUMN_NAME_@') {
+      let bracketIdx = value.lastIndexOf('(');
+      value = value.substring(0, bracketIdx);
+      let colname = value.substring(bracketIdx + 1);
+      if (item.value.startsWith(colname)) {
+        value += '(';
+      } else {
+        value += '(' + colname;
+      }
+      value += item.value;
+    } else if (item.type == '@_OPERATOR_@') {
+      value += item.value;
+    }
+
+    let caretPos = value.length;
+
+    return [value, caretPos];
+  } // function - formulaSuggestionPivot
+
+  public formulaSuggestionWindow(item, inputVal, start, end) {
+
+    let value = inputVal.substring(0, start);
+
+    if (item.type == '@_WINDOW_FUNCTION_EXPRESSION_@' || item.type == '@_AGGREGATE_FUNCTION_EXPRESSION_@') {
       value = item.value;
     } else if (item.type == '@_COLUMN_NAME_@') {
       let bracketIdx = value.lastIndexOf('(');

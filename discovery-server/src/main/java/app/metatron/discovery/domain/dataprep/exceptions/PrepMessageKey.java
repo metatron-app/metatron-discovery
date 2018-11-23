@@ -15,7 +15,7 @@
 package app.metatron.discovery.domain.dataprep.exceptions;
 
 public enum PrepMessageKey {
-    MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING(                     "msg.dp.alert.required.property.missing"),
+    MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING(                      "msg.dp.alert.required.property.missing"),
 
     MSG_DP_ALERT_FILE_NOT_FOUND(                                 "msg.dp.alert.file.not.found"),
     MSG_DP_ALERT_PROPERTY_NOT_AVAILABLE(                         "msg.dp.alert.property.not.available"),
@@ -40,6 +40,7 @@ public enum PrepMessageKey {
     MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED(                "msg.dp.alert.staging.base.dir.not.configured"),
     MSG_DP_ALERT_HIVE_NOT_CONFIGURED(                            "msg.dp.alert.hive.not.configured"),
     MSG_DP_ALERT_EXTERNAL_JAR_NOT_CONFIGURED(                    "msg.dp.alert.external.jar.not.configured"),
+    MSG_DP_ALERT_FILE_KEY_MISSING(                               "msg.dp.alert.file.key.missing"),
     MSG_DP_ALERT_MALFORMED_URI_SYNTAX(                           "msg.dp.alert.malformed.uri.syntax"),
     MSG_DP_ALERT_UNSUPPORTED_CHARSET(                            "msg.dp.alert.unsupported.charset"),
     MSG_DP_ALERT_UNKNOWN_BOM(                                    "msg.dp.alert.unknown.bom"),

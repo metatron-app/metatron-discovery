@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Map;
 
 import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS;
 import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_SINGLE_QUOTES;
@@ -163,6 +164,9 @@ public final class GlobalObjectMapper {
     return null;
   }
 
+  public static Map readValue(String content) {
+    return readValue(content, Map.class);
+  }
 
   public static ObjectMapper getResultSetMapper() {
     if (resultSetMapper == null) {
