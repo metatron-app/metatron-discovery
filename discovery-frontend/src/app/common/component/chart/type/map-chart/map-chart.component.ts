@@ -40,7 +40,7 @@ import {
   ColorRangeType, ShelveFieldType, UIChartDataLabelDisplayType, UIPosition,
 } from '../../option/define/common';
 import {UISymbolLayer} from '../../option/ui-option/map/ui-symbol-layer';
-import { UIChartColorByDimension, UILayers, UIOption } from '../../option/ui-option';
+import { UIChartColorByDimension, UIChartZoom, UILayers, UIOption } from '../../option/ui-option';
 import * as _ from 'lodash';
 import {BaseOption} from '../../option/base-option';
 import {FormatOptionConverter} from '../../option/converter/format-option-converter';
@@ -618,8 +618,15 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     }
 
     // Map data place fit
-    if( isMapCreation || this.drawByType ) {
+    if( this.drawByType ) {
       this.olmap.getView().fit(source.getExtent());
+
+    // set saved data zoom
+    } else {
+      if (this.uiOption.chartZooms && this.uiOption.chartZooms.length > 0) {
+        this.olmap.getView().setCenter([this.uiOption.chartZooms[0].startValue, this.uiOption.chartZooms[0].endValue]);
+        this.olmap.getView().setZoom(this.uiOption.chartZooms[0].count);
+      }
     }
   }
 
@@ -1550,6 +1557,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
     this.olmap.un('pointermove', this.tooltipFunction);
     this.olmap.on('pointermove', this.tooltipFunction);
+    this.olmap.on('moveend', this.zoomFunction);
   }
 
   /**
@@ -2197,5 +2205,29 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       });
     });
     return alias;
+  }
+
+  /**
+   * when data zoom ends
+   * @param event
+   */
+  private zoomFunction = (event) => {
+    // save current chartzoom
+    this.uiOption.chartZooms = this.additionalSaveDataZoomRange();
+  }
+
+  /**
+   * set map data zoom setting
+   * @returns {UIChartZoom[]}
+   */
+  private additionalSaveDataZoomRange(): UIChartZoom[] {
+
+    let resultList : UIChartZoom[] = [];
+
+    let center = this.olmap.getView().getCenter();
+
+    resultList.push({startValue : center[0], endValue: center[1], count: this.olmap.getView().getZoom()});
+
+    return resultList;
   }
 }
