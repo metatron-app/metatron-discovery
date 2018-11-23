@@ -29,7 +29,7 @@
                (click)="isMethodTypeListShow = !isMethodTypeListShow" (clickOutside)="isMethodTypeListShow = false">
               <span class="ddp-txt-selectbox">
                   <span class="ddp-type-txt">
-                    <em class="{{selectedMethodType.icon}}" *ngIf="!selectedMethodType.disableIcon"></em>{{selectedMethodType.label}}
+                    <em class="{{selectedMethodType.icon}}"></em>{{selectedMethodType.label}}
                   </span>
               </span>
             <!-- popup -->
@@ -37,7 +37,7 @@
               <ul class="ddp-list-popup">
                 <li *ngFor="let type of methodTypeList">
                   <a href="javascript:" (click)="onChangeSelectedMethodType(type)">
-                    <em class="{{type.icon}}" *ngIf="!type.disableIcon"></em>
+                    <em class="{{type.icon}}"></em>
                     {{type.label}}
                     <em class="ddp-icon-check" *ngIf="type.value === selectedMethodType.value"></em>
                   </a>
