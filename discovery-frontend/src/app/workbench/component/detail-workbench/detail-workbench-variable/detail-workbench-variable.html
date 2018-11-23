@@ -176,6 +176,21 @@
   </div>
 </div>
 
-<!-- small modal -->
-<app-confirm-small-modal [useCancelBtn]="true" (confirm)="removeSelectedVariable($event)"></app-confirm-small-modal>
-<!-- //small modal -->
+<!-- modal -->
+<div class="ddp-wrap-layout-popup" *ngIf="isConfirmPopup">
+  <div class="ddp-box-popup ddp-box-popup-type2">
+    <a href="javascript:" class="ddp-btn-close" (click)="isConfirmPopup = false" ></a>
+    <!-- title -->
+    <div class="ddp-pop-title">{{'msg.bench.alert.global.variable.delete' | translate}}</div>
+    <!-- //title -->
+
+    <!-- button -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="isConfirmPopup = false">{{'msg.comm.btn.cancl' | translate}}</a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " (click)="removeSelectedVariable()">{{'msg.comm.btn.del' | translate}}</a>
+    </div>
+    <!-- //button -->
+  </div>
+</div>
+<!-- // modal -->

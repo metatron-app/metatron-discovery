@@ -131,7 +131,8 @@ html.ddp-width-auto body {min-width:auto;}
 /**************************************************************
   Page : 워크벤치 상세 (rnb)
 **************************************************************/
-.page-workbench .ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-ui-addview {margin-top:-16px;}
+.page-workbench .ddp-ui-rnb-contents .ddp-ui-var-plus {padding-top:0px;}
+.page-workbench .ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-ui-addview {margin-top:0px;}
 .page-workbench .ddp-ui-rnb-contents .ddp-ui-title {margin-left:0px; padding-left:15px;}
 
 /**************************************************************
