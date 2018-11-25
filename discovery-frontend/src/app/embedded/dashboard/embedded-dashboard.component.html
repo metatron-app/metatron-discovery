@@ -12,8 +12,7 @@
   ~ limitations under the License.
   -->
 
-<app-dashboard *ngIf="dashboard"
-               [dashboard]="dashboard"
+<app-dashboard [dashboard]="dashboard"
                [standalone]="true"
                (dashboardEvent)="onDashboardEvent($event)" >
 </app-dashboard>

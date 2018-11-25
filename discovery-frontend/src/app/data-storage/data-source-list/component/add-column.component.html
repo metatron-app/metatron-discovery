@@ -1,0 +1,116 @@
+<!--
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<!-- popup -->
+<div class="ddp-box-layout4 ddp-box-column">
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <div class="ddp-wrap-edit3">
+    <label class="ddp-ui-label-name">
+      {{'msg.storage.ui.method' | translate}}
+    </label>
+    <!-- edit option -->
+    <div class="ddp-ui-option-in">
+      <!-- clear -->
+      <div class="ddp-option-form ddp-clear">
+        <div class="ddp-col-4">
+          <!-- selectbox -->
+          <div class="ddp-type-selectbox ddp-icon-txt" [class.ddp-selected]="isMethodTypeListShow"
+               (click)="isMethodTypeListShow = !isMethodTypeListShow" (clickOutside)="isMethodTypeListShow = false">
+              <span class="ddp-txt-selectbox">
+                  <span class="ddp-type-txt">
+                    <em class="{{selectedMethodType.icon}}"></em>{{selectedMethodType.label}}
+                  </span>
+              </span>
+            <!-- popup -->
+            <div class="ddp-wrap-popup2 ddp-types">
+              <ul class="ddp-list-popup">
+                <li *ngFor="let type of methodTypeList">
+                  <a href="javascript:" (click)="onChangeSelectedMethodType(type)">
+                    <em class="{{type.icon}}"></em>
+                    {{type.label}}
+                    <em class="ddp-icon-check" *ngIf="type.value === selectedMethodType.value"></em>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <!-- //popup -->
+          </div>
+          <!-- //selectbox -->
+        </div>
+      </div>
+      <!-- //clear -->
+      <!-- only expression -->
+      <div class="ddp-option-form ddp-form-error" *ngIf="selectedMethodType.value === 'user_defined'">
+        <textarea class="ddp-textarea-auto" placeholder="Expression"
+                  [(ngModel)]="expression" (ngModelChange)="expressionValid = null" (focusout)="onFocusOutExpressionField()"></textarea>
+        <span class="ddp-data-error" *ngIf="expressionValid === false"> {{expressionInvalidMessage}}</span>
+      </div>
+      <!-- //only expression -->
+      <!-- not expression -->
+      <div class="ddp-option-form ddp-clear" *ngIf="selectedMethodType.value !== 'user_defined'">
+        <!-- latitude column -->
+        <div class="ddp-col-6 ddp-form-error">
+          <!-- select box -->
+          <column-select-box
+            [columnList]="latitudeColumnList"
+            [selectedColumn]="selectedLatitudeColumn"
+            [placeholder]="'msg.storage.ui.latitude.column' | translate"
+            [searchPlaceHolder]="'msg.storage.ui.latitude.column' | translate"
+            (onSelected)="onChangeSelectedLatitudeColumn($event)"></column-select-box>
+          <!-- //select box -->
+          <span class="ddp-data-error" *ngIf="latitudeColumnValid === false"> {{'msg.storage.ui.required' | translate}}</span>
+        </div>
+        <!-- //latitude column -->
+        <!-- longitude column -->
+        <div class="ddp-col-6 ddp-form-error">
+          <!-- select box -->
+          <column-select-box
+            [columnList]="longitudeColumnList"
+            [selectedColumn]="selectedLongitudeColumn"
+            [placeholder]="'msg.storage.ui.longitude.column' | translate"
+            [searchPlaceHolder]="'msg.storage.ui.longitude.column' | translate"
+            (onSelected)="onChangeSelectedLongitudeColumn($event)"></column-select-box>
+          <!-- //select box -->
+          <span class="ddp-data-error" *ngIf="longitudeColumnValid === false"> {{'msg.storage.ui.required' | translate}}</span>
+        </div>
+        <!-- //longitude column -->
+      </div>
+      <!-- //not expression -->
+    </div>
+    <!-- //edit option -->
+  </div>
+  <!-- Column Name -->
+  <div class="ddp-wrap-edit3">
+    <label class="ddp-ui-label-name">
+      {{'msg.storage.ui.th.column.name' | translate}}
+    </label>
+    <!-- edit option -->
+    <div class="ddp-ui-option-in">
+      <!-- clear -->
+      <div class="ddp-option-form ddp-form-error">
+        <input type="text" class="ddp-input-typebasic" placeholder="Name"
+               [(ngModel)]="columnName" (ngModelChange)="columnNameValid = null" (focusout)="onFocusOutColumnNameField()">
+        <span class="ddp-data-error" *ngIf="columnNameValid === false"> {{columnNameInvalidMessage}}</span>
+      </div>
+      <!-- //clear -->
+    </div>
+    <!-- //edit option -->
+  </div>
+  <!-- //Column Name -->
+  <div class="ddp-box-button">
+    <a href="javascript:" class="ddp-btn-line" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="onClickAdd()">{{'msg.comm.btn.add' | translate}}</a>
+  </div>
+</div>
+<!-- //popup -->

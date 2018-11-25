@@ -23,7 +23,7 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.workbook.configurations.format.PercentFormat;
 
 /**
- * Created by kyungtaak on 2016. 4. 18..
+ * Bar Chart Spec. Test
  */
 public class BarChartTest extends ChartTest {
 
@@ -47,6 +47,7 @@ public class BarChartTest extends ChartTest {
 
 
     BarChart chart = new BarChart(colorByMeasureForGradient(), valueNumberFormat(), null, null, fontLargerSize(), dataLabel(), toolTip(),
+                                  500,
                                   BarChart.MarkType.MULTIPLE.name(), BarChart.Align.HORIZONTAL.name(),
                                   xAxis, yAxis);
 

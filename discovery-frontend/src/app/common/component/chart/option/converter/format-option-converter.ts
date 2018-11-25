@@ -800,14 +800,12 @@ export class FormatOptionConverter {
       }
       if( uiData['seriesValue'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE) ){
 
-        let seriesValue = '';
-
         let splitData = _.split(uiData.name, CHART_STRING_DELIMITER);
         let name = -1 !== uiData.name.indexOf(CHART_STRING_DELIMITER) ? splitData[splitData.length - 1] : uiData.name;
 
         const value = typeof uiData['seriesValue'][params.dataIndex] === 'undefined' ? uiData['seriesValue'] : uiData['seriesValue'][params.dataIndex];
 
-        seriesValue = FormatOptionConverter.getTooltipValue(name, pivot.aggregations, format, value);
+        let seriesValue = FormatOptionConverter.getTooltipValue(name, pivot.aggregations, format, value);
 
         // series percent가 있는경우
         if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
@@ -857,8 +855,8 @@ export class FormatOptionConverter {
       case ChartType.LINE:
       case ChartType.COMBINE:
         // when bar, line chart has single series
-        if ((chartType === ChartType.BAR && pivot.aggregations.length <= 1 && pivot.rows.length < 1) ||
-          ((chartType === ChartType.LINE || chartType === ChartType.COMBINE) && pivot.aggregations.length <= 1)) {
+        if (((chartType === ChartType.BAR || chartType === ChartType.LINE) && pivot.aggregations.length <= 1 && pivot.rows.length < 1) ||
+          (chartType === ChartType.COMBINE && pivot.aggregations.length <= 1)) {
           displayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
           displayTypes[1] = UIChartDataLabelDisplayType.CATEGORY_VALUE;
           // when bar, line chart has multi series

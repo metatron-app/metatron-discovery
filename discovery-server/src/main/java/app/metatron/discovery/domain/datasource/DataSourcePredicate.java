@@ -107,7 +107,7 @@ public class DataSourcePredicate {
     BooleanExpression published = dataSource.id
         .in(JPAExpressions.select(dataSource.id)
                           .from(dataSource)
-                          .where(dataSource.published.eq(true)));
+                          .where(dataSource.published.eq(true), dataSource.status.eq(DataSource.Status.ENABLED)));
 
     BooleanBuilder builder = new BooleanBuilder();
 
@@ -118,7 +118,7 @@ public class DataSourcePredicate {
           .in(JPAExpressions.select(dataSource.id)
                             .from(dataSource)
                             .innerJoin(dataSource.workspaces)
-                            .where(dataSource.workspaces.any().eq(workspace)));
+                            .where(dataSource.workspaces.any().eq(workspace), dataSource.status.eq(DataSource.Status.ENABLED)));
       builder.andAnyOf(workspaceContains, published);
     }
 

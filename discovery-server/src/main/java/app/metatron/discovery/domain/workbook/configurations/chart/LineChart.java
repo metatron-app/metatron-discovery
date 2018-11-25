@@ -77,6 +77,7 @@ public class LineChart extends Chart {
                    @JsonProperty("fontSize") String fontSize,
                    @JsonProperty("dataLabel") ChartDataLabel dataLabel,
                    @JsonProperty("toolTip") ChartToolTip toolTip,
+                   @JsonProperty("limit") Integer limit,
                    @JsonProperty("mark") String mark,
                    @JsonProperty("lineStyle") String lineStyle,
                    @JsonProperty("curveStyle") String curveStyle,
@@ -84,7 +85,7 @@ public class LineChart extends Chart {
                    @JsonProperty("lineThickness") String lineThickness,
                    @JsonProperty("xAxis") ChartAxis xAxis,
                    @JsonProperty("yAxis") ChartAxis yAxis) {
-    super(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip);
+    super(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip, limit);
     this.mark = EnumUtils.getUpperCaseEnum(MarkType.class, mark, MarkType.LINE);
     this.lineStyle = EnumUtils.getUpperCaseEnum(LineStyle.class, lineStyle, LineStyle.POINT_LINE);
     this.curveStyle = EnumUtils.getUpperCaseEnum(LineCurveStyle.class, curveStyle, LineCurveStyle.STRAIGHT);

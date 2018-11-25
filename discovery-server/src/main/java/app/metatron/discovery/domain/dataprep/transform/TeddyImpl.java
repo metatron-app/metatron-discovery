@@ -21,7 +21,10 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.jdbc.JdbcDataPrepService;
-import app.metatron.discovery.domain.dataprep.teddy.*;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
+import app.metatron.discovery.domain.dataprep.teddy.Revision;
+import app.metatron.discovery.domain.dataprep.teddy.RevisionSet;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
@@ -30,12 +33,9 @@ import com.facebook.presto.jdbc.internal.guava.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -143,7 +143,7 @@ public class TeddyImpl {
   }
 
   // APPEND *AFTER* stageIdx
-  public DataFrame append(String dsId, int stageIdx, String ruleString, boolean forced) throws TeddyException {
+  public DataFrame append(String dsId, int stageIdx, String ruleString, boolean forced) {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
     Revision newRev = new Revision(rev, stageIdx + 1);
     DataFrame newDf = null;
@@ -153,9 +153,10 @@ public class TeddyImpl {
       newDf = apply(rev.get(stageIdx), ruleString);
     } catch (TeddyException te) {
       if (forced == false) {
-        throw te;
+        throw PrepException.fromTeddyException(te);   // RuntimeException
       }
       suppressed = true;
+      LOGGER.info("append(): TeddyException is suppressed: {}", te.getMessage());
     }
 
     if (suppressed) {

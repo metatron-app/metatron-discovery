@@ -12,14 +12,23 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.datasource.ingestion;
+package app.metatron.discovery.domain.workbench.dto;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
+public class ImportExcelFile extends ImportFile {
+  private String sheetName;
 
-@JsonTypeName("discard")
-public class DiscardRule implements IngestionRule {
-
-  public DiscardRule() {
+  public String getSheetName() {
+    return sheetName;
   }
 
+  public void setSheetName(String sheetName) {
+    this.sheetName = sheetName;
+  }
+
+  @Override
+  public String toString() {
+    return "ImportExcelFile{" +
+        "sheetName='" + sheetName + '\'' +
+        '}';
+  }
 }

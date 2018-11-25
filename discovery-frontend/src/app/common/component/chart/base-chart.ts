@@ -1683,6 +1683,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       return _.eq(field.type, fieldType);
     }).length;
+
   }
 
   /**

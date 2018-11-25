@@ -20,19 +20,19 @@ import {
   Dashboard, JoinMapping,
   LayoutWidgetInfo
 } from '../../domain/dashboard/dashboard';
-import { Datasource, Field } from '../../domain/datasource/datasource';
-import { CustomField } from '../../domain/workbook/configurations/field/custom-field';
-import { Filter } from '../../domain/workbook/configurations/filter/filter';
-import { Widget } from '../../domain/dashboard/widget/widget';
-import { isNullOrUndefined, isObject } from 'util';
-import { FilterWidget, FilterWidgetConfiguration } from '../../domain/dashboard/widget/filter-widget';
-import { PageWidget } from '../../domain/dashboard/widget/page-widget';
-import { TextWidget } from '../../domain/dashboard/widget/text-widget';
-import { DashboardPageRelation } from '../../domain/dashboard/widget/page-widget.relation';
-import { BoardWidgetOptions, WidgetShowType } from '../../domain/dashboard/dashboard.globalOptions';
-import { StringUtil } from '../../common/util/string.util';
-import { CommonUtil } from '../../common/util/common.util';
-import { ChartType } from '../../common/component/chart/option/define/common';
+import {Datasource, Field} from '../../domain/datasource/datasource';
+import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
+import {Filter} from '../../domain/workbook/configurations/filter/filter';
+import {Widget} from '../../domain/dashboard/widget/widget';
+import {isNullOrUndefined, isObject} from 'util';
+import {FilterWidget, FilterWidgetConfiguration} from '../../domain/dashboard/widget/filter-widget';
+import {PageWidget} from '../../domain/dashboard/widget/page-widget';
+import {TextWidget} from '../../domain/dashboard/widget/text-widget';
+import {DashboardPageRelation} from '../../domain/dashboard/widget/page-widget.relation';
+import {BoardWidgetOptions, WidgetShowType} from '../../domain/dashboard/dashboard.globalOptions';
+import {StringUtil} from '../../common/util/string.util';
+import {CommonUtil} from '../../common/util/common.util';
+import {ChartType} from '../../common/component/chart/option/define/common';
 
 export class DashboardUtil {
 
@@ -40,7 +40,7 @@ export class DashboardUtil {
    * 차트의 아이콘 클래스명 반환
    * @return {string}
    */
-  public static getChartIconClass(widget:PageWidget): string {
+  public static getChartIconClass(widget: PageWidget): string {
     let iconClass: string = '';
     switch (widget.configuration.chart.type) {
       case ChartType.BAR :
@@ -541,8 +541,8 @@ export class DashboardUtil {
 
     // 필드 조회
     let idx = -1;
-    if (ref) idx = _.findIndex(fields, { ref, name: fieldName });
-    else idx = _.findIndex(fields, { name: fieldName });
+    if (ref) idx = _.findIndex(fields, {ref, name: fieldName});
+    else idx = _.findIndex(fields, {name: fieldName});
 
     if (idx > -1) field = fields[idx];
 
@@ -550,7 +550,7 @@ export class DashboardUtil {
     if (field) {
       return field;
     } else {
-      idx = _.findIndex(customFields, { name: fieldName });
+      idx = _.findIndex(customFields, {name: fieldName});
       return customFields[idx];
     }
   } // function - getFieldByName
@@ -671,7 +671,7 @@ export class DashboardUtil {
    */
   public static deleteBoardFilter(board: Dashboard, filter: Filter): Dashboard {
     // 필터 정보 삭제
-    _.remove(board.configuration.filters, { field: filter.field, dataSource: filter.dataSource });
+    _.remove(board.configuration.filters, {field: filter.field, dataSource: filter.dataSource});
     return board;
   } // function - deleteBoardFilter
 
@@ -918,7 +918,7 @@ export class DashboardUtil {
   public static convertSpecToUI(boardInfo: Dashboard): Dashboard {
     // Change spec server to ui ( userDefinedFields -> customFields )
     if (boardInfo.configuration['userDefinedFields']) {
-      boardInfo.configuration.customFields = _.cloneDeep( CommonUtil.objectToArray( boardInfo.configuration['userDefinedFields'] ) );
+      boardInfo.configuration.customFields = _.cloneDeep(CommonUtil.objectToArray(boardInfo.configuration['userDefinedFields']));
     }
 
     if (boardInfo.dataSources) {
@@ -970,4 +970,49 @@ export class DashboardUtil {
     return boardInfo;
   } // function - convertSpecToUI
 
+  /* ----------------------------------------------------------------
+  For Chart Limit
+   ------------------------------------------------------------------ */
+  /**
+   * 차트 제한 정보
+   * @param widgetId
+   * @param type
+   * @param data
+   */
+  public static getChartLimitInfo(widgetId: string, type: ChartType, data: { rows: any[], info: any, columns: any[] }): ChartLimitInfo {
+    let limitInfo:ChartLimitInfo = {
+      id: widgetId,
+      isShow: false,
+      currentCnt: 0,
+      maxCnt: 0
+    };
+    if( data.info ) {
+      limitInfo.maxCnt = data.info.totalCategory;
+      if( ChartType.PIE === type || ChartType.LABEL === type || ChartType.WORDCLOUD === type ) {
+        if( data.columns ) {
+          limitInfo.currentCnt = data.columns[0].value.length;
+        }
+      } if( ChartType.GRID === type || ChartType.HEATMAP === type ) {
+        if( data.rows && 0 < data.rows.length ) {
+          limitInfo.currentCnt = data.rows.length;
+        } else {
+          limitInfo.currentCnt = data.columns.length;
+        }
+      } else {
+        if( data.rows && 0 < data.rows.length ) {
+          limitInfo.currentCnt = data.rows.length;
+        }
+      }
+      limitInfo.isShow = limitInfo.currentCnt < limitInfo.maxCnt;
+    }
+    return limitInfo;
+  } // function - getChartLimitInfo
+
 } // class - DashboardUtil
+
+export class ChartLimitInfo {
+  public id: string;
+  public isShow: boolean;
+  public currentCnt: number;
+  public maxCnt: number
+}

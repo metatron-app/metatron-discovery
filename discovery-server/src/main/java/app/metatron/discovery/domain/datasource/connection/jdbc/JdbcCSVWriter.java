@@ -147,6 +147,11 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
     super.writeRow(headers);
   }
 
+  public void writeHeaders(List<String> headerList) throws SQLException, IOException {
+    super.incrementRowAndLineNo(); // This will allow the correct row/line numbers to be used in any exceptions
+    super.writeRow(headerList);
+  }
+
   private void writeContents(ResultSet resultSet) throws SQLException, IOException {
     final int numberOfColumns = resultSet.getMetaData().getColumnCount();
     final List<Object> objects = new LinkedList<Object>();

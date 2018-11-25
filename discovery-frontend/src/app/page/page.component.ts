@@ -76,7 +76,7 @@ import { PageDataContextComponent } from './page-data/page-data-context.componen
 import { Format } from '../domain/workbook/configurations/format';
 import { FilterUtil } from '../dashboard/util/filter.util';
 import { Observable } from 'rxjs/Observable';
-import { isUndefined } from 'util';
+import {isNullOrUndefined, isUndefined} from 'util';
 import { AnalysisComponent } from './component/analysis/analysis.component';
 import { AnalysisPredictionService } from './component/analysis/service/analysis.prediction.service';
 import { CustomField } from '../domain/workbook/configurations/field/custom-field';
@@ -91,8 +91,8 @@ import { ConfigureFiltersComponent } from '../dashboard/filters/configure-filter
 import { PageFilterPanel } from './filter/filter-panel.component';
 import { SecondaryIndicatorComponent } from './chart-style/secondary-indicator.component';
 import { DataLabelOptionComponent } from './chart-style/datalabel-option.component';
-import { DashboardUtil } from '../dashboard/util/dashboard.util';
-import { BoardConfiguration } from '../domain/dashboard/dashboard';
+import {ChartLimitInfo, DashboardUtil} from '../dashboard/util/dashboard.util';
+import {BoardConfiguration, LayoutMode} from '../domain/dashboard/dashboard';
 import { CommonUtil } from '../common/util/common.util';
 import { MapChartComponent } from '../common/component/chart/type/map-chart/map-chart.component';
 import {MapFormatOptionComponent} from './chart-style/map/map-format-option.component';
@@ -317,8 +317,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   // Data Detail 팝업: 컬럼 디테일 여부
   public isColumnDetail: boolean = false;
 
-  public isNoData: boolean = false;   // No Data 여부
-  public isError: boolean = false;    // 에러 상태 표시 여부
+  public isNoData: boolean = false;         // No Data 여부
+  public isError: boolean = false;          // 에러 상태 표시 여부
+
+  // Limit 정보
+  public limitInfo: ChartLimitInfo = { id: '', isShow: false, currentCnt: 0, maxCnt: 0 };
 
   // 센키차트 모든노트 표시안함 여부
   public isSankeyNotAllNode: boolean = false;
@@ -1311,6 +1314,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         .catch((error) => {
           this.isError = true;
           this.loadingHide();
+          this.commonExceptionHandler( error );
           console.info('error', error);
         });
     }
@@ -1862,12 +1866,12 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (!this.isNewWidget()) {
       // 글로벌 필터 업데이트
       const widget = { configuration: _.cloneDeep(this.originalWidgetConfiguration) };
-      widget.configuration['filters'] = this.widgetConfiguration.filters;
+      widget.configuration.filters = _.cloneDeep( this.widgetConfiguration.filters );
 
       // 스펙 변경
       widget.configuration = DashboardUtil.convertPageWidgetSpecToServer(widget.configuration);
       // 필터 설정
-      for (let filter of widget.configuration['filters']) {
+      for (let filter of widget.configuration.filters) {
         filter = FilterUtil.convertToServerSpecForDashboard(filter);
       }
 
@@ -3645,6 +3649,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
         this.initGridChart();
 
+        // Set Limit Info
+        this.limitInfo = DashboardUtil.getChartLimitInfo( this.widget.id, this.widget.configuration.chart.type, data );
+
         // 라인차트이고 고급분석 예측선 사용하는 경우
         if (this.selectChart === 'line') {
 
@@ -3666,9 +3673,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
                   this.loadingShow();
                   this.analysisPredictionService
                     .getAnalysisPredictionLineFromPage(this.widgetConfiguration, this.widget, this.lineChartComponent, resultData)
-                    .catch(() => {
+                    .catch((err) => {
                       this.loadingHide();
                       this.isError = true;
+                      this.commonExceptionHandler( err );
                     });
                 } else {
                   this.lineChartComponent.analysis = null;
@@ -3695,6 +3703,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       console.error('Search Query Error =>', reason);
       this.isChartShow = false;
       this.isError = true;
+      this.commonExceptionHandler( reason );
 
       // 변경사항 반영
       this.changeDetect.detectChanges();
