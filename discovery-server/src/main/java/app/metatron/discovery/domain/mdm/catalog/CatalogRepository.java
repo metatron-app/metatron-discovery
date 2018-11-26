@@ -52,4 +52,14 @@ public interface CatalogRepository extends JpaRepository<Catalog, String>,
   @Query("SELECT c FROM Catalog c, CatalogTree ct WHERE c.id = ct.id.ancestor AND ct.id.descendant = :catalogId ORDER BY ct.depth desc")
   List<Catalog> findAllAncestors(@Param("catalogId") String catalogId);
 
+  /**
+   * Check duplicated catalog name
+   *
+   * @param name
+   * @return
+   */
+  @RestResource(exported = false)
+  @Query("SELECT count(c) FROM Catalog c WHERE c.name = :name")
+  Long countByCatalogName(@Param("name") String name);
+
 }
