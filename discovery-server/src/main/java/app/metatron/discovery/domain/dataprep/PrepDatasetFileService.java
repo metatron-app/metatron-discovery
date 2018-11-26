@@ -41,11 +41,13 @@ import org.apache.poi.ss.usermodel.*;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.json.simple.*;
 
 import java.io.*;
 import java.net.URI;
@@ -571,8 +573,49 @@ public class PrepDatasetFileService {
                         }
                     }
 
-                } else if ( "csv".equals(extensionType) ||
-                        "json".equals(extensionType) ||
+                } else if ("json".equals(extensionType)) {
+                    JSONParser jsonParser = new JSONParser();
+                    JSONObject jsonObject = (JSONObject) jsonParser.parse(new BufferedReader(new InputStreamReader(new FileInputStream(theFile))));
+                    JSONArray rows = findJsonArray(jsonObject);
+                    List<Map<String, String>> resultSet = Lists.newArrayList();
+                    List<Field> fields = Lists.newArrayList();
+
+                    if(rows.size() > 1000) {
+                        rows = (JSONArray) rows.subList(0, 1000);
+                    }
+
+                    List<String> columns = getJsonKeyList(rows);
+
+                    for(int i = 0; i < columns.size(); i++) {
+                        Field f = makeFieldFromCSV(i, columns.get(i), ColumnType.STRING);
+                        fields.add(f);
+                    }
+
+                    for(Object row : rows) {
+                        Map<String,String> result = Maps.newHashMap();
+
+                        for (String key : columns) {
+                            String value = String.valueOf(((JSONObject) row).get(key));
+                            result.put(key, value);
+                        }
+
+                        resultSet.add(result);
+                    }
+
+                    Map<String, Object> grid = Maps.newHashMap();
+
+                    grid.put("headers", null);
+                    grid.put("fields", fields);
+
+                    int resultSetSize = resultSet.size();
+                    int endIndex = resultSetSize - limitSize < 0 ? resultSetSize : limitSize;
+
+                    grid.put("data", resultSet.subList(0, endIndex));
+                    grid.put("totalRows", rows.size());
+
+                    grids.add(grid);
+
+            } else if ( "csv".equals(extensionType) ||
                         "txt".equals(extensionType) ||
                         true // 기타 확장자는 csv로 간주
                     ) {
@@ -1217,78 +1260,142 @@ public class PrepDatasetFileService {
             writer.flush();
             writer.close();
 
-            /*
-            Sheet sheet = wb.getSheet(sheetName);
-            List<Map<String, String>> resultSet = Lists.newArrayList();
-            if(createHeaderRow(sheet)){
-                //getResultSetFromSheet()에서 0번째 row가 제거되기 때문에  원본에 Header가 있던 sheet의 경우 0번 row를 더미로 채운다.
-                sheet.shiftRows(0, sheet.getLastRowNum(), 1);
+        } catch (Exception e) {
+            LOGGER.error("Failed to copy localFile : {}", e.getMessage());
+        }
 
-                Row row = sheet.createRow(0);
-                for (int i = 0; i < sheet.getRow(1).getPhysicalNumberOfCells(); i++) {
-                    Cell cell = row.createCell(i);
-                    cell.setCellValue(prefixColumnName + String.valueOf(i + 1));
+        return csvFileName;
+    }
+
+    //Returns any first found JSON Array
+    private JSONArray findJsonArray(Object input) {
+        JSONArray result=null;
+
+        if(input instanceof JSONArray) {
+            return (JSONArray) input;
+        } else if(input instanceof JSONObject) {
+            JSONObject jsonObject = (JSONObject) input;
+            Object[] keys = jsonObject.keySet().toArray();
+
+            for(Object key : keys) {
+                result = findJsonArray(jsonObject.get(key));
+                if(result!=null) {
+                    break;
                 }
             }
-            int totalRows = sheet.getPhysicalNumberOfRows();
+        }
+        return result;
+    }
 
-            List<Field> fields = Lists.newArrayList();
-            Row headerRow = sheet.getRow(0);
-            Row dataRow = sheet.getRow(1);
-            int fieldSize = headerRow.getLastCellNum();
-            for (int i = 0; i < fieldSize; i++) {
-                fields.add(makeField(i, getCellValue(headerRow.getCell(i)), dataRow.getCell(i)));
+    //Returns first found JSON Array with received name.
+    private JSONArray findJsonArray(Object input, String theKey) {
+        JSONArray result=null;
+
+        if(input instanceof  JSONArray) {
+            for(Object jsonObject : (JSONArray) input) {
+                result = findJsonArray(jsonObject, theKey);
+                if(result!=null) {
+                    break;
+                }
             }
+        } else if(input instanceof  JSONObject){
+            JSONObject jsonObject = (JSONObject) input;
+            Object[] keys = jsonObject.keySet().toArray();
 
-            resultSet = PolarisUtils.getResultSetFromSheet(sheet);
-
-            List<String> keySet = Lists.newArrayList();
-            for(Map<String,String> result : resultSet) {
-                if(result.size()<fieldSize) {
-                    for(int i=0;i<fieldSize;i++) {
-                        String fieldKey = fields.get(i).getName();
-                        if(null==result.get(fieldKey)) {
-                            result.put(fieldKey,"");
-                        }
+            for (Object key : keys) {
+                if (key.toString().equals(theKey) && jsonObject.get(key) instanceof  JSONArray) {
+                    return (JSONArray) jsonObject.get(key);
+                } else {
+                    result = findJsonArray(jsonObject.get(key), theKey);
+                    if(result!=null) {
+                        break;
                     }
-                } else if (0 == keySet.size()) {
-                    keySet.addAll(result.keySet());
-                    Collections.sort(keySet, new Comparator<String>() {
-                        public int compare(String k1,String k2) {
-                            int len1 = k1.length();
-                            int len2 = k2.length();
-                            if(len1<len2) { return -1; }
-                            else if(len1>len2) { return 1; }
-                            else { return k1.compareTo(k2); }
-                        }
-                    });
                 }
             }
+        }
 
+        return result;
+    }
+
+    //Returns all keys in JSON Array
+    private ArrayList<String> getJsonKeyList(JSONArray array) {
+        ArrayList<String> keyList = new ArrayList<>();
+
+        for(Object row : array) {
+            for(Object key :((JSONObject) row).keySet()) {
+                if(!keyList.contains(key.toString())) {
+                    keyList.add(key.toString());
+                }
+
+            }
+        }
+
+        return keyList;
+    }
+
+    public String moveJsonToCsv(String fileKey, String mainKey, String delimiter) {
+        String csvFileName = null;
+        try {
+            int idx = fileKey.lastIndexOf(".");
+            String newFileKey = fileKey.substring(0, idx) + ".csv";
+
+            String josnFileName = this.getPathLocal_new(fileKey);
+            csvFileName = this.getPathLocal_new(newFileKey);
+            File theFile = new File(josnFileName);
+
+            JSONParser jsonParser = new JSONParser();
+            Object jsonObject = jsonParser.parse(new BufferedReader(new InputStreamReader(new FileInputStream(theFile))));
+            JSONArray rows;
+
+            if(mainKey == null) {
+                rows = findJsonArray(jsonObject);
+            } else {
+                rows = findJsonArray(jsonObject, mainKey);
+            }
+
+
+            List<String> coloumns = getJsonKeyList(rows);
             String separator = delimiter;
             FileWriter writer = new FileWriter(csvFileName);
-            for (Map<String, String> result : resultSet) {
-                StringBuilder sb = new StringBuilder();
-                boolean first = true;
-                for (String key : keySet) {
-                    if (false==first) { sb.append(separator); }
+            StringBuilder stringBuilder = new StringBuilder();
 
-                    String value = result.get(key);
+            for(int i=0; i<coloumns.size(); i++) {
+                if(i!=0) {
+                    stringBuilder.append(separator);
+                }
+                stringBuilder.append(coloumns.get(i));
+            }
+            stringBuilder.append("\n");
+            writer.append(stringBuilder.toString());
+
+            for(int i=0; i<rows.size(); i++) {
+                StringBuilder sb = new StringBuilder();
+                JSONObject row = (JSONObject) rows.get(i);
+                Boolean isFirst = true;
+
+                for (String key : coloumns) {
+                    if (isFirst) {
+                        isFirst = false;
+                    } else {
+                        sb.append(separator);
+                    }
+
+                    String value = row.get(key) == null ? "" : row.get(key).toString();
+
                     if (value.contains("\"")) {
                         value = value.replace("\"", "\"\"");
                     }
-                    if (value.contains(",") ) {
+                    if (value.contains(",")) {
                         value = "\"" + value + "\"";
                     }
                     sb.append(value);
-                    first = false;
                 }
                 sb.append("\n");
                 writer.append(sb.toString());
             }
             writer.flush();
             writer.close();
-            */
+
         } catch (Exception e) {
             LOGGER.error("Failed to copy localFile : {}", e.getMessage());
         }
