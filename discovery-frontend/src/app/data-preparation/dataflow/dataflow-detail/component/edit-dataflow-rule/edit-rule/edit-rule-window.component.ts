@@ -12,13 +12,14 @@
  * limitations under the License.
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren} from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import {StringUtil} from "../../../../../../common/util/string.util";
 import {isNullOrUndefined} from "util";
 import * as _ from 'lodash';
+import {RuleConditionInputComponent} from "./rule-condition-input.component";
 
 @Component({
   selector: 'edit-rule-window',
@@ -28,7 +29,8 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
+  @ViewChildren(RuleConditionInputComponent)
+  private ruleConditionInputComponent : RuleConditionInputComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -141,14 +143,9 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     }
 
     const validFormulaList:string[] = [];
-    const invalidFormula:boolean = this.formulaList.some( formula => {
+    const invalidFormula:boolean = this.formulaList.some((formula, index) => {
       if( StringUtil.checkSingleQuote(formula, { isWrapQuote: false, isAllowBlank: false })[0] ) {
-        // if( StringUtil.checkFormula( formula ) ) {
-        //   validFormulaList.push(formula );
-        //   return false;
-        // } else {
-        //   return true;
-        // }
+        formula = this.ruleConditionInputComponent['_results'][index].getCondition();
         validFormulaList.push(formula );
         return false;
       } else {

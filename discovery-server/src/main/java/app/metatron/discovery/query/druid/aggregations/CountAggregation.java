@@ -16,16 +16,14 @@ package app.metatron.discovery.query.druid.aggregations;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import javax.validation.constraints.NotNull;
-
 import app.metatron.discovery.query.druid.Aggregation;
 
 @JsonTypeName("count")
 public class CountAggregation implements Aggregation {
-  @NotNull
+
   String name;
 
-  public CountAggregation(@NotNull String name){
+  public CountAggregation(String name){
     this.name = name;
   }
 

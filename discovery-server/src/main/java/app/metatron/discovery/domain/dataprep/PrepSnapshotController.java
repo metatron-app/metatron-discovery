@@ -14,11 +14,12 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.Util;
 import com.google.common.collect.Maps;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -102,8 +103,10 @@ public class PrepSnapshotController {
                         }
                         String snapshotUri = this.snapshotService.escapeSsNameOfUri(snapshotDisplayUri);
                         String filePath = null;
+                        String realUri = null;
                         if( PrepSnapshot.SS_TYPE.HDFS==ss_type ) {
                             filePath = snapshotUri;
+                            realUri = snapshotUri;
                         } else if( PrepSnapshot.SS_TYPE.FILE==ss_type ) {
                             File dir = new File(snapshotUri);
                             File[] files = dir.listFiles();
@@ -117,10 +120,13 @@ public class PrepSnapshotController {
                                     break;
                                 }
                             }
+                            realUri = "file://" + filePath;
                         }
-                        List<String[]> grid = Util.loadGridLocalCsv(filePath, ",", target, this.hdfsService.getConf(), colNames);
+//                        List<String[]> grid = Util.loadGridLocalCsv(filePath, ",", target, this.hdfsService.getConf(), colNames);
                         //List<String[]> grid = Util.loadCsvFileLocal(dirPath, ",", target, colNames);
-                        gridResponse.setByGrid(grid, colNames);
+//                        gridResponse.setByGrid(grid, colNames);
+                        PrepCsvParseResult result = PrepCsvUtil.parse(realUri, ",", 10000, this.hdfsService.getConf(), true);
+                        gridResponse.setByGrid(result);
                         responseMap.put("offset", gridResponse.rows.size());
                         responseMap.put("size", gridResponse.rows.size());
                         responseMap.put("gridResponse", gridResponse);

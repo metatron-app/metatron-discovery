@@ -73,6 +73,9 @@
 .ddp-data-state.ddp-fail {font-size:11px; color:#eb5f58; font-weight:bold;}
 .ddp-data-state.ddp-success {font-size:11px; color:#4c92e0; font-weight:bold;}
 .ddp-data-state.ddp-preparing {font-size:11px; color:#4b515b; font-weight:bold;}
+.ddp-data-state.ddp-running {font-size:11px; color:#ffba00; font-weight:bold;}
+.ddp-data-state.ddp-cancelled {font-size:11px; color:#90969f; font-weight:bold;}
+
 
 .ddp-data-state.ddp-scheduling {font-size:11px; color:#10bf83; font-weight:bold;}
 .ddp-data-state.ddp-creating {font-size:11px; color:#ffba00; font-weight:bold;}

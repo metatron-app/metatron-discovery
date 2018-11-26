@@ -148,18 +148,14 @@ public class QueryEditorController {
     //Hive Hook에서 Update할때 버전이 안맞아 업데이트 에러방지
     entityManager.clear();
     for(QueryResult queryResult : queryResults){
-      Audit.AuditStatus auditStatus;
-      if(queryResult.getQueryResultStatus() == QueryResult.QueryResultStatus.SUCCESS){
-        auditStatus = Audit.AuditStatus.SUCCESS;
-      } else {
-        auditStatus = Audit.AuditStatus.FAIL;
-      }
+      Audit.AuditStatus auditStatus = Audit.AuditStatus.valueOf(queryResult.getQueryResultStatus().toString());
       Audit audit = auditRepository.findOne(queryResult.getAuditId());
       audit.setStatus(auditStatus);
       audit.setElapsedTime(queryResult.getFinishDateTime().toDate().getTime() - queryResult.getStartDateTime().toDate().getTime());
       audit.setFinishTime(queryResult.getFinishDateTime());
       audit.setNumRows(queryResult.getNumRows());
       audit.setJobLog(queryResult.getMessage());
+      audit.setQueryHistoryId(queryResult.getQueryHistoryId());
       auditRepository.saveAndFlush(audit);
     }
 

@@ -341,3 +341,61 @@ ul.ddp-list-tab-button.ddp-disabled:after {display:inline-block; content:''; pos
 .ddp-btn-check {display:inline-block; position:relative; width:23px; height:23px; background-color:#b9bcc2; cursor: pointer;}
 .ddp-btn-check:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-4px 0 0 -6px; width:11px; height:8px; background:url(../../../images/icon_select2.png) no-repeat; background-position:-27px top; content:'';}
 .ddp-btn-check:hover {background-color:#999ea6;}
+
+/**************************************************************
+    list button
+**************************************************************/
+.ddp-list-buttons li:first-of-type {border-left:none;}
+.ddp-list-buttons li em.ddp-icon-check {display:none; margin-right:7px; width:8px; height:6px; background:url(../../../images/icon_select2.png) no-repeat; background-position:-47px top; vertical-align:middle;}
+
+.ddp-list-buttons.ddp-type2 li {height:26px; padding:5px 0; box-sizing:border-box;}
+.ddp-list-buttons.ddp-type2 li .ddp-label-checkbox span.ddp-txt-checkbox {color:#90969f;}
+.ddp-list-buttons.ddp-type2 li .ddp-label-checkbox input[type="checkbox"] + i.ddp-icon-checkbox {background-position:-48px top;}
+.ddp-list-buttons.ddp-type2 li.ddp-selected:before {display:none;}
+.ddp-list-buttons.ddp-type2 li.ddp-selected .ddp-label-checkbox input[type="checkbox"] + i.ddp-icon-checkbox {background-position:-61px top;}
+.ddp-list-buttons.ddp-type2 li .ddp-label-checkbox input[type="checkbox"]:checked + i.ddp-icon-checkbox + .ddp-txt-checkbox {font-weight:normal; color:#4c515a;}
+.ddp-list-buttons.ddp-type2 li.ddp-selected .ddp-label-checkbox input[type="checkbox"]:checked + i.ddp-icon-checkbox + .ddp-txt-checkbox {color:#fff;}
+
+.ddp-list-buttons.ddp-type2 li .ddp-label-radio input[type="radio"]:checked + i.ddp-icon-radio {background-position:-60px top;}
+.ddp-list-buttons.ddp-type2 li.ddp-selected .ddp-label-radio input[type="radio"]:checked + i.ddp-icon-radio {background-position:-48px top;}
+.ddp-list-buttons.ddp-type2 li .ddp-label-radio input[type="radio"]:checked + i.ddp-icon-radio + .ddp-txt-radio {font-weight:normal; color:#4c515a;}
+.ddp-list-buttons.ddp-type2 li.ddp-selected .ddp-label-radio input[type="radio"]:checked + i.ddp-icon-radio + .ddp-txt-radio {color:#fff;}
+.ddp-list-buttons.ddp-type2 li .ddp-label-checkbox,
+.ddp-list-buttons.ddp-type2 li .ddp-label-radio {vertical-align:top;}
+.ddp-list-buttons.ddp-type2 li.ddp-selected .ddp-label-checkbox span.ddp-txt-checkbox {color:#fff;}
+
+
+.ddp-list-buttons.ddp-type3 {}
+.ddp-list-buttons.ddp-type3 li {background-color:#f6f6f7;}
+.ddp-list-buttons.ddp-type3 li:hover {background-color:#dbdce1;}
+.ddp-list-buttons.ddp-type3 li.ddp-selected {background-color:#fff;  color:#4b515b;  box-sizing:border-box;}
+.ddp-list-buttons.ddp-type3 li.ddp-selected:after {position:absolute; top:0; left:0; right:0; bottom:0; border-radius:2px; border:1px solid #90969f; content:'';}
+.ddp-list-buttons.ddp-type3 li.ddp-selected:before {background-position-y:-11px;}
+
+.ddp-list-buttons.ddp-dark  {width:100%; background-color:#35393f;}
+.ddp-list-buttons.ddp-dark li {width:50%; color:rgba(231,231,231,0.4); border:1px solid #4b515b; background-color:#24282e;}
+.ddp-list-buttons.ddp-dark li.ddp-selected {color:#fff; background-color:#4b515b;}
+
+.ddp-list-buttons.ddp-part4 li {width:25%;}
+.ddp-list-buttons.ddp-part5 {width:100%;}
+.ddp-list-buttons.ddp-part5 li {width:20%;}
+.ddp-list-buttons.ddp-part2 {width:100%;}
+.ddp-list-buttons.ddp-part2 li {width:50%;}
+
+/**************************************************************
+    tab button
+**************************************************************/
+.ddp-list-tab-button.ddp-type {border:1px solid #ddd; font-size:0px;}
+.ddp-list-tab-button.ddp-type span {display:inline-block; padding:0px !important;position:relative; width:24px; height:24px; font-size:0px; cursor:pointer;}
+.ddp-list-tab-button.ddp-type span [class*="ddp-icon-tool"] {position:absolute; top:50%; left:50%; margin:-5px 0 0 -7px;}
+.ddp-list-tab-button.ddp-type span.ddp-selected:before {position:absolute; top:-1px; left:-1px; right:-1px; bottom:-1px; border:1px solid #4c515a; content:'';}
+
+/**************************************************************
+    toggle button
+**************************************************************/
+
+/*.ddp-btn-toggle2 {display:inline-block; padding:6px 0; width:84px; border-radius:3px; border:1px solid #d0d1d8; color:#90969f; text-align:center;  font-size:13px;}*/
+/*.ddp-btn-toggle2:hover {color:#90969f;}*/
+/*.ddp-btn-toggle2.ddp-selected {color:#4c515a; border:1px solid #90969f;}*/
+/*.ddp-btn-toggle2 em.ddp-icon-check {display:inline-block; width:11px; height:8px; margin-right:6px; background:url(../images/icon_select2.png) no-repeat; background-position:-56px top;}*/
+/*.ddp-btn-toggle2.ddp-selected em.ddp-icon-check {background-position:-68px top;}*/

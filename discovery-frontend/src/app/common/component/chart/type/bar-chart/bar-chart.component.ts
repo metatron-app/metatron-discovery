@@ -241,7 +241,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
    * 바차트의 dataZoom
    */
   protected additionalDataZoom(): BaseOption {
-
+/*
     // 저장정보 존재 여부에 따라 미니맵 범위 자동 지정
     if (!_.isUndefined(this.uiOption.chartZooms)
       && (!_.isUndefined(this.uiOption.size) && this.uiOption.limitCheck) || (this.uiOption.chartZooms && _.isUndefined(this.uiOption.chartZooms[0].start))) {
@@ -266,7 +266,19 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
         );
       }
     }
+*/
+    // 저장정보 존재 여부에 따라 미니맵 범위 자동 지정
+    if (!_.isUndefined(this.uiOption.chartZooms)
+      && (!_.isUndefined(this.uiOption.size) && this.uiOption.limitCheck) || (this.uiOption.chartZooms && _.isUndefined(this.uiOption.chartZooms[0].start))) {
 
+      this.convertDataZoomAutoRange(
+        this.chartOption,
+        20,
+        500,
+        10,
+        this.existTimeField
+      );
+    }
     return this.chartOption;
   }
 

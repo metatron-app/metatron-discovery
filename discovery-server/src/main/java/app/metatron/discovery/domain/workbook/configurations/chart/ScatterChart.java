@@ -66,12 +66,13 @@ public class ScatterChart extends Chart {
                       @JsonProperty("fontSize") String fontSize,
                       @JsonProperty("dataLabel") ChartDataLabel dataLabel,
                       @JsonProperty("toolTip") ChartToolTip toolTip,
+                      @JsonProperty("limit") Integer limit,
                       @JsonProperty("pointShape") String pointShape,
                       @JsonProperty("pointSize") String pointSize,
                       @JsonProperty("pointTransparency") Integer pointTransparency,
                       @JsonProperty("xAxis") ChartAxis xAxis,
                       @JsonProperty("yAxis") ChartAxis yAxis) {
-    super(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip);
+    super(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip, limit);
     this.pointShape = EnumUtils.getUpperCaseEnum(PointShape.class, pointShape, PointShape.CIRCLE);
     this.pointSize = EnumUtils.getUpperCaseEnum(PointSize.class, pointSize, PointSize.NORMAL);
     this.pointTransparency = pointTransparency;

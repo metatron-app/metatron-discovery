@@ -88,6 +88,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
   private _filters: Filter[] = [];
 
+  private _queryParams = new QueryParam();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -163,6 +164,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
   public timestampField: Field;
 
+  public downloadPreview:PreviewResult;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -186,8 +189,9 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     super.ngOnInit();
 
     // z-index 강제 설정
-    this._zIndex = $('.ddp-wrap-tab-popup').css('z-index');
-    $('.ddp-wrap-tab-popup').css('z-index', '127');
+    const $popup = $('.ddp-wrap-tab-popup');
+    this._zIndex = $popup.css('z-index');
+    $popup.css('z-index', '127');
 
     // ui init
     this.initView();
@@ -309,7 +313,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     return new Promise<any>((res, rej) => {
 
       const params = new QueryParam();
-      params.limits.limit = (this.rowNum < 1 || 0 === this.rowNum) ? 100 : this.rowNum;
+      params.limits.limit = (this.rowNum < 1) ? 100 : this.rowNum;
       if (this.isDashboard) {
         // 대시보드인 경우
 
@@ -346,11 +350,23 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       if (this._filters && 0 < this._filters.length) {
         params.filters = this._filters;
       }
+      // params.metaQuery = true;
 
       this.loadingShow();
-      this.datasourceService.getDatasourceQuery(params).then((data) => {
-        res(data);
-        this.loadingHide();
+      this.datasourceService.getDatasourceQuery(params).then(gridData => {
+
+        // 쿼리 조건 저장
+        params.limits.limit = 10000000;
+        this._queryParams = _.cloneDeep( params );
+
+        params.metaQuery = true;
+        this.datasourceService.getDatasourceQuery(params).then( metaData => {
+          this.downloadPreview = new PreviewResult( metaData.estimatedSize, metaData.totalCount );
+          ( this.rowNum > this.downloadPreview.count ) && ( this.rowNum = this.downloadPreview.count );
+          res(gridData);
+          this.loadingHide();
+        });
+
       }).catch((err) => {
         console.error(err);
         rej(err);
@@ -504,7 +520,10 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       {label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE'},
       {label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP'},
       {label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT'},
-      {label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG'}
+      {label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG'},
+      {label: this.translateService.instant('msg.storage.ui.list.geo.point'), value: 'GEO_POINT', derived: true},
+      {label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), value: 'GEO_POLYGON', derived: true},
+      {label: this.translateService.instant('msg.storage.ui.list.geo.line'), value: 'GEO_LINE', derived: true}
     ];
     this.selectedLogicalType = this.logicalTypes[0];
 
@@ -1014,17 +1033,25 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    */
   public selectDataSource(dataSource: Datasource) {
 
+    // initialize data
     this.mainDatasource = dataSource;
     this.rowNum = 100;
     // seletedfield init
     this.selectedField = null;
+    this.timestampField = null;
+    this.safelyDetectChanges();
 
     // set columns info
     if (this.isDashboard) {
 
       this.mainDsSummary = (this.mainDatasource && this.mainDatasource.summary) ? this.mainDatasource.summary : undefined;
       this.columns = this.mainDatasource.fields;
-      (this.mainDsSummary && this.rowNum > this.mainDsSummary.count) && (this.rowNum = this.mainDsSummary.count);
+      if( this.mainDsSummary ) {
+        this.downloadPreview = new PreviewResult( this.mainDsSummary.size, this.mainDsSummary.count );
+        if( this.rowNum > this.mainDsSummary.count ) {
+          this.rowNum = this.mainDsSummary.count;
+        }
+      }
 
       // Column Type & Role 타입별 수량 정리 - 대시보드 정보 레이어용
       let tempColType: any = {};
@@ -1176,6 +1203,24 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   }
 
   /**
+   * Is GEO type column
+   * @param column
+   * @returns {boolean}
+   */
+  public isGeoType(column: any): boolean {
+    return column.logicalType.indexOf('GEO_') !== -1;
+  }
+
+  /**
+   * Is derived column
+   * @param {Field} column
+   * @returns {boolean}
+   */
+  public isDerivedColumn(column: Field): boolean {
+    return column.derived;
+  }
+
+  /**
    * Get column type label
    * @param {string} type
    * @param typeList
@@ -1267,8 +1312,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   public changeRowNum(event: KeyboardEvent) {
     if (13 === event.keyCode) {
       this.rowNum = event.target['value'];
-      if (this.mainDsSummary && this.rowNum > this.mainDsSummary.count) {
-        this.rowNum = this.mainDsSummary.count;
+      if (this.downloadPreview && this.rowNum > this.downloadPreview.count) {
+        this.rowNum = this.downloadPreview.count;
       }
       // Query Data
       this.queryData(this.mainDatasource).then(data => {
@@ -1337,12 +1382,15 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   public downloadData(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
-    let preview:PreviewResult;
-    if (this.mainDsSummary) {
-      preview = new PreviewResult( this.mainDsSummary.size, this.mainDsSummary.count );
-    }
-    this._dataDownComp.openGridDown(event, this.gridComponent, preview);
-    // this.gridComponent.csvDownload(this.source.name);
+
+    this.loadingShow();
+    this.datasourceService.getDatasourceQuery(this._queryParams).then(downData => {
+      this._dataDownComp.openDataDown(event, this.columns, downData, this.downloadPreview );
+      this.loadingHide();
+    }).catch((err) => {
+
+      this.loadingHide();
+    });
   } // function - downloadData
 
   /**
@@ -1403,7 +1451,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     // 메타데이터
     this._setMetaDataField(field, source);
     // if only engine type source, get statistics and covariance
-    if (!this.isLinkedTypeSource(source)) {
+    // #728 except GEO types, not get statistics and covariance
+    if (!this.isLinkedTypeSource(source) && !this.isGeoType(field)) {
       // 통계 조회
       if ((this.selectedField.role === 'TIMESTAMP' && !this.statsData.hasOwnProperty('__time'))
         || (this.selectedField.role !== 'TIMESTAMP' && !this.statsData.hasOwnProperty(field.name))) {

@@ -1426,7 +1426,8 @@ public class PolarisUtils {
     for(String separatedPart : partition.split("/")){
       String[] separatedPartition = separatedPart.split("=");
       if(separatedPartition.length > 1){
-        partitionMap.put(separatedPartition[0], separatedPartition[1]);
+        //replace all projection to blank
+        partitionMap.put(separatedPartition[0], "{*}".equals(separatedPartition[1]) ? "" : separatedPartition[1]);
       }
     }
 

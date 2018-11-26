@@ -25,7 +25,7 @@ import java.util.List;
 import app.metatron.discovery.common.GlobalObjectMapper;
 
 /**
- * Created by kyungtaak on 2016. 4. 18..
+ * Map View spec. Test
  */
 public class MapChartTest extends ChartTest {
 
@@ -76,6 +76,7 @@ public class MapChartTest extends ChartTest {
     );
 
     MapChart chart = new MapChart(valueNumberFormat(), mapChartLegend, chartToolTip,
+                                  500,
                                   true, "OSM", "Ok! license",
                                   true, "state", layers);
 

@@ -29,31 +29,18 @@ public class Evaluation {
   String outputName;
 
   /**
-   * 표현식 (순차적 표현을 위한 '_' 기호도 제공)
-   * ex. [ "cast(L_QUANTITY, 'long') * cast(L_EXTENDEDPRICE, 'double')", "_ * (1-cast(L_DISCOUNTi, 'double'))" ]
-   *
+   * 표현식 (순차적 표현을 위한 '_' 기호도 제공) </br>
+   * ex. [ "cast(L_QUANTITY, 'long') * cast(L_EXTENDEDPRICE, 'double')",
+   *    "_ * (1-cast(L_DISCOUNTi, 'double'))" ]
    */
   List<String> expressions;
 
   public Evaluation() {
   }
 
-  public static Evaluation nullToDefaultValueEvaluation(String outputName, Object defaultValue) {
-    Evaluation evaluation = new Evaluation();
-    evaluation.setOutputName(outputName);
-
-    StringBuilder exprBuilder = new StringBuilder();
-    exprBuilder.append("nvl(").append(outputName).append(",");
-
-    if(defaultValue instanceof String) {
-      exprBuilder.append("'").append(defaultValue).append("')");
-    } else {
-      exprBuilder.append(defaultValue).append(")");
-    }
-
-    evaluation.setExpressions(Lists.newArrayList(exprBuilder.toString()));
-
-    return evaluation;
+  public Evaluation(String outputName, String... expressions) {
+    this.outputName = outputName;
+    this.expressions = Lists.newArrayList(expressions);
   }
 
   public String getOutputName() {

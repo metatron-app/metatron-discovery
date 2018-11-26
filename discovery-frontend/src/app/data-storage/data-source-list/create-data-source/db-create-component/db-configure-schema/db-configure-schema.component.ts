@@ -14,11 +14,11 @@
 
 import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit,
-  Output
+  Output, ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
 import {
-  DatasourceInfo, Field, FieldFormat, FieldFormatType,
+  DatasourceInfo, Field, FieldFormat, FieldFormatType, IngestionRuleType,
   LogicalType
 } from '../../../../../domain/datasource/datasource';
 import { isUndefined } from 'util';
@@ -26,6 +26,7 @@ import { DatasourceService } from '../../../../../datasource/service/datasource.
 import * as _ from 'lodash';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { Alert } from '../../../../../common/util/alert.util';
+import { AddColumnComponent } from '../../../component/add-column.component';
 
 @Component({
   selector: 'db-configure-schema',
@@ -47,6 +48,10 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
 
   // 선택된 컬럼리스트
   private checkedColumnList: any[];
+
+  // add column component
+  @ViewChild(AddColumnComponent)
+  private _addColumnComponent: AddColumnComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -93,6 +98,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
   // show flag
   public typeShowFl: boolean = false;
   public timestampShowFl: boolean = false;
+  public addColumnShowFl: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -377,6 +383,45 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
       return;
     }
     this.timestampShowFl = !this.timestampShowFl;
+  }
+
+  /**
+   * Add column button click event
+   */
+  public onClickAddColumn(): void {
+    this.addColumnShowFl = !this.addColumnShowFl;
+    if (this.addColumnShowFl) {
+      this._addColumnComponent.init(this.fields);
+    }
+  }
+
+  /**
+   * Closed add column modal
+   * @param data
+   */
+  public onClosedAddColumn(data: any): void {
+    if (data) {
+      // data push in fields
+      this.fields.unshift(data);
+      // if new column type GEO
+      if (data.logicalType.indexOf('GEO_') !== -1) {
+        const latColumnName = data.derivationRule.latField;
+        const lonColumnName = data.derivationRule.lonField;
+        // temp
+        let temp: string;
+        // set data list
+        this.data.forEach((item) => {
+          // if exist property not empty
+          if (item[latColumnName] || item[lonColumnName]) {
+            temp = item[latColumnName] || '';
+            temp += ',';
+            temp += item[lonColumnName] || '';
+            item[data.name] = temp;
+          }
+        });
+      }
+    }
+    this.addColumnShowFl = false;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -752,9 +797,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @private
    */
   private _getEnabledColumnList() {
-    return this.getColumnList().filter((column) => {
-      return column.unloaded === false;
-    });
+    return this.getColumnList().filter(column => !column.unloaded);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -816,7 +859,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    */
   private _isErrorIngestionRule(column: Field): boolean {
     return column.ingestionRule
-    && column.ingestionRule.type === 'replace'
+    && column.ingestionRule.type === IngestionRuleType.REPLACE
     && column.isValidReplaceValue === false;
   }
 
@@ -844,7 +887,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
         column.isValidTimeFormat = false;
         column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
       }
-      if (column.ingestionRule && column.ingestionRule.type === 'replace' && isUndefined(column.isValidReplaceValue)) {
+      if (column.ingestionRule && column.ingestionRule.type === IngestionRuleType.REPLACE && isUndefined(column.isValidReplaceValue)) {
         column.isValidReplaceValue = false;
         column.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
       }
@@ -886,8 +929,8 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    */
   private initIngestionRuleInChangeType(column) {
     // ingestionRule이 있다면
-    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === 'replace') {
-      column.ingestionRule.type = 'default';
+    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === IngestionRuleType.REPLACE) {
+      column.ingestionRule.type = IngestionRuleType.DEFAULT;
     }
   }
 

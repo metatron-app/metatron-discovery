@@ -128,6 +128,17 @@ public class WorkbenchDataSourceUtils {
     ds.setConnectionProperties(properties);
 
     WorkbenchDataSource dataSourceInfo = new WorkbenchDataSource(connection.getId(), webSocketId, ds);
+
+    if(connection instanceof HiveConnection && ((HiveConnection) connection).isSupportSaveAsHiveTable()) {
+      HiveConnection hiveConnection = (HiveConnection)connection;
+
+      String hiveAdminUserName = hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_ADMIN_NAME);
+      String hiveAdminUserPassword = hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_ADMIN_PASSWORD);
+
+      dataSourceInfo.setSecondarySingleConnectionDataSource(
+          new SingleConnectionDataSource(connUrl, hiveAdminUserName, hiveAdminUserPassword, true)
+      );
+    }
     pooledDataSourceList.put(webSocketId, dataSourceInfo);
     LOGGER.debug("Created datasource : {}", connUrl);
     return dataSourceInfo;

@@ -21,7 +21,7 @@ declare const ace: any;
 
 @Component({
   selector: '[editor-component]',
-  template: 'E',
+  template: ' ',
   styles: ['' +
   ':host { ' +
   '   position: absolute;\n' +

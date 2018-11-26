@@ -47,6 +47,7 @@ import org.supercsv.io.CsvMapReader;
 import org.supercsv.io.ICsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
+import javax.persistence.EntityManager;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -60,6 +61,7 @@ import java.sql.Statement;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static app.metatron.discovery.domain.workbench.WorkbenchErrorCodes.CSV_FILE_NOT_FOUND;
 
@@ -82,6 +84,9 @@ public class QueryEditorService {
 
   @Autowired
   public SimpMessageSendingOperations messagingTemplate;
+
+  @Autowired
+  EntityManager entityManager;
 
   public QueryStatus getQueryStatus(String webSocketId) {
     WorkbenchDataSource dataSourceInfo = WorkbenchDataSourceUtils.findDataSourceInfo(webSocketId);
@@ -124,6 +129,7 @@ public class QueryEditorService {
       queryHistory.setQuery(substitutedQuery);
       queryHistory.setDataConnectionId(jdbcDataConnection.getId());
       queryHistory.setDatabaseName(databaseName);
+      queryHistory.setQueryResultStatus(QueryResult.QueryResultStatus.RUNNING);
       queryHistoryRepository.saveAndFlush(queryHistory);
       LOGGER.debug("QueryHistory Created : " + queryHistory.getId());
       Long queryHistoryId = queryHistory.getId();
@@ -142,10 +148,13 @@ public class QueryEditorService {
       audit.setQueryHistoryId(queryHistory.getId());
       audit.setStartTime(DateTime.now());
       audit.setUser(AuthUtils.getAuthUserName());
+      audit.setStatus(Audit.AuditStatus.RUNNING);
       auditRepository.saveAndFlush(audit);
       String auditId = audit.getId();
 
       LOGGER.debug("Audit Created : " + auditId);
+
+      entityManager.clear();
 
       QueryResult queryResult = executeQuery(dataSourceInfo, substitutedQuery, workbench.getId(), webSocketId, jdbcDataConnection,
               queryHistoryId, auditId, saveToTempTable, queryIndex, queryEditor.getId());
@@ -164,27 +173,22 @@ public class QueryEditorService {
       queryHistory.setQuery(queryResult.getRunQuery());
       queryHistory.setQueryFinishTime(queryResult.getFinishDateTime());
       queryHistory.setQueryStartTime(queryResult.getStartDateTime());
-      queryHistory.setQueryResultStatus(queryResult.getQueryResultStatus());
       queryHistory.setQueryTimeTaken(queryResult.getFinishDateTime().toDate().getTime() - queryResult.getStartDateTime().toDate().getTime());
       queryHistory.setDataConnectionId(jdbcDataConnection.getId());
       queryHistory.setDatabaseName(databaseName);
       queryHistory.setQueryLog(queryResult.getMessage());
       queryHistory.setNumRows(queryResult.getNumRows());
-      queryHistoryRepository.saveAndFlush(queryHistory);
+      //cancelled should not update
+      if(queryHistory.getQueryResultStatus() != QueryResult.QueryResultStatus.CANCELLED)
+        queryHistory.setQueryResultStatus(queryResult.getQueryResultStatus());
+      queryResult.setQueryResultStatus(queryHistory.getQueryResultStatus());
+      queryHistoryRepository.save(queryHistory);
+      LOGGER.debug("QueryHistory Updated : " + queryHistory.getId());
 
-//        Audit.AuditStatus auditStatus;
-//        if(queryResult.getQueryResultStatus() == QueryResult.QueryResultStatus.SUCCESS){
-//          auditStatus = Audit.AuditStatus.SUCCESS;
-//        } else {
-//          auditStatus = Audit.AuditStatus.FAIL;
-//        }
-//        Audit audit = auditRepository.getOne(queryResult.getAuditId());
-//        audit.setStatus(auditStatus);
-//        audit.setElapsedTime(queryHistory.getQueryTimeTaken());
-//        audit.setFinishTime(queryResult.getFinishDateTime());
-//        audit.setNumRows(queryResult.getNumRows());
-//        auditRepository.saveAndFlush(audit);
+      queryResult.setQueryHistoryId(queryHistory.getId());
     }
+
+    queryHistoryRepository.flush();
 
     return queryResults;
   }
@@ -292,6 +296,8 @@ public class QueryEditorService {
       //Query 실행 상태 RUNNING로 전환
       dataSourceInfo.setQueryStatus(QueryStatus.RUNNING);
       dataSourceInfo.setCurrentStatement(stmt);
+      dataSourceInfo.setQueryHistoryId(queryHistoryId);
+      dataSourceInfo.setAuditId(auditId);
 
       stmt.setMaxRows(maxResultSize);
 
@@ -406,15 +412,21 @@ public class QueryEditorService {
     String tempFileName = generateTempCSVFileName(csvBaseDir, queryEditorId, queryIndex);
     LOGGER.debug("writeResultSetToCSV csvBaseDir : {}", csvBaseDir);
     LOGGER.debug("writeResultSetToCSV tempFileName : {}", tempFileName);
-    int rowNumber = jdbcConnectionService.writeResultSetToCSV(resultSet, csvBaseDir + tempFileName);
 
     //2. get field info from resultset
     List<Field> fieldList = jdbcConnectionService.getFieldList(resultSet, false);
 
-    //3. get data list from csv file
+    //3. write csv
+    int rowNumber = jdbcConnectionService.writeResultSetToCSV(
+            resultSet,
+            csvBaseDir + tempFileName,
+            fieldList.stream().map(field -> field.getName()).collect(Collectors.toList()));
+
+
+    //4. get data list from csv file
     List<Map<String, Object>> dataList = readCsv(csvBaseDir + tempFileName, fieldList, 0, pageSize);
 
-    //4. generate Query Result
+    //5. generate Query Result
     QueryResult queryResult = new QueryResult();
     queryResult.setRunQuery(query);
     queryResult.setFields(fieldList);
@@ -447,6 +459,20 @@ public class QueryEditorService {
         while(dataSourceInfo.getQueryList() != null && !dataSourceInfo.getQueryList().isEmpty()){
           dataSourceInfo.getQueryList().remove(0);
         }
+
+        //update status
+        QueryHistory qh = queryHistoryRepository.getOne(dataSourceInfo.getQueryHistoryId());
+        if(qh != null){
+          qh.setQueryResultStatus(QueryResult.QueryResultStatus.CANCELLED);
+          queryHistoryRepository.saveAndFlush(qh);
+        }
+        Audit audit = auditRepository.getOne(dataSourceInfo.getAuditId());
+        if(audit != null){
+          audit.setStatus(Audit.AuditStatus.CANCELLED);
+          auditRepository.saveAndFlush(audit);
+        }
+        entityManager.clear();
+        
         LOGGER.debug("Removed remain query all");
         stmt = dataSourceInfo.getCurrentStatement();
         if(stmt != null)

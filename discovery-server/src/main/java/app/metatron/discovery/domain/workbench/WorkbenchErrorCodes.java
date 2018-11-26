@@ -20,7 +20,8 @@ public enum WorkbenchErrorCodes implements ErrorCodes {
 
   QUERY_STATUS_ERROR_CODE("WB0001"),
   DATASOURCE_NOT_EXISTED("WB0002"),
-  CSV_FILE_NOT_FOUND("WB0003");
+  CSV_FILE_NOT_FOUND("WB0003"),
+  TABLE_ALREADY_EXISTS("WB0004");
 
   String errorCode;
 

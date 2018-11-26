@@ -1,10 +1,26 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
 package app.metatron.discovery.domain.geo;
 
 import com.google.common.collect.Lists;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +30,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -43,9 +60,8 @@ public class GeoRepository {
   @Value("${polaris.engine.timeout.query:120000}")
   Integer timeout;
 
-  @Value("${polaris.geoserver.url:http://localhost:9090/geoserver/metatron/wfs}")
-  //@Value("${polaris.geoserver.url:http://52.231.184.135:8080/geoserver/metatron/wfs}")
-  String geoserverUrl;
+  @Autowired
+  GeoServerProperties geoServerProperties;
 
   RestTemplate restTemplate;
 
@@ -67,6 +83,33 @@ public class GeoRepository {
     restTemplate = new RestTemplate(converters);
     restTemplate.setRequestFactory(factory);
     restTemplate.setErrorHandler(new GeoResponseErrorHandler());
+
+    if (StringUtils.isNotEmpty(geoServerProperties.getUsername())) {
+      restTemplate.getInterceptors().add(new BasicAuthorizationInterceptor(geoServerProperties.getUsername(),
+                                                                           geoServerProperties.getPassword()));
+    }
+  }
+
+  public String create(String url, String requestBody) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+
+    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+
+    Optional<String> result = call(url, HttpMethod.POST, entity, String.class);
+
+    return result.orElse("Result is empty");
+  }
+
+  public String delete(String url) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+
+    HttpEntity<String> entity = new HttpEntity<>(null, headers);
+
+    Optional<String> result = call(url, HttpMethod.DELETE, entity, String.class);
+
+    return result.orElse("Result is empty");
   }
 
   public String query(String requestBody, String viewParam) {
@@ -77,7 +120,7 @@ public class GeoRepository {
 
     String newUrl = null;
     try {
-      newUrl = geoserverUrl + "?viewParams=" + URLEncoder.encode(viewParam, "UTF-8");
+      newUrl = geoServerProperties.getWfsUrl() + "?viewParams=" + URLEncoder.encode(viewParam, "UTF-8");
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
     }
@@ -93,7 +136,7 @@ public class GeoRepository {
     headers.setContentType(MediaType.APPLICATION_XML);
     HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 
-    Optional<T> result = call(geoserverUrl, HttpMethod.POST, entity, clz);
+    Optional<T> result = call(geoServerProperties.getWfsUrl(), HttpMethod.POST, entity, clz);
 
     return result.orElseThrow(() -> new EngineException("Result not found."));
   }
@@ -117,12 +160,13 @@ public class GeoRepository {
   }
 
 
-
   private class GeoResponseErrorHandler implements ResponseErrorHandler {
 
     @Override
     public boolean hasError(ClientHttpResponse response) throws IOException {
-      if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.NO_CONTENT) {
+      if (response.getStatusCode() == HttpStatus.OK
+          || response.getStatusCode() == HttpStatus.NO_CONTENT
+          || response.getStatusCode() == HttpStatus.CREATED) {
         return false;
       }
 
