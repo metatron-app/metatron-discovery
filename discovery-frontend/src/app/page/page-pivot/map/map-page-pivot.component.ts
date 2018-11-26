@@ -16,7 +16,7 @@ import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@a
 import { Pivot } from '../../../domain/workbook/configurations/pivot';
 import { BIType, Field, FieldPivot, LogicalType } from '../../../domain/datasource/datasource';
 import {
-  EventType,
+  EventType, ShelveFieldType,
   UIFormatCurrencyType,
   UIFormatNumericAliasType,
   UIFormatType
@@ -31,6 +31,7 @@ import { PagePivotComponent } from '../page-pivot.component';
 import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
 import { Field as AbstractField } from '../../../domain/workbook/configurations/field/field';
 import * as $ from "jquery";
+import { MapLayerType } from '../../../common/component/chart/option/define/map/map-common';
 
 @Component({
   selector: 'map-page-pivot',
@@ -151,6 +152,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
       else if (targetField.biType === BIType.DIMENSION) {
         field = new DimensionField();
       } else if (targetField.biType === BIType.MEASURE) {
+
         // default로 aggregationType은 SUM으로 설정
         field = new MeasureField();
         field.aggregated = targetField.aggregated;
@@ -182,8 +184,14 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
       let shelves = this.shelf.layers[this.uiOption.layerNum];
 
+      // remove duplicate list
+      let duplicateFl = this.distinctPivotItems(shelves, field, idx, shelf, targetContainer);
+
+      // if map chart type is symbol or line, remove duplicate list
+      duplicateFl = this.distinctMeasure(shelves, field, idx, shelf, targetContainer);
+
       // 선반의 dimension / measure값의 중복된값 제거, measure aggtype 설정
-      if (!this.distinctPivotItems(shelves, field, idx, shelf, targetContainer)) {
+      if (!duplicateFl) {
 
         // distinctPivotItem에서 설정된 타입 targetField에 설정
         targetField.format = shelf[idx].format;
@@ -206,6 +214,12 @@ export class MapPagePivotComponent extends PagePivotComponent {
               ? null
               : this.uiOption.valueFormat.customSymbol
           }
+        }
+
+        // point, heatmap => no aggregation / hexagon, line, polygon => set aggregation
+        if (MapLayerType.SYMBOL === this.uiOption.layers[this.uiOption.layerNum].type ||
+          MapLayerType.HEATMAP === this.uiOption.layers[this.uiOption.layerNum].type) {
+          delete field.aggregationType;
         }
       }
 
@@ -536,6 +550,42 @@ export class MapPagePivotComponent extends PagePivotComponent {
       // 선반에서 해당 아이템 제거
       this.shelf.layers[this.uiOption.layerNum].splice(idx, 1);
       return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * remove the measure having same name
+   * @param {Field[]} shelves
+   * @param field
+   * @param {number} idx
+   * @param {Field[]} shelf
+   * @param {string} targetContainer
+   * @returns {boolean}
+   */
+  private distinctMeasure(shelves: AbstractField[], field: any, idx: number, shelf: AbstractField[], targetContainer: string): boolean {
+
+    const duplicateList = [];
+
+    shelves.forEach((item) => {
+
+      if (item.name === field.name) {
+
+        duplicateList.push(item);
+      }
+    });
+
+    // duplicate list exists
+    if (String(ShelveFieldType.MEASURE) === field.type && duplicateList.length > 1) {
+
+      // symbol, heatmap => no aggregation type
+      if (MapLayerType.SYMBOL === this.uiOption.layers[this.uiOption.layerNum].type ||
+        MapLayerType.HEATMAP === this.uiOption.layers[this.uiOption.layerNum].type) {
+
+        shelf.splice(idx, 1);
+        return true;
+      }
     }
 
     return false;
