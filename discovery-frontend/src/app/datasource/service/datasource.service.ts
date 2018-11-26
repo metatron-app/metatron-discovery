@@ -24,13 +24,12 @@ import {
   ChartType, ShelveFieldType, GridViewType, LineMode
 } from '../../common/component/chart/option/define/common';
 import {Filter} from '../../domain/workbook/configurations/filter/filter';
-import {Shelf, Layer} from '../../domain/workbook/configurations/shelf/shelf';
 import {UILineChart} from '../../common/component/chart/option/ui-option/ui-line-chart';
 import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid-chart';
 import {FilterUtil} from '../../dashboard/util/filter.util';
 import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
 import {Dashboard} from '../../domain/dashboard/dashboard';
-import {Field} from '../../domain/datasource/datasource';
+import { Datasource, Field } from '../../domain/datasource/datasource';
 import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
 import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
 import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
@@ -41,6 +40,7 @@ import {FilteringType} from '../../domain/workbook/configurations/field/timestam
 import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
 import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
+import { CriterionKey, DatasourceCriterion } from '../../domain/datasource/datasourceCriterion';
 import {Limit} from "../../domain/workbook/configurations/limit";
 
 @Injectable()
@@ -823,6 +823,36 @@ export class DatasourceService extends AbstractService {
     } else {
       return this.get(this.API_URL + `datasources/${datasourceId}/histories/${historyId}/log`);
     }
+  }
+
+  /**
+   * Get criterion list in datasource
+   * @returns {Promise<DatasourceCriterion[]>}
+   */
+  public getDatasourceCriterionList(): Promise<DatasourceCriterion[]> {
+    return this.get(this.API_URL + 'datasources/criteria');
+  }
+
+  /**
+   * Get criterion in datasource
+   * @param {CriterionKey} criterionKey
+   * @returns {Promise<DatasourceCriterion>}
+   */
+  public getDatasourceCriterion(criterionKey: CriterionKey): Promise<DatasourceCriterion> {
+    return this.get(this.API_URL + `datasources/criteria/${criterionKey}`);
+  }
+
+  /**
+   * Get datasource list
+   * @param params
+   * @returns {Promise<any>}
+   */
+  public getDatasourceList(params: any): Promise<any> {
+    let url = this.API_URL + `datasources/filter`;
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
