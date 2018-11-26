@@ -1698,6 +1698,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Enable tooltip
     } else this.tooltipInfo.enable = true;
 
+    // Element apply
+    this.changeDetect.detectChanges();
+
     if( _.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE)) ) {
       let extent = feature.getGeometry().getExtent();
       coords = ol.extent.getCenter(extent);
