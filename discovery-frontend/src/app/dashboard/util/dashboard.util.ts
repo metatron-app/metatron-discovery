@@ -421,7 +421,7 @@ export class DashboardUtil {
    * @return {T[]}
    */
   public static getFieldsForMainDataSource(boardConf: BoardConfiguration, engineName: string) {
-    return (boardConf.fields) ? boardConf.fields.filter(item => item.dataSource === engineName) : [];
+    return (boardConf.fields) ? boardConf.fields.filter(item => item.dataSource === engineName && !item.derived) : [];
   } // function - getFieldsForMainDataSource
 
   /**

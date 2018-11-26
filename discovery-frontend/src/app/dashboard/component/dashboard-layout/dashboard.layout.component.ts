@@ -256,7 +256,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
     const widgetHeaderComp = this._getWidgetHeaderComp(widgetId);
     if (widgetComponent) {
       widgetComponent.destroy();
-      ( widgetHeaderComp ) && ( widgetHeaderComp.ngOnDestroy() );
+      (widgetHeaderComp) && (widgetHeaderComp.ngOnDestroy());
       this._getLayoutCompContainerByWidgetId(widgetId).remove();
     }
     this._widgetComps = this._widgetComps.filter(item => item.instance.getWidgetId() !== widgetId);
@@ -914,14 +914,10 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         let recommendFilters: Filter[] = [];
         // 추천필터 설정
         fields.forEach((field: Field) => {
-          if (field.filtering || FieldRole.TIMESTAMP === field.role) {
+          if (field.filtering) {
             let rcmdFilter: Filter = undefined;
             if (field.logicalType === LogicalType.TIMESTAMP) {
-              if (FieldRole.TIMESTAMP === field.role) {
-                rcmdFilter = FilterUtil.getTimeAllFilter(field, 'timestamp');
-              } else {
-                rcmdFilter = FilterUtil.getTimeAllFilter(field, 'recommended');
-              }
+              rcmdFilter = FilterUtil.getTimeAllFilter(field, 'recommended');
             } else {
               rcmdFilter = FilterUtil.getBasicInclusionFilter(field, 'recommended');
             }

@@ -14,7 +14,7 @@
 
 import {Component, ElementRef, Injector, OnChanges, OnInit, ViewChild} from '@angular/core';
 import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Datasource, SourceType, Status} from '../../../domain/datasource/datasource';
+import {Datasource, FieldFormatType, FieldRole, SourceType, Status} from '../../../domain/datasource/datasource';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {Alert} from '../../../common/util/alert.util';
 import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';

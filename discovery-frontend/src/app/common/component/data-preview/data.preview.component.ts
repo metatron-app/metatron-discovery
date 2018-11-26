@@ -26,7 +26,7 @@ import {
 } from '@angular/core';
 import {BoardDataSource, Dashboard, JoinMapping, QueryParam} from '../../../domain/dashboard/dashboard';
 import {DatasourceService} from 'app/datasource/service/datasource.service';
-import {Datasource, DataSourceSummary, Field} from '../../../domain/datasource/datasource';
+import {Datasource, DataSourceSummary, Field, FieldFormatType, FieldRole} from '../../../domain/datasource/datasource';
 import {SlickGridHeader} from 'app/common/component/grid/grid.header';
 import {header} from '../grid/grid.header';
 import {GridComponent} from '../grid/grid.component';
