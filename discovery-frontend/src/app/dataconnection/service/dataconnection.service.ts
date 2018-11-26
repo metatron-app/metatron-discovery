@@ -16,6 +16,7 @@ import {Injectable, Injector} from '@angular/core';
 import {AbstractService} from '../../common/service/abstract.service';
 import {CommonUtil} from '../../common/util/common.util';
 import {Page} from '../../domain/common/page';
+import {isNullOrUndefined} from "util";
 
 @Injectable()
 export class DataconnectionService extends AbstractService {
@@ -145,6 +146,11 @@ export class DataconnectionService extends AbstractService {
     connInfo.database = dataconnection.connectionDatabase;
     connInfo.catalog = dataconnection.catalog;
     connInfo.url = dataconnection.url;
+
+    // properties 속성이 존재 할경우
+    if( !isNullOrUndefined(dataconnection.properties) ){
+      connInfo.properties = dataconnection.properties;
+    }
 
     params.connection = connInfo;
     params.database = dataconnection.database;
