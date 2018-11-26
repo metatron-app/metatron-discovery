@@ -120,18 +120,23 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
           value: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
         }
       ],
+      allowedMimeType: ['application/vnd.ms-excel','text/csv','text/plain','application/json'],
     });
 
     // add 가 처음
     this.uploader.onAfterAddingFile = (item) => {
       this.loadingShow();
-
       if(!new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).test( item.file.name )) { // check file extension
         this.uploader.clearQueue();
         this.fileUploadChange.nativeElement.value = ''; // 같은 파일은 연속으로 올리면 잡지 못해서 초기화
         Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
         this.loadingHide();
       } else{
+        if( item.file.type === 'text/csv' || item.file.type === 'text/plain' ) {
+          this.isCSV = true;
+        } else {
+          this.isCSV = false;
+        }
         this.uploader.setOptions({ additionalParameter: { dest: `${this.uploadLocation}`}});
         this.uploader.uploadAll();
       }
@@ -139,7 +144,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     // add 할때 에러난다면
     this.uploader.onWhenAddingFileFailed = (item: FileLikeObject, filter: any, options: any) => {
-      Alert.error(item.name + this.translateService.instant('msg.dp.alert.file.format.wrong'));
+      Alert.error(item.name + ' ' + this.translateService.instant('msg.dp.alert.file.format.wrong'));
     };
 
     // 업로드 전 ..
