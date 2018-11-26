@@ -32,6 +32,8 @@ import { BaseOptionComponent } from '../base-option.component';
 import { ColorTemplateComponent } from '../../../common/component/color-picker/color-template.component';
 import { Field as AbstractField, Field } from '../../../domain/workbook/configurations/field/field';
 import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
+import {isNullOrUndefined} from "util";
+import {Alert} from "../../../common/util/alert.util";
 
 @Component({
   selector: 'map-layer-option',
@@ -133,16 +135,24 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     // change color type by layer type
     if (MapLayerType.HEATMAP === layerType) {
-
       this.uiOption.layers[this.index].color.schema = 'HC1';
+      if( isNullOrUndefined(this.uiOption.layers[this.index]['blur']) ) {
+        this.uiOption.layers[this.index]['blur'] = 20;
+      }
+      if( isNullOrUndefined(this.uiOption.layers[this.index]['radius']) ) {
+        this.uiOption.layers[this.index]['radius'] = 20;
+      }
+
     } else if (MapLayerType.SYMBOL === layerType) {
-
       this.uiOption.layers[this.index].color.by = MapBy.NONE;
       this.uiOption.layers[this.index].color.schema = '#6344ad';
+
     } else if (MapLayerType.TILE === layerType) {
-
       this.uiOption.layers[this.index].color.by = MapBy.NONE;
       this.uiOption.layers[this.index].color.schema = '#6344ad';
+      if( isNullOrUndefined(this.uiOption.layers[this.index]['coverage']) ) {
+        this.uiOption.layers[this.index]['coverage'] = 20;
+      }
     }
 
     // apply layer ui option
@@ -165,12 +175,20 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * all layers - change transparency
    * @param {Object} data
    */
-  public changeTransparency(data: Object) {
-
-    this.uiOption.layers[this.index].color.transparency = data['value'];
-
-    // apply layer ui option
+  public changeTransparency(obj: any, slider: any, index: number) {
+    this.uiOption.layers[index].color.transparency = slider.from;
     this.applyLayers();
+  }
+  public changeTransparencyText($event: any, index: number) {
+    let inputValue = $event.target.value;
+    if( inputValue > 100 || inputValue < -1) {
+      Alert.warning('0~100 범위 안에서 적용해주세요.');
+      $event.target.value = this.uiOption.layers[index].color.transparency;
+      return;
+    } else {
+      this.uiOption.layers[index].color.transparency = inputValue;
+      this.applyLayers();
+    }
   }
 
   /**
@@ -340,11 +358,20 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * @param obj
    * @param slider
    */
-  public changeBlur(obj: any, slider: any) {
-
-    (<UIHeatmapLayer>this.uiOption.layers[this.index]).blur = slider.from;
-
+  public changeBlur(obj: any, slider: any, index: number) {
+    (<UIHeatmapLayer>this.uiOption.layers[index]).blur = slider.from;
     this.applyLayers();
+  }
+  public changeBlurText($event: any, index: number) {
+    let inputValue = $event.target.value;
+    if( inputValue > 100 || inputValue < -1) {
+      Alert.warning('0~100 범위 안에서 적용해주세요.');
+      $event.target.value = this.uiOption.layers[index]['blur'];
+      return;
+    } else {
+      (<UIHeatmapLayer>this.uiOption.layers[index]).blur = inputValue;
+      this.applyLayers();
+    }
   }
 
   /**
@@ -352,11 +379,20 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * @param obj
    * @param slider
    */
-  public changeRadius(obj: any, slider: any) {
-
-    (<UIHeatmapLayer>this.uiOption.layers[this.index]).radius = slider.from;
-
+  public changeRadius(obj: any, slider: any, index: number) {
+    (<UIHeatmapLayer>this.uiOption.layers[index]).radius = slider.from;
     this.applyLayers();
+  }
+  public changeRadiusText($event: any, index: number) {
+    let inputValue = $event.target.value;
+    if( inputValue > 100 || inputValue < -1) {
+      Alert.warning('0~100 범위 안에서 적용해주세요.');
+      $event.target.value = this.uiOption.layers[index]['radius'];
+      return;
+    } else {
+      (<UIHeatmapLayer>this.uiOption.layers[index]).radius = inputValue;
+      this.applyLayers();
+    }
   }
 
   /**
@@ -364,11 +400,21 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * @param obj
    * @param slider
    */
-  public changeCoverage(obj: any, slider: any) {
-
-    (<UITileLayer>this.uiOption.layers[this.index]).coverage = slider.from;
-
+  public changeCoverage(obj: any, slider: any, index: number) {
+    (<UITileLayer>this.uiOption.layers[index]).coverage = slider.from;
+    // this.uiOption.layers[index]['coverage'] = slider.from;
     this.applyLayers();
+  }
+  public changeCoverageText($event: any, index: number) {
+    let inputValue = $event.target.value;
+    if( inputValue > 100 || inputValue < -1) {
+      Alert.warning('0~100 범위 안에서 적용해주세요.');
+      $event.target.value = this.uiOption.layers[index]['coverage'];
+      return;
+    } else {
+      (<UITileLayer>this.uiOption.layers[index]).coverage = inputValue;
+      this.applyLayers();
+    }
   }
 
   /**

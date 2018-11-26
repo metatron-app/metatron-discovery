@@ -26,6 +26,7 @@ import * as ol from 'openlayers';
 import * as h3 from 'h3-js';
 import { UIMapOption } from '../../option/ui-option/map/ui-map-chart';
 import {
+  HeatmapColorList,
   MapBy, MapGeometryType, MapLayerStyle,
   MapLayerType,
   MapLineStyle, MapSymbolType, MapThickness,
@@ -51,6 +52,7 @@ import {LogicalType} from '../../../../../domain/datasource/datasource';
 import {GeoField} from '../../../../../domain/workbook/configurations/field/geo-field';
 import { TooltipOptionConverter } from '../../option/converter/tooltip-option-converter';
 import { ChartUtil } from '../../option/util/chart-util';
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'map-chart',
@@ -122,6 +124,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
   // Symbol layer
   public symbolLayer = undefined;
+
+  // Heatmap layer
+  public heatmapLayer = undefined;
 
   // Tooltip layer
   public tooltipLayer = undefined;
@@ -531,13 +536,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       ////////////////////////////////////////////////////////
       if( _.eq(layer.type, MapLayerType.SYMBOL) ) {
 
-        // Create
-        if( !this.clusterLayer ) {
-          this.clusterLayer = new ol.layer.Vector({
-            source: clusterSource,
-            style: this.clusterStyleFunction(0, this.data)
-          });
-        }
+        this.clusterLayer = new ol.layer.Vector({
+          source: clusterSource,
+          style: this.clusterStyleFunction(0, this.data)
+        });
 
         // Set source
         this.clusterLayer.setSource(clusterSource);
@@ -570,13 +572,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       if( _.eq(layer.type, MapLayerType.LINE)
         || _.eq(layer.type, MapLayerType.POLYGON) ) {
 
-        // Create
-        if( !this.symbolLayer ) {
-          this.symbolLayer = new ol.layer.Vector({
-            source: source,
-            style: this.mapStyleFunction(0, this.data)
-          });
-        }
+        this.symbolLayer = new ol.layer.Vector({
+          source: source,
+          style: this.mapStyleFunction(0, this.data)
+        });
+
+        // // Create
+        // if( !this.symbolLayer ) {
+        // }
 
         // Set source
         this.symbolLayer.setSource(source);
@@ -607,7 +610,36 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       // Heatmap layer
       ////////////////////////////////////////////////////////
       else if( _.eq(layer.type, MapLayerType.HEATMAP) ) {
+        this.heatmapLayer = new ol.layer.Heatmap({
+          source: source,
+          style: this.mapStyleFunction(0, this.data),
+          // 색상
+          gradient: HeatmapColorList[layer.color.schema],
+          // 투명도 (opacity로 설정하기 때문에 100으로 나눔)
+          opacity: layer.color.transparency/100,
+          // 적용범위
+          radius: layer['radius'],
+          // 흐림 효과
+          blur: layer['blur']
+        });
+        this.heatmapLayer.setSource(source);
+        this.featureLayer = this.heatmapLayer;
 
+        // Init
+        if( isMapCreation && this.getUiMapOption().showMapLayer ) {
+          // Add layer
+          this.olmap.addLayer(this.heatmapLayer);
+        } else {
+          if( this.getUiMapOption().showMapLayer ) {
+            // Add layer
+            if( this.olmap.getLayers().getLength() == 1 ) {
+              this.olmap.addLayer(this.heatmapLayer);
+            }
+          } else {
+            // Remove layer
+            this.olmap.removeLayer(this.heatmapLayer);
+          }
+        }
       }
       ////////////////////////////////////////////////////////
       // Tile layer
@@ -1594,10 +1626,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
     // Cluster check
     let features = feature.get('features');
-    if( features.length > 1 ) {
-      return;
+    if( !isNullOrUndefined(features) ) {
+      if(features.length > 1 ) {
+        return;
+      }
+      feature = features[0];
     }
-    feature = features[0];
+
 
     // Layer num
     this.tooltipInfo.num = feature.get('layerNum');
@@ -1898,6 +1933,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
         let colorInfo: any = {};
         colorInfo.color = layer.color.schema;
+        // set heatmap color
+        if( _.eq(layer.type, MapLayerType.HEATMAP) ) {
+          colorInfo.color = HeatmapColorList[layer.color.schema][(HeatmapColorList[layer.color.schema].length-1)];
+        }
         _.each(this.shelf.layers[this.getUiMapOption().layerNum], (field) => {
           if( _.eq(field.field.logicalType, LogicalType.GEO_POINT) ) {
             colorInfo.column = field.alias;
