@@ -625,6 +625,17 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       };
     }
     if (!isUndefined(rule)) {
+
+      let isErrorCommand : boolean = true;
+      for(var ind in this.commandList) {
+        if ( rule.ruleString.indexOf(this.commandList[ind].command) > -1 ) isErrorCommand = false;
+      }
+      if (isErrorCommand){
+        this._isExecAddRule = false;
+        Alert.error(this.translateService.instant('msg.dp.alert.command.error'));
+        return;
+      }
+
       this.applyRule(rule);
     }
   } // function - addRule
