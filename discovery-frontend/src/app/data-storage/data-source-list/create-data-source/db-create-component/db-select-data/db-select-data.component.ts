@@ -575,6 +575,10 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
     if (this.isRequiredCatalog(implementor)) {
       params.connection['catalog'] = this._sourceData.connectionData.catalog;
     }
+    // if exist properties
+    if (this._sourceData.connectionData.isUsedConnectionPreset && this._sourceData.connectionData.properties) {
+      params.connection['properties'] = this._sourceData.connectionData.properties;
+    }
     return params;
   }
 
