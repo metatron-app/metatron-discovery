@@ -25,6 +25,8 @@ import app.metatron.discovery.domain.dataprep.teddy.Util;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.util.ExcelProcessor;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.monitorjbl.xlsx.StreamingReader;
@@ -574,32 +576,31 @@ public class PrepDatasetFileService {
                     }
 
                 } else if ("json".equals(extensionType)) {
-                    JSONParser jsonParser = new JSONParser();
-                    JSONObject jsonObject = (JSONObject) jsonParser.parse(new BufferedReader(new InputStreamReader(new FileInputStream(theFile))));
-                    JSONArray rows = findJsonArray(jsonObject);
+                    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
                     List<Map<String, String>> resultSet = Lists.newArrayList();
                     List<Field> fields = Lists.newArrayList();
+                    List<String> keys = new ArrayList<>();
+                    ObjectMapper mapper = new ObjectMapper();
+                    String line = "";
+                    int rowNo = 0;
 
-                    if(rows.size() > 1000) {
-                        rows = (JSONArray) rows.subList(0, 1000);
-                    }
+                    while((line = br.readLine())!=null && rowNo <1000) {
+                        Map<String, String> row = mapper.readValue(line, new TypeReference<Map<String, String>>(){});
+                        resultSet.add(row);
 
-                    List<String> columns = getJsonKeyList(rows);
-
-                    for(int i = 0; i < columns.size(); i++) {
-                        Field f = makeFieldFromCSV(i, columns.get(i), ColumnType.STRING);
-                        fields.add(f);
-                    }
-
-                    for(Object row : rows) {
-                        Map<String,String> result = Maps.newHashMap();
-
-                        for (String key : columns) {
-                            String value = String.valueOf(((JSONObject) row).get(key));
-                            result.put(key, value);
+                        for(int i = 0; i < row.keySet().size(); i++){
+                            String key = (String) row.keySet().toArray()[i];
+                            if(!keys.contains(key)) {
+                                keys.add(i, key);
+                            }
                         }
 
-                        resultSet.add(result);
+                        rowNo++;
+                    }
+
+                    for(int i = 0; i < keys.size(); i++) {
+                        Field f = makeFieldFromCSV(i, keys.get(i), ColumnType.STRING);
+                        fields.add(f);
                     }
 
                     Map<String, Object> grid = Maps.newHashMap();
@@ -611,7 +612,7 @@ public class PrepDatasetFileService {
                     int endIndex = resultSetSize - limitSize < 0 ? resultSetSize : limitSize;
 
                     grid.put("data", resultSet.subList(0, endIndex));
-                    grid.put("totalRows", rows.size());
+                    grid.put("totalRows", rowNo);
 
                     grids.add(grid);
 
@@ -1267,120 +1268,62 @@ public class PrepDatasetFileService {
         return csvFileName;
     }
 
-    //Returns any first found JSON Array
-    private JSONArray findJsonArray(Object input) {
-        JSONArray result=null;
-
-        if(input instanceof JSONArray) {
-            return (JSONArray) input;
-        } else if(input instanceof JSONObject) {
-            JSONObject jsonObject = (JSONObject) input;
-            Object[] keys = jsonObject.keySet().toArray();
-
-            for(Object key : keys) {
-                result = findJsonArray(jsonObject.get(key));
-                if(result!=null) {
-                    break;
-                }
-            }
-        }
-        return result;
-    }
-
-    //Returns first found JSON Array with received name.
-    private JSONArray findJsonArray(Object input, String theKey) {
-        JSONArray result=null;
-
-        if(input instanceof  JSONArray) {
-            for(Object jsonObject : (JSONArray) input) {
-                result = findJsonArray(jsonObject, theKey);
-                if(result!=null) {
-                    break;
-                }
-            }
-        } else if(input instanceof  JSONObject){
-            JSONObject jsonObject = (JSONObject) input;
-            Object[] keys = jsonObject.keySet().toArray();
-
-            for (Object key : keys) {
-                if (key.toString().equals(theKey) && jsonObject.get(key) instanceof  JSONArray) {
-                    return (JSONArray) jsonObject.get(key);
-                } else {
-                    result = findJsonArray(jsonObject.get(key), theKey);
-                    if(result!=null) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
-    //Returns all keys in JSON Array
-    private ArrayList<String> getJsonKeyList(JSONArray array) {
-        ArrayList<String> keyList = new ArrayList<>();
-
-        for(Object row : array) {
-            for(Object key :((JSONObject) row).keySet()) {
-                if(!keyList.contains(key.toString())) {
-                    keyList.add(key.toString());
-                }
-
-            }
-        }
-
-        return keyList;
-    }
-
     public String moveJsonToCsv(String fileKey, String mainKey, String delimiter) {
         String csvFileName = null;
         try {
             int idx = fileKey.lastIndexOf(".");
             String newFileKey = fileKey.substring(0, idx) + ".csv";
-
             String josnFileName = this.getPathLocal_new(fileKey);
             csvFileName = this.getPathLocal_new(newFileKey);
             File theFile = new File(josnFileName);
 
-            JSONParser jsonParser = new JSONParser();
-            Object jsonObject = jsonParser.parse(new BufferedReader(new InputStreamReader(new FileInputStream(theFile))));
-            JSONArray rows;
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+            List<Map<String, String>> resultSet = Lists.newArrayList();
+            List<String> keys = new ArrayList<>();
+            ObjectMapper mapper = new ObjectMapper();
+            String line = "";
+            int rowNo = 0;
 
-            if(mainKey == null) {
-                rows = findJsonArray(jsonObject);
-            } else {
-                rows = findJsonArray(jsonObject, mainKey);
+            while((line = br.readLine())!=null) {
+                Map<String, String> row = mapper.readValue(line, new TypeReference<Map<String, String>>(){});
+                resultSet.add(row);
+
+                for(int i = 0; i < row.keySet().size(); i++){
+                    String key = (String) row.keySet().toArray()[i];
+                    if(!keys.contains(key)) {
+                        keys.add(i, key);
+                    }
+                }
+
+                rowNo++;
             }
 
-
-            List<String> coloumns = getJsonKeyList(rows);
             String separator = delimiter;
             FileWriter writer = new FileWriter(csvFileName);
             StringBuilder stringBuilder = new StringBuilder();
 
-            for(int i=0; i<coloumns.size(); i++) {
+            for(int i=0; i<keys.size(); i++) {
                 if(i!=0) {
                     stringBuilder.append(separator);
                 }
-                stringBuilder.append(coloumns.get(i));
+                stringBuilder.append(keys.get(i));
             }
             stringBuilder.append("\n");
             writer.append(stringBuilder.toString());
 
-            for(int i=0; i<rows.size(); i++) {
+            for(int i=0; i<resultSet.size(); i++) {
                 StringBuilder sb = new StringBuilder();
-                JSONObject row = (JSONObject) rows.get(i);
+                Map<String, String> row = resultSet.get(i);
                 Boolean isFirst = true;
 
-                for (String key : coloumns) {
+                for (String key : keys) {
                     if (isFirst) {
                         isFirst = false;
                     } else {
                         sb.append(separator);
                     }
 
-                    String value = row.get(key) == null ? "" : row.get(key).toString();
+                    String value = row.get(key) == null ? "" : row.get(key);
 
                     if (value.contains("\"")) {
                         value = value.replace("\"", "\"\"");
