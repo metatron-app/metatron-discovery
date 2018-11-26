@@ -1028,7 +1028,7 @@
   "msg.dp.ui.fail": "Fail",
   "msg.dp.ui.file.drop" :"or drop file here",
   "msg.dp.ui.file.import" : "Import",
-  "msg.dp.ui.file.upload.description" : "Excel, CSV files are allowed.",
+  "msg.dp.ui.file.upload.description" : ".xls, .xlsx, .txt, .csv and .json formats are allowed.",
   "msg.dp.ui.file.upload.location" : "Upload Location",
   "msg.dp.ui.flows": "Dataflows",
   "msg.dp.ui.grid.view": "Grid view",
