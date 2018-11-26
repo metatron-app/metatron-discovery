@@ -101,6 +101,7 @@ import { MapLayerOptionComponent } from './chart-style/map/map-layer-option.comp
 import { Shelf } from '../domain/workbook/configurations/shelf/shelf';
 import { MapPagePivotComponent } from './page-pivot/map/map-page-pivot.component';
 import { UIMapOption } from '../common/component/chart/option/ui-option/map/ui-map-chart';
+import { MapLayerType } from '../common/component/chart/option/define/map/map-common';
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -2399,8 +2400,15 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         if ('user_expr' == targetField.type && targetField.aggregated && isAlreadyPivot) {
 
           this.mapPivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
+
+        // point, heatmap => no aggregation / hexagon, line, polygon => set aggregation
+        } else if (isAlreadyPivot && (MapLayerType.SYMBOL === (<UIMapOption>this.uiOption).layers[(<UIMapOption>this.uiOption).layerNum].type ||
+          MapLayerType.HEATMAP === (<UIMapOption>this.uiOption).layers[(<UIMapOption>this.uiOption).layerNum].type)) {
+
+          this.mapPivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
         // push pivotField to layers
         } else {
+
           this.shelf.layers[layerNum].push(pivotFiled);
           this.mapPivot.convertField(targetField, 'layer' + layerNum);
         }

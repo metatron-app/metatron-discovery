@@ -361,6 +361,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   protected onResize(event) {
     if( this.olmap ) {
       this.olmap.updateSize();
+
+      // TODO change minZoom
+      let minZoom = this.getMinZoom();
+
+      if (this.olmap.getView().getMinZoom() !== minZoom) {
+        this.olmap.getView().setMinZoom(minZoom);
+      }
     }
   }
 
@@ -494,8 +501,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       view: new ol.View({
         center: [126, 37],
         zoom: 6,
+        // TODO change minZoom
+        // zoom: this.getMinZoom(),
         projection: 'EPSG:4326',
-        maxZoom: 20
+        maxZoom: 20,
+        minZoom: 3,
+        // TODO change minZoom
+        // minZoom: this.getMinZoom()
       }),
       layers: [layer],
       target: this.$area[0]
@@ -2271,5 +2283,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     resultList.push({startValue : center[0], endValue: center[1], count: this.olmap.getView().getZoom()});
 
     return resultList;
+  }
+
+  private getMinZoom() {
+    let width = this.area.nativeElement.clientWidth;
+
+    return Math.ceil(Math.LOG2E * Math.log(width / 256));
   }
 }
