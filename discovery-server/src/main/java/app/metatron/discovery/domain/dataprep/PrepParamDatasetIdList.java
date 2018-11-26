@@ -20,6 +20,7 @@ import java.util.List;
 
 public class PrepParamDatasetIdList implements Serializable {
     List<String> dsIds;
+    Boolean forSwap;
 
     public PrepParamDatasetIdList() {
         this.dsIds = new ArrayList<String>();
@@ -31,6 +32,14 @@ public class PrepParamDatasetIdList implements Serializable {
 
     public void setDsIds(List<String> dsIds) {
         this.dsIds = dsIds;
+    }
+
+    public Boolean getForSwap() {
+        return forSwap;
+    }
+
+    public void setForSwap(Boolean forSwap) {
+        this.forSwap = forSwap;
     }
 }
 

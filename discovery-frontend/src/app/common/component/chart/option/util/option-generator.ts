@@ -104,6 +104,10 @@ import { UIChartAxisLabel, UIChartAxisLabelCategory, UIChartAxisLabelValue } fro
 
 export namespace OptionGenerator {
 
+  // 축 라인
+  export function defaultLimit( type:ChartType ):number {
+    return (ChartType.SANKEY == type) ? 50 : 1000;
+  }
 
   export function initUiOption(uiOption: UIOption): UIOption {
 
@@ -168,6 +172,14 @@ export namespace OptionGenerator {
         console.info('스타일 초기화 실패 => ', type);
         break;
     }
+
+    // set default limit
+    if( type !== ChartType.WORDCLOUD && type !== ChartType.SANKEY && type !== ChartType.NETWORK
+      && type !== ChartType.GAUGE && type !== ChartType.TREEMAP ) {
+      uiOption.limitCheck = true;
+      uiOption.limit = OptionGenerator.defaultLimit( type );
+    }
+
     console.info('== initUiOption ==');
     console.info(uiOption);
     console.info('==================');
@@ -2015,22 +2027,28 @@ export namespace OptionGenerator {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
               schema: "#602663",
-              transparency: 80,
-              blur: 10,
-              radius: 10,
-              resolution: 8
+              transparency: 80
             },
             size: {
               "by": "NONE",
+              "column": "NONE"
+            },
+            thickness: {
+              "by": "NONE",
               "column": "NONE",
-              "max": 10
+              "maxValue": 10
             },
             outline: {
               "color": "#000000",
               "thickness": "NONE"              // THIN, NORMAL, THICK
             },
             clustering: false,
-            viewRawData: false
+            viewRawData: false,
+            shape: "HEXAGON",
+            coverage: 8,
+            blur: 10,
+            radius: 10,
+            pathType: "STRAIGHT"
           },
           {
             type: "symbol",
@@ -2040,22 +2058,28 @@ export namespace OptionGenerator {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
               schema: "#888fb4",
-              transparency: 80,
-              blur: 10,
-              radius: 10,
-              resolution: 8
+              transparency: 80
             },
             size: {
               "by": "NONE",
+              "column": "NONE"
+            },
+            thickness: {
+              "by": "NONE",
               "column": "NONE",
-              "max": 10
+              "maxValue": 10
             },
             outline: {
               "color": "#000000",
               "thickness": "NONE"              // THIN, NORMAL, THICK
             },
             clustering: false,
-            viewRawData: false
+            viewRawData: false,
+            shape: "HEXAGON",
+            coverage: 8,
+            blur: 10,
+            radius: 10,
+            pathType: "STRAIGHT"
           },
           {
             type: "symbol",
@@ -2065,22 +2089,28 @@ export namespace OptionGenerator {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
               schema: "#bccada",
-              transparency: 80,
-              blur: 10,
-              radius: 10,
-              resolution: 8
+              transparency: 80
             },
             size: {
               "by": "NONE",
+              "column": "NONE"
+            },
+            thickness: {
+              "by": "NONE",
               "column": "NONE",
-              "max": 10
+              "maxValue": 10
             },
             outline: {
               "color": "#000000",
               "thickness": "NONE"              // THIN, NORMAL, THICK
             },
             clustering: false,
-            viewRawData: false
+            viewRawData: false,
+            shape: "HEXAGON",
+            coverage: 8,
+            blur: 10,
+            radius: 10,
+            pathType: "STRAIGHT"
           }
         ],
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true),

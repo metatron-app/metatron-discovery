@@ -139,7 +139,6 @@ public class HadoopTuningConfig implements TuningConfig {
     config.setIgnoreInvalidRows(false);
     config.setAssumeTimeSorted(false);
     config.setPartitionsSpec(new HashBasedPartition(1000000L, 1500000L, false, -1));
-    config.setIndexSpec(new IndexSpec(new IndexSpec.Bitmap("concise")));
 
     config.addJobProperty("keep.task.files.pattern", ".*");
     config.addJobProperty("mapreduce.task.files.preserve.filepattern", ".*");
@@ -295,10 +294,12 @@ public class HadoopTuningConfig implements TuningConfig {
     this.partitionsSpec = partitionsSpec;
   }
 
+  @Override
   public IndexSpec getIndexSpec() {
     return indexSpec;
   }
 
+  @Override
   public void setIndexSpec(IndexSpec indexSpec) {
     this.indexSpec = indexSpec;
   }

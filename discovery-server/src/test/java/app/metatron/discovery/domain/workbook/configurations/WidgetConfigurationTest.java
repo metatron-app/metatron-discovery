@@ -141,6 +141,7 @@ public class WidgetConfigurationTest {
     );
 
     MapChart chart = new MapChart(valueFormat, mapChartLegend, chartToolTip,
+                                  500,
                                   true, "OSM", "Ok! license",
                                   true, "state", layers);
 

@@ -71,6 +71,9 @@ public class DfUnnest extends DataFrame {
         throw new IdxOnMapTypeShouldBeStringException("doUnnest(): idx on MAP type should be STRING (maybe, this is a column name): " + ((Identifier.IdentifierExpr) idx).getValue());
       } else if (idx instanceof Constant.StringExpr) {
         mapKey = ((Constant.StringExpr) idx).getEscapedValue();
+        if(mapKey.startsWith("`") && mapKey.endsWith("`")) {
+            mapKey = mapKey.substring(1, mapKey.length()-1);
+        }
         newColName = modifyDuplicatedColName("unnest_" + mapKey);
       } else {
         throw new IdxOnMapTypeShouldBeStringException("doUnnest(): idx on MAP type should be STRING: " + idx.toString());

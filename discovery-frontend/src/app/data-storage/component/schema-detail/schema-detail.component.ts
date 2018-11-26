@@ -17,7 +17,7 @@ import { isUndefined } from 'util';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
 import {
-  Field, FieldFormat, FieldFormatType, FieldFormatUnit, FieldRole,
+  Field, FieldFormat, FieldFormatType, FieldFormatUnit, FieldRole, IngestionRuleType,
   LogicalType
 } from '../../../domain/datasource/datasource';
 import { StringUtil } from '../../../common/util/string.util';
@@ -117,6 +117,14 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     {label: this.translateService.instant('msg.storage.ui.format.unit.milli-second'), value: FieldFormatUnit.MILLISECOND},
     {label: this.translateService.instant('msg.storage.ui.format.unit.second'), value: FieldFormatUnit.SECOND},
   ];
+
+  // 좌표계 목록
+  public geoCoordinateList = [
+    'EPSG:4326', 'EPSG:4301'
+  ];
+  // 좌표계 목록 show flag
+  public isGeoCoordinateListShow: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -190,7 +198,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     } else {
       switch (itemType.toUpperCase()) {
         case 'TIMESTAMP':
-          result = this.column.format.type === FieldFormatType.DATE_TIME ? this.columnData[0] : this.currentMilliseconds;
+          result = (this.column.format && this.column.format.type === FieldFormatType.DATE_TIME) ? this.columnData[0] : this.currentMilliseconds;
           break;
         case 'BOOLEAN':
           result = 'false';
@@ -198,6 +206,9 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
         case 'TEXT':
         case 'DIMENSION':
         case 'STRING':
+        case 'GEO_POINT':
+        case 'GEO_LINE':
+        case 'GEO_POLYGON':
           result = '';
           break;
         case 'INT':
@@ -211,8 +222,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
           break;
         case 'LNT':
         case 'LATITUDE':
-          result = '0.0';
-          break;
         case 'LNG':
         case 'LONGITUDE':
           result = '0.0';
@@ -238,57 +247,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     return this.getType()[this.getType().findIndex((item) => {
       return item.value === logicalType.toUpperCase();
     })];
-  }
-
-
-  /**
-   * icon get
-   * @param {string} itemType
-   * @returns {string}
-   */
-  public getIconClass(itemType: string): string {
-    let result = '';
-    if (isUndefined(itemType)) {
-      result = 'ddp-icon-type-ab';
-    } else {
-      switch (itemType.toUpperCase()) {
-        case 'TIMESTAMP':
-          result = 'ddp-icon-type-calen';
-          break;
-        case 'BOOLEAN':
-          result = 'ddp-icon-type-tf';
-          break;
-        case 'TEXT':
-        case 'DIMENSION':
-        case 'STRING':
-          result = 'ddp-icon-type-ab';
-          break;
-        case 'USER_DEFINED':
-          result = 'ddp-icon-type-ab';
-          break;
-        case 'INT':
-        case 'INTEGER':
-        case 'LONG':
-          result = 'ddp-icon-type-int';
-          break;
-        case 'DOUBLE':
-          result = 'ddp-icon-type-int';
-          result = 'ddp-icon-type-float';
-          break;
-        case 'LNT':
-        case 'LATITUDE':
-          result = 'ddp-icon-type-latitude';
-          break;
-        case 'LNG':
-        case 'LONGITUDE':
-          result = 'ddp-icon-type-longitude';
-          break;
-        default:
-          console.error(this.translateService.instant('msg.common.ui.no.icon.type'), itemType);
-          break;
-      }
-    }
-    return result;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -334,23 +292,20 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
    * @param type
    */
   public onChangeType(type) {
-
     // 타입이 다를때만 작동
     if (this.column.logicalType !== type.value) {
-      // 타입 변경
-      this.column.logicalType = type.value;
-
       // null 타입 변경
-      this.column.ingestionRule.type = 'default';
+      this.column.ingestionRule.type = IngestionRuleType.DEFAULT;
       // 플래그 제거
       delete this.column.isValidReplaceValue;
       delete this.column.isValidTimeFormat;
-
       // timestamp 인 경우
-      if (this.column.logicalType === LogicalType.TIMESTAMP) {
+      if (type.value === LogicalType.TIMESTAMP) {
         // format 지정
         this.checkTimeFormat(this.columnData);
       }
+      // 타입 변경
+      this.column.logicalType = type.value;
       // time stamp flag
       this.changeEvent.emit();
     }
@@ -374,7 +329,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     const types = this.getRoleFilter();
     this.column.logicalType = types[0].value;
     // null 타입 변경
-    this.column.ingestionRule.type = 'default';
+    this.column.ingestionRule.type = IngestionRuleType.DEFAULT;
     // 플래그 제거
     delete this.column.isValidReplaceValue;
     delete this.column.isValidTimeFormat;
@@ -384,9 +339,9 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
 
   /**
    * Null 값에 대한 처리 변경
-   * @param {string} type
+   * @param {IngestionRuleType} type
    */
-  public onChangeNullType(type: string) {
+  public onChangeNullType(type: IngestionRuleType) {
     // 이미 선택되어 있는 타입과 다르다면
     if (this.column.ingestionRule.type !== type) {
       // ingestion type 변경
@@ -455,6 +410,12 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
    * @param {Field} column
    */
   public onClickTimeFormatValidation(column: Field): void {
+    // 컬럼의 데이터가 0이라면
+    if (this.columnData.length === 0) {
+      column.isValidTimeFormat = false;
+      column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.no.data');
+      return;
+    }
     // format이 빈값이라면
     if (StringUtil.isEmpty(column.format.format)) {
       column.isValidTimeFormat = false;
@@ -478,7 +439,13 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     });
   }
 
-
+  /**
+   * Geo coordinates name change event
+   * @param {string} name
+   */
+  public onChangeGeoCoordinates(name: string): void {
+    this.column.format.originalSrsName = name;
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - validation
@@ -521,6 +488,9 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
         case 'TEXT':
         case 'DIMENSION':
         case 'STRING':
+        case 'GEO_POINT':
+        case 'GEO_LINE':
+        case 'GEO_POLYGON':
           this.column.isValidReplaceValue = true;
           break;
         case 'TIMESTAMP':
@@ -615,7 +585,20 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     ];
 
     // dimension types
-    this.dimensionType = [
+    this.dimensionType = this.column.derived ? [
+        { label: this.translateService.instant('msg.storage.ui.list.string'), icon: 'ddp-icon-type-ab', value: 'STRING', role: 'DIMENSION' },
+        { label: this.translateService.instant('msg.storage.ui.list.boolean'), icon: 'ddp-icon-type-tf', value: 'BOOLEAN', role: 'DIMENSION' },
+        { label: this.translateService.instant('msg.storage.ui.list.integer'), icon: 'ddp-icon-type-int', value: 'INTEGER', role: 'DIMENSION' },
+        { label: this.translateService.instant('msg.storage.ui.list.double'), icon: 'ddp-icon-type-float', value: 'DOUBLE', role: 'DIMENSION' },
+        { label: this.translateService.instant('msg.storage.ui.list.date'), icon: 'ddp-icon-type-calen', value: 'TIMESTAMP', role: 'DIMENSION' },
+        { label: this.translateService.instant('msg.storage.ui.list.lnt'), icon: 'ddp-icon-type-latitude', value: 'LNG', role: 'DIMENSION' },
+        { label: this.translateService.instant('msg.storage.ui.list.lng'), icon: 'ddp-icon-type-longitude', value: 'LNT', role: 'DIMENSION' },
+        { label: this.translateService.instant('msg.storage.ui.list.geo.point'), icon: 'ddp-icon-type-point', value: LogicalType.GEO_POINT},
+        // {label: this.translateService.instant('msg.storage.ui.list.geo.line'), icon: 'ddp-icon-type-line', value: LogicalType.GEO_LINE},
+        // {label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), icon: 'ddp-icon-type-polygon', value: LogicalType.GEO_POLYGON},
+        { label: this.translateService.instant('msg.storage.ui.list.expression'), icon: null, disableIcon: true, value: LogicalType.USER_DEFINED}
+      ]
+      :  [
       { label: this.translateService.instant('msg.storage.ui.list.string'), icon: 'ddp-icon-type-ab', value: 'STRING', role: 'DIMENSION' },
       { label: this.translateService.instant('msg.storage.ui.list.boolean'), icon: 'ddp-icon-type-tf', value: 'BOOLEAN', role: 'DIMENSION' },
       { label: this.translateService.instant('msg.storage.ui.list.integer'), icon: 'ddp-icon-type-int', value: 'INTEGER', role: 'DIMENSION' },
@@ -634,12 +617,10 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
 
     // ingestionRule
     if (!this.column['ingestionRule']) {
-      const ingestionRule = {
-        type: 'default',
+      this.column['ingestionRule'] = {
+        type: IngestionRuleType.DEFAULT,
         value: ''
       };
-
-      this.column['ingestionRule'] = ingestionRule;
     }
   }
 
@@ -649,12 +630,14 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
    * @param {string} format
    */
   private checkTimeFormat(data: any, format?: string) {
-
+    // init field format
+    this.column.format = new FieldFormat();
     // column data
     let columnData = data;
-
     // data 가 없다면 타임스탬프를 지정할수 없다.
     if (data.length === 0) {
+      this.column.isValidTimeFormat = false;
+      this.column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.no.data');
       return;
     } else if (data.length > 20) {
       columnData = columnData.slice(0, 19);
@@ -671,8 +654,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
 
     // 로딩 show
     this.loadingShow();
-    // init field format
-    this.column.format = new FieldFormat();
+
     this.datasourceService.checkValidationDateTime(param)
       .then((result) => {
         // 로딩 hide

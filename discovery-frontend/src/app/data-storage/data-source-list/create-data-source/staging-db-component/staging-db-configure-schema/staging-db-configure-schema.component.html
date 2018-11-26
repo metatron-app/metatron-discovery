@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-datastore-schema">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
@@ -70,6 +70,14 @@
             </div>
           </div>
           <!-- //타입 필터 -->
+          <!-- add column -->
+          <div class="ddp-wrap-add-column" [class.ddp-selected]="addColumnShowFl" (clickOutside)="addColumnShowFl = false">
+            <a href="javascript:" class="ddp-btn-selection ddp-gray" (click)="onClickAddColumn()"><em class="ddp-icon-add2"></em>Add column</a>
+            <!-- popup -->
+            <add-column-component (addedColumn)="onClosedAddColumn($event)"></add-column-component>
+            <!-- //popup -->
+          </div>
+          <!-- //add column -->
         </div>
         <!-- //필터링 -->
       </div>
@@ -103,7 +111,7 @@
             </div>
             <!--// check box -->
             <!-- columns -->
-            <div class="ddp-ui-gridbody" [ngClass]="{'ddp-action' : getCheckedColumns.length > 0}">
+            <div class="ddp-ui-gridbody" [ngClass]="{'ddp-action' : getCheckedColumns().length > 0}">
               <table class="ddp-table-form ddp-table-type2 ddp-table-view ddp-inherit">
                 <colgroup>
                   <col width="51px">
@@ -178,9 +186,9 @@
               </table>
             </div>
             <!--// columns -->
-            <!-- box action -->
-            <schema-change-action *ngIf="getCheckedColumns.length > 0"
-                                  [items]="getCheckedColumns"
+            <schema-change-action *ngIf="getCheckedColumns().length > 0"
+                                  [listLength]="getCheckedColumns().length"
+                                  [items]="getCheckedColumns()"
                                   (unselectActionEvent)="onClickUnselectAll($event)"
                                   (changeActionEvent)="onClickApplyAction($event)"></schema-change-action>
             <!-- //box action -->

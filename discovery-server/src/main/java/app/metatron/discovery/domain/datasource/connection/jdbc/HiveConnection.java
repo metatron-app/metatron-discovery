@@ -15,12 +15,15 @@
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,6 +36,11 @@ public class HiveConnection extends HiveMetastoreConnection {
   private static final String HIVE_DEFAULT_OPTIONS = "";
   private static final String[] DESCRIBE_PROP = {};
   private static final String KERBEROS_PRINCIPAL_PATTERN = "principal=(.+)@(.[^;,\\n\\r\\t]+)";
+
+  public static final String PROPERTY_KEY_ADMIN_NAME = METATRON_PROPERTY_PREFIX + "hive.admin.name";
+  public static final String PROPERTY_KEY_ADMIN_PASSWORD = METATRON_PROPERTY_PREFIX + "hive.admin.password";
+  public static final String PROPERTY_KEY_PERSONAL_DATABASE_PREFIX = METATRON_PROPERTY_PREFIX + "personal.database.prefix";
+  public static final String PROPERTY_KEY_HDFS_CONF_PATH = METATRON_PROPERTY_PREFIX + "hdfs.conf.path";
 
   public HiveConnection() {
   }
@@ -266,5 +274,22 @@ public class HiveConnection extends HiveMetastoreConnection {
   @Override
   public String getTableNameColumn() {
     return "tab_name";
+  }
+
+  public boolean isSupportSaveAsHiveTable() {
+    Map<String, String> connectionProperties = getPropertiesMap();
+
+    if(MapUtils.isEmpty(connectionProperties)) {
+      return false;
+    } else {
+      if(StringUtils.isNotEmpty(connectionProperties.get(PROPERTY_KEY_ADMIN_NAME)) &&
+          StringUtils.isNotEmpty(connectionProperties.get(PROPERTY_KEY_ADMIN_PASSWORD)) &&
+          StringUtils.isNotEmpty(connectionProperties.get(PROPERTY_KEY_PERSONAL_DATABASE_PREFIX)) &&
+          StringUtils.isNotEmpty(connectionProperties.get(PROPERTY_KEY_HDFS_CONF_PATH))) {
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
 }

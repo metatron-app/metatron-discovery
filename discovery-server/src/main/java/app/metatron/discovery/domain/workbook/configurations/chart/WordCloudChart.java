@@ -29,8 +29,10 @@ public class WordCloudChart extends Chart {
   }
 
   @JsonCreator
-  public WordCloudChart(@JsonProperty("color") ChartColor color) {
+  public WordCloudChart(@JsonProperty("color") ChartColor color,
+                        @JsonProperty("limit") Integer limit) {
     super.color = color;
+    super.limit = limit;
   }
 
 }

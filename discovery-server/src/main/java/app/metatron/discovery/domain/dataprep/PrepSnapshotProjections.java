@@ -68,6 +68,7 @@ public class PrepSnapshotProjections {
     public interface ListingProjection {
         String getSsId();
         String getSsName();
+        String getSsType();
         String getCreatorDfName();
         String getDsName();
         DateTime getLaunchTime();

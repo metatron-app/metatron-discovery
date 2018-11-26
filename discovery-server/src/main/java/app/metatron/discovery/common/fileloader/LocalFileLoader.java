@@ -14,28 +14,8 @@
 
 package app.metatron.discovery.common.fileloader;
 
-import com.google.common.collect.Lists;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
-public class LocalFileLoader implements FileLoader {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(LocalFileLoader.class);
-  
-  @Override
-  public List<String> put(FileLoaderProperties properties, String... paths) {
-    LOGGER.debug("Put local files : {}", paths);
-    return Lists.newArrayList(paths);
-  }
-
-  @Override
-  public List<String> get(FileLoaderProperties properties, String... paths) {
-    LOGGER.debug("Get local files : {}", paths);
-    return Lists.newArrayList(paths);
-  }
+public class LocalFileLoader extends SharedFileLoader implements FileLoader {
 }

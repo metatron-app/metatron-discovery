@@ -14,38 +14,44 @@
 
 package app.metatron.discovery.spec.druid.ingestion;
 
+import com.google.common.collect.Maps;
+
 import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.DataSourceIngetionException;
+import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.ingestion.DiscardRule;
 import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionRule;
 import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.ReplaceRule;
 import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.ExcelFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.JsonFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.ParquetFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.rule.EvaluationRule;
+import app.metatron.discovery.domain.datasource.ingestion.rule.IngestionRule;
+import app.metatron.discovery.domain.datasource.ingestion.rule.ReplaceNullRule;
+import app.metatron.discovery.domain.datasource.ingestion.rule.ValidationRule;
+import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.GeoFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.GeoPointFormat;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
+import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
 import app.metatron.discovery.spec.druid.ingestion.granularity.UniformGranularitySpec;
-import app.metatron.discovery.spec.druid.ingestion.parser.CsvStreamParser;
-import app.metatron.discovery.spec.druid.ingestion.parser.DimensionsSpec;
-import app.metatron.discovery.spec.druid.ingestion.parser.JsonParseSpec;
-import app.metatron.discovery.spec.druid.ingestion.parser.Parser;
-import app.metatron.discovery.spec.druid.ingestion.parser.StringParser;
-import app.metatron.discovery.spec.druid.ingestion.parser.TimeAndDimsParseSpec;
-import app.metatron.discovery.spec.druid.ingestion.parser.TimestampSpec;
+import app.metatron.discovery.spec.druid.ingestion.index.LuceneIndexStrategy;
+import app.metatron.discovery.spec.druid.ingestion.index.LuceneIndexing;
+import app.metatron.discovery.spec.druid.ingestion.index.SecondaryIndexing;
+import app.metatron.discovery.spec.druid.ingestion.parser.*;
 
 public class AbstractSpecBuilder {
 
@@ -53,10 +59,36 @@ public class AbstractSpecBuilder {
 
   protected DataSchema dataSchema = new DataSchema();
 
+  protected boolean useGeoIngestion;
+
+  protected Map<String, SecondaryIndexing> secondaryIndexing = Maps.newLinkedHashMap();
+
   public void setDataSchema(DataSource dataSource) {
 
     // Set datasource name
     dataSchema.setDataSource(dataSource.getEngineName());
+
+    // Use ingestion rule and field format
+    for (Field field : dataSource.getFields()) {
+
+      if (field.getDerivationRule() != null) {
+        addRule(field.getName(), field.getDerivationRuleObject());
+      }
+
+      if (field.getIngestionRule() != null) {
+        addRule(field.getName(), field.getIngestionRuleObject());
+      }
+
+      FieldFormat fieldFormat = field.getFormatObject();
+      if (fieldFormat != null) {
+        if (fieldFormat instanceof GeoFormat) {
+          useGeoIngestion = true;
+          GeoFormat geoFormat = (GeoFormat) fieldFormat;
+          makeSecondaryIndexing(field.getName(), field.getType(), geoFormat);
+          addGeoFieldToMatric(field.getName(), field.getType(), geoFormat);
+        }
+      }
+    }
 
     // Set Interval Options
     List<String> intervals = null;
@@ -71,42 +103,58 @@ public class AbstractSpecBuilder {
         intervals == null ? null : intervals.toArray(new String[intervals.size()]));
 
     // Set Roll up
-    granularitySpec.setRollup(dataSource.getIngestionInfo().getRollup());
+    if (useGeoIngestion) {
+      granularitySpec.setRollup(false);
+    } else {
+      granularitySpec.setRollup(dataSource.getIngestionInfo().getRollup());
+    }
 
     dataSchema.setGranularitySpec(granularitySpec);
 
-    // Set measure field
-    // 1. default pre-Aggreation
-    dataSchema.addMetrics(new CountAggregation("count"));
+    if (!useGeoIngestion) {
+      // Set measure field
+      // 1. default pre-Aggreation
+      dataSchema.addMetrics(new CountAggregation("count"));
+    }
 
     // 2. set measure from datasource
     List<Field> measureFields = dataSource.getFieldByRole(Field.FieldRole.MEASURE);
     for (Field field : measureFields) {
       // 삭제된 필드는 추가 하지 않음
-      if (BooleanUtils.isTrue(field.getRemoved())) {
+      if (BooleanUtils.isTrue(field.getUnloaded())) {
         continue;
       }
-      dataSchema.addMetrics(field.getAggregation());
+      dataSchema.addMetrics(field.getAggregation(useGeoIngestion));
     }
 
     dataSchema.setParser(makeParser(dataSource));
 
-    for (Field field : dataSource.getFields()) {
-      if (field.getIngestionRule() == null) {
-        continue;
-      }
+  }
 
-      IngestionRule rule = field.getIngestionRuleObject();
+  private void addRule(String name, IngestionRule rule) {
+    if (rule instanceof ValidationRule) {
+      ValidationRule validationRule = (ValidationRule) rule;
+      dataSchema.addValidation(validationRule.toValidation(name));
+    } else if (rule instanceof EvaluationRule) {
+      EvaluationRule evaluationRule = (EvaluationRule) rule;
+      dataSchema.addEvaluation(evaluationRule.toEvaluation(name));
+    }
+  }
 
-      if (rule instanceof DiscardRule) {
-        dataSchema.addValidation(Validation.discardNullValidation(field.getName()));
-      } else if (rule instanceof ReplaceRule) {
-        ReplaceRule replaceRule = (ReplaceRule) rule;
-        if (replaceRule.getValue() == null) {
-          continue;
-        }
-        dataSchema.addEvaluation(Evaluation.nullToDefaultValueEvaluation(field.getName(), replaceRule.getValue()));
-      }
+  private void makeSecondaryIndexing(String name, DataType originalType, GeoFormat geoFormat) {
+    String originalSrsName = geoFormat.notDefaultSrsName();
+    if (geoFormat instanceof GeoPointFormat || (originalType == DataType.STRUCT)) {
+      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonStrategy("coord", "lat", "lon", originalSrsName)));
+    } else {
+      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.ShapeStrategy("shape", "WKT", geoFormat.getMaxLevels())));
+    }
+  }
+
+  private void addGeoFieldToMatric(String name, DataType originalType, GeoFormat geoFormat) {
+    if (geoFormat instanceof GeoPointFormat || (originalType == DataType.STRUCT)) {
+      dataSchema.addMetrics(new RelayAggregation(name, "struct(lat:double,lon:double)"));
+    } else {
+      dataSchema.addMetrics(new RelayAggregation(name, "string"));
     }
   }
 
@@ -117,7 +165,7 @@ public class AbstractSpecBuilder {
     // Set timestamp field
     List<Field> timeFields = dataSource.getFieldByRole(Field.FieldRole.TIMESTAMP);
     if (timeFields.size() != 1) {
-      throw new DataSourceIngetionException("[Building Spec] : Timestamp field must be one.");
+      throw new DataSourceIngestionException("[Building Spec] : Timestamp field must be one.");
     }
 
     Field timeField = timeFields.get(0);
@@ -131,15 +179,15 @@ public class AbstractSpecBuilder {
     if (timeField.getIngestionRule() != null) {
       IngestionRule rule = timeField.getIngestionRuleObject();
 
-      if (rule instanceof ReplaceRule) {
-        ReplaceRule replaceRule = (ReplaceRule) rule;
+      if (rule instanceof ReplaceNullRule) {
+        ReplaceNullRule replaceRule = (ReplaceNullRule) rule;
         try {
           DateTime dateTime = DateTimeFormat.forPattern(timeField.getTimeFormat()).parseDateTime((String) replaceRule.getValue());
           timestampSpec.setMissingValue(dateTime);
           timestampSpec.setInvalidValue(dateTime);
           timestampSpec.setReplaceWrongColumn(true);
         } catch (Exception e) {
-          throw new DataSourceIngetionException("[Building Spec] : The datetime format does not match the value to be replaced.", e);
+          throw new DataSourceIngestionException("[Building Spec] : The datetime format does not match the value to be replaced.", e);
         }
 
       }
@@ -149,7 +197,7 @@ public class AbstractSpecBuilder {
     List<Field> dimensionfields = dataSource.getFieldByRole(Field.FieldRole.DIMENSION);
     List<String> dimenstionNames = dimensionfields.stream()
                                                   // 삭제된 필드는 추가 하지 않음
-                                                  .filter(field -> BooleanUtils.isNotTrue(field.getRemoved()))
+                                                  .filter(field -> BooleanUtils.isNotTrue(field.getUnloaded()) && !field.isGeoType())
                                                   .map((field) -> field.getName())
                                                   .collect(Collectors.toList());
     DimensionsSpec dimensionsSpec = new DimensionsSpec(dimenstionNames);
@@ -160,41 +208,50 @@ public class AbstractSpecBuilder {
       throw new IllegalArgumentException("Required file format.");
     }
 
-    boolean hadoopIngestion = ingestionInfo instanceof HdfsIngestionInfo;
-    String type = hadoopIngestion ? "hadoopyString" : "string";
+    Parser parser;
 
-    if (fileFormat instanceof CsvFileFormat) {
+    if (fileFormat instanceof CsvFileFormat || fileFormat instanceof ExcelFileFormat) {
+
       // get Columns
       List<String> columns = dataSource.getFields().stream()
+                                       .filter(field -> BooleanUtils.isNotTrue(field.getDerived()))
                                        .map((field) -> field.getName())
                                        .collect(Collectors.toList());
 
-
-      CsvFileFormat csvFormat = (CsvFileFormat) fileFormat;
       CsvStreamParser csvStreamParser = new CsvStreamParser();
 
-      if(dataSource.getIngestionInfoByType().equals("local")){
-        LocalFileIngestionInfo localFileIngestionInfo = dataSource.getIngestionInfoByType();
-        boolean skipHeaderRow = localFileIngestionInfo.getRemoveFirstRow();
+      if ( ingestionInfo instanceof LocalFileIngestionInfo ) {
+        boolean skipHeaderRow = ((LocalFileIngestionInfo) ingestionInfo).getRemoveFirstRow();
         csvStreamParser.setSkipHeaderRecord(skipHeaderRow);
       }
 
-      if (csvFormat.isDefaultCsvMode()) {
-        csvStreamParser.setTimestampSpec(timestampSpec);
-        csvStreamParser.setDimensionsSpec(dimensionsSpec);
-        csvStreamParser.setColumns(columns);
+      if (fileFormat instanceof CsvFileFormat){
 
-        return csvStreamParser;
+        CsvFileFormat csvFormat = (CsvFileFormat) fileFormat;
+
+        if (!csvFormat.isDefaultCsvMode()) {
+          csvStreamParser.setTimestampSpec(timestampSpec);
+          csvStreamParser.setDimensionsSpec(dimensionsSpec);
+          csvStreamParser.setColumns(columns);
+          csvStreamParser.setDelimiter(csvFormat.getDelimeter());
+
+          parser = csvStreamParser;
+        } else {
+          csvStreamParser.setTimestampSpec(timestampSpec);
+          csvStreamParser.setDimensionsSpec(dimensionsSpec);
+          csvStreamParser.setColumns(columns);
+          csvStreamParser.setDelimiter(csvFormat.getDelimeter());
+
+          parser = csvStreamParser;
+        }
       } else {
-
         csvStreamParser.setTimestampSpec(timestampSpec);
         csvStreamParser.setDimensionsSpec(dimensionsSpec);
         csvStreamParser.setColumns(columns);
-        csvStreamParser.setDelimiter(csvFormat.getDelimeter());
 
-        return csvStreamParser;
-
+        parser = csvStreamParser;
       }
+
     } else if (fileFormat instanceof JsonFileFormat) {
       JsonFileFormat jsonFileFormat = (JsonFileFormat) fileFormat;
 
@@ -203,53 +260,31 @@ public class AbstractSpecBuilder {
       parseSpec.setDimensionsSpec(dimensionsSpec);
       parseSpec.setFlattenSpec(jsonFileFormat.getFlattenRules());
 
-      StringParser parser = new StringParser();
-      parser.setParseSpec(parseSpec);
-
-      return parser;
-
-    } else if (fileFormat instanceof ExcelFileFormat) {
-      // Csv 타입 지정으로 처리
-      List<String> columns = dataSource.getFields().stream()
-                                       .map((field) -> field.getName())
-                                       .collect(Collectors.toList());
-
-      CsvStreamParser csvStreamParser = new CsvStreamParser();
-      csvStreamParser.setTimestampSpec(timestampSpec);
-      csvStreamParser.setDimensionsSpec(dimensionsSpec);
-      csvStreamParser.setColumns(columns);
-
-      return csvStreamParser;
+      parser = new StringParser(parseSpec);
 
     } else if (fileFormat instanceof OrcFileFormat) {
       TimeAndDimsParseSpec parseSpec = new TimeAndDimsParseSpec();
       parseSpec.setTimestampSpec(timestampSpec);
       parseSpec.setDimensionsSpec(dimensionsSpec);
 
-      StringParser parser = new StringParser();
+      OrcParser orcParser = new OrcParser(parseSpec);
 
-      parser.setType("orc");
-      parser.setParseSpec(parseSpec);
       if (ingestionInfo instanceof HiveIngestionInfo) {
-        parser.setTypeString(((HiveIngestionInfo) ingestionInfo).getTypeString());
+        orcParser.setTypeString(((HiveIngestionInfo) ingestionInfo).getTypeString());
       }
-      return parser;
+      parser = orcParser;
+
     } else if (fileFormat instanceof ParquetFileFormat) {
       TimeAndDimsParseSpec parseSpec = new TimeAndDimsParseSpec();
       parseSpec.setTimestampSpec(timestampSpec);
       parseSpec.setDimensionsSpec(dimensionsSpec);
 
-      StringParser parser = new StringParser();
-
-      parser.setType("parquet");
-      parser.setParseSpec(parseSpec);
-
-      return parser;
+      parser = new ParquetParser(parseSpec);
 
     } else {
       throw new IllegalArgumentException("Not supported format.");
     }
 
-//    return parser;
+    return parser;
   }
 }

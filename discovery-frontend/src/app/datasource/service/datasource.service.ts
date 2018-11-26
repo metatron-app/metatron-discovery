@@ -41,6 +41,7 @@ import {FilteringType} from '../../domain/workbook/configurations/field/timestam
 import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
 import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
+import {Limit} from "../../domain/workbook/configurations/limit";
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -110,6 +111,11 @@ export class DatasourceService extends AbstractService {
    * @returns {Promise<any>}
    */
   public searchQuery(query: SearchQueryRequest): Promise<any> {
+    // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '129.444 38.444', upperCorner: '129.888 38.999', dataSource: 'cei_m1_b'};
+      // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '38.444 129.444', upperCorner: '38.999 129.888', dataSource: 'cei_m1_b'};
+
+    // query.filters.push(params);
+
     return this.post(this.API_URL + 'datasources/query/search', query);
   } // function - searchQuery
 
@@ -295,6 +301,13 @@ export class DatasourceService extends AbstractService {
         field['aggregationType'] = 'NONE';
       }
     }
+
+    if( 0 < pageConf.chart.limit ) {
+      pageConf.limit.limit = pageConf.chart.limit;
+    } else {
+      pageConf.limit = new Limit();
+      pageConf.limit.limit = 100000;
+    }
     query.limits = _.cloneDeep(pageConf.limit);
 
     // Value Alias & Code Table 설정
@@ -394,6 +407,8 @@ export class DatasourceService extends AbstractService {
 
       let geoFieldCnt = 0;
       let layers = [];
+      let layers2 = [];
+      let layers3 = [];
 
       for(let column of query.pivot.columns) {
         if(column && column.field && column.field.logicalType &&
@@ -465,6 +480,11 @@ export class DatasourceService extends AbstractService {
 
           layers.push(layer);
         }
+        //  else if(column["layerNum"] === 2) {
+        //   layers2.push(layer);
+        // } else if(column["layerNum"] === 3) {
+        //   layers3.push(layer);
+        // }
       }
 
       for(let aggregation of query.pivot.aggregations) {
@@ -480,6 +500,11 @@ export class DatasourceService extends AbstractService {
 
           layers.push(layer);
         }
+        //  else if(aggregation["layerNum"] === 2) {
+        //   layers2.push(layer);
+        // } else if(aggregation["layerNum"] === 3) {
+        //   layers3.push(layer);
+        // }
       }
 
 
@@ -784,7 +809,22 @@ export class DatasourceService extends AbstractService {
   public synchronizeDatasourceFields(datasourceId: string): Promise<any> {
     return this.patch(this.API_URL + `datasources/${datasourceId}/fields/sync`, null);
   }
-  
+
+  /**
+   * 데이터소스 적재 로그 조회
+   * @param {string} datasourceId
+   * @param {string} historyId
+   * @param {number} offset
+   * @returns {Promise<any>}
+   */
+  public getDatasourceIngestionLog(datasourceId: string, historyId: string, offset?: number): Promise<any> {
+    if (offset) {
+      return this.get(this.API_URL + `datasources/${datasourceId}/histories/${historyId}/log?offset=${offset}`);
+    } else {
+      return this.get(this.API_URL + `datasources/${datasourceId}/histories/${historyId}/log`);
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

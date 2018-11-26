@@ -76,22 +76,39 @@
         </div>
         <!-- //wrap sheet -->
       </div>
-      <div class="ddp-wrap-edit-form" *ngIf="!datasetFile.sheets || 0 == datasetFile.sheets.length">
-        <div class="ddp-wrap-edit3 ddp-type">
-          <label class="ddp-label-type">{{'msg.dp.th.col.delimiter' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option">
-            <input class="ddp-input-typebasic ddp-input-size"
-                   id="fileDelimiter" maxlength="5"
-                   placeholder="{{'msg.dp.th.col.delimiter.ph' | translate}}"
-                   [(ngModel)]="columnDelimiter"
-                   (keyup)="changeDelimiter()">
+      <div class="ddp-wrap-edit-form" >
+        <div class="ddp-clear">
+          <div class="ddp-col-6" *ngIf="!datasetFile.sheets || 0 == datasetFile.sheets.length">
+            <div class="ddp-wrap-edit3 ddp-type">
+              <label class="ddp-label-type">{{'msg.dp.th.col.delimiter' | translate}}</label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                <input class="ddp-input-typebasic ddp-input-size"
+                       id="fileDelimiter" maxlength="5"
+                       placeholder="{{'msg.dp.th.col.delimiter.ph' | translate}}"
+                       [(ngModel)]="columnDelimiter"
+                       (keyup)="changeDelimiter()">
+              </div>
+              <!-- //edit option -->
+            </div>
           </div>
-          <!-- //edit option -->
+          <div class="ddp-col-6">
+            <div class="ddp-wrap-edit3 ddp-type">
+              <label class="ddp-label-type ">{{'msg.dp.ui.file.upload.location' | translate}}</label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option ">
+                <component-select
+                  [array]="uploadLocationList"
+                  [viewKey]="'name'"
+                  [defaultIndex]="0"
+                  (onSelected)="onChangeUploadLocation($event)">
+                </component-select>
+              </div>
+              <!-- //edit option -->
+            </div>
+          </div>
         </div>
       </div>
-
-
 
     </div>
   </div>
@@ -100,7 +117,7 @@
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.cancl' | translate}}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    <a href="javascript:" [ngClass]="{'ddp-disabled':clearGrid}" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->
 

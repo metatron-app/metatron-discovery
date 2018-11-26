@@ -23,7 +23,9 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.rule.ExprFunction;
 import app.metatron.discovery.domain.dataprep.rule.ExprFunctionCategory;
 import app.metatron.discovery.domain.dataprep.teddy.*;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
@@ -87,6 +89,7 @@ public class PrepTransformService {
   @Autowired PrepHdfsService hdfsService;
   @Autowired PrepSnapshotService snapshotService;
   @Autowired DataFrameService dataFrameService;
+  @Autowired PrepTransformRuleService transformRuleService;
 
   @Autowired(required = false)
   TeddyImpl teddyImpl;
@@ -223,7 +226,7 @@ public class PrepTransformService {
   }
 
   // skips the last rule for UPDATE purpose
-  public List<String> getUpstreamDsIds(String dsId, boolean forUpdate) throws IOException {
+  public List<String> getUpstreamDsIds(String dsId, boolean forUpdate) throws IOException, CannotSerializeIntoJsonException {
     List<String> upstreamDsIds = new ArrayList<>();
 
     String firstUpstreamDsId = getFirstUpstreamDsId(dsId);
@@ -236,6 +239,8 @@ public class PrepTransformService {
 
     int until = forUpdate ? rules.size() - 1 : rules.size();
 
+    prepareTransformRules(dsId);
+
     for (int i = 0; i < until; i++) {
       PrepTransformRule rule = rules.get(i);
       String jsonRuleString = rule.getJsonRuleString();
@@ -246,7 +251,7 @@ public class PrepTransformService {
     return upstreamDsIds;
   }
 
-  public List<String> getUpstreamDsIds(String dsId) throws IOException {
+  public List<String> getUpstreamDsIds(String dsId) throws IOException, CannotSerializeIntoJsonException {
     return getUpstreamDsIds(dsId, false);
   }
 
@@ -279,8 +284,10 @@ public class PrepTransformService {
 
     // The 1st rule string is the master upstream dsId.
     // This could be either an imported dataset or another wrangled dataset.
-    PrepTransformRule rule = new PrepTransformRule(wrangledDataset, 0, Util.getCreateRuleString(importedDsId)); // changed
-    rule.setJsonRuleString(Util.getCreateJsonRuleString(rule.getRuleString()));
+    String ruleString = transformRuleService.getCreateRuleString(importedDsId);
+    String jsonRuleString = transformRuleService.jsonizeRuleString(ruleString);
+    String shortRuleString = transformRuleService.shortenRuleString(jsonRuleString);
+    PrepTransformRule rule = new PrepTransformRule(wrangledDataset, 0, ruleString, jsonRuleString, shortRuleString);
     transformRuleRepository.saveAndFlush(rule);
 
     PrepTransformResponse response = new PrepTransformResponse(wrangledDsId);
@@ -304,7 +311,7 @@ public class PrepTransformService {
           String setTypeRule = setTypeRules.get(i);
           try {
             // 주의: response를 갱신하면 안됨. 기존의 create()에 대한 response를 그대로 주어야 함.
-            transform(wrangledDsId, PrepDataset.OP_TYPE.APPEND, i, setTypeRule);
+            transform(wrangledDsId, PrepDataset.OP_TYPE.APPEND, i, setTypeRule, false);
           } catch (Exception e) {
             LOGGER.error("create(): caught an exception: this setType rule might be wrong [" + setTypeRule + "]", e);
           }
@@ -482,7 +489,11 @@ public class PrepTransformService {
     List<PrepTransformRule> transformRules = getRulesInOrder(wrangledDsId);
     for (int i = 1; i < transformRules.size(); i++) {
       String ruleString = transformRules.get(i).getRuleString();
-      response = transform(cloneDsId, OP_TYPE.APPEND, i - 1, ruleString);
+      try {
+        response = transform(cloneDsId, OP_TYPE.APPEND, i - 1, ruleString, true);
+      } catch (TeddyException te) {
+        LOGGER.info("clone(): A TeddyException is suppressed: {}", te.getMessage());
+      }
     }
     return response;
   }
@@ -496,8 +507,12 @@ public class PrepTransformService {
       String ruleString = rule.getRuleString();
       if (ruleString.contains(oldDsId)) {
         String newRuleString = ruleString.replace(oldDsId, newDsId);
+        String newJsonRuleString = transformRuleService.jsonizeRuleString(newRuleString);
+        String newShortRuleString = transformRuleService.shortenRuleString(newJsonRuleString);
+
         rule.setRuleString(newRuleString);
-        rule.setJsonRuleString(Util.parseRuleString(rule.getRuleString()));
+        rule.setJsonRuleString(newJsonRuleString);
+        rule.setShortRuleString(newShortRuleString);
 
         // un-cache to be reloaded
         teddyImpl.remove(rule.getDataset().getDsId());
@@ -531,6 +546,79 @@ public class PrepTransformService {
   }
 
   @Transactional(rollbackFor = Exception.class)
+  public List<String> swap_upstream(PrepDataflow dataflow, PrepSwapRequest swapRequest) throws Exception {
+    String oldDsId = swapRequest.getOldDsId();
+    String newDsId = swapRequest.getNewDsId();
+    String wrangledDsId = swapRequest.getWrangledDsId();
+    List<String> affectedDsIds = Lists.newArrayList();
+    List<String> dataflowDsIds = Lists.newArrayList();
+
+    if (wrangledDsId != null) {         // if a single (downstream) dataset is specified
+      dataflowDsIds.add(wrangledDsId);
+    } else {                            // else, all datasets in the dataflow become the targets
+      List<PrepDataset> datasets = dataflow.getDatasets();
+      for (PrepDataset dataset : datasets) {
+        dataflowDsIds.add(dataset.getDsId());
+      }
+    }
+
+    // Replace all occurrence of oldDsid in whole rule strings in the targets.
+    for (PrepTransformRule rule : transformRuleRepository.findAll()) {
+      if (!dataflowDsIds.contains(rule.getDataset().getDsId())) {
+        continue;
+      }
+
+      String ruleString = rule.getRuleString();
+      if (!ruleString.contains(oldDsId)) {
+        continue;
+      }
+      assert ruleString.startsWith(transformRuleService.CREATE_RULE_PREFIX) : ruleString;
+
+      String newRuleString = transformRuleService.getCreateRuleString(newDsId);
+      String newJsonRuleString = transformRuleService.jsonizeRuleString(newRuleString);
+      String newShortRuleString = transformRuleService.shortenRuleString(newJsonRuleString);
+
+      rule.setRuleString(newRuleString);
+      rule.setJsonRuleString(newJsonRuleString);
+      rule.setShortRuleString(newShortRuleString);
+
+      // Uncache the affected target so that it can be reloaded
+      teddyImpl.remove(rule.getDataset().getDsId());
+
+      if(false==affectedDsIds.contains(rule.getDataset().getDsId())) {
+        // It must be wrangled dataset, but not chaining wrangled
+        affectedDsIds.add(rule.getDataset().getDsId());
+      }
+    }
+
+    // If a wrangled dataset is specified, rearranging datasets is not necessary.
+    // The UI adds the new dataset in advance (if needed).
+    // And, the UI will not specify a wrangled dataset if the old dataset is the last one, so that it can be removed.
+    if (wrangledDsId != null) {
+      return affectedDsIds;
+    }
+
+    PrepDataset newDataset = datasetRepository.findOne(newDsId);
+
+    List<PrepDataset> datasets = dataflow.getDatasets();
+    for (PrepDataset dataset : datasets) {
+      if (dataset.getDsId().equals(oldDsId)) {
+        datasets.remove(dataset);
+        if (!datasets.contains(newDataset)) {
+          datasets.add(newDataset);
+        }
+        dataflow.setDatasets(datasets);
+        dataflowRepository.save(dataflow);
+        break;
+      }
+    }
+    dataflowRepository.flush();
+
+    return affectedDsIds;
+  }
+
+
+  @Transactional(rollbackFor = Exception.class)
   public void after_swap(List<String> affectedDsIds) throws Exception {
     for(String affectedDsId : affectedDsIds) {
       PrepTransformResponse response = this.fetch(affectedDsId, null);
@@ -541,7 +629,7 @@ public class PrepTransformService {
 
   private DataFrame load_internal(String dsId) throws Exception {
     PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-    DataFrame gridResponse = null;
+    DataFrame gridResponse;
 
     LOGGER.trace("load_internal(): start");
 
@@ -564,15 +652,18 @@ public class PrepTransformService {
     ArrayList<String> totalTargetDsIds = new ArrayList<>();
     ArrayList<PrepDataset> totalTargetDatasets = new ArrayList<>();
 
+    prepareTransformRules(dsId);
+
     for (PrepTransformRule transformRule : getRulesInOrder(dsId)) {
       String ruleString = transformRule.getRuleString();
+      String jsonRuleString = transformRule.getJsonRuleString();
       datasetRepository.save(dataset);
 
       // add to the rule string array
       ruleStrings.add(ruleString);
 
       // gather slave datasets (load and apply, too)
-      List<String> targetDsIds = getTargetDsIds(Util.parseRuleString(ruleString));
+      List<String> targetDsIds = getTargetDsIds(jsonRuleString);
 
       for (String targetDsId : targetDsIds) {
         load_internal(targetDsId);
@@ -591,8 +682,9 @@ public class PrepTransformService {
 
     for (int i = 1; i < ruleStrings.size(); i++) {
       String ruleString = ruleStrings.get(i);
-      gridResponse = teddyImpl.append(dsId, i - 1, ruleString);
+      gridResponse = teddyImpl.append(dsId, i - 1, ruleString, true);
     }
+    updateTransformRules(dsId);
     adjustStageIdx(dsId, ruleStrings.size() - 1, true);
 
     LOGGER.trace("load_internal(): end (applied rules)");
@@ -642,11 +734,15 @@ public class PrepTransformService {
 
   // transform (PUT)
   @Transactional(rollbackFor = Exception.class)
-  public PrepTransformResponse transform(String dsId, OP_TYPE op, Integer stageIdx, String ruleString) throws Exception {
+  public PrepTransformResponse transform(String dsId, OP_TYPE op, Integer stageIdx, String ruleString, boolean forced) throws Exception {
     LOGGER.trace("transform(): start: dsId={} op={} stageIdx={} ruleString={}", dsId, op, stageIdx, ruleString);
 
     if(op==OP_TYPE.APPEND || op==OP_TYPE.UPDATE || op==OP_TYPE.PREVIEW) {
       confirmRuleStringForException(ruleString);
+
+      // Check in advance, or a severe inconsistency between stages and rules can happen,
+      // when these functions fail at that time, after all works done for the stages successfully.
+      transformRuleService.shortenRuleString(transformRuleService.jsonizeRuleString(ruleString));
     }
 
     PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
@@ -662,7 +758,8 @@ public class PrepTransformService {
 
     // join이나 union의 경우, 대상 dataset들도 loading
     if (ruleString != null) {
-      for (String targetDsId : getTargetDsIds(Util.parseRuleString(ruleString))) {
+      String jsonRuleString = transformRuleService.jsonizeRuleString(ruleString);
+      for (String targetDsId : getTargetDsIds(jsonRuleString)) {
         if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
           load_internal(targetDsId);
         }
@@ -673,7 +770,7 @@ public class PrepTransformService {
     // rule list는 transform()을 마칠 때에 채움. 모든 op에 대해 동일하기 때문에.
     switch (op) {
       case APPEND:
-        teddyImpl.append(dsId, stageIdx, ruleString);
+        teddyImpl.append(dsId, stageIdx, ruleString, forced);
         if (stageIdx >= origStageIdx) {
           adjustStageIdx(dsId, stageIdx + 1, true);
         } else {
@@ -739,7 +836,7 @@ public class PrepTransformService {
     return response;
   }
 
-  private void updateTransformRules(String dsId) {
+  private void updateTransformRules(String dsId) throws CannotSerializeIntoJsonException {
     for (PrepTransformRule rule : getRulesInOrder(dsId)) {
       transformRuleRepository.delete(rule);
     }
@@ -750,7 +847,10 @@ public class PrepTransformService {
 
     PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     for (int i = 0; i < ruleStrings.size(); i++) {
-      PrepTransformRule rule = new PrepTransformRule(dataset, i, ruleStrings.get(i));
+      String ruleString = ruleStrings.get(i);
+      String jsonRuleString = transformRuleService.jsonizeRuleString(ruleString);
+      String shortRuleString = transformRuleService.shortenRuleString(jsonRuleString);
+      PrepTransformRule rule = new PrepTransformRule(dataset, i, ruleStrings.get(i), jsonRuleString, shortRuleString);
       rule.setValid(valids.get(i));
       transformRuleRepository.save(rule);
     }
@@ -860,7 +960,7 @@ public class PrepTransformService {
   }
 
   // this includes IMPORTED datasets
-  private Map<String, Object> buildDatasetInfoRecursive(String wrangledDsId) throws IOException {
+  private Map<String, Object> buildDatasetInfoRecursive(String wrangledDsId) throws IOException, CannotSerializeIntoJsonException {
     // {"origTeddyDsId": "MASTER-TEDDY-DSID",
     //  "importType": "HIVE",
     //  "sourceQuery": "select * from t",
@@ -940,7 +1040,7 @@ public class PrepTransformService {
     return datasetInfo;
   }
 
-  private String getJsonDatasetInfo(String wrangledDsId) throws IOException {
+  private String getJsonDatasetInfo(String wrangledDsId) throws IOException, CannotSerializeIntoJsonException {
     Map<String, Object> datasetInfo = buildDatasetInfoRecursive(wrangledDsId);
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(datasetInfo);
   }
@@ -992,7 +1092,7 @@ public class PrepTransformService {
     return "RUNNING";
   }
 
-  private void checkHiveNamingRule(String dsId) throws IOException {
+  private void checkHiveNamingRule(String dsId) throws IOException, CannotSerializeIntoJsonException {
     try {
       teddyImpl.checkNonAlphaNumericalColNames(dsId);
     } catch (IllegalColumnNameForHiveException e) {
@@ -1006,6 +1106,26 @@ public class PrepTransformService {
         continue;
       }
       checkHiveNamingRule(upsteramDsId);
+    }
+  }
+
+  private void prepareTransformRules(String dsId) throws CannotSerializeIntoJsonException {
+    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+    List<PrepTransformRule> transformRules = dataset.getTransformRules();
+
+    if (transformRules !=null && transformRules.size() > 0) {
+      for (PrepTransformRule transformRule : transformRules) {
+        if (transformRule.getJsonRuleString() == null) {
+          String ruleString = transformRule.getRuleString();
+          String jsonRuleString = transformRuleService.jsonizeRuleString(ruleString);
+          transformRule.setJsonRuleString(jsonRuleString);
+        }
+        if (transformRule.getShortRuleString() == null) {
+          String jsonRuleString = transformRule.getJsonRuleString();
+          String shortRuleString = transformRuleService.shortenRuleString(jsonRuleString);
+          transformRule.setShortRuleString(shortRuleString);
+        }
+      }
     }
   }
 
@@ -1078,11 +1198,9 @@ public class PrepTransformService {
     } else {
       map.put("slaveDsNameMap", null);
     }
-    if(null!=dataset.getRuleStringInfos()) {
-      map.put("ruleStringinfos", dataset.getRuleStringInfos());
-    } else {
-      map.put("ruleStringinfos", null);
-    }
+
+    prepareTransformRules(dataset.getDsId());
+    map.put("ruleStringinfos", dataset.getRuleStringInfos());
 
     Map<String, Object> mapOrigDataset = new HashMap<>();
     PrepDataset origDataset = datasetRepository.findRealOne(datasetRepository.findOne(getFirstUpstreamDsId(dataset.getDsId())));
@@ -1117,6 +1235,7 @@ public class PrepTransformService {
     return response;
   }
 
+  @Transactional(rollbackFor = Exception.class)
   public PrepTransformResponse fetch(String dsId, Integer stageIdx) throws Exception {
     if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
       load_internal(dsId);
@@ -1159,7 +1278,6 @@ public class PrepTransformService {
 
     for (PrepTransformRule rule : transformRuleRepository.findAllByOrderByRuleNoAsc()) {
       if (rule.getDataset().getDsId().equals(dsId)) {
-        rule.setJsonRuleString(Util.parseRuleString(rule.getRuleString()));
         rules.add(rule);
       }
     }
@@ -1171,13 +1289,13 @@ public class PrepTransformService {
       if (rule.getDataset().getDsId().equals(dsId)) {
         String ruleString = rule.getRuleString();
         assert ruleString.startsWith("create") : ruleString;
-        return Util.getUpstreamDsId(ruleString);
+        return transformRuleService.getUpstreamDsIdFromCreateRule(ruleString);
       }
     }
     return null;
   }
 
-  private boolean onlyAppend(String dsId) {
+  private boolean onlyAppend(String dsId) throws JsonProcessingException {
     List<PrepTransformRule> transformRules = getRulesInOrder(dsId);
     teddyImpl.reset(dsId);
 
@@ -1200,13 +1318,15 @@ public class PrepTransformService {
     if (importedDataset.getImportType().equalsIgnoreCase("FILE")) {
       String path = importedDataset.getCustomValue("filePath"); // datasetFileService.getPath2(importedDataset);
       LOGGER.debug(wrangledDsId + " path=[" + path + "]");
-      if (importedDataset.isDSV()) {
+      if (importedDataset.isDSV() || importedDataset.isEXCEL()) {
         gridResponse = teddyImpl.loadFileDataset(wrangledDsId, path, importedDataset.getDelimiter(), wrangledDataset.getDsName());
       }
+      /* excel type dataset has csv file
       else if (importedDataset.isEXCEL()) {
         LOGGER.error("createStage0(): EXCEL not supported: " + path);
         throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG);
       }
+      */
       else if (importedDataset.isJSON()) {
         LOGGER.error("createStage0(): EXCEL not supported: " + path);
         throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG);
@@ -1246,7 +1366,7 @@ public class PrepTransformService {
     assert gridResponse != null : wrangledDsId;
     wrangledDataset.setTotalLines(gridResponse.rows.size());
 
-    teddyImpl.getCurDf(wrangledDsId).setRuleString(Util.getCreateRuleString(importedDataset.getDsId()));
+    teddyImpl.getCurDf(wrangledDsId).setRuleString(transformRuleService.getCreateRuleString(importedDataset.getDsId()));
 
     LOGGER.trace("createStage0(): end");
     return gridResponse;
@@ -1274,9 +1394,9 @@ public class PrepTransformService {
       if(prepProperties.isFileSnapshotEnabled()) {
         Map<String,Object> fileUri = Maps.newHashMap();
 
-        String wasDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
-        wasDir = this.snapshotService.escapeSsNameOfUri(wasDir);
-        fileUri.put("was", wasDir);
+        String localDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
+        localDir = this.snapshotService.escapeSsNameOfUri(localDir);
+        fileUri.put("local", localDir);
 
         try {
           String hdfsDir = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), ssName);
@@ -1661,8 +1781,12 @@ public class PrepTransformService {
           case CANCELED:
               return "THIS_SNAPSHOT_IS_ALREADY_CANCELED";
           case SUCCEEDED:
+              snapshotService.deleteSnapshot(ssId);
+              snapshotService.updateSnapshotStatus(ssId, PrepSnapshot.STATUS.CANCELED);
+              return "OK";
           case FAILED:
-              return "THIS_SNAPSHOT_IS_ALREADY_CREATED_OR_FAILED";
+              snapshotService.updateSnapshotStatus(ssId, PrepSnapshot.STATUS.CANCELED);
+              return "OK";
           case NOT_AVAILABLE:
           default:
               return "UNKNOWN_ERROR";
@@ -1864,6 +1988,26 @@ public class PrepTransformService {
     functionList.add(
             new ExprFunction(ExprFunctionCategory.MATH, "math.tanh", "msg.dp.ui.expression.functiondesc.math.tanh"
                     , "math.tanh(4)", "0.999329299739067")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.WINDOW, "row_number", "msg.dp.ui.expression.functiondesc.window.row_number"
+                    , "row_number()", "window function")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.WINDOW, "rolling_sum", "msg.dp.ui.expression.functiondesc.window.rolling_sum"
+                    , "rolling_sum(target_col, before, after)", "window function")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.WINDOW, "rolling_avg", "msg.dp.ui.expression.functiondesc.window.rolling_avg"
+                    , "rolling_sum(target_col, before, after)", "window function")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.WINDOW, "lag", "msg.dp.ui.expression.functiondesc.window.lag"
+                    , "lag(target_col, before)", "window function")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.WINDOW, "lead", "msg.dp.ui.expression.functiondesc.window.lead"
+                    , "lead(target_col, after)", "window function")
     );
 
     return functionList;

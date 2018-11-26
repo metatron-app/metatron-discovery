@@ -12,12 +12,15 @@
  * limitations under the License.
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren} from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { Filter } from '../../../../../../domain/workbook/configurations/filter/filter';
+import {PreparationCommonUtil} from "../../../../../util/preparation-common.util";
+import {RuleConditionInputComponent} from "./rule-condition-input.component";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'edit-rule-aggregate',
@@ -27,7 +30,8 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
+  @ViewChildren(RuleConditionInputComponent)
+  private ruleConditionInputComponent : RuleConditionInputComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -90,7 +94,12 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
       Alert.warning(this.translateService.instant('msg.dp.alert.enter.groupby'));
       return undefined;
     }
-    const columnsStr: string = this.selectedFields.map( item => item.name ).join(', ');
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
+      if (-1 !== item.name.indexOf(' ')) {
+        item.name = '`' + item.name + '`';
+      }
+      return item.name
+    }).join(', ');
 
     // Formula
     if (this.formulaList.length === 0) {
@@ -99,7 +108,10 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
     }
 
     const validFormulaList:string[] = [];
-    const invalidFormula:boolean = this.formulaList.some( formula => {
+    const invalidFormula:boolean = this.formulaList.some( (formula, index) => {
+
+      formula = this.ruleConditionInputComponent['_results'][index].getCondition();
+
       if( StringUtil.checkSingleQuote(formula, { isWrapQuote: false, isAllowBlank: false })[0] ) {
         if( StringUtil.checkFormula( formula ) ) {
           validFormulaList.push( '\'' + formula + '\'' );
@@ -200,21 +212,21 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
 
   /**
    * rule string 을 분석한다.
-   * @param ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
-    let fieldsStr:string = this.getAttrValueInRuleString( 'group', ruleString );
-    if( '' !== fieldsStr ) {
-      const arrFields:string[] = ( -1 < fieldsStr.indexOf( ',' ) ) ? fieldsStr.split(',') : [fieldsStr];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
-    }
+  protected parsingRuleString(data : {ruleString : string, jsonRuleString : any}) {
+    // COLUMN
+    let arrFields:string[] = typeof data.jsonRuleString.group.value === 'string' ? [data.jsonRuleString.group.value] : data.jsonRuleString.group.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-    let strFormulaList:string = this.getAttrValueInRuleString( 'value', ruleString );
+    let strFormulaList:string = this.getAttrValueInRuleString( 'value', data.ruleString );
     if( '' !== strFormulaList) {
       this.formulaList = strFormulaList.split( ',' ).map( item => item.replace( /'/g, '' ) );
     }
 
   } // function - parsingRuleString
+
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method

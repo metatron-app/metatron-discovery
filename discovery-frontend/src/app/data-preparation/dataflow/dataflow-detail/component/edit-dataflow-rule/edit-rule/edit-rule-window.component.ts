@@ -12,12 +12,14 @@
  * limitations under the License.
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren} from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import {StringUtil} from "../../../../../../common/util/string.util";
 import {isNullOrUndefined} from "util";
+import * as _ from 'lodash';
+import {RuleConditionInputComponent} from "./rule-condition-input.component";
 
 @Component({
   selector: 'edit-rule-window',
@@ -27,7 +29,8 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
+  @ViewChildren(RuleConditionInputComponent)
+  private ruleConditionInputComponent : RuleConditionInputComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -140,14 +143,9 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     }
 
     const validFormulaList:string[] = [];
-    const invalidFormula:boolean = this.formulaList.some( formula => {
+    const invalidFormula:boolean = this.formulaList.some((formula, index) => {
       if( StringUtil.checkSingleQuote(formula, { isWrapQuote: false, isAllowBlank: false })[0] ) {
-        // if( StringUtil.checkFormula( formula ) ) {
-        //   validFormulaList.push(formula );
-        //   return false;
-        // } else {
-        //   return true;
-        // }
+        formula = this.ruleConditionInputComponent['_results'][index].getCondition();
         validFormulaList.push(formula );
         return false;
       } else {
@@ -163,24 +161,35 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     // 그룹
     let groupStr: string = '';
     if (this.selectedFields.length !== 0) {
-      groupStr = this.selectedFields.map( item => item.name ).join(', ');
+      let selFields = _.cloneDeep(this.selectedFields);
+      groupStr = selFields.map((item) => {
+        if (-1 !== item.name.indexOf(' ')) {
+          item.name = '`' + item.name + '`';
+        }
+        return item.name
+      }).join(', ');
     }
 
-
-
-    // sort
-    if (this.selectedSortFields.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.enter.sortby'));
-      return undefined;
+    let sortStr: string = '';
+    if (this.selectedSortFields.length !== 0) {
+      let selSortFields = _.cloneDeep(this.selectedSortFields);
+      sortStr = selSortFields.map((item) => {
+        if (-1 !== item.name.indexOf(' ')) {
+          item.name = '`' + item.name + '`';
+        }
+        return item.name
+      }).join(', ');
     }
-    const sortStr: string = this.selectedSortFields.map( item => item.name ).join(', ');
 
-    let resultRuleString : string = `window value: [${validFormulaList}]`;
-    if (groupStr) {
+    let resultRuleString : string = `window value: ${validFormulaList}`;
+
+    if (groupStr !== '') {
       resultRuleString += ` group: ${groupStr}`;
     }
-    resultRuleString += ` order: ${sortStr}`;
 
+    if (sortStr !== '') {
+      resultRuleString += ` order: ${sortStr}`;
+    }
     return {
       command: 'window',
       col: groupStr,
@@ -211,29 +220,30 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
 
   /**
    * rule string 을 분석한다.
-   * @param ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:any) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
     // Group - can be null
-    if (!isNullOrUndefined(ruleString.group)) {
-      let groupFields:string[] = typeof ruleString.group.value === 'string' ? [ruleString.group.value] : ruleString.group.value;
+    if (!isNullOrUndefined(data.jsonRuleString.group)) {
+      let groupFields:string[] = typeof data.jsonRuleString.group.value === 'string' ? [data.jsonRuleString.group.value] : data.jsonRuleString.group.value;
       this.selectedFields = groupFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
     // Order
-    let orderFields: string[] = typeof ruleString.order.value === 'string' ? [ruleString.order.value] : ruleString.order.value;
-    this.selectedSortFields = orderFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
-
+    if (!isNullOrUndefined(data.jsonRuleString.order)) {
+      let orderFields: string[] = typeof data.jsonRuleString.order.value === 'string' ? [data.jsonRuleString.order.value] : data.jsonRuleString.order.value;
+      this.selectedSortFields = orderFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+    }
 
     // Formula
     this.formulaList = [];
-    if (ruleString.value.hasOwnProperty('functions')) {
-      ruleString.value.functions.forEach((item) => {
+    if (data.jsonRuleString.value.hasOwnProperty('functions')) {
+      data.jsonRuleString.value.functions.forEach((item) => {
         this.formulaList.push(this.getJoinedExpression(item));
       })
     } else {
-      this.formulaList.push(this.getJoinedExpression(ruleString.value));
+      this.formulaList.push(this.getJoinedExpression(data.jsonRuleString.value));
     }
 
   } // function - _parsingRuleString
@@ -247,7 +257,13 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
 
     let result = value.name;
     if (value.args.length !== 0) {
-      let list = value.args.map((item) => item.value);
+      let list = value.args.map((item) => {
+        if (item.value.toString().indexOf(' ') !== -1) {
+          return '`' + item.value + '`'
+        } else {
+          return item.value
+        }
+      });
       result += `(${list.join(',')})`;
     } else {
       result += '()';

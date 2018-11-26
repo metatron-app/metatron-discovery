@@ -27,7 +27,7 @@
         <div class="ddp-wrap-datainput">
           <rule-condition-input
             [placeholder]="'msg.dp.th.expression.ph' | translate"
-            [formula]="item" [command]="'pivot'" [fields]="fields" [tabIndex]="2"
+            [formula]="item" [command]="'window'" [fields]="fields" [tabIndex]="2"
             (onChange)="formulaList[idx] = $event"></rule-condition-input>
         </div>
         <div class="ddp-ui-buttons">
@@ -54,7 +54,7 @@
 
 <div class="ddp-box-part" *ngIf="isShow">
   <div class="ddp-box-title">
-    {{'msg.comm.ui.soring.by' | translate}}<em class="ddp-icon-essential"></em>
+    {{'msg.comm.ui.soring.by' | translate}}
   </div>
 
   <!-- select box -->

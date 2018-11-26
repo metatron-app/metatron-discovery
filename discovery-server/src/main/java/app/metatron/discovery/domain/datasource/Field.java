@@ -3,6 +3,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -52,7 +66,7 @@ import app.metatron.discovery.common.entity.Spec;
 import app.metatron.discovery.domain.CollectionPatch;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionRule;
+import app.metatron.discovery.domain.datasource.ingestion.rule.IngestionRule;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
@@ -68,6 +82,7 @@ import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericMinAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
 import app.metatron.discovery.query.druid.aggregations.RangeAggregation;
+import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
 import app.metatron.discovery.query.druid.aggregations.VarianceAggregation;
 import app.metatron.discovery.spec.druid.ingestion.parser.TimestampSpec;
 import app.metatron.discovery.util.TimeUnits;
@@ -102,27 +117,27 @@ public class Field implements MetatronDomain<Long> {
   private Long id;
 
   /**
-   * Field 명 (물리명)
+   * Field name on engine
    */
   @Column(name = "field_name")
   @NotBlank
   private String name;
 
   /**
-   * Field 별칭 (논리명)
+   * Field alias
    */
   @Column(name = "field_alias")
   private String alias;
 
   /**
-   * Field 설명
+   * Field description
    */
   @Column(name = "field_desc", length = 1000)
   @Size(max = 900)
   private String description;
 
   /**
-   * 데이터 타입
+   * Physical data type on engine
    */
   @Column(name = "field_type")
   @Enumerated(EnumType.STRING)
@@ -130,7 +145,7 @@ public class Field implements MetatronDomain<Long> {
   private DataType type;
 
   /**
-   * 저장공간과 다른 논리적 데이터 타입
+   * Logical data type
    */
   @Column(name = "field_logical_type")
   @Enumerated(EnumType.STRING)
@@ -144,25 +159,25 @@ public class Field implements MetatronDomain<Long> {
   private FieldRole role;
 
   /**
-   * Partition 대상 필드 인지 여부
+   * Whether partitioned field
    */
   @Column(name = "field_partitioned")
   private Boolean partitioned;
 
   /**
-   * 필수적으로 필터링을 수행해야하는 필드인지 여부
+   * Whether to use as mandatory filter
    */
   @Column(name = "field_filtering")
   private Boolean filtering;
 
   /**
-   * 필수 필터링 순서 지정
+   * Sequence for mandatory filtered field
    */
   @Column(name = "field_filtering_seq")
   private Long filteringSeq;
 
   /**
-   * 필수 필터링 옵션 지정
+   * Option of mandatory filter
    */
   @Column(name = "field_filtering_options", length = 65535, columnDefinition = "TEXT")
   @Basic(fetch = FetchType.LAZY)
@@ -172,20 +187,42 @@ public class Field implements MetatronDomain<Long> {
   private String filteringOptions;
 
   /**
-   * 사전 집계 타입
+   * Type of pre-aggregation
    */
   @Column(name = "pre_aggr_type")
   @Enumerated(EnumType.STRING)
   private MeasureField.AggregationType aggrType = NONE;
 
   /**
-   * 필드 정렬 순서
+   * Whether to exclude what to load to engine
+   */
+  @Column(name = "field_unloaded")
+  private Boolean unloaded;
+
+  /**
+   * Sequence for field alignment
    */
   @Column(name = "seq")
   private Long seq;
 
   /**
-   * 적재 방식 (Discard or Set Default Value)
+   * Whether to derived field (not physical field)
+   */
+  @Column(name = "field_derived")
+  private Boolean derived;
+
+  /**
+   * Derivation rule
+   */
+  @Column(name = "field_derivation_rule", length = 65535, columnDefinition = "TEXT")
+  @Basic(fetch = FetchType.LAZY)
+  @Spec(target = IngestionRule.class)
+  @JsonRawValue
+  @JsonDeserialize(using = KeepAsJsonDeserialzier.class)
+  private String derivationRule;
+
+  /**
+   * Ingestion rule (Discard or Set Default Value)
    */
   @Column(name = "field_ingestion_rule", length = 65535, columnDefinition = "TEXT")
   @Basic(fetch = FetchType.LAZY)
@@ -195,7 +232,7 @@ public class Field implements MetatronDomain<Long> {
   private String ingestionRule;
 
   /**
-   * 필드 데이터 형태 </br> (timestamp type인 경우, ISO8601 Date format)
+   * Field data format
    */
   @Column(name = "field_format", length = 65535, columnDefinition = "TEXT")
   @Spec(target = FieldFormat.class)
@@ -208,7 +245,7 @@ public class Field implements MetatronDomain<Long> {
   private Field mapper;
 
   /**
-   * 기존 물리적인 필드를 매핑하여 신규 필드를 구성할 경우 관련 필드 정보
+   * Related field information, When you configure a new field by mapping an existing physical field
    */
   @OneToMany(mappedBy = "mapper")
   @JsonBackReference
@@ -219,13 +256,6 @@ public class Field implements MetatronDomain<Long> {
 
   @Transient
   private String originalType;
-
-  /**
-   * 필드 삭제 여부 처리
-   */
-  @Transient
-  @JsonProperty
-  private Boolean removed;
 
   public Field() {
     // Empty Constructor
@@ -287,7 +317,11 @@ public class Field implements MetatronDomain<Long> {
    * Ingestion spec. 처리시 확인 할 것
    */
   @JsonIgnore
-  public Aggregation getAggregation() {
+  public Aggregation getAggregation(boolean isRelay) {
+
+    if(isRelay) {
+      return new RelayAggregation(name,type.toEngineType());
+    }
 
     if (aggrType == null) {
       return new GenericSumAggregation(name, name, "double");
@@ -312,6 +346,14 @@ public class Field implements MetatronDomain<Long> {
       default:
         return new GenericSumAggregation(name, name, "double");
     }
+  }
+
+  @JsonIgnore
+  public boolean isGeoType() {
+    LogicalType logicalType = getLogicalType();
+    return logicalType == LogicalType.GEO_POINT
+        || logicalType == LogicalType.GEO_LINE
+        || logicalType == LogicalType.GEO_POLYGON;
   }
 
   public void setColumnType(JdbcDataConnection connection, String columnType) {
@@ -420,6 +462,11 @@ public class Field implements MetatronDomain<Long> {
     return timestampSpec;
   }
 
+  @JsonIgnore
+  public boolean isNotPhysicalField() {
+    return BooleanUtils.isTrue(derived) || BooleanUtils.isTrue(unloaded);
+  }
+
   public Long getId() {
     return id;
   }
@@ -507,6 +554,19 @@ public class Field implements MetatronDomain<Long> {
     this.alias = alias;
   }
 
+  @JsonIgnore
+  public IngestionRule getDerivationRuleObject() {
+    return GlobalObjectMapper.readValue(derivationRule, IngestionRule.class);
+  }
+
+  public String getDerivationRule() {
+    return derivationRule;
+  }
+
+  public void setDerivationRule(String derivationRule) {
+    this.derivationRule = derivationRule;
+  }
+
   public String getIngestionRule() {
     return ingestionRule;
   }
@@ -548,6 +608,14 @@ public class Field implements MetatronDomain<Long> {
 
   public void setPartitioned(Boolean partitioned) {
     this.partitioned = partitioned;
+  }
+
+  public Boolean getUnloaded() {
+    return unloaded;
+  }
+
+  public void setUnloaded(Boolean unloaded) {
+    this.unloaded = unloaded;
   }
 
   public Boolean getFiltering() {
@@ -599,6 +667,14 @@ public class Field implements MetatronDomain<Long> {
     this.mappedField = mappedField;
   }
 
+  public Boolean getDerived() {
+    return derived;
+  }
+
+  public void setDerived(Boolean derived) {
+    this.derived = derived;
+  }
+
   public String getOriginalName() {
     return originalName;
   }
@@ -613,14 +689,6 @@ public class Field implements MetatronDomain<Long> {
 
   public void setOriginalType(String originalType) {
     this.originalType = originalType;
-  }
-
-  public Boolean getRemoved() {
-    return removed;
-  }
-
-  public void setRemoved(Boolean removed) {
-    this.removed = removed;
   }
 
   @Override

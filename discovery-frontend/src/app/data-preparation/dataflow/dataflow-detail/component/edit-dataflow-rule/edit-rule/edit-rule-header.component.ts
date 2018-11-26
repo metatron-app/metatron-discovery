@@ -119,12 +119,13 @@ export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit
   } // function - afterShowComp
 
   /**
-   * rule string 을 분석한다.
-   * @param ruleString
+   * parse ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
-    // value
-    this.rowNum = Number( this.getAttrValueInRuleString( 'rownum', ruleString ) );
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+
+    // ROW NUMBER
+    this.rowNum = Number( data.jsonRuleString.rownum);
   } // function - parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

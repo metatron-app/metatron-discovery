@@ -14,11 +14,11 @@
 
 import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit,
-  Output
+  Output, ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
 import {
-  DatasourceInfo, Field, FieldFormat, FieldFormatType,
+  DatasourceInfo, Field, FieldFormat, FieldFormatType, IngestionRuleType,
   LogicalType
 } from '../../../../../domain/datasource/datasource';
 import { isUndefined } from 'util';
@@ -26,6 +26,7 @@ import { DatasourceService } from '../../../../../datasource/service/datasource.
 import * as _ from 'lodash';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { Alert } from '../../../../../common/util/alert.util';
+import { AddColumnComponent } from '../../../component/add-column.component';
 
 @Component({
   selector: 'db-configure-schema',
@@ -47,6 +48,10 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
 
   // 선택된 컬럼리스트
   private checkedColumnList: any[];
+
+  // add column component
+  @ViewChild(AddColumnComponent)
+  private _addColumnComponent: AddColumnComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -93,6 +98,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
   // show flag
   public typeShowFl: boolean = false;
   public timestampShowFl: boolean = false;
+  public addColumnShowFl: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -207,10 +213,9 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @returns {any[]}
    */
   public getTimeTypeColumns() {
-    const columnList = this.fields.filter((column) => {
+    return this.fields.filter((column) => {
       return column.logicalType === 'TIMESTAMP' && !this.isDeletedColumn(column);
     });
-    return columnList;
   }
 
   /**
@@ -218,10 +223,9 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @returns {any[]}
    */
   public getNotDeletedColumns() {
-    const columnList = this.fields.filter((column) => {
-      return column.removed === false;
+    return this.fields.filter((column) => {
+      return column.unloaded === false;
     });
-    return columnList;
   }
 
   /**
@@ -325,7 +329,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    */
   public onSelectedColumn(column) {
     // 삭제된 상태라면 선택 x
-    if (column.removed) {
+    if (column.unloaded) {
       return;
     }
     // 컬럼 선택
@@ -363,7 +367,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    */
   public onClickRevival(column) {
     // 삭제상태 해제
-    column.removed = false;
+    column.unloaded = false;
     // init timestamp
     if (this.selectedTimestampType === 'CURRENT' && column.logicalType === 'TIMESTAMP') {
       this.initTimestampColumn();
@@ -379,6 +383,45 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
       return;
     }
     this.timestampShowFl = !this.timestampShowFl;
+  }
+
+  /**
+   * Add column button click event
+   */
+  public onClickAddColumn(): void {
+    this.addColumnShowFl = !this.addColumnShowFl;
+    if (this.addColumnShowFl) {
+      this._addColumnComponent.init(this.fields);
+    }
+  }
+
+  /**
+   * Closed add column modal
+   * @param data
+   */
+  public onClosedAddColumn(data: any): void {
+    if (data) {
+      // data push in fields
+      this.fields.unshift(data);
+      // if new column type GEO
+      if (data.logicalType.indexOf('GEO_') !== -1) {
+        const latColumnName = data.derivationRule.latField;
+        const lonColumnName = data.derivationRule.lonField;
+        // temp
+        let temp: string;
+        // set data list
+        this.data.forEach((item) => {
+          // if exist property not empty
+          if (item[latColumnName] || item[lonColumnName]) {
+            temp = item[latColumnName] || '';
+            temp += ',';
+            temp += item[lonColumnName] || '';
+            item[data.name] = temp;
+          }
+        });
+      }
+    }
+    this.addColumnShowFl = false;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -439,7 +482,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @returns {boolean}
    */
   public isDeletedColumn(column): boolean {
-    return column.removed === true;
+    return column.unloaded === true;
   }
 
   /**
@@ -451,7 +494,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
     // 현재 선택된 컬럼이고 삭제상태가 아닌경우
     return (!isUndefined(this.selectedColumn)
       && this.selectedColumn.name === column.name
-      && !column.removed);
+      && !column.unloaded);
   }
 
 
@@ -668,7 +711,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
   private onDeleteAction(columnList: any[]) {
     columnList.forEach((column) => {
       // 삭제 플래그
-      column.removed = true;
+      column.unloaded = true;
       // 타임스탬프에 대한 처리
       // 현재 컬럼이 타임스탬프로 지정된 컬럼이였다면
       if (this.isTimestampColumn(column)) {
@@ -692,7 +735,6 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
     columnList.forEach((column) => {
       // 선택한 타입하고 같지않을때만 동작
       if (!this.isEqualType(column.logicalType, logicalType)) {
-
         // ingestion에 대한 처리
         this.initIngestionRuleInChangeType(column);
         // 타임스탬프에 대한 처리
@@ -755,9 +797,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @private
    */
   private _getEnabledColumnList() {
-    return this.getColumnList().filter((column) => {
-      return column.removed === false;
-    });
+    return this.getColumnList().filter(column => !column.unloaded);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -819,7 +859,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    */
   private _isErrorIngestionRule(column: Field): boolean {
     return column.ingestionRule
-    && column.ingestionRule.type === 'replace'
+    && column.ingestionRule.type === IngestionRuleType.REPLACE
     && column.isValidReplaceValue === false;
   }
 
@@ -831,7 +871,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    */
   private _isErrorTimestamp(column: Field): boolean {
     return column.logicalType === LogicalType.TIMESTAMP
-      && column.format.type === FieldFormatType.DATE_TIME
+      && (column.format && column.format.type === FieldFormatType.DATE_TIME)
       && column.isValidTimeFormat === false;
   }
 
@@ -847,7 +887,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
         column.isValidTimeFormat = false;
         column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
       }
-      if (column.ingestionRule && column.ingestionRule.type === 'replace' && isUndefined(column.isValidReplaceValue)) {
+      if (column.ingestionRule && column.ingestionRule.type === IngestionRuleType.REPLACE && isUndefined(column.isValidReplaceValue)) {
         column.isValidReplaceValue = false;
         column.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
       }
@@ -870,16 +910,15 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @param type
    * @param timestampPromise
    */
-  private initTimestampInChangeType(column, type, timestampPromise) {
+  private initTimestampInChangeType(column: Field, type: string, timestampPromise) {
     // 변경된 타입이 타임일 경우
-    if (this.isEqualType('TIMESTAMP', type)) {
-      timestampPromise.push(column);
+    if (type === 'TIMESTAMP') {
+      // init format
+      column.format = new FieldFormat();
       delete column.isValidTimeFormat;
       delete column.isValidReplaceValue;
-    }
-
-    // 컬럼이 타임스탬프로 지정되었던 경우
-    if (this.isTimestampColumn(column)) {
+      timestampPromise.push(column);
+    } else if (this.isTimestampColumn(column)) { // 컬럼이 타임스탬프로 지정되었던 경우
       this.selectedTimestampColumn = null;
     }
   }
@@ -890,8 +929,8 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    */
   private initIngestionRuleInChangeType(column) {
     // ingestionRule이 있다면
-    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === 'replace') {
-      column.ingestionRule.type = 'default';
+    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === IngestionRuleType.REPLACE) {
+      column.ingestionRule.type = IngestionRuleType.DEFAULT;
     }
   }
 
@@ -942,7 +981,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    */
   private initFields(fields: any[]) {
     fields.forEach((column) => {
-      column['removed'] = false;
+      column['unloaded'] = false;
     });
     // init timestamp
     this.initTimestampFormat(this.getTimeTypeColumns());

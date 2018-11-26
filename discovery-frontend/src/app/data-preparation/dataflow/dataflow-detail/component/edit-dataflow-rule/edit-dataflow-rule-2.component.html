@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents3">
+<div class="ddp-type-contents3 page-prep-dataflow">
   <!-- top -->
   <div class="ddp-top-flow">
     <!-- navi wrap -->
@@ -61,7 +61,6 @@
       <div class="left-component rule-left" style="float: left; height: 100%;">
         <div *ngIf="isInitDataLoaded" class="ddp-wrap-flow-grid" style="position:relative; top:0; left:0; right:0; min-height:100%;">
           <edit-rule-grid (selectHeader)="setRuleInfoFromGridHeader($event)"
-                          (selectHeaderMenu)="applyRuleFromGridHeaderMenu($event)"
                           (selectContextMenu)="applyRuleFromContextMenu($event)"></edit-rule-grid>
         </div>
       </div>
@@ -89,22 +88,28 @@
         <div class="ddp-box-top" style="position:relative; top:0; left:0; right:0; bottom:0;z-index:10;">
           <!-- title -->
           <div class="ddp-box-title">
-            {{'msg.dp.ui.add.rule.title' | translate}}
-            <a href="javascript:" class="ddp-link-switch" (click)="switchEditor()" *ngIf="opString !== 'UPDATE'">{{editorUseLabel}}</a>
+            <ng-container *ngIf="opString === 'UPDATE'">{{'msg.dp.ui.btn.edit.rule' | translate}}</ng-container>
+            <ng-container *ngIf="opString !== 'UPDATE'">{{'msg.dp.ui.btn.add.rule' | translate}}</ng-container>
+            <!--{{'msg.dp.ui.add.rule.title' | translate : {mode : opString !== 'UPDATE' ? 'Add' : 'Edit' } }}-->
+            <a href="javascript:" class="ddp-link-switch" (click)="switchEditor()">{{editorUseLabel}}</a>
           </div>
           <!-- //title -->
           <!-- buttons -->
           <div class="ddp-ui-buttons">
             <a href="javascript:" class="ddp-btn-type3" (click)="jumpToCurrentIndex()">{{'msg.comm.btn.cancl' | translate}}</a>
-            <a href="javascript:" [ngClass]="{'ddp-disabled':ruleVO.command === ''}" class="ddp-btn-type4" (click)="addRule()">{{ opString !== 'UPDATE' ? ('msg.dp.btn.add' | translate) : ('msg.dp.btn.edit' | translate ) }}</a>
+            <a href="javascript:"
+               [ngClass]="{'ddp-disabled': editorUseFlag ? inputRuleCmd === '' : ruleVO.command === '' }"
+               class="ddp-btn-type4" (click)="addRule()">
+               {{ opString !== 'UPDATE' ? ('msg.dp.btn.add' | translate) : ('msg.comm.btn.done2' | translate ) }}
+            </a>
           </div>
           <!-- //buttons -->
         </div>
         <div class="ddp-wrap-rulecontents"
-             [ngClass]="{'ddp-inherit': isCommandListShow || isFocus || isMultiColumnListShow }">
+             [ngClass]="{'ddp-inherit': isCommandListShow || isFocus || isMultiColumnListShow || editorUseFlag }">
           <div class="ddp-box-contents ddp-clear">
             <!-- editor -->
-            <div class="ddp-wrap-switch-editor" style="display:block" *ngIf="editorUseFlag === true">
+            <div class="ddp-wrap-switch-editor" *ngIf="editorUseFlag">
               <!-- switch 클릭시 ddp-box-full 추가 -->
               <div class="ddp-box-command ddp-box-full">
                 <div class="ddp-ui-title">
@@ -113,7 +118,7 @@
 
                 <!-- input -->
                 <div class="ddp-wrap-datainput">
-                  <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.dp.alert.command.input.ph' | translate}}" [(ngModel)]="inputRuleCmd" >
+                  <input class="ddp-input-typebasic" placeholder="{{'msg.dp.alert.command.input.ph' | translate}}" [(ngModel)]="inputRuleCmd" >
                 </div>
                 <!-- //input -->
               </div>
@@ -121,7 +126,7 @@
             <!-- //editor -->
 
             <!-- builder -->
-            <div class="ddp-wrap-switch-builder" style="display:block" *ngIf="editorUseFlag === false">
+            <div class="ddp-wrap-switch-builder" [ngStyle]="{'visibility':editorUseFlag ? 'hidden' : null }">
               <div class="ddp-box-command">
                 <div class="ddp-ui-title">
                   {{'msg.dp.th.command' | translate}}
@@ -135,7 +140,7 @@
                      (click)="$event.stopImmediatePropagation(); showCommandList()"
                      (keydown)="navigateWithKeyboardShortList($event, filteredCommandList, 'command')">
                   <!-- 선택시 자동 input display:block; -->
-                  <input type="text" class="ddp-input-selectbox" placeholder="{{'msg.dp.th.command' | translate}}" [(ngModel)]="commandSearchText" id="commandSearch">
+                  <input class="ddp-input-selectbox" placeholder="{{'msg.dp.th.command' | translate}}" [(ngModel)]="commandSearchText" id="commandSearch">
                   <span class="ddp-txt-selectbox" >{{ruleVO.command !== '' ?  ruleVO.command : 'msg.dp.ui.command.input.ph' | translate }}</span>
                   <ul class="ddp-list-selectbox ddp-list-command"
                       *ngIf="isCommandListShow"
@@ -166,21 +171,26 @@
                 <!-- //endHeader-->
 
                 <!--startKeep-->
-                <edit-rule-keep #editRule *ngIf="'keep' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('keep')"></edit-rule-keep>
+                <edit-rule-keep #editRule *ngIf="'keep' === ruleVO.command"
+                                (advancedEditorClickEvent)="openPopupFormulaInput($event)">
+                </edit-rule-keep>
                 <!-- //endKeep-->
 
                 <!-- startReplace -->
-                <edit-rule-replace #editRule *ngIf="'replace' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('replace')"></edit-rule-replace>
+                <edit-rule-replace #editRule *ngIf="'replace' === ruleVO.command"
+                                   (advancedEditorClickEvent)="openPopupFormulaInput($event)">
+                </edit-rule-replace>
                 <!-- // endReplace -->
 
                 <!-- startRename -->
                 <edit-rule-rename #editRule *ngIf="'rename' === ruleVO.command"
-                                  (onEvent)="onMultiColumnRenameClick()" ></edit-rule-rename>
+                                  (onEvent)="onMultiColumnRenameClick()"></edit-rule-rename>
                 <!-- // endRename -->
 
                 <!--startSet-->
-                <edit-rule-set #editRule *ngIf="'set' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('set')"
-                               (conditionClickEvent)="openPopupFormulaInput('setCondition')"></edit-rule-set>
+                <edit-rule-set #editRule *ngIf="'set' === ruleVO.command"
+                               (advancedEditorClickEvent)="openPopupFormulaInput($event)">
+                </edit-rule-set>
                 <!--//endSet-->
 
                 <!--startSettype-->
@@ -196,11 +206,15 @@
                 <!--//endSplit-->
 
                 <!--startDerive-->
-                <edit-rule-derive #editRule *ngIf="'derive' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('derive')"></edit-rule-derive>
+                <edit-rule-derive #editRule *ngIf="'derive' === ruleVO.command"
+                                  (advancedEditorClickEvent)="openPopupFormulaInput($event)">
+                </edit-rule-derive>
                 <!--//endDerive-->
 
                 <!--startDelete-->
-                <edit-rule-delete #editRule *ngIf="'delete' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('delete')"></edit-rule-delete>
+                <edit-rule-delete #editRule *ngIf="'delete' === ruleVO.command"
+                                  (advancedEditorClickEvent)="openPopupFormulaInput($event)">
+                </edit-rule-delete>
                 <!--//endDelete-->
 
                 <!--startDrop-->

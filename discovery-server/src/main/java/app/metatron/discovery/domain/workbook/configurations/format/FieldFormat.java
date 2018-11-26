@@ -26,6 +26,9 @@ import java.io.Serializable;
 @JsonSubTypes({
     @JsonSubTypes.Type(value = DefaultFormat.class, name = "default"),
     @JsonSubTypes.Type(value = GeoFormat.class, name = "geo"),
+    @JsonSubTypes.Type(value = GeoPointFormat.class, name = "geo_point"),
+    @JsonSubTypes.Type(value = GeoLineFormat.class, name = "geo_line"),
+    @JsonSubTypes.Type(value = GeoPolygonFormat.class, name = "geo_polygon"),
     @JsonSubTypes.Type(value = GeoHashFormat.class, name = "geo_hash"),
     @JsonSubTypes.Type(value = GeoBoundaryFormat.class, name = "geo_boundary"),
     @JsonSubTypes.Type(value = GeoJoinFormat.class, name = "geo_join"),

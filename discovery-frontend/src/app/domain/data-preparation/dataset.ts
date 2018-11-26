@@ -68,6 +68,8 @@ export class Dataset extends AbstractHistoryEntity {
   public joinButtonText: string;
   public ruleNo: string;
 
+  // add api modify
+  public connectionInfo: any;
 }
 
 export class Datasets {
@@ -95,9 +97,15 @@ export enum ImportType {
   HIVE = <any>'HIVE'
 }
 
+export enum FileType {
+  LOCAL = <any>'LOCAL',
+  HDFS = <any>'HDFS'
+}
+
 export class Field {
   public name: string;
   public type: string;
+  public uuid? : string;
   public logicalType? : string;
   public isHover? : boolean;
   public seq? : number;
@@ -106,6 +114,7 @@ export class Field {
 
 // add KJ
 export class DatasetFile extends Dataset {
+  public fileType: FileType;
   public filename: string;
   public filepath: string;
   public filekey: string;

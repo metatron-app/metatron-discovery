@@ -59,6 +59,8 @@ public class PrepException extends MetatronException {
     static public PrepException create(ErrorCodes code, Exception e) {
         if (e instanceof PrepException) {
             return (PrepException) e;
+        } else if(e instanceof  TeddyException) {
+            return PrepException.fromTeddyException((TeddyException) e);
         } else {
             if (e.getMessage()!=null && e.getMessage().contains("jdbc:hive2")) {
                 StackTraceElement[] stackTraceElements = e.getStackTrace();
@@ -91,6 +93,7 @@ public class PrepException extends MetatronException {
         return new PrepException(code, messageKey.getMessageKey(), detail);
     }
 
+    // FIXME: convert all TeddyException into PrepException WITH the detail messages.
     static public PrepException fromTeddyException(TeddyException e) {
         if (e instanceof CannotCastFromException)
             return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_CANNOT_CAST_FROM);

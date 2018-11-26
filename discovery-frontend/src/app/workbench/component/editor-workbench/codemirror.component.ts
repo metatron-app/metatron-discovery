@@ -150,13 +150,41 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
     if (text === null || text === undefined) {
       text = '';
     }
+
+    const $scrollContainer = $('.CodeMirror-scroll');
+    const scrollHeight = $scrollContainer.scrollTop();
+
     let temp = text;
     const line:number = this.instance.doc.getCursor().line;
     const ch:number = this.instance.doc.getCursor().ch;
 
     const lines:any[] = this.getLines();
-    const beforeText:string = this.instance.doc.getRange({line:0,ch:0}, {line:line,ch:ch})
-    const afterText:string = this.instance.doc.getRange({line:line,ch:ch}, {line:lines.length,ch:0})
+    let beforeText:string = this.instance.doc.getRange({line:0,ch:0}, {line:line,ch:ch});
+    let afterText:string = this.instance.doc.getRange({line:line,ch:ch}, {line:lines.length,ch:0});
+
+    // 현재 커서 위치 이전 마지막 단어가 세이콜론이 아닐 경우, 현재 커서 위치 이후 세미콜론이 존재 할경우
+    if( beforeText.trim() != ''
+      && beforeText.trim().substr(beforeText.trim().length - 1) != ';'
+      && afterText.search(';') != -1 ){
+
+      let tempTextArr = afterText.split(';');
+
+      // 이전 내용 붙이기
+      beforeText += (tempTextArr[0] + ';' );
+
+      afterText = '';
+      for (let idx: number = 0; idx < tempTextArr.length; idx++) {
+        if( idx != 0 ){
+          if( idx == tempTextArr.length-1 ){
+            afterText += (tempTextArr[idx]);
+            break;
+          }
+          afterText += (tempTextArr[idx] + ';');
+        }
+      }
+
+    } // end if
+
 
     if(beforeText == '' ) {
       if(text.indexOf('\n') > -1) {
@@ -170,9 +198,48 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
       temp = beforeText + temp + afterText;
       this.writeValue(temp);
       if(text.indexOf('\n') > -1) {
-        this.instance.setCursor({ line: line + 1, ch: ch + text.length });
+        // this.instance.setCursor({ line: line + 1, ch: ch + text.length });
+        this.instance.setCursor({ line: beforeText.split('\n').length, ch: ch + text.length });
       }else {
         this.instance.setCursor({ line: line, ch: ch + text.length });
+      }
+    }
+    $scrollContainer.scrollTop(scrollHeight);
+    this.instance.focus();
+  }
+
+  /**
+   * insert column
+   * @param text
+   */
+  public insertColumn(text: string): void {
+    if (text === null || text === undefined) {
+      text = '';
+    }
+
+    let temp = text;
+    const line: number = this.instance.doc.getCursor().line;
+    const ch: number = this.instance.doc.getCursor().ch;
+
+    const lines: any[] = this.getLines();
+    let beforeText: string = this.instance.doc.getRange({line: 0, ch: 0}, {line: line, ch: ch});
+    let afterText: string = this.instance.doc.getRange({line: line, ch: ch}, {line: lines.length, ch: 0});
+
+    if (beforeText == '') {
+      if (text.indexOf('\n') > -1) {
+        temp = beforeText + temp.replace('\n', '') + afterText;
+      } else {
+        temp = beforeText + temp + afterText;
+      }
+      this.writeValue(temp);
+      this.instance.setCursor({line: line + 1, ch: ch + text.length});
+    } else {
+      temp = beforeText + temp + afterText;
+      this.writeValue(temp);
+      if (text.indexOf('\n') > -1) {
+        this.instance.setCursor({ line: line + 1, ch: ch + text.length });
+      } else {
+        this.instance.setCursor({line: line, ch: ch + text.length});
       }
     }
     this.instance.focus();

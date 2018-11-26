@@ -17,7 +17,7 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { DatasourceInfo, FieldFormatType } from '../../../../../domain/datasource/datasource';
+import { DatasourceInfo, FieldFormatType, IngestionRuleType } from '../../../../../domain/datasource/datasource';
 import { Alert } from '../../../../../common/util/alert.util';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { CommonUtil } from '../../../../../common/util/common.util';
@@ -227,15 +227,15 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
         // 워크스페이스 매핑
         this.datasourceService.addDatasourceWorkspaces(result.id, [workspace['id']])
           .then(() => {
-            // loading hide
-            this.loadingHide();
+            // link datasource detail (#505)
+            this.router.navigate(['/management/storage/datasource', result.id]);
             // close
             this.step = '';
             this.fileComplete.emit(this.step);
           })
           .catch(() => {
-            // loading hide
-            this.loadingHide();
+            // link datasource detail (#505)
+            this.router.navigate(['/management/storage/datasource', result.id]);
             // close
             this.step = '';
             this.fileComplete.emit(this.step);
@@ -269,6 +269,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       name: 'current_datetime',
       type: 'TIMESTAMP',
       role: 'TIMESTAMP',
+      derived: true,
       format: {
         type: FieldFormatType.TEMPORARY_TIME,
         format: 'yyyy-MM-dd HH:mm:ss'
@@ -284,21 +285,23 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
   private _deleteColumnProperty(column: any): void {
     delete column.biType;
     delete column.replaceFl;
-    // if removed property is false, delete removed property
-    if (column.removed === false) {
-      delete column.removed;
+    // if unloaded property is false, delete unloaded property
+    if (column.unloaded === false) {
+      delete column.unloaded;
     }
     // delete used UI
     delete column.isValidTimeFormat;
     delete column.isValidReplaceValue;
-    if (column.logicalType !== 'TIMESTAMP' && column.format) {
-      delete column.format;
-    } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {
-      delete column.format.format;
-    } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.DATE_TIME) {
-      delete column.format.unit;
+    // if not GEO types
+    if (column.logicalType.indexOf('GEO_') === -1) {
+      if (column.logicalType !== 'TIMESTAMP' && column.format) {
+        delete column.format;
+      } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {
+        delete column.format.format;
+      } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.DATE_TIME) {
+        delete column.format.unit;
+      }
     }
-
   }
 
   /**
@@ -312,9 +315,9 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       // ingestion type
       const type = column.ingestionRule.type;
       // if type is default
-      if (type === 'default') {
+      if (type === IngestionRuleType.DEFAULT) {
         delete column.ingestionRule;
-      } else if (type === 'discard') {
+      } else if (type === IngestionRuleType.DISCARD) {
         delete column.ingestionRule.value;
       }
     }

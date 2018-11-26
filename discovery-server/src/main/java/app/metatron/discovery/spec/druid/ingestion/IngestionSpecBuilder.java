@@ -14,24 +14,21 @@
 
 package app.metatron.discovery.spec.druid.ingestion;
 
-import com.google.common.collect.Maps;
+import org.apache.commons.collections.MapUtils;
 
 import java.util.List;
 import java.util.Map;
 
 import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.realtime.RealTimeProperties;
-import app.metatron.discovery.spec.druid.ingestion.firehose.Kafka80Firehose;
 import app.metatron.discovery.spec.druid.ingestion.firehose.LocalFirehose;
+import app.metatron.discovery.spec.druid.ingestion.index.IndexSpec;
 import app.metatron.discovery.spec.druid.ingestion.input.HadoopInputSpec;
 import app.metatron.discovery.spec.druid.ingestion.input.HiveInputSpec;
 import app.metatron.discovery.spec.druid.ingestion.io.BatchIoConfig;
 import app.metatron.discovery.spec.druid.ingestion.io.HadoopIoConfig;
 import app.metatron.discovery.spec.druid.ingestion.io.IoConfig;
-import app.metatron.discovery.spec.druid.ingestion.io.RealTimeIoConfig;
 import app.metatron.discovery.spec.druid.ingestion.tuning.BatchTuningConfig;
 import app.metatron.discovery.spec.druid.ingestion.tuning.HadoopTuningConfig;
-import app.metatron.discovery.spec.druid.ingestion.tuning.RealTimeTuningConfig;
 import app.metatron.discovery.spec.druid.ingestion.tuning.TuningConfig;
 
 /**
@@ -51,13 +48,10 @@ public class IngestionSpecBuilder extends AbstractSpecBuilder {
   }
 
   public IngestionSpecBuilder batchTuningConfig(Map<String, Object> tuningProperties) {
+
     tuningConfig = new BatchTuningConfig(tuningProperties);
 
-    return this;
-  }
-
-  public IngestionSpecBuilder realTimeTuningConfig(Map<String, Object> tuningProperties) {
-    tuningConfig = new RealTimeTuningConfig(tuningProperties);
+    addSecondaryIndexing();
 
     return this;
   }
@@ -68,6 +62,8 @@ public class IngestionSpecBuilder extends AbstractSpecBuilder {
 
     ((HadoopTuningConfig) tuningConfig).overrideConfig(tuningProperties, jobProperties);
 
+    addSecondaryIndexing();
+
     return this;
   }
 
@@ -77,29 +73,24 @@ public class IngestionSpecBuilder extends AbstractSpecBuilder {
 
     ((HadoopTuningConfig) tuningConfig).overrideConfig(tuningProperties, jobProperties);
 
+    addSecondaryIndexing();
+
     return this;
   }
 
-  public IngestionSpecBuilder kafkaIoConfig(RealTimeProperties realTimeProperties) {
+  private void addSecondaryIndexing() {
+    if(MapUtils.isEmpty(secondaryIndexing)) {
+      return;
+    }
 
-    Map<String, String> consumerProps = Maps.newHashMap();
-    consumerProps.put("zookeeper.connect", realTimeProperties.getZkConnectUrls());
-    consumerProps.put("zookeeper.session.timeout.ms", String.valueOf(realTimeProperties.getSessionTimeout()));
-    consumerProps.put("zookeeper.connection.timeout.ms", String.valueOf(realTimeProperties.getConnectionTimeout()));
-    consumerProps.put("zookeeper.sync.time.ms", "5000");
-    consumerProps.put("fetch.message.max.bytes", "1048586");
-    consumerProps.put("auto.offset.reset", "largest");
-    consumerProps.put("auto.commit.enable", "false");
-    consumerProps.put("group.id", "metatron-discovery");
-
-    Kafka80Firehose kafka80Firehose = new Kafka80Firehose(dataSchema.getDataSource(), consumerProps);
-
-    RealTimeIoConfig config = new RealTimeIoConfig();
-    config.setFirehose(kafka80Firehose);
-
-    ioConfig = config;
-
-    return this;
+    IndexSpec indexSpec = tuningConfig.getIndexSpec();
+    if(indexSpec == null) {
+      indexSpec = new IndexSpec();
+      indexSpec.setSecondaryIndexing(secondaryIndexing);
+      tuningConfig.setIndexSpec(indexSpec);
+    } else {
+      indexSpec.setSecondaryIndexing(secondaryIndexing);
+    }
   }
 
   public IngestionSpecBuilder localIoConfig(String baseDir, String filter) {
@@ -107,9 +98,6 @@ public class IngestionSpecBuilder extends AbstractSpecBuilder {
     LocalFirehose firehose = new LocalFirehose();
     firehose.setBaseDir(baseDir);
     firehose.setFilter(filter);
-
-    //    RealTimeIoConfig config = new RealTimeIoConfig();
-    //    config.setFirehose(firehose);
 
     BatchIoConfig config = new BatchIoConfig();
     config.setFirehose(firehose);

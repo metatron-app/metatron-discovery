@@ -175,9 +175,9 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       { command: 'sort', alias: 'So'},
       { command: 'move', alias: 'Mv'},
       { command: 'Union', alias: 'Ui'},
+      { command: 'window', alias: 'Wn'},
       { command: 'setformat', alias: 'Sf'}
     ];
-
     if (!isNullOrUndefined(this.selectedDataSet)) {
       this.setDataset(this.selectedDataSet);
     }
@@ -322,8 +322,13 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     let colCnt = '0';
 
     if( this.selectedDataSet && this.selectedDataSet.gridResponse && this.selectedDataSet.gridResponse.colCnt ) {
-      if(true==Number.isInteger(this.selectedDataSet.gridResponse.colCnt)) {
+      if(Number.isInteger(this.selectedDataSet.gridResponse.colCnt)) {
         colCnt = new Intl.NumberFormat().format(this.selectedDataSet.gridResponse.colCnt);
+        if (colCnt === '0' || colCnt === '1') {
+          colCnt = colCnt + ' column';
+        } else {
+          colCnt = colCnt + ' columns';
+        }
       }
     }
     return colCnt;
@@ -339,23 +344,30 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       } else {
         rows = new Intl.NumberFormat().format(this.selectedDataSet.totalLines);
         this.clearExistingInterval();
+        if (rows === '0' || rows === '1') {
+          rows = rows + ` row`;
+        } else {
+          rows = rows + ` rows`;
+        }
       }
     }
     return rows;
   }
 
   public get getHost() {
-    if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB ) {
-      return 'host from '+this.selectedDataSet['dcId'];
+    if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB && !isNullOrUndefined(this.selectedDataSet.connectionInfo['hostname'])) {
+      return this.selectedDataSet.connectionInfo['hostname'];
+    } else {
+      return null;
     }
-    return null;
   }
 
   public get getPort() {
-    if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB ) {
-      return 'port from '+this.selectedDataSet['dcId'];
+    if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB && !isNullOrUndefined(this.selectedDataSet.connectionInfo['port'])) {
+      return this.selectedDataSet.connectionInfo['port'];
+    } else {
+      return null;
     }
-    return null;
   }
 
   public get getDatabase() {
@@ -373,10 +385,10 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       return null;
     }
 
-    if( this.selectedDataSet['rsType'] && this.selectedDataSet['rsType']===RsType.TABLE ) {
-      return this.selectedDataSet['tableName'];
-    } else {
+    if(this.getHost === null && this.getPort === null) {
       return this.selectedDataSet['queryStmt'];
+    } else {
+      return this.selectedDataSet['tableName'];
     }
   }
 
@@ -424,7 +436,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    * @param {Dataset} selectedDatset
    */
   public getDatasetInfo(selectedDatset : Dataset) {
-    this.dataflowService.getDataset(selectedDatset.dsId).then((dataset: Dataset) => {
+    this.dataflowService.getDataset(selectedDatset.dsId).then((dataset: any) => {
       this.loadingHide();
 
       //this.previewData = dataset; //  preview 를 위한 데이터 저장
@@ -522,212 +534,28 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
         rule['command'] = this.commandList[idx].command;
         rule['alias'] = this.commandList[idx].alias;
         rule['desc'] = this.commandList[idx].desc;
-        rule['simplifiedRule'] = this.simplifyRule(rule['ruleVO'], rule.ruleString);
+
+        if (rule.shortRuleString) {
+          rule['simplifiedRule'] = rule.shortRuleString;
+        } else {
+          const ruleStr = PreparationCommonUtil.simplifyRule(rule['ruleVO'], this.selectedDataSet.gridResponse.slaveDsNameMap, rule.ruleString)
+          if (!isUndefined(ruleStr)) {
+            rule['simplifiedRule'] = ruleStr;
+          } else {
+            rule['simplifiedRule'] = rule.ruleString;
+          }
+        }
+
       } else {
         rule['command'] = 'Create';
         rule['alias'] = 'Cr';
-        rule['simplifiedRule'] = rule.ruleString;
+        rule['simplifiedRule'] = rule.shortRuleString ? rule.shortRuleString : rule.ruleString;
       }
 
       this.ruleList.push(rule);
     });
   }
 
-  /**
-   * Simplify complex written rules
-   * @param {any} rule
-   * @param {string} ruleString
-   * @returns {string}
-   */
-  public simplifyRule(rule : any , ruleString? : string) {
-
-    let result : string;
-    let column : string;
-
-    if (rule.col) {
-      if ('string' === typeof rule.col) {
-        column = rule.col;
-      } else if ('string' === typeof rule.col.value) {
-        column = rule.col.value;
-      } else if (rule.col.value.length === 2 ) {
-        column = rule.col.value.join(', ');
-      } else {
-        column = `${rule.col.value.length} columns`;
-      }
-    }
-
-    switch(rule.command) {
-      case 'header':
-        result = `Convert row${rule.rownum} to header`;
-        break;
-      case 'keep':
-        let row = ruleString.split(": ");
-        result = `Keep rows where ` + row[1];
-        break;
-      case 'rename':
-
-        let toString : string = '';
-        if ('string' === typeof rule.to.value) {
-          toString = ` to '${rule.to['escapedValue']}'`;
-        } else if ( rule.to.value.length === 2 ) {
-          toString = ` to ${rule.to['value'].join(', ')}`;
-        }
-        result = `Rename ${column}${toString}`;
-        break;
-      case 'nest' :
-        result = `Convert ${column} into ${rule.into}`;
-        break;
-      case 'setformat':
-        let fomatStr : string;
-        if ('string' === typeof rule.col.value) {
-          fomatStr = `${column} type`
-        } else if ( rule.col.value.length === 2 ) {
-          fomatStr = `${column} types`;
-        } else {
-          fomatStr = column;
-        }
-        result = `Set ${fomatStr} format to ${ rule.format }`;
-        break;
-      case 'settype':
-
-        let type : string;
-        if (rule.type === 'Long') {
-          type = 'Integer';
-        } else if (rule.type === 'Double') {
-          type = 'Float'
-        }
-
-        let columnStr : string;
-        if ('string' === typeof rule.col.value) {
-          columnStr = `${column} type`
-        } else if ( rule.col.value.length === 2 ) {
-          columnStr = `${column} types`;
-        } else {
-          columnStr = column;
-        }
-
-        result = `Change ${columnStr} to ${!isUndefined(type) ? type : rule.type }`;
-
-        break;
-      case 'delete':
-        const deleteCondition = ruleString.split('row: ');
-        result = `Delete rows where ${deleteCondition[1]}`;
-        break;
-      case 'set':
-        let rowString = ruleString.split("value: ");
-        result = `Set ${column} to ${rowString[1]}`;
-        break;
-      case 'split':
-        result = `Split ${rule.col} into ${rule.limit+1 > 1 ? rule.limit+1 + ' columns' : rule.limit+1 +' column'} on ${rule.on.value}`;
-        break;
-      case 'extract':
-        result = `Extract ${rule.on.value} ${rule.limit > 1 ? rule.limit + ' times' : rule.limit+' time'} from ${rule.col}`;
-        break;
-      case 'flatten':
-        result = `Convert arrays in ${rule.col} to rows`;
-        break;
-      case 'countpattern':
-        result = `Count occurrences of ${rule.on.value} in ${column}`;
-        break;
-      case 'sort':
-        if ('string' === typeof rule.order.value) {
-          result = `Sort row by ${rule.type && rule.type['escapedValue'] === 'desc' ? '-'+rule.order.value : rule.order.value}`;
-          break;
-        } else {
-          result = `Sort rows by ${rule.type && rule.type['escapedValue'] === 'desc' ? '-'+rule.order.value.toString() : rule.order.value.toString()}`;
-          break;
-        }
-      case 'replace':
-        result = `Replace ${rule.on.value} from `;
-        if('string' === typeof rule.col.value) {
-          result += `${rule.col.value} with ${rule.with['value']}`;
-        } else if(rule.col.value.length === 2) {
-          result += `${rule.col.value.join(', ')} with ${rule.with['value']}`;
-        } else {
-          result += column;
-        }
-        break;
-      case 'merge':
-        result = `Concatenate ${column} separated by ${rule.with}`;
-        break;
-      case 'aggregate':
-        result = `Aggregate with ${rule.value.escapedValue ? rule.value.escapedValue : rule.value.value.length + ' functions'} grouped by `;
-        if ('string' === typeof rule.group.value) {
-          result += `${rule.group.value}`
-        } else if ( rule.group.value.length === 2 ) {
-          result += `${rule.group.value.join(', ')}`
-        } else {
-          result += `${rule.group.value.length} columns`
-        }
-        break;
-      case 'move':
-        result = `Move ${column}`;
-        result += `${rule.before ? ' before ' + rule.before : ' after ' + rule.after }`;
-        break;
-      case 'unnest' :
-        result = `Create new columns from ${column}`;
-        break;
-      case 'Union':
-      case 'Join':
-        result = `${rule.command} with `;
-
-        let datasetIds = [];
-        if ( rule.dataset2.escapedValue ) {
-          datasetIds = [rule.dataset2.escapedValue]
-        } else {
-          rule.dataset2.value.forEach((item) => {
-            datasetIds.push(item.substring(1,item.length -1))
-          })
-        }
-
-        if (datasetIds.length === 1) {
-          result += `${this.selectedDataSet.gridResponse.slaveDsNameMap[datasetIds[0]]}`;
-        } else if (datasetIds.length === 2) {
-          result += `${this.selectedDataSet.gridResponse.slaveDsNameMap[datasetIds[0]]}, ${this.selectedDataSet.gridResponse.slaveDsNameMap[datasetIds[1]]}`;
-        } else {
-          result += `${datasetIds.length} datasets`;
-        }
-
-        break;
-      case 'derive':
-        let deriveCondition = ruleString.split('value: ');
-        deriveCondition = deriveCondition[1].split(' as: ');
-        result = `Create ${rule.as} from ${deriveCondition[0]}`;
-        break;
-      case 'pivot':
-        let formula = '';
-        if(rule.value.escapedValue) {
-          formula = rule.value.escapedValue
-        } else {
-          let list = [];
-          rule.value.value.forEach((item) =>{
-            list.push(item.substring(1,item.length -1));
-          });
-          formula = list.toString();
-        }
-        result = `Pivot ${column} and compute ${formula} grouped by`;
-
-        if ('string' === typeof rule.group.value || rule.group.value.length === 2) {
-          result += ` ${rule.group.value}`;
-        } else {
-          result += ` ${rule.group.value.length} columns`;
-        }
-        break;
-      case 'unpivot':
-        result = `Convert `;
-        if ('string' === typeof rule.col.value) {
-          result += `${rule.col.value} into row`;
-        } else if(rule.col.value.length > 1) {
-          result += `${column} into rows`;
-        }
-        break;
-      case 'drop':
-        result = `Drop ${column}`;
-        break;
-
-    }
-    return result
-  }
 
   /**
    * get names of sheet
@@ -872,6 +700,35 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     this.interval = undefined;
   }
 
+  public getDatasetType(type: ImportType, fileName : string) : string {
+
+    let result = '';
+    if (type === ImportType.FILE) {
+      let extension = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName)[1];
+      if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
+        result =  'EXCEL'
+      } else if (extension.toUpperCase() === 'CSV') {
+        result =  'CSV'
+      }
+    }
+
+    return result;
+  }
+
+  public getFileType(dsType:DsType, importType: ImportType, fileName : string) : string {
+
+    if (dsType === DsType.WRANGLED) {
+      return 'WRANGLED';
+    } else {
+      if (importType === ImportType.FILE) {
+        return `${importType} (${this.getDatasetType(importType,fileName)})`;
+      } else {
+        return `${importType === ImportType.HIVE ? 'Staging DB' : importType}`;
+      }
+    }
+
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1010,4 +867,3 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
 
 }
-

@@ -47,5 +47,7 @@ export class QueryHistory extends AbstractHistoryEntity {
 export enum QueryResultStatus {
   SUCCESS = <any>'SUCCESS',
   FAIL = <any>'FAIL',
-  ALL = <any>'ALL'
+  CANCELLED = <any>'CANCELLED',
+  RUNNING = <any>'RUNNING',
+  ALL = <any>'ALL',
 }

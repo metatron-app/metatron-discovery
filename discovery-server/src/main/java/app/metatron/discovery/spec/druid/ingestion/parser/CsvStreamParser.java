@@ -21,26 +21,28 @@ import java.util.List;
 public class CsvStreamParser implements Parser {
 
   TimestampSpec timestampSpec;
+
   DimensionsSpec dimensionsSpec;
+
   List<String> columns;
+
   String delimiter;
+
   Character quoteCharacter;
+
   Character escapeCharacter;
+
   String recordSeparator;
+
   String nullString;
+
   Boolean skipHeaderRecord;
+
   Boolean ignoreSurroundingSpaces;
+
   Boolean ignoreHeaderCase;
+
   String charset;
-  String type;
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
 
   public CsvStreamParser() {
   }

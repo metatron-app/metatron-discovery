@@ -59,6 +59,7 @@
               [isUpSelect]="false"
               [isFull]="true"
               [viewKey]="'label'"
+              [defaultIndex]="fileLocationDefaultIdx"
               (onSelected)="onSelected($event,'location')"
             >
             </component-select>
@@ -73,8 +74,7 @@
               [isUpSelect]="false"
               [viewKey]="'label'"
               [isFull]="true"
-              (onSelected)="onSelected($event,'format')"
-            >
+              (onSelected)="onSelected($event,'format')">
             </component-select>
             <!-- //selectbox -->
             <!-- //edit option -->

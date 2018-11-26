@@ -56,10 +56,11 @@ public class PieChart extends Chart {
                   @JsonProperty("fontSize") String fontSize,
                   @JsonProperty("dataLabel") ChartDataLabel dataLabel,
                   @JsonProperty("toolTip") ChartToolTip toolTip,
+                  @JsonProperty("limit") Integer limit,
                   @JsonProperty("markType") String markType,
                   @JsonProperty("layout") String splitLayout,
                   @JsonProperty("maxCategory") Integer maxCategory) {
-    super(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip);
+    super(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip, limit);
     this.markType = EnumUtils.getUpperCaseEnum(MarkType.class, markType, MarkType.SECTOR);
     this.splitLayout = EnumUtils.getUpperCaseEnum(SplitLayout.class, splitLayout, SplitLayout.VERTICAL);
     this.maxCategory = maxCategory;

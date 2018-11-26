@@ -20,6 +20,7 @@ import com.google.common.collect.Maps;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.common.fileloader.FileLoaderFactory;
 import app.metatron.discovery.common.fileloader.FileLoaderProperties;
 import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.DataSourceIngetionException;
+import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.datasource.DataSourceTemporary;
 import app.metatron.discovery.domain.datasource.DataSourceTemporaryRepository;
@@ -191,12 +192,12 @@ public class EngineLoadService {
                         dataSource.getFields(), filters, maxRow);
       } catch (Exception e) {
         sendTopic(sendTopicUri, new ProgressResponse(-1, "FAIL_TO_LOAD_LINK_DATASOURCE"));
-        throw new DataSourceIngetionException("Fail to create temporary file : " + e.getMessage());
+        throw new DataSourceIngestionException("Fail to create temporary file : " + e.getMessage());
       }
 
       if (CollectionUtils.isEmpty(tempResultFile)) {
         sendTopic(sendTopicUri, new ProgressResponse(-1, "FAIL_TO_LOAD_LINK_DATASOURCE"));
-        throw new DataSourceIngetionException("Fail to create temporary file ");
+        throw new DataSourceIngestionException("Fail to create temporary file ");
       }
 
       tempFile = tempResultFile.get(0);
@@ -231,7 +232,7 @@ public class EngineLoadService {
 
     LOGGER.info("Start to load to druid, async: {}, Spec: {}", async, specStr);
     Map<String, Object> result = engineRepository.load(specStr, paramMap, Map.class)
-                                                 .orElseThrow(() -> new DataSourceIngetionException("Result empty"));
+                                                 .orElseThrow(() -> new DataSourceIngestionException("Result empty"));
 
     LOGGER.info("Successfully load. Result is ", result);
 

@@ -3,6 +3,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -24,6 +38,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.BatchSize;
@@ -38,10 +53,15 @@ import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.BooleanBridge;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.validator.constraints.NotBlank;
+import org.joda.time.DateTime;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import javax.persistence.*;
@@ -188,6 +208,14 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   Boolean published;
 
   /**
+   * Whether to include Geo Column.
+   */
+  @Column(name = "ds_include_geo")
+  @org.hibernate.search.annotations.Field(analyze = Analyze.NO, store = Store.YES)
+  @FieldBridge(impl = BooleanBridge.class)
+  Boolean includeGeo;
+
+  /**
    * 연결된 workspace 개수
    */
   @Column(name = "ds_linked_workspaces")
@@ -244,8 +272,14 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   @FieldBridge(impl = BooleanBridge.class)
   Boolean fieldsMatched;
 
-  @Transient
-  String lookUpFileName;
+  /**
+   * Spring data rest 제약으로 인한 Dummy Property. - Transient 어노테이션 구성시 HandleBeforeSave 에서 인식 못하는 문제
+   * 발생
+   */
+  @Column(name = "datasource_contexts", length = 10000)
+  @JsonRawValue
+  @JsonDeserialize(using = KeepAsJsonDeserialzier.class)
+  String contexts;
 
   @Transient
   IngestionHistory history;
@@ -257,16 +291,6 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   @JsonIgnore
   IngestionInfo ingestionInfo;
 
-  /**
-   * Spring data rest 제약으로 인한 Dummy Property.
-   *  - Transient 어노테이션 구성시 HandleBeforeSave 에서 인식 못하는 문제 발생
-   */
-  @Column(name = "datasource_contexts", length = 10000)
-  @JsonRawValue
-  @JsonDeserialize(using = KeepAsJsonDeserialzier.class)
-  String contexts;
-
-
   public DataSource() {
   }
 
@@ -276,6 +300,20 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
     for (Field field : fields) {
       this.addField(field);
     }
+  }
+
+  @PreUpdate
+  @Override
+  public void preUpdate() {
+
+    String modifiedUsername = AuthUtils.getAuthUserName();
+    if ("unknown".equals(modifiedUsername)) {
+      // Considered to be processed by the system, skip update history info.
+      return;
+    }
+
+    modifiedBy = modifiedUsername;
+    modifiedTime = DateTime.now();
   }
 
   public void addField(Field field) {
@@ -292,6 +330,29 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
     }
 
     this.dashBoards.add(dashBoard);
+  }
+
+  public void excludeUnloadedField() {
+    if (CollectionUtils.isEmpty(this.fields)) {
+      return;
+    }
+
+    fields = fields.stream()
+                   .filter(field -> BooleanUtils.isNotTrue(field.getUnloaded()))
+                   .collect(Collectors.toList());
+  }
+
+  /**
+   * Used in Projection
+   */
+  public List<Field> findUnloadedField() {
+    if (CollectionUtils.isEmpty(this.fields)) {
+      return Lists.newArrayList();
+    }
+
+    return fields.stream()
+                 .filter(field -> BooleanUtils.isNotTrue(field.getUnloaded()))
+                 .collect(Collectors.toList());
   }
 
   @JsonIgnore
@@ -335,6 +396,16 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
 
     return null;
 
+  }
+
+  @JsonIgnore
+  public boolean existGeoField() {
+
+    long timeFieldCnt = getFields().stream()
+                                   .filter(field -> field.isGeoType())
+                                   .count();
+
+    return timeFieldCnt > 0;
   }
 
   /**
@@ -447,12 +518,12 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   }
 
   public Boolean rollup() {
-    if(StringUtils.isEmpty(ingestion)) {
+    if (StringUtils.isEmpty(ingestion)) {
       return false;
     }
 
     IngestionInfo ingestionInfo = getIngestionInfo();
-    if(ingestionInfo == null) {
+    if (ingestionInfo == null) {
       return false;
     }
 
@@ -484,7 +555,7 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   @JsonIgnore
   public <T extends IngestionInfo> T getIngestionInfoByType() {
 
-    if(ingestion == null) {
+    if (ingestion == null) {
       return null;
     }
 
@@ -501,22 +572,22 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   }
 
   @JsonIgnore
-  public DataConnection getJdbcConnectionForIngestion(){
+  public DataConnection getJdbcConnectionForIngestion() {
 
     JdbcIngestionInfo jdbcInfo = this.getIngestionInfoByType();
 
     DataConnection jdbcConnection = Preconditions.checkNotNull(this.getConnection() == null ?
-                    jdbcInfo.getConnection() : this.getConnection(),
-            "Required connection info.");
+                                                                   jdbcInfo.getConnection() : this.getConnection(),
+                                                               "Required connection info.");
 
-    if(jdbcConnection.getAuthenticationType() == DataConnection.AuthenticationType.USERINFO){
+    if (jdbcConnection.getAuthenticationType() == DataConnection.AuthenticationType.USERINFO) {
       //username priority : AuthUtils.getAuthUserName() > this.getCreatedBy()
       String dataSourceUsername = AuthUtils.getAuthUserName().equals("unknown")
-              ? this.getCreatedBy()
-              : AuthUtils.getAuthUserName();
+          ? this.getCreatedBy()
+          : AuthUtils.getAuthUserName();
 
       jdbcConnection.setUsername(dataSourceUsername);
-    } else if(jdbcConnection.getAuthenticationType() == DataConnection.AuthenticationType.DIALOG){
+    } else if (jdbcConnection.getAuthenticationType() == DataConnection.AuthenticationType.DIALOG) {
       jdbcConnection.setUsername(jdbcInfo.getConnectionUsername());
       jdbcConnection.setPassword(jdbcInfo.getConnectionPassword());
     }
@@ -547,7 +618,7 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
 
   @Override
   public Map<String, String> getContextMap() {
-    if(StringUtils.isEmpty(this.contexts)) {
+    if (StringUtils.isEmpty(this.contexts)) {
       return null;
     }
 
@@ -711,12 +782,12 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
     this.published = published;
   }
 
-  public String getLookUpFileName() {
-    return lookUpFileName;
+  public Boolean getIncludeGeo() {
+    return includeGeo;
   }
 
-  public void setLookUpFileName(String lookUpFileName) {
-    this.lookUpFileName = lookUpFileName;
+  public void setIncludeGeo(Boolean includeGeo) {
+    this.includeGeo = includeGeo;
   }
 
   public DataConnection getConnection() {
@@ -788,29 +859,29 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   }
 
   public boolean isFieldMatchedByNames(final List<String> matchingFieldNames) {
-    if(this.getFields() == null || this.getFields().isEmpty()) {
+    if (this.getFields() == null || this.getFields().isEmpty()) {
       return false;
     }
 
     final List<String> fieldNames = this.getFields().stream()
-        .filter(field -> field.getRole() != Field.FieldRole.TIMESTAMP)
-        .map(field -> field.getName())
-        .collect(Collectors.toList());
+                                        .filter(field -> field.getRole() != Field.FieldRole.TIMESTAMP)
+                                        .map(field -> field.getName())
+                                        .collect(Collectors.toList());
 
     return fieldNames.containsAll(matchingFieldNames);
   }
 
   public void synchronizeFields(List<Field> candidateFields) {
     final List<String> fieldNames = this.getFields().stream()
-        .filter(field -> field.getRole() != Field.FieldRole.TIMESTAMP)
-        .map(field -> field.getName())
-        .collect(Collectors.toList());
+                                        .filter(field -> field.getRole() != Field.FieldRole.TIMESTAMP)
+                                        .map(field -> field.getName())
+                                        .collect(Collectors.toList());
 
     long lastFieldSeq = getLastFieldSeq();
     long nextSeq = lastFieldSeq + 1;
 
     for (Field candidateField : candidateFields) {
-      if(fieldNames.contains(candidateField.getName()) == false) {
+      if (fieldNames.contains(candidateField.getName()) == false) {
         candidateField.setSeq(nextSeq);
         this.addField(candidateField);
         nextSeq++;
@@ -822,7 +893,7 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
 
   private long getLastFieldSeq() {
     Field lastField = this.getFields().stream().sorted(Comparator.comparing(Field::getSeq)).reduce((first, second) -> second).orElse(null);
-    if(lastField == null) {
+    if (lastField == null) {
       return 0l;
     } else {
       return lastField.getSeq().longValue();

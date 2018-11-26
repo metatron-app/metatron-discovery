@@ -407,7 +407,7 @@
   </div>
   <!-- // Dashboard navigation -->
 
-  <div class="ddp-ui-dash-contents" [class.ddp-close]="isCloseDashboardList" >
+  <div class="ddp-ui-dash-contents page-dashboard" [class.ddp-close]="isCloseDashboardList" >
 
     <!-- 대시보드 없음 -->
     <div class="ddp-box-data-none" *ngIf="mode === 'NO_DATA'" >
@@ -467,7 +467,8 @@
       </div>
     </div>
     <!-- //board buttons -->
-    <app-dashboard [isManagementUser]="isChangeAuthUser" [dashboard]="selectedDashboard" ></app-dashboard>
+    <app-dashboard [isManagementUser]="isChangeAuthUser" [dashboard]="selectedDashboard"
+                   (dashboardEvent)="onDashboardEvent($event)" ></app-dashboard>
   </div>
 
 </div>

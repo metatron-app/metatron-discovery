@@ -1,0 +1,179 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents2" *ngIf="dataset">
+  <!-- top -->
+  <div class="ddp-top-flow">
+    <!-- navi wrap -->
+    <div class="ddp-top-flow">
+      <!-- 수정 data -->
+      <div class="ddp-data-form">
+      <span class="ddp-txt-date">
+      {{'msg.common.ui.updated' | translate: { modifiedTime : dataset.modifiedTime | mdate:'YYYY-MM-DD HH:mm', fullName : dataset.modifiedBy } }}
+      </span>
+        <a href="javascript:" class="ddp-btn-info" (click)="showOption($event);" [class.ddp-selected]="isDatasetOptionShow"><em class="ddp-icon-myinfo"></em></a>
+        <div class="ddp-data-box" *ngIf="isDatasetOptionShow" (clickOutside)="hideOption();">
+
+          <a href="javascript:" class="ddp-list-link" (click)="confirmDelete($event,dataset)"><em class="ddp-icon-delete"></em>{{'msg.dp.ui.ds.del' | translate}}</a>
+          <a href="javascript:" class="ddp-list-link" *ngIf="'WRANGLED' === dataset.dsType.toString()" (click)="createSnapshot()"><em class="ddp-icon-create"></em>{{'msg.dp.ui.create.ss' | translate }}</a>
+          <span class="ddp-data-by">
+          {{'msg.common.ui.created' | translate: { createdTime : dataset.createdTime | mdate:'YYYY-MM-DD HH:mm', fullName :dataset.createdBy } }}
+        </span>
+        </div>
+      </div>
+      <!-- //수정 data -->
+      <!-- navi wrap -->
+      <div class="ddp-wrap-navi">
+        <a href="javascript:" class="ddp-btn-back" (click)="close();"></a>
+        <!-- navi -->
+        <div class="ddp-ui-naviarea">
+          <!-- name -->
+          <!-- 클릭시 ddp-selected 추가 -->
+          <div class="ddp-box-navi" [ngClass]="{'ddp-selected': isDatasetNameEditMode}">
+            <div class="ddp-wrap-naviname" (click)="!isDatasetNameEditMode ? onDatasetNameEdit($event):$event.stopPropagation();">
+            <span class="ddp-data-naviname">{{datasetName}}
+              <em class="ddp-icon-edit2"></em>
+            </span>
+            </div>
+            <!-- 편집 input -->
+            <div class="ddp-wrap-input">
+              <input class="ddp-input-navi" #dsName maxlength="50"
+                     placeholder="{{'msg.comm.ui.create.name' | translate}}"
+                     [(ngModel)]="datasetName"
+                     (keyup.enter)="isDatasetNameEditMode? updateDataset() : null;"
+                     (clickOutside)="isDatasetNameEditMode? setDatasetName() : null;">
+              <span class="ddp-btn-check" (click)="$event.stopPropagation();updateDataset();"></span>
+            </div>
+            <!-- //편집 input -->
+          </div>
+          <!-- //name -->
+
+          <!-- description -->
+          <!-- 클릭시 ddp-selected 추가 -->
+          <div class="ddp-box-navidet" [ngClass]="{'ddp-selected': isDatasetDescEditMode}">
+            <div class="ddp-wrap-navidet" (click)="!isDatasetDescEditMode? onDatasetDescEdit($event) : $event.stopPropagation();">
+            <span class="ddp-data-navidet">{{datasetDesc || 'msg.comm.ui.create.desc' | translate}}
+              <em class="ddp-icon-edit2"></em>
+            </span>
+            </div>
+            <!-- 편집 input -->
+            <div class="ddp-wrap-input">
+              <input class="ddp-input-navi" #dsDesc maxlength="150"
+                     placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+                     [(ngModel)]="datasetDesc"
+                     (keyup.enter)="isDatasetDescEditMode ? updateDataset() : null;"
+                     (clickOutside)="isDatasetDescEditMode? setDatasetDescription() : null">
+              <span class="ddp-btn-check" (click)="$event.stopPropagation();updateDataset();"></span>
+            </div>
+            <!-- //편집 input -->
+          </div>
+          <!-- //description -->
+        </div>
+        <!-- //navi -->
+
+      </div>
+      <!-- //navi wrap -->
+
+
+    </div>
+    <!-- //navi wrap -->
+
+
+  </div>
+  <!-- //top -->
+
+  <div class="ddp-wrap-datadetail ddp-type">
+    <!-- left -->
+    <div class="ddp-info-left">
+      <!-- datadetail -->
+      <div class="ddp-ui-datadetail">
+        <label class="ddp-label-detail">{{ 'msg.comm.ui.info' | translate }}</label>
+        <table class="ddp-table-detail">
+          <colgroup>
+            <col width="92px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <tr *ngFor="let item of datasetInformationList">
+            <th>
+              {{item.name}}
+            </th>
+            <td>
+              {{item.value}}
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- //datadetail -->
+    </div>
+    <!-- //left -->
+    <!-- right -->
+    <div class="ddp-info-right">
+      <!-- datadetail -->
+      <div class="ddp-ui-datadetail">
+        <label class="ddp-label-detail">{{'msg.dp.th.data' | translate}}</label>
+        <div class="ddp-form-box">
+          <div class="ddp-ui-grid-form" grid-component style="height:100%; width:100%"></div>
+        </div>
+      </div>
+      <!-- //datadetail -->
+      <!-- datadetail -->
+      <div class="ddp-ui-datadetail">
+        <label class="ddp-label-detail">
+          {{'msg.comm.th.used' | translate}}
+          <div class="ddp-fright">
+            <a href="javascript:" class="ddp-btn-line" (click)="addToExistingFlow()"><em class="ddp-icon-add"></em>{{'msg.dp.ui.add.existing.dataflow' | translate}}</a>
+            <a href="javascript:" class="ddp-btn-selection ddp-gray" (click)="createNewFlow()" *ngIf="dataset.importType"><em class="ddp-icon-view"></em>{{'msg.dp.btn.create.dataflow.dataset' | translate}}</a>
+          </div>
+        </label>
+        <div class="ddp-data-none" *ngIf="dataset.dataflows && dataset.dataflows.length === 0">{{'msg.dp.ui.no-use' | translate }}</div>
+        <ul class="ddp-list-detail ddp-cursor" *ngIf="dataset.dataflows && dataset.dataflows.length > 0">
+          <li *ngFor="let item of dataset.dataflows; let index = index" (click)="navigateToDataflow(item)">
+            <span class="ddp-box-tag2" *ngIf="index === 0">{{ 'msg.dp.ui.created.in' | translate }}</span>
+
+            <!-- data -->
+            <div class="ddp-wrap-detailinfo">
+              <div class="ddp-wrap-detaildata">
+                <span class="ddp-data-num"><em class="ddp-icon-dbdata-s"></em>{{item.wrangledDsCount}}+</span>
+                <span class="ddp-data-num"><em class="ddp-icon-imported-s"></em>{{item.importedDsCount}}+</span>
+              </div>
+
+              <div class="ddp-data-by2">
+                {{'msg.common.ui.updated' | translate: { modifiedTime : item.modifiedTime | mdate:'YYYY-MM-DD HH:mm', fullName : item.modifiedBy } }}
+              </div>
+            </div>
+            <!-- //data -->
+            <!-- 플로우 설명 이름 -->
+            <div class="ddp-wrap-detailname">
+              <span class="ddp-data-detailname">{{item.dfName}}</span> <span class="ddp-data-summary" *ngIf="item.dfDesc">- {{item.dfDesc}}</span>
+            </div>
+            <!-- //플로우 설명 이름 -->
+          </li>
+        </ul>
+      </div>
+      <!-- //datadetail -->
+    </div>
+    <!-- //right -->
+  </div>
+</div>
+<app-delete-modal (deleteConfirm)="deleteDataset()"></app-delete-modal>
+<create-snapshot-popup (snapshotCreateFinishEvent)="snapshotCreateFinish($event)"></create-snapshot-popup>
+<snapshot-loading></snapshot-loading>
+<app-add-dataset-dataflow *ngIf="isSelectDataflowOpen"
+                          (close)="closeSelectDataflow($event)"
+                          [datasetName]="dataset.dsName"
+                          [datasetId]="dataset.dsId"
+                          [dfStr]="dfStr">
+</app-add-dataset-dataflow>

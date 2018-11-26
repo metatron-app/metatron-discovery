@@ -3,6 +3,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -60,9 +74,10 @@ import app.metatron.discovery.domain.datasource.data.DataQueryController;
 import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
 import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
 import app.metatron.discovery.domain.datasource.data.SummaryQueryRequest;
+import app.metatron.discovery.domain.datasource.data.result.ChartResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.GraphResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
-import app.metatron.discovery.domain.engine.model.SegmentMetaData;
+import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.Sort;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
@@ -79,6 +94,10 @@ import app.metatron.discovery.query.druid.queries.*;
 
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 import static app.metatron.discovery.domain.datasource.DataSourceQueryHistory.EngineQueryType.*;
+import static app.metatron.discovery.query.druid.meta.AnalysisType.CARDINALITY;
+import static app.metatron.discovery.query.druid.meta.AnalysisType.INGESTED_NUMROW;
+import static app.metatron.discovery.query.druid.meta.AnalysisType.QUERYGRANULARITY;
+import static app.metatron.discovery.query.druid.meta.AnalysisType.SERIALIZED_SIZE;
 
 /**
  * Created by kyungtaak on 2016. 8. 25..
@@ -147,17 +166,21 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
     DataSource metaDataSource = request.getDataSource().getMetaDataSource();
     List<Filter> filters = request.getFilters();
 
-    // 필수 필터, 체크 Preview 모드일 경우 필수 필터 체크 안함
+    // Do not check essential filter in Preview mode
     if (BooleanUtils.isFalse(request.getPreview())) {
       checkRequriedFilter(metaDataSource, filters, request.getProjections());
     }
 
-    // GraphResultFormat 타입인 경우, 별도 처리
+    // If necessary, pre-handle the request object in case of ChartResultFormat
+    if(request.getResultFormat() instanceof ChartResultFormat) {
+      ((ChartResultFormat) request.getResultFormat()).preHandling();
+    }
+
+    // If GraphResultFormat, handle it separately.
     if (request.getResultFormat() instanceof GraphResultFormat) {
 
       GraphResultFormat graphResultFormat = (GraphResultFormat) request.getResultFormat();
 
-      // 결과 값
       ObjectNode objectNode = GlobalObjectMapper.getDefaultMapper().createObjectNode();
 
       List<app.metatron.discovery.domain.workbook.configurations.field.Field> fields = request.getProjections();
@@ -178,7 +201,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
       SearchQueryRequest sizeRequest = request.copyOf();
       final List<List<String>> groupingSets = Lists.newArrayList();
       dimFields.forEach(field ->
-        groupingSets.add(Lists.newArrayList(field.getAlias()))
+                            groupingSets.add(Lists.newArrayList(field.getAlias()))
       );
       sizeRequest.setGroupingSets(groupingSets);
       sizeRequest.setResultFormat(new ObjectResultFormat());
@@ -212,7 +235,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
         newRequest.addUserDefinedFields(new ExpressionField("targetField", "'" + originalFieldName + "'", "dimension"));
         newProjection.add(new DimensionField("targetField", "targetField", UserDefinedField.REF_NAME, null));
 
-        if(BooleanUtils.isTrue(graphResultFormat.getUseLinkCount())) {
+        if (BooleanUtils.isTrue(graphResultFormat.getUseLinkCount())) {
           measureField.setAggregationType(MeasureField.AggregationType.COUNT);
         }
         newProjection.add(measureField);
@@ -230,7 +253,6 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
       return request.getResultFormat().makeResult(objectNode);
     }
 
-    // FIXME: Query 쪽 공통화 필요
     stopWatch.start("Query Generation Time");
     Query query;
     if (checkSelectQuery(request.getProjections(), request.getUserFields())) {
@@ -244,6 +266,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
             .forward(request.getResultForward())
             .build();
       } else {
+
         QueryHistoryTeller.setEngineQueryType(SELECT); // for history
         query = SelectQuery.builder(request.getDataSource())
                            .initVirtualColumns(request.getUserFields())
@@ -254,6 +277,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
                            .build();
       }
     } else {
+
       QueryHistoryTeller.setEngineQueryType(GROUPBY); // for history
       query = GroupByQuery.builder(request.getDataSource())
                           .initVirtualColumns(request.getUserFields())
@@ -265,6 +289,14 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
                           .forward(request.getResultForward())
                           .format(request.getResultFormat())
                           .build();
+
+      if(request.getMetaQuery()) {
+        QueryHistoryTeller.setEngineQueryType(GROUPBYMETA);// for history
+        query = new GroupByMetaQuery(query);
+
+        // force result format to be assigned
+        request.setResultFormat(new ObjectResultFormat(ENGINE));
+      }
     }
     String queryString = GlobalObjectMapper.writeValueAsString(query);
     stopWatch.stop();
@@ -574,14 +606,19 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
   }
 
 
-  public SegmentMetaData segmentMetadata(String dataSourceName) {
+  public SegmentMetaDataResponse segmentMetadata(String dataSourceName, AnalysisType... types) {
     Preconditions.checkNotNull(dataSourceName, "DataSource name required.");
 
+    List<AnalysisType> analysisTypes;
+
+    if (types == null || types.length == 0) {
+      analysisTypes = Lists.newArrayList(CARDINALITY, INGESTED_NUMROW, SERIALIZED_SIZE, QUERYGRANULARITY);
+    } else {
+      analysisTypes = Lists.newArrayList(types);
+    }
+
     SegmentMetaDataQuery query = new SegmentMetaDataQueryBuilder(new DefaultDataSource(dataSourceName))
-        .types(AnalysisType.CARDINALITY.name(),
-               AnalysisType.INGESTED_NUMROW.name(),
-               AnalysisType.SERIALIZED_SIZE.name(),
-               AnalysisType.QUERYGRANULARITY.name())
+        .types(analysisTypes)
         .merge(true)
         .build();
 
@@ -591,9 +628,9 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
     String result = engineRepository.query(queryString, String.class).orElseThrow(
         () -> new ResourceNotFoundException(dataSourceName));
 
-    List<SegmentMetaData> metaData = null;
+    List<SegmentMetaDataResponse> metaData = null;
     try {
-      metaData = GlobalObjectMapper.getDefaultMapper().readValue(result, new TypeReference<List<SegmentMetaData>>() {});
+      metaData = GlobalObjectMapper.getDefaultMapper().readValue(result, new TypeReference<List<SegmentMetaDataResponse>>() {});
     } catch (IOException e) {
       LOGGER.error("Result is not matched : {}", e.getMessage());
       throw new QueryTimeExcetpion("Result is not matched : " + e.getMessage());

@@ -28,6 +28,7 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { isUndefined } from "util";
 import { RuleConditionInputComponent } from './rule-condition-input.component';
 import * as _ from 'lodash';
+import {PreparationCommonUtil} from "../../../../../util/preparation-common.util";
 
 @Component({
   selector : 'edit-rule-delete',
@@ -131,8 +132,9 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
    * 수식 입력 팝업 오픈
    * @param {string} command 수식 입력 실행 커맨드
    */
-  public openPopupFormulaInput(command: string) {
-    this.advancedEditorClickEvent.emit();
+  public openPopupFormulaInput() {
+    this.rowNum = this.ruleConditionInputComponent.getCondition();
+    this.advancedEditorClickEvent.emit({command :'delete', val : 'rowNum' });
   } // function - openPopupFormulaInput
 
 
@@ -154,12 +156,17 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   } // function - _afterShowComp
 
   /**
-   * rule string 을 분석한다.
-   * @param ruleString
+   * parse rule string
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
-    // this.rowNum = this.getAttrValueInRuleString( 'row', ruleString );
-    this.rowNum = ruleString.split('row: ')[1];
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+
+    let targetStr  = data.ruleString.split('delete ')[1];
+    let regex = /(row *: {1})/gi;
+
+    const ruleStr = PreparationCommonUtil.getRuleString(targetStr, regex);
+    this.rowNum = ruleStr['row: '];
+
   } // function - _parsingRuleString
 
 }

@@ -17,7 +17,7 @@ import {
 } from '@angular/core';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { isUndefined } from "util";
+import {isNullOrUndefined, isUndefined} from "util";
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
@@ -116,9 +116,17 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
         Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
         return undefined
       }
+
+      let deriveAs : string  = '';
+      if (this.deriveAs.indexOf(' ') === -1) {
+        deriveAs = `'${this.deriveAs}'`;
+      } else {
+        deriveAs = '`' +this.deriveAs + '`';
+      }
+
       return {
         command: 'derive',
-        ruleString: 'derive value: ' + val + ' as: ' + '\'' + this.deriveAs + '\''
+        ruleString: 'derive value: ' + val + ' as: ' + deriveAs
       }
     } else {
       return undefined;
@@ -130,11 +138,11 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 수식 입력 팝업 오픈
-   * @param {string} command 수식 입력 실행 커맨드
+`   * Open advanced editor popup
    */
-  public openPopupFormulaInput(command: string) {
-    this.advancedEditorClickEvent.emit();
+  public openPopupFormulaInput() {
+    this.deriveVal = this.ruleConditionInputComponent.getCondition();
+    this.advancedEditorClickEvent.emit({command :'derive', val : 'deriveVal' });
   } // function - openPopupFormulaInput
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -152,21 +160,28 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    * @protected
    */
   protected afterShowComp() {
-    this.deriveAs = 'col_1';
+
+    if (this.deriveAs === '' || isNullOrUndefined(this.deriveAs)) {
+      this.deriveAs = 'col_1';
+    }
   } // function - afterShowComp
 
   /**
-   * rule string 을 분석한다.
-   * @param ruleString
+   * parse rule string
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
-    // value
-    // this.deriveVal = this.getAttrValueInRuleString( 'value', ruleString );
-    this.deriveVal = ruleString.split('value: ')[1];
-    this.deriveVal = this.deriveVal.split(' as: ')[0];
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    // as
-    this.deriveAs = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'as', ruleString ));
+    // EXPRESSION
+    let val = data.ruleString.split('value: ')[1];
+    this.deriveVal = val.split(' as: ')[0];
+    // this.deriveVal = data.jsonRuleString.value.value;
+
+
+    // NEW COLUMN NAME
+    this.deriveAs = data.jsonRuleString.as;
+    this.deriveAs = PreparationCommonUtil.removeQuotation(this.deriveAs);
+
   } // function - parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

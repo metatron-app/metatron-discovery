@@ -20,7 +20,9 @@ import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
-import { isUndefined } from "util";
+import {isNullOrUndefined, isUndefined} from "util";
+import {PreparationCommonUtil} from "../../../../../util/preparation-common.util";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'edit-rule-nest',
@@ -110,8 +112,17 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
       return undefined;
     }
+    if (inputVal.indexOf(' ') !== -1) {
+      inputVal = '`' + inputVal + '`';
+    }
 
-    const columnsStr: string = this.selectedFields.map( item => item.name ).join(', ');
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
+      if (-1 !== item.name.indexOf(' ')) {
+        item.name = '`' + item.name + '`';
+      }
+      return item.name
+    }).join(', ');
+
     return {
       command: 'nest',
       col: columnsStr,
@@ -151,29 +162,34 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
    * @protected
    */
   protected afterShowComp() {
-    if (this.selectedFields.length > 0) {
-      this.inputValue = this.selectedFields[0].name + '_1';
+
+    if (this.inputValue === '' || isNullOrUndefined(this.inputValue)) {
+      if (this.selectedFields.length > 0) {
+        this.inputValue = this.selectedFields[0].name + '_1';
+      }
     }
   } // function - _afterShowComp
 
   /**
    * rule string 을 분석한다.
-   * @param ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
-    }
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+    // COLUMN
+    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-    this.selectedType = this.getAttrValueInRuleString( 'into', ruleString );
+    // TYPE
+    this.selectedType = data.jsonRuleString.into;
     if (this.selectedType.toUpperCase() === 'ARRAY') {
       this.defaultIndex = 1;
     } else {
       this.defaultIndex = 0;
     }
-    this.inputValue = this.getAttrValueInRuleString( 'as', ruleString );
+
+    // NEW COLUMN NAME
+    this.inputValue = data.jsonRuleString.as;
+    this.inputValue = PreparationCommonUtil.removeQuotation(this.inputValue);
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-layout-chart">
+<div class="ddp-layout-chart page-chart">
 
   <div class="ddp-layout-contents2">
 
@@ -831,7 +831,7 @@
                     </div>
 
                   </div>
-                  <div class="ddp-ui-layout-bottom" [dragula]="'dragbag'" [dragulaModel]="[]" [attr.data-container]="'row-guide'">
+                  <div class="ddp-ui-layout-bottom" [dragula]="'dragbag'" [dragulaModel]="[]" [attr.data-container]="'column-guide'">
                     <!-- 조건 -->
                     <div class="dragIgnore dragIgnore ddp-ui-condition">
                       <em class="ddp-icon-columns2"></em>
@@ -1173,6 +1173,22 @@
                 <!-- 차트 영역 -->
                 <div [class.ddp-sankey]="isSankeyNotAllNode && !isNoData && isChartView && selectChart == 'sankey'" class="ddp-ui-chart-area">
 
+                  <!-- Data Limit Info -->
+                  <div *ngIf="limitInfo.isShow" class="ddp-top-control ddp-clear" style="right:5px;">
+                    <div class="ddp-box-btn2" >
+                      <em class="ddp-icon-widget-info2"></em>
+                      <!-- box info -->
+                      <div class="ddp-box-info ddp-limitation">
+                        <em class="ddp-icon-info"></em>
+                        <span class="ddp-total"
+                              [innerHTML]="'msg.page.ui.limit-msg-1' | translate : { currentCnt : limitInfo.currentCnt | numberCommas , maxCnt : limitInfo.maxCnt | numberCommas }" ></span>
+                        {{'msg.page.ui.limit-msg-2' | translate}}
+                      </div>
+                      <!-- box info -->
+                    </div>
+                  </div>
+                  <!-- // Data Limit Info -->
+
                   <!-- Sankey Information -->
                   <div *ngIf="isSankeyNotAllNode && !isNoData && isChartView && selectChart == 'sankey'" class="ddp-txt-detail">※ {{'msg.page.ui.sankey.data.part' | translate}}</div>
                   <!-- //Sankey Information -->
@@ -1461,9 +1477,9 @@
             <calrow-option #calculateOption *ngIf="isChartShow && possibleChartCheck('calculatedRow', selectChart) && 'calculatedRow' === rnbMenu" [(uiOption)]="uiOption"></calrow-option>
             <!-- MapView -->
             <map-common-option #mapCommonOption *ngIf="isChartShow && 'mapCommon' === rnbMenu" [(uiOption)]="uiOption"></map-common-option>
-            <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer1' === rnbMenu" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(pivot)]="pivot" [(resultData)]="resultData"></map-layer-option>
-            <map-layer-option2 #mapLayerOption *ngIf="isChartShow && 'mapLayer2' === rnbMenu && uiOption['layerCnt'] > 1" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(pivot)]="pivot" [(resultData)]="resultData"></map-layer-option2>
-            <map-layer-option3 #mapLayerOption *ngIf="isChartShow && 'mapLayer3' === rnbMenu && uiOption['layerCnt'] > 2" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(pivot)]="pivot" [(resultData)]="resultData"></map-layer-option3>
+            <map-layer-option #mapLayerOption1 *ngIf="isChartShow && 'mapLayer1' === rnbMenu" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(pivot)]="pivot" [(resultData)]="resultData"></map-layer-option>
+            <map-layer-option2 #mapLayerOption2 *ngIf="isChartShow && 'mapLayer2' === rnbMenu && uiOption['layerCnt'] > 1" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(pivot)]="pivot" [(resultData)]="resultData"></map-layer-option2>
+            <map-layer-option3 #mapLayerOption3 *ngIf="isChartShow && 'mapLayer3' === rnbMenu && uiOption['layerCnt'] > 2" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(pivot)]="pivot" [(resultData)]="resultData"></map-layer-option3>
             <map-legend-option #mapLegendOption *ngIf="isChartShow && 'mapLegend' === rnbMenu" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)"></map-legend-option>
             <map-format-option #mapFormatOption *ngIf="isChartShow && 'mapFormat' === rnbMenu" (changeCommon)="onFormatCommonChange($event)" (changeEach)="onFormatEachChange($event)" (drawChartParam)="onSetDrawChartParam($event)"
                                [(pivot)]="pivot" [(uiOption)]="uiOption">

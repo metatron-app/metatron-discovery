@@ -100,8 +100,15 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
       return undefined;
     }
 
+    const columnsStr: string = this.selectedFields.map((item) => {
+      if (-1 !== item.name.indexOf(' ')) {
+        item.name = '`' + item.name + '`';
+      }
+      return item.name
+    }).join(', ');
+
     // rule string
-    let ruleString = 'countpattern col: ' + this.selectedFields.map( item => item.name ).join(', ')
+    let ruleString = 'countpattern col: ' + columnsStr
       + ' on: ' + patternResult[1] + ' ignoreCase: ' + this.isIgnoreCase;
 
     // Ignore between characters
@@ -159,21 +166,27 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
 
   /**
    * parse rule string
-   * @param ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
+  protected parsingRuleString(data : {ruleString : string, jsonRuleString : any}) {
 
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+    // COLUMN
+    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+
+
+    if (data.jsonRuleString.on.value.startsWith('/') && data.jsonRuleString.on.value.endsWith('/')) {
+      this.pattern = data.jsonRuleString.on.value;
+    }  else {
+      this.pattern = data.jsonRuleString.on.escapedValue;
     }
 
-    this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
 
-    this.isIgnoreCase = this.getAttrValueInRuleString( 'ignoreCase', ruleString ) === 'true';
+    this.isIgnoreCase = Boolean(data.jsonRuleString.ignoreCase);
 
-    this.ignore = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'quote', ruleString ));
+    if (data.jsonRuleString.quote) {
+      this.ignore = data.jsonRuleString.quote.escapedValue;
+    }
 
   } // function - _parsingRuleString
 

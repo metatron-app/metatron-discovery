@@ -14,6 +14,14 @@
 
 package app.metatron.discovery.domain.workbench;
 
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.GlobalErrorCodes;
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
+import app.metatron.discovery.domain.workbench.dto.ImportFile;
+import app.metatron.discovery.domain.workbench.hive.WorkbenchHiveService;
+import app.metatron.discovery.util.HibernateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +32,9 @@ import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Map;
 
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
@@ -40,13 +45,14 @@ import app.metatron.discovery.domain.workspace.Workspace;
 @RepositoryRestController
 public class WorkbenchController {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(WorkbenchController.class);
-
   @Autowired
   WorkbenchRepository workbenchRepository;
 
   @Autowired
   PagedResourcesAssembler pagedResourcesAssembler;
+
+  @Autowired
+  WorkbenchHiveService workbenchHiveService;
 
   @RequestMapping(value = "/workbenchs/{id}/navigation", method = RequestMethod.GET, produces = "application/json")
   @ResponseBody
@@ -86,6 +92,27 @@ public class WorkbenchController {
             dataSourceMap.entrySet().stream()
                     .map(e -> e.getValue().toString())
                     .toArray());
+  }
+
+  @RequestMapping(value = "/workbenchs/{id}/import", method = RequestMethod.POST)
+  @ResponseBody
+  public ResponseEntity<?> importFileToPersonalDatabase(@PathVariable("id") String id,
+                                                        @RequestBody ImportFile importFile) {
+    Workbench workbench = workbenchRepository.findOne(id);
+
+    if(workbench == null) {
+      throw new ResourceNotFoundException("Workbench(" + id + ")");
+    }
+
+    DataConnection dataConnection = HibernateUtils.unproxy(workbench.getDataConnection());
+    if((dataConnection instanceof HiveConnection) == false ||
+        ((HiveConnection)dataConnection).isSupportSaveAsHiveTable() == false) {
+      throw new BadRequestException("Only Hive Connection supported save as hive table is allowed.");
+    }
+
+    workbenchHiveService.importFileToPersonalDatabase((HiveConnection)dataConnection, importFile);
+
+    return ResponseEntity.noContent().build();
   }
 
 }

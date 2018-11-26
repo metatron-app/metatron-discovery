@@ -13,16 +13,15 @@
  */
 
 import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
-  ViewChild
+  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChildren
 } from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
-import * as _ from 'lodash';
 import {isNullOrUndefined, isUndefined} from 'util';
 import { StringUtil } from '../../../../../../common/util/string.util';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'edit-rule-set',
@@ -32,8 +31,8 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
+  @ViewChildren(RuleConditionInputComponent)
+  private ruleConditionInputComponent : RuleConditionInputComponent; // Has multiple rule condition input. Using viewChildren instead of viewChild
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -84,17 +83,23 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   public getRuleData(): { command: string, col: string, ruleString: string } {
 
     // differentiate between pressing enter key when select box is opened & adding a rule
-    if (this.ruleConditionInputComponent.autoCompleteSuggestions_selectedIdx == -1) {
+    if (this.ruleConditionInputComponent['_results'][0].autoCompleteSuggestions_selectedIdx == -1) {
 
       // column
       if (this.selectedFields.length === 0) {
         Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
         return undefined
       }
-      const columnsStr: string = this.selectedFields.map(item => item.name).join(', ');
+
+      const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
+        if (-1 !== item.name.indexOf(' ')) {
+          item.name = '`' + item.name + '`';
+        }
+        return item.name
+      }).join(', ');
 
       // val
-      this.inputValue = this.ruleConditionInputComponent.getCondition();
+      this.inputValue = this.ruleConditionInputComponent['_results'][0].getCondition();
       let val = _.cloneDeep(this.inputValue);
       if (isUndefined(val) || '' === val.trim()) {
         Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
@@ -142,8 +147,20 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   /**
    * open advanced formula popup
    */
-  public openPopupFormulaInput() {
-    this.advancedEditorClickEvent.emit();
+  public openPopupFormulaInput(val: string) {
+
+    let command: string = 'set';
+    if (val === 'condition') {
+      this.condition = this.ruleConditionInputComponent['_results'][1].getCondition();
+      command = 'setCondition';
+    } else {
+      this.inputValue = this.ruleConditionInputComponent['_results'][0].getCondition();
+    }
+
+    this.safelyDetectChanges();
+
+    this.advancedEditorClickEvent.emit({command : command, val : val});
+
   } // function - openPopupFormulaInput
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -160,21 +177,47 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * @protected
    */
   protected afterShowComp() {
+
+    const comp = this.ruleConditionInputComponent['_results'];
+
+    // focus on expression
+    comp[0] && comp[0].setFocus();
+
+    // set value from context menu
+    comp[1] && comp[1].setCondition(this.condition);
+
+
   } // function - _afterShowComp
 
   /**
    * parse rule string
-   * @param ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+
+
+    if (!data.jsonRuleString.hasOwnProperty('contextMenu')) {
+      // COLUMN
+      let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+
+
+      this.inputValue = data.jsonRuleString.value.escapedValue;
+      this.inputValue = data.ruleString.split('value: ')[1];
+
+      if (data.jsonRuleString.row) {
+        let row = data.ruleString.split('row: ');
+        this.condition = row[1];
+
+        this.inputValue = row[0].split('value: ')[1];
+      }
+    } else {
+      if (data.jsonRuleString.condition) {
+        this.condition = data.jsonRuleString.condition;
+        this.safelyDetectChanges();
+      }
     }
-    let inputVal = ruleString.split('value: ')[1];
-    this.inputValue = inputVal.split('row: ')[0];
-    this.condition = ruleString.split('row: ')[1];
+
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

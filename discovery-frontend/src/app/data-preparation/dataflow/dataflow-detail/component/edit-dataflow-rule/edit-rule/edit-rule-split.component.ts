@@ -121,7 +121,12 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
       return undefined;
     }
 
-    let ruleString = 'split col: ' + this.selectedFields[0].name
+    let columnsStr: string = this.selectedFields[0].name;
+    if (-1 !== this.selectedFields[0].name.indexOf(' ') ) {
+      columnsStr = '`' + this.selectedFields[0].name + '`';
+    }
+
+    let ruleString = 'split col: ' + columnsStr
       + ' on: ' + clonedPattern + ' limit : ' + this.limit + ' ignoreCase: ' + this.isIgnoreCase;
 
     // 다음 문자 사이 무시
@@ -181,24 +186,28 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
   } // function - _afterShowComp
 
   /**
-   * rule string 을 분석한다.
-   * @param ruleString
+   * parse rulestring
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+    // COLUMN
+    let arrFields:string[] = typeof data.jsonRuleString.col === 'string' ? [data.jsonRuleString.col] : data.jsonRuleString.col;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+
+    if (data.jsonRuleString.on.value.startsWith('/') && data.jsonRuleString.on.value.endsWith('/')) {
+      this.pattern = data.jsonRuleString.on.value;
+    }  else {
+      this.pattern = data.jsonRuleString.on.escapedValue;
     }
 
-    this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
+    this.limit = Number(data.jsonRuleString.limit);
 
-    this.limit = Number( this.getAttrValueInRuleString( 'limit', ruleString ) );
+    this.isIgnoreCase = Boolean(data.jsonRuleString.ignoreCase);
 
-    this.isIgnoreCase = Boolean( this.getAttrValueInRuleString( 'ignoreCase', ruleString ) );
-
-    this.ignore = this.getAttrValueInRuleString( 'quote', ruleString );
+    if (data.jsonRuleString.quote) {
+      this.ignore = data.jsonRuleString.quote.escapedValue;
+    }
 
   } // function - _parsingRuleString
 

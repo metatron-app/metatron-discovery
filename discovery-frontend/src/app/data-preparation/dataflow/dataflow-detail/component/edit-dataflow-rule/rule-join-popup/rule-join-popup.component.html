@@ -74,7 +74,7 @@
         </div>
         <!-- 코멘트 -->
         <div class="ddp-comment" *ngIf="leftSelCols.length === 0">
-          <em>*</em> At least one column is required
+          <em>*</em> {{'msg.dp.ui.one.col.required' | translate }}
         </div>
         <!-- //코멘트 -->
         <!-- 그리드 -->
@@ -122,7 +122,7 @@
                [class.ddp-result]="rightDataset.dsName"
                (keydown)="navigateWithKeyboardShortList($event,filteredDatasetsForJoin,'right')">
             <div class="ddp-type-selectbox2" >
-              <span class="ddp-txt-selectbox ddp-result">{{ !rightDataset.dsName ? 'Search by dataset name' : rightDataset.dsName}}</span>
+              <span class="ddp-txt-selectbox ddp-result">{{ !rightDataset.dsName ? ('msg.dp.ui.search-by.dataset'  | translate ): rightDataset.dsName}}</span>
             </div>
             <!-- drop search -->
             <div class="ddp-ui-drop-search" (clickOutside)="isDatasetListShow = false; initSelectedCommand(filteredDatasetsForJoin)">
@@ -187,7 +187,7 @@
         </div>
         <!-- 코멘트 -->
         <div class="ddp-comment" *ngIf="rightSelCols.length === 0">
-          <em>*</em> At least one column is required
+          <em>*</em> {{'msg.dp.ui.one.col.required' | translate }}
         </div>
         <!-- //코멘트 -->
         <div grid-component #rightGrid

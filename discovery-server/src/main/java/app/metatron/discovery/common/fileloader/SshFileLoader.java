@@ -38,12 +38,17 @@ public class SshFileLoader implements FileLoader {
 
   @Override
   public List<String> put(FileLoaderProperties properties, String... targets) {
+    return put(properties, Lists.newArrayList(targets), null, false);
+  }
+
+  @Override
+  public List<String> put(FileLoaderProperties properties, List<String> sourcePaths, List<String> targetNames, boolean checkSrcFile) {
 
     Map<String, EngineProperties.Host> hosts = properties.getHosts();
 
-    if(MapUtils.isEmpty(hosts)) {
+    if (MapUtils.isEmpty(hosts)) {
       LOGGER.debug("This is localhost.");
-      return Lists.newArrayList(targets);
+      return sourcePaths;
     }
 
     String remoteHostname;
@@ -53,21 +58,17 @@ public class SshFileLoader implements FileLoader {
       remoteHostname = key;
       remoteInfo = hosts.get(key);
 
-      try {
-        SshUtils.copyLocalToRemoteFileByScp(Lists.newArrayList(targets),
-                                            remoteDir,
-                                            remoteHostname,
-                                            remoteInfo.getPort(),
-                                            remoteInfo.getUsername(),
-                                            remoteInfo.getPassword());
-      } catch (Exception e) {
-        LOGGER.error("Fail to copy local files to {}", remoteHostname);
-        throw new RuntimeException("Fail to copy local files to " + remoteHostname);
-      }
-      LOGGER.info("Successfully copy local files({}) to {}", targets, remoteHostname);
+      SshUtils.copyLocalToRemoteFileByScp(sourcePaths,
+                                          targetNames,
+                                          remoteDir,
+                                          remoteHostname,
+                                          remoteInfo.getPort(),
+                                          remoteInfo.getUsername(),
+                                          remoteInfo.getPassword(),
+                                          checkSrcFile);
     }
 
-    return Lists.newArrayList(targets).stream()
+    return Lists.newArrayList(sourcePaths).stream()
                 .map(s -> properties.getRemoteDir() + File.separator + Paths.get(s).getFileName())
                 .collect(toList());
   }

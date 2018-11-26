@@ -39,8 +39,9 @@ public class RadarChart extends Chart {
                     @JsonProperty("chartZooms") List<ChartZoom> chartZooms,
                     @JsonProperty("fontSize") String fontSize,
                     @JsonProperty("dataLabel") ChartDataLabel dataLabel,
-                    @JsonProperty("toolTip") ChartToolTip toolTip) {
-    super(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip);
+                    @JsonProperty("toolTip") ChartToolTip toolTip,
+                    @JsonProperty("limit") Integer limit) {
+    super(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip, limit);
   }
 
   @Override

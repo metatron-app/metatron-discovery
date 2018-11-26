@@ -21,6 +21,7 @@ import { isUndefined } from "util";
 import * as _ from 'lodash';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
+import {PreparationCommonUtil} from "../../../../../util/preparation-common.util";
 
 @Component({
   selector : 'edit-rule-keep',
@@ -122,11 +123,11 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 수식 입력 팝업 오픈
-   * @param {string} command 수식 입력 실행 커맨드
+   * Open advanced formula popup
    */
-  public openPopupFormulaInput(command: string) {
-    this.advancedEditorClickEvent.emit();
+  public openPopupFormulaInput() {
+    this.keepRow = this.ruleConditionInputComponent.getCondition();
+    this.advancedEditorClickEvent.emit({command : 'keep', val : 'keepRow'});
   } // function - openPopupFormulaInput
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -148,11 +149,15 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
 
   /**
    * rule string 을 분석한다.
-   * @param ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
-    // row this.getAttrValueInRuleString( 'row', ruleString );
-    this.keepRow = ruleString.split('row: ')[1];
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+
+    let targetStr  = data.ruleString.split('keep ')[1];
+    let regex = /(row *: {1})/gi;
+
+    const ruleStr = PreparationCommonUtil.getRuleString(targetStr, regex);
+    this.keepRow = ruleStr['row: '];
 
   } // function - parsingRuleString
 

@@ -3,6 +3,34 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -17,6 +45,7 @@ package app.metatron.discovery.domain.datasource.data;
 import com.google.common.collect.Lists;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -113,6 +142,12 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
    * Optional, Configure to not be affected by recommendation filters, if true
    */
   Boolean preview = false;
+
+  /**
+   *
+   */
+  @JsonIgnore
+  Boolean includeTotalCount;
 
   public SearchQueryRequest() {
     // Empty Constructor
@@ -279,19 +314,22 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
       projections = Lists.newArrayList();
     }
 
-    List<Field> fields = pivot.getAllFields();
+    if(original && checkAggregatedExpressionField()) {
+      throw new QueryTimeExcetpion("original data do not allow aggregated user-defined field.");
+    }
 
-    for(Field field : fields) {
+    for(Field field : pivot.getAllFields()) {
       if(original && field instanceof MeasureField) {
         // 측정값 필드는 집계를 포함하지 않도록 처리
         MeasureField measureField = (MeasureField) field;
         measureField.setAggregationType(MeasureField.AggregationType.NONE);
         measureField.setAlias(measureField.getName());
         this.projections.add(field);
-      } else if(original &&
-          (field instanceof ExpressionField) && ((ExpressionField) field).isAggregated()) {
-        // 원본 데이터일 경우 표현식중 집계가 있는 표현식은 제외
-        continue;
+      } else if(field instanceof MeasureField
+          && UserDefinedField.REF_NAME.equals(field.getRef())) {
+        // follow ui rule
+        field.setAlias(((MeasureField) field).getUserDefinedAlias());
+        this.projections.add(field);
       } else {
         this.projections.add(field);
       }
@@ -367,6 +405,14 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
 
   public void setGroupingSets(List<List<String>> groupingSets) {
     this.groupingSets = groupingSets;
+  }
+
+  public Boolean getIncludeTotalCount() {
+    return includeTotalCount;
+  }
+
+  public void setIncludeTotalCount(Boolean includeTotalCount) {
+    this.includeTotalCount = includeTotalCount;
   }
 
   @Override

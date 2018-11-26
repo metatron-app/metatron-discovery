@@ -100,39 +100,62 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
   // 팔레트 show hide 설정
   public colorListFlag: boolean = false;
 
+  // 선반 레이어 번호
   public layerNum: number = 0;
 
+  // 레이어 타입 : symbol, line, polygon, tile, heatmap
   public type: string = 'symbol';
 
+  // 레이어명
   public name: string = 'Layer1';
 
+  // 심볼 타입
   public symbol: string = 'CIRCLE';
 
+  // 타일맵 타입 현재는 HEXAGON만 있음
   public tile: string = 'HEXAGON';
 
+  //heatmap 흐림
+  public blur: number = 10;
+
+  //heatmap 반경
+  public radius:number = 10;
+
+  //tilemap type
+  public shape: string = "HEXAGON";
+
+  //tilemap coverage
+  public coverage: number = 8;
+
+  //linemap type
+  public pathType: string = "SOLID";
+
+  // 심볼, 폴리곤, 라인등 feature의 색상
   public color: Object = {
     by: 'NONE',
     column: '',
     schema: this.selectedDefaultColor,
-    transparency: 100,
-    resolution: 8,
-    blur: 10,
-    radius: 10
+    transparency: 100
   };
 
+  // feature의 크기
   public size: Object = {
     by: 'NONE',
-    column: '',
-    max: 10
+    column: ''
   };
 
+  // 외곽선 스타일
   public outline: Object = {
     color: this.selectedDefaultColor,
-    thickness: 'NONE',
-    lineDash: 'SOLID'
+    thickness: 'NONE'
   };
 
-  public measureList = [];
+  //라인 스타일
+  public thickness: Object = {
+    by: "NONE",
+    column: "NONE",
+    maxValue: 10
+  };
 
   // range list for view
   public rangesViewList = [];
@@ -160,6 +183,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
   public clustering: boolean = false;
   public viewRawData: boolean = false;
   public layerOptions: Object;
+  public measureList = new Array(new Array(), new Array(), new Array());
 
   // 색상의 기준이 되는 행/열 필드 리스트
   public fieldList: string[] = [];
@@ -176,9 +200,30 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-   // 선반데이터
-   @Input('pivot')
+   // Pivot
    public pivot: Pivot;
+   @Input('pivot')
+   set setPivot(pivot: Pivot) {
+     this.pivot = pivot;
+     this.measureList = new Array(new Array(), new Array(), new Array());
+
+     for(let aggregation of this.pivot.aggregations) {
+       let fieldAlias = aggregation.field["alias"];
+       if(!fieldAlias) fieldAlias = aggregation.name;
+       if(aggregation.fieldAlias) fieldAlias = aggregation.fieldAlias;
+
+       if(!aggregation["layerNum"] || aggregation["layerNum"] === 1) {
+         this.measureList[0].push(aggregation.aggregationType + '(' + fieldAlias + ')');
+       } else if(aggregation["layerNum"] === 2) {
+         this.measureList[1].push(aggregation.aggregationType + '(' + fieldAlias + ')');
+       } else if(aggregation["layerNum"] === 3) {
+         this.measureList[2].push(aggregation.aggregationType + '(' + fieldAlias + ')');
+       }
+     }
+
+     // this.changeLayerOption();
+     // pivot change here!
+   }
 
    @Input('resultData')
    public resultData: Object;
@@ -198,19 +243,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    @Input('uiOption')
    public set setUiOption(uiOption: UIOption) {
 
-     // if( !uiOption.toolTip ) {
-     //   uiOption.toolTip = {};
-     // }
-     // // displayTypes가 없는경우 차트에 따라서 기본 displayTypes설정
-     // if (!uiOption.toolTip.displayTypes) {
-     //   uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(uiOption.type);
-     // }
-     //
-     // uiOption.toolTip.previewList = this.setPreviewList(uiOption);
-     //
-     // // useDefaultFormat이 없는경우
-     // if (typeof uiOption.toolTip.useDefaultFormat === 'undefined') uiOption.toolTip.useDefaultFormat = true;
-
      //Set
      if(this.resultData['data'][0].valueRange[uiOption.layers[0].color.column]) {
        const minValue = this.checkMinZero(this.resultData['data'][0].valueRange[uiOption.layers[0].color.column].minValue, this.resultData['data'][0].valueRange[uiOption.layers[0].color.column].minValue);
@@ -226,47 +258,56 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        let isNotGeoField: boolean = true;
        _.each(this.pivot.columns, (dimension) => {
          if( _.eq(field, dimension.name)
-            && _.eq(dimension.field.logicalType, "GEO_POINT") ) {
+            && (_.eq(dimension.field.logicalType, "GEO_POINT") || _.eq(dimension.field.logicalType, "GEO_LINE") || _.eq(dimension.field.logicalType, "GEO_POLYGON")) ) {
            isNotGeoField = false;
          }
        });
        return isNotGeoField;
      });
+
    }
+
 
    /**
     * Chart - 맵차트 레이어 타입
-    * @param layerType
+    * @param type
     */
-   public mapLayerType(layerType: string): void {
-     let geomType = this.uiOption.fielDimensionList[0].field.logicalType.toString();
+   public mapLayerType(type: string): void {
+     let geomType = "GEO_POINT";
+
+     for(let dimension of this.uiOption.fielDimensionList) {
+       if(dimension.field.logicalType.toString().indexOf('GEO') > -1 && dimension["layerNum"] && dimension["layerNum"] === 1) {
+         geomType = dimension.field.logicalType.toString();
+         break;
+       }
+     }
 
      if(geomType === "GEO_POINT") {
-       if(layerType === "symbol" || layerType === "heatmap" || layerType === "tile") {
+       if(type === "symbol" || type === "heatmap" || type === "tile") {
          console.log("point");
        } else {
          return;
        }
      } else if(geomType === "GEO_LINE") {
-       if(layerType === "line") {
+       if(type === "line") {
          console.log("line");
        } else {
          return;
        }
      } else if(geomType === "GEO_POLYGON") {
-       if(layerType === "polygon") {
+       if(type === "polygon") {
          console.log("polygon");
        } else {
          return;
        }
      }
 
-     if(layerType === "heatmap" && this.color["by"] === "DIMENSION") {
+     if(type === "heatmap" && this.color["by"] === "DIMENSION") {
        this.color["by"] = "NONE";
        this.color["schema"] = "#602663";
      }
 
-     this.type = layerType;
+     this.type = type;
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -317,6 +358,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    // size type show hide 설정
    public sizeTypeFlag: boolean = false;
 
+   // thickness type show hide 설정
+   public thicknessTypeFlag: boolean = false;
+
    // size column show hide 설정
    public sizeColumnFlag: boolean = false;
 
@@ -348,6 +392,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        this.color['schema'] = '#602663';
      } else if(colorType === 'DIMENSION') {
        this.color['schema'] = 'SC1';
+       this.color['ranges'] = this.setDimensionColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.color['schema']]);
        // init column
        if (this.uiOption.layers[0]) {
          if (!this.uiOption.layers[0].color) this.uiOption.layers[0].color = {};
@@ -386,6 +431,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        //   this.selectedMeasureColor = color;
        //   color = gridColor;
        // }
+     }
+     // 차트 타입이 DIMENSION인경우
+     else if (this.uiOption.layers[0].color.by === 'DIMENSION') {
+       this.uiOption.layers[0].color['ranges'] = this.setDimensionColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[color['colorNum']]);
      } else {
        // 선택된 컬러를 변수에 설정
        this.selectedDefaultColor = color;
@@ -427,7 +476,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     */
    public changeBlur(blur: number) {
 
-     this.color['blur'] = blur;
+     this.blur = blur;
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -441,11 +490,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
    /**
     * 반경 변경시
-    * @param blur 흐림
+    * @param radius 반경
     */
    public changeRadius(radius: number) {
 
-     this.color['radius'] = radius;
+     this.radius = radius;
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -485,7 +534,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         precision = 5;
      }
 
-     this.color['resolution'] = resolution;
+     this.coverage = resolution;
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -528,6 +577,38 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    }
 
    /**
+    * 선형 타입 변경시
+    * @param type 사이즈타입 (series(default), dimension)
+    */
+   public changeThicknessType(sizeType: string) {
+
+     this.thickness['by'] = sizeType;
+
+     // 해당 레이어 타입으로 설정
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+       layers: this.changeLayerOption()
+     });
+
+     this.update();
+   }
+
+   /**
+    * 선형 컬럼 변경시
+    * @param sizeCol 사이즈컬럼 (series(default), dimension)
+    */
+   public changeThicknessColumn(sizeCol: string) {
+
+     this.thickness['column'] = sizeCol;
+
+     // 해당 레이어 타입으로 설정
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+       layers: this.changeLayerOption()
+     });
+
+     this.update();
+   }
+
+   /**
     * 사이즈 컬럼 변경시
     * @param sizeCol 사이즈컬럼 (series(default), dimension)
     */
@@ -550,7 +631,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    public changeColorColumn(colorCol: string) {
 
      this.color['column'] = colorCol;
-     this.color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.uiOption.layers[0].color['schema']]);
+
+     if(this.color['by'] === "MEASURE") {
+       this.color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.uiOption.layers[0].color['schema']]);
+     } else if(this.color['by'] === "DIMENSION") {
+       this.color['ranges'] = this.setDimensionColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.uiOption.layers[0].color['schema']]);
+     }
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -582,7 +668,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     */
    public lineDashType(lineDashType: string): void {
 
-     this.outline["lineDash"] = lineDashType;
+     this.pathType = lineDashType;
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -683,6 +769,21 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      this.update();
    }
 
+   /**
+    * line max width
+    */
+   public changeStrokeMaxWidth() {
+     this.thickness = this.uiOption.layers[0].thickness;
+
+     // 해당 레이어명으로 설정
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+       layers: this.changeLayerOption()
+     });
+
+     // update
+     this.update();
+   }
+
    public changeLayerOption() {
      this.layerOptions = [{
        type: this.type,
@@ -692,8 +793,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        size: this.size,
        outline: this.outline,
        clustering: this.clustering,
-       viewRawData: this.viewRawData
-     },this.uiOption.layers[1],this.uiOption.layers[2]]
+       viewRawData: this.viewRawData,
+       blur: this.blur,
+       radius: this.radius,
+       coverage: this.coverage,
+       thickness: this.thickness,
+       pathType: this.pathType
+     },this.uiOption.layers[1],this.uiOption.layers[2]];
 
      // when color column is none or empty, set default column
      if (this.uiOption.layers && this.uiOption.layers.length > 0 &&
@@ -709,9 +815,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
          this.uiOption.layers[0].color['column'] = this.uiOption.fieldList[0];
 
          // when it's measure, set default column
-       } else if ('MEASURE' === colorType && this.measureList && this.measureList.length > 0) {
+       } else if ('MEASURE' === colorType && this.uiOption["measureList"] && this.uiOption["measureList"][0].length > 0) {
 
-         this.uiOption.layers[0].color['column'] = this.measureList[0];
+         this.uiOption.layers[0].color['column'] = this.uiOption["measureList"][0][0];
        }
      }
 
@@ -724,9 +830,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        const sizeType = this.uiOption.layers[0].size.by;
 
          // when it's measure, set default column
-       if ('MEASURE' === sizeType && this.measureList && this.measureList.length > 0) {
+       if ('MEASURE' === sizeType && this.uiOption["measureList"] && this.uiOption["measureList"][0].length > 0) {
 
-         this.uiOption.layers[0].size['column'] = this.measureList[0];
+         this.uiOption.layers[0].size['column'] = this.uiOption["measureList"][0][0];
        }
      }
 
@@ -762,15 +868,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      }
 
      if(type === 'heatmapRadius') {
-       if(val === 10) {
+       if(val === 4) {
+         resultVal = '0%';
+       } else if(val === 10) {
          resultVal = '20%';
-       } else if(val === 15) {
+       } else if(val === 16) {
          resultVal = '40%';
-       } else if(val === 20) {
+       } else if(val === 22) {
          resultVal = '60%';
-       } else if(val === 25) {
+       } else if(val === 28) {
          resultVal = '80%';
-       } else if(val === 30) {
+       } else if(val === 34) {
          resultVal = '100%';
        }
      }
@@ -932,8 +1040,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
       this.rangesViewList = this.uiOption.layers[0].color['ranges'];
     }
 
-
     this.changeLayerOption();
+
+    //timeout 없으면 가끔 slider가 textbox로 생성됨
     if(this.type === "heatmap") {
       setTimeout(
         () => {
@@ -1157,7 +1266,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
     let gridRowsListLength = data.features.length;
 
-
     // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
     let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
 
@@ -1165,7 +1273,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     const minValue = data.valueRange[uiOption.layers[0].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].minValue);
 
     // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-    const addValue = (data.valueRange[uiOption.layers[0].color.column].maxValue - minValue) / colorListLength;
+    const addValue = (data.valueRange[uiOption.layers[0].color.column].maxValue - minValue) / (colorListLength + 1);
 
     let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].maxValue);
 
@@ -1205,6 +1313,34 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
         maxValue = min;
       // }
+    }
+
+    return rangeList;
+  }
+
+  /**
+   * return ranges of color by dimension
+   * @returns {any}
+   */
+  public setDimensionColorRange(uiOption, data, colorList: any, colorAlterList = []): ColorRange[] {
+
+    // return value
+    let rangeList = [];
+
+    let featureList = [];
+
+    for(var i=0;i<this.resultData[0].features.length;i++) {
+      featureList.push(this.resultData[0].features[i].properties)
+    }
+
+    let featuresGroup = _.groupBy(featureList, uiOption.layers[0].color.column);
+
+    for(var i=0;i<Object.keys(featuresGroup).length;i++) {
+
+      let col = Object.keys(featuresGroup)[i];
+      let color = colorList[featuresGroup[Object.keys(featuresGroup)[i]].length % colorList.length];
+
+      rangeList.push({column:col, color:color});
     }
 
     return rangeList;
@@ -1449,7 +1585,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     range = this.parseStrFloat(range);
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.checkMinZero(this.resultData['data'][0].valueRange.minValue, this.resultData['data'][0].valueRange.minValue);
+    const uiMinValue = this.checkMinZero(this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue, this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue);
 
     // 하위 fixMin값
     const lowerfixMin = rangeList[index + 1] ?(rangeList[index + 1].fixMin) ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax : null;
@@ -1524,10 +1660,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     // parse string to value
     range = this.parseStrFloat(range);
 
-    let decimalValue = this.resultData['data'][0].valueRange.minValue;
+    let decimalValue = this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue;
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.checkMinZero(this.resultData['data'][0].valueRange.minValue, decimalValue);
+    const uiMinValue = this.checkMinZero(this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue, decimalValue);
 
     // 입력가능 최소 / 최대범위 구하기
     let minValue = rangeList[index + 1] ? rangeList[index + 1].gt ? rangeList[index + 1].gt : uiMinValue :
@@ -1538,7 +1674,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     if (!rangeList[index - 1]) {
 
       // 최대값보다 큰거나 하위의 최대값보다 값이 작은경우
-      if (this.resultData['data'][0].valueRange.maxValue < range.gt || rangeList[index + 1].fixMax > range.gt) {
+      if (this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].maxValue < range.gt || rangeList[index + 1].fixMax > range.gt) {
         range.gt = range.fixMin;
       } else {
         range.fixMin = range.gt;
@@ -1587,12 +1723,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     // case max value
     if (0 == index) {
 
-      returnString += ': ' + currentRnage.fixMin;
+      returnString += ': ' + currentRnage.fixMin + ' ~ ' + this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].maxValue;
 
     // case min value
     } else if (rangeList.length - 1 == index) {
 
-      returnString += ': ' + currentRnage.fixMax;
+      returnString += ': ' + this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue + ' ~ ' + currentRnage.fixMax;
     }
     else {
 
@@ -1728,13 +1864,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         hide_from_to: false,
         hide_min_max: true,
         keyboard: false,
-        min: 5,
-        max: 30,
-        from: scope.uiOption.layers[0].color.radius,
+        min: 4,
+        max: 34,
+        from: scope.uiOption.layers[0].radius,
         type: 'single',
-        step: 5,
+        step: 6,
         onChange(data) {
-          scope.changeRadius(data.from);
+          scope.changeResolution(data.from);
         }
         // onFinish(data) {
           // scope._updateBoundValue(data);
@@ -1753,7 +1889,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         keyboard: false,
         min: 5,
         max: 10,
-        from: scope.uiOption.layers[0].color.resolution,
+        from: scope.uiOption.layers[0].coverage,
         type: 'single',
         step: 1,
         onChange(data) {
@@ -1776,7 +1912,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         keyboard: false,
         min: 5,
         max: 30,
-        from: scope.uiOption.layers[0].color.blur,
+        from: scope.uiOption.layers[0].blur,
         type: 'single',
         step: 5,
         onChange(data) {

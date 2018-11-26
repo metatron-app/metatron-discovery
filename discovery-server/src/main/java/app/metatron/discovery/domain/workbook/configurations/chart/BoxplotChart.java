@@ -46,10 +46,11 @@ public class BoxplotChart extends Chart {
                       @JsonProperty("fontSize") String fontSize,
                       @JsonProperty("dataLabel") ChartDataLabel dataLabel,
                       @JsonProperty("toolTip") ChartToolTip toolTip,
+                      @JsonProperty("limit") Integer limit,
                       @JsonProperty("lineColor") String lineColor,
                       @JsonProperty("fillBox") Boolean fillBox,
                       @JsonProperty("hideOutlier") Boolean hideOutlier) {
-    super(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip);
+    super(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip, limit);
     this.lineColor = lineColor;
     this.fillBox = fillBox;
     this.hideOutlier = hideOutlier;

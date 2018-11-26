@@ -354,6 +354,12 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
         case 'GU':
         case 'DONG':
           return 'ddp-icon-dimension-local';
+        case 'GEO_POINT':
+          return 'ddp-icon-dimension-point';
+        case 'GEO_LINE':
+          return 'ddp-icon-dimension-line';
+        case 'GEO_POLYGON':
+          return 'ddp-icon-dimension-polygon';
         default:
           return 'ddp-icon-dimension-ab';
       }
@@ -686,7 +692,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   protected commonExceptionHandler(err: any, errMessage?: string) {
     console.error(err);
     const url: string = this.router.url;
-    if (-1 < url.indexOf('/management') || -1 < url.indexOf('/admin')) {
+    if (-1 < url.indexOf('/management') || -1 < url.indexOf('/admin') || -1 < url.indexOf('/workbook')) {
       Alert.errorDetail(err.message, err.details);
     } else {
       if (err && err.details) {
