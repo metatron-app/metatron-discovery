@@ -81,7 +81,8 @@ export class ColorOptionConverter {
     switch (color.type) {
       case ChartColorType.DIMENSION: {
 
-        option = this.convertColorByDimension(option, fieldOriginInfo, pivotInfo, uiOption);
+        // option = this.convertColorByDimension(option, fieldOriginInfo, pivotInfo, uiOption);
+        option = this.convertColorByDimension(option, fieldInfo, pivotInfo, uiOption);
         break;
       }
       case ChartColorType.SERIES: {
