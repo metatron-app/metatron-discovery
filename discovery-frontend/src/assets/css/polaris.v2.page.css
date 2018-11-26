@@ -6511,7 +6511,7 @@ em.ddp-icon-navimenu {margin:-8px 0 0 -8px; width:16px; height:16px; background-
 .ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list input[type="text"].ddp-readonly {cursor:pointer !important;}
 .ddp-ui-var-plus .ddp-list-form-plus .ddp-link-buttons {clear:both; padding:6px 0 3px 0;text-align:right;}
 
-.ddp-ui-var-plus .ddp-list-blank {clear:both; position:relative; color:#b7b9c2; font-size:13px; letter-spacing:-1px;}
+.ddp-ui-var-plus .ddp-list-blank {float:left; width:100%; margin-top:15px;position:relative; color:#b7b9c2; font-size:13px; letter-spacing:-1px;}
 
 .ddp-ui-var-plus .ddp-list-blank .ddp-icon-blank-plus {display:inline-block; position:relative; top:-2px;width:9px; height:10px; margin-right:6px; background:url(../images/icon_blank.png) no-repeat; vertical-align:middle;}
 .ddp-ui-var-plus .ddp-list-blank .ddp-icon-blank-point {display:inline-block; position:absolute; top:0; right:2px; width:10px; height:14px; margin-left:5px; background:url(../images/icon_blank.png) no-repeat; background-position:left -11px; vertical-align:middle;}
