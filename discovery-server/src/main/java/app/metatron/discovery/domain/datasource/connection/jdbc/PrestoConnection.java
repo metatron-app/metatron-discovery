@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import java.util.List;
 
 /**
  * Created by kyungtaak on 2016. 10. 5..
@@ -105,6 +106,14 @@ public class PrestoConnection extends HiveMetastoreConnection {
       builder.append("   SELECT schema_name, ROW_NUMBER() OVER (PARTITION BY CURRENT_DATE ORDER BY schema_name) ROWNUM ");
       builder.append("   FROM information_schema.schemata ");
       builder.append("   WHERE catalog_name = '" + catalog + "' ");
+
+      List<String> excludeSchemas = this.getExcludeSchemas();
+      if(excludeSchemas != null){
+        builder.append(" AND schema_name NOT IN ( ");
+        builder.append("'" + StringUtils.join(excludeSchemas, "','") + "'");
+        builder.append(" ) ");
+      }
+
       if(StringUtils.isNotEmpty(schemaNamePattern)){
         builder.append("   AND schema_name LIKE '%" + schemaNamePattern + "%' ");
       }
@@ -115,6 +124,14 @@ public class PrestoConnection extends HiveMetastoreConnection {
       builder.append(" SELECT schema_name ");
       builder.append(" FROM information_schema.schemata ");
       builder.append(" WHERE catalog_name = '" + catalog + "' ");
+
+      List<String> excludeSchemas = this.getExcludeSchemas();
+      if(excludeSchemas != null){
+        builder.append(" AND schema_name NOT IN ( ");
+        builder.append("'" + StringUtils.join(excludeSchemas, "','") + "'");
+        builder.append(" ) ");
+      }
+
       if(StringUtils.isNotEmpty(schemaNamePattern)){
         builder.append(" AND schema_name LIKE '%" + schemaNamePattern + "%' ");
       }

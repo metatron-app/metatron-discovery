@@ -17,6 +17,7 @@ import {AbstractService} from '../../common/service/abstract.service';
 import {QueryEditor, Workbench} from '../../domain/workbench/workbench';
 import {CommonUtil} from '../../common/util/common.util';
 import {Page} from '../../domain/common/page';
+import {isNullOrUndefined} from "util";
 
 @Injectable()
 export class WorkbenchService extends AbstractService {
@@ -218,6 +219,11 @@ export class WorkbenchService extends AbstractService {
     connInfo.catalog = connection.catalog;
     connInfo.table = table;
     connInfo.url = connection.url;
+
+    // properties 속성이 존재 할경우
+    if( !isNullOrUndefined(connection.properties) ){
+      connInfo.properties = connection.properties;
+    }
 
     params.connection = connInfo;
     params.database = connection.database;

@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import java.util.List;
 
 /**
  * Created by kyungtaak on 2016. 6. 16..
@@ -187,6 +188,13 @@ public class OracleConnection extends JdbcDataConnection {
   public String getSchemaCountQuery(String schemaNamePattern) {
     StringBuilder builder = new StringBuilder();
     builder.append("SELECT COUNT(username) AS COUNT FROM dba_users WHERE default_tablespace NOT IN ('SYSTEM','SYSAUX') AND account_status='OPEN'");
+
+    List<String> excludeSchemas = this.getExcludeSchemas();
+    if(excludeSchemas != null){
+      builder.append(" AND username NOT IN ( ");
+      builder.append("'" + StringUtils.join(excludeSchemas, "','") + "'");
+      builder.append(" ) ");
+    }
 
     if(StringUtils.isNotEmpty(schemaNamePattern)){
       builder.append(" AND LOWER(username) LIKE LOWER('%" + schemaNamePattern + "%')");
