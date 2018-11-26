@@ -14,26 +14,16 @@
 
 package app.metatron.discovery.domain.audit;
 
+import app.metatron.discovery.domain.AbstractHistoryEntity;
+import app.metatron.discovery.domain.MetatronDomain;
 import com.univocity.parsers.annotations.Parsed;
-
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
+import javax.persistence.*;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
-
-import app.metatron.discovery.domain.AbstractHistoryEntity;
-import app.metatron.discovery.domain.MetatronDomain;
 
 @Entity
 @Table(name="audit")
@@ -179,7 +169,7 @@ public class Audit extends AbstractHistoryEntity implements MetatronDomain<Strin
 
 
   public enum AuditStatus {
-    SUCCESS, FAIL, RUNNING
+    SUCCESS, FAIL, RUNNING, CANCELLED
   }
 
   public enum AuditType {

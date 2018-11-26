@@ -31,6 +31,7 @@ import { DetailWorkbenchSchemaBrowserComponent } from './component/detail-workbe
 import { CodemirrorComponent } from '../workbench/component/editor-workbench/codemirror.component';
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
 import { CanDeactivateGuard } from '../common/gaurd/can.deactivate.guard';
+import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
 
 // 라우트
 const workbenchRoutes: Routes = [
@@ -52,7 +53,8 @@ const workbenchRoutes: Routes = [
   // 컴포넌트
   declarations: [
     WorkbenchComponent,
-    CodemirrorComponent
+    CodemirrorComponent,
+    SaveAsHiveTableComponent
   ],
   // 서비스
   providers: [

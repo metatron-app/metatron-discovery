@@ -20,13 +20,16 @@ import org.junit.Test;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 
+/**
+ * Tree map spec. Test
+ */
 public class TreeMapChartTest extends ChartTest {
 
   @Test
   public void de_serialize() throws JsonProcessingException {
 
     TreeMapChart chart = new TreeMapChart(null, valueNumberFormat(), null, fontLargerSize(),
-                                          treemapDataLabel(), toolTip());
+                                          treemapDataLabel(), toolTip(), 500);
 
     System.out.println(chart.toString());
 

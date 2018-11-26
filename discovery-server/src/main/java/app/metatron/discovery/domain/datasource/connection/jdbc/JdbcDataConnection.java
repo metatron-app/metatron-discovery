@@ -45,7 +45,7 @@ public abstract class JdbcDataConnection extends DataConnection {
   @Column(name = "dc_database")
   protected String database;
 
-  @Column(name = "dc_properties")
+  @Column(name = "dc_properties", length = 65535, columnDefinition = "TEXT")
   @JsonRawValue
   @JsonDeserialize(using = KeepAsJsonDeserialzier.class)
   private String properties;

@@ -1,4 +1,42 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
 package app.metatron.discovery.domain.datasource.ingestion.job;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.List;
 
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
@@ -17,16 +55,10 @@ import app.metatron.discovery.spec.druid.ingestion.BatchIndex;
 import app.metatron.discovery.spec.druid.ingestion.Index;
 import app.metatron.discovery.spec.druid.ingestion.IngestionSpec;
 import app.metatron.discovery.spec.druid.ingestion.IngestionSpecBuilder;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.List;
-
-import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.*;
+import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_COMMON_ERROR;
+import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_JDBC_FETCH_RESULT_ERROR;
+import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_JDBC_QUERY_EXECUTION_ERROR;
 import static app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo.IngestionScope.INCREMENTAL;
 
 public class JdbcIngestionJob extends AbstractIngestionJob implements IngestionJob {
@@ -65,15 +97,12 @@ public class JdbcIngestionJob extends AbstractIngestionJob implements IngestionJ
           && ((BatchIngestionInfo) ingestionInfo).getRange() == INCREMENTAL) {
 
         DataSourceSummary summary = dataSource.getSummary();
-        if(summary == null || summary.getIngestionMaxTime() == null) {
-          throw new DataSourceIngestionException(INGESTION_JDBC_INCREMENTAL_TIME_ERROR, "No time information to use for incremental ingestion job in dataSource.summary");
-        }
 
         csvFiles = jdbcConnectionService.selectIncrementalQueryToCsv(
             (JdbcDataConnection) connection,
             ingestionInfo,
             dataSource.getEngineName(),
-            dataSource.getSummary() == null ? null : dataSource.getSummary().getIngestionMaxTime(),
+            summary == null ? null : summary.getIngestionMaxTime(),
             dataSource.getFields()
         );
       } else {

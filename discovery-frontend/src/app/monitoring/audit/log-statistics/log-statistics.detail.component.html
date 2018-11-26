@@ -55,7 +55,12 @@
         <td *ngFor="let field of statisticsData.fields; let index = index" [class.ddp-logdetail]="index === 0" [ngSwitch]="field.key">
 
           <span class="ddp-data-state" *ngSwitchCase="'status'"
-                [ngClass]="{'ddp-fail' : (data[field.key] && data[field.key] === 'FAIL'), 'ddp-success' : (data[field.key] && data[field.key] === 'SUCCESS')}">{{data[field.key]}}</span>
+                [ngClass]="{'ddp-fail' : (data[field.key] && data[field.key] === 'FAIL')
+              , 'ddp-success' : (data[field.key] && data[field.key] === 'SUCCESS')
+              , 'ddp-cancelled' : (data[field.key] && data[field.key] === 'CANCELLED')
+              , 'ddp-running' : (data[field.key] && data[field.key] === 'RUNNING')}">
+
+            {{data[field.key]}}</span>
 
           <span *ngSwitchCase="'startTime'">
             {{data[field.key] | mdate: 'YYYY-MM-DD HH:mm'}}

@@ -44,13 +44,14 @@ public class MapChart extends Chart {
   public MapChart(@JsonProperty("valueFormat") FieldFormat valueFormat,
                   @JsonProperty("legend") ChartLegend legend,
                   @JsonProperty("toolTip") ChartToolTip toolTip,
+                  @JsonProperty("limit") Integer limit,
                   @JsonProperty("showMapLayer") Boolean showMapLayer,
                   @JsonProperty("map") String map,
                   @JsonProperty("licenseNotation") String licenseNotation,
                   @JsonProperty("showDistrictLayer") Boolean showDistrictLayer,
                   @JsonProperty("districtUnit") String districtUnit,
                   @JsonProperty("layers") List<MapChartLayer> layers) {
-    super(null, valueFormat, legend, null, null, null, toolTip);
+    super(null, valueFormat, legend, null, null, null, toolTip, limit);
     this.showMapLayer = showMapLayer;
     this.map = EnumUtils.getUpperCaseEnum(Map.class, map, Map.OSM);
     this.licenseNotation = licenseNotation;

@@ -60,11 +60,12 @@ public class CombineChart extends Chart {
                       @JsonProperty("fontSize") String fontSize,
                       @JsonProperty("dataLabel") ChartDataLabel dataLabel,
                       @JsonProperty("toolTip") ChartToolTip toolTip,
+                      @JsonProperty("limit") Integer limit,
                       @JsonProperty("barMarkType") String barMarkType,
                       @JsonProperty("lineMarkType") String lineMarkType,
                       @JsonProperty("xAxis") ChartAxis xAxis,
                       @JsonProperty("yAxis") ChartAxis yAxis) {
-    super(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip);
+    super(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip, limit);
     this.barMarkType = EnumUtils.getUpperCaseEnum(BarMarkType.class, barMarkType, BarMarkType.MULTIPLE);
     this.lineMarkType = EnumUtils.getUpperCaseEnum(LineMarkType.class, lineMarkType,LineMarkType.LINE);
     this.xAxis = xAxis;

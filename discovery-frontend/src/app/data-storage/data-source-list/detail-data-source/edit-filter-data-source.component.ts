@@ -61,7 +61,10 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
     { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', measure: true  },
     { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
     { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
-    { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
+    { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' },
+    { label: this.translateService.instant('msg.storage.ui.list.geo.point'), value: 'GEO_POINT', derived: true },
+    { label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), value: 'GEO_POLYGON', derived: true },
+    { label: this.translateService.instant('msg.storage.ui.list.geo.line'), value: 'GEO_LINE', derived: true },
   ];
   // selected type filter
   public selectedTypeFilter: any;

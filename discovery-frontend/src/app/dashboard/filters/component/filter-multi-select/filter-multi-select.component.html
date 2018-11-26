@@ -23,11 +23,8 @@
     </div>
 
     <!-- drop search -->
-    <input type="text" class="ddp-input-search" placeholder="Search" [(ngModel)]="searchText" *ngIf="viewType === 'widget'">
     <div class="ddp-ui-drop-search" [ngClass]="{'ddp-drop' : viewType === 'widget'}">
-      <input type="text" class="ddp-input-search" placeholder="Search"
-             *ngIf="viewType !== 'widget'"
-             [(ngModel)]="searchText" [disabled]="isMockup" >
+      <input type="text" class="ddp-input-search" placeholder="Search" [(ngModel)]="searchText" [disabled]="isMockup" >
       <ul class="ddp-list-selectbox2"
           infinite-scroll
           [scrollWindow]="false"

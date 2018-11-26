@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { isUndefined } from 'util';
+import {isNullOrUndefined, isUndefined} from 'util';
 import * as $ from 'jquery';
 import * as _ from 'lodash';
 declare let echarts: any;
@@ -885,7 +885,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
           this.dataflowService.getUpstreams(this.dataflow.dfId)
             .then((upstreams) => {
 
-            // 선택된 wrangled dataset의 imported dataset id를 몰라서 넘겨야한다 ;
+              // 선택된 wrangled dataset의 imported dataset id를 몰라서 넘겨야한다 ;
               this.dataflowModelService.setUpstreamList(upstreams);
 
               let dfId = this.dataflow.dfId;
@@ -982,23 +982,119 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    */
   public datasetPopupFinishEvent (data) {
 
-    this.isSelectDatasetPopupOpen = false;
-    let newDsId = data.new;
-    let oldDsId = data.old;
-    this.datasetSwap(oldDsId, newDsId);
+    let param = this.setParamForSwapping(data);
+
+    if (!isNullOrUndefined(param)) {
+      if (param['dsList']) { // upstream 에 데이터플로우에 없어서 추가 해야한다
+
+        this._addDatasetToDataflow(param.dfId, param['dsList']).then((result) => {
+
+          delete param['dsList'];
+          this.datasetSwap(param);
+
+        }).catch((error) => {
+
+        });
+
+      } else {
+        this.datasetSwap(param);
+      }
+
+    } else {
+      this.isSelectDatasetPopupOpen = false;
+    }
 
   }
 
+  private setParamForSwapping(data) {
+    let param : SwapParam = new SwapParam();
+
+    param.dfId = this.dataflow.dfId;
+    param.newDsId = data.newDsId;
+    param.oldDsId =  data.oldDsId;
+
+
+    if (data.type === 'wrangled') {
+
+      // 데이터프로우에 데이터셋이 존재 여부는 무조건 체크해야함
+      let idx = this.dataSetList.findIndex((item) => {
+        return item.dsId === data.newDsId
+      });
+
+      if (idx === -1) { // 데이터플로우에 선택된 데이터셋의 upstream 없음
+
+        // 데이터플로우에 데이터셋 추가하는 param 추가
+        let dsList: string[] = [];
+        this.dataSetList.forEach((item) => {
+          dsList.push(item.dsId);
+        });
+        dsList.push(data.newDsId);
+
+        param.dsList= dsList;
+        param.wrangledDsId = this.selectedDataSet.dsId;
+
+      } else { // 데이터플로우에 선택된 데이터셋의 upstream 있음
+
+        let upstreamDsIds = _.cloneDeep(this.dataflowModelService.getUpstreamList());
+
+        let currentIdx = upstreamDsIds.findIndex((item) => {
+          return item.dsId === this.selectedDataSet.dsId
+        });
+
+        let currentUpstreamId = upstreamDsIds[currentIdx].upstreamDsId;
+        upstreamDsIds.splice(currentIdx,1);
+
+        let index = upstreamDsIds.findIndex((item) => {
+          return item.upstreamDsId === currentUpstreamId
+        });
+        if (index !== -1) {
+          // 3번
+          param.wrangledDsId = this.selectedDataSet.dsId;
+        }
+      }
+
+    } else { // imported
+
+
+      // 같은 imported 를 선택 했기 때문에 변화 없음
+      if (param.newDsId === param.oldDsId) {
+        return undefined;
+      } else {
+        // swap 할 imported dataset 이 이미 데이터플로우에 있는 경우 ?
+        // 두개의 같은 imported dataset 이 돌아옴 - 서버에서 처리 필요
+      }
+    }
+
+    return param
+  }
+
+
+  private _addDatasetToDataflow(dfId, datasetLists) {
+    return new Promise(((resolve, reject) => {
+      this.dataflowService.updateDataSets(dfId, { dsIds : datasetLists, forSwap: true })
+        .then((result) => {
+          this.loadingHide();
+          Alert.success(this.translateService.instant('msg.dp.alert.add.ds.success'));
+          resolve(result);
+        }).catch((error) => {
+        this.loadingHide();
+        reject(error)
+      });
+    }));
+  }
+
+
   /**
    * Swap dataset API
-   * @param {string} oldDsId
-   * @param {string} newDsId
    */
-  public datasetSwap(oldDsId: string, newDsId : string) {
+  public datasetSwap(param) {
     this.loadingShow();
-    this.dataflowService.datasetSwap(oldDsId, newDsId).then((result) => {
+
+    this.dataflowService.swapDataset(param).then((result) => {
       console.info('swapping >>>>>>>>>>>>', result);
       Alert.success('Swap successful');
+
+      this.isSelectDatasetPopupOpen = false;
       // 초기화
       this.initSelectedDataSet();
       this.getDataflow();
@@ -1008,7 +1104,6 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
       console.info(error);
       this.loadingHide();
     });
-
   }
 
 
@@ -1329,4 +1424,12 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   } // function - chartClickEventListener
 
 
+}
+
+class SwapParam {
+  oldDsId : string;
+  newDsId : string;
+  dfId : string;
+  wrangledDsId? : string;
+  dsList? : string[];
 }

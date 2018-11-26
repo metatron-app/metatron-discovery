@@ -18,7 +18,6 @@
   <div class="ddp-box-setting">
     <div class="ddp-data-top-title">
       {{column.name}}
-
     </div>
     <!-- data delete -->
     <div class="ddp-data-delete" *ngIf="column.unloaded">
@@ -38,9 +37,11 @@
             {{'msg.storage.ui.row' | translate}}
           </div>
         </div>
-
         <!-- list value -->
         <ul class="ddp-list-value">
+          <li class="ddp-data-none" *ngIf="columnData.length === 0">
+            {{(column.derived && column.derivationRule.type !== 'user_defined' ? 'msg.storage.ui.config.no.data' : 'msg.storage.ui.config.extension.no.data') | translate}}
+          </li>
           <li *ngFor="let data of columnData">
             {{data}}
           </li>
@@ -64,7 +65,8 @@
                 <ul class="ddp-list-checktype">
                   <li *ngFor="let role of roleType">
                     <label class="ddp-label-radio" (change)="onChangeRole(role)">
-                      <input type="radio" [checked]="column.role === role.value">
+                      <input type="radio" [checked]="column.role === role.value"
+                             [disabled]="column.derived && column.role !== role.value">
                       <i class="ddp-icon-radio"></i>
                       <span class="ddp-txt-radio">{{role.label}}</span>
                     </label>
@@ -75,7 +77,7 @@
               <!-- //edit option -->
             </div>
             <!-- //edit -->
-            <!-- edit -->
+            <!-- type -->
             <div class="ddp-wrap-edit3">
               <label class="ddp-ui-label-name">
                 {{'msg.comm.detail.type' | translate}}
@@ -87,10 +89,13 @@
               <div class="ddp-ui-option-in">
                 <!-- seletbox -->
                 <!-- 선택시 ddp-selected 추가 -->
-                <div class="ddp-type-selectbox" [ngClass]="{'ddp-selected' : selectFl}" (click)="selectFl = !selectFl" (clickOutside)="selectFl = false">
+                <div class="ddp-type-selectbox"
+                     [class.ddp-disabled]="column.derived"
+                     [class.ddp-selected]="!column.derived && selectFl"
+                     (click)="selectFl = !selectFl" (clickOutside)="selectFl = false">
                   <span class="ddp-txt-selectbox">
                       <span class="ddp-type-txt">
-                          <em class="{{getIconClass(column.logicalType)}}"></em>
+                          <em class="{{getFieldTypeIconClass(column.logicalType)}}"></em>
                           {{getLogicalType(column.logicalType).label}}
                       </span>
                   </span>
@@ -112,8 +117,31 @@
               </div>
               <!-- //edit option -->
             </div>
-            <!-- //edit -->
-
+            <!-- //type -->
+            <!-- geo -->
+            <div class="ddp-wrap-edit3" *ngIf="column.derived && column.derivationRule.type !== 'user_defined'"
+                 (click)="isGeoCoordinateListShow = !isGeoCoordinateListShow" (clickOutside)="isGeoCoordinateListShow = false">
+              <label class="ddp-ui-label-name">
+                {{'msg.storage.ui.geo.coordinate' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-option-in">
+                <!-- selectbox -->
+                <div class="ddp-type-selectbox" [class.ddp-selected]="isGeoCoordinateListShow">
+                  <span class="ddp-txt-selectbox">{{column.format.originalSrsName}}</span>
+                  <ul class="ddp-list-selectbox ddp-selectdown">
+                    <li *ngFor="let item of geoCoordinateList">
+                      <a href="javascript:" (click)="onChangeGeoCoordinates(item)">
+                        {{item}}
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <!-- //selectbox -->
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //geo -->
             <!-- Time display format -->
             <div class="ddp-wrap-edit3"  *ngIf="column.logicalType.toString() === 'TIMESTAMP'">
               <div class="ddp-ui-label-name">
@@ -248,13 +276,13 @@
                   <li>
                     <div class="ddp-form-checktype">
                       <label class="ddp-label-radio" (change)="onChangeNullType('replace')">
-                        <input type="radio" [checked]="column.ingestionRule.type === 'replace'">
+                        <input type="radio" [checked]="column.ingestionRule.type.toString() === 'replace'">
                         <i class="ddp-icon-radio"></i>
                         <span class="ddp-txt-radio">{{'msg.storage.ui.replace.with' | translate}}</span>
                       </label>
                       <!-- input type -->
                       <div class="ddp-type-input">
-                        <div class="ddp-input-apply" [class.ddp-disabled]="column.ingestionRule.type !== 'replace'">
+                        <div class="ddp-input-apply" [class.ddp-disabled]="column.ingestionRule.type.toString() !== 'replace'">
                           <input type="text" class="ddp-input-txt" placeholder="{{getDefaultValue(column.logicalType)}}"
                                  [(ngModel)]="column['ingestionRule'].value"
                                  (ngModelChange)="initReplaceValid(column)">
@@ -265,21 +293,21 @@
                       <!-- //input type -->
                     </div>
                     <!-- error -->
-                    <div class="ddp-ui-error" *ngIf="column.ingestionRule.type === 'replace' && column.isValidReplaceValue === false">
+                    <div class="ddp-ui-error" *ngIf="column.ingestionRule.type.toString() === 'replace' && column.isValidReplaceValue === false">
                       <em class="ddp-icon-error"></em>{{column.replaceValidMessage}}
                     </div>
                     <!-- //error -->
                   </li>
                   <li>
                     <label class="ddp-label-radio" (change)="onChangeNullType('discard')">
-                      <input type="radio" [checked]="column.ingestionRule.type === 'discard'">
+                      <input type="radio" [checked]="column.ingestionRule.type.toString() === 'discard'">
                       <i class="ddp-icon-radio"></i>
                       <span class="ddp-txt-radio">{{'msg.storage.btn.discard' | translate}}</span>
                     </label>
                   </li>
                   <li>
                     <label class="ddp-label-radio" (change)="onChangeNullType('default')">
-                      <input type="radio" [checked]="column.ingestionRule.type === 'default'">
+                      <input type="radio" [checked]="column.ingestionRule.type.toString() === 'default'">
                       <i class="ddp-icon-radio"></i>
                       <span class="ddp-txt-radio">{{'msg.storage.btn.no.apply' | translate}}</span>
                     </label>

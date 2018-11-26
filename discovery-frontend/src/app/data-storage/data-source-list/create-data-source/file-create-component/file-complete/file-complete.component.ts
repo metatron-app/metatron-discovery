@@ -17,7 +17,7 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { DatasourceInfo, FieldFormatType } from '../../../../../domain/datasource/datasource';
+import { DatasourceInfo, FieldFormatType, IngestionRuleType } from '../../../../../domain/datasource/datasource';
 import { Alert } from '../../../../../common/util/alert.util';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { CommonUtil } from '../../../../../common/util/common.util';
@@ -269,6 +269,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       name: 'current_datetime',
       type: 'TIMESTAMP',
       role: 'TIMESTAMP',
+      derived: true,
       format: {
         type: FieldFormatType.DATE_TIME,
         format: 'yyyy-MM-dd HH:mm:ss'
@@ -291,14 +292,16 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     // delete used UI
     delete column.isValidTimeFormat;
     delete column.isValidReplaceValue;
-    if (column.logicalType !== 'TIMESTAMP' && column.format) {
-      delete column.format;
-    } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {
-      delete column.format.format;
-    } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.DATE_TIME) {
-      delete column.format.unit;
+    // if not GEO types
+    if (column.logicalType.indexOf('GEO_') === -1) {
+      if (column.logicalType !== 'TIMESTAMP' && column.format) {
+        delete column.format;
+      } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {
+        delete column.format.format;
+      } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.DATE_TIME) {
+        delete column.format.unit;
+      }
     }
-
   }
 
   /**
@@ -312,9 +315,9 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       // ingestion type
       const type = column.ingestionRule.type;
       // if type is default
-      if (type === 'default') {
+      if (type === IngestionRuleType.DEFAULT) {
         delete column.ingestionRule;
-      } else if (type === 'discard') {
+      } else if (type === IngestionRuleType.DISCARD) {
         delete column.ingestionRule.value;
       }
     }

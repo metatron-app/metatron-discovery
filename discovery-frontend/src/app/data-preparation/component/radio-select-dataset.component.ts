@@ -140,11 +140,11 @@ export class RadioSelectDatasetComponent extends AbstractComponent implements On
     // 지금 보고있는 데이터면 show 해제
     if (dataset.dsId === this.selectedDatasetId) {
       this.selectedDatasetId = '';
-      return;
+    } else {
+      // 데이터 아이디 저장
+      this.selectedDatasetId = dataset.dsId;
     }
 
-    // 데이터 아이디 저장
-    this.selectedDatasetId = dataset.dsId;
     this.datasetSelectEvent.emit(this.selectedDatasetId);
 
   } // function - selectDataset

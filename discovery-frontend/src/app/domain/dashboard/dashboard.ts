@@ -176,6 +176,7 @@ export class QueryParam {
   public projections: any[];
   public limits: QueryParamLimit;
   public preview: boolean;
+  public metaQuery:boolean;
 
   constructor() {
     this.dataSource = new BoardDataSource();
@@ -183,6 +184,7 @@ export class QueryParam {
     this.projections = [];
     this.limits = new QueryParamLimit();
     this.preview = true;
+    this.metaQuery = false;
   }
 }  // end of QueryParam Class
 
