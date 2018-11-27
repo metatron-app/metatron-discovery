@@ -478,18 +478,13 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
     this.fileFormat = [
       { value: 'CSV', label: 'CSV' },
-      { value: 'JSON', label: 'JSON' }
+      // { value: 'JSON', label: 'JSON' }
     ];
 
     this.ssName = '';
     this.fileLocations = [];
     this.fileUris = [];
-    /*
-    this.fileLocations = [
-      { value: 'WAS', label: 'WAS' },
-      { value: 'HDFS', label: 'HDFS' }
-    ];
-    */
+
 
     // -------------------
     // Hive

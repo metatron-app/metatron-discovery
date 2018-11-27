@@ -301,8 +301,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       } else if(extension.toUpperCase() === 'CSV') {
         this.name = `${fileName} (CSV)`;
       } else {
-        // 불명의 확장자는 CSV로 간주함
-        this.name = `${fileName} (CSV)`;
+        this.name = `${fileName} (${extension.toUpperCase()})`;
       }
     } else if ('DB' === type) {
       if( !isUndefined(this.datasetJdbc.dataconnection.connection) ) {
