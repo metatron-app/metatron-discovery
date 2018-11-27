@@ -1385,7 +1385,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   /**
    * 선반의 dimension / measure값의 중복된값 제거
    */
-  protected distinctPivotItems(shelves: AbstractField[], field: any, idx: number, shelf: AbstractField[], targetContainer: string): boolean {
+  public distinctPivotItems(shelves: AbstractField[], field: any, idx: number, shelf: AbstractField[], targetContainer: string): boolean {
 
     // pivot item들이 제거됐는지 여부 (default: 제거 안됨)
     let removedPivotItemFl: boolean = false;
