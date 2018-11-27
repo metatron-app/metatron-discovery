@@ -886,7 +886,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             }
           }
         } else {
-          const ranges = scope.setColorRange(styleOption, styleData, ChartColorList[styleLayer.color['schema']], layerNum);
+          const ranges = scope.setColorRange(styleOption, styleData, scope.getColorList(styleLayer), layerNum);
 
           // set decimal value
           const formatValue = ((value) => {
@@ -920,7 +920,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       else if( _.eq(featureColorType, MapBy.DIMENSION) ) {
 
         // Get dimension color
-        const ranges = scope.setDimensionColorRange(styleLayer, styleData, ChartColorList[styleLayer.color.schema], []);
+        const ranges = scope.setDimensionColorRange(styleLayer, styleData, scope.getColorList(styleLayer), []);
         _.each(ranges, (range) => {
           if( _.eq(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column)], range.column) ) {
             featureColor = range.color;
@@ -1176,7 +1176,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       let layerType = styleLayer.type;
       let featureColor = styleLayer.color.schema;
       let featureColorType = styleLayer.color.by;
-      let symbolType = symbolLayer.symbol;
+      let symbolType = symbolLayer.symbol
       let outlineType = symbolLayer.outline ? symbolLayer.outline.thickness : null;
       let outlineColor = symbolLayer.outline ? symbolLayer.outline.color : null;
       let lineMaxVal = 1; //styleLayer.size.max;
@@ -1226,7 +1226,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
               }
             }
           } else {
-            const ranges = scope.setColorRange(styleOption, styleData, ChartColorList[styleLayer.color['schema']], layerNum);
+            const ranges = scope.setColorRange(styleOption, styleData, scope.getColorList(styleLayer), layerNum);
 
             // set decimal value
             const formatValue = ((value) => {
@@ -1260,7 +1260,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         else if( _.eq(featureColorType, MapBy.DIMENSION) ) {
 
           // Get dimension color
-          const ranges = scope.setDimensionColorRange(styleLayer, styleData, ChartColorList[styleLayer.color.schema], []);
+          const ranges = scope.setDimensionColorRange(styleLayer, styleData, scope.getColorList(styleLayer), []);
           _.each(ranges, (range) => {
             if( _.eq(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column)], range.column) ) {
               featureColor = range.color;
@@ -1957,7 +1957,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         }
         else {
           if( !_.eq(layer.color.column, MapBy.NONE) ) {
-            const ranges = this.setDimensionColorRange(layer, this.data[num], ChartColorList[layer.color.schema], []);
+            const ranges = this.setDimensionColorRange(layer, this.data[num], this.getColorList(layer), []);
             _.each(ranges, (range) => {
               let colorInfo: any = {};
               colorInfo.color = range.color;
@@ -2009,7 +2009,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         else {
 
           if(this.data[num].valueRange && this.data[num].valueRange[this.getFieldAlias(layer.color.column)]) {
-            const ranges = this.setColorRange(this.getUiMapOption(), this.data[num], ChartColorList[layer.color.schema], num, []);
+
+            const ranges = this.setColorRange(this.getUiMapOption(), this.data[num], this.getColorList(layer), num, []);
             _.each(ranges, (range, index) => {
               let minVal: number = range.fixMin;
               let maxVal: number = range.fixMax;
@@ -2422,5 +2423,21 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     let width = this.area.nativeElement.clientWidth;
 
     return Math.ceil(Math.LOG2E * Math.log(width / 256));
+  }
+
+  /**
+   * Get color list
+   * @param layer
+   */
+  private getColorList(layer: UILayers): any[] {
+
+    let colorList = [];
+    if( _.eq(layer.type, MapLayerType.HEATMAP) ) {
+      colorList = HeatmapColorList[layer.color.schema];
+    }
+    else {
+      colorList = ChartColorList[layer.color.schema];
+    }
+    return colorList;
   }
 }
