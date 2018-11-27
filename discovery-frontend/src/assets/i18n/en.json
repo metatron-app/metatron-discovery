@@ -382,6 +382,7 @@
   "msg.space.th.allowance" : "Show open data only",
   "msg.space.th.server" : "Server",
   "msg.space.create.notebook.title": "Select source type",
+  "msg.space.warning.can-not-create-11depth-folder" : "You can only create subfolders to 10 depths.",
 
   "msg.alert.retrieve.fail" : "Failed to retrieve data",
   "msg.alert.del.success": " deleted",

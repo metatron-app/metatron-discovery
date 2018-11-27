@@ -1,0 +1,12 @@
+@charset "utf-8";
+
+/**************************************************************
+  Page : 01_워크스페이스_01목록
+**************************************************************/
+
+@media screen and (max-width: 1550px) {
+    .page-workspace .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav{
+        max-width:70px;
+    }
+
+}
