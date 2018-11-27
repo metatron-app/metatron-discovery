@@ -1,29 +1,28 @@
-package app.metatron.discovery.domain.datasource;
+package app.metatron.discovery.common.criteria;
 
 /**
  * Project : metatron-discovery
  * Created by IntelliJ IDEA
  * Developer : sohncw
- * Date : 2018. 11. 19.
- * Time : AM 10:48
+ * Date : 2018. 11. 27.
+ * Time : PM 3:11
  */
-public class DataSourceListFilter {
-
-  DataSourceListCriterion.CriterionKey criterionKey;
+public class ListFilter {
+  ListCriterionKey criterionKey;
   String filterKey;
   String filterSubKey;
   String filterName;
   String filterValue;
   String filterSubValue;
 
-  public DataSourceListFilter(DataSourceListCriterion.CriterionKey criterionKey, String filterKey, String filterValue, String filterName){
+  public ListFilter(ListCriterionKey criterionKey, String filterKey, String filterValue, String filterName){
     this.criterionKey = criterionKey;
     this.filterKey = filterKey;
     this.filterValue = filterValue;
     this.filterName = filterName;
   }
 
-  public DataSourceListFilter(DataSourceListCriterion.CriterionKey criterionKey, String filterKey, String filterSubKey,
+  public ListFilter(ListCriterionKey criterionKey, String filterKey, String filterSubKey,
                               String filterValue, String filterSubValue, String filterName){
     this.criterionKey = criterionKey;
     this.filterKey = filterKey;
@@ -33,17 +32,17 @@ public class DataSourceListFilter {
     this.filterName = filterName;
   }
 
-  public DataSourceListFilter(String filterKey, String filterValue, String filterName){
+  public ListFilter(String filterKey, String filterValue, String filterName){
     this.filterKey = filterKey;
     this.filterValue = filterValue;
     this.filterName = filterName;
   }
 
-  public DataSourceListCriterion.CriterionKey getCriterionKey() {
+  public ListCriterionKey getCriterionKey() {
     return criterionKey;
   }
 
-  public void setCriterionKey(DataSourceListCriterion.CriterionKey criterionKey) {
+  public void setCriterionKey(ListCriterionKey criterionKey) {
     this.criterionKey = criterionKey;
   }
 

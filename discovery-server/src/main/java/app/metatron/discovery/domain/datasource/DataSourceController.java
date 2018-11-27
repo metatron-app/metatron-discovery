@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.datasource;
 
 import app.metatron.discovery.common.CommonLocalVariable;
+import app.metatron.discovery.common.criteria.ListCriterion;
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.entity.SearchParamValidator;
 import app.metatron.discovery.common.exception.BadRequestException;
@@ -887,6 +888,7 @@ public class DataSourceController {
     // Validate DataSourceType
     List<DataSource.DataSourceType> dataSourceTypeEnumList = null;
     if(dataSourceTypes != null){
+      dataSourceTypeEnumList = new ArrayList<>();
       for(String dataSourceTypeStr : dataSourceTypes){
         dataSourceTypeEnumList.add(SearchParamValidator.enumUpperValue(DataSource.DataSourceType.class, dataSourceTypeStr, "dataSourceType"));
       }
@@ -895,6 +897,7 @@ public class DataSourceController {
     // Validate ConnectionType
     List<DataSource.ConnectionType> connectionTypeEnumList = null;
     if(connectionTypes != null){
+      connectionTypeEnumList = new ArrayList<>();
       for(String connectionTypeStr : connectionTypes){
         connectionTypeEnumList.add(SearchParamValidator.enumUpperValue(DataSource.ConnectionType.class, connectionTypeStr, "connectionType"));
       }
@@ -903,6 +906,7 @@ public class DataSourceController {
     // Validate SourceType
     List<DataSource.SourceType> sourceTypeEnumList = null;
     if(sourceTypes != null){
+      sourceTypeEnumList = new ArrayList<>();
       for(String sourceTypeStr : sourceTypes){
         sourceTypeEnumList.add(SearchParamValidator.enumUpperValue(DataSource.SourceType.class, sourceTypeStr, "sourceType"));
       }
@@ -930,20 +934,20 @@ public class DataSourceController {
 
   @RequestMapping(value = "/datasources/criteria", method = RequestMethod.GET)
   public ResponseEntity<?> getCriteria() {
-    List<DataSourceListCriterion> criteria = dataSourceService.getDataSourceListCriterion();
+    List<ListCriterion> criteria = dataSourceService.getListCriterion();
     return ResponseEntity.ok(criteria);
   }
 
   @RequestMapping(value = "/datasources/criteria/{criterionKey}", method = RequestMethod.GET)
   public ResponseEntity<?> getCriterionDetail(@PathVariable(value = "criterionKey") String criterionKey) {
 
-    DataSourceListCriterion.CriterionKey criterionKeyEnum = DataSourceListCriterion.CriterionKey.valueOf(criterionKey);
+    DataSourceListCriterionKey criterionKeyEnum = DataSourceListCriterionKey.valueOf(criterionKey);
 
     if(criterionKeyEnum == null){
       throw new ResourceNotFoundException("Criterion(" + criterionKey + ") is not founded.");
     }
 
-    DataSourceListCriterion criterion = dataSourceService.getDataSourceListCriterionByKey(criterionKeyEnum);
+    ListCriterion criterion = dataSourceService.getListCriterionByKey(criterionKeyEnum);
     return ResponseEntity.ok(criterion);
   }
 

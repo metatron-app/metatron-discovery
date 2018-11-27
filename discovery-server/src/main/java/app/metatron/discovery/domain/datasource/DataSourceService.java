@@ -14,6 +14,9 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.common.criteria.ListCriterion;
+import app.metatron.discovery.common.criteria.ListCriterionType;
+import app.metatron.discovery.common.criteria.ListFilter;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineQueryService;
@@ -30,6 +33,7 @@ import app.metatron.discovery.domain.workspace.WorkspaceService;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.PolarisUtils;
 import com.google.common.collect.Lists;
+import com.querydsl.core.types.Predicate;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -252,72 +256,72 @@ public class DataSourceService {
     return dataSources;
   }
   
-  public List<DataSourceListCriterion> getDataSourceListCriterion(){
+  public List<ListCriterion> getListCriterion(){
 
-    List<DataSourceListCriterion> criteria = new ArrayList<>();
+    List<ListCriterion> criteria = new ArrayList<>();
     
     //Status
-    criteria.add(new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.STATUS,
-            DataSourceListCriterion.CriterionType.CHECKBOX, "msg.storage.ui.criterion.status"));
+    criteria.add(new ListCriterion(DataSourceListCriterionKey.STATUS,
+            ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.status"));
 
     //Publish
-    criteria.add(new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.PUBLISH,
-            DataSourceListCriterion.CriterionType.CHECKBOX, "msg.storage.ui.criterion.publish", true));
+    criteria.add(new ListCriterion(DataSourceListCriterionKey.PUBLISH,
+            ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.publish", true));
 
     //Creator
-    criteria.add(new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.CREATOR,
-            DataSourceListCriterion.CriterionType.CHECKBOX, "msg.storage.ui.criterion.creator", true));
+    criteria.add(new ListCriterion(DataSourceListCriterionKey.CREATOR,
+            ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.creator", true));
 
     //CreatedTime
-    DataSourceListCriterion createdTimeCriterion
-            = new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.CREATED_TIME,
-            DataSourceListCriterion.CriterionType.RANGE_DATETIME, "msg.storage.ui.criterion.created-time");
-    createdTimeCriterion.addFilter(new DataSourceListFilter(DataSourceListCriterion.CriterionKey.CREATED_TIME,
+    ListCriterion createdTimeCriterion
+            = new ListCriterion(DataSourceListCriterionKey.CREATED_TIME,
+            ListCriterionType.RANGE_DATETIME, "msg.storage.ui.criterion.created-time");
+    createdTimeCriterion.addFilter(new ListFilter(DataSourceListCriterionKey.CREATED_TIME,
             "createdTimeFrom", "createdTimeTo", "", "",
             "msg.storage.ui.criterion.created-time"));
     criteria.add(createdTimeCriterion);
 
     //DateTime
-//    criteria.add(new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.DATETIME,
-//            DataSourceListCriterion.CriterionType.RADIO, "msg.storage.ui.criterion.datetime"));
+//    criteria.add(new ListCriterion(DataSourceListCriterionKey.DATETIME,
+//            ListCriterionType.RADIO, "msg.storage.ui.criterion.datetime"));
 
     //more
-    DataSourceListCriterion moreCriterion = new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.MORE,
-            DataSourceListCriterion.CriterionType.CHECKBOX, "msg.storage.ui.criterion.more");
+    ListCriterion moreCriterion = new ListCriterion(DataSourceListCriterionKey.MORE,
+            ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.more");
 //    DateTime currentDateTime = DateTime.now();
 //    DateTime recentlyDateTime = currentDateTime.minusDays(7);
 //    String fromStr = recentlyDateTime.toString();
 //    String toStr = currentDateTime.toString();
-//    moreCriterion.addFilter(new DataSourceListFilter(DataSourceListCriterion.CriterionKey.MODIFIED_TIME,
+//    moreCriterion.addFilter(new ListFilter(DataSourceListCriterionKey.MODIFIED_TIME,
 //            "modifiedTimeFrom", "modifiedTimeTo", fromStr, toStr,
 //            "msg.storage.ui.criterion.recently-modified-time"));
-//    moreCriterion.addFilter(new DataSourceListFilter(DataSourceListCriterion.CriterionKey.CREATED_TIME,
+//    moreCriterion.addFilter(new ListFilter(DataSourceListCriterionKey.CREATED_TIME,
 //            "createdTimeFrom", "createdTimeTo", fromStr, toStr,
 //            "msg.storage.ui.criterion.recently-created-time"));
 
-    moreCriterion.addSubCriterion(new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.CONNECTION_TYPE,
-            DataSourceListCriterion.CriterionType.CHECKBOX, "msg.storage.ui.criterion.connection-type"));
-    moreCriterion.addSubCriterion(new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.DATASOURCE_TYPE,
-            DataSourceListCriterion.CriterionType.CHECKBOX, "msg.storage.ui.criterion.ds-type"));
-    moreCriterion.addSubCriterion(new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.SOURCE_TYPE,
-            DataSourceListCriterion.CriterionType.CHECKBOX, "msg.storage.ui.criterion.source-type"));
-    moreCriterion.addSubCriterion(new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.CONNECTION_TYPE,
-            DataSourceListCriterion.CriterionType.CHECKBOX, "msg.storage.ui.criterion.connection-type"));
+    moreCriterion.addSubCriterion(new ListCriterion(DataSourceListCriterionKey.CONNECTION_TYPE,
+            ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.connection-type"));
+    moreCriterion.addSubCriterion(new ListCriterion(DataSourceListCriterionKey.DATASOURCE_TYPE,
+            ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.ds-type"));
+    moreCriterion.addSubCriterion(new ListCriterion(DataSourceListCriterionKey.SOURCE_TYPE,
+            ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.source-type"));
+    moreCriterion.addSubCriterion(new ListCriterion(DataSourceListCriterionKey.CONNECTION_TYPE,
+            ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.connection-type"));
     criteria.add(moreCriterion);
 
     //description
-//    DataSourceListCriterion descriptionCriterion
-//            = new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.CONTAINS_TEXT,
-//            DataSourceListCriterion.CriterionType.TEXT, "msg.storage.ui.criterion.contains-text");
-//    descriptionCriterion.addFilter(new DataSourceListFilter(DataSourceListCriterion.CriterionKey.CONTAINS_TEXT,
+//    ListCriterion descriptionCriterion
+//            = new ListCriterion(DataSourceListCriterionKey.CONTAINS_TEXT,
+//            ListCriterionType.TEXT, "msg.storage.ui.criterion.contains-text");
+//    descriptionCriterion.addFilter(new ListFilter(DataSourceListCriterionKey.CONTAINS_TEXT,
 //            "containsText", "", "msg.storage.ui.criterion.contains-text"));
 //    criteria.add(descriptionCriterion);
 
     return criteria;
   }
 
-  public DataSourceListCriterion getDataSourceListCriterionByKey(DataSourceListCriterion.CriterionKey criterionKey){
-    DataSourceListCriterion criterion = new DataSourceListCriterion();
+  public ListCriterion getListCriterionByKey(DataSourceListCriterionKey criterionKey){
+    ListCriterion criterion = new ListCriterion();
     criterion.setCriterionKey(criterionKey);
 
     switch (criterionKey){
@@ -325,14 +329,14 @@ public class DataSourceService {
         for(DataSource.Status status : DataSource.Status.values()){
           String filterName = status.toString();
           filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
-          criterion.addFilter(new DataSourceListFilter(criterionKey, "status", status.toString(), filterName));
+          criterion.addFilter(new ListFilter(criterionKey, "status", status.toString(), filterName));
         }
         break;
       case DATASOURCE_TYPE:
         for(DataSource.DataSourceType dataSourceType : DataSource.DataSourceType.values()){
           String filterName = dataSourceType.toString();
           filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
-          criterion.addFilter(new DataSourceListFilter(criterionKey, "dataSourceType",
+          criterion.addFilter(new ListFilter(criterionKey, "dataSourceType",
                   dataSourceType.toString(), filterName));
         }
         break;
@@ -340,7 +344,7 @@ public class DataSourceService {
         for(DataSource.SourceType sourceType : DataSource.SourceType.values()){
           String filterName = sourceType.toString();
           filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
-          criterion.addFilter(new DataSourceListFilter(criterionKey, "sourceType",
+          criterion.addFilter(new ListFilter(criterionKey, "sourceType",
                   sourceType.toString(), filterName));
         }
         break;
@@ -348,7 +352,7 @@ public class DataSourceService {
         for(DataSource.ConnectionType connectionType : DataSource.ConnectionType.values()){
           String filterName = connectionType.toString();
           filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
-          criterion.addFilter(new DataSourceListFilter(criterionKey, "connectionType",
+          criterion.addFilter(new ListFilter(criterionKey, "connectionType",
                   connectionType.toString(), filterName));
         }
         break;
@@ -357,14 +361,14 @@ public class DataSourceService {
         criterion.setSearchable(true);
         //my private workspace
         Workspace myWorkspace = workspaceRepository.findPrivateWorkspaceByOwnerId(AuthUtils.getAuthUserName());
-        criterion.addFilter(new DataSourceListFilter(criterionKey, "workspace",
+        criterion.addFilter(new ListFilter(criterionKey, "workspace",
                 myWorkspace.getId(), myWorkspace.getName()));
 
         //my public workspace
         List<Workspace> publicWorkspaces
                 = workspaceService.getPublicWorkspaces(false, false, false, null);
         for(Workspace workspace : publicWorkspaces){
-          criterion.addFilter(new DataSourceListFilter(criterionKey, "workspace",
+          criterion.addFilter(new ListFilter(criterionKey, "workspace",
                   workspace.getId(), workspace.getName()));
         }
         break;
@@ -375,38 +379,38 @@ public class DataSourceService {
         User user = userRepository.findByUsername(userName);
 
         // me
-        DataSourceListCriterion meCriterion = new DataSourceListCriterion();
+        ListCriterion meCriterion = new ListCriterion();
         meCriterion.setCriterionName("msg.storage.ui.criterion.me");
-        meCriterion.setCriterionType(DataSourceListCriterion.CriterionType.CHECKBOX);
-        meCriterion.addFilter(new DataSourceListFilter("createdBy", userName,
+        meCriterion.setCriterionType(ListCriterionType.CHECKBOX);
+        meCriterion.addFilter(new ListFilter("createdBy", userName,
                 user.getFullName() + "(" + userName + ")"));
         criterion.addSubCriterion(meCriterion);
 
         //my group
-        DataSourceListCriterion myGroupCriterion = new DataSourceListCriterion();
+        ListCriterion myGroupCriterion = new ListCriterion();
         myGroupCriterion.setCriterionName("msg.storage.ui.criterion.my-groups");
         List<Map<String, Object>> groupList = groupService.getJoinedGroupsForProjection(userName, false);
         for(Map<String, Object> groupMap : groupList){
-          DataSourceListFilter filter = new DataSourceListFilter("userGroup", groupMap.get("id").toString(),
+          ListFilter filter = new ListFilter("userGroup", groupMap.get("id").toString(),
                   groupMap.get("name").toString());
           myGroupCriterion.addFilter(filter);
         }
         criterion.addSubCriterion(myGroupCriterion);
 
         //datasource created users
-        DataSourceListCriterion dsCreatedUserCriterion = new DataSourceListCriterion();
+        ListCriterion dsCreatedUserCriterion = new ListCriterion();
         dsCreatedUserCriterion.setCriterionName("msg.storage.ui.criterion.all-users");
         List<String> creatorIdList = dataSourceRepository.findDistinctCreatedBy();
         List<User> creatorUserList = userRepository.findByUsernames(creatorIdList);
         for(User creator : creatorUserList){
-          DataSourceListFilter filter = new DataSourceListFilter("createdBy", creator.getUsername(),
+          ListFilter filter = new ListFilter("createdBy", creator.getUsername(),
                   creator.getFullName() + "(" + creator.getUsername() + ")");
           dsCreatedUserCriterion.addFilter(filter);
         }
         criterion.addSubCriterion(dsCreatedUserCriterion);
 
         //data manager group
-        DataSourceListCriterion dataManagerCriterion = new DataSourceListCriterion();
+        ListCriterion dataManagerCriterion = new ListCriterion();
         dataManagerCriterion.setCriterionName("msg.storage.ui.criterion.data-managers");
 
         List<GroupMember> memberResults = groupMemberRepository.findByGroupId("ID_GROUP_DATA_MANAGER");
@@ -416,7 +420,7 @@ public class DataSourceService {
                   .collect(Collectors.toList());
           List<User> dataManagerUserList = userRepository.findByUsernames(memberUserNameList);
           for(User member : dataManagerUserList){
-            DataSourceListFilter filter = new DataSourceListFilter("createdBy", member.getUsername(),
+            ListFilter filter = new ListFilter("createdBy", member.getUsername(),
                     member.getFullName() + "(" + member.getUsername() + ")");
             dataManagerCriterion.addFilter(filter);
           }
@@ -425,24 +429,24 @@ public class DataSourceService {
         break;
       case DATETIME:
         //created_time
-        DataSourceListCriterion createdTimeCriterion = new DataSourceListCriterion();
+        ListCriterion createdTimeCriterion = new ListCriterion();
         createdTimeCriterion.setCriterionName("msg.storage.ui.criterion.created-time");
-        createdTimeCriterion.addFilter(new DataSourceListFilter(DataSourceListCriterion.CriterionKey.CREATED_TIME,
+        createdTimeCriterion.addFilter(new ListFilter(DataSourceListCriterionKey.CREATED_TIME,
                 "createdTimeFrom", "createdTimeTo", "", "",
                 "msg.storage.ui.criterion.created-time"));
         criterion.addSubCriterion(createdTimeCriterion);
 
         //modified_time
-        DataSourceListCriterion modifiedTimeCriterion = new DataSourceListCriterion();
+        ListCriterion modifiedTimeCriterion = new ListCriterion();
         modifiedTimeCriterion.setCriterionName("msg.storage.ui.criterion.modified-time");
-        modifiedTimeCriterion.addFilter(new DataSourceListFilter(DataSourceListCriterion.CriterionKey.MODIFIED_TIME,
+        modifiedTimeCriterion.addFilter(new ListFilter(DataSourceListCriterionKey.MODIFIED_TIME,
                 "modifiedTimeFrom", "modifiedTimeTo", "", "",
                 "msg.storage.ui.criterion.modified-time"));
         criterion.addSubCriterion(modifiedTimeCriterion);
         break;
       case CREATED_TIME:
         //created_time
-        criterion.addFilter(new DataSourceListFilter(DataSourceListCriterion.CriterionKey.CREATED_TIME,
+        criterion.addFilter(new ListFilter(DataSourceListCriterionKey.CREATED_TIME,
                 "createdTimeFrom", "createdTimeTo", "", "",
                 "msg.storage.ui.criterion.created-time"));
         break;
