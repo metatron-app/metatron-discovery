@@ -129,6 +129,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   public heatmapLayer = undefined;
 
   // Tooltip layer
+  public tileLayer = undefined;
+
+  // Tooltip layer
   public tooltipLayer = undefined;
 
   // Tooltip info
@@ -548,10 +551,18 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       ////////////////////////////////////////////////////////
       if( _.eq(layer.type, MapLayerType.SYMBOL) ) {
 
-        this.clusterLayer = new ol.layer.Vector({
-          source: clusterSource,
-          style: this.clusterStyleFunction(0, this.data)
-        });
+        // Create
+        if( !this.clusterLayer ) {
+          this.clusterLayer = new ol.layer.Vector({
+            source: clusterSource,
+            style: this.clusterStyleFunction(0, this.data)
+          });
+        }
+
+        // this.clusterLayer = new ol.layer.Vector({
+        //   source: clusterSource,
+        //   style: this.clusterStyleFunction(0, this.data)
+        // });
 
         // Set source
         this.clusterLayer.setSource(clusterSource);
@@ -584,14 +595,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       if( _.eq(layer.type, MapLayerType.LINE)
         || _.eq(layer.type, MapLayerType.POLYGON) ) {
 
-        this.symbolLayer = new ol.layer.Vector({
-          source: source,
-          style: this.mapStyleFunction(0, this.data)
-        });
-
-        // // Create
-        // if( !this.symbolLayer ) {
-        // }
+        // Create
+        if( !this.symbolLayer ) {
+          this.symbolLayer = new ol.layer.Vector({
+            source: source,
+            style: this.mapStyleFunction(0, this.data)
+          });
+        }
 
         // Set source
         this.symbolLayer.setSource(source);
@@ -622,18 +632,23 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       // Heatmap layer
       ////////////////////////////////////////////////////////
       else if( _.eq(layer.type, MapLayerType.HEATMAP) ) {
-        this.heatmapLayer = new ol.layer.Heatmap({
-          source: source,
-          style: this.mapStyleFunction(0, this.data),
-          // 색상
-          gradient: HeatmapColorList[layer.color.schema],
-          // 투명도 (opacity로 설정하기 때문에 100으로 나눔)
-          opacity: layer.color.transparency/100,
-          // 적용범위
-          radius: layer['radius'],
-          // 흐림 효과
-          blur: layer['blur']
-        });
+
+        // Create
+        if( !this.symbolLayer ) {
+          this.heatmapLayer = new ol.layer.Heatmap({
+            source: source,
+            style: this.mapStyleFunction(0, this.data),
+            // 색상
+            gradient: HeatmapColorList[layer.color.schema],
+            // 투명도 (opacity로 설정하기 때문에 100으로 나눔)
+            opacity: layer.color.transparency/100,
+            // 적용범위
+            radius: layer['radius'],
+            // 흐림 효과
+            blur: layer['blur']
+          });
+        }
+
         this.heatmapLayer.setSource(source);
         this.featureLayer = this.heatmapLayer;
 
@@ -658,6 +673,33 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       ////////////////////////////////////////////////////////
       else if( _.eq(layer.type, MapLayerType.TILE) ) {
 
+        // Create
+        if( !this.symbolLayer ) {
+          this.tileLayer = new ol.layer.Tile({
+            source: source,
+            style: this.mapStyleFunction(0, this.data)
+          });
+        }
+
+        // Set source
+        this.tileLayer.setSource(source);
+        this.featureLayer = this.tileLayer;
+
+        // Init
+        if (isMapCreation && this.getUiMapOption().showMapLayer) {
+          // Add layer
+          this.olmap.addLayer(this.tileLayer);
+        } else {
+          if (this.getUiMapOption().showMapLayer) {
+            // Add layer
+            if (this.olmap.getLayers().getLength() == 1) {
+              this.olmap.addLayer(this.tileLayer);
+            }
+          } else {
+            // Remove layer
+            this.olmap.removeLayer(this.tileLayer);
+          }
+        }
       }
     }
 
