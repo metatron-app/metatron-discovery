@@ -22,6 +22,7 @@ import { DeleteModalComponent } from '../../common/component/modal/delete/delete
 import { PeriodComponent } from '../../common/component/period/period.component';
 import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
 import { CriterionKey, DatasourceCriterion } from '../../domain/datasource/datasourceCriterion';
+import { StringUtil } from '../../common/util/string.util';
 
 declare let moment: any;
 
@@ -38,11 +39,6 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   // 선택한 데이터 타입 필터링
   private searchDataType: string = 'all';
 
-  // 선택한 ingestion 필터링
-  private searchIngestion: string = 'all';
-
-  // date
-  private selectedDate: Date;
 
   // 삭제할 소스 아이디
   private deleteSourceId: string = '';
@@ -283,7 +279,7 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     if (13 === event.keyCode) {
       // search datasource
       this.searchDatasource();
-    } else if (23 === event.keyCode) { // esc event
+    } else if (27 === event.keyCode) { // esc event
       // init search keyword
       this.searchKeyword = '';
       // search datasource
@@ -394,7 +390,7 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     // 로딩 show
     this.loadingShow();
     // 데이터 소스 조회 요청
-    this.datasourceService.getDatasourceList(this.page.page, this.page.size, this.getDatasourceParams())
+    this.datasourceService.getDatasourceList(this.page.page, this.page.size, this._getDatasourceParams())
       .then((datasources) => {
         // 페이지 객체
         this.pageResult = datasources['page'];
@@ -429,10 +425,10 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
 
   /**
    * 데이터 소스 조회 파라메터
-   * @returns {{size: number; page: number}}
+   * @returns {Object}
+   * @private
    */
-  private getDatasourceParams() {
-    console.log(this._criterionDataObject);
+  private _getDatasourceParams(): object {
     const params = {};
     // criterion filter list
     Object.keys(this._criterionDataObject).forEach((key) => {
@@ -446,6 +442,10 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
         }
       });
     });
+    // if search keyword not empty
+    if (StringUtil.isNotEmpty(this.searchKeyword)) {
+      params['containsText'] = this.searchKeyword.trim();
+    }
     return params;
   }
 }
