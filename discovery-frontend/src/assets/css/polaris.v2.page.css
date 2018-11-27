@@ -1010,7 +1010,9 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 	text-overflow: ellipsis;
 	display: -webkit-box;
 	-webkit-line-clamp: 2; /* 라인수 */
-	-webkit-box-orient: vertical;
+  /* autoprefixer: off */
+  -webkit-box-orient: vertical;
+  /* autoprefixer: on */
 	word-wrap:break-word;}
 
 /**********************************************************************************
