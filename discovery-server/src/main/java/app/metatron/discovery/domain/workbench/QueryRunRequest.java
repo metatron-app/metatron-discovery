@@ -20,6 +20,8 @@ public class QueryRunRequest {
   String webSocketId;
   String database;
   int numRows;
+  int runIndex = -1;
+  int retryQueryResultOrder = -1;
 
   public String getQuery() {
     return query;
@@ -53,13 +55,47 @@ public class QueryRunRequest {
     this.numRows = numRows;
   }
 
+  public int getRunIndex() {
+    return runIndex;
+  }
+
+  public int getRetryQueryResultOrder() {
+    return retryQueryResultOrder;
+  }
+
+  public void setRetryQueryResultOrder(int retryQueryResultOrder) {
+    this.retryQueryResultOrder = retryQueryResultOrder;
+  }
+
+  public void setRunIndex(int runIndex) {
+    this.runIndex = runIndex;
+  }
+
+  public boolean isFirstRunInQueryEditor() {
+    if(this.getRunIndex() == 0 && this.getRetryQueryResultOrder() == -1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public boolean isRetryRun() {
+    if(this.getRunIndex() == 0 && this.getRetryQueryResultOrder() > -1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   @Override
   public String toString() {
     return "QueryRunRequest{" +
-            "query='" + query + '\'' +
-            ", webSocketId='" + webSocketId + '\'' +
-            ", database='" + database + '\'' +
-            ", numRows=" + numRows +
-            '}';
+        "query='" + query + '\'' +
+        ", webSocketId='" + webSocketId + '\'' +
+        ", database='" + database + '\'' +
+        ", numRows=" + numRows +
+        ", runIndex=" + runIndex +
+        ", retryQueryResultOrder=" + retryQueryResultOrder +
+        '}';
   }
 }

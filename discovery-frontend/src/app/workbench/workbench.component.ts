@@ -1287,15 +1287,20 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * run query
    * @param {string} resultTabId
    */
-  public runQueries(resultTabId: string) {
-
+  public runQueries(resultTabId: string, retry : boolean = false) {
     const resultTab: ResultTab = this._getResultTab(resultTabId);
+    const additionalParams = {
+      runIndex: this.currentRunningIndex,
+      retryQueryResultOrder: retry ? resultTab.order : null
+    };
+
     resultTab.queryEditor.webSocketId = this.websocketId;
     resultTab.initialize();
     resultTab.executeTimer();
     this.runningResultTabId = resultTab.id;
 
-    this.workbenchService.runSingleQueryWithInvalidQuery(resultTab.queryEditor)
+
+    this.workbenchService.runSingleQueryWithInvalidQuery(resultTab.queryEditor, additionalParams)
       .then((result) => {
         this.loadingBar.hide();
 
@@ -1353,7 +1358,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           this.safelyDetectChanges();
 
           this.executeTabIds = [item.id];
-          this.runQueries(item.id);
+          this.runQueries(item.id, true);
         }
       })
       .catch((error) => {
@@ -1847,7 +1852,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
           this.isDataManager = CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_DATASOURCE);
 
-          if(data.dataConnection.supportSaveAsHiveTable) {
+          if (data.dataConnection.supportSaveAsHiveTable) {
             this.supportSaveAsHiveTable = data.dataConnection.supportSaveAsHiveTable;
           }
 
@@ -1859,6 +1864,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           this.openAccessDeniedConfirm();
         }
 
+        this.restoreQueryResultPreviousState(data.queryEditors);
       });
 
     }).catch((error) => {
@@ -1869,6 +1875,81 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       }
     });
   } // function - _loadInitData
+
+  private restoreQueryResultPreviousState(queryEditors: any[]): void {
+    if (queryEditors && Array.isArray(queryEditors) && queryEditors.length > 0) {
+      const queryResultRequests: Promise<any>[] = this.createQueryResultRequests(queryEditors);
+      this.restoreQueryResults(queryResultRequests);
+    }
+  }
+
+  private createQueryResultRequests(queryEditors: any[]) : Promise<any>[] {
+    const queryResultPromises: Promise<any>[] = [];
+    queryEditors.forEach((editor) => {
+      if (editor.queryResults && Array.isArray(editor.queryResults)) {
+        editor.queryResults.forEach((queryResult, queryResultIndex) => {
+          const promise: Promise<any> = this.workbenchService.runQueryResult(editor.id,
+            queryResult.filePath, queryResult.defaultNumRows, 0,
+            queryResult.fields);
+
+          const queryEditor: QueryEditor = new QueryEditor();
+          queryEditor.editorId = editor.id;
+          queryEditor.name = editor.name;
+          queryEditor.order = editor.order;
+          queryEditor.query = queryResult.query;
+
+          promise['_metadata'] = {
+            queryEditor: queryEditor,
+            queryResult: {
+              order: queryResultIndex + 1,
+              fields: queryResult.fields,
+              filePath: queryResult.filePath,
+              defaultNumRows: queryResult.defaultNumRows,
+              numRows: queryResult.numRows
+            }
+          };
+          queryResultPromises.push(promise);
+        });
+      }
+    });
+
+    return queryResultPromises;
+  }
+
+  private restoreQueryResults(queryResultRequests: Promise<any>[]): void {
+    Promise.all(queryResultRequests.map(p => p.catch(() => undefined)))
+      .then((results) => {
+        results.forEach((result, index) => {
+          const metadata = queryResultRequests[index]['_metadata'];
+          const queryEditor: QueryEditor = metadata.queryEditor;
+          const tab = new ResultTab(queryEditor.editorId, queryEditor, queryEditor.query, metadata.queryResult.order);
+          tab.resultStatus = 'SUCCESS';
+          tab.executeStatus = 'DONE';
+          tab.errorStatus = 'DONE';
+          tab.name = this._genResultTabName(queryEditor.name, 'RESULT', tab.order);
+          tab.showLog = false;
+          tab.log = [];
+
+          if(result === undefined) {
+            const queryResult: QueryResult = new QueryResult();
+            tab.result = queryResult;
+          } else {
+            const queryResult: QueryResult = new QueryResult();
+            queryResult.fields = metadata.queryResult.fields;
+            queryResult.data = result;
+            queryResult.csvFilePath = metadata.queryResult.filePath;
+            queryResult.defaultNumRows = metadata.queryResult.defaultNumRows;
+            queryResult.numRows = metadata.queryResult.numRows;
+            tab.result = queryResult;
+          }
+
+          this._appendResultTab(tab);
+          this.executeTabIds.push(tab.id);
+        });
+
+        this.tabChangeHandler(this.selectedTabNum, false);
+      });
+  }
 
   /**
    * 에디터 슬라이드 버튼 계산
