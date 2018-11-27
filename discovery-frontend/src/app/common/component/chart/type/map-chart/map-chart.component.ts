@@ -295,12 +295,24 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Creation legend
     this.createLegend();
 
+    // TODO selection filter
+    // create interaction (for selection filter)
+    // this.createInteraction();
+
     ////////////////////////////////////////////////////////
     // Apply
     ////////////////////////////////////////////////////////
 
     // 완료
     this.drawFinished.emit();
+
+    ////////////////////////////////////////////////////////
+    // add Selection event
+    ////////////////////////////////////////////////////////
+
+    if (!this.isPage) {
+      this.selection();
+    }
   }
 
   /**
@@ -353,6 +365,38 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
    * - 필요시 각 차트에서 Override
    */
   protected selection(): void {
+
+    // TODO selection filter
+    // this.addChartSelectEventListener();
+    // this.addChartMultiSelectEventListener();
+  }
+
+  /**
+   * map - single feature selection filter
+   */
+  public addChartSelectEventListener() {
+    this.olmap.on('singleclick', this.mapSelectionListener);
+  }
+
+  /**
+   * map click event
+   * @param event
+   */
+  private mapSelectionListener = (event) => {
+
+    // let featureTest = this.olmap.forEachFeatureAtPixel(event.pixel, (feature) => {
+    //   return feature;
+    // });
+
+    // this.clusterStyleFunction((<UIMapOption>this.uiOption).layerNum, this.data);
+
+  }
+
+  /**
+   * map - multi features selection filter
+   */
+  public addChartMultiSelectEventListener() {
+
   }
 
   /**
@@ -513,7 +557,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         // minZoom: this.getMinZoom()
       }),
       layers: [layer],
-      target: this.$area[0]
+      target: this.$area[0],
     });
 
     for(let i=0;i<document.getElementsByClassName('ol-attribution').length;i++) {
@@ -1133,7 +1177,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       let layerType = styleLayer.type;
       let featureColor = styleLayer.color.schema;
       let featureColorType = styleLayer.color.by;
-      let symbolType = symbolLayer.symbol
+      let symbolType = symbolLayer.symbol;
       let outlineType = symbolLayer.outline ? symbolLayer.outline.thickness : null;
       let outlineColor = symbolLayer.outline ? symbolLayer.outline.color : null;
       let lineMaxVal = 1; //styleLayer.size.max;
@@ -1644,6 +1688,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     this.olmap.un('pointermove', this.tooltipFunction);
     this.olmap.on('pointermove', this.tooltipFunction);
     this.olmap.on('moveend', this.zoomFunction);
+    // this.olmap.on('click', this.zoomFunction);
+    // this.olmap.on('pointermove', function(event) {
+    //
+    //   if (event.dragging) {
+    //     return;
+    //   }
+    //
+    //   // let pixel = this.olmap.getEventPixel(event.originalEvent);
+    //
+    // });
   }
 
   /**
@@ -1798,6 +1852,39 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       this.tooltipLayer.setPosition(coords);
     }
   };
+
+  /**
+   * create drag interaction (for selection filter)
+   */
+  private createInteraction(): void {
+
+    // drag style
+    var dragBoxInteraction = new ol.interaction.DragBox({
+      condition: ol.events.condition.shiftKeyOnly,
+      style: new ol.style.Style({
+        stroke: new ol.style.Stroke({
+          color: 'yellow',
+          width: 2
+        })
+      })
+    });
+
+    // TODO need to move on addChartMultiSelectEventListener
+    dragBoxInteraction.on('boxend', function(event) {
+
+      const format = new ol.format.GeoJSON();
+      const geom = event.target.getGeometry();
+
+      // event.target.getMap().getView()
+
+      var feature = new ol.Feature({
+        geometry: geom
+      });
+
+    });
+
+    this.olmap.getInteractions().extend([dragBoxInteraction]);
+  }
 
   /**
    * Create legend
@@ -2310,6 +2397,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   private zoomFunction = (event) => {
     // save current chartzoom
     this.uiOption.chartZooms = this.additionalSaveDataZoomRange();
+
+    // TODO selection (drag end)
+    if (!this.isPage) {
+
+    }
   }
 
   /**
