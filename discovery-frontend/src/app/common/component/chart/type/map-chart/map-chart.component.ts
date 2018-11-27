@@ -410,11 +410,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       this.olmap.updateSize();
 
       // TODO change minZoom
-      let minZoom = this.getMinZoom();
-
-      if (this.olmap.getView().getMinZoom() !== minZoom) {
-        this.olmap.getView().setMinZoom(minZoom);
-      }
+      // let minZoom = this.getMinZoom();
+      //
+      // if (this.olmap.getView().getMinZoom() !== minZoom) {
+      //   this.olmap.getView().setMinZoom(minZoom);
+      // }
     }
   }
 
@@ -548,16 +548,15 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       view: new ol.View({
         center: [126, 37],
         zoom: 6,
-        // TODO change minZoom
         // zoom: this.getMinZoom(),
         projection: 'EPSG:4326',
         maxZoom: 20,
         minZoom: 3,
-        // TODO change minZoom
         // minZoom: this.getMinZoom()
+        //extent: [-7435794.111581946, -8766409.899970295, 8688138.383006273, 9314310.518718438]
       }),
       layers: [layer],
-      target: this.$area[0],
+      target: this.$area[0]
     });
 
     for(let i=0;i<document.getElementsByClassName('ol-attribution').length;i++) {
