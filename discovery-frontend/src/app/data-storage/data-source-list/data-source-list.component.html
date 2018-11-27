@@ -33,115 +33,30 @@
 
   </div>
   <!-- //top -->
-
   <div class="ddp-ui-contents-list">
-    <div class="ddp-wrap-option">
-      <!-- option -->
-      <div class="ddp-ui-option ddp-clear">
-
-        <!-- edit -->
-        <div class="ddp-wrap-edit">
-          <label class="ddp-label-type">{{'msg.storage.th.data_type' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option">
-            <!-- select box -->
-            <component-select
-              [array]="dataTypes"
-              [viewKey]="'name'"
-              (onSelected)="onChangeType($event)">
-            </component-select>
-            <!-- //select box -->
-          </div>
-          <!-- //edit option -->
+    <div class="ddp-wrap-top-filtering">
+      <!-- filter search -->
+      <div class="ddp-filter-search ddp-fright">
+        <div class="ddp-form-filter-search">
+          <input type="text" placeholder="Search datasource name" [(ngModel)]="searchKeyword"
+                 (keyup)="onSearchDatasource($event)">
         </div>
-        <!-- //edit -->
-
-        <!-- edit -->
-        <div class="ddp-wrap-edit">
-          <label class="ddp-label-type">{{'msg.storage.th.ingestion_type' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option">
-            <!-- select box -->
-            <component-select
-              [array]="ingestionTypes"
-              [viewKey]="'name'"
-              (onSelected)="onChangeIngestionType($event)">
-            </component-select>
-            <!-- //select box -->
-          </div>
-          <!-- //edit option -->
-        </div>
-        <!-- //edit -->
-        <!-- edit -->
-        <div class="ddp-wrap-edit">
-          <label class="ddp-label-type">{{'msg.storage.th.status' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option">
-            <!-- select box -->
-            <component-select
-              [array]="status"
-              [viewKey]="'name'"
-              (onSelected)="onChangeStatus($event)">
-            </component-select>
-            <!-- //select box -->
-          </div>
-          <!-- //edit option -->
-        </div>
-        <!-- //edit -->
-        <!-- edit -->
-        <div class="ddp-wrap-edit">
-          <label class="ddp-label-type">{{'msg.storage.th.allowance' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option ddp-inline">
-            <label class="ddp-label-checkbox" (click)="onChangeAllowed(!searchPublished)">
-              <input type="checkbox" [checked]="searchPublished">
-              <i class="ddp-icon-checkbox"></i>
-              <span class="ddp-txt-checkbox">{{'msg.space.th.allowance' | translate}}</span>
-            </label>
-          </div>
-          <!-- //edit option -->
-        </div>
-        <!-- //edit -->
-        <div class="ddp-ui-rightoption">
-          <a href="javascript:" class="ddp-link-reset" (click)="initFilters()"><em class="ddp-btn-reset3"></em>{{'msg.mem.btn.refresh' | translate}}</a>
-        </div>
+        <!-- form -->
+        <a href="javascript:" class="ddp-btn-selection" (click)="searchDatasource()">Search</a>
       </div>
-      <!-- //option -->
-      <!-- option -->
-      <div class="ddp-ui-option ddp-clear">
-        <!-- edit -->
-        <component-period
-          [dateType]="true"
-          [roundSecond]="true"
-          (changeDate)="onChangeData($event)"
-        ></component-period>
-        <!-- //edit -->
-      </div>
-      <!-- //option -->
-
-      <!-- option -->
-      <div class="ddp-ui-option ddp-clear ddp-optiontype">
-        <!-- 검색 -->
-        <div class="ddp-form-search ddp-fleft">
-          <em class="ddp-icon-search"></em>
-          <input type="text" placeholder="{{'msg.storage.ui.dsource.search.description' | translate}}"
-                 [(ngModel)]="searchText"
-                 (keypress)="searchDatasourceEvent($event);" (keyup.esc)="searchEvent(false);">
-          <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchEvent(false)"></em>
-        </div>
-        <!-- //검색 -->
-        <!-- right -->
-        <div class="ddp-ui-rightoption">
-          <span class="ddp-data-total" [innerHTML]="'msg.storage.ui.dsource.num.lists' | translate : { value : getTotalContentsCount} "></span>
-          <!-- disabled 시 class="ddp-disabled" 추가 -->
-          <a href="javascript:" class="ddp-btn-link" (click)="changeMode('create-data-source')"><em class="ddp-icon-link-add"></em>{{'msg.storage.btn.create.dsource' | translate}}</a>
-        </div>
-        <!-- //right -->
-      </div>
-      <!-- //option -->
+      <!-- //filter search -->
+      <!-- filters -->
+      <criterion-filter-box *ngFor="let criterion of datasourceFilterList"
+                            [criterion]="criterion"
+                            (changedCriteria)="onChangedCriteriaFilter($event)">
+      </criterion-filter-box>
+      <!-- //filters -->
     </div>
-
-
+    <!-- create datasource -->
+    <div class="ddp-filter-option">
+      <a href="javascript:" class=" ddp-btn-pop ddp-bg-black" (click)="changeMode('create-data-source')"><em class="ddp-icon-add2"></em>New</a>
+    </div>
+    <!-- //create datasource -->
     <table class="ddp-table-form ddp-table-type3">
       <colgroup>
         <col width="*">

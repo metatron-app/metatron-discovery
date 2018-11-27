@@ -21,6 +21,7 @@ import { Modal } from '../../common/domain/modal';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
 import { PeriodComponent } from '../../common/component/period/period.component';
 import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
+import { CriterionKey, DatasourceCriterion } from '../../domain/datasource/datasourceCriterion';
 
 declare let moment: any;
 
@@ -31,9 +32,8 @@ declare let moment: any;
 })
 export class DataSourceListComponent extends AbstractComponent implements OnInit {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // criterion data object
+  private _criterionDataObject: any = {};
 
   // 선택한 데이터 타입 필터링
   private searchDataType: string = 'all';
@@ -61,31 +61,21 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
 
   public mode: string;
 
-  // data 타입
-  public dataTypes: any[];
-
-  // ingestion 타입
-  public ingestionTypes: any[];
-
-  // status
-  public status: any[];
-  public searchStatus: string = 'all';
-
   // 데이터 소스
   public datasources: Datasource[];
 
   // search
-  public searchText: string = '';
+  public searchKeyword: string = '';
 
   // 정렬
   public selectedContentSort: Order = new Order();
 
-  // 모두 공유된 소스만 보기
-  public searchPublished: boolean = false;
 
-  // period component
-  @ViewChild(PeriodComponent)
-  public periodComponent: PeriodComponent;
+  // TODO 684
+  private _originDatasourceFilterList: DatasourceCriterion[] = [];
+  public datasourceFilterList: DatasourceCriterion[] = [];
+  // origin more criterion more list
+  public _originMoreCriterionList: DatasourceCriterion[] = [];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -109,13 +99,22 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     super.ngOnInit();
     // ui 초기화
     this.initView();
-    // 데이터 소스 조회
-    this.getDatasource();
+    // loading show
+    this.loadingShow();
+    // get criterion list
+    this.datasourceService.getDatasourceCriterionList()
+      .then((result: DatasourceCriterion[]) => {
+        // set origin datasource filter list
+        this._originDatasourceFilterList = result;
+        // set datasource filter list
+        this.datasourceFilterList = result;
+        // set origin more criterion list
+        this._originMoreCriterionList = result.find(criterion => criterion.criterionKey === CriterionKey.MORE).subCriteria;
+        // get datasource list
+        this.getDatasource();
+      }).catch(reason => this.commonExceptionHandler(reason));
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
    * 모드 변경
    * @param {string} mode
@@ -124,57 +123,6 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     this.useUnloadConfirm = ( 'create-data-source' === mode );
     this.mode = mode;
   } // function - changeMode
-
-  /**
-   * 필터 모두 초기화
-   */
-  public initFilters(): void {
-    // type list
-    this.dataTypes = [
-      { name: this.translateService.instant('msg.storage.ui.list.all'), value: 'all' },
-      { name: this.translateService.instant('msg.storage.li.druid'), value: 'IMPORT' },
-      { name: this.translateService.instant('msg.storage.li.file'), value: 'FILE' },
-      { name: this.translateService.instant('msg.storage.li.db'), value: 'JDBC' },
-      { name: this.translateService.instant('msg.storage.li.hive'), value: 'HIVE' },
-      { name: this.translateService.instant('msg.storage.li.stream'), value: 'REALTIME' }
-    ];
-
-    this.ingestionTypes = [
-      { name: this.translateService.instant('msg.storage.ui.list.all'), value: 'all' },
-      { name: this.translateService.instant('msg.storage.ui.list.ingested.data'), value: 'ENGINE' },
-      { name: this.translateService.instant('msg.storage.ui.list.linked.data'), value: 'LINK' },
-    ];
-
-    this.status = [
-      { name: this.translateService.instant('msg.storage.ui.list.all'), value: 'all' },
-      { name: this.translateService.instant('msg.storage.ui.list.enabled'), value: 'ENABLED' },
-      { name: this.translateService.instant('msg.storage.ui.list.disabled'), value: 'DISABLED' },
-      { name: this.translateService.instant('msg.storage.ui.list.preparing'), value: 'PREPARING' },
-      { name: this.translateService.instant('msg.storage.ui.list.failed'), value: 'FAILED' }
-    ];
-
-    // 정렬
-    this.selectedContentSort = new Order();
-    // db type
-    this.searchDataType = 'all';
-    // ingestion type
-    this.searchIngestion = 'all';
-    // status
-    this.searchStatus = 'all';
-    // 전체공개
-    this.searchPublished = false;
-    // create date 초기화
-    this.selectedDate = null;
-
-    // date 필터 created update 설정 default created로 설정
-    this.periodComponent.selectedDate = 'CREATED';
-    // 검색조건 초기화
-    this.searchText = '';
-    // 페이지 초기화
-    this.page.page = 0;
-    // date 필터 init
-    this.periodComponent.setAll();
-  }
 
   /**
    * 데이터소스 생성 완료
@@ -263,55 +211,32 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   }
 
   /**
-   * 필터링 ingestion 타입 변경
-   * @param type
+   * Criteria filter change event
+   * @param {{label: CriterionKey; value: any}} criteriaObject
    */
-  public onChangeIngestionType(type): void {
-    this.searchIngestion = type.value;
-    // 페이지 초기화
-    this.page.page = 0;
-    // 재조회
-    this.getDatasource();
-  }
-
-  /**
-   * 필터링 status 변경
-   * @param state
-   */
-  public onChangeStatus(state): void {
-    this.searchStatus = state.value;
-    // 페이지 초기화
-    this.page.page = 0;
-    // 재조회
-    this.getDatasource();
-  }
-
-  /**
-   * 공유된 소스만 보기
-   * @param {boolean} isSearchPublished
-   */
-  public onChangeAllowed(isSearchPublished: boolean): void {
-    // 이벤트 중복 방지
-    event.preventDefault();
-    // 오픈 데이터만 보기 flag 변경
-    this.searchPublished = isSearchPublished;
-    // 페이지 초기화
-    this.page.page = 0;
-    // 재조회
-    this.getDatasource();
-  }
-
-  /**
-   * 필터링 켈린더 선택
-   * @param event
-   */
-  public onChangeData(event): void {
-    // 페이지 초기화
-    this.page.page = 0;
-    // 선택한 날짜
-    this.selectedDate = event;
-    // 재조회
-    this.getDatasource();
+  public onChangedCriteriaFilter(criteriaObject: {label: CriterionKey, value: any}): void {
+    // if changed criteria filter key is MORE
+    if (criteriaObject.label === CriterionKey.MORE) {
+      // selected criterion filters
+      Object.keys(criteriaObject.value).forEach((key) => {
+        // if not exist criterion in selected criterion filters
+        if (criteriaObject.value[key].length === 0) {
+          // loop
+          this.datasourceFilterList.forEach((criterion, index, array) => {
+            // if exist criterion in filter list
+            if (criterion.criterionKey.toString() === key) {
+              // remove filter
+              array.splice(index, 1);
+            }
+          });
+        } else if (this.datasourceFilterList.every(criterion => criterion.criterionKey.toString() !== key)){ // if not exist criterion in filter list
+          // add filter
+          this.datasourceFilterList.push(this._originMoreCriterionList.find(originCriterion => originCriterion.criterionKey.toString() === key));
+        }
+      });
+    } else {
+      this._criterionDataObject[criteriaObject.label] = criteriaObject.value;
+    }
   }
 
   /**
@@ -340,14 +265,9 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   }
 
   /**
-   * 데이터소스 검색 이벤트
-   * @param {boolean} initFl
+   * Search datasource
    */
-  public searchEvent(initFl: boolean): void {
-    // esc
-    if (!initFl) {
-      this.searchText = '';
-    }
+  public searchDatasource(): void {
     // 페이지 초기화
     this.page.page = 0;
     // 데이터소스 리스트 조회
@@ -355,11 +275,20 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   }
 
   /**
-   * 데이터소스 텍스트 검색 이벤트
+   * Search datasource keyup event
    * @param {KeyboardEvent} event
    */
-  public searchDatasourceEvent(event: KeyboardEvent): void {
-    ( 13 === event.keyCode ) && (this.searchEvent(true));
+  public onSearchDatasource(event: KeyboardEvent): void {
+    // enter event
+    if (13 === event.keyCode) {
+      // search datasource
+      this.searchDatasource();
+    } else if (23 === event.keyCode) { // esc event
+      // init search keyword
+      this.searchKeyword = '';
+      // search datasource
+      this.searchDatasource();
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -465,7 +394,7 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     // 로딩 show
     this.loadingShow();
     // 데이터 소스 조회 요청
-    this.datasourceService.getAllDatasource(this.getDatasourceParams())
+    this.datasourceService.getDatasourceList(this.page.page, this.page.size, this.getDatasourceParams())
       .then((datasources) => {
         // 페이지 객체
         this.pageResult = datasources['page'];
@@ -492,29 +421,6 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     // 페이지 초기화
     this.page.page = 0;
     this.page.size = 20;
-
-    this.dataTypes = [
-      { name: this.translateService.instant('msg.storage.ui.list.all'), value: 'all' },
-      { name: this.translateService.instant('msg.storage.li.druid'), value: 'IMPORT' },
-      { name: this.translateService.instant('msg.storage.li.file'), value: 'FILE' },
-      { name: this.translateService.instant('msg.storage.li.db'), value: 'JDBC' },
-      { name: this.translateService.instant('msg.storage.li.hive'), value: 'HIVE' },
-      { name: this.translateService.instant('msg.storage.li.stream'), value: 'REALTIME' },
-    ];
-
-    this.ingestionTypes = [
-      { name: this.translateService.instant('msg.storage.ui.list.all'), value: 'all' },
-      { name: this.translateService.instant('msg.storage.ui.list.ingested.data'), value: 'ENGINE' },
-      { name: this.translateService.instant('msg.storage.ui.list.linked.data'), value: 'LINK' },
-    ];
-
-    this.status = [
-      { name: this.translateService.instant('msg.storage.ui.list.all'), value: 'all' },
-      { name: this.translateService.instant('msg.storage.ui.list.enabled'), value: 'ENABLED' },
-      { name: this.translateService.instant('msg.storage.ui.list.disabled'), value: 'DISABLED' },
-      { name: this.translateService.instant('msg.storage.ui.list.preparing'), value: 'PREPARING' },
-      { name: this.translateService.instant('msg.storage.ui.list.failed'), value: 'FAILED' },
-    ];
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -526,45 +432,20 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
    * @returns {{size: number; page: number}}
    */
   private getDatasourceParams() {
-    const params = {
-      size: this.page.size,
-      page: this.page.page
-    };
-    // 공개여부
-    if (this.searchPublished) {
-      params['published'] = this.searchPublished;
-    }
-    // 이름
-    if (this.searchText.trim() !== '') {
-      params['nameContains'] = this.searchText.trim();
-    }
-    // 정렬
-    if (this.selectedContentSort.sort !== 'default') {
-      params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort;
-    }
-    // status
-    if (this.searchStatus !== 'all') {
-      params['status'] = this.searchStatus;
-    }
-    // data type
-    if (this.searchDataType !== 'all') {
-      params['srcType'] = this.searchDataType;
-    }
-    // ingested type
-    if (this.searchIngestion !== 'all') {
-      params['connType'] = this.searchIngestion;
-    }
-    // date
-    if (this.selectedDate && this.selectedDate.type !== 'ALL') {
-      params['searchDateBy'] = this.selectedDate.dateType;
-      if (this.selectedDate.startDateStr) {
-        params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
-      }
-      if (this.selectedDate.endDateStr) {
-        params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
-      }
-    }
-
+    console.log(this._criterionDataObject);
+    const params = {};
+    // criterion filter list
+    Object.keys(this._criterionDataObject).forEach((key) => {
+      // key loop
+      Object.keys(this._criterionDataObject[key]).forEach((criterionKey) => {
+        if (this._criterionDataObject[key][criterionKey].length !== 0) {
+          // set key
+          params[criterionKey] = [];
+          // set value
+          this._criterionDataObject[key][criterionKey].forEach(item => params[criterionKey].push(item.filterValue));
+        }
+      });
+    });
     return params;
   }
 }
