@@ -19,7 +19,7 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
+import * as _ from 'lodash';
 
 @Component({
   selector : 'edit-rule-split',
@@ -96,13 +96,13 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
    */
   public getRuleData(): { command: string, ruleString: string } {
 
-    // 컬럼
+    // Column (must select more than one)
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined;
     }
 
-    // 패턴
+    // pattern
     let clonedPattern = this.pattern;
     if (isUndefined(clonedPattern) || '' === clonedPattern || clonedPattern === '//' || clonedPattern === '\'\'') {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
@@ -115,19 +115,20 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
     }
     clonedPattern = patternResult[1];
 
-    // 횟수
+    // limit
     if (isUndefined(this.limit) ) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.times'));
       return undefined;
     }
 
-    let columnsStr: string = this.selectedFields[0].name;
-    if (-1 !== this.selectedFields[0].name.indexOf(' ') ) {
-      columnsStr = '`' + this.selectedFields[0].name + '`';
-    }
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
+      if (-1 !== item.name.indexOf(' ')) {
+        item.name = '`' + item.name + '`';
+      }
+      return item.name
+    }).join(', ');
 
-    let ruleString = 'split col: ' + columnsStr
-      + ' on: ' + clonedPattern + ' limit : ' + this.limit + ' ignoreCase: ' + this.isIgnoreCase;
+    let ruleString = `split col: ${columnsStr} on: ${clonedPattern} limit: ${this.limit} ignoreCase: ${this.isIgnoreCase}`;
 
     // 다음 문자 사이 무시
     if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {
@@ -192,7 +193,7 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
   protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col === 'string' ? [data.jsonRuleString.col] : data.jsonRuleString.col;
+    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     if (data.jsonRuleString.on.value.startsWith('/') && data.jsonRuleString.on.value.endsWith('/')) {
