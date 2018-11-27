@@ -150,7 +150,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
       dsType : this.dsType
     };
 
-    if (sortByRefCount || this.selectedContentSort.key === 'refDfCount') {
+    if (sortByRefCount) {
       params['refDfCountSort'] = this.selectedContentSort.sort;
     }
 
