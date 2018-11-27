@@ -3589,7 +3589,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     function getGeoType(logicalType: string, allPivot: AbstractField[]): number {
 
       return allPivot.filter((item: AbstractField) => {
-        return -1 !== item.field.logicalType.toString().indexOf(logicalType);
+        return item.field.logicalType && -1 !== item.field.logicalType.toString().indexOf(logicalType);
       }).length;
     }
 
