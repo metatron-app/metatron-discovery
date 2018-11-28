@@ -15,8 +15,7 @@
 <div class="ddp-wrap-popup2">
   <!-- search -->
   <div class="ddp-pop-search" *ngIf="criterion.searchable">
-    <input type="text" placeholder="{{searchPlaceHolder}}" [(ngModel)]="searchKeyword"
-           (ngModelChange)="onSearchItemInList()" (keyup.esc)="initSearchKeyword()">
+    <input type="text" placeholder="{{searchPlaceHolder}}" [(ngModel)]="searchKeyword" (keyup)="onSearchItem($event)">
   </div>
   <!-- //search -->
   <!-- ALL -->
@@ -34,21 +33,25 @@
   <!-- //ALL -->
   <!-- list -->
   <ng-container  *ngFor="let list of criterionList">
-    <!-- if exist criterionName, show list title -->
-    <span class="ddp-txt-label2" *ngIf="list.criterionName">{{isRequireTranslate(list.criterionName) ? (list.criterionName | translate) : list.criterionName}}</span>
-    <!-- item list -->
-    <ul class="ddp-list-popup">
-      <li class="" *ngFor="let item of list.filters">
-        <a href="javascript:" (click)="onCheckItem(item); $event.preventDefault()">
-          <label class="ddp-label-checkbox">
-            <input type="checkbox" [checked]="isCheckedItem(item)">
-            <i class="ddp-icon-checkbox"></i>
-            <span class="ddp-txt-checkbox">{{item.filterName}}</span>
-          </label>
-        </a>
-      </li>
-    </ul>
-    <!-- //item list -->
+    <!-- only show exist filters -->
+    <ng-container  *ngIf="list.filters.length !== 0">
+      <!-- if exist criterionName, show list title -->
+      <span class="ddp-txt-label2" *ngIf="list.criterionName">{{isRequireTranslate(list.criterionName) ? (list.criterionName | translate) : list.criterionName}}</span>
+      <!-- item list -->
+      <ul class="ddp-list-popup">
+        <li class="" *ngFor="let item of list.filters">
+          <a href="javascript:" (click)="onCheckItem(item); $event.preventDefault()">
+            <label class="ddp-label-checkbox">
+              <input type="checkbox" [checked]="isCheckedItem(item)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{item.filterName}}</span>
+            </label>
+          </a>
+        </li>
+      </ul>
+      <!-- //item list -->
+    </ng-container>
+    <!-- //only show exist filters -->
   </ng-container>
   <!-- //list -->
 </div>

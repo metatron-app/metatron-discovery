@@ -17,6 +17,7 @@ import { AbstractComponent } from '../../../../common/component/abstract.compone
 import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
 import { DatasourceCriterion } from '../../../../domain/datasource/datasourceCriterion';
 import { StringUtil } from '../../../../common/util/string.util';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'criterion-checkbox-component',
@@ -38,7 +39,7 @@ export class CriterionCheckboxComponent extends AbstractComponent {
   @Output('changedSelectItem')
   private _changeSelectItemEvent: EventEmitter<any> = new EventEmitter();
 
-  // criterion
+  // criterion list (UI)
   public criterionList: DatasourceCriterion[] = [];
 
   // search keyword
@@ -48,6 +49,7 @@ export class CriterionCheckboxComponent extends AbstractComponent {
   @Input('criterion')
   public criterion: DatasourceCriterion;
 
+  // search place holder
   @Input('searchPlaceHolder')
   public searchPlaceHolder: string;
 
@@ -65,16 +67,8 @@ export class CriterionCheckboxComponent extends AbstractComponent {
    * ngAfterViewInit
    */
   public ngAfterViewInit() {
-    // if enable search option, is not empty searchKeyword
-    if (this.criterion.searchable && StringUtil.isNotEmpty(this.searchKeyword)) {
-      // set criterion list
-      this.criterionList = this.criterion.subCriteria.filter(
-        list => list.filters.filter(
-          item => item.filterName.toUpperCase().includes(this.searchKeyword.trim().toUpperCase())));
-    } else { // if disable search option
-      // set criterion list
-      this.criterionList = this.criterion.subCriteria;
-    }
+    // set criterion list
+    this.criterionList = _.cloneDeep(this.criterion.subCriteria);
     // change detect
     this.safelyDetectChanges();
   }
@@ -124,32 +118,37 @@ export class CriterionCheckboxComponent extends AbstractComponent {
   }
 
   /**
-   * Search item in list
+   * Search item event
+   * @param {KeyboardEvent} event
    */
-  public onSearchItemInList(): void {
-    if (StringUtil.isEmpty(this.searchKeyword)) {
-      // init criterion list
-      this.criterionList = this.criterion.subCriteria;
-    } else {
-      // set criterion list
-      this.criterionList = this.criterion.subCriteria.filter(
-        list => list.filters.filter(
-          item => -1 !== item.filterName.toUpperCase().indexOf(this.searchKeyword.trim().toUpperCase())));
+  public onSearchItem(event: KeyboardEvent): void {
+    // enter event
+    if (13 === event.keyCode) {
+      // search item
+      this.searchItem();
+    } else if (27 === event.keyCode) { // esc event
+      // init search keyword
+      this.searchKeyword = '';
+      // search item
+      this.searchItem();
+    }
+  }
+
+  /**
+   * Search item
+   */
+  public searchItem(): void {
+    // init criterion list
+    this.criterionList = _.cloneDeep(this.criterion.subCriteria);
+    // if not empty search keyword
+    if (StringUtil.isNotEmpty(this.searchKeyword)) {
+      // filtered criterion list
+      this.criterionList.forEach((list, index, array) => {
+        // set list filters
+        list.filters = list.filters.filter(item => -1 !== item.filterName.toUpperCase().indexOf(this.searchKeyword.trim().toUpperCase()));
+      });
     }
     // change detect
     this.safelyDetectChanges();
   }
-
-  /**
-   * Init search keyword
-   */
-  public initSearchKeyword(): void {
-    // init search keyword
-    this.searchKeyword = '';
-    // init criterion list
-    this.criterionList = this.criterion.subCriteria;
-    // change detect
-    this.safelyDetectChanges();
-  }
-
 }
