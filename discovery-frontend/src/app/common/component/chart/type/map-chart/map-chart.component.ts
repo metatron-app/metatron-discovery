@@ -895,7 +895,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
             let value = formatValue(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column)]);
 
-            if( value > rangeMin && value <= rangeMax) {
+            if( (rangeMin == 0 && rangeMin == value) || (value > rangeMin && value <= rangeMax) ) {
               featureColor = range.color;
             }
           }
@@ -1235,7 +1235,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
               let value = formatValue(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column)]);
 
-              if( value > rangeMin && value <= rangeMax) {
+              if( (rangeMin == 0 && rangeMin == value) || (value > rangeMin && value <= rangeMax) ) {
                 featureColor = range.color;
               }
             }
