@@ -41,6 +41,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
   public selectedGroupFields: Field[] = [];
 
   public formulaList:string[] = [''];
+  public formulas: formula[];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -61,6 +62,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    */
   public ngOnInit() {
     super.ngOnInit();
+    this.formulas = [ {id:0, value:''} ];
   } // function - ngOnInit
 
   /**
@@ -75,7 +77,6 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-
   } // function - ngOnDestroy
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -87,6 +88,9 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    * @return {{command: string, ruleString: string}}
    */
   public getRuleData(): { command: string, ruleString: string } {
+
+    this.formulaList = [];
+    this.formulas.forEach((item:formula)=>{ this.formulaList.push(item.value)});
 
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
@@ -169,7 +173,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    * 신규 수식 추가
    */
   public addFormula() {
-    this.formulaList.push('');
+    this.formulas.push({id: this.getFormulaId(), value: ''});
   } // function - addFormula
 
   /**
@@ -177,20 +181,17 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    * @param {number} idx
    */
   public deleteFormula(idx:number) {
-    if (this.formulaList.length === 1) {
-      return;
-    }
-    this.formulaList.splice( idx, 1 );
+    this.formulas = this.formulas.filter(({ id }) => id !== idx);
   } // function - deleteFormula
 
   /**
    * 리스트의 개별성 체크 함수
-   * @param index
+   * @param {number} index
    * @param {string} formula
    * @return {number}
    */
-  public trackByFn(index, formula: string) {
-    return index;
+  public trackByFn(index: number, formula: formula) {
+    return formula.id;
   } // function - trackByFn
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -238,5 +239,13 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  private getFormulaId(): number {
+    return this.formulas.length ? Math.max.apply(Math,this.formulas.map(({ id }) => id)) + 1 : 1;
+  }
 
+}
+
+interface formula {
+  id: number;
+  value: string
 }
