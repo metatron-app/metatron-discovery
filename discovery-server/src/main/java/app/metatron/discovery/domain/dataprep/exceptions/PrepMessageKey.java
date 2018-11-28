@@ -55,6 +55,7 @@ public enum PrepMessageKey {
     MSG_DP_ALERT_FAILED_TO_PARSE_CSV(                            "msg.dp.alert.failed.to.parse.csv"),
     MSG_DP_ALERT_FAILED_TO_WRITE_CSV(                            "msg.dp.alert.failed.to.write.csv"),
     MSG_DP_ALERT_FAILED_TO_CLOSE_CSV(                            "msg.dp.alert.failed.to.close.csv"),
+    MSG_DP_ALERT_FAILED_TO_DELETE_SNAPSHOT(                      "msg.dp.alert.failed.to.delete.snapshot"),
 
     MSG_DP_ALERT_TEDDY_PARSE_FAILED(                             "msg.dp.alert.teddy.parse.failed"),
     MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_RULENAME(                 "msg.dp.alert.teddy.parse.failed.by.rulename"),

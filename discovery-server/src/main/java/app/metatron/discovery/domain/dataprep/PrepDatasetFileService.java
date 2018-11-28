@@ -16,6 +16,8 @@ package app.metatron.discovery.domain.dataprep;
 
 
 import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
@@ -59,7 +61,7 @@ public class PrepDatasetFileService {
     private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetFileService.class);
 
     @Autowired
-    PrepDatasetRepository datasetRepository;
+    PrDatasetRepository datasetRepository;
 
     @Autowired(required = false)
     PrepProperties prepProperties;
@@ -481,7 +483,7 @@ public class PrepDatasetFileService {
     }
     */
 
-    Map<String, Object> fileCheckSheet3(String fileKey, String size, String delimiterRow, String delimiterCol) {
+    public Map<String, Object> fileCheckSheet3(String fileKey, String size, String delimiterRow, String delimiterCol) {
 
         Map<String, Object> responseMap = Maps.newHashMap();
         List<Object> grids = Lists.newArrayList();
@@ -744,7 +746,7 @@ public class PrepDatasetFileService {
         return responseMap;
     }
 
-    DataFrame getPreviewLinesFromFileForDataFrame( PrepDataset dataset, String fileKey, String sheetindex, String size) throws IOException {
+    public DataFrame getPreviewLinesFromFileForDataFrame(PrDataset dataset, String sheetindex, String size) throws IOException {
         DataFrame dataFrame = new DataFrame();
         String strUri = null;
 
@@ -753,47 +755,56 @@ public class PrepDatasetFileService {
                 throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
             }
 
+            assert dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD || dataset.getImportType() == PrDataset.IMPORT_TYPE.URI;
+
             long totalBytes = 0L;
             InputStreamReader inputStreamReader = null;
-            String filePath = dataset.getCustomValue("filePath");
-            PrepDataset.FILE_TYPE fileType = dataset.getFileTypeEnum();
-            if(fileType == PrepDataset.FILE_TYPE.LOCAL ) {
-                if(null==filePath) {
-                    filePath = getPathLocal_new(fileKey);
-                }
+//            String filePath = dataset.getCustomValue("filePath");
+            String storedUri = dataset.getStoredUri();
+//            PrDataset.FILE_TYPE fileType = dataset.getFileTypeEnum();
+            PrDataset.STORAGE_TYPE storageType = dataset.getStorageType();
+            if(storageType == PrDataset.STORAGE_TYPE.LOCAL) {
+                assert storedUri != null;
 
-                File theFile = new File(filePath);
+                URI uri = new URI(storedUri);
+                File theFile = new File(uri);
                 if(false==theFile.exists()) {
                     throw new IllegalArgumentException("Invalid filekey.");
                 }
                 totalBytes = theFile.length();
                 inputStreamReader = new InputStreamReader(new FileInputStream(theFile));
-            } else if(fileType==PrepDataset.FILE_TYPE.HDFS) {
+            } else if(storageType== PrDataset.STORAGE_TYPE.HDFS) {
                 Configuration conf = this.hdfsService.getConf();
                 FileSystem fs = FileSystem.get(conf);
-                Path thePath = new Path(filePath);
+                URI uri = new URI(storedUri);
+                Path thePath = new Path(uri);
 
-                if( false==fs.exists(thePath) ) {
-                    strUri = prepProperties.getStagingBaseDir() + "/uploads/" + fileKey;
-                    thePath = new Path(new URI(strUri));
-                    if( false==fs.exists(thePath) ) {
-                        throw new IllegalArgumentException("Invalid filekey.");
-                    }
-                    // TODO: amend the dataset entity with the new path
-                }
+                assert fs.exists(thePath);
+//                if( false==fs.exists(thePath) ) {
+//                    strUri = prepProperties.getStagingBaseDir() + "/uploads/" + fileKey;
+//                    thePath = new Path(new URI(strUri));
+//                    if( false==fs.exists(thePath) ) {
+//                        throw new IllegalArgumentException("Invalid filekey.");
+//                    }
+//                    // TODO: amend the dataset entity with the new path
+//                }
                 ContentSummary cSummary = fs.getContentSummary(thePath);
                 totalBytes = cSummary.getLength();
                 inputStreamReader = new InputStreamReader(fs.open(thePath));
+            } else {
+                assert false : storageType.name();
             }
 
-            String extensionType = FilenameUtils.getExtension(fileKey);
+//            String extensionType = FilenameUtils.getExtension(fileKey);
+//            String extensionType = FilenameUtils.getExtension(dataset.getFilenameBeforeUpload());
+            String extensionType = FilenameUtils.getExtension(storedUri);
             int findSheetIndex = Integer.parseInt(sheetindex);
             int limitSize = Integer.parseInt(size);
-            int totalRows = 0;
             int dataFrameRows = 0;
+            long totalRows = 0;
 
             if(null==inputStreamReader) {
-                throw new IllegalArgumentException("failed to open file stream: ["+fileKey+"]");
+                throw new IllegalArgumentException("failed to open file stream: ["+storedUri+"]");
             } else {
 
                 List<Map<String, String>> resultSet = Lists.newArrayList();
@@ -1125,15 +1136,16 @@ public class PrepDatasetFileService {
         return responseMap;
     }
 
-    public String moveExcelToCsv(String fileKey, String sheetName, String delimiter) {
-        String csvFileName = null;
+    public String moveExcelToCsv(String excelStrUri, String sheetName, String delimiter) {
+//        String csvFileName = null;
+        String csvStrUri = null;
         try {
-            int idx = fileKey.lastIndexOf(".");
-            String extensionType = fileKey.substring(idx+1);
-            String newFileKey = fileKey.substring(0, idx) + ".csv";
-
-            String excelFileName = this.getPathLocal_new(fileKey);
-            csvFileName = this.getPathLocal_new(newFileKey);
+//            int idx = fileKey.lastIndexOf(".");
+//            String extensionType = n;
+//            String newFileKey = fileKey.substring(0, idx) + ".csv";
+//
+//            String excelFileName = this.getPathLocal_new(fileKey);
+//            csvFileName = this.getPathLocal_new(newFileKey);
 
             /*
             File theFile = new File(excelFileName);
@@ -1147,12 +1159,15 @@ public class PrepDatasetFileService {
             Sheet sheet = wb.getSheetAt(findSheetIndex);
             */
 
+            URI excelUri = new URI(excelStrUri);
+            String extensionType = FilenameUtils.getExtension(excelStrUri);
+
             Workbook wb;
             InputStream is=null;
             if ("xls".equals(extensionType)) {       // 97~2003
-                wb = new HSSFWorkbook(new FileInputStream(new File(excelFileName)));
+                wb = new HSSFWorkbook(new FileInputStream(new File(excelUri)));
             } else {   // 2007 ~
-                is = new FileInputStream(new File(excelFileName));
+                is = new FileInputStream(new File(excelUri));
                 wb = StreamingReader.builder()
                         .rowCacheSize(100)
                         .bufferSize(4096)
@@ -1176,9 +1191,9 @@ public class PrepDatasetFileService {
             }
 
             if ("xls".equals(extensionType)) {       // 97~2003
-                wb = new HSSFWorkbook(new FileInputStream(new File(excelFileName)));
+                wb = new HSSFWorkbook(new FileInputStream(new File(excelUri)));
             } else {   // 2007 ~
-                is = new FileInputStream(new File(excelFileName));
+                is = new FileInputStream(new File(excelUri));
                 wb = StreamingReader.builder()
                         .rowCacheSize(100)
                         .bufferSize(4096)
@@ -1187,7 +1202,12 @@ public class PrepDatasetFileService {
 
             sheet = wb.getSheet(sheetName);
             String separator = delimiter;
-            FileWriter writer = new FileWriter(csvFileName);
+
+            int idx = excelStrUri.lastIndexOf(".");
+            csvStrUri = excelStrUri.substring(0, idx) + ".csv";
+            URI csvUri = new URI(csvStrUri);
+
+            FileWriter writer = new FileWriter(new File(csvUri));
             for (Row r : sheet) {
                 StringBuilder sb = new StringBuilder();
                 boolean first = true;
@@ -1293,6 +1313,6 @@ public class PrepDatasetFileService {
             LOGGER.error("Failed to copy localFile : {}", e.getMessage());
         }
 
-        return csvFileName;
+        return csvStrUri;
     }
 }

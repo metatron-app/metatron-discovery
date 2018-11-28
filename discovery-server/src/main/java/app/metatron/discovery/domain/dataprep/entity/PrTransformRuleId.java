@@ -12,35 +12,30 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.dataprep.transform;
+package app.metatron.discovery.domain.dataprep.entity;
 
 import java.io.Serializable;
 
-public class PrepTransformRequest implements Serializable {
-  private String dfId;
-  private PrepTransformService.OP_TYPE op;
-  private Integer ruleIdx;
-  private String ruleString;
+public class PrTransformRuleId implements Serializable {
+    String dataset;
+    Integer ruleNo;
 
-  private Integer count;
+    public PrTransformRuleId() {
+    }
 
-  public String getDfId() {
-    return dfId;
-  }
+    public PrTransformRuleId(String dataset, Integer ruleNo) {
+        this.dataset = dataset;
+        this.ruleNo = ruleNo;
+    }
 
-  public PrepTransformService.OP_TYPE getOp() {
-    return op;
-  }
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
-  public Integer getRuleIdx() {
-    return ruleIdx;
-  }
-
-  public String getRuleString() {
-    return ruleString;
-  }
-
-  public Integer getCount() {
-    return count;
-  }
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }
+

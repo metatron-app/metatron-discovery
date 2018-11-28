@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
+import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 
 import java.io.Serializable;
@@ -23,7 +24,7 @@ import java.util.Map;
 public class PrepTransformResponse implements Serializable {
   String wrangledDsId;
   int ruleCurIdx;
-  List<PrepTransformRule> ruleStringInfos;
+  List<PrTransformRule> ruleStringInfos;
   String undoable;
   String redoable;
   DataFrame gridResponse;
@@ -62,11 +63,11 @@ public class PrepTransformResponse implements Serializable {
     this.ruleCurIdx = ruleCurIdx;
   }
 
-  public List<PrepTransformRule> getRuleStringInfos() {
+  public List<PrTransformRule> getRuleStringInfos() {
     return ruleStringInfos;
   }
 
-  public void setRuleStringInfos(List<PrepTransformRule> ruleStringInfos, Boolean undoable, Boolean redoable) {
+  public void setRuleStringInfos(List<PrTransformRule> ruleStringInfos, Boolean undoable, Boolean redoable) {
     this.ruleStringInfos = ruleStringInfos;
 
     this.undoable = undoable.toString();
@@ -97,15 +98,15 @@ public class PrepTransformResponse implements Serializable {
     }
   }
 
-  Integer sampledRows;
+  Long sampledRows;
   Long fullBytes;
-  public Integer getSampledRows() {
+  public Long getSampledRows() {
     return sampledRows;
   }
   public Long getFullBytes() {
     return fullBytes;
   }
-  public void setSampledRows(Integer sampledRows) {
+  public void setSampledRows(Long sampledRows) {
     this.sampledRows = sampledRows;
   }
   public void setFullBytes(Long fullBytes) {

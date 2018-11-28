@@ -14,62 +14,42 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 
 public class PrepSnapshotRequestPost {
-    PrepSnapshot.SS_TYPE ssType;
+    PrSnapshot.SS_TYPE ssType;              // URI, DATABASE, STAGING_DB
+    PrSnapshot.STORAGE_TYPE storageType;    // LOCAL, HDFS
+
     String ssName;
     String uri;
     String dbName;
     String tblName;
-    PrepSnapshot.FORMAT format;
-    PrepSnapshot.COMPRESSION compression;
-    PrepSnapshot.MODE mode;
-    PrepSnapshot.ENGINE engine;
-    boolean profile;
-    String extHdfsDir;      // TODO: remove with related UI code
+    PrSnapshot.HIVE_FILE_FORMAT format;
+    PrSnapshot.HIVE_FILE_COMPRESSION compression;
+    PrSnapshot.APPEND_MODE mode;
+    PrSnapshot.ENGINE engine;
     List<String> partKeys;
 
+
     @JsonIgnore
-    public PrepSnapshot.FORMAT getFormatEnum() {
+    public PrSnapshot.HIVE_FILE_FORMAT getFormat() {
         return format;
     }
 
-    public String getFormat() {
-        if(format==null) {
-            return null;
-        }
-        return format.name();
-    }
-
-    public void setFormat(PrepSnapshot.FORMAT format) {
+    public void setFormat(PrSnapshot.HIVE_FILE_FORMAT format) {
         this.format = format;
     }
 
     @JsonIgnore
-    public PrepSnapshot.COMPRESSION getCompressionEnum() {
+    public PrSnapshot.HIVE_FILE_COMPRESSION getCompression() {
         return compression;
     }
 
-    public String getCompression() {
-        if(compression==null) {
-            return null;
-        }
-        return compression.name();
-    }
-
-    public void setCompression(PrepSnapshot.COMPRESSION compression) {
+    public void setCompression(PrSnapshot.HIVE_FILE_COMPRESSION compression) {
         this.compression = compression;
-    }
-
-    public boolean isProfile() {
-        return profile;
-    }
-
-    public void setProfile(boolean profile) {
-        this.profile = profile;
     }
 
     public String getSsName() {
@@ -80,18 +60,19 @@ public class PrepSnapshotRequestPost {
         this.ssName = ssName;
     }
 
-    public PrepSnapshot.SS_TYPE getSsTypeEnum() {
+    public PrSnapshot.SS_TYPE getSsType() {
         return ssType;
     }
 
-    public String getSsType() {
-        if(ssType==null) {
-            return null;
-        }
-        return ssType.name();
+    public PrSnapshot.STORAGE_TYPE getStorageType() {
+        return storageType;
     }
 
-    public void setSsType(PrepSnapshot.SS_TYPE ssType) {
+    public void setStorageType(PrSnapshot.STORAGE_TYPE storageType) {
+        this.storageType = storageType;
+    }
+
+    public void setSsType(PrSnapshot.SS_TYPE ssType) {
         this.ssType = ssType;
     }
 
@@ -127,41 +108,19 @@ public class PrepSnapshotRequestPost {
         this.tblName = tblName;
     }
 
-    public PrepSnapshot.MODE getModeEnum() {
+    public PrSnapshot.APPEND_MODE getMode() {
         return mode;
     }
 
-    public String getMode() {
-        if(mode==null) {
-            return null;
-        }
-        return mode.name();
-    }
-
-    public void setMode(PrepSnapshot.MODE mode) {
+    public void setMode(PrSnapshot.APPEND_MODE mode) {
         this.mode = mode;
     }
 
-    public String getExtHdfsDir() {
-        return extHdfsDir;
-    }
-
-    public void setExtHdfsDir(String extHdfsDir) {
-        this.extHdfsDir = extHdfsDir;
-    }
-
-    public PrepSnapshot.ENGINE getEngineEnum() {
+    public PrSnapshot.ENGINE getEngine() {
         return engine;
     }
 
-    public String getEngine() {
-        if(engine==null) {
-            return null;
-        }
-        return engine.name();
-    }
-
-    public void setEngine(PrepSnapshot.ENGINE engine) {
+    public void setEngine(PrSnapshot.ENGINE engine) {
         this.engine = engine;
     }
 }

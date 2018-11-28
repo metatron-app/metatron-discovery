@@ -16,12 +16,20 @@ package app.metatron.discovery.domain.dataprep.transform;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.*;
-import app.metatron.discovery.domain.dataprep.PrepDataset.OP_TYPE;
+import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
+import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrTransformRuleRepository;
 import app.metatron.discovery.domain.dataprep.rule.ExprFunction;
 import app.metatron.discovery.domain.dataprep.rule.ExprFunctionCategory;
+import app.metatron.discovery.domain.dataprep.service.PrSnapshotService;
 import app.metatron.discovery.domain.dataprep.teddy.*;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
@@ -59,7 +67,10 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import static app.metatron.discovery.domain.dataprep.PrepDataset.DS_TYPE.WRANGLED;
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.FILE_FORMAT.*;
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.IMPORT_TYPE.*;
 
 @Service
 public class PrepTransformService {
@@ -72,22 +83,27 @@ public class PrepTransformService {
   TeddyExecutor teddyExecutor;
 
   @Autowired
-  HistogramService histogramService;
+  PrepHistogramService prepHistogramService;
 
   @PostConstruct
   public void init() {
     System.setProperty("dataprep", Arrays.asList(env.getActiveProfiles()).contains("dataprep") ? "enabled" : "disabled");
   }
 
-  @Autowired PrepDatasetRepository datasetRepository;
-  @Autowired PrepDataflowRepository dataflowRepository;
-  @Autowired PrepTransformRuleRepository transformRuleRepository;
+  @Autowired
+  PrDatasetRepository datasetRepository;
+  @Autowired
+  PrDataflowRepository dataflowRepository;
+  @Autowired
+  PrTransformRuleRepository transformRuleRepository;
   @Autowired PrepPreviewLineService previewLineService;
   @Autowired PrepDatasetFileService datasetFileService;
-  @Autowired PrepSnapshotRepository snapshotRepository;
+  @Autowired
+  PrSnapshotRepository snapshotRepository;
   @Autowired DataConnectionRepository connectionRepository;
   @Autowired PrepHdfsService hdfsService;
-  @Autowired PrepSnapshotService snapshotService;
+  @Autowired
+  PrSnapshotService snapshotService;
   @Autowired DataFrameService dataFrameService;
   @Autowired PrepTransformRuleService transformRuleService;
 
@@ -113,22 +129,33 @@ public class PrepTransformService {
   @Value("${spring.datasource.password:MISSING_DATASOURCE_PASSWORD}")
   String datasourcePassword;
 
+  public enum OP_TYPE {
+    CREATE,
+    APPEND,
+    UPDATE,
+    DELETE,
+    JUMP,
+    UNDO,
+    REDO,
+    PREVIEW,
+    NOT_USED
+  }
+
   // Properties along the ETL program kinds are gathered into a single JSON properties string.
   // Currently, the ETL programs kinds are the embedded engine and Apache Spark.
   private String getJsonPrepPropertiesInfo(String dsId, PrepSnapshotRequestPost requestPost) throws JsonProcessingException {
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+    PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
 
-    PrepDataset.IMPORT_TYPE importType = dataset.getImportTypeEnum();
-    boolean dsFile = (importType == PrepDataset.IMPORT_TYPE.FILE);
-    boolean dsDb   = (importType == PrepDataset.IMPORT_TYPE.DB);
-    boolean dsHive = (importType == PrepDataset.IMPORT_TYPE.HIVE);
+    PrDataset.IMPORT_TYPE importType = dataset.getImportType();
+    boolean dsStagingDb = (importType == PrDataset.IMPORT_TYPE.STATING_DB);
 
-    PrepSnapshot.SS_TYPE ssType = requestPost.getSsTypeEnum();
-    boolean ssFile = (ssType == PrepSnapshot.SS_TYPE.FILE);
-    boolean ssHdfs = (ssType == PrepSnapshot.SS_TYPE.HDFS);
-    boolean ssHive = (ssType == PrepSnapshot.SS_TYPE.HIVE);
+    PrSnapshot.SS_TYPE ssType = requestPost.getSsType();
+    PrSnapshot.STORAGE_TYPE storageType = requestPost.getStorageType();
+    boolean ssFile = (ssType == PrSnapshot.SS_TYPE.URI && storageType == PrSnapshot.STORAGE_TYPE.LOCAL);
+    boolean ssHdfs = (ssType == PrSnapshot.SS_TYPE.URI && storageType == PrSnapshot.STORAGE_TYPE.HDFS);
+    boolean ssHive = (ssType == PrSnapshot.SS_TYPE.STAGING_DB);
 
-    PrepSnapshot.ENGINE engine = requestPost.getEngineEnum();
+    PrSnapshot.ENGINE engine = requestPost.getEngine();
 
     // check polaris.dataprep.hadoopConfDir
     if (ssHdfs || ssHive) {
@@ -137,12 +164,12 @@ public class PrepTransformService {
     }
 
     // check polaris.dataprep.hive
-    if (dsHive || ssHive) {
+    if (dsStagingDb || ssHive) {
       prepProperties.getHiveHostname(true);
     }
 
     // check polaris.dataprep.etl.jar
-    if (engine == PrepSnapshot.ENGINE.TWINKLE) {
+    if (engine == PrSnapshot.ENGINE.TWINKLE) {
       prepProperties.getEtlJar();
     }
 
@@ -151,9 +178,9 @@ public class PrepTransformService {
 
   private String getJsonSnapshotInfo(PrepSnapshotRequestPost requestPost, String ssId) throws JsonProcessingException {
     Map<String, Object> map = new HashMap();
-    PrepSnapshot.SS_TYPE ssType = requestPost.getSsTypeEnum();
-    PrepSnapshot.ENGINE engine = requestPost.getEngineEnum();
-    PrepSnapshot.MODE mode = requestPost.getModeEnum();
+    PrSnapshot.SS_TYPE ssType = requestPost.getSsType();
+    PrSnapshot.ENGINE engine = requestPost.getEngine();
+    PrSnapshot.APPEND_MODE mode = requestPost.getMode();
 
     // 공통
     map.put("ssId",           ssId);
@@ -165,28 +192,32 @@ public class PrepTransformService {
     map.put("localBaseDir",   prepProperties.getLocalBaseDir());
 
     switch (ssType) {
-      case FILE:
-        map.put("fileUri",        requestPost.getUri());
+      case URI:
+//        map.put("fileUri",        requestPost.getUri());
+//        break;
+//      case HDFS:
+//        map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
+//        map.put("fileUri",        requestPost.getUri());
+        map.put("storedUri",        requestPost.getUri());
+        map.put("storageType",      requestPost.getStorageType());
         break;
-      case HDFS:
-        map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
-        map.put("fileUri",        requestPost.getUri());
-        break;
-      case JDBC:
-        assert false : ssId;
-        break;
-      case HIVE:
+//      case JDBC:
+//        assert false : ssId;
+//        break;
+      case STAGING_DB:
         map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
         map.put("partKeys",       requestPost.getPartKeys());
         map.put("mode",           mode.name());
         map.put("dbName",         requestPost.getDbName());
         map.put("tblName",        requestPost.getTblName());
         break;
+      default:
+        assert false : ssType;
     }
 
-    if (engine == PrepSnapshot.ENGINE.TWINKLE) {
-      map.put("codec",             requestPost.getCompression().toLowerCase());
-      map.put("mode",              requestPost.getMode().toLowerCase());    // Twinkle demands to lower;
+    if (engine == PrSnapshot.ENGINE.TWINKLE) {
+      map.put("codec",             requestPost.getCompression().name().toLowerCase());
+      map.put("mode",              requestPost.getMode().name().toLowerCase());    // Twinkle demands to lower;
       map.put("driver-class-name", datasourceDriverClassName);
       map.put("url",               datasourceUrl);
       map.put("username",          datasourceUsername);
@@ -235,14 +266,14 @@ public class PrepTransformService {
     }
     upstreamDsIds.add(firstUpstreamDsId);
 
-    List<PrepTransformRule> rules = getRulesInOrder(dsId);
+    List<PrTransformRule> rules = getRulesInOrder(dsId);
 
     int until = forUpdate ? rules.size() - 1 : rules.size();
 
     prepareTransformRules(dsId);
 
     for (int i = 0; i < until; i++) {
-      PrepTransformRule rule = rules.get(i);
+      PrTransformRule rule = rules.get(i);
       String jsonRuleString = rule.getJsonRuleString();
       assert jsonRuleString != null : dsId;
 
@@ -258,15 +289,15 @@ public class PrepTransformService {
   // create stage0 (POST)
   @Transactional(rollbackFor = Exception.class)
   public PrepTransformResponse create(String importedDsId, String dfId, boolean doAutoTyping) throws Exception {
-    PrepDataset importedDataset = datasetRepository.findRealOne(datasetRepository.findOne(importedDsId));
-    PrepDataflow dataflow = dataflowRepository.findOne(dfId);
+    PrDataset importedDataset = datasetRepository.findRealOne(datasetRepository.findOne(importedDsId));
+    PrDataflow dataflow = dataflowRepository.findOne(dfId);
     List<String> setTypeRules;
 
-    assert(!importedDataset.isWrangled());
+    assert importedDataset.getDsType() == IMPORTED : importedDataset.getDsType();
 
     LOGGER.trace("create(): start");
 
-    PrepDataset wrangledDataset = makeWrangledDataset(importedDataset, dataflow, dfId);
+    PrDataset wrangledDataset = makeWrangledDataset(importedDataset, dataflow, dfId);
     datasetRepository.save(wrangledDataset);
 
     // save를 해야 id가 나온다는 것에 유의
@@ -287,7 +318,7 @@ public class PrepTransformService {
     String ruleString = transformRuleService.getCreateRuleString(importedDsId);
     String jsonRuleString = transformRuleService.jsonizeRuleString(ruleString);
     String shortRuleString = transformRuleService.shortenRuleString(jsonRuleString);
-    PrepTransformRule rule = new PrepTransformRule(wrangledDataset, 0, ruleString, jsonRuleString, shortRuleString);
+    PrTransformRule rule = new PrTransformRule(wrangledDataset, 0, ruleString, jsonRuleString, shortRuleString);
     transformRuleRepository.saveAndFlush(rule);
 
     PrepTransformResponse response = new PrepTransformResponse(wrangledDsId);
@@ -311,7 +342,7 @@ public class PrepTransformService {
           String setTypeRule = setTypeRules.get(i);
           try {
             // 주의: response를 갱신하면 안됨. 기존의 create()에 대한 response를 그대로 주어야 함.
-            transform(wrangledDsId, PrepDataset.OP_TYPE.APPEND, i, setTypeRule, false);
+            transform(wrangledDsId, OP_TYPE.APPEND, i, setTypeRule, false);
           } catch (Exception e) {
             LOGGER.error("create(): caught an exception: this setType rule might be wrong [" + setTypeRule + "]", e);
           }
@@ -480,13 +511,13 @@ public class PrepTransformService {
 
   @Transactional(rollbackFor = Exception.class)
   public PrepTransformResponse clone(String wrangledDsId) throws Exception {
-    PrepDataset wrangledDataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
+    PrDataset wrangledDataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
     String upstreamDsId = getFirstUpstreamDsId(wrangledDsId);
 
     PrepTransformResponse response = create(upstreamDsId, wrangledDataset.getCreatorDfId(), false);
     String cloneDsId = response.getWrangledDsId();
 
-    List<PrepTransformRule> transformRules = getRulesInOrder(wrangledDsId);
+    List<PrTransformRule> transformRules = getRulesInOrder(wrangledDsId);
     for (int i = 1; i < transformRules.size(); i++) {
       String ruleString = transformRules.get(i).getRuleString();
       try {
@@ -503,7 +534,7 @@ public class PrepTransformService {
     List<String> targetDsIds = Lists.newArrayList();
 
     // Replace all occurrence of oldDsid in whole rule strings in the system.
-    for (PrepTransformRule rule : transformRuleRepository.findAll()) {
+    for (PrTransformRule rule : transformRuleRepository.findAll()) {
       String ruleString = rule.getRuleString();
       if (ruleString.contains(oldDsId)) {
         String newRuleString = ruleString.replace(oldDsId, newDsId);
@@ -524,13 +555,13 @@ public class PrepTransformService {
       }
     }
 
-    PrepDataset oldDataset = datasetRepository.findOne(oldDsId);
-    PrepDataset newDataset = datasetRepository.findOne(newDsId);
+    PrDataset oldDataset = datasetRepository.findOne(oldDsId);
+    PrDataset newDataset = datasetRepository.findOne(newDsId);
 
-    List<PrepDataflow> dataflows = dataflowRepository.findAll();
-    for (PrepDataflow dataflow : dataflows) {
-      List<PrepDataset> datasets = dataflow.getDatasets();
-      for (PrepDataset dataset : datasets) {
+    List<PrDataflow> dataflows = dataflowRepository.findAll();
+    for (PrDataflow dataflow : dataflows) {
+      List<PrDataset> datasets = dataflow.getDatasets();
+      for (PrDataset dataset : datasets) {
         if (dataset.getDsId().equals(oldDataset.getDsId())) {
           datasets.remove(dataset);
           datasets.add(newDataset);
@@ -546,7 +577,7 @@ public class PrepTransformService {
   }
 
   @Transactional(rollbackFor = Exception.class)
-  public List<String> swap_upstream(PrepDataflow dataflow, PrepSwapRequest swapRequest) throws Exception {
+  public List<String> swap_upstream(PrDataflow dataflow, PrepSwapRequest swapRequest) throws Exception {
     String oldDsId = swapRequest.getOldDsId();
     String newDsId = swapRequest.getNewDsId();
     String wrangledDsId = swapRequest.getWrangledDsId();
@@ -556,14 +587,14 @@ public class PrepTransformService {
     if (wrangledDsId != null) {         // if a single (downstream) dataset is specified
       dataflowDsIds.add(wrangledDsId);
     } else {                            // else, all datasets in the dataflow become the targets
-      List<PrepDataset> datasets = dataflow.getDatasets();
-      for (PrepDataset dataset : datasets) {
+      List<PrDataset> datasets = dataflow.getDatasets();
+      for (PrDataset dataset : datasets) {
         dataflowDsIds.add(dataset.getDsId());
       }
     }
 
     // Replace all occurrence of oldDsid in whole rule strings in the targets.
-    for (PrepTransformRule rule : transformRuleRepository.findAll()) {
+    for (PrTransformRule rule : transformRuleRepository.findAll()) {
       if (!dataflowDsIds.contains(rule.getDataset().getDsId())) {
         continue;
       }
@@ -598,10 +629,10 @@ public class PrepTransformService {
       return affectedDsIds;
     }
 
-    PrepDataset newDataset = datasetRepository.findOne(newDsId);
+    PrDataset newDataset = datasetRepository.findOne(newDsId);
 
-    List<PrepDataset> datasets = dataflow.getDatasets();
-    for (PrepDataset dataset : datasets) {
+    List<PrDataset> datasets = dataflow.getDatasets();
+    for (PrDataset dataset : datasets) {
       if (dataset.getDsId().equals(oldDsId)) {
         datasets.remove(dataset);
         if (!datasets.contains(newDataset)) {
@@ -628,7 +659,7 @@ public class PrepTransformService {
   }
 
   private DataFrame load_internal(String dsId) throws Exception {
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+    PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     DataFrame gridResponse;
 
     LOGGER.trace("load_internal(): start");
@@ -644,17 +675,17 @@ public class PrepTransformService {
     teddyImpl.remove(dsId);
 
     String upstreamDsId = getFirstUpstreamDsId(dsId);
-    PrepDataset upstreamDataset = datasetRepository.findRealOne(datasetRepository.findOne(upstreamDsId));
+    PrDataset upstreamDataset = datasetRepository.findRealOne(datasetRepository.findOne(upstreamDsId));
     gridResponse = createStage0(dsId, upstreamDataset);
     teddyImpl.reset(dsId);
 
     List<String> ruleStrings = new ArrayList<>();
     ArrayList<String> totalTargetDsIds = new ArrayList<>();
-    ArrayList<PrepDataset> totalTargetDatasets = new ArrayList<>();
+    ArrayList<PrDataset> totalTargetDatasets = new ArrayList<>();
 
     prepareTransformRules(dsId);
 
-    for (PrepTransformRule transformRule : getRulesInOrder(dsId)) {
+    for (PrTransformRule transformRule : getRulesInOrder(dsId)) {
       String ruleString = transformRule.getRuleString();
       String jsonRuleString = transformRule.getJsonRuleString();
       datasetRepository.save(dataset);
@@ -669,7 +700,7 @@ public class PrepTransformService {
         load_internal(targetDsId);
         totalTargetDsIds.add(targetDsId);
 
-        PrepDataset targetDataset = datasetRepository.findRealOne(datasetRepository.findOne(targetDsId));
+        PrDataset targetDataset = datasetRepository.findRealOne(datasetRepository.findOne(targetDsId));
         totalTargetDatasets.add(targetDataset);
       }
     }
@@ -701,7 +732,7 @@ public class PrepTransformService {
     for (int i = 0; i < colnos.size(); i++) {
       int colno = colnos.get(i);
       int colWidth = colWidths.get(i);
-      futures.add(histogramService.updateHistWithColWidth(df.getColName(colno), df.getColType(colno), df.rows, colno, colWidth));
+      futures.add(prepHistogramService.updateHistWithColWidth(df.getColName(colno), df.getColType(colno), df.rows, colno, colWidth));
     }
 
     List<Histogram> colHists = new ArrayList<>();
@@ -726,7 +757,7 @@ public class PrepTransformService {
     teddyImpl.setCurStageIdx(dsId, stageIdx);
 
     if (persist) {
-      PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+      PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
       dataset.setRuleCurIdx(stageIdx);
       datasetRepository.saveAndFlush(dataset);
     }
@@ -745,7 +776,7 @@ public class PrepTransformService {
       transformRuleService.shortenRuleString(transformRuleService.jsonizeRuleString(ruleString));
     }
 
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+    PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     assert dataset != null : dsId;
 
     // dataset이 loading되지 않았으면 loading
@@ -817,7 +848,7 @@ public class PrepTransformService {
       case UPDATE:
         updateTransformRules(dsId);
         response = fetch_internal(dsId, dataset.getRuleCurIdx());
-        dataset.setTotalLines(response.getGridResponse().rows.size());
+        dataset.setTotalLines((long) response.getGridResponse().rows.size());
         this.previewLineService.putPreviewLines(dsId, response.getGridResponse());
         break;
       case JUMP:
@@ -837,7 +868,7 @@ public class PrepTransformService {
   }
 
   private void updateTransformRules(String dsId) throws CannotSerializeIntoJsonException {
-    for (PrepTransformRule rule : getRulesInOrder(dsId)) {
+    for (PrTransformRule rule : getRulesInOrder(dsId)) {
       transformRuleRepository.delete(rule);
     }
     transformRuleRepository.flush();
@@ -845,12 +876,12 @@ public class PrepTransformService {
     List<String> ruleStrings = teddyImpl.getRuleStrings(dsId);
     List<Boolean> valids = teddyImpl.getValids(dsId);
 
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+    PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     for (int i = 0; i < ruleStrings.size(); i++) {
       String ruleString = ruleStrings.get(i);
       String jsonRuleString = transformRuleService.jsonizeRuleString(ruleString);
       String shortRuleString = transformRuleService.shortenRuleString(jsonRuleString);
-      PrepTransformRule rule = new PrepTransformRule(dataset, i, ruleStrings.get(i), jsonRuleString, shortRuleString);
+      PrTransformRule rule = new PrTransformRule(dataset, i, ruleStrings.get(i), jsonRuleString, shortRuleString);
       rule.setValid(valids.get(i));
       transformRuleRepository.save(rule);
     }
@@ -991,19 +1022,16 @@ public class PrepTransformService {
     datasetInfo.put("origTeddyDsId", wrangledDsId);
 
     for (String upstreamDsId : getUpstreamDsIds(wrangledDsId)) {
-      PrepDataset upstreamDataset = datasetRepository.findRealOne(datasetRepository.findOne(upstreamDsId));
-      if (upstreamDataset.getDsTypeForEnum() == PrepDataset.DS_TYPE.IMPORTED) {
-        datasetInfo.put("importType", upstreamDataset.getImportType());
-        switch (upstreamDataset.getImportTypeEnum()) {
-          case FILE:
-            String filePath = upstreamDataset.getCustomValue("filePath");
-            datasetInfo.put("filePath", filePath);
+      PrDataset upstreamDataset = datasetRepository.findRealOne(datasetRepository.findOne(upstreamDsId));
+      if (upstreamDataset.getDsType() == IMPORTED) {
+        datasetInfo.put("importType", upstreamDataset.getImportType().name());
+        switch (upstreamDataset.getImportType()) {
+          case UPLOAD:
+            datasetInfo.put("storedUri", upstreamDataset.getStoredUri());
             datasetInfo.put("delimiter", upstreamDataset.getDelimiter());
             break;
-          case HIVE:
-            datasetInfo.put("sourceQuery", upstreamDataset.getQueryStmt());
-            break;
-          case DB:
+
+          case DATABASE:
             datasetInfo.put("sourceQuery", upstreamDataset.getQueryStmt());
             String dcId = upstreamDataset.getDcId();
             datasetInfo.put("dcId", dcId);
@@ -1013,7 +1041,13 @@ public class PrepTransformService {
             datasetInfo.put("username", dataConnection.getUsername() );
             datasetInfo.put("password", dataConnection.getPassword() );
             break;
-          default:
+
+          case STATING_DB:
+            datasetInfo.put("sourceQuery", upstreamDataset.getQueryStmt());
+            break;
+
+          case URI:
+          case DRUID:
             assert false : upstreamDataset.getImportType();
         }
       } else {
@@ -1027,7 +1061,7 @@ public class PrepTransformService {
 
     // put ruleStrings
     List<String> ruleStrings = new ArrayList<>();
-    List<PrepTransformRule> transformRules = getRulesInOrder(wrangledDsId);
+    List<PrTransformRule> transformRules = getRulesInOrder(wrangledDsId);
     for (int i = 1; i < transformRules.size(); i++) {
       ruleStrings.add(transformRules.get(i).getRuleString());
     }
@@ -1071,7 +1105,7 @@ public class PrepTransformService {
     String jsonDatasetInfo        = getJsonDatasetInfo(wrangledDsId);
     String jsonSnapshotInfo       = getJsonSnapshotInfo(requestPost, ssId);
 
-    switch (requestPost.getEngineEnum()) {
+    switch (requestPost.getEngine()) {
       case TWINKLE:
         assert false : "Spark engine not supported for a while";
       case EMBEDDED:
@@ -1101,8 +1135,8 @@ public class PrepTransformService {
 
     List<String> upstreamDsIds = getUpstreamDsIds(dsId);
     for (String upsteramDsId : upstreamDsIds) {
-      PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(upsteramDsId));
-      if (dataset.isImported()) {
+      PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(upsteramDsId));
+      if (dataset.getDsType() == IMPORTED) {
         continue;
       }
       checkHiveNamingRule(upsteramDsId);
@@ -1110,11 +1144,11 @@ public class PrepTransformService {
   }
 
   private void prepareTransformRules(String dsId) throws CannotSerializeIntoJsonException {
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-    List<PrepTransformRule> transformRules = dataset.getTransformRules();
+    PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+    List<PrTransformRule> transformRules = dataset.getTransformRules();
 
     if (transformRules !=null && transformRules.size() > 0) {
-      for (PrepTransformRule transformRule : transformRules) {
+      for (PrTransformRule transformRule : transformRules) {
         if (transformRule.getJsonRuleString() == null) {
           String ruleString = transformRule.getRuleString();
           String jsonRuleString = transformRuleService.jsonizeRuleString(ruleString);
@@ -1134,7 +1168,7 @@ public class PrepTransformService {
     PrepSnapshotResponse response;
     List<String> allFullDsIds;
 
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
+    PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
     assert dataset != null : wrangledDsId;
 
     LOGGER.trace("transform_snapshot(): start");
@@ -1143,11 +1177,11 @@ public class PrepTransformService {
       load_internal(wrangledDsId);
     }
 
-    if (requestPost.getSsTypeEnum() == PrepSnapshot.SS_TYPE.HIVE) {
+    if (requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB) {
       checkHiveNamingRule(wrangledDsId);
     }
 
-    PrepSnapshot snapshot = new PrepSnapshot();
+    PrSnapshot snapshot = new PrSnapshot();
 
     DateTime launchTime = DateTime.now(DateTimeZone.UTC);
     if(null==requestPost.getSsName()) {
@@ -1158,20 +1192,19 @@ public class PrepTransformService {
     String creatorDfId = dataset.getCreatorDfId();
     assert creatorDfId != null : dataset.toString();
 
-    PrepDataflow dataflow = dataflowRepository.findOne(creatorDfId);
+    PrDataflow dataflow = dataflowRepository.findOne(creatorDfId);
     snapshot.setCreatorDfName(dataflow.getDfName());
 
     snapshot.setDsName(dataset.getDsName());
     snapshot.setVersion(dataset.getVersion());
-    snapshot.setSsType(requestPost.getSsTypeEnum());
-    snapshot.setUri(requestPost.getUri());
+    snapshot.setSsType(requestPost.getSsType());
+    snapshot.setStoredUri(requestPost.getUri());
     snapshot.setDbName(requestPost.getDbName());
     snapshot.setTblName(requestPost.getTblName());
-    snapshot.setFormat(requestPost.getFormatEnum());
-    snapshot.setCompression(requestPost.getCompressionEnum());
-    snapshot.setEngine(requestPost.getEngineEnum());
-    snapshot.setStatus(PrepSnapshot.STATUS.INITIALIZING);
-    snapshot.setProfile(requestPost.isProfile());
+    snapshot.setHiveFileFormat(requestPost.getFormat());
+    snapshot.setHiveFileCompression(requestPost.getCompression());
+    snapshot.setEngine(requestPost.getEngine());
+    snapshot.setStatus(PrSnapshot.STATUS.INITIALIZING);
     snapshot.setLaunchTime(launchTime);
 
     // snapshot table의 partition 정보는 custom field에 JSON으로 저장
@@ -1185,7 +1218,7 @@ public class PrepTransformService {
     // - dataset name, createdTime, createdBy
     // - origImported name, query, cretedTime, createdBy
     Map<String, Object> map = new HashMap<>();
-    PrepDataflow df = dataflowRepository.findOne(dataset.getCreatorDfId());
+    PrDataflow df = dataflowRepository.findOne(dataset.getCreatorDfId());
     map.put("dfName", df.getDfName());
     map.put("dfId", df.getDfId());
     map.put("dsName", dataset.getDsName());
@@ -1193,19 +1226,13 @@ public class PrepTransformService {
     map.put("createdTime", dataset.getCreatedTime().toString());
     map.put("createdBy", dataset.getCreatedBy());
 
-    if(null!=dataset.getGridResponse()) {
-      map.put("slaveDsNameMap", dataset.getGridResponse().getSlaveDsNameMap());
-    } else {
-      map.put("slaveDsNameMap", null);
-    }
-
     prepareTransformRules(dataset.getDsId());
-    map.put("ruleStringinfos", dataset.getRuleStringInfos());
+    map.put("ruleStringinfos", dataset.getTransformRules());
 
     Map<String, Object> mapOrigDataset = new HashMap<>();
-    PrepDataset origDataset = datasetRepository.findRealOne(datasetRepository.findOne(getFirstUpstreamDsId(dataset.getDsId())));
+    PrDataset origDataset = datasetRepository.findRealOne(datasetRepository.findOne(getFirstUpstreamDsId(dataset.getDsId())));
     mapOrigDataset.put("dsName", origDataset.getDsName());
-    mapOrigDataset.put("queryStmt", requestPost.getSsTypeEnum() == PrepSnapshot.SS_TYPE.HIVE ? origDataset.getQueryStmt() : "N/A");
+    mapOrigDataset.put("queryStmt", requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB ? origDataset.getQueryStmt() : "N/A");
     mapOrigDataset.put("createdTime", origDataset.getCreatedTime().toString());
     mapOrigDataset.put("createdBy", origDataset.getCreatedBy());
     map.put("origDsInfo", mapOrigDataset);
@@ -1215,9 +1242,8 @@ public class PrepTransformService {
 
     snapshotRepository.saveAndFlush(snapshot);
 
-    if (requestPost.getSsTypeEnum() == PrepSnapshot.SS_TYPE.FILE ||
-        requestPost.getSsTypeEnum() == PrepSnapshot.SS_TYPE.HDFS ||
-        requestPost.getSsTypeEnum() == PrepSnapshot.SS_TYPE.HIVE) {
+    if (requestPost.getSsType() == PrSnapshot.SS_TYPE.URI ||
+        requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB) {
       String result = runTransformer(wrangledDsId, requestPost, snapshot.getSsId(), authorization);
       LOGGER.info("transform_snapshot(): return from runTransformer(): " + result);
 
@@ -1255,8 +1281,8 @@ public class PrepTransformService {
     return response;
   }
 
-  private static PrepDataset makeWrangledDataset(PrepDataset importedDataset, PrepDataflow dataflow, String dfId) {
-    PrepDataset wrangledDataset = new PrepDataset();
+  private static PrDataset makeWrangledDataset(PrDataset importedDataset, PrDataflow dataflow, String dfId) {
+    PrDataset wrangledDataset = new PrDataset();
 
     //wrangledDataset.setDsName(importedDataset.getDsName() + " [W]");
     String dsName = importedDataset.getDsName();
@@ -1268,15 +1294,14 @@ public class PrepTransformService {
     wrangledDataset.setModifiedTime(DateTime.now());
     wrangledDataset.setCreatedBy(dataflow.getCreatedBy());
     wrangledDataset.setModifiedBy(dataflow.getCreatedBy());
-    wrangledDataset.putCustomValue("previewPath",importedDataset.getCustomValue("previewPath"));
 
     return wrangledDataset;
   }
 
-  public List<PrepTransformRule> getRulesInOrder(String dsId) {
-    List<PrepTransformRule> rules = new ArrayList<>();
+  public List<PrTransformRule> getRulesInOrder(String dsId) {
+    List<PrTransformRule> rules = new ArrayList<>();
 
-    for (PrepTransformRule rule : transformRuleRepository.findAllByOrderByRuleNoAsc()) {
+    for (PrTransformRule rule : transformRuleRepository.findAllByOrderByRuleNoAsc()) {
       if (rule.getDataset().getDsId().equals(dsId)) {
         rules.add(rule);
       }
@@ -1285,7 +1310,7 @@ public class PrepTransformService {
   }
 
   public String getFirstUpstreamDsId(String dsId) {
-    for (PrepTransformRule rule : transformRuleRepository.findAllByOrderByRuleNoAsc()) {
+    for (PrTransformRule rule : transformRuleRepository.findAllByOrderByRuleNoAsc()) {
       if (rule.getDataset().getDsId().equals(dsId)) {
         String ruleString = rule.getRuleString();
         assert ruleString.startsWith("create") : ruleString;
@@ -1296,58 +1321,47 @@ public class PrepTransformService {
   }
 
   private boolean onlyAppend(String dsId) throws JsonProcessingException {
-    List<PrepTransformRule> transformRules = getRulesInOrder(dsId);
+    List<PrTransformRule> transformRules = getRulesInOrder(dsId);
     teddyImpl.reset(dsId);
 
     return (teddyImpl.getRevCnt(dsId) == transformRules.size() + 1);  // revision# = stage0 + rule#
   }
 
-  public void putAddedInfo(PrepTransformResponse transformResponse, PrepDataset wrangledDataset) {
+  public void putAddedInfo(PrepTransformResponse transformResponse, PrDataset wrangledDataset) {
     if(transformResponse!=null && wrangledDataset!=null) {
       transformResponse.setSampledRows(wrangledDataset.getTotalLines());
       transformResponse.setFullBytes(wrangledDataset.getTotalBytes()); // 아직 totalBytes 미구현
     }
   }
 
-  private DataFrame createStage0(String wrangledDsId, PrepDataset importedDataset) throws Exception {
-    PrepDataset wrangledDataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
+  private DataFrame createStage0(String wrangledDsId, PrDataset importedDataset) throws Exception {
+    PrDataset wrangledDataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
     DataFrame gridResponse;
 
     LOGGER.info("createStage0: dsId={} (using embedded transform engine)", wrangledDsId);
 
-    if (importedDataset.getImportType().equalsIgnoreCase("FILE")) {
-      String path = importedDataset.getCustomValue("filePath"); // datasetFileService.getPath2(importedDataset);
-      LOGGER.debug(wrangledDsId + " path=[" + path + "]");
-      if (importedDataset.isDSV() || importedDataset.isEXCEL()) {
-        gridResponse = teddyImpl.loadFileDataset(wrangledDsId, path, importedDataset.getDelimiter(), wrangledDataset.getDsName());
+    if (importedDataset.getImportType() == UPLOAD) {
+      String storedUri = importedDataset.getStoredUri();
+      LOGGER.debug(wrangledDsId + " storedUri=[" + storedUri + "]");
+
+      if (importedDataset.getFileFormat() == CSV || importedDataset.getFileFormat() == EXCEL) {
+        gridResponse = teddyImpl.loadFileDataset(wrangledDsId, storedUri, importedDataset.getDelimiter(), wrangledDataset.getDsName());
       }
-      /* excel type dataset has csv file
-      else if (importedDataset.isEXCEL()) {
-        LOGGER.error("createStage0(): EXCEL not supported: " + path);
-        throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG);
-      }
-      */
-      else if (importedDataset.isJSON()) {
-        LOGGER.error("createStage0(): EXCEL not supported: " + path);
+      else if (importedDataset.getFileFormat() == JSON) {
+        LOGGER.error("createStage0(): JSON not supported: " + storedUri);
         throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG);
       }
       else {
         throw new IllegalArgumentException("invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
       }
     }
-    else if (importedDataset.isHive()) {
+    else if (importedDataset.getImportType() == DATABASE) {
       String queryStmt = importedDataset.getQueryStmt().trim();
-      if (queryStmt.charAt(queryStmt.length() - 1) == ';')
+      if (queryStmt.charAt(queryStmt.length() - 1) == ';') {
         queryStmt = queryStmt.substring(0, queryStmt.length() - 1);
+      }
 
-      gridResponse = teddyImpl.loadHiveDataset(wrangledDsId, queryStmt, wrangledDataset.getDsName());
-    }
-    else if (importedDataset.isJDBC()) {
-      String queryStmt = importedDataset.getQueryStmt().trim();
-      if (queryStmt.charAt(queryStmt.length() - 1) == ';')
-        queryStmt = queryStmt.substring(0, queryStmt.length() - 1);
-
-      String dbName = importedDataset.getCustomValue("databaseName");
+      String dbName = importedDataset.getDbName();
       DataConnection dataConnection = this.connectionRepository.getOne( importedDataset.getDcId() );
       Hibernate.initialize(dataConnection);
       if (dataConnection instanceof HibernateProxy) {
@@ -1355,6 +1369,13 @@ public class PrepTransformService {
       }
 
       gridResponse = teddyImpl.loadJdbcDataset(wrangledDsId, dataConnection, dbName, queryStmt, wrangledDataset.getDsName());
+    }
+    else if (importedDataset.getImportType() == STATING_DB) {
+      String queryStmt = importedDataset.getQueryStmt().trim();
+      if (queryStmt.charAt(queryStmt.length() - 1) == ';')
+        queryStmt = queryStmt.substring(0, queryStmt.length() - 1);
+
+      gridResponse = teddyImpl.loadHiveDataset(wrangledDsId, queryStmt, wrangledDataset.getDsName());
     }
     else {
       throw new IllegalArgumentException("invalid import type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
@@ -1364,7 +1385,7 @@ public class PrepTransformService {
 //    wrangledDataset.setRuleCnt(1);
 
     assert gridResponse != null : wrangledDsId;
-    wrangledDataset.setTotalLines(gridResponse.rows.size());
+    wrangledDataset.setTotalLines((long) gridResponse.rows.size());
 
     teddyImpl.getCurDf(wrangledDsId).setRuleString(transformRuleService.getCreateRuleString(importedDataset.getDsId()));
 
@@ -1385,7 +1406,7 @@ public class PrepTransformService {
   public Map<String,Object> getConfiguration(String wrangledDsId) {
     Map<String,Object> configuration = Maps.newHashMap();
     try {
-      PrepDataset wrangledDataset = datasetRepository.findOne(wrangledDsId);
+      PrDataset wrangledDataset = datasetRepository.findOne(wrangledDsId);
       assert (null != wrangledDataset);
       DateTime launchTime = DateTime.now(DateTimeZone.UTC);
       String ssName = this.snapshotService.makeSnapshotName(wrangledDataset.getDsName(),launchTime);
@@ -1395,12 +1416,12 @@ public class PrepTransformService {
         Map<String,Object> fileUri = Maps.newHashMap();
 
         String localDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
-        localDir = this.snapshotService.escapeSsNameOfUri(localDir);
+        localDir = this.snapshotService.escapeUri(localDir);
         fileUri.put("local", localDir);
 
         try {
           String hdfsDir = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), ssName);
-          hdfsDir = this.snapshotService.escapeSsNameOfUri(hdfsDir);
+          hdfsDir = this.snapshotService.escapeUri(hdfsDir);
           fileUri.put("hdfs", hdfsDir);
         } catch (Exception e) {
           // MSG_DP_ALERT_STAGING_DIR_NOT_CONFIGURED is suppressed
@@ -1757,7 +1778,7 @@ public class PrepTransformService {
   }
 
   public String cancelSnapshot(String ssId) {
-      PrepSnapshot.STATUS status = teddyExecutor.statusCheck(ssId);
+      PrSnapshot.STATUS status = teddyExecutor.statusCheck(ssId);
 
       if(status == null)
           return "NO_MATCHED_SNAPSHOT_ID";
@@ -1766,10 +1787,10 @@ public class PrepTransformService {
           case INITIALIZING:
           case WRITING:
           case TABLE_CREATING:
-              snapshotService.updateSnapshotStatus(ssId, PrepSnapshot.STATUS.CANCELED);
+              snapshotService.updateSnapshotStatus(ssId, PrSnapshot.STATUS.CANCELED);
               return "OK";
           case RUNNING:
-              snapshotService.updateSnapshotStatus(ssId, PrepSnapshot.STATUS.CANCELED);
+              snapshotService.updateSnapshotStatus(ssId, PrSnapshot.STATUS.CANCELED);
               List<Future<List<Row>>> jobs = teddyExecutor.getJob(ssId);
               if( jobs != null && !jobs.isEmpty()) {
                   for (Future<List<Row>> job : jobs) {
@@ -1782,10 +1803,10 @@ public class PrepTransformService {
               return "THIS_SNAPSHOT_IS_ALREADY_CANCELED";
           case SUCCEEDED:
               snapshotService.deleteSnapshot(ssId);
-              snapshotService.updateSnapshotStatus(ssId, PrepSnapshot.STATUS.CANCELED);
+              snapshotService.updateSnapshotStatus(ssId, PrSnapshot.STATUS.CANCELED);
               return "OK";
           case FAILED:
-              snapshotService.updateSnapshotStatus(ssId, PrepSnapshot.STATUS.CANCELED);
+              snapshotService.updateSnapshotStatus(ssId, PrSnapshot.STATUS.CANCELED);
               return "OK";
           case NOT_AVAILABLE:
           default:
