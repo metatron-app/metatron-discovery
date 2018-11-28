@@ -114,6 +114,10 @@ public class PrSnapshot extends AbstractHistoryEntity {
     @Column(name = "ds_name")
     String dsName;
 
+    @Size(max = 255)
+    @Column(name = "ds_id")
+    String dsId;
+
     @Lob
     @Column(name = "stored_uri")
     String storedUri;
@@ -121,10 +125,6 @@ public class PrSnapshot extends AbstractHistoryEntity {
     @Column(name = "storage_type")
     @Enumerated(EnumType.STRING)
     private PrSnapshot.STORAGE_TYPE storageType;
-
-    @Lob
-    @Column(name = "hive_ext_dir")
-    String hiveExtDir;
 
     @Size(max = 255)
     @Column(name = "db_name")
@@ -190,7 +190,7 @@ public class PrSnapshot extends AbstractHistoryEntity {
 
     @Lob
     @Column(name = "lineage_info")
-    String lineageInfo;
+    String lineageInfo;                 // Contains all ruleStrings when created
 
     @Column(name = "total_lines")
     Long totalLines;
@@ -258,14 +258,6 @@ public class PrSnapshot extends AbstractHistoryEntity {
 
     public void setStorageType(STORAGE_TYPE storageType) {
         this.storageType = storageType;
-    }
-
-    public String getHiveExtDir() {
-        return hiveExtDir;
-    }
-
-    public void setHiveExtDir(String hiveExtDir) {
-        this.hiveExtDir = hiveExtDir;
     }
 
     public String getDbName() {

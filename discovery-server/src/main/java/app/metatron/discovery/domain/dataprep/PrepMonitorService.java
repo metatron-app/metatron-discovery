@@ -24,6 +24,8 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.net.URI;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -107,7 +109,7 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
       LOGGER.error("migratePrepEntities(): cannot find driver class", e);
-      return true;    // hopeless
+      return true;    // because it's not gonna work anyway
     }
 
     try {
@@ -115,183 +117,135 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
       conn.setAutoCommit(true);
     } catch (SQLException e) {
       e.printStackTrace();
-      LOGGER.error("migratePrepEntities(): url={} username={} password={}", datasourceUrl, datasourceUsername, datasourcePassword);
+      LOGGER.error("migratePrepEntities(): connectionUrl={} username={} password={}", datasourceUrl, datasourceUsername, datasourcePassword);
       LOGGER.error("migratePrepEntities(): failed to connect to DB", e);
+      LOGGER.error("migratePrepEntities(): we ill retry after {} seconds", prepProperties.getPmonInterval());
       return false;   // retry
     }
 
     if (!dbMigratedDataset) {
       try {
-        dbMigratedDataset = migrateDataset(conn);
+        int skipCount = migrateDataset(conn);
+        if (skipCount >= 0) {
+          dbMigratedDataset = true;
+          LOGGER.info("migratePrepEntities(): migrating dataset table finished with {} rows skipped", skipCount);
+        }
       } catch (SQLException e) {
         e.printStackTrace();
+      }
+      if (!dbMigratedDataset) {
+        LOGGER.error("migratePrepEntities(): migrating dataset table failed. we will retry after {} seconds", prepProperties.getPmonInterval());
       }
     }
 
     if (!dbMigratedDataflow) {
       try {
-        dbMigratedDataflow = migrateDataflow(conn);
+        migrateDataflow(conn);
+        dbMigratedDataflow = true;
+        LOGGER.info("migratePrepEntities(): migrating dataflow table finished successfully");
       } catch (SQLException e) {
         e.printStackTrace();
       }
+      if (!dbMigratedDataset) {
+        LOGGER.error("migratePrepEntities(): migrating dataflow table failed. we will retry after {} seconds", prepProperties.getPmonInterval());
+      }
     }
 
-    if (false) {
+    if (!dbMigratedDataflowDataset) {
       try {
-        dbMigratedDataflowDataset = migrateDataflowDataset(conn);
+        migrateDataflowDataset(conn);
+        dbMigratedDataflowDataset = true;
+        LOGGER.info("migratePrepEntities(): migrating dataflow-dataset table finished successfully");
       } catch (SQLException e) {
         e.printStackTrace();
       }
+      if (!dbMigratedDataflowDataset) {
+        LOGGER.error("migratePrepEntities(): migrating dataflow-dataset table failed. we will retry after {} seconds", prepProperties.getPmonInterval());
+      }
     }
 
-    if (false) {
+    if (!dbMigratedTransformRule) {
       try {
-        dbMigratedTransformRule = migrateTransformRule(conn);
+        migrateTransformRule(conn);
+        dbMigratedTransformRule = true;
+        LOGGER.info("migratePrepEntities(): migrating transform rule table finished successfully");
       } catch (SQLException e) {
         e.printStackTrace();
       }
+      if (!dbMigratedTransformRule) {
+        LOGGER.error("migratePrepEntities(): migrating transform rule table failed. we will retry after {} seconds", prepProperties.getPmonInterval());
+      }
     }
 
-    if (false) {
+    if (!dbMigratedSnapshot) {
       try {
-        dbMigratedSnapshot = migrateSnapshot(conn);
+        int skipCount = migrateSnapshot(conn);
+        if (skipCount >= 0) {
+          dbMigratedSnapshot = true;
+          LOGGER.info("migratePrepEntities(): migrating snapshot table finished with {} rows skipped", skipCount);
+        }
       } catch (SQLException e) {
         e.printStackTrace();
       }
-    }
-
-    return dbMigratedDataset && dbMigratedDataflow && dbMigratedDataflowDataset && dbMigratedTransformRule && dbMigratedSnapshot;
-  }
-
-  private void insertColVals(Connection conn, String tblName, LinkedHashMap<String, Object> colVals) throws SQLException {
-    List<String> colNames = new ArrayList(colVals.keySet());
-
-    String colList = colNames.stream().collect(Collectors.joining(","));
-    String paramList = "";
-    for (int i = 0; i < colNames.size(); i++) {
-      paramList += "?, ";
-    }
-    paramList = paramList.substring(0, paramList.length() - 2);
-
-    String psql = String.format("INSERT INTO %s (%s) values (%s)", tblName, colList, paramList);
-    PreparedStatement pstmt = conn.prepareStatement(psql);
-
-    for (int i = 0; i < colNames.size(); i++) {
-      pstmt.setObject(i + 1, colVals.get(colNames.get(i)));
-    }
-    pstmt.executeUpdate();
-  }
-
-  private void copySameCol(String colName, LinkedHashMap colVals, ResultSet rs) throws SQLException {
-    colVals.put(colName, rs.getObject(colName));
-  }
-
-  private void copyDatasetWrangled(Connection conn, ResultSet rs) throws SQLException {
-    LinkedHashMap<String, Object> colVals = new LinkedHashMap();
-
-    copySameCol("ds_id",         colVals, rs);
-    copySameCol("created_by",    colVals, rs);
-    copySameCol("created_time",  colVals, rs);
-    copySameCol("modified_by",   colVals, rs);
-    copySameCol("modified_time", colVals, rs);
-    copySameCol("version",       colVals, rs);
-    copySameCol("creator_df_id", colVals, rs);
-    copySameCol("ds_desc",       colVals, rs);
-    copySameCol("ds_name",       colVals, rs);
-    copySameCol("ds_type",       colVals, rs);
-    copySameCol("rule_cur_idx",  colVals, rs);
-    copySameCol("total_bytes",   colVals, rs);
-    copySameCol("total_lines",   colVals, rs);
-
-    insertColVals(conn, "pr_dataset", colVals);
-  }
-
-  private void copySnapshot(Connection conn, ResultSet rs) throws SQLException {
-    LinkedHashMap<String, Object> colVals = new LinkedHashMap();
-
-    // TODO: In case of storage_type LOCAL, storedUri should be attached with part-<master_teddy_ds_id>.csv;
-    //       We need to change the code for snapshot detail page, too.
-
-    copySameCol("ss_id",         colVals, rs);
-    copySameCol("created_by",    colVals, rs);
-    copySameCol("created_time",  colVals, rs);
-    copySameCol("modified_by",   colVals, rs);
-    copySameCol("modified_time", colVals, rs);
-    copySameCol("version",       colVals, rs);
-    copySameCol("creator_df_id", colVals, rs);
-    copySameCol("ds_desc",       colVals, rs);
-    copySameCol("ds_name",       colVals, rs);
-    copySameCol("ds_type",       colVals, rs);
-    copySameCol("rule_cur_idx",  colVals, rs);
-    copySameCol("total_bytes",   colVals, rs);
-    copySameCol("total_lines",   colVals, rs);
-
-    insertColVals(conn, "pr_dataset", colVals);
-  }
-
-  private void migrateWrangledDataset(Connection conn) throws SQLException {
-    String selectSql = String.format("SELECT * FROM %s WHERE ds_type = 'WRANGLED'", TBL_OLD_DATASET);
-    Statement stmt = conn.createStatement();
-    ResultSet rs = stmt.executeQuery(selectSql);
-
-    while (rs.next()) {
-      // skip if the same ds_id exists
-      Statement stmtForCheck = conn.createStatement();
-      String rowCheckQuery = String.format("SELECT * FROM %s WHERE ds_id = '%s'", TBL_NEW_DATASET, rs.getString("ds_id"));
-      if (stmtForCheck.executeQuery(rowCheckQuery).next()) {
-        continue;
+      if (!dbMigratedSnapshot) {
+        LOGGER.error("migratePrepEntities(): migrating snapshot table failed. we will retry after {} seconds", prepProperties.getPmonInterval());
       }
-
-      copyDatasetWrangled(conn, rs);
-    }
-  }
-
-  private boolean checkOldTableExists(Connection conn, String tblName) throws SQLException {
-    Statement stmt = conn.createStatement();
-
-    try {
-      String tblCheckQuery = String.format("SELECT * FROM %s", tblName);
-      stmt.executeQuery(tblCheckQuery);
-    } catch (SQLException e) {
-      // It probably be TABLE NOT FOUND.
-      e.printStackTrace();
-      LOGGER.info("checkOldTableExists(): no old table: {}", tblName);
-      return false;
     }
 
-    return true;
-  }
-
-  private boolean migrateTransformRule(Connection conn) throws SQLException {
-    if (!checkOldTableExists(conn, TBL_OLD_TRANSFORM_RULE)) {
+    if (dbMigratedDataset && dbMigratedDataflow && dbMigratedDataflowDataset && dbMigratedTransformRule && dbMigratedSnapshot) {
+      // TODO: drop old tables
+      LOGGER.info("migratePrepEntities(): migrating all old table finished successfully");
       return true;
     }
 
+    return false;
+  }
+
+  /**
+   * @param conn
+   * @return skipped row count. -1 if we need to retry.
+   * @throws SQLException
+   */
+  private int migrateDataset(Connection conn) throws SQLException {
+    if (!checkOldTableExists(conn, TBL_OLD_DATASET)) {
+      LOGGER.info("migrateDataset(): no old dataset table found");
+      return 0;
+    }
+
+    // Unless it fails, we don't skip any wrangled dataset.
+    migrateWrangledDataset(conn);
+
+    // Imported datasets can be skipped without blocking migration.
+    return migrateDatasetImported(conn);
+  }
+
+  private void migrateDataflow(Connection conn) throws SQLException {
+    if (!checkOldTableExists(conn, TBL_OLD_DATAFLOW)) {
+      LOGGER.info("migrateDataflow(): no old dataflow table found");
+      return;
+    }
+
     Statement stmt = conn.createStatement();
-    String selectQuery = String.format("SELECT * FROM %s", TBL_OLD_TRANSFORM_RULE);
+    String selectQuery = String.format("SELECT * FROM %s", TBL_OLD_DATAFLOW);
     ResultSet rs = stmt.executeQuery(selectQuery);
 
     while (rs.next()) {
-      // skip if the same ds_id exists (if any transform rule already exists, then skip all transform rules for the ds_id)
+      // skip if the same df_id exists
       Statement stmtForCheck = conn.createStatement();
-      String rowCheckQueryFmt = "SELECT * FROM %s WHERE ds_id = '%s'";
-      String rowCheckQuery = String.format(rowCheckQueryFmt, TBL_NEW_TRANSFORM_RULE, rs.getString("ds_id"));
+      String rowCheckQuery = String.format("SELECT * FROM %s WHERE df_id = '%s'", TBL_NEW_DATAFLOW, rs.getString("df_id"));
       if (stmtForCheck.executeQuery(rowCheckQuery).next()) {
         continue;
       }
 
       Statement stmtForInsert = conn.createStatement();
-      String insertDmlFmt = "INSERT INTO %s SELECT * FROM %s WHERE ds_id='%s'";
-      String insertDml = String.format(insertDmlFmt, TBL_NEW_DATAFLOW_DATASET, TBL_OLD_DATAFLOW_DATASET, rs.getString("ds_id"));
+      String insertDml = String.format("INSERT INTO %s SELECT * FROM %s WHERE df_id = '%s'", TBL_NEW_DATAFLOW, TBL_OLD_DATAFLOW, rs.getString("df_id"));
       stmtForInsert.execute(insertDml);
     }
-
-    return false;   // TODO: to-be true
   }
 
-  private boolean migrateDataflowDataset(Connection conn) throws SQLException {
+  private void migrateDataflowDataset(Connection conn) throws SQLException {
     if (!checkOldTableExists(conn, TBL_OLD_DATAFLOW_DATASET)) {
-      return true;
+      LOGGER.info("migrateDataflowDataset(): no old dataflow-dataset table found");
     }
 
     Statement stmt = conn.createStatement();
@@ -312,57 +266,44 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
       String insertDml = String.format(insertDmlFmt, TBL_NEW_DATAFLOW_DATASET, TBL_OLD_DATAFLOW_DATASET, rs.getString("df_id"), rs.getString("ds_id"));
       stmtForInsert.execute(insertDml);
     }
-
-    return false;   // TODO: to-be true
   }
 
-  private boolean migrateDataflow(Connection conn) throws SQLException {
-    if (!checkOldTableExists(conn, TBL_OLD_DATAFLOW)) {
-      return true;
+  private void migrateTransformRule(Connection conn) throws SQLException {
+    if (!checkOldTableExists(conn, TBL_OLD_TRANSFORM_RULE)) {
+      LOGGER.info("migrateTransformRule(): no old transform rule table found");
+      return;
     }
 
     Statement stmt = conn.createStatement();
-    String selectQuery = String.format("SELECT * FROM %s", TBL_OLD_DATAFLOW);
+    String selectQuery = String.format("SELECT * FROM %s", TBL_OLD_TRANSFORM_RULE);
     ResultSet rs = stmt.executeQuery(selectQuery);
 
     while (rs.next()) {
-      // skip if the same df_id exists
+      // skip if the same ds_id exists (if any transform rule already exists, then skip all transform rules for the ds_id)
       Statement stmtForCheck = conn.createStatement();
-      String rowCheckQuery = String.format("SELECT * FROM %s WHERE df_id = '%s'", TBL_NEW_DATAFLOW, rs.getString("df_id"));
+      String rowCheckQueryFmt = "SELECT * FROM %s WHERE ds_id = '%s'";
+      String rowCheckQuery = String.format(rowCheckQueryFmt, TBL_NEW_TRANSFORM_RULE, rs.getString("ds_id"));
       if (stmtForCheck.executeQuery(rowCheckQuery).next()) {
         continue;
       }
 
       Statement stmtForInsert = conn.createStatement();
-      String insertDml = String.format("INSERT INTO %s SELECT * FROM %s WHERE df_id = '%s'", TBL_NEW_DATAFLOW, TBL_OLD_DATAFLOW, rs.getString("df_id"));
+      String insertDmlFmt = "INSERT INTO %s SELECT * FROM %s WHERE ds_id='%s'";
+      String insertDml = String.format(insertDmlFmt, TBL_NEW_TRANSFORM_RULE, TBL_OLD_TRANSFORM_RULE, rs.getString("ds_id"));
       stmtForInsert.execute(insertDml);
     }
-
-    return false;   // TODO: to-be true
   }
 
-  private boolean migrateDataset(Connection conn) throws SQLException {
-    if (!checkOldTableExists(conn, TBL_OLD_DATASET)) {
-      return true;
-    }
-
-    if (!migrateDatasetImported(conn)) {
-      return false;
-    }
-
-    migrateWrangledDataset(conn);
-
-    return false;   // TODO: to-be true
-  }
-
-  private boolean migrateSnapshot(Connection conn) throws SQLException {
+  private int migrateSnapshot(Connection conn) throws SQLException {
     if (!checkOldTableExists(conn, TBL_OLD_SNAPSHOT)) {
-      return true;
+      return 0;
     }
 
     Statement stmt = conn.createStatement();
     String selectQuery = String.format("SELECT * FROM %s", TBL_OLD_SNAPSHOT);
     ResultSet rs = stmt.executeQuery(selectQuery);
+
+    int skipCount = 0;
 
     while (rs.next()) {
       // skip if the same ss_id exists
@@ -373,22 +314,154 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
         continue;
       }
 
-//      Statement stmtForInsert = conn.createStatement();
-//      String insertDmlFmt = "INSERT INTO %s SELECT * FROM %s WHERE ds_id='%s'";
-//      String insertDml = String.format(insertDmlFmt, TBL_NEW_DATAFLOW_DATASET, TBL_OLD_DATAFLOW_DATASET, rs.getString("ds_id"));
-//      stmtForInsert.execute(insertDml);
+      String ssType = rs.getString("ss_type");    // FILE, HDFS, HIVE -> URI, STAGING_DB
 
-//      copySnapshot(conn, rs);
+      switch (ssType) {
+        case "FILE":
+        case "HDFS":
+          if (!copySnapshotUri(conn, rs)) {
+            skipCount++;
+          }
+          break;
+        case "HIVE":
+          copySnapshotStagingDb(conn, rs);
+          break;
+        default:
+          LOGGER.error("migrateSnapshot(): invalid ssType: ssType={} ssId={}", ssType, rs.getString("ss_id"));
+          skipCount++;
+      }
     }
 
-    return false;   // TODO: to-be true
+    return skipCount;
   }
 
+  private void migrateWrangledDataset(Connection conn) throws SQLException {
+    String selectSql = String.format("SELECT * FROM %s WHERE ds_type = 'WRANGLED'", TBL_OLD_DATASET);
+    Statement stmt = conn.createStatement();
+    ResultSet rs = stmt.executeQuery(selectSql);
 
-  private boolean copyImportedFileCsv(Connection conn, ResultSet rs, String storedUri, String delimiter) throws SQLException {
+    while (rs.next()) {
+      // skip if the same ds_id exists
+      Statement stmtForCheck = conn.createStatement();
+      String rowCheckQuery = String.format("SELECT * FROM %s WHERE ds_id = '%s'", TBL_NEW_DATASET, rs.getString("ds_id"));
+      if (stmtForCheck.executeQuery(rowCheckQuery).next()) {
+        continue;
+      }
+
+      copyDatasetWrangled(conn, rs);
+    }
+  }
+
+  /**
+   * @param conn
+   * @return skipped row count. -1 if we need to retry.
+   * @throws SQLException
+   */
+  private int migrateDatasetImported(Connection conn) throws SQLException {
+    Statement stmt = conn.createStatement();
+    String selectQueryFmt = "SELECT * FROM %s AS a JOIN %s AS b ON a.ds_id = b.ds_id";
+    String selectQuery = String.format(selectQueryFmt, TBL_OLD_DATASET, TBL_OLD_IMPORTED_DATASET_INFO);
+    ResultSet rs = stmt.executeQuery(selectQuery);
+
+    int skipCount = 0;
+
+    while (rs.next()) {
+      // skip if the same ds_id exists
+      Statement stmtForCheck = conn.createStatement();
+      String rowCheckQueryFmt = "SELECT * FROM %s WHERE ds_id = '%s'";
+      String rowCheckQuery = String.format(rowCheckQueryFmt, TBL_NEW_DATASET, rs.getString("ds_id"));
+      if (stmtForCheck.executeQuery(rowCheckQuery).next()) {
+        continue;
+      }
+
+      assert rs.getString("ds_type").equals("IMPORTED") : rs.getString("ds_type");
+
+      String importType = rs.getString("import_type");
+      if (importType == null) {
+        LOGGER.error("migrateDatasetImported(): importType missing: dsId={}", rs.getString("ds_id"));
+        skipCount++;
+      }
+
+      switch (importType) {
+        case "FILE":
+          if (!copyDatasetImportedFile(conn, rs)) {
+            skipCount++;
+          }
+          break;
+        case "DB":
+          copyDatasetImportedDatabase(conn, rs);
+          break;
+        case "HIVE":
+          copyDatasetImportedStagingDb(conn, rs);
+          break;
+        default:
+          LOGGER.error("migrateDatasetImported(): invalid importType: importType={} dsId={}", importType, rs.getString("ds_id"));
+          skipCount++;
+      }
+    }
+    return skipCount;
+  }
+
+  private void copyDatasetWrangled(Connection conn, ResultSet rs) throws SQLException {
+    LinkedHashMap<String, Object> colVals = new LinkedHashMap();
+
+    copySameCol("ds_id",         colVals, rs);
+    copySameCol("created_by",    colVals, rs);
+    copySameCol("created_time",  colVals, rs);
+    copySameCol("modified_by",   colVals, rs);
+    copySameCol("modified_time", colVals, rs);
+    copySameCol("version",       colVals, rs);
+    copySameCol("creator_df_id", colVals, rs);
+    copySameCol("ds_desc",       colVals, rs);
+    copySameCol("ds_name",       colVals, rs);
+    copySameCol("ds_type",       colVals, rs);
+    copySameCol("rule_cur_idx",  colVals, rs);
+    copySameCol("total_bytes",   colVals, rs);
+    copySameCol("total_lines",   colVals, rs);
+
+    insertColVals(conn, TBL_NEW_DATASET, colVals);
+  }
+
+  /**
+   * @param conn
+   * @param rs
+   * @return true for success
+   * @throws SQLException
+   */
+  private boolean copyDatasetImportedFile(Connection conn, ResultSet rs) throws SQLException {
+    String storedUri;
+
+    String fileType = rs.getString("file_type");
+    if (fileType == null) {
+      LOGGER.error("copyDatasetImportedFile(): fileType missing: dsId={}", rs.getString("ds_id"));
+      return false;
+    }
+
+    switch (fileType) {
+      case "LOCAL":
+        storedUri = "file://" + getCustomValue(rs, "filePath");
+        break;
+      case "HDFS":
+        storedUri = getCustomValue(rs, "filePath");
+        break;
+
+      default:
+        LOGGER.error("copyDatasetImportedFile(): invalid fileType: fileType={} dsId={}", fileType, rs.getString("ds_id"));
+        return false;
+    }
+
+    if (getCustomValue(rs, "sheet") != null) {
+      copyImportedFileExcel(conn, rs, storedUri, getCustomValue(rs, "sheet"));
+    } else {
+      copyImportedFileCsv(conn, rs, storedUri, getCustomValue(rs, "delimiter"));
+    }
+    return true;
+  }
+
+  private void copyImportedFileCsv(Connection conn, ResultSet rs, String storedUri, String delimiter) throws SQLException {
     if (delimiter == null) {
       LOGGER.error("copyImportedFileCsv(): delimiter missing: storedUri={}", storedUri);
-      return false;
+      return;
     }
 
     LinkedHashMap<String, Object> colVals = new LinkedHashMap();
@@ -411,11 +484,10 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     copySameCol("total_bytes",            colVals, rs);
     copySameCol("total_lines",            colVals, rs);
 
-    insertColVals(conn, "pr_dataset", colVals);
-    return true;
+    insertColVals(conn, TBL_NEW_DATASET, colVals);
   }
 
-  private boolean copyImportedFileExcel(Connection conn, ResultSet rs, String storedUri, String sheetName) throws SQLException {
+  private void copyImportedFileExcel(Connection conn, ResultSet rs, String storedUri, String sheetName) throws SQLException {
     assert sheetName != null;
 
     LinkedHashMap<String, Object> colVals = new LinkedHashMap();
@@ -438,45 +510,10 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     copySameCol("total_bytes",            colVals, rs);
     copySameCol("total_lines",            colVals, rs);
 
-    insertColVals(conn, "pr_dataset", colVals);
-    return true;
+    insertColVals(conn, TBL_NEW_DATASET, colVals);
   }
 
-  private boolean copyDatasetImportedFile(Connection conn, ResultSet rs) throws SQLException {
-    String storedUri;
-
-    String fileType = rs.getString("file_type");
-    if (fileType == null) {
-      LOGGER.error("copyDatasetImportedFile(): fileType missing");
-      return false;
-    }
-
-    switch (fileType) {
-      case "LOCAL":
-        storedUri = "file://" + getCustomValue(rs, "filePath");
-        break;
-      case "HDFS":
-        storedUri = getCustomValue(rs, "filePath");
-        break;
-
-      default:
-        LOGGER.error("copyDatasetImportedFile(): invalid fileType: {}", fileType);
-        return false;
-    }
-
-    if (getCustomValue(rs, "sheet") != null) {
-      if (!copyImportedFileExcel(conn, rs, storedUri, getCustomValue(rs, "sheet"))) {
-        return false;
-      }
-    } else {
-      if (!copyImportedFileCsv(conn, rs, storedUri, getCustomValue(rs, "delimiter"))) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private boolean copyDatasetImportedDatabase(Connection conn, ResultSet rs) throws SQLException {
+  private void copyDatasetImportedDatabase(Connection conn, ResultSet rs) throws SQLException {
     LinkedHashMap<String, Object> colVals = new LinkedHashMap();
 
     copySameCol("ds_id",         colVals, rs);
@@ -497,11 +534,10 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     // no total_bytes for Database type dataset
     copySameCol("total_lines",   colVals, rs);
 
-    insertColVals(conn, "pr_dataset", colVals);
-    return true;
+    insertColVals(conn, TBL_NEW_DATASET, colVals);
   }
 
-  private boolean copyDatasetImportedStagingDb(Connection conn, ResultSet rs) throws SQLException {
+  private void copyDatasetImportedStagingDb(Connection conn, ResultSet rs) throws SQLException {
     LinkedHashMap<String, Object> colVals = new LinkedHashMap();
 
     copySameCol("ds_id",         colVals, rs);
@@ -521,57 +557,172 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     copySameCol("total_bytes",   colVals, rs);
     copySameCol("total_lines",   colVals, rs);
 
-    insertColVals(conn, "pr_dataset", colVals);
+    insertColVals(conn, TBL_NEW_DATASET, colVals);
+  }
+
+  /**
+   * @param conn
+   * @param rs
+   * @return true for success
+   * @throws SQLException
+   */
+  private boolean copySnapshotUri(Connection conn, ResultSet rs) throws SQLException {
+    LinkedHashMap<String, Object> colVals = new LinkedHashMap();
+
+    String ssType = rs.getString("ss_type");
+    String storageType = null;
+    String storedUri = null;
+    String filePath = null;
+
+    String strDir = rs.getString("uri");
+    if (strDir == null) {
+      LOGGER.error("copySnapshotUri(): no uri stored in local file snapshot: ssId={} ssName={} ssType={}",
+                   rs.getString("ss_id"), rs.getString("ss_name"), rs.getString("ss_type"));
+      return false;
+    }
+
+    switch (ssType) {
+      case "FILE":      // We stored `uri` to be the directory of the file. There'll be a single file.
+        storageType = "LOCAL";
+
+        try {
+          File fileDir = new File(strDir);
+
+          if (!fileDir.exists()) {
+            LOGGER.error("copySnapshotUri(): file not found: uri={} ssId={} ssName={} ssType={}",
+                         strDir, rs.getString("ss_id"), rs.getString("ss_name"), rs.getString("ss_type"));
+            return false;
+          } else if (!fileDir.isDirectory()) {
+            LOGGER.error("copySnapshotUri(): not a directory: uri={} ssId={} ssName={} ssType={}",
+                         strDir, rs.getString("ss_id"), rs.getString("ss_name"), rs.getString("ss_type"));
+            return false;
+          }
+
+          for (File file : fileDir.listFiles()) {
+            filePath = file.getAbsolutePath();
+            break;
+          }
+          if (filePath == null) {
+            LOGGER.error("copySnapshotUri(): no file found in directory: uri={} ssId={} ssName={} ssType={}",
+                         strDir, rs.getString("ss_id"), rs.getString("ss_name"), rs.getString("ss_type"));
+            return false;
+          }
+          storedUri = new URI("file://" + filePath).toString();
+        } catch (Throwable e) {
+          e.printStackTrace();
+          return false;
+        }
+        break;
+
+      case "HDFS":      // For HDFS type, we stored  `uri` to be the exact URI.
+        storageType = "HDFS";
+        storedUri = rs.getString("uri");
+        break;
+
+      default:
+        // only FILE or HDFS comes here
+        assert false : ssType;
+    }
+
+    assert storageType != null;
+    assert storedUri != null;
+
+    copySameCol("ss_id",                 colVals, rs);
+    copySameCol("created_by",            colVals, rs);
+    copySameCol("created_time",          colVals, rs);
+    copySameCol("modified_by",           colVals, rs);
+    copySameCol("modified_time",         colVals, rs);
+    copySameCol("version",               colVals, rs);
+    colVals.put("append_mode",           rs.getObject("mode"));     // change column name
+    copySameCol("creator_df_name",       colVals, rs);
+    copySameCol("ds_name",               colVals, rs);
+    copySameCol("engine",                colVals, rs);
+    copySameCol("finish_time",           colVals, rs);
+    copySameCol("launch_time",           colVals, rs);
+    copySameCol("lineage_info",          colVals, rs);
+    copySameCol("rule_cnt_done",         colVals, rs);
+    copySameCol("rule_cnt_total",        colVals, rs);
+    copySameCol("ss_name",               colVals, rs);
+    copySameCol("ss_type",               colVals, rs);
+    copySameCol("status",                colVals, rs);
+    colVals.put("storage_type",          storageType);              // add new column
+    colVals.put("stored_uri",            storedUri);                // add new column
+    copySameCol("total_bytes",           colVals, rs);
+    copySameCol("total_lines",           colVals, rs);
+    colVals.put("uri_file_format",       rs.getObject("format"));   // add new column
+
+    insertColVals(conn, TBL_NEW_SNAPSHOT, colVals);
     return true;
   }
 
-  private boolean migrateDatasetImported(Connection conn) throws SQLException {
+  private void copySnapshotStagingDb(Connection conn, ResultSet rs) throws SQLException {
+    LinkedHashMap<String, Object> colVals = new LinkedHashMap();
+
+    copySameCol("ss_id",                 colVals, rs);
+    copySameCol("created_by",            colVals, rs);
+    copySameCol("created_time",          colVals, rs);
+    copySameCol("modified_by",           colVals, rs);
+    copySameCol("modified_time",         colVals, rs);
+    copySameCol("version",               colVals, rs);
+//    colVals.put("append_mode",           rs.getObject("mode"));         // no append mode has been used until now
+    copySameCol("creator_df_name",       colVals, rs);
+    copySameCol("db_name",               colVals, rs);
+    copySameCol("ds_name",               colVals, rs);
+    copySameCol("engine",                colVals, rs);
+    copySameCol("finish_time",           colVals, rs);
+    colVals.put("hive_file_compression", rs.getObject("compression"));  // change column name
+    colVals.put("hive_file_format",      rs.getObject("format"));       // change column name
+    copySameCol("launch_time",           colVals, rs);
+    copySameCol("lineage_info",          colVals, rs);
+    copySameCol("rule_cnt_done",         colVals, rs);
+    copySameCol("rule_cnt_total",        colVals, rs);
+    copySameCol("ss_name",               colVals, rs);
+    colVals.put("ss_type",               "STAGING_DB");
+    copySameCol("status",                colVals, rs);
+    copySameCol("tbl_name",              colVals, rs);
+    copySameCol("total_bytes",           colVals, rs);
+    copySameCol("total_lines",           colVals, rs);
+
+    insertColVals(conn, TBL_NEW_SNAPSHOT, colVals);
+  }
+
+  private boolean checkOldTableExists(Connection conn, String tblName) throws SQLException {
     Statement stmt = conn.createStatement();
-    String selectQueryFmt = "SELECT * FROM %s AS a JOIN %s AS b ON a.ds_id = b.ds_id";
-    String selectQuery = String.format(selectQueryFmt, TBL_OLD_DATASET, TBL_OLD_IMPORTED_DATASET_INFO);
-    ResultSet rs = stmt.executeQuery(selectQuery);
 
-    while (rs.next()) {
-      // skip if the same ds_id exists
-      Statement stmtForCheck = conn.createStatement();
-      String rowCheckQuery = String.format("SELECT * FROM pr_dataset WHERE ds_id = '%s'", rs.getString("ds_id"));
-      if (stmtForCheck.executeQuery(rowCheckQuery).next()) {
-        continue;
-      }
-
-      assert rs.getString("ds_type").equals("IMPORTED") : rs.getString("ds_type");
-
-      String importType = rs.getString("import_type");
-      if (importType == null) {
-        LOGGER.error("migrateDatasetImported(): importType missing");
-        return false;
-      }
-
-      switch (importType) {
-        case "FILE":
-          if (!copyDatasetImportedFile(conn, rs)) {
-            return false;
-          }
-          break;
-
-        case "DB":
-          if (!copyDatasetImportedDatabase(conn, rs)) {
-            return false;
-          }
-          break;
-
-        case "HIVE":
-          if (!copyDatasetImportedStagingDb(conn, rs)) {
-            return false;
-          }
-          break;
-
-        default:
-          LOGGER.error("migrateDatasetImported(): invalid importType: {}", importType);
-          return false;
-      }
+    try {
+      String tblCheckQuery = String.format("SELECT * FROM %s", tblName);
+      stmt.executeQuery(tblCheckQuery);
+    } catch (SQLException e) {
+      // It probably be TABLE NOT FOUND.
+      e.printStackTrace();
+      LOGGER.info("checkOldTableExists(): no old table: {}", tblName);
+      return false;
     }
+
     return true;
+  }
+
+  private void copySameCol(String colName, LinkedHashMap colVals, ResultSet rs) throws SQLException {
+    colVals.put(colName, rs.getObject(colName));
+  }
+
+  private void insertColVals(Connection conn, String tblName, LinkedHashMap<String, Object> colVals) throws SQLException {
+    List<String> colNames = new ArrayList(colVals.keySet());
+
+    String colList = colNames.stream().collect(Collectors.joining(","));
+    String paramList = "";
+    for (int i = 0; i < colNames.size(); i++) {
+      paramList += "?, ";
+    }
+    paramList = paramList.substring(0, paramList.length() - 2);
+
+    String psql = String.format("INSERT INTO %s (%s) values (%s)", tblName, colList, paramList);
+    PreparedStatement pstmt = conn.prepareStatement(psql);
+
+    for (int i = 0; i < colNames.size(); i++) {
+      pstmt.setObject(i + 1, colVals.get(colNames.get(i)));
+    }
+    pstmt.executeUpdate();
   }
 
   private String getCustomValue(ResultSet rs, String key) throws SQLException {
