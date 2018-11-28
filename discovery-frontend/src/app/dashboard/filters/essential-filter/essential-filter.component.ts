@@ -309,8 +309,8 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
       };
     } else if (FilterUtil.isTimeFilter(filter)) {
       const timeFilter: TimeFilter = <TimeFilter>filter;
-      if ('current_datetime' === timeFilter.field) {
-        param.targetField = { granularity: 'ALL', name: 'current_datetime', type: 'timestamp' };
+      if (CommonConstant.COL_NAME_CURRENT_DATETIME === timeFilter.field) {
+        param.targetField = { granularity: 'ALL', name: CommonConstant.COL_NAME_CURRENT_DATETIME, type: 'timestamp' };
       } else {
         param.targetField = {
           type: 'timestamp',

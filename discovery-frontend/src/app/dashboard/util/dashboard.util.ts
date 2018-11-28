@@ -20,7 +20,7 @@ import {
   Dashboard, JoinMapping,
   LayoutWidgetInfo
 } from '../../domain/dashboard/dashboard';
-import {Datasource, Field} from '../../domain/datasource/datasource';
+import {Datasource, Field, FieldRole} from '../../domain/datasource/datasource';
 import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
 import {Filter} from '../../domain/workbook/configurations/filter/filter';
 import {Widget} from '../../domain/dashboard/widget/widget';
@@ -33,6 +33,7 @@ import {BoardWidgetOptions, WidgetShowType} from '../../domain/dashboard/dashboa
 import {StringUtil} from '../../common/util/string.util';
 import {CommonUtil} from '../../common/util/common.util';
 import {ChartType} from '../../common/component/chart/option/define/common';
+import {CommonConstant} from "../../common/constant/common.constant";
 
 export class DashboardUtil {
 
@@ -421,7 +422,11 @@ export class DashboardUtil {
    * @return {T[]}
    */
   public static getFieldsForMainDataSource(boardConf: BoardConfiguration, engineName: string) {
-    return (boardConf.fields) ? boardConf.fields.filter(item => item.dataSource === engineName && !item.derived) : [];
+    return (boardConf.fields) ? boardConf.fields.filter(item => {
+      return item.dataSource === engineName
+        && CommonConstant.COL_NAME_CURRENT_DATETIME !== item.name
+        && FieldRole.TIMESTAMP !== item.role
+    }) : [];
   } // function - getFieldsForMainDataSource
 
   /**

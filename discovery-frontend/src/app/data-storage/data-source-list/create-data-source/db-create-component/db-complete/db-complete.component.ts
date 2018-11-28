@@ -33,6 +33,7 @@ import { StringUtil } from '../../../../../common/util/string.util';
 import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
 import { Modal } from '../../../../../common/domain/modal';
 import { CookieConstant } from '../../../../../common/constant/cookie.constant';
+import {CommonConstant} from "../../../../../common/constant/common.constant";
 
 /**
  * Creating datasource with Database - complete step
@@ -330,7 +331,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
   private _createCurrentColumn(seq: number): object {
     return {
       seq: seq,
-      name: 'current_datetime',
+      name: CommonConstant.COL_NAME_CURRENT_DATETIME,
       type: 'TIMESTAMP',
       role: 'TIMESTAMP',
       derived: true,

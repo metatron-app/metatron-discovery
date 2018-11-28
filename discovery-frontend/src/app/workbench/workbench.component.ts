@@ -2758,7 +2758,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       let fields = currentResultTab.result.fields;
 
       const currentDateTimeField: Field = new Field();
-      currentDateTimeField.name = 'current_datetime';
+      currentDateTimeField.name = CommonConstant.COL_NAME_CURRENT_DATETIME;
       currentDateTimeField.biType = BIType.TIMESTAMP;
       currentDateTimeField.logicalType = LogicalType.TIMESTAMP;
       currentDateTimeField.dataSource = boardDataSource.engineName;
