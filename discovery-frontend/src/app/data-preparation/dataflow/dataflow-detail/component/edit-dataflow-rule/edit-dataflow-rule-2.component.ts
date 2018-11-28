@@ -583,6 +583,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public addRule() {
 
     if( this._isExecAddRule ) {
+      this.editorUseFlag = false;
       return;
     }
 
@@ -598,6 +599,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
       if (isUndefined(this.ruleVO['command']) || '' === this.ruleVO['command']) {
         Alert.warning(this.translateService.instant('msg.dp.alert.no.data'));
+        this._isExecAddRule = false;
         return;
       }
 
@@ -615,6 +617,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     } else {  // Using editor
       if (this.inputRuleCmd === '') {
         Alert.warning(this.translateService.instant('msg.dp.alert.editor.warn'));
+        this._isExecAddRule = false;
         return;
       }
       rule = {
