@@ -663,7 +663,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             source: source,
             // Style
             gradient: HeatmapColorList[heatmapLayer.color.schema],
-            opacity: heatmapLayer.color.transparency/100,
+            opacity: 1 - (heatmapLayer.color.transparency * 0.01),
             radius: heatmapLayer.radius,
             blur: heatmapLayer.blur
           });
@@ -685,7 +685,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
             // Set style
             this.heatmapLayer.setGradient(HeatmapColorList[heatmapLayer.color.schema]);
-            this.heatmapLayer.setOpacity(heatmapLayer.color.transparency/100);
+            this.heatmapLayer.setOpacity(1 - (heatmapLayer.color.transparency * 0.01));
             this.heatmapLayer.setRadius(heatmapLayer.radius);
             this.heatmapLayer.setBlur(heatmapLayer.blur);
           }
@@ -916,7 +916,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         featureColor = styleLayer.color.schema;
       }
 
-      featureColor = scope.hexToRgbA(featureColor, styleLayer.color.transparency * 0.01);
+      featureColor = scope.hexToRgbA(featureColor, 1 - (styleLayer.color.transparency * 0.01));
 
       ////////////////////////////////////////////////////////
       // Outline
@@ -1256,7 +1256,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
           featureColor = styleLayer.color.schema;
         }
 
-        featureColor = scope.hexToRgbA(featureColor, styleLayer.color.transparency * 0.01);
+        featureColor = scope.hexToRgbA(featureColor, 1 - (styleLayer.color.transparency * 0.01));
 
         ////////////////////////////////////////////////////////
         // Outline

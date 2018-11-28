@@ -2360,8 +2360,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         }
       });
 
-      // TODO map shelf (need alert message)
-      if (diffDataSourceFl) return;
+      // if another datasource is in a same shelf
+      if (diffDataSourceFl) {
+        Alert.warning(this.translateService.instant('msg.page.layer.multi.datasource.same.shelf'));
+        return;
+      }
 
       let fieldPivot: FieldPivot;
 

@@ -44,6 +44,7 @@ import { GeoBoundaryFormat, GeoHashFormat } from '../../domain/workbook/configur
 import { UIMapOption } from '../../common/component/chart/option/ui-option/map/ui-map-chart';
 import { ChartUtil } from '../../common/component/chart/option/util/chart-util';
 import {Limit} from "../../domain/workbook/configurations/limit";
+import { MapLayerType } from '../../common/component/chart/option/define/map/map-common';
 
 
 @Injectable()
@@ -449,12 +450,6 @@ export class DatasourceService extends AbstractService {
         // when it's dimension
         } else if ('dimension' === layer.type) {
 
-          // TODO
-          //dataSource가 여러개일 경우 첫번째 dataSource만 가져와서 column의 dataSource Name으로 변경
-          query.dataSource.engineName = layer.field.dataSource;
-          query.dataSource.name = layer.field.dataSource;
-          query.dataSource.id = layer.field.dsId;
-
           let precision = layer["precision"];
 
           // if(precision === undefined) {
@@ -475,13 +470,13 @@ export class DatasourceService extends AbstractService {
               let measureList = _.filter(_.cloneDeep(pageConf.shelf.layers[layerNum]), (item) => {if (item.type === 'measure') return item});
 
               // TODO when it has measures => geo_hash is only used in hexagon
-              // if (measureList && measureList.length > 0) {
-              //   layer.format = <GeoHashFormat>{
-              //     type: FormatType.GEO_HASH.toString(),
-              //     method: "h3",
-              //     precision: precision
-              //   }
-              // }
+              if (MapLayerType.TILE === (<UIMapOption>pageConf.chart).layers[layerNum].type && measureList && measureList.length > 0) {
+                layer.format = <GeoHashFormat>{
+                  type: FormatType.GEO_HASH.toString(),
+                  method: "h3",
+                  precision: precision
+                }
+              }
 
               // when they have multiple geo values
               if(geoFieldCnt > 1) {

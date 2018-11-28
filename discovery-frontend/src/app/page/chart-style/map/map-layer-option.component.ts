@@ -155,9 +155,15 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     } else if (MapLayerType.TILE === layerType) {
       this.uiOption.layers[this.index].color.by = MapBy.NONE;
       this.uiOption.layers[this.index].color.schema = '#6344ad';
-      if( isNullOrUndefined(this.uiOption.layers[this.index]['coverage']) ) {
-        this.uiOption.layers[this.index]['coverage'] = 20;
+      if( isNullOrUndefined(this.uiOption.layers[this.index]['radius']) ) {
+        this.uiOption.layers[this.index]['radius'] = 20;
       }
+      if( isNullOrUndefined(this.uiOption.layers[this.index]['coverage']) ) {
+        this.uiOption.layers[this.index]['coverage'] = 0.9;
+      }
+
+      this.applyLayers({});
+      return;
     }
 
     // apply layer ui option
@@ -192,7 +198,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public changeTransparencyText($event: any, index: number) {
 
-    let inputValue = $event.target.value;
+    let inputValue = parseFloat($event.target.value);
 
     if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
       $event.target.value = this.uiOption.layers[index].color.transparency;
@@ -376,7 +382,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   }
   public changeBlurText($event: any, index: number) {
 
-    let inputValue = $event.target.value;
+    let inputValue = parseFloat($event.target.value);
     if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
       $event.target.value = this.uiOption.layers[index]['blur'];
       return;
@@ -396,12 +402,41 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     this.applyLayers();
   }
   public changeRadiusText($event: any, index: number) {
-    let inputValue = $event.target.value;
+    let inputValue = parseFloat($event.target.value);
     if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
       $event.target.value = this.uiOption.layers[index]['radius'];
       return;
     } else {
       (<UIHeatmapLayer>this.uiOption.layers[index]).radius = inputValue;
+      this.applyLayers();
+    }
+  }
+
+  /**
+   * hexagon layer - change radius
+   * @param obj
+   * @param slider
+   * @param {number} index
+   */
+  public changeHexagonRadius(obj: any, slider: any) {
+
+    (<UITileLayer>this.uiOption.layers[this.index]).radius = slider.from;
+    this.applyLayers();
+  }
+
+  /**
+   * hexgon layer - change radius text
+   * @param event
+   */
+  public changeHexagonRadiusText(event: any) {
+
+    let inputValue = parseFloat(event.target.value);
+
+    if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
+      event.target.value = (<UITileLayer>this.uiOption.layers[this.index]).radius;
+      return;
+    } else {
+      (<UITileLayer>this.uiOption.layers[this.index]).radius = inputValue;
       this.applyLayers();
     }
   }
@@ -417,8 +452,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     this.applyLayers();
   }
   public changeCoverageText($event: any, index: number) {
-    let inputValue = $event.target.value;
-    if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
+    let inputValue = parseFloat($event.target.value);
+    if( _.isEmpty(inputValue.toString()) || inputValue > 1 || inputValue < 0) {
       $event.target.value = this.uiOption.layers[index]['coverage'];
       return;
     } else {
@@ -507,7 +542,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public changeNoneRadiusRangeText(event: any) {
 
-    let inputValue = event.target.value;
+    let inputValue = parseFloat(event.target.value);
 
     if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
       event.target.value = (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[0];
@@ -533,7 +568,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public changeMeasureRadiusRangeText(event: any, index: number) {
 
-    let inputValue = event.target.value;
+    let inputValue = parseFloat(event.target.value);
 
     if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
       event.target.value = (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[index];
@@ -590,16 +625,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     this.byList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE}]
     this.colorByList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE}];
 
+    // when dimension exists, not hexagon layer, set dimension type
+    if (dimensionList.length > 0 && MapLayerType.TILE !== this.uiOption.layers[this.index].type) {
+      this.colorByList.push({name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION});
+    }
+
     // when measure exists, set measure type
     if (measureList.length > 0) {
       this.byList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
       this.colorByList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
 
-    }
-
-    // when dimension exists, set dimension type
-    if (dimensionList.length > 0) {
-      this.colorByList.push({name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION});
     }
   }
 }

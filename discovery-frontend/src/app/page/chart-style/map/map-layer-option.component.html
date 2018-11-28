@@ -438,10 +438,11 @@
                 </div>
                 <!-- heatmap : blur, coverage -->
 
-                <!-- hexagon : coverage -->
+                <!-- hexagon : radius, coverage -->
                 <div *ngIf="'tile' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
+                  <!-- hexagon : radius -->
                   <div class="ddp-divide2">
-                    <div class="ddp-list-label">{{'msg.page.layer.map.coverage' | translate}}</div>
+                    <div class="ddp-list-label">{{'msg.page.layer.map.radius' | translate}}</div>
                     <div class="ddp-form-slider">
                       <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
                         <range-slider-component [hideFromTo]="false"
@@ -449,24 +450,52 @@
                                                 [keyboard]="false"
                                                 [min]="0"
                                                 [max]="100"
-                                                [from]="uiOption.layers[index]['coverage']"
+                                                [from]="uiOption.layers[index]['radius']"
                                                 [type]="'single'"
                                                 [step]="1"
-                                                (onFinish)="changeCoverage({}, $event, index)">
+                                                (onFinish)="changeHexagonRadius({}, $event)">
                         </range-slider-component>
                       </div>
                       <div class="ddp-box-option-input ddp-type ddp-inline">
                         <!--<span class="ddp-txt-input">%</span>-->
+                        <span class="ddp-txt-input"></span>
+                        <input type="number" input-mask="number" [ngModel]="uiOption.layers[index]['radius']"
+                               (keyup.enter)="changeHexagonRadiusText($event)">
+                      </div>
+                    </div>
+                  </div>
+                  <!-- //hexagon : radius -->
+                  <!-- hexagon : coverage -->
+                  <div class="ddp-divide2">
+                    <div class="ddp-list-label">{{'msg.page.layer.map.coverage' | translate}}</div>
+                    <div class="ddp-form-slider">
+                      <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
+                        <range-slider-component [hideFromTo]="false"
+                                                [hideMinMax]="true"
+                                                [keyboard]="false"
+                                                [min]="0.1"
+                                                [max]="1"
+                                                [from]="uiOption.layers[index]['coverage']"
+                                                [type]="'single'"
+                                                [step]="0.1"
+                                                (onFinish)="changeCoverage({}, $event, index)">
+                        </range-slider-component>
+                      </div>
+                      <div class="ddp-box-option-input ddp-type ddp-inline">
                         <span class="ddp-txt-input"></span>
                         <input type="number" input-mask="number" [ngModel]="uiOption.layers[index]['coverage']"
                                (keyup.enter)="changeCoverageText($event,index)">
                       </div>
                     </div>
                   </div>
-                  <!-- hexagon : coverage -->
+                  <!-- //hexagon : coverage -->
+                </div>
+                <!-- //hexagon : radius, coverage -->
 
+                <!-- line : stroke, line type -->
+                <div *ngIf="'line' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
                   <!-- line : stroke -->
-                  <div *ngIf="'line' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
+                  <div class="ddp-wrap-divide">
                     <div class="ddp-divide2">
                       <div class="ddp-list-label">{{'msg.page.layer.map.stroke' | translate}}</div>
                       <div class="ddp-list-sub2">
@@ -510,7 +539,7 @@
                   <!-- //line : stroke -->
 
                   <!-- line : line type -->
-                  <div *ngIf="'line' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
+                  <div class="ddp-wrap-divide">
                     <!-- divide -->
                     <div class="ddp-divide2 ">
                       <div class="ddp-wrap-option-multy ddp-clear">
@@ -534,13 +563,15 @@
                   </div>
                   <!-- //line : line type -->
                 </div>
+                <!-- //line : stroke, line type -->
               </div>
-              <!-- //레이어 유형 contents -->
             </div>
-            <!-- //[point, heatmap, hexagon, line, polygon] -->
+            <!-- //레이어 유형 contents -->
           </div>
+          <!-- //[point, heatmap, hexagon, line, polygon] -->
         </div>
       </div>
     </div>
   </div>
-  <!-- //레이어 설정 -->
+</div>
+<!-- //레이어 설정 -->
