@@ -21,11 +21,14 @@ import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineQueryService;
 import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
+import app.metatron.discovery.domain.user.DirectoryProfile;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.UserRepository;
 import app.metatron.discovery.domain.user.group.GroupMember;
 import app.metatron.discovery.domain.user.group.GroupMemberRepository;
 import app.metatron.discovery.domain.user.group.GroupService;
+import app.metatron.discovery.domain.user.role.RoleDirectory;
+import app.metatron.discovery.domain.user.role.RoleDirectoryRepository;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.domain.workspace.WorkspaceRepository;
@@ -85,6 +88,9 @@ public class DataSourceService {
 
   @Autowired
   GroupService groupService;
+
+  @Autowired
+  RoleDirectoryRepository roleDirectoryRepository;
 
   @Autowired
   GroupMemberRepository groupMemberRepository;
@@ -378,54 +384,78 @@ public class DataSourceService {
         String userName = AuthUtils.getAuthUserName();
         User user = userRepository.findByUsername(userName);
 
-        // me
-        ListCriterion meCriterion = new ListCriterion();
-        meCriterion.setCriterionName("msg.storage.ui.criterion.me");
-        meCriterion.setCriterionType(ListCriterionType.CHECKBOX);
-        meCriterion.addFilter(new ListFilter("createdBy", userName,
-                user.getFullName() + "(" + userName + ")"));
-        criterion.addSubCriterion(meCriterion);
+        // user
+        ListCriterion userCriterion = new ListCriterion();
 
-        //my group
-        ListCriterion myGroupCriterion = new ListCriterion();
-        myGroupCriterion.setCriterionName("msg.storage.ui.criterion.my-groups");
-        List<Map<String, Object>> groupList = groupService.getJoinedGroupsForProjection(userName, false);
-        for(Map<String, Object> groupMap : groupList){
-          ListFilter filter = new ListFilter("userGroup", groupMap.get("id").toString(),
-                  groupMap.get("name").toString());
-          myGroupCriterion.addFilter(filter);
-        }
-        criterion.addSubCriterion(myGroupCriterion);
+        userCriterion.setCriterionName("msg.storage.ui.criterion.users");
+        userCriterion.setCriterionType(ListCriterionType.CHECKBOX);
+        criterion.addSubCriterion(userCriterion);
+
+        //me
+        userCriterion.addFilter(new ListFilter("createdBy", userName,
+                user.getFullName() + "(me)"));
 
         //datasource created users
-        ListCriterion dsCreatedUserCriterion = new ListCriterion();
-        dsCreatedUserCriterion.setCriterionName("msg.storage.ui.criterion.all-users");
         List<String> creatorIdList = dataSourceRepository.findDistinctCreatedBy();
         List<User> creatorUserList = userRepository.findByUsernames(creatorIdList);
         for(User creator : creatorUserList){
-          ListFilter filter = new ListFilter("createdBy", creator.getUsername(),
-                  creator.getFullName() + "(" + creator.getUsername() + ")");
-          dsCreatedUserCriterion.addFilter(filter);
-        }
-        criterion.addSubCriterion(dsCreatedUserCriterion);
-
-        //data manager group
-        ListCriterion dataManagerCriterion = new ListCriterion();
-        dataManagerCriterion.setCriterionName("msg.storage.ui.criterion.data-managers");
-
-        List<GroupMember> memberResults = groupMemberRepository.findByGroupId("ID_GROUP_DATA_MANAGER");
-        if(memberResults != null && !memberResults.isEmpty()){
-          List<String> memberUserNameList = memberResults.stream()
-                  .map(member -> member.getMemberId())
-                  .collect(Collectors.toList());
-          List<User> dataManagerUserList = userRepository.findByUsernames(memberUserNameList);
-          for(User member : dataManagerUserList){
-            ListFilter filter = new ListFilter("createdBy", member.getUsername(),
-                    member.getFullName() + "(" + member.getUsername() + ")");
-            dataManagerCriterion.addFilter(filter);
+          if(!creator.getUsername().equals(userName)){
+            ListFilter filter = new ListFilter("createdBy", creator.getUsername(),
+                    creator.getFullName());
+            userCriterion.addFilter(filter);
           }
         }
-        criterion.addSubCriterion(dataManagerCriterion);
+
+        //groups
+        ListCriterion groupCriterion = new ListCriterion();
+        groupCriterion.setCriterionName("msg.storage.ui.criterion.groups");
+        criterion.addSubCriterion(groupCriterion);
+
+        //my group
+        List<Map<String, Object>> groupList = groupService.getJoinedGroupsForProjection(userName, false);
+        if(groupList != null && !groupList.isEmpty()){
+          for(Map<String, Object> groupMap : groupList){
+            ListFilter filter = new ListFilter("userGroup", groupMap.get("id").toString(),
+                    groupMap.get("name").toString() + " (my)");
+            groupCriterion.addFilter(filter);
+          }
+        }
+
+        //data manager group
+        List<RoleDirectory> roleDirectoryList
+                = roleDirectoryRepository.findByTypeAndRoleId(DirectoryProfile.Type.GROUP, "ROLE_SYSTEM_DATA_MANAGER");
+        if(roleDirectoryList != null && !roleDirectoryList.isEmpty()){
+          for(RoleDirectory roleDirectory : roleDirectoryList){
+            //duplicate group check
+            boolean duplicated = false;
+            if(groupList != null && !groupList.isEmpty()){
+              long duplicatedCnt = groupList.stream()
+                      .filter(groupMap -> roleDirectory.getDirectoryId().equals(groupMap.get("id").toString()))
+                      .count();
+              duplicated = duplicatedCnt > 0;
+            }
+
+            if(!duplicated){
+              ListFilter filter = new ListFilter("userGroup", roleDirectory.getDirectoryId(),
+                      roleDirectory.getDirectoryName());
+              groupCriterion.addFilter(filter);
+            }
+          }
+        }
+//
+//        //data manager group member
+//        List<GroupMember> memberResults = groupMemberRepository.findByGroupId("ID_GROUP_DATA_MANAGER");
+//        if(memberResults != null && !memberResults.isEmpty()){
+//          List<String> memberUserNameList = memberResults.stream()
+//                  .map(member -> member.getMemberId())
+//                  .collect(Collectors.toList());
+//          List<User> dataManagerUserList = userRepository.findByUsernames(memberUserNameList);
+//          for(User member : dataManagerUserList){
+//            ListFilter filter = new ListFilter("createdBy", member.getUsername(),
+//                    member.getFullName() + "(" + member.getUsername() + ")");
+//            groupCriterion.addFilter(filter);
+//          }
+//        }
         break;
       case DATETIME:
         //created_time
