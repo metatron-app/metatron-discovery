@@ -117,9 +117,10 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
    */
   public onClickHost(event) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
-    if (this.isShowList && event.target.className.indexOf('datepicker') === -1 && !this.elementRef.nativeElement.contains(event.target)) {
+    if ( !this.elementRef.nativeElement.contains(event.target) && 0 === $(event.target).closest('[class^=datepicker]').length ) {
       // close list
       this.isShowList = false;
+      this.safelyDetectChanges();
     }
   }
 

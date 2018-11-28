@@ -249,13 +249,8 @@ export class CriterionTimeRadioboxComponent extends AbstractComponent {
    * @private
    */
   private _pickerDateValidation(isStartDate: boolean): void {
-    // if end picker date is older than start picker date
-    if (isStartDate && this._endPickerDate && (this._startPickerDate.getTime() - this._endPickerDate.getTime()) > 0) {
-      // set start picker date
-      this._startPicker.selectDate(this._endPickerDate);
-    } else if (!isStartDate && this._startPickerDate && (this._startPickerDate.getTime() - this._endPickerDate.getTime()) > 0) {
-      // set end picker date
-      this._endPicker.selectDate(this._startPickerDate);
+    if (this._startPickerDate && this._endPickerDate && (this._startPickerDate.getTime() - this._endPickerDate.getTime()) > 0) {
+      isStartDate ? this._startPicker.selectDate(this._endPickerDate) : this._endPicker.selectDate(this._startPickerDate);
     }
   }
 
