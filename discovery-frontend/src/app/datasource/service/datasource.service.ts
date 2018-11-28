@@ -45,6 +45,7 @@ import { UIMapOption } from '../../common/component/chart/option/ui-option/map/u
 import { ChartUtil } from '../../common/component/chart/option/util/chart-util';
 import {Limit} from "../../domain/workbook/configurations/limit";
 import { MapLayerType } from '../../common/component/chart/option/define/map/map-common';
+import { UITileLayer } from '../../common/component/chart/option/ui-option/map/ui-tile-layer';
 
 
 @Injectable()
@@ -434,13 +435,6 @@ export class DatasourceService extends AbstractService {
       // set current layer values
       for(let layer of query.shelf.layers[layerNum]) {
 
-        // let layerItem: GeoField = {
-        //   type: layer.type,
-        //   name: layer.name,
-        //   alias: layer.alias,
-        //   ref: null
-        // };
-
         // when it's measure
         if ('measure' === layer.type) {
 
@@ -450,11 +444,13 @@ export class DatasourceService extends AbstractService {
         // when it's dimension
         } else if ('dimension' === layer.type) {
 
-          let precision = layer["precision"];
+          let radius = (<UITileLayer>(<UIMapOption>pageConf.chart).layers[layerNum]).radius;
 
-          // if(precision === undefined) {
-          //   precision = 8;
-          // }
+          // to make reverse (bigger radius => set small precision), get precision from 0 - 100
+          let precision = Math.round((100 - radius) / 8.33);
+
+          if (precision > 12) precision = 12;
+          if (precision < 1) precision = 1;
 
           if (layer.field && layer.field.logicalType) {
             // default geo format

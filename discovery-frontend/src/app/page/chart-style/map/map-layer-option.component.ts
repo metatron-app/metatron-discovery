@@ -421,7 +421,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public changeHexagonRadius(obj: any, slider: any) {
 
     (<UITileLayer>this.uiOption.layers[this.index]).radius = slider.from;
-    this.applyLayers();
+    this.applyLayers({});
   }
 
   /**
@@ -436,8 +436,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       event.target.value = (<UITileLayer>this.uiOption.layers[this.index]).radius;
       return;
     } else {
-      (<UITileLayer>this.uiOption.layers[this.index]).radius = inputValue;
-      this.applyLayers();
+      // when they are not same
+      if ((<UITileLayer>this.uiOption.layers[this.index]).radius !== inputValue) {
+        (<UITileLayer>this.uiOption.layers[this.index]).radius = inputValue;
+        this.applyLayers({});
+      }
     }
   }
 
