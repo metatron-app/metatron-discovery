@@ -10,16 +10,16 @@
   <!-- box scroll -->
   <div class="ddp-wrap-box-info" [ngClass]="{'ddp-selected':isFocus}" >
     <div class="ddp-wrap-boxwrap">
-      <div class="ddp-wrap-boxadd" *ngFor="let item of formulaList;trackBy:trackByFn;let idx = index;">
+      <div class="ddp-wrap-boxadd" *ngFor="let item of formulas;trackBy:trackByFn;let idx = index;">
         <div class="ddp-wrap-datainput">
           <rule-condition-input
             [placeholder]="'msg.dp.th.expression.ph' | translate"
-            [formula]="item" [command]="'aggregate'" [fields]="fields" [tabIndex]="2"
-            (onChange)="formulaList[idx] = $event"></rule-condition-input>
+            [formula]="item.value" [command]="'aggregate'" [fields]="fields" [tabIndex]="2"
+            (onChange)="item.value = $event"></rule-condition-input>
         </div>
 
         <div class="ddp-ui-buttons">
-          <a href="javascript:" class="ddp-btn-minus" (click)="deleteFormula(idx)"></a>
+          <a href="javascript:" class="ddp-btn-minus" (click)="deleteFormula(item.id)"></a>
         </div>
       </div>
     </div>
