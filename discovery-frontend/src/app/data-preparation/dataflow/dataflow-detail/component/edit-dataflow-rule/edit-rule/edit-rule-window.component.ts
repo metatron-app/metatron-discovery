@@ -25,6 +25,7 @@ import {RuleConditionInputComponent} from "./rule-condition-input.component";
   selector: 'edit-rule-window',
   templateUrl: './edit-rule-window.component.html'
 })
+
 export class EditRuleWindowComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -44,6 +45,8 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   public sortList : any [];
   public defaultIndex : number = 0;
   public sortBy : string;
+
+  public formulas: formula[];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -65,6 +68,7 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   public ngOnInit() {
     super.ngOnInit();
 
+    this.formulas = [ {id:0, value:''} ];
 
     this.sortList = [
       { type: '', name: 'asc', isHover: false },
@@ -84,7 +88,6 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-
   } // function - ngOnDestroy
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -103,38 +106,35 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
    * 신규 수식 추가
    */
   public addFormula() {
-    this.formulaList.push('');
+    this.formulas.push({id: this.getFormulaId(), value: ''});
   } // function - addFormula
-
 
   /**
    * 특정 위치의 수식 삭제
    * @param {number} idx
    */
   public deleteFormula(idx:number) {
-    if (this.formulaList.length === 1) {
-      return;
-    }
-    this.formulaList.splice( idx, 1 );
+    this.formulas = this.formulas.filter(({ id }) => id !== idx);
   } // function - deleteFormula
-
 
   /**
    * 리스트의 개별성 체크 함수
-   * @param index
+   * @param {number} index
    * @param {string} formula
    * @return {number}
    */
-  public trackByFn(index, item) {
-    return index;
+  public trackByFn(index: number, formula: formula) {
+    return formula.id;
   } // function - trackByFn
-
 
   /**
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
   public getRuleData(): { command: string, col: string, ruleString: string } {
+
+    this.formulaList = [];
+    this.formulas.forEach((item:formula)=>{ this.formulaList.push(item.value)});
 
     // Formula
     if (this.formulaList.length === 0) {
@@ -284,5 +284,12 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  private getFormulaId(): number {
+    return this.formulas.length ? Math.max.apply(Math,this.formulas.map(({ id }) => id)) + 1 : 1;
+  }
+}
 
+interface formula {
+  id: number;
+  value: string
 }
