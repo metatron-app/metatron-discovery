@@ -41,15 +41,15 @@ public interface PrepDatasetRepository extends JpaRepository<PrepDataset, String
 
     Page<PrepDataset> findByDsNameContainingAndImportTypeAndDsType(@Param("dsName") String dsName, @Param("importType") PrepDataset.IMPORT_TYPE importType, @Param("dsType") PrepDataset.DS_TYPE dsType, Pageable pageable);
 
-    @Query("SELECT pd FROM PrepDataset pd LEFT JOIN pd.dataflows df WHERE (''=:dsName OR pd.dsName like %:dsName%) AND pd.dsType=:dsType GROUP BY pd.dsId ORDER BY count(df.dfId)")
+    @Query("SELECT pd FROM PrepDataset pd LEFT JOIN pd.dataflows df WHERE (''=:dsName OR UPPER(pd.dsName) LIKE UPPER(CONCAT('%',:dsName, '%'))) AND pd.dsType=:dsType GROUP BY pd.dsId ORDER BY count(df.dfId)")
     Page<PrepDataset> findByDsNameContainingAndDsTypeOrderByRefDfCountAsc(@Param("dsName") String dsName, @Param("dsType") PrepDataset.DS_TYPE dsType, Pageable pageable);
 
-    @Query("SELECT pd FROM PrepDataset pd LEFT JOIN pd.dataflows df WHERE (''=:dsName OR pd.dsName like %:dsName%) AND pd.dsType=:dsType GROUP BY pd.dsId ORDER BY count(df.dfId) DESC")
+    @Query("SELECT pd FROM PrepDataset pd LEFT JOIN pd.dataflows df WHERE (''=:dsName OR UPPER(pd.dsName) LIKE UPPER(CONCAT('%',:dsName, '%'))) AND pd.dsType=:dsType GROUP BY pd.dsId ORDER BY count(df.dfId) DESC")
     Page<PrepDataset> findByDsNameContainingAndDsTypeOrderByRefDfCountDesc(@Param("dsName") String dsName, @Param("dsType") PrepDataset.DS_TYPE dsType, Pageable pageable);
 
-    @Query("SELECT pd FROM PrepDataset pd LEFT JOIN pd.dataflows df WHERE (''=:dsName OR pd.dsName like %:dsName%) GROUP BY pd.dsId ORDER BY count(df.dfId)")
+    @Query("SELECT pd FROM PrepDataset pd LEFT JOIN pd.dataflows df WHERE (''=:dsName OR UPPER(pd.dsName) LIKE UPPER(CONCAT('%',:dsName, '%'))) GROUP BY pd.dsId ORDER BY count(df.dfId)")
     Page<PrepDataset> findByDsNameContainingOrderByRefDfCountAsc(@Param("dsName") String dsName, Pageable pageable);
 
-    @Query("SELECT pd FROM PrepDataset pd LEFT JOIN pd.dataflows df WHERE (''=:dsName OR pd.dsName like %:dsName%) GROUP BY pd.dsId ORDER BY count(df.dfId) DESC")
+    @Query("SELECT pd FROM PrepDataset pd LEFT JOIN pd.dataflows df WHERE (''=:dsName OR UPPER(pd.dsName) LIKE UPPER(CONCAT('%',:dsName, '%'))) GROUP BY pd.dsId ORDER BY count(df.dfId) DESC")
     Page<PrepDataset> findByDsNameContainingOrderByRefDfCountDesc(@Param("dsName") String dsName, Pageable pageable);
 }
