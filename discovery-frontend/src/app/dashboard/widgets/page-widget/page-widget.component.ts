@@ -71,6 +71,7 @@ import {GridComponent} from "../../../common/component/grid/grid.component";
 import {header, SlickGridHeader} from "../../../common/component/grid/grid.header";
 import {GridOption} from "../../../common/component/grid/grid.option";
 import {Pivot} from "../../../domain/workbook/configurations/pivot";
+import {MapChartComponent} from "../../../common/component/chart/type/map-chart/map-chart.component";
 
 declare let $;
 
@@ -423,8 +424,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             const lineChart: LineChartComponent = this.chart['lineChart'];
             barChart.chart.resize();
             lineChart.chart.resize();
-          } else if (this.chart.uiOption.type === ChartType.LABEL || this.chart.uiOption.type === ChartType.MAP) {
-
+          } else if (this.chart.uiOption.type === ChartType.LABEL) {
+          } else if (this.chart.uiOption.type === ChartType.MAP) {
+            (<MapChartComponent>this.chart).draw();
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
             (<NetworkChartComponent>this.chart).draw();
           } else {
