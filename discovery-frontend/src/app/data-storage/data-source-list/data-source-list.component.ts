@@ -325,14 +325,20 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     // params
     const params = {};
     // criterion filter list
-    Object.keys(this._criterionDataObject).forEach((key) => {
+    Object.keys(this._criterionDataObject).forEach((key: any) => {
       // key loop
       Object.keys(this._criterionDataObject[key]).forEach((criterionKey) => {
         if (this._criterionDataObject[key][criterionKey].length !== 0) {
-          // set key
-          params[criterionKey] = [];
-          // set value
-          this._criterionDataObject[key][criterionKey].forEach(item => params[criterionKey].push(item.filterValue));
+          // if CREATED_TIME, MODIFIED_TIME
+          if ((key === CriterionKey.CREATED_TIME || key === CriterionKey.MODIFIED_TIME)) {
+            // if not ALL, set value
+            criterionKey !== 'ALL' && this._criterionDataObject[key][criterionKey].forEach(item => params[item.filterKey] = item.filterValue);
+          } else {
+            // set key
+            params[criterionKey] = [];
+            // set value
+            this._criterionDataObject[key][criterionKey].forEach(item => params[criterionKey].push(item.filterValue));
+          }
         }
       });
     });

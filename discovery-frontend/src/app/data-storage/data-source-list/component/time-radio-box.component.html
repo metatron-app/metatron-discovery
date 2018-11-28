@@ -12,7 +12,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<div class="ddp-wrap-popup2 ddp-date">
+<div class="ddp-wrap-popup2 ">
   <ul class="ddp-list-popup">
     <li *ngFor="let timeType of timeTypeList">
       <a href="javascript:">
@@ -22,17 +22,18 @@
           <span class="ddp-txt-checkbox">{{timeType.label}}</span>
         </label>
         <!-- dateinfo -->
-        <div class="ddp-wrap-dateinfo" *ngIf="timeType.value === 'BETWEEN' && isEnableFromToOption && selectedTimeType.value === 'BETWEEN'">
+        <div class="ddp-wrap-dateinfo" *ngIf="timeType.enableFromTo">
           <div class="ddp-ui-dateinfo">
             <span class="ddp-txt-date">from</span>
             <div class="ddp-box-dateinfo ddp-clear">
-              <input #startPickerInput type="text" class="ddp-input-calen ddp-full" placeholder="{{'msg.storage.ui.criterion.time.past' | translate}}" readonly>
+              <input #startPickerInput type="text" class="ddp-input-calen ddp-full" placeholder="yyyy-MM-dd hh:mm" readonly>
             </div>
           </div>
+          <div class="ddp-txt-bar">~</div>
           <div class="ddp-ui-dateinfo">
             <span class="ddp-txt-date">to</span>
             <div class="ddp-box-dateinfo ddp-clear">
-              <input #endPickerInput type="text" class="ddp-input-calen ddp-full" placeholder="{{'msg.storage.ui.criterion.time.current' | translate}}" readonly>
+              <input #endPickerInput type="text" class="ddp-input-calen ddp-full" placeholder="yyyy-MM-dd hh:mm" readonly>
             </div>
           </div>
         </div>

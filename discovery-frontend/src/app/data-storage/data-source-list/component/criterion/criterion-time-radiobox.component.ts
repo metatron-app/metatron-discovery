@@ -27,10 +27,14 @@ declare let $: any;
 })
 export class CriterionTimeRadioboxComponent extends AbstractComponent {
 
+  // date
   private _startDate: Date;
   private _endDate: Date;
+  // date (only DatePicker use)
+  private _startPickerDate: Date;
+  private _endPickerDate: Date;
 
-  // DatePicker 객체
+  // DatePicker object
   private _startPicker;
   private _endPicker;
 
@@ -53,6 +57,10 @@ export class CriterionTimeRadioboxComponent extends AbstractComponent {
   // is enable from to option
   @Input('enableFromToOption')
   public isEnableFromToOption: boolean;
+
+  // time format
+  @Input('timeFormat')
+  public timeFormat: string = 'YYYY-MM-DD HH:mm';
 
   // time type list
   public timeTypeList: any = [];
@@ -77,9 +85,6 @@ export class CriterionTimeRadioboxComponent extends AbstractComponent {
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-    // Date Picker 객체 제거
-    (this._startPicker) && (this._startPicker.destroy());
-    (this._endPicker) && (this._endPicker.destroy());
   }
 
   /**
@@ -88,42 +93,78 @@ export class CriterionTimeRadioboxComponent extends AbstractComponent {
   public ngAfterViewInit() {
     // init
     this._initView();
+    // safe detect
+    this.safelyDetectChanges();
   }
 
+  /**
+   * Time type change event
+   * @param timeType
+   */
   public onChangeTimeType(timeType: any): void {
-    // change selected time type
-    this.selectedTimeType = timeType;
-    // TODO set time
-    this._setTimePicker(timeType.value);
-
-    // make
-    const temp = {};
-    // temp[this.criterion.criterionKey] = [
-    //   {filterName: 'from', filterValue: this._startTime},
-    //   {filterName: 'to', filterValue: this._endTime}
-    // ];
-    // change event emit
-    this._changeSelectItemEvent.emit(temp);
+    if (timeType.value !== this.selectedTimeType.value) {
+      // change selected time type
+      this.selectedTimeType = timeType;
+      // remove date picker
+      this._removeDatePicker();
+      //
+      this.safelyDetectChanges();
+      // set time date
+      this._setTimePicker(timeType.value);
+      // change event emit
+      this._changeSelectItemEvent.emit(this._getSelectedTimeData());
+    }
   }
 
+  private _getSelectedTimeData(): object {
+    // result
+    const result = {};
+    // create time data
+    const startTimeData = {
+      filterKey: this.criterion.filters[0].filterKey,
+      filterName: this.selectedTimeType.value === 'BETWEEN'
+        ? (this._startPickerDate ? moment(this._startPickerDate).format(this.timeFormat) : null)
+        : this._startDate
+    };
+    const endTimeData = {
+      filterKey: this.criterion.filters[0].filterSubKey,
+      filterName: this.selectedTimeType.value === 'BETWEEN'
+        ? (this._endPickerDate ? moment(this._endPickerDate).format(this.timeFormat) : null)
+        : this._endDate
+    };
+    if (startTimeData.filterName) {
+      startTimeData['filterValue'] = moment(startTimeData.filterName).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+    }
+    if (endTimeData.filterName) {
+      endTimeData['filterValue'] = moment(endTimeData.filterName).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+    }
+    // set timetype key
+    result[this.selectedTimeType.value] = [startTimeData, endTimeData];
+    // return
+    return result;
+  }
+
+  /**
+   * Set time picker
+   * @param {string} value
+   * @private
+   */
   private _setTimePicker(value: string): void {
     switch (value) {
       case 'ALL':
-        this._startPickerInput.nativeElement.value = '';
-        this._endPickerInput.nativeElement.value = '';
         this._startDate = null;
         this._endDate = null;
-        // 전체 기간을 선택할 수 있도록 데이터 갱신
-        this._startPicker.selectDate(null);
-        this._endPicker.selectDate(null);
         break;
       case 'TODAY':
-        this._startPicker.selectDate(moment({ hour: 0 }).toDate());
-        this._endPicker.selectDate(moment({ hour: 23, minute: 59, seconds: 59 }).toDate());
+        this._startDate = moment({ hour: 0 }).format(this.timeFormat);
+        // this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
         break;
       case '7DAYS':
-        this._startPicker.selectDate(moment({ hour: 0 }).subtract(6, 'days').toDate());
-        this._endPicker.selectDate(moment({ hour: 23, minute: 59, seconds: 59 }).toDate());
+        this._startDate = moment({ hour: 0 }).subtract(6, 'days').format(this.timeFormat);
+        // this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
+        break;
+      case 'BETWEEN':
+        this._setDatePickerSettings();
         break;
     }
   }
@@ -149,53 +190,89 @@ export class CriterionTimeRadioboxComponent extends AbstractComponent {
       this.selectedTimeType = this.timeTypeList[0];
     }
 
+  }
+
+  /**
+   * Set date picker settings
+   * @private
+   */
+  private _setDatePickerSettings(): void {
+    // initial value
     let startInitialValue: any = '-';
     let endInitialValue: any = '-';
-
-    // 시작일 DatePicker 생성
-    const startPickerSettings: PeriodPickerSettings
-      = new PeriodPickerSettings(
+    // 날짜값이 있으면 날짜로 셋팅
+    if (this._startPickerDate) {
+      startInitialValue = moment(this._startPickerDate);
+    }
+    if (this._endPickerDate) {
+      endInitialValue = moment(this._endPickerDate);
+    }
+    // start picker create
+    const startPickerSettings: PickerSettings
+      = new DatePickerSettings(
       'ddp-input-calen',
       (fdate: string, date: Date) => {
-        this._startDate = date;
-        // this.selectedType = PeriodType.NOT;
-        // this.validation(true);
+        // set picker start date
+        this._startPickerDate = date;
+        // picker date validation
+        this._pickerDateValidation(true);
+        // change event emit
+        this._changeSelectItemEvent.emit(this._getSelectedTimeData());
       },
-      () => {}, true
+      () => {}
     );
+    // startPickerSettings.position = 'left top';
     this._startPicker = $(this._startPickerInput.nativeElement).datepicker(startPickerSettings).data('datepicker');
     ( '-' !== startInitialValue ) && ( this._startPicker.selectDate(startInitialValue.toDate()) );
-
-    // 종료일 DatePicker 생성
-    const endPickerSettings: PeriodPickerSettings
-      = new PeriodPickerSettings(
+    // end picker create
+    const endPickerSettings: PickerSettings
+      = new DatePickerSettings(
       'ddp-input-calen',
       (fdate: string, date: Date) => {
-        this._endDate = date;
-        // this.selectedType = PeriodType.NOT;
-        // this.validation(false);
+        // set picker end date
+        this._endPickerDate = date;
+        // picker date validation
+        this._pickerDateValidation(false);
+        // change event emit
+        this._changeSelectItemEvent.emit(this._getSelectedTimeData());
       },
-      () => {}, true
+      () => {}
     );
+    // endPickerSettings.position = 'left top';
     this._endPicker = $(this._endPickerInput.nativeElement).datepicker(endPickerSettings).data('datepicker');
     ( '-' !== endInitialValue ) && ( this._endPicker.selectDate(endInitialValue.toDate()) );
   }
-}
 
-class PeriodPickerSettings extends PickerSettings {
-  constructor(clz: string, onSelectDate: Function, onHide: Function, useTimePicker: boolean ) {
-    super( clz, onSelectDate, onHide );
-
-    if( useTimePicker ) {
-      this.dateFormat = 'yyyy-mm-dd';
-      this.timeFormat = 'hh:ii';
-      this.minView = 'days';
-      this.view = 'days';
-      this.timepicker = true;
-    } else {
-      this.dateFormat = 'yyyy-mm-dd';
-      this.minView = 'days';
-      this.view = 'days';
+  /**
+   * Picker date validation
+   * @param {boolean} isStartDate
+   * @private
+   */
+  private _pickerDateValidation(isStartDate: boolean): void {
+    // if end picker date is older than start picker date
+    if (isStartDate && this._endPickerDate && (this._startPickerDate.getTime() - this._endPickerDate.getTime()) > 0) {
+      // set start picker date
+      this._startPicker.selectDate(this._endPickerDate);
+    } else if (!isStartDate && this._startPickerDate && (this._startPickerDate.getTime() - this._endPickerDate.getTime()) > 0) {
+      // set end picker date
+      this._endPicker.selectDate(this._startPickerDate);
     }
   }
-} // structure - PeriodPickerSettings
+
+  /**
+   * Remove date picker
+   * @private
+   */
+  private _removeDatePicker(): void {
+    this._startPicker && this._startPicker.destroy();
+    this._endPicker && this._endPicker.destroy();
+  }
+}
+
+class DatePickerSettings extends PickerSettings {
+  constructor(clz: string, onSelectDate: Function, onHide: Function) {
+    super(clz, onSelectDate, onHide);
+    // set show timepicker
+    this.timepicker = true;
+  }
+}

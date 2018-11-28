@@ -117,7 +117,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
    */
   public onClickHost(event) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
-    if (!this.elementRef.nativeElement.contains(event.target)) {
+    if (this.isShowList && event.target.className.indexOf('datepicker') === -1 && !this.elementRef.nativeElement.contains(event.target)) {
       // close list
       this.isShowList = false;
     }
@@ -173,10 +173,19 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
    */
   private _makeItemsLabel(selectedItemList: any): string {
     let temp: string = '';
-    Object.keys(selectedItemList).forEach(key =>
-      selectedItemList[key].forEach((item) => {
-        temp += StringUtil.isEmpty(temp) ? item.filterName : `, ${item.filterName}`;
-      }));
+    // is type DATETIME
+    if (this.criterionType.toString().indexOf('DATETIME') !== -1) {
+      Object.keys(selectedItemList).forEach(key =>
+        key !== 'ALL' && selectedItemList[key].forEach((item) => {
+          temp += StringUtil.isEmpty(temp) ? (item.filterName || this.translateService.instant('msg.storage.ui.criterion.time.past')) : ` ~ ${(item.filterName || this.translateService.instant('msg.storage.ui.criterion.time.current'))}`;
+        }));
+    } else {
+      Object.keys(selectedItemList).forEach(key =>
+        selectedItemList[key].forEach((item) => {
+          temp += StringUtil.isEmpty(temp) ? item.filterName : `, ${item.filterName}`;
+        }));
+    }
+
     return StringUtil.isEmpty(temp) ? 'ALL' : temp;
   }
 

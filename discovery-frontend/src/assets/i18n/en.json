@@ -2020,6 +2020,8 @@
   "msg.storage.ui.criterion.today": "Today",
   "msg.storage.ui.criterion.last-7-days": "Last 7 days",
   "msg.storage.ui.criterion.between": "Between",
+  "msg.storage.ui.criterion.time.past": "Past time",
+  "msg.storage.ui.criterion.time.current": "Current time",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",

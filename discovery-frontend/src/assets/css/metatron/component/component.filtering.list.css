@@ -20,11 +20,12 @@
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-box-result {display:inline-block; position:relative; margin-left:4px;max-width:250px; padding-right:15px; cursor:pointer; box-sizing:border-box; vertical-align:middle;}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-box-result .ddp-txt-result {display:block; white-space:nowrap; text-overflow:ellipsis; overflow:Hidden;}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-box-result:before {display:inline-block; position:absolute; top:50%; right:0; width:8px; height:4px; margin-top:-2px; background:url(../../../images/icon_select.png) no-repeat; background-position:-16px top; content:'';}
-.ddp-wrap-top-filtering .ddp-form-filtering .ddp-wrap-popup2 {display:none; position:absolute; top:24px; left:0; max-width:250px;}
-.ddp-wrap-top-filtering .ddp-form-filtering .ddp-box-result.ddp-selected .ddp-wrap-popup2 {display:block; min-width:100%;}
+.ddp-wrap-top-filtering .ddp-form-filtering .ddp-wrap-popup2 {display:none; position:absolute; top:24px; left:0; min-width:130px;max-width:250px; max-height:250px; overflow:auto;}
+.ddp-wrap-top-filtering .ddp-form-filtering .ddp-box-result.ddp-selected .ddp-wrap-popup2 {display:block;}
+.ddp-wrap-top-filtering .ddp-form-filtering .ddp-wrap-popup2.ddp-date {min-width:190px;}
 
 .ddp-wrap-top-filtering .ddp-form-filtering ul.ddp-list-popup + ul.ddp-list-popup{border-top:1px solid #e7e7ea;}
-.ddp-wrap-top-filtering .ddp-form-filtering ul.ddp-list-popup li a .ddp-wrap-between .ddp-wrap-dateinfo {position:relative; margin-top:10px;  padding:0 20px 0 18px;}
+.ddp-wrap-top-filtering .ddp-form-filtering ul.ddp-list-popup li a .ddp-wrap-between .ddp-wrap-dateinfo {position:relative; margin-top:10px; }
 .ddp-wrap-top-filtering .ddp-form-filtering ul.ddp-list-popup li a .ddp-wrap-between .ddp-wrap-dateinfo .ddp-txt-bar {position:absolute; top:6px; right:0;}
 
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-wrap-popup2 .ddp-pop-search {position:relative;padding:0 0 0 33px; border-bottom:1px solid #e7e7ea; }
