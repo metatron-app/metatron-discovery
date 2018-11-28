@@ -2177,7 +2177,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   private checkOption(): void {
 
     // Option panel change cancle
-    if( this.drawByType == null ) {
+    if( !this.drawByType || String(this.drawByType) == "" ) {
       return;
     }
 
