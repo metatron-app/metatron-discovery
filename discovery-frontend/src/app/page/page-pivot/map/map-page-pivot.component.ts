@@ -467,13 +467,12 @@ export class MapPagePivotComponent extends PagePivotComponent {
       if (totalWidth > $(this).parent('.ddp-ui-drag-slide-in').width()) {
 
         $(this).parent().parent().addClass('ddp-slide');
-        $(this).css('padding', '0 40px');
-
+        $(this).parent().parent().css('padding-right', '10px');
       }
       if (totalWidth <= $(this).parent('.ddp-ui-drag-slide-in').width()) {
 
         $(this).parent().parent().removeClass('ddp-slide');
-        $(this).css('padding', '0px');
+        $(this).parent().parent().removeAttr('padding-right');
 
         // ddp-wrap-default margin-left 제거
         $(this).css('margin-left', '0px');

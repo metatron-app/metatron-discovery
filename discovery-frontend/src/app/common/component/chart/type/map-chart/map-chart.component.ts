@@ -379,20 +379,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   }
 
   /**
-   * map click event
-   * @param event
-   */
-  private mapSelectionListener = (event) => {
-
-    // let featureTest = this.olmap.forEachFeatureAtPixel(event.pixel, (feature) => {
-    //   return feature;
-    // });
-
-    // this.clusterStyleFunction((<UIMapOption>this.uiOption).layerNum, this.data);
-
-  }
-
-  /**
    * map - multi features selection filter
    */
   public addChartMultiSelectEventListener() {
@@ -2439,5 +2425,31 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       colorList = ChartColorList[layer.color.schema];
     }
     return colorList;
+  }
+
+  /**
+   * map click event
+   * @param event
+   */
+  private mapSelectionListener = (event) => {
+
+    let scope: any = this;
+
+    let feature = this.olmap.forEachFeatureAtPixel(event.pixel, (feature) => {
+      return feature;
+    });
+
+    // Cluster check
+    let features = feature.get('features');
+    if( !isNullOrUndefined(features) ) {
+      if(features.length > 1 ) {
+        return;
+      }
+      feature = features[0];
+    }
+
+    console.log(feature.getProperties());
+
+    // TODO make new styleFunction (for selection filter)
   }
 }

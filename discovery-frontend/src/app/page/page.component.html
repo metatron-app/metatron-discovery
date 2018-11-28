@@ -667,7 +667,7 @@
                 </a>
 
                 <!-- 선택시 ddp-selected 추가 -->
-                <a href="javascript:" class="ddp-btn-selected" *ngIf="uiOption.chartZooms" [ngClass]="{'ddp-selected': uiOption.chartZooms[0].auto}" (click)="showDataZoom(!uiOption.chartZooms[0].auto)">
+                <a href="javascript:" class="ddp-btn-selected" *ngIf="uiOption['type']?.toString() != 'map' && uiOption.chartZooms" [ngClass]="{'ddp-selected': uiOption.chartZooms[0].auto}" (click)="showDataZoom(!uiOption.chartZooms[0].auto)">
                   <em class="ddp-icon-tool-minimap"></em>
                   {{'msg.page.ui.minimap' | translate}}
                 </a>

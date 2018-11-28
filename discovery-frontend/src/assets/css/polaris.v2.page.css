@@ -3503,7 +3503,7 @@ em[class*="ddp-bg-chart-"] {display:inline-block; position:absolute; top:50%; le
 .ddp-box-down > .ddp-wrap-divide:first-of-type,
 .ddp-box-down .ddp-wrap-divide.ddp-first {border-top:none; margin-top:0px; padding-top:0;}
 
-.ddp-box-down .ddp-wrap-divide .ddp-divide2 {padding-bottom:10px;}
+.ddp-box-down .ddp-wrap-divide .ddp-divide2 {padding-bottom:6px;}
 .ddp-box-down .ddp-wrap-divide .ddp-divide2 .ddp-wrap-colorby-button {margin:0;}
 .ddp-box-down .ddp-wrap-divide:last-of-type {border-bottom:none;}
 .ddp-box-down .ddp-wrap-divide.ddp-disabled {opacity:0.5;}

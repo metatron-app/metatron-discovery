@@ -49,4 +49,7 @@ export interface MapLayerSize {
   ////////////////////////
   ///// UI Spec
   ////////////////////////
+
+  // radius range
+  radiusRange?: number[];
 }

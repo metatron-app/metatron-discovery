@@ -982,7 +982,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.changeDetect.detectChanges();
 
     // set shelve animation
-    if (this.pagePivot) this.pagePivot.onShelveAnimation(this.$element.find('.ddp-wrap-default'));
+    if (this.getPivotComp()) this.getPivotComp().onShelveAnimation(this.$element.find('.ddp-wrap-default'));
 
     // 차트 리사이즈
     this.chartResize();
