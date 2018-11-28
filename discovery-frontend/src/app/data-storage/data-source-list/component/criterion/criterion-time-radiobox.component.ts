@@ -249,8 +249,10 @@ export class CriterionTimeRadioboxComponent extends AbstractComponent {
    * @private
    */
   private _pickerDateValidation(isStartDate: boolean): void {
+    // if exist start date, end date
     if (this._startPickerDate && this._endPickerDate && (this._startPickerDate.getTime() - this._endPickerDate.getTime()) > 0) {
-      isStartDate ? this._startPicker.selectDate(this._endPickerDate) : this._endPicker.selectDate(this._startPickerDate);
+      // Set as start date if selected is greater than end date
+      isStartDate ? this._endPicker.selectDate(this._startPickerDate) : this._startPicker.selectDate(this._endPickerDate);
     }
   }
 
@@ -267,6 +269,8 @@ export class CriterionTimeRadioboxComponent extends AbstractComponent {
 class DatePickerSettings extends PickerSettings {
   constructor(clz: string, onSelectDate: Function, onHide: Function) {
     super(clz, onSelectDate, onHide);
+    this.minView = 'days';
+    this.view = 'days';
     // set show timepicker
     this.timepicker = true;
   }
