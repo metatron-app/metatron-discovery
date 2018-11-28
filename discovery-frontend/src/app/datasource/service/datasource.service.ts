@@ -463,7 +463,7 @@ export class DatasourceService extends AbstractService {
 
           if (layer.field && layer.field.logicalType) {
             // default geo format
-            if(layer.field.logicalType.toString().indexOf('GEO') > -1) {
+            if(layer.field.logicalType && layer.field.logicalType.toString().indexOf('GEO') > -1) {
               layer.format = {
                 type: FormatType.GEO.toString()
               }

@@ -4,7 +4,7 @@
       {{editingField.name}}
     </div>
     <ul class="ddp-list-layer-option ddp-list-radio">
-      <li *ngIf="-1 === editingField?.field?.logicalType.toString().indexOf('GEO')">
+      <li *ngIf="-1 === editingField?.field?.logicalType?.toString().indexOf('GEO')">
         <a href="javascript:">
           <label class="ddp-label-toggle">
             {{'msg.page.th.filter' | translate}}

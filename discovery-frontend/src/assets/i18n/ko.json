@@ -2519,6 +2519,7 @@
   "msg.page.layer.map.size.by": "크기 기준",
   "msg.page.layer.map.size.by.none": "없음",
   "msg.page.layer.map.size.by.measure": "측정값",
+  "msg.page.layer.map.size.by.radius.range": "크기 반경",
   "msg.page.layer.map.outline": "아웃라인",
   "msg.page.layer.map.outline.color": "색상",
   "msg.page.layer.map.outline.thickness": "굵기",

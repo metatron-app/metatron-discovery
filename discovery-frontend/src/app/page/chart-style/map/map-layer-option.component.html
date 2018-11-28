@@ -34,7 +34,7 @@
           <!-- [point, heatmap, hexagon, line, polygon] -->
           <div class="ddp-type-map-chart">
             <!-- TODO layer type divide -->
-            <div *ngIf="'line' !== uiOption.layers[index].type.toString() && 'polygon' !== uiOption.layers[index].type.toString()" class="ddp-divide2 ">
+            <div *ngIf="false && 'line' !== uiOption.layers[index].type.toString() && 'polygon' !== uiOption.layers[index].type.toString()" class="ddp-divide2 ">
               <div class="ddp-list-label">{{'msg.page.layer.map.type' | translate}}</div>
               <div class="ddp-wrap-tab-type2">
                 <ul class="ddp-list-tab-type2 ddp-clear">
@@ -209,9 +209,9 @@
                             </range-slider-component>
                           </div>
                           <div class="ddp-box-option-input ddp-type ddp-inline">
-                            <!--<span class="ddp-txt-input">%</span>-->
+                            <span class="ddp-txt-input">%</span>
                             <span class="ddp-txt-input"></span>
-                            <input type="text" [ngModel]="uiOption.layers[index].color.transparency"
+                            <input type="number" input-mask="number" [ngModel]="uiOption.layers[index].color.transparency"
                                    (keyup.enter)="changeTransparencyText($event, index);">
                           </div>
                         </div>
@@ -250,6 +250,62 @@
                         ></component-select>
                         <!-- //SELECTBOX -->
                       </div>
+
+                      <!-- TODO radius range by none -->
+                      <!--<div *ngIf="false && uiOption.layers[index].size.radiusRange?.length > 0" class="ddp-divide2">-->
+                        <!--<div class="ddp-form-slider">-->
+                          <!--<div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">-->
+                            <!--<range-slider-component [hideFromTo]="false"-->
+                                                    <!--[hideMinMax]="true"-->
+                                                    <!--[keyboard]="false"-->
+                                                    <!--[min]="1"-->
+                                                    <!--[max]="100"-->
+                                                    <!--[from]="uiOption.layers[index].size.radiusRange[0]"-->
+                                                    <!--[type]="'single'"-->
+                                                    <!--[step]="1"-->
+                                                    <!--(onFinish)="changeNoneRadiusRange({}, $event, index)">-->
+                            <!--</range-slider-component>-->
+                          <!--</div>-->
+                          <!--<div class="ddp-box-option-input ddp-type ddp-inline">-->
+                            <!--<span class="ddp-txt-input">px</span>-->
+                            <!--<span class="ddp-txt-input"></span>-->
+                            <!--<input type="number" input-mask="number" [ngModel]="uiOption.layers[index].size.radiusRange[0]"-->
+                                   <!--(keyup.enter)="changeNoneRadiusRangeText($event, index);">-->
+                          <!--</div>-->
+                        <!--</div>-->
+                      <!--</div>-->
+                      <!--// radius range by none -->
+                      <!-- TODO radius range by measure -->
+                      <!--<div *ngIf="false && uiOption.layers[index].size.radiusRange?.length > 1" class="ddp-divide2">-->
+                        <!--<div class="ddp-list-label">{{'msg.page.layer.map.size.by.radius.range' | translate}}</div>-->
+
+                        <!--<div class="ddp-wrap-range">-->
+                          <!--<div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">-->
+                            <!--<range-slider-component [hideFromTo]="false"-->
+                                                    <!--[hideMinMax]="true"-->
+                                                    <!--[keyboard]="false"-->
+                                                    <!--[min]="1"-->
+                                                    <!--[max]="100"-->
+                                                    <!--[from]="uiOption.layers[index].size.radiusRange[0]"-->
+                                                    <!--[to]="uiOption.layers[index].size.radiusRange[1]"-->
+                                                    <!--[type]="'double'"-->
+                                                    <!--[step]="1"-->
+                                                    <!--(onFinish)="changeMeasureRadiusRange({}, $event, index)">-->
+                            <!--</range-slider-component>-->
+                          <!--</div>-->
+
+                          <!--<div class="ddp-data-range ddp-clear">-->
+                            <!--<input type="number" class="ddp-input-typebasic ddp-txt-center" (key.enter)="changeMeasureRadiusRangeText($event, 0)"-->
+                                   <!--[ngModel]="uiOption.layers[index].size.radiusRange[0]">-->
+                            <!--<div class="ddp-bar ">-->
+                              <!--~-->
+                            <!--</div>-->
+                            <!--<input type="number" class="ddp-input-typebasic ddp-txt-center" (key.enter)="changeMeasureRadiusRangeText($event, 1)"-->
+                                   <!--[ngModel]="uiOption.layers[index].size.radiusRange[1]">-->
+                          <!--</div>-->
+                        <!--</div>-->
+                      <!--</div>-->
+                      <!-- //radius range by measure -->
                     </div>
                   </div>
                   <!-- //divide -->
@@ -346,9 +402,9 @@
                         </range-slider-component>
                       </div>
                       <div class="ddp-box-option-input ddp-type ddp-inline">
-                        <!--<span class="ddp-txt-input">%</span>-->
+                        <span class="ddp-txt-input">%</span>
                         <span class="ddp-txt-input"></span>
-                        <input type="text" [ngModel]="uiOption.layers[index]['blur']"
+                        <input type="number" input-mask="number" [ngModel]="uiOption.layers[index]['blur']"
                                (keyup.enter)="changeBlurText($event,index)">
                       </div>
                     </div>
@@ -373,7 +429,7 @@
                       <div class="ddp-box-option-input ddp-type ddp-inline">
                         <!--<span class="ddp-txt-input">%</span>-->
                         <span class="ddp-txt-input"></span>
-                        <input type="text" [ngModel]="uiOption.layers[index]['radius']"
+                        <input type="number" input-mask="number" [ngModel]="uiOption.layers[index]['radius']"
                                (keyup.enter)="changeRadiusText($event,index)">
                       </div>
                     </div>
@@ -402,7 +458,7 @@
                       <div class="ddp-box-option-input ddp-type ddp-inline">
                         <!--<span class="ddp-txt-input">%</span>-->
                         <span class="ddp-txt-input"></span>
-                        <input type="text" [ngModel]="uiOption.layers[index]['coverage']"
+                        <input type="number" input-mask="number" [ngModel]="uiOption.layers[index]['coverage']"
                                (keyup.enter)="changeCoverageText($event,index)">
                       </div>
                     </div>
@@ -442,7 +498,7 @@
                                 class="ddp-label-txt">{{'msg.page.layer.map.stroke.max.width' | translate}} (pt)</span>
                             </div>
                             <div class="ddp-col-4">
-                              <input type="text" class="ddp-input-typebasic ddp-txt-right"
+                              <input type="number" input-mask="number" class="ddp-input-typebasic ddp-txt-right"
                                      [(ngModel)]="uiOption.layers[index].thickness.maxValue"
                                      (keyup.enter)="changeThickMaxValue(uiOption.layers[index].thickness.maxValue)">
                             </div>

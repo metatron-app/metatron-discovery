@@ -49,9 +49,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public set setUiOption(uiOption: UIMapOption) {
 
     // TODO temporary code before setting uiOption in map component
-    // if (MapLayerType.LINE === uiOption.layers[this.index].type) {
+    // if((<UISymbolLayer>uiOption.layers[this.index]).size && !(<UISymbolLayer>uiOption.layers[this.index]).size.radiusRange) {
     //
-    //   (<UILineLayer>uiOption.layers[this.index]).thickness = {};
+    //   if (MapBy.NONE === (<UISymbolLayer>uiOption.layers[this.index]).size.by) {
+    //     (<UISymbolLayer>uiOption.layers[this.index]).size.radiusRange = [10];
+    //   } else if (MapBy.MEASURE === (<UISymbolLayer>uiOption.layers[this.index]).size.by) {
+    //
+    //     (<UISymbolLayer>uiOption.layers[this.index]).size.radiusRange = [10, 100];
+    //   }
     // }
 
     this.uiOption = uiOption;
@@ -179,10 +184,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     this.uiOption.layers[index].color.transparency = slider.from;
     this.applyLayers();
   }
+
+  /**
+   * all layers - change transparency
+   * @param $event
+   * @param {number} index
+   */
   public changeTransparencyText($event: any, index: number) {
+
     let inputValue = $event.target.value;
-    if( inputValue > 100 || inputValue < -1) {
-      Alert.warning('0~100 범위 안에서 적용해주세요.');
+
+    if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
       $event.target.value = this.uiOption.layers[index].color.transparency;
       return;
     } else {
@@ -363,9 +375,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     this.applyLayers();
   }
   public changeBlurText($event: any, index: number) {
+
     let inputValue = $event.target.value;
-    if( inputValue > 100 || inputValue < -1) {
-      Alert.warning('0~100 범위 안에서 적용해주세요.');
+    if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
       $event.target.value = this.uiOption.layers[index]['blur'];
       return;
     } else {
@@ -385,8 +397,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   }
   public changeRadiusText($event: any, index: number) {
     let inputValue = $event.target.value;
-    if( inputValue > 100 || inputValue < -1) {
-      Alert.warning('0~100 범위 안에서 적용해주세요.');
+    if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
       $event.target.value = this.uiOption.layers[index]['radius'];
       return;
     } else {
@@ -407,8 +418,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   }
   public changeCoverageText($event: any, index: number) {
     let inputValue = $event.target.value;
-    if( inputValue > 100 || inputValue < -1) {
-      Alert.warning('0~100 범위 안에서 적용해주세요.');
+    if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
       $event.target.value = this.uiOption.layers[index]['coverage'];
       return;
     } else {
@@ -478,6 +488,69 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     (<UISymbolLayer>this.uiOption.layers[this.index]).outline.color = colorCode;
 
     this.applyLayers();
+  }
+
+  /**
+   * symbol layer - change radius range (by none)
+   */
+  public changeNoneRadiusRange(obj: any, slider: any) {
+
+    (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[0] = slider.from;
+
+    this.applyLayers();
+  }
+
+  /**
+   * symbol layer - change radius range text (by none)
+   * @param event
+   * @param {number} index
+   */
+  public changeNoneRadiusRangeText(event: any) {
+
+    let inputValue = event.target.value;
+
+    if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
+      event.target.value = (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[0];
+      return;
+    } else {
+      (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[0] = inputValue;
+      this.applyLayers();
+    }
+  }
+
+  /**
+   * symbol layer - change radius range (by measure)
+   */
+  public changeMeasureRadiusRange(obj: any, slider: any) {
+
+    (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[0] = slider.from;
+
+    this.applyLayers();
+  }
+
+  /**
+   * symbol layer - change radius range text (by measure)
+   */
+  public changeMeasureRadiusRangeText(event: any, index: number) {
+
+    let inputValue = event.target.value;
+
+    if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
+      event.target.value = (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[index];
+      return;
+    } else {
+
+      // from
+      if (0 === index) {
+        (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[index] = inputValue;
+
+        // to
+      } else if (1 === index) {
+        (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[index] = inputValue;
+      }
+
+      this.applyLayers();
+    }
   }
 
   /**

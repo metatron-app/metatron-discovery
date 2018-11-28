@@ -757,7 +757,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Get GIS Field
     let field = null;
       _.each(this.shelf.layers[this.getUiMapOption().layerNum], (fieldTemp) => {
-      if( fieldTemp.field.logicalType.toString().indexOf('GEO') != -1 ) {
+      if( fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1 ) {
         field = fieldTemp;
         return false;
       }
@@ -1926,6 +1926,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       legendInfo.type = _.startCase(layerType) + ' Color';
 
       ////////////////////////////////////////////////////////
+      // Size by measure
+      ////////////////////////////////////////////////////////
+
+      if( _.eq((<UISymbolLayer>layer).size.by, MapBy.MEASURE) ) {
+        legendInfo.radiusColumn = 'By ' + this.getFieldAlias((<UISymbolLayer>layer).size.column);
+      }
+
+      ////////////////////////////////////////////////////////
       // Color by dimension
       ////////////////////////////////////////////////////////
       if( _.eq(layer.color.by, MapBy.DIMENSION) ) {
@@ -2258,7 +2266,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       let isDimension: boolean = false;
       let isMeasure: boolean = false;
       _.each(shelf, (field) => {
-        if( field.field.logicalType.toString().indexOf('GEO') == -1 ) {
+        if( field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1 ) {
           isNone = false;
         }
         if( _.eq(field.type, ShelveFieldType.DIMENSION) ) {

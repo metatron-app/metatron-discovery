@@ -100,6 +100,7 @@ import { UIRadarChart } from '../ui-option/ui-radar-chart';
 import { CustomSymbol } from '../../../../../domain/workbook/configurations/format';
 import { UIChartAxisLabel, UIChartAxisLabelCategory, UIChartAxisLabelValue } from '../ui-option/ui-axis';
 import { MapType } from '../define/map/map-common';
+import { UIMapOption } from '../ui-option/map/ui-map-chart';
 
 export namespace OptionGenerator {
 
@@ -2009,7 +2010,7 @@ export namespace OptionGenerator {
      *
      * @returns {UIOption}
      */
-    export function defaultMapViewChartUIOption(): UIOption {
+    export function defaultMapViewChartUIOption(): UIMapOption {
       return <any>{
         type: ChartType.MAP,
         layerNum: 0,
@@ -2023,75 +2024,20 @@ export namespace OptionGenerator {
           {
             type: "symbol",
             name: "Layer1",
-            symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
+            symbol: "CIRCLE",        // CIRCLE, SQUARE, TRIANGLE
             color: {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
               schema: "#6344ad",
-              transparency: 80,
-              blur: 10,
-              radius: 10,
-              resolution: 8
+              transparency: 10
             },
             size: {
               "by": "NONE",
               "column": "NONE",
               "max": 10
             },
-            outline: null,
-            clustering: false,
-            viewRawData: false
+            outline: null
           }
-          // ,{
-          //   type: "symbol",
-          //   name: "Layer2",
-          //   symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
-          //   color: {
-          //     by: "NONE",            // NONE, MEASURE, DIMENSION
-          //     column: "NONE",
-          //     schema: "#6344ad",
-          //     transparency: 80,
-          //     blur: 10,
-          //     radius: 10,
-          //     resolution: 8
-          //   },
-          //   size: {
-          //     "by": "NONE",
-          //     "column": "NONE",
-          //     "max": 10
-          //   },
-          //   outline: {
-          //     "color": "#4f4f4f",
-          //     "thickness": "NONE"              // THIN, NORMAL, THICK
-          //   },
-          //   clustering: false,
-          //   viewRawData: false
-          // }
-          // ,{
-          //   type: "symbol",
-          //   name: "Layer3",
-          //   symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
-          //   color: {
-          //     by: "NONE",            // NONE, MEASURE, DIMENSION
-          //     column: "NONE",
-          //     schema: "#6344ad",
-          //     transparency: 80,
-          //     blur: 10,
-          //     radius: 10,
-          //     resolution: 8
-          //   },
-          //   size: {
-          //     "by": "NONE",
-          //     "column": "NONE",
-          //     "max": 10
-          //   },
-          //   outline: {
-          //     "color": "#4f4f4f",
-          //     "thickness": "NONE"              // THIN, NORMAL, THICK
-          //   },
-          //   clustering: false,
-          //   viewRawData: false
-          // }
         ],
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true),
         legend: {

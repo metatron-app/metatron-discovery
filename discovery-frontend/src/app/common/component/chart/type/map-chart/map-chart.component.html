@@ -21,13 +21,14 @@
          [style.bottom]="legendInfo.position == 'RIGHT_BOTTOM' ? '0px' : ''">
       <div *ngFor="let layer of legendInfo.layer; let index = index" class="ddp-ui-layer">
           <span class="ddp-label">{{layer.name}}</span>
-          <span class="ddp-data">{{layer.type}} <br/> {{layer.column}}</span>
+          <span class="ddp-data">{{layer.type}} {{layer.column}}</span>
           <ul class="ddp-list-remark">
               <li *ngFor="let field of layer.color">
                   <em class="ddp-bg-remark-r" [style.background-color]="field.color"></em>
                   {{field.column}}
               </li>
           </ul>
+          <span class="ddp-data"> Radius Range {{layer.radiusColumn}}</span>
       </div>
     </div>
   </div>

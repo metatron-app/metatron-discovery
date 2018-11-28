@@ -422,7 +422,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
       // hide when there is geo dimension
       layers.forEach((item) => {
-        if (-1 !== item.field.logicalType.toString().indexOf('GEO')) {
+        if (item.field.logicalType && -1 !== item.field.logicalType.toString().indexOf('GEO')) {
           return returnValue = false;
         }
       });
@@ -431,7 +431,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
       // show when there is geo dimension
       layers.forEach((item) => {
-        if (-1 !== item.field.logicalType.toString().indexOf('GEO')) {
+        if (item.field.logicalType && -1 !== item.field.logicalType.toString().indexOf('GEO')) {
           return returnValue = true;
         }
       });

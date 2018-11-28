@@ -2353,7 +2353,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       // prevent another datasource is set in same shelf
       currentMapLayer.forEach((item) => {
 
-        if (item.field.dataSource != targetField.dataSource) {
+        if ('user_expr' !== targetField.type && 'user_expr' !== item.field.type &&
+            item.field.dataSource != targetField.dataSource) {
           diffDataSourceFl = true;
           return;
         }
