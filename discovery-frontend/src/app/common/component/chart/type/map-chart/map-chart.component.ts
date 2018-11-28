@@ -53,6 +53,7 @@ import {GeoField} from '../../../../../domain/workbook/configurations/field/geo-
 import { TooltipOptionConverter } from '../../option/converter/tooltip-option-converter';
 import { ChartUtil } from '../../option/util/chart-util';
 import {isNullOrUndefined} from "util";
+import {UIHeatmapLayer} from '../../option/ui-option/map/ui-heatmap-layer';
 
 @Component({
   selector: 'map-chart',
@@ -523,9 +524,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       this.olmap.removeLayer(this.cartoPositronLayer);
       this.olmap.removeLayer(this.featureLayer);
       this.olmap.addLayer(layer);
-      if( this.getUiMapOption().showMapLayer ) {
-        this.olmap.addLayer(this.featureLayer);
-      }
       return false;
     }
 
@@ -588,11 +586,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
           });
         }
 
-        // this.clusterLayer = new ol.layer.Vector({
-        //   source: clusterSource,
-        //   style: this.clusterStyleFunction(0, this.data)
-        // });
-
         // Set source
         this.clusterLayer.setSource(clusterSource);
         this.featureLayer = this.clusterLayer;
@@ -621,60 +614,58 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       ////////////////////////////////////////////////////////
       // Line, Polygon layer
       ////////////////////////////////////////////////////////
-      if( _.eq(layer.type, MapLayerType.LINE)
-        || _.eq(layer.type, MapLayerType.POLYGON) ) {
-
-        // Create
-        if( !this.symbolLayer ) {
-          this.symbolLayer = new ol.layer.Vector({
-            source: source,
-            style: this.mapStyleFunction(0, this.data)
-          });
-        }
-
-        // Set source
-        this.symbolLayer.setSource(source);
-        this.featureLayer = this.symbolLayer;
-
-        // Init
-        if( isMapCreation && this.getUiMapOption().showMapLayer ) {
-          // Add layer
-          this.olmap.addLayer(this.symbolLayer);
-        }
-        else {
-          if( this.getUiMapOption().showMapLayer ) {
-            // Add layer
-            if( this.olmap.getLayers().getLength() == 1 ) {
-              this.olmap.addLayer(this.symbolLayer);
-            }
-
-            // Set style
-            this.symbolLayer.setStyle(this.mapStyleFunction(0, this.data));
-          }
-          else {
-            // Remove layer
-            this.olmap.removeLayer(this.symbolLayer);
-          }
-        }
-      }
+      // if( _.eq(layer.type, MapLayerType.LINE)
+      //   || _.eq(layer.type, MapLayerType.POLYGON) ) {
+      //
+      //   // Create
+      //   if( !this.symbolLayer ) {
+      //     this.symbolLayer = new ol.layer.Vector({
+      //       source: source,
+      //       style: this.clusterStyleFunction(0, this.data)
+      //     });
+      //   }
+      //
+      //   // Set source
+      //   this.symbolLayer.setSource(source);
+      //   this.featureLayer = this.symbolLayer;
+      //
+      //   // Init
+      //   if( isMapCreation && this.getUiMapOption().showMapLayer ) {
+      //     // Add layer
+      //     this.olmap.addLayer(this.symbolLayer);
+      //   }
+      //   else {
+      //     if( this.getUiMapOption().showMapLayer ) {
+      //       // Add layer
+      //       if( this.olmap.getLayers().getLength() == 1 ) {
+      //         this.olmap.addLayer(this.symbolLayer);
+      //       }
+      //
+      //       // Set style
+      //       this.symbolLayer.setStyle(this.clusterStyleFunction(0, this.data));
+      //     }
+      //     else {
+      //       // Remove layer
+      //       this.olmap.removeLayer(this.symbolLayer);
+      //     }
+      //   }
+      // }
       ////////////////////////////////////////////////////////
       // Heatmap layer
       ////////////////////////////////////////////////////////
       else if( _.eq(layer.type, MapLayerType.HEATMAP) ) {
 
+        let heatmapLayer: UIHeatmapLayer = <UIHeatmapLayer>layer;
+
         // Create
-        if( !this.symbolLayer ) {
+        if( !this.heatmapLayer ) {
           this.heatmapLayer = new ol.layer.Heatmap({
             source: source,
-            style: this.mapStyleFunction(0, this.data),
-            // 색상
-            gradient: HeatmapColorList[layer.color.schema],
-            // 투명도 (opacity로 설정하기 때문에 100으로 나눔)
-            opacity: layer.color.transparency/100,
-            // 적용범위
-            radius: layer['radius'],
-            // 흐림 효과
-            blur: layer['blur']
+            // Style
+            gradient: HeatmapColorList[heatmapLayer.color.schema],
+            opacity: heatmapLayer.color.transparency/100,
+            radius: heatmapLayer.radius,
+            blur: heatmapLayer.blur
           });
         }
 
@@ -691,7 +682,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             if( this.olmap.getLayers().getLength() == 1 ) {
               this.olmap.addLayer(this.heatmapLayer);
             }
-          } else {
+
+            // Set style
+            this.heatmapLayer.setGradient(HeatmapColorList[heatmapLayer.color.schema]);
+            this.heatmapLayer.setOpacity(heatmapLayer.color.transparency/100);
+            this.heatmapLayer.setRadius(heatmapLayer.radius);
+            this.heatmapLayer.setBlur(heatmapLayer.blur);
+          }
+          else {
             // Remove layer
             this.olmap.removeLayer(this.heatmapLayer);
           }
