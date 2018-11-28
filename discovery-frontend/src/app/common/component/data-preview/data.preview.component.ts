@@ -520,7 +520,10 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       {label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE'},
       {label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP'},
       {label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT'},
-      {label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG'}
+      {label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG'},
+      {label: this.translateService.instant('msg.storage.ui.list.geo.point'), value: 'GEO_POINT', derived: true},
+      {label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), value: 'GEO_POLYGON', derived: true},
+      {label: this.translateService.instant('msg.storage.ui.list.geo.line'), value: 'GEO_LINE', derived: true}
     ];
     this.selectedLogicalType = this.logicalTypes[0];
 
@@ -1200,6 +1203,24 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   }
 
   /**
+   * Is GEO type column
+   * @param column
+   * @returns {boolean}
+   */
+  public isGeoType(column: any): boolean {
+    return column.logicalType.indexOf('GEO_') !== -1;
+  }
+
+  /**
+   * Is derived column
+   * @param {Field} column
+   * @returns {boolean}
+   */
+  public isDerivedColumn(column: Field): boolean {
+    return column.derived;
+  }
+
+  /**
    * Get column type label
    * @param {string} type
    * @param typeList
@@ -1430,7 +1451,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     // 메타데이터
     this._setMetaDataField(field, source);
     // if only engine type source, get statistics and covariance
-    if (!this.isLinkedTypeSource(source)) {
+    // #728 except GEO types, not get statistics and covariance
+    if (!this.isLinkedTypeSource(source) && !this.isGeoType(field)) {
       // 통계 조회
       if ((this.selectedField.role === 'TIMESTAMP' && !this.statsData.hasOwnProperty('__time'))
         || (this.selectedField.role !== 'TIMESTAMP' && !this.statsData.hasOwnProperty(field.name))) {

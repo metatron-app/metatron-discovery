@@ -140,7 +140,7 @@
 
     <table class="ddp-table-form ddp-table-type3">
       <colgroup>
-        <col width="75px">
+        <col width="90px">
         <col width="*">
         <col width="10%">
         <col width="70px">
@@ -183,7 +183,10 @@
       <tr *ngFor="let audit of auditList" (click)="auditDetailOpen(audit.id)">
         <td>
         <span class="ddp-data-state"
-              [ngClass]="{'ddp-fail' : (audit.status && audit.status.toString() === 'FAIL'), 'ddp-success' : (audit.status && audit.status.toString() === 'SUCCESS')}">
+              [class.ddp-fail]="audit.status && audit.status.toString() === 'FAIL'"
+              [class.ddp-success]="audit.status && audit.status.toString() === 'SUCCESS'"
+              [class.ddp-running]="audit.status && audit.status.toString() === 'RUNNING'"
+              [class.ddp-cancelled]="audit.status && audit.status.toString() === 'CANCELLED'">
           {{audit.status}}
         </span>
         </td>

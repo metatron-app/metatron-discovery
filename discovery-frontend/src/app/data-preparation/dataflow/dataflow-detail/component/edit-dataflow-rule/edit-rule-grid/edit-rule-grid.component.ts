@@ -659,6 +659,10 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       gridResponse: _.cloneDeep(this._apiGridData)
     };
 
+    if (data.timestampStyle) {
+      currentContextMenuInfo['timestampStyle'] = data.timestampStyle;
+    }
+
     Object.keys(this._clickedSeries).forEach((key, index) => {
       if (this._clickedSeries[key].length >= 1 && index === data.index) {
         param['clickable']= true;
@@ -1837,6 +1841,12 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     headerMenu.buttons = [{
       cssClass: 'slick-header-menubutton', command: field.name, index: field.seq, type: field.type
     }];
+
+
+    // if timestamp type -> include timestamp style
+    if (field.type === 'TIMESTAMP') {
+      headerMenu.buttons[0]['timestampStyle'] = this._getHistogramInfo(field.seq).timestampFormat;
+    }
     return headerMenu;
   } // function - _getHeaderMenu
 

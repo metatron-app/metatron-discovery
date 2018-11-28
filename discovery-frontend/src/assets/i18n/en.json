@@ -1219,7 +1219,10 @@
   "msg.dp.btn.switch.editor" : "Switch to editor",
   "msg.dp.btn.switch.builder" : "Switch to builder",
   "msg.dp.btn.create.dataflow.dataset" : "Create dataflow with this dataset",
-
+  "msg.dp.ui.swap.dataset" : "Swap dataset",
+  "msg.dp.ui.change.input.dataset" : "Change input dataset",
+  "msg.dp.ui.search-by.dataset" :"Search by dataset name",
+  "msg.dp.ui.one.col.required" : "At least one column is required",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",
@@ -1508,7 +1511,7 @@
   "msg.board.error.missing-field" : "Field information is missing.",
   "msg.board.unload.title" : "Dashboard can not be loaded",
   "msg.board.unload.desc" : "We can not draw your dashboard for an unknown reason.<br>Please try again",
-
+  "msg.board.ui.cant-not-down-aggregate" : "Original view cannot be supported for custom columns with aggregate functions",
 
   "msg.storage.btn.create.dsource": "Create new datasource",
   "msg.storage.ui.dsource.search.description": "Search by name of datasource",

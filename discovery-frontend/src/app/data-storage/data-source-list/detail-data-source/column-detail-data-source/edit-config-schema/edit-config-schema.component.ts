@@ -195,9 +195,17 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
    * @returns {boolean}
    */
   public isGeoType(column: any): boolean {
-    return column.derived && column.logicalType.indexOf('GEO_') !== -1;
+    return column.logicalType.indexOf('GEO_') !== -1;
   }
 
+  /**
+   * Is derived column
+   * @param {Field} column
+   * @returns {boolean}
+   */
+  public isDerivedColumn(column: Field): boolean {
+    return column.derived;
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

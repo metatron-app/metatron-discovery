@@ -20,7 +20,7 @@
       <span class="ddp-txt-title-name">Rename</span>
       <div class="ddp-ui-pop-buttons">
         <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
-        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="applyRename()">{{'msg.comm.btn.done' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="applyRename()">{{'msg.comm.btn.done2' | translate}}</a>
       </div>
     </div>
     <!-- //title -->
@@ -28,7 +28,8 @@
       <div class="ddp-wrap-rename">
         <!-- result -->
         <div class="ddp-result">
-          <span class="ddp-col">{{colNames.length}}cols</span>
+          <span class="ddp-col" *ngIf="colNames.length < 2">{{colNames.length}} column</span>
+          <span class="ddp-col" *ngIf="colNames.length > 1 ">{{colNames.length}} columns</span>
           <span class="ddp-name">{{datasetName}}</span>
         </div>
         <!-- //result -->

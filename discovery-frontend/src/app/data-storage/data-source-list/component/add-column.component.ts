@@ -32,7 +32,7 @@ export class AddColumnComponent extends AbstractComponent {
     {label: this.translateService.instant('msg.storage.ui.list.geo.point'), icon: 'ddp-icon-type-point', value: LogicalType.GEO_POINT},
     // {label: this.translateService.instant('msg.storage.ui.list.geo.line'), icon: 'ddp-icon-type-line', value: LogicalType.GEO_LINE},
     // {label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), icon: 'ddp-icon-type-polygon', value: LogicalType.GEO_POLYGON},
-    {label: this.translateService.instant('msg.storage.ui.list.expression'), icon: null, disableIcon: true, value: LogicalType.USER_DEFINED}
+    {label: this.translateService.instant('msg.storage.ui.list.expression'), icon: 'ddp-icon-type-expression', value: LogicalType.USER_DEFINED}
   ];
   // selected method type
   public selectedMethodType: any = {label: this.translateService.instant('msg.storage.ui.list.geo.point'), icon: 'ddp-icon-type-point', value: LogicalType.GEO_POINT};

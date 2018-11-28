@@ -50,19 +50,21 @@
           <div class="ddp-ui-textarea">
             <div class="ddp-wrap-edit">
               <div class="ddp-ui-edit">
-                <div editor-component
-                     #editor
-                     [(sText)]="datasetJdbc.queryStmt"
-                     [sOptions]="options"
-                     [sReadOnly]="false"
-                     [sShowGutter]="false"
-                     [sAutoUpdateContent]="true"
-                     (textChanged)="editorTextChange($event)">
+                <div class="ddp-wrap-editor">
+                  <div editor-component
+                       #editor
+                       [(sText)]="datasetJdbc.queryStmt"
+                       [sOptions]="options"
+                       [sReadOnly]="false"
+                       [sShowGutter]="false"
+                       [sAutoUpdateContent]="true"
+                       (textChanged)="editorTextChange($event)">
+                  </div>
                 </div>
               </div>
             </div>
             <!-- button -->
-            <div class="ddp-ui-buttons" *ngIf="tableOrQuery !== 'table'">
+            <div class="ddp-ui-buttons" *ngIf="tableOrQuery !== 'table'"  style="z-index: 10">
               <div class="ddp-ui-message" *ngIf="showQueryStatus">
                 <span class="ddp-data-error" *ngIf="isQuerySuccess === false"><em class="ddp-icon-error"></em> {{ 'msg.dp.ui.invalid.conn' | translate }}</span>
                 <span class="ddp-data-ok" *ngIf="isQuerySuccess === true"><em class="ddp-icon-ok"></em> {{'msg.dp.ui.valid.conn' | translate}}</span>

@@ -201,7 +201,7 @@ public class DataConnectionController {
                                                               Pageable pageable) {
 
     return ResponseEntity.ok(
-        connectionService.findTablesInDatabase(checkRequest.getConnection(), checkRequest.getDatabase(), pageable)
+        connectionService.findTablesInDatabase(checkRequest.getConnection(), checkRequest.getDatabase(), checkRequest.getTable(), pageable)
     );
   }
 

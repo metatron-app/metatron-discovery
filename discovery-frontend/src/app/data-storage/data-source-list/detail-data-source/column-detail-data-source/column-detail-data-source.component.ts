@@ -203,7 +203,16 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    * @returns {boolean}
    */
   public isGeoType(column: any): boolean {
-    return column.derived && column.logicalType.indexOf('GEO_') !== -1;
+    return column.logicalType.indexOf('GEO_') !== -1;
+  }
+
+  /**
+   * Is derived column
+   * @param {Field} column
+   * @returns {boolean}
+   */
+  public isDerivedColumn(column: Field): boolean {
+    return column.derived;
   }
 
   /**
@@ -216,9 +225,14 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   //   return index > (columnList.length / 2 - 1) ? true : false;
   // }
 
+  /**
+   * Get enable change physical type list
+   * @returns {any}
+   */
   public getEnableChangePhysicalTypeList(): any {
     return this.physicalTypeList.filter(type => !type.derived);
   }
+
   /**
    * Get column type label
    * @param {string} type
@@ -410,7 +424,8 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     // set engineName
     const engineName = source.engineName;
     // if only engine type source, get statistics and covariance
-    if (!this.isLinkedTypeSource(source)) {
+    // #728 except GEO types, not get statistics and covariance
+    if (!this.isLinkedTypeSource(source) && !this.isGeoType(field)) {
       // if role is TIMESTAMP and __time variable not exist in statsData,
       // else if role is not TIMESTAMP and field name not existed in statsData
       if ((this.selectedField.role === 'TIMESTAMP' && !this.statsData.hasOwnProperty('__time'))
