@@ -118,20 +118,14 @@ export class CriterionCheckboxComponent extends AbstractComponent {
   }
 
   /**
-   * Search item event
+   * Init search keyword
    * @param {KeyboardEvent} event
    */
-  public onSearchItem(event: KeyboardEvent): void {
-    // enter event
-    if (13 === event.keyCode) {
-      // search item
-      this.searchItem();
-    } else if (27 === event.keyCode) { // esc event
-      // init search keyword
-      this.searchKeyword = '';
-      // search item
-      this.searchItem();
-    }
+  public initSearchKeyword(): void {
+    // init search keyword
+    this.searchKeyword = '';
+    // search
+    this.searchItem();
   }
 
   /**

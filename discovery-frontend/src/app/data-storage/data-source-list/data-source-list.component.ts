@@ -170,6 +170,8 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
           this.datasourceFilterList.forEach((criterion, index, array) => {
             // if exist criterion in filter list
             if (criterion.criterionKey.toString() === key) {
+              // remove criterion in dataObject
+              delete this._criterionDataObject[key];
               // remove filter
               array.splice(index, 1);
             }
