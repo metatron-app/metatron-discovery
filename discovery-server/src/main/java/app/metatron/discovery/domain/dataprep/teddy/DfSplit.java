@@ -14,21 +14,22 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalPatternTypeException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnStringException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Split;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.RegularExpr;
 import org.apache.commons.lang.StringUtils;
+import org.opensaml.xml.signature.P;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DfSplit extends DataFrame {
   private static Logger LOGGER = LoggerFactory.getLogger(DfSplit.class);
@@ -42,7 +43,9 @@ public class DfSplit extends DataFrame {
     List<Object> preparedArgs = new ArrayList<>();
     Split split = (Split) rule;
 
-    String targetColName = split.getCol();
+    List<String> targetColNames = new ArrayList<>();
+    Map<String, List<String>> splitedColNameList = new HashMap<>();
+    Expression targetColExpr = split.getCol();
     Expression expr = split.getOn();
     Expression quote = split.getQuote();
     Integer limit = split.getLimit();
@@ -57,29 +60,45 @@ public class DfSplit extends DataFrame {
       limit = 0;
     }
 
-    for (colno = 0; colno < prevDf.getColCnt(); colno++) {
-      if (prevDf.getColName(colno).equals(targetColName)) {
-        if (prevDf.getColType(colno) != ColumnType.STRING) {
-          throw new WorksOnlyOnStringException("doSplit(): works only on STRING: " + prevDf.getColType(colno));
+    if (targetColExpr instanceof Identifier.IdentifierExpr) {
+      targetColNames.add(((Identifier.IdentifierExpr) targetColExpr).getValue());
+    } else if (targetColExpr instanceof Identifier.IdentifierArrayExpr) {
+      targetColNames.addAll(((Identifier.IdentifierArrayExpr) targetColExpr).getValue());
+    } else {
+      throw new WrongTargetColumnExpressionException("DfSplit.prepare(): wrong target column expression: " + targetColExpr.toString());
+    }
+
+    for (String targetColName : targetColNames) {
+      //Type Check
+      if (prevDf.getColTypeByColName(targetColName) != ColumnType.STRING) {
+        throw new WorksOnlyOnStringException(String.format("DfSplit.prepare(): works only on STRING: targetColName=%s type=%s",
+                targetColName, prevDf.getColTypeByColName(targetColName)));
+      }
+      //Highlighted Column List
+      interestedColNames.add(targetColName);
+    }
+
+    int colIndex = 0;
+    for(targetColno = 0; targetColno < prevDf.colCnt; targetColno++) {
+      String targetColName = prevDf.getColName(targetColno);
+
+      if(targetColNames.contains(targetColName)) {
+        List<String> splitedColNames = new ArrayList<>();
+
+        for (int i = 1; i <= limit + 1; i++) {
+          String newColName = "split_" + targetColName + i;
+          newColName = addColumn(colIndex++, newColName, ColumnType.STRING);  // 중간 삽입
+          splitedColNames.add(newColName);
+          interestedColNames.add(newColName);
         }
-        targetColno = colno;
-        break;
+
+        splitedColNameList.put(targetColName, splitedColNames);
+      } else {
+        addColumn(colIndex++, targetColName, prevDf.getColDesc(targetColno));
       }
     }
 
-    if (colno == prevDf.getColCnt()) {
-      throw new ColumnNotFoundException("doSplit(): column not found: " + targetColName);
-    }
-    addColumnWithDfAll(prevDf);
-
-    for (int i = 1; i <= limit + 1; i++) {
-      String newColName = "split_" + targetColName + i;
-      newColName = addColumn(targetColno + i, newColName, ColumnType.STRING);  // 중간 삽입
-      newColNames.add(newColName);
-      interestedColNames.add(newColName);
-    }
-
-    assert !(expr.toString().equals("''") || expr.toString().equals("//")) : "You can not replace empty string!";
+    assert !(expr.toString().equals("''") || expr.toString().equals("//")) : "You can not split with empty string!";
 
     //패턴에 대한 처리. 1. 문자열 1-1. 대소문자 무시 2.정규식
     if (expr instanceof Constant.StringExpr) {
@@ -111,73 +130,72 @@ public class DfSplit extends DataFrame {
     if(quoteStr != "")
       patternStr = compilePatternWithQuote(patternStr, regExQuoteStr);
 
-    preparedArgs.add(targetColno);
+    preparedArgs.add(targetColNames);
     preparedArgs.add(patternStr);
     preparedArgs.add(regExQuoteStr);
     preparedArgs.add(quoteStr);
     preparedArgs.add(limit);
+    preparedArgs.add(splitedColNameList);
     return preparedArgs;
   }
 
   @Override
   public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
     List<Row> rows = new ArrayList<>();
-    int targetColno = (int) preparedArgs.get(0);
+
+    List<String> targetColNames = (List<String>) preparedArgs.get(0);
     String patternStr = (String) preparedArgs.get(1);
     String quoteStr = (String) preparedArgs.get(2);
     String originalQuoteStr = (String) preparedArgs.get(3);
     int splitLimit = (int) preparedArgs.get(4);
+    Map<String, List<String>> splitedColNameList = (Map<String, List<String>>) preparedArgs.get(5);
     int colno;
 
-    LOGGER.trace("DfSplit.gather(): start: offset={} length={} targetColno={}", offset, length, targetColno);
+    LOGGER.trace("DfSplit.gather(): start: offset={} length={} targetColno={}", offset, length, targetColNames);
 
     for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
       Row row = prevDf.rows.get(rowno);
       Row newRow = new Row();
 
-      // 목적 컬럼까지만 추가
-      for (colno = 0; colno <= targetColno; colno++) {
-        newRow.add(prevDf.getColName(colno), row.get(colno));
-      }
+      for(colno=0; colno < prevDf.colCnt; colno++) {
+        if(targetColNames.contains(prevDf.getColName(colno))) {
+          String targetStr = (String)row.get(colno);
+          String[] tokens = new String[splitLimit+1];
+          int index = 0;
 
-      String targetStr = (String)row.get(targetColno);
-      String[] tokens = new String[splitLimit+1];
-      int index = 0;
+          if(StringUtils.countMatches(targetStr, originalQuoteStr)%2 == 0) {
+            String[] tempTokens = targetStr.split(patternStr, splitLimit+1);
+            if(tempTokens.length<=limit) {
+              for(index=0; index<tempTokens.length; index++) {
+                tokens[index] = tempTokens[index];
+              }
+            } else
+              tokens=tempTokens;
+          } else {
+            int lastQuoteMark = targetStr.lastIndexOf(originalQuoteStr);
 
-      if(StringUtils.countMatches(targetStr, originalQuoteStr)%2 == 0) {
-        String[] tempTokens = targetStr.split(patternStr, splitLimit+1);
-        if(tempTokens.length<=limit) {
-          for(index=0; index<tempTokens.length; index++) {
-            tokens[index] = tempTokens[index];
+            String[] firstHalf = targetStr.substring(0, lastQuoteMark).split(patternStr, splitLimit+1);
+
+            for(int i=0; i < firstHalf.length; i++) {
+              tokens[i] = firstHalf[i];
+              index = i;
+            }
+            tokens[index]=tokens[index]+targetStr.substring(lastQuoteMark);
           }
-        } else
-          tokens=tempTokens;
-      } else {
-        int lastQuoteMark = targetStr.lastIndexOf(originalQuoteStr);
 
-        String[] firstHalf = targetStr.substring(0, lastQuoteMark).split(patternStr, splitLimit+1);
+          // 새 컬럼들 추가
+          for (int i = 0; i <= splitLimit; i++) {
+            newRow.add(splitedColNameList.get(prevDf.getColName(colno)).get(i), tokens[i]);
+          }
 
-        for(int i=0; i < firstHalf.length; i++) {
-          tokens[i] = firstHalf[i];
-          index = i;
+        } else {
+          newRow.add(prevDf.getColName(colno), row.get(colno));
         }
-        tokens[index]=tokens[index]+targetStr.substring(lastQuoteMark);
       }
-
-      // 새 컬럼들 추가
-      for (int i = 0; i <= splitLimit; i++) {
-        newRow.add(newColNames.get(i), tokens[i]);
-      }
-
-      // 나머지 추가
-      for (colno = targetColno + 1; colno < prevDf.getColCnt(); colno++) {
-        newRow.add(prevDf.getColName(colno), row.get(colno));
-      }
-
       rows.add(newRow);
     }
 
-    LOGGER.trace("DfSplit.gather(): end: offset={} length={} targetColno={}", offset, length, targetColno);
+    LOGGER.trace("DfSplit.gather(): end: offset={} length={} targetColno={}", offset, length, targetColNames);
     return rows;
   }
 }

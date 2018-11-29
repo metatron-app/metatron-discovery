@@ -482,14 +482,22 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
       // Header menu plugin
       let headerButtonsPlugin = new Slick.Plugins.HeaderButtons();
       headerButtonsPlugin.onCommand.subscribe((e, args) => {
-        this.onContextMenuClick.emit({
+
+        const contextMenuParam = {
           columnName: args.button.command,
           index: args.button.index,
           left: e.pageX,
           top: e.pageY,
           columnType: args.button.type
-        });
+        };
+
+        if (args.button.timestampStyle){ // only if column is timestamp type
+          contextMenuParam['timestampStyle'] = args.button.timestampStyle;
+        }
+
+        this.onContextMenuClick.emit(contextMenuParam);
         grid.invalidate();
+
       });
       grid.registerPlugin(headerButtonsPlugin);
     }
