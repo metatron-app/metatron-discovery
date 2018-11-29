@@ -272,6 +272,28 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     this.checkOption();
 
     ////////////////////////////////////////////////////////
+    // Get geo type
+    ////////////////////////////////////////////////////////
+
+    // Get geo type
+    let field = null;
+    _.each(this.shelf.layers[this.getUiMapOption().layerNum], (fieldTemp) => {
+      if( fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1 ) {
+        field = fieldTemp;
+        return false;
+      }
+    });
+    let geomType = field.field.logicalType.toString();
+
+    // Set layer type
+    if( _.eq(geomType, LogicalType.GEO_LINE) ) {
+      this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.LINE;
+    }
+    else if( _.eq(geomType, LogicalType.GEO_POLYGON) ) {
+      this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.POLYGON;
+    }
+
+    ////////////////////////////////////////////////////////
     // Creation map & layer
     ////////////////////////////////////////////////////////
 
@@ -290,8 +312,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Hexagon Soruce
     let hexagonSource = new ol.source.Vector({crossOrigin: 'anonymous'});
 
+    // Line & Polygon Source
+    let emptySource = new ol.source.Vector();
+
     // Creation feature
-    this.createFeature(source, hexagonSource);
+    this.createFeature(source, hexagonSource, geomType);
 
     // Cluster source
     let clusterSource = new ol.source.Cluster({
@@ -301,7 +326,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     });
 
     // Creation layer
-    this.createLayer(source, clusterSource, hexagonSource, isMapCreation);
+    this.createLayer(source, clusterSource, hexagonSource, emptySource, isMapCreation, geomType);
 
     // Chart resize
     this.olmap.updateSize();
@@ -579,7 +604,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   /**
    * Creation map layer
    */
-  private createLayer(source: any, clusterSource: any, hexagonSource: any, isMapCreation: boolean): void {
+  private createLayer(source: any, clusterSource: any, hexagonSource: any, emptySource: any, isMapCreation: boolean, geomType: LogicalType): void {
 
     ////////////////////////////////////////////////////////
     // Create layer
@@ -597,13 +622,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         // Create
         if( !this.clusterLayer ) {
           this.clusterLayer = new ol.layer.Vector({
-            source: clusterSource,
-            style: this.clusterStyleFunction(0, this.data)
+            source: _.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource,
+            style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style()
           });
         }
 
         // Set source
-        this.clusterLayer.setSource(clusterSource);
+        this.clusterLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource);
         this.featureLayer = this.clusterLayer;
 
         // Init
@@ -619,7 +644,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             }
 
             // Set style
-            this.clusterLayer.setStyle(this.clusterStyleFunction(0, this.data));
+            this.clusterLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style());
           }
           else {
             // Remove layer
@@ -676,7 +701,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         // Create
         if( !this.heatmapLayer ) {
           this.heatmapLayer = new ol.layer.Heatmap({
-            source: source,
+            source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
             // Style
             gradient: HeatmapColorList[heatmapLayer.color.schema],
             opacity: 1 - (heatmapLayer.color.transparency * 0.01),
@@ -685,7 +710,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
           });
         }
 
-        this.heatmapLayer.setSource(source);
+        this.heatmapLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource);
         this.featureLayer = this.heatmapLayer;
 
         // Init
@@ -704,6 +729,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             this.heatmapLayer.setOpacity(1 - (heatmapLayer.color.transparency * 0.01));
             this.heatmapLayer.setRadius(heatmapLayer.radius);
             this.heatmapLayer.setBlur(heatmapLayer.blur);
+            if( !_.eq(geomType, LogicalType.GEO_POINT) ) {
+              // Set style
+              this.symbolLayer.setStyle(new ol.style.Style());
+            }
           }
           else {
             // Remove layer
@@ -719,13 +748,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         // Create
         if( !this.hexagonLayer ) {
           this.hexagonLayer = new ol.layer.Vector({
-            source: hexagonSource,
-            style: this.hexagonStyleFunction(0, this.data)
+            source: _.eq(geomType, LogicalType.GEO_POINT) ? hexagonSource : emptySource,
+            style: _.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(0, this.data) : new ol.style.Style()
           });
         }
 
         // Set source
-        this.hexagonLayer.setSource(hexagonSource);
+        this.hexagonLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? hexagonSource : emptySource);
         this.featureLayer = this.hexagonLayer;
 
         // Init
@@ -741,7 +770,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             }
 
             // Set style
-            this.hexagonLayer.setStyle(this.hexagonStyleFunction(0, this.data));
+            this.hexagonLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(0, this.data) : new ol.style.Style());
           }
           else {
             // Remove layer
@@ -767,32 +796,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   /**
    * Creation feature
    */
-  private createFeature(source, hexagonSource): void {
-
-    ////////////////////////////////////////////////////////
-    // Feature info
-    ////////////////////////////////////////////////////////
-
-    // Get GIS Field
-    let field = null;
-      _.each(this.shelf.layers[this.getUiMapOption().layerNum], (fieldTemp) => {
-      if( fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1 ) {
-        field = fieldTemp;
-        return false;
-      }
-    });
-    let geomType = field.field.logicalType.toString();
-
-    ////////////////////////////////////////////////////////
-    // Set geo data type
-    ////////////////////////////////////////////////////////
-
-    if( _.eq(geomType, LogicalType.GEO_LINE) ) {
-      this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.LINE;
-    }
-    else if( _.eq(geomType, LogicalType.GEO_POLYGON) ) {
-      this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.POLYGON;
-    }
+  private createFeature(source, hexagonSource, geomType): void {
 
     ////////////////////////////////////////////////////////
     // Generate feature
