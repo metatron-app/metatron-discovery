@@ -4775,7 +4775,7 @@ ul.ddp-list-rule2 li .ddp-line-add span.ddp-txt:before {display:inline-block; po
 ul.ddp-list-rule2 li .ddp-view-data:hover + .ddp-ui-tooltip-info {display:block;}
 
 ul.ddp-list-rule2 li .ddp-ui-edit-button {display:none; position:absolute; top:0; right:0; bottom:0; padding-right:15px;}
-ul.ddp-list-rule2 li .ddp-ui-edit-button .ddp-btn-icon {display:inline-block; float:left; width:22px; height:100%;}
+ul.ddp-list-rule2 li .ddp-ui-edit-button .ddp-btn-icon {display:inline-block; width:22px; height:100%;}
 ul.ddp-list-rule2 li .ddp-ui-edit-button .ddp-btn-link {display:none; height:100%;}
 ul.ddp-list-rule2 li .ddp-view-data .ddp-ui-edit-button {padding-left:10px;}
 ul.ddp-list-rule2 li .ddp-view-data:hover .ddp-ui-edit-button {display:block; padding-left:10px;  background-color:#f6f6f7;}
