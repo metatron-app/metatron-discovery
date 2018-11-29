@@ -32,11 +32,11 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   // selected item list
   private _selectedItemList : any = {};
 
-  // criterion
-  @Input()
+  // criterion (required: true)
+  @Input('criterion')
   public criterion: DatasourceCriterion;
 
-  // criterion api
+  // criterion api (required: true)
   @Input('criterionApiFunc')
   private _getCriterionFunc: Function;
 
@@ -52,7 +52,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   // search place holder
   public searchPlaceHolder: string;
   // selected item label
-  public selectedItemsLabel: string = 'ALL';
+  public selectedItemsLabel: string = this.translateService.instant('msg.storage.ui.criterion.all');
 
   // Is enable ALL Option (default false)
   public isEnableAllOption: boolean = false;
@@ -69,8 +69,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
 
 
   // constructor
-  constructor(private _dataSourceService: DatasourceService,
-              protected element: ElementRef,
+  constructor(protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
   }
@@ -105,8 +104,8 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
     }
     // set placeholder
     this.placeHolder = this.translateService.instant(this.criterionName);
-    // TODO set search placeholder
-    this.searchPlaceHolder = 'Search ' + this.translateService.instant(this.criterionName);
+    // set search placeholder
+    this.searchPlaceHolder = this.translateService.instant('msg.storage.ui.criterion.search', {value: this.translateService.instant(this.criterionName)});
   }
 
   /**
@@ -192,7 +191,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
         }));
     }
 
-    return StringUtil.isEmpty(temp) ? 'ALL' : temp;
+    return StringUtil.isEmpty(temp) ? this.translateService.instant('msg.storage.ui.criterion.all') : temp;
   }
 
   /**
