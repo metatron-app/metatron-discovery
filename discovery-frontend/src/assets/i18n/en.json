@@ -1063,7 +1063,7 @@
   "msg.dp.ui.no.rules" : "No rules for this dataset",
   "msg.dp.ui.no.search.rslt" : "No result",
   "msg.dp.ui.no.ss.description": "No snapshot was created",
-  "msg.dp.ui.no.table.description": "No Table list, Please choose another database (or schema)",
+  "msg.dp.ui.no.table.description": "No Table list, Please choose another database",
   "msg.dp.ui.none": "none",
   "msg.dp.ui.none.selected": "No selection",
   "msg.dp.ui.num.ds.flow" : "{{value}} datasets in this flow",

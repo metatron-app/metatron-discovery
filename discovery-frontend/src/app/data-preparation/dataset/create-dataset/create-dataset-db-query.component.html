@@ -57,7 +57,6 @@
                        [sOptions]="options"
                        [sReadOnly]="false"
                        [sShowGutter]="false"
-                       [sAutoUpdateContent]="true"
                        (textChanged)="editorTextChange($event)">
                   </div>
                 </div>
@@ -84,7 +83,7 @@
                    tabindex="1"
                    (click)="showDatabaseList($event)"
                    (keydown)="navigateWithKeyboardShortList($event,filteredDbList,'db')">
-                <input class="ddp-input-selectbox db-search" placeholder="search by database name" [(ngModel)]="dbSearchText">
+                <input class="ddp-input-selectbox db-search" placeholder="{{'msg.bench.ui.db.name.search' | translate }}" [(ngModel)]="dbSearchText">
                 <span class="ddp-txt-selectbox">{{datasetJdbc.databaseName === '' ? ('msg.dp.ui.sel.db' | translate) :datasetJdbc.databaseName }}</span>
                 <ul class="ddp-list-selectbox ddp-selectdown"
                     (clickOutside)="isDatabaseListShow = false; initSelectedCommand(filteredDbList)">
@@ -110,8 +109,8 @@
                    tabindex="2"
                    (keydown)="navigateWithKeyboardShortList($event,filteredSchemaList,'schema')"
                    *ngIf="this.datasetJdbc.databaseName !== ''">
-                <input class="ddp-input-selectbox schema-search" placeholder="search by schema name" [(ngModel)]="schemaSearchText">
-                <span class="ddp-txt-selectbox">{{datasetJdbc.tableName === ''? ('msg.dp.ui.sel.schema' | translate) : datasetJdbc.tableName}}</span>
+                <input class="ddp-input-selectbox schema-search" placeholder="{{'msg.bench.ui.search.table.ph' | translate }}" [(ngModel)]="schemaSearchText">
+                <span class="ddp-txt-selectbox">{{datasetJdbc.tableName === ''? ('msg.storage.ui.dsource.create.choose-table' | translate) : datasetJdbc.tableName}}</span>
                 <ul class="ddp-list-selectbox ddp-selectdown"
                     (clickOutside)="isSchemaListShow = false; initSelectedCommand(filteredSchemaList)">
                   <li *ngFor="let schema of filteredSchemaList; let index=index"
@@ -133,7 +132,7 @@
               </div>
 
               <!-- error -->
-              <div class="ddp-txt-error" *ngIf="'' != datasetJdbc.tableName && 0 == schemaList.length">
+              <div class="ddp-txt-error" *ngIf="isTableEmpty">
                 <em class="ddp-icon-error"></em>{{'msg.dp.ui.no.table.description' | translate}}
               </div>
               <!-- //error -->
@@ -146,8 +145,8 @@
       <div class="ddp-wrap-variable ddp-dataset">
         <!-- 그리드 영역 -->
         <div class="ddp-ui-grid">
-          <div class="ddp-ui-empty" *ngIf="databaseList.length === 0">
-            {{'msg.storage.ui.dsource.create.preview.no.data' | translate}}
+          <div class="ddp-ui-empty" *ngIf="clearGrid">
+            {{'msg.dp.ui.no.preview' | translate}}
           </div>
           <div *ngIf="databaseList.length > 0" grid-component style="width:100%; height:100%;" ></div>
         </div>

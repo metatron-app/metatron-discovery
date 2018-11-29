@@ -14,6 +14,7 @@
 
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
 import { Dataflow } from './dataflow';
+import {header} from "../../common/component/grid/grid.header";
 
 export class Dataset extends AbstractHistoryEntity {
 
@@ -136,6 +137,8 @@ export class DatasetHive extends Dataset {
   public rsType: RsType;
   public dsName: string;
   public dsDesc: string;
+
+  public dataconnection?: any;
 }
 
 export class DatasetJdbc extends Dataset {
@@ -146,7 +149,7 @@ export class DatasetJdbc extends Dataset {
   public rsType: RsType;
   public dsName: string;
   public dsDesc: string;
-
+  public selectedInfo: SelectedInfo;
   public dataconnection: any;
 }
 
@@ -186,4 +189,14 @@ export class Rule {
 
   public isEditMode: boolean;
   public isInsertStep: boolean;
+}
+
+
+export class SelectedInfo {
+  public headers : header[];
+  public rows : any[];
+  public database? : string;
+  public table? : string;
+  public query? : string;
+
 }

@@ -12,21 +12,19 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, Injector, OnInit, Input, ViewChild, HostListener, EventEmitter,
-  Output
-} from '@angular/core';
+import { Component, ElementRef, Injector, OnInit, Input, ViewChild, HostListener, EventEmitter, Output } from '@angular/core';
 import { DatasetService } from '../service/dataset.service';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
 import { PreparationAlert } from '../../util/preparation-alert.util';
-import { DatasetJdbc, DsType, RsType, ImportType, Field } from '../../../domain/data-preparation/dataset';
+import { DatasetJdbc, DsType, RsType, ImportType, Field, SelectedInfo } from '../../../domain/data-preparation/dataset';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
 import { GridComponent } from '../../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
 import { GridOption } from '../../../common/component/grid/grid.option';
 import { StringUtil } from '../../../common/util/string.util';
 import * as $ from "jquery";
+import { isNullOrUndefined } from "util";
 
 @Component({
   selector: 'app-create-dataset-db-query',
@@ -71,6 +69,10 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   public schemaSearchText: string = '';
 
   public flag: boolean = false;
+
+  public clearGrid : boolean = false;
+
+  public isTableEmpty: boolean = false;
 
   @Output()
   public typeEmitter = new EventEmitter<string>();
@@ -137,6 +139,11 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
     this.getDatabases();
 
+    // Only initialise selectedInfo when selectedInfo doesn't have value
+    if (isNullOrUndefined(this.datasetJdbc.selectedInfo)) {
+      this.datasetJdbc.selectedInfo = new SelectedInfo();
+    }
+
     this.datasetJdbc.tableName = '';
     this.datasetJdbc.databaseName = '';
     this.datasetJdbc.queryStmt = '';
@@ -199,9 +206,12 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
     event.stopPropagation();
     this.datasetJdbc.databaseName = database.name;
+    this.datasetJdbc.selectedInfo.database = database.name;
+
+    this.datasetJdbc.selectedInfo.table = '';
+
     this.clickable = false;
     this.getTables(database.name);
-    $('[tabindex=1]').focus();
     this.initSelectedCommand(this.filteredDbList);
   } // function - onChangeDatabase
 
@@ -217,57 +227,44 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.loadingShow();
     this.datasetJdbc.queryStmt = 'SELECT * FROM ' + this.datasetJdbc.databaseName + '.' + data.name;
     this.datasetJdbc.tableName = data.name;
+
+    // Save table name -
+    this.datasetJdbc.selectedInfo.table = data.name;
+
     let params = {connection : this.datasetJdbc.dataconnection.connection, database : this.datasetJdbc.databaseName, query : this.datasetJdbc.tableName, type : 'TABLE'};
     this.connectionService.getTableDetailWitoutId(params)
       .then((result) => {
         this.loadingHide();
+        if (result.fields.length > 0 && result.data.length > 0) {
 
-        const headers: header[] = result.fields.map(
-          (field: Field) => {
-            return new SlickGridHeader()
-              .Id(field.name)
-              .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type === 'UNKNOWN' ? field.logicalType : field.type) + '"></em>' + field.name + '</span>')
-              .Field(field.name)
-              .Behavior('select')
-              .Selectable(false)
-              .CssClass('cell-selection')
-              .Width(10 * (field.name.length) + 20)
-              .MinWidth(100)
-              .CannotTriggerInsert(true)
-              .Resizable(true)
-              .Unselectable(true)
-              .Sortable(true)
-              .build();
-          }
-        );
+          const headers: header[] = this._getHeaders(result.fields);
+          const rows: any[] = this._getRows(result.data);
 
-        let rows: any[] = result.data;
+          // Save grid info -
+          this.datasetJdbc.selectedInfo.headers = headers;
+          this.datasetJdbc.selectedInfo.rows = rows;
 
-        if (result.data.length > 0 && !result.data[0].hasOwnProperty('id')) {
-          rows = rows.map((row: any, idx: number) => {
-            row.id = idx;
-            return row;
-          });
+          this.clearGrid = false;
+          this._drawGrid(headers, rows);
+          this.clickable = true;
+
+        } else {
+          this.clearGrid = true;
+          this.gridComponent.destroy();
         }
 
-        // 그리드가 영역을 잡지 못해서 setTimeout으로 처리
-        setTimeout(() => {
-          this.gridComponent.create(headers, rows, new GridOption()
-            .SyncColumnCellResize(true)
-            .MultiColumnSort(true)
-            .RowHeight(32)
-            .NullCellStyleActivate(true)
-            .build()
-          )},400);
-        this.clickable = true;
       })
       .catch((error) => {
         this.loadingHide();
         let prep_error = this.dataprepExceptionHandler(error);
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+
+        this.clearGrid = true;
+        this.gridComponent.destroy();
       });
     this.initSelectedCommand(this.filteredSchemaList);
   } // function - onChangeTable
+
 
   /** 데이터베이스 셀렉트 박스 show/hide */
   public showDatabaseList(event?) {
@@ -275,7 +272,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.isDatabaseListShow = true;
     this.isSchemaListShow = false;
     this.dbSearchText = ''; //검색어 초기화
-    setTimeout(() => $('.db-search').focus()); // focus on input
+    setTimeout(() => $('.db-search').trigger('focus')); // focus on input
 
   } // function - showDatabaseList
 
@@ -285,7 +282,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.isSchemaListShow = true;
     this.isDatabaseListShow = false;
     this.schemaSearchText = ''; //검색어 초기화
-    setTimeout(() => $('.schema-search').focus()); // focus on input
+    setTimeout(() => $('.schema-search').trigger('focus')); // focus on input
 
   } // function - showSchemaList
 
@@ -296,6 +293,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.datasetJdbc.tableName = '';
     this.datasetJdbc.databaseName = '';
     this.datasetJdbc.queryStmt = '';
+    this.safelyDetectChanges();
   }
 
   /**
@@ -306,6 +304,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.selectedDatabaseQuery = '';
     this.datasetJdbc.queryStmt = '';
     this.showQueryStatus = false;
+    this.safelyDetectChanges();
   }
   /**
    * Table or Query ?
@@ -330,6 +329,8 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
       this.isSchemaListShow = false;
       this.initTable();
       this.initQuery();
+      this.datasetJdbc.selectedInfo = new SelectedInfo();
+
     }
 
   } // function - selectedMethod
@@ -358,6 +359,9 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
       this.gridComponent.destroy(); // destroy grid
     }
 
+    // Save query for -
+    this.datasetJdbc.selectedInfo.query = this.datasetJdbc.queryStmt;
+
     // // 테이블 상세 조회
     this.datasetService.getTableDetailWitoutId(param)
       .then((result) => {
@@ -374,43 +378,10 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         this.showQueryStatus = true;
         this.isQuerySuccess = true;
 
-        const headers: header[] = result.fields.map(
-          (field: Field) => {
-            return new SlickGridHeader()
-              .Id(field.name)
-              .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type === 'UNKNOWN' ? field.logicalType : field.type) + '"></em>' + field.name + '</span>')
-              .Field(field.name)
-              .Behavior('select')
-              .Selectable(false)
-              .CssClass('cell-selection')
-              .Width(10 * (field.name.length) + 20)
-              .MinWidth(100)
-              .CannotTriggerInsert(true)
-              .Resizable(true)
-              .Unselectable(true)
-              .Sortable(true)
-              .build();
-          }
-        );
-
-        let rows: any[] = result.data;
-
-        if (result.data.length > 0 && !result.data[0].hasOwnProperty('id')) {
-          rows = rows.map((row: any, idx: number) => {
-            row.id = idx;
-            return row;
-          });
-        }
-
-        setTimeout(() => {
-          this.gridComponent.create(headers, rows, new GridOption()
-            .SyncColumnCellResize(true)
-            .MultiColumnSort(true)
-            .RowHeight(32)
-            .NullCellStyleActivate(true)
-            .build()
-          )},400);
-
+        const headers: header[] = this._getHeaders(result.fields);
+        const rows = this._getRows(result.data);
+        this.clearGrid = false;
+        this._drawGrid(headers,rows);
         this.clickable = true;
 
       })
@@ -421,6 +392,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         // PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
 
         this.gridComponent.destroy(); // destroy grid
+        this.clearGrid = true;
         this.showQueryStatus = true;
         this.isQuerySuccess = false;
         this.queryErrorMsg = error.details;
@@ -430,18 +402,6 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
       });
   }
 
-
-  // 쿼리의 데이터베이스 선택
-  public onSelectedDatabaseQuery(event,data) {
-    // 선택한 데이터 베이스 이름
-    event.stopPropagation();
-    this.isDatabaseListShow = false;
-    this.selectedDatabaseQuery = data.name;
-    this.datasetJdbc.databaseName = data.name;
-  }
-
-
-  // TODO
   public editorTextChange(param: string) {
     if(this.clickable) {
       this.clickable = !this.clickable;
@@ -449,6 +409,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     if(param != this.datasetJdbc.queryStmt) {
       this.datasetJdbc.queryStmt = param;
     }
+    this.safelyDetectChanges();
   }
 
   /**
@@ -580,7 +541,6 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     switch(list) {
       case 'db':
         tempList = this.filteredDbList;
-        $('[tabindex=1]').focus();
         break;
       case 'schema':
         tempList = this.filteredSchemaList;
@@ -652,7 +612,27 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
             this.databaseList.push({ idx : idx, name : data.databases[idx], selected : false });
           }
         }
-        this.showDatabaseList();
+
+        // 다음 단계에서 다시 돌아왔다면 이미 선택된 정보를 다시 넣어줘야한다
+        if ( (this.datasetJdbc.selectedInfo.rows && this.datasetJdbc.selectedInfo.headers) || this.datasetJdbc.selectedInfo.query) {
+
+          // 탭 선택
+          this.tableOrQuery = this.datasetJdbc.selectedInfo.query ? 'query' : 'table';
+
+          if (this.tableOrQuery === 'table') {
+            this.datasetJdbc.tableName = this.datasetJdbc.selectedInfo.table;
+            this.datasetJdbc.databaseName = this.datasetJdbc.selectedInfo.database;
+            this.clearGrid = false;
+            this.getTables(this.datasetJdbc.databaseName);
+          } else {
+            this.datasetJdbc.queryStmt = this.datasetJdbc.selectedInfo.query;
+          }
+          this._drawGrid(this.datasetJdbc.selectedInfo.headers,this.datasetJdbc.selectedInfo.rows);
+
+        } else {
+          this.showDatabaseList();
+        }
+
       })
       .catch((error) => {
         this.loadingHide();
@@ -676,12 +656,20 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.connectionService.getTablesWitoutId({connection : this.datasetJdbc.dataconnection.connection, database : schema})
       .then((data) => {
         this.loadingHide();
-        if (data && data.tables) {
+        if (data && data.tables.length > 0) {
           data.tables.forEach((item, index) => {
             this.schemaList.push({idx : index, name : item, selected : false});
           });
+
+          if (this.datasetJdbc.selectedInfo.table) {
+            this.datasetJdbc.tableName = this.datasetJdbc.selectedInfo.table;
+          }
+          this.isTableEmpty = false;
         } else {
           this.schemaList = [];
+          this.datasetJdbc.tableName = '';
+          this.datasetJdbc.selectedInfo.table = '';
+          this.isTableEmpty = true;
         }
       })
       .catch((error) => {
@@ -692,5 +680,73 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
       });
 
   } // function - getTables
+
+
+  /**
+   * Draw Grid
+   * @param {header[]} headers
+   * @param {any[]} rows
+   * @private
+   */
+  private _drawGrid(headers: header[], rows : any[]) {
+    // 그리드가 영역을 잡지 못해서 setTimeout으로 처리
+    setTimeout(() => {
+      this.gridComponent.create(headers, rows, new GridOption()
+        .SyncColumnCellResize(true)
+        .MultiColumnSort(true)
+        .RowHeight(32)
+        .NullCellStyleActivate(true)
+        .build()
+      )},400);
+    this.clickable = true;
+  }
+
+
+  /**
+   * Return Rows for grid
+   * @param rows
+   * @returns {any[]}
+   * @private
+   */
+  private _getRows(rows) : any[] {
+    let result = rows;
+    if (result.length > 0 && !result[0].hasOwnProperty('id')) {
+      result = rows.map((row: any, idx: number) => {
+        row.id = idx;
+        return row;
+      });
+    }
+    return result;
+  }
+
+
+  /**
+   * Returns headers for grid
+   * @param headers
+   * @returns {header[]}
+   * @private
+   */
+  private _getHeaders(headers) : header[] {
+    return headers.map(
+      (field: Field) => {
+        return new SlickGridHeader()
+          .Id(field.name)
+          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type === 'UNKNOWN' ? field.logicalType : field.type) + '"></em>' + field.name + '</span>')
+          .Field(field.name)
+          .Behavior('select')
+          .Selectable(false)
+          .CssClass('cell-selection')
+          .Width(10 * (field.name.length) + 20)
+          .MinWidth(100)
+          .CannotTriggerInsert(true)
+          .Resizable(true)
+          .Unselectable(true)
+          .Sortable(true)
+          .build();
+      }
+    );
+  }
+
+
 
 }

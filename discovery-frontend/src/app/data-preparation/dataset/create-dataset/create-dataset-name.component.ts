@@ -21,6 +21,7 @@ import { isUndefined } from 'util';
 import { StringUtil } from '../../../common/util/string.util';
 import { Alert } from '../../../common/util/alert.util';
 import { PreparationAlert } from '../../util/preparation-alert.util';
+import {PreparationCommonUtil} from "../../util/preparation-common.util";
 
 @Component({
   selector: 'app-create-dataset-name',
@@ -75,6 +76,9 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
   @ViewChild('nameElement')
   public nameElement : ElementRef;
+
+  public datasetInfo : DatasetInfo[] = [];
+  public fileExtension: string;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -100,6 +104,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     super.ngOnInit();
 
     this._setDefaultDatasetName(this.type);
+    this._setDatasetInfo();
 
   }
 
@@ -290,33 +295,106 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   private _setDefaultDatasetName(type : string) : void {
 
     if ('FILE' === type) {
-      let file = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(this.datasetFile.filename);
-      let extension = file[1];
-      let fileName = file[0].split('.' + extension)[0];
 
-      if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
+      let file = PreparationCommonUtil.getFileNameAndExtension(this.datasetFile.filename);
+      this.fileExtension = file[1];
+      let fileName = file[0];
+
+      if(this.fileExtension.toUpperCase() === 'XLSX' || this.fileExtension.toUpperCase() === 'XLS') {
+
         this.name = `${fileName} - ${this.datasetFile.sheetname} (EXCEL)`;
-      } else if(extension.toUpperCase() === 'JSON') {
-        this.name = `${fileName} (JSON)`;
-      } else if(extension.toUpperCase() === 'CSV') {
-        this.name = `${fileName} (CSV)`;
+
       } else {
-        // 불명의 확장자는 CSV로 간주함
-        this.name = `${fileName} (CSV)`;
+
+        this.name = `${fileName} (${this.fileExtension.toUpperCase()})`;
       }
     } else if ('DB' === type) {
+
       if( !isUndefined(this.datasetJdbc.dataconnection.connection) ) {
+
         if (this.datasetJdbc.tableName){
           this.name = this.datasetJdbc.tableName +' ('+this.datasetJdbc.dataconnection.connection.implementor+')';
         }
+
       } else {
+
         this.name = this.datasetJdbc.tableName;
+
       }
     } else if ('STAGING' === type) {
-      this.name = `${this.datasetHive.tableName} (STAGING)`;
+
+      if ('' !== this.datasetHive.tableName) {
+        this.name = `${this.datasetHive.tableName} (STAGING)`;
+      }
+
     }
 
     setTimeout(() => { this.nameElement.nativeElement.select(); });
   } // function - _setDefaultDatasetName
 
+
+  private _setDatasetInfo() {
+
+    if ('FILE' === this.type) {
+
+      this.datasetInfo.push({name : this.translateService.instant('msg.dp.ui.list.file'), value : this.datasetFile.filename});
+
+      if ('XLSX' === this.fileExtension.toUpperCase() || 'XLS' === this.fileExtension.toUpperCase()) {
+
+        // if (this.datasetFile.sheetInformation.length === 1) {
+        //   this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.datasetFile.sheetInformation[0].sheetName});
+        // } else if (this.datasetFile.sheetInformation.length > 1) {
+        //   this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetNames()});
+        // }
+
+          this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.datasetFile.sheetname});
+      }
+
+    } else if ('DB' === this.type || 'STAGING' === this.type) {
+
+      let ds = 'DB' === this.type ? this.datasetJdbc : this.datasetHive;
+
+      if ('DB' !== this.type) {
+        this.datasetInfo.push({name : this.translateService.instant('msg.comm.th.type'), value : 'Staging DB'});
+
+        if ('' !== ds.databaseName && '' !== ds.tableName) {
+          this.datasetInfo.push(
+            {name : this.translateService.instant('msg.dp.th.database'), value : ds.databaseName},
+            {name : this.translateService.instant('msg.dp.th.ss.table'), value : ds.tableName}
+          );
+        }
+
+      } else {
+
+        this.datasetInfo.push({name : this.translateService.instant('msg.comm.th.type'), value : ds.dataconnection['connection'].implementor});
+
+        ds.databaseName && this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.database'), value : ds.databaseName});
+        ds.tableName && this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.ss.table'), value : ds.tableName});
+
+        if (ds.dataconnection['connection'].hostname && ds.dataconnection['connection'].port) {
+          this.datasetInfo.push(
+            {name : this.translateService.instant('msg.comm.th.host'), value : ds.dataconnection['connection'].hostname},
+            {name : this.translateService.instant('msg.comm.th.port'), value : ds.dataconnection['connection'].port}
+          );
+        } else {
+          this.datasetInfo.push(
+            {name : this.translateService.instant('msg.nbook.th.url'), value : ds.dataconnection['connection'].url}
+          );
+        }
+      }
+
+      if (ds.databaseName === '' && ds.tableName === '') {
+        this.datasetInfo.push({name : this.translateService.instant('msg.dp.btn.query'), value : ds.queryStmt});
+      }
+
+    }
+
+  }
+
 }
+
+class DatasetInfo {
+  name : string;
+  value : any;
+}
+
