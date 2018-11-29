@@ -137,6 +137,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public changeSymbolLayerType(layerType : MapLayerType) {
 
+    // deep copy layer type
+    let cloneLayerType = _.cloneDeep(this.uiOption.layers[this.index].type);
+
     // change layer type
     this.uiOption.layers[this.index].type = layerType;
 
@@ -146,9 +149,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       if( isNullOrUndefined(this.uiOption.layers[this.index]['blur']) ) {
         this.uiOption.layers[this.index]['blur'] = 20;
       }
-      if( isNullOrUndefined(this.uiOption.layers[this.index]['radius']) ) {
-        this.uiOption.layers[this.index]['radius'] = 20;
-      }
+      this.uiOption.layers[this.index]['radius'] = 20;
 
       // remove measure aggregation type in shelf
       this.removeAggregationType();
@@ -163,12 +164,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     } else if (MapLayerType.TILE === layerType) {
       this.uiOption.layers[this.index].color.by = MapBy.NONE;
       this.uiOption.layers[this.index].color.schema = '#6344ad';
-      if( isNullOrUndefined(this.uiOption.layers[this.index]['radius']) ) {
-        this.uiOption.layers[this.index]['radius'] = 20;
-      }
-      if( isNullOrUndefined(this.uiOption.layers[this.index]['coverage']) ) {
-        this.uiOption.layers[this.index]['coverage'] = 0.9;
-      }
+      this.uiOption.layers[this.index]['radius'] = 20;
+
+      // if( isNullOrUndefined(this.uiOption.layers[this.index]['coverage']) ) {
+      //   this.uiOption.layers[this.index]['coverage'] = 0.9;
+      // }
 
       // add measure aggregation type in shelf
       this.addAggregationType();
@@ -178,8 +178,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       return;
     }
 
+    if (cloneLayerType)
     // apply layer ui option
-    this.applyLayers();
+    this.applyLayers({});
   }
 
   /**

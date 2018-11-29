@@ -28,7 +28,7 @@
                   {{field.column}}
               </li>
           </ul>
-          <span class="ddp-data"> Radius Range {{layer.radiusColumn}}</span>
+          <span *ngIf="layer.radiusColumn" class="ddp-data"> Radius Range {{layer.radiusColumn}}</span>
       </div>
     </div>
   </div>

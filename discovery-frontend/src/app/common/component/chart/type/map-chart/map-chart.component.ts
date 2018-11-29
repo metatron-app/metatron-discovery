@@ -2092,10 +2092,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       legendInfo.type = _.startCase(layerType) + ' Color';
 
       ////////////////////////////////////////////////////////
-      // Size by measure
+      // Size by measure (Symbol layer only)
       ////////////////////////////////////////////////////////
 
-      if( _.eq((<UISymbolLayer>layer).size.by, MapBy.MEASURE) ) {
+      if( MapLayerType.SYMBOL === layer.type && _.eq((<UISymbolLayer>layer).size.by, MapBy.MEASURE) ) {
         legendInfo.radiusColumn = 'By ' + this.getFieldAlias((<UISymbolLayer>layer).size.column);
       }
 
