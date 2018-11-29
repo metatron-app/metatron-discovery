@@ -82,7 +82,9 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Init
+  /**
+   * 컴포넌트 초기 실행
+   */
   public ngOnInit() {
     super.ngOnInit();
     // ui 초기화
@@ -91,7 +93,17 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
     this._getRoleSetList();
   }
 
-  // Destroy
+  /**
+   * 화면 초기화
+   */
+  public ngAfterViewInit() {
+    super.ngAfterViewInit();
+    this.removeBodyScrollHidden();
+  }
+
+  /**
+   * 컴포넌트 제거
+   */
   public ngOnDestroy() {
     super.ngOnDestroy();
   }
