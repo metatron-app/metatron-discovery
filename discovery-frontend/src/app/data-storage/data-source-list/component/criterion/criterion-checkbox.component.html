@@ -44,7 +44,7 @@
             <label class="ddp-label-checkbox">
               <input type="checkbox" [checked]="isCheckedItem(item)">
               <i class="ddp-icon-checkbox"></i>
-              <span class="ddp-txt-checkbox">{{item.filterName}}</span>
+              <span class="ddp-txt-checkbox">{{isRequireTranslate(item.filterName) ? (item.filterName | translate) : item.filterName}}</span>
             </label>
           </a>
         </li>

@@ -187,7 +187,11 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
     } else {
       Object.keys(selectedItemList).forEach(key =>
         selectedItemList[key].forEach((item) => {
-          temp += StringUtil.isEmpty(temp) ? item.filterName : `, ${item.filterName}`;
+            if (StringUtil.isEmpty(temp)) {
+              temp += this._isRequireTranslate(item.filterName) ? this.translateService.instant(item.filterName) : item.filterName;
+            } else {
+              temp += `, ${this._isRequireTranslate(item.filterName) ? this.translateService.instant(item.filterName) : item.filterName}`;
+            }
         }));
     }
 
@@ -249,5 +253,16 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
         })
         .catch(reason => reject(reason));
     });
+  }
+
+  /**
+   * Is require translate
+   * @param {string} label
+   * @returns {boolean}
+   * @private
+   */
+  private _isRequireTranslate(label: string): boolean {
+    // if start with msg.*, translate label
+    return -1 !== label.indexOf('msg.');
   }
 }

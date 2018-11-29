@@ -235,11 +235,11 @@ export class CriterionTimeRadioboxComponent extends AbstractComponent {
         break;
       case 'TODAY':
         this._startDate = moment({ hour: 0 }).format(this.timeFormat);
-        // this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
+        this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
         break;
       case '7DAYS':
         this._startDate = moment({ hour: 0 }).subtract(6, 'days').format(this.timeFormat);
-        // this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
+        this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
         break;
       case 'BETWEEN':
         this._setDatePickerSettings();

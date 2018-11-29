@@ -2077,6 +2077,8 @@
   "msg.storage.ui.criterion.criteria": "조건",
   "msg.storage.ui.criterion.all": "전체",
   "msg.storage.ui.criterion.search": "{{value}} 검색",
+  "msg.storage.ui.criterion.open-data": "공개 데이터",
+  "msg.storage.ui.criterion.modified-time": "수정한 시간",
 
   "msg.log.th.status": "상태",
   "msg.log.ui.search.description" : "잡 이름 또는 어플리케이션 ID로 검색해 주세요",

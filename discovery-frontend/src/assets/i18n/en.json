@@ -2077,6 +2077,8 @@
   "msg.storage.ui.criterion.criteria": "Criteria",
   "msg.storage.ui.criterion.all": "ALL",
   "msg.storage.ui.criterion.search": "Search {{value}}",
+  "msg.storage.ui.criterion.open-data": "Open Data",
+  "msg.storage.ui.criterion.modified-time": "Modified Time",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",
