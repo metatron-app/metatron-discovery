@@ -444,6 +444,11 @@ export class DatasourceService extends AbstractService {
         // when it's dimension
         } else if ('dimension' === layer.type) {
 
+          // set current layer datasource
+          query.dataSource.engineName = layer.field.dataSource;
+          query.dataSource.name = layer.field.dataSource;
+          query.dataSource.id = layer.field.dsId;
+
           let radius = (<UITileLayer>(<UIMapOption>pageConf.chart).layers[layerNum]).radius;
 
           // to make reverse (bigger radius => set small precision), get precision from 0 - 100

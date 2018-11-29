@@ -172,15 +172,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
       // add measure aggregation type in shelf
       this.addAggregationType();
+    }
 
+    if ((MapLayerType.TILE === cloneLayerType || MapLayerType.TILE === layerType) && cloneLayerType !== layerType) {
       // call search api (for precision setting)
       this.applyLayers({});
       return;
     }
 
-    if (cloneLayerType)
     // apply layer ui option
-    this.applyLayers({});
+    this.applyLayers();
   }
 
   /**
