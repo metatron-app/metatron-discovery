@@ -363,66 +363,68 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
       .then((result) => {
         this.loadingHide();
         // console.info('getTableDetailWitoutId', result);
-          if (result.hasOwnProperty('errorMsg')) {
-            this.showQueryStatus = true;
-            this.isQuerySuccess = false;
-            this.queryErrorMsg = result.errorMsg;
-            this.clickable = false;
-            this.gridComponent.destroy();
-            return;
-          }
+        if (result.hasOwnProperty('errorMsg')) {
           this.showQueryStatus = true;
-          this.isQuerySuccess = true;
+          this.isQuerySuccess = false;
+          this.queryErrorMsg = result.errorMsg;
+          this.clickable = false;
+          this.gridComponent.destroy();
+          return;
+        }
+        this.showQueryStatus = true;
+        this.isQuerySuccess = true;
 
-          const headers: header[] = result.fields.map(
-            (field: Field) => {
-              return new SlickGridHeader()
-                .Id(field.name)
-                .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type === 'UNKNOWN' ? field.logicalType : field.type) + '"></em>' + field.name + '</span>')
-                .Field(field.name)
-                .Behavior('select')
-                .Selectable(false)
-                .CssClass('cell-selection')
-                .Width(10 * (field.name.length) + 20)
-                .MinWidth(100)
-                .CannotTriggerInsert(true)
-                .Resizable(true)
-                .Unselectable(true)
-                .Sortable(true)
-                .build();
-            }
-          );
-
-          let rows: any[] = result.data;
-
-          if (result.data.length > 0 && !result.data[0].hasOwnProperty('id')) {
-            rows = rows.map((row: any, idx: number) => {
-              row.id = idx;
-              return row;
-            });
+        const headers: header[] = result.fields.map(
+          (field: Field) => {
+            return new SlickGridHeader()
+              .Id(field.name)
+              .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type === 'UNKNOWN' ? field.logicalType : field.type) + '"></em>' + field.name + '</span>')
+              .Field(field.name)
+              .Behavior('select')
+              .Selectable(false)
+              .CssClass('cell-selection')
+              .Width(10 * (field.name.length) + 20)
+              .MinWidth(100)
+              .CannotTriggerInsert(true)
+              .Resizable(true)
+              .Unselectable(true)
+              .Sortable(true)
+              .build();
           }
+        );
 
-          setTimeout(() => {
-            this.gridComponent.create(headers, rows, new GridOption()
-              .SyncColumnCellResize(true)
-              .MultiColumnSort(true)
-              .RowHeight(32)
-              .NullCellStyleActivate(true)
-              .build()
-            )},400);
+        let rows: any[] = result.data;
 
-          this.clickable = true;
+        if (result.data.length > 0 && !result.data[0].hasOwnProperty('id')) {
+          rows = rows.map((row: any, idx: number) => {
+            row.id = idx;
+            return row;
+          });
+        }
+
+        setTimeout(() => {
+          this.gridComponent.create(headers, rows, new GridOption()
+            .SyncColumnCellResize(true)
+            .MultiColumnSort(true)
+            .RowHeight(32)
+            .NullCellStyleActivate(true)
+            .build()
+          )},400);
+
+        this.clickable = true;
 
       })
       .catch((error) => {
-          let prep_error = this.dataprepExceptionHandler(error);
-          PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
 
-          this.gridComponent.destroy(); // destroy grid
-          this.showQueryStatus = true;
-          this.isQuerySuccess = false;
-          this.queryErrorMsg = error.details;
-          this.clickable = false;
+        // show error alert when query fails ? Datasource doesn't
+        // let prep_error = this.dataprepExceptionHandler(error);
+        // PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+
+        this.gridComponent.destroy(); // destroy grid
+        this.showQueryStatus = true;
+        this.isQuerySuccess = false;
+        this.queryErrorMsg = error.details;
+        this.clickable = false;
         //   // 쿼리가 실패했다면 error message 를 날리자
         this.loadingHide();
       });

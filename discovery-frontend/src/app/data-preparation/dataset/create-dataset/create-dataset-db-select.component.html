@@ -463,8 +463,10 @@
                 {{'msg.dp.btn.test' | translate}}
               </a>
               <div class="ddp-ui-message ddp-ui-info">
-                <span class="ddp-data-error2" *ngIf="isShowValidationMessage"> {{getValidationMessage}}</span>
-                <span class="ddp-data-error" *ngIf="connectionResultFl === false"><em class="ddp-icon-error"></em>{{'msg.storage.ui.invalid.conn' | translate}}</span>
+                <span [ngClass]="{'ddp-data-error' : connectionResultFl === false, 'ddp-data-error2': isShowValidationMessage}">
+                  <em class="ddp-icon-error" *ngIf="connectionResultFl === false"></em>
+                  {{getValidationMessage}}
+                </span>
                 <span class="ddp-data-ok" *ngIf="connectionResultFl"><em class="ddp-icon-ok"></em>{{'msg.storage.ui.valid.conn' | translate}}</span>
               </div>
             </div>

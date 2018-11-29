@@ -149,6 +149,8 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
 
   public next() {
     if (this.connectionResult !== 'valid') {
+      this.connectionResultFl = false;
+      this.connectionResult = 'Required';
       return;
     } else {
       this.datasetJdbc.dcId = this.dataconnection.id;
@@ -250,6 +252,8 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
     this.firstFl = false;
     // 커넥션 통과
     this.connectionResultFl = null;
+
+    this.connectionResult = '';
   }
 
   /**
@@ -292,6 +296,16 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
     if (!this.dataconnection.password || this.dataconnection.password.trim() === '') {
       return this.translateService.instant('msg.storage.alert.pw.required');
     }
+
+    if (this.connectionResultFl === false) {
+      if (this.connectionResult === 'Required') {
+        return this.translateService.instant('Required');
+      } else {
+        return this.translateService.instant('msg.storage.ui.invalid.conn');
+      }
+
+    }
+
     return '';
   }
 
@@ -346,12 +360,12 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   // connection check
   public checkConnection() {
 
-    if( ''!== this.getValidationMessage ) {
-      this.connectionErrorDescription = this.getValidationMessage;
-      this.connectionResult = 'Invalid';
-      this.connectionResultFl = false;
-      return;
-    }
+    // if( ''!== this.getValidationMessage ) {
+    //   this.connectionErrorDescription = this.getValidationMessage;
+    //   this.connectionResult = 'Invalid';
+    //   this.connectionResultFl = false;
+    //   return;
+    // }
 
     this.dataconnection.implementor = this.getImplemntor(this.selectedDatabase.value);
     this.connectionRequest.connection = this.dataconnection;
