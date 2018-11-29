@@ -6273,12 +6273,12 @@ ul.ddp-ui-tab.ddp-type li .ddp-box-layout4.ddp-information a {padding:0px; borde
 ************************************************************************************************************/
 .ddp-wrap-workbench {overflow:hidden;}
 .ddp-wrap-workbench .ddp-layout-table {display:table; width:100%; height:100%;}
-.ddp-wrap-workbench .ddp-ui-benchlnb {display:table-cell; position:relative; width:500px;  height:100%; background-color:#35393f; vertical-align: top; z-index:20;}
-.ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold {width:280px;}
+.ddp-wrap-workbench .ddp-ui-benchlnb {display:table-cell; min-width:455px; position:relative;height:100%; background-color:#35393f; vertical-align: top; z-index:20;}
+.ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold {width:280px; min-width:260px;}
 .ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold .ddp-view-benchlnb {width:100%;}
 .ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold .ddp-ui-benchtable {display:none;}
 .ddp-wrap-workbench .ddp-ui-benchlnb .ddp-view-benchlnb {position:relative; float:left; height:100%; width:55%;}
-.ddp-ui-benchlnb.ddp-close {width:9px ;}
+.ddp-ui-benchlnb.ddp-close {width:9px; min-width:9px;}
 .ddp-ui-benchlnb.ddp-none {display:none;}
 .ddp-ui-benchlnb.ddp-close .ddp-view-benchlnb {width:9px;}
 .ddp-ui-benchlnb.ddp-close .ddp-box-benchlnb {display:none;}
