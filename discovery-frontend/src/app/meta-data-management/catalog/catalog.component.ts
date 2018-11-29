@@ -171,6 +171,9 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
    * @param catalog
    */
   public catalogDetail(catalog) {
+    if (catalog.editing) {
+      return;
+    }
 
     if (!this.deleteModalComponent.isShow) {
       if(!this.isEditCatalogName) {
@@ -329,6 +332,11 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
     catalog.editing = true;
     this.selectedCatalog = new Catalog();
     this.isEditCatalogName = true;
+
+    setTimeout(() => {
+      this.catalogInput.nativeElement.value = catalog.name;
+    })
+
   }
 
 
