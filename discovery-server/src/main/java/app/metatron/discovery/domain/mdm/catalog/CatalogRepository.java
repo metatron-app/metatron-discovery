@@ -59,7 +59,10 @@ public interface CatalogRepository extends JpaRepository<Catalog, String>,
    * @return
    */
   @RestResource(exported = false)
+  @Query("SELECT count(c) FROM Catalog c WHERE c.name = :name AND c.parentId = :parentId")
+  Long countByCatalogNameAndParentId(@Param("name") String name, @Param("parentId") String parentId);
+
+  @RestResource(exported = false)
   @Query("SELECT count(c) FROM Catalog c WHERE c.name = :name")
   Long countByCatalogName(@Param("name") String name);
-
 }

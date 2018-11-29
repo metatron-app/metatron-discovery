@@ -37,10 +37,16 @@ public class CatalogEventHandler {
   
   @HandleBeforeCreate
   public void handleBeforeCreate(Catalog catalog) {
-    if ( catalogRepository.countByCatalogName(catalog.getName()) > 0 ){
-      throw new CatalogException(DUPLICATED_CATALOG_NAME, "Duplicated Catalog Name");
-    }
 
+    if ( catalog.getParentId() == null ){
+      if ( catalogRepository.countByCatalogName(catalog.getName()) > 0 ){
+        throw new CatalogException(DUPLICATED_CATALOG_NAME, "Duplicated Catalog Name");
+      }
+    }else{
+      if ( catalogRepository.countByCatalogNameAndParentId(catalog.getName(), catalog.getParentId()) > 0 ){
+        throw new CatalogException(DUPLICATED_CATALOG_NAME, "Duplicated Catalog Name");
+      }
+    }
   }
 
   @HandleAfterCreate
