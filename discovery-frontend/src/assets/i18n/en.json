@@ -2057,7 +2057,7 @@
   "msg.storage.ui.config.no.data": "No data",
 
   "msg.log.th.status": "Status",
-  "msg.log.ui.search.description" : "Search by job and application",
+  "msg.log.ui.search.description" : "Search by job name, application ID, and User",
   "msg.log.ui.num.lists" : "There are {{value}} lists",
   "msg.log.th.job.name": "Job name",
   "msg.log.th.job.id": "Job ID",
