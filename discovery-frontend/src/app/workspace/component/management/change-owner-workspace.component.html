@@ -18,9 +18,9 @@
     <!-- popup -->
     <div class="ddp-ui-popup ddp-type">
       <a (click)="close()" href="javascript:" class="ddp-btn-close"></a>
-      <span class="ddp-ui-pop-title">change owner</span>
+      <span class="ddp-ui-pop-title">{{ 'msg.space.ui.change-owner' | translate }}</span>
       <div *ngIf="selectedUser" class="ddp-txt-pop-info ddp-padt0">
-        <strong>{{selectedUser.member.fullName}}</strong> 님을 새로운 오너로 지정하시겠습니까?
+        {{ 'msg.space.ui.change-owner.ph' | translate : {value : selectedUser.member.fullName} }}
       </div>
 
       <!-- contents -->
