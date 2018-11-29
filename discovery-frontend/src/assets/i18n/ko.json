@@ -2047,7 +2047,7 @@
   "msg.storage.ph.custom.property.key": "구성 키를 입력해주세요",
   "msg.storage.ph.custom.property.value": "구성 값을 입력해주세요",
   "msg.storage.ui.custom.property.duplicated": "중복",
-  "msg.storage.ui.custom.property.special.char.disable": "특수문자 불가",
+  "msg.storage.ui.custom.property.special.char.disable": "잘못된 형식입니다",
   "msg.storage.ui.latitude.column": "위도 컬럼",
   "msg.storage.ui.longitude.column": "경도 컬럼",
   "msg.storage.ui.method": "방법",
