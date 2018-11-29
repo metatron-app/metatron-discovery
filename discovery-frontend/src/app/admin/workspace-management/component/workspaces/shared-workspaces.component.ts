@@ -244,6 +244,9 @@ export class SharedWorkspacesComponent extends AbstractComponent {
   public onOpenChangeStatus(workspace: WorkspaceAdmin, status: string): void {
     // 이벤트 전파 stop
     event.stopImmediatePropagation();
+    if( ( workspace.active ? 'active' : 'inactive' ) === status ) {
+      return;
+    }
 
     const modal = new Modal();
     modal.data = 'STATUS';
