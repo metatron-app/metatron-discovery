@@ -187,8 +187,8 @@ export class MapPagePivotComponent extends PagePivotComponent {
       // remove duplicate list
       let duplicateFl = this.distinctPivotItems(shelves, field, idx, shelf, targetContainer);
 
-      // if map chart type is symbol or line, remove duplicate list
-      duplicateFl = this.distinctMeasure(shelves, field, idx, shelf, targetContainer);
+      // if map layer type is point or heatmap, remove duplicate list
+      duplicateFl = this.distinctMeasure(shelves, field, idx);
 
       // 선반의 dimension / measure값의 중복된값 제거, measure aggtype 설정
       if (!duplicateFl) {
@@ -563,11 +563,12 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * @param {string} targetContainer
    * @returns {boolean}
    */
-  private distinctMeasure(shelves: AbstractField[], field: any, idx: number, shelf: AbstractField[], targetContainer: string): boolean {
+  // private distinctMeasure(shelves: AbstractField[], field: any, idx: number, shelf: AbstractField[]): boolean {
+  private distinctMeasure(shelf: AbstractField[], field: any, idx: number): boolean {
 
     const duplicateList = [];
 
-    shelves.forEach((item) => {
+    shelf.forEach((item) => {
 
       if (item.name === field.name) {
 

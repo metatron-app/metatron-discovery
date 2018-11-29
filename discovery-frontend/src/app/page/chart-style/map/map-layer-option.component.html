@@ -34,7 +34,7 @@
           <!-- [point, heatmap, hexagon, line, polygon] -->
           <div class="ddp-type-map-chart">
             <!-- TODO layer type divide -->
-            <div *ngIf="false && 'line' !== uiOption.layers[index].type.toString() && 'polygon' !== uiOption.layers[index].type.toString()" class="ddp-divide2 ">
+            <div *ngIf="'line' !== uiOption.layers[index].type.toString() && 'polygon' !== uiOption.layers[index].type.toString()" class="ddp-divide2 ">
               <div class="ddp-list-label">{{'msg.page.layer.map.type' | translate}}</div>
               <div class="ddp-wrap-tab-type2">
                 <ul class="ddp-list-tab-type2 ddp-clear">

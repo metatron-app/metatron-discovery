@@ -34,6 +34,8 @@ import { Field as AbstractField, Field } from '../../../domain/workbook/configur
 import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
 import {isNullOrUndefined} from "util";
 import {Alert} from "../../../common/util/alert.util";
+import { ChartUtil } from '../../../common/component/chart/option/util/chart-util';
+import { AggregationType } from '../../../domain/workbook/configurations/field/measure-field';
 
 @Component({
   selector: 'map-layer-option',
@@ -148,9 +150,15 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
         this.uiOption.layers[this.index]['radius'] = 20;
       }
 
+      // remove measure aggregation type in shelf
+      this.removeAggregationType();
+
     } else if (MapLayerType.SYMBOL === layerType) {
       this.uiOption.layers[this.index].color.by = MapBy.NONE;
       this.uiOption.layers[this.index].color.schema = '#6344ad';
+
+      // remove measure aggregation type in shelf
+      this.removeAggregationType();
 
     } else if (MapLayerType.TILE === layerType) {
       this.uiOption.layers[this.index].color.by = MapBy.NONE;
@@ -162,6 +170,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
         this.uiOption.layers[this.index]['coverage'] = 0.9;
       }
 
+      // add measure aggregation type in shelf
+      this.addAggregationType();
+
+      // call search api (for precision setting)
       this.applyLayers({});
       return;
     }
@@ -638,6 +650,40 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       this.byList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
       this.colorByList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
 
+    }
+  }
+
+  /**
+   * remove aggregation type (hexagon, line, polygon)
+   */
+  private removeAggregationType() {
+    // add aggregation type in current layer
+    let layer = this.shelf.layers[this.uiOption.layerNum];
+
+    // remove duplicate measure list
+    let uniMeasureList = _.uniqBy(layer, 'name');
+
+    for (const item of uniMeasureList) {
+
+      if (item.type === 'measure') {
+        delete item.aggregationType;
+      }
+    }
+
+    this.shelf.layers[this.uiOption.layerNum] = uniMeasureList;
+  }
+
+  /**
+   * add aggregation type (point, heatmap)
+   */
+  private addAggregationType() {
+    // add aggregation type in current layer
+    let layer = this.shelf.layers[this.uiOption.layerNum];
+
+    for (const item of layer) {
+      if (item.type === 'measure') {
+        item.aggregationType = AggregationType.SUM;
+      }
     }
   }
 }

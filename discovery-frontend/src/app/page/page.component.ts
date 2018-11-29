@@ -427,7 +427,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       if ('map' === chartType) {
         this.shelf = this.convertPivotToShelf(this.shelf);
       } else {
-        this.pivot = this.convertShelfToPivot(this.pivot, (<UIMapOption>deepCopyUiOption).layerNum);
+        this.pivot = this.convertShelfToPivot(this.pivot, deepCopyUiOption);
       }
 
       // 차트별 선반위치 변경
@@ -4128,7 +4128,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   /**
    * convert shelf to pivot (when convert map to other charts)
    */
-  private convertShelfToPivot(pivot: Pivot, layerNum: number) {
+  private convertShelfToPivot(pivot: Pivot, uiOption: UIOption) {
 
     // when shelf layers exists, pivot is null, convert shelf to pivot
     if (this.shelf.layers && this.shelf.layers[0] && this.shelf.layers[0].length > 0) {
@@ -4136,7 +4136,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       // init pivot
       pivot = new Pivot();
 
-      _.each(this.shelf.layers, (layer) => {
+      _.each(this.shelf.layers, (layer, layerNum) => {
         _.each(layer, (item, index) => {
 
           // convert pivot type(agg, column, row) to shelf type (MAP_LAYER0 ..)
@@ -4147,8 +4147,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
             });
           }
 
-          // add aggregation type
-          this.pagePivot.distinctPivotItems(layer, item, index, layer, 'layer' + layerNum);
+          // when it's point or heatmap, add aggregation type
+          if (MapLayerType.SYMBOL === (<UIMapOption>uiOption).layers[layerNum].type ||
+              MapLayerType.HEATMAP === (<UIMapOption>uiOption).layers[layerNum].type) {
+            this.pagePivot.distinctPivotItems(layer, item, index, layer, 'layer' + layerNum);
+          }
 
           pivot.aggregations.push(item);
         });
