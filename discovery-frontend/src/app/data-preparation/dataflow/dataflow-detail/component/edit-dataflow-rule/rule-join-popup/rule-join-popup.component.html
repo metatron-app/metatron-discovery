@@ -94,8 +94,8 @@
               <tr *ngFor="let data of leftDataset.gridData.fields"
                   [ngClass]="{'ddp-selected':leftSelCols.indexOf(data.name) > -1}">
                 <td class="ddp-txt-center">
-                  <span *ngIf="data.type === 'STRING'">
-                    <em class="ddp-icon-type-ab"></em>
+                  <span>
+                    <em class="{{getFieldTypeIconClass(data.type)}}"></em>
                   </span>
                 </td>
                 <td (click)="leftTableClickHandler(data.name)"> {{data.name}}</td>
@@ -264,7 +264,7 @@
           </span>
           <!-- 코멘트 -->
           <div class="ddp-comment" *ngIf="0 == joinList.length">
-            <em>*</em> At least one join key is required
+            <em>*</em> {{'msg.dp.ui.join.key.required' | translate }}
           </div>
           <!-- //코멘트 -->
           <div class="ddp-view-joinkeys">
@@ -417,7 +417,7 @@
         {{'msg.dp.btn.show.rslt' | translate}}
         <div class="ddp-ui-tooltip-info">
           <em class="ddp-icon-view-right"></em>
-          You can check the results after selecting required items
+          {{'msg.dp.ui.join.prev.msg' | translate }}
         </div>
       </a>
       <a href="javascript:" class="ddp-btn-solid2"  (click)="isShowPreview = false;"

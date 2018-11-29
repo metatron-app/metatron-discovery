@@ -1272,6 +1272,8 @@
   "msg.dp.ui.change.input.dataset" : "Change input dataset",
   "msg.dp.ui.search-by.dataset" :"Search by dataset name",
   "msg.dp.ui.one.col.required" : "At least one column is required",
+  "msg.dp.ui.join.prev.msg" : "You can check the results after selecting required items",
+  "msg.dp.ui.join.key.required" : "At least one join key is required",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",
