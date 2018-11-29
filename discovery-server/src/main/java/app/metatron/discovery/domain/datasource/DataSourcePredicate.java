@@ -218,16 +218,6 @@ public class DataSourcePredicate {
       builder = builder.and(dataSource.modifiedTime.between(modifiedTimeFrom, modifiedTimeTo));
     }
 
-    //workspaces
-    if(workspaces != null && !workspaces.isEmpty()){
-      BooleanExpression workspaceContains = dataSource.id
-              .in(JPAExpressions.select(dataSource.id)
-                      .from(dataSource)
-                      .innerJoin(dataSource.workspaces)
-                      .where(dataSource.workspaces.any().id.in(workspaces)));
-      builder.and(workspaceContains);
-    }
-
     //published
     if(published != null && !published.isEmpty() && workspaces != null && !workspaces.isEmpty()){
       BooleanBuilder subBuilder = new BooleanBuilder();

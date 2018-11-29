@@ -879,40 +879,20 @@ public class DataSourceController {
 
 
     // Validate status
-    List<DataSource.Status> statusEnumList = null;
-    if(statuses != null && !statuses.isEmpty()){
-      statusEnumList = new ArrayList<>();
-      for(String statusStr : statuses){
-        statusEnumList.add(SearchParamValidator.enumUpperValue(DataSource.Status.class, statusStr, "status"));
-      }
-    }
+    List<DataSource.Status> statusEnumList
+            = request.getEnumList(statuses, DataSource.Status.class, "status");
 
     // Validate DataSourceType
-    List<DataSource.DataSourceType> dataSourceTypeEnumList = null;
-    if(dataSourceTypes != null){
-      dataSourceTypeEnumList = new ArrayList<>();
-      for(String dataSourceTypeStr : dataSourceTypes){
-        dataSourceTypeEnumList.add(SearchParamValidator.enumUpperValue(DataSource.DataSourceType.class, dataSourceTypeStr, "dataSourceType"));
-      }
-    }
+    List<DataSource.DataSourceType> dataSourceTypeEnumList
+            = request.getEnumList(dataSourceTypes, DataSource.DataSourceType.class, "dataSourceType");
 
     // Validate ConnectionType
-    List<DataSource.ConnectionType> connectionTypeEnumList = null;
-    if(connectionTypes != null){
-      connectionTypeEnumList = new ArrayList<>();
-      for(String connectionTypeStr : connectionTypes){
-        connectionTypeEnumList.add(SearchParamValidator.enumUpperValue(DataSource.ConnectionType.class, connectionTypeStr, "connectionType"));
-      }
-    }
+    List<DataSource.ConnectionType> connectionTypeEnumList
+            = request.getEnumList(connectionTypes, DataSource.ConnectionType.class, "connectionType");
 
     // Validate SourceType
-    List<DataSource.SourceType> sourceTypeEnumList = null;
-    if(sourceTypes != null){
-      sourceTypeEnumList = new ArrayList<>();
-      for(String sourceTypeStr : sourceTypes){
-        sourceTypeEnumList.add(SearchParamValidator.enumUpperValue(DataSource.SourceType.class, sourceTypeStr, "sourceType"));
-      }
-    }
+    List<DataSource.SourceType> sourceTypeEnumList
+            = request.getEnumList(sourceTypes, DataSource.SourceType.class, "sourceType");
 
     // Validate createdTimeFrom, createdTimeTo
     SearchParamValidator.range(null, createdTimeFrom, createdTimeTo);
