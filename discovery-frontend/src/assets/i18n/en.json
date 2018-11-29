@@ -1247,6 +1247,7 @@
   "msg.board.download.desc" : "Up to 1 million downloads, <br> Please contact your administrator for more than 1 million data.",
   "msg.board.download.calc-size" : "Calculating data size ...",
   "msg.board.ui.no.widget": "No widgets",
+  "msg.board.ui.show.only": "Shown only",
   "msg.board.th.allowance": "Show open data only",
   "msg.board.btn.add.datasource.join": "Add datasource to join",
   "msg.board.update-datasource.confirm.title" : "Do you want to save your changes?",
