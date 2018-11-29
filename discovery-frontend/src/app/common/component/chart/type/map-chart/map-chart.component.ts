@@ -67,6 +67,7 @@ import {ChartUtil} from '../../option/util/chart-util';
 import {isNullOrUndefined} from 'util';
 import {UIHeatmapLayer} from '../../option/ui-option/map/ui-heatmap-layer';
 import UI = OptionGenerator.UI;
+import {UIPolygonLayer} from '../../option/ui-option/map/ui-polygon-layer';
 
 @Component({
   selector: 'map-chart',
@@ -266,12 +267,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // this.data[0].features = [this.data[0].features[0]];
 
     ////////////////////////////////////////////////////////
-    // Check option (spec)
-    ////////////////////////////////////////////////////////
-
-    this.checkOption();
-
-    ////////////////////////////////////////////////////////
     // Get geo type
     ////////////////////////////////////////////////////////
 
@@ -285,13 +280,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     });
     let geomType = field.field.logicalType.toString();
 
-    // Set layer type
-    if( _.eq(geomType, LogicalType.GEO_LINE) ) {
-      this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.LINE;
-    }
-    else if( _.eq(geomType, LogicalType.GEO_POLYGON) ) {
-      this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.POLYGON;
-    }
+    ////////////////////////////////////////////////////////
+    // Check option (spec)
+    ////////////////////////////////////////////////////////
+
+    this.checkOption(geomType);
 
     ////////////////////////////////////////////////////////
     // Creation map & layer
@@ -896,7 +889,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       // Color
       ////////////////////////////////////////////////////////
 
-      if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureColorType, MapBy.MEASURE)) {
+      if( _.eq(featureColorType, MapBy.MEASURE)) {
         if(styleLayer.color['ranges']) {
           for(let range of styleLayer.color['ranges']) {
             let rangeMax = range.fixMax;
@@ -1019,143 +1012,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       // Creation style
       ////////////////////////////////////////////////////////
 
-      let style = new ol.style.Style({
-        image: new ol.style.Circle({
-          radius: 4,
-          fill: new ol.style.Fill({
-            color: featureColor
-          })
-        }),
-        stroke: new ol.style.Stroke({
-          color: featureColor,
-          width: lineThickness
-        }),
-        fill: new ol.style.Fill({
-          color: featureColor
-        })
-      });
+      let style = new ol.style.Style();
 
-      if( _.eq(layerType, MapLayerType.SYMBOL) ) {
-        switch (symbolType) {
-          case MapSymbolType.CIRCLE :
-            style = new ol.style.Style({
-              image: new ol.style.Circle({
-                radius: featureSize,
-                fill: new ol.style.Fill({
-                  color: featureColor
-                }),
-                stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
-              }),
-              stroke: new ol.style.Stroke({
-                color: outlineColor,
-                width: outlineWidth
-              }),
-              fill: new ol.style.Fill({
-                color: featureColor
-              })
-            });
-            break;
-          case MapSymbolType.SQUARE :
-            style = new ol.style.Style({
-              image: new ol.style.RegularShape({
-                fill: new ol.style.Fill({color: featureColor}),
-                points: 4,
-                radius: featureSize,
-                angle: Math.PI / 4,
-                stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
-              }),
-              stroke: new ol.style.Stroke({
-                color: outlineColor,
-                width: outlineWidth
-              }),
-              fill: new ol.style.Fill({
-                color: featureColor
-              })
-            });
-            break;
-          case MapSymbolType.TRIANGLE :
-            style = new ol.style.Style({
-              image: new ol.style.RegularShape({
-                fill: new ol.style.Fill({color: featureColor}),
-                points: 3,
-                radius: featureSize,
-                rotation: Math.PI / 4,
-                angle: 0,
-                stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
-              }),
-              stroke: new ol.style.Stroke({
-                color: outlineColor,
-                width: outlineWidth
-              }),
-              fill: new ol.style.Fill({
-                color: featureColor
-              })
-            });
-            break;
-          case MapSymbolType.PIN :
-            style = new ol.style.Style({
-              image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
-                color: featureColor,
-                crossOrigin: 'anonymous',
-                scale: featureSize * 0.1,
-                src: '../../../../../../assets/images/ic_pin.png'
-              })),
-              stroke: new ol.style.Stroke({
-                color: outlineColor,
-                width: outlineWidth
-              }),
-              fill: new ol.style.Fill({
-                color: featureColor
-              })
-            });
-            break;
-          case MapSymbolType.PLAIN :
-            style = new ol.style.Style({
-              image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
-                color: featureColor,
-                crossOrigin: 'anonymous',
-                scale: featureSize * 0.1,
-                src: '../../../../../../assets/images/ic_map_airport.png'
-              })),
-              stroke: new ol.style.Stroke({
-                color: outlineColor,
-                width: outlineWidth
-              }),
-              fill: new ol.style.Fill({
-                color: featureColor
-              })
-            });
-            break;
-          case MapSymbolType.USER :
-            style = new ol.style.Style({
-              image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
-                color: featureColor,
-                crossOrigin: 'anonymous',
-                scale: featureSize * 0.1,
-                src: '../../../../../../assets/images/ic_map_human.png'
-              })),
-              stroke: new ol.style.Stroke({
-                color: outlineColor,
-                width: outlineWidth
-              }),
-              fill: new ol.style.Fill({
-                color: featureColor
-              })
-            });
-            break;
-          default :
-            style = new ol.style.Style({
-              stroke: new ol.style.Stroke({
-                color: outlineColor,
-                width: outlineWidth
-              }),
-              fill: new ol.style.Fill({
-                color: featureColor
-              })
-            });
-            break;
-        }
-      } else if( _.eq(layerType, MapLayerType.LINE) ) {
+      if( _.eq(layerType, MapLayerType.LINE) ) {
         style = new ol.style.Style({
           stroke: new ol.style.Stroke({
             color: featureColor,
@@ -1163,7 +1022,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             lineDash: lineDash
           })
         });
-      } else if( _.eq(layerType, MapLayerType.POLYGON) ) {
+      }
+      else if( _.eq(layerType, MapLayerType.POLYGON) ) {
         style = new ol.style.Style({
           stroke: new ol.style.Stroke({
             color: outlineColor,
@@ -2243,7 +2103,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
           colorInfo.color = HeatmapColorList[layer.color.schema][(HeatmapColorList[layer.color.schema].length-1)];
         }
         _.each(this.shelf.layers[this.getUiMapOption().layerNum], (field) => {
-          if( _.eq(field.field.logicalType, LogicalType.GEO_POINT) ) {
+          if( field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') != -1 ) {
             colorInfo.column = field.alias;
             return false;
           }
@@ -2346,7 +2206,32 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   /**
    * Check UI Option (Spec) => Shelf add & remove
    */
-  private checkOption(): void {
+  private checkOption(geomType: LogicalType): void {
+
+    let option: UIMapOption = this.getUiMapOption();
+    let layer: UILayers = option.layers[option.layerNum];
+    let shelf :GeoField[] = _.cloneDeep(this.shelf.layers[option.layerNum]);
+
+    ////////////////////////////////////////////////////////
+    // Set geo type
+    ////////////////////////////////////////////////////////
+
+    let layerType: MapLayerType = layer.type;
+
+    // Set layer type
+    if( _.eq(geomType, LogicalType.GEO_LINE) && !_.eq(layerType, MapLayerType.LINE) ) {
+      let lineLayer: UILineLayer = <UILineLayer>layer;
+      lineLayer.type = MapLayerType.LINE;
+      lineLayer.thickness = {
+        by: MapBy.NONE,
+        column: "NONE",
+        maxValue: 10
+      };
+    }
+    else if( _.eq(geomType, LogicalType.GEO_POLYGON) && !_.eq(layerType, MapLayerType.POLYGON) ) {
+      let polygonLayer: UIPolygonLayer = <UIPolygonLayer>layer;
+      polygonLayer.type = MapLayerType.POLYGON;
+    }
 
     // Option panel change cancle
     if( !this.drawByType || String(this.drawByType) == "" ) {
@@ -2356,10 +2241,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     ////////////////////////////////////////////////////////
     // Add pivot(shelf) check
     ////////////////////////////////////////////////////////
-
-    let option: UIMapOption = this.getUiMapOption();
-    let layer: UILayers = option.layers[option.layerNum];
-    let shelf :GeoField[] = _.cloneDeep(this.shelf.layers[option.layerNum]);
 
     // ////////////////////////////////////////////////////////
     // // Alias
@@ -2513,7 +2394,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // set display columns from shelf
     if (!this.uiOption.toolTip.displayColumns) this.uiOption.toolTip.displayColumns = [];
 
-    let fields = TooltipOptionConverter.returnTooltipDataValue(_.cloneDeep(this.shelf.layers[this.getUiMapOption().layerNum]));
+    let fields = TooltipOptionConverter.returnTooltipDataValue(_.cloneDeep(this.shelf.layers[option.layerNum]));
     this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(fields);
   }
 

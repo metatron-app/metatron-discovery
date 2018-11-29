@@ -2069,6 +2069,11 @@ export namespace OptionGenerator {
             "LOCATION_INFO",
             "DATA_VALUE"
           ]
+        },
+        thickness: {
+          by: "NONE",
+          column: "NONE",
+          maxValue: 10
         }
       };
     }
