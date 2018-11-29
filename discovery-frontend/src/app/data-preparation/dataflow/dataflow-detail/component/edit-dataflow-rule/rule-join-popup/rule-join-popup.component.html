@@ -50,9 +50,8 @@
                   <strong>{{getRows()}}</strong>
                   {{'msg.comm.detail.rows' | translate}}
                 </div>
-                <div class="ddp-data-form">
-                  <strong class="ddp-cursor" (click)="isDatatypesShow=!isDatatypesShow"
-                          (clickOutside)="isDatatypesShow=false">{{dataTypesList.length}}</strong>
+                <div class="ddp-data-form ddp-cursor" (click)="showTypeList($event)" (clickOutside)="isDatatypesShow=false">
+                  <strong>{{dataTypesList.length}}</strong>
                   {{'msg.comm.detail.types' | translate}}
                   <!-- 팝업 -->
                   <div class="ddp-wrap-popup2 ddp-types" *ngIf="isDatatypesShow">

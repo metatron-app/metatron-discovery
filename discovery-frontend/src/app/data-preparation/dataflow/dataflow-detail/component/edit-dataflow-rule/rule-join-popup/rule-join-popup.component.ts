@@ -740,6 +740,13 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     this.isRightDatasetShow = false;
   } // function - onRightJoinKeySelected
 
+  public showTypeList(event) {
+    if (event.target.tagName !== 'A') { // Not sure if this is a good idea..
+      this.isDatatypesShow = !this.isDatatypesShow;
+    }
+  }
+
+
   /**
    * API의 gridResponse 를 통해서 UI 상의 그리드데이터를 얻는다
    * @param gridResponse 매트릭스 정보
