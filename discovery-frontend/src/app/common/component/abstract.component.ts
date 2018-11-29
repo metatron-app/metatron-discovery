@@ -166,6 +166,19 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * add body scroll hidden class
+   */
+  public addBodyScrollHidden() {
+    $('body').removeClass('body-hidden').addClass('body-hidden');
+  } // function - addBodyScrollHidden
+
+  /**
+   * remove body scroll hidden class
+   */
+  public removeBodyScrollHidden() {
+    $('body').removeClass('body-hidden');
+  } // function - removeBodyScrollHidden
 
   // noinspection JSMethodCanBeStatic
   /**

@@ -289,13 +289,12 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
           this.joinValidation.username = true;
         }
       }).catch((error) => {
-
         this.joinValidation.username = false;
         this.joinValidation.usernameMessage
           = this.translateService.instant('LOGIN_JOIN_VALID_ID');
         return;
-
       });
+      this.joinValidation.username = true;
     }
     // Email validation
     else if ('email' === type) {
@@ -326,6 +325,7 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
           = this.translateService.instant('LOGIN_JOIN_VALID_ID');
         return;
       });
+      this.joinValidation.email = true;
     }
     // password confirm validation
     else if ('password' === type || 'confirmPassword' === type) {
@@ -344,14 +344,16 @@ export class JoinComponent extends AbstractComponent implements OnInit, OnDestro
       if (this.user.password !== this.user.confirmPassword) {
         this.joinValidation.confirmPassword = false;
         this.joinValidation.confirmPasswordMessage = this.translateService.instant('LOGIN_JOIN_NOMATCH_PASSWORD');
+        return;
+      } else {
+        this.joinValidation.confirmPassword = true;
       }
     }
 
     // 검증 통과시 validation true로 변경
     this.joinValidation[type] = true;
 
-
-  }
+  } // function - validation
 
   // 입력값 검증 결과
   private isValid() {
