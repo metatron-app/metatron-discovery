@@ -54,7 +54,7 @@
                      (keyup.enter)="metadataName.blur(); isNameEdit ? onNameChange() : null;"
                      (clickOutside)="isNameEdit ? onNameEditCancel() : null"
                      maxlength="50"
-                     type="text" class="ddp-input-navi" placeholder="{{metadataModelService.getMetadata()['name']}}">
+                     class="ddp-input-navi" placeholder="{{metadataModelService.getMetadata()['name']}}">
               <span class="ddp-btn-check" (click)="$event.stopPropagation(); onNameChange()"></span>
             </div>
             <!-- //편집 input -->
