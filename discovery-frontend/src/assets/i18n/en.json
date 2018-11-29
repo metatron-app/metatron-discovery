@@ -372,6 +372,7 @@
   "msg.space.ui.use-schema-preset" : "Use a schema preset",
   "msg.space.ui.use-custom-schema" : "Use a custom schema",
   "msg.space.ui.ph-search-ws-contents" : "Search by content or folder name",
+  "msg.space.ui.ph.owner" : "No user selected",
   "msg.space.edit.name": "Edit name and description",
   "msg.space.set.member": "Set shared member & group",
   "msg.space.set.notebook.server": "Set notebook server",
