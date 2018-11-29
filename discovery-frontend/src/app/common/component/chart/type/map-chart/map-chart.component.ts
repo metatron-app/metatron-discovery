@@ -261,9 +261,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     }
 
     // Test!
-    if( this.data[0].features && this.data[0].features.length > 1000 ) {
-      this.data[0].features = this.data[0].features.splice(0, 1000);
-    }
+    // if( this.data[0].features && this.data[0].features.length > 1000 ) {
+    //   this.data[0].features = this.data[0].features.splice(0, 1000);
+    // }
     // this.data[0].features = [this.data[0].features[0]];
 
     ////////////////////////////////////////////////////////
@@ -864,6 +864,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       let lineMaxVal = 1; //styleLayer.size.max;
       let outlineColor = null;
       let featureSizeType = null;
+      let featureThicknessType = null;
 
       // Symbol type
       if( _.eq(layerType, MapLayerType.SYMBOL) ) {
@@ -874,15 +875,20 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         featureSizeType = symbolLayer.size.by;
       }
 
-      // Symbol type
+      // Line type
       if( _.eq(layerType, MapLayerType.LINE) ) {
         let lineLayer: UILineLayer = <UILineLayer>styleLayer;
         lineDashType = lineLayer.lineStyle;
+        featureThicknessType = lineLayer.thickness.by;
+        lineMaxVal = lineLayer.thickness.maxValue;
       }
 
-
-      //lineMaxVal = styleLayer.size.max;
-      lineMaxVal = 1;
+      // Polygon type
+      if( _.eq(layerType, MapLayerType.POLYGON) ) {
+        let polygonLayer: UIPolygonLayer = <UIPolygonLayer>styleLayer;
+        outlineType = polygonLayer.outline ? polygonLayer.outline.thickness : null;
+        outlineColor = polygonLayer.outline ? polygonLayer.outline.color : null;
+      }
 
 
       ////////////////////////////////////////////////////////
@@ -959,7 +965,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
       featureColor = scope.hexToRgbA(featureColor, 1 - (styleLayer.color.transparency * 0.01));
 
-      ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
       // Outline
       ////////////////////////////////////////////////////////
 
@@ -983,30 +989,23 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       }
 
       ////////////////////////////////////////////////////////
-      // Size
+      // Line
       ////////////////////////////////////////////////////////
 
-      let featureSize = 5;
-      try {
-        if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
-          featureSize = parseInt(feature.get(scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column))) / (styleData.valueRange[scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column)].maxValue / 30);
-          if(featureSize < 5) {
-            featureSize = 5;
-          }
-        }
-      }
-      catch(error) { }
-
       let lineThickness = 2;
-      try {
-        if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
-          lineThickness = parseInt(feature.get(scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column))) / (styleData.valueRange[scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column)].maxValue / lineMaxVal);
-          if(lineThickness < 1) {
-            lineThickness = 1;
+
+      if( _.eq(layerType, MapLayerType.LINE) ) {
+        try {
+          let lineLayer: UILineLayer = <UILineLayer>styleLayer;
+          if( !_.eq(lineLayer.thickness.column, "NONE") && _.eq(featureThicknessType, MapBy.MEASURE) ) {
+            lineThickness = parseInt(feature.get(scope.getFieldAlias(lineLayer.thickness.column))) / (styleData.valueRange[scope.getFieldAlias(lineLayer.thickness.column)].maxValue / lineMaxVal);
+            if(lineThickness < 1) {
+              lineThickness = 1;
+            }
           }
         }
+        catch(error) { }
       }
-      catch(error) { }
 
       ////////////////////////////////////////////////////////
       // Creation style
@@ -2231,6 +2230,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     else if( _.eq(geomType, LogicalType.GEO_POLYGON) && !_.eq(layerType, MapLayerType.POLYGON) ) {
       let polygonLayer: UIPolygonLayer = <UIPolygonLayer>layer;
       polygonLayer.type = MapLayerType.POLYGON;
+      polygonLayer.outline
     }
 
     // Option panel change cancle

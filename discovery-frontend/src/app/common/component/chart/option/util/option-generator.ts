@@ -99,7 +99,7 @@ import { UIRadarChart } from '../ui-option/ui-radar-chart';
 
 import { CustomSymbol } from '../../../../../domain/workbook/configurations/format';
 import { UIChartAxisLabel, UIChartAxisLabelCategory, UIChartAxisLabelValue } from '../ui-option/ui-axis';
-import { MapType } from '../define/map/map-common';
+import {MapLineStyle, MapThickness, MapType} from '../define/map/map-common';
 import { UIMapOption } from '../ui-option/map/ui-map-chart';
 
 export namespace OptionGenerator {
@@ -2073,8 +2073,10 @@ export namespace OptionGenerator {
         thickness: {
           by: "NONE",
           column: "NONE",
-          maxValue: 10
-        }
+          maxValue: 2
+        },
+        lineStyle: MapLineStyle.SOLID,
+        outline: null
       };
     }
   }
