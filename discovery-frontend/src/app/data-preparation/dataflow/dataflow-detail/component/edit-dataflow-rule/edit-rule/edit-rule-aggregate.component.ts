@@ -19,6 +19,7 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import {RuleConditionInputComponent} from "./rule-condition-input.component";
 import * as _ from 'lodash';
+import {isUndefined} from "util";
 
 @Component({
   selector: 'edit-rule-aggregate',
@@ -90,24 +91,23 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
   public getRuleData(): { command: string, ruleString: string } {
 
     this.formulaList = [];
-    this.formulas.forEach((item:formula)=>{ this.formulaList.push(item.value)});
+    this.formulas.forEach((item:formula)=>{ if(!isUndefined(item.value) && item.value.length > 0) this.formulaList.push(item.value)});
+    if (this.formulaList.length === 0) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
+      return undefined;
+    }
 
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.enter.groupby'));
       return undefined;
     }
+
     const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
       if (-1 !== item.name.indexOf(' ')) {
         item.name = '`' + item.name + '`';
       }
       return item.name
     }).join(', ');
-
-    // Formula
-    if (this.formulaList.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
-      return undefined;
-    }
 
     const validFormulaList:string[] = [];
     const invalidFormula:boolean = this.formulaList.some( (formula, index) => {
@@ -126,7 +126,7 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
       }
     });
     if( invalidFormula ) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.check.formula'));
+      Alert.warning(this.translateService.instant('msg.dp.alert.check.expression'));
       return undefined;
     }
 
