@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-layout-popuptype">
+<div class="ddp-layout-popuptype popup-dashboard-join">
   <em class="ddp-bg-popup"></em>
   <div class="ddp-ui-popup ddp-ui-popup-join">
 
@@ -364,20 +364,11 @@
             <div class="ddp-wrap-grid-option">
 
               <div class="ddp-part-right">
-                <!--
-                <div class="ddp-data-form">
-                  <strong>{{getSize()[0]}}</strong>
-                  {{getSize()[1]}}
-                </div>
-                -->
                 <div class="ddp-data-form">
                   <strong>{{getColumns()}}</strong>
                   {{'msg.comm.detail.columns' | translate}}
                 </div>
                 <div class="ddp-data-form">
-                  <!--
-                  <input type="text" class="ddp-data-input" [(ngModel)]="defaultNumberOfRows">
-                  -->
                   <strong>{{getRows()}}</strong>
                   {{'msg.comm.detail.rows' | translate}}
                 </div>
@@ -390,8 +381,8 @@
                     <ul class="ddp-list-popup">
                       <li *ngFor="let data of dataTypesList">
                         <a href="javascript:">
-                          <em class="{{getFieldTypeIconClass(data)}}"></em>
-                          {{dataTypeObject[data]}} {{'msg.comm.detail.rows' | translate}}
+                          <em class="{{getFieldTypeIconClass(data.label)}}"></em>
+                          {{data.value}}
                         </a>
                       </li>
                     </ul>

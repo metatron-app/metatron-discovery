@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import * as _ from 'lodash';
 import * as $ from 'jquery';
 import { AbstractPopupComponent } from '../../../../../../common/component/abstract-popup.component';
 import {
@@ -20,7 +19,6 @@ import {
   ViewChild
 } from '@angular/core';
 import { GridComponent } from '../../../../../../common/component/grid/grid.component';
-import { Dataflow } from '../../../../../../domain/data-preparation/dataflow';
 import { Dataset, DsType, Field } from '../../../../../../domain/data-preparation/dataset';
 import { PopupService } from '../../../../../../common/service/popup.service';
 import { DataflowService } from '../../../../service/dataflow.service';
@@ -30,7 +28,7 @@ import { PreparationAlert } from '../../../../../util/preparation-alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { header, SlickGridHeader } from '../../../../../../common/component/grid/grid.header';
 import { GridOption } from '../../../../../../common/component/grid/grid.option';
-import { isNull } from 'util';
+import { isNull, isNullOrUndefined } from 'util';
 declare let moment: any;
 
 
@@ -113,14 +111,12 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
 
   public isShowPreview: boolean = false; // 미리보기 결과 표시 여부
 
-  public datatypeCount: number = 0;
   public isDatatypesShow: boolean = false;
 
   public numberOfColumns: number;
   public numberOfRows: number;
   public numberOfBytes: number = 0;
   public dataTypesList: any[] = [];
-  public dataTypeObject: {};
 
   // 편집인지 생성인지
   public joinButtonText: string = 'Join';
@@ -874,33 +870,10 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
           this.numberOfRows = data['gridResponse'].rows.length;
           this.numberOfBytes = 0;
 
-          let val = '';
-          const temp = ['LONG','DOUBLE'];
-          temp.forEach((item) => {
-            if(_.has(data['datatypeCount'], item)) {
-              switch (item) {
-                case 'DOUBLE' :
-                  val = data['datatypeCount'][item];
-                  delete data['datatypeCount'][item];
-                  item = 'FLOAT';
-                  data['datatypeCount'][item] = val;
-                  break;
-                case 'LONG' :
-                  val = data['datatypeCount'][item];
-                  delete data['datatypeCount'][item];
-                  item = 'INTEGER';
-                  data['datatypeCount'][item] = val;
-                  break;
-              }
-            }
-          });
-
-          if (data['datatypeCount']) {
-            this.dataTypesList = Object.keys(data['datatypeCount']);
-            this.dataTypeObject = data['datatypeCount'];
-          }
 
           const gridData = this.getGridDataFromGridResponse(data.gridResponse);
+          this._summaryGridInfo(gridData);
+
           this.updateGrid(gridData, this.previewGrid);
         }
       })
@@ -912,6 +885,38 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
   } // function - previewJoinResult
+
+
+  /**
+   * 그리드 요약 정보 설정
+   * @param {GridData} gridData
+   * @private
+   */
+  private _summaryGridInfo(gridData: any) {
+
+    // init type list
+    this.dataTypesList = [];
+
+    if (!isNullOrUndefined(gridData.fields)) {
+      const tempMap: Map<string, number> = new Map();
+      gridData.fields.forEach((item) => {
+        if (tempMap.get(item.type) > -1) {
+          const temp = tempMap.get(item.type) + 1;
+          tempMap.set(item.type, temp);
+        } else {
+          tempMap.set(item.type, 1);
+        }
+      });
+
+      tempMap.forEach((value: number, key: string) => {
+        this.dataTypesList.push({label : key, value : value < 2 ? `${value} column` : `${value} columns`});
+      });
+    }
+
+  } // function - _summaryGridInfo
+
+
+
 
   /**
    * 그리드 갱신
