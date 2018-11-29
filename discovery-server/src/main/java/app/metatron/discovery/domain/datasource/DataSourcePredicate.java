@@ -150,7 +150,8 @@ public class DataSourcePredicate {
                                      String containsText,
                                      List<DataSource.DataSourceType> dataSourceTypes,
                                      List<DataSource.SourceType> sourceTypes,
-                                     List<DataSource.ConnectionType> connectionTypes){
+                                     List<DataSource.ConnectionType> connectionTypes,
+                                     List<Boolean> published){
     BooleanBuilder builder = new BooleanBuilder();
     QDataSource dataSource = QDataSource.dataSource;
 
@@ -219,6 +220,32 @@ public class DataSourcePredicate {
 
     //workspaces
     if(workspaces != null && !workspaces.isEmpty()){
+      BooleanExpression workspaceContains = dataSource.id
+              .in(JPAExpressions.select(dataSource.id)
+                      .from(dataSource)
+                      .innerJoin(dataSource.workspaces)
+                      .where(dataSource.workspaces.any().id.in(workspaces)));
+      builder.and(workspaceContains);
+    }
+
+    //published
+    if(published != null && !published.isEmpty() && workspaces != null && !workspaces.isEmpty()){
+      BooleanBuilder subBuilder = new BooleanBuilder();
+      for(Boolean publishedBoolean : published){
+        subBuilder = subBuilder.or(dataSource.published.eq(publishedBoolean));
+      }
+      subBuilder = subBuilder.or(dataSource.id.in(JPAExpressions.select(dataSource.id)
+                      .from(dataSource)
+                      .innerJoin(dataSource.workspaces)
+                      .where(dataSource.workspaces.any().id.in(workspaces))));
+      builder.and(subBuilder);
+    } else if(published != null && !published.isEmpty()){
+      BooleanBuilder subBuilder = new BooleanBuilder();
+      for(Boolean publishedBoolean : published){
+        subBuilder = subBuilder.or(dataSource.published.eq(publishedBoolean));
+      }
+      builder.and(subBuilder);
+    } else if(workspaces != null && !workspaces.isEmpty()){
       BooleanExpression workspaceContains = dataSource.id
               .in(JPAExpressions.select(dataSource.id)
                       .from(dataSource)

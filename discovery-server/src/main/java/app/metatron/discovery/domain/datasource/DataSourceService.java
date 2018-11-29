@@ -299,20 +299,20 @@ public class DataSourceService {
 //    String fromStr = recentlyDateTime.toString();
 //    String toStr = currentDateTime.toString();
 //    moreCriterion.addFilter(new ListFilter(DataSourceListCriterionKey.MODIFIED_TIME,
-//            "modifiedTimeFrom", "modifiedTimeTo", fromStr, toStr,
-//            "msg.storage.ui.criterion.recently-modified-time"));
+//            "modifiedTimeFrom", "modifiedTimeTo", "", "",
+//            "msg.storage.ui.criterion.modified-time"));
 //    moreCriterion.addFilter(new ListFilter(DataSourceListCriterionKey.CREATED_TIME,
 //            "createdTimeFrom", "createdTimeTo", fromStr, toStr,
 //            "msg.storage.ui.criterion.recently-created-time"));
 
+    moreCriterion.addSubCriterion(new ListCriterion(DataSourceListCriterionKey.MODIFIED_TIME,
+            ListCriterionType.RANGE_DATETIME, "msg.storage.ui.criterion.modified-time"));
     moreCriterion.addSubCriterion(new ListCriterion(DataSourceListCriterionKey.CONNECTION_TYPE,
             ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.connection-type"));
     moreCriterion.addSubCriterion(new ListCriterion(DataSourceListCriterionKey.DATASOURCE_TYPE,
             ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.ds-type"));
     moreCriterion.addSubCriterion(new ListCriterion(DataSourceListCriterionKey.SOURCE_TYPE,
             ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.source-type"));
-    moreCriterion.addSubCriterion(new ListCriterion(DataSourceListCriterionKey.CONNECTION_TYPE,
-            ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.connection-type"));
     criteria.add(moreCriterion);
 
     //description
@@ -365,6 +365,9 @@ public class DataSourceService {
       case PUBLISH:
         //allow search
         criterion.setSearchable(true);
+
+        criterion.addFilter(new ListFilter(criterionKey, "published", "true", "msg.storage.ui.criterion.open-data"));
+
         //my private workspace
         Workspace myWorkspace = workspaceRepository.findPrivateWorkspaceByOwnerId(AuthUtils.getAuthUserName());
         criterion.addFilter(new ListFilter(criterionKey, "workspace",
@@ -393,7 +396,7 @@ public class DataSourceService {
 
         //me
         userCriterion.addFilter(new ListFilter("createdBy", userName,
-                user.getFullName() + "(me)"));
+                user.getFullName() + " (me)"));
 
         //datasource created users
         List<String> creatorIdList = dataSourceRepository.findDistinctCreatedBy();
@@ -480,6 +483,12 @@ public class DataSourceService {
                 "createdTimeFrom", "createdTimeTo", "", "",
                 "msg.storage.ui.criterion.created-time"));
         break;
+      case MODIFIED_TIME:
+        //modified_time
+        criterion.addFilter(new ListFilter(DataSourceListCriterionKey.MODIFIED_TIME,
+                "modifiedTimeFrom", "modifiedTimeTo", "", "",
+                "msg.storage.ui.criterion.modified-time"));
+        break;
       default:
         break;
     }
@@ -500,6 +509,7 @@ public class DataSourceService {
           List<DataSource.DataSourceType> dataSourceTypes,
           List<DataSource.SourceType> sourceTypes,
           List<DataSource.ConnectionType> connectionTypes,
+          List<Boolean> published,
           Pageable pageable){
 
     //add userGroups member to createdBy
@@ -515,7 +525,8 @@ public class DataSourceService {
 
     // Get Predicate
     Predicate searchPredicated = DataSourcePredicate.searchList(statuses, workspaces, createdBys, createdTimeFrom,
-            createdTimeTo, modifiedTimeFrom, modifiedTimeTo, containsText, dataSourceTypes, sourceTypes, connectionTypes);
+            createdTimeTo, modifiedTimeFrom, modifiedTimeTo, containsText, dataSourceTypes, sourceTypes, connectionTypes,
+            published);
 
     // Find by predicated
     Page<DataSource> dataSources = dataSourceRepository.findAll(searchPredicated, pageable);

@@ -861,6 +861,7 @@ public class DataSourceController {
     DateTime modifiedTimeFrom = request == null ? null : request.getModifiedTimeFrom();
     DateTime modifiedTimeTo = request == null ? null : request.getModifiedTimeTo();
     String containsText = request == null ? null : request.getContainsText();
+    List<Boolean> published = request == null ? null : request.getPublished();
 
     LOGGER.debug("Parameter (status) : {}", statuses);
     LOGGER.debug("Parameter (workspace) : {}", workspaces);
@@ -874,6 +875,7 @@ public class DataSourceController {
     LOGGER.debug("Parameter (modifiedTimeFrom) : {}", modifiedTimeFrom);
     LOGGER.debug("Parameter (modifiedTimeTo) : {}", modifiedTimeTo);
     LOGGER.debug("Parameter (containsText) : {}", containsText);
+    LOGGER.debug("Parameter (published) : {}", published);
 
 
     // Validate status
@@ -926,7 +928,7 @@ public class DataSourceController {
 
     Page<DataSource> dataSources = dataSourceService.findDataSourceListByFilter(
             statusEnumList, workspaces, createdBys, userGroups, createdTimeFrom, createdTimeTo, modifiedTimeFrom,
-            modifiedTimeTo, containsText, dataSourceTypeEnumList, sourceTypeEnumList, connectionTypeEnumList, pageable
+            modifiedTimeTo, containsText, dataSourceTypeEnumList, sourceTypeEnumList, connectionTypeEnumList, published, pageable
     );
 
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(dataSources, resourceAssembler));
