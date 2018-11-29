@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import java.util.List;
 
 /**
  * Created by kyungtaak on 2016. 6. 16..
@@ -31,31 +32,7 @@ public class MySQLConnection extends JdbcDataConnection {
 
   public static final String MYSQL_URL_PREFIX = "jdbc:mysql:/";
   private static final String MYSQL_DEFAULT_OPTIONS = "";
-  private static final String MYSQL_CONNECT_TIMEOUT_OPTION = "connectTimeout=";
-  private static final String MYSQL_SOCKET_TIMEOUT_OPTION = "socketTimeout=";
-  private static final String[] DESCRIBE_PROP = {
-          "TABLE_CATALOG",  //def
-          "TABLE_SCHEMA",   //sample
-          "TABLE_NAME",     //sales
-          "TABLE_TYPE",     //BASE TABLE
-          "ENGINE",         //InnoDB
-          "VERSION",        //10
-          "ROW_FORMAT",     //Dynamic
-          "TABLE_ROWS",     //9532
-          "AVG_ROW_LENGTH", //386
-          "DATA_LENGTH",    //3686400
-          "MAX_DATA_LENGTH", //0
-          "INDEX_LENGTH",   //0
-          "DATA_FREE",      //4194304
-          "AUTO_INCREMENT", //null
-          "CREATE_TIME",    //2017-07-23 14:02:10.0
-          "UPDATE_TIME",    //null
-          "CHECK_TIME",     //null
-          "TABLE_COLLATION", //utf8_general_ci
-          "CHECKSUM",       //null
-          "CREATE_OPTIONS", //
-          "TABLE_COMMENT",  //
-  };
+  private static final String[] DESCRIBE_PROP = {};
 
 
   public MySQLConnection() {
@@ -104,10 +81,17 @@ public class MySQLConnection extends JdbcDataConnection {
   public String getSearchDataBaseQuery(String databaseNamePattern, Pageable pageable) {
     StringBuilder builder = new StringBuilder();
 
-    builder.append("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA ");
+    builder.append("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE 1=1 ");
+
+    List<String> excludeSchemas = this.getExcludeSchemas();
+    if(excludeSchemas != null){
+      builder.append(" AND SCHEMA_NAME NOT IN ( ");
+      builder.append("'" + StringUtils.join(excludeSchemas, "','") + "'");
+      builder.append(" ) ");
+    }
 
     if(StringUtils.isNotEmpty(databaseNamePattern)){
-      builder.append("WHERE SCHEMA_NAME LIKE '%" + databaseNamePattern + "%' ");
+      builder.append("AND SCHEMA_NAME LIKE '%" + databaseNamePattern + "%' ");
     }
 
     if(pageable != null){
@@ -119,14 +103,23 @@ public class MySQLConnection extends JdbcDataConnection {
 
   @Override
   public String getDataBaseCountQuery(String databaseNamePattern) {
-    if(StringUtils.isEmpty(databaseNamePattern)){
-      return "SELECT COUNT(SCHEMA_NAME) AS COUNT " +
-              "FROM INFORMATION_SCHEMA.SCHEMATA";
-    } else {
-      return "SELECT COUNT(SCHEMA_NAME) AS COUNT " +
-              "FROM INFORMATION_SCHEMA.SCHEMATA " +
-              "WHERE SCHEMA_NAME LIKE '%" + databaseNamePattern + "%'";
+    StringBuilder builder = new StringBuilder();
+    builder.append(" SELECT COUNT(SCHEMA_NAME) AS COUNT ");
+    builder.append(" FROM INFORMATION_SCHEMA.SCHEMATA ");
+    builder.append(" WHERE 1=1 ");
+
+    List<String> excludeSchemas = this.getExcludeSchemas();
+    if(excludeSchemas != null){
+      builder.append(" AND SCHEMA_NAME NOT IN ( ");
+      builder.append("'" + StringUtils.join(excludeSchemas, "','") + "'");
+      builder.append(" ) ");
     }
+
+    if(!StringUtils.isEmpty(databaseNamePattern)){
+      builder.append(" AND SCHEMA_NAME LIKE '%" + databaseNamePattern + "%'");
+    }
+
+    return builder.toString();
   }
 
   @Override
@@ -141,6 +134,14 @@ public class MySQLConnection extends JdbcDataConnection {
     builder.append(" SELECT TABLE_NAME name, TABLE_TYPE type, TABLE_COMMENT comment ");
     builder.append(" FROM INFORMATION_SCHEMA.TABLES ");
     builder.append(" WHERE 1 = 1 ");
+
+    List<String> excludeTables = this.getExcludeTables();
+    if(excludeTables != null){
+      builder.append(" AND TABLE_NAME NOT IN ( ");
+      builder.append("'" + StringUtils.join(excludeTables, "','") + "'");
+      builder.append(" ) ");
+    }
+
     if (StringUtils.isNotEmpty(tableNamePattern)) {
       builder.append(" AND TABLE_NAME LIKE '%" + tableNamePattern + "%' ");
     }
@@ -164,6 +165,14 @@ public class MySQLConnection extends JdbcDataConnection {
     builder.append(" SELECT COUNT(TABLE_NAME) ");
     builder.append(" FROM INFORMATION_SCHEMA.TABLES ");
     builder.append(" WHERE 1 = 1 ");
+
+    List<String> excludeTables = this.getExcludeTables();
+    if(excludeTables != null){
+      builder.append(" AND TABLE_NAME NOT IN ( ");
+      builder.append("'" + StringUtils.join(excludeTables, "','") + "'");
+      builder.append(" ) ");
+    }
+
     if (StringUtils.isNotEmpty(tableNamePattern)) {
       builder.append(" AND TABLE_NAME LIKE '%" + tableNamePattern + "%' ");
     }
@@ -273,4 +282,5 @@ public class MySQLConnection extends JdbcDataConnection {
 
     return builder.toString();
   }
+
 }

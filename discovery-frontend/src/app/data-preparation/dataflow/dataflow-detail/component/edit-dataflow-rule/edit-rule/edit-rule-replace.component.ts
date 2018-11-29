@@ -23,7 +23,6 @@ import { StringUtil } from '../../../../../../common/util/string.util';
 import { isUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import * as _ from 'lodash';
-import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 import {RuleConditionInputComponent} from "./rule-condition-input.component";
 
 @Component({

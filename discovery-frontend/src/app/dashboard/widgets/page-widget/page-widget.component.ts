@@ -174,6 +174,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   // is Origin data down
   public isOriginDown: boolean = false;
   public srchText:string;
+  public isCanNotDownAggr:boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables - Input & Output
@@ -967,21 +968,28 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public drawDataGrid(isOriginal: boolean = false) {
 
-    this.loadingShow();
     this.isOriginDown = isOriginal;
+    this.isCanNotDownAggr = false;
+
+    let fields = [];
+    const clonePivot: Pivot = _.cloneDeep(this.widgetConfiguration.pivot);
+    (clonePivot.rows) && (fields = fields.concat(clonePivot.rows));
+    (clonePivot.columns) && (fields = fields.concat(clonePivot.columns));
+    (clonePivot.aggregations) && (fields = fields.concat(clonePivot.aggregations));
+
+    if( isOriginal && fields.some((field: Field) => ( field['field'] && field['field'].aggregated ) ) ) {
+      this.isCanNotDownAggr = true;
+      this.safelyDetectChanges();
+      return false;
+    }
+
+    this.loadingShow();
     this.widgetService.previewWidget(this.widget.id, isOriginal, false).then(result => {
 
-
-
-      let fields = [];
-      const clonePivot: Pivot = _.cloneDeep(this.widgetConfiguration.pivot);
-      (clonePivot.rows) && (fields = fields.concat(clonePivot.rows));
-      (clonePivot.columns) && (fields = fields.concat(clonePivot.columns));
-      (clonePivot.aggregations) && (fields = fields.concat(clonePivot.aggregations));
       // 헤더정보 생성
       const headers: header[]
         = fields.map((field: Field) => {
-        const logicalType:string = field['field'] ? field['field'].logicalType.toString() : '';
+        const logicalType:string = ( field['field'] && field['field'].logicalType ) ? field['field'].logicalType.toString() : '';
         let headerName: string = field.name;
         if( field['aggregationType'] ) {
           if( !isOriginal ) {
