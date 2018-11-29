@@ -707,10 +707,16 @@ export class IngestionSettingComponent extends AbstractComponent {
     if (this.createType === 'STAGING' && this.isStrictMode && this.partitionKeyList.length !== 0 && !this.partitionValidationResult) {
       return false;
     }
-    // value is empty in tuningConfig's default option
-    // if (this.tuningConfig.some(item => item.defaultOpt && StringUtil.isEmpty(item.value))) {
-    //   return false;
-    // }
+    // valid tuning config
+    if (this.tuningConfig.length !== 0) {
+      // if exist tuningConfig error
+      return !_.some(this.tuningConfig, config => config.keyError || config.valueError);
+    }
+    // valid job properties
+    if (this.jobProperties.length !== 0) {
+      // if exist jobProperties error
+      return !_.some(this.jobProperties, config => config.keyError || config.valueError);
+    }
     return true;
   }
 

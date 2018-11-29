@@ -351,6 +351,7 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
       property.keyValidMessage = this.translateService.instant('msg.storage.ui.custom.property.duplicated');
       // set error flag
       property.keyError = true;
+      return;
     }
   }
 
@@ -365,6 +366,7 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
       property.valueValidMessage = this.translateService.instant('msg.storage.ui.required');
       // set error flag
       property.valueError = true;
+      return;
     }
     // check special characters, and korean (enable .dot)
     if (property.value.trim().match(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\{\}\[\]\/?,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi)) {
