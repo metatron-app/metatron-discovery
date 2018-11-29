@@ -162,6 +162,10 @@ export class DetailWorkspaceComponent extends AbstractComponent implements OnIni
    */
   public onOpenChangeStatus(status: string): void {
 
+    if( ( this.workspace.active ? 'active' : 'inactive' ) === status ) {
+      return;
+    }
+
     const modal = new Modal();
     modal.data = 'STATUS';
     // 이미 활성화 상태라면
