@@ -191,7 +191,7 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     // Validation
     if (StringUtil.isEmpty(this.editingName.trim())) {
 
-      Alert.info(this.translateService.instant('msg.page.alert.insert.chart.name'));
+      Alert.info(this.translateService.instant('msg.metadata.ui.name.ph'));
       return;
     }
 
