@@ -24,6 +24,7 @@ public class DataSourceFilterRequest {
   List<String> dataSourceType;
   List<String> sourceType;
   List<String> connectionType;
+  List<Boolean> published;
 
   public List<String> getStatus() {
     return status;
@@ -119,5 +120,13 @@ public class DataSourceFilterRequest {
 
   public void setConnectionType(List<String> connectionType) {
     this.connectionType = connectionType;
+  }
+
+  public List<Boolean> getPublished() {
+    return published;
+  }
+
+  public void setPublished(List<Boolean> published) {
+    this.published = published;
   }
 }
