@@ -240,7 +240,7 @@ polaris:
   workbench:
     defaultResultSize: 1000
     maxResultSize: 1000000
-    maxFetchSize: 10000
+    maxFetchSize: 1000
     tempHdfsPath: /tmp/hive
     tempCSVPath: /tmp
   geoserver:
