@@ -63,7 +63,7 @@
               </div>
             </div>
             <!-- button -->
-            <div class="ddp-ui-buttons" *ngIf="tableOrQuery !== 'table'">
+            <div class="ddp-ui-buttons" *ngIf="tableOrQuery !== 'table'" style="z-index: 10">
               <div class="ddp-ui-message" *ngIf="showQueryStatus">
                 <span class="ddp-data-error" *ngIf="isQuerySuccess === false"><em class="ddp-icon-error"></em> {{ 'msg.dp.ui.invalid.conn' | translate }}</span>
                 <span class="ddp-data-ok" *ngIf="isQuerySuccess === true"><em class="ddp-icon-ok"></em> {{'msg.dp.ui.valid.conn' | translate}}</span>
@@ -83,7 +83,7 @@
                    tabindex="1"
                    (click)="showDatabaseList($event)"
                    (keydown)="navigateWithKeyboardShortList($event,filteredDbList,'db')">
-                <input type="text" class="ddp-input-selectbox db-search" placeholder="search by database name" [(ngModel)]="dbSearchText">
+                <input class="ddp-input-selectbox db-search" placeholder="{{'msg.bench.ui.db.name.search' | translate }}" [(ngModel)]="dbSearchText">
                 <span class="ddp-txt-selectbox">{{datasetHive.databaseName === '' ? ('msg.dp.ui.sel.db' | translate) :datasetHive.databaseName }}</span>
                 <ul class="ddp-list-selectbox ddp-selectdown"
                     (clickOutside)="isDatabaseListShow = false; initSelectedCommand(filteredDbList)">
@@ -109,8 +109,8 @@
                    tabindex="2"
                    (keydown)="navigateWithKeyboardShortList($event,filteredSchemaList,'schema')"
                    *ngIf="this.datasetHive.databaseName !== ''">
-                <input type="text" class="ddp-input-selectbox schema-search" placeholder="search by schema name" [(ngModel)]="schemaSearchText">
-                <span class="ddp-txt-selectbox">{{datasetHive.tableName === ''? ('msg.dp.ui.sel.schema' | translate) : datasetHive.tableName}}</span>
+                <input type="text" class="ddp-input-selectbox schema-search" placeholder="{{'msg.bench.ui.search.table.ph' | translate }}" [(ngModel)]="schemaSearchText">
+                <span class="ddp-txt-selectbox">{{datasetHive.tableName === ''? ('msg.storage.ui.dsource.create.choose-table' | translate) : datasetHive.tableName}}</span>
                 <ul class="ddp-list-selectbox ddp-selectdown"
                     (clickOutside)="isSchemaListShow = false; initSelectedCommand(filteredSchemaList)">
                   <li *ngFor="let schema of filteredSchemaList; let index=index"
@@ -132,7 +132,7 @@
               </div>
 
               <!-- error -->
-              <div class="ddp-txt-error" *ngIf="'' != datasetHive.tableName && 0 == schemaList.length">
+              <div class="ddp-txt-error" *ngIf="isTableEmpty">
                 <em class="ddp-icon-error"></em>{{'msg.dp.ui.no.table.description' | translate}}
               </div>
               <!-- //error -->
@@ -145,8 +145,8 @@
       <div class="ddp-wrap-variable ddp-dataset">
         <!-- 그리드 영역 -->
         <div class="ddp-ui-grid">
-          <div class="ddp-ui-empty" *ngIf="databaseList.length === 0">
-            {{'msg.storage.ui.dsource.create.preview.no.data' | translate}}
+          <div class="ddp-ui-empty" *ngIf="clearGrid">
+            {{'msg.dp.ui.no.previe' | translate}}
           </div>
           <div *ngIf="databaseList.length > 0"  grid-component style="width:100%; height:100%;" ></div>
         </div>

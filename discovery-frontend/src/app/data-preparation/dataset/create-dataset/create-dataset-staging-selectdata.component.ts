@@ -21,13 +21,13 @@ import { AbstractPopupComponent } from '../../../common/component/abstract-popup
 import { PopupService } from '../../../common/service/popup.service';
 import { Alert } from '../../../common/util/alert.util';
 import { PreparationAlert } from '../../util/preparation-alert.util';
-import { DatasetHive, DsType, RsType, ImportType, Field } from '../../../domain/data-preparation/dataset';
+import { DatasetHive, DsType, RsType, ImportType, Field, SelectedInfo } from '../../../domain/data-preparation/dataset';
 import { GridComponent } from '../../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
 import { GridOption } from '../../../common/component/grid/grid.option';
 import { StringUtil } from '../../../common/util/string.util';
 import * as $ from "jquery";
-import { isNull } from "util";
+import { isNullOrUndefined } from "util";
 
 @Component({
   selector: 'app-create-dataset-staging-selectdata',
@@ -71,6 +71,10 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   public schemaSearchText: string = '';
 
   public flag: boolean = false;
+
+  public clearGrid : boolean = false;
+
+  public isTableEmpty: boolean = false;
 
   @Output()
   public typeEmitter = new EventEmitter<string>();
@@ -136,6 +140,11 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
     this.getDatabases();
 
+    // Only initialise selectedInfo when selectedInfo doesn't have value
+    if (isNullOrUndefined(this.datasetHive.selectedInfo)) {
+      this.datasetHive.selectedInfo = new SelectedInfo();
+    }
+
     this.datasetHive.tableName = '';
     this.datasetHive.databaseName = '';
     this.datasetHive.queryStmt = '';
@@ -195,11 +204,12 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   public onChangeDatabase(event,database) {
     this.isDatabaseListShow = false;
     event.stopPropagation();
-    // this.selectedDatabase = database.name;
     this.datasetHive.databaseName = database.name;
+    this.datasetHive.selectedInfo.database = database.name;
+    this.datasetHive.selectedInfo.table = '';
     this.clickable = false;
     this.getTables(database.name);
-    $('[tabindex=1]').focus();
+    $('[tabindex=1]').trigger('focus');
     this.initSelectedCommand(this.filteredDbList);
   } // function - onChangeDatabase
 
@@ -216,59 +226,27 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     this.datasetHive.queryStmt = 'SELECT * FROM ' + this.datasetHive.databaseName + '.' + data.name;
     // this.datasetHive.tableName = this.selectedDatabase + '.' + event.name;
     this.datasetHive.tableName = data.name;
+
+    // Save table name -
+    this.datasetHive.selectedInfo.table = data.name;
+
     this.datasetService.getStagingTableData(this.datasetHive.databaseName, data.name)
       .then((result) => {
         this.loadingHide();
 
-        const headers: header[] = result.fields.map(
-          (field: Field) => {
-            return new SlickGridHeader()
-              .Id(field.name)
-              .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type) + '"></em>' + field.name + '</span>')
-              .Field(field.name)
-              .Behavior('select')
-              .Selectable(false)
-              .CssClass('cell-selection')
-              .Width(10 * (field.name.length) + 20)
-              .MinWidth(100)
-              .CannotTriggerInsert(true)
-              .Resizable(true)
-              .Unselectable(true)
-              .Sortable(true)
-              .Formatter((function (scope) {
-                return function (row, cell, value, columnDef, dataContext) {
-                  if (isNull(value)) {
-                    return '<div  style=\'color:#b8bac2; font-style: italic ;line-height:30px;\'>' + '(null)' + '</div>';
-                  } else {
-                    return value;
-                  }
-                };
-              })(this))
-              .build();
-          }
-        );
+        const headers: header[] = this._getHeaders(result.fields);
+        const rows: any[] = this._getRows(result.data);
 
-        let rows: any[] = result.data;
+        this.datasetHive.selectedInfo.headers = headers;
+        this.datasetHive.selectedInfo.rows = rows;
 
-        if (result.data.length > 0 && !result.data[0].hasOwnProperty('id')) {
-          rows = rows.map((row: any, idx: number) => {
-            row.id = idx;
-            return row;
-          });
-        }
-
-        // 그리드가 영역을 잡지 못해서 setTimeout으로 처리
-        setTimeout(() => {
-          this.gridComponent.create(headers, rows, new GridOption()
-            .SyncColumnCellResize(true)
-            .MultiColumnSort(true)
-            .RowHeight(32)
-            .NullCellStyleActivate(true)
-            .build()
-          )},400);
+        this.clearGrid = false;
+        this._drawGrid(headers,rows);
         this.clickable = true;
+
       })
       .catch((error) => {
+        this.clearGrid = false;
         this.loadingHide();
         let prep_error = this.dataprepExceptionHandler(error);
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
@@ -336,6 +314,8 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       this.isSchemaListShow = false;
       this.initTable();
       this.initQuery();
+      this.datasetHive.selectedInfo = new SelectedInfo();
+
     }
 
   } // function - selectedMethod
@@ -349,6 +329,9 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
     this.loadingShow();
     this.queryErrorMsg = '';
+
+    this.datasetHive.selectedInfo.query = this.datasetHive.queryStmt;
+
     this.datasetService.getResultWithStagingDBQuery(this.datasetHive.queryStmt).then((result) => {
       this.loadingHide();
       if (result.hasOwnProperty('errorMsg')) {
@@ -362,58 +345,23 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       this.showQueryStatus = true;
       this.isQuerySuccess = true;
 
-      const headers: header[] = result.fields.map(
-        (field: Field) => {
-          return new SlickGridHeader()
-            .Id(field.name)
-            .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type) + '"></em>' + field.name + '</span>')
-            .Field(field.name)
-            .Behavior('select')
-            .Selectable(false)
-            .CssClass('cell-selection')
-            .Width(10 * (field.name.length) + 20)
-            .MinWidth(100)
-            .CannotTriggerInsert(true)
-            .Resizable(true)
-            .Unselectable(true)
-            .Sortable(true)
-            .Formatter((function (scope) {
-              return function (row, cell, value, columnDef, dataContext) {
-                if (isNull(value)) {
-                  return '<div  style=\'color:#b8bac2; font-style: italic ;line-height:30px;\'>' + '(null)' + '</div>';
-                } else {
-                  return value;
-                }
-              };
-            })(this))
-            .build();
-        }
-      );
 
-      let rows: any[] = result.data;
+      const headers: header[] = this._getHeaders(result.fields);
+      const rows: any[] = this._getRows(result.data);
 
-      if (result.data.length > 0 && !result.data[0].hasOwnProperty('id')) {
-        rows = rows.map((row: any, idx: number) => {
-          row.id = idx;
-          return row;
-        });
-      }
+      this.datasetHive.selectedInfo.headers = headers;
+      this.datasetHive.selectedInfo.rows = rows;
 
-      setTimeout(() => {
-        this.gridComponent.create(headers, rows, new GridOption()
-          .SyncColumnCellResize(true)
-          .MultiColumnSort(true)
-          .RowHeight(32)
-          .NullCellStyleActivate(true)
-          .build()
-        )},400);
-
+      this.clearGrid = false;
+      this._drawGrid(headers,rows);
       this.clickable = true;
+
+
     }).catch((error) => {
 
       this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      // let prep_error = this.dataprepExceptionHandler(error);
+      // PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
 
       this.gridComponent.destroy();
       this.showQueryStatus = true;
@@ -638,7 +586,28 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
                   this.databaseList.push({ idx : idx, name : data[idx], selected : false });
                 }
               }
-              this.showDatabaseList();
+
+              if ( (this.datasetHive.selectedInfo.headers) || this.datasetHive.selectedInfo.query) {
+
+                // 탭 선택
+                this.tableOrQuery = this.datasetHive.selectedInfo.query ? 'query' : 'table';
+
+                if (this.tableOrQuery === 'table') {
+                  this.datasetHive.tableName = this.datasetHive.selectedInfo.table;
+                  this.datasetHive.databaseName = this.datasetHive.selectedInfo.database;
+                  this.clearGrid = false;
+                  this.getTables(this.datasetHive.databaseName);
+                } else {
+                  this.datasetHive.queryStmt = this.datasetHive.selectedInfo.query;
+                }
+                this._drawGrid(this.datasetHive.selectedInfo.headers,this.datasetHive.selectedInfo.rows);
+
+              } else {
+                this.showDatabaseList();
+              }
+
+
+
             })
             .catch((error) => {
               this.loadingHide();
@@ -668,13 +637,93 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
           for (let idx = 0, nMax = data.length; idx < nMax; idx = idx + 1) {
             this.schemaList.push({ idx : idx, name : data[idx], selected : false });
           }
+
+          if (this.datasetHive.selectedInfo.table) {
+            this.datasetHive.tableName = this.datasetHive.selectedInfo.table;
+          }
+
+          this.isTableEmpty = false;
+        } else {
+          this.schemaList = [];
+          this.datasetHive.tableName = '';
+          this.datasetHive.selectedInfo.table = '';
+          this.isTableEmpty = true;
         }
       })
       .catch((error) => {
+        this.schemaList = [];
+        this.isTableEmpty = false;
         this.loadingHide();
         let prep_error = this.dataprepExceptionHandler(error);
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
   } // function - getTables
+
+
+  /**
+   * Return Rows for grid
+   * @param rows
+   * @returns {any[]}
+   * @private
+   */
+  private _getRows(rows) : any[] {
+    let result = rows;
+    if (result.length > 0 && !result[0].hasOwnProperty('id')) {
+      result = rows.map((row: any, idx: number) => {
+        row.id = idx;
+        return row;
+      });
+    }
+    return result;
+  }
+
+
+  /**
+   * Returns headers for grid
+   * @param headers
+   * @returns {header[]}
+   * @private
+   */
+  private _getHeaders(headers) : header[] {
+    return headers.map(
+      (field: Field) => {
+        return new SlickGridHeader()
+          .Id(field.name)
+          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type === 'UNKNOWN' ? field.logicalType : field.type) + '"></em>' + field.name + '</span>')
+          .Field(field.name)
+          .Behavior('select')
+          .Selectable(false)
+          .CssClass('cell-selection')
+          .Width(10 * (field.name.length) + 20)
+          .MinWidth(100)
+          .CannotTriggerInsert(true)
+          .Resizable(true)
+          .Unselectable(true)
+          .Sortable(true)
+          .build();
+      }
+    );
+  }
+
+  /**
+   * Draw Grid
+   * @param {header[]} headers
+   * @param {any[]} rows
+   * @private
+   */
+  private _drawGrid(headers: header[], rows : any[]) {
+    // 그리드가 영역을 잡지 못해서 setTimeout으로 처리
+    setTimeout(() => {
+      this.gridComponent.create(headers, rows, new GridOption()
+        .SyncColumnCellResize(true)
+        .MultiColumnSort(true)
+        .RowHeight(32)
+        .NullCellStyleActivate(true)
+        .build()
+      )},400);
+    this.clickable = true;
+  }
+
+
 
 }

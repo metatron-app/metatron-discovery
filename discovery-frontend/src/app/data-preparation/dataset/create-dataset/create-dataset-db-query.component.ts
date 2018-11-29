@@ -380,6 +380,11 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
         const headers: header[] = this._getHeaders(result.fields);
         const rows = this._getRows(result.data);
+
+        // Save grid info -
+        this.datasetJdbc.selectedInfo.headers = headers;
+        this.datasetJdbc.selectedInfo.rows = rows;
+
         this.clearGrid = false;
         this._drawGrid(headers,rows);
         this.clickable = true;

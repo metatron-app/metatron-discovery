@@ -137,7 +137,7 @@ export class DatasetHive extends Dataset {
   public rsType: RsType;
   public dsName: string;
   public dsDesc: string;
-
+  public selectedInfo: SelectedInfo;
   public dataconnection?: any;
 }
 
