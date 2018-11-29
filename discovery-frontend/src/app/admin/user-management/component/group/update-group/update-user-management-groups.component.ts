@@ -335,9 +335,9 @@ export class UpdateUserManagementGroupsComponent extends AbstractUserManagementC
   private _initView(): void {
     // 페이지 초기화
     this.pageResult.number = 0;
-    this.pageResult.size = 15;
+    this.pageResult.size = 30;
     this._selectedMemberPage = 0;
-    this._selectedMemberPageSize = 15;
+    this._selectedMemberPageSize = 30;
     // 멤버 리스트 초기화
     this.selectedMember = [];
     this.memberList = [];
