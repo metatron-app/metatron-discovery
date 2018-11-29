@@ -674,6 +674,7 @@
   "msg.nbook.ui.not.used" : "not used",
 
   "msg.dp.alert.check.formula": "Check formula",
+  "msg.dp.alert.check.expression": "Please check expression",
   "msg.dp.alert.enter.groupby" : "Please enter groupby columns",
   "msg.dp.alert.enter.sortby" : "Please enter sortby columns",
   "msg.dp.alert.check.delimiter": "Check delimiter",
@@ -726,6 +727,7 @@
   "msg.dp.alert.importtype.db" : "Cannot get the size of JDBC type dataset",
   "msg.dp.alert.insert.delimiter" : "Please enter a delimiter",
   "msg.dp.alert.insert.formula": "Enter a formula",
+  "msg.dp.alert.insert.expression": "Please enter expression",
   "msg.dp.alert.insert.group.every": "Please enter group number",
   "msg.dp.alert.insert.limit": "Please enter the number of times",
   "msg.dp.alert.insert.new.col": "Please enter a new column name",

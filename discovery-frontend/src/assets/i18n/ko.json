@@ -674,6 +674,7 @@
   "msg.nbook.ui.not.used" : "사용하지 않음",
 
   "msg.dp.alert.check.formula": "수식을 확인해 주세요",
+  "msg.dp.alert.check.expression": "수식을 확인해 주세요",
   "msg.dp.alert.enter.groupby" : "Group by 컬럼을 선택해 주세요",
   "msg.dp.alert.enter.sortby" : "Sort by 컬럼을 선택해 주세요",
   "msg.dp.alert.check.delimiter": "구분자 값을 확인해 주세요",
@@ -725,6 +726,7 @@
   "msg.dp.alert.importtype.db" : "JDBC 타입은 사이즈를 알 수 없습니다",
   "msg.dp.alert.insert.delimiter" : "구분자를 입력해 주세요",
   "msg.dp.alert.insert.formula":"수식을 입력해 주세요",
+  "msg.dp.alert.insert.expression":"수식을 입력해 주세요",
   "msg.dp.alert.insert.group.every":"그룹수를 입력해 주세요",
   "msg.dp.alert.insert.limit":"횟수를 입력해 주세요",
   "msg.dp.alert.insert.new.col":"새로운 컬럼 이름을 입력해 주세요",

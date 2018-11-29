@@ -19,6 +19,7 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import * as _ from 'lodash';
 import {RuleConditionInputComponent} from "./rule-condition-input.component";
+import {isUndefined} from "util";
 
 @Component({
   selector: 'edit-rule-pivot',
@@ -89,11 +90,15 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    */
   public getRuleData(): { command: string, ruleString: string } {
 
-    this.formulaList = [];
-    this.formulas.forEach((item:formula)=>{ this.formulaList.push(item.value)});
-
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
+      return undefined;
+    }
+
+    this.formulaList = [];
+    this.formulas.forEach((item:formula)=>{ if(!isUndefined(item.value) && item.value.length > 0) this.formulaList.push(item.value)});
+    if (this.formulaList.length === 0) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
       return undefined;
     }
 
@@ -104,12 +109,6 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
       }
       return item.name
     }).join(', ');
-
-    // Formula
-    if (this.formulaList.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
-      return undefined;
-    }
 
     const validFormulaList:string[] = [];
     const invalidFormula:boolean = this.formulaList.some( (formula, index) => {
@@ -126,7 +125,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
       }
     });
     if( invalidFormula ) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.check.formula'));
+      Alert.warning(this.translateService.instant('msg.dp.alert.check.expression'));
       return undefined;
     }
 
