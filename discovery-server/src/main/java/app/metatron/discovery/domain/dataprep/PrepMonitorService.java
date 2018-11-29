@@ -76,8 +76,15 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
 
   @Override
   public void onApplicationEvent(ApplicationReadyEvent event) {
+    if (prepProperties.getPmonInterval() == 0) {                // set polaris.dataprep.pmonInterval to 0 to inactivate
+      LOGGER.debug("PrepMonitorService inactivated: pmonInterval={}s",
+              prepProperties.getPmonInterval(), prepProperties.getPmonLoggingInterval());
+      return;
+    }
+
     LOGGER.debug("PrepMonitorService started: pmonInterval={}s pmonLoggingInterval={}s",
             prepProperties.getPmonInterval(), prepProperties.getPmonLoggingInterval());
+
 
     dbMigratedAll = migratePrepEntities();
     lastLogTime = DateTime.now().getMillis();
@@ -478,7 +485,7 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     copySameCol("ds_type",                colVals, rs);
     colVals.put("file_format",            "CSV");                     // add new column
     colVals.put("filename_before_upload", rs.getObject("filename"));  // change column name
-    copySameCol("import_type",            colVals, rs);
+    colVals.put("import_type",            "UPLOAD");                  // change enum
     colVals.put("storage_type",           rs.getObject("file_type")); // change column name
     colVals.put("stored_uri",             storedUri);                 // add new column
     copySameCol("total_bytes",            colVals, rs);
@@ -503,7 +510,7 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     copySameCol("ds_type",                colVals, rs);
     colVals.put("file_format",            "CSV");                     // add new column
     colVals.put("filename_before_upload", rs.getObject("filename"));  // change column name
-    copySameCol("import_type",            colVals, rs);
+    colVals.put("import_type",            "UPLOAD");                  // change enum
     colVals.put("sheet_name",             sheetName);                 // add new column
     colVals.put("storage_type",           rs.getObject("file_type")); // change column name
     colVals.put("stored_uri",             storedUri);                 // add new column
@@ -627,29 +634,31 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     assert storageType != null;
     assert storedUri != null;
 
-    copySameCol("ss_id",                 colVals, rs);
-    copySameCol("created_by",            colVals, rs);
-    copySameCol("created_time",          colVals, rs);
-    copySameCol("modified_by",           colVals, rs);
-    copySameCol("modified_time",         colVals, rs);
-    copySameCol("version",               colVals, rs);
-    colVals.put("append_mode",           rs.getObject("mode"));     // change column name
-    copySameCol("creator_df_name",       colVals, rs);
-    copySameCol("ds_name",               colVals, rs);
-    copySameCol("engine",                colVals, rs);
-    copySameCol("finish_time",           colVals, rs);
-    copySameCol("launch_time",           colVals, rs);
-    copySameCol("lineage_info",          colVals, rs);
-    copySameCol("rule_cnt_done",         colVals, rs);
-    copySameCol("rule_cnt_total",        colVals, rs);
-    copySameCol("ss_name",               colVals, rs);
-    copySameCol("ss_type",               colVals, rs);
-    copySameCol("status",                colVals, rs);
-    colVals.put("storage_type",          storageType);              // add new column
-    colVals.put("stored_uri",            storedUri);                // add new column
-    copySameCol("total_bytes",           colVals, rs);
-    copySameCol("total_lines",           colVals, rs);
-    colVals.put("uri_file_format",       rs.getObject("format"));   // add new column
+    copySameCol("ss_id",           colVals, rs);
+    copySameCol("created_by",      colVals, rs);
+    copySameCol("created_time",    colVals, rs);
+    copySameCol("modified_by",     colVals, rs);
+    copySameCol("modified_time",   colVals, rs);
+    copySameCol("version",         colVals, rs);
+    // no append mode has been used until now
+    colVals.put("df_id",           getLineageInfoValue(rs, "dfId"));  // add new column
+    colVals.put("df_name",         rs.getObject("creator_df_name"));  // change column name
+    colVals.put("ds_id",           getLineageInfoValue(rs, "dsId"));  // add new column
+    copySameCol("ds_name",         colVals, rs);
+    copySameCol("engine",          colVals, rs);
+    copySameCol("finish_time",     colVals, rs);
+    copySameCol("launch_time",     colVals, rs);
+    copySameCol("lineage_info",    colVals, rs);
+    copySameCol("rule_cnt_done",   colVals, rs);
+    copySameCol("rule_cnt_total",  colVals, rs);
+    copySameCol("ss_name",         colVals, rs);
+    copySameCol("ss_type",         colVals, rs);
+    copySameCol("status",          colVals, rs);
+    colVals.put("storage_type",    storageType);                      // add new column
+    colVals.put("stored_uri",      storedUri);                        // add new column
+    copySameCol("total_bytes",     colVals, rs);
+    copySameCol("total_lines",     colVals, rs);
+    colVals.put("uri_file_format", rs.getObject("format"));           // add new column
 
     insertColVals(conn, TBL_NEW_SNAPSHOT, colVals);
     return true;
@@ -664,14 +673,15 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     copySameCol("modified_by",           colVals, rs);
     copySameCol("modified_time",         colVals, rs);
     copySameCol("version",               colVals, rs);
-//    colVals.put("append_mode",           rs.getObject("mode"));         // no append mode has been used until now
-    copySameCol("creator_df_name",       colVals, rs);
-    copySameCol("db_name",               colVals, rs);
+    // no append mode has been used until now
+    colVals.put("df_id",                 getLineageInfoValue(rs, "dfId"));  // add new column
+    colVals.put("df_name",               rs.getObject("creator_df_name"));  // change column name
+    colVals.put("ds_id",                 getLineageInfoValue(rs, "dsId"));  // add new column
     copySameCol("ds_name",               colVals, rs);
     copySameCol("engine",                colVals, rs);
     copySameCol("finish_time",           colVals, rs);
-    colVals.put("hive_file_compression", rs.getObject("compression"));  // change column name
-    colVals.put("hive_file_format",      rs.getObject("format"));       // change column name
+    colVals.put("hive_file_compression", rs.getObject("compression"));      // change column name
+    colVals.put("hive_file_format",      rs.getObject("format"));           // change column name
     copySameCol("launch_time",           colVals, rs);
     copySameCol("lineage_info",          colVals, rs);
     copySameCol("rule_cnt_done",         colVals, rs);
@@ -731,9 +741,38 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
       return null;
     }
 
-    Map customObject = GlobalObjectMapper.readValue(custom, Map.class);
-    return (String) customObject.get(key);
+    Map customObject;
+    try {
+      customObject = GlobalObjectMapper.readValue(custom, Map.class);
+    } catch (NullPointerException e) {
+      return null;
+    }
+
+    Object obj = customObject.get(key);
+    if (obj == null) {
+      return null;
+    }
+    return (String) obj;
   }
 
+  private String getLineageInfoValue(ResultSet rs, String key) throws SQLException {
+    String lineageInfo = rs.getString("lineage_info");
+    if (lineageInfo == null) {
+      return null;
+    }
+
+    Map lineageInfoObject;
+    try {
+      lineageInfoObject = GlobalObjectMapper.readValue(lineageInfo, Map.class);
+    } catch (NullPointerException e) {
+      return null;
+    }
+
+    Object obj = lineageInfoObject.get(key);
+    if (obj == null) {
+      return null;
+    }
+    return (String) obj;
+  }
 }
 

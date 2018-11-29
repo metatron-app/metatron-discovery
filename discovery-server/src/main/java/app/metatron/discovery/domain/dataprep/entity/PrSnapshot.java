@@ -106,17 +106,21 @@ public class PrSnapshot extends AbstractHistoryEntity {
     @Column(name = "ss_name")
     String ssName;
 
-    @Size(max = 2000)
-    @Column(name = "creator_df_name")
-    String creatorDfName;
+    @Size(max = 255)
+    @Column(name = "df_id")
+    String dfId;
 
     @Size(max = 2000)
-    @Column(name = "ds_name")
-    String dsName;
+    @Column(name = "df_name")
+    String dfName;
 
     @Size(max = 255)
     @Column(name = "ds_id")
     String dsId;
+
+    @Size(max = 2000)
+    @Column(name = "ds_name")
+    String dsName;
 
     @Lob
     @Column(name = "stored_uri")
@@ -228,12 +232,28 @@ public class PrSnapshot extends AbstractHistoryEntity {
         this.ssName = ssName;
     }
 
-    public String getCreatorDfName() {
-        return creatorDfName;
+    public String getDfId() {
+        return dfId;
     }
 
-    public void setCreatorDfName(String creatorDfName) {
-        this.creatorDfName = creatorDfName;
+    public void setDfId(String dfId) {
+        this.dfId = dfId;
+    }
+
+    public String getDfName() {
+        return dfName;
+    }
+
+    public void setDfName(String dfName) {
+        this.dfName = dfName;
+    }
+
+    public String getDsId() {
+        return dsId;
+    }
+
+    public void setDsId(String dsId) {
+        this.dsId = dsId;
     }
 
     public String getDsName() {

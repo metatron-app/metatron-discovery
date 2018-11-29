@@ -1189,12 +1189,13 @@ public class PrepTransformService {
     }
     snapshot.setSsName(requestPost.getSsName());
 
-    String creatorDfId = dataset.getCreatorDfId();
-    assert creatorDfId != null : dataset.toString();
+    String dfId = dataset.getCreatorDfId();
+    assert dfId != null : dataset.toString();
 
-    PrDataflow dataflow = dataflowRepository.findOne(creatorDfId);
-    snapshot.setCreatorDfName(dataflow.getDfName());
-
+    PrDataflow dataflow = dataflowRepository.findOne(dfId);
+    snapshot.setDfId(dfId);
+    snapshot.setDfName(dataflow.getDfName());
+    snapshot.setDsId(dataset.getDsId());
     snapshot.setDsName(dataset.getDsName());
     snapshot.setVersion(dataset.getVersion());
     snapshot.setSsType(requestPost.getSsType());
