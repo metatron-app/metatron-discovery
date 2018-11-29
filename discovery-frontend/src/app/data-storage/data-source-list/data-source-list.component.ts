@@ -284,6 +284,15 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   }
 
   /**
+   * criterion api function
+   * @param criterionKey
+   * @returns {Promise<DatasourceCriterion>}
+   */
+  public criterionApiFunc(criterionKey: any): Promise<DatasourceCriterion> {
+    return this.injector.get(DatasourceService).getDatasourceCriterion(criterionKey);
+  }
+
+  /**
    * Set datasource list
    * @private
    */

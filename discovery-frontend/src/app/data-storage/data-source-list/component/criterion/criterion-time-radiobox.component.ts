@@ -107,7 +107,7 @@ export class CriterionTimeRadioboxComponent extends AbstractComponent {
       this.selectedTimeType = timeType;
       // remove date picker
       this._removeDatePicker();
-      //
+      // change detect
       this.safelyDetectChanges();
       // set time date
       this._setTimePicker(timeType.value);
@@ -116,6 +116,33 @@ export class CriterionTimeRadioboxComponent extends AbstractComponent {
     }
   }
 
+  /**
+   * Init ui
+   * @private
+   */
+  private _initView(): void {
+    // time type list
+    this.timeTypeList = [
+      {label: this.translateService.instant('msg.storage.ui.criterion.today'), value: 'TODAY'},
+      {label: this.translateService.instant('msg.storage.ui.criterion.last-7-days'), value: '7DAYS'},
+      {label: this.translateService.instant('msg.storage.ui.criterion.between'), value: 'BETWEEN'},
+    ];
+    // if enable all option
+    if (this.isEnableAllOption) {
+      this.timeTypeList.unshift({label: `(${this.translateService.instant('msg.comm.ui.list.all')})`, value: 'ALL'});
+    }
+    // if not exist selected time type
+    if (!this.selectedTimeType) {
+      // init selected time type
+      this.selectedTimeType = this.timeTypeList[0];
+    }
+  }
+
+  /**
+   * Get selected time data
+   * @returns {Object}
+   * @private
+   */
   private _getSelectedTimeData(): object {
     // result
     const result = {};
@@ -142,54 +169,6 @@ export class CriterionTimeRadioboxComponent extends AbstractComponent {
     result[this.selectedTimeType.value] = [startTimeData, endTimeData];
     // return
     return result;
-  }
-
-  /**
-   * Set time picker
-   * @param {string} value
-   * @private
-   */
-  private _setTimePicker(value: string): void {
-    switch (value) {
-      case 'ALL':
-        this._startDate = null;
-        this._endDate = null;
-        break;
-      case 'TODAY':
-        this._startDate = moment({ hour: 0 }).format(this.timeFormat);
-        // this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
-        break;
-      case '7DAYS':
-        this._startDate = moment({ hour: 0 }).subtract(6, 'days').format(this.timeFormat);
-        // this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
-        break;
-      case 'BETWEEN':
-        this._setDatePickerSettings();
-        break;
-    }
-  }
-
-  /**
-   * Init ui
-   * @private
-   */
-  private _initView(): void {
-    // time type list
-    this.timeTypeList = [
-      {label: this.translateService.instant('msg.storage.ui.criterion.today'), value: 'TODAY'},
-      {label: this.translateService.instant('msg.storage.ui.criterion.last-7-days'), value: '7DAYS'},
-      {label: this.translateService.instant('msg.storage.ui.criterion.between'), value: 'BETWEEN'},
-    ];
-    // if enable all option
-    if (this.isEnableAllOption) {
-      this.timeTypeList.unshift({label: `(${this.translateService.instant('msg.comm.ui.list.all')})`, value: 'ALL'});
-    }
-    // if not exist selected time type
-    if (!this.selectedTimeType) {
-      // init selected time type
-      this.selectedTimeType = this.timeTypeList[0];
-    }
-
   }
 
   /**
@@ -241,6 +220,31 @@ export class CriterionTimeRadioboxComponent extends AbstractComponent {
     // endPickerSettings.position = 'left top';
     this._endPicker = $(this._endPickerInput.nativeElement).datepicker(endPickerSettings).data('datepicker');
     ( '-' !== endInitialValue ) && ( this._endPicker.selectDate(endInitialValue.toDate()) );
+  }
+
+  /**
+   * Set time picker
+   * @param {string} value
+   * @private
+   */
+  private _setTimePicker(value: string): void {
+    switch (value) {
+      case 'ALL':
+        this._startDate = null;
+        this._endDate = null;
+        break;
+      case 'TODAY':
+        this._startDate = moment({ hour: 0 }).format(this.timeFormat);
+        // this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
+        break;
+      case '7DAYS':
+        this._startDate = moment({ hour: 0 }).subtract(6, 'days').format(this.timeFormat);
+        // this._endDate = moment({ hour: 23, minute: 59, seconds: 59 }).format(this.timeFormat);
+        break;
+      case 'BETWEEN':
+        this._setDatePickerSettings();
+        break;
+    }
   }
 
   /**

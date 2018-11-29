@@ -25,15 +25,7 @@ import * as _ from 'lodash';
 })
 export class CriterionCheckboxComponent extends AbstractComponent {
 
-  /**
-   * selected item list
-   * {
-   *  filterKey1: []
-   *  filterKey2: []
-   * }
-   * @type {{}}
-   * @private
-   */
+  // selected item list
   private _selectedItemList: any = {};
 
   @Output('changedSelectItem')
@@ -96,6 +88,7 @@ export class CriterionCheckboxComponent extends AbstractComponent {
    * @returns {boolean}
    */
   public isRequireTranslate(label: string): boolean {
+    // if start with msg.*, translate label
     return -1 !== label.indexOf('msg.');
   }
 
@@ -106,11 +99,15 @@ export class CriterionCheckboxComponent extends AbstractComponent {
   public onCheckItem(item: any): void {
     // if checked item
     if (this.isCheckedItem(item)) {
+      // remove item in selected item list
       this._selectedItemList[item.filterKey].splice(this._selectedItemList[item.filterKey].findIndex(list => list.filterValue === item.filterValue),1);
-    } else if (this._selectedItemList[item.filterKey]) {
+    } else if (this._selectedItemList[item.filterKey]) {  // if exist item key property in selected item list
+      // add item in selected item list
       this._selectedItemList[item.filterKey].push(item);
-    } else {
+    } else {  // if not exist item key property in selected item list
+      // add item key property in selected item list
       this._selectedItemList[item.filterKey] = [];
+      // add item in selected item list
       this._selectedItemList[item.filterKey].push(item);
     }
     // change event emit

@@ -281,6 +281,8 @@
   "msg.comm.alert.error": "Please check the error",
   "msg.comm.alert.modify.success": "Your changes have been saved",
   "msg.comm.btn.edit": "Edit",
+  "msg.comm.btn.search": "Search",
+  "msg.comm.btn.new": "New",
 
   "msg.lnb.btn.Manual" : "Manuals",
   "msg.lnb.btn.workspace-list" : "Workspace list >>",
@@ -2020,6 +2022,10 @@
   "msg.storage.ui.criterion.between": "Between",
   "msg.storage.ui.criterion.time.past": "Past time",
   "msg.storage.ui.criterion.time.current": "Current time",
+  "msg.storage.ui.criterion.time.from": "from",
+  "msg.storage.ui.criterion.time.to": "to",
+  "msg.storage.ph.source.search": "Search datasource name",
+  "msg.storage.ui.criterion.criteria": "Criteria",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",

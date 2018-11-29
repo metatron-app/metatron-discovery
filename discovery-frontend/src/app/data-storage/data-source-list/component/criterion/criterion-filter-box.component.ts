@@ -36,6 +36,10 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   @Input()
   public criterion: DatasourceCriterion;
 
+  // criterion api
+  @Input('criterionApiFunc')
+  private _getCriterionFunc: Function;
+
   // criterion key
   public criterionKey: CriterionKey;
   // criterion type
@@ -86,7 +90,8 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
     if (this.criterionKey === CriterionKey.MORE && this.criterion.subCriteria) {
       // create new criterion used translate
       const temp = new DatasourceCriterion();
-      temp.criterionName = 'Criteria';
+      // set criterion name
+      temp.criterionName = this.translateService.instant('msg.storage.ui.criterion.criteria');
       // create new filters
       temp.filters = [];
       // loop
@@ -225,7 +230,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   }
 
   /**
-   *
+   * Set criterion data
    * @returns {Promise<any>}
    * @private
    */
@@ -234,8 +239,8 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
       // loading show
       this.loadingShow();
       // get criterion list
-      this._dataSourceService.getDatasourceCriterion(this.criterionKey)
-        .then((result: DatasourceCriterion) => {
+      this._getCriterionFunc(this.criterionKey)
+        .then((result) => {
           // translate criterion data (fit spec)
           this.criterionData = this._transCriterion(result);
           // loading hide
