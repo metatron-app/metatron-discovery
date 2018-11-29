@@ -20,40 +20,53 @@ import {
   Injector,
   ViewChild,
 } from '@angular/core';
-import { BaseChart } from '../../base-chart';
-import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
+import {BaseChart} from '../../base-chart';
+import {Pivot} from '../../../../../domain/workbook/configurations/pivot';
 import * as ol from 'openlayers';
-import * as h3 from 'h3-js';
-import { UIMapOption } from '../../option/ui-option/map/ui-map-chart';
+import {UIMapOption} from '../../option/ui-option/map/ui-map-chart';
 import {
   HeatmapColorList,
-  MapBy, MapGeometryType, MapLayerStyle,
+  MapBy,
+  MapGeometryType,
+  MapLayerStyle,
   MapLayerType,
-  MapLineStyle, MapSymbolType, MapThickness,
-  MapType,
+  MapLineStyle,
+  MapSymbolType,
+  MapThickness,
 } from '../../option/define/map/map-common';
 import {ColorRange} from '../../option/ui-option/ui-color';
 import {OptionGenerator} from '../../option/util/option-generator';
-import UI = OptionGenerator.UI;
 import {
   ChartColorList,
   ChartType,
-  ColorRangeType, ShelveFieldType, UIChartDataLabelDisplayType, UIPosition,
+  ColorRangeType,
+  ShelveFieldType,
+  UIChartDataLabelDisplayType,
+  UIPosition,
 } from '../../option/define/common';
 import {UISymbolLayer} from '../../option/ui-option/map/ui-symbol-layer';
-import { UIChartColorByDimension, UIChartZoom, UILayers, UIOption } from '../../option/ui-option';
+import {
+  UIChartColorByDimension,
+  UIChartZoom,
+  UILayers,
+  UIOption,
+} from '../../option/ui-option';
 import * as _ from 'lodash';
 import {BaseOption} from '../../option/base-option';
 import {FormatOptionConverter} from '../../option/converter/format-option-converter';
 import {UILineLayer} from '../../option/ui-option/map/ui-line-layer';
-import { Field as AbstractField, Field } from '../../../../../domain/workbook/configurations/field/field';
-import { Shelf } from '../../../../../domain/workbook/configurations/shelf/shelf';
+import {
+  Field as AbstractField,
+  Field,
+} from '../../../../../domain/workbook/configurations/field/field';
+import {Shelf} from '../../../../../domain/workbook/configurations/shelf/shelf';
 import {LogicalType} from '../../../../../domain/datasource/datasource';
 import {GeoField} from '../../../../../domain/workbook/configurations/field/geo-field';
-import { TooltipOptionConverter } from '../../option/converter/tooltip-option-converter';
-import { ChartUtil } from '../../option/util/chart-util';
-import {isNullOrUndefined} from "util";
+import {TooltipOptionConverter} from '../../option/converter/tooltip-option-converter';
+import {ChartUtil} from '../../option/util/chart-util';
+import {isNullOrUndefined} from 'util';
 import {UIHeatmapLayer} from '../../option/ui-option/map/ui-heatmap-layer';
+import UI = OptionGenerator.UI;
 
 @Component({
   selector: 'map-chart',
@@ -129,8 +142,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   // Heatmap layer
   public heatmapLayer = undefined;
 
-  // Tooltip layer
-  public tileLayer = undefined;
+  // Hexagon layer
+  public hexagonLayer = undefined;
 
   // Tooltip layer
   public tooltipLayer = undefined;
@@ -274,8 +287,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Soruce
     let source = new ol.source.Vector({crossOrigin: 'anonymous'});
 
+    // Hexagon Soruce
+    let hexagonSource = new ol.source.Vector({crossOrigin: 'anonymous'});
+
     // Creation feature
-    this.createFeature(source);
+    this.createFeature(source, hexagonSource);
 
     // Cluster source
     let clusterSource = new ol.source.Cluster({
@@ -285,7 +301,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     });
 
     // Creation layer
-    this.createLayer(source, clusterSource, isMapCreation);
+    this.createLayer(source, clusterSource, hexagonSource, isMapCreation);
 
     // Chart resize
     this.olmap.updateSize();
@@ -563,7 +579,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   /**
    * Creation map layer
    */
-  private createLayer(source: any, clusterSource: any, isMapCreation: boolean): void {
+  private createLayer(source: any, clusterSource: any, hexagonSource: any, isMapCreation: boolean): void {
 
     ////////////////////////////////////////////////////////
     // Create layer
@@ -614,42 +630,42 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       ////////////////////////////////////////////////////////
       // Line, Polygon layer
       ////////////////////////////////////////////////////////
-      // if( _.eq(layer.type, MapLayerType.LINE)
-      //   || _.eq(layer.type, MapLayerType.POLYGON) ) {
-      //
-      //   // Create
-      //   if( !this.symbolLayer ) {
-      //     this.symbolLayer = new ol.layer.Vector({
-      //       source: source,
-      //       style: this.clusterStyleFunction(0, this.data)
-      //     });
-      //   }
-      //
-      //   // Set source
-      //   this.symbolLayer.setSource(source);
-      //   this.featureLayer = this.symbolLayer;
-      //
-      //   // Init
-      //   if( isMapCreation && this.getUiMapOption().showMapLayer ) {
-      //     // Add layer
-      //     this.olmap.addLayer(this.symbolLayer);
-      //   }
-      //   else {
-      //     if( this.getUiMapOption().showMapLayer ) {
-      //       // Add layer
-      //       if( this.olmap.getLayers().getLength() == 1 ) {
-      //         this.olmap.addLayer(this.symbolLayer);
-      //       }
-      //
-      //       // Set style
-      //       this.symbolLayer.setStyle(this.clusterStyleFunction(0, this.data));
-      //     }
-      //     else {
-      //       // Remove layer
-      //       this.olmap.removeLayer(this.symbolLayer);
-      //     }
-      //   }
-      // }
+      if( _.eq(layer.type, MapLayerType.LINE)
+        || _.eq(layer.type, MapLayerType.POLYGON) ) {
+
+        // Create
+        if( !this.symbolLayer ) {
+          this.symbolLayer = new ol.layer.Vector({
+            source: source,
+            style: this.mapStyleFunction(0, this.data)
+          });
+        }
+
+        // Set source
+        this.symbolLayer.setSource(source);
+        this.featureLayer = this.symbolLayer;
+
+        // Init
+        if( isMapCreation && this.getUiMapOption().showMapLayer ) {
+          // Add layer
+          this.olmap.addLayer(this.symbolLayer);
+        }
+        else {
+          if( this.getUiMapOption().showMapLayer ) {
+            // Add layer
+            if( this.olmap.getLayers().getLength() == 1 ) {
+              this.olmap.addLayer(this.symbolLayer);
+            }
+
+            // Set style
+            this.symbolLayer.setStyle(this.mapStyleFunction(0, this.data));
+          }
+          else {
+            // Remove layer
+            this.olmap.removeLayer(this.symbolLayer);
+          }
+        }
+      }
       ////////////////////////////////////////////////////////
       // Heatmap layer
       ////////////////////////////////////////////////////////
@@ -696,35 +712,40 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         }
       }
       ////////////////////////////////////////////////////////
-      // Tile layer
+      // Hexgon layer
       ////////////////////////////////////////////////////////
       else if( _.eq(layer.type, MapLayerType.TILE) ) {
 
         // Create
-        if( !this.symbolLayer ) {
-          this.tileLayer = new ol.layer.Tile({
-            source: source,
-            style: this.mapStyleFunction(0, this.data)
+        if( !this.hexagonLayer ) {
+          this.hexagonLayer = new ol.layer.Vector({
+            source: hexagonSource,
+            style: this.hexagonStyleFunction(0, this.data)
           });
         }
 
         // Set source
-        this.tileLayer.setSource(source);
-        this.featureLayer = this.tileLayer;
+        this.hexagonLayer.setSource(hexagonSource);
+        this.featureLayer = this.hexagonLayer;
 
         // Init
-        if (isMapCreation && this.getUiMapOption().showMapLayer) {
+        if( isMapCreation && this.getUiMapOption().showMapLayer ) {
           // Add layer
-          this.olmap.addLayer(this.tileLayer);
-        } else {
-          if (this.getUiMapOption().showMapLayer) {
+          this.olmap.addLayer(this.hexagonLayer);
+        }
+        else {
+          if( this.getUiMapOption().showMapLayer ) {
             // Add layer
-            if (this.olmap.getLayers().getLength() == 1) {
-              this.olmap.addLayer(this.tileLayer);
+            if( this.olmap.getLayers().getLength() == 1 ) {
+              this.olmap.addLayer(this.hexagonLayer);
             }
-          } else {
+
+            // Set style
+            this.hexagonLayer.setStyle(this.hexagonStyleFunction(0, this.data));
+          }
+          else {
             // Remove layer
-            this.olmap.removeLayer(this.tileLayer);
+            this.olmap.removeLayer(this.hexagonLayer);
           }
         }
       }
@@ -746,7 +767,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   /**
    * Creation feature
    */
-  private createFeature(source): void {
+  private createFeature(source, hexagonSource): void {
 
     ////////////////////////////////////////////////////////
     // Feature info
@@ -761,6 +782,17 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       }
     });
     let geomType = field.field.logicalType.toString();
+
+    ////////////////////////////////////////////////////////
+    // Set geo data type
+    ////////////////////////////////////////////////////////
+
+    if( _.eq(geomType, LogicalType.GEO_LINE) ) {
+      this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.LINE;
+    }
+    else if( _.eq(geomType, LogicalType.GEO_POLYGON) ) {
+      this.getUiMapOption().layers[this.getUiMapOption().layerNum].type = MapLayerType.POLYGON;
+    }
 
     ////////////////////////////////////////////////////////
     // Generate feature
@@ -796,6 +828,18 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     }
 
     source.addFeatures(features);
+
+    ////////////////////////////////////////////////////////
+    // Generate hexagon feature
+    ////////////////////////////////////////////////////////
+
+    let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(this.data[0]);
+
+    for(let feature of hexagonFeatures) {
+      feature.set('layerNum', 1);
+    }
+
+    hexagonSource.addFeatures(hexagonFeatures);
   }
 
   /**
@@ -1125,16 +1169,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             color: featureColor
           })
         });
-      } else if( _.eq(layerType, MapLayerType.TILE) ) {
-        style = new ol.style.Style({
-          stroke: new ol.style.Stroke({
-            color: outlineColor,
-            width: 1
-          }),
-          fill: new ol.style.Fill({
-            color: featureColor
-          })
-        });
       }
       return style;
     }
@@ -1188,7 +1222,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         // Color
         ////////////////////////////////////////////////////////
 
-        if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureColorType, MapBy.MEASURE)) {
+        if( _.eq(featureColorType, MapBy.MEASURE)) {
           if(styleLayer.color['ranges']) {
             for(let range of styleLayer.color['ranges']) {
               let rangeMax = range.fixMax;
@@ -1279,7 +1313,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
         let featureSize = 5;
         try {
-          if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
+          if( _.eq(featureSizeType, MapBy.MEASURE) ) {
             featureSize = parseInt(feature.get(scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column))) / (styleData.valueRange[scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column)].maxValue / 30);
             if(featureSize < 5) {
               featureSize = 5;
@@ -1290,7 +1324,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
         let lineThickness = 2;
         try {
-          if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
+          if( _.eq(featureSizeType, MapBy.MEASURE) ) {
             lineThickness = parseInt(feature.get(scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column))) / (styleData.valueRange[scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column)].maxValue / lineMaxVal);
             if(lineThickness < 1) {
               lineThickness = 1;
@@ -1319,126 +1353,124 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
           })
         });
 
-        if( _.eq(layerType, MapLayerType.SYMBOL) ) {
-          switch (symbolType) {
-            case MapSymbolType.CIRCLE :
-              style = new ol.style.Style({
-                image: new ol.style.Circle({
-                  radius: featureSize,
-                  fill: new ol.style.Fill({
-                    color: featureColor
-                  }),
-                  stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
-                }),
-                stroke: new ol.style.Stroke({
-                  color: outlineColor,
-                  width: outlineWidth
-                }),
+        switch (symbolType) {
+          case MapSymbolType.CIRCLE :
+            style = new ol.style.Style({
+              image: new ol.style.Circle({
+                radius: featureSize,
                 fill: new ol.style.Fill({
                   color: featureColor
-                })
-              });
-              break;
-            case MapSymbolType.SQUARE :
-              style = new ol.style.Style({
-                image: new ol.style.RegularShape({
-                  fill: new ol.style.Fill({color: featureColor}),
-                  points: 4,
-                  radius: featureSize,
-                  angle: Math.PI / 4,
-                  stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
                 }),
-                stroke: new ol.style.Stroke({
-                  color: outlineColor,
-                  width: outlineWidth
-                }),
-                fill: new ol.style.Fill({
-                  color: featureColor
-                })
-              });
-              break;
-            case MapSymbolType.TRIANGLE :
-              style = new ol.style.Style({
-                image: new ol.style.RegularShape({
-                  fill: new ol.style.Fill({color: featureColor}),
-                  points: 3,
-                  radius: featureSize,
-                  rotation: Math.PI / 4,
-                  angle: -28,
-                  stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
-                }),
-                stroke: new ol.style.Stroke({
-                  color: outlineColor,
-                  width: outlineWidth
-                }),
-                fill: new ol.style.Fill({
-                  color: featureColor
-                })
-              });
-              break;
-            case MapSymbolType.PIN :
-              style = new ol.style.Style({
-                image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
-                  color: featureColor,
-                  crossOrigin: 'anonymous',
-                  scale: featureSize * 0.1,
-                  src: '../../../../../../assets/images/ic_pin.png'
-                })),
-                stroke: new ol.style.Stroke({
-                  color: outlineColor,
-                  width: outlineWidth
-                }),
-                fill: new ol.style.Fill({
-                  color: featureColor
-                })
-              });
-              break;
-            case MapSymbolType.PLAIN :
-              style = new ol.style.Style({
-                image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
-                  color: featureColor,
-                  crossOrigin: 'anonymous',
-                  scale: featureSize * 0.1,
-                  src: '../../../../../../assets/images/ic_map_airport.png'
-                })),
-                stroke: new ol.style.Stroke({
-                  color: outlineColor,
-                  width: outlineWidth
-                }),
-                fill: new ol.style.Fill({
-                  color: featureColor
-                })
-              });
-              break;
-            case MapSymbolType.USER :
-              style = new ol.style.Style({
-                image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
-                  color: featureColor,
-                  crossOrigin: 'anonymous',
-                  scale: featureSize * 0.1,
-                  src: '../../../../../../assets/images/ic_map_human.png'
-                })),
-                stroke: new ol.style.Stroke({
-                  color: outlineColor,
-                  width: outlineWidth
-                }),
-                fill: new ol.style.Fill({
-                  color: featureColor
-                })
-              });
-              break;
-            default :
-              style = new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                  color: outlineColor,
-                  width: outlineWidth
-                }),
-                fill: new ol.style.Fill({
-                  color: featureColor
-                })
-              });
-              break;
-          }
+                stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
+              }),
+              stroke: new ol.style.Stroke({
+                color: outlineColor,
+                width: outlineWidth
+              }),
+              fill: new ol.style.Fill({
+                color: featureColor
+              })
+            });
+            break;
+          case MapSymbolType.SQUARE :
+            style = new ol.style.Style({
+              image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({color: featureColor}),
+                points: 4,
+                radius: featureSize,
+                angle: Math.PI / 4,
+                stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
+              }),
+              stroke: new ol.style.Stroke({
+                color: outlineColor,
+                width: outlineWidth
+              }),
+              fill: new ol.style.Fill({
+                color: featureColor
+              })
+            });
+            break;
+          case MapSymbolType.TRIANGLE :
+            style = new ol.style.Style({
+              image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({color: featureColor}),
+                points: 3,
+                radius: featureSize,
+                rotation: Math.PI / 4,
+                angle: -28,
+                stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
+              }),
+              stroke: new ol.style.Stroke({
+                color: outlineColor,
+                width: outlineWidth
+              }),
+              fill: new ol.style.Fill({
+                color: featureColor
+              })
+            });
+            break;
+          case MapSymbolType.PIN :
+            style = new ol.style.Style({
+              image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
+                color: featureColor,
+                crossOrigin: 'anonymous',
+                scale: featureSize * 0.1,
+                src: '../../../../../../assets/images/ic_pin.png'
+              })),
+              stroke: new ol.style.Stroke({
+                color: outlineColor,
+                width: outlineWidth
+              }),
+              fill: new ol.style.Fill({
+                color: featureColor
+              })
+            });
+            break;
+          case MapSymbolType.PLAIN :
+            style = new ol.style.Style({
+              image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
+                color: featureColor,
+                crossOrigin: 'anonymous',
+                scale: featureSize * 0.1,
+                src: '../../../../../../assets/images/ic_map_airport.png'
+              })),
+              stroke: new ol.style.Stroke({
+                color: outlineColor,
+                width: outlineWidth
+              }),
+              fill: new ol.style.Fill({
+                color: featureColor
+              })
+            });
+            break;
+          case MapSymbolType.USER :
+            style = new ol.style.Style({
+              image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
+                color: featureColor,
+                crossOrigin: 'anonymous',
+                scale: featureSize * 0.1,
+                src: '../../../../../../assets/images/ic_map_human.png'
+              })),
+              stroke: new ol.style.Stroke({
+                color: outlineColor,
+                width: outlineWidth
+              }),
+              fill: new ol.style.Fill({
+                color: featureColor
+              })
+            });
+            break;
+          default :
+            style = new ol.style.Style({
+              stroke: new ol.style.Stroke({
+                color: outlineColor,
+                width: outlineWidth
+              }),
+              fill: new ol.style.Fill({
+                color: featureColor
+              })
+            });
+            break;
         }
       }
       ////////////////////////////////////////////////////////
@@ -1602,6 +1634,142 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         // }
       }
 
+
+      return style;
+    }
+  }
+
+  /**
+   * Hexagon style function
+   */
+  private hexagonStyleFunction = (layerNum, data) => {
+
+    let scope: any = this;
+    let styleOption: UIMapOption = this.getUiMapOption();
+    let styleLayer: UILayers = styleOption.layers[layerNum];
+    let styleData = data[layerNum];
+
+    return function (feature, resolution) {
+
+      ////////////////////////////////////////////////////////
+      // Style options
+      ////////////////////////////////////////////////////////
+
+      let layerType = styleLayer.type;
+      let featureColor = styleLayer.color.schema;
+      let featureColorType = styleLayer.color.by;
+      let symbolType = null;
+      let outlineType = null;
+      let lineDashType = null;
+      let lineMaxVal = 1; //styleLayer.size.max;
+      let outlineColor = null;
+      let featureSizeType = null;
+
+      // Symbol type
+      if( _.eq(layerType, MapLayerType.SYMBOL) ) {
+        let symbolLayer: UISymbolLayer = <UISymbolLayer>styleLayer;
+        symbolType = symbolLayer.symbol;
+        outlineType = symbolLayer.outline ? symbolLayer.outline.thickness : null;
+        outlineColor = symbolLayer.outline ? symbolLayer.outline.color : null;
+        featureSizeType = symbolLayer.size.by;
+      }
+
+      // Symbol type
+      if( _.eq(layerType, MapLayerType.LINE) ) {
+        let lineLayer: UILineLayer = <UILineLayer>styleLayer;
+        lineDashType = lineLayer.lineStyle;
+      }
+
+
+      //lineMaxVal = styleLayer.size.max;
+      lineMaxVal = 1;
+
+
+      ////////////////////////////////////////////////////////
+      // Color
+      ////////////////////////////////////////////////////////
+
+      if( _.eq(featureColorType, MapBy.MEASURE) ) {
+        if(styleLayer.color['ranges']) {
+          for(let range of styleLayer.color['ranges']) {
+            let rangeMax = range.fixMax;
+            let rangeMin = range.fixMin;
+
+            if(rangeMax === null) {
+              rangeMax = rangeMin + 1;
+            } else if(rangeMin === null) {
+              rangeMin = rangeMax;
+            }
+
+            if(rangeMax === rangeMin) {
+              rangeMin = rangeMax - 1;
+            }
+
+            if( feature.getProperties()[scope.getFieldAlias(styleLayer.color.column)] > rangeMin &&
+              feature.getProperties()[scope.getFieldAlias(styleLayer.color.column)] <= rangeMax) {
+              featureColor = range.color;
+            }
+          }
+        } else {
+          const ranges = scope.setColorRange(styleOption, styleData, scope.getColorList(styleLayer), layerNum);
+
+          // set decimal value
+          const formatValue = ((value) => {
+            return parseFloat((Number(value) * (Math.pow(10, styleOption.valueFormat.decimal)) / Math.pow(10, styleOption.valueFormat.decimal)).toFixed(styleOption.valueFormat.decimal));
+          });
+
+          for(let range of ranges) {
+            let rangeMax = range.fixMax;
+            let rangeMin = range.fixMin;
+
+            if(rangeMax === null) {
+              rangeMax = rangeMin + 1;
+            } else if(rangeMin === null) {
+              rangeMin = 0;
+            }
+
+            if(rangeMax === rangeMin) {
+              rangeMin = rangeMax - 1;
+            }
+
+            let value = formatValue(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column)]);
+
+            if( (rangeMin == 0 && rangeMin == value) || (value > rangeMin && value <= rangeMax) ) {
+              featureColor = range.color;
+            }
+          }
+        }
+      }
+      else if( _.eq(featureColorType, MapBy.DIMENSION) ) {
+
+        // Get dimension color
+        const ranges = scope.setDimensionColorRange(styleLayer, styleData, scope.getColorList(styleLayer), []);
+        _.each(ranges, (range) => {
+          if( _.eq(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column)], range.column) ) {
+            featureColor = range.color;
+            return false;
+          }
+        });
+      }
+      else if( _.eq(featureColorType, MapBy.NONE) ) {
+        featureColor = styleLayer.color.schema;
+      }
+
+      featureColor = scope.hexToRgbA(featureColor, 1 - (styleLayer.color.transparency * 0.01));
+
+      ////////////////////////////////////////////////////////
+      // Creation style
+      ////////////////////////////////////////////////////////
+
+      let style = new ol.style.Style({
+        stroke: new ol.style.Stroke({
+          color: 'black',
+          width: 1
+        }),
+        fill: new ol.style.Fill({
+          color: featureColor
+        })
+      });
 
       return style;
     }
