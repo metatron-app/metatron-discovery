@@ -393,14 +393,6 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   }
 
   /**
-   * ingestion size
-   * @returns {number}
-   */
-  public get getIngestionSize(): number {
-    return this.getIngestion.size;
-  }
-
-  /**
    * ingestion period 객체
    * @returns {any}
    */
