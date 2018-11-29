@@ -832,6 +832,17 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     this.deleteModalComponent.init(modal);
   } // function - confirmDeleteComment
 
+  /**
+   * 유저의 프로필 사진
+   * @param user
+   * @returns {string}
+   */
+  public getProfileImage(user): string {
+    return user.hasOwnProperty('imageUrl')
+      ? '/api/images/load/url?url=' + user.imageUrl + '/thumbnail'
+      : '/assets/images/img_photo.png';
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Dashboard
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

@@ -264,7 +264,7 @@
                   </div>
                   <!-- chat 사용자 -->
                   <div class="ddp-data-chatuser">
-                    <img src="{{comment.createdBy.imageUrl ? comment.createdBy.imageUrl : '/assets/images/img_photo.png'}}" class="ddp-data-photo" *ngIf="username != comment.createdBy.username"/>
+                    <img [src]="getProfileImage(comment.createdBy)" class="ddp-data-photo" *ngIf="username != comment.createdBy.username"/>
                     <div class="ddp-data-name">
                       {{username == comment.createdBy.username ? '나' : comment.createdBy.fullName}}
                       <span class="ddp-data-time"> {{dateFormatTodayTimeElseDate(comment.createdTime)}}</span>
