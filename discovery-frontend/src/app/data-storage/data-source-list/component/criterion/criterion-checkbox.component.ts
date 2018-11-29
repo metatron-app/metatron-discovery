@@ -15,7 +15,7 @@
 
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
-import { DatasourceCriterion } from '../../../../domain/datasource/datasourceCriterion';
+import { CriterionKey, DatasourceCriterion } from '../../../../domain/datasource/datasourceCriterion';
 import { StringUtil } from '../../../../common/util/string.util';
 import * as _ from 'lodash';
 
@@ -134,12 +134,30 @@ export class CriterionCheckboxComponent extends AbstractComponent {
     // if not empty search keyword
     if (StringUtil.isNotEmpty(this.searchKeyword)) {
       // filtered criterion list
+      this._setFilteredList();
+    }
+    // change detect
+    this.safelyDetectChanges();
+  }
+
+  /**
+   * Set filtered list
+   * @private
+   */
+  private _setFilteredList(): void {
+    // if criterion key is PUBLISH
+    if (this.criterion.criterionKey === CriterionKey.PUBLISH) {
+      // filtered criterion list
+      this.criterionList.forEach((list, index, array) => {
+        // set list filters
+        list.filters = list.filters.filter(item => item.filterKey !== 'published' && -1 !== item.filterName.toUpperCase().indexOf(this.searchKeyword.trim().toUpperCase()));
+      });
+    } else {
+      // filtered criterion list
       this.criterionList.forEach((list, index, array) => {
         // set list filters
         list.filters = list.filters.filter(item => -1 !== item.filterName.toUpperCase().indexOf(this.searchKeyword.trim().toUpperCase()));
       });
     }
-    // change detect
-    this.safelyDetectChanges();
   }
 }
