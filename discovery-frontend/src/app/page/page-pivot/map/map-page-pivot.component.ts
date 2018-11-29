@@ -39,6 +39,14 @@ import { MapLayerType } from '../../../common/component/chart/option/define/map/
 })
 export class MapPagePivotComponent extends PagePivotComponent {
 
+  public shelf: Shelf;
+
+  public uiOption: UIMapOption;
+
+  // geo type from datasource fields
+  @Input('geoType')
+  public geoType: LogicalType;
+
   @Input('uiOption')
   public set setUIOption(uiOption: UIMapOption) {
 
@@ -65,10 +73,6 @@ export class MapPagePivotComponent extends PagePivotComponent {
   // Pivot 정보가 바뀐 경우
   @Output('changeShelf')
   public changeShelfEvent: EventEmitter<any> = new EventEmitter();
-
-  public shelf: Shelf;
-
-  public uiOption: UIMapOption;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -395,16 +399,6 @@ export class MapPagePivotComponent extends PagePivotComponent {
   }
 
   /**
-   * return class by shelf condition
-   */
-  // public getGuideText(): string {
-  //
-  //
-  //
-  //   return '';
-  // }
-
-  /**
    * set shelf guide
    * @param {string} type
    * @returns {boolean}
@@ -563,7 +557,6 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * @param {string} targetContainer
    * @returns {boolean}
    */
-  // private distinctMeasure(shelves: AbstractField[], field: any, idx: number, shelf: AbstractField[]): boolean {
   private distinctMeasure(shelf: AbstractField[], field: any, idx: number): boolean {
 
     const duplicateList = [];

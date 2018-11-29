@@ -895,8 +895,21 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     const widget: Widget = DashboardUtil.getWidget(this.dashboard, widgetId);
     if (widget) {
       let arrFields: string[] = [];
+
       const pivot: Pivot = widget.configuration['pivot'];
-      if (pivot) {
+
+      // set shelf layers (map chart)
+      const shelf: Shelf = widget.configuration['shelf'];
+      const layerNum: number = widget.configuration['chart'].layerNum;
+      if (shelf && undefined !== layerNum && shelf.layers[layerNum] && shelf.layers[layerNum].length > 0) {
+        arrFields = arrFields.concat(shelf.layers[layerNum].map(item => {
+          if (item.alias) {
+            return item.alias;
+          } else {
+            return (item.fieldAlias) ? item.fieldAlias : item.name;
+          }
+        }));
+      } else if (pivot) {
         if (pivot.columns) {
           arrFields = arrFields.concat(pivot.columns.map(item => {
             if (item.alias) {

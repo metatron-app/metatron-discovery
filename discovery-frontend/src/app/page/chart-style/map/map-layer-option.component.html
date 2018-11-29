@@ -528,8 +528,8 @@
                             </div>
                             <div class="ddp-col-4">
                               <input type="number" input-mask="number" class="ddp-input-typebasic ddp-txt-right"
-                                     [(ngModel)]="uiOption.layers[index].thickness.maxValue"
-                                     (keyup.enter)="changeThickMaxValue(uiOption.layers[index].thickness.maxValue)">
+                                     [ngModel]="uiOption.layers[index].thickness.maxValue"
+                                     (keyup.enter)="changeThickMaxValue($event)">
                             </div>
                           </div>
                         </div>

@@ -332,6 +332,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   public fields: Field[] = [];
   public boardFilters: Filter[] = [];
 
+  // geo type from datasource fields (for map)
+  public geoType: LogicalType;
+
   // public getSankeyNotAllNode(): boolean {
   //   console.info(this.isSankeyNotAllNode);
   //   let isSankeyNotAllNode: boolean = this.isSankeyNotAllNode && !this.isNoData && this.isChartView == 'block' && this.selectChart == 'sankey';
@@ -426,6 +429,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       // convert pivot to shelf or shelf to pivot
       if ('map' === chartType) {
         this.shelf = this.convertPivotToShelf(this.shelf);
+
+        // find geo type from dimension list
+        this.geoType = this.getMapGeoType();
       } else {
         this.pivot = this.convertShelfToPivot(this.pivot, deepCopyUiOption);
       }
@@ -626,6 +632,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.dataSource = dataSource;
       // 데이터 필드 설정 (data panel의 pivot 설정)
       this.setDatasourceFields(true);
+      // find geo type from dimension list
+      this.geoType = this.getMapGeoType();
     } else {
       this.dataSource = dataSource;
       let widgetName: string = null;
@@ -4204,5 +4212,18 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.pivot = new Pivot();
 
     return shelf;
+  }
+
+  /**
+   * get geoType in dimension list (map)
+   */
+  private getMapGeoType() {
+
+    // find geo type from dimension list
+    for (const item of this.pageDimensions) {
+      if (item.logicalType && -1 !== item.logicalType.toString().indexOf('GEO')) {
+        return this.geoType = item.logicalType;
+      }
+    }
   }
 }

@@ -551,11 +551,11 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
       this.widgets.forEach((widget: Widget) => {
 
       // map - set shelf layers
-      if (widget.type === 'page' && widget.configuration && widget.configuration['shelf']) {
+      if (undefined !== widget.configuration['chart']['layerNum'] && widget.type === 'page' && widget.configuration && widget.configuration['shelf']) {
 
         const pivotConf = widget.configuration['shelf'];
         const layerNum = widget.configuration['chart']['layerNum'];
-        if (pivotConf.layers && 0 < pivotConf.layers[layerNum].length) {
+        if (undefined !== layerNum && pivotConf.layers && 0 < pivotConf.layers[layerNum].length) {
           pivotConf.layers[layerNum].forEach(layer => {
             let idx: number = totalFields.findIndex(field => field.name === layer.name);
             if (-1 < idx) {

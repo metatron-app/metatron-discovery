@@ -214,7 +214,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     let inputValue = parseFloat($event.target.value);
 
-    if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < -1) {
       $event.target.value = this.uiOption.layers[index].color.transparency;
       return;
     } else {
@@ -326,6 +326,20 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     (<UILineLayer>this.uiOption.layers[this.index]).thickness.by = data['value'];
 
+    if (MapBy.MEASURE === data['value']) {
+
+      // only set column when measure column exsists
+      if (this.uiOption.fieldMeasureList && this.uiOption.fieldMeasureList.length > 0) {
+        (<UILineLayer>this.uiOption.layers[this.index]).thickness.column = this.uiOption.fieldMeasureList[0]['name'];
+      } else {
+        (<UILineLayer>this.uiOption.layers[this.index]).thickness.column = '';
+      }
+
+    } else if (MapBy.NONE === data['value']) {
+
+      (<UILineLayer>this.uiOption.layers[this.index]).thickness.column = '';
+    }
+
     this.applyLayers();
   }
 
@@ -333,11 +347,19 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * line layer - stroke maxValue
    * @param {number} maxValue
    */
-  public changeThickMaxValue(maxValue: number) {
+  public changeThickMaxValue(event: any) {
 
-    (<UILineLayer>this.uiOption.layers[this.index]).thickness.maxValue = maxValue;
+    const inputValue = parseFloat(event.target.value);
 
-    this.applyLayers();
+    if (_.isEmpty(inputValue.toString()) || isNaN(inputValue)) {
+
+      event.target.value = (<UILineLayer>this.uiOption.layers[this.index]).thickness.maxValue;
+      return;
+    } else {
+
+      (<UILineLayer>this.uiOption.layers[this.index]).thickness.maxValue = inputValue;
+      this.applyLayers();
+    }
   }
 
   /**
@@ -397,7 +419,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public changeBlurText($event: any, index: number) {
 
     let inputValue = parseFloat($event.target.value);
-    if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < -1) {
       $event.target.value = this.uiOption.layers[index]['blur'];
       return;
     } else {
@@ -417,7 +439,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   }
   public changeRadiusText($event: any, index: number) {
     let inputValue = parseFloat($event.target.value);
-    if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < -1) {
       $event.target.value = this.uiOption.layers[index]['radius'];
       return;
     } else {
@@ -446,7 +468,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     let inputValue = parseFloat(event.target.value);
 
-    if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < -1) {
       event.target.value = (<UITileLayer>this.uiOption.layers[this.index]).radius;
       return;
     } else {
@@ -470,7 +492,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   }
   public changeCoverageText($event: any, index: number) {
     let inputValue = parseFloat($event.target.value);
-    if( _.isEmpty(inputValue.toString()) || inputValue > 1 || inputValue < 0) {
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 1 || inputValue < 0) {
       $event.target.value = this.uiOption.layers[index]['coverage'];
       return;
     } else {
@@ -561,7 +583,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     let inputValue = parseFloat(event.target.value);
 
-    if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < -1) {
       event.target.value = (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[0];
       return;
     } else {
@@ -587,7 +609,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     let inputValue = parseFloat(event.target.value);
 
-    if( _.isEmpty(inputValue.toString()) || inputValue > 100 || inputValue < -1) {
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < -1) {
       event.target.value = (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[index];
       return;
     } else {
