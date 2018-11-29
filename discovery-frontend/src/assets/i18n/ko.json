@@ -372,6 +372,7 @@
   "msg.space.ui.use-schema-preset" : "스키마 프리셋 사용",
   "msg.space.ui.use-custom-schema" : "커스텀 프리셋 사용",
   "msg.space.ui.ph-search-ws-contents" : "Search by content or folder name",
+  "msg.space.ui.ph.owner" : "변경할 소유자를 선택해주세요",
   "msg.space.edit.name" : "이름 및 설명 수정",
   "msg.space.set.member" : "공유 멤버 및 그룹 설정",
   "msg.space.set.notebook.server" : "노트북 서버 설정",
