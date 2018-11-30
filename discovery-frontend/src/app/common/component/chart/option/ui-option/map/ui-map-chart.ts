@@ -53,6 +53,6 @@ export interface UIMapOption extends UIOption {
   style?: string;
   // TODO specs which don't exist in server spec
 
-  // current layer number
+  // current layer number (0 - 2)
   layerNum?: number;
 }

@@ -365,6 +365,8 @@
     <map-chart #chart
                  *ngIf="chartType === 'map' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
                  (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                 (chartSelectInfo)="chartSelectInfo($event)"
+                 (noData)="showNoData()"
                  (drawFinished)="updateComplete()">
     </map-chart>
 
