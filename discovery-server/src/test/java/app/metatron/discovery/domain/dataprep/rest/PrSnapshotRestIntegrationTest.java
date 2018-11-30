@@ -14,15 +14,16 @@
 
 package app.metatron.discovery.domain.dataprep.rest;
 
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.dataprep.PrepSnapshotRequestPost;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
-import app.metatron.discovery.domain.dataprep.transform.PrepSnapshotResponse;
-import com.google.common.collect.Maps;
-
 import com.facebook.presto.jdbc.internal.jackson.core.JsonProcessingException;
+import com.google.common.collect.Maps;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,11 +37,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.dataprep.PrepSnapshotRequestPost;
 
 import static com.jayway.restassured.RestAssured.given;
 
@@ -157,12 +153,13 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
         PrepSnapshotRequestPost data = new PrepSnapshotRequestPost();
         data.setEngine(PrSnapshot.ENGINE.EMBEDDED);
         data.setSsType(ssType);
-        data.setFormat(PrSnapshot.HIVE_FILE_FORMAT.CSV.name());
+        //data.setFormat(PrSnapshot.HIVE_FILE_FORMAT.CSV.name());
+        data.setHiveFileFormat(PrSnapshot.HIVE_FILE_FORMAT.CSV);
 //        data.setCompression(PrSnapshot.COMPRESSION.ZLIB);
 
         List<String> partKeys = new ArrayList<>();
         partKeys.add("month");
-        data.setPartKeys((ArrayList<String>) partKeys);
+        data.setPartitionColNames((ArrayList<String>) partKeys);
 
         Response snapshot_post_response = given()
                 .auth()

@@ -15,16 +15,16 @@
 package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_COMPRESSION;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_FORMAT;
-import app.metatron.discovery.domain.dataprep.service.PrSnapshotService;
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.jdbc.PrepJdbcService;
+import app.metatron.discovery.domain.dataprep.service.PrSnapshotService;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcTypeNotSupportedException;
@@ -54,11 +54,11 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.sql.DataSource;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -281,9 +281,9 @@ public class TeddyExecutor {
 //        assert false : storageType;
 //    }
 
-    String fileUri = (String) snapshotInfo.get("fileUri");
+    String fileUri = (String) snapshotInfo.get("storedUri");
     String dirUri = snapshotService.escapeUri(fileUri);
-    String storedUri = dirUri + File.separator + "/part-00000-" + masterTeddyDsId + ".csv";;
+    String storedUri = dirUri + File.separator + "part-00000-" + masterTeddyDsId + ".csv";;
     writeCsv(storedUri, df, ssId);
 
     // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
@@ -386,9 +386,9 @@ public class TeddyExecutor {
     finalDf.checkAlphaNumericalColNames();
 
     List<String> ruleStrings = (List<String>) datasetInfo.get("ruleStrings");
-    List<String> partKeys = (List<String>) snapshotInfo.get("partKeys");
-    String format = (String) snapshotInfo.get("format");
-    String compression = (String) snapshotInfo.get("compression");
+    List<String> partKeys = (List<String>) snapshotInfo.get("partitionColNames");
+    String format = (String) snapshotInfo.get("hiveFileFormat");
+    String compression = (String) snapshotInfo.get("hiveFileCompression");
     String database = (String) snapshotInfo.get("dbName");
     String tableName = (String) snapshotInfo.get("tblName");
     String extHdfsDir = snapshotInfo.get("stagingBaseDir") + File.separator + "snapshots";

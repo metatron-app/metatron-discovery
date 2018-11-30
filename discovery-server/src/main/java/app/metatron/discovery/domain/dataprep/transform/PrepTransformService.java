@@ -179,15 +179,16 @@ public class PrepTransformService {
     Map<String, Object> map = new HashMap();
     PrSnapshot.SS_TYPE ssType = requestPost.getSsType();
     PrSnapshot.ENGINE engine = requestPost.getEngine();
-    PrSnapshot.APPEND_MODE mode = requestPost.getMode();
+    PrSnapshot.APPEND_MODE appendMode = requestPost.getAppendMode();
 
     // 공통
     map.put("ssId",           ssId);
     map.put("ssName",         requestPost.getSsName());
     map.put("ssType",         ssType.name());
     map.put("engine",         engine.name());
-    map.put("format",         requestPost.getFormat());
-    map.put("compression",    requestPost.getCompression());
+    map.put("uriFileFormat",         requestPost.getUriFileFormat());
+    map.put("hiveFileFormat",         requestPost.getHiveFileFormat());
+    map.put("hiveFileCompression",    requestPost.getHiveFileCompression());
     map.put("localBaseDir",   prepProperties.getLocalBaseDir());
 
     switch (ssType) {
@@ -197,7 +198,15 @@ public class PrepTransformService {
 //      case HDFS:
 //        map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
 //        map.put("fileUri",        requestPost.getUri());
-        map.put("storedUri",        requestPost.getUri());
+        String storedUri = requestPost.getStoredUri();
+        if(storedUri==null) {
+          if(requestPost.getStorageType()== PrSnapshot.STORAGE_TYPE.LOCAL) {
+            storedUri = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), requestPost.getSsName());
+          } else if(requestPost.getStorageType()== PrSnapshot.STORAGE_TYPE.HDFS) {
+            storedUri = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), requestPost.getSsName());
+          }
+        }
+        map.put("storedUri",        storedUri);
         map.put("storageType",      requestPost.getStorageType());
         break;
 //      case JDBC:
@@ -205,8 +214,8 @@ public class PrepTransformService {
 //        break;
       case STAGING_DB:
         map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
-        map.put("partKeys",       requestPost.getPartKeys());
-        map.put("mode",           mode.name());
+        map.put("partitionColNames",       requestPost.getPartitionColNames());
+        map.put("appendMode",           appendMode.name());
         map.put("dbName",         requestPost.getDbName());
         map.put("tblName",        requestPost.getTblName());
         break;
@@ -215,8 +224,8 @@ public class PrepTransformService {
     }
 
     if (engine == PrSnapshot.ENGINE.TWINKLE) {
-      map.put("codec",             requestPost.getCompression().name().toLowerCase());
-      map.put("mode",              requestPost.getMode().name().toLowerCase());    // Twinkle demands to lower;
+      map.put("codec",             requestPost.getHiveFileCompression().name().toLowerCase());
+      map.put("mode",              requestPost.getAppendMode().name().toLowerCase());    // Twinkle demands to lower;
       map.put("driver-class-name", datasourceDriverClassName);
       map.put("url",               datasourceUrl);
       map.put("username",          datasourceUsername);
@@ -1181,6 +1190,22 @@ public class PrepTransformService {
       throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_INVALID_SNAPSHOT_NAME);
     }
 
+    // If storedUri is null, it means storeUri is using default value
+    // FIXME: need to adjust the protocol of storedUri
+    if(requestPost.getStoredUri()==null) {
+      if (requestPost.getStorageType() == PrSnapshot.STORAGE_TYPE.LOCAL) {
+        requestPost.setStoredUri( "file://" + this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), requestPost.getSsName()) );
+      } else if (requestPost.getStorageType() == PrSnapshot.STORAGE_TYPE.HDFS) {
+        requestPost.setStoredUri( this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), requestPost.getSsName()) );
+      }
+    } else {
+      if (requestPost.getStorageType() == PrSnapshot.STORAGE_TYPE.LOCAL) {
+        if(requestPost.getStoredUri().startsWith("/")) {
+          requestPost.setStoredUri( "file://" + requestPost.getStoredUri() );
+        }
+      }
+    }
+
     load_internal(wrangledDsId);
 
     if (requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB) {
@@ -1195,7 +1220,7 @@ public class PrepTransformService {
     snapshot.setSsType(ssType);
     snapshot.setStatus(PrSnapshot.STATUS.INITIALIZING);
     snapshot.setEngine(requestPost.getEngine());
-    snapshot.setAppendMode(requestPost.getMode());
+    snapshot.setAppendMode(requestPost.getAppendMode());
     snapshot.setLaunchTime(DateTime.now(DateTimeZone.UTC));
 
     prepareTransformRules(dataset.getDsId());
@@ -1225,16 +1250,19 @@ public class PrepTransformService {
     snapshot.setOrigDsImportType(origDataset.getImportType());
     snapshot.setOrigDsStoredUri(origDataset.getStoredUri());
 
-    snapshot.setOrigDsDcId(origDataset.getDcId());
-    DataConnection origDsDc = connectionRepository.getOne(origDataset.getDcId());
-    snapshot.setOrigDsDcImplementor(origDsDc.getImplementor());
-    snapshot.setOrigDsDcName(origDsDc.getName());
-    snapshot.setOrigDsDcDesc(origDsDc.getDescription());
-    snapshot.setOrigDsDcType(origDsDc.getType());
-    snapshot.setOrigDsDcHostname(origDsDc.getHostname());
-    snapshot.setOrigDsDcPort(origDsDc.getPort());
-    snapshot.setOrigDsDcUsername(origDsDc.getUsername());
-    snapshot.setOrigDsDcUrl(origDsDc.getUrl());
+    String dcId = origDataset.getDcId();
+    if(dcId!=null) { // If ImportType is not UPLOAD, the dataset has no connection
+      snapshot.setOrigDsDcId(origDataset.getDcId());
+      DataConnection origDsDc = connectionRepository.getOne(origDataset.getDcId());
+      snapshot.setOrigDsDcImplementor(origDsDc.getImplementor());
+      snapshot.setOrigDsDcName(origDsDc.getName());
+      snapshot.setOrigDsDcDesc(origDsDc.getDescription());
+      snapshot.setOrigDsDcType(origDsDc.getType());
+      snapshot.setOrigDsDcHostname(origDsDc.getHostname());
+      snapshot.setOrigDsDcPort(origDsDc.getPort());
+      snapshot.setOrigDsDcUsername(origDsDc.getUsername());
+      snapshot.setOrigDsDcUrl(origDsDc.getUrl());
+    }
 
     snapshot.setOrigDsDbName(origDataset.getDbName());
     snapshot.setOrigDsTblName(origDataset.getTblName());
@@ -1261,10 +1289,9 @@ public class PrepTransformService {
     // fill snapshot entity: attributes per ssType
     switch (ssType) {
       case URI:
-        snapshot.setStoredUri(requestPost.getUri());
+        snapshot.setStoredUri(requestPost.getStoredUri());
         snapshot.setStorageType(requestPost.getStorageType());
-        snapshot.setUriFileFormat(PrSnapshot.URI_FILE_FORMAT.valueOf(requestPost.getFormat()));
-                                    // FIXME: uriFileFormat will be removed soon. So I didn't handling runtime exception.
+        snapshot.setUriFileFormat(requestPost.getUriFileFormat());
         break;
 
       case DATABASE:    // TODO: not implemented yet (just coded in advance a little bit)
@@ -1287,8 +1314,8 @@ public class PrepTransformService {
       case STAGING_DB:
         snapshot.setDbName(requestPost.getDbName());
         snapshot.setTblName(requestPost.getTblName());
-        snapshot.setHiveFileFormat(PrSnapshot.HIVE_FILE_FORMAT.valueOf(requestPost.getFormat()));  // FIXME: after removing uriFileFormat, change back into enum.
-        snapshot.setHiveFileCompression(requestPost.getCompression());
+        snapshot.setHiveFileFormat(requestPost.getHiveFileFormat());
+        snapshot.setHiveFileCompression(requestPost.getHiveFileCompression());
         snapshot.setPartitionColNames(requestPost.getJsonPartitionColNames());
         break;
       default:
@@ -1470,12 +1497,12 @@ public class PrepTransformService {
 
         String localDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
         localDir = this.snapshotService.escapeUri(localDir);
-        fileUri.put("local", "file://" + localDir);
+        fileUri.put(PrSnapshot.STORAGE_TYPE.LOCAL.name(), "file://" + localDir);
 
         try {
           String hdfsDir = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), ssName);
           hdfsDir = this.snapshotService.escapeUri(hdfsDir);
-          fileUri.put("hdfs", hdfsDir);
+          fileUri.put(PrSnapshot.STORAGE_TYPE.HDFS.name(), hdfsDir);
         } catch (Exception e) {
           // MSG_DP_ALERT_STAGING_DIR_NOT_CONFIGURED is suppressed
         }

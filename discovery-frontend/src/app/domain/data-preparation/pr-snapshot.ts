@@ -33,7 +33,7 @@ public totalBytes: number;
 public serverLog: string;
 
 public elapsedTime: ElapsedTime = new ElapsedTime();
-public location : string;
+//public location : string;
 public storedUri : string; // fileURL : string;
 
 public sourceInfo: LineageInfo;
@@ -46,7 +46,7 @@ public hiveFileFormat: HiveFileFormat;
 public hiveFileCompression: HiveFileCompression;
 public appendMode: AppendMode;
 public engine: Engine;
-public partitionColNames: string;
+public partitionColNames: string[];
 
 // UI 에서 사용
 public gridData: any;

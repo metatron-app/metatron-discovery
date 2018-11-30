@@ -26,7 +26,7 @@ import { DatasetService } from '../dataset/service/dataset.service';
 import { DataflowService } from '../dataflow/service/dataflow.service';
 import { PopupService } from '../../common/service/popup.service';
 //import { Compression, DataSnapshot, SsType } from '../../domain/data-preparation/data-snapshot';
-import { HiveFileCompression, Engine, PrDataSnapshot, SsType } from '../../domain/data-preparation/pr-snapshot';
+import { HiveFileCompression, Engine, PrDataSnapshot, SsType, StorageType } from '../../domain/data-preparation/pr-snapshot';
 //import { Field } from '../../domain/data-preparation/dataset';
 import { Field } from '../../domain/data-preparation/pr-dataset';
 
@@ -194,6 +194,9 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         this.snapshot.partKeys = [];
       }
       */
+      if (isUndefined(this.snapshot.partitionColNames)) {
+        this.snapshot.partitionColNames = [];
+      }
 
       // 테이블 이름 validation
       const reg = /^[a-zA-Z][a-zA-Z0-9_]*$/;
@@ -212,7 +215,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
       // 변경한 게 없으면 보내지 않음
       for(let idx=0;idx<this.fileLocations.length;idx++) {
-        if( this.snapshot.location == this.fileLocations[idx].value ) {
+        //if( this.snapshot.location == this.fileLocations[idx].value ) {
+        if( this.snapshot.storageType == this.fileLocations[idx].value ) {
           //if( this.snapshot.uri == this.fileUris[idx] ) {
           if( this.snapshot.storedUri == this.fileUris[idx] ) {
             //delete this.snapshot.uri;
@@ -222,11 +226,12 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         }
       }
 
+      /*
       if ('HDFS' === this.snapshot.location) {
-        //this.snapshot.ssType = SsType.HDFS;
-        this.snapshot.ssType = SsType.STAGING_DB;
+        this.snapshot.ssType = SsType.HDFS;
       }
       delete this.snapshot.location
+      */
     }
 
     this.loadingShow();
@@ -274,7 +279,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     if (type=='location') {
       for(let idx=0;idx<this.fileLocations.length;idx++) {
         if( event.value==this.fileLocations[idx].value ) {
-          this.snapshot.location = this.fileLocations[idx].value;
+          //this.snapshot.location = this.fileLocations[idx].value;
+          this.snapshot.storageType = this.fileLocations[idx].value;
           //this.snapshot.uri = this.fileUris[idx];
           this.snapshot.storedUri = this.fileUris[idx];
           this.chnageSSUri();
@@ -298,11 +304,14 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * @param item
    */
   public onPartitionSelected(item) {
-  /*
+    /*
     this.snapshot.partKeys = item.map(function(x) {
       return x.name;
     });
     */
+    this.snapshot.partitionColNames = item.map(function(x) {
+      return x.name;
+    });
   } // function - onPartitionSelected
 
   // 라디오로 타입을 바꿀 때
@@ -359,7 +368,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         if (idx === -1) {
           idx = 0;
         }
-        this.snapshot.location = this.fileLocations[idx].value;
+        //this.snapshot.location = this.fileLocations[idx].value;
+        this.snapshot.storageType = this.fileLocations[idx].value;
         //this.snapshot.uri = this.fileUris[idx];
         this.snapshot.storedUri = this.fileUris[idx];
         this.fileLocationDefaultIdx = idx;
@@ -399,7 +409,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
               this.fileUris.push( conf['file_uri'][locType] );
             }
             if(0<this.fileLocations.length) {
-              this.snapshot.location = this.fileLocations[0].value;
+              //this.snapshot.location = this.fileLocations[0].value;
+              this.snapshot.storageType = this.fileLocations[0].value;
               //this.snapshot.uri = this.fileUris[0];
               this.snapshot.storedUri = this.fileUris[0];
             }
