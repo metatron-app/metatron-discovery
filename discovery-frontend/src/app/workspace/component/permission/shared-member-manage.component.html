@@ -100,7 +100,10 @@
             <!-- //member -->
 
             <!-- 더보기 -->
-            <div class="ddp-ui-moretype">
+            <div *ngIf="isShowUserTab && showMoreAllUser" class="ddp-ui-moretype">
+              <a (click)="getMore()" href="javascript:" class="ddp-btn-moretype">{{'msg.comm.ui.more' | translate}}</a>
+            </div>
+            <div *ngIf="!isShowUserTab && showMoreAllGroup" class="ddp-ui-moretype">
               <a (click)="getMore()" href="javascript:" class="ddp-btn-moretype">{{'msg.comm.ui.more' | translate}}</a>
             </div>
             <!-- //더보기 -->
@@ -194,7 +197,7 @@
                 <!-- //body -->
               </div>
               <!-- 더보기 -->
-              <div class="ddp-ui-moretype">
+              <div *ngIf="showMoreWsUser" class="ddp-ui-moretype">
                 <a (click)="getWsMemberMore()" href="javascript:" class="ddp-btn-moretype">{{'msg.comm.ui.more' | translate}}</a>
               </div>
               <!-- //더보기 -->
@@ -280,7 +283,7 @@
                 <!-- //body -->
               </div>
               <!-- 더보기 -->
-              <div class="ddp-ui-moretype">
+              <div *ngIf="showMoreWsGroup" class="ddp-ui-moretype">
                 <a (click)="getWsMemberMore()" href="javascript:" class="ddp-btn-moretype">{{'msg.comm.ui.more' | translate}}</a>
               </div>
               <!-- //더보기 -->
