@@ -1031,7 +1031,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     // 데이터 설정
     this.popupService.ptDashboards = _.cloneDeep(this.dashboards);
     let boardInfo: PresentationDashboard = <PresentationDashboard>_.cloneDeep(this.selectedDashboard);
-    boardInfo.selectionFilters = this._boardComp.getSelectedFilters();
+    boardInfo.selectionFilters = this._boardComp ? this._boardComp.getSelectedFilters() : [];
     this.popupService.ptStartDashboard = boardInfo;
     // 페이지 호출
     this.router.navigate([`/dashboard/presentation/${this.workbook.id}/${this.selectedDashboard.id}`]).then();
