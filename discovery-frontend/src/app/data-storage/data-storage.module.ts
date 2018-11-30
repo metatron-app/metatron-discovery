@@ -63,9 +63,9 @@ import { AdvancedSettingComponent } from './data-source-list/component/advanced-
 import { IngestionLogComponent } from './data-source-list/detail-data-source/information-dats-source/component/ingestion-log/ingestion-log.component';
 import { AddColumnComponent } from './data-source-list/component/add-column.component';
 import { ColumnSelectBoxComponent } from './data-source-list/component/column-select-box.component';
-import { CriterionFilterBoxComponent } from './data-source-list/component/criterion/criterion-filter-box.component';
-import { CriterionCheckboxComponent } from './data-source-list/component/criterion/criterion-checkbox.component';
-import { CriterionTimeRadioboxComponent } from './data-source-list/component/criterion/criterion-time-radiobox.component';
+import { CriterionFilterBoxComponent } from './component/criterion/criterion-filter-box.component';
+import { CriterionCheckboxComponent } from './component/criterion/criterion-checkbox.component';
+import { CriterionTimeRadioboxComponent } from './component/criterion/criterion-time-radiobox.component';
 import { DataStorageComponent } from './data-storage.component';
 
 const storageRoutes: Routes = [

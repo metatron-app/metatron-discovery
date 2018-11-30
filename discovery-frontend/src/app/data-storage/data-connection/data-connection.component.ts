@@ -36,10 +36,10 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
   // criterion data object
   private _criterionDataObject: any = {};
 
-  // origin criterion list
+  // origin criterion filter list
   private _originCriterionList: ListCriterion[] = [];
 
-  // origin more criterion more list
+  // origin more criterion filter more list
   private _originMoreCriterionList: ListCriterion[] = [];
 
   // 공통 삭제 팝업 모달
@@ -66,7 +66,6 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
               private popupService: PopupService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
-
     super(elementRef, injector);
   }
 
@@ -104,7 +103,6 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     this.subscriptions.push(popupSubscription);
   }
 
-
   /**
    * Remove connection
    * @param {Modal} modalData
@@ -123,6 +121,24 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
   }
 
   /**
+   * Remove criterion filter in connection criterion filter list
+   * @param {ListCriterion} criterion
+   */
+  public removeCriterionFilterInConnectionFilterList(criterion: ListCriterion): void {
+    this.connectionFilterList.splice(this._findCriterionIndexInCriterionList(this.connectionFilterList, criterion), 1);
+  }
+
+  /**
+   * Search connection
+   */
+  public searchConnection(): void {
+    // 페이지 초기화
+    this.page.page = 0;
+    // set connection list
+    this._setConnectionList();
+  }
+
+  /**
    * Remove connection click event
    * @param {Dataconnection} connection
    */
@@ -138,18 +154,20 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
   }
 
   /**
-   * 데이터 커넥션 생성 페이지 오픈
+   * create connection click event
    */
-  public createDataconnection(): void {
+  public onClickCreateConnection(): void {
+    // open create connection
     this.connectionStep = 'create-connection';
     this.selectedConnection = new Dataconnection();
   }
 
   /**
-   * 데이터 커넥션 수정 페이지 오픈
+   * connection click event
    * @param {Dataconnection} connection
    */
-  public updateDataconnection(connection: Dataconnection): void {
+  public onClickConnection(connection: Dataconnection): void {
+    // open connection detail
     this.connectionStep = 'update-connection';
     this.selectedConnection = connection;
   }
@@ -196,16 +214,6 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     } else {
       this._criterionDataObject[criteriaObject.label] = criteriaObject.value;
     }
-  }
-
-  /**
-   * Search connection
-   */
-  public searchConnection(): void {
-    // 페이지 초기화
-    this.page.page = 0;
-    // set connection list
-    this._setConnectionList();
   }
 
   /**
@@ -256,6 +264,15 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
   }
 
   /**
+   * Is default type connection
+   * @param {Dataconnection} connection
+   * @returns {boolean}
+   */
+  public isDefaultType(connection: Dataconnection): boolean {
+    return StringUtil.isEmpty(connection.url);
+  }
+
+  /**
    * Is more connection list
    * @returns {boolean}
    */
@@ -264,12 +281,12 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
   }
 
   /**
-   * Is default type connection
-   * @param {Dataconnection} connection
+   * Is criterion in origin more criterion list
+   * @param {ListCriterion} criterion
    * @returns {boolean}
    */
-  public isDefaultType(connection: Dataconnection): boolean {
-    return StringUtil.isEmpty(connection.url);
+  public isAdvancedCriterion(criterion: ListCriterion): boolean {
+    return -1 !== this._findCriterionIndexInCriterionList(this._originMoreCriterionList, criterion);
   }
 
   /**
@@ -348,5 +365,16 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
       params['containsText'] = this.searchKeyword.trim();
     }
     return params;
+  }
+
+  /**
+   * Find criterion index in criterion list
+   * @param {ListCriterion[]} criterionList
+   * @param {ListCriterion} criterion
+   * @returns {number}
+   * @private
+   */
+  private _findCriterionIndexInCriterionList(criterionList: ListCriterion[], criterion: ListCriterion): number {
+    return criterionList.findIndex(item => item.criterionKey === criterion.criterionKey);
   }
 }

@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { AbstractComponent } from '../../../common/component/abstract.component';
 import { Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
-import { PickerSettings } from '../../../../domain/common/datepicker.settings';
-import { ListCriterion } from '../../../../domain/datasource/listCriterion';
+import { PickerSettings } from '../../../domain/common/datepicker.settings';
+import { ListCriterion } from '../../../domain/datasource/listCriterion';
 
 declare let moment: any;
 declare let $: any;

@@ -14,10 +14,10 @@
  */
 
 import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { StringUtil } from '../../../../common/util/string.util';
-import { CriterionKey, CriterionType, ListCriterion } from '../../../../domain/datasource/listCriterion';
-import { ListFilter } from '../../../../domain/datasource/listFilter';
+import { AbstractComponent } from '../../../common/component/abstract.component';
+import { StringUtil } from '../../../common/util/string.util';
+import { CriterionKey, CriterionType, ListCriterion } from '../../../domain/datasource/listCriterion';
+import { ListFilter } from '../../../domain/datasource/listFilter';
 
 @Component({
   selector: 'criterion-filter-box',
@@ -38,6 +38,10 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   // criterion api (required: true)
   @Input('criterionApiFunc')
   private _getCriterionFunc: Function;
+
+  // is enable criterion filter remove button
+  @Input('enableRemove')
+  public isEnableRemoveButton: boolean;
 
   // criterion key
   public criterionKey: CriterionKey;
@@ -65,6 +69,10 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   // changed criteria
   @Output('changedCriteria')
   private _changedCriteriaEvent: EventEmitter<any> = new EventEmitter();
+
+  // removed criterion
+  @Output('removedCriterion')
+  private _removedCriterionEvent: EventEmitter<any> = new EventEmitter();
 
 
   // constructor
@@ -167,6 +175,13 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
       label: this.criterionKey,
       value: selectedItemList
     });
+  }
+
+  /**
+   * Remove criterion filter click event
+   */
+  public onClickRemoveCriterionFilter(): void {
+    this._removedCriterionEvent.emit(this.criterion);
   }
 
   /**

@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { AbstractComponent } from '../../../common/component/abstract.component';
 import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
-import { StringUtil } from '../../../../common/util/string.util';
+import { StringUtil } from '../../../common/util/string.util';
 import * as _ from 'lodash';
-import { CriterionKey, ListCriterion } from '../../../../domain/datasource/listCriterion';
+import { CriterionKey, ListCriterion } from '../../../domain/datasource/listCriterion';
 
 @Component({
   selector: 'criterion-checkbox-component',

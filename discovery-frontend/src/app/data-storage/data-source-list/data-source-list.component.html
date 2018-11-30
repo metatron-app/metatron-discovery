@@ -27,8 +27,10 @@
     <!-- filters -->
     <criterion-filter-box *ngFor="let criterion of datasourceFilterList"
                           [criterion]="criterion"
+                          [enableRemove]="isAdvancedCriterion(criterion)"
                           [criterionApiFunc]="criterionApiFunc"
-                          (changedCriteria)="onChangedCriteriaFilter($event)">
+                          (changedCriteria)="onChangedCriteriaFilter($event)"
+                          (removedCriterion)="removeCriterionFilterInDatasourceFilterList($event)">
     </criterion-filter-box>
     <!-- //filters -->
   </div>
@@ -65,7 +67,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let datasource of datasourceList" (click)="openDatasourceDetail(datasource.id)">
+    <tr *ngFor="let datasource of datasourceList" (click)="onClickDatasource(datasource.id)">
       <td>
         <div class="ddp-txt-long" [class.ddp-global]="datasource.published">
           {{datasource.name}}

@@ -32,10 +32,10 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   // criterion data object
   private _criterionDataObject: any = {};
 
-  // origin criterion list
+  // origin criterion filter list
   private _originCriterionList: ListCriterion[] = [];
 
-  // origin more criterion more list
+  // origin more criterion filter more list
   private _originMoreCriterionList: ListCriterion[] = [];
 
   // 공통 삭제 팝업 모달
@@ -120,6 +120,24 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   }
 
   /**
+   * Remove criterion filter in datasource criterion filter list
+   * @param {ListCriterion} criterion
+   */
+  public removeCriterionFilterInDatasourceFilterList(criterion: ListCriterion): void {
+    this.datasourceFilterList.splice(this._findCriterionIndexInCriterionList(this.datasourceFilterList, criterion), 1);
+  }
+
+  /**
+   * Search datasource
+   */
+  public searchDatasource(): void {
+    // 페이지 초기화
+    this.page.page = 0;
+    // set datasource list
+    this._setDatasourceList();
+  }
+
+  /**
    * Remove datasource click event
    * @param {Datasource} datasource
    */
@@ -135,10 +153,11 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   }
 
   /**
-   * 데이터소스 상세 페이지 오픈
-   * @param {string} dsId
+   * datasource click event
+   * @param {string} sourceId
    */
-  public openDatasourceDetail(sourceId: string): void {
+  public onClickDatasource(sourceId: string): void {
+    // open datasource detail
     this.router.navigate(['/management/storage/datasource', sourceId]);
   }
 
@@ -184,16 +203,6 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     } else {
       this._criterionDataObject[criteriaObject.label] = criteriaObject.value;
     }
-  }
-
-  /**
-   * Search datasource
-   */
-  public searchDatasource(): void {
-    // 페이지 초기화
-    this.page.page = 0;
-    // set datasource list
-    this._setDatasourceList();
   }
 
   /**
@@ -284,6 +293,15 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   }
 
   /**
+   * Is criterion in origin more criterion list
+   * @param {ListCriterion} criterion
+   * @returns {boolean}
+   */
+  public isAdvancedCriterion(criterion: ListCriterion): boolean {
+    return -1 !== this._findCriterionIndexInCriterionList(this._originMoreCriterionList, criterion);
+  }
+
+  /**
    * criterion api function
    * @param criterionKey
    * @returns {Promise<ListCriterion>}
@@ -359,5 +377,16 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
       params['containsText'] = this.searchKeyword.trim();
     }
     return params;
+  }
+
+  /**
+   * Find criterion index in criterion list
+   * @param {ListCriterion[]} criterionList
+   * @param {ListCriterion} criterion
+   * @returns {number}
+   * @private
+   */
+  private _findCriterionIndexInCriterionList(criterionList: ListCriterion[], criterion: ListCriterion): number {
+    return criterionList.findIndex(item => item.criterionKey === criterion.criterionKey);
   }
 }
