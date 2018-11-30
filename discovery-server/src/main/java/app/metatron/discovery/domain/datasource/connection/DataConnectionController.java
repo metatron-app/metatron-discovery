@@ -297,7 +297,7 @@ public class DataConnectionController {
         //getting recent partition
         List<Map<String, Object>> partitionList = connectionService.getPartitionList(hiveConnection, checkRequest);
         if(partitionList == null || partitionList.isEmpty()){
-          throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.PREVIEW_TABLE_SQL_ERROR,
+          throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.STAGEDB_PREVIEW_TABLE_SQL_ERROR,
                   "There is no partitions in table(" + checkRequest.getQuery() + ").");
         }
 
