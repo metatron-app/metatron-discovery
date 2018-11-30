@@ -15,8 +15,8 @@
 
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
-import { DatasourceCriterion } from '../../../../domain/datasource/datasourceCriterion';
 import { PickerSettings } from '../../../../domain/common/datepicker.settings';
+import { ListCriterion } from '../../../../domain/datasource/listCriterion';
 
 declare let moment: any;
 declare let $: any;
@@ -49,7 +49,7 @@ export class CriterionTimeRadioboxComponent extends AbstractComponent {
 
   // origin criterion
   @Input('criterion')
-  public criterion: DatasourceCriterion;
+  public criterion: ListCriterion;
 
   // is enable ALL option
   @Input('enableAllOption')

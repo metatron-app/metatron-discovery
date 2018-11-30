@@ -15,9 +15,9 @@
 
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
-import { CriterionKey, DatasourceCriterion } from '../../../../domain/datasource/datasourceCriterion';
 import { StringUtil } from '../../../../common/util/string.util';
 import * as _ from 'lodash';
+import { CriterionKey, ListCriterion } from '../../../../domain/datasource/listCriterion';
 
 @Component({
   selector: 'criterion-checkbox-component',
@@ -32,14 +32,14 @@ export class CriterionCheckboxComponent extends AbstractComponent {
   private _changeSelectItemEvent: EventEmitter<any> = new EventEmitter();
 
   // criterion list (UI)
-  public criterionList: DatasourceCriterion[] = [];
+  public criterionList: ListCriterion[] = [];
 
   // search keyword
   public searchKeyword: string;
 
   // origin criterion
   @Input('criterion')
-  public criterion: DatasourceCriterion;
+  public criterion: ListCriterion;
 
   // search place holder
   @Input('searchPlaceHolder')

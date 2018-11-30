@@ -15,10 +15,9 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
 import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { CriterionKey, CriterionType, DatasourceCriterion } from '../../../../domain/datasource/datasourceCriterion';
-import { DatasourceService } from '../../../../datasource/service/datasource.service';
-import { DataSourceListFilter } from '../../../../domain/datasource/datasourceListFilter';
 import { StringUtil } from '../../../../common/util/string.util';
+import { CriterionKey, CriterionType, ListCriterion } from '../../../../domain/datasource/listCriterion';
+import { ListFilter } from '../../../../domain/datasource/listFilter';
 
 @Component({
   selector: 'criterion-filter-box',
@@ -34,7 +33,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
 
   // criterion (required: true)
   @Input('criterion')
-  public criterion: DatasourceCriterion;
+  public criterion: ListCriterion;
 
   // criterion api (required: true)
   @Input('criterionApiFunc')
@@ -58,7 +57,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   public isEnableAllOption: boolean = false;
 
   // criterion data
-  public criterionData: DatasourceCriterion;
+  public criterionData: ListCriterion;
 
   // list show/hide flag
   public isShowList = false;
@@ -88,13 +87,13 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
     // if criterion key is More, and exist subCriteria data
     if (this.criterionKey === CriterionKey.MORE && this.criterion.subCriteria) {
       // create new criterion used translate
-      const temp = new DatasourceCriterion();
+      const temp = new ListCriterion();
       // set criterion name
       temp.criterionName = this.translateService.instant('msg.storage.ui.criterion.criteria');
       // create new filters
       temp.filters = [];
       // loop
-      this.criterion.subCriteria.forEach(item => temp.filters.push(new DataSourceListFilter(item.criterionKey.toString(), this.translateService.instant(item.criterionName), null)));
+      this.criterion.subCriteria.forEach(item => temp.filters.push(new ListFilter(item.criterionKey.toString(), this.translateService.instant(item.criterionName), null)));
       // init subCriteria
       this.criterion.subCriteria = [];
       // push translated criterion
@@ -200,11 +199,11 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
 
   /**
    * Criterion fit a spec
-   * @param {DatasourceCriterion} criterion
-   * @returns {DatasourceCriterion}
+   * @param {ListCriterion} criterion
+   * @returns {ListCriterion}
    * @private
    */
-  private _transCriterion(criterion: DatasourceCriterion): DatasourceCriterion {
+  private _transCriterion(criterion: ListCriterion): ListCriterion {
     /**
      * fit spec
      * {
@@ -225,7 +224,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
     // if exist filters in result
     if (criterion.filters) {
       criterion.subCriteria = [];
-      const temp = new DatasourceCriterion();
+      const temp = new ListCriterion();
       temp.filters = criterion.filters;
       criterion.subCriteria.push(temp);
     }

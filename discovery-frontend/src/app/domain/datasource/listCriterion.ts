@@ -13,9 +13,10 @@
  * limitations under the License.
  */
 
-import { DataSourceListFilter } from './datasourceListFilter';
 
-export class DatasourceCriterion {
+import { ListFilter } from './listFilter';
+
+export class ListCriterion {
   // key
   public criterionKey: CriterionKey;
   // type
@@ -23,9 +24,9 @@ export class DatasourceCriterion {
   // name
   public criterionName: string;
   // sub criterion
-  public subCriteria: DatasourceCriterion[];
+  public subCriteria: ListCriterion[];
   // filters
-  public filters: DataSourceListFilter[];
+  public filters: ListFilter[];
   // is enable search
   public searchable: boolean;
 }

@@ -19,8 +19,8 @@ import { Alert } from '../../common/util/alert.util';
 import { Modal } from '../../common/domain/modal';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
 import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
-import { CriterionKey, DatasourceCriterion } from '../../domain/datasource/datasourceCriterion';
 import { StringUtil } from '../../common/util/string.util';
+import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
 
 @Component({
   selector: 'app-data-source',
@@ -33,16 +33,16 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   private _criterionDataObject: any = {};
 
   // origin criterion list
-  private _originCriterionList: DatasourceCriterion[] = [];
+  private _originCriterionList: ListCriterion[] = [];
 
   // origin more criterion more list
-  private _originMoreCriterionList: DatasourceCriterion[] = [];
+  private _originMoreCriterionList: ListCriterion[] = [];
 
   // 공통 삭제 팝업 모달
   @ViewChild(DeleteModalComponent)
   private deleteModalComponent: DeleteModalComponent;
 
-
+  // datasource create step
   public mode: string;
 
   // datasource list
@@ -52,7 +52,7 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   public searchKeyword: string = '';
 
   // datasource filter list (for UI)
-  public datasourceFilterList: DatasourceCriterion[] = [];
+  public datasourceFilterList: ListCriterion[] = [];
 
   // 생성자
   constructor(private datasourceService: DatasourceService,
@@ -71,8 +71,8 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     // loading show
     this.loadingShow();
     // get criterion list
-    this.datasourceService.getDatasourceCriterionList()
-      .then((result: DatasourceCriterion[]) => {
+    this.datasourceService.getCriterionListInDatasource()
+      .then((result: ListCriterion[]) => {
         // set origin criterion list
         this._originCriterionList = result;
         // set datasource filter list
@@ -143,10 +143,10 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   }
 
   /**
-   * 더보기 버튼
+   * More datasource click event
    */
   public onClickMoreDatasourceList(): void {
-    // 더 보여줄 데이터가 있다면
+    // if more datasource list
     if (this.isMoreContents()) {
       // add page number
       this.page.page += 1;
@@ -286,11 +286,11 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   /**
    * criterion api function
    * @param criterionKey
-   * @returns {Promise<DatasourceCriterion>}
+   * @returns {Promise<ListCriterion>}
    */
-  public criterionApiFunc(criterionKey: any): Promise<DatasourceCriterion> {
+  public criterionApiFunc(criterionKey: any): Promise<ListCriterion> {
     // require injector in constructor
-    return this.injector.get(DatasourceService).getDatasourceCriterion(criterionKey);
+    return this.injector.get(DatasourceService).getCriterionInDatasource(criterionKey);
   }
 
   /**

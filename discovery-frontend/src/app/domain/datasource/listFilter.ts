@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-import { CriterionKey } from './datasourceCriterion';
+import { CriterionKey } from './listCriterion';
 
-export class DataSourceListFilter {
+export class ListFilter {
 
   constructor(filterKey: any, filterName: any, filterValue: any) {
     this.filterKey = filterKey;

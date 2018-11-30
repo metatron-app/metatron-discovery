@@ -40,8 +40,8 @@ import {FilteringType} from '../../domain/workbook/configurations/field/timestam
 import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
 import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
-import { CriterionKey, DatasourceCriterion } from '../../domain/datasource/datasourceCriterion';
 import {Limit} from "../../domain/workbook/configurations/limit";
+import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -827,18 +827,18 @@ export class DatasourceService extends AbstractService {
 
   /**
    * Get criterion list in datasource
-   * @returns {Promise<DatasourceCriterion[]>}
+   * @returns {Promise<ListCriterion[]>}
    */
-  public getDatasourceCriterionList(): Promise<DatasourceCriterion[]> {
+  public getCriterionListInDatasource(): Promise<ListCriterion[]> {
     return this.get(this.API_URL + 'datasources/criteria');
   }
 
   /**
    * Get criterion in datasource
    * @param {CriterionKey} criterionKey
-   * @returns {Promise<DatasourceCriterion>}
+   * @returns {Promise<ListCriterion>}
    */
-  public getDatasourceCriterion(criterionKey: CriterionKey): Promise<DatasourceCriterion> {
+  public getCriterionInDatasource(criterionKey: CriterionKey): Promise<ListCriterion> {
     return this.get(this.API_URL + `datasources/criteria/${criterionKey}`);
   }
 
