@@ -340,7 +340,7 @@ export class DataconnectionService extends AbstractService {
    * @param {string} projection
    * @returns {Promise<any>}
    */
-  public getConnectionList(page: number, size: number, params: any, projection: string = 'forListView'): Promise<any> {
+  public getConnectionList(page: number, size: number, params: any, projection: string = 'list'): Promise<any> {
     return this.post(this.API_URL + `connections/filter?projection=${projection}&page=${page}&size=${size}`, params);
   }
 
