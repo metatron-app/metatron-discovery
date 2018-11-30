@@ -814,7 +814,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         // 레이아웃을 생성하는 경우
         this.changeDetect.detectChanges();
         if (!this.layoutContainer) {
-          this.hideBoardLoading();
+          this._updateLayoutFinished();
           return;
         }
         this._widgetComps = [];
