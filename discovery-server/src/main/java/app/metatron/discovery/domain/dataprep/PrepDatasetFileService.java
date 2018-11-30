@@ -483,21 +483,20 @@ public class PrepDatasetFileService {
     }
     */
 
-    public Map<String, Object> fileCheckSheet3(String fileKey, String size, String delimiterRow, String delimiterCol) {
+    public Map<String, Object> fileCheckSheet3(String storedUri, String size, String delimiterRow, String delimiterCol) {
 
         Map<String, Object> responseMap = Maps.newHashMap();
         List<Object> grids = Lists.newArrayList();
         try {
-            String filePath = getPathLocal_new( fileKey );
-            String extensionType = FilenameUtils.getExtension(fileKey);
+            String extensionType = FilenameUtils.getExtension(storedUri);
             int limitSize = Integer.parseInt(size);
             long totalBytes = 0L;
 
-            File theFile = new File(filePath);
+            File theFile = new File(new URI(storedUri));
             if(false==theFile.exists()) {
                 responseMap.put("success", false);
                 responseMap.put("message", "Invalid filekey.");
-                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, "No file : " + filePath);
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, "No file : " + storedUri);
             } else {
                 totalBytes = theFile.length();
 
@@ -960,13 +959,18 @@ public class PrepDatasetFileService {
                 responseMap.put("message", "making UUID was failed. try again");
             } else {
                 responseMap.put("success", true);
+                /*
                 responseMap.put("filekey", tempFileName);
                 responseMap.put("filepath", tempFilePath);
                 responseMap.put("filename", fileName);
+                */
+                String storedUri = "file://"+tempFilePath;
+                responseMap.put("storedUri", storedUri);
+                responseMap.put("filenameBeforeUpload", fileName);
                 responseMap.put("createTime", DateTime.now());
 
                 Future<Map<String,Object>> future = this.fileUploadService.postUpload(extensionType, responseMap);
-                futures.put(tempFileName, future);
+                futures.put(storedUri, future);
             }
         } catch (Exception e) {
             LOGGER.error("Failed to upload file : {}", e.getMessage());
@@ -984,12 +988,12 @@ public class PrepDatasetFileService {
         return  responseMap;
     }
 
-    public Map<String, Object> pollUploadFile(String fileKey) throws Exception {
+    public Map<String, Object> pollUploadFile(String storedUri) throws Exception {
         Map<String,Object> responseMap = null;
         try {
-            Future<Map<String, Object>> future = this.futures.get(fileKey);
+            Future<Map<String, Object>> future = this.futures.get(storedUri);
             if (null == future) {
-                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_MAP_KEY, "No key : " + fileKey);
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, "No key : " + storedUri);
             } else {
                 if (true == future.isDone()) {
                     responseMap = future.get();
@@ -1115,9 +1119,13 @@ public class PrepDatasetFileService {
                     }
                 }
                 responseMap.put("success", true);
+                /*
                 responseMap.put("filekey", tempFileName);
                 responseMap.put("filepath", tempFilePath);
                 responseMap.put("filename", fileName);
+                */
+                responseMap.put("storedUri", "file://"+tempFilePath);
+                responseMap.put("filenameBeforeUpload", fileName);
             }
         } catch (Exception e) {
             LOGGER.error("Failed to upload file : {}", e.getMessage());

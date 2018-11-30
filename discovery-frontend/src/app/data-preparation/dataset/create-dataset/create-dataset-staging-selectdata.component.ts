@@ -21,7 +21,8 @@ import { AbstractPopupComponent } from '../../../common/component/abstract-popup
 import { PopupService } from '../../../common/service/popup.service';
 import { Alert } from '../../../common/util/alert.util';
 import { PreparationAlert } from '../../util/preparation-alert.util';
-import { DatasetHive, DsType, RsType, ImportType, Field } from '../../../domain/data-preparation/dataset';
+//import { DatasetHive, DsType, RsType, ImportType, Field } from '../../../domain/data-preparation/dataset';
+import { PrDatasetHive, DsType, RsType, ImportType, Field } from '../../../domain/data-preparation/pr-dataset';
 import { GridComponent } from '../../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
 import { GridOption } from '../../../common/component/grid/grid.option';
@@ -49,7 +50,8 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
-  public datasetHive: DatasetHive;
+  //public datasetHive: DatasetHive;
+  public datasetHive: PrDatasetHive;
 
   public isDatabaseListShow : boolean = false;  // Database list show/hide
   public isSchemaListShow: boolean = false;     // tables list show/hide
@@ -136,12 +138,20 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
     this.getDatabases();
 
+/*
     this.datasetHive.tableName = '';
     this.datasetHive.databaseName = '';
     this.datasetHive.queryStmt = '';
     this.datasetHive.dsType = DsType.IMPORTED;
     this.datasetHive.rsType = RsType.TABLE;
     this.datasetHive.importType = ImportType.HIVE;
+    */
+    this.datasetHive.tblName = '';
+    this.datasetHive.dbName = '';
+    this.datasetHive.queryStmt = '';
+    this.datasetHive.dsType = DsType.IMPORTED;
+    this.datasetHive.rsType = RsType.TABLE;
+    this.datasetHive.importType = ImportType.STAGING_DB;
   }
 
   // Destory
@@ -196,7 +206,8 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     this.isDatabaseListShow = false;
     event.stopPropagation();
     // this.selectedDatabase = database.name;
-    this.datasetHive.databaseName = database.name;
+    //this.datasetHive.databaseName = database.name;
+    this.datasetHive.dbName = database.name;
     this.clickable = false;
     this.getTables(database.name);
     $('[tabindex=1]').focus();
@@ -213,10 +224,13 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     event.stopPropagation();
 
     this.loadingShow();
-    this.datasetHive.queryStmt = 'SELECT * FROM ' + this.datasetHive.databaseName + '.' + data.name;
+    //this.datasetHive.queryStmt = 'SELECT * FROM ' + this.datasetHive.databaseName + '.' + data.name;
+    this.datasetHive.queryStmt = 'SELECT * FROM ' + this.datasetHive.dbName + '.' + data.name;
     // this.datasetHive.tableName = this.selectedDatabase + '.' + event.name;
-    this.datasetHive.tableName = data.name;
-    this.datasetService.getStagingTableData(this.datasetHive.databaseName, data.name)
+    //this.datasetHive.tableName = data.name;
+    this.datasetHive.tblName = data.name;
+    //this.datasetService.getStagingTableData(this.datasetHive.databaseName, data.name)
+    this.datasetService.getStagingTableData(this.datasetHive.dbName, data.name)
       .then((result) => {
         this.loadingHide();
 
@@ -300,8 +314,13 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    * init table tab
    */
   public initTable() {
+  /*
     this.datasetHive.tableName = '';
     this.datasetHive.databaseName = '';
+    this.datasetHive.queryStmt = '';
+    */
+    this.datasetHive.tblName = '';
+    this.datasetHive.dbName = '';
     this.datasetHive.queryStmt = '';
   }
 
@@ -309,7 +328,8 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    * init Query tab
    */
   public initQuery() {
-    this.datasetHive.tableName = '';
+    //this.datasetHive.tableName = '';
+    this.datasetHive.tblName = '';
     this.selectedDatabaseQuery = '';
     this.datasetHive.queryStmt = '';
     this.showQueryStatus = false;
@@ -324,7 +344,8 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       if( method==='table' ) {
         this.datasetHive.rsType = RsType.TABLE;
       } else {
-        this.datasetHive.rsType = RsType.SQL;
+        //this.datasetHive.rsType = RsType.SQL;
+        this.datasetHive.rsType = RsType.QUERY;
       }
       this.tableOrQuery = method;
 
@@ -632,7 +653,8 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
             .then((data) => {
               this.loadingHide();
               this.databaseList = [];
-              this.datasetHive.databaseName = '';
+              //this.datasetHive.databaseName = '';
+              this.datasetHive.dbName = '';
               if (data) {
                 for (let idx = 0, nMax = data.length; idx < nMax; idx = idx + 1) {
                   this.databaseList.push({ idx : idx, name : data[idx], selected : false });

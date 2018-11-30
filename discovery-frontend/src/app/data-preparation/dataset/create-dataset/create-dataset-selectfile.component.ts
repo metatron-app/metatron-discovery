@@ -18,7 +18,8 @@ import { PopupService } from '../../../common/service/popup.service';
 import { FileLikeObject, FileUploader } from 'ng2-file-upload';
 import { CommonConstant } from '../../../common/constant/common.constant';
 import { CookieConstant } from '../../../common/constant/cookie.constant';
-import { DatasetFile } from '../../../domain/data-preparation/dataset';
+//import { DatasetFile } from '../../../domain/data-preparation/dataset';
+import { PrDatasetFile } from '../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../common/util/alert.util';
 import { isUndefined } from 'util';
 import { DatasetService } from "../service/dataset.service";
@@ -44,7 +45,8 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Input()
-  public datasetFile: DatasetFile;
+  //public datasetFile: DatasetFile;
+  public datasetFile: PrDatasetFile;
 
   // 파일 업로드
   public uploader: FileUploader;
@@ -152,7 +154,8 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public next() {
-    if (!isUndefined(this.datasetFile.filename)) {
+    //if (!isUndefined(this.datasetFile.filename)) {
+    if (!isUndefined(this.datasetFile.filenameBeforeUpload)) {
       this.popupService.notiPopup({
         name: 'select-sheet',
         data: null
@@ -196,15 +199,20 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     }
 
     const response: any = this.uploadResult.response;
+    /*
     this.datasetFile.filename = response.filename;
     this.datasetFile.filepath = response.filepath;
     this.datasetFile.sheets = response.sheets;
     if (response.sheets && response.sheets.length > 0) {
       this.datasetFile.sheetname = response.sheets[0];
     }
-    this.datasetFile.filekey = response.filekey;
+    */
+    this.datasetFile.filenameBeforeUpload = response.filenameBeforeUpload;
+    this.datasetFile.storedUri = response.storedUri;
+    this.datasetFile.sheets = response.sheets;
 
-    if (!isUndefined(this.datasetFile.filename)) {
+    //if (!isUndefined(this.datasetFile.filename)) {
+    if (!isUndefined(this.datasetFile.storedUri)) {
       this.popupService.notiPopup({
         name: 'select-sheet',
         data: null
@@ -219,9 +227,11 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
    */
   public checkIfUploaded(response: any) {
     let res = JSON.parse(response);
-    this.fetchUploadStatus(res.filekey);
+    //this.fetchUploadStatus(res.filekey);
+    this.fetchUploadStatus(res.storedUri);
     this.interval = setInterval(() => {
-      this.fetchUploadStatus(res.filekey);
+      //this.fetchUploadStatus(res.filekey);
+      this.fetchUploadStatus(res.storedUri);
     }, 1000)
   }
 
@@ -229,8 +239,10 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
    * Polling
    * @param {string} fileKey
    */
-  public fetchUploadStatus(fileKey: string) {
-    this.datasetService.checkFileUploadStatus(fileKey).then((result) => {
+  //public fetchUploadStatus(fileKey: string) {
+  public fetchUploadStatus(storedUri: string) {
+    //this.datasetService.checkFileUploadStatus(fileKey).then((result) => {
+    this.datasetService.checkFileUploadStatus(storedUri).then((result) => {
 
       if (result.state === 'done' && result.success) { // Upload finished
         clearInterval(this.interval);

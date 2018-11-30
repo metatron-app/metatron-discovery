@@ -16,10 +16,7 @@ package app.metatron.discovery.domain.dataprep.entity;
 
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +37,12 @@ public class PrDataset extends AbstractHistoryEntity {
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     public enum DS_TYPE {
         IMPORTED,
-        WRANGLED
+        WRANGLED;
+
+        @JsonValue
+        public String toJson() {
+            return name();
+        }
     }
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
@@ -48,8 +50,13 @@ public class PrDataset extends AbstractHistoryEntity {
         UPLOAD,
         URI,
         DATABASE,
-        STATING_DB,
-        DRUID
+        STAGING_DB,
+        DRUID;
+
+        @JsonValue
+        public String toJson() {
+            return name();
+        }
     }
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
@@ -58,20 +65,35 @@ public class PrDataset extends AbstractHistoryEntity {
         HDFS,
         S3,
         BLOB,
-        FTP
+        FTP;
+
+        @JsonValue
+        public String toJson() {
+            return name();
+        }
     }
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     public enum FILE_FORMAT {
         CSV,
         EXCEL,
-        JSON
+        JSON;
+
+        @JsonValue
+        public String toJson() {
+            return name();
+        }
     }
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     public enum RS_TYPE {
         TABLE,
-        QUERY
+        QUERY;
+
+        @JsonValue
+        public String toJson() {
+            return name();
+        }
     }
 
 
@@ -152,6 +174,10 @@ public class PrDataset extends AbstractHistoryEntity {
     @Size(max = 255)
     @Column(name = "creator_df_id")
     private String creatorDfId;
+
+    @Size(max = 255)
+    @Column(name = "creator_df_name")
+    private String creatorDfName;
 
     @Column(name = "rule_cur_idx")
     private Integer ruleCurIdx;
@@ -358,6 +384,14 @@ public class PrDataset extends AbstractHistoryEntity {
 
     public void setCreatorDfId(String creatorDfId) {
         this.creatorDfId = creatorDfId;
+    }
+
+    public String getCreatorDfName() {
+        return creatorDfName;
+    }
+
+    public void setCreatorDfName(String creatorDfName) {
+        this.creatorDfName = creatorDfName;
     }
 
     public Integer getRuleCurIdx() {

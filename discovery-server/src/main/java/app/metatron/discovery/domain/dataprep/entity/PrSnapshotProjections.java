@@ -62,6 +62,9 @@ public class PrSnapshotProjections {
         //String getLineageInfo();
         Map<String,Object> getJsonLineageInfo();
         String getStatus();
+
+        Map<String,Object> getSourceInfo();
+        Map<String,Object> getConnectionInfo();
     }
 
     @Projection(name = "listing", types = { PrSnapshot.class })

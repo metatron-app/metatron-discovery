@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+/*
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
 
 export class DataSnapshot extends AbstractHistoryEntity{
@@ -108,5 +109,5 @@ export enum Format {
 
 }
 
-
+*/
 

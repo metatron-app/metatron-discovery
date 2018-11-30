@@ -22,7 +22,8 @@ import * as _ from 'lodash';
 import { Alert } from '../../../common/util/alert.util';
 import { DatasetService } from '../../dataset/service/dataset.service';
 import { DataflowModelService } from "../service/dataflow.model.service";
-import { Dataset, DsType } from '../../../domain/data-preparation/dataset';
+//import { Dataset, DsType } from '../../../domain/data-preparation/dataset';
+import { PrDataset, DsType } from '../../../domain/data-preparation/pr-dataset';
 
 @Component({
   selector: 'app-add-dataset',
@@ -46,11 +47,14 @@ export class AddDatasetComponent extends AbstractComponent implements OnInit, On
   public dataflowId : string; // 현재 데이터플로우 아이디
 
   @Input()
-  public originalDatasetList: Dataset[] = []; // 현재 데이터플로우에 추가되어 있는 모든 데이터셋 정보
+  //public originalDatasetList: Dataset[] = []; // 현재 데이터플로우에 추가되어 있는 모든 데이터셋 정보
+  public originalDatasetList: PrDataset[] = []; // 현재 데이터플로우에 추가되어 있는 모든 데이터셋 정보
   public clonedOriginalDatasetList : any [] = []; // 현재 데이터플로우에 추가되어있는 imported datasets
-  public datasets: Dataset[] = []; // 화면에 보여지는 데이터셋 리스트
+  //public datasets: Dataset[] = []; // 화면에 보여지는 데이터셋 리스트
+  public datasets: PrDataset[] = []; // 화면에 보여지는 데이터셋 리스트
   public selectedDatasetId: string = ''; // 선택된 데이터셋 아이디
-  public selectedDatasets : Dataset[]; // 선택된 데이터셋 리스트
+  //public selectedDatasets : Dataset[]; // 선택된 데이터셋 리스트
+  public selectedDatasets : PrDataset[]; // 선택된 데이터셋 리스트
   public isCheckAllDisabled : boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

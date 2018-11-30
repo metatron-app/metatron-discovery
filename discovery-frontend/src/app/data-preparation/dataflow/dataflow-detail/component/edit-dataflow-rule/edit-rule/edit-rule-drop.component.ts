@@ -13,7 +13,8 @@
  */
 
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import * as _ from 'lodash';

@@ -24,7 +24,7 @@ import java.util.Map;
 public class PrepTransformResponse implements Serializable {
   String wrangledDsId;
   int ruleCurIdx;
-  List<PrTransformRule> ruleStringInfos;
+  List<PrTransformRule> transformRules;
   String undoable;
   String redoable;
   DataFrame gridResponse;
@@ -63,12 +63,12 @@ public class PrepTransformResponse implements Serializable {
     this.ruleCurIdx = ruleCurIdx;
   }
 
-  public List<PrTransformRule> getRuleStringInfos() {
-    return ruleStringInfos;
+  public List<PrTransformRule> getTransformRules() {
+    return transformRules;
   }
 
-  public void setRuleStringInfos(List<PrTransformRule> ruleStringInfos, Boolean undoable, Boolean redoable) {
-    this.ruleStringInfos = ruleStringInfos;
+  public void setTransformRules(List<PrTransformRule> transformRules, Boolean undoable, Boolean redoable) {
+    this.transformRules = transformRules;
 
     this.undoable = undoable.toString();
     this.redoable = redoable.toString();

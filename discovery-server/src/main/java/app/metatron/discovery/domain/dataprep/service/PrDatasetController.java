@@ -425,6 +425,22 @@ public class PrDatasetController {
         return ResponseEntity.ok(response);
     }
 
+    @RequestMapping(value = "/file_grid", method = RequestMethod.GET)
+    public @ResponseBody ResponseEntity<?> fileGrid(
+                                                          @RequestParam(value = "storedUri", required = false) String storedUri,
+                                                          @RequestParam(value = "resultSize", required = false, defaultValue = "250") String size,
+                                                          @RequestParam(value = "delimiterRow", required = false, defaultValue = "\n") String delimiterRow,
+                                                          @RequestParam(value = "delimiterCol", required = false, defaultValue = ",") String delimiterCol ) {
+        Map<String, Object> response = null;
+        try {
+            response = this.datasetFileService.fileCheckSheet3( storedUri, size, delimiterRow, delimiterCol );
+        } catch (Exception e) {
+            LOGGER.error("fileCheckSheet(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
+        }
+        return ResponseEntity.ok(response);
+    }
+
     /*
     @RequestMapping(value = "/upload", method = RequestMethod.POST, produces = "application/json")
     public @ResponseBody ResponseEntity<?> uploadExcelfile(@RequestParam("file") MultipartFile file) {
@@ -452,10 +468,10 @@ public class PrDatasetController {
     }
 
     @RequestMapping(value = "/upload_async_poll", method = RequestMethod.POST, produces = "application/json")
-    public @ResponseBody ResponseEntity<?> upload_async_poll(@RequestBody String fileKey) {
+    public @ResponseBody ResponseEntity<?> upload_async_poll(@RequestBody String storedUri) {
         Map<String, Object> response = null;
         try {
-            response = this.datasetFileService.pollUploadFile(fileKey);
+            response = this.datasetFileService.pollUploadFile(storedUri);
         } catch (Exception e) {
             LOGGER.error("upload_async_poll(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);

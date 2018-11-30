@@ -20,7 +20,8 @@ import { DatasetService } from '../service/dataset.service';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
 import { PreparationAlert } from '../../util/preparation-alert.util';
-import { DatasetJdbc, DsType, RsType, ImportType, Field } from '../../../domain/data-preparation/dataset';
+//import { DatasetJdbc, DsType, RsType, ImportType, Field } from '../../../domain/data-preparation/dataset';
+import { PrDatasetJdbc, DsType, RsType, ImportType, Field } from '../../../domain/data-preparation/pr-dataset';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
 import { GridComponent } from '../../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
@@ -49,7 +50,8 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
-  public datasetJdbc: DatasetJdbc;
+  //public datasetJdbc: DatasetJdbc;
+  public datasetJdbc: PrDatasetJdbc;
 
   public isDatabaseListShow : boolean = false;  // Database list show/hide
   public isSchemaListShow: boolean = false;     // tables list show/hide
@@ -137,12 +139,20 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
     this.getDatabases();
 
+    /*
     this.datasetJdbc.tableName = '';
     this.datasetJdbc.databaseName = '';
     this.datasetJdbc.queryStmt = '';
     this.datasetJdbc.dsType = DsType.IMPORTED;
     this.datasetJdbc.rsType = RsType.TABLE;
     this.datasetJdbc.importType = ImportType.DB;
+    */
+    this.datasetJdbc.tblName = '';
+    this.datasetJdbc.dbName = '';
+    this.datasetJdbc.queryStmt = '';
+    this.datasetJdbc.dsType = DsType.IMPORTED;
+    this.datasetJdbc.rsType = RsType.TABLE;
+    this.datasetJdbc.importType = ImportType.DATABASE;
   }
 
   // Destory
@@ -198,7 +208,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.gridComponent.destroy();
 
     event.stopPropagation();
-    this.datasetJdbc.databaseName = database.name;
+    this.datasetJdbc.dbName = database.name;
     this.clickable = false;
     this.getTables(database.name);
     $('[tabindex=1]').focus();
@@ -215,9 +225,9 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     event.stopPropagation();
 
     this.loadingShow();
-    this.datasetJdbc.queryStmt = 'SELECT * FROM ' + this.datasetJdbc.databaseName + '.' + data.name;
-    this.datasetJdbc.tableName = data.name;
-    let params = {connection : this.datasetJdbc.dataconnection.connection, database : this.datasetJdbc.databaseName, query : this.datasetJdbc.tableName, type : 'TABLE'};
+    this.datasetJdbc.queryStmt = 'SELECT * FROM ' + this.datasetJdbc.dbName + '.' + data.name;
+    this.datasetJdbc.tblName = data.name;
+    let params = {connection : this.datasetJdbc.dataconnection.connection, database : this.datasetJdbc.dbName, query : this.datasetJdbc.tblName, type : 'TABLE'};
     this.connectionService.getTableDetailWitoutId(params)
       .then((result) => {
         this.loadingHide();
@@ -293,8 +303,13 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    * init table tab
    */
   public initTable() {
+  /*
     this.datasetJdbc.tableName = '';
     this.datasetJdbc.databaseName = '';
+    this.datasetJdbc.queryStmt = '';
+    */
+    this.datasetJdbc.tblName = '';
+    this.datasetJdbc.dbName = '';
     this.datasetJdbc.queryStmt = '';
   }
 
@@ -302,7 +317,12 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    * init Query tab
    */
   public initQuery() {
+  /*
     this.datasetJdbc.tableName = '';
+    this.selectedDatabaseQuery = '';
+    this.datasetJdbc.queryStmt = '';
+    */
+    this.datasetJdbc.tblName = '';
     this.selectedDatabaseQuery = '';
     this.datasetJdbc.queryStmt = '';
     this.showQueryStatus = false;
@@ -317,7 +337,8 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
       if( method==='table' ) {
         this.datasetJdbc.rsType = RsType.TABLE;
       } else {
-        this.datasetJdbc.rsType = RsType.SQL;
+        //this.datasetJdbc.rsType = RsType.SQL;
+        this.datasetJdbc.rsType = RsType.QUERY;
       }
       this.tableOrQuery = method;
 
@@ -435,7 +456,8 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     event.stopPropagation();
     this.isDatabaseListShow = false;
     this.selectedDatabaseQuery = data.name;
-    this.datasetJdbc.databaseName = data.name;
+    //this.datasetJdbc.databaseName = data.name;
+    this.datasetJdbc.dbName = data.name;
   }
 
 
@@ -669,7 +691,8 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.loadingShow();
 
     this.schemaList = [];
-    this.datasetJdbc.tableName = '';
+    //this.datasetJdbc.tableName = '';
+    this.datasetJdbc.tblName = '';
 
     this.connectionService.getTablesWitoutId({connection : this.datasetJdbc.dataconnection.connection, database : schema})
       .then((data) => {

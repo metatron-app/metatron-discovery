@@ -18,8 +18,10 @@ import {
 } from '@angular/core';
 import * as _ from 'lodash';
 import { AbstractComponent } from '../../../../../common/component/abstract.component';
-import { Dataflow } from '../../../../../domain/data-preparation/dataflow';
-import { Dataset, DsType } from '../../../../../domain/data-preparation/dataset';
+//import { Dataflow } from '../../../../../domain/data-preparation/dataflow';
+import { PrDataflow } from '../../../../../domain/data-preparation/pr-dataflow';
+//import { Dataset, DsType } from '../../../../../domain/data-preparation/dataset';
+import { PrDataset, DsType } from '../../../../../domain/data-preparation/pr-dataset';
 import { PreparationAlert } from '../../../../util/preparation-alert.util';
 import { Alert } from '../../../../../common/util/alert.util';
 import { DataflowService } from '../../../service/dataflow.service';
@@ -46,16 +48,16 @@ export class AddDatasetModalComponent extends AbstractComponent implements OnIni
 
   // 넘어온 데이터
   @Input()
-  public dataflow: Dataflow;
+  public dataflow: PrDataflow;
 
   // 선택된 데이터셋 리스트 (wrangled datasets도 포함된 리스트. 서버에 보내는 용)
-  public selectedDatasets: Dataset[] = [];
+  public selectedDatasets: PrDataset[] = [];
 
   // 화면상에 체크 된 데이터셋들 유지해야해서 갖고 있는다
-  public tempDatasets: Dataset[] = [];
+  public tempDatasets: PrDataset[] = [];
 
   // 화면에 보여지는 리스트 - wrangled dataset은 배제
-  public datasets: Dataset[] = [];
+  public datasets: PrDataset[] = [];
 
   // 전체선택 여부
   public isCheckAll: boolean = false;

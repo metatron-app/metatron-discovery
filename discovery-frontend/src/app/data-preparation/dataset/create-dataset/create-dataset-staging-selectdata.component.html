@@ -79,12 +79,12 @@
             <div class="ddp-ui-search-db ddp-clear">
               <div class="ddp-type-selectbox ddp-type-search-select"
                    [ngClass]="{'ddp-selected':isDatabaseListShow}"
-                   [class.ddp-result]="datasetHive.databaseName"
+                   [class.ddp-result]="datasetHive.dbName"
                    tabindex="1"
                    (click)="showDatabaseList($event)"
                    (keydown)="navigateWithKeyboardShortList($event,filteredDbList,'db')">
                 <input type="text" class="ddp-input-selectbox db-search" placeholder="search by database name" [(ngModel)]="dbSearchText">
-                <span class="ddp-txt-selectbox">{{datasetHive.databaseName === '' ? ('msg.dp.ui.sel.db' | translate) :datasetHive.databaseName }}</span>
+                <span class="ddp-txt-selectbox">{{datasetHive.dbName === '' ? ('msg.dp.ui.sel.db' | translate) :datasetHive.dbName }}</span>
                 <ul class="ddp-list-selectbox ddp-selectdown"
                     (clickOutside)="isDatabaseListShow = false; initSelectedCommand(filteredDbList)">
                   <li *ngFor="let database of filteredDbList; let index=index"
@@ -104,13 +104,13 @@
               </div>
               <div class="ddp-type-selectbox ddp-type-search-select"
                    [ngClass]="{'ddp-selected': isSchemaListShow }"
-                   [class.ddp-result]="datasetHive.tableName"
+                   [class.ddp-result]="datasetHive.tblName"
                    (click)="showSchemaList($event)"
                    tabindex="2"
                    (keydown)="navigateWithKeyboardShortList($event,filteredSchemaList,'schema')"
-                   *ngIf="this.datasetHive.databaseName !== ''">
+                   *ngIf="this.datasetHive.dbName !== ''">
                 <input type="text" class="ddp-input-selectbox schema-search" placeholder="search by schema name" [(ngModel)]="schemaSearchText">
-                <span class="ddp-txt-selectbox">{{datasetHive.tableName === ''? ('msg.dp.ui.sel.schema' | translate) : datasetHive.tableName}}</span>
+                <span class="ddp-txt-selectbox">{{datasetHive.tblName === ''? ('msg.dp.ui.sel.schema' | translate) : datasetHive.tblName}}</span>
                 <ul class="ddp-list-selectbox ddp-selectdown"
                     (clickOutside)="isSchemaListShow = false; initSelectedCommand(filteredSchemaList)">
                   <li *ngFor="let schema of filteredSchemaList; let index=index"
@@ -132,7 +132,7 @@
               </div>
 
               <!-- error -->
-              <div class="ddp-txt-error" *ngIf="'' != datasetHive.tableName && 0 == schemaList.length">
+              <div class="ddp-txt-error" *ngIf="'' != datasetHive.tblName && 0 == schemaList.length">
                 <em class="ddp-icon-error"></em>{{'msg.dp.ui.no.table.description' | translate}}
               </div>
               <!-- //error -->

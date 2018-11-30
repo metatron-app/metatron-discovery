@@ -14,7 +14,8 @@
 
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { DatasetFile, DatasetHive, DatasetJdbc } from '../../../domain/data-preparation/dataset';
+//import { DatasetFile, DatasetHive, DatasetJdbc } from '../../../domain/data-preparation/dataset';
+import { PrDatasetFile, PrDatasetHive, PrDatasetJdbc } from '../../../domain/data-preparation/pr-dataset';
 import { PopupService } from '../../../common/service/popup.service';
 import { DatasetService } from '../service/dataset.service';
 import { isUndefined } from 'util';
@@ -41,13 +42,16 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input() // Input from parent component if type is hive
-  public datasetHive: DatasetHive;
+  //public datasetHive: DatasetHive;
+  public datasetHive: PrDatasetHive;
 
   @Input() // Input from parent component if type is hive
-  public datasetJdbc: DatasetJdbc;
+  //public datasetJdbc: DatasetJdbc;
+  public datasetJdbc: PrDatasetJdbc;
 
   @Input() // Input from parent component if type if file
-  public datasetFile : DatasetFile;
+  //public datasetFile : DatasetFile;
+  public datasetFile : PrDatasetFile;
 
   @Input() // Type of Dataset. [DB,STAGING,FILE]
   public type : string;
@@ -142,7 +146,8 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       // 서버에 보낼 이름 설명 앞뒤 공백 제거
       switch(this.type) {
         case 'FILE':
-          this.datasetFile.name = this.name.trim();
+          //this.datasetFile.name = this.name.trim();
+          this.datasetFile.dsName = this.name.trim();
           break;
         case 'STAGING':
           this.datasetHive.dsName = this.name.trim();
@@ -154,7 +159,8 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       if (!isUndefined(this.description) && this.description.trim() !== '') {
         switch(this.type) {
           case 'FILE':
-            this.datasetFile.desc = this.description.trim();
+            //this.datasetFile.desc = this.description.trim();
+            this.datasetFile.dsDesc = this.description.trim();
             break;
           case 'STAGING':
             this.datasetHive.dsDesc = this.description.trim()
@@ -290,12 +296,14 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   private _setDefaultDatasetName(type : string) : void {
 
     if ('FILE' === type) {
-      let file = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(this.datasetFile.filename);
+      //let file = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(this.datasetFile.filename);
+      let file = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(this.datasetFile.filenameBeforeUpload);
       let extension = file[1];
       let fileName = file[0].split('.' + extension)[0];
 
       if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
-        this.name = `${fileName} - ${this.datasetFile.sheetname} (EXCEL)`;
+        //this.name = `${fileName} - ${this.datasetFile.sheetname} (EXCEL)`;
+        this.name = `${fileName} - ${this.datasetFile.sheetName} (EXCEL)`;
       } else if(extension.toUpperCase() === 'JSON') {
         this.name = `${fileName} (JSON)`;
       } else if(extension.toUpperCase() === 'CSV') {
@@ -306,14 +314,21 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       }
     } else if ('DB' === type) {
       if( !isUndefined(this.datasetJdbc.dataconnection.connection) ) {
+      /*
         if (this.datasetJdbc.tableName){
           this.name = this.datasetJdbc.tableName +' ('+this.datasetJdbc.dataconnection.connection.implementor+')';
         }
+        */
+        if (this.datasetJdbc.tblName){
+          this.name = this.datasetJdbc.tblName +' ('+this.datasetJdbc.dataconnection.connection.implementor+')';
+        }
       } else {
-        this.name = this.datasetJdbc.tableName;
+        //this.name = this.datasetJdbc.tableName;
+        this.name = this.datasetJdbc.tblName;
       }
     } else if ('STAGING' === type) {
-      this.name = `${this.datasetHive.tableName} (STAGING)`;
+      //this.name = `${this.datasetHive.tableName} (STAGING)`;
+      this.name = `${this.datasetHive.tblName} (STAGING)`;
     }
 
     setTimeout(() => { this.nameElement.nativeElement.select(); });

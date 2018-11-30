@@ -80,12 +80,12 @@
             <div class="ddp-ui-search-db ddp-clear">
               <div class="ddp-type-selectbox ddp-type-search-select"
                    [ngClass]="{'ddp-selected':isDatabaseListShow}"
-                   [class.ddp-result]="datasetJdbc.databaseName"
+                   [class.ddp-result]="datasetJdbc.dbName"
                    tabindex="1"
                    (click)="showDatabaseList($event)"
                    (keydown)="navigateWithKeyboardShortList($event,filteredDbList,'db')">
                 <input class="ddp-input-selectbox db-search" placeholder="search by database name" [(ngModel)]="dbSearchText">
-                <span class="ddp-txt-selectbox">{{datasetJdbc.databaseName === '' ? ('msg.dp.ui.sel.db' | translate) :datasetJdbc.databaseName }}</span>
+                <span class="ddp-txt-selectbox">{{datasetJdbc.dbName === '' ? ('msg.dp.ui.sel.db' | translate) :datasetJdbc.dbName }}</span>
                 <ul class="ddp-list-selectbox ddp-selectdown"
                     (clickOutside)="isDatabaseListShow = false; initSelectedCommand(filteredDbList)">
                   <li *ngFor="let database of filteredDbList; let index=index"
@@ -105,13 +105,13 @@
               </div>
               <div class="ddp-type-selectbox ddp-type-search-select"
                    [ngClass]="{'ddp-selected': isSchemaListShow }"
-                   [class.ddp-result]="datasetJdbc.tableName"
+                   [class.ddp-result]="datasetJdbc.tblName"
                    (click)="showSchemaList($event)"
                    tabindex="2"
                    (keydown)="navigateWithKeyboardShortList($event,filteredSchemaList,'schema')"
-                   *ngIf="this.datasetJdbc.databaseName !== ''">
+                   *ngIf="this.datasetJdbc.dbName !== ''">
                 <input class="ddp-input-selectbox schema-search" placeholder="search by schema name" [(ngModel)]="schemaSearchText">
-                <span class="ddp-txt-selectbox">{{datasetJdbc.tableName === ''? ('msg.dp.ui.sel.schema' | translate) : datasetJdbc.tableName}}</span>
+                <span class="ddp-txt-selectbox">{{datasetJdbc.tblName === ''? ('msg.dp.ui.sel.schema' | translate) : datasetJdbc.tblName}}</span>
                 <ul class="ddp-list-selectbox ddp-selectdown"
                     (clickOutside)="isSchemaListShow = false; initSelectedCommand(filteredSchemaList)">
                   <li *ngFor="let schema of filteredSchemaList; let index=index"
@@ -133,7 +133,7 @@
               </div>
 
               <!-- error -->
-              <div class="ddp-txt-error" *ngIf="'' != datasetJdbc.tableName && 0 == schemaList.length">
+              <div class="ddp-txt-error" *ngIf="'' != datasetJdbc.tblName && 0 == schemaList.length">
                 <em class="ddp-icon-error"></em>{{'msg.dp.ui.no.table.description' | translate}}
               </div>
               <!-- //error -->

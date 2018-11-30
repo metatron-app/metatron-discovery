@@ -14,7 +14,8 @@
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {AbstractComponent} from "../../common/component/abstract.component";
-import {Dataset, DsType} from "../../domain/data-preparation/dataset";
+//import {Dataset, DsType} from "../../domain/data-preparation/dataset";
+import {PrDataset, DsType} from "../../domain/data-preparation/pr-dataset";
 import {DataflowService} from "../dataflow/service/dataflow.service";
 import {DatasetService} from "../dataset/service/dataset.service";
 import {DataflowModelService} from "../dataflow/service/dataflow.model.service";
@@ -49,7 +50,8 @@ export class RadioSelectDatasetComponent extends AbstractComponent implements On
   public selectedDatasetId : string = '';
 
   @Input() // 리스트에 보일 데이터셋 리스트 ( imported only)
-  public importedDatasets : Dataset[] = [];
+  //public importedDatasets : Dataset[] = [];
+  public importedDatasets : PrDataset[] = [];
 
   @Input()
   public pageResult : PageResult;

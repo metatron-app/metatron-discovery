@@ -27,21 +27,25 @@ public class PrDatasetProjections {
     public interface DefaultProjection {
 
         String getDsId();
+        String getSerializedPreview();
         String getDsName();
         String getDsDesc();
-        String getDsType();
-        String getImportType();
-        String getFileType();
-        String getDbType();
-        String getFilename();
-        String getFilekey();
-        String getCustom();
-        String getRsType();
-        String getDcId();
-        String getTableName();
-        String getQueryStmt();
+        PrDataset.DS_TYPE getDsType();
+        PrDataset.IMPORT_TYPE getImportType();
+        PrDataset.STORAGE_TYPE getStorageType();
+        String getStoredUri();
+        String getFilenameBeforeUpload();
         Long getTotalLines();
         Long getTotalBytes();
+        String getDcId();
+        PrDataset.RS_TYPE getRsType();
+        String getDbName();
+        String getTblName();
+        String getQueryStmt();
+        String getSheetName();
+        PrDataset.FILE_FORMAT getFileFormat();
+        String getDelimiter();
+        String getCustom();
 
         Integer getRefDfCount();
         DateTime getCreatedTime();
@@ -50,6 +54,7 @@ public class PrDatasetProjections {
         String getModifiedBy();
 
         String getCreatorDfId();
+        String getCreatorDfName();
         Integer getRuleCurIdx();
 
         List<PrDataflow> getDataflows();
@@ -61,23 +66,26 @@ public class PrDatasetProjections {
 
     @Projection(name = "detail", types = { PrDataset.class })
     public interface DetailProjection {
-
         String getDsId();
+        String getSerializedPreview();
         String getDsName();
         String getDsDesc();
-        String getDsType();
-        String getImportType();
-        String getFileType();
-        String getDbType();
-        String getFilename();
-        String getFilekey();
-        String getCustom();
-        String getRsType();
-        String getDcId();
-        String getTableName();
-        String getQueryStmt();
+        PrDataset.DS_TYPE getDsType();
+        PrDataset.IMPORT_TYPE getImportType();
+        PrDataset.STORAGE_TYPE getStorageType();
+        String getStoredUri();
+        String getFilenameBeforeUpload();
         Long getTotalLines();
         Long getTotalBytes();
+        String getDcId();
+        PrDataset.RS_TYPE getRsType();
+        String getDbName();
+        String getTblName();
+        String getQueryStmt();
+        String getSheetName();
+        PrDataset.FILE_FORMAT getFileFormat();
+        String getDelimiter();
+        String getCustom();
 
         Integer getRefDfCount();
         DateTime getCreatedTime();
@@ -86,6 +94,7 @@ public class PrDatasetProjections {
         String getModifiedBy();
 
         String getCreatorDfId();
+        String getCreatorDfName();
         Integer getRuleCurIdx();
 
         List<PrDataflow> getDataflows();
@@ -97,41 +106,43 @@ public class PrDatasetProjections {
 
     @Projection(name = "listing", types = { PrDataset.class })
     public interface ListingProjection {
-
         String getDsId();
+        String getSerializedPreview();
         String getDsName();
         String getDsDesc();
+        PrDataset.DS_TYPE getDsType();
+        PrDataset.IMPORT_TYPE getImportType();
+        PrDataset.STORAGE_TYPE getStorageType();
+        String getStoredUri();
+        String getFilenameBeforeUpload();
+        Long getTotalLines();
+        Long getTotalBytes();
+        String getDcId();
+        PrDataset.RS_TYPE getRsType();
+        String getDbName();
+        String getTblName();
+        String getQueryStmt();
+        String getSheetName();
+        PrDataset.FILE_FORMAT getFileFormat();
+        String getDelimiter();
+        String getCustom();
 
         Integer getRefDfCount();
-
-        String getDsType();
-        String getImportType();
-
         DateTime getCreatedTime();
         String getCreatedBy();
         DateTime getModifiedTime();
         String getModifiedBy();
 
-        String getCreatorDfName();
-        String getFilename();
-        String getTableName();
-
-        List<PrDataflow> getDataflows();
-    }
-
-    @Projection(name = "post", types = { PrDataset.class })
-    public interface PostProjection {
-
-        String getDsName();
-        String getDsDesc();
-        String getDsType();
-        List<PrDataflow> getDataflows();
-        String getImportType();
-        String getFileType();
-        String getFilekey();
-        String getFilename();
         String getCreatorDfId();
-        String getDcId();
+        String getCreatorDfName();
+        Integer getRuleCurIdx();
+
+        List<PrDataflow> getDataflows();
+        List<PrTransformRule> getTransformRules();
+
+        DataFrame getGridResponse();
+        Map<String,Object> getConnectionInfo();
     }
+
 }
 

@@ -12,11 +12,14 @@
  * limitations under the License.
  */
 
+/*
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
 import { Dataset } from './dataset';
+*/
 /**
  * Created by paige on 18/7/17.
  */
+/*
 export class Dataflow extends AbstractHistoryEntity {
 
   public dfId: string;
@@ -47,3 +50,4 @@ export class Upstreams {
     return this.upstreams;
   }
 }
+*/

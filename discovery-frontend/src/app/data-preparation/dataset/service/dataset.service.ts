@@ -14,7 +14,8 @@
 
 import { Injectable, Injector } from '@angular/core';
 import { AbstractService } from '../../../common/service/abstract.service';
-import { DatasetHive, DatasetJdbc, DatasetFile, Datasets } from '../../../domain/data-preparation/dataset';
+//import { DatasetHive, DatasetJdbc, DatasetFile, Datasets } from '../../../domain/data-preparation/dataset';
+import { PrDatasetHive, PrDatasetJdbc, PrDatasetFile, Datasets } from '../../../domain/data-preparation/pr-dataset';
 import { CommonUtil } from '../../../common/util/common.util';
 import { Dataconnection } from '../../../domain/dataconnection/dataconnection';
 import { ConnectionRequest } from '../../../domain/dataconnection/connectionrequest';
@@ -63,6 +64,7 @@ export class DatasetService extends AbstractService {
 
   }
 
+/*
   // 데이터셋 엑셀 파일 조회
   public getDatasetExcelFile(datasetFile: DatasetFile) {
     return this.get(this.API_URL + 'preparationdatasets/file/' + datasetFile.filekey + '?sheetname=' + encodeURI(datasetFile.sheetname) + '&hasFields=N');
@@ -73,7 +75,7 @@ export class DatasetService extends AbstractService {
     return this.get(this.API_URL + 'preparationdatasets/file/' + datasetFile.filekey + '?hasFields=N');
     //return this.get(this.API_URL + 'preparationdatasets/file/' + datasetFile.filekey + '?resultSize=4096&hasFields=N');
   }
-
+*/
 
   /**
    * Fetch grid data according to file type (csv, excel)
@@ -83,8 +85,10 @@ export class DatasetService extends AbstractService {
   public getFileGridInfo(param) {
 
 
-    let url = this.API_URL + 'preparationdatasets/file/' + param.fileKey;
+    //let url = this.API_URL + 'preparationdatasets/file/' + param.fileKey;
+    let url = this.API_URL + 'preparationdatasets/file_grid?storedUri=' + encodeURI(param.storedUri);
 
+/*
     if (param.fileType === 'csv' || param.fileType === 'txt') {
 
       url += '?hasFields=N';
@@ -97,7 +101,12 @@ export class DatasetService extends AbstractService {
 
       url += '?sheetname=' + encodeURI(param.sheetname) + '&hasFields=N'
     }
-
+*/
+    if (param.fileType === 'csv' || param.fileType === 'txt') {
+      if (param.delimiter) {
+        url += `&delimiterCol=${encodeURI(param.delimiter)}`;
+      }
+    }
 
     return this.get(url);
 
@@ -136,26 +145,34 @@ export class DatasetService extends AbstractService {
   }
 
   // 데이터셋  저장 HIVE
-  public createDatasetHive(datasetHive: DatasetHive) {
+  //public createDatasetHive(datasetHive: DatasetHive) {
+  public createDatasetHive(datasetHive: PrDatasetHive) {
+    /*
     if(datasetHive.databaseName && 0<datasetHive.databaseName.length) {
       datasetHive.custom = JSON.stringify({"databaseName":datasetHive.databaseName});
     }
+    */
     console.info('datasetHive', datasetHive);
     return this.post(this.API_URL + 'preparationdatasets', datasetHive);
   }
 
   // 데이터셋  저장 HIVE
-  public createDatasetJdbc(datasetJdbc: DatasetJdbc) {
+  //public createDatasetJdbc(datasetJdbc: DatasetJdbc) {
+  public createDatasetJdbc(datasetJdbc: PrDatasetJdbc) {
+  /*
     if(datasetJdbc.databaseName && 0<datasetJdbc.databaseName.length) {
       datasetJdbc.custom = JSON.stringify({"databaseName":datasetJdbc.databaseName});
     }
+    */
     console.info('datasetJdbc', datasetJdbc);
     return this.post(this.API_URL + 'preparationdatasets', datasetJdbc);
   }
 
   // 데이터셋  저장
-  public createDataset(datasetFile: DatasetFile, delimiter) {
+  //public createDataset(datasetFile: DatasetFile, delimiter) {
+  public createDataset(datasetFile: PrDatasetFile, delimiter) {
     const params: any = {};
+    /*
     params.filename = datasetFile.filename;
     params.filekey = datasetFile.filekey;
     params.dsName = datasetFile.name;
@@ -163,7 +180,20 @@ export class DatasetService extends AbstractService {
     params.dsType = 'IMPORTED';
     params.importType = 'FILE';
     params.fileType = datasetFile.fileType;
+    */
+    params.delimiter = datasetFile.delimiter;
+    params.dsName = datasetFile.dsName;
+    params.dsDesc = datasetFile.dsDesc;
+    params.dsType = 'IMPORTED';
+    params.importType = 'UPLOAD';
+    params.filenameBeforeUpload = datasetFile.filenameBeforeUpload;
+    params.storageType = datasetFile.storageType;
+    params.sheetName = datasetFile.sheetName;
+    params.storageType = datasetFile.storageType;
+    params.storedUri = datasetFile.storedUri;
+
     console.info('datasetFile', datasetFile);
+    /*
     var filename = datasetFile.filename.toLowerCase();
     if( true==filename.endsWith("xls") || true==filename.endsWith("xlsx") ) {
       params.custom = `{"filePath":"`+datasetFile.filepath+`", "fileType":"EXCEL", "sheet":"` + datasetFile.sheetname + `", "delimiter":"`+delimiter +`"}`;
@@ -171,6 +201,16 @@ export class DatasetService extends AbstractService {
       params.custom = `{"filePath":"`+datasetFile.filepath+`", "fileType":"JSON"}`;
     } else {
       params.custom = `{"filePath":"`+datasetFile.filepath+`", "fileType":"DSV", "delimiter":"`+delimiter +`"}`;
+    }
+    */
+
+    var filenameBeforeUpload = datasetFile.filenameBeforeUpload.toLowerCase();
+    if( true==filenameBeforeUpload.endsWith("xls") || true==filenameBeforeUpload.endsWith("xlsx") ) {
+      params.fileFormat = "EXCEL";
+    } else if( true==filenameBeforeUpload.endsWith("csv") || true==filenameBeforeUpload.endsWith("txt") ) {
+      params.fileFormat = "CSV";
+    } else if( true==filenameBeforeUpload.endsWith("json") ) {
+      params.fileFormat = "JSON";
     }
     /*
     if (isUndefined(datasetFile.sheets)) {
@@ -329,7 +369,12 @@ export class DatasetService extends AbstractService {
    * Check asynchronously if file is uploaded
    * @param {string} fileKey
    */
+  /*
   public checkFileUploadStatus(fileKey: string) {
     return this.post(this.API_URL + 'preparationdatasets/upload_async_poll', fileKey);
+  }
+  */
+  public checkFileUploadStatus(storedUri: string) {
+    return this.post(this.API_URL + 'preparationdatasets/upload_async_poll', storedUri);
   }
 }

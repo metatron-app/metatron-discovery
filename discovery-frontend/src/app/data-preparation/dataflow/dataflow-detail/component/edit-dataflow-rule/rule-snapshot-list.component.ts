@@ -15,7 +15,8 @@
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractComponent } from '../../../../../common/component/abstract.component';
 import { DataflowService } from '../../../service/dataflow.service';
-import { DataSnapshot } from '../../../../../domain/data-preparation/data-snapshot';
+//import { DataSnapshot } from '../../../../../domain/data-preparation/data-snapshot';
+import { PrDataSnapshot, Status } from '../../../../../domain/data-preparation/pr-snapshot';
 import { DataSnapshotService } from '../../../../data-snapshot/service/data-snapshot.service';
 import { Alert } from '../../../../../common/util/alert.util';
 
@@ -47,7 +48,8 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public snapshotList : DataSnapshot[];
+  //public snapshotList : DataSnapshot[];
+  public snapshotList : PrDataSnapshot[];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -121,7 +123,8 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
    * INIT
    * @param {DataSnapshot[]} list
    */
-  public init(list : DataSnapshot[]) {
+  //public init(list : DataSnapshot[]) {
+  public init(list : PrDataSnapshot[]) {
     this.snapshotList = list;
   } // function - init
 
@@ -129,9 +132,11 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
    * Open snapshot detail popup
    * @param {DataSnapshot} snapshot
    */
-  public snapshotDetail(snapshot : DataSnapshot) {
+  //public snapshotDetail(snapshot : DataSnapshot) {
+  public snapshotDetail(snapshot : PrDataSnapshot) {
 
-    if (snapshot.status === 'CANCELED' || snapshot.isCancel) {
+    //if (snapshot.status === 'CANCELED' || snapshot.isCancel) {
+    if (snapshot.status === Status.CANCELED || snapshot.isCancel) {
       return;
     }
 
@@ -146,7 +151,8 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
    * Snapshot cancel confirm popup open
    * @param {DataSnapshot} snapshot
    */
-  public cancelSnapshot(snapshot: DataSnapshot) {
+  //public cancelSnapshot(snapshot: DataSnapshot) {
+  public cancelSnapshot(snapshot: PrDataSnapshot) {
     this.snapshotIntervalStopEvent.emit(); // Stop interval
 
     if (snapshot.elapsedTime) { // cannot cancel already created snapshot
@@ -162,7 +168,8 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
    * Cancel snapshot
    * @param snapshot {DataSnapshot}
    */
-  public cancelSnapshotConfirm(snapshot : DataSnapshot) {
+  //public cancelSnapshotConfirm(snapshot : DataSnapshot) {
+  public cancelSnapshotConfirm(snapshot : PrDataSnapshot) {
     snapshot.isCancel = false;
     this.snapshotService.cancelSnapshot(snapshot.ssId).then((result) => {
       if (result.result === 'OK') {
@@ -185,7 +192,8 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
    * 스냅샷 리스트 다시 불러오기
    * @param {DataSnapshot} snapshot
    */
-  public refreshSnapshotList(snapshot? : DataSnapshot) {
+  //public refreshSnapshotList(snapshot? : DataSnapshot) {
+  public refreshSnapshotList(snapshot? : PrDataSnapshot) {
     if (snapshot) {
       snapshot.isCancel = false;
     }

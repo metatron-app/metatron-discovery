@@ -20,6 +20,8 @@ import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.collect.Maps;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.*;
@@ -43,25 +45,45 @@ public class PrSnapshot extends AbstractHistoryEntity {
         URI,
         DATABASE,
         STAGING_DB,
-        DRUID
+        DRUID;
+
+        @JsonValue
+        public String toJson() {
+            return name();
+        }
     }
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     public enum URI_FILE_FORMAT {
         CSV,
-        JSON
+        JSON;
+
+        @JsonValue
+        public String toJson() {
+            return name();
+        }
     }
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     public enum STORAGE_TYPE {
         LOCAL,
-        HDFS
+        HDFS;
+
+        @JsonValue
+        public String toJson() {
+            return name();
+        }
     }
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     public enum HIVE_FILE_FORMAT {
         CSV,
-        ORC
+        ORC;
+
+        @JsonValue
+        public String toJson() {
+            return name();
+        }
     }
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
@@ -69,19 +91,34 @@ public class PrSnapshot extends AbstractHistoryEntity {
         NONE,
         SNAPPY,
         ZLIB,
-        LZO
+        LZO;
+
+        @JsonValue
+        public String toJson() {
+            return name();
+        }
     }
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     public enum APPEND_MODE {
         OVERWRITE,
-        APPEND
+        APPEND;
+
+        @JsonValue
+        public String toJson() {
+            return name();
+        }
     }
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     public enum ENGINE {
         EMBEDDED,
-        TWINKLE
+        TWINKLE;
+
+        @JsonValue
+        public String toJson() {
+            return name();
+        }
     }
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
@@ -94,7 +131,12 @@ public class PrSnapshot extends AbstractHistoryEntity {
         SUCCEEDED,
         FAILED,
         CANCELING,
-        CANCELED
+        CANCELED;
+
+        @JsonValue
+        public String toJson() {
+            return name();
+        }
     }
 
 
@@ -214,8 +256,8 @@ public class PrSnapshot extends AbstractHistoryEntity {
     @Size(max = 150)
     protected String dcName;
 
+    @Lob
     @Column(name = "dc_desc")
-    @Size(max = 900)
     protected String dcDesc;
 
     @Column(name = "dc_type")
@@ -267,7 +309,7 @@ public class PrSnapshot extends AbstractHistoryEntity {
     @Column(name = "df_id")
     String dfId;
 
-    @Size(max = 2000)
+    @Lob
     @Column(name = "df_name")
     String dfName;
 
@@ -275,7 +317,7 @@ public class PrSnapshot extends AbstractHistoryEntity {
     @Column(name = "ds_id")
     String dsId;
 
-    @Size(max = 2000)
+    @Lob
     @Column(name = "ds_name")
     String dsName;
 
@@ -345,8 +387,8 @@ public class PrSnapshot extends AbstractHistoryEntity {
     @Size(max = 150)
     protected String origDsDcName;
 
+    @Lob
     @Column(name = "orig_ds_dc_desc")
-    @Size(max = 900)
     protected String origDsDcDesc;
 
     @Column(name = "orig_ds_dc_type")
@@ -1034,5 +1076,62 @@ public class PrSnapshot extends AbstractHistoryEntity {
             setCustom(jsonCustom);
         }
         return this.custom;
+    }
+
+    public Map<String,Object> getSourceInfo() {
+        Map<String,Object> sourceInfo = Maps.newHashMap();
+
+        sourceInfo.put("dfId", getDfId());
+        sourceInfo.put("dfName", getDfName());
+        sourceInfo.put("dsId", getDsId());
+        sourceInfo.put("dsName", getDsName());
+        sourceInfo.put("dsCreatedBy", getDsCreatedBy());
+        sourceInfo.put("dsCreatedTime", getDsCreatedTime());
+        sourceInfo.put("dsModifiedBy", getDsModifiedBy());
+        sourceInfo.put("dsModifiedTime", getDsModifiedTime());
+        sourceInfo.put("origDsId", getOrigDsId());
+        sourceInfo.put("origDsName", getOrigDsName());
+        sourceInfo.put("origDsImportType", getOrigDsImportType());
+        sourceInfo.put("origDsStoredUri", getOrigDsStoredUri());
+        sourceInfo.put("origDsDbName", getOrigDsDbName());
+        sourceInfo.put("origDsTblName", getOrigDsTblName());
+        sourceInfo.put("origDsQueryStmt", getOrigDsQueryStmt());
+        sourceInfo.put("origDsCreatedBy", getOrigDsCreatedBy());
+        sourceInfo.put("origDsCreatedTime", getOrigDsCreatedTime());
+        sourceInfo.put("origDsModifiedBy", getOrigDsModifiedBy());
+        sourceInfo.put("origDsModifiedTime", getOrigDsModifiedTime());
+
+
+        Map<String,Object> connectionInfo = Maps.newHashMap();
+        connectionInfo.put("origDsDcId", getOrigDsDcId());
+        connectionInfo.put("origDsDcImplementor", getOrigDsDcImplementor());
+        connectionInfo.put("origDsDcName", getOrigDsDcName());
+        connectionInfo.put("origDsDcDesc", getOrigDsDcDesc());
+        connectionInfo.put("origDsDcType ", getOrigDsDcType ());
+        connectionInfo.put("origDsDcHostname", getOrigDsDcHostname());
+        connectionInfo.put("origDsDcPort", getOrigDsDcPort());
+        connectionInfo.put("origDsDcUsername", getOrigDsDcUsername());
+        connectionInfo.put("origDsDcUrl", getOrigDsDcUrl());
+
+        sourceInfo.put("origDsConnectionInfo", connectionInfo);
+
+        return sourceInfo;
+    }
+
+    public Map<String,Object> getConnectionInfo() {
+        Map<String,Object> connectionInfo = Maps.newHashMap();
+
+        connectionInfo.put("dcId", getDcId());
+        connectionInfo.put("dcImplementor", getDcImplementor());
+        connectionInfo.put("dcName", getDcName());
+        connectionInfo.put("dcDesc", getDcDesc());
+        connectionInfo.put("dcType ", getDcType ());
+        connectionInfo.put("dcHostname", getDcHostname());
+        connectionInfo.put("dcPort", getDcPort());
+        connectionInfo.put("dcUsername", getDcUsername());
+        connectionInfo.put("dcPassword", getDcPassword());
+        connectionInfo.put("dcUrl", getDcUrl());
+
+        return connectionInfo;
     }
 }

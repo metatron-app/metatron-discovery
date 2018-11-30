@@ -19,7 +19,8 @@ import {
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
-import { DatasetFile, FileType } from '../../../domain/data-preparation/dataset';
+//import { DatasetFile, FileType } from '../../../domain/data-preparation/dataset';
+import { PrDatasetFile, StorageType } from '../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../common/util/alert.util';
 import { DatasetService } from '../service/dataset.service';
 import { FileLikeObject, FileUploader } from 'ng2-file-upload';
@@ -63,7 +64,8 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   public typeEmitter = new EventEmitter<string>();
 
   @Input()
-  public datasetFile: DatasetFile;
+  //public datasetFile: DatasetFile;
+  public datasetFile: PrDatasetFile;
 
   public isCSV: boolean = false;
 
@@ -189,9 +191,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     super.ngOnInit();
 
-    let fileType : string = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec( this.datasetFile.filename )[1];
+    //let fileType : string = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec( this.datasetFile.filename )[1];
+    let fileType : string = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec( this.datasetFile.filenameBeforeUpload )[1];
 
 
+    // need to add json type
     if (fileType === 'csv' || fileType === 'txt') {
       this.isCSV = true;
       this.getDataFile();
@@ -243,7 +247,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     this.isChanged = false;
     this.defaultSheetIndex = idx;
-    this.datasetFile.sheetname = sheetname;
+    this.datasetFile.sheetName = sheetname;
     this.datasetFile.sheetIndex = idx;
 
     // this.getDataFile();
@@ -339,6 +343,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     if(this.isChanged) { // when uploaded file is changed
       this.defaultSheetIndex = 0;
       const response: any = this.uploadResult.response;
+      /*
       this.datasetFile.filename = response.filename;
       this.datasetFile.filepath = response.filepath;
       this.datasetFile.sheets = response.sheets;
@@ -349,6 +354,16 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         this.datasetFile.sheetname = '';
       }
       this.datasetFile.filekey = response.filekey;
+      */
+      this.datasetFile.storedUri = response.storedUri;
+      this.datasetFile.sheets = response.sheets;
+      if (response.sheets && response.sheets.length > 0) {
+        this.datasetFile.sheetName = response.sheets[0];
+        this.convertSheet();
+      } else {
+        this.datasetFile.sheetName = '';
+      }
+      this.datasetFile.filenameBeforeUpload = response.filenameBeforeUpload;
     }
 
     this.loadingShow();
@@ -358,7 +373,8 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
 
   public getGridStyle() {
-    if( this.datasetFile.sheetname && ''!==this.datasetFile.sheetname) {
+    //if( this.datasetFile.sheetname && ''!==this.datasetFile.sheetname) {
+    if( this.datasetFile.sheetName && ''!==this.datasetFile.sheetName) {
       return null;
     }
     return {'top':'0px'};
@@ -370,9 +386,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    */
   public checkIfUploaded(response: any) {
     let res = JSON.parse(response);
-    this.fetchUploadStatus(res.filekey);
+    //this.fetchUploadStatus(res.filekey);
+    this.fetchUploadStatus(res.storedUri);
     this.interval = setInterval(() => {
-      this.fetchUploadStatus(res.filekey);
+      //this.fetchUploadStatus(res.filekey);
+      this.fetchUploadStatus(res.storedUri);
     }, 1000)
   }
 
@@ -380,8 +398,10 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * Polling
    * @param {string} fileKey
    */
-  public fetchUploadStatus(fileKey: string) {
-    this.datasetService.checkFileUploadStatus(fileKey).then((result) => {
+  //public fetchUploadStatus(fileKey: string) {
+  public fetchUploadStatus(storedUri: string) {
+    //this.datasetService.checkFileUploadStatus(fileKey).then((result) => {
+    this.datasetService.checkFileUploadStatus(storedUri).then((result) => {
 
       if (result.state === 'done'  && result.success) {
         clearInterval(this.interval);
@@ -402,7 +422,8 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
   public setUploadLcationList(){
     this.uploadLocationList = [{ name:'Local', value:'LOCAL' }, { name: 'HDFS', value: 'HDFS'}];
-    this.datasetFile.fileType = FileType.LOCAL;
+    //this.datasetFile.fileType = FileType.LOCAL;
+    this.datasetFile.storageType = StorageType.LOCAL;
   }
 
   public onChangeUploadLocation($event: any) {
@@ -413,11 +434,13 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
       switch(this.uploadLocation ) {
         case 'HDFS':
-          this.datasetFile.fileType = FileType.HDFS;
+          //this.datasetFile.fileType = FileType.HDFS;
+          this.datasetFile.storageType = StorageType.HDFS;
           break;
         case 'LOCAL':
         default:
-          this.datasetFile.fileType = FileType.LOCAL;
+          //this.datasetFile.fileType = FileType.LOCAL;
+          this.datasetFile.storageType = StorageType.LOCAL;
           break;
       }
     }
@@ -518,7 +541,8 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       if (result.grids.length > 0) {
         this.clearGrid = false;
         this.gridInfo = result.grids;
-        this.datasetFile.sheetname = this.gridInfo[this.defaultSheetIndex].sheetName;
+        //this.datasetFile.sheetname = this.gridInfo[this.defaultSheetIndex].sheetName;
+        this.datasetFile.sheetName = this.gridInfo[this.defaultSheetIndex].sheetName;
         this.updateGrid(this.gridInfo[this.defaultSheetIndex].data , this.gridInfo[this.defaultSheetIndex].fields);
       } else {
         this.gridInfo = [];
@@ -533,10 +557,16 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
   private getParamForGrid() {
     return {
+    /*
       fileKey : this.datasetFile.filekey,
       sheetname : this.datasetFile.sheetname,
       delimiter : this.columnDelimiter,
       fileType : new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec( this.datasetFile.filename )[1]
+      */
+      storedUri : this.datasetFile.storedUri,
+      sheetName : this.datasetFile.sheetName,
+      delimiter : this.columnDelimiter,
+      fileType : new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec( this.datasetFile.storedUri )[1]
     };
   }
 

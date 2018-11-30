@@ -63,7 +63,7 @@ public class PrDatasetService {
             dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, "0", this.filePreviewSize);
         } else if(importType == PrDataset.IMPORT_TYPE.DATABASE) {
             dataFrame = this.datasetJdbcPreviewService.getPreviewLinesFromJdbcForDataFrame(dataset, this.jdbcPreviewSize);
-        } else if(importType == PrDataset.IMPORT_TYPE.STATING_DB) {
+        } else if(importType == PrDataset.IMPORT_TYPE.STAGING_DB) {
             dataFrame = this.datasetSparkHivePreviewService.getPreviewLinesFromStagedbForDataFrame(dataset, this.hivePreviewSize);
         } else {
             assert false : importType;
@@ -81,7 +81,7 @@ public class PrDatasetService {
         } else if(importType == PrDataset.IMPORT_TYPE.DATABASE) {
             this.datasetJdbcPreviewService.setoAuthToekn(oAuthToken);
             dataFrame = this.datasetJdbcPreviewService.getPreviewLinesFromJdbcForDataFrame(dataset, this.jdbcPreviewSize);
-        } else if(importType == PrDataset.IMPORT_TYPE.STATING_DB) {
+        } else if(importType == PrDataset.IMPORT_TYPE.STAGING_DB) {
             this.datasetSparkHivePreviewService.setoAuthToekn(oAuthToken);
             dataFrame = this.datasetSparkHivePreviewService.getPreviewLinesFromStagedbForDataFrame(dataset, this.hivePreviewSize);
         }

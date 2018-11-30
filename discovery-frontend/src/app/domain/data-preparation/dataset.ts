@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+/*
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
 import { Dataflow } from './dataflow';
 
@@ -187,3 +188,4 @@ export class Rule {
   public isEditMode: boolean;
   public isInsertStep: boolean;
 }
+*/

@@ -16,7 +16,8 @@ import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';

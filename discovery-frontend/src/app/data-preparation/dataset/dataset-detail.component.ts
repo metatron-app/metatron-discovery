@@ -14,7 +14,8 @@
 
 import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
-import { Dataset, DsType, Field, ImportType, RsType } from '../../domain/data-preparation/dataset';
+//import { Dataset, DsType, Field, ImportType, RsType } from '../../domain/data-preparation/dataset';
+import { PrDataset, DsType, Field, ImportType, RsType } from '../../domain/data-preparation/pr-dataset';
 import { GridComponent } from '../../common/component/grid/grid.component';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
 import { Alert } from '../../common/util/alert.util';
@@ -26,7 +27,8 @@ import { DatasetService } from './service/dataset.service';
 import { DataflowService } from '../dataflow/service/dataflow.service';
 import { StringUtil } from '../../common/util/string.util';
 import { ActivatedRoute } from '@angular/router';
-import { Dataflow } from '../../domain/data-preparation/dataflow';
+//import { Dataflow } from '../../domain/data-preparation/dataflow';
+import { PrDataflow } from '../../domain/data-preparation/pr-dataflow';
 import { CreateSnapshotPopup } from '../component/create-snapshot-popup.component';
 import { SnapshotLoadingComponent } from '../component/snapshot-loading.component';
 import { PreparationCommonUtil } from "../util/preparation-common.util";
@@ -229,7 +231,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     };
     this.loadingShow();
     this.datasetService.updateDataset(newDataset)
-      .then((dataset: Dataset) => {
+      //.then((dataset: Dataset) => {
+      .then((dataset: PrDataset) => {
         this.isDatasetNameEditMode = false;
         this.isDatasetDescEditMode = false;
         this.dataset = dataset;
@@ -308,10 +311,17 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
   /** get total bytes */
   public get getTotalBytes() {
+  /*
     if( this.dataset['importType'] && this.dataset['importType']===ImportType.HIVE &&
       this.dataset['rsType'] && this.dataset['rsType']!==RsType.TABLE ) {
       return this.translateService.instant('msg.dp.alert.rstype.no.table');
     } else if( this.dataset['importType'] && this.dataset['importType']===ImportType.DB ) {
+      return this.translateService.instant('msg.dp.alert.importtype.db');
+      */
+    if( this.dataset.importType===ImportType.STAGING_DB &&
+      this.dataset.rsType!==RsType.TABLE ) {
+      return this.translateService.instant('msg.dp.alert.rstype.no.table');
+    } else if( this.dataset.importType===ImportType.DATABASE ) {
       return this.translateService.instant('msg.dp.alert.importtype.db');
     } else {
       let size = 0;
@@ -356,7 +366,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   }
 
   public get getHost() {
-    if( this.dataset['importType'] && this.dataset['importType']===ImportType.DB && !isNullOrUndefined(this.dataset.connectionInfo['hostname'])) {
+    //if( this.dataset['importType'] && this.dataset['importType']===ImportType.DB && !isNullOrUndefined(this.dataset.connectionInfo['hostname'])) {
+    if( this.dataset.importType===ImportType.DATABASE && !isNullOrUndefined(this.dataset.connectionInfo['hostname'])) {
       //return 'host from '+this.dataset['dcId'];
       return this.dataset.connectionInfo['hostname'];
     }
@@ -364,7 +375,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   }
 
   public get getPort() {
-    if( this.dataset['importType'] && this.dataset['importType']===ImportType.DB && !isNullOrUndefined(this.dataset.connectionInfo['port'])) {
+    //if( this.dataset['importType'] && this.dataset['importType']===ImportType.DB && !isNullOrUndefined(this.dataset.connectionInfo['port'])) {
+    if( this.dataset.importType===ImportType.DATABASE && !isNullOrUndefined(this.dataset.connectionInfo['port'])) {
       //return 'port from '+this.dataset['dcId'];
       return this.dataset.connectionInfo['port'];
     }
@@ -372,6 +384,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   }
 
   public get getDatabase() {
+    return this.dataset.dbName;
+  /*
     if( this.dataset['importType'] && this.dataset['importType']!==ImportType.FILE ) {
       let custom = JSON.parse( this.dataset.custom );
       if( custom['databaseName'] ) {
@@ -379,9 +393,11 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       }
     }
     return null;
+    */
   }
 
   public get getTableOrSql() {
+  /*
     if( this.dataset['importType'] && this.dataset['importType']===ImportType.FILE ) {
       return null;
     }
@@ -391,6 +407,15 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     } else {
       return this.dataset['queryStmt'];
     }
+    */
+    if( this.dataset.importType===ImportType.DATABASE || this.dataset.importType===ImportType.STAGING_DB ) {
+      if(this.getPort !== null && this.getHost !== null) {
+        return this.dataset.tblName;
+      } else {
+        return this.dataset.queryStmt;
+      }
+    }
+    return null;
   }
 
   /**
@@ -409,7 +434,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   public createNewFlow() {
 
     let today = moment();
-    let param = new Dataflow();
+    //let param = new Dataflow();
+    let param = new PrDataflow();
     param.datasets = [this.dataset['_links'].self.href];
     param.dfName = `${this.dataset.dsName}_${today.format('MM')}${today.format('DD')}_${today.format('HH')}${today.format('mm')}`  ;
     this.loadingShow();
@@ -460,27 +486,34 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : dataset.dsType },
         {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}` }
       ]
-    }  else if (dataset.importType === ImportType.FILE) {
-      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType} (${this.getDatasetType(dataset.importType, dataset.filename)})`},
-        {name : this.translateService.instant('msg.dp.th.file'), value : `${dataset.filename}` },
+    //}  else if (dataset.importType === ImportType.FILE) {
+    }  else if (dataset.importType === ImportType.UPLOAD) {
+      //this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType} (${this.getDatasetType(dataset.importType, dataset.filename)})`},
+      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType} (${this.getDatasetType(dataset.importType, dataset.storedUri)})`},
+        //{name : this.translateService.instant('msg.dp.th.file'), value : `${dataset.filename}` },
+        {name : this.translateService.instant('msg.dp.th.file'), value : `${dataset.storedUri}` },
       ];
 
-      if (this.getDatasetType(dataset.importType, dataset.filename) === 'EXCEL') {
+      //if (this.getDatasetType(dataset.importType, dataset.filename) === 'EXCEL') {
+      if (this.getDatasetType(dataset.importType, dataset.storedUri) === 'EXCEL') {
         this.datasetInformationList.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetName() })
       }
 
       this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes },
         {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}`})
 
-    } else if (dataset.importType === 'HIVE') {
+    //} else if (dataset.importType === 'HIVE') {
+    } else if (dataset.importType === 'DATABASE' || dataset.importType === 'STAGING_DB') {
       this.datasetInformationList = [
-        { name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'HIVE' ? 'Staging DB' : 'DB'}` },
+        //{ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'HIVE' ? 'Staging DB' : 'DB'}` },
+        { name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'STAGING_DB' ? 'Staging DB' : 'DB'}` },
         { name : `${this.translateService.instant('msg.lineage.ui.list.search.table')}/${this.translateService.instant('msg.lineage.ui.list.search.sql')}`, value : `${this.getTableOrSql}` },
         { name : this.translateService.instant('msg.comm.detail.size') , value : this.getTotalBytes },
         { name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}` }
       ];
     } else {
-      this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'HIVE' ? 'Staging DB' : 'DB'}` });
+      //this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'HIVE' ? 'Staging DB' : 'DB'}` });
+      this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'STAGING_DB' ? 'Staging DB' : 'DB'}` });
       if(this.getHost) this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.host'), value : this.getHost });
       if(this.getPort) this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.port'), value : this.getPort });
       if(this.getDatabase) this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.database'), value : this.getDatabase });
@@ -492,12 +525,15 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   public getDatasetType(type: ImportType, fileName : string) : string {
 
     let result = '';
-    if (type === ImportType.FILE) {
+    //if (type === ImportType.FILE) {
+    if (type === ImportType.UPLOAD) {
       let extension = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName)[1];
       if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
         result =  'EXCEL'
-      } else if (extension.toUpperCase() === 'CSV') {
+      } else if (extension.toUpperCase() === 'CSV' || extension.toUpperCase() === 'TXT') {
         result =  'CSV'
+      } else if (extension.toUpperCase() === 'JSON') {
+        result =  'JSON'
       }
     }
     return result;
@@ -509,9 +545,14 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   public getSheetName() : string {
 
     let result = "N/A";
+    /*
     if (this.dataset.custom) {
       let customJson = JSON.parse(this.dataset.custom);
       result = customJson.sheet ? customJson.sheet : "N/A";
+    }
+    */
+    if(this.dataset.sheetName) {
+      result = this.dataset.sheetName;
     }
     return result;
 

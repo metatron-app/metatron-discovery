@@ -15,7 +15,8 @@
 import { Component, ElementRef, HostListener, Injector, OnInit, ViewChild } from '@angular/core';
 import { DatasetService } from './service/dataset.service';
 import { AbstractComponent } from '../../common/component/abstract.component';
-import { Dataset, DsType } from '../../domain/data-preparation/dataset';
+//import { Dataset, DsType } from '../../domain/data-preparation/dataset';
+import { PrDataset, DsType } from '../../domain/data-preparation/pr-dataset';
 import { SubscribeArg } from '../../common/domain/subscribe-arg';
 import { PopupService } from '../../common/service/popup.service';
 import { Subscription } from 'rxjs/Subscription';
@@ -54,11 +55,13 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   public step: string;
 
   // dataset list
-  public datasets: Dataset[] = [];
+  //public datasets: Dataset[] = [];
+  public datasets: PrDataset[] = [];
 
   public selectedDeletedsId: string;
 
-  public selectedItem : Dataset;
+  //public selectedItem : Dataset;
+  public selectedItem : PrDataset;
 
   public selectedContentSort: Order = new Order();
 
@@ -223,7 +226,8 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
    * @param event
    * @param dataset 삭제할 데이터셋
    * */
-  public confirmDelete(event : Event, dataset : Dataset) {
+  //public confirmDelete(event : Event, dataset : Dataset) {
+  public confirmDelete(event : Event, dataset : PrDataset) {
 
     event.stopPropagation();
     this.dataflowService.getDataset(dataset.dsId).then(() => {
@@ -282,7 +286,8 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   /** row click (상세화면)
    * @param selectedItem 선택된 데이터셋
    * */
-  public itemRowClick(selectedItem: Dataset) {
+  //public itemRowClick(selectedItem: Dataset) {
+  public itemRowClick(selectedItem: PrDataset) {
     this.router.navigate(['/management/datapreparation/dataset', selectedItem.dsId]);
   }
 

@@ -14,7 +14,8 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../../common/component/abstract-popup.component';
-import { Dataset, DsType } from '../../../../../../domain/data-preparation/dataset';
+//import { Dataset, DsType } from '../../../../../../domain/data-preparation/dataset';
+import { PrDataset, DsType } from '../../../../../../domain/data-preparation/pr-dataset';
 import { PopupService } from '../../../../../../common/service/popup.service';
 import { DataflowService } from '../../../../service/dataflow.service';
 import { Alert } from '../../../../../../common/util/alert.util';
@@ -48,7 +49,8 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
    | Public - Input Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Input() // 기존 데이터 (마스터 데이터 - 오른쪽 컬럼 첫번째로 나와야 한다)
-  public masterDataset: Dataset;
+  //public masterDataset: Dataset;
+  public masterDataset: PrDataset;
 
   @Input() // 해당 데이터플로우 정보 필요
   public dfId: string;
@@ -72,8 +74,10 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
   // Result column rename
   public editResultColumnName: string;
 
-  public datasets: Dataset[] = [];        // 전체 데이터 셋
-  public unionDatasets: Dataset[] = [];   // 유니온 될 데이터 셋
+  //public datasets: Dataset[] = [];        // 전체 데이터 셋
+  public datasets: PrDataset[] = [];        // 전체 데이터 셋
+  //public unionDatasets: Dataset[] = [];   // 유니온 될 데이터 셋
+  public unionDatasets: PrDataset[] = [];   // 유니온 될 데이터 셋
   public resultFields: Field[] = [];        // 유니온 된 결과 컬럼 목록
 
   public isAddDatasetsModal: boolean = false;    // Add datasets popup show/hide
@@ -81,7 +85,8 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
   // Union 결과 - 필드 배열
   public fieldMatrix: Field[][] = [];
 
-  public editInfo: Dataset[] = [];
+  //public editInfo: Dataset[] = [];
+  public editInfo: PrDataset[] = [];
 
   public isUpdate: boolean = false; // 수정 모드 여
 
@@ -122,8 +127,10 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
           dsIdList.push(item.replace(/'|\s/gi, ''));
         })
       }
-      const dsInfoList: Dataset[] = dsIdList.map((dsId: string) => {
-        const ds = new Dataset();
+      //const dsInfoList: Dataset[] = dsIdList.map((dsId: string) => {
+      const dsInfoList: PrDataset[] = dsIdList.map((dsId: string) => {
+        //const ds = new Dataset();
+        const ds = new PrDataset();
         ds.dsId = dsId;
         ds.dsType = DsType.WRANGLED;
         return ds;
@@ -205,7 +212,8 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
   /**
    * dataset 하나 지우기
    */
-  public deleteDataset(dsItem: Dataset) {
+  //public deleteDataset(dsItem: Dataset) {
+  public deleteDataset(dsItem: PrDataset) {
     this.unionDatasets = this.unionDatasets.filter(ds => ds.dsId !== dsItem.dsId);
     this.datasets = [this.masterDataset].concat(this.unionDatasets);
     this.convertDataToUiType();
@@ -280,7 +288,8 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
 
       this.loadingShow();
 
-      Promise.all(promises).then((res: Dataset[]) => {
+      //Promise.all(promises).then((res: Dataset[]) => {
+      Promise.all(promises).then((res: PrDataset[]) => {
         // 최대 필드수 및 ds별 필드 목록 측정
         let colFields: Field[][] = [];       // maxCols
         this.maxCntFields = this.resultFields.length; // 최소 길이가 결과와는 동일해야 하므로..
@@ -370,7 +379,8 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
    * @param {Dataset} dsInfo 데이터셋
    * @returns {Promise<Dataset>} callback 콜백
    */
-  private getDataset(dsInfo: Dataset): Promise<Dataset> {
+  //private getDataset(dsInfo: Dataset): Promise<Dataset> {
+  private getDataset(dsInfo: PrDataset): Promise<PrDataset> {
     return new Promise((resolve) => {
       if (dsInfo.gridData) {
         resolve(dsInfo);

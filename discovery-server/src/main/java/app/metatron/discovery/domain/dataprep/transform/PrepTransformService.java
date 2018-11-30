@@ -45,7 +45,6 @@ import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import com.facebook.presto.jdbc.internal.guava.collect.Lists;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
@@ -147,7 +146,7 @@ public class PrepTransformService {
     PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
 
     PrDataset.IMPORT_TYPE importType = dataset.getImportType();
-    boolean dsStagingDb = (importType == PrDataset.IMPORT_TYPE.STATING_DB);
+    boolean dsStagingDb = (importType == PrDataset.IMPORT_TYPE.STAGING_DB);
 
     PrSnapshot.SS_TYPE ssType = requestPost.getSsType();
     PrSnapshot.STORAGE_TYPE storageType = requestPost.getStorageType();
@@ -868,7 +867,7 @@ public class PrepTransformService {
     }
 
     response.setRuleCurIdx(dataset.getRuleCurIdx());
-    response.setRuleStringInfos(getRulesInOrder(dsId), teddyImpl.isUndoable(dsId), teddyImpl.isRedoable(dsId));
+    response.setTransformRules(getRulesInOrder(dsId), teddyImpl.isUndoable(dsId), teddyImpl.isRedoable(dsId));
 
     LOGGER.trace("transform(): end");
     return response;
@@ -1045,7 +1044,7 @@ public class PrepTransformService {
             datasetInfo.put("password", dataConnection.getPassword() );
             break;
 
-          case STATING_DB:
+          case STAGING_DB:
             datasetInfo.put("sourceQuery", upstreamDataset.getQueryStmt());
             break;
 
@@ -1323,7 +1322,7 @@ public class PrepTransformService {
 
     PrepTransformResponse response = fetch_internal(dsId, stageIdx);
 
-    response.setRuleStringInfos(getRulesInOrder(dsId), false, false);
+    response.setTransformRules(getRulesInOrder(dsId), false, false);
     response.setRuleCurIdx(stageIdx != null ? stageIdx : teddyImpl.getCurStageIdx(dsId));
 
     return response;
@@ -1424,7 +1423,7 @@ public class PrepTransformService {
 
       gridResponse = teddyImpl.loadJdbcDataset(wrangledDsId, dataConnection, dbName, queryStmt, wrangledDataset.getDsName());
     }
-    else if (importedDataset.getImportType() == STATING_DB) {
+    else if (importedDataset.getImportType() == STAGING_DB) {
       String queryStmt = importedDataset.getQueryStmt().trim();
       if (queryStmt.charAt(queryStmt.length() - 1) == ';')
         queryStmt = queryStmt.substring(0, queryStmt.length() - 1);
@@ -1471,7 +1470,7 @@ public class PrepTransformService {
 
         String localDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
         localDir = this.snapshotService.escapeUri(localDir);
-        fileUri.put("local", localDir);
+        fileUri.put("local", "file://" + localDir);
 
         try {
           String hdfsDir = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), ssName);
