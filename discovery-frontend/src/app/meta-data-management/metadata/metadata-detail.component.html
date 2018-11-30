@@ -89,9 +89,10 @@
     <!-- //tab -->
 
     <div class="ddp-wrap-tab-contents">
-      <app-metadata-detail-information *ngIf="tab === 'information'"></app-metadata-detail-information>
+      <app-metadata-detail-information *ngIf="tab === 'information'" (openAddCataglog)="openCatalog()"></app-metadata-detail-information>
       <app-metadata-detail-columnschema *ngIf="tab === 'columnSchema'"></app-metadata-detail-columnschema>
     </div>
   </div>
 </div>
 <app-delete-modal (deleteConfirm)="deleteMetadata()"></app-delete-modal>
+<app-select-catalog></app-select-catalog>
