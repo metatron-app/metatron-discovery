@@ -1751,7 +1751,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       const resultList: AbstractField[] = [];
       _.forEach(shelve, (value, key) => {
         shelve[key].map((item) => {
-          if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')) ) {
+          if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
             resultList.push(item);
           }
         });

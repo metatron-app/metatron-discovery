@@ -494,7 +494,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
       const resultList: AbstractField[] = [];
       shelve.map((item) => {
-        if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')) ) {
+        if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
           resultList.push(item);
         }
       });
@@ -2553,29 +2553,31 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         let alias = ChartUtil.getAlias(item);
         if (alias === key) {
 
+          const dataValue = properties[key];
+
           // when it's add mode
           if (ChartSelectMode.ADD === selectMode) {
             feature.set('selection', selectMode);
 
             // set data count
-            if (item['data'] && -1 !== item['data'].indexOf(properties[key])) {
-              item['dataCnt'] = {[properties[key]] : item['dataCnt']++};
+            if (item['data'] && -1 !== item['data'].indexOf(dataValue)) {
+              item['dataCnt'] = {[dataValue] : item[dataValue]['dataCnt']++};
             } else {
 
-              item['dataCnt'] = {[properties[key]] : 1 };
+              item['dataCnt'] = {[dataValue] : 1 };
             }
 
-            item['data'] = [properties[key]];
+            item['data'] = [dataValue];
 
           // when it's substract mode
           } else {
             delete feature.getProperties()['selection'];
 
-            item['dataCnt'][properties[key]]--;
+            item['dataCnt'][dataValue]--;
 
             // when dataCnt is 0,
-            if (0 == item['dataCnt'][properties[key]]) {
-              item['data'] = [properties[key]];
+            if (0 == item['dataCnt'][dataValue]) {
+              item['data'] = [dataValue];
             }
           }
 

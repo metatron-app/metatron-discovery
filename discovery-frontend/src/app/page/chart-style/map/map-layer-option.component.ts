@@ -649,7 +649,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
       const resultList: AbstractField[] = [];
       shelve.map((item) => {
-        if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')) ) {
+        if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
           resultList.push(item);
         }
       });
