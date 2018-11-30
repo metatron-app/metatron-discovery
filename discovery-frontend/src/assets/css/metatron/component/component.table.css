@@ -236,7 +236,7 @@ table.ddp-table-type2 thead tr th .ddp-th-long .ddp-th-icons [class*="ddp-icon-a
 table tbody tr td .ddp-txt-long:hover + .ddp-ui-tooltip-info {display:block; top:100%; left:0; min-width:50px;max-width:100%; white-space:normal; box-sizing:border-box;}
 table tbody tr td .ddp-txt-long:hover + .ddp-ui-tooltip-info .ddp-icon-view-top {left:40px;}
 
-table tbody tr > td .ddp-hover-tooltip:hover + .ddp-ui-tooltip-info {display:block; top:100%; left:-10px; max-width:100%; white-space:normal;}
+table tbody tr > td .ddp-hover-tooltip:hover + .ddp-ui-tooltip-info {display:block; top:100%; left:-10px; min-width:50px; max-width:100%; white-space:normal; box-sizing:border-box;}
 table tbody tr > td .ddp-hover-tooltip:hover + .ddp-ui-tooltip-info em.ddp-icon-view-top {left:40px; }
 table tbody tr > td .ddp-hover-tooltip:hover + .ddp-ui-tooltip-info.ddp-top {bottom:100%; top:inherit;}
 table.ddp-table-type3 tbody tr td.ddp-hover-tooltip .ddp-ui-tooltip-info{top:30px; left:10px; right:inherit; max-width:90%;white-space:normal;}
