@@ -118,7 +118,7 @@
                           <!-- SELECTBOX -->
                           <component-select
                             [array]="uiOption.fieldMeasureList"
-                            [defaultIndex]="findIndex(uiOption.fieldMeasureList, 'name', uiOption.layers[index].color.column)"
+                            [defaultIndex]="findIndex(uiOption.fieldMeasureList, 'name', uiOption.layers[index].color.column, 'aggregationType', uiOption.layers[index].color.aggregationType)"
                             [viewKey]="'alias'"
                             (onSelected)="changeColorColumn($event)"
                           ></component-select>
@@ -514,7 +514,7 @@
                           <!-- SELECTBOX -->
                           <component-select
                             [array]="uiOption.fieldMeasureList"
-                            [defaultIndex]="findIndex(uiOption.fieldMeasureList, 'name', uiOption.layers[index].thickness.column)"
+                            [defaultIndex]="findIndex(uiOption.fieldMeasureList, 'name', uiOption.layers[index].thickness.column, 'aggregationType', uiOption.layers[index].thickness.aggregationType)"
                             [viewKey]="'alias'"
                             (onSelected)="changeStrokeColumn($event)"
                           ></component-select>

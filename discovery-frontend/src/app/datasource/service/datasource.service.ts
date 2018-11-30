@@ -445,9 +445,11 @@ export class DatasourceService extends AbstractService {
         } else if ('dimension' === layer.type) {
 
           // set current layer datasource
-          query.dataSource.engineName = layer.field.dataSource;
-          query.dataSource.name = layer.field.dataSource;
-          query.dataSource.id = layer.field.dsId;
+          if (layer.field.dataSource && layer.field.dsId) {
+            query.dataSource.engineName = layer.field.dataSource;
+            query.dataSource.name = layer.field.dataSource;
+            query.dataSource.id = layer.field.dsId;
+          }
 
           let radius = (<UITileLayer>(<UIMapOption>pageConf.chart).layers[layerNum]).radius;
 

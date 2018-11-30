@@ -261,7 +261,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * @param value
    * @returns {number}
    */
-  public findIndex(list: Object[], key: string, value: any) {
+  public findIndex(list: Object[], key: string, value: any, optionalKey?: string, optionalValue?: any) {
+
+    if (optionalKey && optionalValue) {
+      return _.findIndex(list, {[key] : value, [optionalKey]: optionalValue});
+    }
     return _.findIndex(list, {[key] : value});
   }
 
@@ -703,6 +707,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
       if (item.type === 'measure') {
         delete item.aggregationType;
+        item.field.pivot = _.uniq(item.field.pivot);
       }
     }
 

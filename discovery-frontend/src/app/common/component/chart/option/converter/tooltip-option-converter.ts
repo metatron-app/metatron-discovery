@@ -145,7 +145,7 @@ export class TooltipOptionConverter {
 
     // if it's not custom field, exclude geo data
     layerItems = layerItems.filter((item) => {
-      return item['logicalType'] && ('user_expr' == item.type || -1 == item['logicalType'].toString().indexOf('GEO'));
+      return ('user_expr' == item.field.type || (item['logicalType'] && -1 == item['logicalType'].toString().indexOf('GEO')));
     });
 
     // remove the columns having same name
