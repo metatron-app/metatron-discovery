@@ -32,9 +32,7 @@ import { BaseOptionComponent } from '../base-option.component';
 import { ColorTemplateComponent } from '../../../common/component/color-picker/color-template.component';
 import { Field as AbstractField, Field } from '../../../domain/workbook/configurations/field/field';
 import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
-import {isNullOrUndefined} from "util";
-import {Alert} from "../../../common/util/alert.util";
-import { ChartUtil } from '../../../common/component/chart/option/util/chart-util';
+import { isNullOrUndefined } from 'util';
 import { AggregationType } from '../../../domain/workbook/configurations/field/measure-field';
 
 @Component({
@@ -90,11 +88,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public symbolLayerSymbols = [{name : this.translateService.instant('msg.page.layer.map.point.circle'), value : MapSymbolType.CIRCLE},
                                {name : this.translateService.instant('msg.page.layer.map.point.square'), value : MapSymbolType.SQUARE},
                                {name : this.translateService.instant('msg.page.layer.map.point.triangle'), value : MapSymbolType.TRIANGLE}];
-
-  // color - transparency
-  public transparencyList = [{name : this.translateService.instant('msg.page.layer.map.color.transparency.none'), value : 0},
-                             {name : '20%', value : 20}, {name : '40%', value : 40}, {name : '60%', value : 60},
-                             {name : '80%', value : 80}, {name : '100%', value : 100}];
 
   // outline - thickness
   public thicknessList = [{value : MapThickness.THIN}, {value : MapThickness.NORMAL}, {value : MapThickness.THICK}];
@@ -198,7 +191,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
   /**
    * all layers - change transparency
-   * @param {Object} data
+   * @param obj
+   * @param slider
+   * @param {number} index
    */
   public changeTransparency(obj: any, slider: any, index: number) {
     this.uiOption.layers[index].color.transparency = slider.from;
@@ -278,6 +273,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     this.uiOption.layers[this.index].color.by = data['value'];
 
+    this.uiOption.layers[this.index].color.aggregationType = undefined;
+
     // set schema by color type
     if (MapBy.DIMENSION === data['value']) {
       this.uiOption.layers[this.index].color.schema = 'SC1';
@@ -295,6 +292,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       // only set column when measure column exsists
       if (this.uiOption.fieldMeasureList && this.uiOption.fieldMeasureList.length > 0) {
         this.uiOption.layers[this.index].color.column = this.uiOption.fieldMeasureList[0]['name'];
+        this.uiOption.layers[this.index].color.aggregationType = this.uiOption.fieldMeasureList[0]['aggregationType'];
       } else {
         this.uiOption.layers[this.index].color.column = '';
       }
@@ -314,6 +312,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public changeColorColumn(data: Field) {
 
     this.uiOption.layers[this.index].color.column = data.name;
+    this.uiOption.layers[this.index].color.aggregationType = data.aggregationType;
 
     this.applyLayers();
   }
@@ -326,19 +325,32 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     (<UILineLayer>this.uiOption.layers[this.index]).thickness.by = data['value'];
 
+    (<UILineLayer>this.uiOption.layers[this.index]).thickness.aggregationType = undefined;
+
     if (MapBy.MEASURE === data['value']) {
 
       // only set column when measure column exsists
       if (this.uiOption.fieldMeasureList && this.uiOption.fieldMeasureList.length > 0) {
         (<UILineLayer>this.uiOption.layers[this.index]).thickness.column = this.uiOption.fieldMeasureList[0]['name'];
+        (<UILineLayer>this.uiOption.layers[this.index]).thickness.aggregationType = this.uiOption.fieldMeasureList[0]['aggregationType'];
       } else {
         (<UILineLayer>this.uiOption.layers[this.index]).thickness.column = '';
       }
-
     } else if (MapBy.NONE === data['value']) {
-
       (<UILineLayer>this.uiOption.layers[this.index]).thickness.column = '';
     }
+
+    this.applyLayers();
+  }
+
+  /**
+   * line layer - stroke column
+   * @param {Object} data
+   */
+  public changeStrokeColumn(data: Object) {
+
+    (<UILineLayer>this.uiOption.layers[this.index]).thickness.column = data['name'];
+    (<UILineLayer>this.uiOption.layers[this.index]).thickness.aggregationType = data['aggregationType'];
 
     this.applyLayers();
   }
@@ -411,6 +423,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * heatmap layer - change blurs
    * @param obj
    * @param slider
+   * @param {number} index
    */
   public changeBlur(obj: any, slider: any, index: number) {
     (<UIHeatmapLayer>this.uiOption.layers[index]).blur = slider.from;
@@ -452,7 +465,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * hexagon layer - change radius
    * @param obj
    * @param slider
-   * @param {number} index
    */
   public changeHexagonRadius(obj: any, slider: any) {
 

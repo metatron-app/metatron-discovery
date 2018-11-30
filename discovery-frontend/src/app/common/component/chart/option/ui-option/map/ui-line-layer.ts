@@ -54,4 +54,11 @@ interface UIThickness {
 
   // Max value of thickness
   maxValue?: number;
+
+  ////////////////////////
+  ///// UI Spec
+  ////////////////////////
+
+  // Column Aggregation type (measure)
+  aggregationType?: string;
 }

@@ -64,4 +64,7 @@ interface SymbolColor {
 
   // color by measure custom color setting
   ranges?: ColorRange[];
+
+  // Column Aggregation type (measure)
+  aggregationType?: string;
 }
