@@ -17,12 +17,12 @@ package app.metatron.discovery.domain.dataprep.service;
 import app.metatron.discovery.domain.dataprep.PrepDatasetSparkHiveService;
 import app.metatron.discovery.domain.dataprep.PrepHdfsService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
+import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
+import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
-import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -39,10 +39,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
@@ -102,69 +99,69 @@ public class PrSnapshotService {
             try {
                 PrSnapshot.SS_TYPE ss_type = snapshot.getSsType();
                 if( PrSnapshot.SS_TYPE.URI==ss_type ) {
-                    // uri -> directory, storedUri -> single file
-                  //                        String dirPath = snapshot.getHiveExtDir();
-                  //                        File dirSnapshot = new File(dirPath);
-                  //                        for (File fileSnap : dirSnapshot.listFiles()) {
-                  //                            FileInputStream fis = null;
-                  //                            try {
-                  //                                fis = new FileInputStream(fileSnap);
-                  //                                byte[] outputByte = new byte[8192];
-                  //                                int len = 0;
-                  //                                while ((len = fis.read(outputByte)) != -1) {
-                  //                                    response.getOutputStream().write(outputByte, 0, len);
-                  //                                }
-                  //                                fis.close();
-                  //                            } catch (IOException e) {
-                  //                            } finally {
-                  //                                if (fis != null) {
-                  //                                    fis.close();
-                  //                                    fis = null;
-                  //                                }
-                  //                            }
-                  //                        }
+                      // uri -> directory, storedUri -> single file
+                    //                        String dirPath = snapshot.getHiveExtDir();
+                    //                        File dirSnapshot = new File(dirPath);
+                    //                        for (File fileSnap : dirSnapshot.listFiles()) {
+                    //                            FileInputStream fis = null;
+                    //                            try {
+                    //                                fis = new FileInputStream(fileSnap);
+                    //                                byte[] outputByte = new byte[8192];
+                    //                                int len = 0;
+                    //                                while ((len = fis.read(outputByte)) != -1) {
+                    //                                    response.getOutputStream().write(outputByte, 0, len);
+                    //                                }
+                    //                                fis.close();
+                    //                            } catch (IOException e) {
+                    //                            } finally {
+                    //                                if (fis != null) {
+                    //                                    fis.close();
+                    //                                    fis = null;
+                    //                                }
+                    //                            }
+                    //                        }
 
-                  String storedUri = snapshot.getStoredUri();
+                    String storedUri = snapshot.getStoredUri();
 
-                  switch (snapshot.getStorageType()) {
-                      case LOCAL:
-                          FileInputStream fis;
-                          try {
-                              fis = new FileInputStream(new File(new URI(storedUri)));
-                          } catch (FileNotFoundException e) {
-                              e.printStackTrace();
-                              throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, storedUri);
-                          } catch (URISyntaxException e) {
-                              e.printStackTrace();
-                              throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
-                          }
-                          int len;
-                          byte[] buf = new byte[8192];
-                          while ((len = fis.read(buf)) != -1) {
-                              response.getOutputStream().write(buf, 0, len);
-                          }
-                          fis.close();
-                          break;
-                      case HDFS:
-                          Configuration conf = this.hdfsService.getConf();
-                          FileSystem fs = FileSystem.get(conf);
-                          Path path = new Path(new URI(storedUri));
+                    switch (snapshot.getStorageType()) {
+                        case LOCAL:
+                            FileInputStream fis;
+                            try {
+                                fis = new FileInputStream(new File(new URI(storedUri)));
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                                throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, storedUri);
+                            } catch (URISyntaxException e) {
+                                e.printStackTrace();
+                                throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
+                            }
+                            int len;
+                            byte[] buf = new byte[8192];
+                            while ((len = fis.read(buf)) != -1) {
+                                response.getOutputStream().write(buf, 0, len);
+                            }
+                            fis.close();
+                            break;
+                        case HDFS:
+                            Configuration conf = this.hdfsService.getConf();
+                            FileSystem fs = FileSystem.get(conf);
+                            Path path = new Path(new URI(storedUri));
 
-                          if( false==fs.exists(path) ) {
-                              throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, storedUri);
-                          }
+                            if( false==fs.exists(path) ) {
+                                throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, storedUri);
+                            }
 
-                          FSDataInputStream inputStream = fs.open(path);
-                          byte[] outputByte = new byte[8192];
-                          while ((len = inputStream.read(outputByte)) != -1) {
-                              response.getOutputStream().write(outputByte, 0, len);
-                          }
-                          inputStream.close();
-                          fs.close();
-                          break;
-                      default:
-                          assert false : snapshot.getStorageType();
-                    }
+                            FSDataInputStream inputStream = fs.open(path);
+                            byte[] outputByte = new byte[8192];
+                            while ((len = inputStream.read(outputByte)) != -1) {
+                                response.getOutputStream().write(outputByte, 0, len);
+                            }
+                            inputStream.close();
+                            fs.close();
+                            break;
+                        default:
+                            assert false : snapshot.getStorageType();
+                      }
 
 //                } else if( PrSnapshot.SS_TYPE.JDBC==ss_type ) {
 //                    LOGGER.error("downloadSnapshotFile(): not supported: JDBC");

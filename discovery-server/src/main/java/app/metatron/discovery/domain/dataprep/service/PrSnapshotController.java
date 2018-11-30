@@ -167,16 +167,17 @@ public class PrSnapshotController {
                     responseMap.put("gridResponse", gridResponse);
                 }
 
-                Map<String,Object> originDs = Maps.newHashMap();
-                String dsName = snapshot.getOrigDsInfo("dsName");
-                String queryStmt = snapshot.getOrigDsInfo("queryStmt");
-                String filePath = snapshot.getOrigDsInfo("filePath");
-                String createdTime = snapshot.getOrigDsInfo("createdTime");
-                originDs.put("dsName",dsName);
-                originDs.put("qryStmt",queryStmt);
-                originDs.put("filePath",filePath);
-                originDs.put("createdTime",createdTime);
-                responseMap.put("originDsInfo", originDs);
+                // We put the info below as attributes of the entity
+//                Map<String,Object> originDs = Maps.newHashMap();
+//                String dsName = snapshot.getOrigDsInfo("dsName");
+//                String queryStmt = snapshot.getOrigDsInfo("queryStmt");
+//                String filePath = snapshot.getOrigDsInfo("filePath");
+//                String createdTime = snapshot.getOrigDsInfo("createdTime");
+//                originDs.put("dsName",dsName);
+//                originDs.put("qryStmt",queryStmt);
+//                originDs.put("filePath",filePath);
+//                originDs.put("createdTime",createdTime);
+//                responseMap.put("originDsInfo", originDs);
             } else {
                 String errorMsg = "snapshot["+ssId+"] does not exist";
                 throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_SNAPSHOT, errorMsg);

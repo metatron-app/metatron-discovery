@@ -157,7 +157,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
         PrepSnapshotRequestPost data = new PrepSnapshotRequestPost();
         data.setEngine(PrSnapshot.ENGINE.EMBEDDED);
         data.setSsType(ssType);
-        data.setFormat(PrSnapshot.HIVE_FILE_FORMAT.CSV);
+        data.setFormat(PrSnapshot.HIVE_FILE_FORMAT.CSV.name());
 //        data.setCompression(PrSnapshot.COMPRESSION.ZLIB);
 
         List<String> partKeys = new ArrayList<>();

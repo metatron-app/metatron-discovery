@@ -659,10 +659,21 @@ public class PrepTransformService {
   }
 
   private DataFrame load_internal(String dsId) throws Exception {
+    return load_internal(dsId, false);
+  }
+
+  private DataFrame load_internal(String dsId, boolean compaction) throws Exception {
+    if (teddyImpl.revisionSetCache.containsKey(dsId)) {
+      if (compaction && !onlyAppend(dsId)) {
+        LOGGER.trace("load_internal(): dataset will be uncached and reloaded: dsId={}", dsId);
+      } else {
+        return teddyImpl.getCurDf(dsId);
+      }
+    }
+    LOGGER.trace("load_internal(): start: dsId={}", dsId);
+
     PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     DataFrame gridResponse;
-
-    LOGGER.trace("load_internal(): start");
 
     // 만약 PLM cache에 존재하고, transition을 재적용할 필요가 없다면
     if (teddyImpl.revisionSetCache.containsKey(dsId)) {
@@ -780,9 +791,7 @@ public class PrepTransformService {
     assert dataset != null : dsId;
 
     // dataset이 loading되지 않았으면 loading
-    if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
-      load_internal(dsId);
-    }
+    load_internal(dsId, true);    // do compaction if necessary
 
     PrepTransformResponse response = null;
     int origStageIdx = teddyImpl.getCurStageIdx(dsId);
@@ -791,9 +800,7 @@ public class PrepTransformService {
     if (ruleString != null) {
       String jsonRuleString = transformRuleService.jsonizeRuleString(ruleString);
       for (String targetDsId : getTargetDsIds(jsonRuleString)) {
-        if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
           load_internal(targetDsId);
-        }
       }
     }
 
@@ -894,9 +901,7 @@ public class PrepTransformService {
     LOGGER.trace("transform_histogram(): start: dsId={} curRevIdx={} stageIdx={} colnos={} colWidths={}",
                  dsId, teddyImpl.getCurRevIdx(dsId), stageIdx, colnos, colWidths);
 
-    if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
-      load_internal(dsId);
-    }
+    load_internal(dsId);
 
     assert stageIdx != null;
     assert stageIdx >= 0 : stageIdx;
@@ -973,9 +978,7 @@ public class PrepTransformService {
 
   // transform_timestampFormat
   public Map<String, Object> transform_timestampFormat(String dsId, List<String> colNames) throws  Exception{
-    if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
-      load_internal(dsId);
-    }
+    load_internal(dsId);
 
     DataFrame df = teddyImpl.getCurDf(dsId);
     Map<String, Object> response = new HashMap<>();
@@ -1167,79 +1170,131 @@ public class PrepTransformService {
   public PrepSnapshotResponse transform_snapshot(String wrangledDsId, PrepSnapshotRequestPost requestPost, String authorization) throws Throwable {
     PrepSnapshotResponse response;
     List<String> allFullDsIds;
-
+    PrSnapshot snapshot = new PrSnapshot();
     PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
-    assert dataset != null : wrangledDsId;
 
-    LOGGER.trace("transform_snapshot(): start");
+    PrSnapshot.SS_TYPE ssType = requestPost.getSsType();
+    String ssName = requestPost.getSsName();
 
-    if (teddyImpl.revisionSetCache.containsKey(wrangledDsId) == false) {
-      load_internal(wrangledDsId);
+    LOGGER.trace("transform_snapshot(): start: ssType={} ssName={} dsId={} ", ssType, ssName, wrangledDsId);
+
+    if (ssName == null || ssName.equals("")) {
+      throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_INVALID_SNAPSHOT_NAME);
     }
+
+    load_internal(wrangledDsId);
 
     if (requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB) {
       checkHiveNamingRule(wrangledDsId);
     }
 
-    PrSnapshot snapshot = new PrSnapshot();
-
-    DateTime launchTime = DateTime.now(DateTimeZone.UTC);
-    if(null==requestPost.getSsName()) {
-      requestPost.setSsName(this.snapshotService.makeSnapshotName(dataset.getDsName(),launchTime));
-    }
-    snapshot.setSsName(requestPost.getSsName());
-
     String dfId = dataset.getCreatorDfId();
-    assert dfId != null : dataset.toString();
-
     PrDataflow dataflow = dataflowRepository.findOne(dfId);
+
+    // fill snapshot entity: common attributes - snapshot own
+    snapshot.setSsName(ssName);
+    snapshot.setSsType(ssType);
+    snapshot.setStatus(PrSnapshot.STATUS.INITIALIZING);
+    snapshot.setEngine(requestPost.getEngine());
+    snapshot.setAppendMode(requestPost.getMode());
+    snapshot.setLaunchTime(DateTime.now(DateTimeZone.UTC));
+
+    prepareTransformRules(dataset.getDsId());
+    Map<String, Object> mapLineageInfo = new HashMap<>();
+    mapLineageInfo.put("transformRules", dataset.getTransformRules());
+    snapshot.setLineageInfo(GlobalObjectMapper.getDefaultMapper().writeValueAsString(mapLineageInfo));
+
+    // fill snapshot entity: common attributes - info for wrangled dataset
     snapshot.setDfId(dfId);
     snapshot.setDfName(dataflow.getDfName());
     snapshot.setDsId(dataset.getDsId());
     snapshot.setDsName(dataset.getDsName());
-    snapshot.setVersion(dataset.getVersion());
-    snapshot.setSsType(requestPost.getSsType());
-    snapshot.setStoredUri(requestPost.getUri());
-    snapshot.setDbName(requestPost.getDbName());
-    snapshot.setTblName(requestPost.getTblName());
-    snapshot.setHiveFileFormat(requestPost.getFormat());
-    snapshot.setHiveFileCompression(requestPost.getCompression());
-    snapshot.setEngine(requestPost.getEngine());
-    snapshot.setStatus(PrSnapshot.STATUS.INITIALIZING);
-    snapshot.setLaunchTime(launchTime);
+    snapshot.setDsCreatedBy(dataset.getCreatedBy());
+    snapshot.setDsCreatedTime(dataset.getCreatedTime());
+    snapshot.setDsModifiedBy(dataset.getModifiedBy());
+    snapshot.setDsModifiedTime(dataset.getModifiedTime());
 
-    // snapshot table의 partition 정보는 custom field에 JSON으로 저장
-    List<String> partKeys = requestPost.getPartKeys();
-    ObjectMapper mapper = new ObjectMapper();
-    String json = mapper.writeValueAsString(partKeys);
-    snapshot.putCustomValue("part_keys",json);
+    // fill snapshot entity: common attributes - info for origin dataset
+    String origDsId = getFirstUpstreamDsId(dataset.getDsId());
+    PrDataset origDataset = datasetRepository.findRealOne(datasetRepository.findOne(origDsId));
+    snapshot.setOrigDsId(origDsId);
+    snapshot.setOrigDsName(origDataset.getDsName());
+    snapshot.setOrigDsCreatedBy(origDataset.getCreatedBy());
+    snapshot.setOrigDsCreatedTime(origDataset.getCreatedTime());
+    snapshot.setOrigDsModifiedBy(origDataset.getModifiedBy());
+    snapshot.setOrigDsModifiedTime(origDataset.getModifiedTime());
+    snapshot.setOrigDsImportType(origDataset.getImportType());
+    snapshot.setOrigDsStoredUri(origDataset.getStoredUri());
+
+    snapshot.setOrigDsDcId(origDataset.getDcId());
+    DataConnection origDsDc = connectionRepository.getOne(origDataset.getDcId());
+    snapshot.setOrigDsDcImplementor(origDsDc.getImplementor());
+    snapshot.setOrigDsDcName(origDsDc.getName());
+    snapshot.setOrigDsDcDesc(origDsDc.getDescription());
+    snapshot.setOrigDsDcType(origDsDc.getType());
+    snapshot.setOrigDsDcHostname(origDsDc.getHostname());
+    snapshot.setOrigDsDcPort(origDsDc.getPort());
+    snapshot.setOrigDsDcUsername(origDsDc.getUsername());
+    snapshot.setOrigDsDcUrl(origDsDc.getUrl());
+
+    snapshot.setOrigDsDbName(origDataset.getDbName());
+    snapshot.setOrigDsTblName(origDataset.getTblName());
+    snapshot.setOrigDsQueryStmt(origDataset.getQueryStmt());
+
+//    Map<String, Object> mapOrigDataset = new HashMap<>();
+//    String origDsId = getFirstUpstreamDsId(dataset.getDsId());
+//    PrDataset origDataset = datasetRepository.findRealOne(datasetRepository.findOne(origDsId));
+//    mapOrigDataset.put("origDsId", origDsId);
+//    mapOrigDataset.put("dsName", origDataset.getDsName());
+//    mapOrigDataset.put("queryStmt", requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB ? origDataset.getQueryStmt() : "N/A");
+//    mapOrigDataset.put("createdTime", origDataset.getCreatedTime().toString());
+//    mapOrigDataset.put("createdBy", origDataset.getCreatedBy());
+//    map.put("origDsInfo", mapOrigDataset);
+
 
     // lineage information도 JSON으로 저장
     // - dataflow name
     // - dataset name, createdTime, createdBy
     // - origImported name, query, cretedTime, createdBy
-    Map<String, Object> map = new HashMap<>();
-    PrDataflow df = dataflowRepository.findOne(dataset.getCreatorDfId());
-    map.put("dfName", df.getDfName());
-    map.put("dfId", df.getDfId());
-    map.put("dsName", dataset.getDsName());
-    map.put("dsId", dataset.getDsId());
-    map.put("createdTime", dataset.getCreatedTime().toString());
-    map.put("createdBy", dataset.getCreatedBy());
+//    map.put("createdTime", dataset.getCreatedTime().toString());
+//    map.put("createdBy", dataset.getCreatedBy());
 
-    prepareTransformRules(dataset.getDsId());
-    map.put("ruleStringinfos", dataset.getTransformRules());
+    // fill snapshot entity: attributes per ssType
+    switch (ssType) {
+      case URI:
+        snapshot.setStoredUri(requestPost.getUri());
+        snapshot.setStorageType(requestPost.getStorageType());
+        snapshot.setUriFileFormat(PrSnapshot.URI_FILE_FORMAT.valueOf(requestPost.getFormat()));
+                                    // FIXME: uriFileFormat will be removed soon. So I didn't handling runtime exception.
+        break;
 
-    Map<String, Object> mapOrigDataset = new HashMap<>();
-    PrDataset origDataset = datasetRepository.findRealOne(datasetRepository.findOne(getFirstUpstreamDsId(dataset.getDsId())));
-    mapOrigDataset.put("dsName", origDataset.getDsName());
-    mapOrigDataset.put("queryStmt", requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB ? origDataset.getQueryStmt() : "N/A");
-    mapOrigDataset.put("createdTime", origDataset.getCreatedTime().toString());
-    mapOrigDataset.put("createdBy", origDataset.getCreatedBy());
-    map.put("origDsInfo", mapOrigDataset);
+      case DATABASE:    // TODO: not implemented yet (just coded in advance a little bit)
+        snapshot.setOrigDsDcId(dataset.getDcId());
+        DataConnection dataConnection = connectionRepository.getOne(origDataset.getDcId());
+        snapshot.setDcImplementor(dataConnection.getImplementor());
+        snapshot.setDcName(dataConnection.getName());
+        snapshot.setDcDesc(dataConnection.getDescription());
+        snapshot.setDcType(dataConnection.getType());
+        snapshot.setDcHostname(dataConnection.getHostname());
+        snapshot.setDcPort(dataConnection.getPort());
+        snapshot.setDcUsername(dataConnection.getUsername());
+        snapshot.setDcPassword(dataConnection.getPassword());
+        snapshot.setDcUrl(dataConnection.getUrl());
 
-    String jsonLineageInfo = mapper.writeValueAsString(map);
-    snapshot.setLineageInfo(jsonLineageInfo);
+        snapshot.setDbName(requestPost.getDbName());
+        snapshot.setTblName(requestPost.getTblName());
+        break;
+
+      case STAGING_DB:
+        snapshot.setDbName(requestPost.getDbName());
+        snapshot.setTblName(requestPost.getTblName());
+        snapshot.setHiveFileFormat(PrSnapshot.HIVE_FILE_FORMAT.valueOf(requestPost.getFormat()));  // FIXME: after removing uriFileFormat, change back into enum.
+        snapshot.setHiveFileCompression(requestPost.getCompression());
+        snapshot.setPartitionColNames(requestPost.getJsonPartitionColNames());
+        break;
+      default:
+        throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_TYPE_NOT_SUPPORTED_YET, ssType.name());
+    }
 
     snapshotRepository.saveAndFlush(snapshot);
 
@@ -1264,9 +1319,7 @@ public class PrepTransformService {
 
   @Transactional(rollbackFor = Exception.class)
   public PrepTransformResponse fetch(String dsId, Integer stageIdx) throws Exception {
-    if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
-      load_internal(dsId);
-    }
+    load_internal(dsId);
 
     PrepTransformResponse response = fetch_internal(dsId, stageIdx);
 

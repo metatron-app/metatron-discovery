@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.dataprep.entity;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.bridge.JodaTimeSplitBridge;
 import app.metatron.discovery.domain.AbstractHistoryEntity;
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.GenericGenerator;
@@ -96,6 +97,12 @@ public class PrSnapshot extends AbstractHistoryEntity {
         CANCELED
     }
 
+
+    //////////////////////////////
+    // Snapshot own information //
+    //////////////////////////////
+
+    // Common attributes for all snapshot types.
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
@@ -106,57 +113,9 @@ public class PrSnapshot extends AbstractHistoryEntity {
     @Column(name = "ss_name")
     String ssName;
 
-    @Size(max = 255)
-    @Column(name = "df_id")
-    String dfId;
-
-    @Size(max = 2000)
-    @Column(name = "df_name")
-    String dfName;
-
-    @Size(max = 255)
-    @Column(name = "ds_id")
-    String dsId;
-
-    @Size(max = 2000)
-    @Column(name = "ds_name")
-    String dsName;
-
-    @Lob
-    @Column(name = "stored_uri")
-    String storedUri;
-
-    @Column(name = "storage_type")
-    @Enumerated(EnumType.STRING)
-    private PrSnapshot.STORAGE_TYPE storageType;
-
-    @Size(max = 255)
-    @Column(name = "db_name")
-    String dbName;
-
-    @Size(max = 255)
-    @Column(name = "tbl_name")
-    String tblName;
-
     @Column(name = "ss_type")
     @Enumerated(EnumType.STRING)
     private PrSnapshot.SS_TYPE ssType;
-
-    @Column(name = "uri_file_format")
-    @Enumerated(EnumType.STRING)
-    private PrSnapshot.URI_FILE_FORMAT uriFileFormat;
-
-    @Column(name = "hive_file_format")
-    @Enumerated(EnumType.STRING)
-    private PrSnapshot.HIVE_FILE_FORMAT hiveFileFormat;
-
-    @Column(name = "hive_file_compression")
-    @Enumerated(EnumType.STRING)
-    private PrSnapshot.HIVE_FILE_COMPRESSION hiveFileCompression;
-
-    @Column(name = "append_mode")
-    @Enumerated(EnumType.STRING)
-    private PrSnapshot.APPEND_MODE appendMode;
 
     @Column(name = "engine")
     @Enumerated(EnumType.STRING)
@@ -165,6 +124,11 @@ public class PrSnapshot extends AbstractHistoryEntity {
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private PrSnapshot.STATUS status;
+
+    @Column(name = "append_mode")
+    @Enumerated(EnumType.STRING)
+    private PrSnapshot.APPEND_MODE appendMode;
+
 
     @Column(name = "launch_time")
     @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
@@ -199,6 +163,12 @@ public class PrSnapshot extends AbstractHistoryEntity {
     @Column(name = "total_lines")
     Long totalLines;
 
+    @Column(name = "mismatched_lines")
+    Long mismatchedLines;
+
+    @Column(name = "missing_lines")
+    Long missingLines;
+
     @Column(name = "total_bytes")
     Long totalBytes;
 
@@ -216,6 +186,241 @@ public class PrSnapshot extends AbstractHistoryEntity {
     @Column(name = "custom")
     String custom;
 
+
+    // Attributes for URI snapshots
+    @Lob
+    @Column(name = "stored_uri")
+    String storedUri;
+
+    @Column(name = "storage_type")      // TODO: only enum is needed when create. need not to be an attribute because stored_uri contains this
+    @Enumerated(EnumType.STRING)
+    PrSnapshot.STORAGE_TYPE storageType;
+
+    @Column(name = "uri_file_format")   // TODO: only enum is needed when create. need not to be an attribute because stored_uri contains this
+    @Enumerated(EnumType.STRING)
+    private PrSnapshot.URI_FILE_FORMAT uriFileFormat;
+
+
+    // Attributes for database snapshots (Not implemented yet)
+    @Size(max = 255)
+    @Column(name = "dc_id")
+    String dcId;
+
+    @Size(max = 255)
+    @Column(name = "dc_implementor")
+    protected String dcImplementor;
+
+    @Column(name = "dc_name")
+    @Size(max = 150)
+    protected String dcName;
+
+    @Column(name = "dc_desc")
+    @Size(max = 900)
+    protected String dcDesc;
+
+    @Column(name = "dc_type")
+    @Enumerated(EnumType.STRING)
+    protected DataConnection.SourceType dcType;
+
+    @Column(name = "dc_hostname")
+    protected String dcHostname;
+
+    @Column(name = "dc_port")
+    protected Integer dcPort;
+
+    @Column(name = "dc_username")
+    protected String dcUsername;
+
+    @Column(name = "dc_password")
+    protected String dcPassword;
+
+    @Column(name = "dc_url")
+    protected String dcUrl;
+
+    @Size(max = 255)
+    @Column(name = "db_name")
+    String dbName;
+
+    @Size(max = 255)
+    @Column(name = "tbl_name")
+    String tblName;
+
+
+    // Attributes for stagingDb snapshots
+    @Column(name = "hive_file_format")
+    @Enumerated(EnumType.STRING)
+    private PrSnapshot.HIVE_FILE_FORMAT hiveFileFormat;
+
+    @Column(name = "hive_file_compression")
+    @Enumerated(EnumType.STRING)
+    private PrSnapshot.HIVE_FILE_COMPRESSION hiveFileCompression;
+
+    @Lob
+    @Column(name = "partition_col_names")
+    String partitionColNames;           // as JSONized List like ["col1", "col2"]
+
+
+    ///////////////////////////////////////////////////////
+    // Wrangled dataset info (for snapshot details page) //
+    ///////////////////////////////////////////////////////
+    @Size(max = 255)
+    @Column(name = "df_id")
+    String dfId;
+
+    @Size(max = 2000)
+    @Column(name = "df_name")
+    String dfName;
+
+    @Size(max = 255)
+    @Column(name = "ds_id")
+    String dsId;
+
+    @Size(max = 2000)
+    @Column(name = "ds_name")
+    String dsName;
+
+    @Column(name = "ds_created_by")
+    @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+    protected String dsCreatedBy;
+
+    @Column(name = "ds_created_time")
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    @FieldBridge(impl = JodaTimeSplitBridge.class)
+    @Fields({
+            @Field(name = "dsCreatedTime.year", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+            @Field(name = "dsCreatedTime.month", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+            @Field(name = "dsCreatedTime.day", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+            @Field(name = "dsCreatedTime.ymd", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+            @Field(name = "dsCreatedTime.mils", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+    })
+    @SortableField(forField = "dsCreatedTime.mils")
+    protected DateTime dsCreatedTime;
+
+    @Column(name = "ds_modified_by")
+    @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+    protected String dsModifiedBy;
+
+    @Column(name = "ds_modified_time")
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    @FieldBridge(impl = JodaTimeSplitBridge.class)
+    @Fields({
+            @Field(name = "dsModifiedTime.year", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+            @Field(name = "dsModifiedTime.month", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+            @Field(name = "dsModifiedTime.day", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+            @Field(name = "dsModifiedTime.ymd", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+            @Field(name = "dsModifiedTime.mils", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+    })
+    @SortableField(forField = "dsModifiedTime.mils")
+    protected DateTime dsModifiedTime;
+
+
+    ////////////////////////////////////////////////////////////////
+    // Original imported dataset info (for snapshot details page) //
+    ////////////////////////////////////////////////////////////////
+    @Size(max = 255)
+    @Column(name = "orig_ds_id")
+    String origDsId;
+
+    @Size(max = 2000)
+    @Column(name = "orig_ds_name")
+    String origDsName;
+
+    @Column(name = "orig_ds_import_type")
+    @Enumerated(EnumType.STRING)
+    private PrDataset.IMPORT_TYPE origDsImportType;
+
+    @Lob
+    @Column(name = "orig_ds_stored_uri")
+    private String origDsStoredUri;
+
+    @Size(max = 255)
+    @Column(name = "orig_ds_dc_id")
+    String origDsDcId;
+
+    @Size(max = 255)
+    @Column(name = "orig_ds_dc_implementor")
+    protected String origDsDcImplementor;
+
+    @Column(name = "orig_ds_dc_name")
+    @Size(max = 150)
+    protected String origDsDcName;
+
+    @Column(name = "orig_ds_dc_desc")
+    @Size(max = 900)
+    protected String origDsDcDesc;
+
+    @Column(name = "orig_ds_dc_type")
+    @Enumerated(EnumType.STRING)
+    protected DataConnection.SourceType origDsDcType;
+
+    @Column(name = "orig_ds_dc_hostname")
+    protected String origDsDcHostname;
+
+    @Column(name = "orig_ds_dc_port")
+    protected Integer origDsDcPort;
+
+    @Column(name = "orig_ds_dc_username")
+    protected String origDsDcUsername;
+
+    public String getDcPassword() {
+        return dcPassword;
+    }
+
+    public void setDcPassword(String dcPassword) {
+        this.dcPassword = dcPassword;
+    }
+
+    @Column(name = "orig_ds_dc_url")
+    protected String origDsDcUrl;
+
+    @Size(max = 255)
+    @Column(name = "orig_ds_db_name")
+    private String origDsDbName;
+
+    @Size(max = 255)
+    @Column(name = "orig_ds_tbl_name")
+    private String origDsTblName;
+
+    @Lob
+    @Column(name = "orig_ds_query_stmt")
+    String origDsQueryStmt;
+
+    @Column(name = "orig_ds_created_by")
+    @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+    protected String origDsCreatedBy;
+
+    @Column(name = "orig_ds_created_time")
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    @FieldBridge(impl = JodaTimeSplitBridge.class)
+    @Fields({
+            @Field(name = "origDsCreatedTime.year", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+            @Field(name = "origDsCreatedTime.month", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+            @Field(name = "origDsCreatedTime.day", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+            @Field(name = "origDsCreatedTime.ymd", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+            @Field(name = "origDsCreatedTime.mils", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+    })
+    @SortableField(forField = "origDsCreatedTime.mils")
+    protected DateTime origDsCreatedTime;
+
+    @Column(name = "orig_ds_modified_by")
+    @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+    protected String origDsModifiedBy;
+
+    @Column(name = "orig_ds_modified_time")
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    @FieldBridge(impl = JodaTimeSplitBridge.class)
+    @Fields({
+            @Field(name = "origDsModifiedTime.year", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+            @Field(name = "origDsModifiedTime.month", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+            @Field(name = "origDsModifiedTime.day", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+            @Field(name = "origDsModifiedTime.ymd", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+            @Field(name = "origDsModifiedTime.mils", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+    })
+    @SortableField(forField = "origDsModifiedTime.mils")
+    protected DateTime origDsModifiedTime;
+
+
+    // Getters, setters
     public String getSsId() {
         return ssId;
     }
@@ -232,108 +437,12 @@ public class PrSnapshot extends AbstractHistoryEntity {
         this.ssName = ssName;
     }
 
-    public String getDfId() {
-        return dfId;
-    }
-
-    public void setDfId(String dfId) {
-        this.dfId = dfId;
-    }
-
-    public String getDfName() {
-        return dfName;
-    }
-
-    public void setDfName(String dfName) {
-        this.dfName = dfName;
-    }
-
-    public String getDsId() {
-        return dsId;
-    }
-
-    public void setDsId(String dsId) {
-        this.dsId = dsId;
-    }
-
-    public String getDsName() {
-        return dsName;
-    }
-
-    public void setDsName(String dsName) {
-        this.dsName = dsName;
-    }
-
-    public String getStoredUri() {
-        return storedUri;
-    }
-
-    public void setStoredUri(String storedUri) {
-        this.storedUri = storedUri;
-    }
-
-    public STORAGE_TYPE getStorageType() {
-        return storageType;
-    }
-
-    public void setStorageType(STORAGE_TYPE storageType) {
-        this.storageType = storageType;
-    }
-
-    public String getDbName() {
-        return dbName;
-    }
-
-    public void setDbName(String dbName) {
-        this.dbName = dbName;
-    }
-
-    public String getTblName() {
-        return tblName;
-    }
-
-    public void setTblName(String tblName) {
-        this.tblName = tblName;
-    }
-
     public SS_TYPE getSsType() {
         return ssType;
     }
 
     public void setSsType(SS_TYPE ssType) {
         this.ssType = ssType;
-    }
-
-    public URI_FILE_FORMAT getUriFileFormat() {
-        return uriFileFormat;
-    }
-
-    public void setUriFileFormat(URI_FILE_FORMAT uriFileFormat) {
-        this.uriFileFormat = uriFileFormat;
-    }
-
-    public HIVE_FILE_FORMAT getHiveFileFormat() {
-        return hiveFileFormat;
-    }
-
-    public void setHiveFileFormat(HIVE_FILE_FORMAT hiveFileFormat) {
-        this.hiveFileFormat = hiveFileFormat;
-    }
-
-    public HIVE_FILE_COMPRESSION getHiveFileCompression() {
-        return hiveFileCompression;
-    }
-
-    public void setHiveFileCompression(HIVE_FILE_COMPRESSION hiveFileCompression) {
-        this.hiveFileCompression = hiveFileCompression;
-    }
-
-    public APPEND_MODE getAppendMode() {
-        return appendMode;
-    }
-
-    public void setAppendMode(APPEND_MODE appendMode) {
-        this.appendMode = appendMode;
     }
 
     public ENGINE getEngine() {
@@ -350,6 +459,14 @@ public class PrSnapshot extends AbstractHistoryEntity {
 
     public void setStatus(STATUS status) {
         this.status = status;
+    }
+
+    public APPEND_MODE getAppendMode() {
+        return appendMode;
+    }
+
+    public void setAppendMode(APPEND_MODE appendMode) {
+        this.appendMode = appendMode;
     }
 
     public DateTime getLaunchTime() {
@@ -382,6 +499,22 @@ public class PrSnapshot extends AbstractHistoryEntity {
 
     public void setTotalLines(Long totalLines) {
         this.totalLines = totalLines;
+    }
+
+    public Long getMismatchedLines() {
+        return mismatchedLines;
+    }
+
+    public void setMismatchedLines(Long mismatchedLines) {
+        this.mismatchedLines = mismatchedLines;
+    }
+
+    public Long getMissingLines() {
+        return missingLines;
+    }
+
+    public void setMissingLines(Long missingLines) {
+        this.missingLines = missingLines;
     }
 
     public Long getTotalBytes() {
@@ -424,6 +557,367 @@ public class PrSnapshot extends AbstractHistoryEntity {
         this.custom = custom;
     }
 
+    public String getStoredUri() {
+        return storedUri;
+    }
+
+    public void setStoredUri(String storedUri) {
+        this.storedUri = storedUri;
+    }
+
+    public STORAGE_TYPE getStorageType() {
+        return storageType;
+    }
+
+    public void setStorageType(STORAGE_TYPE storageType) {
+        this.storageType = storageType;
+    }
+
+    public URI_FILE_FORMAT getUriFileFormat() {
+        return uriFileFormat;
+    }
+
+    public void setUriFileFormat(URI_FILE_FORMAT uriFileFormat) {
+        this.uriFileFormat = uriFileFormat;
+    }
+
+    public String getDcId() {
+        return dcId;
+    }
+
+    public void setDcId(String dcId) {
+        this.dcId = dcId;
+    }
+
+    public String getOrigDsDcId() {
+        return origDsDcId;
+    }
+
+    public void setOrigDsDcId(String origDsDcId) {
+        this.origDsDcId = origDsDcId;
+    }
+
+    public String getOrigDsDcImplementor() {
+        return origDsDcImplementor;
+    }
+
+    public void setOrigDsDcImplementor(String origDsDcImplementor) {
+        this.origDsDcImplementor = origDsDcImplementor;
+    }
+
+    public String getOrigDsDcName() {
+        return origDsDcName;
+    }
+
+    public void setOrigDsDcName(String origDsDcName) {
+        this.origDsDcName = origDsDcName;
+    }
+
+    public String getOrigDsDcDesc() {
+        return origDsDcDesc;
+    }
+
+    public void setOrigDsDcDesc(String origDsDcDesc) {
+        this.origDsDcDesc = origDsDcDesc;
+    }
+
+    public DataConnection.SourceType getOrigDsDcType() {
+        return origDsDcType;
+    }
+
+    public void setOrigDsDcType(DataConnection.SourceType origDsDcType) {
+        this.origDsDcType = origDsDcType;
+    }
+
+    public String getOrigDsDcHostname() {
+        return origDsDcHostname;
+    }
+
+    public void setOrigDsDcHostname(String origDsDcHostname) {
+        this.origDsDcHostname = origDsDcHostname;
+    }
+
+    public Integer getOrigDsDcPort() {
+        return origDsDcPort;
+    }
+
+    public void setOrigDsDcPort(Integer origDsDcPort) {
+        this.origDsDcPort = origDsDcPort;
+    }
+
+    public String getOrigDsDcUsername() {
+        return origDsDcUsername;
+    }
+
+    public void setOrigDsDcUsername(String origDsDcUsername) {
+        this.origDsDcUsername = origDsDcUsername;
+    }
+
+    public String getOrigDsDcUrl() {
+        return origDsDcUrl;
+    }
+
+    public void setOrigDsDcUrl(String origDsDcUrl) {
+        this.origDsDcUrl = origDsDcUrl;
+    }
+
+    public String getOrigDsDbName() {
+        return origDsDbName;
+    }
+
+    public void setOrigDsDbName(String origDsDbName) {
+        this.origDsDbName = origDsDbName;
+    }
+
+    public String getOrigDsTblName() {
+        return origDsTblName;
+    }
+
+    public void setOrigDsTblName(String origDsTblName) {
+        this.origDsTblName = origDsTblName;
+    }
+
+    public String getOrigDsQueryStmt() {
+        return origDsQueryStmt;
+    }
+
+    public void setOrigDsQueryStmt(String origDsQueryStmt) {
+        this.origDsQueryStmt = origDsQueryStmt;
+    }
+
+    public String getOrigDsCreatedBy() {
+        return origDsCreatedBy;
+    }
+
+    public void setOrigDsCreatedBy(String origDsCreatedBy) {
+        this.origDsCreatedBy = origDsCreatedBy;
+    }
+
+    public DateTime getOrigDsCreatedTime() {
+        return origDsCreatedTime;
+    }
+
+    public void setOrigDsCreatedTime(DateTime origDsCreatedTime) {
+        this.origDsCreatedTime = origDsCreatedTime;
+    }
+
+    public String getOrigDsModifiedBy() {
+        return origDsModifiedBy;
+    }
+
+    public void setOrigDsModifiedBy(String origDsModifiedBy) {
+        this.origDsModifiedBy = origDsModifiedBy;
+    }
+
+    public DateTime getOrigDsModifiedTime() {
+        return origDsModifiedTime;
+    }
+
+    public void setOrigDsModifiedTime(DateTime origDsModifiedTime) {
+        this.origDsModifiedTime = origDsModifiedTime;
+    }
+
+    public String getDcImplementor() {
+        return dcImplementor;
+    }
+
+    public void setDcImplementor(String dcImplementor) {
+        this.dcImplementor = dcImplementor;
+    }
+
+    public String getDcName() {
+        return dcName;
+    }
+
+    public void setDcName(String dcName) {
+        this.dcName = dcName;
+    }
+
+    public String getDcDesc() {
+        return dcDesc;
+    }
+
+    public void setDcDesc(String dcDesc) {
+        this.dcDesc = dcDesc;
+    }
+
+    public DataConnection.SourceType getDcType() {
+        return dcType;
+    }
+
+    public void setDcType(DataConnection.SourceType dcType) {
+        this.dcType = dcType;
+    }
+
+    public String getDcHostname() {
+        return dcHostname;
+    }
+
+    public void setDcHostname(String dcHostname) {
+        this.dcHostname = dcHostname;
+    }
+
+    public Integer getDcPort() {
+        return dcPort;
+    }
+
+    public void setDcPort(Integer dcPort) {
+        this.dcPort = dcPort;
+    }
+
+    public String getDcUsername() {
+        return dcUsername;
+    }
+
+    public void setDcUsername(String dcUsername) {
+        this.dcUsername = dcUsername;
+    }
+
+    public String getDcUrl() {
+        return dcUrl;
+    }
+
+    public void setDcUrl(String dcUrl) {
+        this.dcUrl = dcUrl;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
+    }
+
+    public String getTblName() {
+        return tblName;
+    }
+
+    public void setTblName(String tblName) {
+        this.tblName = tblName;
+    }
+
+    public HIVE_FILE_FORMAT getHiveFileFormat() {
+        return hiveFileFormat;
+    }
+
+    public void setHiveFileFormat(HIVE_FILE_FORMAT hiveFileFormat) {
+        this.hiveFileFormat = hiveFileFormat;
+    }
+
+    public HIVE_FILE_COMPRESSION getHiveFileCompression() {
+        return hiveFileCompression;
+    }
+
+    public void setHiveFileCompression(HIVE_FILE_COMPRESSION hiveFileCompression) {
+        this.hiveFileCompression = hiveFileCompression;
+    }
+
+    public String getPartitionColNames() {
+        return partitionColNames;
+    }
+
+    public void setPartitionColNames(String partitionColNames) {
+        this.partitionColNames = partitionColNames;
+    }
+
+    public String getDfId() {
+        return dfId;
+    }
+
+    public void setDfId(String dfId) {
+        this.dfId = dfId;
+    }
+
+    public String getDfName() {
+        return dfName;
+    }
+
+    public void setDfName(String dfName) {
+        this.dfName = dfName;
+    }
+
+    public String getDsId() {
+        return dsId;
+    }
+
+    public void setDsId(String dsId) {
+        this.dsId = dsId;
+    }
+
+    public String getDsName() {
+        return dsName;
+    }
+
+    public void setDsName(String dsName) {
+        this.dsName = dsName;
+    }
+
+    public String getDsCreatedBy() {
+        return dsCreatedBy;
+    }
+
+    public void setDsCreatedBy(String dsCreatedBy) {
+        this.dsCreatedBy = dsCreatedBy;
+    }
+
+    public DateTime getDsCreatedTime() {
+        return dsCreatedTime;
+    }
+
+    public void setDsCreatedTime(DateTime dsCreatedTime) {
+        this.dsCreatedTime = dsCreatedTime;
+    }
+
+    public String getDsModifiedBy() {
+        return dsModifiedBy;
+    }
+
+    public void setDsModifiedBy(String dsModifiedBy) {
+        this.dsModifiedBy = dsModifiedBy;
+    }
+
+    public DateTime getDsModifiedTime() {
+        return dsModifiedTime;
+    }
+
+    public void setDsModifiedTime(DateTime dsModifiedTime) {
+        this.dsModifiedTime = dsModifiedTime;
+    }
+
+    public String getOrigDsId() {
+        return origDsId;
+    }
+
+    public void setOrigDsId(String origDsId) {
+        this.origDsId = origDsId;
+    }
+
+    public String getOrigDsName() {
+        return origDsName;
+    }
+
+    public void setOrigDsName(String origDsName) {
+        this.origDsName = origDsName;
+    }
+
+    public PrDataset.IMPORT_TYPE getOrigDsImportType() {
+        return origDsImportType;
+    }
+
+    public void setOrigDsImportType(PrDataset.IMPORT_TYPE origDsImportType) {
+        this.origDsImportType = origDsImportType;
+    }
+
+    public String getOrigDsStoredUri() {
+        return origDsStoredUri;
+    }
+
+    public void setOrigDsStoredUri(String origDsStoredUri) {
+        this.origDsStoredUri = origDsStoredUri;
+    }
+
+    // Extra getters
     @JsonIgnore
     public String getStatusCat() {
         if(status != null) {
@@ -488,31 +982,31 @@ public class PrSnapshot extends AbstractHistoryEntity {
         return null;
     }
 
-    @JsonIgnore
-    public String getOriginInfo() {
-        return lineageInfo;
-    }
+//    @JsonIgnore
+//    public String getOriginInfo() {
+//        return lineageInfo;
+//    }
 
-    @JsonIgnore
-    public String getOrigDsInfo(String key) {
-        if (this.lineageInfo != null) {
-            Map jsonLineageInfo = GlobalObjectMapper.readValue(this.lineageInfo, Map.class);
-            if (jsonLineageInfo != null) {
-                Object origDsInfo = jsonLineageInfo.get("origDsInfo");
-                if (origDsInfo != null) {
-                    Map jsonOrigDsInfo = (Map)origDsInfo;
-                    if(jsonOrigDsInfo!=null) {
-                        Object objValue = jsonOrigDsInfo.get(key);
-                        if(objValue!=null) {
-                            String value = objValue.toString();
-                            return value;
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
+//    @JsonIgnore
+//    public String getOrigDsInfo(String key) {
+//        if (this.lineageInfo != null) {
+//            Map jsonLineageInfo = GlobalObjectMapper.readValue(this.lineageInfo, Map.class);
+//            if (jsonLineageInfo != null) {
+//                Object origDsInfo = jsonLineageInfo.get("origDsInfo");
+//                if (origDsInfo != null) {
+//                    Map jsonOrigDsInfo = (Map)origDsInfo;
+//                    if(jsonOrigDsInfo!=null) {
+//                        Object objValue = jsonOrigDsInfo.get(key);
+//                        if(objValue!=null) {
+//                            String value = objValue.toString();
+//                            return value;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return null;
+//    }
 
     @JsonIgnore
     public String getCustomValue(String key) {

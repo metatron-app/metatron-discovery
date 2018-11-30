@@ -14,8 +14,10 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.List;
 
@@ -27,7 +29,7 @@ public class PrepSnapshotRequestPost {
     String uri;
     String dbName;
     String tblName;
-    PrSnapshot.HIVE_FILE_FORMAT format;
+    String format;      // This could be either HIVE_FILE_FORMAT or URI_FILE_FORMAT, so it's defined as String
     PrSnapshot.HIVE_FILE_COMPRESSION compression;
     PrSnapshot.APPEND_MODE mode;
     PrSnapshot.ENGINE engine;
@@ -35,11 +37,11 @@ public class PrepSnapshotRequestPost {
 
 
     @JsonIgnore
-    public PrSnapshot.HIVE_FILE_FORMAT getFormat() {
+    public String getFormat() {
         return format;
     }
 
-    public void setFormat(PrSnapshot.HIVE_FILE_FORMAT format) {
+    public void setFormat(String format) {
         this.format = format;
     }
 
@@ -78,6 +80,14 @@ public class PrepSnapshotRequestPost {
 
     public List<String> getPartKeys() {
         return partKeys;
+    }
+
+    @JsonIgnore
+    public String getJsonPartitionColNames() throws JsonProcessingException {
+        if (partKeys == null) {
+            return null;
+        }
+        return GlobalObjectMapper.getDefaultMapper().writeValueAsString(partKeys);
     }
 
     public void setPartKeys(List<String> partKeys) {

@@ -720,6 +720,8 @@
   "msg.dp.alert.failed.to.write.csv": "IOException while writing a CSV file.",
   "msg.dp.alert.failed.to.close.csv": "IOException while closing a CSV file.",
   "msg.dp.alert.failed.to.delete.snapshot": "IOException while deleting a snapshot",
+  "msg.dp.alert.invalid.snapshot.name": "Invalid snapshot name (null or empty)",
+  "msg.dp.alert.snapshot.type.not.supported.yet": "Snapshot type not supported",
   "msg.dp.alert.unsupported.charset": "Unsupported encoding character set.",
   "msg.dp.alert.unknown.bom": "Unsupported byte-order mark (BOM)",
   "msg.dp.alert.has.no.creator.dataflow" : "Cannot find the creator of the dataflow",
