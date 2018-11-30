@@ -60,6 +60,8 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _resultElement: ElementRef;
   @ViewChild('resultBoxElement')
   private _resultBoxElement: ElementRef;
+  @ViewChild('rowInput')
+  private _rowInput: ElementRef;
 
   // source create type
   public createType: string;
@@ -374,6 +376,16 @@ export class IngestionSettingComponent extends AbstractComponent {
       top: $(this._resultElement.nativeElement).offset().top - 20,
       left: $(this._resultElement.nativeElement).offset().left + 80
     });
+  }
+
+  /**
+   * Ingestion row changed event
+   * @param {string} ingestionRow
+   * @param {string} event
+   */
+  public onChangedRow(ingestionRow: string, event: string): void {
+    // set input element, ingestion row (ingestionOnceRow, ingestionPeriodRow)
+    this._rowInput.nativeElement.value = this[ingestionRow] = StringUtil.thousandSeparatorNumber(StringUtil.removeNotNumberString(event));
   }
 
   /**

@@ -68,10 +68,10 @@
               <!-- single -->
               <ng-container *ngIf="selectedIngestionType.value === 'single'">
                 <div class="ddp-box-option-input ddp-inline">
-                  <input type="text" placeholder="10,000"
-                         input-mask="sep-number" class="ddp-txt-right"
+                  <input type="text" class="ddp-txt-right" placeholder="10,000" maxlength="10"
+                         #rowInput
                          [disabled]="selectedIngestionScopeType.value !== 'ROW'"
-                         [(ngModel)]="ingestionOnceRow">
+                         [ngModel]="ingestionOnceRow" (ngModelChange)="onChangedRow('ingestionOnceRow', $event)">
                   <span class="ddp-txt-input">rows</span>
                 </div>
                 <div class="ddp-txt-error" *ngIf="selectedIngestionScopeType.value === 'ROW' && isMaxRowOverValue('ingestionOnceRow', 10000)">
@@ -177,9 +177,9 @@
           <div class="ddp-box-sub-option" *ngIf="selectedIngestionType.value === 'batch'">
             <label class="ddp-label-type">{{'msg.storage.th.max-query-row' | translate}}</label>
             <div class="ddp-option-in ddp-inline">
-              <input type="text" class="ddp-input-typebasic ddp-size-sm ddp-txt-right" placeholder="10,000"
-                     input-mask="sep-number"
-                     [(ngModel)]="ingestionPeriodRow">
+              <input type="text" class="ddp-input-typebasic ddp-size-sm ddp-txt-right" placeholder="10,000" maxlength="10"
+                     #rowInput
+                     [ngModel]="ingestionPeriodRow" (ngModelChange)="onChangedRow('ingestionPeriodRow', $event)">
               <div class="ddp-txt-error" *ngIf="isMaxRowOverValue('ingestionPeriodRow', 5000000)">
                 <em class="ddp-icon-error-s"></em>{{'msg.storage.ui.max.row.error' | translate : {value: '5,000,000'} }}
               </div>
