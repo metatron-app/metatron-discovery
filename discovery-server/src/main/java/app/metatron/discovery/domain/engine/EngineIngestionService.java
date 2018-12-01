@@ -3,6 +3,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -40,7 +54,6 @@ import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryReposi
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionService;
 import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
-import app.metatron.discovery.domain.datasource.realtime.KafkaClient;
 import app.metatron.discovery.domain.datasource.realtime.RealTimeProperties;
 import app.metatron.discovery.domain.engine.model.IngestionStatusResponse;
 import app.metatron.discovery.spec.druid.ingestion.KafkaRealTimeIndexBuilder;
@@ -56,8 +69,6 @@ import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistor
 public class EngineIngestionService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EngineIngestionService.class);
-
-  private static final String DEFAULT_DEDICATED_WORKER = "localhost:8091";
 
   @Autowired
   FileLoaderFactory fileLoaderFactory;
@@ -80,9 +91,6 @@ public class EngineIngestionService {
   @Autowired
   EngineProperties engineProperties;
 
-  @Autowired(required = false)
-  KafkaClient kafkaClient;
-
   @Autowired
   RealTimeProperties realTimeProperties;
 
@@ -91,36 +99,61 @@ public class EngineIngestionService {
   }
 
   /**
-   * 데이터 소스내 진행중인 적재 작업이 있다면 종료 시킵니다 엔진내 예외 발생시 로그로만 실패여부를 표시합니다
+   * Shutdown all ingestion task in datasource
    */
   public void shutDownIngestionTask(String dataSourceId) {
     // Shutdown Ingestion Task
     List<IngestionHistory> ingestionHistories = ingestionHistoryRepository.findByDataSourceIdAndStatus(dataSourceId, RUNNING);
     for (IngestionHistory ingestionHistory : ingestionHistories) {
-      try {
-        if (ingestionHistory.getIngestionMethod() == IngestionHistory.IngestionMethod.SUPERVISOR) {
-          engineMetaRepository.shutDownSupervisorIngestionTask(ingestionHistory.getIngestionId());
-        } else {
-          engineMetaRepository.shutDownIngestionTask(ingestionHistory.getIngestionId());
-        }
-        LOGGER.info("Successfully shutdown ingestion task : ({}) {}",
-                    ingestionHistory.getIngestionMethod(),
-                    ingestionHistory.getIngestionId());
-      } catch (Exception e) {
-        LOGGER.warn("Fail to shutdown ingestion task : ({}) {}",
-                    ingestionHistory.getIngestionMethod(),
-                    ingestionHistory.getIngestionId());
-      }
+      shutDownIngestionTask(ingestionHistory);
     }
   }
 
-  public void shutDownIngestionTask(String datasourceName, String taskId) {
-
-    engineMetaRepository.shutDownIngestionTask(taskId);
-
-    if (kafkaClient != null) {
-      kafkaClient.destroyTopic(datasourceName);
+  /**
+   * Shutdown ingestion task in ingestion history
+   */
+  public boolean shutDownIngestionTask(IngestionHistory ingestionHistory) {
+    try {
+      if (ingestionHistory.getIngestionMethod() == IngestionHistory.IngestionMethod.SUPERVISOR) {
+        engineMetaRepository.shutDownSupervisorIngestionTask(ingestionHistory.getIngestionId());
+      } else {
+        engineMetaRepository.shutDownIngestionTask(ingestionHistory.getIngestionId());
+      }
+      LOGGER.info("Successfully shutdown ingestion task : ({}) {}",
+                  ingestionHistory.getIngestionMethod(),
+                  ingestionHistory.getIngestionId());
+    } catch (Exception e) {
+      LOGGER.warn("Fail to shutdown ingestion task : ({}) {}",
+                  ingestionHistory.getIngestionMethod(),
+                  ingestionHistory.getIngestionId());
+      return false;
     }
+
+    return true;
+  }
+
+  /**
+   * Reset (real time) ingestion task in ingestion history
+   */
+  public boolean resetRealTimeIngestionTask(IngestionHistory ingestionHistory) {
+
+    if (ingestionHistory.getIngestionMethod() != IngestionHistory.IngestionMethod.SUPERVISOR) {
+      LOGGER.debug("Invalid ingestion method : {}", ingestionHistory);
+      return false;
+    }
+    try {
+      engineMetaRepository.resetSupervisorIngestionTask(ingestionHistory.getIngestionId());
+      LOGGER.info("Successfully reset ingestion task : ({}) {}",
+                  ingestionHistory.getIngestionMethod(),
+                  ingestionHistory.getIngestionId());
+    } catch (Exception e) {
+      LOGGER.warn("Fail to reset ingestion task : ({}) {}",
+                  ingestionHistory.getIngestionMethod(),
+                  ingestionHistory.getIngestionId());
+      return false;
+    }
+
+    return true;
   }
 
   public IngestionStatusResponse doCheckResult(String ingestionId) {

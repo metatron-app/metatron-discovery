@@ -3,6 +3,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -688,6 +702,52 @@ public class DataSourceController {
     }
 
     return ResponseEntity.ok(taskLog);
+  }
+
+  /**
+   * Stop ingestion task
+   */
+  @RequestMapping(value = "/datasources/{dataSourceId}/histories/{historyId}/stop", method = RequestMethod.POST)
+  public ResponseEntity<?> stopIngestionJob(@PathVariable("dataSourceId") String dataSourceId,
+                                            @PathVariable("historyId") Long historyId) {
+
+    if (dataSourceRepository.findOne(dataSourceId) == null) {
+      throw new ResourceNotFoundException(dataSourceId);
+    }
+
+    IngestionHistory history = ingestionHistoryRepository.findOne(historyId);
+    if (history == null) {
+      throw new ResourceNotFoundException(historyId);
+    }
+
+    boolean result = engineIngestionService.shutDownIngestionTask(history);
+    Map<String, Object> results = Maps.newLinkedHashMap();
+    results.put("result", result);
+
+    return ResponseEntity.ok(results);
+  }
+
+  /**
+   * Reset (real time) ingestion task
+   */
+  @RequestMapping(value = "/datasources/{dataSourceId}/histories/{historyId}/reset", method = RequestMethod.POST)
+  public ResponseEntity<?> resetRealTimeIngestionJob(@PathVariable("dataSourceId") String dataSourceId,
+                                                     @PathVariable("historyId") Long historyId) {
+
+    if (dataSourceRepository.findOne(dataSourceId) == null) {
+      throw new ResourceNotFoundException(dataSourceId);
+    }
+
+    IngestionHistory history = ingestionHistoryRepository.findOne(historyId);
+    if (history == null) {
+      throw new ResourceNotFoundException(historyId);
+    }
+
+    boolean result = engineIngestionService.resetRealTimeIngestionTask(history);
+    Map<String, Object> results = Maps.newLinkedHashMap();
+    results.put("result", result);
+
+    return ResponseEntity.ok(results);
   }
 
   /**
