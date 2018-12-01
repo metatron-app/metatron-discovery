@@ -27,7 +27,7 @@
     <!-- data source -->
     <tr>
       <th>
-        {{'msg.spaces.shared.detail.datasource' | translate}} ({{datasourceTotalCount}})
+        {{'msg.spaces.shared.detail.datasource' | translate}} ({{datasourcePageResult?.totalElements}})
       </th>
       <td>
         <table class="ddp-table-solid">
@@ -39,7 +39,7 @@
 
           </colgroup>
           <tbody>
-          <tr *ngIf="datasourceTotalCount === 0">
+          <tr *ngIf="datasourcePageResult?.totalElements === 0">
             <td class="ddp-nolist" colspan="4">
               {{'msg.spaces.shared.detail.list.none' | translate}}
             </td>
@@ -65,14 +65,14 @@
           </tbody>
         </table>
         <!-- 목록이 3개 이하일 경우 “more” 버튼 없음 -->
-        <a href="javascript:" class="ddp-btn-moretype2" *ngIf="datasourceTotalCount > 3" (click)="onClickMoreDatasources()">{{'msg.comm.ui.more' | translate}} ></a>
+        <a href="javascript:" class="ddp-btn-moretype2" *ngIf="datasourcePageResult?.totalElements > 3" (click)="onClickMoreDatasources()">{{'msg.comm.ui.more' | translate}} ></a>
       </td>
     </tr>
     <!-- //data source -->
     <!-- data connection -->
     <tr>
       <th>
-        {{'msg.spaces.shared.detail.dataconnection' | translate}} ({{connectionTotalCount}})
+        {{'msg.spaces.shared.detail.dataconnection' | translate}} ({{connectionPageResult?.totalElements}})
       </th>
       <td>
         <table class="ddp-table-solid">
@@ -84,7 +84,7 @@
 
           </colgroup>
           <tbody>
-          <tr *ngIf="connectionTotalCount === 0">
+          <tr *ngIf="connectionPageResult?.totalElements === 0">
             <td class="ddp-nolist" colspan="4">
               {{'msg.spaces.shared.detail.list.none' | translate}}
             </td>
@@ -110,14 +110,14 @@
           </tbody>
         </table>
         <!-- 목록이 3개 이하일 경우 “more” 버튼 없음 -->
-        <a href="javascript:" class="ddp-btn-moretype2" *ngIf="connectionTotalCount > 3" (click)="onClickMoreConnections()">{{'msg.comm.ui.more' | translate}} ></a>
+        <a href="javascript:" class="ddp-btn-moretype2" *ngIf="connectionPageResult?.totalElements > 3" (click)="onClickMoreConnections()">{{'msg.comm.ui.more' | translate}} ></a>
       </td>
     </tr>
     <!-- // data connection -->
     <!-- notebook connector -->
     <tr>
       <th>
-        {{'msg.spaces.shared.detail.nbook.connector' | translate}} ({{connectorTotalCount}})
+        {{'msg.spaces.shared.detail.nbook.connector' | translate}} ({{connectorPageResult?.totalElements}})
       </th>
       <td>
         <table class="ddp-table-solid">
@@ -129,7 +129,7 @@
 
           </colgroup>
           <tbody>
-          <tr *ngIf="connectorTotalCount === 0">
+          <tr *ngIf="connectorPageResult?.totalElements === 0">
             <td class="ddp-nolist" colspan="4">
              {{'msg.spaces.shared.detail.list.none' | translate}}
             </td>
