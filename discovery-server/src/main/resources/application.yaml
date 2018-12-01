@@ -212,6 +212,12 @@ polaris:
       - 'dd/MM/yyyy'
   chart:
     profile: default
+  datasource:
+    ingestion:
+      retries:
+        delay: 6
+        maxDelay: 90
+        maxDuration : 3600
   engine:
     hostname:
       broker: http://localhost:8082

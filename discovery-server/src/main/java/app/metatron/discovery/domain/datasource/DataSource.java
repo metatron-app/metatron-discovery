@@ -17,6 +17,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -271,6 +285,13 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   @Column(name = "ds_fields_matched")
   @FieldBridge(impl = BooleanBridge.class)
   Boolean fieldsMatched;
+
+  /**
+   * Whether to check data source that failed during ingestion process
+   */
+  @Column(name = "ds_fail_on_engine")
+  @FieldBridge(impl = BooleanBridge.class)
+  Boolean failOnEngine;
 
   /**
    * Spring data rest 제약으로 인한 Dummy Property. - Transient 어노테이션 구성시 HandleBeforeSave 에서 인식 못하는 문제
@@ -856,6 +877,14 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
 
   public void setFieldsMatched(Boolean fieldsMatched) {
     this.fieldsMatched = fieldsMatched;
+  }
+
+  public Boolean getFailOnEngine() {
+    return failOnEngine;
+  }
+
+  public void setFailOnEngine(Boolean failOnEngine) {
+    this.failOnEngine = failOnEngine;
   }
 
   public boolean isFieldMatchedByNames(final List<String> matchingFieldNames) {

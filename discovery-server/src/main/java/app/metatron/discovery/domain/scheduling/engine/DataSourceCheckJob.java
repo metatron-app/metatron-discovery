@@ -3,6 +3,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -14,6 +28,7 @@
 
 package app.metatron.discovery.domain.scheduling.engine;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -41,6 +56,7 @@ import java.util.stream.Collectors;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.datasource.DataSourceSummary;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.DruidEngineRepository;
 import app.metatron.discovery.domain.engine.EngineQueryService;
@@ -49,6 +65,7 @@ import app.metatron.discovery.query.druid.meta.AnalysisType;
 
 import static app.metatron.discovery.domain.datasource.DataSource.Status.DISABLED;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.ENABLED;
+import static app.metatron.discovery.domain.datasource.DataSource.Status.FAILED;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.PREPARING;
 
 
@@ -64,6 +81,9 @@ public class DataSourceCheckJob extends QuartzJobBean {
 
   @Autowired
   DataSourceRepository dataSourceRepository;
+
+  @Autowired
+  IngestionHistoryRepository ingestionHistoryRepository;
 
   @Autowired
   EngineQueryService queryService;
@@ -92,8 +112,12 @@ public class DataSourceCheckJob extends QuartzJobBean {
       page = dataSourceRepository.findByDataSourceForCheck(pageRequest);
 
       for (DataSource ds : page) {
-        // 파티션된 데이터 소스인 경우 PASS.
+        // Skip partitioned data sources.
         if(StringUtils.isNotEmpty(ds.getPartitionKeys())) {
+          continue;
+        }
+
+        if(ds.getStatus() == FAILED && BooleanUtils.isNotTrue(ds.getFailOnEngine())) {
           continue;
         }
 
