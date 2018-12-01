@@ -14,8 +14,6 @@
 
 package app.metatron.discovery.domain.workbook.configurations.chart;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +22,7 @@ import java.io.IOException;
 import app.metatron.discovery.common.GlobalObjectMapper;
 
 /**
- * Created by kyungtaak on 2016. 6. 16..
+ * Water fall chart spec. Test
  */
 public class WaterFallChartTest extends ChartTest {
 
@@ -35,14 +33,13 @@ public class WaterFallChartTest extends ChartTest {
   @Test
   public void de_serialize() throws IOException {
 
-    // 범례
-    //
     ChartLegend legend = new ChartLegend();
 
     ChartAxis xAxis = new ChartAxis(true, "test", true, null, null, null);
     ChartAxis yAxis = new ChartAxis(true, null, true, null, null, null);
 
     WaterFallChart chart = new WaterFallChart(colorByMeasureForSection(), null, legend, null, fontLargerSize(), null, null,
+                                              500,
                                               70,
                                               new WaterFallChart.BarColor("#COLOR1", "#COLOR2"),
                                               new WaterFallChart.GuideLine("#COLOR", "THIN"),
@@ -59,39 +56,6 @@ public class WaterFallChartTest extends ChartTest {
     System.out.println("Result : " + deSerialized.toString());
 
 
-  }
-
-  @Test
-  public void deserialize() throws IOException {
-
-    String chartSpec = "{\n" +
-            "  \"type\" : \"waterfall\",\n" +
-            "  \"size\" : {\n" +
-            "    \"size\" : 80,\n" +
-            "    \"auto\" : true\n" +
-            "  },\n" +
-            "  \"label\" : {\n" +
-            "    \"shows\" : [ {\n" +
-            "      \"mode\" : \"column\",\n" +
-            "      \"mark\" : \"HORIZONTAL\"\n" +
-            "    }, {\n" +
-            "      \"mode\" : \"row\",\n" +
-            "      \"mark\" : \"VERTICAL\"\n" +
-            "    }, {\n" +
-            "      \"mode\" : \"aggregation\"\n" +
-            "    } ],\n" +
-            "    \"auto\" : true\n" +
-            "  },\n" +
-            "  \"series\" : {\n" +
-            "    \"align\" : \"HORIZONTAL\"\n" +
-            "    \"view\" : \"ALL\"\n" +
-            "    \"position\" : [0, 100]\n" +
-            "  }\n" +
-            "}";
-
-    Chart chart = GlobalObjectMapper.readValue(chartSpec, Chart.class);
-
-    System.out.println("ToString Result - \n" + ToStringBuilder.reflectionToString(chart, ToStringStyle.MULTI_LINE_STYLE));
   }
 
 }

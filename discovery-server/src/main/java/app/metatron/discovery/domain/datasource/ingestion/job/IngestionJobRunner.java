@@ -1,7 +1,50 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
 package app.metatron.discovery.domain.datasource.ingestion.job;
 
 import com.google.common.collect.Maps;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +82,7 @@ import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.engine.EngineQueryService;
 import app.metatron.discovery.domain.engine.model.IngestionStatusResponse;
 import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
+import app.metatron.discovery.domain.geo.GeoService;
 import app.metatron.discovery.util.PolarisUtils;
 
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_COMMON_ERROR;
@@ -52,6 +96,7 @@ import static app.metatron.discovery.domain.datasource.ingestion.job.IngestionPr
 import static app.metatron.discovery.domain.datasource.ingestion.job.IngestionProgress.ENGINE_REGISTER_DATASOURCE;
 import static app.metatron.discovery.domain.datasource.ingestion.job.IngestionProgress.ENGINE_RUNNING_TASK;
 import static app.metatron.discovery.domain.datasource.ingestion.job.IngestionProgress.FAIL_INGESTION_JOB;
+import static app.metatron.discovery.domain.datasource.ingestion.job.IngestionProgress.GEOSERVER_REGISTER_DATASTORE;
 import static app.metatron.discovery.domain.datasource.ingestion.job.IngestionProgress.PREPARATION_HANDLE_LOCAL_FILE;
 import static app.metatron.discovery.domain.datasource.ingestion.job.IngestionProgress.PREPARATION_LOAD_FILE_TO_ENGINE;
 import static app.metatron.discovery.domain.datasource.ingestion.job.IngestionProgress.START_INGESTION_JOB;
@@ -92,6 +137,9 @@ public class IngestionJobRunner {
 
   @Autowired
   private EngineQueryService queryService;
+
+  @Autowired
+  private GeoService geoService;
 
   @Autowired
   private IngestionOptionService ingestionOptionService;
@@ -161,11 +209,18 @@ public class IngestionJobRunner {
 
       // Check registering datasource
       sendTopic(sendTopicUri, new ProgressResponse(90, ENGINE_REGISTER_DATASOURCE));
-      history = updateHistoryProgress(history.getId(), ENGINE_RUNNING_TASK, taskId);
+      history = updateHistoryProgress(history.getId(), ENGINE_REGISTER_DATASOURCE, taskId);
 
       SegmentMetaDataResponse segmentMetaData = checkDataSource(dataSource.getEngineName());
       if (segmentMetaData == null) {
         throw new DataSourceIngestionException(INGESTION_ENGINE_REGISTRATION_ERROR, "An error occurred while registering the data source");
+      }
+
+      // registering geoserver
+      if(BooleanUtils.isTrue(dataSource.getIncludeGeo())) {
+        sendTopic(sendTopicUri, new ProgressResponse(95, GEOSERVER_REGISTER_DATASTORE));
+        history = updateHistoryProgress(history.getId(), GEOSERVER_REGISTER_DATASTORE);
+        ingestionJob.setDataStoreOnGeoserver();
       }
 
       DataSourceSummary summary = new DataSourceSummary(segmentMetaData);
@@ -188,8 +243,20 @@ public class IngestionJobRunner {
       }
 
       try {
+        // Delete datasource on engine after geoserver registration fails
+        if (history.getProgress() == GEOSERVER_REGISTER_DATASTORE) {
+          engineMetaRepository.purgeDataSource(dataSource.getEngineName());
+        }
+      }catch (Exception ex) {
+        LOGGER.warn("Fail to delete datasource on engine during fail process : {}", ex.getMessage());
+      }
+
+
+      try {
         history = setFailProgress(history.getId(), ie);
-      } catch (TransactionException ex) {}
+      } catch (TransactionException ex) {
+        LOGGER.warn("Fail to save fail process : {}", ex.getMessage());
+      }
 
       results.put("history", history);
       sendTopic(sendTopicUri, new ProgressResponse(-1, FAIL_INGESTION_JOB, results));
@@ -261,6 +328,7 @@ public class IngestionJobRunner {
       ingestionJob.setFileLoaderFactory(fileLoaderFactory);
       ingestionJob.setHistoryRepository(historyRepository);
       ingestionJob.setIngestionOptionService(ingestionOptionService);
+      ingestionJob.setGeoService(geoService);
       return ingestionJob;
 
     } else if (ingestionInfo instanceof JdbcIngestionInfo) {
@@ -272,6 +340,7 @@ public class IngestionJobRunner {
       ingestionJob.setHistoryRepository(historyRepository);
       ingestionJob.setIngestionOptionService(ingestionOptionService);
       ingestionJob.setJdbcConnectionService(jdbcConnectionService);
+      ingestionJob.setGeoService(geoService);
       return ingestionJob;
 
     } else if (ingestionInfo instanceof HdfsIngestionInfo) {
@@ -282,6 +351,7 @@ public class IngestionJobRunner {
       ingestionJob.setFileLoaderFactory(fileLoaderFactory);
       ingestionJob.setHistoryRepository(historyRepository);
       ingestionJob.setIngestionOptionService(ingestionOptionService);
+      ingestionJob.setGeoService(geoService);
       return ingestionJob;
 
     } else if (ingestionInfo instanceof HiveIngestionInfo) {
@@ -293,6 +363,7 @@ public class IngestionJobRunner {
       ingestionJob.setHistoryRepository(historyRepository);
       ingestionJob.setIngestionOptionService(ingestionOptionService);
       ingestionJob.setJdbcConnectionService(jdbcConnectionService);
+      ingestionJob.setGeoService(geoService);
       return ingestionJob;
     } else {
       throw new IllegalArgumentException("Not supported ingestion information.");

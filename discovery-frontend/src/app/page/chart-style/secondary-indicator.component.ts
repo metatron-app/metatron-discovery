@@ -785,7 +785,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
     timeField.alias = fields[idx].alias;
     timeField.granularity = fields[idx].granularity;
     timeField.format = {
-      type: "time_custom",
+      type: "time_format",
       format: "yyyy-MM-dd HH:mm:ss",
       timeZone: "UTC",
       locale: "en"

@@ -42,8 +42,6 @@ export class GridComponent implements AfterViewInit, OnDestroy {
   private $ = jQuery_1_7;
   // 클릭 이벤트 타임아웃 체크
   private clickEnabled: boolean = true;
-  // 정렬 변경 이벤트 타임아웃 체크
-  private sortingEnabled: boolean = true;
 
   // -------------------------------------------------------------------------------------------------------------------
   // 상수
@@ -993,14 +991,6 @@ export class GridComponent implements AfterViewInit, OnDestroy {
           return function (event, args) {
             try {
 
-              if (!scope.sortingEnabled) {
-                return;
-              }
-
-              setTimeout(() => scope.sortingEnabled = true, 300);
-
-              scope.sortingEnabled = false;
-
               if (scope.isCellExternalCopyManagerActivate()) {
                 scope.grid.setSelectedRows([]);
               } else {
@@ -1082,7 +1072,6 @@ export class GridComponent implements AfterViewInit, OnDestroy {
                   scope.dataView.getItemMetadata(scope.getRows().length - 1);
                 }
               }
-
 
               scope.grid.invalidate();
               scope.grid.render();

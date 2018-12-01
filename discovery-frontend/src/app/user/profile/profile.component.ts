@@ -22,12 +22,11 @@ import { CommonConstant } from '../../common/constant/common.constant';
 import { Alert } from '../../common/util/alert.util';
 import { User } from '../../domain/user/user';
 import { UserService } from '../service/user.service';
-import { isUndefined } from 'util';
+import {isNullOrUndefined, isUndefined} from 'util';
 import { CommonUtil } from '../../common/util/common.util';
 import { StringUtil } from '../../common/util/string.util';
 import { ChangePasswordComponent } from './change-password/change-password.component';
 import { Group } from '../../domain/user/group';
-import { SYSTEM_PERMISSION } from '../../common/permission/permission';
 import { WorkspaceService } from '../../workspace/service/workspace.service';
 import { Workspace } from '../../domain/workspace/workspace';
 import { CookieConstant } from '../../common/constant/cookie.constant';
@@ -81,9 +80,9 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
   public isShow = false;
 
   // email flag
-  public resultEmail: boolean = true;
+  public resultEmail: boolean;
   // name flag
-  public resultName: boolean = true;
+  public resultName: boolean;
 
   // email error message
   public emailMessage: string;
@@ -149,21 +148,44 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Phone 변경 여부
+   */
+  public get isPhoneChanged():boolean {
+    const userTel = isNullOrUndefined( this.user.tel ) ? '' : this.user.tel.trim();
+    return this._userTel !== userTel;
+  } // function - isPhoneChanged
+
+  /**
+   * E-Mail 변경 여부
+   */
+  public get isEmailChanged():boolean {
+    const userEmail = isNullOrUndefined( this.user.email ) ? '' : this.user.email.trim();
+    return this._userEmail !== userEmail;
+  } // function - isEmailChanged
+
+  /**
+   * Full Name 변경 여부
+   */
+  public get isFullNameChanged():boolean {
+    const userName = isNullOrUndefined( this.user.fullName ) ? '' : this.user.fullName.trim();
+    return this._userName !== userName;
+  } // function - isFullNameChanged
 
   /** Init */
   public init(user: User) {
     // ui init
     this._initView();
     // user ID
-    this._userId = user.username;
+    this._userId = isNullOrUndefined( user.username ) ? '' : user.username.trim();
     // user email
-    this._userEmail = user.email;
+    this._userEmail = isNullOrUndefined( user.email ) ? '' : user.email.trim();
     // user name
-    this._userName = user.fullName;
+    this._userName = isNullOrUndefined( user.fullName ) ? '' : user.fullName.trim();
     // user tel
-    this._userTel = user.tel;
+    this._userTel = isNullOrUndefined( user.tel ) ? '' : user.tel.trim();
     // user image
-    this._imageUrl = user.imageUrl;
+    this._imageUrl = isNullOrUndefined( user.imageUrl ) ? '' : user.imageUrl.trim();
     // 팝업 show
     this.isShow = true;
     // 팝업시 하단 스크롤 hide
@@ -384,9 +406,9 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     // 초기화
     this.user = new User();
     // email flag
-    this.resultEmail = true;
+    this.resultEmail = undefined;
     // name flag
-    this.resultName = true;
+    this.resultName = undefined;
   }
 
   /**
@@ -476,7 +498,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     };
 
     // 에러 처리
-    this.uploader.onErrorItem = (item, response, status, headers) => {
+    this.uploader.onErrorItem = () => {
       // TODO 이미지 업로드 에러 처리
       console.log('error');
       this.loadingHide();

@@ -60,6 +60,8 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
   private readonly _ROW_EMPTY: number = -1;       // 로우 데이터가 없는 경우 -1
 
+  private __selectedRows: any = [];            // 그리드에서 선택된 로우 리스트
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -79,7 +81,11 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
   @Output() private onHeaderRowCellRendered = new EventEmitter();
 
+
   public totalRowCnt: number = 0;
+
+  private _currentScrollLeft: number = 0; // grid current scrollLeft value
+  private _gridTimer = null;   // grid timer
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -124,23 +130,17 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // /**
-  //  *  전체 row count
-  //  */
-  // public setTotalRowCnt(totalRowCnt: number): void {
-  //   this.totalRowCnt = totalRowCnt;
-  // }
-  //
-  // /**
-  //  *  ruleIndex
-  //  */
-  // public setRuleIndex(ruleIndex: number): void {
-  //   if(ruleIndex == null || ruleIndex == undefined){
-  //     this.ruleIndex = null;
-  //   }else{
-  //     this.ruleIndex = ruleIndex;
-  //   }
-  // }
+  public getPageInfo(): any {
+    return this._gridModel.getPageInfo();
+  }
+
+  public setExternalData(data:any, currentPage:number): void {
+    this._gridModel.setExternalData(data, currentPage);
+  }
+
+  public searchProcessReset(): void {
+    this._gridModel.searchProcessReset();
+  }
 
   /**
    * 그리드 생성
@@ -195,6 +195,9 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
     // 그리드 모델 정의
     this._gridModel = gridModel;
+
+
+    // this._gridModel.
 
     // 데이터 전체 카운트 & ruleIdx
     if(this._gridModel) {
@@ -252,9 +255,6 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
    */
   public search(searchText: string = '') {
     try {
-      // 선택표시 전체 해제
-      this._grid.scrollRowIntoView(0);
-      this._grid.setSelectedRows([]);
       this._gridModel.search(searchText);
     } catch (e) {
       // 오류 로그 출력
@@ -424,6 +424,8 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
    * @param index
    */
   public rowSelection(index): void {
+    // console.info('index', index);
+    this.__selectedRows = index;
     if (this._gridSelectionModelType === 'cell') {
       this.rowAllUnSelection();
     }
@@ -480,14 +482,22 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
       // Header menu plugin
       let headerButtonsPlugin = new Slick.Plugins.HeaderButtons();
       headerButtonsPlugin.onCommand.subscribe((e, args) => {
-        this.onContextMenuClick.emit({
+
+        const contextMenuParam = {
           columnName: args.button.command,
           index: args.button.index,
           left: e.pageX,
           top: e.pageY,
           columnType: args.button.type
-        });
+        };
+
+        if (args.button.timestampStyle){ // only if column is timestamp type
+          contextMenuParam['timestampStyle'] = args.button.timestampStyle;
+        }
+
+        this.onContextMenuClick.emit(contextMenuParam);
         grid.invalidate();
+
       });
       grid.registerPlugin(headerButtonsPlugin);
     }
@@ -496,16 +506,31 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   } // function - _generateGrid
 
   /**
+   * Grid horizaltal scroll timer
+   * @param {viewPortLeftPx} number
+   * @private
+   */
+  private fixGridScroll(viewPortLeftPx: number): void {
+    if(this._gridTimer) {clearTimeout(this._gridTimer);}
+    this._gridTimer = setTimeout(() => {this._currentScrollLeft = viewPortLeftPx;this._grid.invalidate();this._grid.render();}, 400);
+  }
+
+  /**
    * 그리드 이벤트 연결
    * @param grid
    * @param {ScrollLoadingGridModel} gridModel
    * @private
    */
   private _bindEvent(grid, gridModel: ScrollLoadingGridModel) {
+
     // 그리드 스크롤 이벤트 정의
     grid.onViewportChanged.subscribe(() => {
       const viewPort = grid.getViewport();
       gridModel.ensureData(viewPort.top, viewPort.bottom);
+      const viewPortLeftPx: number = viewPort.leftPx;
+      if(this._currentScrollLeft !==  viewPortLeftPx) {
+        this.fixGridScroll(viewPortLeftPx)
+      }
     });
 
     // 로더 이벤트 정의
@@ -520,6 +545,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
       }
       this._loadingIndicator.show();
     });
+
     gridModel.onDataLoaded.subscribe((e, args) => {
 
       // 데이터 업데이트
@@ -538,6 +564,12 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     });
     // load the first page
     grid.onViewportChanged.notify();
+
+
+    // 로더 이벤트 정의 - more complete
+    gridModel.onMoreDataComplete.subscribe(() => {
+      this.moreEventAfterSelectRow();
+    });
 
     // -----------------------------------------------------------------------------------------------------------------
     //  onClick
@@ -731,6 +763,18 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     });
 
   } // function - _bindEvent
+
+
+  /**
+   * MORE 이벤트 > 로우 선택 표시
+   * @private
+   */
+  private moreEventAfterSelectRow(): void {
+    if(this._gridSelectionModelType !== 'row') return;
+    this._grid.setSelectedRows(this.__selectedRows);
+  }
+
+
 
   /**
    * 클릭 이벤트 > 로우 선택 표시

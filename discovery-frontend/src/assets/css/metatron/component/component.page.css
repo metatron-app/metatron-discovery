@@ -10,6 +10,22 @@
 .ddp-ui-page a.ddp-btn-prev.ddp-disabled,
 .ddp-ui-page a.ddp-btn-next.ddp-disabled {opacity:0.3; cursor:no-drop; background-position-y:0;}
 .ddp-ui-page a.ddp-btn-next {background-position:-21px 0;}
-.ddp-ui-page span.ddp-data-page {display:inline-block; position:relative; top:3px; float:left; padding:0 6px; color:#444; font-size:11px;}
+.ddp-ui-page span.ddp-data-page {display:inline-block; position:relative; top:3px; float:left; padding:0 6px; color:#444; font-size:11px; vertical-align:top !important;}
 .ddp-ui-page span.ddp-data-page input.ddp-input-data {display:inline-block; width:32px; height:21px; margin-right:5px; padding:0 8px; text-align:right; border:1px solid #ddd; box-sizing:border-box;}
 .ddp-ui-page span.ddp-data-page em {display:inline-block; padding:0 3px;}
+
+/**************************************************************
+	pageing
+**************************************************************/
+.ddp-ui-pageing {padding:10px 25px; overflow:hidden;}
+.ddp-ui-pageing .ddp-btn-prev,
+.ddp-ui-pageing .ddp-btn-next {font-size:12px; color:#90969f;}
+.ddp-ui-pageing .ddp-btn-prev:hover,
+.ddp-ui-pageing .ddp-btn-next:hover {color:#d0d1d8;}
+.ddp-ui-pageing .ddp-btn-prev {float:left;}
+.ddp-ui-pageing .ddp-btn-next {float:right;}
+
+.ddp-ui-pageing .ddp-btn-prev.ddp-disabled,
+.ddp-ui-pageing .ddp-btn-next.ddp-disabled,
+.ddp-ui-pageing .ddp-btn-prev.ddp-disabled:hover,
+.ddp-ui-pageing .ddp-btn-next.ddp-disabled:hover {color:#90969f; opacity:0.3; cursor:no-drop;}

@@ -19,6 +19,8 @@ import org.apache.commons.collections4.MapUtils;
 
 import java.util.Map;
 
+import app.metatron.discovery.spec.druid.ingestion.index.IndexSpec;
+
 /**
  *
  */
@@ -37,6 +39,8 @@ public class KafkaTuningConfig implements TuningConfig {
   Boolean reportParseExceptions;
 
   Long handoffConditionTimeout;
+
+  IndexSpec indexSpec;
 
   public KafkaTuningConfig() {
   }
@@ -67,5 +71,15 @@ public class KafkaTuningConfig implements TuningConfig {
 
   public void setMaxRowsPerSegment(Integer maxRowsPerSegment) {
     this.maxRowsPerSegment = maxRowsPerSegment;
+  }
+
+  @Override
+  public IndexSpec getIndexSpec() {
+    return indexSpec;
+  }
+
+  @Override
+  public void setIndexSpec(IndexSpec indexSpec) {
+    this.indexSpec = indexSpec;
   }
 }

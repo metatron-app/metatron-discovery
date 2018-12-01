@@ -13,16 +13,32 @@
   -->
 
 <div (mouseover)="setForceStyle(true)" (mouseout)="setForceStyle(false)"
-     [class.ddp-active]="isShowDownloadPopup" class="ddp-box-widget ddp-box-graph">
+     [ngClass]="{'ddp-active':isShowDownloadPopup, 'ddp-popup-show':isShowDownloadPopup}"
+     class="ddp-box-widget ddp-box-graph">
 
   <!-- Top Control -->
-  <div class="ddp-top-control ddp-clear" *ngIf="isViewMode && !isShowHierarchyView">
+  <div class="ddp-top-control ddp-clear" *ngIf="isViewMode && ( !errorInfo || !errorInfo.show )">
 
     <!-- 버튼 목록 -->
     <div class="ddp-ui-buttons" >
+
+      <!-- Data Limit Info -->
+      <div class="ddp-box-btn2" *ngIf="limitInfo.isShow">
+        <em class="ddp-icon-widget-info2"></em>
+        <!-- box info -->
+        <div class="ddp-box-info ddp-limitation">
+          <em class="ddp-icon-info"></em>
+          <span class="ddp-total"
+                [innerHTML]="'msg.page.ui.limit-msg-1' | translate : { currentCnt : limitInfo.currentCnt | numberCommas , maxCnt : limitInfo.maxCnt | numberCommas }" ></span>
+          {{'msg.page.ui.limit-msg-2' | translate}}
+        </div>
+        <!-- box info -->
+      </div>
+      <!-- // Data Limit Info -->
+
       <!-- 차트 영역 선택 버튼 -->
       <div class="ddp-box-btn-hover"
-           *ngIf="!isGridType() && chartFuncValidator.checkUseMultiSelectionByTypeString( chartType )">
+           *ngIf="isShowChartTools && !isGridType() && chartFuncValidator.checkUseMultiSelectionByTypeString( chartType )">
         <a href="javascript:" class="ddp-btn-tool">
           <em [ngClass]="{'ddp-icon-tool-pointer' : 'SINGLE' === mouseMode,
                 'ddp-icon-tool-elliptical' : 'MULTI_RECT' === mouseMode,
@@ -42,7 +58,7 @@
 
       <!-- 차트 확대 버튼 -->
       <div class="ddp-box-btn-hover"
-           *ngIf="!isGridType() && chartFuncValidator.checkUseZoomByTypeString( chartType )">
+           *ngIf="isShowChartTools && !isGridType() && chartFuncValidator.checkUseZoomByTypeString( chartType )">
         <a (click)="changeMouseZoomMode( 'dragzoomin' )" href="javascript:" class="ddp-btn-tool">
           <em class="ddp-icon-tool-rectangular"></em>
         </a>
@@ -101,18 +117,24 @@
       <!-- // 차트 정보 영역 -->
 
       <!-- 데이터 저장 버튼 -->
-      <div (click)="showDownPivotData($event)" [class.ddp-box-download]="duringDataDown" class="ddp-box-btn2" >
+      <div *ngIf="isShowChartTools" (click)="showPreviewDownData($event)" [class.ddp-box-download]="duringDataDown" class="ddp-box-btn2" >
         <em *ngIf="duringDataDown" class="ddp-icon-widget-loading"></em>
         <span *ngIf="duringDataDown" class="ddp-txt">{{ 'msg.comm.ui.downloading' | translate }}</span>
         <em *ngIf="!duringDataDown" class="ddp-icon-widget-gridsave" ></em>
         <!-- 툴팁 -->
         <div class="ddp-ui-tooltip-info" >
           <em class="ddp-icon-view-down"></em>
+          {{ 'msg.book.widget.header.savetable' | translate }}
+        </div>
+        <!--
+        <div class="ddp-ui-tooltip-info" >
+          <em class="ddp-icon-view-down"></em>
           {{ useCustomField ? ( 'msg.book.widget.header.notsavetable' | translate ) : ( 'msg.book.widget.header.savetable' | translate ) }}
         </div>
+        -->
         <!-- //툴팁 -->
       </div>
-      <div *ngIf="!isGridType()" (click)="downloadChartImage()" class="ddp-box-btn2" >
+      <div *ngIf="isShowChartTools && !isGridType()" (click)="downloadChartImage()" class="ddp-box-btn2" >
         <em *ngIf="duringImageDown" class="ddp-icon-widget-loading"></em>
         <em *ngIf="!duringImageDown" class="ddp-icon-widget-save"></em>
         <!-- 툴팁 -->
@@ -129,7 +151,7 @@
         <em class="ddp-icon-widget-edit"></em>
         <!-- 툴팁 -->
         <div class="ddp-ui-tooltip-info">
-          <em class="ddp-icon-view-down"></em> {{  'msg.comm.ui.edit' | translate }}
+          <em class="ddp-icon-view-down"></em> {{ 'msg.comm.ui.edit' | translate }}
         </div>
         <!-- // 툴팁 -->
       </div>
@@ -359,11 +381,10 @@
        *ngIf="isAvaliableGrid(widget)">
     <grid-chart
       #gridChart
-      *ngIf="resultData && gridUiOption"
+      *ngIf="gridUiOption"
       [uiOption]="gridUiOption"
       [viewMode]="true"
-      (uiOptionUpdated)="gridUiOptionUpdatedHandler($event)"
-      >
+      (uiOptionUpdated)="gridUiOptionUpdatedHandler($event)" >
     </grid-chart>
   </div>
   <!-- // Data Grid 영역 -->
@@ -420,19 +441,10 @@
   <!-- // No Data 영역 -->
 
   <!-- Error 표시 영역 -->
-  <div *ngIf="isError" class="ddp-view-widget ddp-view-widget-grid">
-    <div class="ddp-box-data-none">
-      <div class="ddp-wrap-data-none">
-        <div class="ddp-ui-data-none">
-          <div class="ddp-txt-none">
-            <em class="{{boardUtil.getChartIconClass(widget)}} ddp-error"></em>
-            <span class="ddp-data-name">{{widget.name}}</span>
-            <span class="ddp-txt-det">{{ 'msg.page.ui.no.data.error' | translate }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <error-widget [isShow]="isError"
+                [iconClass]="boardUtil.getChartIconClass(widget)"
+                [widgetName]="widget.name"
+                [errorInfo]="errorInfo"></error-widget>
   <!-- // Error 표시 영역 -->
 
   <!-- 수정 버튼 레이어 -->
@@ -442,7 +454,84 @@
     </div>
   </div>
   <!-- // 수정 버튼 레이어 -->
-</div>
 
-<data-download (close)="isShowDownloadPopup = false"
-               (startDownload)="duringDataDown = true" (endDownload)="duringDataDown = false"></data-download>
+  <!-- 미리보기 팝업 -->
+  <div *ngIf="isShowDownloadPopup" class="popup-chart-data">
+    <div class="ddp-pop-preview ddp-type ">
+
+      <!-- top -->
+      <div class="ddp-ui-top">
+        <div class="ddp-data-name">
+          {{ 'msg.board.ui.view-chart-data' | translate }}
+        </div>
+        <em (click)="hidePreviewDownData()" class="ddp-btn-popup-close"></em>
+      </div>
+      <!-- // top -->
+
+      <!-- cpmtemts -->
+      <div class="ddp-ui-preview-contents ddp-type-preview ddp-pop-datadetail">
+        <!-- option -->
+        <div class="ddp-type-top-option">
+          <ul class="ddp-ui-tab ddp-type">
+            <li [class.ddp-selected]="!isOriginDown">
+              <a (click)="drawDataGrid()" href="javascript:">{{ 'msg.board.ui.aggregated-data' | translate }}</a>
+            </li>
+            <li [class.ddp-selected]="isOriginDown">
+              <a (click)="drawDataGrid(true)" href="javascript:">{{ 'msg.board.ui.original-data' | translate }}</a>
+            </li>
+          </ul>
+          <!-- right -->
+          <div *ngIf="!isCanNotDownAggr" class="ddp-ui-rightoption ddp-type-option">
+            <!-- 클릭시 ddp-selected 추가 : 팝업 show 됨 -->
+            <div (click)="showDownloadLayer($event)" class="ddp-box-btn2 ddp-box-selected ddp-selected">
+              <a href="javascript:" class="ddp-link-txt">
+                <em class="ddp-icon-widget-gridsave"></em> Download
+              </a>
+            </div>
+            <!-- popup -->
+            <data-download
+              [title]="isOriginDown ? ( 'msg.board.download.title-org' | translate ) : ( 'msg.board.download.title-aggr' | translate )"
+              (startDownload)="duringDataDown = true" (endDownload)="duringDataDown = false"></data-download>
+            <!-- // popup -->
+          </div>
+          <!-- //right -->
+        </div>
+        <!-- //option -->
+
+        <div class="ddp-wrap-tab-contents">
+
+          <!-- tab contents -->
+          <div class="ddp-ui-tab-contents" >
+            <div class="ddp-wrap-grid-option ddp-clear">
+              <div class="ddp-fleft">
+                <!-- search -->
+                <div class="ddp-form-search">
+                  <em class="ddp-icon-search"></em>
+                  <input [(ngModel)]="srchText" (keyup)="searchKeyUp($event)" type="text" placeholder="Search data"/>
+                  <em (click)="clearSearch()" class="ddp-btn-search-close"></em>
+                </div>
+                <!-- //search -->
+              </div>
+            </div>
+            <!-- 그리드 -->
+            <div *ngIf="!isCanNotDownAggr" #dataGrid grid-component class="ddp-ui-grid2" style="top:44px;"></div>
+            <div *ngIf="isCanNotDownAggr" class="ddp-ui-grid2 ddp-type">
+              <div class="ddp-ui-error-message">
+                {{ 'msg.board.ui.cant-not-down-aggregate' | translate }}
+              </div>
+            </div>
+
+            <!-- //그리드 -->
+          </div>
+          <!-- //tab contents -->
+
+        </div>
+
+      </div>
+      <!-- //cpmtemts -->
+
+    </div>
+  </div>
+  <!-- //미리보기 팝업 -->
+
+</div>

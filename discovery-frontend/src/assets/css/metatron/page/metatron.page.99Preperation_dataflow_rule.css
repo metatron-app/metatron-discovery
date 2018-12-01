@@ -1,0 +1,30 @@
+@charset "utf-8";
+
+/**************************************************************
+  Page : 99_데이터프리퍼레이션_01데이터플로우_03룰2
+**************************************************************/
+.page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot .ddp-data-status {padding-bottom:3px;font-size:14px;}
+.page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot .ddp-data-status.type-success {color:#65c394;}
+.page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot .ddp-data-status.type-failed{color:#df5b60;}
+.page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot .ddp-data-name {color:#4b515b; font-size:13px;}
+.page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot .ddp-data-name .ddp-tag-type {display:inline-block; float:left;padding:1px 4px; margin-right:5px;  background-color:#b7b9c1; border-radius:3px; color:#fff; font-size:11px; font-weight:bold; vertical-align:middle;}
+.page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot .ddp-data-date {padding-top:5px; color:#b7b9c2; font-size:12px;}
+.page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot .ddp-data-det .ddp-data-title {padding-bottom:3px; font-size:14px;}
+.page-prep-dataflow ul.ddp-list-snapshot li .ddp-wrap-progress {position:relative; padding-right:20px; margin-top:5px;}
+.page-prep-dataflow ul.ddp-list-snapshot li .ddp-wrap-progress .ddp-btn-cancel {display:inline-block; position:absolute; top:50%; right:0; margin-top:-8px; width:15px; height:15px; background:url(../../../images/icon_delete.png) no-repeat;  background-position:left -14px;}
+.page-prep-dataflow ul.ddp-list-snapshot li .ddp-ui-progress {position:relative; width:100%;}
+.page-prep-dataflow ul.ddp-list-snapshot li .ddp-txt-cancel {padding:12px 0;margin:5px 12px 14px 12px; background-color:#f7f7f8;}
+.page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot {border-bottom:none;}
+.page-prep-dataflow ul.ddp-list-snapshot li {border-bottom:1px solid #eaeaec}
+.page-prep-dataflow .ddp-input-selectbox {position:relative;}
+.page-prep-dataflow .ddp-input-selectbox .ddp-wrap-popup2 {display:none; position:absolute; bottom:100%; left:0; right:inherit; min-width:100%; max-height:150px; box-sizing:Border-box; overflow:auto;}
+.page-prep-dataflow .ddp-input-selectbox.ddp-selected .ddp-wrap-popup2 {display:block;}
+
+
+
+
+
+
+
+
+

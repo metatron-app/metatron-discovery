@@ -3,6 +3,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -24,6 +38,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.BatchSize;
@@ -193,6 +208,14 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   Boolean published;
 
   /**
+   * Whether to include Geo Column.
+   */
+  @Column(name = "ds_include_geo")
+  @org.hibernate.search.annotations.Field(analyze = Analyze.NO, store = Store.YES)
+  @FieldBridge(impl = BooleanBridge.class)
+  Boolean includeGeo;
+
+  /**
    * 연결된 workspace 개수
    */
   @Column(name = "ds_linked_workspaces")
@@ -284,7 +307,7 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   public void preUpdate() {
 
     String modifiedUsername = AuthUtils.getAuthUserName();
-    if("unknown".equals(modifiedUsername)) {
+    if ("unknown".equals(modifiedUsername)) {
       // Considered to be processed by the system, skip update history info.
       return;
     }
@@ -307,6 +330,29 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
     }
 
     this.dashBoards.add(dashBoard);
+  }
+
+  public void excludeUnloadedField() {
+    if (CollectionUtils.isEmpty(this.fields)) {
+      return;
+    }
+
+    fields = fields.stream()
+                   .filter(field -> BooleanUtils.isNotTrue(field.getUnloaded()))
+                   .collect(Collectors.toList());
+  }
+
+  /**
+   * Used in Projection
+   */
+  public List<Field> findUnloadedField() {
+    if (CollectionUtils.isEmpty(this.fields)) {
+      return Lists.newArrayList();
+    }
+
+    return fields.stream()
+                 .filter(field -> BooleanUtils.isNotTrue(field.getUnloaded()))
+                 .collect(Collectors.toList());
   }
 
   @JsonIgnore
@@ -350,6 +396,16 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
 
     return null;
 
+  }
+
+  @JsonIgnore
+  public boolean existGeoField() {
+
+    long timeFieldCnt = getFields().stream()
+                                   .filter(field -> field.isGeoType())
+                                   .count();
+
+    return timeFieldCnt > 0;
   }
 
   /**
@@ -724,6 +780,14 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
 
   public void setPublished(Boolean published) {
     this.published = published;
+  }
+
+  public Boolean getIncludeGeo() {
+    return includeGeo;
+  }
+
+  public void setIncludeGeo(Boolean includeGeo) {
+    this.includeGeo = includeGeo;
   }
 
   public DataConnection getConnection() {

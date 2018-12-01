@@ -12,20 +12,20 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { DeleteModalComponent } from '../../../common/component/modal/delete/delete.component';
-import { CodeTableService } from '../service/code-table.service';
-import { ActivatedRoute } from '@angular/router';
-import { CodeTable } from '../../../domain/meta-data-management/code-table';
-import { CodeValuePair } from '../../../domain/meta-data-management/code-value-pair';
-import { Alert } from '../../../common/util/alert.util';
-import { Modal } from '../../../common/domain/modal';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
+import {CodeTableService} from '../service/code-table.service';
+import {ActivatedRoute} from '@angular/router';
+import {CodeTable} from '../../../domain/meta-data-management/code-table';
+import {CodeValuePair} from '../../../domain/meta-data-management/code-value-pair';
+import {Alert} from '../../../common/util/alert.util';
+import {Modal} from '../../../common/domain/modal';
 import * as _ from 'lodash';
-import { CommonUtil } from '../../../common/util/common.util';
-import { ConfirmModalComponent } from '../../../common/component/modal/confirm/confirm.component';
-import { LinkedColumnDictionaryComponent } from '../../component/linked-column-dictionary/linked-column-dictionary.component';
-import { ColumnDictionary } from '../../../domain/meta-data-management/column-dictionary';
+import {CommonUtil} from '../../../common/util/common.util';
+import {ConfirmModalComponent} from '../../../common/component/modal/confirm/confirm.component';
+import {LinkedColumnDictionaryComponent} from '../../component/linked-column-dictionary/linked-column-dictionary.component';
+import {ColumnDictionary} from '../../../domain/meta-data-management/column-dictionary';
 
 @Component({
   selector: 'app-detail-code-table',
@@ -176,7 +176,7 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
    * @returns {ColumnDictionary[]}
    */
   public getLinkedColumnDictionaryList(): ColumnDictionary[] {
-    return this.linkedDictionaryList.slice(0,3);
+    return this.linkedDictionaryList.slice(0, 3);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -197,7 +197,7 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
   public onClickDeleteCodeTable(): void {
     const modal = new Modal();
     modal.name = this.translateService.instant('msg.metadata.ui.codetable.delete.title');
-    modal.description =  this._originCodeTable.name;
+    modal.description = this._originCodeTable.name;
     modal.btnName = this.translateService.instant('msg.comm.ui.del');
     this._deleteComp.init(modal);
   }
@@ -409,7 +409,12 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
         // 중복
         if (result['duplicated']) {
           // alert
-          Alert.warning(this.translateService.instant('msg.metadata.ui.codetable.create.valid.table.name.duplicated' , {value: this.codeTable.name.trim()}));
+          Alert.warning(
+            this.translateService.instant(
+              'msg.metadata.ui.codetable.create.valid.table.name.duplicated',
+              {value: this.reName.trim()}
+            )
+          );
           // 로딩 hide
           this.loadingHide();
         } else {
@@ -484,7 +489,11 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 컬럼 사전 목록 조회
-    this._codeTableService.getColumnDictionaryInCodeTable(this._codeTableId, {size: 15, page: 0, sort: 'logicalName,asc'})
+    this._codeTableService.getColumnDictionaryInCodeTable(this._codeTableId, {
+      size: 15,
+      page: 0,
+      sort: 'logicalName,asc'
+    })
       .then((result) => {
         // 수
         this.linkedDictionaryTotalCount = result['page'].totalElements;
@@ -523,12 +532,12 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
     this._originCodeList.forEach((origin) => {
       _.findIndex(this.codeList, (code) => {
         return origin.id && origin.id === code.id;
-      }) === -1  && params.push({id: origin.id, op: 'remove'});
+      }) === -1 && params.push({id: origin.id, op: 'remove'});
     });
     // add | replace
     this.codeList.forEach((code) => {
       // origin index
-      const originIndex =  _.findIndex(this._originCodeList, (origin) => {
+      const originIndex = _.findIndex(this._originCodeList, (origin) => {
         return origin.id && code.id === origin.id;
       });
 

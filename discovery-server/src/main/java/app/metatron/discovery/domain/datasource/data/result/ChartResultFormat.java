@@ -3,6 +3,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -59,6 +73,7 @@ public class ChartResultFormat extends SearchResultFormat {
   public static final String OPTION_INTERSECION_VALUE = "intersectionValue";
   public static final String OPTION_SHOW_CATEGORY = "showCategory";
   public static final String OPTION_SHOW_PERCENTAGE = "showPercentage";
+  public static final String OPTION_SHOW_TOTAL_CATEGORY = "showTotalCategory";
 
   @NotBlank
   String mode;
@@ -78,6 +93,39 @@ public class ChartResultFormat extends SearchResultFormat {
 
   public ChartResultFormat(String mode) {
     this.mode = mode;
+  }
+
+  public void preHandling() {
+
+    switch (mode.toLowerCase()) {
+      case "grid":
+        if (getOptions("isOriginal", false)) {
+          // original mode 일 경우, timestamp 포맷은 무시하도록 구성 (데이터 소스에 정의된 필드를 통해 확인)
+          request.getProjections().forEach(field -> {
+            if (field instanceof TimestampField) {
+              ((TimestampField) field).emptyFormat();
+            } else if (field instanceof DimensionField && field.getFormat() instanceof TimeFieldFormat) {
+              ((DimensionField) field).emptyFormat();
+            } else if (field instanceof MeasureField) {
+              // if original mode, force set aggreation type to NONE
+              ((MeasureField) field).setAggregationType(MeasureField.AggregationType.NONE);
+            }
+          });
+
+          if (request.checkAggregatedExpressionField()) {
+            throw new IllegalArgumentException("Not supported 'isOriginal' option, if aggregated expression field is included");
+          }
+
+          ObjectResultFormat objectResultFormat = new ObjectResultFormat();
+          objectResultFormat.setRequest(request);
+          objectResultFormat.setResultType(MATRIX);
+          objectResultFormat.setConnType(DataSource.ConnectionType.ENGINE);
+          originalResultFormat = objectResultFormat;
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   @Override
@@ -150,27 +198,7 @@ public class ChartResultFormat extends SearchResultFormat {
 
     switch (mode.toLowerCase()) {
       case "grid":
-        if (getOptions("isOriginal", false)) {
-          // original mode 일 경우, timestamp 포맷은 무시하도록 구성 (데이터 소스에 정의된 필드를 통해 확인)
-          request.getProjections().forEach(field -> {
-            if(field instanceof TimestampField) {
-              ((TimestampField) field).emptyFormat();
-            } if(field instanceof DimensionField && field.getFormat() instanceof TimeFieldFormat) {
-              ((DimensionField) field).emptyFormat();
-            }
-          });
-
-          if(request.checkAggregatedExpressionField()) {
-            throw new IllegalArgumentException("Not supported 'isOriginal' option, if aggregated expression field is included");
-          }
-          ObjectResultFormat objectResultFormat = new ObjectResultFormat();
-          objectResultFormat.setRequest(request);
-          objectResultFormat.setResultType(MATRIX);
-          objectResultFormat.setConnType(DataSource.ConnectionType.ENGINE);
-          originalResultFormat = objectResultFormat;
-        } else {
-          originalResultFormat = toGridPivotFormat(pivot);
-        }
+        originalResultFormat = toGridPivotFormat(pivot);
         break;
       case "scatter":
         originalResultFormat = toScatterPivotFormat(pivot);
@@ -308,7 +336,7 @@ public class ChartResultFormat extends SearchResultFormat {
       return null;
     }
 
-    if(!options.containsKey(key)) {
+    if (!options.containsKey(key)) {
       return null;
     }
 
@@ -424,7 +452,7 @@ public class ChartResultFormat extends SearchResultFormat {
     if (CollectionUtils.isNotEmpty(aggrs)) {
       for (Field field : aggrs) {
         if (field instanceof MeasureField || field instanceof ExpressionField) {
-            aggregation.add(new PivotResultFormat.Aggregation(field.getAlias()));
+          aggregation.add(new PivotResultFormat.Aggregation(field.getAlias()));
         }
       }
     }
@@ -613,9 +641,6 @@ public class ChartResultFormat extends SearchResultFormat {
 
   /**
    * 행/열 선반 사용 불가, 교차에만 측정값 차원값 지정 가능
-   *
-   * @param pivot
-   * @return
    */
   private SearchResultFormat toPiePivotFormat(Pivot pivot) {
 

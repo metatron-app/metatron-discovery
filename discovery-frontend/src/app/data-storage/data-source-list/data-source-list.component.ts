@@ -22,6 +22,8 @@ import { DeleteModalComponent } from '../../common/component/modal/delete/delete
 import { PeriodComponent } from '../../common/component/period/period.component';
 import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
 
+declare let moment: any;
+
 @Component({
   selector: 'app-data-source',
   templateUrl: './data-source-list.component.html',
@@ -556,9 +558,11 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       params['searchDateBy'] = this.selectedDate.dateType;
       if (this.selectedDate.startDateStr) {
-        params['from'] = this.selectedDate.startDateStr + '.000Z';
+        params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      params['to'] = this.selectedDate.endDateStr + '.000Z';
+      if (this.selectedDate.endDateStr) {
+        params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+      }
     }
 
     return params;

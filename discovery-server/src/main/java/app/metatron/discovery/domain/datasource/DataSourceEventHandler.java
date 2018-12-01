@@ -3,20 +3,6 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specic language governing permissions and
- * limitations under the License.
- */
-
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -57,7 +43,6 @@ import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -82,6 +67,23 @@ import app.metatron.discovery.domain.engine.EngineIngestionService;
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.PolarisUtils;
+import com.google.common.base.Preconditions;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.quartz.*;
+import org.quartz.impl.triggers.CronTriggerImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.core.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK;
@@ -108,6 +110,9 @@ public class DataSourceEventHandler {
 
   @Autowired
   DataSourceService dataSourceService;
+
+  @Autowired
+  GeoService geoService;
 
   @Autowired
   DataSourceRepository dataSourceRepository;
@@ -190,6 +195,7 @@ public class DataSourceEventHandler {
         // 엔진내 datasource 네임 충돌을 방지하기 위하여 추가로 생성
         dataSource.setEngineName(dataSourceService.convertName(dataSource.getName()));
         dataSource.setStatus(PREPARING);
+        dataSource.setIncludeGeo(dataSource.existGeoField()); // mark datasource include geo column
         dataSourceRepository.saveAndFlush(dataSource);
 
         if (dataSource.getIngestionInfo() instanceof RealtimeIngestionInfo) {
@@ -422,8 +428,15 @@ public class DataSourceEventHandler {
 
       // Shutdown Ingestion Task
       engineIngestionService.shutDownIngestionTask(dataSource.getId());
+      LOGGER.debug("Successfully shutdown ingestion tasks in datasource ({})", dataSource.getId());
 
-      // DataSource Disable
+      // Delete datastore on geoserver if datasource include geo column
+      if (dataSource.getIncludeGeo()) {
+        geoService.deleteDataStore(dataSource.getEngineName());
+        LOGGER.debug("Successfully delete datastore on geoserver ({})", dataSource.getId());
+      }
+
+      // Disable DataSource
       try {
         engineMetaRepository.disableDataSource(dataSource.getEngineName());
         LOGGER.info("Successfully disabled datasource({})", dataSource.getId());

@@ -32,7 +32,7 @@
     <parent>
         <artifactId>metatron-discovery</artifactId>
         <groupId>app.metatron.discovery</groupId>
-        <version>3.0.7</version>
+        <version>3.1.0</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -780,7 +780,7 @@
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-jdbc</artifactId>
             <version>${hive.version}</version>
-            <!--<classifier>standalone</classifier>-->
+            <classifier>standalone</classifier>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>
@@ -817,6 +817,10 @@
                 <exclusion>
                     <artifactId>curator-framework</artifactId>
                     <groupId>org.apache.curator</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>joda-time</artifactId>
+                    <groupId>joda-time</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -958,6 +962,12 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>3.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.6</version>
         </dependency>
 
         <dependency>

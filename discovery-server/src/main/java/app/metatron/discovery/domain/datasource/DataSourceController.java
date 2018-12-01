@@ -312,9 +312,10 @@ public class DataSourceController {
   @Transactional(readOnly = true)
   @RequestMapping(value = "/datasources/{dataSourceId}", method = RequestMethod.GET)
   public ResponseEntity<?> findDataSources(@PathVariable("dataSourceId") String dataSourceId,
+                                           @RequestParam(value = "includeUnloadedField", required = false) Boolean includeUnloadedField,
                                            PersistentEntityResourceAssembler resourceAssembler) {
 
-    DataSource resultDataSource = dataSourceService.findDataSourceIncludeTemporary(dataSourceId);
+    DataSource resultDataSource = dataSourceService.findDataSourceIncludeTemporary(dataSourceId, includeUnloadedField);
 
     return ResponseEntity.ok(resourceAssembler.toResource(resultDataSource));
   }
@@ -322,9 +323,10 @@ public class DataSourceController {
   @Transactional(readOnly = true)
   @RequestMapping(value = "/datasources/{ids}/multiple", method = RequestMethod.GET)
   public ResponseEntity<?> findMultipleDataSources(@PathVariable("ids") List<String> ids,
+                                                   @RequestParam(value = "includeUnloadedField", required = false) Boolean includeUnloadedField,
                                                    @RequestParam(value = "projection", required = false, defaultValue = "default") String projection) {
 
-    List results = dataSourceService.findMultipleDataSourceIncludeTemporary(ids);
+    List results = dataSourceService.findMultipleDataSourceIncludeTemporary(ids, includeUnloadedField);
 
     return ResponseEntity.ok(ProjectionUtils.toListResource(projectionFactory,
                                                             dataSourceProjections.getProjectionByName(projection),

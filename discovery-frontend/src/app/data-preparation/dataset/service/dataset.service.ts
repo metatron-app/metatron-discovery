@@ -38,27 +38,38 @@ export class DatasetService extends AbstractService {
    */
   public getDatasets(param): Promise<Datasets> {
 
+    delete param.page.column;
+
+    const sort = param.page.sort.split(',');
+    let sortStr = '';
+    if (sort[0] === 'refDfCount') {
+      if (sort[1] === 'asc') {
+        sortStr = 'Asc';
+      } else {
+        sortStr = 'Desc';
+      }
+    }
+
     let url = this.API_URL + `preparationdatasets/search/`;
-    let sort;
-    if (param.refDfCountSort) {
-      sort = param.refDfCountSort[0].toUpperCase() + param.refDfCountSort.slice(1);
-    }
 
-    // dsType X , refDfCount X
-    if (param.dsType === '' && !param.refDfCountSort) {
-      url += `findByDsNameContaining?`;
-    } else if (param.dsType === '' && param.refDfCountSort ) { // dsType X, refDfCount 0
-      url += `findByDsNameContainingOrderByRefDfCount${sort}?`;
-    }
+    if (param.dsType !== '') {
 
-    // dsType 0 , refDfCount X
-    if (param.dsType !== '' && !param.refDfCountSort) {
-      url += `findByDsNameContainingAndDsType?dsType=${param.dsType}&`;
-    } else if (param.dsType !== '' && param.refDfCountSort) { // dsType 0 , refDfCount 0
-      url += `findByDsNameContainingAndDsTypeOrderByRefDfCount${sort}?dsType=${param.dsType}&`;
+      if (sort[0] === 'refDfCount') {
+        url += `findByDsNameContainingAndDsTypeOrderByRefDfCount${sortStr}?dsType=${param.dsType}&`;
+      } else {
+        url += `findByDsNameContainingAndDsType?dsType=${param.dsType}&`;
+      }
+
+    } else {
+      if (sort[0] === 'refDfCount') {
+        url += `findByDsNameContainingOrderByRefDfCount${sortStr}?`;
+      } else {
+        url += `findByDsNameContaining?`;
+      }
     }
 
     url += `dsName=${encodeURIComponent(param.searchText)}&projection=listing&${CommonUtil.objectToUrlString(param.page)}`;
+
     return this.get(url);
 
   }
@@ -162,7 +173,7 @@ export class DatasetService extends AbstractService {
     params.dsDesc = datasetFile.desc;
     params.dsType = 'IMPORTED';
     params.importType = 'FILE';
-    params.fileType = 'LOCAL';
+    params.fileType = datasetFile.fileType;
     console.info('datasetFile', datasetFile);
     var filename = datasetFile.filename.toLowerCase();
     if( true==filename.endsWith("xls") || true==filename.endsWith("xlsx") ) {

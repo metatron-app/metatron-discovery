@@ -21,6 +21,7 @@ import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
 import { isNullOrUndefined } from 'util';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'edit-rule-move',
@@ -101,14 +102,14 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
       return undefined
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
       if (-1 !== item.name.indexOf(' ')) {
         item.name = '`' + item.name + '`';
       }
       return item.name
     }).join(', ');
 
-    if (isNullOrUndefined(this.beforeOrAfter)) {
+    if (isNullOrUndefined(this.beforeOrAfter) || this.beforeOrAfter === '') {
       Alert.warning(this.translateService.instant('msg.dp.alert.before.after'));
       return undefined
     }

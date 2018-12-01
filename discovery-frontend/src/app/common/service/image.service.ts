@@ -99,7 +99,7 @@ export class ImageService {
         reject('element not found.');
       }
 
-      html2canvas($element).then((result) => {
+      html2canvas($element.get(0)).then((result) => {
         const dataUrl = result.toDataURL('image/jpeg');
         resolve(dataUrl);
       }).catch(err => reject(err));

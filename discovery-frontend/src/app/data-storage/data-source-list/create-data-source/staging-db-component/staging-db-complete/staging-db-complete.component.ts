@@ -21,7 +21,7 @@ import { DatePipe } from '@angular/common';
 import { CommonUtil } from '../../../../../common/util/common.util';
 import { Alert } from '../../../../../common/util/alert.util';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
-import { DatasourceInfo, FieldFormatType } from '../../../../../domain/datasource/datasource';
+import { DatasourceInfo, FieldFormatType, IngestionRuleType } from '../../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
@@ -280,6 +280,7 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
       name: 'current_datetime',
       type: 'TIMESTAMP',
       role: 'TIMESTAMP',
+      derived: true,
       format: {
         type: FieldFormatType.DATE_TIME,
         format: 'yyyy-MM-dd HH:mm:ss'
@@ -295,21 +296,23 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
   private _deleteColumnProperty(column: any): void {
     delete column.biType;
     delete column.replaceFl;
-    // if removed property is false, delete removed property
-    if (column.removed === false) {
-      delete column.removed;
+    // if unloaded property is false, delete unloaded property
+    if (column.unloaded === false) {
+      delete column.unloaded;
     }
     // delete used UI
     delete column.isValidTimeFormat;
     delete column.isValidReplaceValue;
-    if (column.logicalType !== 'TIMESTAMP' && column.format) {
-      delete column.format;
-    } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {
-      delete column.format.format;
-    } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.DATE_TIME) {
-      delete column.format.unit;
+    // if not GEO types
+    if (column.logicalType.indexOf('GEO_') === -1) {
+      if (column.logicalType !== 'TIMESTAMP' && column.format) {
+        delete column.format;
+      } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {
+        delete column.format.format;
+      } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.DATE_TIME) {
+        delete column.format.unit;
+      }
     }
-
   }
 
   /**
@@ -323,9 +326,9 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
       // ingestion type
       const type = column.ingestionRule.type;
       // if type is default
-      if (type === 'default') {
+      if (type === IngestionRuleType.DEFAULT) {
         delete column.ingestionRule;
-      } else if (type === 'discard') {
+      } else if (type === IngestionRuleType.DISCARD) {
         delete column.ingestionRule.value;
       }
     }

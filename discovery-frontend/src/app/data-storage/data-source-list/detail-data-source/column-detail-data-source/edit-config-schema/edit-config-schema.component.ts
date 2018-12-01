@@ -142,9 +142,9 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
    * @returns {any[]}
    */
   public getLogicalTypeList(field: Field) {
-    return field.role === FieldRole.MEASURE ? this.logicalTypes.filter((type) => {
-      return type.measure;
-    }) : this.logicalTypes;
+    return field.role === FieldRole.MEASURE
+      ? this.logicalTypes.filter(type => !type.derived && type.measure)
+      : this.logicalTypes.filter(type => !type.derived);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -189,6 +189,23 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
     field['typeListFl'] = !field['typeListFl'];
   }
 
+  /**
+   * Is GEO type column
+   * @param column
+   * @returns {boolean}
+   */
+  public isGeoType(column: any): boolean {
+    return column.logicalType.indexOf('GEO_') !== -1;
+  }
+
+  /**
+   * Is derived column
+   * @param {Field} column
+   * @returns {boolean}
+   */
+  public isDerivedColumn(column: Field): boolean {
+    return column.derived;
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -217,7 +234,10 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
       { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', measure: true  },
       { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
       { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
-      { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
+      { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' },
+      { label: this.translateService.instant('msg.storage.ui.list.geo.point'), value: 'GEO_POINT', derived: true },
+      { label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), value: 'GEO_POLYGON', derived: true },
+      { label: this.translateService.instant('msg.storage.ui.list.geo.line'), value: 'GEO_LINE', derived: true },
     ];
   }
 

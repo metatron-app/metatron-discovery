@@ -36,6 +36,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -117,6 +118,15 @@ public class EngineProperties {
 
   public EngineApi getCancelQueryApi() {
     return api.get(CANCEL_QUERY);
+  }
+
+  public String getHostnameByType(String type, boolean exceptSchema) {
+    if(exceptSchema) {
+      URI uri = URI.create(hostname.get(type));
+      return uri.getHost() + ":" + uri.getPort();
+    }
+
+    return hostname.get(type);
   }
 
   public Map<String, String> getHostname() {

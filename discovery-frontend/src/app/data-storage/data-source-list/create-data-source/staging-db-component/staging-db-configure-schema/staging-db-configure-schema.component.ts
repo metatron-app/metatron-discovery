@@ -14,17 +14,18 @@
 
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output
+  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild
 } from '@angular/core';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { isUndefined } from 'util';
 import {
-  DatasourceInfo, Field, FieldFormat, FieldFormatType,
+  DatasourceInfo, Field, FieldFormat, FieldFormatType, IngestionRuleType,
   LogicalType
 } from '../../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { Alert } from '../../../../../common/util/alert.util';
+import { AddColumnComponent } from '../../../component/add-column.component';
 
 @Component({
   selector: 'staging-db-configure-schema',
@@ -46,6 +47,10 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
 
   // 선택된 컬럼리스트
   private checkedColumnList: any[];
+
+  // add column component
+  @ViewChild(AddColumnComponent)
+  private _addColumnComponent: AddColumnComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -92,6 +97,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
   // show flag
   public typeShowFl: boolean = false;
   public timestampShowFl: boolean = false;
+  public addColumnShowFl: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -197,7 +203,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    * 체크표시된 컬럼 리스트
    * @returns {any[]}
    */
-  public get getCheckedColumns() {
+  public getCheckedColumns() {
     return this.checkedColumnList;
   }
 
@@ -206,10 +212,9 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    * @returns {any[]}
    */
   public getTimeTypeColumns() {
-    const columnList = this.fields.filter((column) => {
+    return this.fields.filter((column) => {
       return column.logicalType === 'TIMESTAMP' && !this.isDeletedColumn(column);
     });
-    return columnList;
   }
 
   /**
@@ -217,10 +222,9 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    * @returns {any[]}
    */
   public getNotDeletedColumns() {
-    const columnList = this.fields.filter((column) => {
-      return column.removed === false;
+    return this.fields.filter((column) => {
+      return column.unloaded === false;
     });
-    return columnList;
   }
 
   /**
@@ -325,7 +329,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    */
   public onSelectedColumn(column) {
     // 삭제된 상태라면 선택 x
-    if (column.removed) {
+    if (column.unloaded) {
       return;
     }
     // 컬럼 선택
@@ -363,7 +367,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    */
   public onClickRevival(column) {
     // 삭제상태 해제
-    column.removed = false;
+    column.unloaded = false;
     // init timestamp
     if (this.selectedTimestampType === 'CURRENT' && column.logicalType === 'TIMESTAMP') {
       this.initTimestampColumn();
@@ -381,6 +385,44 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
     this.timestampShowFl = !this.timestampShowFl;
   }
 
+  /**
+   * Add column button click event
+   */
+  public onClickAddColumn(): void {
+    this.addColumnShowFl = !this.addColumnShowFl;
+    if (this.addColumnShowFl) {
+      this._addColumnComponent.init(this.fields);
+    }
+  }
+
+  /**
+   * Closed add column modal
+   * @param data
+   */
+  public onClosedAddColumn(data: any): void {
+    if (data) {
+      // data push in fields
+      this.fields.unshift(data);
+      // if new column type GEO
+      if (data.logicalType.indexOf('GEO_') !== -1) {
+        const latColumnName = data.derivationRule.latField;
+        const lonColumnName = data.derivationRule.lonField;
+        // temp
+        let temp: string;
+        // set data list
+        this.data.forEach((item) => {
+          // if exist property not empty
+          if (item[latColumnName] || item[lonColumnName]) {
+            temp = item[latColumnName] || '';
+            temp += ',';
+            temp += item[lonColumnName] || '';
+            item[data.name] = temp;
+          }
+        });
+      }
+    }
+    this.addColumnShowFl = false;
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - validation
@@ -432,7 +474,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    * @returns {boolean}
    */
   public isDeletedColumn(column): boolean {
-    return column.removed === true;
+    return column.unloaded === true;
   }
 
   /**
@@ -444,7 +486,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
     // 현재 선택된 컬럼이고 삭제상태가 아닌경우
     return (!isUndefined(this.selectedColumn)
       && this.selectedColumn.name === column.name
-      && !column.removed);
+      && !column.unloaded);
   }
 
 
@@ -661,7 +703,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
   private onDeleteAction(columnList: any[]) {
     columnList.forEach((column) => {
       // 삭제 플래그
-      column.removed = true;
+      column.unloaded = true;
       // 타임스탬프에 대한 처리
       // 현재 컬럼이 타임스탬프로 지정된 컬럼이였다면
       if (this.isTimestampColumn(column)) {
@@ -748,9 +790,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    * @private
    */
   private _getEnabledColumnList() {
-    return this.getColumnList().filter((column) => {
-      return column.removed === false;
-    });
+    return this.getColumnList().filter(column => !column.unloaded);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -809,7 +849,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    */
   private _isErrorIngestionRule(column: Field): boolean {
     return column.ingestionRule
-      && column.ingestionRule.type === 'replace'
+      && column.ingestionRule.type === IngestionRuleType.REPLACE
       && column.isValidReplaceValue === false;
   }
 
@@ -837,7 +877,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
         column.isValidTimeFormat = false;
         column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
       }
-      if (column.ingestionRule && column.ingestionRule.type === 'replace' && isUndefined(column.isValidReplaceValue)) {
+      if (column.ingestionRule && column.ingestionRule.type === IngestionRuleType.REPLACE && isUndefined(column.isValidReplaceValue)) {
         column.isValidReplaceValue = false;
         column.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
       }
@@ -879,8 +919,8 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    */
   private initIngestionRuleInChangeType(column) {
     // ingestionRule이 있다면
-    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === 'replace') {
-      column.ingestionRule.type = 'default';
+    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === IngestionRuleType.REPLACE) {
+      column.ingestionRule.type = IngestionRuleType.DEFAULT;
     }
   }
 
@@ -931,7 +971,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    */
   private initFields(fields: any[]) {
     fields.forEach((column) => {
-      column['removed'] = false;
+      column['unloaded'] = false;
     });
     // init timestamp
     this.initTimestampFormat(this.getTimeTypeColumns());

@@ -16,6 +16,7 @@ import {Injectable, Injector} from '@angular/core';
 import {AbstractService} from '../../common/service/abstract.service';
 import {CommonUtil} from '../../common/util/common.util';
 import {Page} from '../../domain/common/page';
+import {isNullOrUndefined} from "util";
 
 @Injectable()
 export class DataconnectionService extends AbstractService {
@@ -118,6 +119,44 @@ export class DataconnectionService extends AbstractService {
       url += '?' + CommonUtil.objectToUrlString(params);
     }
     return this.get(url);
+  }
+
+  /**
+   * Get table list
+   * @param dataconnection
+   * @param page
+   * @returns {Promise<any>}
+   */
+  public getTableListInConnectionQuery(dataconnection: any, param: any): Promise<any> {
+    let url: string = this.API_URL + `connections/query/tables`;
+    if (param) {
+      url += '?' + CommonUtil.objectToUrlString(param);
+    }
+    const params:any = {};
+    let connInfo: any = {};
+    connInfo.implementor = dataconnection.implementor;
+    // connection 정보가 USERINFO 일 경우 제외
+    if( connInfo.authenticationType != 'USERINFO' ) {
+      connInfo.username = dataconnection.username;
+      connInfo.password = dataconnection.password;
+    }
+    connInfo.authenticationType = dataconnection.authenticationType;
+    connInfo.hostname = dataconnection.hostname;
+    connInfo.port = dataconnection.port;
+    connInfo.database = dataconnection.connectionDatabase;
+    connInfo.catalog = dataconnection.catalog;
+    connInfo.url = dataconnection.url;
+
+    // properties 속성이 존재 할경우
+    if( !isNullOrUndefined(dataconnection.properties) ){
+      connInfo.properties = dataconnection.properties;
+    }
+
+    params.connection = connInfo;
+    params.database = dataconnection.database;
+    params.table = param.tableName;
+
+    return this.post(url, params);
   }
 
   // 커넥션 정보로만 데이터베이스 조회

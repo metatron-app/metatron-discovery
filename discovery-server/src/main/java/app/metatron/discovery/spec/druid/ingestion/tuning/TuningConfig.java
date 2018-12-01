@@ -17,6 +17,8 @@ package app.metatron.discovery.spec.druid.ingestion.tuning;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import app.metatron.discovery.spec.druid.ingestion.index.IndexSpec;
+
 /**
  * Created by kyungtaak on 2016. 6. 18..
  */
@@ -27,4 +29,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = KafkaTuningConfig.class, name = "kafka")
 })
 public interface TuningConfig {
+  IndexSpec getIndexSpec();
+  void setIndexSpec(IndexSpec indexSpec);
 }

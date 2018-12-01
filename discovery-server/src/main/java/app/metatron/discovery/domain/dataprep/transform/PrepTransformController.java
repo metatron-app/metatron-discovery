@@ -305,6 +305,10 @@ public class PrepTransformController {
           ) {
         PrepRuleVisitorParser prepRuleVisitorParser = new PrepRuleVisitorParser();
         suggests = prepRuleVisitorParser.suggest_aggr_rules(rulePart);
+      } else if( ruleCommand.equalsIgnoreCase("window")
+              ) {
+        PrepRuleVisitorParser prepRuleVisitorParser = new PrepRuleVisitorParser();
+        suggests = prepRuleVisitorParser.suggest_window_rules(rulePart);
       }
 
       for(SuggestToken suggest : suggests) {

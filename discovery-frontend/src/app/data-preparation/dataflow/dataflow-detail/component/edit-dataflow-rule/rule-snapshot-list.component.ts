@@ -90,10 +90,24 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
       result = ['Failed','failed'];
     } else if (-1 !== progress.indexOf(status)) {
       result = ['Preparing','play'];
-    } else {
+    }  else {
       result = [status[0].toUpperCase() + status.slice(1),'cancel'];
     }
     return result
+  }
+
+  public getSnapshotType(type: string) : string {
+
+    let result = type;
+    if (type.toUpperCase() === 'FILE') {
+      result = 'Local';
+    } else if (type.toUpperCase() === 'JDBC') {
+      result = 'Database';
+    } else if (type.toUpperCase() === 'HIVE') {
+      result = 'Staging DB';
+    }
+
+    return result;
   }
 
   /**
@@ -117,7 +131,7 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
    */
   public snapshotDetail(snapshot : DataSnapshot) {
 
-    if (snapshot.status === 'CANCELED') {
+    if (snapshot.status === 'CANCELED' || snapshot.isCancel) {
       return;
     }
 

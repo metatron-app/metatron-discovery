@@ -176,7 +176,24 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
           {label : 'Before ..', value : 'before', command : 'move'},
           {label : 'After ..', value : 'after', command : 'move'}
         ]
+      },
+      {label : 'Clean', value: 'clean', iconClass: 'ddp-icon-drop-clean' , command: 'clean', disabled : this.originalSelectedColIds.length > 1,
+        children : [
+          {label : 'Mismatch', value : 'mismatch', command : 'mismatch'
+            , children : [
+              {label : 'Delete rows', value : 'direct-mismatch', command : 'clean'},
+              {label : 'Replace with custom value', value : 'mismatch', command : 'clean'}
+              ]
+          },
+          {label : 'Missing', value : 'last', command : 'move'
+            , children : [
+              {label : 'Delete rows', value : 'direct-missing', command : 'clean'},
+              {label : 'Fill with custom value', value : 'missing', command : 'clean'}
+              ]
+          },
+        ]
       }
+
     ];
     this.isShow = true;
   }
@@ -281,6 +298,11 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
                 let idx = this.labelsForNumbers.indexOf(item);
                 result += this.histogramData.length-1 !== index ? `${selCol} >= ${item} && ${this.contextInfo.columnName} < ${this.labelsForNumbers[idx+1]} || ` : `${selCol} >= ${item} && ${selCol} < ${this.labelsForNumbers[idx+1]}`;
               })
+            } else if (this.contextInfo.columnType === 'TIMESTAMP') {
+              this.histogramData.forEach((item,index) => {
+                let idx = this.labelsForNumbers.indexOf(item);
+                result += this.histogramData.length-1 !== index ? `time_diff(timestamp('${item}','${this.contextInfo.timestampStyle}'),${selCol}) >= 0 && time_diff(timestamp('${this.labelsForNumbers[idx+1]}','${this.contextInfo.timestampStyle}'), ${selCol}) < 0 || ` : `time_diff(timestamp('${item}','${this.contextInfo.timestampStyle}'),${selCol}) >= 0 && time_diff(timestamp('${this.labelsForNumbers[idx+1]}','${this.contextInfo.timestampStyle}'), ${selCol}) < 0`;
+              });
             } else {
               this.histogramData.forEach((item,index) => {
                 result += this.histogramData.length-1 !== index ? selCol + ' == ' +'\''+ item +'\''+ ' || ' : selCol + ' == ' +'\''+ item +'\'';
@@ -311,6 +333,48 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               break;
             case 'flatten':
               rule['ruleString'] = 'flatten col: ' + selCol;
+              break;
+          }
+          break;
+        case 'clean':
+          rule['ruleString'] = `delete row: `;
+          let res = [];
+          switch(command.value) {
+
+            case 'direct-mismatch':
+              //  ismismatched(columnName,'column type with single quote surrounded')
+              columnNames.forEach((item) => {
+                if (item.indexOf(' ') > -1) {
+                  res.push('ismismatched(' + '`' + item + '`' + `,'${this.contextInfo.columnType}')`);
+                } else {
+                  res.push(`ismismatched(${item},'${this.contextInfo.columnType}')`)
+                }
+
+              });
+
+              rule['ruleString'] += res.join(' || ');
+
+              break;
+            case 'direct-missing':
+              // delete row: isnull(c) || isnull(`space col`)
+              columnNames.forEach((item) => {
+
+                if (item.indexOf(' ') > -1) {
+                  res.push('isnull(' + '`' + item + '`' + ')');
+                } else {
+                  res.push(`isnull(${item})`)
+                }
+
+              });
+
+              rule['ruleString'] += res.join(' || ');
+              break;
+
+            case 'mismatch':
+              rule['more'] = {contextMenu : true,  command : 'set', col : {value : this.originalSelectedColIds}, condition : `ismismatched(${selCol},'${this.contextInfo.columnType}')`};
+              break;
+            case 'missing':
+              rule['more'] = {contextMenu : true, command : 'set', col : {value : this.originalSelectedColIds}, condition : `ismissing(${selCol})`};
               break;
           }
           break;

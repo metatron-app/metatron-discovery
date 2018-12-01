@@ -35,45 +35,50 @@ import {
   LegendConvertType,
   SPEC_VERSION
 } from '../../../common/component/chart/option/define/common';
-import { saveAs } from 'file-saver';
-import { AbstractWidgetComponent } from '../abstract-widget.component';
-import { PageWidget, PageWidgetConfiguration } from '../../../domain/dashboard/widget/page-widget';
-import { BaseChart, ChartSelectInfo } from '../../../common/component/chart/base-chart';
-import { UIOption } from '../../../common/component/chart/option/ui-option';
-import { Alert } from '../../../common/util/alert.util';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { SearchQueryRequest } from '../../../domain/datasource/data/search-query-request';
-import { Filter } from '../../../domain/workbook/configurations/filter/filter';
-import { ImageService } from '../../../common/service/image.service';
-import { WidgetService } from '../../service/widget.service';
-import { AnalysisPredictionService } from '../../../page/component/analysis/service/analysis.prediction.service';
-import { Widget } from '../../../domain/dashboard/widget/widget';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import { FilterUtil } from '../../util/filter.util';
-import { NetworkChartComponent } from '../../../common/component/chart/type/network-chart/network-chart.component';
-import { DashboardPageRelation } from '../../../domain/dashboard/widget/page-widget.relation';
-import { BoardConfiguration, LayoutMode } from '../../../domain/dashboard/dashboard';
-import { GridChartComponent } from '../../../common/component/chart/type/grid-chart/grid-chart.component';
-import { BarChartComponent } from '../../../common/component/chart/type/bar-chart/bar-chart.component';
-import { LineChartComponent } from '../../../common/component/chart/type/line-chart/line-chart.component';
-import { OptionGenerator } from '../../../common/component/chart/option/util/option-generator';
+import {saveAs} from 'file-saver';
+import {AbstractWidgetComponent} from '../abstract-widget.component';
+import {PageWidget, PageWidgetConfiguration} from '../../../domain/dashboard/widget/page-widget';
+import {BaseChart, ChartSelectInfo} from '../../../common/component/chart/base-chart';
+import {UIOption} from '../../../common/component/chart/option/ui-option';
+import {Alert} from '../../../common/util/alert.util';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {SearchQueryRequest} from '../../../domain/datasource/data/search-query-request';
+import {Filter} from '../../../domain/workbook/configurations/filter/filter';
+import {ImageService} from '../../../common/service/image.service';
+import {WidgetService} from '../../service/widget.service';
+import {AnalysisPredictionService} from '../../../page/component/analysis/service/analysis.prediction.service';
+import {Widget} from '../../../domain/dashboard/widget/widget';
+import {EventBroadcaster} from '../../../common/event/event.broadcaster';
+import {FilterUtil} from '../../util/filter.util';
+import {NetworkChartComponent} from '../../../common/component/chart/type/network-chart/network-chart.component';
+import {DashboardPageRelation} from '../../../domain/dashboard/widget/page-widget.relation';
+import {BoardConfiguration, LayoutMode} from '../../../domain/dashboard/dashboard';
+import {GridChartComponent} from '../../../common/component/chart/type/grid-chart/grid-chart.component';
+import {BarChartComponent} from '../../../common/component/chart/type/bar-chart/bar-chart.component';
+import {LineChartComponent} from '../../../common/component/chart/type/line-chart/line-chart.component';
+import {OptionGenerator} from '../../../common/component/chart/option/util/option-generator';
 import {
   BoardSyncOptions, BoardWidgetOptions,
   WidgetShowType
 } from '../../../domain/dashboard/dashboard.globalOptions';
-import { DataDownloadComponent } from '../../../common/component/data-download/data.download.component';
-import { CustomField } from '../../../domain/workbook/configurations/field/custom-field';
-import { DashboardUtil } from '../../util/dashboard.util';
-import { isNullOrUndefined } from 'util';
-import { Datasource, Field } from '../../../domain/datasource/datasource';
-import { CommonUtil } from '../../../common/util/common.util';
+import {DataDownloadComponent} from '../../../common/component/data-download/data.download.component';
+import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
+import {ChartLimitInfo, DashboardUtil} from '../../util/dashboard.util';
+import {isNullOrUndefined} from 'util';
+import {Datasource, Field} from '../../../domain/datasource/datasource';
+import {CommonUtil} from '../../../common/util/common.util';
+import {GridComponent} from "../../../common/component/grid/grid.component";
+import {header, SlickGridHeader} from "../../../common/component/grid/grid.header";
+import {GridOption} from "../../../common/component/grid/grid.option";
+import {Pivot} from "../../../domain/workbook/configurations/pivot";
 
 declare let $;
 
 @Component({
   selector: 'page-widget',
   templateUrl: 'page-widget.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styles:[ '.ddp-pop-preview { position: fixed; width: 700px; height: 500px; top: 50%; left: 50%; margin-left: -350px; margin-top: -250px;}' ]
 })
 export class PageWidgetComponent extends AbstractWidgetComponent implements OnInit, OnDestroy {
 
@@ -86,6 +91,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
   @ViewChild('gridChart')
   private gridChart: GridChartComponent;
+
+  @ViewChild('dataGrid')
+  private _dataGridComp: GridComponent;
 
   @ViewChild(DataDownloadComponent)
   private _dataDownComp: DataDownloadComponent;
@@ -106,7 +114,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   private _currentSelectionFilters: Filter[] = [];
 
   // child widget id list
-  private _childWidgetIds:string[] = [];
+  private _childWidgetIds: string[] = [];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -116,7 +124,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
   // 그리드에서 사용하는 옵션 ({}을 넣게되면 차트를 그릴때 uiOption값이 없는데도 차트를 그리다가 오류가 발생하므로 제거하였음 by juhee)
   protected gridUiOption: UIOption;
-  // protected gridUiOption: UIOption = {};
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
@@ -132,14 +139,17 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isMaximize = false;                // 최대 여부
   public mouseMode: string = 'SINGLE';     // 차트 마우스 모드
 
+  public isSetChartData:boolean = false;          // 차트 데이터 설정 여부
   public isUpdateRedraw: boolean = true;          // 다시그리는 새로고침
   public isShowHierarchyView: boolean = false;    // 차트 계층 표시 여부
   public isInvalidPivot: boolean = false;          // 선반정보를 확인해야 하는 경우
   public isShowNoData: boolean = false;           // No-Data 표시 여부
-  public isError: boolean = false;                // 에러 상태 표시 여부
   public isShowDownloadPopup: boolean = false;    // 다운로드 팝업 표시 여부
   public duringDataDown: boolean = false;         // 데이터 다운로드 진행 여부
   public duringImageDown: boolean = false;        // 이미지 다운로드 진행 여부
+
+  // Limit 정보
+  public limitInfo: ChartLimitInfo = { id: '', isShow: false, currentCnt: 0, maxCnt: 0 };
 
   // Pivot 내 사용자 정의 컬럼 사용 여부
   public useCustomField: boolean = false;
@@ -157,6 +167,15 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   set uiOption(uiOption: UIOption) {
     this.widgetConfiguration.chart = uiOption;
   }
+
+  get isShowChartTools() {
+    return !this.isShowHierarchyView && !this.isError && !this.isShowNoData;
+  } // get - isShowChartTools
+
+  // is Origin data down
+  public isOriginDown: boolean = false;
+  public srchText:string;
+  public isCanNotDownAggr:boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables - Input & Output
@@ -352,7 +371,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       if (legend) {
         legend.auto = ('boolean' === typeof mode) ? mode : !legend.auto;
         legend.convertType = LegendConvertType.SHOW;
-        this.uiOption = <UIOption>_.extend({}, this.uiOption, { legend });
+        this.uiOption = <UIOption>_.extend({}, this.uiOption, {legend});
         // 변경 적용
         this.safelyDetectChanges();
       }
@@ -368,7 +387,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       const chartZooms = _.cloneDeep(this.uiOption.chartZooms);
       if (chartZooms) {
         chartZooms.map((zoom) => (zoom.auto = ('boolean' === typeof mode) ? mode : !zoom.auto));
-        this.uiOption = <UIOption>_.extend({}, this.uiOption, { chartZooms });
+        this.uiOption = <UIOption>_.extend({}, this.uiOption, {chartZooms});
         // 변경 적용
         this.safelyDetectChanges();
       }
@@ -408,7 +427,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           } else if (this.chart.uiOption.type === ChartType.LABEL || this.chart.uiOption.type === ChartType.MAP) {
 
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
-            (<NetworkChartComponent>this.chart).draw();
+            ( this.isSetChartData ) && ( (<NetworkChartComponent>this.chart).draw() );
           } else {
             try {
               if (this.chart && this.chart.chart) this.chart.chart.resize();
@@ -490,7 +509,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       // 현재 위젯에서 발생시킨 필터정보 변경
       this.changeSelectFilterList(data);
 
-      this.broadCaster.broadcast('CHART_SELECTION_FILTER', { select: data });
+      this.broadCaster.broadcast('CHART_SELECTION_FILTER', {select: data});
     }
   } // function - chartSelectInfo
 
@@ -660,7 +679,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public gridUiOptionUpdatedHandler(uiOption) {
     this.gridUiOption = _.extend({}, this.gridUiOption, uiOption);
-  } // function - updateGridUIOption
+  } // function - gridUiOptionUpdatedHandler
 
   /**
    * 차트 표시 완료 이벤트
@@ -701,14 +720,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   } // function - showNoData
 
   /**
-   * 에러 표시
-   */
-  public showError() {
-    this.isError = true;
-    this.updateComplete();
-  } // function - showError
-
-  /**
    * 위젯 이름 표시 여부
    * @return {boolean}
    */
@@ -738,7 +749,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public copyWidgetIdToClipboard() {
     if (this.widget) {
-      const option = { text: () => this.widget.id };
+      const option = {text: () => this.widget.id};
       new Clipboard(this.elementRef.nativeElement, option);
     }
   } // function - copyWidgetIdToClipboard
@@ -808,19 +819,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public toggleWidgetSize() {
     this.isMaximize = !this.isMaximize;
-    this.broadCaster.broadcast('TOGGLE_SIZE', { widgetId: this.widget.id });
+    this.broadCaster.broadcast('TOGGLE_SIZE', {widgetId: this.widget.id});
   } // function - toggleWidgetSize
-
-  /**
-   * 다운로드 팝업 표시
-   * @param {MouseEvent} event
-   */
-  public showDownPivotData(event: MouseEvent) {
-    if (!this.useCustomField) {
-      this.isShowDownloadPopup = true;
-      this._dataDownComp.openWidgetDown(event, this.widget.id);
-    }
-  } // function - showDownPivotData
 
   /**
    * 차트 이미지를 다운로드 한다.
@@ -852,7 +852,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @param {string} brushType
    */
   public changeMouseSelectMode(mode: string, brushType: string) {
-    if( isNullOrUndefined(this.chart) ) {
+    if (isNullOrUndefined(this.chart)) {
       return;
     }
     if (ChartMouseMode.SINGLE.toString() === mode) {
@@ -893,14 +893,19 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /**
    * 스타일 강제 설정
    * @param {boolean} isDisplay
+   * @param {number} zIndex
    */
-  public setForceStyle(isDisplay: boolean) {
+  public setForceStyle(isDisplay: boolean, zIndex: number = 3) {
+    if (this.isShowDownloadPopup) {
+      // when display download preview popup, not working
+      return;
+    }
     const $container: JQuery = $('.ddp-ui-widget');
     const $contents: JQuery = $('.ddp-ui-dash-contents');
     if (isDisplay) {
       this._dashboardOverflow = $container.css('overflow');
       // console.info( $( '.ddp-ui-widget').css( 'overflow' ) );
-      $contents.css('z-index', 3);
+      $contents.css('z-index', zIndex);
       $container.css('overflow', '');
     } else {
       $contents.css('z-index', '');
@@ -916,8 +921,156 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     let $target: JQuery = $(event.target);
     const btnLeft: number = $target.offset().left;
     const btnTop: number = $target.offset().top;
-    this.$element.find('.ddp-box-btn2 .ddp-box-layout4').css({ 'left': btnLeft - 150, 'top': btnTop + 25 });
+    this.$element.find('.ddp-box-btn2 .ddp-box-layout4').css({'left': btnLeft - 150, 'top': btnTop + 25});
   } // function - showInfoLayer
+
+  // ----------------------------------------------------
+  // 데이터 다운로드
+  // ----------------------------------------------------
+
+  /**
+   * 다운로드 데이터 미리보기 표시
+   * @param {MouseEvent} event
+   */
+  public showPreviewDownData(event: MouseEvent) {
+
+    this.setForceStyle(true, 130);    // 스타일 설정
+    this.isShowDownloadPopup = true;    // ui 표시
+    this.safelyDetectChanges(); // 변경 적용
+    setTimeout(() => {
+      this.drawDataGrid();    // 그리드 표시
+    }, 500);
+
+  } // function - showPreviewDownData
+
+  /**
+   * 다운로드 데이터 미리보기 숨기기
+   */
+  public hidePreviewDownData() {
+    this.isShowDownloadPopup = false;
+    this.setForceStyle(false);
+    this.safelyDetectChanges(); // 변경 적용
+  } // function - hidePreviewDownData
+
+  /*
+  * 다운로드 팝업 표시
+  * @param {MouseEvent} event
+  */
+  public showDownloadLayer(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this._dataDownComp.openWidgetDown(event, this.widget.id, this.isOriginDown);
+  } // function - showDownloadLayer
+
+  /**
+   * draw data grid
+   * @param isOriginal
+   * @private
+   */
+  public drawDataGrid(isOriginal: boolean = false) {
+
+    this.isOriginDown = isOriginal;
+    this.isCanNotDownAggr = false;
+
+    let fields = [];
+    const clonePivot: Pivot = _.cloneDeep(this.widgetConfiguration.pivot);
+    (clonePivot.rows) && (fields = fields.concat(clonePivot.rows));
+    (clonePivot.columns) && (fields = fields.concat(clonePivot.columns));
+    (clonePivot.aggregations) && (fields = fields.concat(clonePivot.aggregations));
+
+    if( isOriginal && fields.some((field: Field) => ( field['field'] && field['field'].aggregated ) ) ) {
+      this.isCanNotDownAggr = true;
+      this.safelyDetectChanges();
+      return false;
+    }
+
+    this.loadingShow();
+    this.widgetService.previewWidget(this.widget.id, isOriginal, false).then(result => {
+
+      // 헤더정보 생성
+      const headers: header[]
+        = fields.map((field: Field) => {
+        const logicalType:string = ( field['field'] && field['field'].logicalType ) ? field['field'].logicalType.toString() : '';
+        let headerName: string = field.name;
+        if( field['aggregationType'] ) {
+          if( !isOriginal ) {
+            headerName = field.alias ? field.alias : field['aggregationType'] + '(' + field.name + ')';
+          }
+        } else if( field.alias ) {
+          headerName = field.alias;
+        }
+
+        return new SlickGridHeader()
+          .Id(headerName)
+          .Name('<span style="padding-left:20px;">'
+            + '<em style="margin-top: -2px;" class="' + this.getFieldTypeIconClass(logicalType) + '"></em>'
+            + headerName
+            + '</span>'
+          )
+          .Field(headerName)
+          .Behavior('select')
+          .Selectable(false)
+          .CssClass('cell-selection')
+          .Width(10 * (headerName.length) + 20)
+          .MinWidth(100)
+          .CannotTriggerInsert(true)
+          .Resizable(true)
+          .Unselectable(true)
+          .Sortable(true)
+          .build();
+      });
+
+      let rows: any[] = result;
+      // row and headers가 있을 경우에만 그리드 생성
+      if (rows && 0 < headers.length) {
+        if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
+          rows = rows.map((row: any, idx: number) => {
+            Object.keys(row).forEach(key => {
+              row[key.substr(key.indexOf('.') + 1, key.length)] = row[key];
+            });
+            row.id = idx;
+            return row;
+          });
+        }
+
+        // dom 이 모두 로드되었을때 작동
+        this.changeDetect.detectChanges();
+
+        this._dataGridComp.create(headers, rows, new GridOption()
+          .SyncColumnCellResize(true)
+          .RowHeight(32)
+          .build());
+        // search
+        this._dataGridComp.search(this.srchText);
+
+        this.loadingHide();
+      }
+    }).catch((err) => {
+      console.error( err );
+      this.loadingHide();
+      // 변경 적용
+      this.safelyDetectChanges();
+    });
+
+  } // function - drawDataGrid
+
+  /**
+   * 그리드 검색
+   * @param event
+   */
+  public searchKeyUp(event:KeyboardEvent) {
+    if( 13 === event.keyCode ) {
+      this._dataGridComp.search(this.srchText);
+    }
+  } // function - searchKeyUp
+
+  /**
+   * 검색 클리어
+   */
+  public clearSearch() {
+    this.srchText = '';
+    this._dataGridComp.search(this.srchText);
+  } // function - clearSearch
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
@@ -945,12 +1098,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         // If the widget does not have a data source
         this.processStart();
         this._isDuringProcess = true;
-        this.isValidWidget = false;
-        this.showError();
+        this.isMissingDataSource = true;
+        this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.missing-datasource')});
+        this.updateComplete();
       } else {
         // If the widget has a data source
 
-        this.isValidWidget = true;
+        this.isMissingDataSource = false;
 
         const fields: Field[] = DashboardUtil.getFieldsForMainDataSource(this.widget.dashBoard.configuration, widgetDataSource.engineName);
         fields.forEach((field) => {
@@ -988,7 +1142,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             this.isShowHierarchyView = true;
           }
 
-          this._childWidgetIds = this._findChildWidgetIds( this.widget.id, relations );
+          this._childWidgetIds = this._findChildWidgetIds(this.widget.id, relations);
         }
 
         // RealTime 데이터갱신 설정
@@ -1034,13 +1188,14 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   private _search(globalFilters?: Filter[], selectionFilters?: Filter[]) {
 
-    if( selectionFilters && selectionFilters.some( item => -1 < this._childWidgetIds.indexOf( item['selectedWidgetId'] ) ) ) {
+    if (selectionFilters && selectionFilters.some(item => -1 < this._childWidgetIds.indexOf(item['selectedWidgetId']))) {
       return;
     }
 
     // 프로세스 실행 등록
     this.processStart();
     this._isDuringProcess = true;
+    this.isSetChartData = false;
 
     if (!this.chart) {
       this.updateComplete();
@@ -1054,7 +1209,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     }
 
     // 현재 위젯에서 발생시킨 필터정보 제외처리
-    const currentSelectionFilters:Filter[] = this.changeExternalFilterList(selectionFilters);
+    const currentSelectionFilters: Filter[] = this.changeExternalFilterList(selectionFilters);
 
     // Hierarchy View 설정
     if (this.parentWidget) {
@@ -1111,8 +1266,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     const widgetDataSource: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
 
     if (isNullOrUndefined(widgetDataSource)) {
-      this.isValidWidget = false;
-      this.showError();
+      this.isMissingDataSource = true;
+      this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.missing-datasource')});
+      this.updateComplete();
       return;
     }
 
@@ -1129,7 +1285,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     }
 
     this.isShowNoData = false;
-    this.isError = false;
+    this._hideError();
 
     // 서버 조회용 파라미터 (서버 조회시 필요없는 파라미터 제거)
     const cloneQuery = this._makeSearchQueryParam(_.cloneDeep(uiCloneQuery));
@@ -1179,7 +1335,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           // 현재 차트가 선택한 필터목록
           selectFilterListList: this._selectFilterList
         }
-
       };
 
       let optionKeys = Object.keys(this.uiOption);
@@ -1201,19 +1356,24 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           this.getAnalysis();
         } else {
           this.chart.resultData = this.resultData;
+          this.isSetChartData = true;
         }
-      }, 1000);
 
-      this.isValidWidget = true;
+        // Set Limit Info
+        this.limitInfo = DashboardUtil.getChartLimitInfo( this.widget.id, ChartType[this.chartType.toUpperCase()], data );
+        if (this.layoutMode === LayoutMode.EDIT ) {
+          this.broadCaster.broadcast('WIDGET_LIMIT_INFO', this.limitInfo);
+        }
+
+      }, 1000);
 
       // 변경 적용
       this.safelyDetectChanges();
 
     }).catch((error) => {
-      console.error(error);
       // 프로세스 종료 등록 및 No Data 표시
-      this.isValidWidget = false;
-      this.showError();
+      this._showError(error);
+      this.updateComplete();
       // 변경 적용
       this.safelyDetectChanges();
     });
@@ -1298,19 +1458,20 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * 자식 위젯 아이디 탐색
    * @param {string} widgetId
    * @param {DashboardPageRelation[]} relations
+   * @param {boolean} isCollect
    * @return {string}
    * @private
    */
-  private _findChildWidgetIds(widgetId: string, relations: DashboardPageRelation[], isCollect:boolean = false): string[] {
-    let childIds:string[] = [];
+  private _findChildWidgetIds(widgetId: string, relations: DashboardPageRelation[], isCollect: boolean = false): string[] {
+    let childIds: string[] = [];
 
     relations.forEach(item => {
-      if (item.children ) {
-        if(item.ref === widgetId || isCollect ) {
-          childIds = item.children.map( child => child.ref );
-          childIds = childIds.concat( this._findChildWidgetIds( widgetId, item.children, true ) );
+      if (item.children) {
+        if (item.ref === widgetId || isCollect) {
+          childIds = item.children.map(child => child.ref);
+          childIds = childIds.concat(this._findChildWidgetIds(widgetId, item.children, true));
         } else {
-          childIds = childIds.concat( this._findChildWidgetIds( widgetId, item.children, false ) );
+          childIds = childIds.concat(this._findChildWidgetIds(widgetId, item.children, false));
         }
       }
     });
@@ -1348,8 +1509,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         .then(() => {
           if (this.isAnalysisPredictionEnabled()) {
             this.analysisPredictionService.getAnalysisPredictionLineFromDashBoard(this.widgetConfiguration, this.widget, this.chart, this.resultData)
-              .catch(() => {
-                this.showError();
+              .catch((error) => {
+                this._showError(error);
+                this.updateComplete();
               });
           } else {
             this.predictionLineDisabled();

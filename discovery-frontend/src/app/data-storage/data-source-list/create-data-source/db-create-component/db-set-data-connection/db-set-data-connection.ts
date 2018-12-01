@@ -37,6 +37,9 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
   // create source data
   private _sourceData: DatasourceInfo;
 
+  // connection properties
+  private _properties: any;
+
   // connection preset list
   public connectionPresetList: any[] = [{name: this.translateService.instant('msg.storage.ui.user.input'), default: true}];
 
@@ -436,6 +439,10 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
    * @private
    */
   private _isChangeConnection(prevConnection: any): boolean {
+    // if preset changed
+    if (prevConnection.selectedConnectionPreset.id !== this.selectedConnectionPreset.id) {
+      return true;
+    }
     // database type
     if (prevConnection.selectedDbType.value !== this.selectedDbType.value) {
       return true;
@@ -578,6 +585,10 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
     connection.hasOwnProperty('catalog') && (this.catalog = connection.catalog);
     // if security not exist, set security MANUAL
     this.selectedSecurityType = this.securityTypeList.find(type => type.value === connection.authenticationType) || this.securityTypeList[0];
+    // if exist connection properties
+    if (connection.properties && Object.keys(connection.properties).length !== 0) {
+      this._properties = connection.properties;
+    }
   }
 
   /**
@@ -604,7 +615,8 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
       isUsedConnectionPreset: this.selectedConnectionPreset.id ? true : false,
       pageResult: this.pageResult,
       isEnableUrl : this.isEnableUrl,
-      selectedSecurityType: this.selectedSecurityType
+      selectedSecurityType: this.selectedSecurityType,
+      properties: this._properties
     };
     sourceData['connectionData'] = connectionData;
   }
@@ -679,6 +691,8 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
     this.isEnableUrl = connectionData.isEnableUrl;
     // security
     this.selectedSecurityType = connectionData.selectedSecurityType;
+    // properties
+    this._properties = connectionData.properties;
   }
 
   /**
@@ -695,5 +709,6 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
     this.catalog = '';
     this.url = '';
     this.isEnableUrl = false;
+    this._properties = null;
   }
 }

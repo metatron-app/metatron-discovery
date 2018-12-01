@@ -22,6 +22,7 @@ import { BoardGlobalOptions } from './dashboard.globalOptions';
 import { CustomField } from '../workbook/configurations/field/custom-field';
 import { CommonUtil } from '../../common/util/common.util';
 import { DashboardPageRelation } from './widget/page-widget.relation';
+import {Sort} from "../workbook/configurations/sort";
 
 /**
  * 대시보드 구조체
@@ -158,9 +159,11 @@ export class BoardDataSourceRelation {
  */
 export class QueryParamLimit {
   public limit: number;
+  public sort: Sort[];
 
   constructor() {
     this.limit = 1000;
+    this.sort = [];
   }
 } // end of QueryParamLimit Class
 
@@ -173,6 +176,7 @@ export class QueryParam {
   public projections: any[];
   public limits: QueryParamLimit;
   public preview: boolean;
+  public metaQuery:boolean;
 
   constructor() {
     this.dataSource = new BoardDataSource();
@@ -180,6 +184,7 @@ export class QueryParam {
     this.projections = [];
     this.limits = new QueryParamLimit();
     this.preview = true;
+    this.metaQuery = false;
   }
 }  // end of QueryParam Class
 
