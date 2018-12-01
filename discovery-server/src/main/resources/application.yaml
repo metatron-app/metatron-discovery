@@ -215,7 +215,7 @@ polaris:
   datasource:
     ingestion:
       retries:
-        delay: 6
+        delay: 3
         maxDelay: 90
         maxDuration : 3600
   engine:
