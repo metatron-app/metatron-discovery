@@ -201,8 +201,6 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
       let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-
-      this.inputValue = data.jsonRuleString.value.escapedValue;
       this.inputValue = data.ruleString.split('value: ')[1];
 
       if (data.jsonRuleString.row) {
