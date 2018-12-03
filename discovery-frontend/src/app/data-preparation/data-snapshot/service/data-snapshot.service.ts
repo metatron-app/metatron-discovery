@@ -15,7 +15,7 @@
 import { Injectable, Injector } from '@angular/core';
 import { AbstractService } from '../../../common/service/abstract.service';
 //import { DataSnapshot, DataSnapshots } from '../../../domain/data-preparation/data-snapshot';
-import { PrDataSnapshot, DataSnapshots } from '../../../domain/data-preparation/pr-snapshot';
+import { PrDataSnapshot, DataSnapshots, SsType } from '../../../domain/data-preparation/pr-snapshot';
 import { Page } from '../../../domain/common/page';
 import { CommonUtil } from '../../../common/util/common.util';
 import { CookieConstant } from '../../../common/constant/cookie.constant';
@@ -57,7 +57,7 @@ export class DataSnapshotService extends AbstractService {
     let url = this.API_URL + `preparationsnapshots/search/findBySsNameContainingAndStatusInAndSsTypeIn?ssName=${encodeURIComponent(param.searchText)}&statuses=${statuses}`;
 
     if (!param.ssType) {
-      url +=  `&ssTypes=HIVE,HDFS,FILE,JDBC`;
+      url +=  `&ssTypes=${SsType.URI},${SsType.DATABASE},${SsType.STAGING_DB},${SsType.DRUID}`;
     } else {
       url +=  `&ssTypes=${param.ssType}`;
     }

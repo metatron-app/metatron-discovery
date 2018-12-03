@@ -16,7 +16,7 @@ import { Component, OnInit, Injector, ElementRef, ViewChild, OnDestroy } from '@
 import { DataSnapshotService } from './service/data-snapshot.service';
 import { AbstractComponent } from '../../common/component/abstract.component';
 //import { DataSnapshot } from '../../domain/data-preparation/data-snapshot';
-import { PrDataSnapshot, Status } from '../../domain/data-preparation/pr-snapshot';
+import { PrDataSnapshot, SsType, Status } from '../../domain/data-preparation/pr-snapshot';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
 import { Modal } from '../../common/domain/modal';
 import { Alert } from '../../common/util/alert.util';
@@ -81,10 +81,16 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
   public snapshotTypes = [
     {label:'All', value : null},
+    /*
     {label:'Staging DB', value : 'HIVE'},
     {label : 'Local', value : 'FILE'},
     {label : 'Database', value : 'JDBC'},
     {label : 'HDFS', value : 'HDFS'}
+    */
+    {label: 'Staging DB', value : SsType.STAGING_DB},
+    {label: 'Local', value : SsType.URI},
+    {label: 'Database', value : SsType.DATABASE},
+    {label: 'DRUID', value : SsType.DRUID}
     ];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
