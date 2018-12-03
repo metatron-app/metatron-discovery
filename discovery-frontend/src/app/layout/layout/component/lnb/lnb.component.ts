@@ -341,11 +341,11 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public moveToWorkspace(workspace?: Workspace, isRemoveCookie: boolean = true) {
     if (workspace && !workspace.active) {
       const modal = new Modal();
-      modal.name = '비활성 워크스페이스';
-      modal.description = '비활성화된 워크스페이스 입니다';
-      modal.subDescription = '다시 활성시키려면 관리자에게 문의해 주세요';
+      modal.name = this.translateService.instant('msg.space.alert.workspace.disabled');
+      modal.description = this.translateService.instant('msg.space.alert.workspace.disabled.desc');
+      modal.subDescription = this.translateService.instant('msg.space.alert.workspace.disabled.desc.sub');
       modal.isShowCancel = false;
-      modal.btnName = '확인';
+      modal.btnName = this.translateService.instant('msg.comm.ui.ok');
       modal.data = {
         type: 'INACTIVE',
         afterConfirm: function () {
