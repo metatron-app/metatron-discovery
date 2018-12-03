@@ -17,7 +17,7 @@
     <!-- option -->
     <div class="ddp-ui-option ddp-clear">
       <component-period
-        [title]="'Created date'"
+        [title]="'msg.groups.th.create.date' | translate"
         [roundSecond]="true"
         (changeDate)="onFilterDate($event)"
         [returnFormat]="'YYYY-MM-DDTHH:mm:ss.sssZ'" ></component-period>
@@ -33,7 +33,7 @@
       <!-- 검색 -->
       <div class="ddp-form-search ddp-fleft">
         <em class="ddp-icon-search"></em>
-        <input type="text" placeholder="Search by schema name"
+        <input type="text" placeholder="{{'msg.permission.ui.search-schema' | translate}}"
                (keypress)="onSearchText($event)"
                (keyup.esc)="onSearchTextInit()"
                [ngModel]="searchText">
@@ -47,7 +47,7 @@
         </span>
         <!-- schema create -->
         <a (click)="onClickCreatePermissionSchema()"
-           href="javascript:" class="ddp-btn-link" ><em class="ddp-icon-link-add"></em>Create schema
+           href="javascript:" class="ddp-btn-link" ><em class="ddp-icon-link-add"></em>{{'msg.permission.ui.create-schema' | translate}}
         </a>
         <!-- //schema create -->
       </div>

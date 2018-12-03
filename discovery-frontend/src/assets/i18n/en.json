@@ -2267,6 +2267,8 @@
   "msg.permission.ui.set-ws-perms-schema" : "Set permission schema",
   "msg.permission.ui.change-ws-perms-schema" : "Change permission schema",
   "msg.permission.ui.change-schema" : "Change schema",
+  "msg.permission.ui.create-schema" : "Create schema",
+  "msg.permission.ui.search-schema" : "Search by schema name",
   "msg.permission.alert.no-name" : "No permission name",
   "msg.permission.alert.require-role" : "More than 1 permission is required",
   "msg.permission.alert.require-default" : "At least one default rule must be set",
