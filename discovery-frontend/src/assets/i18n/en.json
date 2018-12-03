@@ -350,6 +350,7 @@
   "msg.space.ui.set-permission-schema" : "Set permission schema",
   "msg.space.ui.change-owner" : "Change owner",
   "msg.space.ui.change-owner.ph" : "Are you sure you want to change owner to {{value}}?",
+  "msg.space.ui.change-owner.no-member" : "There is no member to be the owner.",
   "msg.space.ui.workbook.copy": "Clone Workbook",
   "msg.space.ui.sel.mov": "Move selections",
   "msg.space.ui.del.notebook.title": "Delete notebook",
