@@ -81,6 +81,8 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
   @Output() private onHeaderRowCellRendered = new EventEmitter();
 
+  @Output() private onGridContextCloseEvent = new EventEmitter();            // 그리드 context menu close
+
 
   public totalRowCnt: number = 0;
 
@@ -515,6 +517,15 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     this._gridTimer = setTimeout(() => {this._currentScrollLeft = viewPortLeftPx;this._grid.invalidate();this._grid.render();}, 400);
   }
 
+
+  /**
+   * Grid onScroll 이벤트 발생
+   * @private
+   */
+  private allContextMenuClose(): void {
+    this.onGridContextCloseEvent.emit();
+  }
+
   /**
    * 그리드 이벤트 연결
    * @param grid
@@ -532,6 +543,12 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
         this.fixGridScroll(viewPortLeftPx)
       }
     });
+
+    // 그리드 스크롤 이벤트
+    grid.onScroll.subscribe((e: any, args:any) => {
+      this.allContextMenuClose();
+    });
+
 
     // 로더 이벤트 정의
     gridModel.onDataLoading.subscribe(() => {
