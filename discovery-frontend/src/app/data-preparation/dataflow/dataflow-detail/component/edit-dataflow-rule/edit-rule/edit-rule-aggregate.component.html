@@ -19,7 +19,7 @@
         </div>
 
         <div class="ddp-ui-buttons">
-          <a href="javascript:" class="ddp-btn-minus" (click)="deleteFormula(item.id)"></a>
+          <a href="javascript:" [ngClass]="(formulas.length==1)?'ddp-btn-minus ddp-disabled':'ddp-btn-minus'" (click)="deleteFormula(item.id)"></a>
         </div>
       </div>
     </div>
