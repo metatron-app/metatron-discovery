@@ -85,11 +85,11 @@
       <div class="ddp-ui-rightoption">
         <a *ngIf="!roleSet.readOnly" (click)="onClickClonePermissionSchema()"
            href="javascript:" class="ddp-btn-selection ddp-line" >
-          <em class="ddp-icon-clone"></em>Clone this schema
+          <em class="ddp-icon-clone"></em>{{'msg.permission.ui.copy-schema.btn' | translate}}
         </a>
         <a *ngIf="!roleSet.predefined && !roleSet.readOnly" (click)="onClickDeletePermissionSchema()"
            href="javascript:" class="ddp-btn-selection ddp-reject" >
-          <em class="ddp-icon-delete"></em>Delete this schema
+          <em class="ddp-icon-delete"></em>{{'msg.permission.ui.delete-schema.btn' | translate}}
         </a>
       </div>
       <!-- //right -->
