@@ -42,7 +42,7 @@
               <textarea #metadataDesc
                      (clickOutside)="isDescEdit ? onDescEditCancel() : null"
                      maxlength="150"
-                     class="ddp-input-edit" placeholder="{{metadataModelService.getMetadata().description}}" [(ngModel)]="editingDesc">
+                     class="ddp-input-edit" placeholder="{{'msg.metadata.ui.description.ph' | translate}}" [(ngModel)]="editingDesc">
               </textarea>
               <span class="ddp-btn-check" (click)="$event.stopPropagation(); onDescChange()"></span>
             </div>
