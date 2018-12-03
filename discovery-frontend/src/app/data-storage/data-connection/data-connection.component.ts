@@ -61,6 +61,9 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
   // connection filter list (for UI)
   public connectionFilterList: ListCriterion[] = [];
 
+  // removed criterion key
+  public removedCriterionKey: CriterionKey;
+
   // Constructor
   constructor(private dataconnectionService: DataconnectionService,
               private popupService: PopupService,
@@ -125,7 +128,8 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
    * @param {ListCriterion} criterion
    */
   public removeCriterionFilterInConnectionFilterList(criterion: ListCriterion): void {
-    this.connectionFilterList.splice(this._findCriterionIndexInCriterionList(this.connectionFilterList, criterion), 1);
+    // set removed key
+    this.removedCriterionKey = criterion.criterionKey;
   }
 
   /**
@@ -209,6 +213,8 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
         } else if (this.connectionFilterList.every(criterion => criterion.criterionKey.toString() !== key)){ // if not exist criterion in filter list
           // add filter
           this.connectionFilterList.push(this._originMoreCriterionList.find(originCriterion => originCriterion.criterionKey.toString() === key));
+          // init removed key
+          this.removedCriterionKey && (this.removedCriterionKey = null);
         }
       });
     } else {

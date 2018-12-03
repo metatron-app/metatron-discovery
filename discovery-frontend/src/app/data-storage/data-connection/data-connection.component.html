@@ -27,6 +27,7 @@
     <!-- filters -->
     <criterion-filter-box *ngFor="let criterion of connectionFilterList"
                           [criterion]="criterion"
+                          [removeCriterionKey]="removedCriterionKey"
                           [enableRemove]="isAdvancedCriterion(criterion)"
                           [criterionApiFunc]="criterionApiFunc"
                           (changedCriteria)="onChangedCriteriaFilter($event)"
