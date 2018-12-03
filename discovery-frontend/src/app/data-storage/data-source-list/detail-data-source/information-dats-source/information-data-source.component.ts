@@ -184,7 +184,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
         this._setProcessStatus(changes.ingestionProcess.currentValue);
         // if success ingestion
         if (changes.ingestionProcess.currentValue['message'] === 'END_INGESTION_JOB') {
-          this._getFieldStats(this.getFields[this._getFindIndexTimestampField()].name, this.datasource.engineName)
+          this._getFieldStats(this.timestampColumn.name, this.datasource.engineName);
         }
       }
     }
@@ -678,17 +678,6 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
         this.loadingHide();
       })
       .catch((error) => this.commonExceptionHandler(error));
-  }
-
-  /**
-   * time stamp 필드인 index 얻기
-   * @returns {number}
-   * @private
-   */
-  private _getFindIndexTimestampField(): number {
-    return _.findIndex(this.getFields, (field) => {
-      return field.role === FieldRole.TIMESTAMP;
-    });
   }
 
   /**
