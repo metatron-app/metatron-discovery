@@ -2070,6 +2070,8 @@ export namespace OptionGenerator {
             "DATA_VALUE"
           ]
         },
+        clustering: true,
+        distance: 30,
         thickness: {
           by: "NONE",
           column: "NONE",

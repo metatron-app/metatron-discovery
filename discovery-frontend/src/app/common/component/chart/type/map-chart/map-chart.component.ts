@@ -314,7 +314,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
     // Cluster source
     let clusterSource = new ol.source.Cluster({
-      distance: 30,
+      distance: this.getUiMapOption()['distance'],
       source: source,
       crossOrigin: 'anonymous'
     });
@@ -609,36 +609,82 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       ////////////////////////////////////////////////////////
       if( _.eq(layer.type, MapLayerType.SYMBOL) ) {
 
-        // Create
-        if( !this.clusterLayer ) {
-          this.clusterLayer = new ol.layer.Vector({
-            source: _.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource,
-            style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style()
-          });
-        }
+        let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
 
-        // Set source
-        this.clusterLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource);
-        this.featureLayer = this.clusterLayer;
+        //////////////////////////
+        // Cluster layer
+        //////////////////////////
+        if( symbolLayer.clustering ) {
 
-        // Init
-        if( isMapCreation && this.getUiMapOption().showMapLayer ) {
-          // Add layer
-          this.olmap.addLayer(this.clusterLayer);
-        }
-        else {
-          if( this.getUiMapOption().showMapLayer ) {
+          // Create
+          if( !this.clusterLayer ) {
+            this.clusterLayer = new ol.layer.Vector({
+              source: _.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource,
+              style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style()
+            });
+          }
+
+          // Set source
+          this.clusterLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource);
+          this.featureLayer = this.clusterLayer;
+
+          // Init
+          if( isMapCreation && this.getUiMapOption().showMapLayer ) {
             // Add layer
-            if( this.olmap.getLayers().getLength() == 1 ) {
-              this.olmap.addLayer(this.clusterLayer);
-            }
-
-            // Set style
-            this.clusterLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style());
+            this.olmap.addLayer(this.clusterLayer);
           }
           else {
-            // Remove layer
-            this.olmap.removeLayer(this.clusterLayer);
+            if( this.getUiMapOption().showMapLayer ) {
+              // Add layer
+              if( this.olmap.getLayers().getLength() == 1 ) {
+                this.olmap.addLayer(this.clusterLayer);
+              }
+
+              // Set style
+              this.clusterLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style());
+            }
+            else {
+              // Remove layer
+              this.olmap.removeLayer(this.clusterLayer);
+            }
+          }
+        }
+        //////////////////////////
+        // Point layer
+        //////////////////////////
+        else {
+
+          // Create
+          if( !this.symbolLayer ) {
+            this.symbolLayer = new ol.layer.Vector({
+              source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
+              style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style()
+            });
+          }
+
+          // Set source
+          this.symbolLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource);
+          this.featureLayer = this.symbolLayer;
+
+          // Init
+          if( isMapCreation && this.getUiMapOption().showMapLayer ) {
+            // Add layer
+            this.olmap.addLayer(this.symbolLayer);
+          }
+          else {
+            if( this.getUiMapOption().showMapLayer ) {
+              // Add layer
+              if( this.olmap.getLayers().getLength() == 1 ) {
+                this.olmap.addLayer(this.symbolLayer);
+              }
+
+              // Set style
+              this.symbolLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style());
+            }
+            else {
+              // Remove layer
+              this.olmap.removeLayer(this.symbolLayer);
+            }
           }
         }
       }
@@ -1070,8 +1116,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
       let size: number = 0;
       let features = feature.get('features');
+
+      // Only cluster on
       if(features) {
         size = features.length;
+      }
+
+      // Only cluster off
+      if(_.isUndefined(features)) {
+        size = 1;
+        features = [feature];
       }
 
       ////////////////////////////////////////////////////////
@@ -2252,6 +2306,18 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       let polygonLayer: UIPolygonLayer = <UIPolygonLayer>layer;
       polygonLayer.type = MapLayerType.POLYGON;
       polygonLayer.outline
+    }
+
+    ////////////////////////////////////////////////////////
+    // Cluster check
+    ////////////////////////////////////////////////////////
+
+    if( _.eq(layerType, MapLayerType.SYMBOL) ) {
+
+      let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
+      if( _.isUndefined(symbolLayer.clustering) || symbolLayer.clustering == null ) {
+        symbolLayer.clustering = true;
+      }
     }
 
     // Option panel change cancle
