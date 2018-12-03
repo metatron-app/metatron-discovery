@@ -197,6 +197,8 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
               delete this._criterionDataObject[key];
               // remove filter
               array.splice(index, 1);
+              // search datasource
+              this.searchDatasource();
             }
           });
         } else if (this.datasourceFilterList.every(criterion => criterion.criterionKey.toString() !== key)){ // if not exist criterion in filter list

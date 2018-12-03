@@ -208,6 +208,8 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
               delete this._criterionDataObject[key];
               // remove filter
               array.splice(index, 1);
+              // search connection
+              this.searchConnection();
             }
           });
         } else if (this.connectionFilterList.every(criterion => criterion.criterionKey.toString() !== key)){ // if not exist criterion in filter list
