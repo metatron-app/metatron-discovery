@@ -145,19 +145,10 @@ export class CriterionCheckboxComponent extends AbstractComponent {
    * @private
    */
   private _setFilteredList(): void {
-    // if criterion key is PUBLISH
-    if (this.criterion.criterionKey === CriterionKey.PUBLISH) {
-      // filtered criterion list
-      this.criterionList.forEach((list, index, array) => {
-        // set list filters
-        list.filters = list.filters.filter(item => item.filterKey !== 'published' && -1 !== item.filterName.toUpperCase().indexOf(this.searchKeyword.trim().toUpperCase()));
-      });
-    } else {
-      // filtered criterion list
-      this.criterionList.forEach((list, index, array) => {
-        // set list filters
-        list.filters = list.filters.filter(item => -1 !== item.filterName.toUpperCase().indexOf(this.searchKeyword.trim().toUpperCase()));
-      });
-    }
+    // filtered criterion list
+    this.criterionList.forEach((list, index, array) => {
+      // set list filters
+      list.filters = list.filters.filter(item => -1 !== (this.isRequireTranslate(item.filterName) ? this.translateService.instant(item.filterName) : item.filterName).toUpperCase().indexOf(this.searchKeyword.trim().toUpperCase()));
+    });
   }
 }
