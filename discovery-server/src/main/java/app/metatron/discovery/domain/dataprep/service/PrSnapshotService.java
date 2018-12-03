@@ -122,9 +122,10 @@ public class PrSnapshotService {
                     //                        }
 
                     String storedUri = snapshot.getStoredUri();
+                    URI uri = new URI(storedUri);
 
-                    switch (snapshot.getStorageType()) {
-                        case LOCAL:
+                    switch (uri.getScheme()) {
+                        case "file":
                             FileInputStream fis;
                             try {
                                 fis = new FileInputStream(new File(new URI(storedUri)));
@@ -142,7 +143,7 @@ public class PrSnapshotService {
                             }
                             fis.close();
                             break;
-                        case HDFS:
+                        case "hdfs":
                             Configuration conf = this.hdfsService.getConf();
                             FileSystem fs = FileSystem.get(conf);
                             Path path = new Path(new URI(storedUri));
@@ -160,7 +161,7 @@ public class PrSnapshotService {
                             fs.close();
                             break;
                         default:
-                            assert false : snapshot.getStorageType();
+                            assert false : uri.getScheme();
                       }
 
 //                } else if( PrSnapshot.SS_TYPE.JDBC==ss_type ) {
@@ -218,9 +219,10 @@ public class PrSnapshotService {
 //                        }
 
                       String storedUri = snapshot.getStoredUri();
+                      URI uri = new URI(storedUri);
 
-                      switch (snapshot.getStorageType()) {
-                          case LOCAL:
+                      switch (uri.getScheme()) {
+                          case "file":
                               File file = null;
                               try {
                                   file = new File(new URI(storedUri));
@@ -229,7 +231,7 @@ public class PrSnapshotService {
                               }
                               file.delete();
                               break;
-                          case HDFS:
+                          case "hdfs":
                               Configuration conf = this.hdfsService.getConf();
                               if (storedUri == null) {
                                   LOGGER.info("deleteSnapshot(): the file does not exists");
@@ -257,7 +259,7 @@ public class PrSnapshotService {
 
                               break;
                           default:
-                              assert false : snapshot.getStorageType();
+                              assert false : uri.getScheme();
                       }
 //                    } else if (PrSnapshot.URI_FILE_FORMAT.JSON == uriFileFormat) {
 //                        LOGGER.error("deleteSnapshot(): file not supported: JSON");

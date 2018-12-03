@@ -99,8 +99,13 @@ public class PrSnapshotController {
 
                 PrSnapshot.SS_TYPE ss_type = snapshot.getSsType();
                 if( PrSnapshot.SS_TYPE.URI==ss_type ) {
-                    PrSnapshot.URI_FILE_FORMAT uriFileFormat = snapshot.getUriFileFormat();
-                    if (PrSnapshot.URI_FILE_FORMAT.CSV == uriFileFormat) {
+                    String storedUri = snapshot.getStoredUri();
+
+                    // We generated JSON snapshots to have ".json" at the end of the URI.
+                    if (storedUri.endsWith(".json")) {
+                        String errorMsg = "getContents(): file not supported: JSON";
+                        throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREP_FILE_TYPE_NOT_SUPPORTED, errorMsg);
+                    } else {
                         String snapshotDisplayUri = snapshot.getStoredUri();
                         if(null==snapshotDisplayUri) {
                             String errorMsg = "["+ ssId + "] isn't a saved snapshot.";
@@ -137,9 +142,6 @@ public class PrSnapshotController {
                         responseMap.put("offset", gridResponse.rows.size());
                         responseMap.put("size", gridResponse.rows.size());
                         responseMap.put("gridResponse", gridResponse);
-                    } else if (PrSnapshot.URI_FILE_FORMAT.JSON == uriFileFormat) {
-                        String errorMsg = "getContents(): file not supported: JSON";
-                        throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREP_FILE_TYPE_NOT_SUPPORTED, errorMsg);
                     }
                 } else if( PrSnapshot.SS_TYPE.STAGING_DB==ss_type ) {
                     String dbName = snapshot.getDbName();

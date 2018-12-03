@@ -437,24 +437,12 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
    */
   private boolean copyDatasetImportedFile(Connection conn, ResultSet rs) throws SQLException {
     String storedUri;
+    String filePath = getCustomValue(rs, "filePath");
 
-    String fileType = rs.getString("file_type");
-    if (fileType == null) {
-      LOGGER.error("copyDatasetImportedFile(): fileType missing: dsId={}", rs.getString("ds_id"));
-      return false;
-    }
-
-    switch (fileType) {
-      case "LOCAL":
-        storedUri = "file://" + getCustomValue(rs, "filePath");
-        break;
-      case "HDFS":
-        storedUri = getCustomValue(rs, "filePath");
-        break;
-
-      default:
-        LOGGER.error("copyDatasetImportedFile(): invalid fileType: fileType={} dsId={}", fileType, rs.getString("ds_id"));
-        return false;
+    if (filePath.startsWith("/")) {
+      storedUri = "file://" + filePath;
+    } else {
+      storedUri = filePath;
     }
 
     if (getCustomValue(rs, "sheet") != null) {
@@ -486,7 +474,6 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     colVals.put("file_format",            "CSV");                     // add new column
     colVals.put("filename_before_upload", rs.getObject("filename"));  // change column name
     colVals.put("import_type",            "UPLOAD");                  // change enum
-    colVals.put("storage_type",           rs.getObject("file_type")); // change column name
     colVals.put("stored_uri",             storedUri);                 // add new column
     copySameCol("total_bytes",            colVals, rs);
     copySameCol("total_lines",            colVals, rs);
@@ -512,7 +499,6 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     colVals.put("filename_before_upload", rs.getObject("filename"));  // change column name
     colVals.put("import_type",            "UPLOAD");                  // change enum
     colVals.put("sheet_name",             sheetName);                 // add new column
-    colVals.put("storage_type",           rs.getObject("file_type")); // change column name
     colVals.put("stored_uri",             storedUri);                 // add new column
     copySameCol("total_bytes",            colVals, rs);
     copySameCol("total_lines",            colVals, rs);
@@ -652,13 +638,11 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     copySameCol("rule_cnt_done",   colVals, rs);
     copySameCol("rule_cnt_total",  colVals, rs);
     copySameCol("ss_name",         colVals, rs);
-    copySameCol("ss_type",         colVals, rs);
+    colVals.put("ss_type",         "URI");
     copySameCol("status",          colVals, rs);
-    colVals.put("storage_type",    storageType);                      // add new column
     colVals.put("stored_uri",      storedUri);                        // add new column
     copySameCol("total_bytes",     colVals, rs);
     copySameCol("total_lines",     colVals, rs);
-    colVals.put("uri_file_format", rs.getObject("format"));           // add new column
 
     insertColVals(conn, TBL_NEW_SNAPSHOT, colVals);
     return true;

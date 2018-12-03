@@ -234,14 +234,6 @@ public class PrSnapshot extends AbstractHistoryEntity {
     @Column(name = "stored_uri")
     String storedUri;
 
-    @Column(name = "storage_type")      // TODO: only enum is needed when create. need not to be an attribute because stored_uri contains this
-    @Enumerated(EnumType.STRING)
-    PrSnapshot.STORAGE_TYPE storageType;
-
-    @Column(name = "uri_file_format")   // TODO: only enum is needed when create. need not to be an attribute because stored_uri contains this
-    @Enumerated(EnumType.STRING)
-    private PrSnapshot.URI_FILE_FORMAT uriFileFormat;
-
 
     // Attributes for database snapshots (Not implemented yet)
     @Size(max = 255)
@@ -605,22 +597,6 @@ public class PrSnapshot extends AbstractHistoryEntity {
 
     public void setStoredUri(String storedUri) {
         this.storedUri = storedUri;
-    }
-
-    public STORAGE_TYPE getStorageType() {
-        return storageType;
-    }
-
-    public void setStorageType(STORAGE_TYPE storageType) {
-        this.storageType = storageType;
-    }
-
-    public URI_FILE_FORMAT getUriFileFormat() {
-        return uriFileFormat;
-    }
-
-    public void setUriFileFormat(URI_FILE_FORMAT uriFileFormat) {
-        this.uriFileFormat = uriFileFormat;
     }
 
     public String getDcId() {

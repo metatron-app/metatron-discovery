@@ -548,21 +548,10 @@ public class TeddyExecutor {
     LOGGER.trace("applyRuleStrings(): end");
   }
 
-  private void loadCsvFile(String dsId, String filePath, String delimiter) throws URISyntaxException {
+  private void loadCsvFile(String dsId, String strUri, String delimiter) throws URISyntaxException {
     DataFrame df = new DataFrame();
 
-    LOGGER.info(String.format("loadCsvFile(): dsId=%s filePath=%s delemiter=%s", dsId, filePath, delimiter));
-
-//    List<String[]> grid = Util.loadGridLocalCsv(filePath, delimiter, limitRows, conf, null);
-    //List<String[]> grid = Util.loadGridLocalCsv(filePath, delimiter, limitRows);
-//    df.setByGrid(grid, null);
-
-    String strUri;
-    if (filePath.startsWith("hdfs://")) {
-      strUri = filePath;
-    } else {
-      strUri = "file://" + filePath;
-    }
+    LOGGER.info("loadCsvFile(): dsId={} strUri={} delemiter={}", dsId, strUri, delimiter);
 
     PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, conf, false);
     df.setByGrid(result);
@@ -574,29 +563,36 @@ public class TeddyExecutor {
   public String createStage0(Map<String, Object> datasetInfo) throws Throwable {
     String newFullDsId = UUID.randomUUID().toString();
 
-    LOGGER.trace("createStage0(): start");
+    LOGGER.trace("TeddyExecutor.createStage0(): newFullDsId={}", newFullDsId);
 
-    switch ((String) datasetInfo.get("importType")) {
-      case "FILE":
-        loadCsvFile(newFullDsId, (String) datasetInfo.get("filePath"), (String) datasetInfo.get("delimiter"));
+    if (datasetInfo.get("importType") == null) {
+      throw new IllegalArgumentException("TeddyExecutor.createStage0(): importType should not be null");
+    }
+
+    String importType = (String) datasetInfo.get("importType");
+    switch (importType) {
+      case "UPLOAD":
+        loadCsvFile(newFullDsId, (String) datasetInfo.get("storedUri"), (String) datasetInfo.get("delimiter"));
         break;
-      case "HIVE":
-        loadHiveTable(newFullDsId, (String) datasetInfo.get("sourceQuery"));
-        break;
-      case "DB":
+
+      case "DATABASE":
         loadJdbcTable(newFullDsId,
                 (String) datasetInfo.get("sourceQuery"),
                 (String) datasetInfo.get("implementor"),
                 (String) datasetInfo.get("connectUri"),
                 (String) datasetInfo.get("username"),
-                (String) datasetInfo.get("password")
-        );
+                (String) datasetInfo.get("password"));
         break;
+
+      case "STAGING_DB":
+        loadHiveTable(newFullDsId, (String) datasetInfo.get("sourceQuery"));
+        break;
+
       default:
-        assert false : datasetInfo.get("importType").toString();
+        throw new IllegalArgumentException("TeddyExecutor.createStage0(): not supported importType: " + importType);
     }
 
-    LOGGER.trace("createStage0(): end");
+    LOGGER.trace("TeddyExecutor.createStage0(): end");
     return newFullDsId;
   }
 

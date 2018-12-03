@@ -1290,8 +1290,6 @@ public class PrepTransformService {
     switch (ssType) {
       case URI:
         snapshot.setStoredUri(requestPost.getStoredUri());
-        snapshot.setStorageType(requestPost.getStorageType());
-        snapshot.setUriFileFormat(requestPost.getUriFileFormat());
         break;
 
       case DATABASE:    // TODO: not implemented yet (just coded in advance a little bit)
@@ -1418,51 +1416,54 @@ public class PrepTransformService {
     PrDataset wrangledDataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
     DataFrame gridResponse;
 
-    LOGGER.info("createStage0: dsId={} (using embedded transform engine)", wrangledDsId);
+    LOGGER.trace("createStage0: dsId={}", wrangledDsId);
 
-    if (importedDataset.getImportType() == UPLOAD) {
-      String storedUri = importedDataset.getStoredUri();
-      LOGGER.debug(wrangledDsId + " storedUri=[" + storedUri + "]");
+    switch (importedDataset.getImportType()) {
+      case UPLOAD:
+        String storedUri = importedDataset.getStoredUri();
+        LOGGER.debug(wrangledDsId + " storedUri=[" + storedUri + "]");
 
-      if (importedDataset.getFileFormat() == CSV || importedDataset.getFileFormat() == EXCEL) {
-        gridResponse = teddyImpl.loadFileDataset(wrangledDsId, storedUri, importedDataset.getDelimiter(), wrangledDataset.getDsName());
-      }
-      else if (importedDataset.getFileFormat() == JSON) {
-        LOGGER.error("createStage0(): JSON not supported: " + storedUri);
-        throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG);
-      }
-      else {
-        throw new IllegalArgumentException("invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
-      }
-    }
-    else if (importedDataset.getImportType() == DATABASE) {
-      String queryStmt = importedDataset.getQueryStmt().trim();
-      if (queryStmt.charAt(queryStmt.length() - 1) == ';') {
-        queryStmt = queryStmt.substring(0, queryStmt.length() - 1);
-      }
+        if (importedDataset.getFileFormat() == CSV || importedDataset.getFileFormat() == EXCEL) {
+          gridResponse = teddyImpl.loadFileDataset(wrangledDsId, storedUri, importedDataset.getDelimiter(), wrangledDataset.getDsName());
+        }
+        else if (importedDataset.getFileFormat() == JSON) {
+          LOGGER.error("createStage0(): JSON not supported: " + storedUri);
+          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG);
+        }
+        else {
+          throw new IllegalArgumentException("invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
+        }
+        break;
 
-      String dbName = importedDataset.getDbName();
-      DataConnection dataConnection = this.connectionRepository.getOne( importedDataset.getDcId() );
-      Hibernate.initialize(dataConnection);
-      if (dataConnection instanceof HibernateProxy) {
-        dataConnection = (DataConnection) ((HibernateProxy) dataConnection).getHibernateLazyInitializer().getImplementation();
-      }
+      case DATABASE:
+        String queryStmt = importedDataset.getQueryStmt().trim();
+        if (queryStmt.charAt(queryStmt.length() - 1) == ';') {
+          queryStmt = queryStmt.substring(0, queryStmt.length() - 1);
+        }
 
-      gridResponse = teddyImpl.loadJdbcDataset(wrangledDsId, dataConnection, dbName, queryStmt, wrangledDataset.getDsName());
-    }
-    else if (importedDataset.getImportType() == STAGING_DB) {
-      String queryStmt = importedDataset.getQueryStmt().trim();
-      if (queryStmt.charAt(queryStmt.length() - 1) == ';')
-        queryStmt = queryStmt.substring(0, queryStmt.length() - 1);
+        String dbName = importedDataset.getDbName();
+        DataConnection dataConnection = this.connectionRepository.getOne( importedDataset.getDcId() );
+        Hibernate.initialize(dataConnection);
+        if (dataConnection instanceof HibernateProxy) {
+          dataConnection = (DataConnection) ((HibernateProxy) dataConnection).getHibernateLazyInitializer().getImplementation();
+        }
 
-      gridResponse = teddyImpl.loadHiveDataset(wrangledDsId, queryStmt, wrangledDataset.getDsName());
-    }
-    else {
-      throw new IllegalArgumentException("invalid import type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
+        gridResponse = teddyImpl.loadJdbcDataset(wrangledDsId, dataConnection, dbName, queryStmt, wrangledDataset.getDsName());
+        break;
+
+      case STAGING_DB:
+        queryStmt = importedDataset.getQueryStmt().trim();
+        if (queryStmt.charAt(queryStmt.length() - 1) == ';')
+          queryStmt = queryStmt.substring(0, queryStmt.length() - 1);
+
+        gridResponse = teddyImpl.loadHiveDataset(wrangledDsId, queryStmt, wrangledDataset.getDsName());
+        break;
+
+      default:
+        throw new IllegalArgumentException("invalid import type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
     }
 
     wrangledDataset.setRuleCurIdx(0);
-//    wrangledDataset.setRuleCnt(1);
 
     assert gridResponse != null : wrangledDsId;
     wrangledDataset.setTotalLines((long) gridResponse.rows.size());

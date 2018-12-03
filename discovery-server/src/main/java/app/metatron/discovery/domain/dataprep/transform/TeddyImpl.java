@@ -248,9 +248,8 @@ public class TeddyImpl {
     addRev(dsId, newRev);
   }
 
-  public DataFrame loadFileDataset(String dsId, String targetUrl, String delimiter, String dsName) {
+  public DataFrame loadFileDataset(String dsId, String strUri, String delimiter, String dsName) {
     DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
-    String strUri = targetUrl.startsWith("hdfs") ? targetUrl : "file://" + targetUrl;
     df.setByGrid(PrepCsvUtil.parse(strUri, delimiter, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
 
     return createStage0(dsId, df);

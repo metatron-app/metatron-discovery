@@ -129,10 +129,6 @@ public class PrDataset extends AbstractHistoryEntity {
     @Enumerated(EnumType.STRING)
     private PrDataset.IMPORT_TYPE importType;
 
-    @Column(name = "storage_type")
-    @Enumerated(EnumType.STRING)
-    private PrDataset.STORAGE_TYPE storageType;
-
     @Lob
     @Column(name = "stored_uri")
     private String storedUri;
@@ -287,14 +283,6 @@ public class PrDataset extends AbstractHistoryEntity {
 
     public void setImportType(IMPORT_TYPE importType) {
         this.importType = importType;
-    }
-
-    public STORAGE_TYPE getStorageType() {
-        return storageType;
-    }
-
-    public void setStorageType(STORAGE_TYPE storageType) {
-        this.storageType = storageType;
     }
 
     public String getStoredUri() {

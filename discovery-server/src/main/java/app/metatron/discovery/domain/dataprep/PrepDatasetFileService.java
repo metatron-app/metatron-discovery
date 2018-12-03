@@ -761,21 +761,22 @@ public class PrepDatasetFileService {
 //            String filePath = dataset.getCustomValue("filePath");
             String storedUri = dataset.getStoredUri();
 //            PrDataset.FILE_TYPE fileType = dataset.getFileTypeEnum();
-            PrDataset.STORAGE_TYPE storageType = dataset.getStorageType();
-            if(storageType == PrDataset.STORAGE_TYPE.LOCAL) {
+//            PrDataset.STORAGE_TYPE storageType = dataset.getStorageType();
+
+            URI uri = new URI(storedUri);
+
+            if(uri.getScheme() == PrDataset.STORAGE_TYPE.LOCAL.name()) {
                 assert storedUri != null;
 
-                URI uri = new URI(storedUri);
                 File theFile = new File(uri);
                 if(false==theFile.exists()) {
                     throw new IllegalArgumentException("Invalid filekey.");
                 }
                 totalBytes = theFile.length();
                 inputStreamReader = new InputStreamReader(new FileInputStream(theFile));
-            } else if(storageType== PrDataset.STORAGE_TYPE.HDFS) {
+            } else if(uri.getScheme()== PrDataset.STORAGE_TYPE.HDFS.name()) {
                 Configuration conf = this.hdfsService.getConf();
                 FileSystem fs = FileSystem.get(conf);
-                URI uri = new URI(storedUri);
                 Path thePath = new Path(uri);
 
                 assert fs.exists(thePath);
@@ -791,7 +792,7 @@ public class PrepDatasetFileService {
                 totalBytes = cSummary.getLength();
                 inputStreamReader = new InputStreamReader(fs.open(thePath));
             } else {
-                assert false : storageType.name();
+                assert false : uri.getScheme();
             }
 
 //            String extensionType = FilenameUtils.getExtension(fileKey);

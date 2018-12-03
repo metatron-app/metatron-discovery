@@ -52,7 +52,6 @@ public class PrDatasetRepositoryTest extends AbstractIntegrationTest {
         dataset.setDsName("test dataset name");
         dataset.setDsDesc("test dataset description");
         dataset.setDsType(IMPORTED);
-        dataset.setStorageType(LOCAL);
         dataset.setStoredUri("test_stored_uri");
 
         datasetRepository.saveAndFlush(dataset);
@@ -66,7 +65,6 @@ public class PrDatasetRepositoryTest extends AbstractIntegrationTest {
         dataset.setDsName("test dataset name");
         dataset.setDsDesc("test dataset description");
         dataset.setDsType(IMPORTED);
-        dataset.setStorageType(LOCAL);
 
         datasetRepository.saveAndFlush(dataset);
         System.out.println(ToStringBuilder.reflectionToString(dataset, ToStringStyle.MULTI_LINE_STYLE));
@@ -91,7 +89,6 @@ public class PrDatasetRepositoryTest extends AbstractIntegrationTest {
         dataset.setDsName("test dataset name");
         dataset.setDsDesc("test dataset description");
         dataset.setDsType(IMPORTED);
-        dataset.setStorageType(LOCAL);
         dataset.setStoredUri("test_stored_uri");
 
         datasetRepository.saveAndFlush(dataset);
