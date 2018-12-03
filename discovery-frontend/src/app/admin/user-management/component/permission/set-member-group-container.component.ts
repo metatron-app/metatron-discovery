@@ -221,7 +221,7 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
 
           let simplifiedList = [];
           this.allList.map((item,index) => {
-            simplifiedList.push({directoryId : item.id, directoryName : item.username, type : 'USER', imageUrl : item.imageUrl});
+            simplifiedList.push({directoryId : item.username, directoryName : item.fullName, type : 'USER', imageUrl : item.imageUrl});
 
             // imageurl이 있으면 넣어준다.
             this.cloneMembers.filter((data) => {
@@ -303,13 +303,13 @@ export class SetMemberGroupContainerComponent extends AbstractUserManagementComp
     let returnValue;
     if (this.defaultTab === 0) {
       returnValue = [
-        { name: 'Username', key: 'directoryName', width: '*' },
-        { name: 'Id', key: 'directoryId', width: '40%' },
+        { name: this.translateService.instant('msg.groups.th.update.fullname'), key: 'directoryName', width: '*' },
+        { name: this.translateService.instant('msg.groups.th.update.username'), key: 'directoryId', width: '40%' },
         { name: '', key: '', width: '50px' }
       ]
     } else {
       returnValue = [
-        { name: 'Group name', key: 'directoryName', width: '*' },
+        { name: this.translateService.instant('msg.approval.th.group'), key: 'directoryName', width: '*' },
         { name: '', key: '', width: '50px' },
       ];
     }
