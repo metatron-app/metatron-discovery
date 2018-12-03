@@ -22,6 +22,17 @@
 
 
 
+.page-prep-dataflow .ddp-box-contents .ddp-box-part .ddp-box-title span.ddp-box-title-in {padding-right:19px;}
+.page-prep-dataflow .ddp-box-contents .ddp-box-part .ddp-box-title a.ddp-btn-plus {display:inline-block; width:13px; height:13px; top:0; background:url(../../../images/icon_add.png) no-repeat; background-position:-84px -22px; border:none;}
+.page-prep-dataflow .ddp-box-contents .ddp-box-part .ddp-box-title a.ddp-btn-plus:before {display:none;}
+.page-prep-dataflow .ddp-box-contents .ddp-box-part .ddp-box-title a.ddp-btn-plus:hover {background-position-x:-98px; border:none;}
+.page-prep-dataflow .ddp-wrap-boxadd .ddp-ui-buttons a.ddp-btn-minus {border:none; background:none;}
+.page-prep-dataflow .ddp-wrap-boxadd .ddp-ui-buttons a.ddp-btn-minus:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-8px 0 0 -8px; width:15px; height:15px; background:url(../../../images/icon_delete.png) no-repeat; background-position:left -14px;}
+.page-prep-dataflow .ddp-wrap-boxadd .ddp-ui-buttons a.ddp-btn-minus.ddp-disabled {opacity:0.5; cursor:no-drop;}
+
+
+
+
 
 
 

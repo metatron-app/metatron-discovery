@@ -164,7 +164,9 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
    * @param {number} idx
    */
   public deleteFormula(idx:number) {
-    this.formulas = this.formulas.filter(({ id }) => id !== idx);
+    if(!isUndefined(this.formulas) && this.formulas.length > 1) {
+      this.formulas = this.formulas.filter(({id}) => id !== idx);
+    }
   } // function - deleteFormula
 
   /**
