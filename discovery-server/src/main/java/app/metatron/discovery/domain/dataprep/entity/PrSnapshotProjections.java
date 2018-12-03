@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.dataprep.entity;
 import org.joda.time.DateTime;
 import org.springframework.data.rest.core.config.Projection;
 
+import java.util.List;
 import java.util.Map;
 
 public class PrSnapshotProjections {
@@ -63,6 +64,7 @@ public class PrSnapshotProjections {
 
         Map<String,Object> getSourceInfo();
         Map<String,Object> getConnectionInfo();
+        List<Object> getRuleStringInfo();
     }
 
     @Projection(name = "listing", types = { PrSnapshot.class })
