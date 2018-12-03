@@ -2274,6 +2274,8 @@
   "msg.permission.ui.set-ws-perms-schema" : "퍼미션 스키마 설정",
   "msg.permission.ui.change-ws-perms-schema" : "퍼미션 스키마 변경",
   "msg.permission.ui.change-schema" : "스키마 변경",
+  "msg.permission.ui.create-schema" : "스키마 생성",
+  "msg.permission.ui.search-schema" : "스키마 이름으로 검색해 주세요",
   "msg.permission.alert.no-name" : "권한 이름이 없습니다",
   "msg.permission.alert.require-role" : "하나 이상의 권한이 필요합니다",
   "msg.permission.alert.require-default" : "최소 한개의 기본 룰이 설정되어야 합니다",
