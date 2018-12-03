@@ -912,7 +912,6 @@ public class JdbcConnectionService {
   }
 
   public JdbcQueryResultResponse selectQueryForIngestion(JdbcDataConnection connection,
-                                                         DataSource dataSource,
                                                          String schema,
                                                          JdbcIngestionInfo.DataType type,
                                                          String query,
@@ -926,6 +925,8 @@ public class JdbcConnectionService {
         connection.setDatabase(schema);
       }
     }
+
+    DataSource dataSource = getDataSource(connection, true);
 
     JdbcQueryResultResponse queryResultSet = null;
 
@@ -962,31 +963,10 @@ public class JdbcConnectionService {
                                                          String schema,
                                                          JdbcIngestionInfo.DataType type,
                                                          String query,
-                                                         List<Map<String, Object>> partitionList,
                                                          int limit,
                                                          boolean extractColumnName) {
-    return selectQueryForIngestion(connection, getDataSource(connection, true),
-            schema, type, query, partitionList, limit, extractColumnName);
+    return selectQueryForIngestion(connection, schema, type, query, null, limit, extractColumnName);
   }
-
-  public JdbcQueryResultResponse selectQueryForIngestion(JdbcDataConnection connection,
-                                                         String schema,
-                                                         JdbcIngestionInfo.DataType type,
-                                                         String query,
-                                                         int limit,
-                                                         boolean extractColumnName) {
-    return selectQueryForIngestion(connection, getDataSource(connection, true),
-                                   schema, type, query, null, limit, extractColumnName);
-  }
-
-//  public JdbcQueryResultResponse selectQueryForIngestion(JdbcDataConnection connection,
-//                                                         String schema,
-//                                                         JdbcIngestionInfo.DataType type,
-//                                                         String query,
-//                                                         int limit) {
-//    return selectQueryForIngestion(connection, getDataSource(connection, true),
-//                                   schema, type, query, null, limit, false);
-//  }
 
   public JdbcQueryResultResponse ddlQuery(JdbcDataConnection connection,
                                           DataSource dataSource,

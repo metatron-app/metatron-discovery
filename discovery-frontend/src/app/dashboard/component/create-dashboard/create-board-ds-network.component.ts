@@ -354,7 +354,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
    */
   public offEditRelationMode() {
     this.isRelationEditMode = false;
-    this._network.disableEditMode();
+    ( this._network ) && ( this._network.disableEditMode() );
     this.toggleGuide( 'HIDE' );
     this.safelyDetectChanges();
 
