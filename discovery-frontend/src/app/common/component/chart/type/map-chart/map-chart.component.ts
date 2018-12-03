@@ -32,7 +32,7 @@ import {
   MapLayerType,
   MapLineStyle,
   MapSymbolType,
-  MapThickness,
+  MapThickness, SelectionColor,
 } from '../../option/define/map/map-common';
 import {ColorRange} from '../../option/ui-option/ui-color';
 import {OptionGenerator} from '../../option/util/option-generator';
@@ -398,8 +398,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
    */
   protected selection(): void {
 
-    // TODO selection filter
-    // this.addChartSelectEventListener();
+    // heatmap => no selection filter
+    if (MapLayerType.HEATMAP === this.getUiMapOption().layers[this.getUiMapOption().layerNum].type) {
+      return;
+    }
+
+    this.addChartSelectEventListener();
     // this.addChartMultiSelectEventListener();
   }
 
@@ -885,7 +889,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   /**
    * map style function
    */
-  private mapStyleFunction = (layerNum, data) => {
+  private mapStyleFunction = (layerNum, data, selectMode?: ChartSelectMode) => {
 
     let scope: any = this;
     let styleOption: UIMapOption = this.getUiMapOption();
@@ -1051,6 +1055,27 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
           }
         }
         catch(error) { }
+      }
+
+      ////////////////////////////////////////////////////////
+      // Selection filter
+      ////////////////////////////////////////////////////////
+
+      // select mode is add, the feature is not selected
+      if (selectMode && ChartSelectMode.ADD !== feature.getProperties()['selection']) {
+
+        outlineWidth = 2;
+
+        // when style is dark
+        if (MapLayerStyle.DARK.toString() === styleOption.style) {
+          featureColor = SelectionColor.FEATURE_DARK.toString();
+          outlineColor = SelectionColor.OUTLINE_DARK.toString();
+
+          // when style is colored, light
+        } else {
+          featureColor = SelectionColor.FEATURE_LIGHT.toString();
+          outlineColor = SelectionColor.OUTLINE_LIGHT.toString();
+        }
       }
 
       ////////////////////////////////////////////////////////
@@ -1255,19 +1280,19 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         ////////////////////////////////////////////////////////
 
         // select mode is add, the feature is not selected
-        if (ChartSelectMode.ADD === selectMode && ChartSelectMode.ADD !== feature.getProperties()['selection']) {
+        if (selectMode && ChartSelectMode.ADD !== feature.getProperties()['selection']) {
 
           outlineWidth = 2;
 
           // when style is dark
           if (MapLayerStyle.DARK.toString() === styleOption.style) {
-            featureColor = '#333333';
-            outlineColor = '#4c4c4c';
+            featureColor = SelectionColor.FEATURE_DARK.toString();
+            outlineColor = SelectionColor.OUTLINE_DARK.toString();
 
             // when style is colored, light
           } else {
-            featureColor = '#c6cacc';
-            outlineColor = '#babebf';
+            featureColor = SelectionColor.FEATURE_LIGHT.toString();
+            outlineColor = SelectionColor.OUTLINE_LIGHT.toString();
           }
         }
 
@@ -1580,7 +1605,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   /**
    * Hexagon style function
    */
-  private hexagonStyleFunction = (layerNum, data) => {
+  private hexagonStyleFunction = (layerNum, data, selectMode?: ChartSelectMode) => {
 
     let scope: any = this;
     let styleOption: UIMapOption = this.getUiMapOption();
@@ -1600,28 +1625,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       let outlineType = null;
       let lineDashType = null;
       let lineMaxVal = 1; //styleLayer.size.max;
-      let outlineColor = null;
+      let outlineColor = 'black';
       let featureSizeType = null;
-
-      // Symbol type
-      if( _.eq(layerType, MapLayerType.SYMBOL) ) {
-        let symbolLayer: UISymbolLayer = <UISymbolLayer>styleLayer;
-        symbolType = symbolLayer.symbol;
-        outlineType = symbolLayer.outline ? symbolLayer.outline.thickness : null;
-        outlineColor = symbolLayer.outline ? symbolLayer.outline.color : null;
-        featureSizeType = symbolLayer.size.by;
-      }
-
-      // Symbol type
-      if( _.eq(layerType, MapLayerType.LINE) ) {
-        let lineLayer: UILineLayer = <UILineLayer>styleLayer;
-        lineDashType = lineLayer.lineStyle;
-      }
-
-
-      //lineMaxVal = styleLayer.size.max;
-      lineMaxVal = 1;
-
+      let outlineWidth = 1;
 
       ////////////////////////////////////////////////////////
       // Color
@@ -1696,13 +1702,34 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       featureColor = scope.hexToRgbA(featureColor, 1 - (styleLayer.color.transparency * 0.01));
 
       ////////////////////////////////////////////////////////
+      // Selection filter
+      ////////////////////////////////////////////////////////
+
+      // select mode is add, the feature is not selected
+      if (selectMode && ChartSelectMode.ADD !== feature.getProperties()['selection']) {
+
+        outlineWidth = 2;
+
+        // when style is dark
+        if (MapLayerStyle.DARK.toString() === styleOption.style) {
+          featureColor = SelectionColor.FEATURE_DARK.toString();
+          outlineColor = SelectionColor.OUTLINE_DARK.toString();
+
+          // when style is colored, light
+        } else {
+          featureColor = SelectionColor.FEATURE_LIGHT.toString();
+          outlineColor = SelectionColor.OUTLINE_LIGHT.toString();
+        }
+      }
+
+      ////////////////////////////////////////////////////////
       // Creation style
       ////////////////////////////////////////////////////////
 
       let style = new ol.style.Style({
         stroke: new ol.style.Stroke({
-          color: 'black',
-          width: 1
+          color: outlineColor,
+          width: outlineWidth
         }),
         fill: new ol.style.Fill({
           color: featureColor
@@ -1732,6 +1759,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
    * Create tooltip
    */
   private createTooltip(): void {
+
+    ////////////////////////////////////////////////////////
+    // Heatmap => not set tooltip
+    ////////////////////////////////////////////////////////
+
+    if (MapLayerType.HEATMAP === this.getUiMapOption().layers[this.getUiMapOption().layerNum].type) {
+      return;
+    }
 
     ////////////////////////////////////////////////////////
     // Create tooltip layer
@@ -2605,97 +2640,134 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     let selectMode: ChartSelectMode;
     // selection filter data
     let selectData = [];
+    // all unselected
+    let noneDataCnt: boolean = true;
+    // layer number
+    let layerNum = 0;
 
     let feature = this.olmap.forEachFeatureAtPixel(event.pixel, (feature) => {
       return feature;
     });
 
-
-    // Cluster check
-    let features = feature.get('features');
-    if( !isNullOrUndefined(features) ) {
-      if(features.length > 1 ) {
-        return;
+    // when feature exists
+    if (feature) {
+      // Cluster check
+      let features = feature.get('features');
+      if( !isNullOrUndefined(features) ) {
+        if(features.length > 1 ) {
+          return;
+        }
+        feature = features[0];
       }
-      feature = features[0];
-    }
 
-    // set select mode
-    if (feature.getProperties()['selection']) {
-      selectMode = ChartSelectMode.SUBTRACT;
-    } else {
-      selectMode = ChartSelectMode.ADD;
-    }
+      // set feature layerNum
+      layerNum = feature.getProperties()['layerNum'];
 
-    // get dimensions from layer shelf
-    let dimensionLayer = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum].filter((item) => {
-      if ('dimension' === item.type) return item;
-    });
+      // set select mode
+      if (feature.getProperties()['selection']) {
+        selectMode = ChartSelectMode.SUBTRACT;
+      } else {
+        selectMode = ChartSelectMode.ADD;
+      }
 
-    // remove others except dimension values
-    let properties = _.cloneDeep(feature.getProperties());
-    delete properties['geometry'];
-    delete properties['layerNum'];
+      // get dimensions (except geo) from layer shelf
+      let dimensionLayer = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum].filter((item) => {
+        if ('dimension' === item.type && ('user_expr' == item.field.type || (item.field.logicalType && -1 == item.field.logicalType.toString().indexOf('GEO')))) {
+          return item;
+        }
+      });
 
-    // set data for seleciton filter
-    for (const item of dimensionLayer) {
-      for (const key in properties) {
+      // remove others except dimension values
+      let properties = _.cloneDeep(feature.getProperties());
+      delete properties['geometry'];
+      delete properties['layerNum'];
 
-        let alias = ChartUtil.getAlias(item);
-        if (alias === key) {
+      // set data for seleciton filter
+      for (const item of dimensionLayer) {
+        for (const key in properties) {
 
-          const dataValue = properties[key];
+          let alias = ChartUtil.getAlias(item);
+          if (alias === key) {
 
-          // when it's add mode
-          if (ChartSelectMode.ADD === selectMode) {
-            feature.set('selection', selectMode);
+            const dataValue = properties[key];
 
-            // set data count
-            if (item['data'] && -1 !== item['data'].indexOf(dataValue)) {
-              item['dataCnt'] = {[dataValue] : item[dataValue]['dataCnt']++};
-            } else {
+            // when it's add mode
+            if (ChartSelectMode.ADD === selectMode) {
+              feature.set('selection', selectMode);
 
-              item['dataCnt'] = {[dataValue] : 1 };
-            }
+              // set data count
+              if (item['data'] && -1 !== item['data'].indexOf(dataValue)) {
+                item['dataCnt'][dataValue] = ++item['dataCnt'][dataValue];
+              } else {
 
-            item['data'] = [dataValue];
+                if (!item['dataCnt']) item['dataCnt'] = {};
+                item['dataCnt'][dataValue] = 1;
+              }
 
-          // when it's substract mode
-          } else {
-            delete feature.getProperties()['selection'];
-
-            item['dataCnt'][dataValue]--;
-
-            // when dataCnt is 0,
-            if (0 == item['dataCnt'][dataValue]) {
               item['data'] = [dataValue];
+
+              selectData.push(_.cloneDeep(item));
+
+              // when it's substract mode
+            } else {
+              feature.unset('selection');
+
+              item['dataCnt'][dataValue]--;
+
+              // when dataCnt is 0,
+              if (0 == item['dataCnt'][dataValue]) {
+                item['data'] = [dataValue];
+                selectData.push(_.cloneDeep(item));
+              }
             }
           }
-
-          selectData.push(item);
         }
       }
+
+      // when dataCnt is false (dataCnt is not zero)
+      for (const item of selectData) {
+        if (item['dataCnt']) {
+          for (const key in item['dataCnt']) {
+            if (0 < item['dataCnt'][key]) {
+              noneDataCnt = false;
+              break;
+            }
+          }
+        }
+      }
+    // clear all selection filters
+    } else {
+      selectMode = ChartSelectMode.CLEAR;
     }
 
-    // 이벤트 데이터 전송
-    this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectData, this.params));
+    // when select data exists, or clear mode
+    if (ChartSelectMode.CLEAR === selectMode || (selectData && selectData.length > 0)) {
+      // emit event
+      this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectData, this.params));
+    }
 
-    switch ((<UIMapOption>this.uiOption).layers[feature.getProperties()['layerNum']].type) {
+    // when last feature is sbustracted, dataCnt is 0 in all of layers => not set selectMode
+    if (ChartSelectMode.CLEAR === selectMode || (ChartSelectMode.SUBTRACT === selectMode && noneDataCnt)) {
+      selectMode = undefined;
+    }
 
-      // symbol layer => use cluster style func
-      case MapLayerType.SYMBOL:
-        this.clusterLayer.setStyle(this.clusterStyleFunction(0, this.data, selectMode));
-        break;
-      // heatmap layer => use heatmap style func
-      case MapLayerType.HEATMAP:
-        break;
-      // hexagon(tile) layer => use hexagon style func
-      case MapLayerType.TILE:
-        break;
-      // line, polygon layer => use map style func
-      case MapLayerType.LINE:
-      case MapLayerType.POLYGON:
-        break;
+    if (!selectMode || selectData.length > 0) {
+      switch ((<UIMapOption>this.uiOption).layers[layerNum].type) {
+
+        // symbol layer => use cluster style func
+        case MapLayerType.SYMBOL:
+          this.clusterLayer.setStyle(this.clusterStyleFunction(0, this.data, selectMode));
+          break;
+        // hexagon(tile) layer => use hexagon style func
+        case MapLayerType.TILE:
+          this.hexagonLayer.setStyle(this.hexagonStyleFunction(0, this.data, selectMode));
+          break;
+        // line, polygon layer => use map style func
+        case MapLayerType.LINE:
+        case MapLayerType.POLYGON:
+          this.symbolLayer.setStyle(this.mapStyleFunction(0, this.data, selectMode));
+          break;
+      }
     }
   }
 }
