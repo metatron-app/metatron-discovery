@@ -177,20 +177,23 @@
 </div>
 
 <!-- modal -->
-<div class="ddp-wrap-layout-popup" *ngIf="isConfirmPopup">
-  <div class="ddp-box-popup ddp-box-popup-type2">
-    <a href="javascript:" class="ddp-btn-close" (click)="isConfirmPopup = false" ></a>
-    <!-- title -->
-    <div class="ddp-pop-title">{{'msg.bench.alert.global.variable.delete' | translate}}</div>
-    <!-- //title -->
+<div class="ddp-wrap-layout-popup type-small" *ngIf="isConfirmPopup">
+  <div class="ddp-table-cell">
 
-    <!-- button -->
-    <div class="ddp-ui-buttons">
-      <a href="javascript:" class="ddp-btn-type-popup" (click)="isConfirmPopup = false">{{'msg.comm.btn.cancl' | translate}}</a>
-      <!-- disabled 시 ddp-disabled 추가 -->
-      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " (click)="removeSelectedVariable()">{{'msg.comm.btn.del' | translate}}</a>
+    <div class="ddp-box-popup ">
+      <div class="ddp-popup-text">
+        <!-- title -->
+        <div class="ddp-pop-title">{{'msg.bench.alert.global.variable.delete' | translate}}</div>
+        <!-- //title -->
+      </div>
+      <!-- button -->
+      <div class="ddp-ui-buttons">
+        <a href="javascript:" class="ddp-btn-type-popup" (click)="isConfirmPopup = false">{{'msg.comm.btn.cancl' | translate}}</a>
+        <!-- disabled 시 ddp-disabled 추가 -->
+        <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " (click)="removeSelectedVariable()">{{'msg.comm.btn.del' | translate}}</a>
+      </div>
+      <!-- //button -->
     </div>
-    <!-- //button -->
   </div>
 </div>
 <!-- // modal -->
