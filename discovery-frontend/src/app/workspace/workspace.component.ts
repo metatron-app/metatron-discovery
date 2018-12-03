@@ -461,6 +461,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    * 폴더 이름 수정
    */
   public updateFolderName(folder: Book) {
+    this.broadCaster.broadcast('CM_CLOSE_LNB');
     folder.name = folder.name.trim(); // 공백제거
 
     // 공백 체크
@@ -642,9 +643,9 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
 
   // 이전 폴더로
   public previouseFolder() {
+    this.broadCaster.broadcast('CM_CLOSE_LNB');
     // 이전 폴더가 있는지 확인하는 index
     const index = this.folder.hierarchies.length - 2;
-
     if (index < 0) {
       this.topFolder();
     } else {
@@ -657,6 +658,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    * @param {string} id
    */
   public detailFolder(id: string) {
+    this.broadCaster.broadcast('CM_CLOSE_LNB');
     // 현재 폴더 아이디
     this.currentFolderId = id;
     // 폴더 조회
@@ -667,6 +669,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    * 최상단 폴더로 이동
    */
   public topFolder() {
+    this.broadCaster.broadcast('CM_CLOSE_LNB');
     if (!this.isRoot) {
       // 최상위 폴더 플래그
       this.isRoot = true;
@@ -687,6 +690,8 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    * @param {string} type
    */
   public detailPage(id: string, type: string) {
+    this.broadCaster.broadcast('CM_CLOSE_LNB');
+
     // 쿠키 저장
     this.setCookie();
 
@@ -956,6 +961,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    * @param {Book} book
    */
   public checkEvent(event: MouseEvent, book: Book) {
+    this.broadCaster.broadcast('CM_CLOSE_LNB');
     event.stopPropagation();
 
     if (!book.checked) {
@@ -1148,6 +1154,8 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    * @param {Book} book
    */
   public deleteModalOpen(book: Book) {
+
+    this.broadCaster.broadcast('CM_CLOSE_LNB');
 
     // 수정 중이었다면 수정 모드 취소
     book.edit = false;
