@@ -71,6 +71,7 @@ import {EventBroadcaster} from '../../../common/event/event.broadcaster';
 import {TimeFilter} from '../../../domain/workbook/configurations/filter/time-filter';
 import {IntervalFilter} from '../../../domain/workbook/configurations/filter/interval-filter';
 import {TimeUnit} from '../../../domain/workbook/configurations/field/timestamp-field';
+import {CommonConstant} from "../../../common/constant/common.constant";
 
 declare let GoldenLayout: any;
 
@@ -256,7 +257,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
     const widgetHeaderComp = this._getWidgetHeaderComp(widgetId);
     if (widgetComponent) {
       widgetComponent.destroy();
-      ( widgetHeaderComp ) && ( widgetHeaderComp.ngOnDestroy() );
+      (widgetHeaderComp) && (widgetHeaderComp.ngOnDestroy());
       this._getLayoutCompContainerByWidgetId(widgetId).remove();
     }
     this._widgetComps = this._widgetComps.filter(item => item.instance.getWidgetId() !== widgetId);
@@ -914,14 +915,10 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         let recommendFilters: Filter[] = [];
         // 추천필터 설정
         fields.forEach((field: Field) => {
-          if (field.filtering || FieldRole.TIMESTAMP === field.role) {
+          if (field.filtering) {
             let rcmdFilter: Filter = undefined;
             if (field.logicalType === LogicalType.TIMESTAMP) {
-              if (FieldRole.TIMESTAMP === field.role) {
-                rcmdFilter = FilterUtil.getTimeAllFilter(field, 'timestamp');
-              } else {
-                rcmdFilter = FilterUtil.getTimeAllFilter(field, 'recommended');
-              }
+              rcmdFilter = FilterUtil.getTimeAllFilter(field, 'recommended');
             } else {
               rcmdFilter = FilterUtil.getBasicInclusionFilter(field, 'recommended');
             }
@@ -1223,7 +1220,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    */
   public initializeDashboard(boardInfo: Dashboard, mode: LayoutMode): Promise<Dashboard> {
 
-    return new Promise<any>((resolve, reject) => {
+    return new Promise<any>((resolve) => {
 
       // 대시보드에 데이터소스 설정
       let result: [Dashboard, Datasource] = this._setDatasourceForDashboard(boardInfo);
@@ -1287,9 +1284,45 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
         const promises = [];
         if (boardInfo.configuration.filters) {
+          // remove current_time timestamp filter - S
+          boardInfo.configuration.filters
+            = boardInfo.configuration.filters.filter( (filter:Filter) => {
+            if( FilterUtil.isTimeFilter(filter) && (<TimeFilter>filter).clzField ) {
+              const filterField:Field = (<TimeFilter>filter).clzField;
+              if( FieldRole.TIMESTAMP === filterField.role && CommonConstant.COL_NAME_CURRENT_DATETIME === filterField.name ) {
+                const filterId: string = filter.dataSource + '_' + filter.field;
+                const filterWidgets: Widget[] = boardInfo.widgets.filter(widget => {
+                  if ('filter' === widget.type) {
+                    const filterInWidget: Filter = (<FilterWidgetConfiguration>widget.configuration).filter;
+                    return (filterInWidget.dataSource + '_' + filterInWidget.field === filterId);
+                  }
+                });
 
-          // Adjust filter widget information error
+                filterWidgets.forEach((item) => {
+                  promises.push(new Promise((res) => {
+                    this.widgetService.deleteWidget(item.id)
+                      .then(() => {
+                        console.info( '+=+=+=+=+=+=+=+=+=+=+=+=+=+=+= remove current_time filter' );
+                        boardInfo.widgets = boardInfo.widgets.filter(widgetItem => widgetItem.id !== item.id);
+                        res();
+                      });
+                  }));
+                });
+
+                return false;
+              } else {
+                return true;
+              }
+            } else {
+              return true;
+            }
+          });
+          // remove current_time timestamp filter - E
+
+          // Adjust filter widget information error - S
           boardInfo.configuration.filters.forEach((filter: Filter) => {
+
+            // add missing widget or remove duplicate widget
             const filterId: string = filter.dataSource + '_' + filter.field;
             const filterWidgets: Widget[] = boardInfo.widgets.filter(widget => {
               if ('filter' === widget.type) {
@@ -1308,6 +1341,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
                   });
               }));
             } else {
+              // 동일한 필드에 대해서 필터가 1개 이상일 경우에 삭제 등록
               filterWidgets.forEach((item, index) => {
                 if (0 < index) {
                   promises.push(new Promise((res) => {
@@ -1321,6 +1355,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
               });
             }
           });
+          // Adjust filter widget information error - E
         } // end if - filters
 
         Promise.all(promises).then(() => {
