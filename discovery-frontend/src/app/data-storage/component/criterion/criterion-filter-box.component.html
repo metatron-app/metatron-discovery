@@ -33,28 +33,31 @@
   <a href="javascript:" class="ddp-btn-filter-more" *ngIf="criterionKey.toString() === 'MORE'" (click)="isShowList = !isShowList"></a>
   <div class="ddp-result-filtering">
     <span class="ddp-txt-label" *ngIf="criterionKey.toString() !== 'MORE'">{{placeHolder}}:</span>
-    <!-- 클릭시 ddp-selected 추가-->
-    <div class="ddp-box-result" [class.ddp-selected]="isShowList"
-         (click)="onClickShowList($event)">
-      <!--
-       title -> label : 선택한 내용 으로 넣어주세요
-   -->
-      <span class="ddp-txt-result" *ngIf="criterionKey.toString() !== 'MORE'"
-            title="{{selectedItemsLabel}}">{{selectedItemsLabel}}</span>
-      <!-- popup -->
-      <criterion-checkbox-component *ngIf="criterionData && criterionType.toString() === 'CHECKBOX'"
-                           [criterion]="criterionData"
-                           [searchPlaceHolder]="searchPlaceHolder"
-                           [enableAllOption]="isEnableAllOption"
-                           (changedSelectItem)="onChangedSelectItem($event)">
-      </criterion-checkbox-component>
-      <criterion-time-radio-component *ngIf="criterionData && criterionType.toString().indexOf('DATETIME') !== -1"
+    <div class="ddp-ui-result">
+      <!-- 클릭시 ddp-selected 추가-->
+      <div class="ddp-box-result" [class.ddp-selected]="isShowList"
+           (click)="onClickShowList($event)">
+        <!--
+         title -> label : 선택한 내용 으로 넣어주세요
+     -->
+        <span class="ddp-txt-result" *ngIf="criterionKey.toString() !== 'MORE'"
+              title="{{selectedItemsLabel}}">{{selectedItemsLabel}}</span>
+        <!-- popup -->
+        <criterion-checkbox-component *ngIf="criterionData && criterionType.toString() === 'CHECKBOX'"
                                       [criterion]="criterionData"
-                                      [enableFromToOption]="criterionType.toString() === 'RANGE_DATETIME'"
-                                      [enableAllOption]="true"
+                                      [searchPlaceHolder]="searchPlaceHolder"
+                                      [enableAllOption]="isEnableAllOption"
                                       (changedSelectItem)="onChangedSelectItem($event)">
-      </criterion-time-radio-component>
-      <!-- //popup -->
+        </criterion-checkbox-component>
+        <criterion-time-radio-component *ngIf="criterionData && criterionType.toString().indexOf('DATETIME') !== -1"
+                                        [criterion]="criterionData"
+                                        [enableFromToOption]="criterionType.toString() === 'RANGE_DATETIME'"
+                                        [enableAllOption]="true"
+                                        (changedSelectItem)="onChangedSelectItem($event)">
+        </criterion-time-radio-component>
+        <!-- //popup -->
+      </div>
+      <a href="javascript:" class="ddp-btn-del" *ngIf="isEnableRemoveButton" (click)="onClickRemoveCriterionFilter()"></a>
     </div>
   </div>
 </div>

@@ -31,13 +31,13 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   // selected item list
   private _selectedItemList : any = {};
 
-  // criterion (required: true)
-  @Input('criterion')
-  public criterion: ListCriterion;
-
   // criterion api (required: true)
   @Input('criterionApiFunc')
   private _getCriterionFunc: Function;
+
+  // criterion (required: true)
+  @Input('criterion')
+  public criterion: ListCriterion;
 
   // is enable criterion filter remove button
   @Input('enableRemove')
@@ -74,6 +74,16 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   @Output('removedCriterion')
   private _removedCriterionEvent: EventEmitter<any> = new EventEmitter();
 
+  @Input('removeCriterionKey')
+  private set _removeCriterionKey(key: CriterionKey) {
+    // if criterion key MORE, exist key
+    if (this.criterionKey === CriterionKey.MORE && key) {
+      // remove criterion in selected criterion list
+      this._selectedItemList[key] = [];
+      // change selected item
+      this.onChangedSelectItem(this._selectedItemList);
+    }
+  };
 
   // constructor
   constructor(protected element: ElementRef,

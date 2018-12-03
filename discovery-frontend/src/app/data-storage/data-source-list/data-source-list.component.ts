@@ -54,6 +54,9 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   // datasource filter list (for UI)
   public datasourceFilterList: ListCriterion[] = [];
 
+  // removed criterion key
+  public removedCriterionKey: CriterionKey;
+
   // 생성자
   constructor(private datasourceService: DatasourceService,
               protected elementRef: ElementRef,
@@ -124,7 +127,8 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
    * @param {ListCriterion} criterion
    */
   public removeCriterionFilterInDatasourceFilterList(criterion: ListCriterion): void {
-    this.datasourceFilterList.splice(this._findCriterionIndexInCriterionList(this.datasourceFilterList, criterion), 1);
+    // set removed key
+    this.removedCriterionKey = criterion.criterionKey;
   }
 
   /**
@@ -198,6 +202,8 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
         } else if (this.datasourceFilterList.every(criterion => criterion.criterionKey.toString() !== key)){ // if not exist criterion in filter list
           // add filter
           this.datasourceFilterList.push(this._originMoreCriterionList.find(originCriterion => originCriterion.criterionKey.toString() === key));
+          // init removed key
+          this.removedCriterionKey && (this.removedCriterionKey = null);
         }
       });
     } else {
