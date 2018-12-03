@@ -208,6 +208,8 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
       });
     } else {
       this._criterionDataObject[criteriaObject.label] = criteriaObject.value;
+      // search datasource
+      this.searchDatasource();
     }
   }
 

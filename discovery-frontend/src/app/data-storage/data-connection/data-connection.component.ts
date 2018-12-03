@@ -219,6 +219,8 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
       });
     } else {
       this._criterionDataObject[criteriaObject.label] = criteriaObject.value;
+      // search connection
+      this.searchConnection();
     }
   }
 
