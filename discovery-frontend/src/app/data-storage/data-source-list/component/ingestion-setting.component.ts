@@ -157,8 +157,8 @@ export class IngestionSettingComponent extends AbstractComponent {
   public cronValidationMessage: string;
 
   // row (only engine source type)
-  public ingestionOnceRow: string = '10,000';
-  public ingestionPeriodRow: string = '10,000';
+  public ingestionOnceRow: number = 10000;
+  public ingestionPeriodRow: number = 10000;
 
   // advanced settings
   public tuningConfig: any[] = [];
@@ -379,16 +379,6 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * Ingestion row changed event
-   * @param {string} ingestionRow
-   * @param {string} event
-   */
-  public onChangedRow(ingestionRow: string, event: string): void {
-    // set input element, ingestion row (ingestionOnceRow, ingestionPeriodRow)
-    this._rowInput.nativeElement.value = this[ingestionRow] = StringUtil.thousandSeparatorNumber(StringUtil.removeNotNumberString(event));
-  }
-
-  /**
    * Init partition validation event
    */
   public initPartitionValidation(): void {
@@ -493,6 +483,8 @@ export class IngestionSettingComponent extends AbstractComponent {
       return;
     }
     this.selectedIngestionScopeType = scopeType;
+    //
+    this.safelyDetectChanges();
   }
 
   /**
@@ -570,7 +562,7 @@ export class IngestionSettingComponent extends AbstractComponent {
    */
   public isMaxRowOverValue(row: any, value: number): boolean {
     if (this[row]) {
-      return Number.parseInt(this[row].replace(/(,)/g, '')) > value;
+      return this[row] > value;
     }
   }
 
