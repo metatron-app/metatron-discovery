@@ -171,7 +171,7 @@ public class PrDataset extends AbstractHistoryEntity {
     @Column(name = "creator_df_id")
     private String creatorDfId;
 
-    @Size(max = 255)
+    @Size(max = 2000)
     @Column(name = "creator_df_name")
     private String creatorDfName;
 
