@@ -23,10 +23,15 @@ import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import com.google.common.collect.Maps;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.util.Map;
 
 
@@ -77,7 +82,7 @@ public class PrDatasetService {
 
         PrDataset.IMPORT_TYPE importType = dataset.getImportType();
         if(importType == PrDataset.IMPORT_TYPE.UPLOAD || importType == PrDataset.IMPORT_TYPE.URI) {
-            dataFrame = changeExcelToCsvAndPutPreview(dataset);
+            dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, "0", this.filePreviewSize);
         } else if(importType == PrDataset.IMPORT_TYPE.DATABASE) {
             this.datasetJdbcPreviewService.setoAuthToekn(oAuthToken);
             dataFrame = this.datasetJdbcPreviewService.getPreviewLinesFromJdbcForDataFrame(dataset, this.jdbcPreviewSize);
@@ -91,7 +96,7 @@ public class PrDatasetService {
         }
     }
 
-    public DataFrame changeExcelToCsvAndPutPreview(PrDataset dataset) throws Exception {
+    public void changeExcelToCsv(PrDataset dataset) throws Exception {
         String storedUri = dataset.getStoredUri();
         String sheetName = dataset.getSheetName();
         String delimiter = dataset.getDelimiter();
@@ -128,7 +133,64 @@ public class PrDatasetService {
 //            }
 //        }
 
-        return this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, "0", this.filePreviewSize);
+        return;
+    }
+
+    public void uploadFileToStorage(PrDataset dataset) throws Exception {
+        String storedUri = dataset.getStoredUri();
+
+        if (storedUri == null) {
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_KEY_MISSING,
+                    String.format("storedUri=%s", storedUri));
+        }
+
+        if(dataset.getStorageType() == PrDataset.STORAGE_TYPE.HDFS) {
+            uploadFileToHdfs(dataset);
+        } else if(dataset.getStorageType() == PrDataset.STORAGE_TYPE.FTP) {
+            // Will be implemented in the future
+        } else if(dataset.getStorageType() == PrDataset.STORAGE_TYPE.S3) {
+            // Will be implemented in the future
+        } else if(dataset.getStorageType() == PrDataset.STORAGE_TYPE.BLOB) {
+            // Will be implemented in the future
+        } else {
+            // nothing to do. PrDataset.STORAGE_TYPE.LOCAL
+        }
+
+        return;
+    }
+
+    public void uploadFileToHdfs(PrDataset dataset) throws Exception {
+        String storedUri = dataset.getStoredUri();
+
+        Map<String, Object> check = this.hdfsService.checkHdfs();
+        if(check.get("stagingBaseDir")!=null) {
+            Configuration conf = this.hdfsService.getConf();
+            FileSystem fs = FileSystem.get(conf);
+
+            String uploadPath = this.hdfsService.getUploadPath();
+            if (null != uploadPath) {
+                String fileName = FilenameUtils.getName(storedUri);
+                String hdfsStoredUri = uploadPath + File.separator + fileName;
+
+                Path pathLocalFile = new Path(storedUri);
+                Path pathHdfsFile = new Path(hdfsStoredUri);
+
+                Path pathStagingBase = pathHdfsFile.getParent();
+                if( false==fs.exists(pathStagingBase) ) {
+                    fs.mkdirs(pathStagingBase);
+                }
+
+                fs.copyFromLocalFile(true, true, pathLocalFile, pathHdfsFile);
+
+                dataset.setStoredUri(hdfsStoredUri);
+            } else {
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "dataprep.stagingBaseDir");
+            }
+        } else {
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "dataprep.hadoopConfDir");
+        }
+
+        return;
     }
 
     public Map<String,Object> getConnectionInfo(String dcId) {

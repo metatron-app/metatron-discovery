@@ -593,9 +593,14 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   public getSheetName() : string {
 
     let result = "N/A";
+    /*
     if (this.selectedDataSet.custom) {
       let customJson = JSON.parse(this.selectedDataSet.custom);
       result = customJson.sheet ? customJson.sheet : "N/A";
+    }
+    */
+    if (this.selectedDataSet.sheetName) {
+      result = this.selectedDataSet.sheetName;
     }
     return result;
 

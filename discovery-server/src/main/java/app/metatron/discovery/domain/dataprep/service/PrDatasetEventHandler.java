@@ -59,6 +59,17 @@ public class PrDatasetEventHandler {
                     oAuthToken = oAuthToken + cookies[i].getValue();
             }
 
+            // excel to csv
+            // below the file format is always csv
+            if(dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD || dataset.getImportType() == PrDataset.IMPORT_TYPE.URI) {
+                this.datasetService.changeExcelToCsv(dataset);
+            }
+
+            // upload file to storage
+            if(dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD) {
+                this.datasetService.uploadFileToStorage(dataset);
+            }
+
             this.datasetService.savePreview(dataset, oAuthToken);
 
         } catch (Exception e) {

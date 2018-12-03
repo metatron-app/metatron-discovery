@@ -487,15 +487,17 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}` }
       ]
     //}  else if (dataset.importType === ImportType.FILE) {
-    }  else if (dataset.importType === ImportType.UPLOAD) {
+    }  else if (dataset.importType === ImportType.UPLOAD || dataset.importType === ImportType.URI) {
+      let filepath : string = dataset.importType === ImportType.UPLOAD? dataset.filenameBeforeUpload : dataset.storedUri;
+
       //this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType} (${this.getDatasetType(dataset.importType, dataset.filename)})`},
-      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType} (${this.getDatasetType(dataset.importType, dataset.storedUri)})`},
-        //{name : this.translateService.instant('msg.dp.th.file'), value : `${dataset.filename}` },
-        {name : this.translateService.instant('msg.dp.th.file'), value : `${dataset.storedUri}` },
+      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType} (${this.getDatasetType(dataset.importType, filepath)})`},
+        //{name : this.translateService.instant('msg.dp.th.file'), value : `${filepath}` },
+        {name : this.translateService.instant('msg.dp.th.file'), value : `${filepath}` },
       ];
 
       //if (this.getDatasetType(dataset.importType, dataset.filename) === 'EXCEL') {
-      if (this.getDatasetType(dataset.importType, dataset.storedUri) === 'EXCEL') {
+      if (this.getDatasetType(dataset.importType, filepath) === 'EXCEL') {
         this.datasetInformationList.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetName() })
       }
 
