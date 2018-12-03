@@ -257,6 +257,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       minSize: [700, 300],
         onDragEnd: (() => {
           this._editRuleGridComp.resizeGrid();
+        }),
+        onDragStart: (() => {
+          this._editRuleGridComp.gridAllContextClose();
         })
       })
     );
@@ -266,6 +269,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       minSize: [400, 110],
       onDragEnd: (() => {
         this._editRuleGridComp.resizeGrid();
+      }),
+      onDragStart: (() => {
+        this._editRuleGridComp.gridAllContextClose();
       })
     }));
     this._setEditRuleInfo({op:'INITIAL', ruleIdx: null, count: 100, offset: 0}).then((data)=> {

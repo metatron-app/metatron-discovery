@@ -624,6 +624,16 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
   } // function - drawChart
 
+
+
+  /**
+   * 전체 컨텍스트 메뉴 close
+   * @param event
+   */
+  public gridAllContextClose(): void {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : false } );
+  }
+
   /**
    * 컨텍스트 메뉴 클릭
    * @param data
