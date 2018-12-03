@@ -256,7 +256,8 @@
                    (selectedHeaderEvent)="rightGridHeaderClickHandler($event)"
                    class="ddp-ui-grid-form"></div>
               <div class="ddp-ui-grid-form" *ngIf="viewModeforRight === 'table'">
-                <table class="ddp-table-grid-list" *ngIf="rightDataset.gridData">
+                <div class="ddp-wrap-scroll">
+                  <table class="ddp-table-grid-list" *ngIf="rightDataset.gridData">
                   <colgroup>
                     <col width="60px"/>
                     <col width="*"/>
@@ -273,6 +274,7 @@
                   </tr>
                   </tbody>
                 </table>
+                </div>
               </div>
               <!-- // 그리드 -->
             </div>
