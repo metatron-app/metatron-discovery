@@ -14,7 +14,7 @@
 
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { DatasetFile, DatasetHive, DatasetJdbc } from '../../../domain/data-preparation/dataset';
+import {DatasetFile, DatasetHive, DatasetJdbc, RsType} from '../../../domain/data-preparation/dataset';
 import { PopupService } from '../../../common/service/popup.service';
 import { DatasetService } from '../service/dataset.service';
 import { isUndefined } from 'util';
@@ -172,16 +172,15 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
       this.loadingShow();
       this.flag = true;
+
+      let params = {};
+
       // 데이터 저장 서비스호출
       if(this.type === 'STAGING')  {
-        this.datasetService.createDatasetHive(this.datasetHive).then((result) => {
-          this.loadingHide();
-          this.successAction(result);
+        params = this._getHiveParams(this.datasetHive);
+        // Call save API
+        this._createDataset(params);
 
-        }).catch((error) => {
-          this.loadingHide();
-          this.errorAction(error);
-        });
       } else if (this.type === 'FILE') {
         this.datasetService.createDataset(this.datasetFile,this.datasetFile.delimiter).then((result) => {
           this.loadingHide();
@@ -323,9 +322,12 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       }
     } else if ('STAGING' === type) {
 
-      if ('' !== this.datasetHive.tableName) {
-        this.name = `${this.datasetHive.tableName} (STAGING)`;
+      // When table
+      if (this.datasetHive.rsType === RsType.TABLE) {
+        this.name = `${this.datasetHive.tableInfo.tableName} (STAGING)`;
       }
+
+      // When query
 
     }
 
@@ -346,50 +348,94 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
         // } else if (this.datasetFile.sheetInformation.length > 1) {
         //   this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetNames()});
         // }
-
-          this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.datasetFile.sheetname});
+        this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.datasetFile.sheetname});
       }
 
-    } else if ('DB' === this.type || 'STAGING' === this.type) {
+    } else if ('DB' === this.type) {
 
-      let ds = 'DB' === this.type ? this.datasetJdbc : this.datasetHive;
+      let ds = this.datasetJdbc;
 
-      if ('DB' !== this.type) {
-        this.datasetInfo.push({name : this.translateService.instant('msg.comm.th.type'), value : 'Staging DB'});
+      this.datasetInfo.push({name : this.translateService.instant('msg.comm.th.type'), value : ds.dataconnection['connection'].implementor});
 
-        if ('' !== ds.databaseName && '' !== ds.tableName) {
-          this.datasetInfo.push(
-            {name : this.translateService.instant('msg.dp.th.database'), value : ds.databaseName},
-            {name : this.translateService.instant('msg.dp.th.ss.table'), value : ds.tableName}
-          );
-        }
+      ds.databaseName && this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.database'), value : ds.databaseName});
+      ds.tableName && this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.ss.table'), value : ds.tableName});
 
+      if (ds.dataconnection['connection'].hostname && ds.dataconnection['connection'].port) {
+        this.datasetInfo.push(
+          {name : this.translateService.instant('msg.comm.th.host'), value : ds.dataconnection['connection'].hostname},
+          {name : this.translateService.instant('msg.comm.th.port'), value : ds.dataconnection['connection'].port}
+        );
       } else {
-
-        this.datasetInfo.push({name : this.translateService.instant('msg.comm.th.type'), value : ds.dataconnection['connection'].implementor});
-
-        ds.databaseName && this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.database'), value : ds.databaseName});
-        ds.tableName && this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.ss.table'), value : ds.tableName});
-
-        if (ds.dataconnection['connection'].hostname && ds.dataconnection['connection'].port) {
-          this.datasetInfo.push(
-            {name : this.translateService.instant('msg.comm.th.host'), value : ds.dataconnection['connection'].hostname},
-            {name : this.translateService.instant('msg.comm.th.port'), value : ds.dataconnection['connection'].port}
-          );
-        } else {
-          this.datasetInfo.push(
-            {name : this.translateService.instant('msg.nbook.th.url'), value : ds.dataconnection['connection'].url}
-          );
-        }
+        this.datasetInfo.push(
+          {name : this.translateService.instant('msg.nbook.th.url'), value : ds.dataconnection['connection'].url}
+        );
       }
 
       if (ds.databaseName === '' && ds.tableName === '') {
         this.datasetInfo.push({name : this.translateService.instant('msg.dp.btn.query'), value : ds.queryStmt});
       }
 
+    } else if ('STAGING' === this.type) {
+      this.datasetInfo.push({name : this.translateService.instant('msg.comm.th.type'), value : 'Staging DB'});
+
+      if (this.datasetHive.rsType === RsType.TABLE) {
+        this.datasetInfo.push(
+          {name : this.translateService.instant('msg.dp.th.database'), value : this.datasetHive.tableInfo.databaseName},
+          {name : this.translateService.instant('msg.dp.th.ss.table'), value : this.datasetHive.tableInfo.tableName}
+        );
+      } else {
+        this.datasetInfo.push({name : this.translateService.instant('msg.dp.btn.query'), value : this.datasetHive.sqlInfo.queryStmt});
+      }
+
     }
 
   }
+
+
+  /**
+   * Returns parameter needed for creating staging dataset
+   * @returns {Object}
+   * @private
+   */
+  private _getHiveParams(hive): object {
+
+    if (hive.rsType === RsType.SQL) {
+      hive.queryStmt = hive.sqlInfo.queryStmt;
+    } else {
+      hive.tableName = hive.tableInfo.tableName;
+      hive['custom'] = `{"databaseName":"${hive.tableInfo.databaseName}"}`;
+    }
+    return hive
+  }
+
+  /**
+   * Create dataset (call API)
+   * @param {Object} params
+   * @private
+   */
+  private _createDataset(params : object) {
+
+    let tableInfo = this.datasetHive.tableInfo;
+    let sqlInfo = this.datasetHive.sqlInfo;
+
+    delete this.datasetHive.tableInfo;
+    delete this.datasetHive.sqlInfo;
+
+    this.datasetService.createDataSet(params).then((result) => {
+
+      this.loadingHide();
+      this.successAction(result);
+
+    }).catch((error) => {
+
+      this.datasetHive.tableInfo = tableInfo;
+      this.datasetHive.sqlInfo = sqlInfo;
+
+      this.loadingHide();
+      this.errorAction(error);
+    })
+  }
+
 
 }
 

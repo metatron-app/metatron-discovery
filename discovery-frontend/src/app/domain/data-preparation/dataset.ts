@@ -131,13 +131,17 @@ export class DatasetFile extends Dataset {
 }
 
 export class DatasetHive extends Dataset {
-  public queryStmt: string;
-  public tableName: string;
-  public databaseName: string;
   public rsType: RsType;
   public dsName: string;
   public dsDesc: string;
-  public selectedInfo: SelectedInfo;
+
+  public sqlInfo? : QueryInfo;
+  public tableInfo? : TableInfo;
+
+  public tableName? : string;
+  public databaseName? : string;
+  public queryStmt?: string;
+
   public dataconnection?: any;
 }
 
@@ -192,11 +196,25 @@ export class Rule {
 }
 
 
+export class QueryInfo {
+  public headers: header[];
+  public rows: any[];
+  public queryStmt: string;
+  public valid?: boolean;
+}
+
+export class TableInfo {
+  public headers: header[];
+  public rows: any[];
+  public databaseName: string;
+  public tableName: string;
+
+}
+
 export class SelectedInfo {
   public headers : header[];
   public rows : any[];
   public database? : string;
   public table? : string;
   public query? : string;
-
 }

@@ -12,16 +12,13 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, Injector, OnInit, Input, ViewChild, HostListener, EventEmitter,
-  Output
-} from '@angular/core';
+import { Component, ElementRef, Injector, OnInit, Input, ViewChild, HostListener, EventEmitter, Output } from '@angular/core';
 import { DatasetService } from '../service/dataset.service';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
 import { Alert } from '../../../common/util/alert.util';
 import { PreparationAlert } from '../../util/preparation-alert.util';
-import { DatasetHive, DsType, RsType, ImportType, Field, SelectedInfo } from '../../../domain/data-preparation/dataset';
+import { DatasetHive, DsType, RsType, ImportType, Field, TableInfo, QueryInfo } from '../../../domain/data-preparation/dataset';
 import { GridComponent } from '../../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
 import { GridOption } from '../../../common/component/grid/grid.option';
@@ -75,6 +72,8 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   public clearGrid : boolean = false;
 
   public isTableEmpty: boolean = false;
+
+  public rsType = RsType;
 
   @Output()
   public typeEmitter = new EventEmitter<string>();
@@ -133,27 +132,27 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
   public ngOnInit() {
     super.ngOnInit();
 
     this.getDatabases();
 
-    // Only initialise selectedInfo when selectedInfo doesn't have value
-    if (isNullOrUndefined(this.datasetHive.selectedInfo)) {
-      this.datasetHive.selectedInfo = new SelectedInfo();
+    // Only initialise sqlInfo when sqlInfo doesn't have value
+    if (isNullOrUndefined(this.datasetHive.sqlInfo)) {
+      this.datasetHive.sqlInfo = new QueryInfo();
     }
 
-    this.datasetHive.tableName = '';
-    this.datasetHive.databaseName = '';
-    this.datasetHive.queryStmt = '';
-    this.datasetHive.dsType = DsType.IMPORTED;
-    this.datasetHive.rsType = RsType.TABLE;
-    this.datasetHive.importType = ImportType.HIVE;
+    // Only initialise tableInfo when tableInfo doesn't have value
+    if (isNullOrUndefined(this.datasetHive.tableInfo)) {
+      this.datasetHive.tableInfo = new TableInfo();
+    }
+
+    // Set default value
+    this._setDefaultValues();
+
   }
 
-  // Destory
+
   public ngOnDestroy() {
     super.ngOnDestroy();
   }
@@ -166,6 +165,10 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     // 선택된 테이블/query가 없다면
     if (!this.clickable) {
       return;
+    }
+
+    if (this.datasetHive.rsType === RsType.SQL) {
+      this.datasetHive.sqlInfo.valid = true;
     }
 
     this.typeEmitter.emit('STAGING');
@@ -204,10 +207,10 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   public onChangeDatabase(event,database) {
     this.isDatabaseListShow = false;
     event.stopPropagation();
-    this.datasetHive.databaseName = database.name;
-    this.datasetHive.selectedInfo.database = database.name;
-    this.datasetHive.selectedInfo.table = '';
-    this.clickable = false;
+    this.datasetHive.tableInfo.databaseName = database.name;
+    this.datasetHive.tableInfo.tableName = undefined;
+
+    this.clickable = false; // table 이 선택 되지 않아서 다음으로 넘어갈수 없음
     this.getTables(database.name);
     $('[tabindex=1]').trigger('focus');
     this.initSelectedCommand(this.filteredDbList);
@@ -221,24 +224,20 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   public onChangeTable(event, data:any) {
     this.isSchemaListShow = false;
     event.stopPropagation();
-
     this.loadingShow();
-    this.datasetHive.queryStmt = 'SELECT * FROM ' + this.datasetHive.databaseName + '.' + data.name;
-    // this.datasetHive.tableName = this.selectedDatabase + '.' + event.name;
-    this.datasetHive.tableName = data.name;
 
     // Save table name -
-    this.datasetHive.selectedInfo.table = data.name;
+    this.datasetHive.tableInfo.tableName = data.name;
 
-    this.datasetService.getStagingTableData(this.datasetHive.databaseName, data.name)
+    this.datasetService.getStagingTableData(this.datasetHive.tableInfo.databaseName, data.name)
       .then((result) => {
         this.loadingHide();
 
         const headers: header[] = this._getHeaders(result.fields);
         const rows: any[] = this._getRows(result.data);
 
-        this.datasetHive.selectedInfo.headers = headers;
-        this.datasetHive.selectedInfo.rows = rows;
+        this.datasetHive.tableInfo.headers = headers;
+        this.datasetHive.tableInfo.rows = rows;
 
         this.clearGrid = false;
         this._drawGrid(headers,rows);
@@ -260,7 +259,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     this.isDatabaseListShow = true;
     this.isSchemaListShow = false;
     this.dbSearchText = ''; //검색어 초기화
-    setTimeout(() => $('.db-search').focus()); // focus on input
+    setTimeout(() => $('.db-search').trigger('focus')); // focus on input
 
   } // function - showDatabaseList
 
@@ -270,52 +269,37 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     this.isSchemaListShow = true;
     this.isDatabaseListShow = false;
     this.schemaSearchText = ''; //검색어 초기화
-    setTimeout(() => $('.schema-search').focus()); // focus on input
+    setTimeout(() => $('.schema-search').trigger('focus')); // focus on input
 
   } // function - showSchemaList
 
-  /**
-   * init table tab
-   */
-  public initTable() {
-    this.datasetHive.tableName = '';
-    this.datasetHive.databaseName = '';
-    this.datasetHive.queryStmt = '';
-  }
-
-  /**
-   * init Query tab
-   */
-  public initQuery() {
-    this.datasetHive.tableName = '';
-    this.selectedDatabaseQuery = '';
-    this.datasetHive.queryStmt = '';
-    this.showQueryStatus = false;
-  }
   /**
    * Table or Query ?
    * @param method
    */
   public selectedMethod(method) {
 
-    if (this.tableOrQuery !== method) {
-      if( method==='table' ) {
-        this.datasetHive.rsType = RsType.TABLE;
-      } else {
-        this.datasetHive.rsType = RsType.SQL;
-      }
-      this.tableOrQuery = method;
+    // When same tab is clicked
+    if (this.datasetHive.rsType === method) {
+      return;
+    }
 
-      if (this.gridComponent) {
-        this.gridComponent.destroy(); // destroy grid
-      }
-      this.clickable = false; // prevent moving to next stage
+    // set tab
+    this.datasetHive.rsType = method;
+
+    // destroy grid
+    this.gridComponent.destroy();
+
+    // When QUERY tab => db, schema select box is hidden
+    if (this.datasetHive.rsType !== RsType.TABLE) {
       this.isDatabaseListShow = false;
       this.isSchemaListShow = false;
-      this.initTable();
-      this.initQuery();
-      this.datasetHive.selectedInfo = new SelectedInfo();
+    }
 
+    // If grid data exists, draw grid.
+    let data = this.datasetHive[method.toLowerCase()+'Info'];
+    if (data.headers && data.headers.length > 0) {
+      this._drawGrid(data.headers,data.rows)
     }
 
   } // function - selectedMethod
@@ -323,16 +307,15 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   /** 쿼리로 테이블 불러오기 */
   public runStagingDBQuery() {
 
-    if (this.datasetHive.queryStmt == '' ) {
+    if (this.datasetHive.sqlInfo.queryStmt == '' ) {
       return;
     }
 
     this.loadingShow();
     this.queryErrorMsg = '';
 
-    this.datasetHive.selectedInfo.query = this.datasetHive.queryStmt;
 
-    this.datasetService.getResultWithStagingDBQuery(this.datasetHive.queryStmt).then((result) => {
+    this.datasetService.getResultWithStagingDBQuery(this.datasetHive.sqlInfo.queryStmt).then((result) => {
       this.loadingHide();
       if (result.hasOwnProperty('errorMsg')) {
         this.showQueryStatus = true;
@@ -349,8 +332,8 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       const headers: header[] = this._getHeaders(result.fields);
       const rows: any[] = this._getRows(result.data);
 
-      this.datasetHive.selectedInfo.headers = headers;
-      this.datasetHive.selectedInfo.rows = rows;
+      this.datasetHive.sqlInfo.headers = headers;
+      this.datasetHive.sqlInfo.rows = rows;
 
       this.clearGrid = false;
       this._drawGrid(headers,rows);
@@ -387,7 +370,15 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     if(this.clickable) {
       this.clickable = !this.clickable;
     }
-    this.datasetHive.queryStmt = param;
+
+    if (this.datasetHive.sqlInfo.queryStmt !== param) {
+      // 변경된 텍스트 저장
+      this.datasetHive.sqlInfo.queryStmt = param;
+      // 데이터 초기화
+      this.gridComponent.destroy();
+      this.showQueryStatus = false;
+    }
+
   }
 
   /**
@@ -579,34 +570,28 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
           this.datasetService.getStagingSchemas()
             .then((data) => {
               this.loadingHide();
+
               this.databaseList = [];
-              this.datasetHive.databaseName = '';
+
+              // set databases in databaseList
               if (data) {
-                for (let idx = 0, nMax = data.length; idx < nMax; idx = idx + 1) {
-                  this.databaseList.push({ idx : idx, name : data[idx], selected : false });
-                }
+                data.forEach((item, index) => {
+                  this.databaseList.push({idx : index, name : item, selected : false})
+                })
               }
 
-              if ( (this.datasetHive.selectedInfo.headers) || this.datasetHive.selectedInfo.query) {
+              // If type is table and has grid info
+              if (this.datasetHive.rsType === RsType.TABLE && this.datasetHive.tableInfo.headers) {
+                this.getTables(this.datasetHive.tableInfo.databaseName);
+                this._drawGrid(this.datasetHive.tableInfo.headers,this.datasetHive.tableInfo.rows);
 
-                // 탭 선택
-                this.tableOrQuery = this.datasetHive.selectedInfo.query ? 'query' : 'table';
+              // If type is Query and has query info
+              } else if (this.datasetHive.rsType === RsType.SQL && this.datasetHive.sqlInfo.queryStmt) {
+                this._drawGrid(this.datasetHive.sqlInfo.headers,this.datasetHive.sqlInfo.rows);
 
-                if (this.tableOrQuery === 'table') {
-                  this.datasetHive.tableName = this.datasetHive.selectedInfo.table;
-                  this.datasetHive.databaseName = this.datasetHive.selectedInfo.database;
-                  this.clearGrid = false;
-                  this.getTables(this.datasetHive.databaseName);
-                } else {
-                  this.datasetHive.queryStmt = this.datasetHive.selectedInfo.query;
-                }
-                this._drawGrid(this.datasetHive.selectedInfo.headers,this.datasetHive.selectedInfo.rows);
-
-              } else {
+              } else {  // Neither
                 this.showDatabaseList();
               }
-
-
 
             })
             .catch((error) => {
@@ -623,6 +608,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       });
   } // function - getDatabases
 
+
   /**
    * 특정 데이터 베이스 내 테이블 목록 조회
    * @param {string} schema
@@ -637,16 +623,10 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
           for (let idx = 0, nMax = data.length; idx < nMax; idx = idx + 1) {
             this.schemaList.push({ idx : idx, name : data[idx], selected : false });
           }
-
-          if (this.datasetHive.selectedInfo.table) {
-            this.datasetHive.tableName = this.datasetHive.selectedInfo.table;
-          }
-
           this.isTableEmpty = false;
         } else {
           this.schemaList = [];
-          this.datasetHive.tableName = '';
-          this.datasetHive.selectedInfo.table = '';
+          this.datasetHive.tableInfo.tableName = undefined;
           this.isTableEmpty = true;
         }
       })
@@ -722,6 +702,34 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
         .build()
       )},400);
     this.clickable = true;
+  }
+
+
+
+  /**
+   * Set default values
+   * @private
+   */
+  private _setDefaultValues() {
+
+    // Imported and Hive type is default value
+    this.datasetHive.dsType = DsType.IMPORTED;
+    this.datasetHive.importType = ImportType.HIVE;
+
+
+    // When type info is null set it to TABLE
+    if (isNullOrUndefined(this.datasetHive.rsType)) {
+      this.datasetHive.rsType = RsType.TABLE;
+    } else {
+
+      // If type is sql, no need run query
+      if (this.datasetHive.rsType === RsType.SQL) {
+        if (this.datasetHive.sqlInfo.valid) {
+          this.isQuerySuccess = true;
+          this.showQueryStatus = true;
+        }
+      }
+    }
   }
 
 
