@@ -36,7 +36,7 @@ import {MomentDatePipe} from '../common/pipe/moment.date.pipe';
 import {StringUtil} from '../common/util/string.util';
 import {CommonUtil} from '../common/util/common.util';
 import {WorkspaceService} from '../workspace/service/workspace.service';
-import {PermissionChecker, Workspace} from '../domain/workspace/workspace';
+import {PermissionChecker, PublicType, Workspace} from '../domain/workspace/workspace';
 import {DashboardComponent} from '../dashboard/dashboard.component';
 import {Page, PageResult} from 'app/domain/common/page';
 import {UpdateDashboardComponent} from '../dashboard/update-dashboard.component';
@@ -59,9 +59,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
   // 현재 워크북 아이디
   private workbookId: string;
-
-  // 워크스페이스 정보
-  private workspace: Workspace;
 
   // 쿠키에 저장된 댓글 id
   private cookieCommentId: any;
@@ -117,6 +114,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   // 대시보드 리스트
   public dashboards: Dashboard[];
 
+  public workspace: Workspace;            // 워크스페이스 정보
   public tempLoadBoard:Dashboard;         // 조회용 임시 보드 정보 ( reload를 위한 )
   public selectedDashboard: Dashboard;    // 선택된 대시보드
 
@@ -179,6 +177,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
     return this.dashboards;
   }
+
+  public publicType = PublicType;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -257,7 +257,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.sendViewActivityStream(this.workbookId, 'WORKBOOK');
 
       this._getWorkbook().then((workbook: Workbook) => {
-
 
         // 워크스페이스 조회
         this.workspaceService.getWorkSpace(this.workbook.workspaceId, 'forDetailView').then((workspace: Workspace) => {
