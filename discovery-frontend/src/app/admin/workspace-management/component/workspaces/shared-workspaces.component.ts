@@ -22,6 +22,8 @@ import { Modal } from '../../../../common/domain/modal';
 import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
 import { PeriodData } from '../../../../common/value/period.data.value';
 
+declare let moment: any;
+
 @Component({
   selector: 'app-shared-workspaces',
   templateUrl: './shared-workspaces.component.html'
