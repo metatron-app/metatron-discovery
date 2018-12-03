@@ -23,7 +23,9 @@ import { CookieConstant } from '../../../common/constant/cookie.constant';
 import { CommonConstant } from '../../../common/constant/common.constant';
 import { CookieService } from 'ng2-cookies';
 import { CommonUtil } from '../../../common/util/common.util';
-import { ElapsedTime } from '../../../domain/data-preparation/data-snapshot';
+// 클래스 교체중
+//import { ElapsedTime } from '../../../domain/data-preparation/data-snapshot';
+import { ElapsedTime } from '../../../domain/data-preparation/pr-snapshot';
 declare let moment: any;
 
 @Component({
