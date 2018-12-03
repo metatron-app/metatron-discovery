@@ -228,7 +228,7 @@
             {{ 'msg.comm.menu.manage.prep.set' | translate }}
           </dt>
           <dd>
-            <a href="javascript:" (click)="navigateDataflow(dfId)" class="ddp-link-data"><strong>{{ selectedDataSnapshot.dsName }}</strong> in {{ selectedDataSnapshot.creatorDfName }} </a>
+            <a href="javascript:" (click)="navigateDataflow(dfId)" class="ddp-link-data"><strong>{{ selectedDataSnapshot.dsName }}</strong> in {{ selectedDataSnapshot.dfName }} </a>
             <div class="ddp-ui-sub">
               <span class="ddp-data-sub">{{'msg.comm.ui.list.created' | translate}} <em class="ddp-data-result">{{selectedDataSnapshot.createdTime | mdate:'YYYY-MM-DD HH:mm:ss'}}</em></span>
               <span class="ddp-data-sub">{{'msg.comm.ui.list.updated' | translate}} <em class="ddp-data-result">{{selectedDataSnapshot.modifiedTime | mdate:'YYYY-MM-DD HH:mm:ss'}}</em></span>

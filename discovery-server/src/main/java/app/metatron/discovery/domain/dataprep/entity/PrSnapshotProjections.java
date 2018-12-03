@@ -25,7 +25,7 @@ public class PrSnapshotProjections {
     public interface DefaultProjection {
         String getSsId();
         String getSsName();
-        String getCreatorDfName();
+        String getDfName();
         String getDsName();
         DateTime getLaunchTime();
         DateTime getFinishTime();
@@ -39,28 +39,26 @@ public class PrSnapshotProjections {
     @Projection(name = "detail", types = { PrSnapshot.class })
     public interface DetailProjection {
         String getSsName();
-        String getCreatorDfName();
-        String getCompression();
-        String getFormat();
+        String getDfName();
+        String getHiveFileCompression();
+        String getHiveFileFormat();
         String getSsType();
         String getDsName();
         DateTime getLaunchTime();
         DateTime getFinishTime();
-        Long getTotalLines() ;
+        Long getTotalLines();
         Long getTotalBytes();
         Long getRuleCntTotal();
         Long getRuleCntDone();
 
         Map<String,Long>  getElapsedTime();
-        Long getValidLines();
         Long getMismatchedLines();
         Long getMissingLines();
 
-        String getUri();
+        String getStoredUri();
 
         String getCustom();
         //String getLineageInfo();
-        Map<String,Object> getJsonLineageInfo();
         String getStatus();
 
         Map<String,Object> getSourceInfo();
@@ -72,7 +70,7 @@ public class PrSnapshotProjections {
         String getSsId();
         String getSsName();
         String getSsType();
-        String getCreatorDfName();
+        String getDfName();
         String getDsName();
         DateTime getLaunchTime();
         DateTime getFinishTime();
@@ -82,7 +80,6 @@ public class PrSnapshotProjections {
         Long getRuleCntDone();
 
         Map<String,Long> getElapsedTime();
-        Long getValidLines();
         Long getMismatchedLines();
         Long getMissingLines();
 
