@@ -118,7 +118,7 @@
         <div class="ddp-wrap-data-info">
           <!-- 권한 -->
           <div class="ddp-wrap-power">
-            <div *ngIf="workspace.owner && loginUserId === workspace.owner.username" class="ddp-box-power ddp-owner" >Owner</div>
+            <div *ngIf="workspace.owner && loginUserId === workspace.owner.username" class="ddp-box-power ddp-owner" >{{ 'msg.space.ui.owner' | translate }}</div>
           </div>
           <!-- //권한 -->
           <!-- tag -->
