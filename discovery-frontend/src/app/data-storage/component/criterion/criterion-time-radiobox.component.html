@@ -14,8 +14,8 @@
   -->
 <div class="ddp-wrap-popup2 ddp-date">
   <ul class="ddp-list-popup">
-    <li *ngFor="let timeType of timeTypeList" (click)="onChangeTimeType(timeType); $event.preventDefault()">
-      <a href="javascript:">
+    <li *ngFor="let timeType of timeTypeList" >
+      <a href="javascript:" (click)="onChangeTimeType(timeType); $event.preventDefault()">
         <label class="ddp-label-radio">
           <input type="radio" [checked]="selectedTimeType.value === timeType.value">
           <i class="ddp-icon-radio"></i>
