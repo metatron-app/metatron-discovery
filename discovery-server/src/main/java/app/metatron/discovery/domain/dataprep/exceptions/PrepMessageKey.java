@@ -21,6 +21,7 @@ public enum PrepMessageKey {
     MSG_DP_ALERT_PROPERTY_NOT_AVAILABLE(                         "msg.dp.alert.property.not.available"),
     MSG_DP_ALERT_PREVIEWLINES_CRASHED(                           "msg.dp.alert.previewlines.creashed"),
     MSG_DP_ALERT_DATASET_FAILED_AFTERCREATE(                     "msg.dp.alert.dataset.failed.aftercreate"),
+    MSG_DP_ALERT_DATASET_FAIL_TO_CREATE(                         "msg.dp.alert.dataset.fail.to.create"),
     MSG_DP_ALERT_DATASET_UPLOAD_NO_KEY(                          "msg.dp.alert.dataset.upload.no.key"),
     MSG_DP_ALERT_JDBC_CONNECTION_ERROR(                          "msg.dp.alert.jdbc.connection.error"),
     MSG_DP_ALERT_STAGINGDB_CONNECTION_ERROR(                     "msg.dp.alert.stagingdb.connection.error"),

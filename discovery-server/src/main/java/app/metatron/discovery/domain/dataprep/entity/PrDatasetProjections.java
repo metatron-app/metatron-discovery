@@ -32,7 +32,7 @@ public class PrDatasetProjections {
         String getDsDesc();
         PrDataset.DS_TYPE getDsType();
         PrDataset.IMPORT_TYPE getImportType();
-        PrDataset.STORAGE_TYPE getStorageType();
+        //PrDataset.STORAGE_TYPE getStorageType();
         String getStoredUri();
         String getFilenameBeforeUpload();
         Long getTotalLines();
@@ -72,7 +72,7 @@ public class PrDatasetProjections {
         String getDsDesc();
         PrDataset.DS_TYPE getDsType();
         PrDataset.IMPORT_TYPE getImportType();
-        PrDataset.STORAGE_TYPE getStorageType();
+        //PrDataset.STORAGE_TYPE getStorageType();
         String getStoredUri();
         String getFilenameBeforeUpload();
         Long getTotalLines();
@@ -112,7 +112,7 @@ public class PrDatasetProjections {
         String getDsDesc();
         PrDataset.DS_TYPE getDsType();
         PrDataset.IMPORT_TYPE getImportType();
-        PrDataset.STORAGE_TYPE getStorageType();
+        //PrDataset.STORAGE_TYPE getStorageType();
         String getStoredUri();
         String getFilenameBeforeUpload();
         Long getTotalLines();

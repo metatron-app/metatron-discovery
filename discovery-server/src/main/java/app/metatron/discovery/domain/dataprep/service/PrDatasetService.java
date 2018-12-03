@@ -27,9 +27,16 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
 import java.io.File;
 import java.util.Map;
@@ -38,6 +45,8 @@ import java.util.Map;
 @Service
 @Transactional
 public class PrDatasetService {
+    private static Logger LOGGER = LoggerFactory.getLogger(PrDatasetService.class);
+
     @Autowired
     PrepPreviewLineService previewLineService;
 
@@ -136,6 +145,7 @@ public class PrDatasetService {
         return;
     }
 
+    /*
     public void uploadFileToStorage(PrDataset dataset) throws Exception {
         String storedUri = dataset.getStoredUri();
 
@@ -151,6 +161,30 @@ public class PrDatasetService {
         } else if(dataset.getStorageType() == PrDataset.STORAGE_TYPE.S3) {
             // Will be implemented in the future
         } else if(dataset.getStorageType() == PrDataset.STORAGE_TYPE.BLOB) {
+            // Will be implemented in the future
+        } else {
+            // nothing to do. PrDataset.STORAGE_TYPE.LOCAL
+        }
+
+        return;
+    }
+    */
+
+    public void uploadFileToStorage(PrDataset dataset, String storageType) throws Exception {
+        String storedUri = dataset.getStoredUri();
+
+        if (storedUri == null) {
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_KEY_MISSING,
+                    String.format("storedUri=%s", storedUri));
+        }
+
+        if(storageType.equalsIgnoreCase(PrDataset.STORAGE_TYPE.HDFS.name())) {
+            uploadFileToHdfs(dataset);
+        } else if(storageType.equalsIgnoreCase(PrDataset.STORAGE_TYPE.FTP.name())) {
+            // Will be implemented in the future
+        } else if(storageType.equalsIgnoreCase(PrDataset.STORAGE_TYPE.S3.name())) {
+            // Will be implemented in the future
+        } else if(storageType.equalsIgnoreCase(PrDataset.STORAGE_TYPE.BLOB.name())) {
             // Will be implemented in the future
         } else {
             // nothing to do. PrDataset.STORAGE_TYPE.LOCAL
@@ -225,4 +259,36 @@ public class PrDatasetService {
         }
         return connectionInfo;
     }
+
+    public void afterCreate(PrDataset dataset, String storageType) throws PrepException {
+        try {
+
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+            String oAuthToken = "bearer ";
+            Cookie[] cookies = request.getCookies();
+            for(int i=0; i<cookies.length; i++){
+                if(cookies[i].getName().equals("LOGIN_TOKEN"))
+                    oAuthToken = oAuthToken + cookies[i].getValue();
+            }
+
+            // excel to csv
+            // below the file format is always csv
+            if(dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD || dataset.getImportType() == PrDataset.IMPORT_TYPE.URI) {
+                this.changeExcelToCsv(dataset);
+            }
+
+            // upload file to storage
+            if(dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD) {
+                this.uploadFileToStorage(dataset, storageType);
+            }
+
+            this.savePreview(dataset, oAuthToken);
+
+        } catch (Exception e) {
+            LOGGER.error("afterCreate(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_DATASET_FAILED_AFTERCREATE, e.getMessage());
+        }
+
+    }
+
 }

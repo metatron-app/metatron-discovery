@@ -15,7 +15,8 @@
 package app.metatron.discovery.domain.dataprep.service;
 
 import app.metatron.discovery.domain.dataprep.*;
-import app.metatron.discovery.domain.dataprep.entity.*;
+import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
@@ -32,8 +33,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.projection.ProjectionFactory;
+import org.springframework.data.rest.webmvc.PersistentEntityResource;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -104,6 +107,34 @@ public class PrDatasetController {
         }
         return limitSize;
     }
+
+    @RequestMapping(value="", method = RequestMethod.POST)
+    public @ResponseBody
+    PersistentEntityResource postDataset(
+            @RequestParam String storageType,
+            @RequestBody Resource<PrDataset> datasetResource,
+            PersistentEntityResourceAssembler resourceAssembler
+    ) {
+        PrDataset dataset = null;
+        PrDataset savedDataset = null;
+
+        try {
+            dataset = datasetResource.getContent();
+            savedDataset = datasetRepository.save(dataset);
+            LOGGER.debug(savedDataset.toString());
+
+            this.datasetService.afterCreate(savedDataset, storageType);
+
+            this.datasetRepository.flush();
+        } catch (Exception e) {
+            LOGGER.error("postDataset(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_DATASET_FAIL_TO_CREATE, e.getMessage());
+        }
+
+        return resourceAssembler.toResource(savedDataset);
+    }
+
+
 
     @RequestMapping(value = "/{dsId}", method = RequestMethod.GET)
     @ResponseBody

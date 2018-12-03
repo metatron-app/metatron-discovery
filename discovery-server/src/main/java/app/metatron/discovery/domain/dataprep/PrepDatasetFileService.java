@@ -765,7 +765,7 @@ public class PrepDatasetFileService {
 
             URI uri = new URI(storedUri);
 
-            if(uri.getScheme() == PrDataset.STORAGE_TYPE.LOCAL.name()) {
+            if(uri.getScheme().equalsIgnoreCase(PrDataset.STORAGE_TYPE.LOCAL.name())) {
                 assert storedUri != null;
 
                 File theFile = new File(uri);
@@ -774,7 +774,7 @@ public class PrepDatasetFileService {
                 }
                 totalBytes = theFile.length();
                 inputStreamReader = new InputStreamReader(new FileInputStream(theFile));
-            } else if(uri.getScheme()== PrDataset.STORAGE_TYPE.HDFS.name()) {
+            } else if(uri.getScheme().equalsIgnoreCase(PrDataset.STORAGE_TYPE.HDFS.name())) {
                 Configuration conf = this.hdfsService.getConf();
                 FileSystem fs = FileSystem.get(conf);
                 Path thePath = new Path(uri);

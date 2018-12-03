@@ -189,7 +189,7 @@ export class DatasetService extends AbstractService {
     params.filenameBeforeUpload = datasetFile.filenameBeforeUpload;
     params.storageType = datasetFile.storageType;
     params.sheetName = datasetFile.sheetName;
-    params.storageType = datasetFile.storageType;
+    //params.storageType = datasetFile.storageType;
     params.storedUri = datasetFile.storedUri;
 
     console.info('datasetFile', datasetFile);
@@ -221,7 +221,8 @@ export class DatasetService extends AbstractService {
       params.custom = '{"fileType":"EXCEL", "sheet":"' + datasetFile.sheetname + '"}';
     }
     */
-    return this.post(this.API_URL + 'preparationdatasets', params);
+    //return this.post(this.API_URL + 'preparationdatasets', params);
+    return this.post(this.API_URL + 'preparationdatasets?storageType='+datasetFile.storageType, params);
   }
 
   // 데이터셋  수정
