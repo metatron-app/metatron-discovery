@@ -72,4 +72,6 @@ export class CommonConstant {
 
   public static cookieService: CookieService = new CookieService();
 
+  public static COL_NAME_CURRENT_DATETIME:string = 'current_datetime';
+
 }

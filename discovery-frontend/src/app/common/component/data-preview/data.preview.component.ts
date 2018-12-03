@@ -26,7 +26,7 @@ import {
 } from '@angular/core';
 import {BoardDataSource, Dashboard, JoinMapping, QueryParam} from '../../../domain/dashboard/dashboard';
 import {DatasourceService} from 'app/datasource/service/datasource.service';
-import {Datasource, DataSourceSummary, Field} from '../../../domain/datasource/datasource';
+import {Datasource, DataSourceSummary, Field, FieldFormatType, FieldRole} from '../../../domain/datasource/datasource';
 import {SlickGridHeader} from 'app/common/component/grid/grid.header';
 import {header} from '../grid/grid.header';
 import {GridComponent} from '../grid/grid.component';
@@ -200,15 +200,20 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     if (this.source['configuration']) {
       this.isDashboard = true;
       const dashboardInfo: Dashboard = (<Dashboard>this.source);
-      this.datasources = DashboardUtil.getMainDataSources(dashboardInfo);
+      this.datasources = _.cloneDeep(DashboardUtil.getMainDataSources(dashboardInfo));
     } else {
       this.isDashboard = false;
-      this.datasources.push(<Datasource>this.source);
+      this.datasources.push(<Datasource>_.cloneDeep(this.source));
     }
     // 데이터소스 array에 메타데이터가 존재하는경우 merge
     this.datasources.forEach((source) => {
-      source.fields.forEach((field) => {
+      source.fields.forEach((field, index, object) => {
+        // set meta data information
         this._setMetaDataField(field, source);
+        //  if current time in fields, hide
+        if (field.role === FieldRole.TIMESTAMP && field.format &&  field.format.type === FieldFormatType.TEMPORARY_TIME) {
+          object.splice(index, 1);
+        }
       });
     });
     this.selectDataSource(this.datasources[0]);
