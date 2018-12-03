@@ -309,7 +309,7 @@ public class PrSnapshot extends AbstractHistoryEntity {
     @Column(name = "ds_id")
     String dsId;
 
-    @Lob
+    @Size(max = 2000)
     @Column(name = "ds_name")
     String dsName;
 
@@ -395,14 +395,6 @@ public class PrSnapshot extends AbstractHistoryEntity {
 
     @Column(name = "orig_ds_dc_username")
     protected String origDsDcUsername;
-
-    public String getDcPassword() {
-        return dcPassword;
-    }
-
-    public void setDcPassword(String dcPassword) {
-        this.dcPassword = dcPassword;
-    }
 
     @Column(name = "orig_ds_dc_url")
     protected String origDsDcUrl;
@@ -789,6 +781,14 @@ public class PrSnapshot extends AbstractHistoryEntity {
 
     public void setDcUsername(String dcUsername) {
         this.dcUsername = dcUsername;
+    }
+
+    public String getDcPassword() {
+        return dcPassword;
+    }
+
+    public void setDcPassword(String dcPassword) {
+        this.dcPassword = dcPassword;
     }
 
     public String getDcUrl() {
