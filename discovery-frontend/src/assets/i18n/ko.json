@@ -1127,7 +1127,7 @@
   "msg.dp.ui.rule.list": "룰 리스트",
   "msg.dp.ui.rules": "룰",
   "msg.dp.ui.search.no.rslt": "검색 결과가 없습니다",
-  "msg.dp.ui.sel.col.num" : "컬럼수를 입력해 주세요",
+  "msg.dp.ui.sel.col.num" : "그룹수를 입력해 주세요",
   "msg.dp.ui.sel.count": "{{value}}개 선택",
   "msg.dp.ui.sel.db": "데이터베이스 선택하기",
   "msg.dp.ui.sel.schema": "스키마 선택하기",
@@ -1273,6 +1273,7 @@
   "msg.dp.ui.change.input.dataset" : "입력 데이터셋 변경",
   "msg.dp.ui.search-by.dataset" :"데이터셋 이름으로 검색하세요",
   "msg.dp.ui.one.col.required" : "하나 이상의 컬럼이 필요합니다",
+  "msg.dp.alert.enter.group.every" : "그룹 수를 입력하세요",
 
   "msg.board.create.add-ds" : "데이터소스 추가",
   "msg.board.create.add-ds.desc" : "시각화 할 데이터소스를 추가하고 관계를 설정해 주세요",

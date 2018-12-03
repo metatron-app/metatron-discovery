@@ -380,11 +380,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   public deleteContent($event: Modal) {
 
-    this.loadingShow();
-
     if ($event.data.type === 'workbook') {
-
       // 워크북 삭제
+      this.loadingShow();
       this.workbookService.deleteWorkbook(this.workbook.id).then(() => {
         Alert.success(this.translateService.instant('msg.book.alert.workbook.del.success'));
         this.gotoWorkspace();
@@ -396,8 +394,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       // 대시보드 삭제
     } else if ($event.data.type === 'dashboard') {
       const dashboard: Dashboard = $event.data.data;
-
       // 대쉬보드 삭제
+      this.loadingShow();
       this.dashboardService.deleteDashboard(dashboard.id).then(() => {
         Alert.success(this.translateService.instant('msg.board.alert.dashboard.del.success'));
 
@@ -412,7 +410,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
           this.loadDashboardList(0);
         });
 
-
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));
 
@@ -421,6 +418,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       // 댓글 삭제
     } else if ($event.data.type === 'comment') {
 
+      this.isShowLnbLoading = true;
+
       this.workbookService.deleteComment(this.workbook.id, $event.data.data).then(() => {
         Alert.success(this.translateService.instant('msg.board.alert.comment.del.success'));
 
@@ -428,7 +427,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));
 
-        this.loadingHide();
+        this.isShowLnbLoading = false;
       });
     }
   } // function - deleteContent
@@ -1032,7 +1031,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     // 데이터 설정
     this.popupService.ptDashboards = _.cloneDeep(this.dashboards);
     let boardInfo: PresentationDashboard = <PresentationDashboard>_.cloneDeep(this.selectedDashboard);
-    boardInfo.selectionFilters = this._boardComp.getSelectedFilters();
+    boardInfo.selectionFilters = this._boardComp ? this._boardComp.getSelectedFilters() : [];
     this.popupService.ptStartDashboard = boardInfo;
     // 페이지 호출
     this.router.navigate([`/dashboard/presentation/${this.workbook.id}/${this.selectedDashboard.id}`]).then();
