@@ -28,6 +28,7 @@ import { MomentDatePipe } from '../../../../common/pipe/moment.date.pipe';
 import { CommonUtil } from '../../../../common/util/common.util';
 
 declare let echarts;
+declare let moment: any;
 
 @Component({
   selector: 'monitoring-data-source',
