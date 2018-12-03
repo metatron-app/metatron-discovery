@@ -163,6 +163,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       this.addAggregationType();
     }
 
+    // set measure list
+    this.setMeasureDimensions(this.shelf, true);
+
     if ((MapLayerType.TILE === cloneLayerType || MapLayerType.TILE === layerType) && cloneLayerType !== layerType) {
       // call search api (for precision setting)
       this.applyLayers({});
@@ -658,20 +661,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   private setByType(shelf: Shelf) {
 
-    const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
-      const resultList: AbstractField[] = [];
-      shelve.map((item) => {
-        if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
-          item['alias'] = ChartUtil.getAlias(item);
-          resultList.push(item);
-        }
-      });
-      return resultList;
-    });
-
-    this.measureList = getShelveReturnField(shelf.layers[this.uiOption.layerNum], [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
-
-    this.dimensionList = getShelveReturnField(shelf.layers[this.uiOption.layerNum], [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+    // set dimension, measure list
+    this.setMeasureDimensions(shelf);
 
     // init list
     this.byList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE}];
@@ -686,8 +677,35 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     if (this.measureList.length > 0) {
       this.byList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
       this.colorByList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
-
     }
+  }
+
+  /**
+   * set dimension, measure list
+   * @param {GeoField[]} layers
+   */
+  private setMeasureDimensions(shelf: Shelf, measureFl?: boolean) {
+
+    let layers = _.cloneDeep(shelf.layers[this.uiOption.layerNum]);
+
+    const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
+      const resultList: AbstractField[] = [];
+      shelve.map((item) => {
+        if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
+          item['alias'] = ChartUtil.getAlias(item);
+          resultList.push(item);
+        }
+      });
+      return resultList;
+    });
+
+    if (measureFl) {
+      this.measureList = getShelveReturnField(layers, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
+      return;
+    }
+
+    this.measureList = getShelveReturnField(layers, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
+    this.dimensionList = getShelveReturnField(layers, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
   }
 
   /**
