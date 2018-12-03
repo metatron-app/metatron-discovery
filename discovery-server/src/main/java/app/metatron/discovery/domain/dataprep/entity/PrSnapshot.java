@@ -21,6 +21,7 @@ import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
@@ -33,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -1109,5 +1111,18 @@ public class PrSnapshot extends AbstractHistoryEntity {
         connectionInfo.put("dcUrl", getDcUrl());
 
         return connectionInfo;
+    }
+
+    public List<Object> getRuleStringInfo() {
+        if (this.lineageInfo != null) {
+            Map jsonLineageInfo = GlobalObjectMapper.readValue(this.lineageInfo, Map.class);
+            if (jsonLineageInfo != null) {
+                Object ruleStringInfo = jsonLineageInfo.get("transformRules");
+                if (ruleStringInfo != null) {
+                    return (List)ruleStringInfo;
+                }
+            }
+        }
+        return Lists.newArrayList();
     }
 }

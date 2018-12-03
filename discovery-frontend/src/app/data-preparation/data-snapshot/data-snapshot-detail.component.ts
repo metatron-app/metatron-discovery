@@ -309,6 +309,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         }
 
         //let linageInfo = JSON.parse( this.selectedDataSnapshot["lineageInfo"] );
+        /*
         let linageInfo = this.selectedDataSnapshot["jsonLineageInfo"];
         if( linageInfo.dsId ) {
           this.dsId = linageInfo.dsId;
@@ -318,6 +319,14 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         }
 
         this._setRuleList(linageInfo['ruleStringinfos']);
+        */
+        let sourceInfo = this.selectedDataSnapshot.sourceInfo;
+        this.dsId = sourceInfo.dsId;
+        this.dfId = sourceInfo.dfId;
+
+        let connectionInfo = this.selectedDataSnapshot.connectionInfo;
+        let ruleStringInfo = this.selectedDataSnapshot.ruleStringInfo;
+        this._setRuleList(ruleStringInfo);
 
         // % 계산
         /*

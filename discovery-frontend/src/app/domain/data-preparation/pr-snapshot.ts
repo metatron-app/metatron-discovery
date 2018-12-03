@@ -38,6 +38,7 @@ public storedUri : string; // fileURL : string;
 
 public sourceInfo: LineageInfo;
 public connectionInfo: ConnectionInfo;
+public ruleStringInfo: any;
 
 // 생성시 필요한 필드
 public ssType: SsType;
