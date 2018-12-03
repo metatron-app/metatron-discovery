@@ -111,3 +111,13 @@ export enum MapGeometryType {
   POINT = <any>'Point',
   LINE = <any>'LineString'
 }
+
+/**
+ * selection filter color, outline
+ */
+export enum SelectionColor {
+  FEATURE_DARK = <any>'#333333',
+  FEATURE_LIGHT = <any>'#c6cacc',
+  OUTLINE_DARK = <any>'#4c4c4c',
+  OUTLINE_LIGHT = <any>'#babebf'
+}
