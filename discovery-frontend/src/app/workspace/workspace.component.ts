@@ -792,13 +792,13 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
         if (this.workspaceId == null) {
           return this.workspaceService.getMyWorkspace('forDetailView').then((workspace) => {
             this.workspace = workspace;
-            this._setWorkspaceData(false, workspace);
+            this._setWorkspaceData(true, workspace);
             return this.getWorkspaceFolder();
           });
         } else {
           return this.workspaceService.getWorkSpace(this.workspaceId, 'forDetailView').then((workspace) => {
             this.workspace = workspace;
-            this._setWorkspaceData(false, workspace);
+            this._setWorkspaceData(true, workspace);
             return this.getWorkspaceFolder();
           });
         }
