@@ -417,9 +417,9 @@ public class DataSourceEventHandler {
       LOGGER.debug("Successfully shutdown ingestion tasks in datasource ({})", dataSource.getId());
 
       // Delete datastore on geoserver if datasource include geo column
-      if (dataSource.getIncludeGeo() == null){
+      if (dataSource.getIncludeGeo() == null) {
         LOGGER.debug("Datasource with previous schema, skip removing geo service");
-      }else if (dataSource.getIncludeGeo()) {
+      } else if (dataSource.getIncludeGeo()) {
         geoService.deleteDataStore(dataSource.getEngineName());
         LOGGER.debug("Successfully delete datastore on geoserver ({})", dataSource.getId());
       }
@@ -441,7 +441,7 @@ public class DataSourceEventHandler {
         dataSourceSizeHistoryRepository.deleteHistoryById(dataSource.getId());
         dataSourceQueryHistoryRepository.deleteQueryHistoryById(dataSource.getId());
       } catch (Exception e) {
-        LOGGER.warn("Fail to remove history related datasource({}) : {} ", dataSource.getId() , e.getMessage());
+        LOGGER.warn("Fail to remove history related datasource({}) : {} ", dataSource.getId(), e.getMessage());
       }
     }
 
