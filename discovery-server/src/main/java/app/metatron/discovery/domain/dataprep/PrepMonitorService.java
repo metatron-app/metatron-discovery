@@ -634,7 +634,7 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     copySameCol("engine",          colVals, rs);
     copySameCol("finish_time",     colVals, rs);
     copySameCol("launch_time",     colVals, rs);
-    copySameCol("lineage_info",    colVals, rs);
+    colVals.put("lineage_info",    ((String) rs.getObject("lineage_info")).replaceAll("\"ruleStringinfos\":", "\"transformRules\":"));
     copySameCol("rule_cnt_done",   colVals, rs);
     copySameCol("rule_cnt_total",  colVals, rs);
     copySameCol("ss_name",         colVals, rs);
@@ -667,12 +667,13 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     colVals.put("hive_file_compression", rs.getObject("compression"));      // change column name
     colVals.put("hive_file_format",      rs.getObject("format"));           // change column name
     copySameCol("launch_time",           colVals, rs);
-    copySameCol("lineage_info",          colVals, rs);
+    colVals.put("lineage_info",          ((String) rs.getObject("lineage_info")).replaceAll("\"ruleStringinfos\":", "\"transformRules\":"));
     copySameCol("rule_cnt_done",         colVals, rs);
     copySameCol("rule_cnt_total",        colVals, rs);
     copySameCol("ss_name",               colVals, rs);
     colVals.put("ss_type",               "STAGING_DB");
     copySameCol("status",                colVals, rs);
+    copySameCol("db_name",               colVals, rs);
     copySameCol("tbl_name",              colVals, rs);
     copySameCol("total_bytes",           colVals, rs);
     copySameCol("total_lines",           colVals, rs);
