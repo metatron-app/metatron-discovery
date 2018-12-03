@@ -130,7 +130,7 @@
         {{'msg.comm.th.type' | translate}}
       </dt>
       <dd>
-        {{getFileType(selectedDataSet.dsType, selectedDataSet.importType, selectedDataSet.filename)}}
+        {{getFileType(selectedDataSet.dsType, selectedDataSet.importType, selectedDataSet.filenameBeforeUpload)}}
       </dd>
     </dl>
     <!-- //detail -->
@@ -155,7 +155,7 @@
     </dl>
     <!-- //detail -->
     <!-- detail 시트 [FILE] -->
-    <dl class="ddp-dl-detail" *ngIf="getDatasetType(selectedDataSet.importType,selectedDataSet.filename) === 'EXCEL'">
+    <dl class="ddp-dl-detail" *ngIf="getDatasetType(selectedDataSet.importType,selectedDataSet.filenameBeforeUpload) === 'EXCEL'">
       <dt>
         {{'msg.dp.th.sheet' | translate}}
       </dt>

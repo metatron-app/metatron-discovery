@@ -39,23 +39,23 @@
 
           <tbody>
 
-          <tr *ngIf="type === 'STAGING' && datasetHive.databaseName">
+          <tr *ngIf="type === 'STAGING' && datasetHive.dbName">
             <th>
               {{'msg.dp.th.database' | translate}}
             </th>
             <td>
-              {{datasetHive.databaseName}}
+              {{datasetHive.dbName}}
             </td>
           </tr>
-          <tr *ngIf="type === 'STAGING' && datasetHive.tableName">
+          <tr *ngIf="type === 'STAGING' && datasetHive.tblName">
             <th>
               {{'msg.lineage.ui.list.search.table' | translate}}
             </th>
             <td>
-              {{datasetHive.tableName}}
+              {{datasetHive.tblName}}
             </td>
           </tr>
-          <tr *ngIf="type === 'STAGING' && datasetHive.databaseName === '' && datasetHive.tableName === '' ">
+          <tr *ngIf="type === 'STAGING' && datasetHive.dbName === '' && datasetHive.tblName === '' ">
             <th>
               {{'msg.dp.btn.query' | translate}}
             </th>
@@ -63,12 +63,12 @@
               {{datasetHive.queryStmt}}
             </td>
           </tr>
-          <tr *ngIf="type === 'FILE' && datasetFile.filename">
+          <tr *ngIf="type === 'FILE' && datasetFile.fileName">
             <th>
               {{'msg.dp.ui.list.file' | translate}}
             </th>
             <td>
-              {{datasetFile.filename}}
+              {{datasetFile.fileName}}
             </td>
           </tr>
           <tr *ngIf="type === 'FILE' && datasetFile.sheets.length > 1">
@@ -111,12 +111,12 @@
               {{datasetJdbc.dataconnection.sid}}
             </td>
           </tr>
-          <tr *ngIf="type === 'DB' && datasetJdbc.databaseName">
+          <tr *ngIf="type === 'DB' && datasetJdbc.dbName">
             <th>
               Database / Table
             </th>
             <td>
-              {{datasetJdbc.databaseName}} / {{datasetJdbc.tableName}}
+              {{datasetJdbc.dbName}} / {{datasetJdbc.tblName}}
             </td>
           </tr>
           <tr *ngIf="type === 'DB' && datasetJdbc.queryStmt">

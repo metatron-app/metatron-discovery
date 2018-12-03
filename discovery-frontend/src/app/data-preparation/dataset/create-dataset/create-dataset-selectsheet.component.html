@@ -31,7 +31,7 @@
       <div class="ddp-box-upload" ng2FileDrop [uploader]="uploader">
         <!-- name -->
         <div class="ddp-data-load-name">
-          <em class="ddp-icon-file2"></em>{{datasetFile.filename}}
+          <em class="ddp-icon-file2"></em>{{datasetFile.filenameBeforeUpload}}
         </div>
         <!-- //name -->
         <div class="ddp-txt-file-info">
@@ -51,7 +51,7 @@
           <!-- sheet list -->
           <div class="ddp-ui-sheet-list">
             <ul class="ddp-list-sheet"  *ngFor="let item of datasetFile.selectedSheets; let idx = index">
-              <li [ngClass]="{'ddp-selected' : item.name === datasetFile.sheetname}" (click)="setDataSetSheetIndex($event,item.name, idx)">
+              <li [ngClass]="{'ddp-selected' : item.name === datasetFile.sheetName}" (click)="setDataSetSheetIndex($event,item.name, idx)">
                 <span class="ddp-txt-checkbox">{{item.name}}</span>
               </li>
             </ul>
