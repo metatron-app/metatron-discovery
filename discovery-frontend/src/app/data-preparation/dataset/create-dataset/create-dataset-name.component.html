@@ -63,12 +63,12 @@
               {{datasetHive.queryStmt}}
             </td>
           </tr>
-          <tr *ngIf="type === 'FILE' && datasetFile.fileName">
+          <tr *ngIf="type === 'FILE' && datasetFile.filenameBeforeUpload">
             <th>
               {{'msg.dp.ui.list.file' | translate}}
             </th>
             <td>
-              {{datasetFile.fileName}}
+              {{datasetFile.filenameBeforeUpload}}
             </td>
           </tr>
           <tr *ngIf="type === 'FILE' && datasetFile.sheets.length > 1">
