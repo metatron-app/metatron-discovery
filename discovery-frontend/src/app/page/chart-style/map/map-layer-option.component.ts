@@ -34,6 +34,9 @@ import { Field as AbstractField, Field } from '../../../domain/workbook/configur
 import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
 import { isNullOrUndefined } from 'util';
 import { AggregationType } from '../../../domain/workbook/configurations/field/measure-field';
+import { ChartUtil } from '../../../common/component/chart/option/util/chart-util';
+import { UILayers } from '../../../common/component/chart/option/ui-option/map/ui-layers';
+import { GeoField } from '../../../domain/workbook/configurations/field/geo-field';
 
 @Component({
   selector: 'map-layer-option',
@@ -47,17 +50,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
   @Input('uiOption')
   public set setUiOption(uiOption: UIMapOption) {
-
-    // TODO temporary code before setting uiOption in map component
-    // if((<UISymbolLayer>uiOption.layers[this.index]).size && !(<UISymbolLayer>uiOption.layers[this.index]).size.radiusRange) {
-    //
-    //   if (MapBy.NONE === (<UISymbolLayer>uiOption.layers[this.index]).size.by) {
-    //     (<UISymbolLayer>uiOption.layers[this.index]).size.radiusRange = [10];
-    //   } else if (MapBy.MEASURE === (<UISymbolLayer>uiOption.layers[this.index]).size.by) {
-    //
-    //     (<UISymbolLayer>uiOption.layers[this.index]).size.radiusRange = [10, 100];
-    //   }
-    // }
 
     this.uiOption = uiOption;
   }
@@ -107,6 +99,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   // show / hide setting for color picker
   public colorListFlag: boolean = false;
 
+  public measureList: Field[];
+
+  public dimensionList: Field[];
+
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -148,15 +144,15 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       this.removeAggregationType();
 
     } else if (MapLayerType.SYMBOL === layerType) {
-      this.uiOption.layers[this.index].color.by = MapBy.NONE;
-      this.uiOption.layers[this.index].color.schema = '#6344ad';
+      // set color by shelf
+      this.uiOption.layers[this.index] = this.setColorByShelf();
 
       // remove measure aggregation type in shelf
       this.removeAggregationType();
 
     } else if (MapLayerType.TILE === layerType) {
-      this.uiOption.layers[this.index].color.by = MapBy.NONE;
-      this.uiOption.layers[this.index].color.schema = '#6344ad';
+      // set color by shelf
+      this.uiOption.layers[this.index] = this.setColorByShelf();
       this.uiOption.layers[this.index]['radius'] = 20;
 
       // if( isNullOrUndefined(this.uiOption.layers[this.index]['coverage']) ) {
@@ -284,8 +280,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       this.uiOption.layers[this.index].color.schema = 'SC1';
 
       // only set column when dimension column exsists
-      if (this.uiOption.fielDimensionList && this.uiOption.fielDimensionList.length > 0) {
-        this.uiOption.layers[this.index].color.column = this.uiOption.fielDimensionList[0]['name'];
+      if (this.dimensionList && this.dimensionList.length > 0) {
+        this.uiOption.layers[this.index].color.column = this.dimensionList[0]['name'];
       } else {
         this.uiOption.layers[this.index].color.column = '';
       }
@@ -294,9 +290,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       this.uiOption.layers[this.index].color.schema = 'VC1';
 
       // only set column when measure column exsists
-      if (this.uiOption.fieldMeasureList && this.uiOption.fieldMeasureList.length > 0) {
-        this.uiOption.layers[this.index].color.column = this.uiOption.fieldMeasureList[0]['name'];
-        this.uiOption.layers[this.index].color.aggregationType = this.uiOption.fieldMeasureList[0]['aggregationType'];
+      if (this.measureList && this.measureList.length > 0) {
+        this.uiOption.layers[this.index].color.column = this.measureList[0]['name'];
+        this.uiOption.layers[this.index].color.aggregationType = this.measureList[0]['aggregationType'];
       } else {
         this.uiOption.layers[this.index].color.column = '';
       }
@@ -334,9 +330,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     if (MapBy.MEASURE === data['value']) {
 
       // only set column when measure column exsists
-      if (this.uiOption.fieldMeasureList && this.uiOption.fieldMeasureList.length > 0) {
-        (<UILineLayer>this.uiOption.layers[this.index]).thickness.column = this.uiOption.fieldMeasureList[0]['name'];
-        (<UILineLayer>this.uiOption.layers[this.index]).thickness.aggregationType = this.uiOption.fieldMeasureList[0]['aggregationType'];
+      if (this.measureList && this.measureList.length > 0) {
+        (<UILineLayer>this.uiOption.layers[this.index]).thickness.column = this.measureList[0]['name'];
+        (<UILineLayer>this.uiOption.layers[this.index]).thickness.aggregationType = this.measureList[0]['aggregationType'];
       } else {
         (<UILineLayer>this.uiOption.layers[this.index]).thickness.column = '';
       }
@@ -389,8 +385,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // set column when size by is measure
     if (MapBy.MEASURE === data['value']) {
 
-      if (this.uiOption.fieldMeasureList && this.uiOption.fieldMeasureList.length > 0) {
-        (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = this.uiOption.fieldMeasureList[0]['name'];
+      if (this.measureList && this.measureList.length > 0) {
+        (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = this.measureList[0]['name'];
       } else {
         (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = '';
       }
@@ -666,27 +662,28 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       const resultList: AbstractField[] = [];
       shelve.map((item) => {
         if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
+          item['alias'] = ChartUtil.getAlias(item);
           resultList.push(item);
         }
       });
       return resultList;
     });
 
-    let measureList = getShelveReturnField(shelf.layers[this.uiOption.layerNum], [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
+    this.measureList = getShelveReturnField(shelf.layers[this.uiOption.layerNum], [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
 
-    let dimensionList = getShelveReturnField(shelf.layers[this.uiOption.layerNum], [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+    this.dimensionList = getShelveReturnField(shelf.layers[this.uiOption.layerNum], [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
 
     // init list
-    this.byList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE}]
+    this.byList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE}];
     this.colorByList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE}];
 
     // when dimension exists, not hexagon layer, set dimension type
-    if (dimensionList.length > 0 && MapLayerType.TILE !== this.uiOption.layers[this.index].type) {
+    if (this.dimensionList.length > 0 && MapLayerType.TILE !== this.uiOption.layers[this.index].type) {
       this.colorByList.push({name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION});
     }
 
     // when measure exists, set measure type
-    if (measureList.length > 0) {
+    if (this.measureList.length > 0) {
       this.byList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
       this.colorByList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
 
@@ -726,5 +723,78 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
         item.aggregationType = AggregationType.SUM;
       }
     }
+  }
+
+  /**
+   * set color by shelf
+   * @returns {UILayers}
+   */
+  private setColorByShelf(): UILayers {
+
+    let shelf: GeoField[] = this.shelf.layers[this.index];
+
+    let preference = this.checkFieldPreference(shelf);
+
+    const isNone = preference['isNone'];
+    const isMeasure = preference['isMeasure'];
+    const isDimension = preference['isDimension'];
+
+    let layer: UILayers = this.uiOption.layers[this.index];
+
+    ///////////////////////////
+    // Color by None
+    ///////////////////////////
+    if( isNone ) {
+      layer.color.by = MapBy.NONE;
+      layer.color.schema = '#6344ad';
+      layer.color.column = null;
+      layer.color.aggregationType = null;
+    }
+    ///////////////////////////
+    // Color by Measure
+    ///////////////////////////
+    else if( !_.eq(layer.color.by, MapBy.DIMENSION) && isMeasure ) {
+      layer.color.by = MapBy.MEASURE;
+      layer.color.schema = 'VC1';
+      layer.color.column = this.uiOption.fieldMeasureList[0]['name'];
+      layer.color.aggregationType = this.uiOption.fieldMeasureList[0]['aggregationType'];
+    }
+    ///////////////////////////
+    // Color by Dimension
+    ///////////////////////////
+    else if( isDimension ) {
+      layer.color.by = MapBy.DIMENSION;
+      layer.color.schema = 'SC1';
+      layer.color.column = this.uiOption.fielDimensionList[0]['name'];
+      layer.color.aggregationType = null;
+    }
+
+    return layer;
+  }
+
+  /**
+   * find preference by shelf
+   * @param {UILayers[]} layers
+   * @returns {Object}
+   */
+  private checkFieldPreference(layers: GeoField[]): Object {
+
+    // Find field
+    let isNone: boolean = true;
+    let isDimension: boolean = false;
+    let isMeasure: boolean = false;
+    _.each(layers, (field) => {
+      if( field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1 ) {
+        isNone = false;
+      }
+      if( _.eq(field.type, ShelveFieldType.DIMENSION) ) {
+        isDimension = true;
+      }
+      if( _.eq(field.type, ShelveFieldType.MEASURE) ) {
+        isMeasure = true;
+      }
+    });
+
+    return {isNone: isNone, isDimension: isDimension, isMeasure: isMeasure};
   }
 }

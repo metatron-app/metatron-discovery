@@ -103,8 +103,8 @@
                           class="ddp-divide2">
                           <!-- SELECTBOX -->
                           <component-select
-                            [array]="uiOption.fielDimensionList"
-                            [defaultIndex]="findIndex(uiOption.fielDimensionList, 'name', uiOption.layers[index].color.column)"
+                            [array]="dimensionList"
+                            [defaultIndex]="findIndex(dimensionList, 'name', uiOption.layers[index].color.column)"
                             [viewKey]="'alias'"
                             (onSelected)="changeColorColumn($event)"
                           ></component-select>
@@ -117,8 +117,8 @@
                           class="ddp-divide2">
                           <!-- SELECTBOX -->
                           <component-select
-                            [array]="uiOption.fieldMeasureList"
-                            [defaultIndex]="findIndex(uiOption.fieldMeasureList, 'name', uiOption.layers[index].color.column, 'aggregationType', uiOption.layers[index].color.aggregationType)"
+                            [array]="measureList"
+                            [defaultIndex]="findIndex(measureList, 'name', uiOption.layers[index].color.column, 'aggregationType', uiOption.layers[index].color.aggregationType)"
                             [viewKey]="'alias'"
                             (onSelected)="changeColorColumn($event)"
                           ></component-select>
@@ -243,8 +243,8 @@
                       <div *ngIf="'NONE' !== uiOption.layers[index].size.by.toString()" class="ddp-divide2">
                         <!-- SELECTBOX -->
                         <component-select
-                          [array]="uiOption.fieldMeasureList"
-                          [defaultIndex]="findIndex(uiOption.fieldMeasureList, 'name', uiOption.layers[index].size.column)"
+                          [array]="measureList"
+                          [defaultIndex]="findIndex(measureList, 'name', uiOption.layers[index].size.column)"
                           [viewKey]="'alias'"
                           (onSelected)="changeSizeColumn($event)"
                         ></component-select>
@@ -513,8 +513,8 @@
                         <div *ngIf="'MEASURE' === uiOption.layers[index].thickness?.by?.toString()" class="ddp-divide2">
                           <!-- SELECTBOX -->
                           <component-select
-                            [array]="uiOption.fieldMeasureList"
-                            [defaultIndex]="findIndex(uiOption.fieldMeasureList, 'name', uiOption.layers[index].thickness.column, 'aggregationType', uiOption.layers[index].thickness.aggregationType)"
+                            [array]="measureList"
+                            [defaultIndex]="findIndex(measureList, 'name', uiOption.layers[index].thickness.column, 'aggregationType', uiOption.layers[index].thickness.aggregationType)"
                             [viewKey]="'alias'"
                             (onSelected)="changeStrokeColumn($event)"
                           ></component-select>
