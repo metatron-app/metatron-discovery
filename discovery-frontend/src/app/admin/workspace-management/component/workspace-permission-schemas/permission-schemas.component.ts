@@ -416,9 +416,9 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
     if (this._filterDate && this._filterDate.type !== 'ALL') {
       params['searchDateBy'] = 'CREATED';
       if (this._filterDate.startDateStr) {
-        params['from'] = moment(this._filterDate.startDateStr).subtract(9, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z';
+        params['from'] = moment(this._filterDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      params['to'] = moment(this._filterDate.endDateStr).subtract(9, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z';
+      params['to'] = moment(this._filterDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
     }
 
     return params;
