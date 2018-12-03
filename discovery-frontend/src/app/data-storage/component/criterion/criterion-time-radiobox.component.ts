@@ -277,5 +277,7 @@ class DatePickerSettings extends PickerSettings {
     this.view = 'days';
     // set show timepicker
     this.timepicker = true;
+    // set date picker position
+    this.position = 'right top';
   }
 }
