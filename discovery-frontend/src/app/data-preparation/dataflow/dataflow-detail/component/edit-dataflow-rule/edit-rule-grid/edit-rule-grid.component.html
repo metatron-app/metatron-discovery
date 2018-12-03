@@ -71,7 +71,8 @@
      (selectedEvent)="gridRowClickHandler($event)"
      (onColumnResize)="drawChart($event)"
      (onContextMenuClick)="onContextMenuClick($event)"
-     (onHeaderRowCellRendered)="onHeaderRowCellRendered($event)" >
+     (onHeaderRowCellRendered)="onHeaderRowCellRendered($event)"
+     (onGridContextCloseEvent)="gridAllContextClose()">
 </div>
 <div *ngIf="barChartTooltipShow"
      [style.left]="barChartTooltipPosition"
