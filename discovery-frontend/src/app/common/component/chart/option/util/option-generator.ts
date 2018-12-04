@@ -2038,7 +2038,7 @@ export namespace OptionGenerator {
             },
             outline: null,
             clustering: true,
-            distance: 50,
+            coverage: 50,
             thickness: {
               by: "NONE",
               column: "NONE",

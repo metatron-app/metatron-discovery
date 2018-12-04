@@ -35,7 +35,7 @@ export interface UISymbolLayer extends UILayers {
   clustering?: boolean;
 
   // clustering distance
-  distance?: number;
+  coverage?: number;
 }
 
 /**

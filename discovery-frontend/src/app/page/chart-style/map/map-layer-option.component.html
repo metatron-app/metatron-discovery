@@ -386,7 +386,7 @@
                       <div class="ddp-divide2">
                         <div class="ddp-wrap-option-multy ddp-clear">
                           <div class="ddp-col-8">
-                            <span class="ddp-label-txt">{{'msg.page.layer.map.cluster.distance' | translate}}</span>
+                            <span class="ddp-label-txt">{{'msg.page.layer.map.cluster.coverage' | translate}}</span>
                           </div>
                         </div>
                         <!-- divide -->
@@ -398,7 +398,7 @@
                                                       [keyboard]="false"
                                                       [min]="0"
                                                       [max]="100"
-                                                      [from]="uiOption.layers[index]['distance']"
+                                                      [from]="uiOption.layers[index]['coverage']"
                                                       [type]="'single'"
                                                       [step]="1"
                                                       (onFinish)="changeClustering({}, $event, index)">
@@ -406,7 +406,7 @@
                             </div>
                             <div class="ddp-box-option-input ddp-type ddp-inline">
                               <span class="ddp-txt-input">%</span>
-                              <input type="number" input-mask="number" [ngModel]="uiOption.layers[index]['distance']" (keyup.enter)="changeClusteringText($event, index);">
+                              <input type="number" input-mask="number" [ngModel]="uiOption.layers[index]['coverage']" (keyup.enter)="changeClusteringText($event, index);">
                             </div>
                           </div>
                         </div>

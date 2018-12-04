@@ -262,17 +262,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   }
 
   public changeClustering(obj: any, $event: any, index: number) {
-    this.uiOption.layers[index]['distance']= $event.from;
+    this.uiOption.layers[index]['coverage']= $event.from;
     this.applyLayers();
   }
 
   public changeClusteringText($event: any, index: number) {
     let inputValue = parseFloat($event.target.value);
     if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
-      $event.target.value = (<UISymbolLayer>this.uiOption.layers[index])['distance'];
+      $event.target.value = (<UISymbolLayer>this.uiOption.layers[index])['coverage'];
       return;
     } else {
-      (<UISymbolLayer>this.uiOption.layers[index])['distance'] = inputValue;
+      (<UISymbolLayer>this.uiOption.layers[index])['coverage'] = inputValue;
       this.applyLayers();
     }
   }
