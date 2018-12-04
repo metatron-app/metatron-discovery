@@ -106,15 +106,15 @@ public class DataConnectionFilterService {
 
     switch(criterionKey){
       case IMPLEMENTOR:
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.MYSQL.toString(), "MySQL", null, null));
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.POSTGRESQL.toString(), "PostgreSQL", null, null));
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.HIVE.toString(), "Hive", null, null));
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.PRESTO.toString(), "Presto", null, null));
+        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.MYSQL.toString(), "MySQL"));
+        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.POSTGRESQL.toString(), "PostgreSQL"));
+        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.HIVE.toString(), "Hive"));
+        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.PRESTO.toString(), "Presto"));
         break;
       case AUTH_TYPE:
-        criterion.addFilter(new ListFilter(criterionKey, "authenticationType", DataConnection.AuthenticationType.MANUAL.toString(), "msg.storage.li.connect.always", null, null));
-        criterion.addFilter(new ListFilter(criterionKey, "authenticationType", DataConnection.AuthenticationType.USERINFO.toString(), "msg.storage.li.connect.account", null, null));
-        criterion.addFilter(new ListFilter(criterionKey, "authenticationType", DataConnection.AuthenticationType.DIALOG.toString(), "msg.storage.li.connect.id", null, null));
+        criterion.addFilter(new ListFilter(criterionKey, "authenticationType", DataConnection.AuthenticationType.MANUAL.toString(), "msg.storage.li.connect.always"));
+        criterion.addFilter(new ListFilter(criterionKey, "authenticationType", DataConnection.AuthenticationType.USERINFO.toString(), "msg.storage.li.connect.account"));
+        criterion.addFilter(new ListFilter(criterionKey, "authenticationType", DataConnection.AuthenticationType.DIALOG.toString(), "msg.storage.li.connect.id"));
         break;
       case CREATED_TIME:
         //created_time
@@ -197,19 +197,19 @@ public class DataConnectionFilterService {
         //allow search
         criterion.setSearchable(true);
 
-        criterion.addFilter(new ListFilter(criterionKey, "published", "true", "msg.storage.ui.criterion.open-data", null, null));
+        criterion.addFilter(new ListFilter(criterionKey, "published", "true", "msg.storage.ui.criterion.open-data"));
 
         //my private workspace
         Workspace myWorkspace = workspaceRepository.findPrivateWorkspaceByOwnerId(AuthUtils.getAuthUserName());
         criterion.addFilter(new ListFilter(criterionKey, "workspace",
-                myWorkspace.getId(), myWorkspace.getName(), null, null));
+                myWorkspace.getId(), myWorkspace.getName()));
 
         //my public workspace
         List<Workspace> publicWorkspaces
                 = workspaceService.getPublicWorkspaces(false, false, false, null);
         for(Workspace workspace : publicWorkspaces){
           criterion.addFilter(new ListFilter(criterionKey, "workspace",
-                  workspace.getId(), workspace.getName(), null, null));
+                  workspace.getId(), workspace.getName()));
         }
         break;
       default:

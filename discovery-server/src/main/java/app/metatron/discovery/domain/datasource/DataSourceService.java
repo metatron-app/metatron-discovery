@@ -338,7 +338,7 @@ public class DataSourceService {
         for(DataSource.Status status : DataSource.Status.values()){
           String filterName = status.toString();
           filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
-          criterion.addFilter(new ListFilter(criterionKey, "status", status.toString(), filterName, null, null));
+          criterion.addFilter(new ListFilter(criterionKey, "status", status.toString(), filterName));
         }
         break;
       case DATASOURCE_TYPE:
@@ -346,7 +346,7 @@ public class DataSourceService {
           String filterName = dataSourceType.toString();
           filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
           criterion.addFilter(new ListFilter(criterionKey, "dataSourceType",
-                  dataSourceType.toString(), filterName, null, null));
+                  dataSourceType.toString(), filterName));
         }
         break;
       case SOURCE_TYPE:
@@ -354,7 +354,7 @@ public class DataSourceService {
           String filterName = sourceType.toString();
           filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
           criterion.addFilter(new ListFilter(criterionKey, "sourceType",
-                  sourceType.toString(), filterName, null, null));
+                  sourceType.toString(), filterName));
         }
         break;
       case CONNECTION_TYPE:
@@ -362,26 +362,26 @@ public class DataSourceService {
           String filterName = connectionType.toString();
           filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
           criterion.addFilter(new ListFilter(criterionKey, "connectionType",
-                  connectionType.toString(), filterName, null, null));
+                  connectionType.toString(), filterName));
         }
         break;
       case PUBLISH:
         //allow search
         criterion.setSearchable(true);
 
-        criterion.addFilter(new ListFilter(criterionKey, "published", "true", "msg.storage.ui.criterion.open-data", null, null));
+        criterion.addFilter(new ListFilter(criterionKey, "published",  "true", "msg.storage.ui.criterion.open-data"));
 
         //my private workspace
         Workspace myWorkspace = workspaceRepository.findPrivateWorkspaceByOwnerId(AuthUtils.getAuthUserName());
         criterion.addFilter(new ListFilter(criterionKey, "workspace",
-                myWorkspace.getId(), myWorkspace.getName(), null, null));
+                myWorkspace.getId(), myWorkspace.getName()));
 
         //my public workspace
         List<Workspace> publicWorkspaces
                 = workspaceService.getPublicWorkspaces(false, false, false, null);
         for(Workspace workspace : publicWorkspaces){
           criterion.addFilter(new ListFilter(criterionKey, "workspace",
-                  workspace.getId(), workspace.getName(), null, null));
+                  workspace.getId(), workspace.getName()));
         }
         break;
       case CREATOR:

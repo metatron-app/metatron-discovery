@@ -30,6 +30,13 @@ public class ListFilter {
     this.filterName = filterName;
   }
 
+  public ListFilter(ListCriterionKey criterionKey, String filterKey, String filterValue, String filterName){
+    this.criterionKey = criterionKey;
+    this.filterKey = filterKey;
+    this.filterValue = filterValue;
+    this.filterName = filterName;
+  }
+
   public ListFilter(String filterKey, String filterValue, String filterName){
     this.filterKey = filterKey;
     this.filterValue = filterValue;
