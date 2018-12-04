@@ -221,6 +221,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Area
     this.$area = $(this.area.nativeElement);
 
+    // when cursor moves to another chart, hide tooltip
+    let scope = this;
+    $(this.area.nativeElement).on({
+      mouseleave: function() {
+        if (scope.tooltipLayer) scope.tooltipLayer.setPosition(undefined);
+      }
+    });
+
     // Feature icon element
     let canvas = this.featureEl.nativeElement;
     canvas.width = 30;
@@ -1839,6 +1847,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
    * @param event
    */
   private tooltipFunction = (event) => {
+
+    let scope = this;
 
     // heatmap => no tooltip
     if (MapLayerType.HEATMAP === this.getUiMapOption().layers[this.getUiMapOption().layerNum].type) {

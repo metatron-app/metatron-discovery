@@ -476,7 +476,7 @@ export class DatasourceService extends AbstractService {
               if (MapLayerType.TILE === (<UIMapOption>pageConf.chart).layers[layerNum].type && measureList && measureList.length > 0) {
                 layer.format = <GeoHashFormat>{
                   type: FormatType.GEO_HASH.toString(),
-                  method: "h3",
+                  method: "geohex",
                   precision: precision
                 }
               }
