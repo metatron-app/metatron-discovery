@@ -89,39 +89,6 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
         this._originMoreCriterionList = result.criteria.find(criterion => criterion.criterionKey === CriterionKey.MORE).subCriteria;
         // if exist default filter in result
         if (result.defaultFilters) {
-          // // TODO test data
-          // [
-          //   {
-          //     criterionKey: "CREATOR",
-          //     filterKey: "createdBy",
-          //     filterName: "Administrator (me)",
-          //     filterValue: "admin"
-          //   },
-          //   {
-          //     criterionKey: "PUBLISH",
-          //     filterKey: "published",
-          //     filterName: "msg.storage.ui.criterion.open-data",
-          //     filterValue: "true"
-          //   }
-          // ]
-          //   .forEach((filter) => {
-          //     if (this._criterionDataObject[filter.criterionKey]) {
-          //       // set filter
-          //       if (this._criterionDataObject[filter.criterionKey][filter.filterKey]) {
-          //         this._criterionDataObject[filter.criterionKey][filter.filterKey].push(filter);
-          //       } else {
-          //         this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
-          //       }
-          //       this._criterionDataObject[filter.criterionKey][filter.filterKey].push(filter);
-          //     } else {
-          //       // create object
-          //       this._criterionDataObject[filter.criterionKey] = {};
-          //       // set filter
-          //       this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
-          //     }
-          //
-          // });
-          // this.defaultSelectedFilterList = this._criterionDataObject;
           // set default selected filter list
           this._setDefaultSelectedFilterList(result.defaultFilters);
         }
@@ -447,28 +414,35 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
    * @private
    */
   private _setDefaultSelectedFilterList(defaultFilters: ListFilter[]): void {
-    // loop
-    defaultFilters.forEach((filter: ListFilter) => {
-      // if exist criterion in criterion data object
-      if (this._criterionDataObject[filter.criterionKey]) {
-        // if exist filterKey in criterion
-        if (this._criterionDataObject[filter.criterionKey][filter.filterKey]) {
-          // set criterion data object
-          this._criterionDataObject[filter.criterionKey][filter.filterKey].push(filter);
-        } else { // if not exist filterKey in criterion
-          // set criterion data object
-          this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
-        }
+    // set criterion data object
+    defaultFilters.forEach(filter => this._setCriterionDataObjectProperty(filter));
+    // set default selected filter list
+    this.defaultSelectedFilterList = this._criterionDataObject;
+  }
+
+  /**
+   * Set criterion data object property
+   * @param {ListFilter} filter
+   * @private
+   */
+  private _setCriterionDataObjectProperty(filter: ListFilter): void {
+    // if exist criterion in criterion data object
+    if (this._criterionDataObject[filter.criterionKey]) {
+      // if exist filterKey in criterion
+      if (this._criterionDataObject[filter.criterionKey][filter.filterKey]) {
         // set criterion data object
         this._criterionDataObject[filter.criterionKey][filter.filterKey].push(filter);
-      } else {  // if not exist criterion in criterion data object
-        // create object
-        this._criterionDataObject[filter.criterionKey] = {};
+      } else { // if not exist filterKey in criterion
         // set criterion data object
         this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
       }
-    });
-    // set default selected filter list
-    this.defaultSelectedFilterList = this._criterionDataObject;
+      // set criterion data object
+      this._criterionDataObject[filter.criterionKey][filter.filterKey].push(filter);
+    } else {  // if not exist criterion in criterion data object
+      // create object
+      this._criterionDataObject[filter.criterionKey] = {};
+      // set criterion data object
+      this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
+    }
   }
 }
