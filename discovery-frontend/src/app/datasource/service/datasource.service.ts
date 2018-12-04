@@ -44,6 +44,7 @@ import {DashboardUtil} from '../../dashboard/util/dashboard.util';
 import {Limit} from "../../domain/workbook/configurations/limit";
 import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
 import {CommonConstant} from "../../common/constant/common.constant";
+import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -829,9 +830,9 @@ export class DatasourceService extends AbstractService {
 
   /**
    * Get criterion list in datasource
-   * @returns {Promise<ListCriterion[]>}
+   * @returns {Promise<CriteriaFilter>}
    */
-  public getCriterionListInDatasource(): Promise<ListCriterion[]> {
+  public getCriterionListInDatasource(): Promise<CriteriaFilter> {
     return this.get(this.API_URL + 'datasources/criteria');
   }
 

@@ -18,6 +18,7 @@ import {CommonUtil} from '../../common/util/common.util';
 import {Page} from '../../domain/common/page';
 import {isNullOrUndefined} from "util";
 import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
+import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
 
 @Injectable()
 export class DataconnectionService extends AbstractService {
@@ -317,9 +318,9 @@ export class DataconnectionService extends AbstractService {
 
   /**
    * Get criterion list in connection
-   * @returns {Promise<ListCriterion[]>}
+   * @returns {Promise<CriteriaFilter>}
    */
-  public getCriterionListInConnection(): Promise<ListCriterion[]> {
+  public getCriterionListInConnection(): Promise<CriteriaFilter> {
     return this.get(this.API_URL + 'connections/criteria');
   }
 

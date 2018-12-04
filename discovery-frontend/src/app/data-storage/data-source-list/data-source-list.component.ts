@@ -21,6 +21,7 @@ import { DeleteModalComponent } from '../../common/component/modal/delete/delete
 import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
 import { StringUtil } from '../../common/util/string.util';
 import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
+import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
 
 @Component({
   selector: 'app-data-source',
@@ -75,13 +76,13 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     this.loadingShow();
     // get criterion list
     this.datasourceService.getCriterionListInDatasource()
-      .then((result: ListCriterion[]) => {
+      .then((result: CriteriaFilter) => {
         // set origin criterion list
-        this._originCriterionList = result;
+        this._originCriterionList = result.criteria;
         // set datasource filter list
-        this.datasourceFilterList = result;
+        this.datasourceFilterList = result.criteria;
         // set origin more criterion list
-        this._originMoreCriterionList = result.find(criterion => criterion.criterionKey === CriterionKey.MORE).subCriteria;
+        this._originMoreCriterionList = result.criteria.find(criterion => criterion.criterionKey === CriterionKey.MORE).subCriteria;
         // set datasource list
         this._setDatasourceList();
       }).catch(reason => this.commonExceptionHandler(reason));
