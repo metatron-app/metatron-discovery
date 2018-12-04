@@ -166,7 +166,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
    * @param {MouseEvent} event
    */
   public onClickShowList(event: MouseEvent) {
-    if (this.criterionKey !== CriterionKey.MORE && $(event.target).attr('class') &&
+    if (this.criterionKey !== CriterionKey.MORE &&
       ($(event.target).hasClass('ddp-result-filtering')
         || $(event.target).hasClass('ddp-txt-label')
         || $(event.target).hasClass('ddp-ui-result')
