@@ -334,9 +334,12 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         this.valid = this.selectedDataSnapshot.validLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines)  * 100 + '%';
         this.mismatched = this.selectedDataSnapshot.mismatchedLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines) * 100 + '%';
         */
-        this.missing = this.selectedDataSnapshot.missingLines / this.selectedDataSnapshot.totalLines * 100 + '%';
-        this.valid = (this.selectedDataSnapshot.totalLines - this.selectedDataSnapshot.missingLines - this.selectedDataSnapshot.mismatchedLines ) / this.selectedDataSnapshot.totalLines * 100 + '%';
-        this.mismatched = this.selectedDataSnapshot.mismatchedLines / this.selectedDataSnapshot.totalLines * 100 + '%';
+        let totalLines = this.selectedDataSnapshot.totalLines ? this.selectedDataSnapshot.totalLines : 0;
+        let missingLines = this.selectedDataSnapshot.missingLines ? this.selectedDataSnapshot.missingLines : 0;
+        let mismatchedLines = this.selectedDataSnapshot.mismatchedLines ? this.selectedDataSnapshot.mismatchedLines : 0;
+        this.valid = (totalLines - missingLines - mismatchedLines ) / totalLines * 100 + '%';
+        this.missing = missingLines / totalLines * 100 + '%';
+        this.mismatched = mismatchedLines / totalLines * 100 + '%';
 
         //if ( ['SUCCEEDED'].indexOf(this.selectedDataSnapshot.status) >= 0){
         if ( [Status.SUCCEEDED].indexOf(this.selectedDataSnapshot.status) >= 0){
