@@ -1840,6 +1840,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
    */
   private tooltipFunction = (event) => {
 
+    // heatmap => no tooltip
+    if (MapLayerType.HEATMAP === this.getUiMapOption().layers[this.getUiMapOption().layerNum].type) {
+      return;
+    }
+
     // Get feature
     let feature = this.olmap.forEachFeatureAtPixel(event.pixel, (feature) => {
       return feature;
@@ -2762,22 +2767,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     }
 
     if (!selectMode || selectData.length > 0) {
-      switch ((<UIMapOption>this.uiOption).layers[layerNum].type) {
-
-        // symbol layer => use cluster style func
-        case MapLayerType.SYMBOL:
-          this.clusterLayer.setStyle(this.clusterStyleFunction(0, this.data, selectMode));
-          break;
-        // hexagon(tile) layer => use hexagon style func
-        case MapLayerType.TILE:
-          this.hexagonLayer.setStyle(this.hexagonStyleFunction(0, this.data, selectMode));
-          break;
-        // line, polygon layer => use map style func
-        case MapLayerType.LINE:
-        case MapLayerType.POLYGON:
-          this.symbolLayer.setStyle(this.mapStyleFunction(0, this.data, selectMode));
-          break;
-      }
+      if (this.clusterLayer) this.clusterLayer.setStyle(this.clusterStyleFunction(0, this.data, selectMode));
+      if (this.hexagonLayer) this.hexagonLayer.setStyle(this.hexagonStyleFunction(0, this.data, selectMode));
+      if (this.symbolLayer) this.symbolLayer.setStyle(this.mapStyleFunction(0, this.data, selectMode));
     }
   }
 }
