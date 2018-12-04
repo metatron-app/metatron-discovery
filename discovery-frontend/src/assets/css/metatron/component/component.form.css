@@ -266,7 +266,6 @@
 .ddp-detail-setting.ddp-selected .ddp-fold-link:after {transform:rotate(180deg)}
 .ddp-detail-setting.ddp-selected .ddp-wrap-down {display:block;}
 
-
 /**************************************************************
     no data
 **************************************************************/
@@ -274,6 +273,8 @@
 
 .ddp-data-empty{display:table; width:100%; height:100%; text-align:center;}
 .ddp-data-empty .ddp-data-contents {display:table-cell; text-align:center;color:#b7b9c3; font-size:12px; vertical-align: middle;}
+ul.ddp-list-value li.ddp-data-none {background:none; color:#b7b9c3;}
+.ddp-ui-import-option .ddp-ui-grid .ddp-search-none {padding:20px; font-size:12px; color:#ca4b4b;}
 
 /**************************************************************
 	INPUT NUMBER
@@ -410,3 +411,14 @@ table.ddp-table-form.ddp-inherit .ddp-box-layout4 .ddp-table-code tr td {border:
 .ddp-form-multy .ddp-box-multy .ddp-type-selectbox {float:left; width:65%; box-sizing:border-box; border:none; border-left:1px solid #d0d1d8;}
 .ddp-form-multy .ddp-box-multy.ddp-form-time .ddp-input-typebasic {width:69px;}
 .ddp-form-multy .ddp-box-multy.ddp-form-time .ddp-type-selectbox {width:100px;}
+/**************************************************************
+    range
+**************************************************************/
+
+.ddp-wrap-range  {margin-top:-10px;}
+.ddp-wrap-range .ddp-data-range {padding-top:0;}
+.ddp-wrap-range .ddp-data-range .ddp-bar {width:6%; float:left; line-height:30px; text-align:center;}
+.ddp-wrap-range .ddp-data-range .ddp-box-option-input {float:left; width:47%; margin-left:0; box-sizing:border-box;}
+.ddp-wrap-range .ddp-data-range input { width:100%; text-align:center;}
+
+

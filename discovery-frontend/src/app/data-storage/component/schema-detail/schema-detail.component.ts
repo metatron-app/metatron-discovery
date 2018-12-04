@@ -166,11 +166,11 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * column의 데이터 수
-   * @returns {number}
+   * get column data list
+   * @returns {any}
    */
-  public getColumnDataLength(): number {
-    return this.columnData ? this.columnData.length : 0;
+  public getColumnDataList(): any {
+    return this.columnData.slice(0,50);
   }
 
   /**
