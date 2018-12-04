@@ -24,7 +24,7 @@ export class ColumnDictionary extends AbstractHistoryEntity {
   // 컬럼 물리 명
   public name: string;
   // 컬럼 축약 명
-  public shortName: string;
+  public suggestionShortName: string;
   // 컬럼 논리 명
   public logicalName: string;
   // 컬럼 설명
