@@ -12,15 +12,25 @@
  * limitations under the License.
  */
 
-export const environment = {
-  production: true,
-  // 도메인 (쿠키에서 사용)
-  baseHref: '/app/v2/',
-  // SAML 사용 여부
-  samlUrl:'http://adsso.airtel.com/adfs/services/trust',
-  integrator : {
-    workflow : 'http://localhost:4300/app/v2/management/integrator/workflow',
-    monitoring : 'http://localhost:4300/app/v2/management/integrator/monitoring',
-    dependencies : 'http://localhost:4300/app/v2/management/integrator/dependencies'
-  }
-};
+import {RouterModule, Routes} from '@angular/router';
+import {NgModule} from '@angular/core';
+import {CookieService} from 'ng2-cookies';
+import {ExternalPageComponent} from "./external-page.component";
+
+const embeddedViewRoutes: Routes = [
+  {path: ':url', component: ExternalPageComponent}
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forChild(embeddedViewRoutes)
+  ],
+  declarations: [
+    ExternalPageComponent
+  ],
+  providers: [
+    CookieService
+  ]
+})
+export class ExternalViewModule {
+}

@@ -282,6 +282,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
    */
   public mgmtMenuClickListener(menuName: string) {
     this.lnbManager.management.metadata.fold = true;
+    this.lnbManager.management.integrator.fold = true;
     this.lnbManager.management.dataStorage.fold = true;
     this.lnbManager.management.dataPreparation.fold = true;
     this.lnbManager.management.dataMonitoring.fold = true;

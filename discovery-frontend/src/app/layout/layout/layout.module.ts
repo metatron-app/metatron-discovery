@@ -66,6 +66,7 @@ const layoutRoutes: Routes = [
         canActivate: [MetadataManagementGuard]
       },
       { path: 'admin', loadChildren: 'app/admin/admin.module#AdminModule' },
+      { path: 'external', loadChildren: 'app/external/external-view.module#ExternalViewModule' },
       {
         path: 'samplecomponent',
         loadChildren: 'app/sample-component/sample-component.module#SampleComponentModule'
