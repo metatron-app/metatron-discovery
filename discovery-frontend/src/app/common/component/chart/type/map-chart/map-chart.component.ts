@@ -2475,7 +2475,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     ///////////////////////////
     else if( !_.eq(layer.color.by, MapBy.DIMENSION) && isMeasure ) {
       layer.color.by = MapBy.MEASURE;
-      layer.color.schema = 'VC1';
+      layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : 'VC1';
       layer.color.column = this.uiOption.fieldMeasureList[0]['name'];
       layer.color.aggregationType = this.uiOption.fieldMeasureList[0]['aggregationType'];
     }
