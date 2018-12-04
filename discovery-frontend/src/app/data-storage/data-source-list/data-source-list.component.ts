@@ -46,7 +46,7 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   public mode: string;
 
   // datasource list
-  public datasourceList: Datasource[];
+  public datasourceList: Datasource[] = [];
 
   // search
   public searchKeyword: string = '';

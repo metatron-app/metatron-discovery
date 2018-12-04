@@ -50,7 +50,7 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
   public connectionStep: string;
 
   // connection list
-  public connectionList: Dataconnection[];
+  public connectionList: Dataconnection[] = [];
 
   // selected connection
   public selectedConnection: Dataconnection = new Dataconnection();
