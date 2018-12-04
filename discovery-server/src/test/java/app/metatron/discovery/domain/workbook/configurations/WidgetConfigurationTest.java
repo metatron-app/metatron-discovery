@@ -121,7 +121,7 @@ public class WidgetConfigurationTest {
                                              new MapChartLayer.Color("dimension", "column1", "color_code1", null, null, 20),
                                              new MapChartLayer.Size("measure", "column1"),
                                              new MapChartLayer.Outline("color_code2", "thin"),
-                                             true)
+                                             true, 50)
     );
 
     layers.add(new MapChartLayer.LineLayer("line_layer", "straight",

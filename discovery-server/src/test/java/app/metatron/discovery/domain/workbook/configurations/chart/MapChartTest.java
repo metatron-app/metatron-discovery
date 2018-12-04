@@ -42,14 +42,14 @@ public class MapChartTest extends ChartTest {
                                              new MapChartLayer.Color("dimension", "column1", "color_code1", null, null, 20),
                                              new MapChartLayer.Size("measure", "column1"),
                                              new MapChartLayer.Outline("color_code2", "thin"),
-                                             true)
+                                             true, 20)
     );
 
     layers.add(new MapChartLayer.LineLayer("line_layer", "straight",
-                                             new MapChartLayer.Color("none", null, null, "color_code1", "color_code2", 0),
-                                             "source_column",
-                                             "target_column",
-                                             new MapChartLayer.Thickness("measure", "column3", 10))
+                                           new MapChartLayer.Color("none", null, null, "color_code1", "color_code2", 0),
+                                           "source_column",
+                                           "target_column",
+                                           new MapChartLayer.Thickness("measure", "column3", 10))
     );
 
     layers.add(new MapChartLayer.PolygonLayer("polygon_layer",
@@ -64,14 +64,14 @@ public class MapChartTest extends ChartTest {
 
     layers.add(new MapChartLayer.TileLayer("tile_layer",
                                            new MapChartLayer.Color("measure", "column1", "color_schema1", null, null, 20),
-                                              "hexagon",
-                                              80)
+                                           "hexagon",
+                                           80)
     );
 
     ChartLegend mapChartLegend = new ChartLegend(null, null, "RIGHT_BOTTOM");
     ChartToolTip chartToolTip = new ChartToolTip(
-        Lists.newArrayList("layer_name","location_info", "data_value"),
-        Lists.newArrayList("column1","column2"),
+        Lists.newArrayList("layer_name", "location_info", "data_value"),
+        Lists.newArrayList("column1", "column2"),
         null
     );
 

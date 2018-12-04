@@ -3,12 +3,12 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * See the License for the specic language governing permissions and
  * limitations under the License.
  */
 
@@ -287,18 +287,25 @@ public abstract class MapChartLayer {
      */
     Boolean clustering;
 
+    /**
+     * Coverage of clustering
+     */
+    Integer coverage;
+
     @JsonCreator
     public SymbolLayer(@JsonProperty("name") String name,
                        @JsonProperty("symbol") String symbol,
                        @JsonProperty("color") Color color,
                        @JsonProperty("size") Size size,
                        @JsonProperty("outline") Outline outline,
-                       @JsonProperty("clustering") Boolean clustering) {
+                       @JsonProperty("clustering") Boolean clustering,
+                       @JsonProperty("coverage") Integer coverage) {
       super(name, color);
       this.symbol = EnumUtils.getUpperCaseEnum(SymbolType.class, symbol, SymbolType.CIRCLE);
       this.size = size;
       this.outline = outline;
       this.clustering = clustering;
+      this.coverage = coverage;
     }
 
     public SymbolType getSymbol() {
@@ -315,6 +322,10 @@ public abstract class MapChartLayer {
 
     public Boolean getClustering() {
       return clustering;
+    }
+
+    public Integer getCoverage() {
+      return coverage;
     }
 
     @Override
