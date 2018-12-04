@@ -31,7 +31,43 @@ public class KafkaIoConfig implements IoConfig {
 
   Integer replicas;
 
+  /**
+   * The length of time before tasks stop reading and begin publishing their segment.
+   * Note that segments are only pushed to deep storage and loadable by historical nodes when the indexing task completes.
+   */
   String taskDuration;
+
+  /**
+   * The period to wait before the supervisor starts managing tasks.
+   */
+  String startDelay;
+
+  /**
+   * How often the supervisor will execute its management logic.
+   * Note that the supervisor will also run in response to certain events
+   * (such as tasks succeeding, failing, and reaching their taskDuration)
+   * so this value specifies the maximum time between iterations.
+   * default PT30S
+   */
+  String period;
+
+  /**
+   * If a supervisor is managing a dataSource for the first time,
+   * it will obtain a set of starting offsets from Kafka.
+   * This flag determines whether it retrieves the earliest or latest offsets in Kafka.
+   * Under normal circumstances, subsequent tasks will start from where the previous segments ended
+   * so this flag will only be used on first run.
+   */
+  Boolean useEarliestOffset;
+
+  /**
+   * The length of time to wait before declaring a publishing task as failed and terminating it.
+   * If this is set too low, your tasks may never publish.
+   * The publishing clock for a task begins roughly after taskDuration elapses.
+   */
+  String completionTimeout;
+
+  String lateMessageRejectionPeriod;
 
   public KafkaIoConfig() {
   }
@@ -42,6 +78,19 @@ public class KafkaIoConfig implements IoConfig {
     this.taskCount = taskCount;
     this.replicas = replicas;
     this.taskDuration = taskDuration;
+  }
+
+  public KafkaIoConfig(String topic, Map<String, Object> consumerProperties, Map<String, Object> taskOptions) {
+    this.topic = topic;
+    this.consumerProperties = consumerProperties;
+    this.taskCount = (Integer) taskOptions.get("taskCount");
+    this.replicas = (Integer) taskOptions.get("replicas");
+    this.taskDuration = (String) taskOptions.get("taskDuration");
+    this.startDelay = (String) taskOptions.get("startDelay");
+    this.period = (String) taskOptions.get("period");
+    this.useEarliestOffset = (Boolean) taskOptions.get("useEarliestOffset");
+    this.completionTimeout = (String) taskOptions.get("completionTimeout");
+    this.lateMessageRejectionPeriod = (String) taskOptions.get("lateMessageRejectionPeriod");
   }
 
   public String getTopic() {
