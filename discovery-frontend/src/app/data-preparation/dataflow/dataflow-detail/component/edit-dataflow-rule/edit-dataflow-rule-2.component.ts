@@ -630,7 +630,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     if (!isUndefined(rule)) {
 
       let isErrorCommand : boolean = true;
-      for(var ind in this.commandList) {
+      for(let ind in this.commandList) {
         if ( rule.ruleString.indexOf(this.commandList[ind].command) > -1 ) isErrorCommand = false;
       }
       if (isErrorCommand){
@@ -1460,7 +1460,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ), {ruleString : '', jsonRuleString : data.more});
           break;
         case 'set':
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ), {ruleString : '', jsonRuleString : data.more});
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ));
           break;
         case 'derive':
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, []);

@@ -60,6 +60,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -88,6 +89,8 @@ import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.IMPORT;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.NONE;
+import static app.metatron.discovery.domain.datasource.DataSource.Status.ENABLED;
+import static app.metatron.discovery.domain.datasource.DataSource.Status.FAILED;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.PREPARING;
 
 /**
@@ -201,7 +204,23 @@ public class DataSourceEventHandler {
         dataSourceRepository.saveAndFlush(dataSource);
 
         if (dataSource.getIngestionInfo() instanceof RealtimeIngestionInfo) {
-          engineIngestionService.realtimeIngestion(dataSource);
+          Optional<IngestionHistory> ingestionHistory = engineIngestionService.realtimeIngestion(dataSource);
+
+          IngestionHistory resultHistory = null;
+          if (ingestionHistory.isPresent()) {
+            resultHistory = ingestionHistory.get();
+            if (resultHistory.getStatus() != IngestionHistory.IngestionStatus.FAILED) {
+              dataSource.setStatus(ENABLED);
+            } else {
+              dataSource.setStatus(FAILED);
+            }
+          } else {
+            resultHistory = new IngestionHistory(dataSource.getId(),
+                                                 IngestionHistory.IngestionMethod.SUPERVISOR,
+                                                 IngestionHistory.IngestionStatus.FAILED,
+                                                 "Ingestion History not fond");
+          }
+          ingestionHistoryRepository.saveAndFlush(resultHistory);
         } else {
           ThreadFactory factory = new ThreadFactoryBuilder()
               .setNameFormat("ingestion-" + dataSource.getId() + "-%s")
@@ -311,7 +330,7 @@ public class DataSourceEventHandler {
 
         if (CollectionUtils.isNotEmpty(ingestionHistories)) {
           for (IngestionHistory ingestionHistory : ingestionHistories) {
-            engineIngestionService.shutDownIngestionTask(dataSource.getName(), ingestionHistory.getIngestionId());
+            engineIngestionService.shutDownIngestionTask(ingestionHistory);
           }
         }
 

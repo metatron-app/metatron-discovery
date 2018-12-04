@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.datasource.ingestion;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.Map;
@@ -21,13 +23,13 @@ import java.util.Map;
 import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
 
 /**
- * 배치 수집 방식 정의
+ * Specify Real-time ingestion
  */
 @JsonTypeName("realtime")
 public class RealtimeIngestionInfo implements IngestionInfo {
 
   /**
-   * 데이터를 받아올 Topic Name
+   * Target Topic Name
    */
   String topic;
 
@@ -37,26 +39,46 @@ public class RealtimeIngestionInfo implements IngestionInfo {
   ConsumerType consumerType = ConsumerType.KAFKA;
 
   /**
-   * 실시간 적재 수행할 Consumer 정의
+   * Set properties of consumer
    */
   Map<String, Object> consumerProperties;
 
   /**
-   * 적재할 데이터 포맷 정의
+   * Specify file format
    */
   FileFormat format;
 
   /**
-   * Rollup 여부
+   * Roll-up
    */
   Boolean rollup;
 
   /**
-   * Tuning Config 지정, 기본값 override
+   * Specify task option
+   */
+  Map<String, Object> taskOptions;
+
+  /**
+   * Specify Tuning Configuration, override default Value
    */
   Map<String, Object> tuningOptions;
 
   public RealtimeIngestionInfo() {
+  }
+
+  @JsonCreator
+  public RealtimeIngestionInfo(@JsonProperty("topic") String topic,
+                               @JsonProperty("consumerProperties") Map<String, Object> consumerProperties,
+                               @JsonProperty("format") FileFormat format,
+                               @JsonProperty("rollup") Boolean rollup,
+                               @JsonProperty("taskOptions") Map<String, Object> taskOptions,
+                               @JsonProperty("tuningOptions") Map<String, Object> tuningOptions) {
+    this.topic = topic;
+    this.consumerProperties = consumerProperties;
+    this.format = format;
+    this.rollup = rollup == null ? false : rollup;
+    this.taskOptions = taskOptions;
+    this.tuningOptions = tuningOptions;
   }
 
   @Override
@@ -64,17 +86,9 @@ public class RealtimeIngestionInfo implements IngestionInfo {
     return format;
   }
 
-  public void setFormat(FileFormat format) {
-    this.format = format;
-  }
-
   @Override
   public Map<String, Object> getTuningOptions() {
     return tuningOptions;
-  }
-
-  public void setTuningOptions(Map<String, Object> tuningOptions) {
-    this.tuningOptions = tuningOptions;
   }
 
   @Override
@@ -82,32 +96,20 @@ public class RealtimeIngestionInfo implements IngestionInfo {
     return rollup;
   }
 
-  public void setRollup(Boolean rollup) {
-    this.rollup = rollup;
-  }
-
   public String getTopic() {
     return topic;
-  }
-
-  public void setTopic(String topic) {
-    this.topic = topic;
   }
 
   public ConsumerType getConsumerType() {
     return consumerType;
   }
 
-  public void setConsumerType(ConsumerType consumerType) {
-    this.consumerType = consumerType;
-  }
-
   public Map<String, Object> getConsumerProperties() {
     return consumerProperties;
   }
 
-  public void setConsumerProperties(Map<String, Object> consumerProperties) {
-    this.consumerProperties = consumerProperties;
+  public Map<String, Object> getTaskOptions() {
+    return taskOptions;
   }
 
   public enum ConsumerType {
