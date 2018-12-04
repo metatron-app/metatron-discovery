@@ -25,14 +25,16 @@
     </div>
     <!-- //filter search -->
     <!-- filters -->
-    <criterion-filter-box *ngFor="let criterion of connectionFilterList"
-                          [criterion]="criterion"
-                          [removeCriterionKey]="removedCriterionKey"
-                          [enableRemove]="isAdvancedCriterion(criterion)"
-                          [criterionApiFunc]="criterionApiFunc"
-                          (changedCriteria)="onChangedCriteriaFilter($event)"
-                          (removedCriterion)="removeCriterionFilterInConnectionFilterList($event)">
-    </criterion-filter-box>
+    <div class="ddp-wrap-form-filtering">
+      <criterion-filter-box *ngFor="let criterion of connectionFilterList"
+                            [criterion]="criterion"
+                            [removeCriterionKey]="removedCriterionKey"
+                            [enableRemove]="isAdvancedCriterion(criterion)"
+                            [criterionApiFunc]="criterionApiFunc"
+                            (changedCriteria)="onChangedCriteriaFilter($event)"
+                            (removedCriterion)="removeCriterionFilterInConnectionFilterList($event)">
+      </criterion-filter-box>
+    </div>
     <!-- //filters -->
   </div>
   <!-- create connection -->

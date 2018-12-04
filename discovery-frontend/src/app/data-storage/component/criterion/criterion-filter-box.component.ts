@@ -31,6 +31,9 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   // selected item list
   private _selectedItemList : any = {};
 
+  // selected item default label
+  private _defaultSelectedItemLabel: string = this.translateService.instant('msg.storage.ui.criterion.all');
+
   // criterion api (required: true)
   @Input('criterionApiFunc')
   private _getCriterionFunc: Function;
@@ -50,12 +53,12 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   // criterion name
   public criterionName: string;
 
-  // place holder
-  public placeHolder: string;
+  // filter title
+  public filterTitle: string;
   // search place holder
   public searchPlaceHolder: string;
   // selected item label
-  public selectedItemsLabel: string = this.translateService.instant('msg.storage.ui.criterion.all');
+  public selectedItemsLabel: string;
 
   // Is enable ALL Option (default false)
   public isEnableAllOption: boolean = false;
@@ -119,10 +122,12 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
       // set criterionData
       this.criterionData = this.criterion;
     }
-    // set placeholder
-    this.placeHolder = this.translateService.instant(this.criterionName);
+    // set filter title
+    this.filterTitle = this.translateService.instant(this.criterionName);
     // set search placeholder
     this.searchPlaceHolder = this.translateService.instant('msg.storage.ui.criterion.search', {value: this.translateService.instant(this.criterionName)});
+    // set selected item label
+    this.selectedItemsLabel = this._defaultSelectedItemLabel;
   }
 
   /**
@@ -147,11 +152,14 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
 
   /**
    * List show click event
+   * @param {MouseEvent} event
    */
   public onClickShowList(event: MouseEvent) {
-    if ($(event.target).attr('class') && (-1 !== $(event.target).attr('class').indexOf('ddp-box-result') || -1 !== $(event.target).attr('class').indexOf('ddp-txt-result'))) {
-      // if criterionKey is not MORE
-      if (this.criterionKey !== CriterionKey.MORE) {
+    if (this.criterionKey !== CriterionKey.MORE && $(event.target).attr('class') &&
+      (-1 !== $(event.target).attr('class').indexOf('ddp-txt-label')
+        || -1 !== $(event.target).attr('class').indexOf('ddp-ui-result')
+        || -1 !== $(event.target).attr('class').indexOf('ddp-box-result')
+        || -1 !== $(event.target).attr('class').indexOf('ddp-txt-result'))) {
         // if list not show
         if (!this.isShowList) {
           // set criterion list
@@ -164,7 +172,6 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
           // close list
           this.isShowList = false;
         }
-      }
     }
   }
 
@@ -195,6 +202,15 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   }
 
   /**
+   * Is enable filter title
+   * @returns {boolean}
+   */
+  public isEnableFilterTitle(): boolean {
+    // only show not MORE
+    return this.criterionKey !== CriterionKey.MORE && this.selectedItemsLabel === this._defaultSelectedItemLabel;
+  }
+
+  /**
    * Make items label
    * @param selectedItemList
    * @returns {string}
@@ -219,7 +235,7 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
         }));
     }
 
-    return StringUtil.isEmpty(temp) ? this.translateService.instant('msg.storage.ui.criterion.all') : temp;
+    return StringUtil.isEmpty(temp) ? this._defaultSelectedItemLabel : temp;
   }
 
   /**
