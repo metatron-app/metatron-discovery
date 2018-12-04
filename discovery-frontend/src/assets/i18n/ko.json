@@ -350,7 +350,7 @@
   "msg.space.ui.set-permission-schema" : "권한 스키마 설정",
   "msg.space.ui.change-owner" : "소유자 변경",
   "msg.space.ui.change-owner.ph" : "{{value}} 님을 새로운 소유자로 지정하시겠습니까?",
-  "msg.space.ui.change-owner.no-member" : "오너로 지정할 멤버가 없습니다.",
+  "msg.space.ui.change-owner.no-member" : "소유자로 지정할 멤버가 없습니다.",
   "msg.space.ui.workbook.copy" : "워크북 복사",
   "msg.space.ui.sel.mov" : "선택 이동",
   "msg.space.ui.del.notebook.title" : "노트북 삭제",
