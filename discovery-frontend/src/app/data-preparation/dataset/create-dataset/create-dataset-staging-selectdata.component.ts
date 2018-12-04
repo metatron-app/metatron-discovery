@@ -50,7 +50,6 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
   public isDatabaseListShow : boolean = false;  // Database list show/hide
   public isSchemaListShow: boolean = false;     // tables list show/hide
-  public tableOrQuery: string = 'table';        // 테이블 or query 방식 Default is table
 
   public isQuerySuccess: boolean;               // 쿼리 성공 실패 여부
   public showQueryStatus: boolean = false;
@@ -212,6 +211,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
     this.clickable = false; // table 이 선택 되지 않아서 다음으로 넘어갈수 없음
     this.getTables(database.name);
+
     $('[tabindex=1]').trigger('focus');
     this.initSelectedCommand(this.filteredDbList);
   } // function - onChangeDatabase
@@ -277,7 +277,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    * Table or Query ?
    * @param method
    */
-  public selectedMethod(method) {
+  public selectTab(method) {
 
     // When same tab is clicked
     if (this.datasetHive.rsType === method) {
@@ -302,7 +302,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       this._drawGrid(data.headers,data.rows)
     }
 
-  } // function - selectedMethod
+  } // function - selectTab
 
   /** 쿼리로 테이블 불러오기 */
   public runStagingDBQuery() {
@@ -343,27 +343,15 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     }).catch((error) => {
 
       this.loadingHide();
-      // let prep_error = this.dataprepExceptionHandler(error);
-      // PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-
       this.gridComponent.destroy();
+      this.clearGrid = true;
       this.showQueryStatus = true;
       this.isQuerySuccess = false;
       this.queryErrorMsg = error.details;
       this.clickable = false;
-      // 쿼리가 실패했다면 error message 를 날리자
+
     });
   }
-
-
-  // 쿼리의 데이터베이스 선택
-  public onSelectedDatabaseQuery(event,data) {
-    // 선택한 데이터 베이스 이름
-    event.stopPropagation();
-    this.isDatabaseListShow = false;
-    this.selectedDatabaseQuery = data.name;
-  }
-
 
   // TODO
   public editorTextChange(param: string) {
@@ -610,12 +598,12 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
 
   /**
-   * 특정 데이터 베이스 내 테이블 목록 조회
-   * @param {string} schema
+   * Get table list
+   * @param {string} database
    */
-  private getTables(schema:string) {
+  private getTables(database:string) {
     this.loadingShow();
-    this.datasetService.getStagingTables(schema)
+    this.datasetService.getStagingTables(database)
       .then((data) => {
         this.loadingHide();
         this.schemaList = [];
@@ -624,6 +612,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
             this.schemaList.push({ idx : idx, name : data[idx], selected : false });
           }
           this.isTableEmpty = false;
+
         } else {
           this.schemaList = [];
           this.datasetHive.tableInfo.tableName = undefined;
@@ -631,8 +620,10 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
         }
       })
       .catch((error) => {
+
         this.schemaList = [];
-        this.isTableEmpty = false;
+        this.isTableEmpty = true;
+
         this.loadingHide();
         let prep_error = this.dataprepExceptionHandler(error);
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));

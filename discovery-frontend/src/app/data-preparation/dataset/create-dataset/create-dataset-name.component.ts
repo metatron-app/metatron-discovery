@@ -162,10 +162,10 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
             this.datasetFile.desc = this.description.trim();
             break;
           case 'STAGING':
-            this.datasetHive.dsDesc = this.description.trim()
+            this.datasetHive.dsDesc = this.description.trim();
             break;
           case 'DB':
-            this.datasetJdbc.dsDesc = this.description.trim()
+            this.datasetJdbc.dsDesc = this.description.trim();
             break;
         }
       }
@@ -177,11 +177,13 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
       // 데이터 저장 서비스호출
       if(this.type === 'STAGING')  {
+
         params = this._getHiveParams(this.datasetHive);
-        // Call save API
         this._createDataset(params);
 
       } else if (this.type === 'FILE') {
+
+        // TODO : change file type to use this._createDataset(params);
         this.datasetService.createDataset(this.datasetFile,this.datasetFile.delimiter).then((result) => {
           this.loadingHide();
           this.successAction(result);
@@ -190,15 +192,11 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
           this.loadingHide();
           this.errorAction(error);
         });
-      } else if(this.type === 'DB')  {
-        this.datasetService.createDatasetJdbc(this.datasetJdbc).then((result) => {
-          this.loadingHide();
-          this.successAction(result);
+      } else if(this.type === 'DB') {
 
-        }).catch((error) => {
-          this.loadingHide();
-          this.errorAction(error);
-        });
+        params = this._getJdbcParams(this.datasetJdbc);
+        this._createDataset(params);
+
       }
     }
   }
@@ -309,17 +307,14 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       }
     } else if ('DB' === type) {
 
-      if( !isUndefined(this.datasetJdbc.dataconnection.connection) ) {
-
-        if (this.datasetJdbc.tableName){
-          this.name = this.datasetJdbc.tableName +' ('+this.datasetJdbc.dataconnection.connection.implementor+')';
-        }
-
-      } else {
-
-        this.name = this.datasetJdbc.tableName;
-
+      // When table
+      if (this.datasetJdbc.rsType === RsType.TABLE) {
+        this.name = this.datasetJdbc.tableInfo.tableName +' ('+this.datasetJdbc.dataconnection.connection.implementor+')';
       }
+
+      // When query
+
+
     } else if ('STAGING' === type) {
 
       // When table
@@ -355,24 +350,49 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
       let ds = this.datasetJdbc;
 
-      this.datasetInfo.push({name : this.translateService.instant('msg.comm.th.type'), value : ds.dataconnection['connection'].implementor});
+      // TYPE
+      this.datasetInfo.push({
+        name : this.translateService.instant('msg.comm.th.type'),
+        value : ds.dataconnection['connection'].implementor
+      });
 
-      ds.databaseName && this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.database'), value : ds.databaseName});
-      ds.tableName && this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.ss.table'), value : ds.tableName});
+      if (this.datasetJdbc.rsType === RsType.TABLE) {
+
+        // DATABASE NAME
+        this.datasetInfo.push({
+          name : this.translateService.instant('msg.dp.th.database'),
+          value : ds.tableInfo.databaseName
+        });
+
+        // TABLE NAME
+        this.datasetInfo.push({
+          name : this.translateService.instant('msg.dp.th.ss.table'),
+          value : ds.tableInfo.tableName
+        });
+
+      } else {
+
+        // QUERY STATEMENT
+        this.datasetInfo.push({
+          name : this.translateService.instant('msg.dp.btn.query'),
+          value : ds.sqlInfo.queryStmt
+        });
+
+      }
 
       if (ds.dataconnection['connection'].hostname && ds.dataconnection['connection'].port) {
+
+        // HOST & PORT
         this.datasetInfo.push(
           {name : this.translateService.instant('msg.comm.th.host'), value : ds.dataconnection['connection'].hostname},
           {name : this.translateService.instant('msg.comm.th.port'), value : ds.dataconnection['connection'].port}
         );
       } else {
+
+        // URL
         this.datasetInfo.push(
           {name : this.translateService.instant('msg.nbook.th.url'), value : ds.dataconnection['connection'].url}
         );
-      }
-
-      if (ds.databaseName === '' && ds.tableName === '') {
-        this.datasetInfo.push({name : this.translateService.instant('msg.dp.btn.query'), value : ds.queryStmt});
       }
 
     } else if ('STAGING' === this.type) {
@@ -408,6 +428,26 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     return hive
   }
 
+
+  /**
+   * Returns parameter needed for creating jdbc dataset
+   * @param jdbc
+   * @returns {Object}
+   * @private
+   */
+  private _getJdbcParams(jdbc) : object {
+
+    if (jdbc.rsType === RsType.SQL) {
+      jdbc.queryStmt = jdbc.sqlInfo.queryStmt;
+    } else {
+      jdbc.tableName = jdbc.tableInfo.tableName;
+      jdbc['custom'] = `{"databaseName":"${jdbc.tableInfo.databaseName}"}`
+    }
+    return jdbc
+  }
+
+
+
   /**
    * Create dataset (call API)
    * @param {Object} params
@@ -435,7 +475,6 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       this.errorAction(error);
     })
   }
-
 
 }
 

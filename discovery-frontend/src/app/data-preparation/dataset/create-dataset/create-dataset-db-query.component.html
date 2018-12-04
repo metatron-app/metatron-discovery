@@ -31,14 +31,18 @@
         table 선택시 : ddp-selected-table
         쿼리 선택시 : ddp-selected-query
     -->
-    <div class="ddp-ui-import-option" [ngClass]="{'table':'ddp-selected-table', 'query':'ddp-selected-query'}[tableOrQuery]">
+    <div class="ddp-ui-import-option"
+         [ngClass]="{'TABLE':'ddp-selected-table', 'SQL':'ddp-selected-query'}[datasetJdbc.rsType]">
 
       <!-- tab -->
       <ul class="ddp-list-buttons">
-        <li class="ddp-selected" (click)="selectedMethod('table')" [ngClass]="{'ddp-selected': tableOrQuery==='table'}">
+        <li class="ddp-selected"
+            (click)="selectTab('TABLE')"
+            [ngClass]="{'ddp-selected': datasetJdbc.rsType === rsType.TABLE}">
           {{'msg.lineage.ui.list.search.table' | translate}}
         </li>
-        <li (click)="selectedMethod('query')" [ngClass]="{'ddp-selected': tableOrQuery ==='query'}">
+        <li (click)="selectTab('SQL')"
+            [ngClass]="{'ddp-selected':datasetJdbc.rsType === rsType.SQL}">
           {{'msg.dp.btn.query' | translate}}
         </li>
       </ul>
@@ -53,7 +57,7 @@
                 <div class="ddp-wrap-editor">
                   <div editor-component
                        #editor
-                       [(sText)]="datasetJdbc.queryStmt"
+                       [(sText)]="datasetJdbc.sqlInfo.queryStmt"
                        [sOptions]="options"
                        [sReadOnly]="false"
                        [sShowGutter]="false"
@@ -63,30 +67,43 @@
               </div>
             </div>
             <!-- button -->
-            <div class="ddp-ui-buttons" *ngIf="tableOrQuery !== 'table'"  style="z-index: 10">
+            <div class="ddp-ui-buttons" *ngIf="datasetJdbc.rsType != rsType.TABLE"  style="z-index: 10">
               <div class="ddp-ui-message" *ngIf="showQueryStatus">
-                <span class="ddp-data-error" *ngIf="isQuerySuccess === false"><em class="ddp-icon-error"></em> {{ 'msg.dp.ui.invalid.conn' | translate }}</span>
-                <span class="ddp-data-ok" *ngIf="isQuerySuccess === true"><em class="ddp-icon-ok"></em> {{'msg.dp.ui.valid.conn' | translate}}</span>
+                <span class="ddp-data-error" *ngIf="isQuerySuccess === false">
+                  <em class="ddp-icon-error"></em>
+                  {{ 'msg.dp.ui.invalid.conn' | translate }}
+                </span>
+                <span class="ddp-data-ok" *ngIf="isQuerySuccess === true">
+                  <em class="ddp-icon-ok"></em>
+                  {{'msg.dp.ui.valid.conn' | translate}}
+                </span>
               </div>
-              <a href="javascript:" class="ddp-btn-type4" [ngClass]="{'ddp-disabled': datasetJdbc.queryStmt == '' }" (click)="runJdbcQuery()">{{'msg.dp.btn.run' | translate}}</a>
+              <a href="javascript:" class="ddp-btn-type4"
+                 [ngClass]="{'ddp-disabled': datasetJdbc.sqlInfo.queryStmt == '' }"
+                 (click)="runJdbcQuery()">{{'msg.dp.btn.run' | translate}}
+              </a>
             </div>
             <!-- //button -->
           </div>
           <!-- //쿼리 선택 -->
 
           <!-- 테이블 선택 -->
-          <div class="ddp-ui-db-table" *ngIf="tableOrQuery === 'table'">
+          <div class="ddp-ui-db-table" *ngIf="datasetJdbc.rsType === rsType.TABLE">
             <div class="ddp-ui-search-db ddp-clear">
               <div class="ddp-type-selectbox ddp-type-search-select"
                    [ngClass]="{'ddp-selected':isDatabaseListShow}"
-                   [class.ddp-result]="datasetJdbc.databaseName"
+                   [class.ddp-result]="datasetJdbc.tableInfo.databaseName"
                    tabindex="1"
                    (click)="showDatabaseList($event)"
                    (keydown)="navigateWithKeyboardShortList($event,filteredDbList,'db')">
-                <input class="ddp-input-selectbox db-search" placeholder="{{'msg.bench.ui.db.name.search' | translate }}" [(ngModel)]="dbSearchText">
-                <span class="ddp-txt-selectbox">{{datasetJdbc.databaseName === '' ? ('msg.dp.ui.sel.db' | translate) :datasetJdbc.databaseName }}</span>
+                <input class="ddp-input-selectbox db-search"
+                       placeholder="{{'msg.bench.ui.db.name.search' | translate }}"
+                       [(ngModel)]="dbSearchText">
+                <span class="ddp-txt-selectbox">
+                  {{datasetJdbc.tableInfo.databaseName === undefined ? ('msg.dp.ui.sel.db' | translate) :datasetJdbc.tableInfo.databaseName }}
+                </span>
                 <ul class="ddp-list-selectbox ddp-selectdown"
-                    (clickOutside)="isDatabaseListShow = false; initSelectedCommand(filteredDbList)">
+                    (clickOutside)="isDatabaseListShow = false;initSelectedCommand(filteredDbList)">
                   <li *ngFor="let database of filteredDbList; let index=index"
                       (click)="onChangeDatabase($event, database)"
                       (mouseout)="listHover($event,'db',index)"
@@ -104,13 +121,17 @@
               </div>
               <div class="ddp-type-selectbox ddp-type-search-select"
                    [ngClass]="{'ddp-selected': isSchemaListShow }"
-                   [class.ddp-result]="datasetJdbc.tableName"
+                   [class.ddp-result]="datasetJdbc.tableInfo.tableName"
                    (click)="showSchemaList($event)"
                    tabindex="2"
                    (keydown)="navigateWithKeyboardShortList($event,filteredSchemaList,'schema')"
-                   *ngIf="this.datasetJdbc.databaseName !== ''">
-                <input class="ddp-input-selectbox schema-search" placeholder="{{'msg.bench.ui.search.table.ph' | translate }}" [(ngModel)]="schemaSearchText">
-                <span class="ddp-txt-selectbox">{{datasetJdbc.tableName === ''? ('msg.storage.ui.dsource.create.choose-table' | translate) : datasetJdbc.tableName}}</span>
+                   *ngIf="this.datasetJdbc.tableInfo.databaseName !== undefined">
+                <input class="ddp-input-selectbox schema-search"
+                       placeholder="{{'msg.bench.ui.search.table.ph' | translate }}"
+                       [(ngModel)]="schemaSearchText">
+                <span class="ddp-txt-selectbox">
+                  {{datasetJdbc.tableInfo.tableName === undefined? ('msg.storage.ui.dsource.create.choose-table' | translate) : datasetJdbc.tableInfo.tableName}}
+                </span>
                 <ul class="ddp-list-selectbox ddp-selectdown"
                     (clickOutside)="isSchemaListShow = false; initSelectedCommand(filteredSchemaList)">
                   <li *ngFor="let schema of filteredSchemaList; let index=index"

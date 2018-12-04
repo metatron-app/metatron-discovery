@@ -18,10 +18,9 @@ import { PopupService } from '../../../common/service/popup.service';
 import { DatasetJdbc, DsType, RsType, ImportType } from '../../../domain/data-preparation/dataset';
 import { ConnectionType, Dataconnection } from '../../../domain/dataconnection/dataconnection';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
-import { Alert } from '../../../common/util/alert.util';
 import { ConnectionRequest } from '../../../domain/dataconnection/connectionrequest';
-import { isUndefined } from 'util';
-import {DatasetService} from "../service/dataset.service";
+import { isNullOrUndefined, isUndefined } from 'util';
+import { DatasetService } from "../service/dataset.service";
 
 @Component({
   selector: 'app-create-dataset-db-select',
@@ -129,9 +128,6 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public initView() {
 
-    this.datasetJdbc.tableName = '';
-    this.datasetJdbc.databaseName = '';
-    this.datasetJdbc.queryStmt = '';
     this.datasetJdbc.dsType = DsType.IMPORTED;
     this.datasetJdbc.rsType = RsType.TABLE;
     this.datasetJdbc.importType = ImportType.DB;
@@ -421,17 +417,36 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
         if (data.hasOwnProperty('_embedded') && data['_embedded'].hasOwnProperty('connections')) {
           this.connectionList = data['_embedded']['connections'];
 
+
+          // --- Temp : not using direct input
           let idx = this.connectionList.findIndex((item) =>{
             return item.name === 'Direct input';
           });
-
           if (idx !== -1) {
             this.connectionList.splice(idx,1);
           }
+          // --- Temp
 
-          if (this.connectionList.length !== 0) {
+          if (this.connectionList.length !== 0 && isNullOrUndefined(this.datasetJdbc.dataconnection)) {
             this.onChangeType(this.connectionList[0]);
+
+          } else if (this.connectionList.length === 0) {
+            console.info('no dataconnection list --> ');
+
+          } else if (!isNullOrUndefined(this.datasetJdbc.dataconnection.connection)) {
+
+            const connArr = this.connectionList.map((item) => {return item.id});
+
+            if (connArr.indexOf(this.datasetJdbc.dcId) !== -1) {
+              this.defaultSelectedIndex = connArr.indexOf(this.datasetJdbc.dcId);
+              this.onChangeType(this.connectionList[this.defaultSelectedIndex]);
+            }
+
+            this.connectionResult = 'valid';
+            this.connectionResultFl = true;
+
           }
+
         }
       })
       .catch((err) => {

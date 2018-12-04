@@ -146,14 +146,19 @@ export class DatasetHive extends Dataset {
 }
 
 export class DatasetJdbc extends Dataset {
-  public dcId: string;
-  public queryStmt: string;
-  public tableName: string;
-  public databaseName: string;
+
   public rsType: RsType;
   public dsName: string;
   public dsDesc: string;
-  public selectedInfo: SelectedInfo;
+
+  public queryStmt?: string;
+  public tableName?: string;
+  public databaseName?: string;
+
+  public sqlInfo? : QueryInfo;
+  public tableInfo? : TableInfo;
+
+  public dcId?: string;
   public dataconnection: any;
 }
 
@@ -184,10 +189,6 @@ export class Rule {
   // ui에서만 사용
   public cols: string[] = [];
   public groups: string[] = [];
-  public patternType: string = 'string';
-  public quoteType: string = 'none';
-  public beforeOrAfter: string = 'before';
-  public colForMove: string = '';
   public where : string;
   public pattern : string = '';
 

@@ -34,11 +34,11 @@
 
       <!-- tab -->
       <ul class="ddp-list-buttons">
-        <li (click)="selectedMethod('TABLE')"
+        <li (click)="selectTab('TABLE')"
             [ngClass]="{'ddp-selected': datasetHive.rsType === rsType.TABLE}">
           {{'msg.lineage.ui.list.search.table' | translate}}
         </li>
-        <li (click)="selectedMethod('SQL')"
+        <li (click)="selectTab('SQL')"
             [ngClass]="{'ddp-selected': datasetHive.rsType === rsType.SQL}">
           {{'msg.dp.btn.query' | translate}}
         </li>
