@@ -491,13 +491,13 @@ public class PrepTransformService {
     //각 컬럼의 type에 따라 rulestring에 추가.
     for(int i = 0; i < df.colCnt; i++) {
       if(columnTypes.get(i) == ColumnType.BOOLEAN)
-        ruleStrings[0] = ruleStrings[0] + columnNames.get(i) + ", ";
+        ruleStrings[0] = ruleStrings[0] + "`" + columnNames.get(i) + "`, ";
       else if(columnTypes.get(i) == ColumnType.LONG)
-        ruleStrings[1] = ruleStrings[1] + columnNames.get(i) + ", ";
+        ruleStrings[1] = ruleStrings[1] + "`" + columnNames.get(i) + "`, ";
       else if(columnTypes.get(i) == ColumnType.DOUBLE)
-        ruleStrings[2] = ruleStrings[2] + columnNames.get(i) + ", ";
+        ruleStrings[2] = ruleStrings[2] + "`" + columnNames.get(i) + "`, ";
       else if(columnTypes.get(i) == ColumnType.TIMESTAMP)
-        setTypeRules.add("settype col: " + columnNames.get(i) + " type: Timestamp format: '" + timestampStyles.get(i) + "'");
+        setTypeRules.add("settype col: `" + columnNames.get(i) + "` type: Timestamp format: '" + timestampStyles.get(i) + "'");
     }
 
     //생선된 rulestring을 settypeRules에 추가.
@@ -1402,7 +1402,7 @@ public class PrepTransformService {
     List<PrTransformRule> transformRules = getRulesInOrder(dsId);
     teddyImpl.reset(dsId);
 
-    return (teddyImpl.getRevCnt(dsId) == transformRules.size() + 1);  // revision# = stage0 + rule#
+    return (teddyImpl.getRevCnt(dsId) == transformRules.size());
   }
 
   public void putAddedInfo(PrepTransformResponse transformResponse, PrDataset wrangledDataset) {
