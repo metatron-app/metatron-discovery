@@ -307,7 +307,8 @@ public class PrSnapshotService {
             Sort sort = new Sort(Sort.Direction.DESC, "launchTime");
             List<PrSnapshot> listAll = this.snapshotRepository.findAll(sort);
             for(PrSnapshot ss : listAll) {
-                if(true==dsId.equals(ss.getLineageInfoValue("dsId"))) {
+                //if(true==dsId.equals(ss.getLineageInfoValue("dsId"))) {
+                if(true==dsId.equals(ss.getDsId())) {
                     if(option.toUpperCase().equals("ALL")){
                         snapshots.add(ss);
                     } else if(ss.getStatus() != PrSnapshot.STATUS.CANCELING && ss.getStatus() != PrSnapshot.STATUS.CANCELED){
