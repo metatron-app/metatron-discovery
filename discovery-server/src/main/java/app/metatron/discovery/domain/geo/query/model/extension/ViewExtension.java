@@ -42,16 +42,33 @@
 
 package app.metatron.discovery.domain.geo.query.model.extension;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.Serializable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = AggregationExtension.class, name = "aggregation"),
-    @JsonSubTypes.Type(value = ViewExtension.class, name = "view")
-})
-public interface DruidExtension extends Serializable {
-  String toParamString();
+import java.util.List;
+
+import app.metatron.discovery.query.druid.Aggregation;
+import app.metatron.discovery.query.druid.Dimension;
+import app.metatron.discovery.query.druid.Filter;
+import app.metatron.discovery.query.druid.PostAggregation;
+import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
+
+public class ViewExtension extends AggregationExtension implements DruidExtension {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ViewExtension.class);
+
+  @JsonCreator
+  public ViewExtension(
+      @JsonProperty("virtualColumns") List<VirtualColumn> virtualColumns,
+      @JsonProperty("filter") Filter filter,
+      @JsonProperty("dimensions") List<Dimension> dimensions,
+      @JsonProperty("aggregators") List<Aggregation> aggregators,
+      @JsonProperty("postAggregators") List<PostAggregation> postAggregators) {
+
+    super(virtualColumns, filter, dimensions, aggregators, postAggregators, null, null);
+  }
+
 }

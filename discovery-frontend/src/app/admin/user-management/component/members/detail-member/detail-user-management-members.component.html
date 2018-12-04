@@ -79,10 +79,11 @@
                  [class.ddp-selected]="statusShowFl"
                  (click)="statusShowFl = !statusShowFl" (clickOutside)="statusShowFl = false">
               <span class="ddp-txt-selectbox">{{getUserStatus()}}</span>
-              <ul class="ddp-list-selectbox ddp-selectdown">
-                <li *ngFor="let status of userStatusList">
+              <ul class="ddp-list-selectbox ddp-selectdown ddp-list-popup">
+                <li *ngFor="let status of userStatusList"
+                    [class.ddp-selected]="status.value === userData.status?.toString()">
                   <a href="javascript:" (click)="onChangeStatus(status.value)">
-                    {{status.label}}
+                    {{status.label}} <em class="ddp-icon-check"></em>
                   </a>
                 </li>
               </ul>

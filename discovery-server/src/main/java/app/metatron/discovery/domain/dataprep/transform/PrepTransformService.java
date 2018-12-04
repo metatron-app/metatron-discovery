@@ -1318,7 +1318,7 @@ public class PrepTransformService {
     if (importedDataset.getImportType().equalsIgnoreCase("FILE")) {
       String path = importedDataset.getCustomValue("filePath"); // datasetFileService.getPath2(importedDataset);
       LOGGER.debug(wrangledDsId + " path=[" + path + "]");
-      if (importedDataset.isDSV() || importedDataset.isEXCEL()) {
+      if (importedDataset.isDSV() || importedDataset.isEXCEL() || importedDataset.isJSON()) {
         gridResponse = teddyImpl.loadFileDataset(wrangledDsId, path, importedDataset.getDelimiter(), wrangledDataset.getDsName());
       }
       /* excel type dataset has csv file
@@ -1327,10 +1327,6 @@ public class PrepTransformService {
         throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG);
       }
       */
-      else if (importedDataset.isJSON()) {
-        LOGGER.error("createStage0(): EXCEL not supported: " + path);
-        throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG);
-      }
       else {
         throw new IllegalArgumentException("invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
       }

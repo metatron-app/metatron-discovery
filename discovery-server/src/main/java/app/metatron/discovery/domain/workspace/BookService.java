@@ -87,6 +87,7 @@ public class BookService {
         if (CollectionUtils.isNotEmpty(sourceWorkBook.getDashBoards())) {
           for (DashBoard dashBoard : sourceWorkBook.getDashBoards()) {
             DashBoard copiedDashBoard = dashBoardService.copy(dashBoard, targetWorkBook, false);
+            copiedDashBoard.setSeq(dashBoard.getSeq());
             children.add(copiedDashBoard);
           }
         }
