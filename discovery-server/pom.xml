@@ -603,9 +603,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.evanlennick</groupId>
-            <artifactId>retry4j</artifactId>
-            <version>0.15.0</version>
+            <groupId>net.jodah</groupId>
+            <artifactId>failsafe</artifactId>
+            <version>1.1.1</version>
         </dependency>
 
         <!-- Spec 관련 Library -->
