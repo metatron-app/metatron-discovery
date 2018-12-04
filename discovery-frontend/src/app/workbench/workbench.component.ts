@@ -2462,6 +2462,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       const runningResultTab: ResultTab = this._getResultTab(this.runningResultTabId);
       runningResultTab.showLog = true;
       runningResultTab.setResultStatus( 'CANCEL' );
+      runningResultTab.doneTimer();
       if (isSuccess) {
         runningResultTab.name = this._genResultTabName(runningResultTab.queryEditor.name, 'RESULT', runningResultTab.order);
         if (isNullOrUndefined(runningResultTab.message)) {
