@@ -31,28 +31,25 @@ import app.metatron.discovery.domain.context.ContextDomainRepository;
  * DataSourceRepository
  */
 @RepositoryRestResource(path = "datasources", itemResourceRel = "datasource"
-        , collectionResourceRel = "datasources", excerptProjection = DataSourceProjections.DefaultProjection.class)
+    , collectionResourceRel = "datasources", excerptProjection = DataSourceProjections.DefaultProjection.class)
 public interface DataSourceRepository extends JpaRepository<DataSource, String>,
-                                              QueryDslPredicateExecutor<DataSource>,
-                                              ContextDomainRepository<DataSource>,
-                                              DataSourceRepositoryExtends,
-                                              DataSourceSearchRepository {
+    QueryDslPredicateExecutor<DataSource>,
+    ContextDomainRepository<DataSource>,
+    DataSourceRepositoryExtends,
+    DataSourceSearchRepository {
 
   /**
    * fake!! http://stackoverflow.com/questions/25201306/implementing-custom-methods-of-spring-data-repository-and-exposing-them-through
    *
    * for search
-   *
-   * @param keywords
-   * @param pageable
-   * @return
    */
   @RestResource(path = "keyword")
   @Query("select ds from DataSource ds where ds.id= :q")
   Page<DataSource> searchByKeyword(@Param("q") String keywords, Pageable pageable);
 
   @RestResource(path = "query")
-  @Query("select ds from DataSource ds where ds.id= :q")  // fake!!
+  @Query("select ds from DataSource ds where ds.id= :q")
+    // fake!!
   Page<DataSource> searchByQuery(@Param("q") String query, Pageable pageable);
 
   @RestResource(exported = false)
@@ -76,12 +73,6 @@ public interface DataSourceRepository extends JpaRepository<DataSource, String>,
 
   /**
    * Size History 배치잡에서 활용 용도
-   *
-   * @param dsType
-   * @param connType
-   * @param status
-   * @param page
-   * @return
    */
   @RestResource(exported = false)
   Page<DataSource> findByDsTypeAndConnTypeAndStatus(DataSource.DataSourceType dsType,
@@ -93,7 +84,7 @@ public interface DataSourceRepository extends JpaRepository<DataSource, String>,
   @Query("SELECT ds FROM DataSource ds " +
       "WHERE ds.dsType <> 'JOIN' " +
       "AND ds.connType <> 'LINK' " +
-      "AND (ds.status <> 'FAILED' OR ds.status <> 'FAILED')" +
+      "AND ds.status <> 'PREPARING' " +
       "AND ds.srcType IS NOT NULL")
   Page<DataSource> findByDataSourceForCheck(Pageable page);
 

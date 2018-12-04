@@ -3,6 +3,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -205,6 +219,46 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
       .param("offset", offset)
     .when()
       .get("/api/datasources/{id}/histories/{historyId}/log", dataSourceId, historyId)
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK);
+    // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
+  @Sql("/sql/test_datasource_list.sql")
+  public void resetDataSourceIngestion() {
+
+    String dataSourceId = "ds-test-01";
+    String historyId = "100011";
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+    .when()
+      .post("/api/datasources/{id}/histories/{historyId}/reset", dataSourceId, historyId)
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK);
+    // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
+  @Sql("/sql/test_datasource_list.sql")
+  public void stopDataSourceIngestion() {
+
+    String dataSourceId = "ds-test-01";
+    String historyId = "100011";
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+    .when()
+      .post("/api/datasources/{id}/histories/{historyId}/stop", dataSourceId, historyId)
     .then()
       .log().all()
       .statusCode(HttpStatus.SC_OK);
@@ -1504,15 +1558,14 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
     dataSource.setFields(fields);
 
-    RealtimeIngestionInfo ingestionInfo = new RealtimeIngestionInfo();
-    ingestionInfo.setRollup(false);
-    ingestionInfo.setFormat(new JsonFileFormat());
-    ingestionInfo.setConsumerType(RealtimeIngestionInfo.ConsumerType.KAFKA);
-    ingestionInfo.setTopic("test_topic");
-
     Map<String, Object> consumeProperties = Maps.newHashMap();
     consumeProperties.put("bootstrap.servers", "localhost:9092");
-    ingestionInfo.setConsumerProperties(consumeProperties);
+
+    RealtimeIngestionInfo ingestionInfo = new RealtimeIngestionInfo("test_topic",
+                                                                    consumeProperties,
+                                                                    new JsonFileFormat(),
+                                                                    false,
+                                                                    null, null);
 
     dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(ingestionInfo));
 
@@ -2207,6 +2260,8 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     singleJdbcInfo.setDataType(JdbcIngestionInfo.DataType.TABLE);
     singleJdbcInfo.setDatabase("polaris_datasources");
     singleJdbcInfo.setQuery("sample_ingestion");
+    singleJdbcInfo.setMaxLimit(3);
+    singleJdbcInfo.setRollup(false);
 
     dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(singleJdbcInfo));
 

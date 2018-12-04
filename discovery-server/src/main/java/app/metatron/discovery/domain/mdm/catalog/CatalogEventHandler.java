@@ -21,6 +21,8 @@ import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 
+import static app.metatron.discovery.domain.mdm.MetadataErrorCodes.DUPLICATED_CATALOG_NAME;
+
 /**
  * Catalog event handler
  */
@@ -29,9 +31,22 @@ public class CatalogEventHandler {
 
   @Autowired
   CatalogTreeService catalogTreeService;
+
+  @Autowired
+  CatalogRepository catalogRepository;
   
   @HandleBeforeCreate
   public void handleBeforeCreate(Catalog catalog) {
+
+    if ( catalog.getParentId() == null ){
+      if ( catalogRepository.countByCatalogName(catalog.getName()) > 0 ){
+        throw new CatalogException(DUPLICATED_CATALOG_NAME, "Duplicated Catalog Name");
+      }
+    }else{
+      if ( catalogRepository.countByCatalogNameAndParentId(catalog.getName(), catalog.getParentId()) > 0 ){
+        throw new CatalogException(DUPLICATED_CATALOG_NAME, "Duplicated Catalog Name");
+      }
+    }
   }
 
   @HandleAfterCreate

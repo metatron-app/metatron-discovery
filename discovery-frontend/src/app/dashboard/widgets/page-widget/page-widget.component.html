@@ -479,7 +479,7 @@
             </li>
           </ul>
           <!-- right -->
-          <div class="ddp-ui-rightoption ddp-type-option">
+          <div *ngIf="!isCanNotDownAggr" class="ddp-ui-rightoption ddp-type-option">
             <!-- 클릭시 ddp-selected 추가 : 팝업 show 됨 -->
             <div (click)="showDownloadLayer($event)" class="ddp-box-btn2 ddp-box-selected ddp-selected">
               <a href="javascript:" class="ddp-link-txt">
@@ -512,7 +512,13 @@
               </div>
             </div>
             <!-- 그리드 -->
-            <div #dataGrid grid-component class="ddp-ui-grid2" style="top:44px;"></div>
+            <div *ngIf="!isCanNotDownAggr" #dataGrid grid-component class="ddp-ui-grid2" style="top:44px;"></div>
+            <div *ngIf="isCanNotDownAggr" class="ddp-ui-grid2 ddp-type">
+              <div class="ddp-ui-error-message">
+                {{ 'msg.board.ui.cant-not-down-aggregate' | translate }}
+              </div>
+            </div>
+
             <!-- //그리드 -->
           </div>
           <!-- //tab contents -->

@@ -36,7 +36,7 @@ import {MomentDatePipe} from '../common/pipe/moment.date.pipe';
 import {StringUtil} from '../common/util/string.util';
 import {CommonUtil} from '../common/util/common.util';
 import {WorkspaceService} from '../workspace/service/workspace.service';
-import {PermissionChecker, Workspace} from '../domain/workspace/workspace';
+import {PermissionChecker, PublicType, Workspace} from '../domain/workspace/workspace';
 import {DashboardComponent} from '../dashboard/dashboard.component';
 import {Page, PageResult} from 'app/domain/common/page';
 import {UpdateDashboardComponent} from '../dashboard/update-dashboard.component';
@@ -59,9 +59,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
   // 현재 워크북 아이디
   private workbookId: string;
-
-  // 워크스페이스 정보
-  private workspace: Workspace;
 
   // 쿠키에 저장된 댓글 id
   private cookieCommentId: any;
@@ -117,6 +114,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   // 대시보드 리스트
   public dashboards: Dashboard[];
 
+  public workspace: Workspace;            // 워크스페이스 정보
   public tempLoadBoard:Dashboard;         // 조회용 임시 보드 정보 ( reload를 위한 )
   public selectedDashboard: Dashboard;    // 선택된 대시보드
 
@@ -179,6 +177,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
     return this.dashboards;
   }
+
+  public publicType = PublicType;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -257,7 +257,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.sendViewActivityStream(this.workbookId, 'WORKBOOK');
 
       this._getWorkbook().then((workbook: Workbook) => {
-
 
         // 워크스페이스 조회
         this.workspaceService.getWorkSpace(this.workbook.workspaceId, 'forDetailView').then((workspace: Workspace) => {
@@ -380,11 +379,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   public deleteContent($event: Modal) {
 
-    this.loadingShow();
-
     if ($event.data.type === 'workbook') {
-
       // 워크북 삭제
+      this.loadingShow();
       this.workbookService.deleteWorkbook(this.workbook.id).then(() => {
         Alert.success(this.translateService.instant('msg.book.alert.workbook.del.success'));
         this.gotoWorkspace();
@@ -396,8 +393,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       // 대시보드 삭제
     } else if ($event.data.type === 'dashboard') {
       const dashboard: Dashboard = $event.data.data;
-
       // 대쉬보드 삭제
+      this.loadingShow();
       this.dashboardService.deleteDashboard(dashboard.id).then(() => {
         Alert.success(this.translateService.instant('msg.board.alert.dashboard.del.success'));
 
@@ -412,7 +409,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
           this.loadDashboardList(0);
         });
 
-
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));
 
@@ -421,6 +417,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       // 댓글 삭제
     } else if ($event.data.type === 'comment') {
 
+      this.isShowLnbLoading = true;
+
       this.workbookService.deleteComment(this.workbook.id, $event.data.data).then(() => {
         Alert.success(this.translateService.instant('msg.board.alert.comment.del.success'));
 
@@ -428,7 +426,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));
 
-        this.loadingHide();
+        this.isShowLnbLoading = false;
       });
     }
   } // function - deleteContent
@@ -833,6 +831,17 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     this.deleteModalComponent.init(modal);
   } // function - confirmDeleteComment
 
+  /**
+   * 유저의 프로필 사진
+   * @param user
+   * @returns {string}
+   */
+  public getProfileImage(user): string {
+    return user.hasOwnProperty('imageUrl')
+      ? '/api/images/load/url?url=' + user.imageUrl + '/thumbnail'
+      : '/assets/images/img_photo.png';
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Dashboard
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1032,7 +1041,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     // 데이터 설정
     this.popupService.ptDashboards = _.cloneDeep(this.dashboards);
     let boardInfo: PresentationDashboard = <PresentationDashboard>_.cloneDeep(this.selectedDashboard);
-    boardInfo.selectionFilters = this._boardComp.getSelectedFilters();
+    boardInfo.selectionFilters = this._boardComp ? this._boardComp.getSelectedFilters() : [];
     this.popupService.ptStartDashboard = boardInfo;
     // 페이지 호출
     this.router.navigate([`/dashboard/presentation/${this.workbook.id}/${this.selectedDashboard.id}`]).then();

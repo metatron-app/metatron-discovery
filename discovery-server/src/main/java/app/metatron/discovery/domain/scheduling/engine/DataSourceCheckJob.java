@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.scheduling.engine;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -41,6 +42,7 @@ import java.util.stream.Collectors;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.datasource.DataSourceSummary;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.DruidEngineRepository;
 import app.metatron.discovery.domain.engine.EngineQueryService;
@@ -49,6 +51,7 @@ import app.metatron.discovery.query.druid.meta.AnalysisType;
 
 import static app.metatron.discovery.domain.datasource.DataSource.Status.DISABLED;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.ENABLED;
+import static app.metatron.discovery.domain.datasource.DataSource.Status.FAILED;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.PREPARING;
 
 
@@ -64,6 +67,9 @@ public class DataSourceCheckJob extends QuartzJobBean {
 
   @Autowired
   DataSourceRepository dataSourceRepository;
+
+  @Autowired
+  IngestionHistoryRepository ingestionHistoryRepository;
 
   @Autowired
   EngineQueryService queryService;
@@ -92,8 +98,12 @@ public class DataSourceCheckJob extends QuartzJobBean {
       page = dataSourceRepository.findByDataSourceForCheck(pageRequest);
 
       for (DataSource ds : page) {
-        // 파티션된 데이터 소스인 경우 PASS.
+        // Skip partitioned data sources.
         if(StringUtils.isNotEmpty(ds.getPartitionKeys())) {
+          continue;
+        }
+
+        if(ds.getStatus() == FAILED && BooleanUtils.isNotTrue(ds.getFailOnEngine())) {
           continue;
         }
 

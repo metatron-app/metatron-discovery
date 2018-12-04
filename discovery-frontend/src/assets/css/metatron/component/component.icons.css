@@ -655,7 +655,8 @@ em.ddp-icon-type-spatial,
 em.ddp-icon-type-etc,
 em.ddp-icon-type-point,
 em.ddp-icon-type-line,
-em.ddp-icon-type-polygon{display:inline-block; position:absolute; top:50%; left:10px; width:13px; height:9px; margin-top:-5px; background:url(../../../images/icon_valuetype.png) no-repeat; vertical-align:middle;}
+em.ddp-icon-type-polygon,
+em.ddp-icon-type-expression{display:inline-block; position:absolute; top:50%; left:10px; width:13px; height:9px; margin-top:-5px; background:url(../../../images/icon_valuetype.png) no-repeat; vertical-align:middle;}
 em.ddp-icon-type-local {width:9px; height:12px; margin-top:-6px; background-position:left -10px;}
 em.ddp-icon-type-sharp {width:15px; height:8px; margin-top:-4px; background-position:left -23px;}
 em.ddp-icon-type-account {width:11px; height:12px; margin-top:-6px; background-position:left -32px;}
@@ -682,6 +683,7 @@ em.ddp-icon-type-point {width:9px; height:12px; background-position:left -268px;
 em.ddp-icon-type-line {width:10px; height:12px; background-position:left -281px;}
 em.ddp-icon-type-polygon {width:13px; height:13px; background-position:left -294px;}
 
+em.ddp-icon-type-expression {width:11px; height:10px; background-position:left -308px;}
 em.ddp-icon-basic-calen,
 em.ddp-icon-basic-ab,
 em.ddp-icon-basic-local,
@@ -709,7 +711,6 @@ em.ddp-icon-basic-latitude  {width:11px; height:11px; background-position:-48px 
 em.ddp-icon-basic-longitude {width:11px; height:11px; background-position:-48px -131px;}
 em.ddp-icon-basic-array {width:8px; height:10px; background-position:-36px -107px;}
 em.ddp-icon-basic-map {width:14px; height:10px; background-position:-60px -143px;}
-
 
 em.ddp-icon-dimension-ab,
 em.ddp-icon-dimension-local,

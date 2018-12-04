@@ -791,6 +791,9 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     if (item.hasOwnProperty('field') && StringUtil.isNotEmpty(item['field'] + '')) {
       candidate.name = item['field'];
       candidate.count = item['count'];
+    } else if( item.hasOwnProperty('.count') ) {
+      candidate.name = item[field.name.replace(/(\S+\.)\S+/gi, '$1field')];
+      candidate.count = item['.count'];
     } else {
       candidate.name = item[field.name];
       candidate.count = item['count'];

@@ -604,7 +604,9 @@ public class PrepTransformService {
     for (PrepDataset dataset : datasets) {
       if (dataset.getDsId().equals(oldDsId)) {
         datasets.remove(dataset);
-        datasets.add(newDataset);
+        if (!datasets.contains(newDataset)) {
+          datasets.add(newDataset);
+        }
         dataflow.setDatasets(datasets);
         dataflowRepository.save(dataflow);
         break;
@@ -680,11 +682,7 @@ public class PrepTransformService {
 
     for (int i = 1; i < ruleStrings.size(); i++) {
       String ruleString = ruleStrings.get(i);
-      try {
-        gridResponse = teddyImpl.append(dsId, i - 1, ruleString, true);
-      } catch (TeddyException te) {
-        LOGGER.info("load_internal(): A TeddyException is suppressed: {}", te.getMessage());
-      }
+      gridResponse = teddyImpl.append(dsId, i - 1, ruleString, true);
     }
     updateTransformRules(dsId);
     adjustStageIdx(dsId, ruleStrings.size() - 1, true);
@@ -1320,7 +1318,7 @@ public class PrepTransformService {
     if (importedDataset.getImportType().equalsIgnoreCase("FILE")) {
       String path = importedDataset.getCustomValue("filePath"); // datasetFileService.getPath2(importedDataset);
       LOGGER.debug(wrangledDsId + " path=[" + path + "]");
-      if (importedDataset.isDSV() || importedDataset.isEXCEL()) {
+      if (importedDataset.isDSV() || importedDataset.isEXCEL() || importedDataset.isJSON()) {
         gridResponse = teddyImpl.loadFileDataset(wrangledDsId, path, importedDataset.getDelimiter(), wrangledDataset.getDsName());
       }
       /* excel type dataset has csv file
@@ -1329,10 +1327,6 @@ public class PrepTransformService {
         throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG);
       }
       */
-      else if (importedDataset.isJSON()) {
-        LOGGER.error("createStage0(): EXCEL not supported: " + path);
-        throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG);
-      }
       else {
         throw new IllegalArgumentException("invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
       }
@@ -1626,7 +1620,7 @@ public class PrepTransformService {
         }
       } else if( rule.getName().equals( "extract"  ) ) {
         Extract extract = (Extract)rule;
-        String col = extract.getCol();
+        Expression col = extract.getCol();
         Boolean IgnoreCase = extract.getIgnoreCase();
         Integer limit = extract.getLimit();
         Expression on = extract.getOn();
@@ -1657,7 +1651,7 @@ public class PrepTransformService {
         }
       } else if( rule.getName().equals( "split"  ) ) {
         Split split = (Split)rule;
-        String col = split.getCol();
+        Expression col = split.getCol();
         Boolean ignoreCase = split.getIgnoreCase();
         Integer limit = split.getLimit();
         Expression on = split.getOn();
@@ -1742,7 +1736,7 @@ public class PrepTransformService {
         Expression value = window.getValue();
         if (null == value) {
           LOGGER.error("confirmRuleStringForException(): aggregate value is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_AGGREGATE_VALUE);
+          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_WINDOW_VALUE);
         }
       } else {
         LOGGER.error("confirmRuleStringForException(): ruleName is wrong - "+rule.getName());
@@ -1751,7 +1745,7 @@ public class PrepTransformService {
     } catch (PrepException e) {
       throw e;
     } catch (RuleException e) {
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, TeddyException.fromRuleException(e));
     } catch (Exception e) {
       LOGGER.error("confirmRuleStringForException(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED, e.getMessage());

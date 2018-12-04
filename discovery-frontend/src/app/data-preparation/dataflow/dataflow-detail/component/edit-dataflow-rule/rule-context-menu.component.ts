@@ -298,6 +298,11 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
                 let idx = this.labelsForNumbers.indexOf(item);
                 result += this.histogramData.length-1 !== index ? `${selCol} >= ${item} && ${this.contextInfo.columnName} < ${this.labelsForNumbers[idx+1]} || ` : `${selCol} >= ${item} && ${selCol} < ${this.labelsForNumbers[idx+1]}`;
               })
+            } else if (this.contextInfo.columnType === 'TIMESTAMP') {
+              this.histogramData.forEach((item,index) => {
+                let idx = this.labelsForNumbers.indexOf(item);
+                result += this.histogramData.length-1 !== index ? `time_diff(timestamp('${item}','${this.contextInfo.timestampStyle}'),${selCol}) >= 0 && time_diff(timestamp('${this.labelsForNumbers[idx+1]}','${this.contextInfo.timestampStyle}'), ${selCol}) < 0 || ` : `time_diff(timestamp('${item}','${this.contextInfo.timestampStyle}'),${selCol}) >= 0 && time_diff(timestamp('${this.labelsForNumbers[idx+1]}','${this.contextInfo.timestampStyle}'), ${selCol}) < 0`;
+              });
             } else {
               this.histogramData.forEach((item,index) => {
                 result += this.histogramData.length-1 !== index ? selCol + ' == ' +'\''+ item +'\''+ ' || ' : selCol + ' == ' +'\''+ item +'\'';

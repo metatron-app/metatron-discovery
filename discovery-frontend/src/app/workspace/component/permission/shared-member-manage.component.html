@@ -100,7 +100,10 @@
             <!-- //member -->
 
             <!-- 더보기 -->
-            <div class="ddp-ui-moretype">
+            <div *ngIf="isShowUserTab && showMoreAllUser" class="ddp-ui-moretype">
+              <a (click)="getMore()" href="javascript:" class="ddp-btn-moretype">{{'msg.comm.ui.more' | translate}}</a>
+            </div>
+            <div *ngIf="!isShowUserTab && showMoreAllGroup" class="ddp-ui-moretype">
               <a (click)="getMore()" href="javascript:" class="ddp-btn-moretype">{{'msg.comm.ui.more' | translate}}</a>
             </div>
             <!-- //더보기 -->
@@ -112,7 +115,7 @@
             <!-- 멤버 -->
             <div class="ddp-ui-member-table" *ngIf="isShowUserTab">
 
-              <span class="ddp-data-total2"><strong>{{workspaceUsers.length}}</strong> selections</span>
+              <span class="ddp-data-total2"><strong>{{workspaceUsers.length}}</strong> {{ 'msg.storage.ui.sel.count' | translate }}</span>
               <!-- roles -->
               <div class="ddp-wrap-roles" [class.ddp-selected]="isShowPermSchemaPopup">
                 <span class="ddp-label" (click)="isShowPermSchemaPopup = true">
@@ -133,8 +136,8 @@
                   <table class="ddp-table-form2">
                     <colgroup>
                       <col width="*">
-                      <col width="20%">
-                      <col width="45%">
+                      <col width="30%">
+                      <col width="35%">
                       <col width="30px">
                     </colgroup>
                     <thead>
@@ -153,8 +156,8 @@
                   <table class="ddp-table-form2">
                     <colgroup>
                       <col width="*">
-                      <col width="20%">
-                      <col width="45%">
+                      <col width="30%">
+                      <col width="35%">
                       <col width="30px">
                     </colgroup>
                     <tbody>
@@ -194,7 +197,7 @@
                 <!-- //body -->
               </div>
               <!-- 더보기 -->
-              <div class="ddp-ui-moretype">
+              <div *ngIf="showMoreWsUser" class="ddp-ui-moretype">
                 <a (click)="getWsMemberMore()" href="javascript:" class="ddp-btn-moretype">{{'msg.comm.ui.more' | translate}}</a>
               </div>
               <!-- //더보기 -->
@@ -203,7 +206,7 @@
 
             <!-- 그룹 -->
             <div class="ddp-ui-member-table" *ngIf="!isShowUserTab">
-              <span class="ddp-data-total2"><strong>{{workspaceGroups.length}}</strong> selections</span>
+              <span class="ddp-data-total2"><strong>{{workspaceGroups.length}}</strong> {{ 'msg.storage.ui.sel.count' | translate }}</span>
               <!-- roles -->
               <div class="ddp-wrap-roles" [class.ddp-selected]="isShowPermSchemaPopup">
                 <span class="ddp-label" (click)="isShowPermSchemaPopup = true">
@@ -280,7 +283,7 @@
                 <!-- //body -->
               </div>
               <!-- 더보기 -->
-              <div class="ddp-ui-moretype">
+              <div *ngIf="showMoreWsGroup" class="ddp-ui-moretype">
                 <a (click)="getWsMemberMore()" href="javascript:" class="ddp-btn-moretype">{{'msg.comm.ui.more' | translate}}</a>
               </div>
               <!-- //더보기 -->

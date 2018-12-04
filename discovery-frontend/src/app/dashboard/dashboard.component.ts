@@ -216,7 +216,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
    * @returns {ChartSelectInfo[]}
    */
   public getSelectedFilters(): ChartSelectInfo[] {
-    return this.selectionFilter.getChartSelectionList();
+    return this.selectionFilter ? this.selectionFilter.getChartSelectionList() : [];
   } // function - getSelectedFilters
 
   /**
@@ -406,11 +406,13 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
           if (TempDsStatus.ENABLE === this.datasourceStatus) {
             this._runDashboard(dashboard);
           } else {
+            this.onLayoutInitialised();
             this.hideBoardLoading();
           }
           this.safelyDetectChanges();
         }).catch((error) => {
           this.commonExceptionHandler(error);
+          this.onLayoutInitialised();
           this.hideBoardLoading();
         });
 
