@@ -544,9 +544,7 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @returns {boolean}
    */
   public isEnabledPartitionInput(partitions: any[], partition: any): boolean {
-    const index = partitions.findIndex((item) => {
-      return item === partition;
-    });
+    const index = partitions.findIndex(item => item === partition);
     if (index !== 0
       && (partitions[index - 1].value === undefined || partitions[index - 1].value === '')) {
       return false;
@@ -561,9 +559,7 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @returns {boolean}
    */
   public isMaxRowOverValue(row: any, value: number): boolean {
-    if (this[row]) {
-      return this[row] > value;
-    }
+    return this[row] && this[row] > value;
   }
 
   /**
