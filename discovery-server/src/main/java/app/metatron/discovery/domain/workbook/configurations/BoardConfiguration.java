@@ -35,39 +35,39 @@ import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 public class BoardConfiguration implements Serializable {
 
   /**
-   * 데이터 소스 연결 설정
+   * Configure Datasource Connection
    */
   DataSource dataSource;
 
   /**
-   * 보드 전체 옵션
+   * Whole board options
    */
   BoardGlobalOptions options;
 
   /**
-   * 대시보드내 배치되는 Widget 정보
+   * Widget information into dashboard
    */
   List<LayoutWidget> widgets;
 
   /**
-   * 대시보드 위젯 배치 정보 (대시보드 라이브러리 스펙에 따름)
+   * Widget allocation information (by dashboard library spec.)
    */
   @JsonRawValue
   @JsonDeserialize(using = KeepAsJsonDeserialzier.class)
   String content;
 
   /**
-   * 페이지 위젯 관계 설정
+   * Set widget relations
    */
   List<WidgetRelation> relations;
 
   /**
-   * 사용자 정의 필드 정보
+   * User defined fields
    */
   List<UserDefinedField> userDefinedFields;
 
   /**
-   * DashBoard 내 Global Filter 설정
+   * Global Filters into dashboard
    */
   List<Filter> filters;
 
@@ -134,7 +134,7 @@ public class BoardConfiguration implements Serializable {
   }
 
   /**
-   * 대시보드 레이아웃을 구성하는 위젯 정보
+   * Widget information which compose dashboard layout.
    */
   public static class LayoutWidget implements Serializable {
 
@@ -149,14 +149,14 @@ public class BoardConfiguration implements Serializable {
     String type;
 
     /**
-     * Widget Reference Id (Content 내 ID 와 연결됨)
+     * Widget Reference Id (Connected ID into Content)
      */
     String ref;
 
     /**
-     * 대시보드 내에서 Widget Title 지정 (값이 없을 경우 Widget내 저장된 Title 지정)
+     * Boolean : show widget's title in dashboard
      */
-    String title;
+    Boolean title;
 
     public LayoutWidget() {
     }
@@ -165,7 +165,7 @@ public class BoardConfiguration implements Serializable {
     public LayoutWidget(@JsonProperty(value = "id", required = true) String id,
                         @JsonProperty(value = "type", required = true) String type,
                         @JsonProperty(value = "ref", required = true) String ref,
-                        @JsonProperty("title") String title) {
+                        @JsonProperty("title") Boolean title) {
       this.id = id;
       this.type = type;
       this.ref = ref;
@@ -188,7 +188,7 @@ public class BoardConfiguration implements Serializable {
       this.ref = ref;
     }
 
-    public String getTitle() {
+    public Boolean getTitle() {
       return title;
     }
 

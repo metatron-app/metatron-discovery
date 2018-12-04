@@ -23,31 +23,31 @@ import {
   EventEmitter,
   ComponentFactoryResolver, ApplicationRef
 } from '@angular/core';
-import { Datasource, Field, FieldRole, LogicalType } from '../../../domain/datasource/datasource';
-import { Filter } from '../../../domain/workbook/configurations/filter/filter';
-import { BoardConfiguration, BoardDataSource, Dashboard } from '../../../domain/dashboard/dashboard';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { FilterUtil } from '../../util/filter.util';
+import {Datasource, Field, FieldRole, LogicalType} from '../../../domain/datasource/datasource';
+import {Filter} from '../../../domain/workbook/configurations/filter/filter';
+import {BoardConfiguration, BoardDataSource, Dashboard} from '../../../domain/dashboard/dashboard';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {FilterUtil} from '../../util/filter.util';
 import * as _ from 'lodash';
-import { AbstractFilterPopupComponent } from '../abstract-filter-popup.component';
+import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
 import {
   InclusionFilter
 } from '../../../domain/workbook/configurations/filter/inclusion-filter';
-import { BoundFilter } from '../../../domain/workbook/configurations/filter/bound-filter';
-import { Alert } from '../../../common/util/alert.util';
-import { CommonConstant } from '../../../common/constant/common.constant';
-import { CookieConstant } from '../../../common/constant/cookie.constant';
-import { ConfigureFiltersInclusionComponent } from '../inclusion-filter/configure-filters-inclusion.component';
-import { ConfigureFiltersBoundComponent } from '../bound-filter/configure-filters-bound.component';
-import { ConfigureFiltersTimeComponent } from '../time-filter/configure-filters-time.component';
-import { TimeFilter } from '../../../domain/workbook/configurations/filter/time-filter';
-import { TimeRangeFilter } from '../../../domain/workbook/configurations/filter/time-range-filter';
-import { FilteringType } from '../../../domain/workbook/configurations/field/timestamp-field';
-import { MeasureInequalityFilter } from '../../../domain/workbook/configurations/filter/measure-inequality-filter';
-import { WildCardFilter } from '../../../domain/workbook/configurations/filter/wild-card-filter';
-import { MeasurePositionFilter } from '../../../domain/workbook/configurations/filter/measure-position-filter';
-import { AdvancedFilter } from '../../../domain/workbook/configurations/filter/advanced-filter';
-import { DashboardUtil } from '../../util/dashboard.util';
+import {BoundFilter} from '../../../domain/workbook/configurations/filter/bound-filter';
+import {Alert} from '../../../common/util/alert.util';
+import {CommonConstant} from '../../../common/constant/common.constant';
+import {CookieConstant} from '../../../common/constant/cookie.constant';
+import {ConfigureFiltersInclusionComponent} from '../inclusion-filter/configure-filters-inclusion.component';
+import {ConfigureFiltersBoundComponent} from '../bound-filter/configure-filters-bound.component';
+import {ConfigureFiltersTimeComponent} from '../time-filter/configure-filters-time.component';
+import {TimeFilter} from '../../../domain/workbook/configurations/filter/time-filter';
+import {TimeRangeFilter} from '../../../domain/workbook/configurations/filter/time-range-filter';
+import {FilteringType} from '../../../domain/workbook/configurations/field/timestamp-field';
+import {MeasureInequalityFilter} from '../../../domain/workbook/configurations/filter/measure-inequality-filter';
+import {WildCardFilter} from '../../../domain/workbook/configurations/filter/wild-card-filter';
+import {MeasurePositionFilter} from '../../../domain/workbook/configurations/filter/measure-position-filter';
+import {AdvancedFilter} from '../../../domain/workbook/configurations/filter/advanced-filter';
+import {DashboardUtil} from '../../util/dashboard.util';
 
 @Component({
   selector: 'app-essential-filter',
@@ -70,7 +70,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
   private _compMap: any = {};
 
   // ingest 완료 시 결과를 반환하기 위해서 임시 저장하는 변수
-  private _ingestResultFilters:Filter[] = [];
+  private _ingestResultFilters: Filter[] = [];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -83,7 +83,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
   public inputDatasource: BoardDataSource;
 
   @Output()
-  public done:EventEmitter<{ id: string, info: Datasource, dataSourceId: string, filters?: Filter[] }> = new EventEmitter();
+  public done: EventEmitter<{ id: string, info: Datasource, dataSourceId: string, filters?: Filter[] }> = new EventEmitter();
 
   // 필터 종류
   public essentialFilters: Filter[] = [];
@@ -230,7 +230,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
   public ingest() {
 
     this._ingestResultFilters = this.essentialFilters.map(item => this._compMap[item.field].getData());
-    let filterParams: Filter[] = _.cloneDeep( this._ingestResultFilters );
+    let filterParams: Filter[] = _.cloneDeep(this._ingestResultFilters);
 
     // 필터 설정
     for (let filter of filterParams) {
@@ -254,7 +254,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
       }
     });
 
-    this.ingestionStatus = { progress: 0, message: '', step: 1 };
+    this.ingestionStatus = {progress: 0, message: '', step: 1};
     this.loadingShow();
     this.checkAndConnectWebSocket(true).then(() => {
       this.safelyDetectChanges();
@@ -309,26 +309,19 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
       };
     } else if (FilterUtil.isTimeFilter(filter)) {
       const timeFilter: TimeFilter = <TimeFilter>filter;
-      if ('current_datetime' === timeFilter.field) {
-        param.targetField = { granularity: 'ALL', name: 'current_datetime', type: 'timestamp' };
-      } else {
-        param.targetField = {
-          type: 'timestamp',
-          name: timeFilter.field,
-          alias: timeFilter.field,
-          format: {
-            type: 'time_continuous',
-            discontinuous: FilterUtil.isDiscontinuousTimeFilter(timeFilter),
-            unit: timeFilter.timeUnit,
-            filteringType: FilterUtil.isTimeListFilter(timeFilter) ? FilteringType.LIST : FilteringType.RANGE
-          }
-        };
-        (timeFilter.byTimeUnit) && (param.targetField.format.byUnit = timeFilter.byTimeUnit);
-        param.sortBy = 'VALUE';
-      }
-
-      // Timestamp Filter
-      param.targetField.type = 'timestamp';
+      param.targetField = {
+        type: 'timestamp',
+        name: timeFilter.field,
+        alias: timeFilter.field,
+        format: {
+          type: 'time_continuous',
+          discontinuous: FilterUtil.isDiscontinuousTimeFilter(timeFilter),
+          unit: timeFilter.timeUnit,
+          filteringType: FilterUtil.isTimeListFilter(timeFilter) ? FilteringType.LIST : FilteringType.RANGE
+        }
+      };
+      (timeFilter.byTimeUnit) && (param.targetField.format.byUnit = timeFilter.byTimeUnit);
+      param.sortBy = 'VALUE';
     }
 
     return param;
@@ -345,9 +338,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
     let timeFilter: Filter;
     // 필수 필터 설정
     fields.forEach((field: Field) => {
-      if (field.role === FieldRole.TIMESTAMP && field.logicalType === LogicalType.TIMESTAMP) {
-        timeFilter = FilterUtil.getTimeAllFilter(field, 'timestamp');
-      } else if (field.filtering) {
+      if (field.filtering) {
         if (FieldRole.DIMENSION === field.role) {
           if (field.logicalType === LogicalType.TIMESTAMP) {
             filters.push(FilterUtil.getTimeAllFilter(field, 'essential'));
@@ -393,6 +384,12 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
         // 결과데이터로 필터에 값 셋팅
         if ('include' === filter.type) {
           if (result && result.length > 0) {
+
+            const apiFieldName: string = filter.field.replace(/(\S+\.)\S+/gi, '$1field');
+            result = result.map(item => {
+              return { 'field': item[apiFieldName], 'count': item['.count'] };
+            });
+
             if (result[0].field) (<InclusionFilter>filter).valueList = [result[0].field];
             else (<InclusionFilter>filter).valueList = [result[0][filter.field]];
           } else {
@@ -470,7 +467,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
     // id: "TEMP-c5a839ae-f8a7-41e0-93f6-86e487f68dbd"
     // progressTopic : "/topic/datasources/TEMP-c5a839ae-f8a7-41e0-93f6-86e487f68dbd/progress"
     try {
-      const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
+      const headers: any = {'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)};
       // 메세지 수신
       const subscription = CommonConstant.stomp.subscribe(
         tempDsInfo.progressTopic, (data: { progress: number, message: string }) => {
@@ -503,7 +500,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
     this.dataSourceService.getDatasourceDetail(tempDsId).then((ds: Datasource) => {
       setTimeout(() => {
         // Success 를 1초간 보여주기 위해 지연코드 추가함
-        this.done.emit({ id: tempDsId, info: ds, dataSourceId: this._dataSourceId, filters: this._ingestResultFilters });
+        this.done.emit({id: tempDsId, info: ds, dataSourceId: this._dataSourceId, filters: this._ingestResultFilters});
       }, 1000);
       (this.ingestionStatus) && (this.ingestionStatus.step = 10);  // 프로그레스 표시를 위해 변경
       this.safelyDetectChanges();
@@ -544,8 +541,8 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
 
     // 필드 조회
     let idx = -1;
-    if (ref) idx = _.findIndex(fields, { ref, name: fieldName });
-    else idx = _.findIndex(fields, { name: fieldName });
+    if (ref) idx = _.findIndex(fields, {ref, name: fieldName});
+    else idx = _.findIndex(fields, {name: fieldName});
 
     if (idx > -1) field = fields[idx];
 

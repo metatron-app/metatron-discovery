@@ -54,7 +54,7 @@
                      (keyup.enter)="metadataName.blur(); isNameEdit ? onNameChange() : null;"
                      (clickOutside)="isNameEdit ? onNameEditCancel() : null"
                      maxlength="50"
-                     type="text" class="ddp-input-navi" placeholder="{{metadataModelService.getMetadata()['name']}}">
+                     class="ddp-input-navi" placeholder="{{'msg.metadata.ui.name.ph' | translate }}">
               <span class="ddp-btn-check" (click)="$event.stopPropagation(); onNameChange()"></span>
             </div>
             <!-- //편집 input -->
@@ -89,9 +89,22 @@
     <!-- //tab -->
 
     <div class="ddp-wrap-tab-contents">
-      <app-metadata-detail-information *ngIf="tab === 'information'"></app-metadata-detail-information>
-      <app-metadata-detail-columnschema *ngIf="tab === 'columnSchema'"></app-metadata-detail-columnschema>
+      <app-metadata-detail-information *ngIf="tab === 'information'" (openAddCataglog)="openCatalog()"></app-metadata-detail-information>
+      <app-metadata-detail-columnschema *ngIf="tab === 'columnSchema'" (chooseCodeTableEvent)="openCodeTable($event)" (chooseDictionaryEvent)="openDictionary($event)"></app-metadata-detail-columnschema>
     </div>
   </div>
 </div>
 <app-delete-modal (deleteConfirm)="deleteMetadata()"></app-delete-modal>
+
+<!-- Add catalog component -->
+<app-select-catalog></app-select-catalog>
+<!-- //Add catalog component -->
+
+<!-- Code table component -->
+<app-choose-code-table (chooseComplete)="codeTableCompleteEvent($event)"></app-choose-code-table>
+<!-- //Code table component -->
+
+
+<!-- Column dictionary component -->
+<app-choose-column-dictionary (chooseComplete)="dictionaryCompleteEvent($event)"></app-choose-column-dictionary>
+<!-- //Column dictionary component -->

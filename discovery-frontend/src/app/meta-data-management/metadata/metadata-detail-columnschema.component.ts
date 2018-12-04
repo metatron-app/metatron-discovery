@@ -13,7 +13,7 @@
  */
 
 import {
-  Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild,
+  Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild,
   ViewChildren
 } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
@@ -44,14 +44,6 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   // 필드 목록 원본
   private _originColumnList: MetadataColumn[];
 
-  // 코드 테이블 선택 컴포넌트
-  @ViewChild(ChooseCodeTableComponent)
-  private _chooseCodeTableComp: ChooseCodeTableComponent;
-
-  // 컬럼사전 선택 컴포넌트
-  @ViewChild(ChooseColumnDictionaryComponent)
-  private _chooseColumnDictionaryComp: ChooseColumnDictionaryComponent;
-
   // 코드 테이블 프리뷰 레이어
   @ViewChildren('codeTablePreview')
   private _codeTablePreview: ElementRef;
@@ -69,6 +61,12 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
 
   // 코드 테이블의 조직 상세정보
   private _codeTableDetailList: CodeTable[];
+
+  @Output()
+  private chooseCodeTableEvent = new EventEmitter();
+
+  @Output()
+  private chooseDictionaryEvent = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -384,10 +382,10 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   public onClickSearchDictionary(column: MetadataColumn): void {
     // event bubbling stop
     event.stopImmediatePropagation();
-    // 현재 선택한 컬럼 저장
+    // 현재 선택한 컬럼 저장₩
     this._selectedColumn = column;
     // 컬럼 사전 선택 컴포넌트
-    this._chooseColumnDictionaryComp.init('CREATE', column.dictionary);
+    this.chooseDictionaryEvent.emit({name : 'CREATE', dictionary : column.dictionary});
   }
 
   /**
@@ -402,7 +400,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
       // 현재 선택한 컬럼 저장
       this._selectedColumn = column;
       // 코드 테이블 선택 컴포넌트
-      this._chooseCodeTableComp.init('CREATE', column.codeTable);
+      this.chooseCodeTableEvent.emit({name : 'CREATE', codeTable : column.codeTable})
     }
   }
 
