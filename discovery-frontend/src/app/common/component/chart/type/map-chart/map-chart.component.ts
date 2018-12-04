@@ -1788,8 +1788,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // set tooltip position
     if (this.uiOption.toolTip) {
 
-      // not cluster => [-110, -40]
-      let offset = [-92, -20];
+      let yOffset = 20;
+
+      if (MapLayerType.LINE === this.getUiMapOption().layers[this.getUiMapOption().layerNum].type) {
+        yOffset = 50;
+      }
+
+      let offset = [-92, -yOffset];
       let displayTypeList = _.filter(_.cloneDeep(this.uiOption.toolTip.displayTypes), (item) => {if (!_.isEmpty(item) && item !== UIChartDataLabelDisplayType.DATA_VALUE) return item});
 
       let columnList = [];
@@ -1800,7 +1805,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
       let addYOffset = 37 * (displayTypeList.length)  + 40 * (columnList.length);
 
-      offset[1] = -(20 + addYOffset);
+      offset[1] = -(yOffset + addYOffset);
 
       this.tooltipLayer.setOffset(offset);
     }
@@ -2708,13 +2713,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
               selectData.push(_.cloneDeep(item));
 
-              // when it's substract mode
+            // when it's substract mode
             } else {
               feature.unset('selection');
 
               item['dataCnt'][dataValue]--;
 
-              // when dataCnt is 0,
+              // when dataCnt is 0, remove selection filter
               if (0 == item['dataCnt'][dataValue]) {
                 item['data'] = [dataValue];
                 selectData.push(_.cloneDeep(item));
@@ -2724,7 +2729,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         }
       }
 
-      // when dataCnt is false (dataCnt is not zero)
+      // when dataCnt is false (when dataCnt is not zero)
       for (const item of selectData) {
         if (item['dataCnt']) {
           for (const key in item['dataCnt']) {
