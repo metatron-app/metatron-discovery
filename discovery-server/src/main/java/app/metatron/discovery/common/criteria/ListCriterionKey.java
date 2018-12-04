@@ -8,4 +8,5 @@ package app.metatron.discovery.common.criteria;
  * Time : PM 3:14
  */
 public interface ListCriterionKey {
+  public ListCriterionKey getCriterionKey();
 }

@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.datasource.connection;
 
 import app.metatron.discovery.common.criteria.ListCriterion;
+import app.metatron.discovery.common.criteria.ListFilter;
 import app.metatron.discovery.common.entity.SearchParamValidator;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.datasource.DataSourceProperties;
@@ -50,10 +51,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.sql.DataSource;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -702,8 +700,14 @@ public class DataConnectionController {
 
   @RequestMapping(value = "/connections/criteria", method = RequestMethod.GET)
   public ResponseEntity<?> getCriteria() {
-    List<ListCriterion> criteria = connectionFilterService.getListCriterion();
-    return ResponseEntity.ok(criteria);
+    List<ListCriterion> listCriteria = connectionFilterService.getListCriterion();
+    List<ListFilter> defaultFilter = connectionFilterService.getDefaultFilter();
+
+    HashMap<String, Object> response = new HashMap<>();
+    response.put("criteria", listCriteria);
+    response.put("defaultFilters", defaultFilter);
+
+    return ResponseEntity.ok(response);
   }
 
   @RequestMapping(value = "/connections/criteria/{criterionKey}", method = RequestMethod.GET)

@@ -3,6 +3,7 @@ package app.metatron.discovery.domain.datasource.connection;
 import app.metatron.discovery.common.criteria.ListCriterion;
 import app.metatron.discovery.common.criteria.ListCriterionType;
 import app.metatron.discovery.common.criteria.ListFilter;
+import app.metatron.discovery.domain.datasource.DataSourceListCriterionKey;
 import app.metatron.discovery.domain.user.DirectoryProfile;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.UserRepository;
@@ -57,6 +58,9 @@ public class DataConnectionFilterService {
   @Autowired
   GroupMemberRepository groupMemberRepository;
 
+  @Autowired
+  DataConnectionProperties dataConnectionProperties;
+
   public List<ListCriterion> getListCriterion(){
 
     List<ListCriterion> criteria = new ArrayList<>();
@@ -102,15 +106,15 @@ public class DataConnectionFilterService {
 
     switch(criterionKey){
       case IMPLEMENTOR:
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.MYSQL.toString(), "MySQL"));
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.POSTGRESQL.toString(), "PostgreSQL"));
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.HIVE.toString(), "Hive"));
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.PRESTO.toString(), "Presto"));
+        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.MYSQL.toString(), "MySQL", null, null));
+        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.POSTGRESQL.toString(), "PostgreSQL", null, null));
+        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.HIVE.toString(), "Hive", null, null));
+        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.PRESTO.toString(), "Presto", null, null));
         break;
       case AUTH_TYPE:
-        criterion.addFilter(new ListFilter(criterionKey, "authenticationType", DataConnection.AuthenticationType.MANUAL.toString(), "msg.storage.li.connect.always"));
-        criterion.addFilter(new ListFilter(criterionKey, "authenticationType", DataConnection.AuthenticationType.USERINFO.toString(), "msg.storage.li.connect.account"));
-        criterion.addFilter(new ListFilter(criterionKey, "authenticationType", DataConnection.AuthenticationType.DIALOG.toString(), "msg.storage.li.connect.id"));
+        criterion.addFilter(new ListFilter(criterionKey, "authenticationType", DataConnection.AuthenticationType.MANUAL.toString(), "msg.storage.li.connect.always", null, null));
+        criterion.addFilter(new ListFilter(criterionKey, "authenticationType", DataConnection.AuthenticationType.USERINFO.toString(), "msg.storage.li.connect.account", null, null));
+        criterion.addFilter(new ListFilter(criterionKey, "authenticationType", DataConnection.AuthenticationType.DIALOG.toString(), "msg.storage.li.connect.id", null, null));
         break;
       case CREATED_TIME:
         //created_time
@@ -193,19 +197,19 @@ public class DataConnectionFilterService {
         //allow search
         criterion.setSearchable(true);
 
-        criterion.addFilter(new ListFilter(criterionKey, "published", "true", "msg.storage.ui.criterion.open-data"));
+        criterion.addFilter(new ListFilter(criterionKey, "published", "true", "msg.storage.ui.criterion.open-data", null, null));
 
         //my private workspace
         Workspace myWorkspace = workspaceRepository.findPrivateWorkspaceByOwnerId(AuthUtils.getAuthUserName());
         criterion.addFilter(new ListFilter(criterionKey, "workspace",
-                myWorkspace.getId(), myWorkspace.getName()));
+                myWorkspace.getId(), myWorkspace.getName(), null, null));
 
         //my public workspace
         List<Workspace> publicWorkspaces
                 = workspaceService.getPublicWorkspaces(false, false, false, null);
         for(Workspace workspace : publicWorkspaces){
           criterion.addFilter(new ListFilter(criterionKey, "workspace",
-                  workspace.getId(), workspace.getName()));
+                  workspace.getId(), workspace.getName(), null, null));
         }
         break;
       default:
@@ -248,5 +252,31 @@ public class DataConnectionFilterService {
     Page<DataConnection> dataConnections = dataConnectionRepository.findAll(searchPredicated, pageable);
 
     return dataConnections;
+  }
+
+  public List<ListFilter> getDefaultFilter(){
+    List<DataConnectionProperties.DefaultFilter> defaultFilters = dataConnectionProperties.getDefaultFilters();
+
+    List<ListFilter> defaultCriteria = new ArrayList<>();
+
+    if(defaultFilters != null){
+      for(DataConnectionProperties.DefaultFilter defaultFilter : defaultFilters){
+        //me
+        if(defaultFilter.getFilterValue().equals("me")){
+          String userName = AuthUtils.getAuthUserName();
+          User user = userRepository.findByUsername(userName);
+
+          ListFilter meFilter = new ListFilter(DataSourceListCriterionKey.valueOf(defaultFilter.getCriterionKey())
+                  , "createdBy", null, userName, null, user.getFullName() + " (me)");
+          defaultCriteria.add(meFilter);
+        } else {
+          ListFilter listFilter = new ListFilter(DataSourceListCriterionKey.valueOf(defaultFilter.getCriterionKey())
+                  , defaultFilter.getFilterKey(), null, defaultFilter.getFilterValue(), null
+                  , defaultFilter.getFilterName());
+          defaultCriteria.add(listFilter);
+        }
+      }
+    }
+    return defaultCriteria;
   }
 }

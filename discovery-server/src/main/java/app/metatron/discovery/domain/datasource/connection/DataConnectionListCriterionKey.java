@@ -10,5 +10,21 @@ import app.metatron.discovery.common.criteria.ListCriterionKey;
  * Time : PM 3:15
  */
 public enum DataConnectionListCriterionKey implements ListCriterionKey {
-  MORE, CREATOR, CREATED_TIME, MODIFIED_TIME, IMPLEMENTOR, AUTH_TYPE, PUBLISH
+  MORE("MORE"),
+  CREATOR("CREATOR"),
+  CREATED_TIME("CREATE_TIME"),
+  IMPLEMENTOR("IMPLEMENTOR"),
+  AUTH_TYPE("AUTH_TYPE"),
+  PUBLISH("PUBLISH"),
+  MODIFIED_TIME("MODIFIED_TIME");
+
+  String criterionKey;
+  DataConnectionListCriterionKey(String s){
+    criterionKey = s;
+  }
+
+  public DataConnectionListCriterionKey getCriterionKey(){
+    return DataConnectionListCriterionKey.valueOf(criterionKey);
+  }
+
 }

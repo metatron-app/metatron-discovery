@@ -15,11 +15,9 @@ public class ListFilter {
   String filterValue;
   String filterSubValue;
 
-  public ListFilter(ListCriterionKey criterionKey, String filterKey, String filterValue, String filterName){
-    this.criterionKey = criterionKey;
-    this.filterKey = filterKey;
-    this.filterValue = filterValue;
-    this.filterName = filterName;
+
+  public ListFilter(){
+
   }
 
   public ListFilter(ListCriterionKey criterionKey, String filterKey, String filterSubKey,

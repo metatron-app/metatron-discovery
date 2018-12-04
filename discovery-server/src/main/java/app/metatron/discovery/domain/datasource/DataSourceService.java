@@ -95,6 +95,9 @@ public class DataSourceService {
   @Autowired
   GroupMemberRepository groupMemberRepository;
 
+  @Autowired
+  DataSourceProperties dataSourceProperties;
+
   /**
    * 데이터 소스 엔진 적재시 name 을 기반으로 engin 내 데이터 소스 지정
    */
@@ -335,7 +338,7 @@ public class DataSourceService {
         for(DataSource.Status status : DataSource.Status.values()){
           String filterName = status.toString();
           filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
-          criterion.addFilter(new ListFilter(criterionKey, "status", status.toString(), filterName));
+          criterion.addFilter(new ListFilter(criterionKey, "status", status.toString(), filterName, null, null));
         }
         break;
       case DATASOURCE_TYPE:
@@ -343,7 +346,7 @@ public class DataSourceService {
           String filterName = dataSourceType.toString();
           filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
           criterion.addFilter(new ListFilter(criterionKey, "dataSourceType",
-                  dataSourceType.toString(), filterName));
+                  dataSourceType.toString(), filterName, null, null));
         }
         break;
       case SOURCE_TYPE:
@@ -351,7 +354,7 @@ public class DataSourceService {
           String filterName = sourceType.toString();
           filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
           criterion.addFilter(new ListFilter(criterionKey, "sourceType",
-                  sourceType.toString(), filterName));
+                  sourceType.toString(), filterName, null, null));
         }
         break;
       case CONNECTION_TYPE:
@@ -359,26 +362,26 @@ public class DataSourceService {
           String filterName = connectionType.toString();
           filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
           criterion.addFilter(new ListFilter(criterionKey, "connectionType",
-                  connectionType.toString(), filterName));
+                  connectionType.toString(), filterName, null, null));
         }
         break;
       case PUBLISH:
         //allow search
         criterion.setSearchable(true);
 
-        criterion.addFilter(new ListFilter(criterionKey, "published", "true", "msg.storage.ui.criterion.open-data"));
+        criterion.addFilter(new ListFilter(criterionKey, "published", "true", "msg.storage.ui.criterion.open-data", null, null));
 
         //my private workspace
         Workspace myWorkspace = workspaceRepository.findPrivateWorkspaceByOwnerId(AuthUtils.getAuthUserName());
         criterion.addFilter(new ListFilter(criterionKey, "workspace",
-                myWorkspace.getId(), myWorkspace.getName()));
+                myWorkspace.getId(), myWorkspace.getName(), null, null));
 
         //my public workspace
         List<Workspace> publicWorkspaces
                 = workspaceService.getPublicWorkspaces(false, false, false, null);
         for(Workspace workspace : publicWorkspaces){
           criterion.addFilter(new ListFilter(criterionKey, "workspace",
-                  workspace.getId(), workspace.getName()));
+                  workspace.getId(), workspace.getName(), null, null));
         }
         break;
       case CREATOR:
@@ -494,6 +497,32 @@ public class DataSourceService {
     }
 
     return criterion;
+  }
+
+  public List<ListFilter> getDefaultFilter(){
+    List<DataSourceProperties.DefaultFilter> defaultFilters = dataSourceProperties.getDefaultFilters();
+
+    List<ListFilter> defaultCriteria = new ArrayList<>();
+
+    if(defaultFilters != null){
+      for(DataSourceProperties.DefaultFilter defaultFilter : defaultFilters){
+        //me
+        if(defaultFilter.getFilterValue().equals("me")){
+          String userName = AuthUtils.getAuthUserName();
+          User user = userRepository.findByUsername(userName);
+
+          ListFilter meFilter = new ListFilter(DataSourceListCriterionKey.valueOf(defaultFilter.getCriterionKey())
+                  , "createdBy", null, userName, null, user.getFullName() + " (me)");
+          defaultCriteria.add(meFilter);
+        } else {
+          ListFilter listFilter = new ListFilter(DataSourceListCriterionKey.valueOf(defaultFilter.getCriterionKey())
+                  , defaultFilter.getFilterKey(), null, defaultFilter.getFilterValue(), null
+                  , defaultFilter.getFilterName());
+          defaultCriteria.add(listFilter);
+        }
+      }
+    }
+    return defaultCriteria;
   }
 
   public Page<DataSource> findDataSourceListByFilter(

@@ -10,5 +10,24 @@ import app.metatron.discovery.common.criteria.ListCriterionKey;
  * Time : PM 3:15
  */
 public enum DataSourceListCriterionKey implements ListCriterionKey {
-  STATUS, PUBLISH, CREATOR, DATETIME, CONNECTION_TYPE, DATASOURCE_TYPE, SOURCE_TYPE, MORE, CONTAINS_TEXT, CREATED_TIME, MODIFIED_TIME
+  STATUS("STATUS"),
+  PUBLISH("PUBLISH"),
+  CREATOR("CREATOR"),
+  DATETIME("DATETIME"),
+  CONNECTION_TYPE("CONNECTION_TYPE"),
+  DATASOURCE_TYPE("DATASOURCE_TYPE"),
+  SOURCE_TYPE("SOURCE_TYPE"),
+  MORE("MORE"),
+  CONTAINS_TEXT("CONTAINS_TEXT"),
+  CREATED_TIME("CREATE_TIME"),
+  MODIFIED_TIME("MODIFIED_TIME");
+
+  String criterionKey;
+  DataSourceListCriterionKey(String s){
+    criterionKey = s;
+  }
+
+  public DataSourceListCriterionKey getCriterionKey(){
+    return DataSourceListCriterionKey.valueOf(criterionKey);
+  }
 }

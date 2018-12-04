@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.datasource;
 
 import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.common.criteria.ListCriterion;
+import app.metatron.discovery.common.criteria.ListFilter;
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.entity.SearchParamValidator;
 import app.metatron.discovery.common.exception.BadRequestException;
@@ -74,10 +75,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -916,8 +914,14 @@ public class DataSourceController {
 
   @RequestMapping(value = "/datasources/criteria", method = RequestMethod.GET)
   public ResponseEntity<?> getCriteria() {
-    List<ListCriterion> criteria = dataSourceService.getListCriterion();
-    return ResponseEntity.ok(criteria);
+    List<ListCriterion> listCriteria = dataSourceService.getListCriterion();
+    List<ListFilter> defaultFilter = dataSourceService.getDefaultFilter();
+
+    HashMap<String, Object> response = new HashMap<>();
+    response.put("criteria", listCriteria);
+    response.put("defaultFilters", defaultFilter);
+
+    return ResponseEntity.ok(response);
   }
 
   @RequestMapping(value = "/datasources/criteria/{criterionKey}", method = RequestMethod.GET)
