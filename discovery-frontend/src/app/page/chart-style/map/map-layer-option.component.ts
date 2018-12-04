@@ -208,7 +208,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     let inputValue = parseFloat($event.target.value);
 
-    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < -1) {
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
       $event.target.value = this.uiOption.layers[index].color.transparency;
       return;
     } else {
@@ -251,6 +251,30 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     }
 
     this.applyLayers();
+  }
+
+  /**
+   * symbol, polygon layer - clustering
+   */
+  public isEnableClustering() {
+    (<UISymbolLayer>this.uiOption.layers[this.index]).clustering = !(<UISymbolLayer>this.uiOption.layers[this.index]).clustering;
+    this.applyLayers();
+  }
+
+  public changeClustering(obj: any, $event: any, index: number) {
+    this.uiOption.layers[index]['distance']= $event.from;
+    this.applyLayers();
+  }
+
+  public changeClusteringText($event: any, index: number) {
+    let inputValue = parseFloat($event.target.value);
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
+      $event.target.value = (<UISymbolLayer>this.uiOption.layers[index])['distance'];
+      return;
+    } else {
+      (<UISymbolLayer>this.uiOption.layers[index])['distance'] = inputValue;
+      this.applyLayers();
+    }
   }
 
   /**
@@ -435,7 +459,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public changeBlurText($event: any, index: number) {
 
     let inputValue = parseFloat($event.target.value);
-    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < -1) {
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
       $event.target.value = this.uiOption.layers[index]['blur'];
       return;
     } else {
@@ -455,7 +479,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   }
   public changeRadiusText($event: any, index: number) {
     let inputValue = parseFloat($event.target.value);
-    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < -1) {
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
       $event.target.value = this.uiOption.layers[index]['radius'];
       return;
     } else {
@@ -483,7 +507,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     let inputValue = parseFloat(event.target.value);
 
-    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < -1) {
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
       event.target.value = (<UITileLayer>this.uiOption.layers[this.index]).radius;
       return;
     } else {
@@ -598,7 +622,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     let inputValue = parseFloat(event.target.value);
 
-    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < -1) {
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
       event.target.value = (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[0];
       return;
     } else {
@@ -624,7 +648,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     let inputValue = parseFloat(event.target.value);
 
-    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < -1) {
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
       event.target.value = (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[index];
       return;
     } else {

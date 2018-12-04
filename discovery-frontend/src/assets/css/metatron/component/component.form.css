@@ -316,3 +316,12 @@ table.ddp-table-form.ddp-inherit .ddp-box-layout4 .ddp-table-code tr td {border:
 .ddp-form-multy .ddp-box-multy .ddp-type-selectbox {float:left; width:65%; box-sizing:border-box; border:none; border-left:1px solid #d0d1d8;}
 .ddp-form-multy .ddp-box-multy.ddp-form-time .ddp-input-typebasic {width:69px;}
 .ddp-form-multy .ddp-box-multy.ddp-form-time .ddp-type-selectbox {width:100px;}
+/**************************************************************
+    range
+**************************************************************/
+
+.ddp-wrap-range  {margin-top:-10px;}
+.ddp-wrap-range .ddp-data-range {padding-top:0;}
+.ddp-wrap-range .ddp-data-range .ddp-bar {width:6%; float:left; line-height:30px; text-align:center;}
+.ddp-wrap-range .ddp-data-range .ddp-box-option-input {float:left; width:47%; margin-left:0; box-sizing:border-box;}
+.ddp-wrap-range .ddp-data-range input { width:100%; text-align:center;}

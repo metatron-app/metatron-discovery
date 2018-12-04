@@ -368,6 +368,57 @@
                 </div>
                 <!-- //symbol, polygon : outline -->
 
+                <!-- symbol, polygon : cluster -->
+                <div class="ddp-wrap-divide" *ngIf="'symbol' === uiOption.layers[index].type.toString() || 'polygon' === uiOption.layers[index].type.toString()">
+                  <!-- divide -->
+                  <div class="ddp-divide2 ">
+                    <div class="ddp-wrap-option-slider">
+                      <span class="ddp-label-slider">{{'msg.page.layer.map.cluster' | translate}}</span>
+                      <!-- Slide THREE -->
+                      <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+                        <input type="checkbox" value="None" id="check2" name="check" [ngModel]="uiOption.layers[index]['clustering']" (click)="isEnableClustering();">
+                        <label for="check2"><span class="ddp-slide"></span></label>
+                      </div>
+                      <!-- //Slide THREE -->
+                    </div>
+                    <div class="ddp-list-sub2" *ngIf="uiOption.layers[index]['clustering']">
+                      <!-- divide -->
+                      <div class="ddp-divide2">
+                        <div class="ddp-wrap-option-multy ddp-clear">
+                          <div class="ddp-col-8">
+                            <span class="ddp-label-txt">{{'msg.page.layer.map.cluster.distance' | translate}}</span>
+                          </div>
+                        </div>
+                        <!-- divide -->
+                        <div class="ddp-divide2">
+                          <div class="ddp-form-slider">
+                            <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
+                              <range-slider-component [hideFromTo]="false"
+                                                      [hideMinMax]="true"
+                                                      [keyboard]="false"
+                                                      [min]="0"
+                                                      [max]="100"
+                                                      [from]="uiOption.layers[index]['distance']"
+                                                      [type]="'single'"
+                                                      [step]="1"
+                                                      (onFinish)="changeClustering({}, $event, index)">
+                              </range-slider-component>
+                            </div>
+                            <div class="ddp-box-option-input ddp-type ddp-inline">
+                              <span class="ddp-txt-input">%</span>
+                              <input type="number" input-mask="number" [ngModel]="uiOption.layers[index]['distance']" (keyup.enter)="changeClusteringText($event, index);">
+                            </div>
+                          </div>
+                        </div>
+                        <!-- //divide -->
+                      </div>
+                      <!-- //divide -->
+                    </div>
+                  </div>
+                  <!-- //divide -->
+                </div>
+                <!-- //symbol, polygon : cluster -->
+
                 <!-- symbol : view original data -->
                 <!--<div *ngIf="'symbol' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">-->
                 <!--<div class="ddp-part-check-b ">-->

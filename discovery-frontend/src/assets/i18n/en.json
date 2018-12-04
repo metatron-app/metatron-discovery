@@ -2539,6 +2539,8 @@
   "msg.page.layer.map.radius": "Radius",
   "msg.page.layer.map.coverage": "Coverage",
   "msg.page.layer.map.clustering": "Clustering",
+  "msg.page.layer.map.cluster": "Use Cluster",
+  "msg.page.layer.map.cluster.distance": "Distance",
   "msg.page.layer.map.stroke.max.width": "Max Stroke Width",
   "msg.page.layer.map.view": "View Original Data",
   "msg.page.layer.multi.datasource.same.shelf": "Only the same datasource can be placed on a shelf",

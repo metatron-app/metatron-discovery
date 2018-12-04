@@ -67,7 +67,8 @@
 .ddp-page-mapview .ddp-ui-chart-side .ddp-filter .ddp-wrap-range  {margin-top:-10px;}
 .ddp-page-mapview .ddp-ui-chart-side .ddp-filter .ddp-wrap-range .ddp-data-range {padding-top:0;}
 .ddp-page-mapview .ddp-ui-chart-side .ddp-filter .ddp-wrap-range .ddp-data-range .ddp-bar {width:6%; float:left; line-height:30px; text-align:center;}
-.ddp-page-mapview .ddp-ui-chart-side .ddp-filter .ddp-wrap-range .ddp-data-range input {float:left; width:47%;}
+.ddp-page-mapview .ddp-ui-chart-side .ddp-filter .ddp-wrap-range .ddp-data-range .ddp-box-option-input {float:left; width:47%; margin-left:0; box-sizing:border-box;}
+.ddp-page-mapview .ddp-ui-chart-side .ddp-filter .ddp-wrap-range .ddp-data-range input { width:100%; text-align:center;}
 
 
 
