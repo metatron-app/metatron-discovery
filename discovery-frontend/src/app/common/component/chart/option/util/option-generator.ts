@@ -2036,7 +2036,15 @@ export namespace OptionGenerator {
               "column": "NONE",
               "max": 10
             },
-            outline: null
+            outline: null,
+            clustering: true,
+            distance: 50,
+            thickness: {
+              by: "NONE",
+              column: "NONE",
+              maxValue: 2
+            },
+            lineStyle: MapLineStyle.SOLID
           }
         ],
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true),
@@ -2069,16 +2077,7 @@ export namespace OptionGenerator {
             "LOCATION_INFO",
             "DATA_VALUE"
           ]
-        },
-        clustering: true,
-        distance: 50,
-        thickness: {
-          by: "NONE",
-          column: "NONE",
-          maxValue: 2
-        },
-        lineStyle: MapLineStyle.SOLID,
-        outline: null
+        }
       };
     }
   }

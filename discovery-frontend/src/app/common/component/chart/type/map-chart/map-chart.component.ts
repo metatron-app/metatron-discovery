@@ -358,7 +358,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
     // Cluster source
     let clusterSource = new ol.source.Cluster({
-      distance: this.getUiMapOption()['distance'],
+      distance: this.getUiMapOption().layers[this.getUiMapOption().layerNum]['distance'],
       source: source,
       crossOrigin: 'anonymous'
     });
