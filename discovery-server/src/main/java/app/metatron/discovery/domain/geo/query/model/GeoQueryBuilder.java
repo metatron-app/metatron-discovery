@@ -49,11 +49,13 @@ import app.metatron.discovery.domain.geo.query.model.filter.PropertyIsBetween;
 import app.metatron.discovery.domain.geo.query.model.filter.PropertyIsEqualTo;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
+import app.metatron.discovery.domain.workbook.configurations.datasource.MappingDataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+import app.metatron.discovery.domain.workbook.configurations.field.TimestampField;
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.filter.BoundFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.ExpressionFilter;
@@ -64,17 +66,21 @@ import app.metatron.discovery.domain.workbook.configurations.filter.SpatialFilte
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeAllFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeListFilter;
+import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoBoundaryFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoHashFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoJoinFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.query.druid.AbstractQueryBuilder;
 import app.metatron.discovery.query.druid.Dimension;
+import app.metatron.discovery.query.druid.Query;
 import app.metatron.discovery.query.druid.dimensions.DefaultDimension;
 import app.metatron.discovery.query.druid.filters.AndFilter;
 import app.metatron.discovery.query.druid.filters.ExprFilter;
 import app.metatron.discovery.query.druid.filters.InFilter;
+import app.metatron.discovery.query.druid.funtions.TimeFormatFunc;
 import app.metatron.discovery.query.druid.postaggregations.ExprPostAggregator;
 import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
 
@@ -221,6 +227,26 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
         } else if (datasourceField.getLogicalType() == LogicalType.GEO_LINE) {
           propertyNames.add(new PropertyName(fieldName));
 
+        } else if (datasourceField.getLogicalType() == LogicalType.TIMESTAMP) {
+
+          TimeFieldFormat timeFormat = getTimeFieldFormat(field.getFormat(), datasourceField.getFormatObject());
+
+          String dummyDimName = "__s" + dimensionCnt++;
+          String innerFieldName = alias + Query.POSTFIX_INNER_FIELD;
+
+          TimeFormatFunc timeFormatFunc = new TimeFormatFunc("\"" + fieldName + "\"",
+                                                             datasourceField.getTimeFormat(),
+                                                             null,
+                                                             null,
+                                                             timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
+                                                             timeFormat.getTimeZone(),
+                                                             timeFormat.getLocale());
+
+          ExprVirtualColumn exprVirtualColumn = new ExprVirtualColumn(timeFormatFunc.toExpression(), innerFieldName);
+          virtualColumns.put(innerFieldName, exprVirtualColumn);
+          dimensions.add(new DefaultDimension(innerFieldName, dummyDimName));
+          projectionMapper.put(dummyDimName, alias);
+
         } else {  // Case of Normal Dimension
           if (checkIgnore(field.getRef())) {
             continue;
@@ -251,6 +277,23 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
           projectionMapper.put(originalName, alias);
         }
         minMaxFields.add(alias);
+      } else if (datasourceField.getRole() == FieldRole.TIMESTAMP) {
+        TimestampField timestampField = (TimestampField) field;
+        TimeFieldFormat timeFormat = getTimeFieldFormat(field.getFormat(), datasourceField.getFormatObject());
+
+        String dummyDimName = "__s" + dimensionCnt++;
+        String innerFieldName = alias + Query.POSTFIX_INNER_FIELD;
+        String predefinedFieldName = timestampField.getPredefinedColumn(dataSource instanceof MappingDataSource);
+
+        TimeFormatFunc timeFormatFunc = new TimeFormatFunc(predefinedFieldName,
+                                                           timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
+                                                           timeFormat.getTimeZone(),
+                                                           timeFormat.getLocale());
+
+        ExprVirtualColumn exprVirtualColumn = new ExprVirtualColumn(timeFormatFunc.toExpression(), innerFieldName);
+        virtualColumns.put(innerFieldName, exprVirtualColumn);
+        dimensions.add(new DefaultDimension(innerFieldName, dummyDimName));
+        projectionMapper.put(dummyDimName, alias);
       }
     }
 
@@ -268,6 +311,18 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
     }
 
     return false;
+  }
+
+  private TimeFieldFormat getTimeFieldFormat(FieldFormat shelfFormat, FieldFormat dataSourceFormat) {
+    if (shelfFormat != null && shelfFormat instanceof TimeFieldFormat) {
+      return (TimeFieldFormat) shelfFormat;
+    }
+
+    if (dataSourceFormat != null && dataSourceFormat instanceof TimeFieldFormat) {
+      return (TimeFieldFormat) dataSourceFormat;
+    } else {
+      return new CustomDateTimeFormat(TimeFieldFormat.DEFAULT_DATETIME_FORMAT);
+    }
   }
 
   private boolean needAggregationExtension(List<Field> fields) {
