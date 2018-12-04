@@ -167,10 +167,11 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
    */
   public onClickShowList(event: MouseEvent) {
     if (this.criterionKey !== CriterionKey.MORE && $(event.target).attr('class') &&
-      (-1 !== $(event.target).attr('class').indexOf('ddp-txt-label')
-        || -1 !== $(event.target).attr('class').indexOf('ddp-ui-result')
-        || -1 !== $(event.target).attr('class').indexOf('ddp-box-result')
-        || -1 !== $(event.target).attr('class').indexOf('ddp-txt-result'))) {
+      ($(event.target).hasClass('ddp-result-filtering')
+        || $(event.target).hasClass('ddp-txt-label')
+        || $(event.target).hasClass('ddp-ui-result')
+        || $(event.target).hasClass('ddp-box-result')
+        || $(event.target).hasClass('ddp-txt-result'))) {
         // if list not show
         if (!this.isShowList) {
           // set criterion list
