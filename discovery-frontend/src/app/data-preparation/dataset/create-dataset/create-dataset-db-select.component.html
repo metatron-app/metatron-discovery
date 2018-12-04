@@ -48,7 +48,7 @@
         <!-- edit option -->
         <div class="ddp-ui-edit-option ddp-type ddp-white-space">
           <ul class="ddp-list-dbtype">
-            <li *ngFor="let type of databaseTypeList" [ngClass]="{'ddp-selected' : isEqualTypeValue(selectedDatabase, type)}">
+            <li *ngFor="let type of databaseTypeList" [class.ddp-selected]="selectedDatabase['value'] === type.value">
               <a href="javascript:" (click)="setDatabase(type)" class="ddp-label-dbtype type-{{type.label.toLowerCase()}}">
                 <em class="ddp-icon-db">
                   <!-- oracle -->
@@ -463,8 +463,10 @@
                 {{'msg.dp.btn.test' | translate}}
               </a>
               <div class="ddp-ui-message ddp-ui-info">
-                <span class="ddp-data-error2" *ngIf="isShowValidationMessage"> {{getValidationMessage}}</span>
-                <span class="ddp-data-error" *ngIf="connectionResultFl === false"><em class="ddp-icon-error"></em>{{'msg.storage.ui.invalid.conn' | translate}}</span>
+                <span [ngClass]="{'ddp-data-error' : connectionResultFl === false, 'ddp-data-error2': isShowValidationMessage}">
+                  <em class="ddp-icon-error" *ngIf="connectionResultFl === false"></em>
+                  {{getValidationMessage}}
+                </span>
                 <span class="ddp-data-ok" *ngIf="connectionResultFl"><em class="ddp-icon-ok"></em>{{'msg.storage.ui.valid.conn' | translate}}</span>
               </div>
             </div>
@@ -498,7 +500,7 @@
   <!-- buttons -->
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="next()" [ngClass]="{'ddp-disabled':connectionResult !== 'valid'}">{{'msg.comm.btn.next' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->
 </div>

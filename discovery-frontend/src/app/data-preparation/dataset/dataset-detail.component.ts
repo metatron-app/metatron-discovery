@@ -481,10 +481,20 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       ];
     } else {
       this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'HIVE' ? 'Staging DB' : 'DB'}` });
-      if(this.getHost) this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.host'), value : this.getHost });
-      if(this.getPort) this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.port'), value : this.getPort });
-      if(this.getDatabase) this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.database'), value : this.getDatabase });
-      this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.table')+'/'+this.translateService.instant('msg.lineage.ui.list.search.sql'), value : `${this.getPort !== null && this.getHost !== null ? dataset.tableName : dataset.queryStmt}` });
+      if(this.getHost) {
+        this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.host'), value : this.getHost });
+      }
+
+      if (this.getPort) {
+        this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.port'), value : this.getPort });
+      }
+
+      if (this.getDatabase) {
+        this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.database'), value : this.getDatabase });
+      }
+
+      this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.table')+'/'+this.translateService.instant('msg.lineage.ui.list.search.sql'),
+        value : `${dataset.tableName === '' ? dataset.queryStmt : dataset.tableName}` });
       this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}` });
     }
   }
@@ -496,7 +506,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       let extension = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName)[1];
       if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
         result =  'EXCEL'
-      } else {
+      } else  {
         result = extension.toUpperCase()
       }
     }
