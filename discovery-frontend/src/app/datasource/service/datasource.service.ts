@@ -472,7 +472,7 @@ export class DatasourceService extends AbstractService {
 
               let measureList = _.filter(_.cloneDeep(pageConf.shelf.layers[layerNum]), (item) => {if (item.type === 'measure') return item});
 
-              // TODO when it has measures => geo_hash is only used in hexagon
+              // geo_hash is only used in hexagon
               if (MapLayerType.TILE === (<UIMapOption>pageConf.chart).layers[layerNum].type && measureList && measureList.length > 0) {
                 layer.format = <GeoHashFormat>{
                   type: FormatType.GEO_HASH.toString(),

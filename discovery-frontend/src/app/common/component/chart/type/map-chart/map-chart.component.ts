@@ -89,6 +89,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   @ViewChild('tooltip')
   private tooltipEl: ElementRef;
 
+  // Feature icon element
+  @ViewChild('feature')
+  private featureEl: ElementRef;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -216,6 +220,46 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
     // Area
     this.$area = $(this.area.nativeElement);
+
+    // Feature icon element
+    let canvas = this.featureEl.nativeElement;
+    canvas.width = 30;
+    canvas.height = 20;
+    let context = canvas.getContext('2d');
+    context.fillStyle = '#7E94DE';
+    this.roundRect(context, 0, 0, canvas.width, canvas.height, 4, true, false);
+  }
+
+  private roundRect(context, x, y, width, height, radius, fill, stroke): void {
+
+    if (typeof radius === 'undefined') {
+      radius = 5;
+    }
+    if (typeof radius === 'number') {
+      radius = {tl: radius, tr: radius, br: radius, bl: radius};
+    } else {
+      var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+      for (var side in defaultRadius) {
+        radius[side] = radius[side] || defaultRadius[side];
+      }
+    }
+    context.beginPath();
+    context.moveTo(x + radius.tl, y);
+    context.lineTo(x + width - radius.tr, y);
+    context.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+    context.lineTo(x + width, y + height - radius.br);
+    context.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+    context.lineTo(x + radius.bl, y + height);
+    context.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+    context.lineTo(x, y + radius.tl);
+    context.quadraticCurveTo(x, y, x + radius.tl, y);
+    context.closePath();
+    if (fill) {
+      context.fill();
+    }
+    if (stroke) {
+      context.stroke();
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1503,7 +1547,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         // }
 
         //featureColor = _.eq(featureColorType, MapBy.NONE) && styleLayer.color.schema ? styleLayer.color.schema : '#6344ad';
-        featureColor = '#6344ad';
+        featureColor = '#7E94DE';
         //featureColor = scope.hexToRgbA(featureColor, styleLayer.color.transparency * 0.01);
 
 
@@ -1526,77 +1570,38 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         // Creation style
         ////////////////////////////////////////////////////////
 
+        // style = new ol.style.Style({
+        //   image: new ol.style.Circle({
+        //     radius: 15,
+        //     fill: new ol.style.Fill({
+        //       color: featureColor
+        //     })
+        //   }),
+        //   text: new ol.style.Text({ // 클러스터링 되는 갯수 라벨링
+        //     text: size.toString(), // 클러스터링 갯수
+        //     fill: new ol.style.Fill({
+        //       color: '#fff'
+        //     })
+        //   })
+        // });
+
+        let canvas = scope.featureEl.nativeElement;
+
         style = new ol.style.Style({
-          image: new ol.style.Circle({
-            radius: 15,
-            fill: new ol.style.Fill({
-              color: featureColor
-            })
-          }),
-          text: new ol.style.Text({ // 클러스터링 되는 갯수 라벨링
+          image: new ol.style.Icon({
+            img: canvas,
+            imgSize: [canvas.width, canvas.height],
+            opacity: 0.85
+          })
+          ,text: new ol.style.Text({ // 클러스터링 되는 갯수 라벨링
             text: size.toString(), // 클러스터링 갯수
             fill: new ol.style.Fill({
               color: '#fff'
-            })
+            }),
+            font: '10px sans-serif'
           })
         });
-
-        // switch (symbolType) {
-        //   case MapSymbolType.CIRCLE :
-        //     style = new ol.style.Style({
-        //       image: new ol.style.Circle({
-        //         radius: 15,
-        //         fill: new ol.style.Fill({
-        //           color: featureColor
-        //         }),
-        //         stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
-        //       }),
-        //       text: new ol.style.Text({ // 클러스터링 되는 갯수 라벨링
-        //         text: size.toString(), // 클러스터링 갯수
-        //         fill: new ol.style.Fill({
-        //           color: '#fff'
-        //         })
-        //       })
-        //     });
-        //     break;
-        //   case MapSymbolType.SQUARE :
-        //     style = new ol.style.Style({
-        //       image: new ol.style.RegularShape({
-        //         fill: new ol.style.Fill({color: featureColor}),
-        //         stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth}),
-        //         points: 4,
-        //         radius: 15,
-        //         angle: Math.PI / 4
-        //       }),
-        //       text: new ol.style.Text({
-        //         text: size.toString(),
-        //         fill: new ol.style.Fill({
-        //           color: '#fff'
-        //         })
-        //       })
-        //     });
-        //     break;
-        //   case MapSymbolType.TRIANGLE :
-        //     style = new ol.style.Style({
-        //       image: new ol.style.RegularShape({
-        //         fill: new ol.style.Fill({color: featureColor}),
-        //         stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth}),
-        //         points: 3,
-        //         radius: 15,
-        //         rotation: Math.PI / 4,
-        //         angle: 0
-        //       }),
-        //       text: new ol.style.Text({
-        //         text: size.toString(),
-        //         fill: new ol.style.Fill({
-        //           color: '#fff'
-        //         })
-        //       })
-        //     });
-        //     break;
-        // }
       }
-
 
       return style;
     }
@@ -1788,8 +1793,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // set tooltip position
     if (this.uiOption.toolTip) {
 
-      // not cluster => [-110, -40]
-      let offset = [-92, -20];
+      let yOffset = 20;
+
+      if (MapLayerType.LINE === this.getUiMapOption().layers[this.getUiMapOption().layerNum].type) {
+        yOffset = 50;
+      }
+
+      let offset = [-92, -yOffset];
       let displayTypeList = _.filter(_.cloneDeep(this.uiOption.toolTip.displayTypes), (item) => {if (!_.isEmpty(item) && item !== UIChartDataLabelDisplayType.DATA_VALUE) return item});
 
       let columnList = [];
@@ -1800,7 +1810,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
       let addYOffset = 37 * (displayTypeList.length)  + 40 * (columnList.length);
 
-      offset[1] = -(20 + addYOffset);
+      offset[1] = -(yOffset + addYOffset);
 
       this.tooltipLayer.setOffset(offset);
     }
@@ -1829,6 +1839,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
    * @param event
    */
   private tooltipFunction = (event) => {
+
+    // heatmap => no tooltip
+    if (MapLayerType.HEATMAP === this.getUiMapOption().layers[this.getUiMapOption().layerNum].type) {
+      return;
+    }
 
     // Get feature
     let feature = this.olmap.forEachFeatureAtPixel(event.pixel, (feature) => {
@@ -2708,13 +2723,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
               selectData.push(_.cloneDeep(item));
 
-              // when it's substract mode
+            // when it's substract mode
             } else {
               feature.unset('selection');
 
               item['dataCnt'][dataValue]--;
 
-              // when dataCnt is 0,
+              // when dataCnt is 0, remove selection filter
               if (0 == item['dataCnt'][dataValue]) {
                 item['data'] = [dataValue];
                 selectData.push(_.cloneDeep(item));
@@ -2724,7 +2739,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         }
       }
 
-      // when dataCnt is false (dataCnt is not zero)
+      // when dataCnt is false (when dataCnt is not zero)
       for (const item of selectData) {
         if (item['dataCnt']) {
           for (const key in item['dataCnt']) {
@@ -2752,22 +2767,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     }
 
     if (!selectMode || selectData.length > 0) {
-      switch ((<UIMapOption>this.uiOption).layers[layerNum].type) {
-
-        // symbol layer => use cluster style func
-        case MapLayerType.SYMBOL:
-          this.clusterLayer.setStyle(this.clusterStyleFunction(0, this.data, selectMode));
-          break;
-        // hexagon(tile) layer => use hexagon style func
-        case MapLayerType.TILE:
-          this.hexagonLayer.setStyle(this.hexagonStyleFunction(0, this.data, selectMode));
-          break;
-        // line, polygon layer => use map style func
-        case MapLayerType.LINE:
-        case MapLayerType.POLYGON:
-          this.symbolLayer.setStyle(this.mapStyleFunction(0, this.data, selectMode));
-          break;
-      }
+      if (this.clusterLayer) this.clusterLayer.setStyle(this.clusterStyleFunction(0, this.data, selectMode));
+      if (this.hexagonLayer) this.hexagonLayer.setStyle(this.hexagonStyleFunction(0, this.data, selectMode));
+      if (this.symbolLayer) this.symbolLayer.setStyle(this.mapStyleFunction(0, this.data, selectMode));
     }
   }
 }
