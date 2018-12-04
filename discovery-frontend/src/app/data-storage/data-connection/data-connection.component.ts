@@ -25,6 +25,7 @@ import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
 import { StringUtil } from '../../common/util/string.util';
 import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
 import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
+import { ListFilter } from '../../domain/datasource/listFilter';
 
 @Component({
   selector: 'app-data-connection',
@@ -65,6 +66,9 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
   // removed criterion key
   public removedCriterionKey: CriterionKey;
 
+  // init selected filter list
+  public defaultSelectedFilterList: any = {};
+
   // Constructor
   constructor(private dataconnectionService: DataconnectionService,
               private popupService: PopupService,
@@ -90,6 +94,11 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
         this.connectionFilterList = result.criteria;
         // set origin more criterion list
         this._originMoreCriterionList = result.criteria.find(criterion => criterion.criterionKey === CriterionKey.MORE).subCriteria;
+        // if exist default filter in result
+        if (result.defaultFilters) {
+          // set default selected filter list
+          this._setDefaultSelectedFilterList(result.defaultFilters);
+        }
         // set connection list
         this._setConnectionList();
       }).catch(reason => this.commonExceptionHandler(reason));
@@ -205,8 +214,6 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
           this.connectionFilterList.forEach((criterion, index, array) => {
             // if exist criterion in filter list
             if (criterion.criterionKey.toString() === key) {
-              // remove criterion in dataObject
-              delete this._criterionDataObject[key];
               // remove filter
               array.splice(index, 1);
               // search connection
@@ -387,5 +394,36 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
    */
   private _findCriterionIndexInCriterionList(criterionList: ListCriterion[], criterion: ListCriterion): number {
     return criterionList.findIndex(item => item.criterionKey === criterion.criterionKey);
+  }
+
+  /**
+   * Set default selected filter list
+   * @param {ListFilter[]} defaultFilters
+   * @private
+   */
+  private _setDefaultSelectedFilterList(defaultFilters: ListFilter[]): void {
+    // loop
+    defaultFilters.forEach((filter: ListFilter) => {
+      // if exist criterion in criterion data object
+      if (this._criterionDataObject[filter.criterionKey]) {
+        // if exist filterKey in criterion
+        if (this._criterionDataObject[filter.criterionKey][filter.filterKey]) {
+          // set criterion data object
+          this._criterionDataObject[filter.criterionKey][filter.filterKey].push(filter);
+        } else { // if not exist filterKey in criterion
+          // set criterion data object
+          this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
+        }
+        // set criterion data object
+        this._criterionDataObject[filter.criterionKey][filter.filterKey].push(filter);
+      } else {  // if not exist criterion in criterion data object
+        // create object
+        this._criterionDataObject[filter.criterionKey] = {};
+        // set criterion data object
+        this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
+      }
+    });
+    // set default selected filter list
+    this.defaultSelectedFilterList = this._criterionDataObject;
   }
 }

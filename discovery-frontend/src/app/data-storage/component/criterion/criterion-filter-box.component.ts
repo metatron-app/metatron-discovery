@@ -46,6 +46,10 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   @Input('enableRemove')
   public isEnableRemoveButton: boolean;
 
+  // default selected item list
+  @Input('defaultSelectedItemList')
+  public defaultSelectedItemList: any;
+
   // criterion key
   public criterionKey: CriterionKey;
   // criterion type
@@ -128,6 +132,13 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
     this.searchPlaceHolder = this.translateService.instant('msg.storage.ui.criterion.search', {value: this.translateService.instant(this.criterionName)});
     // set selected item label
     this.selectedItemsLabel = this._defaultSelectedItemLabel;
+    // if exist default selected item list
+    if (this.defaultSelectedItemList) {
+      // set selected item list
+      this._selectedItemList = this.defaultSelectedItemList;
+      // set selected item label
+      this.selectedItemsLabel = this._makeItemsLabel(this._selectedItemList);
+    }
   }
 
   /**

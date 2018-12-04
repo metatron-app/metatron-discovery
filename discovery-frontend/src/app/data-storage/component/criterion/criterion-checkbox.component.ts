@@ -28,6 +28,10 @@ export class CriterionCheckboxComponent extends AbstractComponent {
   // selected item list
   private _selectedItemList: any = {};
 
+  // default selected item list
+  @Input('defaultSelectedItemList')
+  private _defaultSelectedItemList: any;
+
   @Output('changedSelectItem')
   private _changeSelectItemEvent: EventEmitter<any> = new EventEmitter();
 
@@ -61,6 +65,11 @@ export class CriterionCheckboxComponent extends AbstractComponent {
   public ngAfterViewInit() {
     // set criterion list
     this.criterionList = _.cloneDeep(this.criterion.subCriteria);
+    // if exist default selected item list
+    if (this._defaultSelectedItemList) {
+      // set selected item list
+      this._selectedItemList = this._defaultSelectedItemList;
+    }
     // change detect
     this.safelyDetectChanges();
   }

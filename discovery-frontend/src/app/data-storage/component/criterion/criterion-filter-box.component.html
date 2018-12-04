@@ -26,6 +26,7 @@
         <!-- popup -->
         <criterion-checkbox-component *ngIf="criterionData && criterionType.toString() === 'CHECKBOX'"
                                       [criterion]="criterionData"
+                                      [defaultSelectedItemList]="defaultSelectedItemList"
                                       [searchPlaceHolder]="searchPlaceHolder"
                                       [enableAllOption]="isEnableAllOption"
                                       (changedSelectItem)="onChangedSelectItem($event)">

@@ -22,6 +22,7 @@ import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
 import { StringUtil } from '../../common/util/string.util';
 import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
 import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
+import { ListFilter } from '../../domain/datasource/listFilter';
 
 @Component({
   selector: 'app-data-source',
@@ -58,6 +59,9 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   // removed criterion key
   public removedCriterionKey: CriterionKey;
 
+  // init selected filter list
+  public defaultSelectedFilterList: any = {};
+
   // 생성자
   constructor(private datasourceService: DatasourceService,
               protected elementRef: ElementRef,
@@ -83,6 +87,44 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
         this.datasourceFilterList = result.criteria;
         // set origin more criterion list
         this._originMoreCriterionList = result.criteria.find(criterion => criterion.criterionKey === CriterionKey.MORE).subCriteria;
+        // if exist default filter in result
+        if (result.defaultFilters) {
+          // // TODO test data
+          // [
+          //   {
+          //     criterionKey: "CREATOR",
+          //     filterKey: "createdBy",
+          //     filterName: "Administrator (me)",
+          //     filterValue: "admin"
+          //   },
+          //   {
+          //     criterionKey: "PUBLISH",
+          //     filterKey: "published",
+          //     filterName: "msg.storage.ui.criterion.open-data",
+          //     filterValue: "true"
+          //   }
+          // ]
+          //   .forEach((filter) => {
+          //     if (this._criterionDataObject[filter.criterionKey]) {
+          //       // set filter
+          //       if (this._criterionDataObject[filter.criterionKey][filter.filterKey]) {
+          //         this._criterionDataObject[filter.criterionKey][filter.filterKey].push(filter);
+          //       } else {
+          //         this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
+          //       }
+          //       this._criterionDataObject[filter.criterionKey][filter.filterKey].push(filter);
+          //     } else {
+          //       // create object
+          //       this._criterionDataObject[filter.criterionKey] = {};
+          //       // set filter
+          //       this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
+          //     }
+          //
+          // });
+          // this.defaultSelectedFilterList = this._criterionDataObject;
+          // set default selected filter list
+          this._setDefaultSelectedFilterList(result.defaultFilters);
+        }
         // set datasource list
         this._setDatasourceList();
       }).catch(reason => this.commonExceptionHandler(reason));
@@ -194,8 +236,6 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
           this.datasourceFilterList.forEach((criterion, index, array) => {
             // if exist criterion in filter list
             if (criterion.criterionKey.toString() === key) {
-              // remove criterion in dataObject
-              delete this._criterionDataObject[key];
               // remove filter
               array.splice(index, 1);
               // search datasource
@@ -399,5 +439,36 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
    */
   private _findCriterionIndexInCriterionList(criterionList: ListCriterion[], criterion: ListCriterion): number {
     return criterionList.findIndex(item => item.criterionKey === criterion.criterionKey);
+  }
+
+  /**
+   * Set default selected filter list
+   * @param {ListFilter[]} defaultFilters
+   * @private
+   */
+  private _setDefaultSelectedFilterList(defaultFilters: ListFilter[]): void {
+    // loop
+    defaultFilters.forEach((filter: ListFilter) => {
+      // if exist criterion in criterion data object
+      if (this._criterionDataObject[filter.criterionKey]) {
+        // if exist filterKey in criterion
+        if (this._criterionDataObject[filter.criterionKey][filter.filterKey]) {
+          // set criterion data object
+          this._criterionDataObject[filter.criterionKey][filter.filterKey].push(filter);
+        } else { // if not exist filterKey in criterion
+          // set criterion data object
+          this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
+        }
+        // set criterion data object
+        this._criterionDataObject[filter.criterionKey][filter.filterKey].push(filter);
+      } else {  // if not exist criterion in criterion data object
+        // create object
+        this._criterionDataObject[filter.criterionKey] = {};
+        // set criterion data object
+        this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
+      }
+    });
+    // set default selected filter list
+    this.defaultSelectedFilterList = this._criterionDataObject;
   }
 }
