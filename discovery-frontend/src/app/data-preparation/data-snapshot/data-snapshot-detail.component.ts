@@ -341,6 +341,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         //if ( ['SUCCEEDED'].indexOf(this.selectedDataSnapshot.status) >= 0){
         if ( [Status.SUCCEEDED].indexOf(this.selectedDataSnapshot.status) >= 0){
           this.selectedDataSnapshot.displayStatus = 'SUCCESS';
+          this.getOriginData();
           this.getGridData();
 
         //} else if ( ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','CANCELING'].indexOf(this.selectedDataSnapshot.status) >= 0) {
@@ -418,6 +419,31 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   }
 
 
+  private getOriginData() {
+    let sourceInfo = this.selectedDataSnapshot.sourceInfo;
+
+    if( isUndefined(sourceInfo) ) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.info'));
+    } else {
+      if( isUndefined(sourceInfo.origDsName) ) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.name'));
+        this.originDsInfo.dsName = '';
+      } else {
+        this.originDsInfo.dsName = sourceInfo.origDsName;
+      }
+      if( isUndefined(sourceInfo.origDsQueryStmt) ) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.querystmt'));
+      } else {
+        this.originDsInfo.qryStmt = sourceInfo.origDsQueryStmt;
+      }
+      if( isUndefined(sourceInfo.origDsCreatedTime) ) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.createdtime'));
+      } else {
+        this.originDsInfo.createdTime = sourceInfo.origDsCreatedTime;
+      }
+    }
+  }
+
   // 데이터스냅샷 디테일 팝업 안에 그리드데이터
   private getGridData() {
 
@@ -431,6 +457,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           return;
         }
 
+        /*
         this.originDsInfo.dsName = '';
         this.originDsInfo.qryStmt = '';
         this.originDsInfo.createdTime = '';
@@ -454,6 +481,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
             this.originDsInfo.createdTime = result.originDsInfo.createdTime;
           }
         }
+        */
 
         this.colCnt = result.gridResponse.colCnt;
         const colNames = result.gridResponse.colNames;
