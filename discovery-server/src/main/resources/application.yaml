@@ -153,6 +153,10 @@ polaris:
         target: overlord
         method: POST
         uri: /druid/indexer/v1/supervisor/{taskId}/shutdown
+      supervisorReset:
+        target: overlord
+        method: POST
+        uri: /druid/indexer/v1/supervisor/{taskId}/reset
       workerStatus:
         target: overlord
         method: GET

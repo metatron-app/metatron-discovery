@@ -226,6 +226,46 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
+  @Sql("/sql/test_datasource_list.sql")
+  public void resetDataSourceIngestion() {
+
+    String dataSourceId = "ds-test-01";
+    String historyId = "100011";
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+    .when()
+      .post("/api/datasources/{id}/histories/{historyId}/reset", dataSourceId, historyId)
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK);
+    // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
+  @Sql("/sql/test_datasource_list.sql")
+  public void stopDataSourceIngestion() {
+
+    String dataSourceId = "ds-test-01";
+    String historyId = "100011";
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+    .when()
+      .post("/api/datasources/{id}/histories/{historyId}/stop", dataSourceId, historyId)
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK);
+    // @formatter:on
+  }
+
+  @Test
   @OAuthRequest(username = "polaris", value = {"PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void updateDataSourceFields() throws JsonProcessingException {
     // add DataSource with Fields
@@ -1518,15 +1558,14 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
     dataSource.setFields(fields);
 
-    RealtimeIngestionInfo ingestionInfo = new RealtimeIngestionInfo();
-    ingestionInfo.setRollup(false);
-    ingestionInfo.setFormat(new JsonFileFormat());
-    ingestionInfo.setConsumerType(RealtimeIngestionInfo.ConsumerType.KAFKA);
-    ingestionInfo.setTopic("test_topic");
-
     Map<String, Object> consumeProperties = Maps.newHashMap();
     consumeProperties.put("bootstrap.servers", "localhost:9092");
-    ingestionInfo.setConsumerProperties(consumeProperties);
+
+    RealtimeIngestionInfo ingestionInfo = new RealtimeIngestionInfo("test_topic",
+                                                                    consumeProperties,
+                                                                    new JsonFileFormat(),
+                                                                    false,
+                                                                    null, null);
 
     dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(ingestionInfo));
 
