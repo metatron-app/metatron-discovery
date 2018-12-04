@@ -50,9 +50,9 @@ import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionSe
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.domain.workbook.configurations.format.TemporaryTimeFormat;
 import app.metatron.discovery.spec.druid.ingestion.BulkLoadSpec;
 import app.metatron.discovery.spec.druid.ingestion.BulkLoadSpecBuilder;
 import app.metatron.discovery.util.PolarisUtils;
@@ -60,7 +60,6 @@ import app.metatron.discovery.util.PolarisUtils;
 import static app.metatron.discovery.domain.datasource.DataSource.DataSourceType.VOLATILITY;
 import static app.metatron.discovery.domain.datasource.DataSourceTemporary.LoadStatus.ENABLE;
 import static app.metatron.discovery.domain.datasource.DataSourceTemporary.LoadStatus.FAIL;
-import static app.metatron.discovery.domain.datasource.Field.COLUMN_NAME_CURRENT_DATETIME;
 import static app.metatron.discovery.domain.datasource.Field.FIELD_NAME_CURRENT_TIMESTAMP;
 
 @Component
@@ -162,40 +161,18 @@ public class EngineLoadService {
     String tempFile = "";
     sendTopic(sendTopicUri, new ProgressResponse(0, "START_LOAD_TEMP_DATASOURCE"));
 
+    // Validate timestamp role of fields
+    validateTimestampRole(dataSource);
+
     IngestionInfo info = dataSource.getIngestionInfo();
     Integer expired = null;
     if(info instanceof LocalFileIngestionInfo){
       LocalFileIngestionInfo localFileIngestionInfo = (LocalFileIngestionInfo) info;
-
       //set expired 600 sec
       expired = 600;
 
       tempFile = localFileIngestionInfo.getPath();
-      LOGGER.debug("CSV File is already existed : {}", tempFile);
-
-      List<Field> fields = dataSource.getFields();
-
-      //convert timestamp field to dimension
-      fields.stream()
-              .filter(field -> (field.getLogicalType() == LogicalType.TIMESTAMP
-                      && !field.getName().equals(COLUMN_NAME_CURRENT_DATETIME)))
-              .forEach(field -> field.setRole(Field.FieldRole.DIMENSION));
-
-      // add current date time field
-      Field currentDateField = new Field(COLUMN_NAME_CURRENT_DATETIME, DataType.TIMESTAMP, Field.FieldRole.TIMESTAMP, fields.size());
-      fields.add(currentDateField);
-
-      //add current date time data
-      String dateStr = DateTime.now().toString();
-      tempFile = PolarisUtils.addTimestampColumnFromCsv(dateStr, tempFile, tempFile.replace(".csv", "") + "_ts.csv");
-
-      //remove csv header row
-      boolean removeFirstRow = localFileIngestionInfo.getRemoveFirstRow();
-      if (localFileIngestionInfo.getFormat() instanceof CsvFileFormat) {
-        if (removeFirstRow) {
-          PolarisUtils.removeCSVHeaderRow(tempFile);
-        }
-      }
+      LOGGER.debug("load file : {}", tempFile);
 
     } else if(info instanceof LinkIngestionInfo){
 
@@ -226,32 +203,7 @@ public class EngineLoadService {
       tempFile = tempResultFile.get(0);
     }
 
-    // Check Timestamp Field
-    if (!dataSource.existTimestampField()) {
-      // find timestamp field in datasource
-      List<Field> timeFields = dataSource.getFields().stream()
-              .filter(field -> field.getLogicalType() == LogicalType.TIMESTAMP)
-              .collect(Collectors.toList());
 
-      // Time Field 처리
-      // timestamp 타입의 필드가 없다면 current timestamp 를 전달하고,
-      // 있다면 맨 처음 timestamp 타입의 필드를 선택
-      if (timeFields == null || timeFields.size() == 0) {
-        Field field = new Field(FIELD_NAME_CURRENT_TIMESTAMP, DataType.TIMESTAMP, Field.FieldRole.TIMESTAMP, 0L);
-        dataSource.addField(field);
-
-        String dateStr = DateTime.now().toString();
-        tempFile = PolarisUtils.addTimestampColumnFromCsv(dateStr, tempFile, tempFile + "_ts");
-      } else {
-        for (int i = 0; i < timeFields.size(); i++) {
-          if (i == 0) {
-            timeFields.get(i).setRole(Field.FieldRole.TIMESTAMP);
-          } else {
-            timeFields.get(i).setRole(Field.FieldRole.DIMENSION);
-          }
-        }
-      }
-    }
     LOGGER.debug("Created result file from source : {}", tempFile);
 
     // Send Remote Broker
@@ -338,6 +290,30 @@ public class EngineLoadService {
 
     return temporaryRepository.saveAndFlush(temporary);
 
+  }
+
+  public void validateTimestampRole(DataSource dataSource) {
+    // Check Timestamp Field
+    if (!dataSource.existTimestampField()) {
+      // find timestamp field in datasource
+      List<Field> timeFields = dataSource.getFields().stream()
+                                         .filter(field -> field.getLogicalType() == LogicalType.TIMESTAMP)
+                                         .collect(Collectors.toList());
+
+      // Time Field 처리
+      // timestamp 타입의 필드가 없다면 current timestamp 를 전달하고,
+      // 있다면 맨 처음 timestamp 타입의 필드를 선택
+      Field timeField;
+      if (timeFields == null || timeFields.size() == 0) {
+        timeField = new Field(FIELD_NAME_CURRENT_TIMESTAMP, DataType.TIMESTAMP, Field.FieldRole.TIMESTAMP, 0L);
+        timeField.setFormat(GlobalObjectMapper.writeValueAsString(new TemporaryTimeFormat()));
+        dataSource.addField(timeField);
+      } else {
+        timeField = timeFields.get(0);
+        timeField.setRole(Field.FieldRole.TIMESTAMP);
+        timeField.setSeq(0L);
+      }
+    }
   }
 
   public void deleteLoadDataSource(String datasourceName) {

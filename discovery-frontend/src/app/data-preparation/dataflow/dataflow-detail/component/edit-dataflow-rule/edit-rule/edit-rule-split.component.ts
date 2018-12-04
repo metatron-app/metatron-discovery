@@ -17,7 +17,7 @@ import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } fro
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
-import { isUndefined } from "util";
+import {isNull, isNullOrUndefined, isUndefined} from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import * as _ from 'lodash';
 
@@ -116,7 +116,7 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
     clonedPattern = patternResult[1];
 
     // limit
-    if (isUndefined(this.limit) ) {
+    if (isNullOrUndefined(this.limit) || this.limit.toString() === '') {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.times'));
       return undefined;
     }

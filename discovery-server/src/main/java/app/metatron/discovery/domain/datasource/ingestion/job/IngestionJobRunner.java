@@ -149,7 +149,7 @@ public class IngestionJobRunner {
 
   private TransactionTemplate transactionTemplate;
 
-  private Long interval = 5000L;
+  private Long interval = 10000L;
 
   public IngestionJobRunner() {
     // Empty Constructor

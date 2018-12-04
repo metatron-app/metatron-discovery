@@ -16,6 +16,7 @@ import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { Dataconnection } from '../../../../domain/dataconnection/dataconnection';
 import { StringUtil } from '../../../../common/util/string.util';
+import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'detail-workbench-dataconnection-info',
@@ -61,6 +62,10 @@ export class DetailWorkbenchDataconnectionInfo extends AbstractComponent impleme
 
   public ngOnInit(): void {
     console.info('dataconnection', this.dataconnection);
+    // 권한 정보가 없을 경우
+    if( isNullOrUndefined(this.dataconnection.authenticationType)  ){
+      this.dataconnection.authenticationType = 'MANUAL';
+    }
   }
 
   public ngOnDestroy() {

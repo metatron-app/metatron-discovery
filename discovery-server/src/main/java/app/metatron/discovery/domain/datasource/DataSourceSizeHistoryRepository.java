@@ -40,6 +40,11 @@ public interface DataSourceSizeHistoryRepository extends JpaRepository<DataSourc
   @Query("DELETE FROM DataSourceSizeHistory h WHERE h.dataSourceId = :dataSourceId and h.createdTime < :time")
   void deleteHistroy(@Param("dataSourceId") String dataSourceId, @Param("time") DateTime dateTime);
 
+  @Modifying
+  @Transactional
+  @Query("DELETE FROM DataSourceSizeHistory h WHERE h.dataSourceId = :dataSourceId")
+  void deleteHistoryById(@Param("dataSourceId") String dataSourceId);
+
   @Query("select year(h.createdTime), month(h.createdTime), day(h.createdTime), hour(h.createdTime), avg(h.size) " +
           "from DataSourceSizeHistory h " +
           "where h.dataSourceId = :dataSourceId AND h.modifiedTime > :criteriaTime " +

@@ -42,6 +42,7 @@ import { UIScatterChart } from '../ui-option/ui-scatter-chart';
 import { ColorRange } from '../ui-option/ui-color';
 import { FormatOptionConverter } from './format-option-converter';
 import UI = OptionGenerator.UI;
+import {isNullOrUndefined} from "util";
 
 /**
  * 색상 패널 converter
@@ -81,7 +82,8 @@ export class ColorOptionConverter {
     switch (color.type) {
       case ChartColorType.DIMENSION: {
 
-        option = this.convertColorByDimension(option, fieldOriginInfo, pivotInfo, uiOption);
+        // option = this.convertColorByDimension(option, fieldOriginInfo, pivotInfo, uiOption);
+        option = this.convertColorByDimension(option, fieldOriginInfo, fieldInfo, pivotInfo, uiOption);
         break;
       }
       case ChartColorType.SERIES: {
@@ -149,7 +151,8 @@ export class ColorOptionConverter {
   /**
    * 타입이 dimension인 색상변경
    */
-  public static convertColorByDimension(option: BaseOption, fieldInfo: PivotTableInfo, pivotInfo: PivotTableInfo, uiOption: UIOption): BaseOption {
+  public static convertColorByDimension(
+    option: BaseOption, fieldOriginInfo: PivotTableInfo, fieldInfo: PivotTableInfo, pivotInfo: PivotTableInfo, uiOption: UIOption): BaseOption {
 
     const schema = (<UIChartColorByDimension>uiOption.color).schema;
     const codes = _.cloneDeep(ChartColorList[schema]);
@@ -170,7 +173,7 @@ export class ColorOptionConverter {
     let paramType: string;
 
     // 열/행/교차 여부 및 몇번째 필드인지 확인
-    _.forEach(fieldInfo, (value, key) => {
+    _.forEach(fieldOriginInfo, (value, key) => {
       if (_.indexOf(value, targetField) > -1) {
         fieldIdx = _.indexOf(value, targetField);
         pivotType = _.eq(key, ChartPivotType.COLS) ? ChartPivotType.COLS : _.eq(key, ChartPivotType.ROWS) ? ChartPivotType.ROWS : ChartPivotType.AGGS;
@@ -178,8 +181,18 @@ export class ColorOptionConverter {
       }
     });
 
+    if( isNullOrUndefined( pivotType ) || isNullOrUndefined( paramType ) ) {
+      _.forEach(fieldInfo, (value, key) => {
+        if (_.indexOf(value, targetField) > -1) {
+          fieldIdx = _.indexOf(value, targetField);
+          pivotType = _.eq(key, ChartPivotType.COLS) ? ChartPivotType.COLS : _.eq(key, ChartPivotType.ROWS) ? ChartPivotType.ROWS : ChartPivotType.AGGS;
+          paramType = _.eq(key, ChartPivotType.COLS) || _.eq(key, ChartPivotType.AGGS) ? 'name' : 'seriesName';
+        }
+      });
+    }
+
     // 한 선반에 2개이상 올라 갈경우("-"으로 필드값이 이어진 경우는 필드의 인덱스에 해당하는 값만 추출)
-    if (fieldInfo[pivotType] && fieldInfo[pivotType].length > 1) {
+    if (fieldOriginInfo[pivotType] && fieldOriginInfo[pivotType].length > 1) {
       legendData = pivotInfo[pivotType].map((value) => {
         return !_.split(value, CHART_STRING_DELIMITER)[fieldIdx] ? value : _.split(value, CHART_STRING_DELIMITER)[fieldIdx];
       });
