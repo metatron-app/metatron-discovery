@@ -21,7 +21,7 @@ import {
   MapThickness
 } from '../../../common/component/chart/option/define/map/map-common';
 import * as _ from 'lodash';
-import { ShelveFieldType, SymbolType } from '../../../common/component/chart/option/define/common';
+import { EventType, ShelveFieldType, SymbolType } from '../../../common/component/chart/option/define/common';
 import { UISymbolLayer } from '../../../common/component/chart/option/ui-option/map/ui-symbol-layer';
 import { MapOutline } from '../../../common/component/chart/option/ui-option/map/ui-outline';
 import { UIPolygonLayer } from '../../../common/component/chart/option/ui-option/map/ui-polygon-layer';
@@ -168,7 +168,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     if ((MapLayerType.TILE === cloneLayerType || MapLayerType.TILE === layerType) && cloneLayerType !== layerType) {
       // call search api (for precision setting)
-      this.applyLayers({});
+      this.applyLayers({type : EventType.CHANGE_PIVOT});
       return;
     }
 

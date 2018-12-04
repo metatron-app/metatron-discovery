@@ -134,22 +134,17 @@ export class TooltipOptionConverter {
    */
   public static returnTooltipDataValue(layerItems: GeoField[]): GeoField[] {
 
-    // sync columns, fields data
-    layerItems.map((item) => {
-
-      if(item.field && item.field.logicalType) {
-        item['logicalType'] = item.field.logicalType;
-        item['type'] = item.field.type;
-      }
-    });
-
     // if it's not custom field, exclude geo data
     layerItems = layerItems.filter((item) => {
-      return ('user_expr' == item.field.type || (item['logicalType'] && -1 == item['logicalType'].toString().indexOf('GEO')));
+      return ('user_expr' == item.field.type || (item.field.logicalType && -1 == item.field.logicalType.toString().indexOf('GEO')));
     });
 
-    // remove the columns having same name
-    layerItems = _.uniqBy(layerItems, 'name');
+    let groupList = _.groupBy(layerItems, {'type' : 'measure'});
+
+    // remove the columns having same name in dimension
+    groupList['false'] = _.uniqBy(groupList['false'], 'name');
+
+    layerItems = _.union(groupList['true'], groupList['false']);
 
     return layerItems;
   }

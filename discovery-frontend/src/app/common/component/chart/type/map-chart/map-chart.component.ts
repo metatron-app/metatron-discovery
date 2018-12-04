@@ -2767,9 +2767,30 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     }
 
     if (!selectMode || selectData.length > 0) {
-      if (this.clusterLayer) this.clusterLayer.setStyle(this.clusterStyleFunction(0, this.data, selectMode));
-      if (this.hexagonLayer) this.hexagonLayer.setStyle(this.hexagonStyleFunction(0, this.data, selectMode));
-      if (this.symbolLayer) this.symbolLayer.setStyle(this.mapStyleFunction(0, this.data, selectMode));
+      switch (this.getUiMapOption().layers[layerNum].type) {
+
+        // symbol layer => use cluster style func
+        case MapLayerType.SYMBOL:
+
+          // clustering
+          if ((<UISymbolLayer>this.getUiMapOption().layers[layerNum]).clustering) {
+            this.clusterLayer.setStyle(this.clusterStyleFunction(0, this.data, selectMode));
+
+            // point
+          } else {
+            this.symbolLayer.setStyle(this.clusterStyleFunction(0, this.data, selectMode));
+          }
+          break;
+        // hexagon(tile) layer => use hexagon style func
+        case MapLayerType.TILE:
+          this.hexagonLayer.setStyle(this.hexagonStyleFunction(0, this.data, selectMode));
+          break;
+        // line, polygon layer => use map style func
+        case MapLayerType.LINE:
+        case MapLayerType.POLYGON:
+          this.symbolLayer.setStyle(this.mapStyleFunction(0, this.data, selectMode));
+          break;
+      }
     }
   }
 }

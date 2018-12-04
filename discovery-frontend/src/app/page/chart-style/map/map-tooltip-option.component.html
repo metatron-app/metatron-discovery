@@ -82,28 +82,28 @@
                     em.ddp-icon-measure-array
                  -->
                   <!-- string -->
-                  <em class="ddp-icon-dimension-ab" *ngIf="(item?.type !== 'user_expr' && item['logicalType']?.toString() === 'STRING') || item?.type === 'user_expr'"></em>
+                  <em class="ddp-icon-dimension-ab" *ngIf="(item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'STRING') || item?.type === 'user_expr'"></em>
                   <!-- //string -->
                   <!-- latitude / longitude -->
-                  <em class="ddp-icon-dimension-local" *ngIf="item?.type !== 'user_expr' && item['logicalType']?.toString() === 'LNG' || item['logicalType']?.toString() === 'LNT'"></em>
+                  <em class="ddp-icon-dimension-local" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'LNG' || item.field?.logicalType?.toString() === 'LNT'"></em>
                   <!-- //latitude / longitude -->
                   <!-- time -->
-                  <em class="ddp-icon-dimension-calen" *ngIf="item?.type !== 'user_expr' && item['logicalType']?.toString() === 'TIMESTAMP'"></em>
+                  <em class="ddp-icon-dimension-calen" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'TIMESTAMP'"></em>
                   <!-- //time -->
                   <!-- number -->
-                  <em class="ddp-icon-measure-float" *ngIf="item?.type !== 'user_expr' && item['logicalType']?.toString() === 'DOUBLE' || item['logicalType']?.toString() === 'INTEGER'"></em>
+                  <em class="ddp-icon-measure-float" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'DOUBLE' || item.field?.logicalType?.toString() === 'INTEGER'"></em>
                   <!-- //number -->
                   <!-- boolean -->
-                  <em class="ddp-icon-dimension-tf" *ngIf="item?.type !== 'user_expr' && item['logicalType']?.toString() === 'BOOLEAN'"></em>
+                  <em class="ddp-icon-dimension-tf" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'BOOLEAN'"></em>
                   <!-- //boolean -->
                   <!-- polygon -->
-                  <em class="ddp-icon-dimension-polygon ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item['logicalType']?.toString() === 'GEO_POLYGON'"></em>
+                  <em class="ddp-icon-dimension-polygon ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'GEO_POLYGON'"></em>
                   <!-- //polygon -->
                   <!-- line -->
-                  <em class="ddp-icon-dimension-line ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item['logicalType']?.toString() === 'GEO_LINE'"></em>
+                  <em class="ddp-icon-dimension-line ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'GEO_LINE'"></em>
                   <!-- //line -->
                   <!-- point -->
-                  <em class="ddp-icon-dimension-point ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item['logicalType']?.toString() === 'GEO_POINT'"></em>
+                  <em class="ddp-icon-dimension-point ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'GEO_POINT'"></em>
                     {{returnDataValueName(item)}}
                 </span>
                 <em class="ddp-icon-listdelete" (click)="deleteSelectedField(index)"></em>
@@ -133,28 +133,28 @@
                   <li *ngFor="let item of unselectedLayerItems" (click)="addColumn(item)">
                     <a href="javascript:">
                       <!-- string -->
-                      <em class="ddp-icon-dimension-ab" *ngIf="(item?.type !== 'user_expr' && item['logicalType']?.toString() === 'STRING') || item?.type === 'user_expr'"></em>
+                      <em class="ddp-icon-dimension-ab" *ngIf="(item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'STRING') || item?.type === 'user_expr'"></em>
                       <!-- //string -->
                       <!-- latitude / longitude -->
-                      <em class="ddp-icon-dimension-local" *ngIf="item?.type !== 'user_expr' && item['logicalType']?.toString() === 'LNG' || item['logicalType']?.toString() === 'LNT'"></em>
+                      <em class="ddp-icon-dimension-local" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'LNG' || item.field?.logicalType?.toString() === 'LNT'"></em>
                       <!-- //latitude / longitude -->
                       <!-- time -->
-                      <em class="ddp-icon-dimension-calen" *ngIf="item?.type !== 'user_expr' && item['logicalType']?.toString() === 'TIMESTAMP'"></em>
+                      <em class="ddp-icon-dimension-calen" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'TIMESTAMP'"></em>
                       <!-- //time -->
                       <!-- number -->
-                      <em class="ddp-icon-measure-float" *ngIf="item?.type !== 'user_expr' && item['logicalType']?.toString() === 'DOUBLE' || item['logicalType']?.toString() === 'INTEGER'"></em>
+                      <em class="ddp-icon-measure-float" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'DOUBLE' || item.field?.logicalType?.toString() === 'INTEGER'"></em>
                       <!-- //number -->
                       <!-- boolean -->
-                      <em class="ddp-icon-dimension-tf" *ngIf="item?.type !== 'user_expr' && item['logicalType']?.toString() === 'BOOLEAN'"></em>
+                      <em class="ddp-icon-dimension-tf" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'BOOLEAN'"></em>
                       <!-- //boolean -->
                       <!-- polygon -->
-                      <em class="ddp-icon-dimension-polygon ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item['logicalType']?.toString() === 'GEO_POLYGON'"></em>
+                      <em class="ddp-icon-dimension-polygon ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'GEO_POLYGON'"></em>
                       <!-- //polygon -->
                       <!-- line -->
-                      <em class="ddp-icon-dimension-line ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item['logicalType']?.toString() === 'GEO_LINE'"></em>
+                      <em class="ddp-icon-dimension-line ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'GEO_LINE'"></em>
                       <!-- //line -->
                       <!-- point -->
-                      <em class="ddp-icon-dimension-point ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item['logicalType']?.toString() === 'GEO_POINT'"></em>
+                      <em class="ddp-icon-dimension-point ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item.field?.logicalType?.toString() === 'GEO_POINT'"></em>
                       <span class="ddp-txt-name">{{returnDataValueName(item)}}</span>
                     </a>
                   </li>
