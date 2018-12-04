@@ -50,7 +50,7 @@ class APIConstant {
   public TIMEOUT = 5000;
 
   // Page Size
-  public PAGE_SIZE = 15;
+  public PAGE_SIZE = 30;
 
   // Page Sort
   public PAGE_SORT_MODIFIED_TIME_DESC = 'modifiedTime,desc';
@@ -71,5 +71,7 @@ export class CommonConstant {
   public static websocketId: string = '';
 
   public static cookieService: CookieService = new CookieService();
+
+  public static COL_NAME_CURRENT_DATETIME:string = 'current_datetime';
 
 }

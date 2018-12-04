@@ -230,9 +230,9 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
    */
   public onChangeStatus(status: string) {
     // 같은 값이라면 변경이 발생하지 않음
-    // if (this.userData.status.toString() === status) {
-    //   return;
-    // }
+    if (this.userData.status.toString() === status) {
+      return;
+    }
     // 모달 데이터 생성
     const modal = new Modal();
     modal.data = 'STATUS';

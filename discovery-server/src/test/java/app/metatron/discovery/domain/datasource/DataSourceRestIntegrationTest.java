@@ -2260,6 +2260,8 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     singleJdbcInfo.setDataType(JdbcIngestionInfo.DataType.TABLE);
     singleJdbcInfo.setDatabase("polaris_datasources");
     singleJdbcInfo.setQuery("sample_ingestion");
+    singleJdbcInfo.setMaxLimit(3);
+    singleJdbcInfo.setRollup(false);
 
     dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(singleJdbcInfo));
 

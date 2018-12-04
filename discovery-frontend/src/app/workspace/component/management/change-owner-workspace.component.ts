@@ -19,6 +19,7 @@ import { Page, PageResult } from 'app/domain/common/page';
 import { WorkspaceService } from '../../service/workspace.service';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { WorkspaceMemberProjection } from '../../../domain/workspace/workspace-member';
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'app-change-workspace-owner',
@@ -106,16 +107,21 @@ export class ChangeOwnerWorkspaceComponent extends AbstractComponent implements 
     this.isShow = false;
   } // function - close
 
-  /**
+  /*s
    * 소유자 변경 후 화면 종료
    */
   public done() {
     this.loadingShow();
-    this.workspaceService.transferWorkspaceOwner(this._workspace.id, this.selectedUser.member.username).then(() => {
+    if(isNullOrUndefined(this.selectedUser)){
       this.loadingHide();
-      this.afterChange.emit(true);
-      this.close();
-    }).catch(err => this.commonExceptionHandler(err));
+      Alert.warning(this.translateService.instant('msg.space.ui.ph.owner'));
+    }else{
+      this.workspaceService.transferWorkspaceOwner(this._workspace.id, this.selectedUser.member.username).then(() => {
+        this.loadingHide();
+        this.afterChange.emit(true);
+        this.close();
+      }).catch(err => this.commonExceptionHandler(err));
+    }
   } // function - done
 
   /**

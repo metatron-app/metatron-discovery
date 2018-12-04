@@ -169,6 +169,10 @@ public class TimeRelativeFilter extends TimeFilter {
     return timezone;
   }
 
+  public TimeFieldFormat.TimeUnit getRelTimeUnit() {
+    return relTimeUnit;
+  }
+
   @Override
   public String toString() {
     return "TimeRelativeFilter{" +

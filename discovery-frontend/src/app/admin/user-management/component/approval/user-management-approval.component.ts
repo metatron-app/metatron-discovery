@@ -233,13 +233,25 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
 
     if ( 'REJECT' === status) {
       this.selectedUser = username;
+      this.rejectReason = undefined;
+      this.isErrorMsgShow = false;
       this.isRejectModalOpen = true;
     } else if ( 'APPROVE' === status) {
       this.isApproveModalOpen = true;
       this.selectedUser = username;
     }
 
-  }
+  } // function - changeUserStatus
+
+  /**
+   * 반려 모달 닫기
+   */
+  public closeRejectModal() {
+    this.selectedUser = undefined;
+    this.rejectReason = undefined;
+    this.isErrorMsgShow = false;
+    this.isRejectModalOpen = false;
+  } // function - closeRejectModal
 
   /**
    * Reject button click 시
@@ -269,7 +281,7 @@ export class UserManagementApprovalComponent extends AbstractUserManagementCompo
       })
     }
 
-  }
+  } // function - rejectUser
 
   /**
    * 승인 모달에서 확인 클릭시

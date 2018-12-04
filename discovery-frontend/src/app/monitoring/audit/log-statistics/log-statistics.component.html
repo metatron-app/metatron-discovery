@@ -57,7 +57,7 @@
       <!-- edit -->
       <div class="ddp-wrap-edit">
         <component-period
-          [title]="'Performed Start Time'"
+          [title]="'msg.statistics.th.start.time' | translate"
           [roundSecond]="true"
           (changeDate)="onChangeDate($event)"
           [useAllButton]=false
@@ -540,4 +540,11 @@
 <!--<app-job-detail *ngIf="mode==='detail-job-log'"-->
                 <!--[setAuditId]="selectedId"-->
                 <!--(close)="mode=''"></app-job-detail>-->
-<app-log-statistics-detail *ngIf="isDetailPopupOpen" (closeOutput)="closeDetail()" [statisticsData]="statisticsData" (sortOutput)="sortDetail($event)" [selectedContentSort]="selectedContentSort" [pageResult]="pageResult" (getMoreContentsOutput)="getMoreContents($event)"></app-log-statistics-detail>
+<app-log-statistics-detail *ngIf="isDetailPopupOpen"
+                           (closeOutput)="closeDetail()"
+                           [statisticsData]="statisticsData"
+                           (sortOutput)="sortDetail($event)"
+                           [selectedContentSort]="selectedContentSort"
+                           [pageResult]="pageResult"
+                           (getMoreContentsOutput)="getMoreContents($event)">
+</app-log-statistics-detail>
