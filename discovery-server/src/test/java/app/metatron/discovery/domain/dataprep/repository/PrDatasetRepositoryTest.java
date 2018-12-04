@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.repository;
 
+import app.metatron.discovery.AbstractIntegrationTest;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -22,10 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-import app.metatron.discovery.AbstractIntegrationTest;
-
 import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
-import static app.metatron.discovery.domain.dataprep.entity.PrDataset.STORAGE_TYPE.LOCAL;
 
 public class PrDatasetRepositoryTest extends AbstractIntegrationTest {
 
