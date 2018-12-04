@@ -18,13 +18,13 @@ import app.metatron.discovery.domain.dataprep.PrepDatasetSparkHiveService;
 import app.metatron.discovery.domain.dataprep.PrepHdfsService;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
-import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
-import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
-import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import com.google.common.collect.Maps;
 import org.apache.http.HttpStatus;
@@ -37,8 +37,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -156,7 +154,7 @@ public class PrSnapshotController {
                         int lastIdx = offset + target -1;
                         if(0<=lastIdx && offset<rowSize) {
                             if(rowSize<=lastIdx) {
-                                lastIdx = rowSize-1;
+                                lastIdx = rowSize;
                             }
                             gridResponse.rows = gridResponse.rows.subList(offset,lastIdx);
                         } else {
