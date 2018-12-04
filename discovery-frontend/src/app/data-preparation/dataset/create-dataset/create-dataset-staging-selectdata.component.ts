@@ -210,6 +210,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     this.datasetHive.tableInfo.tableName = undefined;
 
     this.clickable = false; // table 이 선택 되지 않아서 다음으로 넘어갈수 없음
+    this.clearGrid = true;
     this.getTables(database.name);
 
     $('[tabindex=1]').trigger('focus');
@@ -547,21 +548,21 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    */
   private getDatabases() {
     this.loadingShow();
-    this.datasetService.getStagingConnectionInfo()
-      .then((data) => {
-        if (data.errorMsg) {
+    this.datasetService.getStagingConnectionInfo().then((data) => {
+
+      if (data.errorMsg) {
           Alert.error(data.errorMsg);
           this.loadingHide();
         } else {
+
           this.datasetService.setConnInfo(data);
 
-          this.datasetService.getStagingSchemas()
-            .then((data) => {
-              this.loadingHide();
+          this.datasetService.getStagingSchemas().then((data) => {
+
+            this.loadingHide();
 
               this.databaseList = [];
 
-              // set databases in databaseList
               if (data) {
                 data.forEach((item, index) => {
                   this.databaseList.push({idx : index, name : item, selected : false})
@@ -570,11 +571,19 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
               // If type is table and has grid info
               if (this.datasetHive.rsType === RsType.TABLE && this.datasetHive.tableInfo.headers) {
+
+                this.clearGrid = false;
                 this.getTables(this.datasetHive.tableInfo.databaseName);
                 this._drawGrid(this.datasetHive.tableInfo.headers,this.datasetHive.tableInfo.rows);
 
               // If type is Query and has query info
               } else if (this.datasetHive.rsType === RsType.SQL && this.datasetHive.sqlInfo.queryStmt) {
+
+                if (this.datasetHive.tableInfo && this.datasetHive.tableInfo.tableName) {
+                  this.getTables(this.datasetHive.tableInfo.databaseName);
+                }
+
+                this.clearGrid = false;
                 this._drawGrid(this.datasetHive.sqlInfo.headers,this.datasetHive.sqlInfo.rows);
 
               } else {  // Neither
@@ -715,11 +724,15 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
       // If type is sql, no need run query
       if (this.datasetHive.rsType === RsType.SQL) {
+        this.clickable = true;
         if (this.datasetHive.sqlInfo.valid) {
           this.isQuerySuccess = true;
           this.showQueryStatus = true;
         }
       }
+
+      this.clearGrid = false;
+
     }
   }
 

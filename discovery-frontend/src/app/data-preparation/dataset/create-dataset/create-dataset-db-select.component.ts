@@ -129,7 +129,6 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   public initView() {
 
     this.datasetJdbc.dsType = DsType.IMPORTED;
-    this.datasetJdbc.rsType = RsType.TABLE;
     this.datasetJdbc.importType = ImportType.DB;
 
     this.selectedDatabase = this.databaseTypeList[0];
@@ -295,7 +294,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
 
     if (this.connectionResultFl === false) {
       if (this.connectionResult === 'Required') {
-        return this.translateService.instant('Required');
+        return this.translateService.instant('msg.common.ui.required');
       } else {
         return this.translateService.instant('msg.storage.ui.invalid.conn');
       }

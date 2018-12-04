@@ -133,6 +133,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   public ngOnInit() {
     super.ngOnInit();
 
+    // get database list
     this.getDatabases();
 
     // Only initialise sqlInfo when sqlInfo doesn't have value
@@ -163,7 +164,18 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     }
 
     if (this.datasetJdbc.rsType === RsType.SQL) {
-      this.datasetJdbc.sqlInfo.valid = true;
+
+      if (this.showQueryStatus && this.isQuerySuccess) {
+        this.datasetJdbc.sqlInfo.valid = true;
+      } else {
+
+        if (isNullOrUndefined(this.isQuerySuccess) || !this.isQuerySuccess)
+        this.showQueryStatus = true;
+        this.isQuerySuccess = false;
+        this.queryErrorMsg = this.translateService.instant('msg.common.ui.required');
+        return;
+      }
+
     }
 
     this.typeEmitter.emit('DB');
@@ -313,6 +325,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     if (this.datasetJdbc.rsType !== RsType.TABLE) {
       this.isDatabaseListShow = false;
       this.isSchemaListShow = false;
+      this.clickable = true;
     }
 
     // If grid data exists, draw grid.
@@ -321,6 +334,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
       this.clearGrid = false;
       this._drawGrid(data.headers,data.rows)
     } else {
+      this.clickable = false;
       this.clearGrid = true;
     }
 
@@ -357,12 +371,11 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         this.loadingHide();
         // console.info('getTableDetailWitoutId', result);
         if (result.hasOwnProperty('errorMsg')) {
-          this.showQueryStatus = true;
-          this.isQuerySuccess = false;
-          this.queryErrorMsg = result.errorMsg;
+          this.queryErrorMsg = this.translateService.instant('msg.dp.ui.invalid.conn');
           this.clickable = false;
-          this.clearGrid = true;
-          this.gridComponent.destroy();
+          this.datasetJdbc.sqlInfo.valid = false;
+          this._deleteGridInfo(this.datasetJdbc.rsType);
+
           return;
         }
         this.showQueryStatus = true;
@@ -374,6 +387,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         // Save grid info -
         this.datasetJdbc.sqlInfo.headers = headers;
         this.datasetJdbc.sqlInfo.rows = rows;
+        this.datasetJdbc.sqlInfo.valid = true;
 
         this.clearGrid = false;
         this._drawGrid(headers,rows);
@@ -387,7 +401,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         this.showQueryStatus = true;
         this.isQuerySuccess = false;
         this.clearGrid = true;
-        this.queryErrorMsg = error.details;
+        this.queryErrorMsg = this.translateService.instant('msg.dp.ui.invalid.conn');
         this.clickable = false;
 
       });
@@ -404,8 +418,10 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
     if (this.datasetJdbc.sqlInfo.queryStmt !== param) {
       this.datasetJdbc.sqlInfo.queryStmt = param;
+      this.datasetJdbc.sqlInfo.valid = false;
 
       this._deleteGridInfo(this.datasetJdbc.rsType);
+      this.clickable = true;
     }
 
   }
@@ -605,24 +621,39 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.connectionService.getDatabasesWithoutId(this.datasetJdbc.dataconnection)
       .then((data) => {
         this.loadingHide();
+
         this.databaseList = [];
+
         if (data && data.databases) {
           data.databases.forEach((item, index) => {
             this.databaseList.push({idx : index, name : item, selected : false})
           })
         }
 
-        // If type is table and has grid info
+        // TABLE && GRID INFO
         if (this.datasetJdbc.rsType === RsType.TABLE && this.datasetJdbc.tableInfo.headers) {
           this.clearGrid = false;
           this.getTables(this.datasetJdbc.tableInfo.databaseName);
           this._drawGrid(this.datasetJdbc.tableInfo.headers,this.datasetJdbc.tableInfo.rows);
 
-          // If type is Query and has query info
+          // QUERY AND GRID INFO
         } else if (this.datasetJdbc.rsType === RsType.SQL && this.datasetJdbc.sqlInfo.queryStmt) {
 
-          this.clearGrid = false;
-          this._drawGrid(this.datasetJdbc.sqlInfo.headers,this.datasetJdbc.sqlInfo.rows);
+          // STILL NEED TO GET TABLE INFO
+          if (this.datasetJdbc.tableInfo && this.datasetJdbc.tableInfo.databaseName) {
+            this.getTables(this.datasetJdbc.tableInfo.databaseName);
+          }
+
+          // GRID INFO O
+          if (this.datasetJdbc.sqlInfo.headers.length > 0) {
+            this.clearGrid = false;
+            this._drawGrid(this.datasetJdbc.sqlInfo.headers,this.datasetJdbc.sqlInfo.rows);
+          } else {
+
+            // GRID INFO X
+            this.clickable = true;
+            this.clearGrid = true;
+          }
 
         } else {  // Neither
           this.showDatabaseList();
@@ -644,8 +675,6 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   private getTables(database:string) {
     this.loadingShow();
 
-    this.clearGrid = true;
-
     const param = {
       connection : this.datasetJdbc.dataconnection.connection,
       database : database
@@ -660,7 +689,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
           this.schemaList.push({idx : index, name : item, selected : false});
         });
         this.isTableEmpty = false;
-        this.clearGrid = false;
+
       } else {
         this.schemaList = [];
         this.datasetJdbc.tableInfo.tableName = undefined;
@@ -753,24 +782,21 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    */
   private _setDefaultValues() {
 
-    // Imported and DBtype is default value
+    // Imported and DB type is default value
     this.datasetJdbc.dsType = DsType.IMPORTED;
     this.datasetJdbc.importType = ImportType.DB;
 
 
-    // When type info is null set it to TABLE
+    // When no tab is selected -> default is TABLE
     if (isNullOrUndefined(this.datasetJdbc.rsType)) {
       this.datasetJdbc.rsType = RsType.TABLE;
-    } else {
+    }
 
-      // If type is sql, no need run query
-      if (this.datasetJdbc.rsType === RsType.SQL) {
-        if (this.datasetJdbc.sqlInfo.valid) {
-          this.isQuerySuccess = true;
-          this.showQueryStatus = true;
-        }
-      }
-
+    // Check if validity is already checked
+    if (this.datasetJdbc.sqlInfo && this.datasetJdbc.sqlInfo.valid) {
+      this.isQuerySuccess = true;
+      this.showQueryStatus = true;
+      this.clickable = true;
       this.clearGrid = false;
     }
   }
