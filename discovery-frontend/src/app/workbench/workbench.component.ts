@@ -2747,7 +2747,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       let fields = currentResultTab.result.fields;
 
       const currentDateTimeField: Field = new Field();
-      currentDateTimeField.name = 'current_datetime';
+      currentDateTimeField.name = CommonConstant.COL_NAME_CURRENT_DATETIME;
       currentDateTimeField.biType = BIType.TIMESTAMP;
       currentDateTimeField.logicalType = LogicalType.TIMESTAMP;
       currentDateTimeField.dataSource = boardDataSource.engineName;
@@ -2919,7 +2919,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   private _activeHorizontalSlider() {
     this._splitHorizontal = Split(['.sys-workbench-lnb-panel', '.sys-workbench-content-panel'], {
       direction: 'horizontal',
-      sizes: [18, 82],
+      sizes: [20, 80],
+      minSize: [260, 300],
       elementStyle: (dimension, size, gutterSize) => {
         return { 'width': `${size}%` };
       },

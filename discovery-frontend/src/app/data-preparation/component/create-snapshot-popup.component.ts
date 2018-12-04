@@ -484,12 +484,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     this.ssName = '';
     this.fileLocations = [];
     this.fileUris = [];
-    /*
-    this.fileLocations = [
-      { value: 'WAS', label: 'WAS' },
-      { value: 'HDFS', label: 'HDFS' }
-    ];
-    */
+
 
     // -------------------
     // Hive

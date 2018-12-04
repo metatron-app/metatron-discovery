@@ -22,14 +22,16 @@
     <!-- box layout -->
     <div class="ddp-box-layout4" *ngIf="isDatabaseSearchShow" (click)="$event.stopImmediatePropagation()">
       <!-- search -->
-      <div class="ddp-form-search">
-        <em class="ddp-icon-search"></em>
-        <input
-          #inputSearch
-          [ngModel]="searchText"
-          (keypress)="onSearchDatabase($event)" (keyup.esc)="onSearchDatabaseInit()"
-          type="text" placeholder="{{'msg.bench.ui.db.name.search'|translate}}" >
-        <em *ngIf="isShowBtnClear()" (click)="onSearchDatabaseInit()" class="ddp-btn-search-close" ></em>
+      <div class="ddp-wrap-search">
+        <div class="ddp-form-search">
+          <em class="ddp-icon-search"></em>
+          <input
+            #inputSearch
+            [ngModel]="searchText"
+            (keypress)="onSearchDatabase($event)" (keyup.esc)="onSearchDatabaseInit()"
+            type="text" placeholder="{{'msg.bench.ui.db.name.search'|translate}}" >
+          <em *ngIf="isShowBtnClear()" (click)="onSearchDatabaseInit()" class="ddp-btn-search-close" ></em>
+        </div>
       </div>
       <!-- //search -->
       <div class="ddp-ui-list-type">

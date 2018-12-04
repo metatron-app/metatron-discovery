@@ -171,6 +171,9 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
    * @param catalog
    */
   public catalogDetail(catalog) {
+    if (catalog.editing) {
+      return;
+    }
 
     if (!this.deleteModalComponent.isShow) {
       if(!this.isEditCatalogName) {
@@ -327,8 +330,17 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
    */
   public editCatalog(catalog) {
     catalog.editing = true;
+    this.safelyDetectChanges();
+    this.catalogInput.nativeElement.value = catalog.name; // 현재 값 적용
+    this.catalogInput.nativeElement.focus();
+
     this.selectedCatalog = new Catalog();
     this.isEditCatalogName = true;
+
+    setTimeout(() => {
+      this.catalogInput.nativeElement.value = catalog.name;
+    })
+
   }
 
 
@@ -346,7 +358,10 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
           this.initView();
           this.inProcess = false;
         }).catch((error) => {
-          Alert.warning(error);
+          if( error && error.message ) {
+            Alert.warning(error.message);
+          }
+          this.inProcess = false;
         })
       }
     } else {

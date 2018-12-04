@@ -21,8 +21,9 @@
             </span>
 
       <div class="ddp-ui-pop-buttons">
-        <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
-        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
+        <a (click)="close()" href="javascript:" class="ddp-btn-pop" >{{'msg.comm.btn.close' | translate}}</a>
+        <a (click)="done()" [class.ddp-disabled]="!isPhoneChanged && !isEmailChanged && !isFullNameChanged"
+           href="javascript:" class="ddp-btn-pop ddp-bg-black" >{{'msg.comm.btn.save' | translate}}</a>
       </div>
     </div>
 
@@ -76,20 +77,18 @@
 
           </div>
 
-          <!-- input form -->
+          <!-- User Name -->
           <div class="ddp-ui-input-form">
             <label class="ddp-label-type">{{'msg.comm.ui.profile.name' | translate}}</label>
             <div class="ddp-data-form">
               {{user.username}}
             </div>
           </div>
-          <!-- //input form -->
-          <!-- input form -->
-          <!--
-              error 일때 ddp-type-error 추가
-              ok 일 경우 ddp-type-ok 추가
-           -->
-          <div class="ddp-ui-input-form" [class.ddp-type-error]="resultEmail === false">
+          <!-- // User Name -->
+
+          <!-- E-Mail -->
+          <div [ngClass]="{'ddp-type-ok' : isEmailChanged && true === resultEmail, 'ddp-type-error' : false === resultEmail}"
+               class="ddp-ui-input-form" >
             <label class="ddp-label-type">{{'msg.comm.ui.profile.email' | translate}}
               <!-- tooltip -->
               <div class="ddp-ui-tooltip">
@@ -114,10 +113,11 @@
             <span class="ddp-ui-error">{{emailMessage}}</span>
             <!-- //error 메시지 -->
           </div>
-          <!-- //input form -->
-          <!-- input form -->
-          <!-- error 일때 ddp-type-error 추가 -->
-          <div class="ddp-ui-input-form" [class.ddp-type-error]="resultName === false">
+          <!-- // E-Mail -->
+
+          <!-- Full Name -->
+          <div [ngClass]="{'ddp-type-ok' : isFullNameChanged && true === resultName, 'ddp-type-error' : false === resultName}"
+               class="ddp-ui-input-form" >
             <label class="ddp-label-type">{{'msg.comm.ui.profile.fullname' | translate}}
               <!-- tooltip -->
               <div class="ddp-ui-tooltip">
@@ -142,7 +142,9 @@
             <span class="ddp-ui-error">{{nameMessage}}</span>
             <!-- //error 메시지 -->
           </div>
-          <!-- //input form -->
+          <!-- // Full Name -->
+
+          <!-- Password -->
           <div class="ddp-ui-input-form">
             <label class="ddp-label-type">{{'msg.login.join.passwd' | translate}}</label>
             <div class="ddp-data-form">
@@ -150,11 +152,9 @@
               <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickChangePassword()"><em class="ddp-icon-key"></em>{{'msg.comm.btn.profile.password.change' | translate}}</a>
             </div>
           </div>
-          <!-- input form -->
-          <!--
-              error 일때 ddp-type-error 추가
-              ok 일 경우 ddp-type-ok 추가
-           -->
+          <!-- // Password -->
+
+          <!-- Phone -->
           <div class="ddp-ui-input-form">
             <label class="ddp-label-type">{{'msg.comm.ui.profile.phone' | translate}}
               <!-- tooltip -->
@@ -171,10 +171,11 @@
             <div class="ddp-input-check">
               <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ph.profile.phone' | translate}}"
                      input-mask="number"
-                     [(ngModel)]="user.tel"/>
+                     [(ngModel)]="user.tel" />
             </div>
           </div>
-          <!-- //input form -->
+          <!-- // Phone -->
+
           <!-- permission -->
           <div class="ddp-ui-input-form">
             <label class="ddp-label-type">
@@ -183,6 +184,7 @@
             </label>
           </div>
           <!-- //permission -->
+
           <!-- input form -->
           <div class="ddp-ui-input-form">
             <label class="ddp-label-type">
@@ -191,10 +193,8 @@
               <!--<span class="ddp-info2" *ngIf="getGroupLength() === 1">{{getGroup()[0].name}}</span>-->
               <!--<span class="ddp-info2" *ngIf="getGroupLength() > 1">{{'msg.comm.ui.profile.groups.detail' | translate: {group: getGroup()[0].name, etc: getGroupLength() - 1} }}</span>-->
             </label>
-
           </div>
           <!-- //input form -->
-
 
           <!-- Workspace -->
           <div class="ddp-ui-input-form">

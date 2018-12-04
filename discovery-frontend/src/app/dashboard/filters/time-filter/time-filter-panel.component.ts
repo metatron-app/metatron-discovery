@@ -36,6 +36,7 @@ import { isNullOrUndefined } from "util";
 import { Filter } from '../../../domain/workbook/configurations/filter/filter';
 import { PopupService } from '../../../common/service/popup.service';
 import { SubscribeArg } from '../../../common/domain/subscribe-arg';
+import {CommonConstant} from "../../../common/constant/common.constant";
 
 @Component({
   selector: 'time-filter-panel',
@@ -330,7 +331,7 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
       if (this.field && this.field.biType === BIType.TIMESTAMP
         && this.field.role === FieldRole.TIMESTAMP) {
         this.isTimeStamp = true;
-      } else if (this.field == null && filter.field === 'current_datetime') {
+      } else if (this.field == null && filter.field === CommonConstant.COL_NAME_CURRENT_DATETIME) {
         this.isTimeStamp = true;
       }
 

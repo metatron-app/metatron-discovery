@@ -4775,7 +4775,7 @@ ul.ddp-list-rule2 li .ddp-line-add span.ddp-txt:before {display:inline-block; po
 ul.ddp-list-rule2 li .ddp-view-data:hover + .ddp-ui-tooltip-info {display:block;}
 
 ul.ddp-list-rule2 li .ddp-ui-edit-button {display:none; position:absolute; top:0; right:0; bottom:0; padding-right:15px;}
-ul.ddp-list-rule2 li .ddp-ui-edit-button .ddp-btn-icon {display:inline-block; float:left; width:22px; height:100%;}
+ul.ddp-list-rule2 li .ddp-ui-edit-button .ddp-btn-icon {display:inline-block; width:22px; height:100%;}
 ul.ddp-list-rule2 li .ddp-ui-edit-button .ddp-btn-link {display:none; height:100%;}
 ul.ddp-list-rule2 li .ddp-view-data .ddp-ui-edit-button {padding-left:10px;}
 ul.ddp-list-rule2 li .ddp-view-data:hover .ddp-ui-edit-button {display:block; padding-left:10px;  background-color:#f6f6f7;}
@@ -6273,12 +6273,12 @@ ul.ddp-ui-tab.ddp-type li .ddp-box-layout4.ddp-information a {padding:0px; borde
 ************************************************************************************************************/
 .ddp-wrap-workbench {overflow:hidden;}
 .ddp-wrap-workbench .ddp-layout-table {display:table; width:100%; height:100%;}
-.ddp-wrap-workbench .ddp-ui-benchlnb {display:table-cell; position:relative; width:500px;  height:100%; background-color:#35393f; vertical-align: top; z-index:20;}
-.ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold {width:280px;}
+.ddp-wrap-workbench .ddp-ui-benchlnb {display:table-cell; min-width:455px; position:relative;height:100%; background-color:#35393f; vertical-align: top; z-index:20;}
+.ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold {width:280px; min-width:260px;}
 .ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold .ddp-view-benchlnb {width:100%;}
 .ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold .ddp-ui-benchtable {display:none;}
 .ddp-wrap-workbench .ddp-ui-benchlnb .ddp-view-benchlnb {position:relative; float:left; height:100%; width:55%;}
-.ddp-ui-benchlnb.ddp-close {width:9px ;}
+.ddp-ui-benchlnb.ddp-close {width:9px; min-width:9px;}
 .ddp-ui-benchlnb.ddp-none {display:none;}
 .ddp-ui-benchlnb.ddp-close .ddp-view-benchlnb {width:9px;}
 .ddp-ui-benchlnb.ddp-close .ddp-box-benchlnb {display:none;}

@@ -707,9 +707,10 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       let extension = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName)[1];
       if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
         result =  'EXCEL'
-      } else if (extension.toUpperCase() === 'CSV') {
-        result =  'CSV'
-      }
+      } else {
+        result = extension.toUpperCase()
+       }
+
     }
 
     return result;
