@@ -169,11 +169,13 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         this.datasetJdbc.sqlInfo.valid = true;
       } else {
 
-        if (isNullOrUndefined(this.isQuerySuccess) || !this.isQuerySuccess)
-        this.showQueryStatus = true;
-        this.isQuerySuccess = false;
-        this.queryErrorMsg = this.translateService.instant('msg.common.ui.required');
-        return;
+        if (isNullOrUndefined(this.isQuerySuccess) || !this.isQuerySuccess) {
+          this.showQueryStatus = true;
+          this.isQuerySuccess = false;
+          this.queryErrorMsg = this.translateService.instant('msg.common.ui.required');
+          return;
+        }
+
       }
 
     }
@@ -207,7 +209,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   } // function - close
 
   /**
-   * 데이터베이스 변경에 대한 이벤트 핸들러
+   * Change selected database
    * @param event
    * @param database
    */
@@ -226,7 +228,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   } // function - onChangeDatabase
 
   /**
-   * 테이블 변경에 대한 이벤트 핸들러
+   * change selected table
    * @param event
    * @param data
    */
@@ -264,6 +266,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
       } else {
         this.gridComponent.destroy();
+        this._deleteGridInfo(this.datasetJdbc.rsType);
       }
 
     })

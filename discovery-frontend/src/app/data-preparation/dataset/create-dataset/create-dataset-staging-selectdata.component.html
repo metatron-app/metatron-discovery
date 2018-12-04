@@ -69,14 +69,14 @@
               <div class="ddp-ui-message" *ngIf="showQueryStatus">
                 <span class="ddp-data-error" *ngIf="isQuerySuccess === false">
                   <em class="ddp-icon-error"></em>
-                  {{ 'msg.dp.ui.invalid.conn' | translate }}
+                  {{ queryErrorMsg }}
                 </span>
                 <span class="ddp-data-ok" *ngIf="isQuerySuccess === true">
                   <em class="ddp-icon-ok"></em>{{'msg.dp.ui.valid.conn' | translate}}
                 </span>
               </div>
               <a href="javascript:" class="ddp-btn-type4"
-                 [ngClass]="{'ddp-disabled': datasetHive.sqlInfo.queryStmt == '' }"
+                 [ngClass]="{'ddp-disabled': datasetHive.sqlInfo.queryStmt == '' || datasetHive.sqlInfo.queryStmt === undefined}"
                  (click)="runStagingDBQuery()">{{'msg.dp.btn.run' | translate}}
               </a>
             </div>

@@ -134,6 +134,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   public ngOnInit() {
     super.ngOnInit();
 
+    // get database list
     this.getDatabases();
 
     // Only initialise sqlInfo when sqlInfo doesn't have value
@@ -167,7 +168,18 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     }
 
     if (this.datasetHive.rsType === RsType.SQL) {
-      this.datasetHive.sqlInfo.valid = true;
+
+      if (this.showQueryStatus && this.isQuerySuccess) {
+        this.datasetHive.sqlInfo.valid = true;
+      } else {
+        if (isNullOrUndefined(this.isQuerySuccess) || !this.isQuerySuccess) {
+          this.showQueryStatus = true;
+          this.isQuerySuccess = false;
+          this.queryErrorMsg = this.translateService.instant('msg.common.ui.required');
+          return;
+        }
+      }
+
     }
 
     this.typeEmitter.emit('STAGING');
@@ -199,18 +211,19 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   } // function - close
 
   /**
-   * 데이터베이스 변경에 대한 이벤트 핸들러
+   * Change selected database
    * @param event
    * @param database
    */
   public onChangeDatabase(event,database) {
     this.isDatabaseListShow = false;
     event.stopPropagation();
+
     this.datasetHive.tableInfo.databaseName = database.name;
     this.datasetHive.tableInfo.tableName = undefined;
 
-    this.clickable = false; // table 이 선택 되지 않아서 다음으로 넘어갈수 없음
-    this.clearGrid = true;
+    this._deleteGridInfo(this.datasetHive.rsType);
+
     this.getTables(database.name);
 
     $('[tabindex=1]').trigger('focus');
@@ -218,7 +231,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   } // function - onChangeDatabase
 
   /**
-   * 테이블 변경에 대한 이벤트 핸들러
+   * change selected table
    * @param event
    * @param data
    */
@@ -234,15 +247,24 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       .then((result) => {
         this.loadingHide();
 
-        const headers: header[] = this._getHeaders(result.fields);
-        const rows: any[] = this._getRows(result.data);
+        if (result.fields.length > 0 ) {
 
-        this.datasetHive.tableInfo.headers = headers;
-        this.datasetHive.tableInfo.rows = rows;
+          const headers: header[] = this._getHeaders(result.fields);
+          const rows: any[] = this._getRows(result.data);
 
-        this.clearGrid = false;
-        this._drawGrid(headers,rows);
-        this.clickable = true;
+          this.datasetHive.tableInfo.headers = headers;
+          this.datasetHive.tableInfo.rows = rows;
+
+          this.clearGrid = false;
+          this._drawGrid(headers,rows);
+          this.clickable = true;
+
+        } else {
+
+          this.gridComponent.destroy();
+          this._deleteGridInfo(this.datasetHive.rsType);
+        }
+
 
       })
       .catch((error) => {
@@ -254,7 +276,10 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     this.initSelectedCommand(this.filteredSchemaList);
   } // function - onChangeTable
 
-  /** 데이터베이스 셀렉트 박스 show/hide */
+
+  /**
+   * Open /close database select box*
+   */
   public showDatabaseList(event?) {
     event ? event.stopImmediatePropagation() : null;
     this.isDatabaseListShow = true;
@@ -264,7 +289,11 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
   } // function - showDatabaseList
 
-  /** 특정 데이터 베이스 내 테이블 셀렉트 박스 show/hide */
+
+  /**
+   * Open / close schemalist select box
+   * @param event
+   */
   public showSchemaList(event) {
     event.stopImmediatePropagation();
     this.isSchemaListShow = true;
@@ -295,17 +324,24 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     if (this.datasetHive.rsType !== RsType.TABLE) {
       this.isDatabaseListShow = false;
       this.isSchemaListShow = false;
+      this.clickable = true;
     }
 
     // If grid data exists, draw grid.
     let data = this.datasetHive[method.toLowerCase()+'Info'];
     if (data.headers && data.headers.length > 0) {
+      this.clearGrid = false;
       this._drawGrid(data.headers,data.rows)
+    } else {
+      this.clickable = false;
+      this.clearGrid = true;
     }
 
   } // function - selectTab
 
-  /** 쿼리로 테이블 불러오기 */
+  /**
+   * Run query and get grid info
+   */
   public runStagingDBQuery() {
 
     if (this.datasetHive.sqlInfo.queryStmt == '' ) {
@@ -320,10 +356,10 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       this.loadingHide();
       if (result.hasOwnProperty('errorMsg')) {
         this.showQueryStatus = true;
-        this.isQuerySuccess = false;
-        this.queryErrorMsg = result.errorMsg;
+        this.queryErrorMsg = this.translateService.instant('msg.dp.ui.invalid.conn');
         this.clickable = false;
-        this.gridComponent.destroy();
+        this.datasetHive.sqlInfo.valid = false;
+        this._deleteGridInfo(this.datasetHive.rsType);
         return;
       }
       this.showQueryStatus = true;
@@ -335,6 +371,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
       this.datasetHive.sqlInfo.headers = headers;
       this.datasetHive.sqlInfo.rows = rows;
+      this.datasetHive.sqlInfo.valid = true;
 
       this.clearGrid = false;
       this._drawGrid(headers,rows);
@@ -344,12 +381,12 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     }).catch((error) => {
 
       this.loadingHide();
+      this.showQueryStatus = true;
+      this.queryErrorMsg = this.translateService.instant('msg.dp.ui.invalid.conn');
+      this.clickable = false;
+      this.datasetHive.sqlInfo.valid = false;
       this.gridComponent.destroy();
       this.clearGrid = true;
-      this.showQueryStatus = true;
-      this.isQuerySuccess = false;
-      this.queryErrorMsg = error.details;
-      this.clickable = false;
 
     });
   }
@@ -361,11 +398,13 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     }
 
     if (this.datasetHive.sqlInfo.queryStmt !== param) {
-      // 변경된 텍스트 저장
+
       this.datasetHive.sqlInfo.queryStmt = param;
-      // 데이터 초기화
-      this.gridComponent.destroy();
-      this.showQueryStatus = false;
+      this.datasetHive.sqlInfo.valid = false;
+
+      this._deleteGridInfo(this.datasetHive.rsType);
+      this.clickable = true;
+      this.isQuerySuccess = false;
     }
 
   }
@@ -551,53 +590,61 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     this.datasetService.getStagingConnectionInfo().then((data) => {
 
       if (data.errorMsg) {
-          Alert.error(data.errorMsg);
+        Alert.error(data.errorMsg);
+        this.loadingHide();
+      } else {
+
+        this.datasetService.setConnInfo(data);
+
+        this.datasetService.getStagingSchemas().then((data) => {
+
           this.loadingHide();
-        } else {
 
-          this.datasetService.setConnInfo(data);
+          this.databaseList = [];
 
-          this.datasetService.getStagingSchemas().then((data) => {
-
-            this.loadingHide();
-
-              this.databaseList = [];
-
-              if (data) {
-                data.forEach((item, index) => {
-                  this.databaseList.push({idx : index, name : item, selected : false})
-                })
-              }
-
-              // If type is table and has grid info
-              if (this.datasetHive.rsType === RsType.TABLE && this.datasetHive.tableInfo.headers) {
-
-                this.clearGrid = false;
-                this.getTables(this.datasetHive.tableInfo.databaseName);
-                this._drawGrid(this.datasetHive.tableInfo.headers,this.datasetHive.tableInfo.rows);
-
-              // If type is Query and has query info
-              } else if (this.datasetHive.rsType === RsType.SQL && this.datasetHive.sqlInfo.queryStmt) {
-
-                if (this.datasetHive.tableInfo && this.datasetHive.tableInfo.tableName) {
-                  this.getTables(this.datasetHive.tableInfo.databaseName);
-                }
-
-                this.clearGrid = false;
-                this._drawGrid(this.datasetHive.sqlInfo.headers,this.datasetHive.sqlInfo.rows);
-
-              } else {  // Neither
-                this.showDatabaseList();
-              }
-
+          if (data) {
+            data.forEach((item, index) => {
+              this.databaseList.push({idx : index, name : item, selected : false})
             })
-            .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-            });
-        }
-      })
+          }
+
+          // TABLE && GRID INFO
+          if (this.datasetHive.rsType === RsType.TABLE && this.datasetHive.tableInfo.headers) {
+
+            this.clearGrid = false;
+            this.getTables(this.datasetHive.tableInfo.databaseName);
+            this._drawGrid(this.datasetHive.tableInfo.headers,this.datasetHive.tableInfo.rows);
+
+            // QUERY AND GRID INFO
+          } else if (this.datasetHive.rsType === RsType.SQL && this.datasetHive.sqlInfo.queryStmt) {
+
+            if (this.datasetHive.tableInfo && this.datasetHive.tableInfo.databaseName) {
+              this.getTables(this.datasetHive.tableInfo.databaseName);
+            }
+
+            // GRID INFO O
+            if (this.datasetHive.sqlInfo.headers.length > 0) {
+              this.clearGrid = false;
+              this._drawGrid(this.datasetHive.sqlInfo.headers,this.datasetHive.sqlInfo.rows);
+            } else {
+
+              // GRID INFO X
+              this.clickable = true;
+              this.clearGrid = true;
+            }
+
+          } else {  // Neither
+            this.showDatabaseList();
+          }
+
+        })
+          .catch((error) => {
+            this.loadingHide();
+            let prep_error = this.dataprepExceptionHandler(error);
+            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+          });
+      }
+    })
       .catch((error) => {
         this.loadingHide();
         let prep_error = this.dataprepExceptionHandler(error);
@@ -626,6 +673,10 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
           this.schemaList = [];
           this.datasetHive.tableInfo.tableName = undefined;
           this.isTableEmpty = true;
+
+          if (this.gridComponent) {
+            this.gridComponent.destroy();
+          }
         }
       })
       .catch((error) => {
@@ -720,20 +771,41 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     // When type info is null set it to TABLE
     if (isNullOrUndefined(this.datasetHive.rsType)) {
       this.datasetHive.rsType = RsType.TABLE;
+    }
+
+    // Check if validity is already checked
+    if (this.datasetHive.sqlInfo && this.datasetHive.sqlInfo.valid) {
+      this.isQuerySuccess = true;
+      this.showQueryStatus = true;
+      this.clickable = true;
+      this.clearGrid = false;
+    }
+
+  }
+
+  /**
+   * Initialise status
+   * @param {RsType} type
+   * @private
+   */
+  private _deleteGridInfo(type : RsType) {
+
+    if (type === RsType.SQL) {
+
+      this.datasetHive.sqlInfo.headers = [];
+      this.datasetHive.sqlInfo.rows = [];
+      this.showQueryStatus = false;
+
     } else {
 
-      // If type is sql, no need run query
-      if (this.datasetHive.rsType === RsType.SQL) {
-        this.clickable = true;
-        if (this.datasetHive.sqlInfo.valid) {
-          this.isQuerySuccess = true;
-          this.showQueryStatus = true;
-        }
-      }
-
-      this.clearGrid = false;
+      this.datasetHive.tableInfo.headers = [];
+      this.datasetHive.tableInfo.rows = [];
 
     }
+
+    this.gridComponent.destroy();
+    this.clearGrid = true;
+    this.clickable = false;
   }
 
 

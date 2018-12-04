@@ -15,7 +15,7 @@
 import { Component, ElementRef, Injector, OnInit, Input } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
-import { DatasetJdbc, DsType, RsType, ImportType } from '../../../domain/data-preparation/dataset';
+import { DatasetJdbc, DsType, ImportType } from '../../../domain/data-preparation/dataset';
 import { ConnectionType, Dataconnection } from '../../../domain/dataconnection/dataconnection';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
 import { ConnectionRequest } from '../../../domain/dataconnection/connectionrequest';
