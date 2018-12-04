@@ -931,29 +931,29 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         || _.eq(this.chartType, ChartType.COMBINE)
         || _.eq(this.chartType, ChartType.GRID)) {
 
-        return isText ? '1 or more dimension' : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.over.desc',{value:'1'}) : 'ddp-box-dimension';
       }
       // 1 measure
       else if (_.eq(this.chartType, ChartType.SCATTER)) {
 
-        return isText ? '1 measure' : 'ddp-box-measure';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc',{value:'1'}) : 'ddp-box-measure';
       }
       // 1 time dimension
       else if (_.eq(this.chartType, ChartType.CONTROL)
         || _.eq(this.chartType, ChartType.WATERFALL)) {
 
-        return isText ? '1 time dimension' : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.desc',{value:'1'}) : 'ddp-box-dimension';
       }
       // 1 dimension
       // TODO 태호: 차후 네트워크 차트 수치값 적용시 1-2 dimension
       else if (_.eq(this.chartType, ChartType.NETWORK)
         || _.eq(this.chartType, ChartType.TREEMAP)) {
 
-        return isText ? '1 dimension' : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.desc',{value:'1'}) : 'ddp-box-dimension';
       }
       // 3 or more dimension
       else if (_.eq(this.chartType, ChartType.SANKEY)) {
-        return isText ? '2 or more dimension' : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.over.desc',{value:'2'}) : 'ddp-box-dimension';
       }
     }
     // 열
@@ -964,19 +964,19 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         || _.eq(this.chartType, ChartType.TREEMAP)
         || _.eq(this.chartType, ChartType.GAUGE)) {
 
-        return isText ? '1 or more dimension' : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.over.desc',{value:'1'}) : 'ddp-box-dimension';
       }
       // 1 measure
       else if (_.eq(this.chartType, ChartType.SCATTER)) {
 
-        return isText ? '1 measure' : 'ddp-box-measure';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc',{value:'1'}) : 'ddp-box-measure';
       }
       // 1 dimension
       // TODO 태호: 차후 네트워크 차트 수치값 적용시 1-2 dimension
       else if (_.eq(this.chartType, ChartType.NETWORK)
         || _.eq(this.chartType, ChartType.BOXPLOT)) {
 
-        return isText ? '1 dimension' : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.desc',{value:'1'}) : 'ddp-box-dimension';
       }
     }
     // 교차
@@ -988,27 +988,35 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         || _.eq(this.chartType, ChartType.CONTROL)
         || _.eq(this.chartType, ChartType.GRID)) {
 
-        return isText ? '1 or more measure' : 'ddp-box-measure';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.over.desc',{value:'1'}) : 'ddp-box-measure';
       }
       // 1 measure & 1 or more dimension
       else if (_.eq(this.chartType, ChartType.WORDCLOUD)) {
 
-        return isText ? '1 measure & 1 or more dimension' : 'ddp-box-measure';
+        return isText
+          ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc',{value:'1'}) + this.translateService.instant('msg.page.pivot.layout.condition.dimension.and.over.desc',{value:'1'})
+          : 'ddp-box-measure';
       }
       // 1 or more measure & 1 or more dimension
       else if (_.eq(this.chartType, ChartType.PIE)) {
 
-        return isText ? '1 measure & 1 dimension' : 'ddp-box-measure';
+        return isText
+          ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc',{value:'1'}) + this.translateService.instant('msg.page.pivot.layout.condition.dimension.and.desc',{value:'1'})
+          : 'ddp-box-measure';
       }
       // 1 or more measure & 1 dimension
       else if (_.eq(this.chartType, ChartType.RADAR)) {
 
-        return isText ? '1 or more measure & 1 dimension' : 'ddp-box-measure';
+        return isText
+          ? this.translateService.instant('msg.page.pivot.layout.condition.measure.over.desc',{value:'1'}) + this.translateService.instant('msg.page.pivot.layout.condition.dimension.and.desc',{value:'1'})
+          : 'ddp-box-measure';
       }
       // 2~4 measure
       else if (_.eq(this.chartType, ChartType.COMBINE)) {
 
-        return isText ? '2~4 measure' : 'ddp-box-measure';
+        return isText
+          ? this.translateService.instant('msg.page.pivot.layout.condition.measure.range',{valueFirst:'2',valueSecond:'4'})
+          : 'ddp-box-measure';
       }
       // 1 measure
       else if (_.eq(this.chartType, ChartType.HEATMAP)
@@ -1019,12 +1027,12 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         || _.eq(this.chartType, ChartType.GAUGE)
         || _.eq(this.chartType, ChartType.TREEMAP)) {
 
-        return isText ? '1 measure' : 'ddp-box-measure';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc',{value:'1'}) : 'ddp-box-measure';
       }
       // 1 or more dimension
       else if (_.eq(this.chartType, ChartType.SCATTER)) {
 
-        return isText ? '1 or more dimension' : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.over.desc',{value:'1'}) : 'ddp-box-dimension';
       }
     }
 
