@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import app.metatron.discovery.domain.workbook.configurations.chart.properties.LineStyle;
 import app.metatron.discovery.domain.workbook.configurations.chart.properties.LineThickness;
 import app.metatron.discovery.util.EnumUtils;
 
@@ -361,18 +362,25 @@ public abstract class MapChartLayer {
      */
     Thickness thickness;
 
+    /**
+     * Style of line
+     */
+    LineStyle lineStyle;
+
     @JsonCreator
     public LineLayer(@JsonProperty("name") String name,
                      @JsonProperty("pathType") String pathType,
                      @JsonProperty("color") Color color,
                      @JsonProperty("source") String source,
                      @JsonProperty("target") String target,
-                     @JsonProperty("thickness") Thickness thickness) {
+                     @JsonProperty("thickness") Thickness thickness,
+                     @JsonProperty("lineStyle") String lineStyle) {
       super(name, color);
       this.pathType = EnumUtils.getUpperCaseEnum(LinePathType.class, pathType, LinePathType.STRAIGHT);
       this.source = source;
       this.target = target;
       this.thickness = thickness;
+      this.lineStyle = EnumUtils.getUpperCaseEnum(LineStyle.class, lineStyle, LineStyle.SOLID);
     }
 
     public LinePathType getPathType() {
@@ -389,6 +397,10 @@ public abstract class MapChartLayer {
 
     public Thickness getThickness() {
       return thickness;
+    }
+
+    public LineStyle getLineStyle() {
+      return lineStyle;
     }
 
     @Override
@@ -477,14 +489,21 @@ public abstract class MapChartLayer {
      */
     Integer coverage;
 
+    /**
+     * Radius of tile(0~100), default 80
+     */
+    Integer radius;
+
     @JsonCreator
     public TileLayer(@JsonProperty("name") String name,
                      @JsonProperty("color") Color color,
                      @JsonProperty("shape") String shape,
-                     @JsonProperty("coverage") Integer coverage) {
+                     @JsonProperty("coverage") Integer coverage,
+                     @JsonProperty("radius") Integer radius) {
       super(name, color);
       this.shape = EnumUtils.getUpperCaseEnum(TileShape.class, shape, TileShape.HEXAGON);
       this.coverage = coverage;
+      this.radius = radius;
     }
 
     public TileShape getShape() {
@@ -493,6 +512,10 @@ public abstract class MapChartLayer {
 
     public Integer getCoverage() {
       return coverage;
+    }
+
+    public Integer getRadius() {
+      return radius;
     }
 
     @Override

@@ -49,7 +49,7 @@ public class MapChartTest extends ChartTest {
                                            new MapChartLayer.Color("none", null, null, "color_code1", "color_code2", 0),
                                            "source_column",
                                            "target_column",
-                                           new MapChartLayer.Thickness("measure", "column3", 10))
+                                           new MapChartLayer.Thickness("measure", "column3", 10), "dotted")
     );
 
     layers.add(new MapChartLayer.PolygonLayer("polygon_layer",
@@ -65,7 +65,7 @@ public class MapChartTest extends ChartTest {
     layers.add(new MapChartLayer.TileLayer("tile_layer",
                                            new MapChartLayer.Color("measure", "column1", "color_schema1", null, null, 20),
                                            "hexagon",
-                                           80)
+                                           80, 60)
     );
 
     ChartLegend mapChartLegend = new ChartLegend(null, null, "RIGHT_BOTTOM");
@@ -77,7 +77,7 @@ public class MapChartTest extends ChartTest {
 
     MapChart chart = new MapChart(valueNumberFormat(), mapChartLegend, chartToolTip,
                                   500,
-                                  true, "OSM", "Ok! license",
+                                  true, "OSM_DARK", null, "Ok! license",
                                   true, "state", layers);
 
     System.out.println(chart.toString());

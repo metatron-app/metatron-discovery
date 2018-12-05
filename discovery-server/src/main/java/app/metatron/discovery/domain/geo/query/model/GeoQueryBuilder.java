@@ -31,6 +31,7 @@ package app.metatron.discovery.domain.geo.query.model;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -77,10 +78,12 @@ import app.metatron.discovery.query.druid.AbstractQueryBuilder;
 import app.metatron.discovery.query.druid.Dimension;
 import app.metatron.discovery.query.druid.Query;
 import app.metatron.discovery.query.druid.dimensions.DefaultDimension;
+import app.metatron.discovery.query.druid.dimensions.LookupDimension;
 import app.metatron.discovery.query.druid.filters.AndFilter;
 import app.metatron.discovery.query.druid.filters.ExprFilter;
 import app.metatron.discovery.query.druid.filters.InFilter;
 import app.metatron.discovery.query.druid.funtions.TimeFormatFunc;
+import app.metatron.discovery.query.druid.lookup.MapLookupExtractor;
 import app.metatron.discovery.query.druid.postaggregations.ExprPostAggregator;
 import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
 
@@ -194,6 +197,17 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
       FieldFormat fieldFormat = field.getFormat();
 
       if (datasourceField.getRole() == FieldRole.DIMENSION) {
+
+        if (MapUtils.isNotEmpty(field.getValuePair())) {
+          String dummyDimName = "__s" + dimensionCnt++;
+
+          dimensions.add(new LookupDimension(fieldName,
+                                             dummyDimName,
+                                             new MapLookupExtractor(field.getValuePair())));
+          projectionMapper.put(dummyDimName, alias);
+          continue;
+        }
+
         if (datasourceField.getLogicalType() == LogicalType.GEO_POINT) {
 
           if (fieldFormat instanceof GeoHashFormat) {

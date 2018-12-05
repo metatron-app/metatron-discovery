@@ -128,7 +128,7 @@ public class WidgetConfigurationTest {
                                            new MapChartLayer.Color("none", null, null, "color_code1", "color_code2", 0),
                                            "source_column",
                                            "target_column",
-                                           new MapChartLayer.Thickness("measure", "column3", 10))
+                                           new MapChartLayer.Thickness("measure", "column3", 10), "solid")
     );
 
     FieldFormat valueFormat = new NumberFieldFormat(2, true,
@@ -142,7 +142,7 @@ public class WidgetConfigurationTest {
 
     MapChart chart = new MapChart(valueFormat, mapChartLegend, chartToolTip,
                                   500,
-                                  true, "OSM", "Ok! license",
+                                  true, "OSM_LIGHT", null, "Ok! license",
                                   true, "state", layers);
 
 

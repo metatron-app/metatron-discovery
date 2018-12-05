@@ -1995,17 +1995,12 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     );
 
     //    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()), new DimensionField("gu"), new MeasureField("py", null, MeasureField.AggregationType.NONE));
-    List<Field> layer1 = Lists.newArrayList(new DimensionField("location", null, new GeoFormat()), new TimestampField("OrderDate", null), new DimensionField("ShipDate", null));
-    ExpressionField expressionField1 = new ExpressionField("gu_new", "\"gu\" + '_new'");
-
-    //    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()), new DimensionField("gu"), new MeasureField("py", null, MeasureField.AggregationType.NONE));
-    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()), new DimensionField("gu_new", "user_defined"), new MeasureField("amt", null, MeasureField.AggregationType.NONE));
+    List<Field> layer1 = Lists.newArrayList(new DimensionField("location", null, new GeoFormat()), new TimestampField("OrderDate", null), new MeasureField("Sales", null, MeasureField.AggregationType.NONE));
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
     ChartResultFormat format = new ChartResultFormat("map");
     request.setResultFormat(format);
-    request.setUserFields(Lists.newArrayList(expressionField1));
 
     // @formatter:off
     given()
