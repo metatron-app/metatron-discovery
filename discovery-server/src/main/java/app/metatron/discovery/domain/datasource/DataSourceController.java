@@ -961,7 +961,7 @@ public class DataSourceController {
     // 기본 정렬 조건 셋팅
     if (pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {
       pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(),
-              new Sort(Sort.Direction.ASC, "createdTime", "name"));
+              new Sort(Sort.Direction.DESC, "createdTime", "name"));
     }
 
     Page<DataSource> dataSources = dataSourceService.findDataSourceListByFilter(
