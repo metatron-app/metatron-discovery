@@ -717,7 +717,6 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    * @param formatType
    */
   public onChangeFormat(formatType: string): void {
-
     if (formatType != '') {
       // Dispatch Event
       const field: AbstractField = _.cloneDeep(this.editingField);
@@ -725,10 +724,11 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         field.format = {};
       }
       field.format.type = formatType;
-
       this.changeFormatEvent.emit(field);
     }
     else {
+      this.fix2DepthContext = false;
+      this.editingField = null;
       this.changeFormatEvent.emit(null);
     }
   }
