@@ -363,7 +363,7 @@
                 <!-- info 버튼 클릭시 ddp-selected 추가 -->
                 <div class="ddp-wrap-info" [ngClass]="{'ddp-selected':isDataConnectionInfoShow}">
                   <a href="javascript:" class="ddp-btn-info2"
-                     (mouseover)="dataConnectionInfoShow()" (mouseout)="isDataConnectionInfoShow = false"></a>
+                     (mouseover)="dataConnectionInfoShow($event)" (mouseout)="isDataConnectionInfoShow = false"></a>
                   <!-- box layout -->
                   <detail-workbench-dataconnection-info *ngIf="isDataConnectionInfoShow"
                                                         [dataconnection]="workbench.dataConnection"

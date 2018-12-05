@@ -274,7 +274,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
     if (this.pageMode === 'PAGE') {
       return this.page.page + 1 >= this.pageResult.totalPages;
     } else {
-      return this.localPagepage * this.localPageSize + this.localPageSize > this.pageResult.totalElements;
+      return this.localPagepage * this.localPageSize + this.localPageSize >= this.pageResult.totalElements;
     }
   }
 
@@ -417,6 +417,36 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
     this.searchText = '';
     // 테이블 조회
     this.searchTable();
+  }
+
+  /**
+   * 현재 페이지
+   * @returns {number}
+   */
+  public get getCurrentPage() {
+
+    let currentPage : number;
+    if (this.pageMode === 'PAGE') {
+      currentPage = this.page.page+1;
+    } else {
+      currentPage = this.localPagepage+1;
+    }
+    return currentPage;
+  }
+
+  /**
+   * 총 페이지 수
+   * @returns {number}
+   */
+  public get getTotalPage() {
+
+    let totalPage : number;
+    if (this.pageMode === 'PAGE') {
+      totalPage = this.pageResult.totalPages;
+    } else {
+      totalPage = Math.ceil(this.pageResult.totalElements/ this.localPageSize);
+    }
+    return totalPage;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
