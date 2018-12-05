@@ -101,7 +101,12 @@ public class DataConnectionPredicate {
     if(authenticationTypes != null && !authenticationTypes.isEmpty()){
       BooleanBuilder subBuilder = new BooleanBuilder();
       for(DataConnection.AuthenticationType authenticationType : authenticationTypes){
-        subBuilder = subBuilder.or(dataConnection.authenticationType.eq(authenticationType));
+        if(authenticationType == DataConnection.AuthenticationType.MANUAL){
+          subBuilder = subBuilder.or(dataConnection.authenticationType.eq(authenticationType))
+                  .or(dataConnection.authenticationType.isNull());
+        } else {
+          subBuilder = subBuilder.or(dataConnection.authenticationType.eq(authenticationType));
+        }
       }
       builder = builder.and(subBuilder);
     }
