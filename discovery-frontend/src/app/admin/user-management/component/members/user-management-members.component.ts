@@ -488,10 +488,10 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     // date
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       params['searchDateBy'] = "CREATED";
-      if (this.selectedDate.startDateStr) { // TODO: 9시간을 빼서 처리..
-        params['from'] = moment(this.selectedDate.startDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+      if (this.selectedDate.startDateStr) {
+        params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      params['to'] = moment(this.selectedDate.endDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+      params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
     }
 
     return params;

@@ -204,9 +204,9 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
       }
 
       modal.data = 'DELETE';
-      modal.name = '정말 삭제하시겠습니까?';
-      modal.description = `삭제를 선택하면 다음 ${roleSet.linkedWorkspaces ? roleSet.linkedWorkspaces : 0}개의 워크스페이스에 Default schema가 적용됩니다`;
-      modal.btnName = '스키마 삭제';
+      modal.name = this.translateService.instant('msg.permission.ui.delete-schema.ph');
+      modal.description = this.translateService.instant('msg.permission.ui.delete-schema.ph.sub', { value : `${roleSet.linkedWorkspaces ? roleSet.linkedWorkspaces : 0}`});
+      modal.btnName = this.translateService.instant('msg.permission.ui.delete-schema');
       // schema id
       modal['schemaId'] = roleSet.id;
       // 팝업 창 오픈
@@ -225,8 +225,8 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
     event.stopImmediatePropagation();
     const modal = new Modal();
     modal.data = 'CLONE';
-    modal.name = `\'${roleSet.name}\' 스키마를 복제하시겠습니까?`;
-    modal.btnName = '스키마 복제';
+    modal.name = this.translateService.instant('msg.permission.ui.copy-schema.ph', { value : `\'${roleSet.name}\'`});
+    modal.btnName = this.translateService.instant('msg.permission.ui.copy-schema');
     // schema id
     modal['schemaId'] = roleSet.id;
 
@@ -416,9 +416,9 @@ export class PermissionSchemasComponent extends AbstractComponent implements OnI
     if (this._filterDate && this._filterDate.type !== 'ALL') {
       params['searchDateBy'] = 'CREATED';
       if (this._filterDate.startDateStr) {
-        params['from'] = moment(this._filterDate.startDateStr).subtract(9, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z';
+        params['from'] = moment(this._filterDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      params['to'] = moment(this._filterDate.endDateStr).subtract(9, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z';
+      params['to'] = moment(this._filterDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
     }
 
     return params;

@@ -25,7 +25,10 @@
 
       <!-- contents -->
       <div class="ddp-ui-user-content">
-        <div class="ddp-box-owner">
+        <div *ngIf="isNoMember" class="ddp-box-owner">
+          <div class="ddp-nodata"> {{'msg.space.ui.change-owner.no-member' | translate }} </div>
+        </div>
+        <div *ngIf="!isNoMember" class="ddp-box-owner">
           <!-- search -->
           <div class="ddp-form-search">
             <em class="ddp-icon-search"></em>
@@ -64,7 +67,9 @@
       <!-- buttons -->
       <div class="ddp-ui-buttons2">
         <a (click)="close()" href="javascript:" class="ddp-btn-type-popup ">{{'msg.comm.btn.cancl' | translate }}</a>
-        <a (click)="done()" href="javascript:" class="ddp-btn-type-popup ddp-bg-black ">{{ 'msg.comm.btn.done' | translate }}</a>
+        <a (click)="done()" href="javascript:"
+           [class.ddp-disabled]="isNoMember || !selectedUser"
+           class="ddp-btn-type-popup ddp-bg-black ">{{ 'msg.comm.btn.done' | translate }}</a>
       </div>
       <!-- //buttons -->
 

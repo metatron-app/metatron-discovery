@@ -16,7 +16,7 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output
 } from '@angular/core';
 import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Datasource } from '../../../domain/datasource/datasource';
+import { Datasource, FieldFormatType, FieldRole } from '../../../domain/datasource/datasource';
 import { DatasourceService } from '../../service/datasource.service';
 import { MomentDatePipe } from '../../../common/pipe/moment.date.pipe';
 import { MetadataService } from '../../../meta-data-management/metadata/service/metadata.service';
@@ -105,6 +105,14 @@ export class DatasourceSummaryComponent extends AbstractComponent implements OnI
       this.datasourceService.getDatasourceSummary(this.datasourceId)
         .then((datasource) => {
           this.datasource = datasource;
+          // field loop
+          this.datasource.fields.forEach((field, index, object) => {
+            //  if current time in fields, hide
+            if (field.role === FieldRole.TIMESTAMP && field.format &&  field.format.type === FieldFormatType.TEMPORARY_TIME) {
+              object.splice(index, 1);
+            }
+          });
+
           this.metadataService.getMetadataForDataSource(datasource.id)
             .then(result => {
               if (result && 0 < result.length) {

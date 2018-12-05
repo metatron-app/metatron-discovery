@@ -39,7 +39,7 @@
             <span class="ddp-data-name">{{currentRoot.name}}</span>
             <!-- 편집 -->
             <div class="ddp-data-input" *ngIf="isCreateCatalog">
-              <input type="text" placeholder="{{'msg.metadata.catalog.ui.new.ph' | translate }}" #newCatalogName (keypress)="createCatalogByKeypress($event)">
+              <input type="text" placeholder="{{'msg.metadata.catalog.ui.name.ph' | translate }}" #newCatalogName (keypress)="createCatalogByKeypress($event)">
               <em class="ddp-icon-control-check" (click)="createCatalogDone()"></em>
             </div>
             <!-- //편집 -->

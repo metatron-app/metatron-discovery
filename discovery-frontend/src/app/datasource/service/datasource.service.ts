@@ -42,6 +42,7 @@ import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-requ
 import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
 import {Limit} from "../../domain/workbook/configurations/limit";
+import {CommonConstant} from "../../common/constant/common.constant";
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -160,8 +161,8 @@ export class DatasourceService extends AbstractService {
 
     if (FilterUtil.isTimeFilter(filter)) {
       const timeFilter: TimeFilter = <TimeFilter>filter;
-      if ('current_datetime' === timeFilter.field) {
-        param.targetField = { granularity: 'ALL', name: 'current_datetime', type: 'timestamp' };
+      if (CommonConstant.COL_NAME_CURRENT_DATETIME === timeFilter.field) {
+        param.targetField = { granularity: 'ALL', name: CommonConstant.COL_NAME_CURRENT_DATETIME, type: 'timestamp' };
       } else {
         param.targetField = {
           type: 'timestamp',

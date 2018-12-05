@@ -24,8 +24,6 @@ import { CommonConstant } from '../../../../common/constant/common.constant';
 import * as _ from 'lodash';
 import { StringUtil } from '../../../../common/util/string.util';
 import { Alert } from '../../../../common/util/alert.util';
-import { ConfirmSmallComponent } from '../../../../common/component/modal/confirm-small/confirm-small.component';
-import { Modal } from '../../../../common/domain/modal';
 
 /**
  * Global variable in detail workbench
@@ -35,9 +33,6 @@ import { Modal } from '../../../../common/domain/modal';
   templateUrl: './detail-workbench-variable.html',
 })
 export class DetailWorkbenchVariable extends AbstractComponent implements OnInit, OnDestroy {
-
-  @ViewChild(ConfirmSmallComponent)
-  private _confirmSmallComp: ConfirmSmallComponent;
 
   @Input()
   public workbench: Workbench;
@@ -73,6 +68,11 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
 
   // max global variable count
   private _globalVariableMax: number = 30;
+
+  // popup
+  public isConfirmPopup : boolean = false;
+
+  public globalVariable : any;
 
   // constructor
   constructor(protected workbenchService: WorkbenchService,
@@ -224,12 +224,8 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
    * @param globalVariable
    */
   public onClickRemoveSelectedVariable(globalVariable: any): void {
-    const modal = new Modal();
-    modal.btnName = this.translateService.instant('msg.comm.ui.del');
-    modal.description = this.translateService.instant('msg.bench.alert.global.variable.delete');
-    modal.data = globalVariable;
-    // show confirm component
-    this._confirmSmallComp.init(modal);
+    this.globalVariable = globalVariable;
+    this.isConfirmPopup = true;
   }
 
   /**
@@ -256,10 +252,11 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
    * Remove selected global variable
    * @param globalVariable
    */
-  public removeSelectedVariable(globalVariable: any): void {
+  public removeSelectedVariable(): void {
     // update global variable
-    this._updateGlobalVariable(_.filter(this.variableList, item => item !== globalVariable))
+    this._updateGlobalVariable(_.filter(this.variableList, item => item !== this.globalVariable))
       .then(() => {}).catch(() => {});
+    this.isConfirmPopup = false;
   }
 
   /**

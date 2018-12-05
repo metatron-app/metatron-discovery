@@ -153,6 +153,10 @@ polaris:
         target: overlord
         method: POST
         uri: /druid/indexer/v1/supervisor/{taskId}/shutdown
+      supervisorReset:
+        target: overlord
+        method: POST
+        uri: /druid/indexer/v1/supervisor/{taskId}/reset
       workerStatus:
         target: overlord
         method: GET
@@ -212,6 +216,12 @@ polaris:
       - 'dd/MM/yyyy'
   chart:
     profile: default
+  datasource:
+    ingestion:
+      retries:
+        delay: 3
+        maxDelay: 90
+        maxDuration : 3600
   engine:
     hostname:
       broker: http://localhost:8082

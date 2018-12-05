@@ -12,9 +12,8 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
-import { SelectCatalogComponent } from './component/select-catalog.component';
 import { MetadataService } from './service/metadata.service';
 import { Alert } from '../../common/util/alert.util';
 import { MetadataModelService } from './service/metadata.model.service';
@@ -28,9 +27,6 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  @ViewChild(SelectCatalogComponent)
-  private _selectCatalogComponent: SelectCatalogComponent;
 
   @ViewChild('metadataDesc')
   private metadataDesc: ElementRef;
@@ -51,6 +47,9 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
 
   public tagValue : string = '';
   public tagsList : any = [];
+
+  @Output()
+  public openAddCataglog = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -103,7 +102,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
    * Catalog popup open
    */
   public addCatalog() {
-    this._selectCatalogComponent.init();
+    this.openAddCataglog.emit();
   } // function - addCatalog
 
 

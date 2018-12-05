@@ -12,38 +12,38 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../common/component/abstract.component';
-import { CreateWorkbookComponent } from '../workbook/component/create-workbook/create-workbook.component';
-import { CountByBookType, PermissionChecker, PublicType, Workspace } from '../domain/workspace/workspace';
-import { WorkspaceService } from './service/workspace.service';
-import { ActivatedRoute } from '@angular/router';
-import { Book } from '../domain/workspace/book';
-import { UserProfile } from '../domain/user/user-profile';
-import { DatasourceComponent } from './component/etc/data-source.component';
-import { SharedMemberComponent } from './component/permission/shared-member.component';
-import { UpdateWorkspaceComponent } from './component/management/update-workspace.component';
-import { DeleteWorkspaceComponent } from './component/management/delete-workspace.component';
-import { WorkspaceListComponent } from './component/management/workspace-list.component';
-import { Modal } from '../common/domain/modal';
-import { WorkbookService } from '../workbook/service/workbook.service';
-import { Alert } from '../common/util/alert.util';
-import { Folder, Hirearchies } from '../domain/workspace/folder';
-import { CommonUtil } from '../common/util/common.util';
-import { Workbook } from '../domain/workbook/workbook';
-import { CommonConstant } from '../common/constant/common.constant';
-import { CreateNotebookComponent } from '../notebook/component/create-notebook/create-notebook.component';
-import { SharedMemberManageComponent } from './component/permission/shared-member-manage.component';
-import { SubscribeArg } from '../common/domain/subscribe-arg';
-import { PopupService } from '../common/service/popup.service';
-import { SetNotebookServerComponent } from './component/etc/set-notebook-server.component';
-import { isNullOrUndefined } from 'util';
-import { CookieConstant } from '../common/constant/cookie.constant';
-import { DashboardService } from '../dashboard/service/dashboard.service';
-import { EventBroadcaster } from '../common/event/event.broadcaster';
-import { PageResult } from '../domain/common/page';
-import { ChangeOwnerWorkspaceComponent } from './component/management/change-owner-workspace.component';
-import { WorkspacePermissionSchemaSetComponent } from './component/permission/workspace-permission-schema-set.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '../common/component/abstract.component';
+import {CreateWorkbookComponent} from '../workbook/component/create-workbook/create-workbook.component';
+import {CountByBookType, PermissionChecker, PublicType, Workspace} from '../domain/workspace/workspace';
+import {WorkspaceService} from './service/workspace.service';
+import {ActivatedRoute} from '@angular/router';
+import {Book} from '../domain/workspace/book';
+import {UserProfile} from '../domain/user/user-profile';
+import {DatasourceComponent} from './component/etc/data-source.component';
+import {SharedMemberComponent} from './component/permission/shared-member.component';
+import {UpdateWorkspaceComponent} from './component/management/update-workspace.component';
+import {DeleteWorkspaceComponent} from './component/management/delete-workspace.component';
+import {WorkspaceListComponent} from './component/management/workspace-list.component';
+import {Modal} from '../common/domain/modal';
+import {WorkbookService} from '../workbook/service/workbook.service';
+import {Alert} from '../common/util/alert.util';
+import {Folder, Hirearchies} from '../domain/workspace/folder';
+import {CommonUtil} from '../common/util/common.util';
+import {Workbook} from '../domain/workbook/workbook';
+import {CommonConstant} from '../common/constant/common.constant';
+import {CreateNotebookComponent} from '../notebook/component/create-notebook/create-notebook.component';
+import {SharedMemberManageComponent} from './component/permission/shared-member-manage.component';
+import {SubscribeArg} from '../common/domain/subscribe-arg';
+import {PopupService} from '../common/service/popup.service';
+import {SetNotebookServerComponent} from './component/etc/set-notebook-server.component';
+import {isNullOrUndefined} from 'util';
+import {CookieConstant} from '../common/constant/cookie.constant';
+import {DashboardService} from '../dashboard/service/dashboard.service';
+import {EventBroadcaster} from '../common/event/event.broadcaster';
+import {PageResult} from '../domain/common/page';
+import {ChangeOwnerWorkspaceComponent} from './component/management/change-owner-workspace.component';
+import {WorkspacePermissionSchemaSetComponent} from './component/permission/workspace-permission-schema-set.component';
 
 @Component({
   selector: 'app-workspace',
@@ -209,6 +209,9 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   // 권한 확인기
   public permissionChecker: PermissionChecker;
 
+  // 노트북 서버 설정 여부
+  public isSetNotebookServer: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -239,7 +242,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
 
     // Router에서 파라미터 전달 받기
     this.activatedRoute.params.subscribe((params) => {
-      this._initViewPage( params['id'], params['folderId'] );
+      this._initViewPage(params['id'], params['folderId']);
     });
 
     // 워크벤치 생성 step 구독
@@ -256,8 +259,8 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
 
     // 글로벌 이벤트 리스너 - 워크스페이스 폴더 이동
     this.subscriptions.push(
-      this.broadCaster.on<string>('moveFromLnb').subscribe( workspaceId => {
-        this._initViewPage( 'my' === workspaceId ? null : workspaceId );
+      this.broadCaster.on<string>('moveFromLnb').subscribe(workspaceId => {
+        this._initViewPage('my' === workspaceId ? null : workspaceId);
       })
     );
     // 글로벌 이벤트 리스너 - 퍼미션 스키마 변경
@@ -507,6 +510,11 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    */
   public createFolder() {
 
+    if( this.folder && this.folder.hierarchies && 9 <= this.folder.hierarchies.length ) {
+      Alert.warning( this.translateService.instant('msg.space.warning.can-not-create-11depth-folder') );
+      return;
+    }
+
     const param = new Workbook();
     // type 설정
     param.type = 'folder';
@@ -542,7 +550,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           this.isShareType = ('SHARED' === workspace.publicType);
 
           // 워크스페이스 데이터
-          this._setWorkspaceData(workspace);
+          this._setWorkspaceData(false, workspace);
           // 저장된 폴더 구조 추적
           this._traceFolderHierarchies();
 
@@ -594,7 +602,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
       // 로딩 hide
       (this.initFolderHierarchies) || (this.loadingHide());
     });
-  } // function - createFoldeer
+  } // function - createFolder
 
 
   // 워크스페이스 아이디로 워크스페이스 조회
@@ -779,7 +787,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     // 업데이트 상태면 재조회
     if (completeFl) {
       // reload workspace data
-      if( this.isRoot ) {
+      if (this.isRoot) {
         if (this.workspaceId == null) {
           return this.getMyWorkspace();
         } else {
@@ -789,13 +797,13 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
         if (this.workspaceId == null) {
           return this.workspaceService.getMyWorkspace('forDetailView').then((workspace) => {
             this.workspace = workspace;
-            this._setWorkspaceData(workspace);
+            this._setWorkspaceData(true, workspace);
             return this.getWorkspaceFolder();
           });
         } else {
           return this.workspaceService.getWorkSpace(this.workspaceId, 'forDetailView').then((workspace) => {
             this.workspace = workspace;
-            this._setWorkspaceData(workspace);
+            this._setWorkspaceData(true, workspace);
             return this.getWorkspaceFolder();
           });
         }
@@ -858,42 +866,50 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   public createNotebook() {
     if (this.permissionChecker
       && (this.permissionChecker.isManageNotebook()
-        || this.permissionChecker.isEditNotebook(this.loginUserId))) {
-      this.loadingShow();
-      this.workspaceService.getNotebookServers(this.workspaceId).then((result) => {
-        // 데이터가 없다면
-        if (!result['_embedded'] || result['_embedded'].connectors.length === 0) {
-          const modal = new Modal();
-          if (this.permissionChecker && this.permissionChecker.isManageWorkspace()) {
-            // 관리자
-            modal.name = this.translateService.instant('msg.space.ui.set.notebook.title');
-            modal.description = this.translateService.instant('msg.space.ui.create.notebook.warning');
-            modal.btnName = this.translateService.instant('msg.space.btn.set.notebook');
-            modal.data = { eventType: 'CREATE_NOTEBOOK_SET_SERVER' };
-            modal.afterConfirm = () => {
-              // 노트북 서버 설정 팝업 오픈
-              this.setNotebookServer();
-            };
-          } else {
-            // 열람자
-            modal.name = this.translateService.instant('msg.space.ui.no.notebook.server');
-            modal.description = this.translateService.instant('msg.space.ui.create.notebook.warning');
-            modal.subDescription = this.translateService.instant('msg.space.ui.ask.space.admin');
-            modal.isShowCancel = false;
-            modal.data = { eventType: 'CREATE_NOTEBOOK' };
-          }
+        || this.permissionChecker.isEditNotebook(this.loginUserId))
+      && this.isSetNotebookServer) {
+      if (this.isRoot) {
+        this.createNotebookComponent.init(this.workspaceId);
+      } else {
+        this.createNotebookComponent.init(this.workspaceId, this.folder.id);
+      }
+      /*
+            this.loadingShow();
+            this.workspaceService.getNotebookServers(this.workspaceId).then((result) => {
+              // 데이터가 없다면
+              if (!result['_embedded'] || result['_embedded'].connectors.length === 0) {
+                const modal = new Modal();
+                if (this.permissionChecker && this.permissionChecker.isManageWorkspace()) {
+                  // 관리자
+                  modal.name = this.translateService.instant('msg.space.ui.set.notebook.title');
+                  modal.description = this.translateService.instant('msg.space.ui.create.notebook.warning');
+                  modal.btnName = this.translateService.instant('msg.space.btn.set.notebook');
+                  modal.data = {eventType: 'CREATE_NOTEBOOK_SET_SERVER'};
+                  modal.afterConfirm = () => {
+                    // 노트북 서버 설정 팝업 오픈
+                    this.setNotebookServer();
+                  };
+                } else {
+                  // 열람자
+                  modal.name = this.translateService.instant('msg.space.ui.no.notebook.server');
+                  modal.description = this.translateService.instant('msg.space.ui.create.notebook.warning');
+                  modal.subDescription = this.translateService.instant('msg.space.ui.ask.space.admin');
+                  modal.isShowCancel = false;
+                  modal.data = {eventType: 'CREATE_NOTEBOOK'};
+                }
 
-          CommonUtil.confirm(modal);
+                CommonUtil.confirm(modal);
 
-        } else {
-          if (this.isRoot) {
-            this.createNotebookComponent.init(this.workspaceId);
-          } else {
-            this.createNotebookComponent.init(this.workspaceId, this.folder.id);
-          }
-        }
-        this.loadingHide();
-      }).catch(err => this.commonExceptionHandler(err));
+              } else {
+                if (this.isRoot) {
+                  this.createNotebookComponent.init(this.workspaceId);
+                } else {
+                  this.createNotebookComponent.init(this.workspaceId, this.folder.id);
+                }
+              }
+              this.loadingHide();
+            }).catch(err => this.commonExceptionHandler(err));
+      */
     }
   } // function - createNotebook
 
@@ -1245,7 +1261,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   /**
    * 개인 워크스페이스 조회
    */
-  private getMyWorkspace():Promise<any> {
+  private getMyWorkspace(): Promise<any> {
     // 로딩 show
     this.loadingShow();
     // 개인 워크스페이스 조회
@@ -1255,7 +1271,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
         this.router.navigate(['/workspace', workspace.id]).then();
       } else {
         // 워크스페이스 데이터 설정
-        this._setWorkspaceData(workspace);
+        this._setWorkspaceData(true, workspace);
         // 저장된 폴더 구조 추적
         this._traceFolderHierarchies();
         // 로딩 hide
@@ -1293,7 +1309,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           this.isShareType = (workspace.publicType === 'SHARED');
 
           // 워크스페이스 데이터 설정
-          this._setWorkspaceData(workspace);
+          this._setWorkspaceData(true, workspace);
           // 저장된 폴더 구조 추적
           this._traceFolderHierarchies();
 
@@ -1454,10 +1470,11 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
 
   /**
    * 워크스페이스 데이터 매핑
+   * @param {boolean} loadNbServer
    * @param {Workspace} workspace
    * @private
    */
-  private _setWorkspaceData(workspace?: Workspace) {
+  private _setWorkspaceData(loadNbServer: boolean, workspace?: Workspace,) {
     if (workspace) {
       if (workspace.active) {
         // 워크스페이스 데이터
@@ -1478,6 +1495,13 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
         this.countOfDataSources = workspace.countOfDataSources;
         // 퍼미션
         (this.isRoot) && (this.permissionChecker = new PermissionChecker(workspace));
+
+        if (loadNbServer) {
+          this.workspaceService.getNotebookServers(this.workspaceId).then((result) => {
+            this.isSetNotebookServer = (result['_embedded'] && 0 < result['_embedded'].connectors.length);
+          });
+        }
+
       } else {
         // 워크스페이스 이름
         this.workspaceName = workspace.name;
@@ -1544,18 +1568,18 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
       this.isRoot = true;
 
       this.contentFilter = [
-        { key: 'all', value: this.translateService.instant('msg.comm.ui.list.all') },
-        { key: 'workbook', value: this.translateService.instant('msg.comm.ui.list.workbook') },
-        { key: 'notebook', value: this.translateService.instant('msg.comm.ui.list.notebook') },
-        { key: 'workbench', value: this.translateService.instant('msg.comm.ui.list.workbench') },
+        {key: 'all', value: this.translateService.instant('msg.comm.ui.list.all')},
+        {key: 'workbook', value: this.translateService.instant('msg.comm.ui.list.workbook')},
+        {key: 'notebook', value: this.translateService.instant('msg.comm.ui.list.notebook')},
+        {key: 'workbench', value: this.translateService.instant('msg.comm.ui.list.workbench')},
       ];
       this.selectedContentFilter = this.contentFilter[0];
 
       this.contentSort = [
-        { key: 'name', value: this.translateService.instant('msg.comm.ui.list.name.asc'), type: 'asc' },
-        { key: 'name', value: this.translateService.instant('msg.comm.ui.list.name.desc'), type: 'desc' },
-        { key: 'modifiedTime', value: this.translateService.instant('msg.comm.ui.list.update.asc'), type: 'asc' },
-        { key: 'modifiedTime', value: this.translateService.instant('msg.comm.ui.list.update.desc'), type: 'desc' },
+        {key: 'name', value: this.translateService.instant('msg.comm.ui.list.name.asc'), type: 'asc'},
+        {key: 'name', value: this.translateService.instant('msg.comm.ui.list.name.desc'), type: 'desc'},
+        {key: 'modifiedTime', value: this.translateService.instant('msg.comm.ui.list.update.asc'), type: 'asc'},
+        {key: 'modifiedTime', value: this.translateService.instant('msg.comm.ui.list.update.desc'), type: 'desc'},
       ];
       this.selectedContentSort = this.contentSort[3];
 
@@ -1564,10 +1588,10 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     }
 
     // Send statistics data
-    if ( this.workspaceId && 'my' !== this.workspaceId ) {
-      this.sendViewActivityStream( this.workspaceId, 'WORKSPACE' );
+    if (this.workspaceId && 'my' !== this.workspaceId) {
+      this.sendViewActivityStream(this.workspaceId, 'WORKSPACE');
     }
-    
+
   } // function - _initViewPage
 
   /**

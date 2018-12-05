@@ -45,7 +45,7 @@ import javax.validation.constraints.NotNull;
 import app.metatron.discovery.common.fileloader.FileLoaderProperties;
 
 @Component
-@ConfigurationProperties(prefix="polaris.engine")
+@ConfigurationProperties(prefix = "polaris.engine")
 public class EngineProperties {
 
   public final static String SEARCH_QUERY = "query";
@@ -62,6 +62,7 @@ public class EngineProperties {
   public final static String SUPERVISOR_INGESTION = "supervisor";
   public final static String GET_SUPERVISOR_STATUS = "supervisorStatus";
   public final static String SHUTDOWN_SUPERVISOR = "supervisorShutdown";
+  public final static String RESET_SUPERVISOR = "supervisorReset";
   public final static String GET_WORKER_STATUS = "workerStatus";
   public final static String GET_DATASOURCE_LIST = "getDatasources";
   public final static String GET_DATASOURCE_STATUS = "datasourceStatus";
@@ -83,18 +84,18 @@ public class EngineProperties {
     api.forEach((s, engineApi) -> engineApi.makeTargetUrl(hostname.get(engineApi.getTarget())));
 
     // 설정 하위 호환을 위하여 처리
-    if(ingestion.getLoader() == null) {
+    if (ingestion.getLoader() == null) {
       ingestion.setLoader(new FileLoaderProperties(FileLoaderProperties.RemoteType.SSH,
                                                    ingestion.getBaseDir(),
                                                    ingestion.getBaseDir(),
                                                    ingestion.getHosts()));
     }
 
-    if(query.getLoader() == null) {
+    if (query.getLoader() == null) {
       query.setLoader(new FileLoaderProperties(FileLoaderProperties.RemoteType.SSH,
-                                                   query.getLocalResultDir(),
-                                                   query.getDefaultForwardUrl(),
-                                                   query.getHosts()));
+                                               query.getLocalResultDir(),
+                                               query.getDefaultForwardUrl(),
+                                               query.getHosts()));
     }
 
   }
@@ -370,10 +371,9 @@ public class EngineProperties {
 
     /**
      * 하위 호환을 위하여 처리
-     * @return
      */
     public String getBaseDir() {
-      if(StringUtils.isEmpty(baseDir) && loader != null) {
+      if (StringUtils.isEmpty(baseDir) && loader != null) {
         return loader.getLocalBaseDir();
       }
       return baseDir;
@@ -385,10 +385,9 @@ public class EngineProperties {
 
     /**
      * 하위 호환을 위하여 처리
-     * @return
      */
     public Map<String, Host> getHosts() {
-      if(MapUtils.isEmpty(hosts) && loader != null) {
+      if (MapUtils.isEmpty(hosts) && loader != null) {
         return loader.getHosts();
       }
       return hosts;
@@ -461,10 +460,9 @@ public class EngineProperties {
 
     /**
      * 하위 호환을 위하여 처리
-     * @return
      */
     public String getLocalResultDir() {
-      if(StringUtils.isEmpty(localResultDir) && loader != null) {
+      if (StringUtils.isEmpty(localResultDir) && loader != null) {
         return loader.getLocalBaseDir();
       }
       return localResultDir;
@@ -476,10 +474,9 @@ public class EngineProperties {
 
     /**
      * 하위 호환을 위하여 처리
-     * @return
      */
     public String getDefaultForwardUrl() {
-      if(StringUtils.isEmpty(defaultForwardUrl) && loader != null) {
+      if (StringUtils.isEmpty(defaultForwardUrl) && loader != null) {
         return loader.getRemoteDir();
       }
       return defaultForwardUrl;
@@ -507,10 +504,9 @@ public class EngineProperties {
 
     /**
      * 하위 호환을 위하여 처리
-     * @return
      */
     public Map<String, Host> getHosts() {
-      if(MapUtils.isEmpty(hosts) && loader != null) {
+      if (MapUtils.isEmpty(hosts) && loader != null) {
         return loader.getHosts();
       }
       return hosts;

@@ -902,7 +902,7 @@
       <div class="ddp-wrap-rnb-contents">
         <!-- rnb contents variable -->
         <detail-workbench-variable *ngIf="isGlobalVariableMenuShow" [workbench]="workbench"
-                                   (addVariableEvent)="addEditorVariable($event)"></detail-workbench-variable>
+                                   (addVariableEvent)="columnIntoEditorEvent($event)"></detail-workbench-variable>
         <!-- //rnb contents -->
         <!-- rnb contents navigation-->
         <detail-workbench-navigation *ngIf="isNavigationMenuShow"

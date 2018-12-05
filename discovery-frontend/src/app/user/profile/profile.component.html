@@ -179,7 +179,7 @@
           <!-- permission -->
           <div class="ddp-ui-input-form">
             <label class="ddp-label-type">
-              <span class="ddp-label">Permission</span>
+              <span class="ddp-label">{{'msg.mem.ui.detail.info.permission' | translate}}</span>
               <span class="ddp-info2">{{permissions}}</span>
             </label>
           </div>
@@ -188,7 +188,7 @@
           <!-- input form -->
           <div class="ddp-ui-input-form">
             <label class="ddp-label-type">
-              <span class="ddp-label">{{'msg.comm.ui.profile.groups' | translate}} ({{getGroupLength()}})</span>
+              <span class="ddp-label">{{'msg.space.ui.group' | translate}} ({{getGroupLength()}})</span>
               <span class="ddp-info2">{{getGroup()}}</span>
               <!--<span class="ddp-info2" *ngIf="getGroupLength() === 1">{{getGroup()[0].name}}</span>-->
               <!--<span class="ddp-info2" *ngIf="getGroupLength() > 1">{{'msg.comm.ui.profile.groups.detail' | translate: {group: getGroup()[0].name, etc: getGroupLength() - 1} }}</span>-->
@@ -199,14 +199,14 @@
           <!-- Workspace -->
           <div class="ddp-ui-input-form">
             <label class="ddp-label-type">
-              <span class="ddp-label">Workspace ({{ privateWorkspace ? sharedWorkspaces.length + 1 : sharedWorkspaces.length }})</span>
+              <span class="ddp-label">{{'msg.comm.ui.list.workspace' | translate}} ({{ privateWorkspace ? sharedWorkspaces.length + 1 : sharedWorkspaces.length }})</span>
               <span class="ddp-info2">
                 <!-- group -->
                 <div class="ddp-wrap-data-group">
                   <!-- data group -->
                   <span *ngIf="privateWorkspace" class="ddp-data-group">
                       <em class="ddp-icon-user-s2"></em>
-                      Personal Workspace
+                      {{'msg.comm.menu.space.private' | translate}}
                       <span class="ddp-data-det" (click)="moveToWorkspace()" style="cursor: pointer;">
                         {{privateWorkspace.name}}
                       </span>
@@ -214,7 +214,7 @@
                   <!-- //data group -->
                   <span *ngIf="0 < sharedWorkspaces.length" class="ddp-data-group">
                       <em class="ddp-icon-group-s2"></em>
-                      public workspaces
+                      {{'msg.comm.menu.space.share' | translate}}
                       <span class="ddp-data-det">
                         <span *ngFor="let wsItem of sharedWorkspaces; let last = last;"
                               (click)="moveToWorkspace(wsItem)" style="cursor: pointer;">
