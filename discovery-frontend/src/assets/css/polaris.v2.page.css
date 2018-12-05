@@ -2279,6 +2279,7 @@ ul.ddp-list-form2 li:hover .ddp-btn-control {display:block;}
 .ddp-box-folder .ddp-data-input .ddp-icon-control-check {position:absolute; top:50%; right:5px; margin-top:-8px; color:#90969f;}
 .ddp-box-folder .ddp-data-input input::-webkit-input-placeholder {color:#90969f;}
 .ddp-box-folder .ddp-data-input input:-ms-input-placeholder {color:#90969f;}
+.ddp-box-folder.ddp-box-edit {padding-right:30px;}
 .ddp-box-folder.ddp-box-edit .ddp-data-input {display:block; height:26px;}
 
 .ddp-box-folder.ddp-box-edit .ddp-btn-control {display:block;}
@@ -2341,11 +2342,11 @@ em.ddp-icon-control-cut .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {righ
 
 .ddp-ui-space-option {position:relative; padding-right:450px; width:100%; clear:both; z-index:5; box-sizing:border-box;}
 .ddp-ui-space-option .ddp-ui-option-right { position:absolute; top:5px; right:0;}
-.ddp-ui-space-option .ddp-ui-space-nav {float:left; padding:20px 0 0 0;}
-.ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav {display:inline-block; min-height:25px; max-width:200px; position:relative; padding-left:19px; margin-right:4px; cursor: pointer; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
+.ddp-ui-space-option .ddp-ui-space-nav {padding:20px 0 0 0;}
+.ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav {display:inline-block; min-height:25px; max-width:15%; position:relative; padding-left:19px; margin-right:4px; cursor: pointer; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav:hover {text-decoration: underline;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav:after {display:inline-block; content:''; position:absolute; top:50%; left:0; width:4px; height:7px; margin-top:-4px; background:url(../images/icon_dataview.png) no-repeat; background-position:-5px -19px;}
-.ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav:first-of-type {padding-left:0; max-width:200px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal; line-height:23px;}
+.ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav:first-of-type {padding-left:0; max-width:15%; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal; line-height:23px;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav:first-of-type:after {display:none;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav em.ddp-icon-space {display:inline-block; position:relative; top:-1px; width:14px; height:14px; margin-right:8px; background:url(../images/icon_workspace.png) no-repeat; vertical-align: middle;}
 .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav span.ddp-data-namefolder {display:inline-block; position:relative; color:#35393f; font-size:13px; line-height:2em; cursor:pointer;}
@@ -2358,7 +2359,7 @@ em.ddp-icon-control-cut .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {righ
 
 .ddp-ui-space-option .ddp-ui-option-right .ddp-list-tab-button {border:1px solid #b7b9c3;}
 
-.ddp-ui-space-option .ddp-ui-datanone {position:fixed; top:300px; left:0; right:0; bottom:54px;}
+.ddp-ui-space-option .ddp-ui-datanone {position:fixed; top:350px; left:0; right:0; bottom:104px;}
 .ddp-ui-space-option .ddp-ui-datanone .ddp-view-datanone {position:absolute; top:50%; left:0; right:0; margin-top:-94px; text-align:center;}
 .ddp-ui-space-option .ddp-ui-datanone .ddp-view-datanone em.ddp-bg-img {display:inline-block; width:190px; height:130px; background:url(../images/bg_spacenone.png) no-repeat;}
 .ddp-ui-space-option .ddp-ui-datanone .ddp-view-datanone .ddp-txt-datanon {display:block; padding-top:35px; text-align:Center; color:#90969f; font-size:18px;}
