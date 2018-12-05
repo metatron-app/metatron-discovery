@@ -138,6 +138,8 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
    * @param {ListCriterion} criterion
    */
   public removeCriterionFilterInConnectionFilterList(criterion: ListCriterion): void {
+    // remove criterion in criterion object data
+    delete this._criterionDataObject[criterion.criterionKey];
     // set removed key
     this.removedCriterionKey = criterion.criterionKey;
   }
@@ -214,6 +216,8 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
           this.connectionFilterList.forEach((criterion, index, array) => {
             // if exist criterion in filter list
             if (criterion.criterionKey.toString() === key) {
+              // remove criterion in criterion object data
+              delete this._criterionDataObject[key];
               // remove filter
               array.splice(index, 1);
               // search connection
