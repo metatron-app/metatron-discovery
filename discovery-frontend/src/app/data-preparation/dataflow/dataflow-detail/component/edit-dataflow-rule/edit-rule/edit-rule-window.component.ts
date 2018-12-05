@@ -236,13 +236,13 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     }
 
     // Formula
-    this.formulaList = [];
+    this.formulas = [];
     if (data.jsonRuleString.value.hasOwnProperty('functions')) {
-      data.jsonRuleString.value.functions.forEach((item) => {
-        this.formulaList.push(this.getJoinedExpression(item));
+      data.jsonRuleString.value.functions.forEach((item, idx) => {
+        this.formulas.push({id:idx, value: this.getJoinedExpression(item)});
       })
     } else {
-      this.formulaList.push(this.getJoinedExpression(data.jsonRuleString.value));
+      this.formulas.push({id:0, value: this.getJoinedExpression(data.jsonRuleString.value) });
     }
 
   } // function - _parsingRuleString

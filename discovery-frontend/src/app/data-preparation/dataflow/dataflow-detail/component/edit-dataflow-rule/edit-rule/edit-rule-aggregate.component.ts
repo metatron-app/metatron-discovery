@@ -204,9 +204,13 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
     let arrFields:string[] = typeof data.jsonRuleString.group.value === 'string' ? [data.jsonRuleString.group.value] : data.jsonRuleString.group.value;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
+    this.formulas = [];
     let strFormulaList:string = this.getAttrValueInRuleString( 'value', data.ruleString );
     if( '' !== strFormulaList) {
       this.formulaList = strFormulaList.split( ',' ).map( item => item.replace( /'/g, '' ) );
+      this.formulaList.forEach((item,idx)=>{
+        this.formulas.push({id:idx, value: item});
+      })
     }
 
   } // function - parsingRuleString
