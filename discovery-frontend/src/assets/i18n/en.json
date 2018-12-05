@@ -1288,7 +1288,7 @@
   "msg.board.create.data-preview" : "Data preview",
   "msg.board.create.join" : "Manage Scheme",
   "msg.board.create.essential-filter" : "Essential filter",
-  "msg.board.create.delete-datasource" : "Delete datasource",
+  "msg.board.create.unlink-datasource" : "Unlink",
   "msg.board.create.rel-msg1" : "You need to establish relationships between master datasources so that you can link charts",
   "msg.board.create.rel-msg2" : "Click on a datasource and drag the edge to another datasource to connect them",
   "msg.board.create.set-association" : "Set Association",
