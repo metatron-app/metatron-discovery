@@ -66,12 +66,12 @@ import { ColumnSelectBoxComponent } from './data-source-list/component/column-se
 import { CriterionFilterBoxComponent } from './component/criterion/criterion-filter-box.component';
 import { CriterionCheckboxComponent } from './component/criterion/criterion-checkbox.component';
 import { CriterionTimeRadioboxComponent } from './component/criterion/criterion-time-radiobox.component';
-import { DataStorageComponent } from './data-storage.component';
 
 const storageRoutes: Routes = [
-  { path: '', component: DataStorageComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
-  { path: ':tabId', component: DataStorageComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
+  { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
+  { path: 'datasource', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
   { path: 'datasource/:sourceId', component: DetailDataSourceComponent, canActivate: [DatasourceManagementGuard] },
+  { path: 'data-connection', component: DataConnectionComponent, canActivate: [DatasourceManagementGuard] }
 ];
 
 @NgModule({
@@ -88,8 +88,6 @@ const storageRoutes: Routes = [
     TimeComponent,
     SchemaDetailComponent,
     SchemaChangeActionComponent,
-    // data storage
-    DataStorageComponent,
     // data source
     DataSourceListComponent,
     // data source - create
