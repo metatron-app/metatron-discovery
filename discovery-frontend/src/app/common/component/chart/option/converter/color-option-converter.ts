@@ -272,12 +272,22 @@ export class ColorOptionConverter {
       for (const item of rangeList) {
 
         if (null == item.lte) {
-          item.label = '> ' + FormatOptionConverter.getDecimalValue(item.gt, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
+          // check decimal value is not null
+          let itemGtVal = uiOption.valueFormat!=null
+                              ?FormatOptionConverter.getDecimalValue(item.gt, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep):item.gt;
+          item.label = '> ' + itemGtVal;
         } else if (null == item.gt) {
-          item.label = '≤ ' + FormatOptionConverter.getDecimalValue(item.lte, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
+          // check decimal value is not null
+          let itemLteVal = uiOption.valueFormat!=null
+                              ?FormatOptionConverter.getDecimalValue(item.lte, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep):item.lte;
+          item.label = '≤ ' + itemLteVal;
         } else {
-          item.label = FormatOptionConverter.getDecimalValue(item.gt, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep) + ' - ' +
-            FormatOptionConverter.getDecimalValue(item.lte, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
+          // check decimal value is not null
+          let itemGtVal = uiOption.valueFormat!=null
+                            ?FormatOptionConverter.getDecimalValue(item.gt, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep):item.gt;
+          let itemLteVal = uiOption.valueFormat!=null
+                            ?FormatOptionConverter.getDecimalValue(item.lte, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep):item.lte;
+          item.label = itemGtVal + ' - ' + itemLteVal;
         }
 
         // deduct baseline value in range
@@ -418,7 +428,10 @@ export class ColorOptionConverter {
 
     // set decimal value
     const formatValue = ((value) => {
-      return parseFloat((Number(value) * (Math.pow(10, uiOption.valueFormat.decimal)) / Math.pow(10, uiOption.valueFormat.decimal)).toFixed(uiOption.valueFormat.decimal));
+      // check decimal value is needed
+      return uiOption.validate!=null
+        ?parseFloat((Number(value) * (Math.pow(10, uiOption.valueFormat.decimal)) / Math.pow(10, uiOption.valueFormat.decimal)).toFixed(uiOption.valueFormat.decimal))
+        :value;
     });
 
     // decimal min value
