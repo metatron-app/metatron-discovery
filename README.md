@@ -55,11 +55,11 @@ Installation
 ### Requirements
 - MacOS / Linux (Redhat, CentOS)
 - JDK 1.8
-- [Druid customized version for Metatron](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/druid/3.0.7/druid-0.9.1-SNAPSHOT.3.0.7-hadoop-2.7.3-bin.tar.gz)
+- [Druid customized version for Metatron](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/latest/metatron-discovery-latest-bin.tar.gz)
 - Apache Maven 3.3+ for building the project
 
 ### Install the Customized Druid
-[Here is the link for downloading the archive.](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/druid/3.0.7/druid-0.9.1-SNAPSHOT.3.0.7-hadoop-2.7.3-bin.tar.gz)
+[Here is the link for downloading the archive.](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/latest/metatron-discovery-latest-bin.tar.gz)
 
 To install the Metatron distributed Druid, simply untar the downloaded archive. And start | stop the druid with the following commands.
 <pre><code> $ start-single.sh | stop-single.sh </code></pre>
