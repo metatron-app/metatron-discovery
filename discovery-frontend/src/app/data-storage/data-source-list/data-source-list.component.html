@@ -87,8 +87,10 @@
         <th>
           {{'msg.storage.th.status' | translate}}
         </th>
-        <th>
+        <th class="ddp-cursor" (click)="sortDatasourceList('createdTime')">
           {{'msg.comm.th.created' | translate}}
+          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
+          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
         </th>
       </tr>
       </thead>

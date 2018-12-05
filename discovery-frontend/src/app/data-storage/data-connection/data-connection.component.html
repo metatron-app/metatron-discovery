@@ -82,8 +82,10 @@
         <th>
           {{'msg.comm.th.host' | translate}}/{{'msg.comm.th.port' | translate}}({{'msg.storage.ui.conn.url'|translate}})
         </th>
-        <th>
+        <th class="ddp-cursor" (click)="sortConnectionList('createdTime')">
           {{'msg.comm.th.created' | translate}}
+          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
+          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
         </th>
       </tr>
       </thead>

@@ -849,12 +849,13 @@ export class DatasourceService extends AbstractService {
    * Get datasource list
    * @param {number} page
    * @param {number} size
+   * @param {string} sort
    * @param params
    * @param {string} projection
    * @returns {Promise<any>}
    */
-  public getDatasourceList(page: number, size: number, params: any, projection: string = 'forListView'): Promise<any> {
-    return this.post(this.API_URL + `datasources/filter?projection=${projection}&page=${page}&size=${size}`, params);
+  public getDatasourceList(page: number, size: number, sort: string, params: any, projection: string = 'forListView'): Promise<any> {
+    return this.post(this.API_URL + `datasources/filter?projection=${projection}&page=${page}&size=${size}&sort=${sort}`, params);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

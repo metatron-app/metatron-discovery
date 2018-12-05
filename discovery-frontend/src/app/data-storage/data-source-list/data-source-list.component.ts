@@ -62,6 +62,9 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   // init selected filter list
   public defaultSelectedFilterList: any = {};
 
+  // selected sort
+  public selectedContentSort: Order = new Order();
+
   // 생성자
   constructor(private datasourceService: DatasourceService,
               protected elementRef: ElementRef,
@@ -151,6 +154,29 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     this.page.page = 0;
     // set datasource list
     this._setDatasourceList();
+  }
+
+  /**
+   * Sort datasource list
+   * @param {string} key
+   */
+  public sortDatasourceList(key: string): void {
+    // set selected sort
+    this.selectedContentSort.key = key;
+
+    if (this.selectedContentSort.key === key) {
+      // asc, desc
+      switch (this.selectedContentSort.sort) {
+        case 'asc':
+          this.selectedContentSort.sort = 'desc';
+          break;
+        case 'desc':
+          this.selectedContentSort.sort = 'asc';
+          break;
+      }
+    }
+    // search datasource
+    this.searchDatasource();
   }
 
   /**
@@ -341,7 +367,7 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     // loading show
     this.loadingShow();
     // 데이터 소스 조회 요청
-    this.datasourceService.getDatasourceList(this.page.page, this.page.size, this._getDatasourceParams())
+    this.datasourceService.getDatasourceList(this.page.page, this.page.size, this.selectedContentSort.key + ',' + this.selectedContentSort.sort, this._getDatasourceParams())
       .then((result) => {
         // set page result
         this.pageResult = result['page'];
@@ -449,4 +475,9 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
       this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
     }
   }
+}
+
+class Order {
+  key: string = 'createdTime';
+  sort: string = 'desc';
 }

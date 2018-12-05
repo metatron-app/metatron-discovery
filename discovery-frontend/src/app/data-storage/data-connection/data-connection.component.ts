@@ -69,6 +69,9 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
   // init selected filter list
   public defaultSelectedFilterList: any = {};
 
+  // selected sort
+  public selectedContentSort: Order = new Order();
+
   // Constructor
   constructor(private dataconnectionService: DataconnectionService,
               private popupService: PopupService,
@@ -152,6 +155,29 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     this.page.page = 0;
     // set connection list
     this._setConnectionList();
+  }
+
+  /**
+   * Sort connection list
+   * @param {string} key
+   */
+  public sortConnectionList(key: string): void {
+    // set selected sort
+    this.selectedContentSort.key = key;
+
+    if (this.selectedContentSort.key === key) {
+      // asc, desc
+      switch (this.selectedContentSort.sort) {
+        case 'asc':
+          this.selectedContentSort.sort = 'desc';
+          break;
+        case 'desc':
+          this.selectedContentSort.sort = 'asc';
+          break;
+      }
+    }
+    // search connection
+    this.searchConnection();
   }
 
   /**
@@ -329,7 +355,7 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     // loading show
     this.loadingShow();
     // get connection list
-    this.dataconnectionService.getConnectionList(this.page.page, this.page.size, this._getConnectionParams())
+    this.dataconnectionService.getConnectionList(this.page.page, this.page.size, this.selectedContentSort.key + ',' + this.selectedContentSort.sort, this._getConnectionParams())
       .then((result) => {
         // set page result
         this.pageResult = result['page'];
@@ -437,4 +463,9 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
       this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
     }
   }
+}
+
+class Order {
+  key: string = 'createdTime';
+  sort: string = 'desc';
 }
