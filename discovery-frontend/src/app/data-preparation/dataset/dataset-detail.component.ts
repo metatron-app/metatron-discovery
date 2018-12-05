@@ -664,7 +664,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
     let rows: any[] = data.data;
 
-    if( 0 === fields.length || 0 === rows.length ) {
+    if( 0 === fields.length ) {
       return;
     }
 
