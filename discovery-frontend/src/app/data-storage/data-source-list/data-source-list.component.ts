@@ -254,7 +254,7 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   }
 
   /**
-   * Search datasource keyup event
+   * Search datasource keypress event
    * @param {KeyboardEvent} event
    */
   public onSearchDatasource(event: KeyboardEvent): void {
@@ -262,12 +262,17 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     if (13 === event.keyCode) {
       // search datasource
       this.searchDatasource();
-    } else if (27 === event.keyCode) { // esc event
-      // init search keyword
-      this.searchKeyword = '';
-      // search datasource
-      this.searchDatasource();
     }
+  }
+
+  /**
+   * Reset search datasource keyup event
+   */
+  public resetSearchDatasource(): void {
+    // init search keyword
+    this.searchKeyword = '';
+    // search datasource
+    this.searchDatasource();
   }
 
   /**

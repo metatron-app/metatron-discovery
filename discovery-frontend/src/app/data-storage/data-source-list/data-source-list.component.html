@@ -37,7 +37,7 @@
       <div class="ddp-filter-search ddp-fright">
         <div class="ddp-form-filter-search">
           <input type="text" placeholder="{{'msg.storage.ph.source.search' | translate}}" [(ngModel)]="searchKeyword"
-                 (keyup)="onSearchDatasource($event)">
+                 (keypress)="onSearchDatasource($event)" (keyup.esc)="resetSearchDatasource()">
         </div>
         <!-- form -->
         <a href="javascript:" class="ddp-btn-selection" (click)="searchDatasource()">{{'msg.comm.btn.search' | translate}}</a>

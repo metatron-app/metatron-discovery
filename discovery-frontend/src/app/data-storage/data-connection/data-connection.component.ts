@@ -265,7 +265,7 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
   }
 
   /**
-   * Search connection keyup event
+   * Search connection keypress event
    * @param {KeyboardEvent} event
    */
   public onSearchConnection(event: KeyboardEvent): void {
@@ -273,12 +273,17 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     if (13 === event.keyCode) {
       // search connection
       this.searchConnection();
-    } else if (27 === event.keyCode) { // esc event
-      // init search keyword
-      this.searchKeyword = '';
-      // search connection
-      this.searchConnection();
     }
+  }
+
+  /**
+   * Reset search connection keyup event
+   */
+  public resetSearchConnection(): void {
+    // init search keyword
+    this.searchKeyword = '';
+    // search connection
+    this.searchConnection();
   }
 
   /**
