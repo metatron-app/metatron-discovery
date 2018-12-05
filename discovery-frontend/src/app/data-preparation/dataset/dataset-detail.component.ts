@@ -105,6 +105,9 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
   @ViewChild(SnapshotLoadingComponent)
   public snapshotLoadingComponent : SnapshotLoadingComponent;
+
+  public prepCommonUtil = PreparationCommonUtil;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -491,7 +494,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       let filepath : string = dataset.importType === ImportType.UPLOAD? dataset.filenameBeforeUpload : dataset.storedUri;
 
       //this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType} (${this.getDatasetType(dataset.importType, dataset.filename)})`},
-      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType} (${this.getDatasetType(dataset.importType, filepath)})`},
+      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${this.prepCommonUtil.getImportType(dataset.importType)} (${this.getDatasetType(dataset.importType, filepath)})`},
         //{name : this.translateService.instant('msg.dp.th.file'), value : `${filepath}` },
         {name : this.translateService.instant('msg.dp.th.file'), value : `${filepath}` },
       ];

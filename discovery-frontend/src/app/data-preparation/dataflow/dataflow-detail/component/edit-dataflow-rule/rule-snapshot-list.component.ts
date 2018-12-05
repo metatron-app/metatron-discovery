@@ -19,6 +19,7 @@ import { DataflowService } from '../../../service/dataflow.service';
 import { PrDataSnapshot, Status } from '../../../../../domain/data-preparation/pr-snapshot';
 import { DataSnapshotService } from '../../../../data-snapshot/service/data-snapshot.service';
 import { Alert } from '../../../../../common/util/alert.util';
+import {PreparationCommonUtil} from "../../../../util/preparation-common.util";
 
 @Component({
   selector: 'app-rule-snapshot-list',
@@ -50,6 +51,9 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   //public snapshotList : DataSnapshot[];
   public snapshotList : PrDataSnapshot[];
+
+  public prepCommonUtil = PreparationCommonUtil;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -98,6 +102,7 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
     return result
   }
 
+/*
   public getSnapshotType(type: string) : string {
 
     let result = type;
@@ -111,6 +116,7 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
 
     return result;
   }
+*/
 
   /**
    * Navigate to snapshot list

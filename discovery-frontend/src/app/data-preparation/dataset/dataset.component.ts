@@ -16,7 +16,7 @@ import { Component, ElementRef, HostListener, Injector, OnInit, ViewChild } from
 import { DatasetService } from './service/dataset.service';
 import { AbstractComponent } from '../../common/component/abstract.component';
 //import { Dataset, DsType } from '../../domain/data-preparation/dataset';
-import { PrDataset, DsType } from '../../domain/data-preparation/pr-dataset';
+import { PrDataset, DsType, ImportType } from '../../domain/data-preparation/pr-dataset';
 import { SubscribeArg } from '../../common/domain/subscribe-arg';
 import { PopupService } from '../../common/service/popup.service';
 import { Subscription } from 'rxjs/Subscription';
@@ -27,7 +27,7 @@ import { PreparationAlert } from '../util/preparation-alert.util';
 import { ActivatedRoute } from '@angular/router';
 import { DataflowService } from '../dataflow/service/dataflow.service';
 import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
-
+import {PreparationCommonUtil} from "../util/preparation-common.util";
 
 @Component({
   selector: 'app-dataset',
@@ -69,6 +69,10 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   public deleteModalComponent: DeleteModalComponent;
 
   public datasetTypes : any;
+
+  public ImportType = ImportType;
+
+  public prepCommonUtil = PreparationCommonUtil;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor

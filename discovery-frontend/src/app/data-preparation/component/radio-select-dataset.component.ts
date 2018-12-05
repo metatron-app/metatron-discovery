@@ -21,6 +21,7 @@ import {DatasetService} from "../dataset/service/dataset.service";
 import {DataflowModelService} from "../dataflow/service/dataflow.model.service";
 import {PreparationAlert} from "../util/preparation-alert.util";
 import {Page, PageResult} from "../../domain/common/page";
+import {PreparationCommonUtil} from "../util/preparation-common.util";
 
 @Component({
   selector: 'radio-select-dataset',
@@ -63,6 +64,8 @@ export class RadioSelectDatasetComponent extends AbstractComponent implements On
 
   // 정렬
   public selectedContentSort: Order = new Order();
+
+  public prepCommonUtil = PreparationCommonUtil;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Input Variables

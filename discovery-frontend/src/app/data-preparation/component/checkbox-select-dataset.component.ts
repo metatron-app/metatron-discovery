@@ -20,6 +20,7 @@ import {DataflowService} from "../dataflow/service/dataflow.service";
 import {DatasetService} from "../dataset/service/dataset.service";
 import {DataflowModelService} from "../dataflow/service/dataflow.model.service";
 import {PreparationAlert} from "../util/preparation-alert.util";
+import {PreparationCommonUtil} from "../util/preparation-common.util";
 
 @Component({
   selector: 'checkbox-select-dataset',
@@ -55,6 +56,7 @@ export class CheckboxSelectDatasetComponent extends AbstractComponent implements
 
   public isShow : boolean = false;
 
+  public prepCommonUtil = PreparationCommonUtil;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Input Variables

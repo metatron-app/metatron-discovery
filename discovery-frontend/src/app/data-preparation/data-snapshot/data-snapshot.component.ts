@@ -88,7 +88,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     {label : 'HDFS', value : 'HDFS'}
     */
     {label: 'Staging DB', value : SsType.STAGING_DB},
-    {label: 'URI', value : SsType.URI},
+    {label: 'FILE', value : SsType.URI},
     {label: 'Database', value : SsType.DATABASE},
     {label: 'DRUID', value : SsType.DRUID}
     ];

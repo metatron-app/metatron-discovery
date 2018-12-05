@@ -24,6 +24,7 @@ import { DatasetService } from '../../dataset/service/dataset.service';
 import { DataflowModelService } from "../service/dataflow.model.service";
 //import { Dataset, DsType } from '../../../domain/data-preparation/dataset';
 import { PrDataset, DsType } from '../../../domain/data-preparation/pr-dataset';
+import {PreparationCommonUtil} from "../../util/preparation-common.util";
 
 @Component({
   selector: 'app-add-dataset',
@@ -70,6 +71,7 @@ export class AddDatasetComponent extends AbstractComponent implements OnInit, On
 
   public isShow : boolean = false;
 
+  public prepCommonUtil = PreparationCommonUtil;
 
   get countSelected() {
 

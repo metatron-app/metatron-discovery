@@ -25,6 +25,7 @@ import { PrDataset, DsType } from '../../../../../domain/data-preparation/pr-dat
 import { PreparationAlert } from '../../../../util/preparation-alert.util';
 import { Alert } from '../../../../../common/util/alert.util';
 import { DataflowService } from '../../../service/dataflow.service';
+import {PreparationCommonUtil} from "../../../../util/preparation-common.util";
 
 @Component({
   selector: 'app-add-dataset-modal',
@@ -70,6 +71,8 @@ export class AddDatasetModalComponent extends AbstractComponent implements OnIni
   public searchDsType: string = 'IMPORTED';
   public searchImportType: string = 'HIVE';
   public typeFilter: any[];
+
+  public prepCommonUtil = PreparationCommonUtil;
 
   // esc 창 닫힘
   @HostListener('document:keydown.escape', ['$event'])

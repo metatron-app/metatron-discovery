@@ -765,7 +765,7 @@ public class PrepDatasetFileService {
 
             URI uri = new URI(storedUri);
 
-            if(uri.getScheme().equals("file")) {
+            if(uri.getScheme().equalsIgnoreCase("file")) {
                 assert storedUri != null;
 
                 File theFile = new File(uri);

@@ -134,6 +134,8 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
   public clearGrid : boolean = false;
 
+  public DsType = DsType;
+  public ImportType = ImportType;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -759,7 +761,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     } else {
       //if (importType === ImportType.FILE) {
       if (importType === ImportType.UPLOAD) {
-        return `${importType} (${this.getDatasetType(importType,fileName)})`;
+        return `${PreparationCommonUtil.getImportType(importType)} (${this.getDatasetType(importType,fileName)})`;
       } else {
         //return `${importType === ImportType.HIVE ? 'Staging DB' : importType}`;
         return `${importType === ImportType.STAGING_DB ? 'Staging DB' : importType}`;
