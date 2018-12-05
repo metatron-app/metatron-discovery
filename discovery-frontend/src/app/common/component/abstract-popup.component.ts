@@ -14,7 +14,6 @@
 
 import { ElementRef, EventEmitter, Injector, Output } from '@angular/core';
 import { AbstractComponent } from './abstract.component';
-import * as $ from 'jquery';
 
 export class AbstractPopupComponent extends AbstractComponent {
 
@@ -51,17 +50,17 @@ export class AbstractPopupComponent extends AbstractComponent {
 
   public ngOnInit() {
     super.ngOnInit();
-    $('body').removeClass('body-hidden').addClass('body-hidden');
+    this.addBodyScrollHidden();
   }
 
 
   public ngOnDestroy() {
-    $('body').removeClass('body-hidden');
+    this.removeBodyScrollHidden();
     super.ngOnDestroy();
   }
 
   public close() {
-    $('body').removeClass('body-hidden');
+    this.removeBodyScrollHidden();
     this.closeEvent.emit();
   }
 

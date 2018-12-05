@@ -13,7 +13,7 @@
  */
 
 import { AbstractComponent } from '../../common/component/abstract.component';
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { isUndefined } from 'util';
 import { Modal } from '../../common/domain/modal';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
@@ -21,7 +21,6 @@ import { CodeTableService } from './service/code-table.service';
 import { CodeTable } from '../../domain/meta-data-management/code-table';
 import { PeriodComponent } from '../../common/component/period/period.component';
 import { Alert } from '../../common/util/alert.util';
-import * as _ from 'lodash';
 import { CreateCodeTableComponent } from './create-code-table/create-code-table.component';
 
 declare let moment: any;

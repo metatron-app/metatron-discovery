@@ -44,7 +44,7 @@
       <div class="ddp-data-info-left">
         <div class="ddp-ui-number">
           <span class="ddp-box-tag ddp-workbook">{{'msg.space.ui.tag.workbook' | translate}}<strong>{{countByBookType.workBook}}</strong></span>
-          <span class="ddp-box-tag ddp-notebook">{{'msg.space.ui.tag.notebook' | translate}}<strong>{{countByBookType.notebook}}</strong></span>
+          <span *ngIf="isSetNotebookServer" class="ddp-box-tag ddp-notebook">{{'msg.space.ui.tag.notebook' | translate}}<strong>{{countByBookType.notebook}}</strong></span>
           <span class="ddp-box-tag ddp-workbench">{{'msg.space.ui.tag.workbench' | translate}}<strong>{{countByBookType.workBench}}</strong></span>
         </div>
         <div class="ddp-ui-info-tab">
@@ -582,7 +582,7 @@
          draggable="false" href="javascript:" class="ddp-btn-solid2 ddp-dark" (click)="createWorkbook()">
         <em class="ddp-icon-btnplus"></em>{{'msg.space.btn.workbook' | translate}}
       </a>
-      <a *ngIf="permissionChecker && permissionChecker.isWriteNotebook()"
+      <a *ngIf="isSetNotebookServer && permissionChecker && permissionChecker.isWriteNotebook()"
          draggable="false" href="javascript:" class="ddp-btn-solid2 ddp-dark" (click)="createNotebook()">
         <em class="ddp-icon-btnplus"></em>{{'msg.space.btn.notebook' | translate}}
       </a>

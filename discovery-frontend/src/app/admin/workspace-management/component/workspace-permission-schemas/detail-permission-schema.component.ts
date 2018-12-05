@@ -270,8 +270,8 @@ export class DetailPermissionSchemaComponent extends AbstractComponent implement
     event.stopImmediatePropagation();
     const modal = new Modal();
     modal.data = 'DELETE';
-    modal.name = '정말 삭제하시겠습니까?';
-    modal.description = `삭제를 선택하면 다음 ${this.roleSet.linkedWorkspaces ? this.roleSet.linkedWorkspaces : 0}개의 워크스페이스에 Default schema가 적용됩니다`;
+    modal.name = this.translateService.instant('msg.permission.ui.delete-schema.ph');
+    modal.description = this.translateService.instant('msg.permission.ui.delete-schema.ph.sub', { value : `${this.roleSet.linkedWorkspaces ? this.roleSet.linkedWorkspaces : 0}`});
     if( this.firstWorkspace ) {
       let wsNames = this.firstWorkspace.name;
       if( 0 < this.otherWorkspaces.length ) {
@@ -279,7 +279,7 @@ export class DetailPermissionSchemaComponent extends AbstractComponent implement
       }
       modal.subDescription = wsNames;
     }
-    modal.btnName = '스키마 삭제';
+    modal.btnName = this.translateService.instant('msg.permission.ui.delete-schema');
     // schema id
     modal['schemaId'] = this.roleSet.id;
     // 팝업 창 오픈
@@ -294,8 +294,8 @@ export class DetailPermissionSchemaComponent extends AbstractComponent implement
     event.stopImmediatePropagation();
     const modal = new Modal();
     modal.data = 'CLONE';
-    modal.name = `\'${this.roleSet.name}\' 스키마를 복제하시겠습니까?`;
-    modal.btnName = '스키마 복제';
+    modal.name = this.translateService.instant('msg.permission.ui.copy-schema.ph', { value : `\'${this.roleSet.name} \'`});
+    modal.btnName = this.translateService.instant('msg.permission.ui.copy-schema');
     // schema id
     modal['schemaId'] = this.roleSet.id;
 

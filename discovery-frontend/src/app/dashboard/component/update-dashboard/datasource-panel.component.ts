@@ -19,8 +19,7 @@ import {
   Injector,
   Input, KeyValueDiffers, OnDestroy,
   OnInit,
-  Output, SimpleChange,
-  SimpleChanges,
+  Output,
   ViewChild
 } from '@angular/core';
 import { AbstractComponent } from '../../../common/component/abstract.component';
