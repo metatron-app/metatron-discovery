@@ -33,6 +33,7 @@
 .ddp-wrap-top-filtering .ddp-form-filtering ul.ddp-list-popup + ul.ddp-list-popup{border-top:1px solid #e7e7ea;}
 .ddp-wrap-top-filtering .ddp-form-filtering ul.ddp-list-popup li a .ddp-wrap-between .ddp-wrap-dateinfo {position:relative; margin-top:3px; padding-left:16px; }
 .ddp-wrap-top-filtering .ddp-form-filtering ul.ddp-list-popup li a .ddp-wrap-between .ddp-wrap-dateinfo .ddp-txt-bar {position:absolute; top:6px; right:0;}
+.ddp-wrap-top-filtering .ddp-form-filtering ul.ddp-list-popup li a .ddp-wrap-between .ddp-wrap-dateinfo .ddp-ui-dateinfo .ddp-box-dateinfo {width:105px;}
 
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-wrap-popup2 .ddp-pop-search {position:relative;padding:0 0 0 33px; border-bottom:1px solid #e7e7ea; }
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-wrap-popup2 {}
