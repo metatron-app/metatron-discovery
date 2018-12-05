@@ -66,6 +66,10 @@ export class ChartUtil {
       alias1 = field.aggregationType +"("+ alias1 +")";
       alias2 = alias2 ? field.aggregationType +"("+ alias2 +")" : "";
     }
+    else if( field.format && field.format.unit && field.format.unit != "" ) {
+      alias1 = field.format.unit +"("+ alias1 +")";
+      alias2 = alias2 ? field.format.unit +"("+ alias2 +")" : "";
+    }
     let alias: string = alias3 ? alias3 : alias2 ? alias2: alias1;
     return alias;
   }

@@ -1113,8 +1113,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       // Selection filter
       ////////////////////////////////////////////////////////
 
-      // select mode is add, the feature is not selected
-      if (selectMode && ChartSelectMode.ADD !== feature.getProperties()['selection']) {
+      let filterFl: boolean = false;
+
+      // set selection filter
+      filterFl = scope.setFeatureSelectionMode(scope, feature);
+
+      // when select mode or filter param exists, set feature selection style
+      if ((filterFl || selectMode) && ChartSelectMode.ADD !== feature.getProperties()['selection']) {
 
         outlineWidth = 2;
 
@@ -1331,8 +1336,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         // Selection filter
         ////////////////////////////////////////////////////////
 
-        // select mode is add, the feature is not selected
-        if (selectMode && ChartSelectMode.ADD !== feature.getProperties()['selection']) {
+        let filterFl: boolean = false;
+
+        // set selection filter
+        filterFl = scope.setFeatureSelectionMode(scope, feature);
+
+        // when select mode or filter param exists, set feature selection style
+        if ((filterFl || selectMode) && ChartSelectMode.ADD !== feature.getProperties()['selection']) {
 
           outlineWidth = 2;
 
@@ -1718,8 +1728,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       // Selection filter
       ////////////////////////////////////////////////////////
 
-      // select mode is add, the feature is not selected
-      if (selectMode && ChartSelectMode.ADD !== feature.getProperties()['selection']) {
+      let filterFl: boolean = false;
+
+      // set selection filter
+      filterFl = scope.setFeatureSelectionMode(scope, feature);
+
+      // when select mode or filter param exists, set feature selection style
+      if ((filterFl || selectMode) && ChartSelectMode.ADD !== feature.getProperties()['selection']) {
 
         outlineWidth = 2;
 
@@ -1780,6 +1795,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     if (MapLayerType.HEATMAP === this.getUiMapOption().layers[this.getUiMapOption().layerNum].type) {
       return;
     }
+
+    ////////////////////////////////////////////////////////
+    // default Tooltip UI
+    ////////////////////////////////////////////////////////
+
+    // set display columns from shelf
+    if (!this.uiOption.toolTip.displayColumns) this.uiOption.toolTip.displayColumns = [];
+
+    let fields = TooltipOptionConverter.returnTooltipDataValue(_.cloneDeep(this.shelf.layers[this.getUiMapOption().layerNum]));
+    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(fields);
 
     ////////////////////////////////////////////////////////
     // Create tooltip layer
@@ -2492,11 +2517,18 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     ///////////////////////////
     // Color by Dimension
     ///////////////////////////
+    // hexagon && isDimension => init as none
+    else if ( MapLayerType.TILE === layer.type && isDimension ) {
+      layer.color.by = MapBy.NONE;
+      layer.color.schema = '#6344ad';
+      layer.color.column = null;
+      layer.color.aggregationType = null;
+    }
     else if( isDimension ) {
       layer.color.by = MapBy.DIMENSION;
       layer.color.schema = 'SC1';
       layer.color.column = this.uiOption.fielDimensionList[0]['name'];
-      layer.color.aggregationType = null;
+      if (this.uiOption.fielDimensionList[0]['format']) layer.color.aggregationType = this.uiOption.fielDimensionList[0]['format']['unit'].toString();
     }
 
     ////////////////////////////////////////////////////////
@@ -2551,16 +2583,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     else if( _.eq(layer.type, MapLayerType.POLYGON) ) {
 
     }
-
-    ////////////////////////////////////////////////////////
-    // Tooltip
-    ////////////////////////////////////////////////////////
-
-    // set display columns from shelf
-    if (!this.uiOption.toolTip.displayColumns) this.uiOption.toolTip.displayColumns = [];
-
-    let fields = TooltipOptionConverter.returnTooltipDataValue(_.cloneDeep(this.shelf.layers[option.layerNum]));
-    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(fields);
   }
 
   /**
@@ -2696,7 +2718,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       }
 
       // get dimensions (except geo) from layer shelf
-      let dimensionLayer = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum].filter((item) => {
+      let dimensionLayer = this.originShelf.layers[(<UIMapOption>this.uiOption).layerNum].filter((item) => {
         if ('dimension' === item.type && ('user_expr' == item.field.type || (item.field.logicalType && -1 == item.field.logicalType.toString().indexOf('GEO')))) {
           return item;
         }
@@ -2802,5 +2824,39 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
           break;
       }
     }
+  }
+
+  /**
+   * set selection mode to feature
+   * @param scope
+   * @param feature
+   * @returns {boolean}
+   */
+  private setFeatureSelectionMode(scope: any, feature): boolean {
+
+    let filterFl: boolean = false;
+
+    if( scope.widgetDrawParam
+      && scope.widgetDrawParam.selectFilterListList
+      && scope.widgetDrawParam.selectFilterListList.length > 0 ) {
+
+      _.each(scope.widgetDrawParam.selectFilterListList, (filter) => {
+        _.each(filter.data, (data) => {
+
+          // find feature by selected properties
+          let properties = feature.getProperties();
+
+          // set selection filter select mode
+          if (properties[filter.alias] === data) {
+            feature.set('selection', ChartSelectMode.ADD);
+          }
+        });
+      });
+
+      // selection filter exists
+      filterFl = true;
+    }
+
+    return filterFl;
   }
 }

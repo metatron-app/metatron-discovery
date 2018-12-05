@@ -96,6 +96,9 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   // 기존 선반 정보 (병렬 / 중첩에따라서 변경되지않는 선반값)
   protected originPivot: Pivot;
 
+  // used in selection filter
+  protected originShelf: Shelf;
+
   // 저장 정보
   protected saveInfo: UIOption;
 
@@ -298,6 +301,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     this.pivot = result.config.pivot;
     this.shelf = result.config.shelf;
     this.originPivot = _.cloneDeep(this.pivot);
+    if (!this.originShelf) this.originShelf = _.cloneDeep(this.shelf);
     this.originalData = _.cloneDeep(result.data);
     this.widgetDrawParam = _.cloneDeep(result.params);
 
