@@ -29,9 +29,9 @@
   </ul>
   <!-- right -->
   <div class="ddp-ui-rightoption ddp-type-option">
-    <a (click)="deleteDataSource()" href="javascript:" class="ddp-link-type">
-      <em class="ddp-icon-link-cut2"></em>{{ 'msg.board.create.delete-datasource' | translate }}
-    </a>
+    <div (click)="deleteDataSource()" class="ddp-part">
+      <a href="javascript:" class="ddp-link-unlink">{{ 'msg.board.create.unlink-datasource' | translate }}</a>
+    </div>
     <a (click)="closeDsInfo()" href="javascript:" class="ddp-btn-box-close"></a>
   </div>
   <!-- //right -->
