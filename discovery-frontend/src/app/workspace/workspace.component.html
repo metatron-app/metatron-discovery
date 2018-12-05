@@ -142,14 +142,18 @@
       <div (click)="topFolder()" class="ddp-data-nav">
         <em class="ddp-icon-space" ></em>
         {{workspaceName}}
+        <!-- 폴더 생성 -->
+        <a *ngIf="!folder.hierarchies && permissionChecker && permissionChecker.isManageWsFolder()" (click)="createFolder()"
+           draggable="false" href="javascript:" class="ddp-btn-folderplus" ></a>
+        <!-- //폴더 생성 -->
       </div>
-      <div *ngFor="let hierarchies of folder.hierarchies" class="ddp-data-nav" >
+      <div *ngFor="let hierarchies of folder.hierarchies; let last = last;" class="ddp-data-nav" >
         <span class="ddp-data-namefolder" (click)="detailFolder(hierarchies.id)">{{hierarchies.name}}</span>
+        <!-- 폴더 생성 -->
+        <a *ngIf="last && permissionChecker && permissionChecker.isManageWsFolder()" (click)="createFolder()"
+           draggable="false" href="javascript:" class="ddp-btn-folderplus" ></a>
+        <!-- //폴더 생성 -->
       </div>
-      <!-- 폴더 생성 -->
-      <a draggable="false" href="javascript:" class="ddp-btn-folderplus"
-         (click)="createFolder()" *ngIf="permissionChecker && permissionChecker.isManageWsFolder()"></a>
-      <!-- //폴더 생성 -->
     </div>
     <!-- //nav -->
 

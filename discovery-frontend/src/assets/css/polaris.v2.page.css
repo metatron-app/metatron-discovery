@@ -2277,6 +2277,7 @@ ul.ddp-list-form2 li:hover .ddp-btn-control {display:block;}
 .ddp-box-folder .ddp-data-input .ddp-icon-control-check {position:absolute; top:50%; right:5px; margin-top:-8px; color:#90969f;}
 .ddp-box-folder .ddp-data-input input::-webkit-input-placeholder {color:#90969f;}
 .ddp-box-folder .ddp-data-input input:-ms-input-placeholder {color:#90969f;}
+.ddp-box-folder.ddp-box-edit {padding-right:30px;}
 .ddp-box-folder.ddp-box-edit .ddp-data-input {display:block; height:26px;}
 
 .ddp-box-folder.ddp-box-edit .ddp-btn-control {display:block;}
@@ -2356,7 +2357,7 @@ em.ddp-icon-control-cut .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {righ
 
 .ddp-ui-space-option .ddp-ui-option-right .ddp-list-tab-button {border:1px solid #b7b9c3;}
 
-.ddp-ui-space-option .ddp-ui-datanone {position:fixed; top:300px; left:0; right:0; bottom:54px;}
+.ddp-ui-space-option .ddp-ui-datanone {position:fixed; top:350px; left:0; right:0; bottom:104px;}
 .ddp-ui-space-option .ddp-ui-datanone .ddp-view-datanone {position:absolute; top:50%; left:0; right:0; margin-top:-94px; text-align:center;}
 .ddp-ui-space-option .ddp-ui-datanone .ddp-view-datanone em.ddp-bg-img {display:inline-block; width:190px; height:130px; background:url(../images/bg_spacenone.png) no-repeat;}
 .ddp-ui-space-option .ddp-ui-datanone .ddp-view-datanone .ddp-txt-datanon {display:block; padding-top:35px; text-align:Center; color:#90969f; font-size:18px;}

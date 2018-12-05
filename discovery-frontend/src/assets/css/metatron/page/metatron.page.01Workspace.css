@@ -4,9 +4,6 @@
   Page : 01_워크스페이스_01목록
 **************************************************************/
 
-/*@media screen and (max-width: 1550px) {*/
-/*.page-workspace .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav{*/
-/*max-width:70px;*/
-/*}*/
-
-/*}*/
+.page-workspace .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav {max-width:20%;}
+.page-workspace .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav:last-of-type {padding-right:25px;}
+.page-workspace .ddp-ui-space-option .ddp-ui-space-nav .ddp-data-nav .ddp-btn-folderplus {position:absolute; top:6px; right:0;}
