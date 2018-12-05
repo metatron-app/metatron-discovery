@@ -59,9 +59,6 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
     { label: 'Tibero', value: 'TIBERO' }
   ];
 
-  // 선택한 프리셋 정보
-  private selectedConnectionPreset: any;
-
   // 선택한 URL 타입
   public selectedUrlType: string;
   public urlTypes: any[];
@@ -82,7 +79,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   public connectionErrorDescription: string = '';
 
   // select box 선택값
-  public defaultSelectedIndex = -1;
+  public defaultSelectedIndex = 0;
 
   // connection request 객체
   public connectionRequest: ConnectionRequest = new ConnectionRequest();
@@ -269,7 +266,6 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
    */
   public initConnectionResultFlag() {
 
-    this.selectedConnectionPreset = null;
     this.isNextBtnClicked = false;
     this.connectionResultFl = null;
 
@@ -440,17 +436,11 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
     this.connectionService.getDataconnections({'projection':'default'})
       .then((data) => {
         if (data.hasOwnProperty('_embedded') && data['_embedded'].hasOwnProperty('connections')) {
-          this.connectionList = data['_embedded']['connections'];
 
-
-          // --- Temp : not using direct input
-          let idx = this.connectionList.findIndex((item) =>{
-            return item.name === 'Direct input';
+          // FIXME : only MANUAL type can be used to make dataset (No server side API)
+          this.connectionList = data['_embedded']['connections'].filter((item) => {
+            return item.authenticationType === 'MANUAL'
           });
-          if (idx !== -1) {
-            this.connectionList.splice(idx,1);
-          }
-          // --- Temp
 
           if (this.connectionList.length !== 0 && isNullOrUndefined(this.datasetJdbc.dataconnection)) {
 
