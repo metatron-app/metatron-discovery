@@ -241,10 +241,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
     }
 
     const columnsStr: string = this.resultFields.map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+      return  '`' + item.name + '`';
     }).join(', ');
 
     let ruleStr: string = 'union masterCol: ' + columnsStr
