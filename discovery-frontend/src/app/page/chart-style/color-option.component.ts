@@ -1203,6 +1203,25 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   }
 
   /**
+   * return color type
+   * @param {string} type
+   * @returns {string | any}
+   */
+  public returnColorType(type: string) {
+
+    switch (type) {
+      case ChartColorType.SINGLE.toString():
+        return this.translateService.instant('msg.space.ui.none');
+      case ChartColorType.SERIES.toString():
+        return this.translateService.instant('msg.page.li.color.series');
+      case ChartColorType.DIMENSION.toString():
+        return this.translateService.instant('msg.page.li.color.dimension');
+      case ChartColorType.MEASURE.toString():
+        return this.translateService.instant('msg.page.li.color.measure');
+    }
+  }
+
+  /**
    * hex에서 rgb값으로 변경
    * @param color
    * @returns {string}
