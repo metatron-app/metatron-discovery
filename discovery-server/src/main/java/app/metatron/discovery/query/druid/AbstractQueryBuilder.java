@@ -226,7 +226,7 @@ public abstract class AbstractQueryBuilder {
   /**
    * 엔진에 질의할 때 필요한 추가 정보
    */
-  protected Map<String, Object> context;
+  protected Map<String, Object> context = Maps.newHashMap();
 
   /**
    * 질의할 queryId, 캔슬시 활용
@@ -715,12 +715,11 @@ public abstract class AbstractQueryBuilder {
 
     // TODO: 파라미터도 추가해야함, 일단 기존 로직 유지
     Map<String, String> exprMap = userFieldsMap.values().stream()
-                                               .filter(userDefinedField -> userDefinedField instanceof ExpressionField)
-                                               .collect(Collectors.toMap(UserDefinedField::getName, f -> ((ExpressionField) f).getExpr()));
+        .filter(userDefinedField -> userDefinedField instanceof ExpressionField)
+        .collect(Collectors.toMap(UserDefinedField::getName, f -> ((ExpressionField) f).getExpr()));
 
-    ComputationalField.makeAggregationFunctionsIn(field.getAlias(), curExpr,
-                                                  aggregations, postAggregations, windowingSpecs,
-                                                  exprMap);
+    ComputationalField.makeAggregationFunctionsIn(field.getAlias(), curExpr, aggregations
+        , postAggregations, windowingSpecs, context, exprMap);
 
   }
 
