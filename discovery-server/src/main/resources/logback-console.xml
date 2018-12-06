@@ -54,10 +54,6 @@
 
     <logger name="app.metatron.discovery" level="debug"/>
 
-    <logger name="org.springframework.jdbc" level="debug"/>
-    <logger name="org.apache.hive" level="debug"/>
-    <logger name="java.sql" level="debug"/>
-
     <root level="WARN">
         <appender-ref ref="CONSOLE"/>
     </root>
