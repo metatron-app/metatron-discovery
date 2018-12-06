@@ -1045,8 +1045,17 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   /**
    * open or cloe data connection info layer
    */
-  public dataConnectionInfoShow() {
+  public dataConnectionInfoShow(event:MouseEvent) {
+
     this.isDataConnectionInfoShow = !this.isDataConnectionInfoShow;
+    this.safelyDetectChanges();
+
+    const target = $( event.target );
+    let infoLeft : number = target.offset().left;
+    let infoTop : number = target.offset().top;
+    const element = document.getElementById(`dataConnectionInfo`);
+    $(element).css({'left':infoLeft-30, 'top': infoTop+17});
+
   } // function - dataConnectionInfoShow
 
   /**

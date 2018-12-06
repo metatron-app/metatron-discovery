@@ -4314,8 +4314,8 @@ ul.ddp-list-selectbox.ddp-color-select li a:hover {background-color:#f6f6f7;}
 {display:inline-block; content:''; width:13px; height:13px; margin-left:5px; background:url(../images/icon_info.png) no-repeat; background-position:left -30px;}
 .ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info .ddp-btn-info2:hover:before {background-position:-14px -30px;}
 
-.ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info .ddp-box-layout4 {display:none;position:absolute; top:100%; left:-16px; margin-top:5px;}
-.ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info .ddp-box-layout4.ddp-scheme {width:max-content; max-width:520px;}
+.ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info .ddp-box-layout4 {display:none;position:fixed; top:0; left:0; margin-top:5px;}
+.ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info .ddp-box-layout4.ddp-scheme { max-width:520px; width:auto;}
 
 .ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info .ddp-box-layout4.ddp-scheme table.ddp-table-info {table-layout:inherit;}
 
@@ -6272,7 +6272,10 @@ ul.ddp-ui-tab.ddp-type li .ddp-box-layout4.ddp-information a {padding:0px; borde
 /***********************************************************************************************************
 	page : 워크벤치 detail
 ************************************************************************************************************/
-.ddp-wrap-workbench {overflow:hidden;}
+.ddp-wrap-workbench {position:absolute; top:101px; left:0; right:0; bottom:0; width:initial; height:auto; overflow:hidden;}
+.ddp-wrap-workbench .ddp-ui-rnb {position:relative; display:table-cell;width:52px; background-color:#f8f7f9; z-index:20; vertical-align:top;}
+
+
 .ddp-wrap-workbench .ddp-layout-table {display:table; width:100%; height:100%;}
 .ddp-wrap-workbench .ddp-ui-benchlnb {display:table-cell; min-width:455px; position:relative;height:100%; background-color:#35393f; vertical-align: top; z-index:20;}
 .ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold {width:280px; min-width:260px;}
@@ -6303,7 +6306,7 @@ ul.ddp-ui-tab.ddp-type li .ddp-box-layout4.ddp-information a {padding:0px; borde
 
 .ddp-ui-benchlnb .ddp-data-name .ddp-wrap-info {position:absolute; top:1px; right:0px; padding:3px; font-size:0px;}
 .ddp-ui-benchlnb .ddp-data-name .ddp-wrap-info .ddp-btn-info2 {display:inline-block; vertical-align: middle;}
-.ddp-ui-benchlnb .ddp-data-name .ddp-wrap-info .ddp-box-layout4 {display:none; width:max-content; max-width:520px;  position:absolute; top:0; left:27px; top:-10px; z-index:1}
+.ddp-ui-benchlnb .ddp-data-name .ddp-wrap-info .ddp-box-layout4 {display:none; width:auto; max-width:520px; min-width:320px; position:fixed; top:140px; left:20px; z-index:10;}
 .ddp-ui-benchlnb .ddp-data-name .ddp-wrap-info .ddp-box-layout4 .ddp-form-scroll {max-height:480px; overflow:auto;}
 .ddp-ui-benchlnb .ddp-data-name .ddp-wrap-info .ddp-box-layout4 table.ddp-table-info {table-layout:inherit; }
 
