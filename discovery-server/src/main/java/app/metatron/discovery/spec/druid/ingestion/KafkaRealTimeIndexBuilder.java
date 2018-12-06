@@ -49,28 +49,32 @@ public class KafkaRealTimeIndexBuilder extends AbstractSpecBuilder {
 
   public KafkaRealTimeIndexBuilder ioConfig(String topic,
                                             Map<String, Object> consumerProperties,
+                                            Map<String, Object> ioOptions,
                                             Map<String, Object> tuningConfigs) {
 
-    // IO config 관련 기본 설정, metatron 내에서는 tuningConfigs 에 위치시킴
-    int taskCount = 1;
-    int replicas = 1;
-    String taskDuration = "PT1H";
+    if(MapUtils.isNotEmpty(ioOptions)) {
+      ioConfig = new KafkaIoConfig(topic, consumerProperties, ioOptions);
+    } else {
+      // remain for backward compatibility..
+      int taskCount = 1;
+      int replicas = 1;
+      String taskDuration = "PT1H";
 
-    if(MapUtils.isNotEmpty(tuningConfigs)) {
-      if (tuningConfigs.containsKey("taskCount")) {
-        taskCount = Integer.parseInt(tuningConfigs.get("taskCount") + "");
-      }
+      if (MapUtils.isNotEmpty(tuningConfigs)) {
+        if (tuningConfigs.containsKey("taskCount")) {
+          taskCount = Integer.parseInt(tuningConfigs.get("taskCount") + "");
+        }
 
-      if (tuningConfigs.containsKey("replicas")) {
-        replicas = Integer.parseInt(tuningConfigs.get("replicas") + "");
-      }
+        if (tuningConfigs.containsKey("replicas")) {
+          replicas = Integer.parseInt(tuningConfigs.get("replicas") + "");
+        }
 
-      if (tuningConfigs.containsKey("taskDuration")) {
-        taskDuration = (String) tuningConfigs.get("taskDuration");
+        if (tuningConfigs.containsKey("taskDuration")) {
+          taskDuration = (String) tuningConfigs.get("taskDuration");
+        }
       }
+      ioConfig = new KafkaIoConfig(topic, consumerProperties, taskCount, replicas, taskDuration);
     }
-
-    ioConfig = new KafkaIoConfig(topic, consumerProperties, taskCount, replicas, taskDuration);
 
     return this;
   }

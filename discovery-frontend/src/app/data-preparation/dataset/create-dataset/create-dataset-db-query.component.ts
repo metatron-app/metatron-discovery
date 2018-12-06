@@ -12,21 +12,19 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, Injector, OnInit, Input, ViewChild, HostListener, EventEmitter,
-  Output
-} from '@angular/core';
+import { Component, ElementRef, Injector, OnInit, Input, ViewChild, HostListener, EventEmitter, Output } from '@angular/core';
 import { DatasetService } from '../service/dataset.service';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
 import { PreparationAlert } from '../../util/preparation-alert.util';
-import { DatasetJdbc, DsType, RsType, ImportType, Field } from '../../../domain/data-preparation/dataset';
+import { DatasetJdbc, DsType, RsType, ImportType, Field, QueryInfo, TableInfo } from '../../../domain/data-preparation/dataset';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
 import { GridComponent } from '../../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
 import { GridOption } from '../../../common/component/grid/grid.option';
 import { StringUtil } from '../../../common/util/string.util';
 import * as $ from "jquery";
+import { isNullOrUndefined } from "util";
 
 @Component({
   selector: 'app-create-dataset-db-query',
@@ -51,26 +49,28 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   @Input()
   public datasetJdbc: DatasetJdbc;
 
-  public isDatabaseListShow : boolean = false;  // Database list show/hide
-  public isSchemaListShow: boolean = false;     // tables list show/hide
-  public tableOrQuery: string = 'table';        // 테이블 or query 방식 Default is table
+  public databaseList: any[] = [];
+  public isDatabaseListShow : boolean = false;
 
-  public isQuerySuccess: boolean;               // 쿼리 성공 실패 여부
+  public schemaList: any[] = [];
+  public isSchemaListShow: boolean = false;
+
+  public isQuerySuccess: boolean;
   public showQueryStatus: boolean = false;
   public queryErrorMsg: string = '';
 
-  public databaseList: any[] = [];              // Database list (first selectBox)
-  public schemaList: any[] = [];                // schema list (next selectBox)
-
   public clickable: boolean = false;            // is next btn clickable
-
-  // 선택된 데이터베이스 (query)
-  public selectedDatabaseQuery: string = '';
 
   public dbSearchText: string = '';
   public schemaSearchText: string = '';
 
   public flag: boolean = false;
+
+  public clearGrid : boolean = false;
+
+  public isTableEmpty: boolean = false;
+
+  public rsType = RsType;
 
   @Output()
   public typeEmitter = new EventEmitter<string>();
@@ -130,22 +130,25 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
   public ngOnInit() {
     super.ngOnInit();
 
+    // get database list
     this.getDatabases();
 
-    this.datasetJdbc.tableName = '';
-    this.datasetJdbc.databaseName = '';
-    this.datasetJdbc.queryStmt = '';
-    this.datasetJdbc.dsType = DsType.IMPORTED;
-    this.datasetJdbc.rsType = RsType.TABLE;
-    this.datasetJdbc.importType = ImportType.DB;
+    // Only initialise sqlInfo when sqlInfo doesn't have value
+    if (isNullOrUndefined(this.datasetJdbc.sqlInfo)) {
+      this.datasetJdbc.sqlInfo = new QueryInfo();
+    }
+
+    // Only initialise tableInfo when tableInfo doesn't have value
+    if (isNullOrUndefined(this.datasetJdbc.tableInfo)) {
+      this.datasetJdbc.tableInfo = new TableInfo();
+    }
+
+    this._setDefaultValues();
   }
 
-  // Destory
   public ngOnDestroy() {
     super.ngOnDestroy();
   }
@@ -158,6 +161,23 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     // 선택된 테이블/query가 없다면
     if (!this.clickable) {
       return;
+    }
+
+    if (this.datasetJdbc.rsType === RsType.SQL) {
+
+      if (this.showQueryStatus && this.isQuerySuccess) {
+        this.datasetJdbc.sqlInfo.valid = true;
+      } else {
+
+        if (isNullOrUndefined(this.isQuerySuccess) || !this.isQuerySuccess) {
+          this.showQueryStatus = true;
+          this.isQuerySuccess = false;
+          this.queryErrorMsg = this.translateService.instant('msg.common.ui.required');
+          return;
+        }
+
+      }
+
     }
 
     this.typeEmitter.emit('DB');
@@ -189,24 +209,26 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   } // function - close
 
   /**
-   * 데이터베이스 변경에 대한 이벤트 핸들러
+   * Change selected database
    * @param event
    * @param database
    */
   public onChangeDatabase(event,database) {
-    this.isDatabaseListShow = false;
-    this.gridComponent.destroy();
 
+    this.isDatabaseListShow = false;
     event.stopPropagation();
-    this.datasetJdbc.databaseName = database.name;
-    this.clickable = false;
+
+    this.datasetJdbc.tableInfo.databaseName = database.name;
+    this.datasetJdbc.tableInfo.tableName = undefined;
+
+    this._deleteGridInfo(this.datasetJdbc.rsType);
+
     this.getTables(database.name);
-    $('[tabindex=1]').focus();
     this.initSelectedCommand(this.filteredDbList);
   } // function - onChangeDatabase
 
   /**
-   * 테이블 변경에 대한 이벤트 핸들러
+   * change selected table
    * @param event
    * @param data
    */
@@ -215,52 +237,39 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     event.stopPropagation();
 
     this.loadingShow();
-    this.datasetJdbc.queryStmt = 'SELECT * FROM ' + this.datasetJdbc.databaseName + '.' + data.name;
-    this.datasetJdbc.tableName = data.name;
-    let params = {connection : this.datasetJdbc.dataconnection.connection, database : this.datasetJdbc.databaseName, query : this.datasetJdbc.tableName, type : 'TABLE'};
-    this.connectionService.getTableDetailWitoutId(params)
-      .then((result) => {
-        this.loadingHide();
 
-        const headers: header[] = result.fields.map(
-          (field: Field) => {
-            return new SlickGridHeader()
-              .Id(field.name)
-              .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type === 'UNKNOWN' ? field.logicalType : field.type) + '"></em>' + field.name + '</span>')
-              .Field(field.name)
-              .Behavior('select')
-              .Selectable(false)
-              .CssClass('cell-selection')
-              .Width(10 * (field.name.length) + 20)
-              .MinWidth(100)
-              .CannotTriggerInsert(true)
-              .Resizable(true)
-              .Unselectable(true)
-              .Sortable(true)
-              .build();
-          }
-        );
+    // Save table name -
+    this.datasetJdbc.tableInfo.tableName = data.name;
 
-        let rows: any[] = result.data;
+    let params = {
+      connection : this.datasetJdbc.dataconnection.connection,
+      database : this.datasetJdbc.tableInfo.databaseName,
+      query : this.datasetJdbc.tableInfo.tableName,
+      type : RsType.TABLE
+    };
 
-        if (result.data.length > 0 && !result.data[0].hasOwnProperty('id')) {
-          rows = rows.map((row: any, idx: number) => {
-            row.id = idx;
-            return row;
-          });
-        }
+    this.connectionService.getTableDetailWitoutId(params).then((result) => {
 
-        // 그리드가 영역을 잡지 못해서 setTimeout으로 처리
-        setTimeout(() => {
-          this.gridComponent.create(headers, rows, new GridOption()
-            .SyncColumnCellResize(true)
-            .MultiColumnSort(true)
-            .RowHeight(32)
-            .NullCellStyleActivate(true)
-            .build()
-          )},400);
+      this.loadingHide();
+      if (result.fields.length > 0 ) {
+
+        const headers: header[] = this._getHeaders(result.fields);
+        const rows: any[] = this._getRows(result.data);
+
+        // Save grid info -
+        this.datasetJdbc.tableInfo.headers = headers;
+        this.datasetJdbc.tableInfo.rows = rows;
+
+        this.clearGrid = false;
+        this._drawGrid(headers, rows);
         this.clickable = true;
-      })
+
+      } else {
+        this.gridComponent.destroy();
+        this._deleteGridInfo(this.datasetJdbc.rsType);
+      }
+
+    })
       .catch((error) => {
         this.loadingHide();
         let prep_error = this.dataprepExceptionHandler(error);
@@ -269,184 +278,155 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.initSelectedCommand(this.filteredSchemaList);
   } // function - onChangeTable
 
-  /** 데이터베이스 셀렉트 박스 show/hide */
+
+  /**
+   * Open/close database select box
+   * @param event
+   */
   public showDatabaseList(event?) {
     event ? event.stopImmediatePropagation() : null;
     this.isDatabaseListShow = true;
     this.isSchemaListShow = false;
     this.dbSearchText = ''; //검색어 초기화
-    setTimeout(() => $('.db-search').focus()); // focus on input
+    setTimeout(() => $('.db-search').trigger('focus')); // focus on input
 
   } // function - showDatabaseList
 
-  /** 특정 데이터 베이스 내 테이블 셀렉트 박스 show/hide */
-  public showSchemaList(event) {
-    event.stopImmediatePropagation();
+
+  /**
+   * Open/ close schemalist select box
+   * @param event
+   */
+  public showSchemaList(event?) {
+    event ? event.stopImmediatePropagation() : null;
     this.isSchemaListShow = true;
     this.isDatabaseListShow = false;
     this.schemaSearchText = ''; //검색어 초기화
-    setTimeout(() => $('.schema-search').focus()); // focus on input
+    setTimeout(() => $('.schema-search').trigger('focus')); // focus on input
 
   } // function - showSchemaList
 
-  /**
-   * init table tab
-   */
-  public initTable() {
-    this.datasetJdbc.tableName = '';
-    this.datasetJdbc.databaseName = '';
-    this.datasetJdbc.queryStmt = '';
-  }
 
-  /**
-   * init Query tab
-   */
-  public initQuery() {
-    this.datasetJdbc.tableName = '';
-    this.selectedDatabaseQuery = '';
-    this.datasetJdbc.queryStmt = '';
-    this.showQueryStatus = false;
-  }
   /**
    * Table or Query ?
    * @param method
    */
-  public selectedMethod(method) {
+  public selectTab(method) {
 
-    if (this.tableOrQuery !== method) {
-      if( method==='table' ) {
-        this.datasetJdbc.rsType = RsType.TABLE;
-      } else {
-        this.datasetJdbc.rsType = RsType.SQL;
-      }
-      this.tableOrQuery = method;
+    // When same tab is clicked
+    if (this.datasetJdbc.rsType === method) {
+      return;
+    }
 
-      if (this.gridComponent) {
-        this.gridComponent.destroy(); // destroy grid
-      }
+    // set tab
+    this.datasetJdbc.rsType = method;
 
-      this.clickable = false; // prevent moving to next stage
+    // destroy grid
+    this.gridComponent.destroy();
+
+    // When QUERY tab => db, schema select box is hidden
+    if (this.datasetJdbc.rsType !== RsType.TABLE) {
       this.isDatabaseListShow = false;
       this.isSchemaListShow = false;
-      this.initTable();
-      this.initQuery();
+      this.clickable = true;
+    }
+
+    // If grid data exists, draw grid.
+    let data = this.datasetJdbc[method.toLowerCase()+'Info'];
+    if (data.headers && data.headers.length > 0) {
+      this.clearGrid = false;
+      this._drawGrid(data.headers,data.rows)
+    } else {
+      this.clickable = false;
+      this.clearGrid = true;
     }
 
   } // function - selectedMethod
 
-  /** 쿼리로 테이블 불러오기 */
+  /**
+   * Run query and get grid info
+   */
   public runJdbcQuery() {
-    if (this.datasetJdbc.queryStmt == null || this.datasetJdbc.queryStmt == '' || this.datasetJdbc.queryStmt == undefined) {
+
+    if (this.datasetJdbc.sqlInfo.queryStmt == '' ) {
       return;
     }
+
+    this.loadingShow();
 
     // console.info('runJdbcQuery', this.datasetJdbc);
     const param: any = {};
     param.connection = this.datasetJdbc.dataconnection.connection;
-    param.hostname = this.datasetJdbc.dataconnection.connection.hostname;
-    param.implementor = this.datasetJdbc.dataconnection.connection.implementor;
-    param.username = this.datasetJdbc.dataconnection.connection.username;
-    param.password = this.datasetJdbc.dataconnection.connection.password;
-    param.port = this.datasetJdbc.dataconnection.connection.port;
-    param.query = this.datasetJdbc.queryStmt;
+    // param.hostname = this.datasetJdbc.dataconnection.connection.hostname;
+    // param.implementor = this.datasetJdbc.dataconnection.connection.implementor;
+    // param.username = this.datasetJdbc.dataconnection.connection.username;
+    // param.password = this.datasetJdbc.dataconnection.connection.password;
+    // param.port = this.datasetJdbc.dataconnection.connection.port;
+    param.query = this.datasetJdbc.sqlInfo.queryStmt;
     param.type = 'QUERY';
 
-    // console.info('param', param);
-
     this.queryErrorMsg = '';
-    if(this.gridComponent) {
-      this.gridComponent.destroy(); // destroy grid
-    }
 
-    // // 테이블 상세 조회
+    // Get grid info using query
     this.datasetService.getTableDetailWitoutId(param)
       .then((result) => {
+
         this.loadingHide();
         // console.info('getTableDetailWitoutId', result);
-          if (result.hasOwnProperty('errorMsg')) {
-            this.showQueryStatus = true;
-            this.isQuerySuccess = false;
-            this.queryErrorMsg = result.errorMsg;
-            this.clickable = false;
-            this.gridComponent.destroy();
-            return;
-          }
-          this.showQueryStatus = true;
-          this.isQuerySuccess = true;
+        if (result.hasOwnProperty('errorMsg')) {
+          this.queryErrorMsg = this.translateService.instant('msg.dp.ui.invalid.conn');
+          this.clickable = false;
+          this.datasetJdbc.sqlInfo.valid = false;
+          this._deleteGridInfo(this.datasetJdbc.rsType);
 
-          const headers: header[] = result.fields.map(
-            (field: Field) => {
-              return new SlickGridHeader()
-                .Id(field.name)
-                .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type === 'UNKNOWN' ? field.logicalType : field.type) + '"></em>' + field.name + '</span>')
-                .Field(field.name)
-                .Behavior('select')
-                .Selectable(false)
-                .CssClass('cell-selection')
-                .Width(10 * (field.name.length) + 20)
-                .MinWidth(100)
-                .CannotTriggerInsert(true)
-                .Resizable(true)
-                .Unselectable(true)
-                .Sortable(true)
-                .build();
-            }
-          );
+          return;
+        }
+        this.showQueryStatus = true;
+        this.isQuerySuccess = true;
 
-          let rows: any[] = result.data;
+        const headers: header[] = this._getHeaders(result.fields);
+        const rows = this._getRows(result.data);
 
-          if (result.data.length > 0 && !result.data[0].hasOwnProperty('id')) {
-            rows = rows.map((row: any, idx: number) => {
-              row.id = idx;
-              return row;
-            });
-          }
+        // Save grid info -
+        this.datasetJdbc.sqlInfo.headers = headers;
+        this.datasetJdbc.sqlInfo.rows = rows;
+        this.datasetJdbc.sqlInfo.valid = true;
 
-          setTimeout(() => {
-            this.gridComponent.create(headers, rows, new GridOption()
-              .SyncColumnCellResize(true)
-              .MultiColumnSort(true)
-              .RowHeight(32)
-              .NullCellStyleActivate(true)
-              .build()
-            )},400);
-
-          this.clickable = true;
+        this.clearGrid = false;
+        this._drawGrid(headers,rows);
+        this.clickable = true;
 
       })
       .catch((error) => {
-          let prep_error = this.dataprepExceptionHandler(error);
-          PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
 
-          this.gridComponent.destroy(); // destroy grid
-          this.showQueryStatus = true;
-          this.isQuerySuccess = false;
-          this.queryErrorMsg = error.details;
-          this.clickable = false;
-        //   // 쿼리가 실패했다면 error message 를 날리자
         this.loadingHide();
+        this.gridComponent.destroy(); // destroy grid
+        this.showQueryStatus = true;
+        this.isQuerySuccess = false;
+        this.clearGrid = true;
+        this.queryErrorMsg = this.translateService.instant('msg.dp.ui.invalid.conn');
+        this.clickable = false;
+
       });
   }
 
-
-  // 쿼리의 데이터베이스 선택
-  public onSelectedDatabaseQuery(event,data) {
-    // 선택한 데이터 베이스 이름
-    event.stopPropagation();
-    this.isDatabaseListShow = false;
-    this.selectedDatabaseQuery = data.name;
-    this.datasetJdbc.databaseName = data.name;
-  }
-
-
-  // TODO
+  /**
+   * When text changes in text editor
+   * @param {string} param
+   */
   public editorTextChange(param: string) {
     if(this.clickable) {
       this.clickable = !this.clickable;
     }
-    if(param != this.datasetJdbc.queryStmt) {
-      this.datasetJdbc.queryStmt = param;
+
+    if (this.datasetJdbc.sqlInfo.queryStmt !== param) {
+      this.datasetJdbc.sqlInfo.queryStmt = param;
+      this.datasetJdbc.sqlInfo.valid = false;
+
+      this._deleteGridInfo(this.datasetJdbc.rsType);
+      this.clickable = true;
     }
+
   }
 
   /**
@@ -578,7 +558,6 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     switch(list) {
       case 'db':
         tempList = this.filteredDbList;
-        $('[tabindex=1]').focus();
         break;
       case 'schema':
         tempList = this.filteredSchemaList;
@@ -623,7 +602,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 데이터베이스 목록 조회
+   * Get database list
    */
   private getDatabases() {
     this.loadingShow();
@@ -645,50 +624,210 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.connectionService.getDatabasesWithoutId(this.datasetJdbc.dataconnection)
       .then((data) => {
         this.loadingHide();
+
+        this.databaseList = [];
+
         if (data && data.databases) {
-          for (let idx = 0, nMax = data.databases.length; idx < nMax; idx = idx + 1) {
-            this.databaseList.push({ idx : idx, name : data.databases[idx], selected : false });
-          }
+          data.databases.forEach((item, index) => {
+            this.databaseList.push({idx : index, name : item, selected : false})
+          })
         }
-        this.showDatabaseList();
-      })
-      .catch((error) => {
-        this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-      });
+
+        // TABLE && GRID INFO
+        if (this.datasetJdbc.rsType === RsType.TABLE && this.datasetJdbc.tableInfo.headers) {
+          this.clearGrid = false;
+          this.getTables(this.datasetJdbc.tableInfo.databaseName);
+          this._drawGrid(this.datasetJdbc.tableInfo.headers,this.datasetJdbc.tableInfo.rows);
+
+          // QUERY AND GRID INFO
+        } else if (this.datasetJdbc.rsType === RsType.SQL && this.datasetJdbc.sqlInfo.queryStmt) {
+
+          // STILL NEED TO GET TABLE INFO
+          if (this.datasetJdbc.tableInfo && this.datasetJdbc.tableInfo.databaseName) {
+            this.getTables(this.datasetJdbc.tableInfo.databaseName);
+          }
+
+          // GRID INFO O
+          if (this.datasetJdbc.sqlInfo.headers.length > 0) {
+            this.clearGrid = false;
+            this._drawGrid(this.datasetJdbc.sqlInfo.headers,this.datasetJdbc.sqlInfo.rows);
+          } else {
+
+            // GRID INFO X
+            this.clickable = true;
+            this.clearGrid = true;
+          }
+
+        } else {  // Neither
+          this.showDatabaseList();
+        }
+
+      }).catch((error) => {
+      this.loadingHide();
+      let prep_error = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+    });
 
 
   } // function - getDatabases
 
   /**
-   * 특정 데이터 베이스 내 테이블 목록 조회
-   * @param {string} schema
+   * Get table list
+   * @param {string} database
    */
-  private getTables(schema:string) {
+  private getTables(database:string) {
     this.loadingShow();
 
-    this.schemaList = [];
-    this.datasetJdbc.tableName = '';
+    const param = {
+      connection : this.datasetJdbc.dataconnection.connection,
+      database : database
+    };
 
-    this.connectionService.getTablesWitoutId({connection : this.datasetJdbc.dataconnection.connection, database : schema})
-      .then((data) => {
-        this.loadingHide();
-        if (data && data.tables) {
-          data.tables.forEach((item, index) => {
-            this.schemaList.push({idx : index, name : item, selected : false});
-          });
-        } else {
-          this.schemaList = [];
-        }
-      })
-      .catch((error) => {
+    this.connectionService.getTablesWitoutId(param).then((data) => {
+      this.loadingHide();
+
+      this.schemaList = [];
+      if (data && data.tables.length > 0) {
+        data.tables.forEach((item, index) => {
+          this.schemaList.push({idx : index, name : item, selected : false});
+        });
+        this.isTableEmpty = false;
+
+      } else {
         this.schemaList = [];
-        this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-      });
+        this.datasetJdbc.tableInfo.tableName = undefined;
+        this.isTableEmpty = true;
+
+        if (this.gridComponent) {
+          this.gridComponent.destroy();
+        }
+      }
+    }).catch((error) => {
+      this.schemaList = [];
+      this.isTableEmpty = true;
+      this.loadingHide();
+      let prep_error = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+    });
 
   } // function - getTables
+
+
+  /**
+   * Draw Grid
+   * @param {header[]} headers
+   * @param {any[]} rows
+   * @private
+   */
+  private _drawGrid(headers: header[], rows : any[]) {
+    // 그리드가 영역을 잡지 못해서 setTimeout으로 처리
+    setTimeout(() => {
+      this.gridComponent.create(headers, rows, new GridOption()
+        .SyncColumnCellResize(true)
+        .MultiColumnSort(true)
+        .RowHeight(32)
+        .NullCellStyleActivate(true)
+        .build()
+      )},400);
+    this.clickable = true;
+  }
+
+
+  /**
+   * Return Rows for grid
+   * @param rows
+   * @returns {any[]}
+   * @private
+   */
+  private _getRows(rows) : any[] {
+    let result = rows;
+    if (result.length > 0 && !result[0].hasOwnProperty('id')) {
+      result = rows.map((row: any, idx: number) => {
+        row.id = idx;
+        return row;
+      });
+    }
+    return result;
+  }
+
+
+  /**
+   * Returns headers for grid
+   * @param headers
+   * @returns {header[]}
+   * @private
+   */
+  private _getHeaders(headers) : header[] {
+    return headers.map(
+      (field: Field) => {
+        return new SlickGridHeader()
+          .Id(field.name)
+          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type === 'UNKNOWN' ? field.logicalType : field.type) + '"></em>' + field.name + '</span>')
+          .Field(field.name)
+          .Behavior('select')
+          .Selectable(false)
+          .CssClass('cell-selection')
+          .Width(10 * (field.name.length) + 20)
+          .MinWidth(100)
+          .CannotTriggerInsert(true)
+          .Resizable(true)
+          .Unselectable(true)
+          .Sortable(true)
+          .build();
+      }
+    );
+  }
+
+
+  /**
+   * Set default values
+   * @private
+   */
+  private _setDefaultValues() {
+
+    // Imported and DB type is default value
+    this.datasetJdbc.dsType = DsType.IMPORTED;
+    this.datasetJdbc.importType = ImportType.DB;
+
+
+    // When no tab is selected -> default is TABLE
+    if (isNullOrUndefined(this.datasetJdbc.rsType)) {
+      this.datasetJdbc.rsType = RsType.TABLE;
+    }
+
+    // Check if validity is already checked
+    if (this.datasetJdbc.sqlInfo && this.datasetJdbc.sqlInfo.valid) {
+      this.isQuerySuccess = true;
+      this.showQueryStatus = true;
+      this.clickable = true;
+      this.clearGrid = false;
+    }
+  }
+
+
+  /**
+   * Initialise status
+   * @param {RsType} type
+   * @private
+   */
+  private _deleteGridInfo(type : RsType) {
+
+    if (type === RsType.SQL) {
+
+      this.datasetJdbc.sqlInfo.headers = [];
+      this.datasetJdbc.sqlInfo.rows = [];
+      this.showQueryStatus = false;
+
+    } else {
+
+      this.datasetJdbc.tableInfo.headers = [];
+      this.datasetJdbc.tableInfo.rows = [];
+
+    }
+
+    this.gridComponent.destroy();
+    this.clearGrid = true;
+    this.clickable = false;
+  }
 
 }

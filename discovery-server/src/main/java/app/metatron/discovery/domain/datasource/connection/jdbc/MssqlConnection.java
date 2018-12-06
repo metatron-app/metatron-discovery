@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import java.util.List;
 
 /**
  * Created by kyungtaak on 2016. 6. 16..
@@ -96,6 +97,14 @@ public class MssqlConnection extends JdbcDataConnection {
       builder.append("   SELECT name, ROW_NUMBER() OVER(ORDER BY name ASC) AS NUM ");
       builder.append("   FROM sys.databases ");
       builder.append("   WHERE name NOT IN ('master', 'tempdb', 'model', 'msdb') ");
+
+      List<String> excludeSchemas = this.getExcludeSchemas();
+      if(excludeSchemas != null){
+        builder.append(" AND name NOT IN ( ");
+        builder.append("'" + StringUtils.join(excludeSchemas, "','") + "'");
+        builder.append(" ) ");
+      }
+
       if(StringUtils.isNotEmpty(databaseNamePattern)){
         builder.append("   AND name LIKE '%" + databaseNamePattern + "%' ");
       }
@@ -105,6 +114,14 @@ public class MssqlConnection extends JdbcDataConnection {
       builder.append(" SELECT name ");
       builder.append(" FROM sys.databases ");
       builder.append(" WHERE name NOT IN ('master', 'tempdb', 'model', 'msdb') ");
+
+      List<String> excludeSchemas = this.getExcludeSchemas();
+      if(excludeSchemas != null){
+        builder.append(" AND name NOT IN ( ");
+        builder.append("'" + StringUtils.join(excludeSchemas, "','") + "'");
+        builder.append(" ) ");
+      }
+
       if(StringUtils.isNotEmpty(databaseNamePattern)){
         builder.append(" AND name LIKE '%" + databaseNamePattern + "%' ");
       }
@@ -128,6 +145,14 @@ public class MssqlConnection extends JdbcDataConnection {
       builder.append("   INNER JOIN SYS.SCHEMAS s ");
       builder.append("     ON s.schema_id = ao.schema_id ");
       builder.append("   WHERE ao.type = 'u' ");
+
+      List<String> excludeSchemas = this.getExcludeSchemas();
+      if(excludeSchemas != null){
+        builder.append(" AND s.name NOT IN ( ");
+        builder.append("'" + StringUtils.join(excludeSchemas, "','") + "'");
+        builder.append(" ) ");
+      }
+
       if(StringUtils.isNotEmpty(schemaNamePattern)){
         builder.append("   AND s.name LIKE '%" + schemaNamePattern + "%' ");
       }
@@ -140,6 +165,14 @@ public class MssqlConnection extends JdbcDataConnection {
       builder.append(" INNER JOIN SYS.SCHEMAS s ");
       builder.append("   ON s.schema_id = ao.schema_id ");
       builder.append(" WHERE ao.type = 'u' ");
+
+      List<String> excludeSchemas = this.getExcludeSchemas();
+      if(excludeSchemas != null){
+        builder.append(" AND s.name NOT IN ( ");
+        builder.append("'" + StringUtils.join(excludeSchemas, "','") + "'");
+        builder.append(" ) ");
+      }
+
       if(StringUtils.isNotEmpty(schemaNamePattern)){
         builder.append(" AND s.name LIKE '%" + schemaNamePattern + "%' ");
       }
@@ -193,6 +226,14 @@ public class MssqlConnection extends JdbcDataConnection {
     builder.append(" SELECT COUNT(name) ");
     builder.append(" FROM sys.databases ");
     builder.append(" WHERE name NOT IN ('master', 'tempdb', 'model', 'msdb') ");
+
+    List<String> excludeSchemas = this.getExcludeSchemas();
+    if(excludeSchemas != null){
+      builder.append(" AND name NOT IN ( ");
+      builder.append("'" + StringUtils.join(excludeSchemas, "','") + "'");
+      builder.append(" ) ");
+    }
+
     if(StringUtils.isNotEmpty(databaseNamePattern)){
       builder.append(" AND name LIKE '%" + databaseNamePattern + "%' ");
     }

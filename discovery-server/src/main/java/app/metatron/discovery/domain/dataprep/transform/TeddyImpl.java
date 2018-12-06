@@ -143,7 +143,7 @@ public class TeddyImpl {
   }
 
   // APPEND *AFTER* stageIdx
-  public DataFrame append(String dsId, int stageIdx, String ruleString, boolean forced) throws TeddyException {
+  public DataFrame append(String dsId, int stageIdx, String ruleString, boolean forced) {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
     Revision newRev = new Revision(rev, stageIdx + 1);
     DataFrame newDf = null;
@@ -153,9 +153,10 @@ public class TeddyImpl {
       newDf = apply(rev.get(stageIdx), ruleString);
     } catch (TeddyException te) {
       if (forced == false) {
-        throw te;
+        throw PrepException.fromTeddyException(te);   // RuntimeException
       }
       suppressed = true;
+      LOGGER.info("append(): TeddyException is suppressed: {}", te.getMessage());
     }
 
     if (suppressed) {

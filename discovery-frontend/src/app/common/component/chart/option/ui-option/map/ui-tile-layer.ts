@@ -28,10 +28,10 @@ export interface UITileLayer extends UILayers {
   // Coverage of tile(0~100), default 80
   coverage?: number;
 
+  // Radius value (0~100), default 20
+  radius?: number;
+
   ////////////////////////
   ///// UI Spec
   ////////////////////////
-
-  // Radius value (0~100), default 20
-  radius?: number;
 }

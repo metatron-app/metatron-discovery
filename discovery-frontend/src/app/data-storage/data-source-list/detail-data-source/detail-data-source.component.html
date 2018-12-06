@@ -100,14 +100,14 @@
         <!-- Grid data -->
         <li [ngClass]="{'ddp-selected' : mode ==='grid'}"
             (click)="onChangeMode('grid')"
-        >
+            *ngIf="isEnabled()">
           <a href="javascript:">{{'msg.storage.btn.grid' | translate}}</a>
         </li>
         <!-- //Grid data -->
         <!-- Column details -->
         <li [ngClass]="{'ddp-selected' : mode ==='columns'}"
             (click)="onChangeMode('columns')"
-        >
+            *ngIf="isEnabled()">
           <a href="javascript:">{{'msg.storage.btn.columns' | translate}}</a>
         </li>
         <!-- //Column details -->
@@ -136,6 +136,7 @@
                                [isNotShowProgress]="isNotShowProgress"
                                [historyId]="historyId"
                                [datasource]="datasource"
+                               [timestampColumn]="timestampColumn"
                                [(mode)]="mode"
                                (confirm)="confirmModalOpen($event)"
       ></information-data-source>

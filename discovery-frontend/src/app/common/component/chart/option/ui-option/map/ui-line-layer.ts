@@ -32,13 +32,12 @@ export interface UILineLayer extends UILayers {
   // Thickness of line
   thickness?: UIThickness;
 
+  // line style (solid, dashed, dotted)
+  lineStyle?: MapLineStyle;
+
   ////////////////////////
   ///// UI Spec
   ////////////////////////
-
-  // TODO specs which don't exist in server spec
-  // line style (solid, dashed, dotted)
-  lineStyle?: MapLineStyle;
 }
 
 /**

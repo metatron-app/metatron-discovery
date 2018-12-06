@@ -44,9 +44,9 @@ import { GeoBoundaryFormat, GeoHashFormat } from '../../domain/workbook/configur
 import { UIMapOption } from '../../common/component/chart/option/ui-option/map/ui-map-chart';
 import { ChartUtil } from '../../common/component/chart/option/util/chart-util';
 import {Limit} from "../../domain/workbook/configurations/limit";
+import {CommonConstant} from "../../common/constant/common.constant";
 import { MapLayerType } from '../../common/component/chart/option/define/map/map-common';
 import { UITileLayer } from '../../common/component/chart/option/ui-option/map/ui-tile-layer';
-
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -165,8 +165,8 @@ export class DatasourceService extends AbstractService {
 
     if (FilterUtil.isTimeFilter(filter)) {
       const timeFilter: TimeFilter = <TimeFilter>filter;
-      if ('current_datetime' === timeFilter.field) {
-        param.targetField = { granularity: 'ALL', name: 'current_datetime', type: 'timestamp' };
+      if (CommonConstant.COL_NAME_CURRENT_DATETIME === timeFilter.field) {
+        param.targetField = { granularity: 'ALL', name: CommonConstant.COL_NAME_CURRENT_DATETIME, type: 'timestamp' };
       } else {
         param.targetField = {
           type: 'timestamp',
@@ -470,13 +470,11 @@ export class DatasourceService extends AbstractService {
             // when logicalType => geo point
             if(layer.field.logicalType === LogicalType.GEO_POINT) {
 
-              let measureList = _.filter(_.cloneDeep(pageConf.shelf.layers[layerNum]), (item) => {if (item.type === 'measure') return item});
-
               // geo_hash is only used in hexagon
-              if (MapLayerType.TILE === (<UIMapOption>pageConf.chart).layers[layerNum].type && measureList && measureList.length > 0) {
+              if (MapLayerType.TILE === (<UIMapOption>pageConf.chart).layers[layerNum].type) {
                 layer.format = <GeoHashFormat>{
                   type: FormatType.GEO_HASH.toString(),
-                  method: "h3",
+                  method: "geohex",
                   precision: precision
                 }
               }

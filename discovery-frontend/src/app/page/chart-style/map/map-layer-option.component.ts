@@ -21,7 +21,7 @@ import {
   MapThickness
 } from '../../../common/component/chart/option/define/map/map-common';
 import * as _ from 'lodash';
-import { ShelveFieldType, SymbolType } from '../../../common/component/chart/option/define/common';
+import { EventType, ShelveFieldType, SymbolType } from '../../../common/component/chart/option/define/common';
 import { UISymbolLayer } from '../../../common/component/chart/option/ui-option/map/ui-symbol-layer';
 import { MapOutline } from '../../../common/component/chart/option/ui-option/map/ui-outline';
 import { UIPolygonLayer } from '../../../common/component/chart/option/ui-option/map/ui-polygon-layer';
@@ -338,8 +338,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public changeColorColumn(data: Field) {
 
+    let aggregationType = 'measure' === data.type ? data.aggregationType : data.format.unit.toString();
+
     this.uiOption.layers[this.index].color.column = data.name;
-    this.uiOption.layers[this.index].color.aggregationType = data.aggregationType;
+    this.uiOption.layers[this.index].color.aggregationType = aggregationType;
 
     this.applyLayers();
   }
@@ -798,8 +800,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     else if( !_.eq(layer.color.by, MapBy.DIMENSION) && isMeasure ) {
       layer.color.by = MapBy.MEASURE;
       layer.color.schema = 'VC1';
-      layer.color.column = this.uiOption.fieldMeasureList[0]['name'];
-      layer.color.aggregationType = this.uiOption.fieldMeasureList[0]['aggregationType'];
+      layer.color.column = this.measureList[0]['name'];
+      layer.color.aggregationType = this.measureList[0]['aggregationType'];
     }
     ///////////////////////////
     // Color by Dimension
@@ -807,8 +809,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     else if( isDimension ) {
       layer.color.by = MapBy.DIMENSION;
       layer.color.schema = 'SC1';
-      layer.color.column = this.uiOption.fielDimensionList[0]['name'];
-      layer.color.aggregationType = null;
+      layer.color.column = this.dimensionList[0]['name'];
+      if (this.dimensionList[0]['format']) layer.color.aggregationType = this.dimensionList[0]['format']['unit'].toString();
     }
 
     return layer;

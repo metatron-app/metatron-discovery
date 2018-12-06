@@ -140,6 +140,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isMaximize = false;                // 최대 여부
   public mouseMode: string = 'SINGLE';     // 차트 마우스 모드
 
+  public isSetChartData:boolean = false;          // 차트 데이터 설정 여부
   public isUpdateRedraw: boolean = true;          // 다시그리는 새로고침
   public isShowHierarchyView: boolean = false;    // 차트 계층 표시 여부
   public isInvalidPivot: boolean = false;          // 선반정보를 확인해야 하는 경우
@@ -175,6 +176,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   // is Origin data down
   public isOriginDown: boolean = false;
   public srchText:string;
+  public isCanNotDownAggr:boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables - Input & Output
@@ -426,7 +428,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           } else if (this.chart.uiOption.type === ChartType.LABEL) {
 
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
-            (<NetworkChartComponent>this.chart).draw();
+            ( this.isSetChartData ) && ( (<NetworkChartComponent>this.chart).draw() );
           } else if (this.chart.uiOption.type === ChartType.MAP) {
             (<MapChartComponent>this.chart).resize();
           } else {
@@ -970,21 +972,28 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public drawDataGrid(isOriginal: boolean = false) {
 
-    this.loadingShow();
     this.isOriginDown = isOriginal;
+    this.isCanNotDownAggr = false;
+
+    let fields = [];
+    const clonePivot: Pivot = _.cloneDeep(this.widgetConfiguration.pivot);
+    (clonePivot.rows) && (fields = fields.concat(clonePivot.rows));
+    (clonePivot.columns) && (fields = fields.concat(clonePivot.columns));
+    (clonePivot.aggregations) && (fields = fields.concat(clonePivot.aggregations));
+
+    if( isOriginal && fields.some((field: Field) => ( field['field'] && field['field'].aggregated ) ) ) {
+      this.isCanNotDownAggr = true;
+      this.safelyDetectChanges();
+      return false;
+    }
+
+    this.loadingShow();
     this.widgetService.previewWidget(this.widget.id, isOriginal, false).then(result => {
 
-
-
-      let fields = [];
-      const clonePivot: Pivot = _.cloneDeep(this.widgetConfiguration.pivot);
-      (clonePivot.rows) && (fields = fields.concat(clonePivot.rows));
-      (clonePivot.columns) && (fields = fields.concat(clonePivot.columns));
-      (clonePivot.aggregations) && (fields = fields.concat(clonePivot.aggregations));
       // 헤더정보 생성
       const headers: header[]
         = fields.map((field: Field) => {
-        const logicalType:string = field['field'] ? field['field'].logicalType.toString() : '';
+        const logicalType:string = ( field['field'] && field['field'].logicalType ) ? field['field'].logicalType.toString() : '';
         let headerName: string = field.name;
         if( field['aggregationType'] ) {
           if( !isOriginal ) {
@@ -1201,6 +1210,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     // 프로세스 실행 등록
     this.processStart();
     this._isDuringProcess = true;
+    this.isSetChartData = false;
 
     if (!this.chart) {
       this.updateComplete();
@@ -1361,6 +1371,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           this.getAnalysis();
         } else {
           this.chart.resultData = this.resultData;
+          this.isSetChartData = true;
         }
 
         // Set Limit Info

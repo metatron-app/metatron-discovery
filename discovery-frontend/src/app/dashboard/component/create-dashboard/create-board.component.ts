@@ -49,7 +49,7 @@ export class CreateBoardComponent extends AbstractPopupComponent implements OnIn
   @Input()
   public workspaceId: string;
 
-  public isDenyNext: boolean = false;
+  public isDenyNext: boolean = true;
   public isShowButtons: boolean = true;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

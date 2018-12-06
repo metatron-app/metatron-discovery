@@ -28,6 +28,7 @@ import { StringUtil } from '../../common/util/string.util';
 import { TimeFilter } from '../../domain/workbook/configurations/filter/time-filter';
 import { ConfigureFiltersTimeComponent } from './time-filter/configure-filters-time.component';
 import { FilterUtil } from '../util/filter.util';
+import {CommonConstant} from "../../common/constant/common.constant";
 
 @Component({
   selector: 'app-config-filter-update',
@@ -202,7 +203,7 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
       && (<Field>this.targetField).biType === BIType.TIMESTAMP
       && this.targetField.role === FieldRole.TIMESTAMP
     ) || (
-      this.targetField == null && this.targetFilter.field === 'current_datetime'
+      this.targetField == null && this.targetFilter.field === CommonConstant.COL_NAME_CURRENT_DATETIME
     );
   } // function - isTimestamp
 

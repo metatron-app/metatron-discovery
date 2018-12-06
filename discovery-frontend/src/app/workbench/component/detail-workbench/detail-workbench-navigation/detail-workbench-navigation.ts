@@ -94,6 +94,7 @@ export class DetailWorkbenchNavigation extends AbstractComponent implements OnIn
   }
 
   public ngOnInit(): void {
+    this.page.size = 20;
     this.getQueryNavigation();
   }
 
@@ -119,6 +120,11 @@ export class DetailWorkbenchNavigation extends AbstractComponent implements OnIn
     this.isFilterShow = !this.isFilterShow;
   }
 
+  public moreButton(){
+    this.page.page = this.page.page + 1;
+    this.getQueryNavigation();
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -140,7 +146,6 @@ export class DetailWorkbenchNavigation extends AbstractComponent implements OnIn
         this.loadingHide();
         this.pageResult = data['page'];
         this.navigation = this.navigation.concat(data['_embedded'].books);
-        this.page.page += 1;
       })
       .catch((error) => {
         this.loadingHide();

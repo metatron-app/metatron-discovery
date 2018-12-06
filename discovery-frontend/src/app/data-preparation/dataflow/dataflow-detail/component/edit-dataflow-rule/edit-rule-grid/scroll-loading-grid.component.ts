@@ -81,6 +81,8 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
   @Output() private onHeaderRowCellRendered = new EventEmitter();
 
+  @Output() private onGridContextCloseEvent = new EventEmitter();            // 그리드 context menu close
+
 
   public totalRowCnt: number = 0;
 
@@ -482,14 +484,22 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
       // Header menu plugin
       let headerButtonsPlugin = new Slick.Plugins.HeaderButtons();
       headerButtonsPlugin.onCommand.subscribe((e, args) => {
-        this.onContextMenuClick.emit({
+
+        const contextMenuParam = {
           columnName: args.button.command,
           index: args.button.index,
           left: e.pageX,
           top: e.pageY,
           columnType: args.button.type
-        });
+        };
+
+        if (args.button.timestampStyle){ // only if column is timestamp type
+          contextMenuParam['timestampStyle'] = args.button.timestampStyle;
+        }
+
+        this.onContextMenuClick.emit(contextMenuParam);
         grid.invalidate();
+
       });
       grid.registerPlugin(headerButtonsPlugin);
     }
@@ -505,6 +515,15 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   private fixGridScroll(viewPortLeftPx: number): void {
     if(this._gridTimer) {clearTimeout(this._gridTimer);}
     this._gridTimer = setTimeout(() => {this._currentScrollLeft = viewPortLeftPx;this._grid.invalidate();this._grid.render();}, 400);
+  }
+
+
+  /**
+   * Grid onScroll 이벤트 발생
+   * @private
+   */
+  private allContextMenuClose(): void {
+    this.onGridContextCloseEvent.emit();
   }
 
   /**
@@ -524,6 +543,12 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
         this.fixGridScroll(viewPortLeftPx)
       }
     });
+
+    // 그리드 스크롤 이벤트
+    grid.onScroll.subscribe((e: any, args:any) => {
+      this.allContextMenuClose();
+    });
+
 
     // 로더 이벤트 정의
     gridModel.onDataLoading.subscribe(() => {

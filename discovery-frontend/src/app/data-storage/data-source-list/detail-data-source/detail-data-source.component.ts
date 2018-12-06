@@ -14,7 +14,7 @@
 
 import {Component, ElementRef, Injector, OnChanges, OnInit, ViewChild} from '@angular/core';
 import {AbstractComponent} from '../../../common/component/abstract.component';
-import {Datasource, SourceType, Status} from '../../../domain/datasource/datasource';
+import {Datasource, FieldFormatType, FieldRole, SourceType, Status} from '../../../domain/datasource/datasource';
 import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {Alert} from '../../../common/util/alert.util';
 import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
@@ -101,6 +101,9 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
 
   // history id
   public historyId: string;
+
+  // timestamp column
+  public timestampColumn: any;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -322,7 +325,6 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   public deleteDatasource(): void {
     // 로딩 show
     this.loadingShow();
-
     this.datasourceService.deleteDatasource(this.datasourceId)
       .then((result) => {
         // alert
@@ -481,6 +483,18 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
         .then((datasource) => {
           // set datasource
           this.datasource = datasource;
+          // fields loop
+          this.datasource.fields.forEach((field, index, list) => {
+            // if field TIMESTAMP
+            if (field.role === FieldRole.TIMESTAMP) {
+              // set timestamp column
+              this.timestampColumn = field;
+              // if column is current time, hide
+              if (field.format &&  field.format.type === FieldFormatType.TEMPORARY_TIME) {
+                list.splice(index, 1);
+              }
+            }
+          });
           // set view mode
           this.mode = mode;
           resolve(datasource);

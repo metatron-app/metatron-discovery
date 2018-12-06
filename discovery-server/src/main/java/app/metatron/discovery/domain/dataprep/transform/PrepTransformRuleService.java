@@ -289,15 +289,18 @@ public class PrepTransformRuleService {
         break;
       case "split":
         on = ((Map) mapRule.get("on")).get("value");
+        col = ((Map) mapRule.get("col")).get("value");
         limit = ((Integer) (mapRule.get("limit"))).intValue();
         strCount = combineCountAndUnit(limit + 1, "column");      // split N times, produces N + 1 columns
-        shortRuleString = String.format(FMTSTR_SPLIT, mapRule.get("col"), strCount, nodeToString(on));
+
+        shortRuleString = String.format(FMTSTR_SPLIT, shortenColumnList(col), strCount, nodeToString(on));
         break;
       case "extract":
         on = ((Map) mapRule.get("on")).get("value");
+        col = ((Map) mapRule.get("col")).get("value");
         limit = ((Integer) (mapRule.get("limit"))).intValue();
         strCount = combineCountAndUnit(limit, "time");            // extract N times, produces just N columns
-        shortRuleString = String.format(FMTSTR_EXTRACT, nodeToString(on), strCount, mapRule.get("col"));
+        shortRuleString = String.format(FMTSTR_EXTRACT, nodeToString(on), strCount, shortenColumnList(col));
         break;
       case "flatten":
         shortRuleString = String.format(FMTSTR_FLATTEN, mapRule.get("col"));
@@ -369,7 +372,8 @@ public class PrepTransformRuleService {
         // N columns
         String strColumns = "a new column";
         if (((Map) val).size() == 1) {
-          strColumns = ((Map) val).size() + " columns";
+          List functions = (List) ((Map) val).get("functions");
+          strColumns = functions.size() + " columns";
         }
 
         // order

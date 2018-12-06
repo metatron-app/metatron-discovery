@@ -26,7 +26,7 @@ import {
 } from '@angular/core';
 import {BoardDataSource, Dashboard, JoinMapping, QueryParam} from '../../../domain/dashboard/dashboard';
 import {DatasourceService} from 'app/datasource/service/datasource.service';
-import {Datasource, DataSourceSummary, Field} from '../../../domain/datasource/datasource';
+import {Datasource, DataSourceSummary, Field, FieldFormatType, FieldRole} from '../../../domain/datasource/datasource';
 import {SlickGridHeader} from 'app/common/component/grid/grid.header';
 import {header} from '../grid/grid.header';
 import {GridComponent} from '../grid/grid.component';
@@ -200,15 +200,20 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     if (this.source['configuration']) {
       this.isDashboard = true;
       const dashboardInfo: Dashboard = (<Dashboard>this.source);
-      this.datasources = DashboardUtil.getMainDataSources(dashboardInfo);
+      this.datasources = _.cloneDeep(DashboardUtil.getMainDataSources(dashboardInfo));
     } else {
       this.isDashboard = false;
-      this.datasources.push(<Datasource>this.source);
+      this.datasources.push(<Datasource>_.cloneDeep(this.source));
     }
     // 데이터소스 array에 메타데이터가 존재하는경우 merge
     this.datasources.forEach((source) => {
-      source.fields.forEach((field) => {
+      source.fields.forEach((field, index, object) => {
+        // set meta data information
         this._setMetaDataField(field, source);
+        //  if current time in fields, hide
+        if (field.role === FieldRole.TIMESTAMP && field.format &&  field.format.type === FieldFormatType.TEMPORARY_TIME) {
+          object.splice(index, 1);
+        }
       });
     });
     this.selectDataSource(this.datasources[0]);
@@ -520,7 +525,10 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       {label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE'},
       {label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP'},
       {label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT'},
-      {label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG'}
+      {label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG'},
+      {label: this.translateService.instant('msg.storage.ui.list.geo.point'), value: 'GEO_POINT', derived: true},
+      {label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), value: 'GEO_POLYGON', derived: true},
+      {label: this.translateService.instant('msg.storage.ui.list.geo.line'), value: 'GEO_LINE', derived: true}
     ];
     this.selectedLogicalType = this.logicalTypes[0];
 
@@ -1200,6 +1208,24 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   }
 
   /**
+   * Is GEO type column
+   * @param column
+   * @returns {boolean}
+   */
+  public isGeoType(column: any): boolean {
+    return column.logicalType.indexOf('GEO_') !== -1;
+  }
+
+  /**
+   * Is derived column
+   * @param {Field} column
+   * @returns {boolean}
+   */
+  public isDerivedColumn(column: Field): boolean {
+    return column.derived;
+  }
+
+  /**
    * Get column type label
    * @param {string} type
    * @param typeList
@@ -1430,7 +1456,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     // 메타데이터
     this._setMetaDataField(field, source);
     // if only engine type source, get statistics and covariance
-    if (!this.isLinkedTypeSource(source)) {
+    // #728 except GEO types, not get statistics and covariance
+    if (!this.isLinkedTypeSource(source) && !this.isGeoType(field)) {
       // 통계 조회
       if ((this.selectedField.role === 'TIMESTAMP' && !this.statsData.hasOwnProperty('__time'))
         || (this.selectedField.role !== 'TIMESTAMP' && !this.statsData.hasOwnProperty(field.name))) {

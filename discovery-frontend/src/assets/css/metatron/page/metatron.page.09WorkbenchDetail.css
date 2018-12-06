@@ -36,6 +36,9 @@ html.ddp-width-auto body {min-width:auto;}
 .page-workbench .ddp-tablelist-header .ddp-table-title [class*="ddp-icon-sort"]:before {display:inline-block; position:absolute; top:50%; left:50%; width:7px; height:10px; margin:-5px 0 0 -4px; background:url(../../../images/icon_sorting.png);content:'';}
 .page-workbench .ddp-tablelist-header .ddp-table-title .ddp-icon-sort-asc:before {background-position:-8px top;}
 .page-workbench .ddp-tablelist-header .ddp-table-title .ddp-icon-sort-des:before {background-position:-16px top;}
+.page-workbench .ddp-ui-benchlnb .ddp-data-namesub .ddp-data-in .ddp-wrap-search {padding:0 15px;}
+.page-workbench .ddp-ui-benchlnb .ddp-data-namesub .ddp-data-in .ddp-box-layout4 {width:265px;}
+.page-workbench .ddp-ui-benchlnb .ddp-data-namesub .ddp-data-in .ddp-box-layout4 .ddp-form-search {margin:0; width:100%;}
 
 /**************************************************************
   Page : 워크벤치 상세 (contents)
@@ -131,7 +134,8 @@ html.ddp-width-auto body {min-width:auto;}
 /**************************************************************
   Page : 워크벤치 상세 (rnb)
 **************************************************************/
-.page-workbench .ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-ui-addview {margin-top:-16px;}
+.page-workbench .ddp-ui-rnb-contents .ddp-ui-var-plus {padding-top:0px;}
+.page-workbench .ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-ui-addview {margin-top:0px;}
 .page-workbench .ddp-ui-rnb-contents .ddp-ui-title {margin-left:0px; padding-left:15px;}
 
 /**************************************************************

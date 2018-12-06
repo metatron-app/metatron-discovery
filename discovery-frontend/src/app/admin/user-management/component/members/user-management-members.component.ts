@@ -212,10 +212,16 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
   /**
    * status 변경 이벤트
    * @param {User} user
+   * @param {string} status
    */
   public onChangeUserStatus(user: User, status: string): void {
     // 이벤트 전파 stop
     event.stopImmediatePropagation();
+
+    if( user.status.toString() === status ) {
+      return;
+    }
+
     // status show flag
     user['statusShowFl'] = false;
     // 같은 값이라면 변경이 발생하지 않음
@@ -243,7 +249,7 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     modal['status'] = status;
     // 팝업 창 오픈
     this._confirmModalComponent.init(modal);
-  }
+  } // function - onChangeUserStatus
 
   /**
    * 가입 요청일자 변경시

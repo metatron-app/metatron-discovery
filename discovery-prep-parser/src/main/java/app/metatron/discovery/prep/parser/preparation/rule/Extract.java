@@ -21,7 +21,7 @@ public class Extract implements Rule, Rule.Factory {
   /**
    * Allows only single column
    */
-  String col;
+  Expression col;
 
   /**
    * RegularExpr or StringExpr
@@ -47,7 +47,7 @@ public class Extract implements Rule, Rule.Factory {
   public Extract() {
   }
 
-  public Extract(String col, Expression on, Integer limit, Expression quote, Boolean ignoreCase) {
+  public Extract(Expression col, Expression on, Integer limit, Expression quote, Boolean ignoreCase) {
     this.col = col;
     this.on = on;
     this.limit = limit;
@@ -65,11 +65,11 @@ public class Extract implements Rule, Rule.Factory {
     return new Extract();
   }
 
-  public String getCol() {
+  public Expression getCol() {
     return col;
   }
 
-  public void setCol(String col) {
+  public void setCol(Expression col) {
     this.col = col;
   }
 

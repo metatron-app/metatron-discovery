@@ -80,9 +80,10 @@ public class DataSourceService {
     return dataSourceRepository.saveAndFlush(dataSource);
   }
 
-  public void setDataSourceStatus(String datasourceId, DataSource.Status status, DataSourceSummary summary) {
+  public void setDataSourceStatus(String datasourceId, DataSource.Status status, DataSourceSummary summary, Boolean failOnEngine) {
     DataSource dataSource = dataSourceRepository.findOne(datasourceId);
     dataSource.setStatus(status);
+    dataSource.setFailOnEngine(failOnEngine);
     dataSource.setSummary(summary);
   }
 

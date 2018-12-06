@@ -1337,11 +1337,12 @@ public class DataFrame implements Serializable, Transformable {
     });
   }
 
-  protected List<Row> filter2(DataFrame prevDf, Expression condExpr, boolean keep, int offset, int length) throws TeddyException {
+  protected List<Row> filter2(DataFrame prevDf, Expression condExpr, boolean keep, int offset, int length) throws NoAssignmentStatementIsAllowedException, ColumnNotFoundException {
     List<Row> rows = new ArrayList<>();
 
-    if(condExpr instanceof Expr.BinAsExpr)
-      throw PrepException.fromTeddyException(new NoAssignmentStatementIsAllowedException(condExpr.toString()));
+    if(condExpr instanceof Expr.BinAsExpr) {
+      throw new NoAssignmentStatementIsAllowedException(condExpr.toString());
+    }
 
     for (int rowno = offset; rowno < offset + length; rowno++) {
       try {
@@ -1349,7 +1350,7 @@ public class DataFrame implements Serializable, Transformable {
           rows.add(prevDf.rows.get(rowno));
         }
       } catch (Exception e) {
-        throw PrepException.fromTeddyException(new ColumnNotFoundException(e.getMessage()));
+        throw new ColumnNotFoundException(e.getMessage());    // FIXME: throw a better exception based on e
       }
     }
 
