@@ -188,7 +188,7 @@ public class QueryEditorController {
           for(QueryResult queryResult : queryResults){
             queryEditor.addQueryResult(
                 new QueryEditorResult(queryResult.getRunQuery(),
-                    queryResult.getCsvFilePath(), queryResult.getFields(),
+                    queryResult.getCsvFilePath(), queryResult.getCsvFileAbsolutePath(), queryResult.getFields(),
                     queryResult.getNumRows(), queryResult.getDefaultNumRows()));
           }
         }

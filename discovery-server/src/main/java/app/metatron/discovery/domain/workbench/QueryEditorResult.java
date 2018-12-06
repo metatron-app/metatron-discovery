@@ -23,6 +23,9 @@ public class QueryEditorResult {
   @Column(name = "file_path")
   private String filePath;
 
+  @Column(name = "file_absolute_path", length = 2000)
+  private String fileAbsolutePath;
+
   @Column(name = "fields", length = 65535, columnDefinition = "TEXT")
   @JsonRawValue
   @JsonDeserialize(using = KeepAsJsonDeserialzier.class)
@@ -41,9 +44,10 @@ public class QueryEditorResult {
   public QueryEditorResult() {
   }
 
-  public QueryEditorResult(String query, String filePath, List<Field> fields, Long numRows, Long defaultNumRows) {
+  public QueryEditorResult(String query, String filePath, String fileAbsolutePath, List<Field> fields, Long numRows, Long defaultNumRows) {
     this.query = query;
     this.filePath = filePath;
+    this.fileAbsolutePath = fileAbsolutePath;
     this.setFields(fields);
     this.numRows = numRows;
     this.defaultNumRows = defaultNumRows;
@@ -91,5 +95,9 @@ public class QueryEditorResult {
 
   public void setNumRows(Long numRows) {
     this.numRows = numRows;
+  }
+
+  public String getFileAbsolutePath() {
+    return fileAbsolutePath;
   }
 }

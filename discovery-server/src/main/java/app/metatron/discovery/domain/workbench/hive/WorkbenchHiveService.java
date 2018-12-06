@@ -19,14 +19,14 @@ import app.metatron.discovery.common.exception.GlobalErrorCodes;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.workbench.WorkbenchErrorCodes;
-import app.metatron.discovery.domain.workbench.WorkbenchException;
-import app.metatron.discovery.domain.workbench.WorkbenchProperties;
+import app.metatron.discovery.domain.workbench.*;
 import app.metatron.discovery.domain.workbench.dto.ImportCsvFile;
+import app.metatron.discovery.domain.workbench.dto.ImportExcelFile;
 import app.metatron.discovery.domain.workbench.dto.ImportFile;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
 import app.metatron.discovery.util.csv.CsvTemplate;
+import app.metatron.discovery.util.excel.ExcelTemplate;
 import com.google.common.collect.Maps;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
@@ -36,6 +36,7 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -129,48 +130,43 @@ public class WorkbenchHiveService {
   }
 
   private DataTable convertUploadFileToDataTable(ImportFile importFile) {
-    final String filePath = String.format("%s/%s", workbenchProperties.getTempCSVPath(), importFile.getUploadedFile());
-
-    if(Files.notExists((Paths.get(filePath)))) {
-      throw new BadRequestException(String.format("File not found : %s", filePath));
+    if(Files.notExists((Paths.get(importFile.getFilePath())))) {
+      throw new BadRequestException(String.format("File not found : %s", importFile.getFilePath()));
     }
 
-    File uploadedFile = new File(filePath);
+    File uploadedFile = new File(importFile.getFilePath());
     if(importFile instanceof ImportCsvFile){
       return convertCsvFileToDataTable(uploadedFile, importFile.getFirstRowHeadColumnUsed(),
           ((ImportCsvFile)importFile).getDelimiter(), ((ImportCsvFile)importFile).getLineSep());
+    } else if(importFile instanceof ImportExcelFile) {
+      return convertExcelFileToDataTable(uploadedFile, ((ImportExcelFile)importFile).getSheetName(), importFile.getFirstRowHeadColumnUsed());
     } else {
       throw new BadRequestException("Not supported file type");
     }
   }
 
   private DataTable convertCsvFileToDataTable(File uploadedFile, Boolean firstRowHeadColumnUsed, String delimiter, String lineSep) {
-    CsvTemplate csvTemplate = new CsvTemplate(uploadedFile);
+    CsvTemplate csvTemplate = new CsvTemplate(uploadedFile, lineSep, delimiter);
     Map<Integer, String> headers = Maps.newTreeMap();
-    List<Map<String, Object>> records = csvTemplate.getRows(lineSep, delimiter,
-        (rowNumber, row) -> {
-          if(rowNumber == 1) {
-            if(firstRowHeadColumnUsed) {
-              for (int i = 0; i < row.length; i++) {
-                headers.put(i, row[i]);
-              }
-              return null;
-            } else {
-              for (int i = 0; i < row.length; i++) {
-                headers.put(i, "col_" + (i + 1));
-              }
-            }
-          }
+    List<Map<String, Object>> records = csvTemplate.getRows(
+        new ImportCsvFileRowMapper(headers, firstRowHeadColumnUsed)
+    );
 
-          Map<String, Object> rowMap = Maps.newTreeMap();
-          for (int i = 0; i < row.length; i++) {
-            if (headers.containsKey(i)) {
-              rowMap.put(headers.get(i), row[i]);
-            }
-          }
+    List<String> fields = headers.values().stream().collect(Collectors.toList());
+    return new DataTable(fields, records);
+  }
 
-          return rowMap;
-        });
+  private DataTable convertExcelFileToDataTable(File uploadedFile, String sheetName, Boolean firstRowHeadColumnUsed) {
+    ExcelTemplate excelTemplate = null;
+    try {
+      excelTemplate = new ExcelTemplate(uploadedFile);
+    } catch (IOException e) {
+      throw new MetatronException("엑셀 오류,,,,");
+    }
+
+    Map<Integer, String> headers = Maps.newTreeMap();
+    List<Map<String, Object>> records = excelTemplate.getRows(sheetName,
+        new ImportExcelFileRowMapper(headers, firstRowHeadColumnUsed));
 
     List<String> fields = headers.values().stream().collect(Collectors.toList());
     return new DataTable(fields, records);

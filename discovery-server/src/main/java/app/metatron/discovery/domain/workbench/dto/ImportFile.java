@@ -25,16 +25,16 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 public abstract class ImportFile {
   private Boolean firstRowHeadColumnUsed = false;
   private String tableName;
-  private String uploadedFile;
+  private String filePath;
   private String loginUserId;
   private String webSocketId;
 
-  public String getUploadedFile() {
-    return uploadedFile;
+  public String getFilePath() {
+    return filePath;
   }
 
-  public void setUploadedFile(String uploadedFile) {
-    this.uploadedFile = uploadedFile;
+  public void setFilePath(String filePath) {
+    this.filePath = filePath;
   }
 
   public String getLoginUserId() {

@@ -39,19 +39,18 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.util.Assert;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by kyungtaak on 2016. 11. 29..
@@ -519,7 +518,7 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
         "  \"type\": \"csv\"," +
         "  \"tableName\": \"product_sales_2018\"," +
         "  \"firstRowHeadColumnUsed\": true," +
-        "  \"uploadedFile\": \"" + fileName + "\"," +
+        "  \"filePath\": \"" + String.format("%s/%s", workbenchProperties.getTempCSVPath(), fileName) + "\"," +
         "  \"loginUserId\": \"" + loginUserId + "\"," +
         "  \"webSocketId\": \"" + webSocketId + "\"" +
         "}";
@@ -529,7 +528,7 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
         .contentType(ContentType.JSON)
         .body(requestBody)
     .when()
-        .post("/api/workbenchs/{id}/import", workbenchId)
+        .post("/api/workbenchs/{id}/import/files", workbenchId)
     .then()
         .log().all()
         .statusCode(HttpStatus.SC_NO_CONTENT);
@@ -557,4 +556,151 @@ public class WorkbenchRestIntegrationTest extends AbstractRestIntegrationTest {
       JdbcUtils.closeConnection(conn);
     }
   }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK"})
+  public void previewImportFile_when_csv_file() throws IOException {
+    // given
+    final String fileName = "product_sales.csv";
+    Files.copy(Paths.get(getClass().getClassLoader().getResource(fileName).getPath()),
+        Paths.get(System.getProperty("java.io.tmpdir") + File.separator + fileName), REPLACE_EXISTING);
+
+    // when
+    final String workbenchId = "workbench-05";
+    Response response =
+        given()
+            .auth().oauth2(oauth_token)
+            .contentType(ContentType.JSON)
+            .log().all()
+        .when()
+            .get("/api/workbenchs/{workbenchId}/import/files/{tempFileName}/preview", workbenchId, fileName)
+        .then()
+            .log().all()
+            .statusCode(HttpStatus.SC_OK)
+        .extract().response();
+
+    // then
+    Map<String, Object> result = from(response.asString()).get();
+    assertThat(result.get("totalRecords")).isEqualTo(9);
+    assertThat((List<String>)result.get("fields")).hasSize(5);
+    assertThat((List<String>)result.get("fields")).contains("time", "order_id", "amount", "product_id", "sale_count");
+
+    assertThat((List<Map<String, String>>)result.get("records")).hasSize(9);
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("time").contains("20/04/2017", "21/04/2017", "22/04/2017", "23/04/2017", "24/04/2017", "25/04/2017", "26/04/2017", "27/04/2017", "28/04/2017");
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("order_id").contains("1", "2", "3", "4", "5", "6", "7", "8", "9");
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("amount").contains("20", "300", "400", "550", "129", "212", "412", "412", "2111");
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("product_id").contains("1", "1", "2", "2", "3", "3", "4", "4", "5");
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("sale_count").contains("1", "2", "3", "4", "1", "2", "3", "4", "5");
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK"})
+  public void previewImportFile_when_csv_file_firstHeaderRow_false() throws IOException {
+    // given
+    final String fileName = "product_sales.csv";
+    Files.copy(Paths.get(getClass().getClassLoader().getResource(fileName).getPath()),
+        Paths.get(System.getProperty("java.io.tmpdir") + File.separator + fileName), REPLACE_EXISTING);
+
+    // when
+    final String workbenchId = "workbench-05";
+    Response response =
+        given()
+            .auth().oauth2(oauth_token)
+            .contentType(ContentType.JSON)
+            .param("firstHeaderRow", false)
+            .log().all()
+        .when()
+            .get("/api/workbenchs/{workbenchId}/import/files/{tempFileName}/preview", workbenchId, fileName)
+        .then()
+            .log().all()
+            .statusCode(HttpStatus.SC_OK)
+        .extract().response();
+
+    // then
+    Map<String, Object> result = from(response.asString()).get();
+    assertThat(result.get("totalRecords")).isEqualTo(10);
+    assertThat((List<String>)result.get("fields")).hasSize(5);
+    assertThat((List<String>)result.get("fields")).contains("col_1", "col_2", "col_3", "col_4", "col_5");
+
+    assertThat((List<Map<String, String>>)result.get("records")).hasSize(10);
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_1").contains("time", "20/04/2017","21/04/2017","22/04/2017","23/04/2017","24/04/2017","25/04/2017","26/04/2017","27/04/2017","28/04/2017");
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_2").contains("order_id", "1", "2", "3", "4", "5", "6", "7", "8", "9");
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_3").contains("amount", "20","300","400","550","129","212","412","412","2111");
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_4").contains("product_id", "1","1","2","2","3","3","4","4","5");
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_5").contains("sale_count", "1","2","3","4","1","2","3","4","5");
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK"})
+  public void previewImportFile_when_excel_file() throws IOException {
+    // given
+    final String fileName = "sales-product.xlsx";
+    Files.copy(Paths.get(getClass().getClassLoader().getResource(fileName).getPath()),
+        Paths.get(System.getProperty("java.io.tmpdir") + File.separator + fileName), REPLACE_EXISTING);
+
+    // when
+    final String workbenchId = "workbench-05";
+    Response response =
+        given()
+            .auth().oauth2(oauth_token)
+            .contentType(ContentType.JSON)
+            .log().all()
+        .when()
+            .get("/api/workbenchs/{workbenchId}/import/files/{tempFileName}/preview", workbenchId, fileName)
+        .then()
+            .log().all()
+            .statusCode(HttpStatus.SC_OK)
+        .extract().response();
+
+    // then
+    Map<String, Object> result = from(response.asString()).get();
+    assertThat(result.get("totalRecords")).isEqualTo(9);
+    assertThat((List<String>)result.get("fields")).hasSize(5);
+    assertThat((List<String>)result.get("fields")).contains("time", "order_id", "amount", "product_id", "sale_count");
+
+    assertThat((List<Map<String, String>>)result.get("records")).hasSize(9);
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("time").contains("20/04/2017", "21/04/2017", "22/04/2017", "23/04/2017", "24/04/2017", "25/04/2017", "26/04/2017", "27/04/2017", "28/04/2017");
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("order_id").contains("1", "2", "3", "4", "5", "6", "7", "8", "9");
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("amount").contains("20", "300", "400", "550", "129", "212", "412", "412", "2111");
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("product_id").contains("1", "1", "2", "2", "3", "3", "4", "4", "5");
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("sale_count").contains("1", "2", "3", "4", "1", "2", "3", "4", "5");
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK"})
+  public void previewImportFile_when_excel_file_firstHeaderRow_false() throws IOException {
+    // given
+    final String fileName = "sales-product.xlsx";
+    Files.copy(Paths.get(getClass().getClassLoader().getResource(fileName).getPath()),
+        Paths.get(System.getProperty("java.io.tmpdir") + File.separator + fileName), REPLACE_EXISTING);
+
+    // when
+    final String workbenchId = "workbench-05";
+    Response response =
+        given()
+            .auth().oauth2(oauth_token)
+            .contentType(ContentType.JSON)
+            .param("firstHeaderRow", false)
+            .log().all()
+        .when()
+            .get("/api/workbenchs/{workbenchId}/import/files/{tempFileName}/preview", workbenchId, fileName)
+        .then()
+            .log().all()
+            .statusCode(HttpStatus.SC_OK)
+        .extract().response();
+
+    // then
+    Map<String, Object> result = from(response.asString()).get();
+    assertThat(result.get("totalRecords")).isEqualTo(10);
+    assertThat((List<String>)result.get("fields")).hasSize(5);
+    assertThat((List<String>)result.get("fields")).contains("col_1", "col_2", "col_3", "col_4", "col_5");
+
+    assertThat((List<Map<String, String>>)result.get("records")).hasSize(10);
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_1").contains("time", "20/04/2017","21/04/2017","22/04/2017","23/04/2017","24/04/2017","25/04/2017","26/04/2017","27/04/2017","28/04/2017");
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_2").contains("order_id", "1", "2", "3", "4", "5", "6", "7", "8", "9");
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_3").contains("amount", "20","300","400","550","129","212","412","412","2111");
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_4").contains("product_id", "1","1","2","2","3","3","4","4","5");
+    assertThat((List<Map<String, String>>)result.get("records")).extracting("col_5").contains("sale_count", "1","2","3","4","1","2","3","4","5");
+  }
+
 }

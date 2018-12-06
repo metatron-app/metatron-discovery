@@ -17,6 +17,7 @@ package app.metatron.discovery.util.csv;
 import com.univocity.parsers.common.processor.RowListProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
+import com.univocity.parsers.csv.CsvRoutines;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,12 +26,11 @@ import java.util.List;
 public class CsvTemplate {
 
   private File targetFile;
+  private CsvParserSettings csvParserSettings;
 
-  public CsvTemplate(File targetFile) {
+  public CsvTemplate(File targetFile, String lineSep, String delimiter) {
     this.targetFile = targetFile;
-  }
 
-  public <T> List<T> getRows(String lineSep, String delimiter, CsvRowMapper<T> rowMapper) {
     CsvParserSettings settings = new CsvParserSettings();
     settings.getFormat().setLineSeparator(lineSep);
     settings.getFormat().setDelimiter(delimiter.charAt(0));
@@ -38,7 +38,15 @@ public class CsvTemplate {
     RowListProcessor rowProcessor = new RowListProcessor();
     settings.setProcessor(rowProcessor);
 
-    CsvParser parser = new CsvParser(settings);
+    this.csvParserSettings = settings;
+  }
+
+  public <T> List<T> getRows(CsvRowMapper<T> rowMapper) {
+    return getRows(rowMapper, -1);
+  }
+
+  public <T> List<T> getRows(CsvRowMapper<T> rowMapper, int limit) {
+    CsvParser parser = new CsvParser(csvParserSettings);
     parser.beginParsing(targetFile);
 
     List<T> rows = new ArrayList<>();
@@ -46,11 +54,16 @@ public class CsvTemplate {
 
     int rowNumber = 1;
     while ((row = parser.parseNext()) != null) {
+      if((rowNumber - 1) == limit) {
+        break;
+      }
+
       T mappedRow = rowMapper.mapRow(rowNumber, row);
 
-      if(mappedRow != null) {
+      if (mappedRow != null) {
         rows.add(rowMapper.mapRow(rowNumber, row));
       }
+
       rowNumber++;
     }
     parser.stopParsing();
@@ -58,4 +71,8 @@ public class CsvTemplate {
     return rows;
   }
 
+  public int getTotalRows() {
+    long totalCount = new CsvRoutines(csvParserSettings).getInputDimension(targetFile).rowCount();
+    return Long.valueOf(totalCount).intValue() + 1;
+  }
 }

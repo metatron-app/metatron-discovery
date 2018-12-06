@@ -345,6 +345,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public saveAsLayer: boolean = false;
   public supportSaveAsHiveTable: boolean = false;
 
+  public importFile: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1914,7 +1916,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               fields: queryResult.fields,
               filePath: queryResult.filePath,
               defaultNumRows: queryResult.defaultNumRows,
-              numRows: queryResult.numRows
+              numRows: queryResult.numRows,
+              fileAbsolutePath: queryResult.fileAbsolutePath
             }
           };
           queryResultPromises.push(promise);
@@ -1947,6 +1950,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             queryResult.fields = metadata.queryResult.fields;
             queryResult.data = result;
             queryResult.csvFilePath = metadata.queryResult.filePath;
+            queryResult.csvFileAbsolutePath = metadata.queryResult.fileAbsolutePath;
             queryResult.defaultNumRows = metadata.queryResult.defaultNumRows;
             queryResult.numRows = metadata.queryResult.numRows;
             tab.result = queryResult;
@@ -2690,6 +2694,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   } // function - createDatasource
 
+  public importFileSucceed() {
+    this.detailWorkbenchDatabase.getDatabase();
+  }
+
   /**
    * 데이터 소스 생성 후 처리
    */
@@ -2981,7 +2989,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public saveAsHiveTable() {
     const currentTab: ResultTab = this._getCurrentResultTab();
-    this.saveAsHiveTableComponent.init(this.workbenchId, currentTab.result.csvFilePath, this.websocketId);
+    this.saveAsHiveTableComponent.init(this.workbenchId, currentTab.result.csvFileAbsolutePath, this.websocketId);
   }
 
   public saveAsHiveTableSucceed() {
@@ -3316,6 +3324,7 @@ class ResultTab {
 class QueryResult {
   // public auditId: string;
   public csvFilePath: string;
+  public csvFileAbsolutePath: string;
   public data: any[];
   public fields: Field[];
   public numRows: number;

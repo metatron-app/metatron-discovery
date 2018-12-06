@@ -27,12 +27,17 @@ import org.springframework.test.context.TestExecutionListeners;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Map;
 
 import app.metatron.discovery.AbstractRestIntegrationTest;
 import app.metatron.discovery.core.oauth.OAuthRequest;
 import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
 
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.path.json.JsonPath.from;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @TestExecutionListeners(value = OAuthTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class CommonRestIntegrationTest extends AbstractRestIntegrationTest {
@@ -64,4 +69,26 @@ public class CommonRestIntegrationTest extends AbstractRestIntegrationTest {
     FileUtils.copyInputStreamToFile(is, new File("/tmp/manual.pdf"));
   }
 
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER"})
+  public void uploadTempFile() {
+    // given
+    final File file = new File(getClass().getClassLoader().getResource("test.csv").getPath());
+
+    // REST when
+    Response response =
+        given()
+            .auth().oauth2(oauth_token)
+            .multiPart("file", file)
+        .when()
+            .post("/api/common/file")
+        .then()
+            .log().all()
+            .statusCode(HttpStatus.SC_OK)
+        .extract().response();
+
+    // then
+    Map<String, String> map = from(response.asString()).get();
+    assertThat(Files.exists(Paths.get(map.get("filePath")))).isTrue();
+  }
 }

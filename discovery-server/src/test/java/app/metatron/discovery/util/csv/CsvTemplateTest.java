@@ -31,9 +31,9 @@ public class CsvTemplateTest {
     final boolean firstRowHeadColumnUsed = true;
 
     // when
-    CsvTemplate csvTemplate = new CsvTemplate(new File(filePath));
+    CsvTemplate csvTemplate = new CsvTemplate(new File(filePath), "\n", ",");
     Map<Integer, String> headers = Maps.newTreeMap();
-    List<Map<String, String>> csvData = csvTemplate.getRows("\n", ",",
+    List<Map<String, String>> csvData = csvTemplate.getRows(
         (rowNumber, row) -> {
           if(rowNumber == 1) {
             if(firstRowHeadColumnUsed) {
@@ -68,5 +68,65 @@ public class CsvTemplateTest {
     assertThat(csvData).extracting("amount").contains("20", "300", "400", "550", "129", "212", "412", "412", "2111");
     assertThat(csvData).extracting("product_id").contains("1", "1", "2", "2", "3", "3", "4", "4", "5");
     assertThat(csvData).extracting("sale_count").contains("1", "2", "3", "4", "1", "2", "3", "4", "5");
+  }
+
+  @Test
+  public void getRows_when_limit() {
+    // given
+    final String filePath = getClass().getClassLoader().getResource("product_sales.csv").getPath();
+    final boolean firstRowHeadColumnUsed = true;
+
+    // when
+    CsvTemplate csvTemplate = new CsvTemplate(new File(filePath), "\n", ",");
+    Map<Integer, String> headers = Maps.newTreeMap();
+    List<Map<String, String>> csvData = csvTemplate.getRows(
+        (rowNumber, row) -> {
+          if(rowNumber == 1) {
+            if(firstRowHeadColumnUsed) {
+              for (int i = 0; i < row.length; i++) {
+                headers.put(i, row[i]);
+              }
+              return null;
+            } else {
+              for (int i = 0; i < row.length; i++) {
+                headers.put(i, "col_" + (i + 1));
+              }
+            }
+          }
+
+          Map<String, String> rowMap = Maps.newTreeMap();
+          for (int i = 0; i < row.length; i++) {
+            if (headers.containsKey(i)) {
+              rowMap.put(headers.get(i), row[i]);
+            }
+          }
+
+          return rowMap;
+    }, 3);
+
+    // then
+
+    assertThat(headers).hasSize(5);
+    assertThat(headers).containsValues("time", "order_id", "amount", "product_id", "sale_count");
+
+    assertThat(csvData).hasSize(2);
+    assertThat(csvData).extracting("time").contains("20/04/2017", "21/04/2017");
+    assertThat(csvData).extracting("order_id").contains("1", "2");
+    assertThat(csvData).extracting("amount").contains("20", "300");
+    assertThat(csvData).extracting("product_id").contains("1", "1");
+    assertThat(csvData).extracting("sale_count").contains("1", "2");
+  }
+
+  @Test
+  public void getTotalRows() {
+    // given
+    final String filePath = getClass().getClassLoader().getResource("product_sales.csv").getPath();
+    CsvTemplate csvTemplate = new CsvTemplate(new File(filePath), "\n", ",");
+
+    // when
+    int totalRows = csvTemplate.getTotalRows();
+
+    // then
+    assertThat(totalRows).isEqualTo(10);
   }
 }
