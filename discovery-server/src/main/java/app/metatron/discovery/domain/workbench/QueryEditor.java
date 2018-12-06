@@ -20,9 +20,12 @@ import app.metatron.discovery.domain.MetatronDomain;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 
@@ -59,6 +62,10 @@ public class QueryEditor extends AbstractHistoryEntity implements MetatronDomain
 	@OrderBy("modifiedTime DESC")
 	@RestResource(path = "queryhistories")
 	Set<QueryHistory> queryHistories;
+
+	@OneToMany(mappedBy = "queryEditor", orphanRemoval = true, cascade = CascadeType.ALL)
+	@OrderBy("id ASC")
+	List<QueryEditorResult> queryResults = new ArrayList<>();
 
 	public String getId() {
 		return id;
@@ -116,7 +123,23 @@ public class QueryEditor extends AbstractHistoryEntity implements MetatronDomain
     this.index = index;
   }
 
-  @Override
+	public void addQueryResult(QueryEditorResult queryEditorResult) {
+		this.queryResults.add(queryEditorResult);
+
+		if(queryEditorResult.getQueryEditor() != this) {
+			queryEditorResult.setQueryEditor(this);
+		}
+	}
+
+	public List<QueryEditorResult> getQueryResults() {
+		return queryResults;
+	}
+
+	public void clearQueryResults() {
+		this.queryResults.clear();
+	}
+
+	@Override
 	public String toString() {
 		return "QueryEditor{" +
 						"id='" + id + '\'' +
