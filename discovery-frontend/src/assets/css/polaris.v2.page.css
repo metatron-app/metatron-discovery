@@ -8448,7 +8448,7 @@ em.ddp-icon-mapview3-w:before {background-position-x:0;}
 .ddp-data-value .ddp-list-typebasic {padding:11px 0 ;}
 .ddp-data-value .ddp-list-typebasic.ddp-list-popup li a {padding-left:38px; padding-right:16px;}
 .ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em[class*="ddp-icon-dimension-"],
-.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em[class*="ddp-icon-measure-"] {left:18px;}
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em[class*="ddp-icon-measure-"] {position:absolute; top:50%; left:18px; margin-top:-7px;}
 
 .ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-dimension-ab,
 .ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-dimension-maplink,

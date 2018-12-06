@@ -16,6 +16,7 @@ import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@a
 import { Pivot } from '../../../domain/workbook/configurations/pivot';
 import { BIType, Field, FieldPivot, LogicalType } from '../../../domain/datasource/datasource';
 import {
+  ChartType,
   EventType, ShelveFieldType,
   UIFormatCurrencyType,
   UIFormatNumericAliasType,
@@ -32,6 +33,7 @@ import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
 import { Field as AbstractField } from '../../../domain/workbook/configurations/field/field';
 import * as $ from "jquery";
 import { MapLayerType } from '../../../common/component/chart/option/define/map/map-common';
+import { UIOption } from '../../../common/component/chart/option/ui-option';
 
 @Component({
   selector: 'map-page-pivot',
@@ -416,7 +418,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
       // hide when there is geo dimension
       layers.forEach((item) => {
-        if (item.field.logicalType && -1 !== item.field.logicalType.toString().indexOf('GEO')) {
+        if (item.field && item.field.logicalType && -1 !== item.field.logicalType.toString().indexOf('GEO')) {
           return returnValue = false;
         }
       });
@@ -425,7 +427,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
       // show when there is geo dimension
       layers.forEach((item) => {
-        if (item.field.logicalType && -1 !== item.field.logicalType.toString().indexOf('GEO')) {
+        if (item.field && item.field.logicalType && -1 !== item.field.logicalType.toString().indexOf('GEO')) {
           return returnValue = true;
         }
       });
@@ -527,6 +529,44 @@ export class MapPagePivotComponent extends PagePivotComponent {
       }
     });
 
+  }
+
+  /**
+   * 페이지에서 필드 추가 할때
+   * @param {Field} targetField
+   * @param {string} targetContainer
+   */
+  public addField(targetField: Field, targetContainer: string, pivotField: AbstractField) {
+    let shelf;
+
+    if (targetContainer === 'layer') {
+      shelf = this.shelf.layers[this.uiOption.layerNum];
+    } else {
+      console.info('정의되지 않은 drop', targetContainer);
+      return;
+    }
+
+    targetContainer = 'layer' + this.uiOption.layerNum;
+
+    if (targetField) {
+      shelf.push(targetField);
+      this.convertField(targetField, targetContainer);
+    }
+  }
+
+  /**
+   * block custom field => true (block), false(not block) - temporary code
+   * @param {Field} targetField
+   * @returns {boolean}
+   */
+  public blockCustomField(targetField: Field, uiOption : UIOption) {
+
+    // when chart is map, target field is custom field
+    if (ChartType.MAP === uiOption.type && 'user_expr' === targetField.type) {
+      return true;
+    }
+
+    return false;
   }
 
   /**
