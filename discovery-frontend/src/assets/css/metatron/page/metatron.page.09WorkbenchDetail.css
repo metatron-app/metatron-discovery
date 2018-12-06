@@ -38,17 +38,18 @@ html.ddp-width-auto body {min-width:auto;}
 .page-workbench .ddp-tablelist-header .ddp-table-title .ddp-icon-sort-des:before {background-position:-16px top;}
 .page-workbench .ddp-ui-benchlnb .ddp-data-namesub .ddp-data-in .ddp-wrap-search {padding:0 15px;}
 .page-workbench .ddp-ui-benchlnb .ddp-data-namesub .ddp-data-in .ddp-box-layout4 {width:275px;}
+
 .page-workbench .ddp-ui-benchlnb .ddp-data-namesub .ddp-data-in .ddp-box-layout4 .ddp-form-search {margin:0; width:100%;}
 .page-workbench .ddp-ui-benchlnb .ddp-data-namesub .ddp-data-in .ddp-box-layout4 .ddp-form-search input {letter-spacing:-0.5px;}
-.page-workbench .ddp-ui-tablelist .ddp-ui-pageing {position:relative; height:35px;}
+.page-workbench .ddp-ui-tablelist .ddp-ui-pageing {position:relative; height:35px; }
 .page-workbench .ddp-ui-tablelist .ddp-ui-pageing .ddp-data-page {position:absolute; top:0; left:0; right:0; bottom:0; padding:10px 0; text-align:center; color:#90969f; font-size:12px;}
 .page-workbench .ddp-ui-tablelist .ddp-ui-pageing .ddp-btn-prev,
 
 .page-workbench .ddp-ui-tablelist .ddp-ui-pageing .ddp-btn-next{position:relative; z-index:1;}
 
-/**************************************************************
-  Page : 워크벤치 상세 (contents)
-**************************************************************/
+    /**************************************************************
+      Page : 워크벤치 상세 (contents)
+    **************************************************************/
 .page-workbench .ddp-wrap-editor .ddp-box-layout4 .ddp-btn-close {z-index:1;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-shortcuts {display:block; position:absolute; top:8px; right:8px; bottom:8px; width:auto; overflow:auto; background-color:#fff; z-index:10;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-shortcuts * { font-family:'SpoqaHanSans',sans-serif}
