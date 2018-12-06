@@ -14,29 +14,6 @@
 
 package app.metatron.discovery.domain.workspace;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPAExpressions;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import app.metatron.discovery.common.MatrixResponse;
 import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
@@ -48,16 +25,37 @@ import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.DirectoryProfile;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.group.Group;
+import app.metatron.discovery.domain.user.group.GroupRepository;
 import app.metatron.discovery.domain.user.group.GroupService;
-import app.metatron.discovery.domain.user.role.Role;
-import app.metatron.discovery.domain.user.role.RoleRepository;
-import app.metatron.discovery.domain.user.role.RoleService;
-import app.metatron.discovery.domain.user.role.RoleSet;
-import app.metatron.discovery.domain.user.role.RoleSetRepository;
-import app.metatron.discovery.domain.user.role.RoleSetService;
+import app.metatron.discovery.domain.user.role.*;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.EnumUtils;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static app.metatron.discovery.domain.workspace.Workspace.PublicType.SHARED;
 
 /**
  * Created by kyungtaak on 2017. 7. 23..
@@ -73,6 +71,9 @@ public class WorkspaceService {
 
   @Autowired
   GroupService groupService;
+
+  @Autowired
+  GroupRepository groupRepository;
 
   @Autowired
   RoleService roleService;
@@ -533,6 +534,141 @@ public class WorkspaceService {
     statMap.put("viewCountByTime", matrix);
 
     return statMap;
+  }
+
+  public Page<Workspace> getPublicWorkspaces(Boolean onlyFavorite,
+                                             Boolean myWorkspace,
+                                             Boolean published,
+                                             String nameContains,
+                                             Pageable pageable){
+    String username = AuthUtils.getAuthUserName();
+
+    Predicate publicWorkspacePredicate = getPublicWorkspacePredicate(onlyFavorite, myWorkspace, published, nameContains);
+
+    // 결과 질의
+    Page<Workspace> publicWorkspaces = workspaceRepository.findAll(publicWorkspacePredicate, pageable);
+
+    // Favorite 여부 처리
+    if (onlyFavorite) {
+      publicWorkspaces.forEach(publicWorkspace -> publicWorkspace.setFavorite(true));
+    } else {
+      Set<String> favoriteWorkspaceIds = workspaceFavoriteRepository.findWorkspaceIdByUsername(username);
+      for (Workspace publicWorkspace : publicWorkspaces) {
+        if (favoriteWorkspaceIds.contains(publicWorkspace.getId())) {
+          publicWorkspace.setFavorite(true);
+        } else {
+          publicWorkspace.setFavorite(false);
+        }
+      }
+    }
+
+    return publicWorkspaces;
+  }
+
+  public List<Workspace> getPublicWorkspaces(Boolean onlyFavorite,
+                                             Boolean myWorkspace,
+                                             Boolean published,
+                                             String nameContains){
+    String username = AuthUtils.getAuthUserName();
+
+    Predicate publicWorkspacePredicate = getPublicWorkspacePredicate(onlyFavorite, myWorkspace, published, nameContains);
+
+    // 결과 질의
+    List<Workspace> publicWorkspaces = (List) workspaceRepository.findAll(publicWorkspacePredicate);
+
+    // Favorite 여부 처리
+    if (onlyFavorite) {
+      publicWorkspaces.forEach(publicWorkspace -> publicWorkspace.setFavorite(true));
+    } else {
+      Set<String> favoriteWorkspaceIds = workspaceFavoriteRepository.findWorkspaceIdByUsername(username);
+      for (Workspace publicWorkspace : publicWorkspaces) {
+        if (favoriteWorkspaceIds.contains(publicWorkspace.getId())) {
+          publicWorkspace.setFavorite(true);
+        } else {
+          publicWorkspace.setFavorite(false);
+        }
+      }
+    }
+
+    return publicWorkspaces;
+  }
+
+  private Predicate getPublicWorkspacePredicate(Boolean onlyFavorite,
+                                                Boolean myWorkspace,
+                                                Boolean published,
+                                                String nameContains){
+    String username = AuthUtils.getAuthUserName();
+
+    List<String> targets = Lists.newArrayList(username);
+    targets.addAll(groupRepository.findGroupIdsByMemberId(username));
+
+    BooleanBuilder builder = new BooleanBuilder();
+    QWorkspace workspace = QWorkspace.workspace;
+    QWorkspaceFavorite workspaceFavorite = QWorkspaceFavorite.workspaceFavorite;
+
+    builder.and(workspace.publicType.eq(SHARED));
+
+    Predicate pOwnerEq = null;
+    if(myWorkspace != null) {
+      pOwnerEq = myWorkspace ? workspace.ownerId.eq(username) : workspace.ownerId.ne(username);
+    }
+    Predicate pPublished = null;
+    if(published != null) {
+      pPublished = published ? builder.and(workspace.published.isTrue())
+              : builder.andAnyOf(workspace.published.isNull(), workspace.published.isFalse());
+    }
+
+    if (onlyFavorite) {
+      BooleanExpression favorite = workspace.id
+              .in(JPAExpressions.select(workspace.id)
+                      .from(workspace, workspaceFavorite)
+                      .where(workspace.id.eq(workspaceFavorite.workspaceId).and(workspaceFavorite.username.eq(username))));
+      builder.and(favorite);
+
+      if (myWorkspace != null) {
+        builder.and(pOwnerEq);
+      }
+
+      if (published != null) {
+        builder.and(pPublished);
+      }
+    } else {
+
+      BooleanExpression memberIn = workspace.id
+              .in(JPAExpressions.select(workspace.id)
+                      .from(workspace)
+                      .innerJoin(workspace.members)
+                      .where(workspace.members.any().memberId.in(targets)));
+      if (myWorkspace != null) {
+        if(published == null) {
+          if(myWorkspace) {
+            builder.and(pOwnerEq);
+          } else {
+            builder.andAnyOf(memberIn, workspace.published.isTrue());
+          }
+        } else {
+          builder.and(pOwnerEq);
+          builder.and(pPublished);
+
+          if(!myWorkspace) {
+            builder.and(memberIn);
+          }
+        }
+      } else {
+        if (published == null) {
+          builder.andAnyOf(memberIn, workspace.ownerId.eq(username), workspace.published.isTrue());
+        } else {
+          builder.and(pPublished);
+        }
+
+      }
+    }
+
+    if (StringUtils.isNotEmpty(nameContains)) {
+      builder = builder.and(workspace.name.containsIgnoreCase(nameContains));
+    }
+
+    return builder;
   }
 }
 

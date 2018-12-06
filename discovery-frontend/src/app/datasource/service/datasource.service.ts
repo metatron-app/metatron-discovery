@@ -29,7 +29,7 @@ import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid
 import {FilterUtil} from '../../dashboard/util/filter.util';
 import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
 import {Dashboard} from '../../domain/dashboard/dashboard';
-import { Field, LogicalType } from '../../domain/datasource/datasource';
+import { Datasource, Field } from '../../domain/datasource/datasource';
 import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
 import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
 import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
@@ -44,9 +44,9 @@ import { GeoBoundaryFormat, GeoHashFormat } from '../../domain/workbook/configur
 import { UIMapOption } from '../../common/component/chart/option/ui-option/map/ui-map-chart';
 import { ChartUtil } from '../../common/component/chart/option/util/chart-util';
 import {Limit} from "../../domain/workbook/configurations/limit";
+import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
 import {CommonConstant} from "../../common/constant/common.constant";
-import { MapLayerType } from '../../common/component/chart/option/define/map/map-common';
-import { UITileLayer } from '../../common/component/chart/option/ui-option/map/ui-tile-layer';
+import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -815,6 +815,36 @@ export class DatasourceService extends AbstractService {
     } else {
       return this.get(this.API_URL + `datasources/${datasourceId}/histories/${historyId}/log`);
     }
+  }
+
+  /**
+   * Get criterion list in datasource
+   * @returns {Promise<CriteriaFilter>}
+   */
+  public getCriterionListInDatasource(): Promise<CriteriaFilter> {
+    return this.get(this.API_URL + 'datasources/criteria');
+  }
+
+  /**
+   * Get criterion in datasource
+   * @param {CriterionKey} criterionKey
+   * @returns {Promise<ListCriterion>}
+   */
+  public getCriterionInDatasource(criterionKey: CriterionKey): Promise<ListCriterion> {
+    return this.get(this.API_URL + `datasources/criteria/${criterionKey}`);
+  }
+
+  /**
+   * Get datasource list
+   * @param {number} page
+   * @param {number} size
+   * @param {string} sort
+   * @param params
+   * @param {string} projection
+   * @returns {Promise<any>}
+   */
+  public getDatasourceList(page: number, size: number, sort: string, params: any, projection: string = 'forListView'): Promise<any> {
+    return this.post(this.API_URL + `datasources/filter?projection=${projection}&page=${page}&size=${size}&sort=${sort}`, params);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

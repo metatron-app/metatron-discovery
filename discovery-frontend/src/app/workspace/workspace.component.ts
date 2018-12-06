@@ -510,6 +510,11 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    */
   public createFolder() {
 
+    if( this.folder && this.folder.hierarchies && 9 <= this.folder.hierarchies.length ) {
+      Alert.warning( this.translateService.instant('msg.space.warning.can-not-create-11depth-folder') );
+      return;
+    }
+
     const param = new Workbook();
     // type 설정
     param.type = 'folder';
@@ -597,7 +602,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
       // 로딩 hide
       (this.initFolderHierarchies) || (this.loadingHide());
     });
-  } // function - createFoldeer
+  } // function - createFolder
 
 
   // 워크스페이스 아이디로 워크스페이스 조회

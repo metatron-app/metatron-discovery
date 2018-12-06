@@ -1,18 +1,3 @@
-/*
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 @charset "utf-8";
 
 /**************************************************************
@@ -145,6 +130,8 @@
 /*.ddp-info-inline .ddp-wrap-hover-info .ddp-box-layout4.ddp-bottom {top:inherit; bottom:-30px;}*/
 
 .ddp-wrap-edit3 .ddp-ui-edit-suboption {overflow:hidden;}
+.ddp-wrap-edit3 .ddp-ui-edit-option .ddp-ui-option-in .ddp-input-typebasic {margin-top:-9px;}
+.ddp-wrap-edit3 .ddp-ui-edit-option .ddp-ui-option-in .ddp-box-multy .ddp-input-typebasic {margin-top:0;}
 .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-wrap-list-detail {padding:6px 0 8px 0;}
 .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-list-detail + .ddp-list-detail {display:block; padding-top:7px;}
 .ddp-wrap-edit3 .ddp-ui-edit-option {display:table-cell; position:relative;min-height:30px; vertical-align:middle; box-sizing:border-box;}
@@ -279,7 +266,6 @@
 .ddp-detail-setting.ddp-selected .ddp-fold-link:after {transform:rotate(180deg)}
 .ddp-detail-setting.ddp-selected .ddp-wrap-down {display:block;}
 
-
 /**************************************************************
     no data
 **************************************************************/
@@ -287,6 +273,8 @@
 
 .ddp-data-empty{display:table; width:100%; height:100%; text-align:center;}
 .ddp-data-empty .ddp-data-contents {display:table-cell; text-align:center;color:#b7b9c3; font-size:12px; vertical-align: middle;}
+ul.ddp-list-value li.ddp-data-none {background:none; color:#b7b9c3;}
+.ddp-ui-import-option .ddp-ui-grid .ddp-search-none {padding:20px; font-size:12px; color:#ca4b4b;}
 
 /**************************************************************
 	INPUT NUMBER
@@ -389,6 +377,7 @@ table.ddp-table-form.ddp-inherit .ddp-box-layout4 .ddp-table-code tr td {border:
 .ddp-ui-dateinfo .ddp-box-dateinfo input {display:inline-block; float:left; padding:5px 5px 6px 5px; border:none; color:#4b515b; font-size:12px; box-sizing:border-box;}
 .ddp-ui-dateinfo .ddp-box-dateinfo input.ddp-input-calen {width:49%; background:none;}
 .ddp-ui-dateinfo .ddp-box-dateinfo input.ddp-input-time {width:51%;background:none;}
+.ddp-ui-dateinfo .ddp-box-dateinfo input.ddp-full {width:100% !important;}
 
 .ddp-ui-dateinfo .ddp-box-dateinfo .ddp-box-date {position:relative; float:Left; width:55%; padding-left:28px; box-sizing:border-box;}
 .ddp-ui-dateinfo .ddp-box-dateinfo .ddp-box-date:last-of-type {width:45%; border-left:1px solid #d0d1d8;}
@@ -432,3 +421,5 @@ table.ddp-table-form.ddp-inherit .ddp-box-layout4 .ddp-table-code tr td {border:
 .ddp-wrap-range .ddp-data-range .ddp-bar {width:6%; float:left; line-height:30px; text-align:center;}
 .ddp-wrap-range .ddp-data-range .ddp-box-option-input {float:left; width:47%; margin-left:0; box-sizing:border-box;}
 .ddp-wrap-range .ddp-data-range input { width:100%; text-align:center;}
+
+

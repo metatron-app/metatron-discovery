@@ -22,6 +22,8 @@ import { Modal } from '../../../../common/domain/modal';
 import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
 import { PeriodData } from '../../../../common/value/period.data.value';
 
+declare let moment: any;
+
 @Component({
   selector: 'app-shared-workspaces',
   templateUrl: './shared-workspaces.component.html'
@@ -546,9 +548,9 @@ export class SharedWorkspacesComponent extends AbstractComponent {
     if (this._filterDate && this._filterDate.type !== 'ALL') {
       params['searchDateBy'] = this._filterDate.dateType;
       if (this._filterDate.startDateStr) {
-        params['from'] = this._filterDate.startDateStr + '.000Z';
+        params['from'] = moment(this._filterDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      params['to'] = this._filterDate.endDateStr + '.000Z';
+      params['to'] = moment(this._filterDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
     }
 
     return params;

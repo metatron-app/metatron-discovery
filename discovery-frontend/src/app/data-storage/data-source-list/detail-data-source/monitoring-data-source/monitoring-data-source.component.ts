@@ -28,6 +28,7 @@ import { MomentDatePipe } from '../../../../common/pipe/moment.date.pipe';
 import { CommonUtil } from '../../../../common/util/common.util';
 
 declare let echarts;
+declare let moment: any;
 
 @Component({
   selector: 'monitoring-data-source',
@@ -491,9 +492,9 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       params['searchDateBy'] = 'CREATED';
       if (this.selectedDate.startDateStr) {
-        params['from'] = this.selectedDate.startDateStr + '.000Z';
+        params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      params['to'] = this.selectedDate.endDateStr + '.000Z';
+      params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
     }
     return params;
   }

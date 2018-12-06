@@ -1706,35 +1706,37 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
     let shelve: any = this.pivot;
 
-    // 선반값에서 해당 타입에 해당하는값만 name string값으로 리턴
-    const getShelveReturnString = ((shelve: any, typeList: ShelveFieldType[]): string[] => {
-      const resultList: string[] = [];
-      _.forEach(shelve, (value, key) => {
-        shelve[key].map((item) => {
-          if (_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) {
-            resultList.push(item.name);
-          }
+    if( shelve ) {
+      // 선반값에서 해당 타입에 해당하는값만 name string값으로 리턴
+      const getShelveReturnString = ((shelve: any, typeList: ShelveFieldType[]): string[] => {
+        const resultList: string[] = [];
+        _.forEach(shelve, (value, key) => {
+          shelve[key].map((item) => {
+            if (_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) {
+              resultList.push(item.name);
+            }
+          });
         });
+        return resultList;
       });
-      return resultList;
-    });
 
-    // 색상지정 기준 필드리스트 설정, 기본 필드 설정
-    this.uiOption.fieldList = getShelveReturnString(shelve, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+      // 색상지정 기준 필드리스트 설정, 기본 필드 설정
+      this.uiOption.fieldList = getShelveReturnString(shelve, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
 
-    if (this.uiOption.color) {
-      // targetField 설정
-      const targetField = (<UIChartColorByDimension>this.uiOption.color).targetField;
+      if (this.uiOption.color) {
+        // targetField 설정
+        const targetField = (<UIChartColorByDimension>this.uiOption.color).targetField;
 
-      // targetField가 있을때
-      if (!_.isEmpty(targetField)) {
-        if (this.uiOption.fieldList.indexOf(targetField) < 0) (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
+        // targetField가 있을때
+        if (!_.isEmpty(targetField)) {
+          if (this.uiOption.fieldList.indexOf(targetField) < 0) (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
 
-      // targetField가 없을때
-      } else {
+          // targetField가 없을때
+        } else {
 
-        // 마지막 필드를 타겟필드로 잡기
-        (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
+          // 마지막 필드를 타겟필드로 잡기
+          (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
+        }
       }
     }
 

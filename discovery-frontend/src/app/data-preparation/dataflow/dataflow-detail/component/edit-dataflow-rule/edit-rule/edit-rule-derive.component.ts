@@ -100,13 +100,13 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
       let val = _.cloneDeep(this.deriveVal);
 
       if (isUndefined(val) || '' === val || '\'\'' === val) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
+        Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
         return undefined
       }
       if (!isUndefined(val) && '' !== val.trim()) {
         let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
         if (check[0] === false) {
-          Alert.warning('Check value');
+          Alert.warning(this.translateService.instant('msg.dp.alert.check.expression'));
           return undefined
         } else {
           val = check[1];
