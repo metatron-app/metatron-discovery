@@ -26,6 +26,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +39,7 @@ import app.metatron.discovery.query.druid.Aggregation;
 import app.metatron.discovery.query.druid.PostAggregation;
 import app.metatron.discovery.query.druid.aggregations.CardinalityAggregation;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
+import app.metatron.discovery.query.druid.aggregations.DistinctSketchAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericMinAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
@@ -259,7 +261,16 @@ public class ComputationalField {
 
   public static int getWindowFunctions(ParseTree node, List<FunctionExprContext> windowFunctions) {
 
+    if(node == null || node.getChild(0) == null) {
+      return windowFunctions == null ? 0 : windowFunctions.size();
+    }
+
     if (node instanceof FunctionExprContext) {
+
+      if(node.getChild(0).getText() == null) {
+        return windowFunctions == null ? 0 : windowFunctions.size();
+      }
+
       String fnName = node.getChild(0).getText().toLowerCase();
 
       FunctionInfo functionInfo = functionInfos.get(fnName);
@@ -610,7 +621,7 @@ public class ComputationalField {
     return true;
   }
 
-  public static boolean makeAggregationFunctions3(String fieldName, String computationalField, List<Aggregation> aggregations, List<PostAggregation> postAggregations, List<WindowingSpec> windowingSpecs) {
+  public static boolean makeAggregationFunctions3(String fieldName, String computationalField, List<Aggregation> aggregations, List<PostAggregation> postAggregations, List<WindowingSpec> windowingSpecs, Map<String, Object> queryContext) {
 
     ParseTree tree = getParseTree( computationalField );
 
@@ -646,8 +657,11 @@ public class ComputationalField {
       } else if ("countof".equals(context.IDENTIFIER().getText().toLowerCase())) {
         aggregations.add(new CountAggregation(paramName));
       } else if ("countd".equals(context.IDENTIFIER().getText().toLowerCase())) {
-        aggregations.add(new CardinalityAggregation(paramName, Arrays.asList( fieldExpression.replaceAll("^\"|\"$", "") ), true));
-        paramName = "ROUND(" + paramName + ")";
+        aggregations.add(new DistinctSketchAggregation(fieldName, fieldExpression.replaceAll("^\"|\"$", ""), 65536L, false));
+        paramName = null;
+        Map<String, Object> processingMap = Maps.newHashMap();
+        processingMap.put("type", "sketch.estimate");
+        queryContext.put("postProcessing", processingMap);
       } else if ("ifcountd".equals(context.IDENTIFIER().getText().toLowerCase())) {
         aggregations.add(new CardinalityAggregation(paramName, Arrays.asList( context.fnArgs().getChild(2).getText().replaceAll("^\"|\"$", "") ), context.fnArgs().getChild(0).getText(), true));
         paramName = "ROUND(" + paramName + ")";
@@ -659,8 +673,10 @@ public class ComputationalField {
       while (context.getChildCount() > 0) {
         context.removeLastChild();
       }
-      TerminalNode terminalNode = new TerminalNodeImpl(new CommonToken(IDENTIFIER, paramName));
-      context.addChild(terminalNode);
+      if(paramName != null){
+        TerminalNode terminalNode = new TerminalNodeImpl(new CommonToken(IDENTIFIER, paramName));
+        context.addChild(terminalNode);
+      }
     }
 
 
@@ -670,8 +686,11 @@ public class ComputationalField {
     if ( CollectionUtils.isEmpty(windowFunctions) ){
 
       String postAggregationExpression = tree.getText();
-      MathPostAggregator mathPostAggregator = new MathPostAggregator(fieldName, postAggregationExpression, null);
-      postAggregations.add(mathPostAggregator);
+
+      if(StringUtils.isNotEmpty(postAggregationExpression) && !"null".equals(postAggregationExpression)) {
+        MathPostAggregator mathPostAggregator = new MathPostAggregator(fieldName, postAggregationExpression, null);
+        postAggregations.add(mathPostAggregator);
+      }
 
     } else {
 
@@ -736,14 +755,14 @@ public class ComputationalField {
     return true;
   }
 
-  public static boolean makeAggregationFunctionsIn(String fieldName, String computationalField, List<Aggregation> aggregations, List<PostAggregation> postAggregations, List<WindowingSpec> windowingSpecs, Map<String, String> mapField ) {
+  public static boolean makeAggregationFunctionsIn(String fieldName, String computationalField, List<Aggregation> aggregations, List<PostAggregation> postAggregations, List<WindowingSpec> windowingSpecs, Map<String, Object> context, Map<String, String> mapField ) {
 
     mapField.put(fieldName, computationalField );
     Map<String, String> mapHistoryField = Maps.newHashMap();
 
     String newComputationalField = generateAggregationExpression( fieldName, mapField, mapHistoryField );
 
-    return makeAggregationFunctions3( fieldName, newComputationalField, aggregations, postAggregations, windowingSpecs );
+    return makeAggregationFunctions3( fieldName, newComputationalField, aggregations, postAggregations, windowingSpecs, context );
 
   }
 
