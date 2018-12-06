@@ -296,9 +296,7 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
       }
 
       const columnsStr: string = cols.map((item) => {
-        if (-1 !== item.indexOf(' ')) {
-          item = '`' + item + '`';
-        }
+        item = '`' + item + '`';
         return item
       }).join(', ');
 
@@ -327,7 +325,7 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
 
     let rows: any[] = this.gridRows;
 
-    if( 0 === fields.length || 0 === rows.length ) {
+    if( 0 === fields.length) {
       return;
     }
 
