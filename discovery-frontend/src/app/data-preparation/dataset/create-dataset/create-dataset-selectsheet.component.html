@@ -78,7 +78,8 @@
       </div>
       <div class="ddp-wrap-edit-form" >
         <div class="ddp-clear">
-          <div class="ddp-col-6" *ngIf="!datasetFile.sheets || 0 == datasetFile.sheets.length">
+          <!--<div class="ddp-col-6" *ngIf="!datasetFile.sheets || 0 == datasetFile.sheets.length">  this.isCSV = true-->
+          <div class="ddp-col-6" *ngIf="isCSV">
             <div class="ddp-wrap-edit3 ddp-type">
               <label class="ddp-label-type">{{'msg.dp.th.col.delimiter' | translate}}</label>
               <!-- edit option -->

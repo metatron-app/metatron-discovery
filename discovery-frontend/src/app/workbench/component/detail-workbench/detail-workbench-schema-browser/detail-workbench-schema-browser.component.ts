@@ -26,7 +26,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ConnectionType, Dataconnection } from '../../../../domain/dataconnection/dataconnection';
 import { MetadataService } from '../../../../meta-data-management/metadata/service/metadata.service';
 import * as _ from 'lodash';
-import { isUndefined } from 'util';
+import {isNullOrUndefined, isUndefined} from 'util';
 import { AbstractWorkbenchComponent } from '../../abstract-workbench.component';
 import { StringUtil } from '../../../../common/util/string.util';
 import {CommonUtil} from "../../../../common/util/common.util";
@@ -205,6 +205,10 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     this.schemaTableMetadataList = [];
     this.schemaTableDataList = [];
     this.schemaTableDataDataList = [];
+    // 권한 정보가 없을 경우
+    if( isNullOrUndefined(this.dataConnection.authenticationType)  ){
+      this.dataConnection.authenticationType = 'MANUAL';
+    }
 
     // 데이터베이스 리스트 조회
     this._getDatabaseList();
@@ -446,6 +450,30 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
         this.getColumnList();
         break;
     }
+  }
+
+  /**
+   * open or cloe data connection info layer
+   */
+  public connectionInfoShow(event:MouseEvent) {
+
+    this.connectionInfoShowFl = !this.connectionInfoShowFl;
+    this.safelyDetectChanges();
+
+    const target = $( event.target );
+    let infoLeft : number = target.offset().left;
+    let infoTop : number = target.offset().top;
+    const element = document.getElementById(`connectionInfo`);
+    $(element).css({'left':infoLeft-30, 'top': infoTop+17});
+
+  } // function - dataConnectionInfoShow
+
+  /**
+   * 커넥션이 Default 타입이라면
+   * @returns {boolean}
+   */
+  public isDefaultType(): boolean {
+    return StringUtil.isEmpty(this.dataConnection.url);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

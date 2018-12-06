@@ -134,6 +134,9 @@ export class PopupValueAliasComponent extends AbstractComponent {
         // 그리드 설정
         this._setGrid(this._fieldValueAlias);
         this.loadingHide();
+      }).catch(() => {
+
+        this.loadingHide();
       });
     }
   } // function - init

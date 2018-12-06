@@ -123,7 +123,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
         (params['loginType']) && (this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN_TYPE, params['loginType'], 0, '/'));
         (params['refreshToken']) && (this.cookieService.set(CookieConstant.KEY.REFRESH_LOGIN_TOKEN, params['refreshToken'], 0, '/'));
 
-        this._boardComp.hideError();
+        ( this._boardComp ) && ( this._boardComp.hideError() );
 
         let workbookId: string = params['workbookId'];
         let dashboardId: string = params['dashboardId'];

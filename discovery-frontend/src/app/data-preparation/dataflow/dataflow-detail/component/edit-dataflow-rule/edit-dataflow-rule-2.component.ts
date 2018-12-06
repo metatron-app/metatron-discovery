@@ -257,6 +257,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       minSize: [700, 300],
         onDragEnd: (() => {
           this._editRuleGridComp.resizeGrid();
+        }),
+        onDragStart: (() => {
+          this._editRuleGridComp.gridAllContextClose();
         })
       })
     );
@@ -266,6 +269,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       minSize: [400, 110],
       onDragEnd: (() => {
         this._editRuleGridComp.resizeGrid();
+      }),
+      onDragStart: (() => {
+        this._editRuleGridComp.gridAllContextClose();
       })
     }));
     this._setEditRuleInfo({op:'INITIAL', ruleIdx: null, count: 100, offset: 0}).then((data)=> {
@@ -630,7 +636,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     if (!isUndefined(rule)) {
 
       let isErrorCommand : boolean = true;
-      for(var ind in this.commandList) {
+      for(let ind in this.commandList) {
         if ( rule.ruleString.indexOf(this.commandList[ind].command) > -1 ) isErrorCommand = false;
       }
       if (isErrorCommand){
@@ -1460,7 +1466,13 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ), {ruleString : '', jsonRuleString : data.more});
           break;
         case 'set':
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ), {ruleString : '', jsonRuleString : data.more});
+
+          if (data.more.contextMenu) {
+            this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ), {ruleString : '', jsonRuleString : data.more});
+          } else {
+            this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ));
+          }
+
           break;
         case 'derive':
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, []);

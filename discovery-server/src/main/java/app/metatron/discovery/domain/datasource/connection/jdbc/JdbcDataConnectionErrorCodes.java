@@ -25,6 +25,7 @@ public enum JdbcDataConnectionErrorCodes implements ErrorCodes {
   , WEBSOCKET_NOT_FOUND_ERROR_CODE("JDC0005")
   , PARTITION_NOT_EXISTED("JDC0006")
   , PREVIEW_TABLE_SQL_ERROR("error.dataconnection.jdbc.preview.table")
+  , STAGEDB_PREVIEW_TABLE_SQL_ERROR("error.dataconnection.stagedb.preview.table")
   ;
 
   String errorCode;

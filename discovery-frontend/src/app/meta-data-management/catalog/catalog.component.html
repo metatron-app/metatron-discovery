@@ -19,7 +19,10 @@
       <!-- 검색 -->
       <div class="ddp-form-search ddp-fleft">
         <em class="ddp-icon-search"></em>
-        <input type="text" placeholder="{{'msg.metadata.cat.ui.ph.search' | translate}}" [(ngModel)]="searchText" #searchInput (keyup.enter)="searchCatalog()" (keyup.esc)="refreshFilter()">
+        <input placeholder="{{'msg.metadata.cat.ui.ph.search' | translate}}"
+               [(ngModel)]="searchText" #searchInput
+               (keyup.enter)="searchCatalog()"
+               (keyup.esc)="refreshFilter()">
         <em class="ddp-btn-search-close" *ngIf="searchText" (click)="refreshFilter()"></em>
       </div>
       <!-- //검색 -->
@@ -31,16 +34,23 @@
   <div class="ddp-page-catalog ddp-list-catalog">
     <!-- root -->
     <div class="ddp-ui-root">
-      <a href="javascript:" class="ddp-btn-bg" [ngClass]="{'ddp-disabled':isCreateAllowed()}" (click)="createCatalog()"><em class="ddp-icon-add"></em>{{'msg.metadata.cat.btn.new-cat' | translate}}</a>
+      <a href="javascript:" class="ddp-btn-bg"
+         [ngClass]="{'ddp-disabled':isCreateAllowed()}"
+         (click)="createCatalog()">
+        <em class="ddp-icon-add"></em>
+        {{'msg.metadata.cat.btn.new-cat' | translate}}
+      </a>
       <!-- create -->
       <div class="ddp-data-create">
         <a href="javascript:" class="ddp-btn-back" *ngIf="isRoot()" (click)="goBack()"></a>
         <span class="ddp-data-name">{{currentRoot.name}}</span>
         <!-- 편집 -->
         <div class="ddp-data-input" *ngIf="isCreateCatalog">
-          <input type="text" placeholder="Untitled cataglog"  #newCatalogName (keypress)="createCatalogByKeypress($event)">
+          <input placeholder="{{'msg.metadata.catalog.ui.name.ph' | translate }}"
+                 #newCatalogName (keypress)="createCatalogByKeypress($event)">
           <em class="ddp-icon-control-check" (click)="createCatalogDone()"></em>
-        </div>        <!-- //편집 -->
+        </div>
+        <!-- //편집 -->
       </div>
       <!-- //create -->
 
@@ -65,11 +75,12 @@
           </a>
         </li>
 
-        <li [ngClass]="{'ddp-selected':selectedCatalog && selectedCatalog.id === catalog.id && !catalog.editing, 'ddp-box-edit': catalog.editing, 'ddp-sub':catalog }"
+        <li class="ddp-cursor"
+            [ngClass]="{'ddp-selected':selectedCatalog && selectedCatalog.id === catalog['id'] && !catalog['editing'], 'ddp-box-edit': catalog['editing'], 'ddp-sub':catalog }"
             *ngFor="let catalog of catalogs; let index = index"
             (click)="catalogDetail(catalog)"
             (clickOutside)=" cancelEditing(catalog)">
-          <a href="javascript:">
+          <a>
             <em class="ddp-icon-folder"></em>
             <div class="ddp-wrap-name">
               <!-- new 일때 ddp-data-new 추가 -->
@@ -78,13 +89,16 @@
             </div>
             <!-- 편집 -->
             <div class="ddp-data-input" *ngIf="catalog.editing">
-              <input type="text" placeholder="Please insert catalog name" #catalogInput (keyup.enter)="updateCatalog(catalog,index)">
-              <em class="ddp-icon-control-check" (click)="updateCatalog(catalog, index)"></em>
+              <input placeholder="{{'msg.metadata.catalog.ui.name.ph' | translate }}"
+                     #catalogInput (keyup.enter)="updateCatalog(catalog,index)">
+              <em class="ddp-icon-control-check" (click)="$event.stopImmediatePropagation(); updateCatalog(catalog, index)"></em>
             </div>
             <!-- //편집 -->
 
             <div class="ddp-btn-control">
-              <em class="ddp-icon-control-edit2 ddp-hover-tooltip" (click)="$event.stopImmediatePropagation();editCatalog(catalog, index)">
+              <em class="ddp-icon-control-edit2 ddp-hover-tooltip"
+                  *ngIf="!catalog['editing']"
+                  (click)="$event.stopImmediatePropagation(); editCatalog(catalog, index)">
                 <!-- 툴팁 -->
                 <div class="ddp-ui-tooltip-info ddp-down">
                   <em class="ddp-icon-view-top"></em>
@@ -102,7 +116,7 @@
                 <!-- //툴팁 -->
               </em>
             </div>
-            <em class="ddp-view"></em>
+            <em class="ddp-view" *ngIf="!catalog['editing']"></em>
           </a>
         </li>
       </ul>

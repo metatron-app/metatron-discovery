@@ -106,6 +106,13 @@ public class PrepDatasetService {
             String newFileKey = csvFileName.substring(lastIdx+1);
             dataset.setFilekey(newFileKey);
             filekey = newFileKey;
+        } else if(true==dataset.isJSON()) {
+            String csvFileName = this.datasetFilePreviewService.moveJsonToCsv(filekey, null, delimiter);
+            dataset.putCustomValue("filePath", csvFileName);
+            int lastIdx = csvFileName.lastIndexOf(File.separator);
+            String newFileKey = csvFileName.substring(lastIdx+1);
+            dataset.setFilekey(newFileKey);
+            filekey = newFileKey;
         }
 
         if(dataset.getFileTypeEnum() == PrepDataset.FILE_TYPE.HDFS) {

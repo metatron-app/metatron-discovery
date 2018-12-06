@@ -81,6 +81,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
           value: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
         }
       ],
+      allowedMimeType: ['application/vnd.ms-excel','text/csv','text/plain','application/json'],
     });
 
     // add 가 처음
@@ -99,7 +100,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
 
     // add 할때 에러난다면
     this.uploader.onWhenAddingFileFailed = (item: FileLikeObject, filter: any, options: any) => {
-      Alert.error(item.name + this.translateService.instant('msg.dp.alert.file.format.wrong'));
+      Alert.error(item.name + ' ' + this.translateService.instant('msg.dp.alert.file.format.wrong'));
     };
 
     // 업로드 전 ..

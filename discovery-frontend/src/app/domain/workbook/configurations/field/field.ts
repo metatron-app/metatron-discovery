@@ -37,8 +37,8 @@ export abstract class Field {
   public alias: string;
 
   // 가상 필드 명
-  public fieldAlias: string;
-  public pivotAlias: string;
+  public fieldAlias?: string;
+  public pivotAlias?: string;
 
   // for druid
   // fieldName?: string;

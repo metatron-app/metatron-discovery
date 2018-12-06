@@ -21,6 +21,12 @@ import { StringUtil } from '../../common/util/string.util';
 import { MetadataService } from './service/metadata.service';
 import { ActivatedRoute } from '@angular/router';
 import { MetadataModelService } from './service/metadata.model.service';
+import { SelectCatalogComponent } from "./component/select-catalog.component";
+import {ChooseCodeTableComponent} from "../component/choose-code-table/choose-code-table.component";
+import {MetadataDetailColumnschemaComponent} from "./metadata-detail-columnschema.component";
+import {ChooseColumnDictionaryComponent} from "../component/choose-column-dictionary/choose-column-dictionary.component";
+import {ColumnDictionary} from "../../domain/meta-data-management/column-dictionary";
+import {CodeTable} from "../../domain/meta-data-management/code-table";
 
 @Component({
   selector: 'app-metadata-detail',
@@ -37,6 +43,19 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   @ViewChild('metadataDesc')
   private metadataDesc: ElementRef;
 
+  @ViewChild(SelectCatalogComponent)
+  private _selectCatalogComponent: SelectCatalogComponent;
+
+  // 코드 테이블 선택 컴포넌트
+  @ViewChild(ChooseCodeTableComponent)
+  private _chooseCodeTableComp: ChooseCodeTableComponent;
+
+  @ViewChild(MetadataDetailColumnschemaComponent)
+  private _detailColumnSchemaComp: MetadataDetailColumnschemaComponent;
+
+  // 컬럼사전 선택 컴포넌트
+  @ViewChild(ChooseColumnDictionaryComponent)
+  private _chooseColumnDictionaryComp: ChooseColumnDictionaryComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -67,8 +86,6 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(protected element: ElementRef,
               protected metadataService  : MetadataService,
               public metadataModelService : MetadataModelService,
@@ -88,17 +105,11 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
   public ngOnInit() {
-    // Init
     super.ngOnInit();
   }
 
-  // Destory
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
@@ -106,14 +117,14 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 뒤로가기
+   * Go back
    */
   public goBack() {
     this.router.navigateByUrl('/management/metadata/metadata');
   } // function - goBack
 
   /**
-   * 메타데이터 상세 조회
+   * Get metadata detail information
    */
   public getMetadataDetail() {
     this.loadingShow();
@@ -122,13 +133,13 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
       if (result) {
         this.metadataModelService.setMetadata(result);
       }
-    }).catch((error) => {
+    }).catch(() => {
       this.loadingHide();
     })
   } // function - getMetadataDetail
 
   /**
-   * 컨텍스트 메뉴 open/close
+   * context menu show/hide
    */
   public showContextMenu(event) {
     event.stopImmediatePropagation();
@@ -151,11 +162,11 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
    */
   public deleteMetadata() {
     this.loadingShow();
-    this.metadataService.deleteMetaData(this.selectedMetadataId).then((result) => {
+    this.metadataService.deleteMetaData(this.selectedMetadataId).then(() => {
       this.loadingHide();
       Alert.success(`‘${this.metadataModelService.getMetadata().name}' is deleted.`);
       this.goBack();
-    }).catch((error) => {
+    }).catch(() => {
       this.loadingHide();
       Alert.fail('Failed to delete metadata');
     })
@@ -191,8 +202,8 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     // Validation
     if (StringUtil.isEmpty(this.editingName.trim())) {
 
-      Alert.info(this.translateService.instant('msg.page.alert.insert.chart.name'));
-      return;
+      Alert.warning(this.translateService.instant('msg.metadata.ui.name.ph'));
+       return;
     }
 
     // Set
@@ -201,7 +212,7 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     // TODO : server 호출
     this.metadataService.updateMetadata(this.selectedMetadataId, {name : this.name}).then((result) => {
       this.metadataModelService.setMetadata(result);
-    }).catch((error) => {
+    }).catch(() => {
 
     })
   } // function - onNameChange
@@ -224,6 +235,38 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   } // function - onNameEditCancel
 
 
+  /**
+   * Open catalog popup
+   */
+  public openCatalog() {
+    this._selectCatalogComponent.init();
+  }
+
+
+  /**
+   * Open code table popup
+   * @param {{name: string, codeTable: CodeTable}} data
+   */
+  public openCodeTable(data : {name : string, codeTable : CodeTable}) {
+    this._chooseCodeTableComp.init(data.name, data.codeTable);
+  }
+
+
+  /**
+   * Open dictionary popup
+   * @param {{name: string, dictionary: ColumnDictionary}} data
+   */
+  public openDictionary(data : {name : string, dictionary : ColumnDictionary}) {
+    this._chooseColumnDictionaryComp.init(data.name, data.dictionary);
+  }
+
+  public codeTableCompleteEvent(data) {
+    this._detailColumnSchemaComp.onChangedCodeTable(data);
+  }
+
+  public dictionaryCompleteEvent(data) {
+    this._detailColumnSchemaComp.onChangedColumnDictionary(data);
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

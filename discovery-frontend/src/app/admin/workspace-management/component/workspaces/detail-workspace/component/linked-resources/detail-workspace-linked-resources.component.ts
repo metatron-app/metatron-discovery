@@ -17,6 +17,7 @@ import { AbstractComponent } from '../../../../../../../common/component/abstrac
 import { ResourcesViewComponent } from '../viewer/resources-view.component';
 import { WorkspaceService } from '../../../../../../../workspace/service/workspace.service';
 import { SourceType, Status } from '../../../../../../../domain/datasource/datasource';
+import {PageResult} from "../../../../../../../domain/common/page";
 
 @Component({
   selector: 'detail-workspaces-linked-resources',
@@ -55,13 +56,13 @@ export class DetailWorkspaceLinkedResourcesComponent extends AbstractComponent {
 
   // 데이터소스 리스트
   public datasourceList: any[] = [];
-  public datasourceTotalCount: number = 0;
+  public datasourcePageResult: PageResult;
   // 데이터커넥션 리스트
   public connectionList: any[] = [];
-  public connectionTotalCount: number = 0;
+  public connectionPageResult: PageResult;
   // 노트북 서버 리스트
   public connectorList: any[] = [];
-  public connectorTotalCount: number = 0;
+  public connectorPageResult: PageResult;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -101,21 +102,21 @@ export class DetailWorkspaceLinkedResourcesComponent extends AbstractComponent {
    * 데이터소스 리스트 더보기 클릭 이벤트
    */
   public onClickMoreDatasources(): void {
-    this._resourcesViewComponent.init('datasource', this._workspace.id, this.datasourceList, this.datasourceTotalCount);
+    this._resourcesViewComponent.init('datasource', this._workspace.id, this.datasourceList, this.datasourcePageResult);
   }
 
   /**
    * 데이터 커넥션 리스트 더보기 클릭 이벤트
    */
   public onClickMoreConnections(): void {
-    this._resourcesViewComponent.init('connection', this._workspace.id, this.connectionList, this.connectionTotalCount);
+    this._resourcesViewComponent.init('connection', this._workspace.id, this.connectionList, this.connectionPageResult);
   }
 
   /**
    * 노트북 커넥터 리스트 더보기 클릭 이벤트
    */
   public onClickMoreConnector(): void {
-    this._resourcesViewComponent.init('connector', this._workspace.id, this.connectorList, this.connectorTotalCount);
+    this._resourcesViewComponent.init('connector', this._workspace.id, this.connectorList, this.connectorPageResult);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -213,9 +214,9 @@ export class DetailWorkspaceLinkedResourcesComponent extends AbstractComponent {
     this.connectionList = [];
     this.connectorList = [];
     // count init
-    this.datasourceTotalCount = 0;
-    this.connectionTotalCount = 0;
-    this.connectorTotalCount = 0;
+    this.datasourcePageResult = new PageResult();
+    this.connectionPageResult = new PageResult();
+    this.connectorPageResult = new PageResult();
   }
 
   /**
@@ -227,23 +228,23 @@ export class DetailWorkspaceLinkedResourcesComponent extends AbstractComponent {
     // 로딩 show
     this.loadingShow();
     // 데이터소스 리스트
-    q.push(this._getDatasourceList(this._workspace.id, {page: 0, size: 15, sort: 'name,asc'}).then((result) => {
+    q.push(this._getDatasourceList(this._workspace.id, {page: 0, size: 30, sort: 'name,asc'}).then((result) => {
       // list count
-      this.datasourceTotalCount = result['page'].totalElements;
+      this.datasourcePageResult = result['page'];
       // list
       this.datasourceList = result['_embedded'] ? result['_embedded'].datasources : [];
     }));
     // 데이터 커넥션 리스트
-    q.push(this._getDataConnectionList(this._workspace.id, {page: 0, size: 15, sort: 'name,asc'}).then((result) => {
+    q.push(this._getDataConnectionList(this._workspace.id, {page: 0, size: 30, sort: 'name,asc'}).then((result) => {
       // list count
-      this.connectionTotalCount = result['page'].totalElements;
+      this.connectionPageResult = result['page'];
       // list
       this.connectionList = result['_embedded'] ? result['_embedded'].connections : [];
     }));
     // 노트북 커넥터 리스트
-    q.push(this._getNotebookConnectorList(this._workspace.id, {page: 0, size: 15, sort: 'name,asc'}).then((result) => {
+    q.push(this._getNotebookConnectorList(this._workspace.id, {page: 0, size: 30, sort: 'name,asc'}).then((result) => {
       // list count
-      this.connectorTotalCount = result['page'].totalElements;
+      this.connectorPageResult = result['page'];
       // list
       this.connectorList = result['_embedded'] ? result['_embedded'].connectors : [];
     }));

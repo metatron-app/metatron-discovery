@@ -73,6 +73,11 @@
          *ngIf="pageMode === 'PAGE'" (click)="setPage('prev')">&lt; {{'msg.comm.btn.previous'|translate}}</a>
       <a href="javascript:" class="ddp-btn-prev" [ngStyle]="{'display': isDisabledPrev ? 'none':''}"
          *ngIf="pageMode === 'MEMORY'" (click)="setPageMemory('prev')">&lt; {{'msg.comm.btn.previous'|translate}}</a>
+
+      <div class="ddp-data-page" [ngStyle]="{'display': getTotalPage == 0 ? 'none':''}">
+        <span>{{getCurrentPage}}</span>/{{getTotalPage}}
+      </div>
+
       <a href="javascript:" class="ddp-btn-next" [ngStyle]="{'display': isDisabledNext ? 'none':''}"
          *ngIf="pageMode === 'PAGE'" (click)="setPage('next')"> {{'msg.comm.btn.next'|translate}} &gt;</a>
       <a href="javascript:" class="ddp-btn-next" [ngStyle]="{'display': isDisabledNext ? 'none':''}"
