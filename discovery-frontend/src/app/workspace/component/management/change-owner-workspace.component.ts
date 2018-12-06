@@ -93,6 +93,7 @@ export class ChangeOwnerWorkspaceComponent extends AbstractComponent implements 
    */
   public init(workspace: Workspace) {
     this.selectedUser = undefined;
+    this.searchText = '';
     $('body').removeClass('body-hidden').addClass('body-hidden');
     this._workspace = workspace;
     this._getUsers(workspace.id).then(() => {
@@ -189,6 +190,7 @@ export class ChangeOwnerWorkspaceComponent extends AbstractComponent implements 
    */
   private _getUsers(workspaceId: string, pageNum: number = 0) {
     return new Promise((resolve) => {
+      this.selectedUser = undefined;
       ( 0 === pageNum ) && ( this.users = [] );
       const param: Page = new Page();
       param.sort = 'memberName,asc';

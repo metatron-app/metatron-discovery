@@ -87,7 +87,7 @@
           <!-- // User Name -->
 
           <!-- E-Mail -->
-          <div [ngClass]="{'ddp-type-ok' : isEmailChanged && true === resultEmail, 'ddp-type-error' : false === resultEmail}"
+          <div [ngClass]="{'ddp-type-ok' : true === resultEmail, 'ddp-type-error' : false === resultEmail}"
                class="ddp-ui-input-form" >
             <label class="ddp-label-type">{{'msg.comm.ui.profile.email' | translate}}
               <!-- tooltip -->
@@ -116,7 +116,7 @@
           <!-- // E-Mail -->
 
           <!-- Full Name -->
-          <div [ngClass]="{'ddp-type-ok' : isFullNameChanged && true === resultName, 'ddp-type-error' : false === resultName}"
+          <div [ngClass]="{'ddp-type-ok' : true === resultName, 'ddp-type-error' : false === resultName}"
                class="ddp-ui-input-form" >
             <label class="ddp-label-type">{{'msg.comm.ui.profile.fullname' | translate}}
               <!-- tooltip -->
