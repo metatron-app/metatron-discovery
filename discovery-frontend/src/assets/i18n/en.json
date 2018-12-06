@@ -2095,6 +2095,9 @@
   "msg.storage.ui.criterion.modified-time": "Modified Time",
   "msg.storage.ui.criterion.auth-type": "Security",
   "msg.storage.ui.criterion.implementor": "DB type",
+  "msg.storage.ui.source.type.volatility": "Volatility",
+  "msg.storage.ui.source.type.join": "Join",
+  "msg.storage.ui.source.type.master": "Master",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job name, application ID, and User",
