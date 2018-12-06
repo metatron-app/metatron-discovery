@@ -27,7 +27,7 @@ import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 
 /**
- * Created by kyungtaak on 2016. 3. 24..
+ *
  */
 @JsonTypeName("timestamp")
 public class TimestampField extends Field {
@@ -59,7 +59,7 @@ public class TimestampField extends Field {
   }
 
   public TimestampField(String name, String ref) {
-    this(name, null, ref, new CustomDateTimeFormat("yyyy-MM-dd HH:mm:ss"));
+    this(name, null, ref, new CustomDateTimeFormat(TimeFieldFormat.DEFAULT_DATETIME_FORMAT));
   }
 
   public TimestampField(String name, String ref, FieldFormat format) {

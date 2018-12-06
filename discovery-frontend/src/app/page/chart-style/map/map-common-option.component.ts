@@ -1,9 +1,22 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { Component, ElementRef, Injector, Input } from '@angular/core';
+import { BaseOptionComponent } from '../base-option.component';
 import * as _ from 'lodash';
-import {BaseOptionComponent} from "../base-option.component";
-import {
-  UIOption
-} from '../../../common/component/chart/option/ui-option';
+import { MapType } from '../../../common/component/chart/option/define/map/map-common';
+import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
 
 @Component({
   selector: 'map-common-option',
@@ -11,113 +24,76 @@ import {
 })
 export class MapCommonOptionComponent extends BaseOptionComponent {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @Input('uiOption')
+  public uiOption: UIMapOption;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // map service list
+  public mapServiceList = [{name : this.translateService.instant('msg.page.common.map.layer.service.openstreet'), value : MapType.OSM}];
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-   // map type 설정
-   public mapTypeFlag: boolean = false;
+  // map style list
+  public mapStyleList = [{name : this.translateService.instant('msg.page.common.map.layer.map.style.light'), value : 'Light'},
+                         {name : this.translateService.instant('msg.page.common.map.layer.map.style.dark'), value : 'Dark'},
+                         {name : this.translateService.instant('msg.page.common.map.layer.map.style.colored'), value : 'Colored'}];
 
 
-   @Input('uiOption')
-   public set setUiOption(uiOption: UIOption) {
-
-     // if( !uiOption.toolTip ) {
-     //   uiOption.toolTip = {};
-     // }
-     // // displayTypes가 없는경우 차트에 따라서 기본 displayTypes설정
-     // if (!uiOption.toolTip.displayTypes) {
-     //   uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(uiOption.type);
-     // }
-     //
-     // uiOption.toolTip.previewList = this.setPreviewList(uiOption);
-     //
-     // // useDefaultFormat이 없는경우
-     // if (typeof uiOption.toolTip.useDefaultFormat === 'undefined') uiOption.toolTip.useDefaultFormat = true;
-
-     // Set
-     this.uiOption = uiOption;
-   }
-
-   /**
-    * 배경맵을 변경한다
-    */
-   public changeMapType(type?: string) {
-
-     // 해당 베이스맵 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       map: type
-     });
-
-     // update
-     this.update();
-   }
-
-   /**
-    * 라이센스 Notation을 변경한다
-    */
-   public changeLicenseNotation() {
-
-     // 해당 라이센스 Notation으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       licenseNotation: this.uiOption.licenseNotation
-     });
-
-     // update
-     this.update();
-   }
-
-   /**
-    * toggle basemap
-    */
-   public toggleBaseMap(): void {
-
-     this.uiOption.showMapLayer = !this.uiOption.showMapLayer;
-
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, { showMapLayer : this.uiOption.showMapLayer });
-
-     this.update();
-   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Constructor
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
 
     super(elementRef, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Override Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * set license
+   */
+  public setLicense() {
 
-  // Init
-  public ngOnInit() {
+    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
+      licenseNotation: this.uiOption.licenseNotation
+    });
 
-    // Init
-    super.ngOnInit();
+    this.update();
   }
 
-  // Destory
-  public ngOnDestroy() {
+  /**
+   * set map style
+   * @param data
+   */
+  public setMapStyle(data: Object) {
 
-    // Destory
-    super.ngOnDestroy();
+    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
+      style: data['value']
+    });
+
+    this.update();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * set map service
+   * @param data
+   */
+  public setMapService(data: Object) {
+
+    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
+      map: data['value']
+    });
+
+    this.update();
+  }
+
+  /**
+   * return service default index
+   * @returns {number}
+   */
+  public findServiceDefaultIndex() {
+    return _.findIndex(this.mapServiceList, {value : this.uiOption.map});
+  }
+
+  /**
+   * return style default index
+   * @returns {number}
+   */
+  public findStyleDefaultIndex() {
+    return _.findIndex(this.mapStyleList, {value : this.uiOption.style});
+  }
 
 }

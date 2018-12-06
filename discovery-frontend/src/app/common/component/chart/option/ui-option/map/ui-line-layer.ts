@@ -12,20 +12,28 @@
  * limitations under the License.
  */
 
-import { MapBy, MapLayerType } from '../../define/map/map-common';
-import { ColorRange } from '../ui-color';
+import { MapBy, MapLinePathType, MapLineStyle } from '../../define/map/map-common';
+import { UILayers } from './ui-layers';
 
 /**
- * map chart layer
+ * symbol layer
  */
-export interface UILayers {
+export interface UILineLayer extends UILayers {
 
-  // layer type
-  type?: MapLayerType;
+  // Type of Line
+  pathType?: MapLinePathType;
 
-  name?: string;
+  // Source column Name
+  source?: string;
 
-  color?: SymbolColor;
+  // Target column Name
+  target?: string;
+
+  // Thickness of line
+  thickness?: UIThickness;
+
+  // line style (solid, dashed, dotted)
+  lineStyle?: MapLineStyle;
 
   ////////////////////////
   ///// UI Spec
@@ -33,9 +41,9 @@ export interface UILayers {
 }
 
 /**
- * Symbol Color
+ * Thickness of line
  */
-interface SymbolColor {
+interface UIThickness {
 
   // Color specification criteria
   by?: MapBy;
@@ -43,27 +51,12 @@ interface SymbolColor {
   // Column Name
   column?: string;
 
-  // Color code or schema code
-  schema?: string;
-
-  // Transparency (0~100)
-  transparency?: number;
-
-  // Source color, if line layer case
-  source?: string;
-
-  // Target color, if line layer case
-  target?: string;
+  // Max value of thickness
+  maxValue?: number;
 
   ////////////////////////
   ///// UI Spec
   ////////////////////////
-
-  // color by dimension custom color setting
-  mapping?: Object
-
-  // color by measure custom color setting
-  ranges?: ColorRange[];
 
   // Column Aggregation type (measure)
   aggregationType?: string;

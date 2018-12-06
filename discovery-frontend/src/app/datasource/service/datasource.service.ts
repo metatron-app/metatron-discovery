@@ -21,16 +21,15 @@ import {SearchQueryRequest} from '../../domain/datasource/data/search-query-requ
 import * as _ from 'lodash';
 import {PageWidgetConfiguration} from '../../domain/dashboard/widget/page-widget';
 import {
-  ChartType, ShelveFieldType, GridViewType, LineMode
+  ChartType, ShelveFieldType, GridViewType, LineMode, ShelfType, FormatType
 } from '../../common/component/chart/option/define/common';
 import {Filter} from '../../domain/workbook/configurations/filter/filter';
-import {Shelf, Layer} from '../../domain/workbook/configurations/shelf/shelf';
 import {UILineChart} from '../../common/component/chart/option/ui-option/ui-line-chart';
 import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid-chart';
 import {FilterUtil} from '../../dashboard/util/filter.util';
 import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
 import {Dashboard} from '../../domain/dashboard/dashboard';
-import { Datasource, Field } from '../../domain/datasource/datasource';
+import { Datasource, Field, LogicalType } from '../../domain/datasource/datasource';
 import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
 import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
 import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
@@ -41,10 +40,15 @@ import {FilteringType} from '../../domain/workbook/configurations/field/timestam
 import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
 import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
+import { GeoBoundaryFormat, GeoHashFormat } from '../../domain/workbook/configurations/field/geo-field';
+import { UIMapOption } from '../../common/component/chart/option/ui-option/map/ui-map-chart';
+import { ChartUtil } from '../../common/component/chart/option/util/chart-util';
 import {Limit} from "../../domain/workbook/configurations/limit";
 import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
 import {CommonConstant} from "../../common/constant/common.constant";
 import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
+import { UITileLayer } from '../../common/component/chart/option/ui-option/map/ui-tile-layer';
+import { MapLayerType } from '../../common/component/chart/option/define/map/map-common';
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -285,10 +289,21 @@ export class DatasourceService extends AbstractService {
     query.dataSource.name = query.dataSource.engineName;
     query.filters = _.cloneDeep(pageConf.filters);
     query.pivot = _.cloneDeep(pageConf.pivot);
-    // query.shelf = _.cloneDeep(pageConf.shelf);
+
+    let allPivotFields = [];
 
     // 파라미터 치환
-    const allPivotFields = _.concat(query.pivot.columns, query.pivot.rows, query.pivot.aggregations);
+
+    // set alias list by pivot or shelf list
+    if (_.eq(pageConf.chart.type, ChartType.MAP)) {
+
+      query.shelf = _.cloneDeep(pageConf.shelf);
+
+      allPivotFields = _.concat(query.shelf.layers[(<UIMapOption>pageConf.chart).layerNum]);
+    } else {
+      allPivotFields = _.concat(query.pivot.columns, query.pivot.rows, query.pivot.aggregations);
+    }
+
     for (let field of allPivotFields) {
 
       // Alias 설정
@@ -405,115 +420,92 @@ export class DatasourceService extends AbstractService {
     }
 
     // map 차트일때 shelf
-    if (_.eq(pageConf.chart.type, 'map')) {
-      // query.pivot = undefined;
+    if (_.eq(pageConf.chart.type, ChartType.MAP)) {
 
-      let geoFieldCnt = 0;
-      let layers = [];
-      let layers2 = [];
-      let layers3 = [];
+      // current layer
+      let layerNum = (<UIMapOption>pageConf.chart).layerNum ? (<UIMapOption>pageConf.chart).layerNum : 0;
 
-      for(let column of query.pivot.columns) {
-        if(column && column.field && column.field.logicalType &&
-          (column.field.logicalType.toString() === 'GEO_POINT' || column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE') && (column["layerNum"] === undefined || column["layerNum"] === 1) ) {
-          geoFieldCnt = geoFieldCnt +1;
+      let geoFieldCnt: number = 0;
+
+      // check multiple geo type
+      for(let column of query.shelf.layers[layerNum]) {
+        if(column && column.field && column.field.logicalType && (-1 !== column.field.logicalType.toString().indexOf('GEO'))) {
+          geoFieldCnt++;
         }
       }
 
-      for(let column of query.pivot.columns) {
-        if(column["layerNum"] === undefined || column["layerNum"] === 1) {
-          let layer = {
-            type: column.type,
-            name: column.name,
-            alias: column.alias,
-            ref: null,
-            format: null,
-            dataSource: column.field.dataSource
+      // set current layer values
+      for(let layer of query.shelf.layers[layerNum]) {
+
+        // when it's measure
+        if ('measure' === layer.type) {
+
+          // add aggregation type
+          layer.aggregationType = layer.aggregationType;
+
+        // when it's dimension
+        } else if ('dimension' === layer.type) {
+
+          // set current layer datasource
+          if (layer.field.dataSource && layer.field.dsId) {
+            query.dataSource.engineName = layer.field.dataSource;
+            query.dataSource.name = layer.field.dataSource;
+            query.dataSource.id = layer.field.dsId;
           }
 
-          //dataSource가 여러개일 경우 첫번째 dataSource만 가져와서 column의 dataSource Name으로 변경
-          query.dataSource.engineName = column.field.dataSource;
-          query.dataSource.name = column.field.dataSource;
-          query.dataSource.id = column.field.dsId;
+          let radius = (<UITileLayer>(<UIMapOption>pageConf.chart).layers[layerNum]).radius;
 
-          if(column.field && column.field.logicalType && column.field.logicalType.toString().indexOf('GEO') > -1) {
-            layer.format = {
-              type : "geo"
-            }
-          }
+          // to make reverse (bigger radius => set small precision), get precision from 0 - 100
+          let precision = Math.round((100 - radius) / 8.33);
 
-          let precision = column["precision"];
-          let viewRawData = column["viewRawData"];
+          if (precision > 12) precision = 12;
+          if (precision < 1) precision = 1;
 
-          if(precision === undefined) {
-            precision = 8;
-          }
-
-          if(column.field && column.field.logicalType && column.field.logicalType.toString() === 'GEO_POINT') {
-
-            if(query.pivot.aggregations.length > 0) {
+          if (layer.field && layer.field.logicalType) {
+            // default geo format
+            if(layer.field.logicalType && layer.field.logicalType.toString().indexOf('GEO') > -1) {
               layer.format = {
-                type: "geo_hash",
-                method: "h3",
-                precision: precision       // Precision 적용 (1~12)
+                type: FormatType.GEO.toString()
               }
             }
 
-            if(geoFieldCnt > 1) {
-              layer.format = {
-                type: "geo_boundary",
-                dataSource: query.pivot.columns[0].field.dataSource,
-                geoColumn: query.pivot.columns[0].field.name,
-                descColumn: query.pivot.columns[0].field.name
-              }
-            }
+            // when logicalType => geo point
+            if(layer.field.logicalType === LogicalType.GEO_POINT) {
 
-            if(viewRawData) {
-              layer.format = {
-                type : "geo"
+              // geo_hash is only used in hexagon
+              if (MapLayerType.TILE === (<UIMapOption>pageConf.chart).layers[layerNum].type) {
+                layer.format = <GeoHashFormat>{
+                  type: FormatType.GEO_HASH.toString(),
+                  method: "geohex",
+                  precision: precision
+                }
               }
-            }
-          } else if(column.field && column.field.logicalType && (column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE')) {
-            if(geoFieldCnt > 1) {
-              layer.format = {
-                type: "geo_join"
+
+              // when they have multiple geo values
+              if(geoFieldCnt > 1) {
+                layer.format = <GeoBoundaryFormat>{
+                  type: FormatType.GEO_BOUNDARY.toString(),
+                  geoColumn: query.pivot.columns[0].field.name,
+                  descColumn: query.pivot.columns[0].field.name
+                }
+              }
+
+            // when polygon, line type
+            } else if((layer.field.logicalType === LogicalType.GEO_POLYGON || layer.field.logicalType === LogicalType.GEO_LINE)) {
+              // when they have multiple geo values
+              if(geoFieldCnt > 1) {
+                layer.format = {
+                  type: FormatType.GEO_JOIN.toString()
+                }
               }
             }
           }
-
-          layers.push(layer);
         }
-        //  else if(column["layerNum"] === 2) {
-        //   layers2.push(layer);
-        // } else if(column["layerNum"] === 3) {
-        //   layers3.push(layer);
-        // }
       }
-
-      for(let aggregation of query.pivot.aggregations) {
-        if(aggregation["layerNum"] === undefined || aggregation["layerNum"] === 1) {
-          let layer = {
-            type: aggregation.type,
-            name: aggregation.name,
-            alias: aggregation.alias,
-            ref: null,
-            aggregationType: aggregation.aggregationType,
-            dataSource: aggregation.field.dataSource
-          }
-
-          layers.push(layer);
-        }
-        //  else if(aggregation["layerNum"] === 2) {
-        //   layers2.push(layer);
-        // } else if(aggregation["layerNum"] === 3) {
-        //   layers3.push(layer);
-        // }
-      }
-
 
       query.shelf = {
-        type: 'geo',
-        layers: [layers]
+        type: ShelfType.GEO,
+        layers: [query.shelf.layers[layerNum]]
       };
 
       //map 은 limit 5000개 제한
@@ -521,7 +513,6 @@ export class DatasourceService extends AbstractService {
         limit: 5000,
         sort: null
       }
-
     }
 
     if (!_.isEmpty(resultFormatOptions)) {
@@ -880,13 +871,16 @@ export class DatasourceService extends AbstractService {
     // Alias 처리
     if (ShelveFieldType.MEASURE.toString() === field.type) {    // measure 일때
 
-      if (field['alias'] && field['alias'] !== field.name) {
-        field['alias'] = field['alias'];
-      } else {
+      // fix set alias without aggregation type
+      // if (field['alias'] && field['alias'] !== field.name) {
+      //   field['alias'] = field['alias'];
+      // } else {
         // aggregation type과 함께 alias 설정
-        const alias: string = field['fieldAlias'] ? field['fieldAlias'] : ( field['logicalName'] ? field['logicalName'] : field['name'] );
-        field['alias'] = field.aggregationType ? field.aggregationType + `(${alias})` : `${alias}`;
-      }
+        // const alias: string = field['fieldAlias'] ? field['fieldAlias'] : ( field['logicalName'] ? field['logicalName'] : field['name'] );
+        // field['alias'] = field.aggregationType ? field.aggregationType + `(${alias})` : `${alias}`;
+
+        field['alias'] = ChartUtil.getAlias(field);
+      // }
 
     } else if (ShelveFieldType.TIMESTAMP.toString() === field.type) {   // timestamp 일때
 
@@ -897,7 +891,8 @@ export class DatasourceService extends AbstractService {
         if (field.format && field.format.unit) field['alias'] = (field.format && field.format.unit ? field.format.unit : 'NONE') + `(${alias})`;
       }
     } else {
-      field['alias'] = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : ( field['logicalName'] ? field['logicalName'] : field['name'] );
+      field['alias'] = ChartUtil.getAlias(field);
+      // field['alias'] = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : ( field['logicalName'] ? field['logicalName'] : field['name'] );
     }
 
     return field['alias'];

@@ -114,7 +114,10 @@
                  *ngIf="chartType === 'gauge' && this.uiOption" [uiOption]="uiOption"
                  (noData)="showNoData()" >
     </gauge-chart>
-
+    <map-chart #chart
+               *ngIf="chartType === 'map' && this.uiOption" [uiOption]="uiOption"
+               (noData)="showNoData()">
+    </map-chart>
   </div>
   <!-- // Chart 영역 -->
 

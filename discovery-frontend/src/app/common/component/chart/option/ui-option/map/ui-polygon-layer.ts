@@ -12,22 +12,13 @@
  * limitations under the License.
  */
 
-import { ShelfType } from '../../../../common/component/chart/option/define/common';
-import { GeoField } from '../field/geo-field';
+import { UILayers } from './ui-layers';
+import { MapOutline } from './ui-outline';
 
 /**
- * map shelf
+ * polygon layer
  */
-export class Shelf {
+export interface UIPolygonLayer extends UILayers {
 
-  // shelf type
-  public type: ShelfType;
-
-  // Layers
-  public layers: [GeoField[]];
-
-  constructor() {
-    this.type = ShelfType.GEO;
-    this.layers = [[]];
-  }
+  outline?: MapOutline;
 }

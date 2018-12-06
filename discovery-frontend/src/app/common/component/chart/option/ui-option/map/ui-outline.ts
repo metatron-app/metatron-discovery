@@ -12,22 +12,16 @@
  * limitations under the License.
  */
 
-import { ShelfType } from '../../../../common/component/chart/option/define/common';
-import { GeoField } from '../field/geo-field';
+import { MapThickness } from '../../define/map/map-common';
 
 /**
- * map shelf
+ * Outline of layer, outline 속성이 null 이거나 없는 경우 off 처리
  */
-export class Shelf {
+export interface MapOutline {
 
-  // shelf type
-  public type: ShelfType;
+  // Color code of outline
+  color?: string;
 
-  // Layers
-  public layers: [GeoField[]];
-
-  constructor() {
-    this.type = ShelfType.GEO;
-    this.layers = [[]];
-  }
+  // Thickness outline
+  thickness?: MapThickness;
 }

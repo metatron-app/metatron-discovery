@@ -12,22 +12,26 @@
  * limitations under the License.
  */
 
-import { ShelfType } from '../../../../common/component/chart/option/define/common';
-import { GeoField } from '../field/geo-field';
+
+
+import { MapTileShape } from '../../define/map/map-common';
+import { UILayers } from './ui-layers';
 
 /**
- * map shelf
+ * tile layer
  */
-export class Shelf {
+export interface UITileLayer extends UILayers {
 
-  // shelf type
-  public type: ShelfType;
+  // Shape of tile
+  shape?: MapTileShape;
 
-  // Layers
-  public layers: [GeoField[]];
+  // Coverage of tile(0~100), default 80
+  coverage?: number;
 
-  constructor() {
-    this.type = ShelfType.GEO;
-    this.layers = [[]];
-  }
+  // Radius value (0~100), default 20
+  radius?: number;
+
+  ////////////////////////
+  ///// UI Spec
+  ////////////////////////
 }

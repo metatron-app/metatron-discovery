@@ -12,22 +12,45 @@
  * limitations under the License.
  */
 
-import { ShelfType } from '../../../../common/component/chart/option/define/common';
-import { GeoField } from '../field/geo-field';
+import { Field } from './field';
 
 /**
- * map shelf
+ * geo field
  */
-export class Shelf {
+export class GeoField extends Field {
 
-  // shelf type
-  public type: ShelfType;
+  format?: GeoFormat;
+}
 
-  // Layers
-  public layers: [GeoField[]];
+/**
+ * map chart - geo format
+ */
+export class GeoFormat {
 
-  constructor() {
-    this.type = ShelfType.GEO;
-    this.layers = [[]];
-  }
+  // FormatType
+  type?: string;
+}
+
+/**
+ * map chart - geo hash format
+ */
+export class GeoHashFormat extends GeoFormat {
+
+  // default h3
+  method?: string;
+
+  // 1- 12, when it's null set 4
+  precision?: number;
+}
+
+/**
+ * map chart - geo boundary format
+ */
+export class GeoBoundaryFormat extends GeoFormat {
+
+  dataSource?: string;
+
+  geoColumn?: string;
+
+  descColumn?: string;
 }
