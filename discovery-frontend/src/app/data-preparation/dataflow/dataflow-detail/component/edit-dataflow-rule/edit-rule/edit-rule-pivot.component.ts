@@ -104,10 +104,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
 
     let selFields = _.cloneDeep(this.selectedFields);
     const columnsStr: string = selFields.map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+      return '`' + item.name + '`';
     }).join(', ');
 
     const validFormulaList:string[] = [];
@@ -136,10 +133,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
     }
     let selGroupFields = _.cloneDeep(this.selectedGroupFields);
     const groupStr: string = selGroupFields.map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+      return '`' + item.name + '`';
     }).join(', ');
 
     return {

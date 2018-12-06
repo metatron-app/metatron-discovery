@@ -17,7 +17,7 @@ import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } fro
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
-import {isNull, isNullOrUndefined, isUndefined} from "util";
+import { isNullOrUndefined, isUndefined} from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import * as _ from 'lodash';
 
@@ -122,10 +122,7 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
     }
 
     const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+      return '`' + item.name + '`';
     }).join(', ');
 
     let ruleString = `split col: ${columnsStr} on: ${clonedPattern} limit: ${this.limit} ignoreCase: ${this.isIgnoreCase}`;
