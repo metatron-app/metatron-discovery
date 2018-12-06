@@ -16,23 +16,23 @@ import {
   Component, ElementRef, EventEmitter, HostListener, Injector, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { FileUploader } from 'ng2-file-upload';
-import { CommonConstant } from '../../common/constant/common.constant';
-import { Alert } from '../../common/util/alert.util';
-import { User } from '../../domain/user/user';
-import { UserService } from '../service/user.service';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {FileUploader} from 'ng2-file-upload';
+import {CommonConstant} from '../../common/constant/common.constant';
+import {Alert} from '../../common/util/alert.util';
+import {User} from '../../domain/user/user';
+import {UserService} from '../service/user.service';
 import {isNullOrUndefined, isUndefined} from 'util';
-import { CommonUtil } from '../../common/util/common.util';
-import { StringUtil } from '../../common/util/string.util';
-import { ChangePasswordComponent } from './change-password/change-password.component';
-import { Group } from '../../domain/user/group';
-import { WorkspaceService } from '../../workspace/service/workspace.service';
-import { Workspace } from '../../domain/workspace/workspace';
-import { CookieConstant } from '../../common/constant/cookie.constant';
-import { Modal } from '../../common/domain/modal';
-import { ConfirmModalComponent } from '../../common/component/modal/confirm/confirm.component';
-import { EventBroadcaster } from '../../common/event/event.broadcaster';
+import {CommonUtil} from '../../common/util/common.util';
+import {StringUtil} from '../../common/util/string.util';
+import {ChangePasswordComponent} from './change-password/change-password.component';
+import {Group} from '../../domain/user/group';
+import {WorkspaceService} from '../../workspace/service/workspace.service';
+import {Workspace} from '../../domain/workspace/workspace';
+import {CookieConstant} from '../../common/constant/cookie.constant';
+import {Modal} from '../../common/domain/modal';
+import {ConfirmModalComponent} from '../../common/component/modal/confirm/confirm.component';
+import {EventBroadcaster} from '../../common/event/event.broadcaster';
 
 @Component({
   selector: 'app-profile',
@@ -128,7 +128,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     super(element, injector);
     // 이미지 업로드 URL 설정
     this.uploader
-      = new FileUploader({ url: CommonConstant.API_CONSTANT.API_URL + 'images/upload' });
+      = new FileUploader({url: CommonConstant.API_CONSTANT.API_URL + 'images/upload'});
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -151,24 +151,24 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
   /**
    * Phone 변경 여부
    */
-  public get isPhoneChanged():boolean {
-    const userTel = isNullOrUndefined( this.user.tel ) ? '' : this.user.tel.trim();
+  public get isPhoneChanged(): boolean {
+    const userTel = isNullOrUndefined(this.user.tel) ? '' : this.user.tel.trim();
     return this._userTel !== userTel;
   } // function - isPhoneChanged
 
   /**
    * E-Mail 변경 여부
    */
-  public get isEmailChanged():boolean {
-    const userEmail = isNullOrUndefined( this.user.email ) ? '' : this.user.email.trim();
+  public get isEmailChanged(): boolean {
+    const userEmail = isNullOrUndefined(this.user.email) ? '' : this.user.email.trim();
     return this._userEmail !== userEmail;
   } // function - isEmailChanged
 
   /**
    * Full Name 변경 여부
    */
-  public get isFullNameChanged():boolean {
-    const userName = isNullOrUndefined( this.user.fullName ) ? '' : this.user.fullName.trim();
+  public get isFullNameChanged(): boolean {
+    const userName = isNullOrUndefined(this.user.fullName) ? '' : this.user.fullName.trim();
     return this._userName !== userName;
   } // function - isFullNameChanged
 
@@ -177,15 +177,15 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     // ui init
     this._initView();
     // user ID
-    this._userId = isNullOrUndefined( user.username ) ? '' : user.username.trim();
+    this._userId = isNullOrUndefined(user.username) ? '' : user.username.trim();
     // user email
-    this._userEmail = isNullOrUndefined( user.email ) ? '' : user.email.trim();
+    this._userEmail = isNullOrUndefined(user.email) ? '' : user.email.trim();
     // user name
-    this._userName = isNullOrUndefined( user.fullName ) ? '' : user.fullName.trim();
+    this._userName = isNullOrUndefined(user.fullName) ? '' : user.fullName.trim();
     // user tel
-    this._userTel = isNullOrUndefined( user.tel ) ? '' : user.tel.trim();
+    this._userTel = isNullOrUndefined(user.tel) ? '' : user.tel.trim();
     // user image
-    this._imageUrl = isNullOrUndefined( user.imageUrl ) ? '' : user.imageUrl.trim();
+    this._imageUrl = isNullOrUndefined(user.imageUrl) ? '' : user.imageUrl.trim();
     // 팝업 show
     this.isShow = true;
     // 팝업시 하단 스크롤 hide
@@ -199,7 +199,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
    */
   public done(): void {
     // 프로필 수정이 가능하다면
-    if (this.doneValidation()) {
+    if ((this.isPhoneChanged && this.isEmailChanged && this.isFullNameChanged) && this.doneValidation()) {
       // 로딩 show
       this.loadingShow();
       // 프로필 사진이 있으면 프로필사진 업로드부터 시행
@@ -470,8 +470,8 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     // 헤더설정
     this.uploader.setOptions({
       url: CommonConstant.API_CONSTANT.API_URL
-      + 'images/upload'
-      + '?domain=user&itemId=' + this._userId,
+        + 'images/upload'
+        + '?domain=user&itemId=' + this._userId,
       headers: [{
         name: 'Accept',
         value: 'application/json, text/plain, */*',
@@ -490,7 +490,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     // 이미지 업로드 성공
     this.uploader.onSuccessItem = (item, response, status, headers) => {
       const success = true;
-      this._uploadResult = { success, item, response, status, headers };
+      this._uploadResult = {success, item, response, status, headers};
       // 이미지 주소 parse
       const result = JSON.parse(response);
       // user에 imageUrl 저장
@@ -528,10 +528,10 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
         this.user = result;
 
         // 사용자 권한 목록
-        if( result.roleNames ) {
+        if (result.roleNames) {
           this.permissions = result.roleNames.map(role => {
-            const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole( role );
-            return ( '' === strMsgCode ) ? '' : this.translateService.instant(strMsgCode);
+            const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole(role);
+            return ('' === strMsgCode) ? '' : this.translateService.instant(strMsgCode);
           }).join(',');
         }
 
@@ -598,13 +598,13 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     this.workspaceService.getMyWorkspace('forDetailView').then((workspace) => {
 
       // 개인 워크스페이스 정보 저장
-      ( workspace) && (this.privateWorkspace = workspace );
+      (workspace) && (this.privateWorkspace = workspace);
 
       // 공유 워크스페이스 조회
       this.workspaceService.getSharedFavoriteWorkspaces('default').then((workspaces) => {
 
         // 데이터 존재 시 데이터 저장
-        (workspaces['_embedded']) && ( this.sharedWorkspaces = workspaces['_embedded']['workspaces'] );
+        (workspaces['_embedded']) && (this.sharedWorkspaces = workspaces['_embedded']['workspaces']);
 
         // 로딩 hide
         this.loadingHide();
@@ -632,7 +632,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
       };
       this._confirmModalComp.init(modal);
     } else {
-      const workspaceId: string = ( workspace ) ? workspace.id : 'my';
+      const workspaceId: string = (workspace) ? workspace.id : 'my';
       let navigateInfo: string[] = [];
       if (workspaceId) {
         navigateInfo = ['/workspace', workspaceId];
