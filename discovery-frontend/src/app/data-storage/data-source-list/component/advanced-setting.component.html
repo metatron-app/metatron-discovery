@@ -43,13 +43,15 @@
           <div class="ddp-col-5">
             <div class="ddp-txt-label" *ngIf="option.defaultOpt">{{option.key}}</div>
             <input *ngIf="!option.defaultOpt" type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.config.key' | translate}}"
-                   [(ngModel)]="option.key">
+                   [(ngModel)]="option.key" (ngModelChange)="option.keyError = false" (focusout)="configKeyValidation(option, tuningConfig)">
+            <span class="ddp-data-error" *ngIf="!option.defaultOpt && option.keyError"> {{option.keyValidMessage}}</span>
           </div>
           <!-- //key -->
           <!-- value -->
           <div class="ddp-col-7">
             <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{option.ph || ('msg.storage.ph.config.value' | translate)}}"
-                   [(ngModel)]="option.value">
+                   [(ngModel)]="option.value" (ngModelChange)="option.valueError = false" (focusout)="configValueValidation(option)">
+            <span class="ddp-data-error" *ngIf="option.valueError"> {{option.valueValidMessage}}</span>
           </div>
           <!-- value -->
           <!-- delete -->
@@ -90,13 +92,15 @@
           <div class="ddp-col-5">
             <div class="ddp-txt-label" *ngIf="option.defaultOpt">{{option.key}}</div>
             <input type="text" *ngIf="!option.defaultOpt" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.config.key' | translate}}"
-                   [(ngModel)]="option.key">
+                   [(ngModel)]="option.key" (ngModelChange)="option.keyError = false" (focusout)="configKeyValidation(option, jobProperties)">
+            <span class="ddp-data-error" *ngIf="!option.defaultOpt && option.keyError"> {{option.keyValidMessage}}</span>
           </div>
           <!-- //key -->
           <!-- value -->
           <div class="ddp-col-7">
             <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{option.ph || ('msg.storage.ph.config.value' | translate)}}"
-                   [(ngModel)]="option.value">
+                   [(ngModel)]="option.value" (ngModelChange)="option.valueError = false" (focusout)="configValueValidation(option)">
+            <span class="ddp-data-error" *ngIf="option.valueError"> {{option.valueValidMessage}}</span>
           </div>
           <!-- value -->
           <!-- delete -->

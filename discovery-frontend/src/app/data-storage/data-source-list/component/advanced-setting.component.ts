@@ -98,4 +98,45 @@ export class AdvancedSettingComponent extends AbstractComponent {
   public onClickRemoveOption(optionType: string, index: number): void {
     this[optionType].splice(index, 1);
   }
+
+  /**
+   * property key validation
+   * @param option
+   * @param configList
+   */
+  public configKeyValidation(option: any, configList: any): void {
+    // check not empty
+    if (StringUtil.isNotEmpty(option.key)) {
+      // check special characters, and korean (enable .dot)
+      if (option.key.trim().match(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\{\}\[\]\/?,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi)) {
+        // set duplicate message
+        option.keyValidMessage = this.translateService.instant('msg.storage.ui.custom.property.special.char.disable');
+        // set error flag
+        option.keyError = true;
+        return;
+      }
+      // check duplicate
+      if (configList.filter(item => item.key.trim() === option.key.trim()).length > 1) {
+        // set duplicate message
+        option.keyValidMessage = this.translateService.instant('msg.storage.ui.custom.property.duplicated');
+        // set error flag
+        option.keyError = true;
+      }
+    }
+  }
+
+  /**
+   * Property value validation
+   * @param property
+   */
+  public configValueValidation(option: any): void {
+    // check not empty, check special characters, and korean (enable .dot)
+    if (StringUtil.isNotEmpty(option.value) && option.value.trim().match(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\{\}\[\]\/?,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi)) {
+      // set duplicate message
+      option.valueValidMessage = this.translateService.instant('msg.storage.ui.custom.property.special.char.disable');
+      // set error flag
+      option.valueError = true;
+      return;
+    }
+  }
 }

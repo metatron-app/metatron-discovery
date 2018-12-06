@@ -384,8 +384,8 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
       property.keyError = true;
       return;
     }
-    // check special characters (enable .dot)
-    if (property.key.trim().match(/[\{\}\[\]\/?,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi)) {
+    // check special characters, and korean (enable .dot)
+    if (property.key.trim().match(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\{\}\[\]\/?,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi)) {
       // set duplicate message
       property.keyValidMessage = this.translateService.instant('msg.storage.ui.custom.property.special.char.disable');
       // set error flag
@@ -398,6 +398,7 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
       property.keyValidMessage = this.translateService.instant('msg.storage.ui.custom.property.duplicated');
       // set error flag
       property.keyError = true;
+      return;
     }
   }
 
@@ -412,6 +413,15 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
       property.valueValidMessage = this.translateService.instant('msg.storage.ui.required');
       // set error flag
       property.valueError = true;
+      return;
+    }
+    // check special characters, and korean (enable .dot)
+    if (property.value.trim().match(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\{\}\[\]\/?,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi)) {
+      // set duplicate message
+      property.valueValidMessage = this.translateService.instant('msg.storage.ui.custom.property.special.char.disable');
+      // set error flag
+      property.valueError = true;
+      return;
     }
   }
 

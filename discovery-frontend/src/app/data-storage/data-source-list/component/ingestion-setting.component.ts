@@ -60,6 +60,8 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _resultElement: ElementRef;
   @ViewChild('resultBoxElement')
   private _resultBoxElement: ElementRef;
+  @ViewChild('rowInput')
+  private _rowInput: ElementRef;
 
   // source create type
   public createType: string;
@@ -155,8 +157,8 @@ export class IngestionSettingComponent extends AbstractComponent {
   public cronValidationMessage: string;
 
   // row (only engine source type)
-  public ingestionOnceRow: string = '10,000';
-  public ingestionPeriodRow: string = '10,000';
+  public ingestionOnceRow: number = 10000;
+  public ingestionPeriodRow: number = 10000;
 
   // advanced settings
   public tuningConfig: any[] = [];
@@ -481,6 +483,8 @@ export class IngestionSettingComponent extends AbstractComponent {
       return;
     }
     this.selectedIngestionScopeType = scopeType;
+    //
+    this.safelyDetectChanges();
   }
 
   /**
@@ -540,9 +544,7 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @returns {boolean}
    */
   public isEnabledPartitionInput(partitions: any[], partition: any): boolean {
-    const index = partitions.findIndex((item) => {
-      return item === partition;
-    });
+    const index = partitions.findIndex(item => item === partition);
     if (index !== 0
       && (partitions[index - 1].value === undefined || partitions[index - 1].value === '')) {
       return false;
@@ -557,9 +559,7 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @returns {boolean}
    */
   public isMaxRowOverValue(row: any, value: number): boolean {
-    if (this[row]) {
-      return Number.parseInt(this[row].replace(/(,)/g, '')) > value;
-    }
+    return this[row] && this[row] > value;
   }
 
   /**
@@ -707,10 +707,16 @@ export class IngestionSettingComponent extends AbstractComponent {
     if (this.createType === 'STAGING' && this.isStrictMode && this.partitionKeyList.length !== 0 && !this.partitionValidationResult) {
       return false;
     }
-    // value is empty in tuningConfig's default option
-    // if (this.tuningConfig.some(item => item.defaultOpt && StringUtil.isEmpty(item.value))) {
-    //   return false;
-    // }
+    // valid tuning config
+    if (this.tuningConfig.length !== 0) {
+      // if exist tuningConfig error
+      return !_.some(this.tuningConfig, config => config.keyError || config.valueError);
+    }
+    // valid job properties
+    if (this.jobProperties.length !== 0) {
+      // if exist jobProperties error
+      return !_.some(this.jobProperties, config => config.keyError || config.valueError);
+    }
     return true;
   }
 

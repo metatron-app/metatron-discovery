@@ -26,6 +26,7 @@ import { MomentDatePipe } from '../../../../../common/pipe/moment.date.pipe';
 import { ActivatedRoute } from '@angular/router';
 import { CommonUtil } from '../../../../../common/util/common.util';
 
+declare let moment: any;
 
 @Component({
   selector: 'app-job-detail',
@@ -141,11 +142,10 @@ export class JobDetailComponent extends AbstractPopupComponent {
       return;
     }
     const log: Log = new Log;
-    const datePipe = new DatePipe('en-EN');
     log.title = 'Plan Information';
     // 생성시간
     log.subTitle = [];
-    log.subTitle.push(datePipe.transform(this.audit.startTime, 'yyyy-MM-dd HH:mm'));
+    log.subTitle.push(moment(this.audit.startTime).format('YYYY-MM-DD HH:mm'));
     log.data = this.audit.plan;
     // log 모달 오픈
     this.logComponent.init(log);
