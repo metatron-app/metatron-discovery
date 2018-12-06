@@ -50,6 +50,7 @@ import { Alert } from '../common/util/alert.util';
 import { WidgetService } from './service/widget.service';
 import { DashboardUtil } from './util/dashboard.util';
 import { EventBroadcaster } from '../common/event/event.broadcaster';
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'app-dashboard',
@@ -372,6 +373,10 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
         linkedDsList.forEach(dsInfo => {
           promises.push(new Promise<any>((res, rej) => {
             const boardDsInfo: BoardDataSource = DashboardUtil.getBoardDataSourceFromDataSource(dashboard, dsInfo);
+            if( isNullOrUndefined( boardDsInfo['temporaryId'] ) ) {
+              rej( 'INVALID_LINKED_DATASOURCE' );
+              return;
+            }
             this.datasourceService.getDatasourceDetail(boardDsInfo['temporaryId']).then((ds: Datasource) => {
 
               if (this.datasourceStatus || TempDsStatus.ENABLE !== this.datasourceStatus) {
@@ -411,9 +416,15 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
           }
           this.safelyDetectChanges();
         }).catch((error) => {
-          this.commonExceptionHandler(error);
-          this.onLayoutInitialised();
-          this.hideBoardLoading();
+          if( 'INVALID_LINKED_DATASOURCE' === error ) {
+            this.showError();
+            this.onLayoutInitialised();
+            this.hideBoardLoading();
+          } else {
+            this.commonExceptionHandler(error);
+            this.onLayoutInitialised();
+            this.hideBoardLoading();
+          }
         });
 
       } else {
