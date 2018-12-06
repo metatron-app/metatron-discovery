@@ -147,23 +147,6 @@
                 </li>
               </ul>
             </li>
-            <li *ngIf="permission.managementDatasource" [ngClass]="{'ddp-selected': lnbManager.management.integrator.fold == false}">
-              <a href="javascript:" (click)="mgmtMenuClickListener('INTEGRATOR')">
-                <em class="ddp-icon-dot"></em>
-                {{'msg.comm.menu.manage.integrator' | translate}}
-              </a>
-              <ul class="ddp-list-sublnb-2depth">
-                <li>
-                  <a href="javascript:" (click)="move('external/integrator-workflow')">{{'msg.comm.menu.manage.integrator.workflow' | translate}}</a>
-                </li>
-                <li>
-                  <a href="javascript:" (click)="move('external/integrator-monitoring')">{{'msg.comm.menu.manage.integrator.monitoring' | translate}}</a>
-                </li>
-                <li>
-                  <a href="javascript:" (click)="move('external/integrator-dependencies')">{{'msg.comm.menu.manage.integrator.dependencies' | translate}}</a>
-                </li>
-              </ul>
-            </li>
             <li *ngIf="permission.managementDatasource" [ngClass]="{'ddp-selected': lnbManager.management.dataStorage.fold == false}">
               <a href="javascript:" (click)="mgmtMenuClickListener('DATASTORAGE')">
                 <em class="ddp-icon-dot"></em>
@@ -223,6 +206,19 @@
                 </li>
               </ul>
             </li>
+            <ng-container *ngIf="permission.managementDatasource">
+              <li *ngFor="let item of getManagementExtensions"
+                  [ngClass]="{'ddp-selected': lnbManager.management[item.name]['fold'] == false}">
+                <a href="javascript:" (click)="mgmtMenuClickListener(item.name)">
+                  <em class="ddp-icon-dot"></em> {{item.name}}
+                </a>
+                <ul class="ddp-list-sublnb-2depth">
+                  <li *ngFor="let subKey of ObjectKeys(item.subContents)">
+                    <a href="javascript:" (click)="move('external/' + item.parent + '_' + item.name + '_' + subKey)">{{subKey}}</a>
+                  </li>
+                </ul>
+              </li>
+            </ng-container>
           </ul>
           <!-- //submenu -->
         </div>

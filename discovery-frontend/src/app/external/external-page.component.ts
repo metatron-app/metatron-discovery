@@ -19,6 +19,9 @@ import {
 import {AbstractComponent} from "../common/component/abstract.component";
 import {ActivatedRoute} from "@angular/router";
 import {environment} from "../../environments/environment";
+import {CookieConstant} from "../common/constant/cookie.constant";
+import {CommonService} from "../common/service/common.service";
+import {Extension} from "../common/domain/extension";
 
 @Component({
   selector: 'app-external-page',
@@ -30,10 +33,10 @@ export class ExternalPageComponent extends AbstractComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild( 'externalView' )
-  private _externalView:ElementRef;
+  @ViewChild('externalView')
+  private _externalView: ElementRef;
 
-  private _url:string;
+  private _url: string;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -49,6 +52,7 @@ export class ExternalPageComponent extends AbstractComponent implements OnInit, 
 
   // 생성자
   constructor(private activatedRoute: ActivatedRoute,
+              private commonService: CommonService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -67,29 +71,7 @@ export class ExternalPageComponent extends AbstractComponent implements OnInit, 
    */
   public ngOnInit() {
     super.ngOnInit();
-
     window.history.pushState(null, null, window.location.href);
-
-    this.activatedRoute.params.subscribe((params) => {
-      // dashboard 아이디를 넘긴경우에만 실행
-      // 로그인 정보 생성
-
-      // this.url = params['url'];
-      let url:string = '';
-      let urlData:any = environment;
-      if( params['url'] ) {
-        params['url'].split( '-' ).forEach( item => {
-          urlData = urlData[item];
-        });
-        url = urlData;
-      }
-      this._url = url;
-
-      // (params['loginToken']) && (this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN, params['loginToken'], 0, '/'));
-      // (params['loginType']) && (this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN_TYPE, params['loginType'], 0, '/'));
-      // (params['refreshToken']) && (this.cookieService.set(CookieConstant.KEY.REFRESH_LOGIN_TOKEN, params['refreshToken'], 0, '/'));
-
-    });
   } // function - ngOnInit
 
   /**
@@ -97,7 +79,12 @@ export class ExternalPageComponent extends AbstractComponent implements OnInit, 
    */
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-    this._externalView.nativeElement.src = this._url;
+    this.activatedRoute.params.subscribe((params) => {
+      // dashboard 아이디를 넘긴경우에만 실행
+      // 로그인 정보 생성
+      this._url = params['url'];
+      this._loadMenu();
+    });
   } // function - ngAfterViewInit
 
   /**
@@ -105,7 +92,6 @@ export class ExternalPageComponent extends AbstractComponent implements OnInit, 
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-
   } // function - ngOnDestroy
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -115,5 +101,43 @@ export class ExternalPageComponent extends AbstractComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  private _loadMenu() {
+    this.loadingShow();
+    this.commonService.getExtensions('lnb' ).then( items => {
+      if( items && 0 < items.length ) {
+        const exts:Extension[] = items;
+        const arrUrl:string[] = this._url.split('_');
+        const menuItem = exts.filter( item => ( item.parent === arrUrl[0] && item.name === arrUrl[1] ) )[0];
+        this._openExternalView(menuItem.subContents[arrUrl[2]]);
+        this.loadingHide();
+      }
+    });
+  }
+  /**
+   * Open external view in iframe
+   * @param {string} targetUrl
+   * @private
+   */
+  private _openExternalView(targetUrl: string) {
+    const target = 'externalView';
+    const formName = 'externalViewForm';
+    const token = this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN);
+    const refreshToken = this.cookieService.get(CookieConstant.KEY.REFRESH_LOGIN_TOKEN);
+    const type = this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE);
+    const userId = this.cookieService.get(CookieConstant.KEY.LOGIN_USER_ID);
+    let existForm = document.getElementsByName(formName)[0];
+    if (existForm) {
+      existForm.remove();
+    }
+    const url:string = targetUrl.replace( '${token}', token ).replace( '${refreshToken}', refreshToken ).replace( '${type}', type ).replace( '${userId}', userId );
+
+    let form = document.createElement('form');
+    form.setAttribute('name', formName);
+    form.setAttribute('method', 'post');
+    form.setAttribute('action', url );
+    form.setAttribute('target', target);
+    document.getElementsByTagName('body')[0].appendChild(form);
+    form.submit();
+  } // function - _openExternalView
 
 }

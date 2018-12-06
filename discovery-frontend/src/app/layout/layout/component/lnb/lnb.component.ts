@@ -27,6 +27,8 @@ import { CommonUtil } from '../../../../common/util/common.util';
 import { Modal } from '../../../../common/domain/modal';
 import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
 import { BuildInfo } from "../../../../../environments/build.env";
+import {CommonService} from "../../../../common/service/common.service";
+import {Extension} from "../../../../common/domain/extension";
 
 @Component({
   selector: 'app-lnb',
@@ -97,7 +99,6 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       fold: true,
       metadata: { fold:true },
       dataStorage: { fold: true },
-      integrator: { fold: true },
       dataPreparation: { fold: true },
       dataMonitoring: { fold: true },
       modelManager: { fold: true }
@@ -114,6 +115,12 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public  buildInfo = {
     appVersion: BuildInfo.METATRON_APP_VERSION
   };
+
+  public extensions:Extension[] = [];
+
+  public get getManagementExtensions():Extension[] {
+    return this.extensions.filter( item => 'management' === item.parent );
+  } // get - getManagementExtensions
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Component
@@ -136,6 +143,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
 
   constructor(private broadCaster: EventBroadcaster,
               private workspaceService: WorkspaceService,
+              private commonService: CommonService,
               protected elementRef: ElementRef,
               protected  injector: Injector) {
     super(elementRef, injector);
@@ -215,6 +223,19 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
         this._closeLNB();
       })
     );
+
+    // extensions 설정
+    this.commonService.getExtensions('lnb' ).then( items => {
+      console.info( '>>>>>>> item', items );
+      if( items && 0 < items.length ) {
+        const exts:Extension[] = items;
+        exts.forEach( ext => {
+          ( this.lnbManager[ext.parent] ) || ( this.lnbManager[ext.parent] = {} );
+          this.lnbManager[ext.parent][ext.name] = { fold : true };
+        });
+        this.extensions = exts;
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -224,6 +245,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  ObjectKeys = Object.keys;
 
   /**
    * Document Click Handler ( input class 제거 )
@@ -282,17 +304,17 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
    */
   public mgmtMenuClickListener(menuName: string) {
     this.lnbManager.management.metadata.fold = true;
-    this.lnbManager.management.integrator.fold = true;
     this.lnbManager.management.dataStorage.fold = true;
     this.lnbManager.management.dataPreparation.fold = true;
     this.lnbManager.management.dataMonitoring.fold = true;
     this.lnbManager.management.modelManager.fold = true;
+    this.getManagementExtensions.forEach( item => {
+      this.lnbManager.management[item.name]['fold']  = true;
+    });
+
     switch (menuName) {
       case 'METADATA' :
         this.lnbManager.management.metadata.fold = false;
-        break;
-      case 'INTEGRATOR' :
-        this.lnbManager.management.integrator.fold = false;
         break;
       case 'DATASTORAGE' :
         this.lnbManager.management.dataStorage.fold = false;
@@ -306,6 +328,10 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       case 'MODELMANAGER' :
         this.lnbManager.management.modelManager.fold = false;
         break;
+      default :
+        if( this.lnbManager.management[menuName] ) {
+          this.lnbManager.management[menuName]['fold'] = false;
+        }
     }
   } // function - mgmtMenuClickListener
 
@@ -531,7 +557,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public downloadManual() {
     const browserLang:string = this.translateService.getBrowserLang();
     const lang:string = browserLang.match(/en/) ? 'en' : 'ko';
-    this.workspaceService.downloadManual(lang);
+    this.commonService.downloadManual(lang);
   } // function - downloadManual
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
