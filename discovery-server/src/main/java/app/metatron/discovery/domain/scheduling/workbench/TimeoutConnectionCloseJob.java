@@ -57,21 +57,6 @@ public class TimeoutConnectionCloseJob extends QuartzJobBean {
 
     LOGGER.info("## Start batch job for checking time out websocket.");
 
-    System.out.println("Session Stats info " +webSocketMessageBrokerStats.getWebSocketSessionStatsInfo());
-
-    System.out.println("userRegistry.getUsers() = " + userRegistry.getUsers());
-
-    for(SimpUser simpUser : userRegistry.getUsers()){
-      System.out.println("simpUser = " + simpUser.getName());
-      for(SimpSession simpSession : simpUser.getSessions()){
-        System.out.println("simpSession.getId() = " + simpSession.getId());
-        for(SimpSubscription simpSubscription : simpSession.getSubscriptions()){
-          System.out.println("simpSubscription.getId() = " + simpSubscription.getId());
-          System.out.println("simpSubscription.getDestination() = " + simpSubscription.getDestination());
-        }
-      }
-    }
-
     //1. getting connect websocket session
     List<String> subscribedWebsocketId = new ArrayList<>();
     for(SimpUser simpUser : userRegistry.getUsers()){
