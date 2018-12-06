@@ -696,7 +696,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
         }
       },
       WRANGLED: {
-        DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_dataset.png',
+        DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_wrangled.png',
       },
       SELECTED: {
         IMPORTED: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db_focus.png',

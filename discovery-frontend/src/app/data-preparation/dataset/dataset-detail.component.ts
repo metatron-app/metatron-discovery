@@ -314,13 +314,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
   /** get total bytes */
   public get getTotalBytes() {
-  /*
-    if( this.dataset['importType'] && this.dataset['importType']===ImportType.HIVE &&
-      this.dataset['rsType'] && this.dataset['rsType']!==RsType.TABLE ) {
-      return this.translateService.instant('msg.dp.alert.rstype.no.table');
-    } else if( this.dataset['importType'] && this.dataset['importType']===ImportType.DB ) {
-      return this.translateService.instant('msg.dp.alert.importtype.db');
-      */
     if( this.dataset.importType===ImportType.STAGING_DB &&
       this.dataset.rsType!==RsType.TABLE ) {
       return this.translateService.instant('msg.dp.alert.rstype.no.table');
@@ -510,7 +503,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     //} else if (dataset.importType === 'HIVE') {
     } else if (dataset.importType === 'DATABASE' || dataset.importType === 'STAGING_DB') {
       this.datasetInformationList = [
-        //{ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'HIVE' ? 'Staging DB' : 'DB'}` },
         { name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'STAGING_DB' ? 'Staging DB' : 'DB'}` },
         { name : `${this.translateService.instant('msg.lineage.ui.list.search.table')}/${this.translateService.instant('msg.lineage.ui.list.search.sql')}`, value : `${this.getTableOrSql}` },
         { name : this.translateService.instant('msg.comm.detail.size') , value : this.getTotalBytes },
@@ -539,6 +531,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         result =  'CSV'
       } else if (extension.toUpperCase() === 'JSON') {
         result =  'JSON'
+      } else  {
+        result = extension.toUpperCase()
       }
     }
     return result;
@@ -700,7 +694,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
     let rows: any[] = data.data;
 
-    if( 0 === fields.length || 0 === rows.length ) {
+    if( 0 === fields.length ) {
       return;
     }
 

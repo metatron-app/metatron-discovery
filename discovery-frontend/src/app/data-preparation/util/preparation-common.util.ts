@@ -384,4 +384,20 @@ export class PreparationCommonUtil {
     return result
   } // user friendly import type name
 
+
+
+  /**
+   * returns file extension and file name
+   * @param {string} fileName
+   * @returns {string[]} [filename, extension]
+   * @private
+   */
+  public static getFileNameAndExtension(fileName: string) : string[] {
+
+    const val = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName);
+
+    return [val[0].split('.' + val[1])[0],val[1]]
+
+  }
+
 }

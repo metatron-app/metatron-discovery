@@ -39,92 +39,12 @@
 
           <tbody>
 
-          <tr *ngIf="type === 'STAGING' && datasetHive.dbName">
+          <tr *ngFor="let ds of datasetInfo">
             <th>
-              {{'msg.dp.th.database' | translate}}
+              {{ds.name}}
             </th>
             <td>
-              {{datasetHive.dbName}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'STAGING' && datasetHive.tblName">
-            <th>
-              {{'msg.lineage.ui.list.search.table' | translate}}
-            </th>
-            <td>
-              {{datasetHive.tblName}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'STAGING' && datasetHive.dbName === '' && datasetHive.tblName === '' ">
-            <th>
-              {{'msg.dp.btn.query' | translate}}
-            </th>
-            <td>
-              {{datasetHive.queryStmt}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'FILE' && datasetFile.filenameBeforeUpload">
-            <th>
-              {{'msg.dp.ui.list.file' | translate}}
-            </th>
-            <td>
-              {{datasetFile.filenameBeforeUpload}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'FILE' && datasetFile.sheets.length > 1">
-            <th>
-              {{'msg.dp.th.sheet' | translate}}
-            </th>
-            <td>
-              {{datasetFile.sheets[datasetFile.sheetIndex]}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'DB' && datasetJdbc.dataconnection.implementor">
-            <th>
-              Type
-            </th>
-            <td>
-              {{datasetJdbc.dataconnection.implementor}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'DB' && datasetJdbc.dataconnection.hostname">
-            <th>
-              Host
-            </th>
-            <td>
-              {{datasetJdbc.dataconnection.hostname}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'DB' && datasetJdbc.dataconnection.port">
-            <th>
-              Port
-            </th>
-            <td>
-              {{datasetJdbc.dataconnection.port}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'DB' && datasetJdbc.dataconnection.sid">
-            <th>
-              SID
-            </th>
-            <td>
-              {{datasetJdbc.dataconnection.sid}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'DB' && datasetJdbc.dbName">
-            <th>
-              Database / Table
-            </th>
-            <td>
-              {{datasetJdbc.dbName}} / {{datasetJdbc.tblName}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'DB' && datasetJdbc.queryStmt">
-            <th>
-              Query
-            </th>
-            <td>
-              {{datasetJdbc.queryStmt}}
+              {{ds.value}}
             </td>
           </tr>
 
@@ -157,7 +77,7 @@
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="complete()">{{'msg.comm.btn.done' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="complete()">{{'msg.comm.btn.done2' | translate}}</a>
   </div>
   <!-- //buttons -->
 

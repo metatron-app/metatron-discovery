@@ -110,7 +110,7 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
       return item.name
     }).join(', ');
 
-    if (isNullOrUndefined(this.beforeOrAfter)) {
+    if (isNullOrUndefined(this.beforeOrAfter) || this.beforeOrAfter === '') {
       Alert.warning(this.translateService.instant('msg.dp.alert.before.after'));
       return undefined
     }

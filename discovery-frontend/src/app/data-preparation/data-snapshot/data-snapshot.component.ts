@@ -81,12 +81,6 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
   public snapshotTypes = [
     {label:'All', value : null},
-    /*
-    {label:'Staging DB', value : 'HIVE'},
-    {label : 'Local', value : 'FILE'},
-    {label : 'Database', value : 'JDBC'},
-    {label : 'HDFS', value : 'HDFS'}
-    */
     {label: 'Staging DB', value : SsType.STAGING_DB},
     {label: 'FILE', value : SsType.URI},
     {label: 'Database', value : SsType.DATABASE},

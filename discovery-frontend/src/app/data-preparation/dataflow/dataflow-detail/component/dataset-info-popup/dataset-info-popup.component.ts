@@ -192,7 +192,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
   public ngAfterViewInit() {
     setTimeout( () => {
-      this._split = Split(['.sys-dataflow-left-panel', '.sys-dataflow-right-panel'], { sizes: [80, 20], minSize: [700,300], onDragEnd : (() => {
+      this._split = Split(['.sys-dataflow-left-panel', '.sys-dataflow-right-panel'], { sizes: [80, 20], minSize: [300,300], onDragEnd : (() => {
         this.gridComponent.resize();
       }) });
     }, 500 );
@@ -311,10 +311,6 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    * get total bytes
    */
   public get getTotalBytes() {
-  /*
-    if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.HIVE &&
-      this.selectedDataSet['rsType'] && this.selectedDataSet['rsType']!==RsType.TABLE ) {
-      */
     if( this.selectedDataSet.importType===ImportType.STAGING_DB && this.selectedDataSet.rsType!==RsType.TABLE ) {
       return this.translateService.instant('msg.dp.alert.rstype.no.table');
     } else {
@@ -748,10 +744,10 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
         result =  'EXCEL'
       } else if (extension.toUpperCase() === 'JSON') {
         result =  'JSON'
-      } else if (extension.toUpperCase() === 'CSV') {
+      } else if (extension.toUpperCase() === 'CSV' || extension.toUpperCase() === 'TXT' ) {
         result =  'CSV'
       } else {
-        result =  'CSV'
+        result = extension.toUpperCase()
       }
     }
 

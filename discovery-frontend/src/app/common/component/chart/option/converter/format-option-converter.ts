@@ -636,15 +636,18 @@ export class FormatOptionConverter {
     if (!aggValue && seriesName) aggValue = _.find(aggregations, {alias : seriesName});
 
     let aggregationType = "";
-    if( aggValue.aggregationType ) {
+    if( aggValue.aggregationType && -1 < aggValue.alias.indexOf( aggValue.aggregationType + "(" ) ) {
       aggregationType = aggValue.aggregationType.toString().slice(0, 1).toUpperCase();
       aggregationType += aggValue.aggregationType.toString().slice(1, aggValue.aggregationType.toString().length).toLowerCase();
       // Avg인 경우 Average로 치환
       if ('Avg' == aggregationType) aggregationType = 'Average';
       aggregationType += ' of ';
+      seriesValue = aggregationType +
+        aggValue.alias.replace( new RegExp( aggValue.aggregationType + '\\(([a-zA-Z]+)\\)', 'gi' ), '$1' ) + ' : ' +
+        this.getFormatValue(value, format);
+    } else {
+      seriesValue = aggValue.alias + ' : ' + this.getFormatValue(value, format);
     }
-
-    seriesValue = aggregationType + aggValue.name + ' : ' + this.getFormatValue(value, format);
 
     return seriesValue;
   }

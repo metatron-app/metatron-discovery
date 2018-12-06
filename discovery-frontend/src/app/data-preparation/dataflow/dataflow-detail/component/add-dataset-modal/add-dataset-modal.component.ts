@@ -69,7 +69,7 @@ export class AddDatasetModalComponent extends AbstractComponent implements OnIni
   // filters
   public searchText: string = '';
   public searchDsType: string = 'IMPORTED';
-  public searchImportType: string = 'HIVE';
+  public searchImportType: string = 'STAGING_DB';
   public typeFilter: any[];
 
   public prepCommonUtil = PreparationCommonUtil;

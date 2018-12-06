@@ -354,7 +354,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
    */
   public offEditRelationMode() {
     this.isRelationEditMode = false;
-    this._network.disableEditMode();
+    ( this._network ) && ( this._network.disableEditMode() );
     this.toggleGuide( 'HIDE' );
     this.safelyDetectChanges();
 
@@ -455,6 +455,16 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Linked Datasource Ingestion
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public closeEssentialFilterPopup() {
+    this.isShowDataIngestion = false
+    const cntNodes: number = this._nodes.getIds().length;
+    if (0 === cntNodes) {
+      this.isRenderedNetwork = false;
+
+      // 네트워크 보드 제거
+      this._destroyNetworkBoard();
+    }
+  } // function - closeEssentialFilterPopup
 
   /**
    * Data Ingestion 완료 이벤트 핸들러

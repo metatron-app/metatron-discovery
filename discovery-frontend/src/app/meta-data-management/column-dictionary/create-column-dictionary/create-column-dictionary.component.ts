@@ -360,7 +360,7 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
   private _getCreateColumnDictionaryParams(): object {
     const params = {
       name: this.columnName.trim(),
-      shortName: this.shortName.trim(),
+      suggestionShortName: this.shortName.trim(),
       logicalName: this.logicalName.trim(),
       description: this.description.trim(),
       logicalType: this.selectedType,

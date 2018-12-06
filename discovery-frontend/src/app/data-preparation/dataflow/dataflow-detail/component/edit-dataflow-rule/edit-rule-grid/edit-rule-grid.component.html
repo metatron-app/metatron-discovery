@@ -32,11 +32,21 @@
   <!-- //left -->
   <!-- right -->
   <div class="ddp-part-right">
-    <div class="ddp-data-form ddp-cursor" (click)="toggleShowColumnTypes()" (clickOutside)="toggleShowColumnTypes(false);">
+    <div class="ddp-data-form">
       <strong >{{totalColumnCnt | numberCommas}}</strong>
       {{'msg.comm.detail.columns' | translate}}
+    </div>
+    <div class="ddp-data-form">
+      <strong>{{totalRowCnt | numberCommas}}</strong>
+      {{'msg.comm.detail.rows' | translate}}
+    </div>
+    <div #typeListElement class="ddp-data-form ddp-cursor"
+         (click)="toggleShowColumnTypes($event)">
+      <strong >{{columnTypeCnt | numberCommas}}</strong>
+      {{'msg.comm.detail.types' | translate}}
       <!-- 팝업 -->
-      <div class="ddp-wrap-popup2 ddp-types" *ngIf="isShowColumnTypes" >
+      <div class="ddp-wrap-popup2 ddp-types"
+           *ngIf="isShowColumnTypes">
         <ul class="ddp-list-popup">
           <li *ngFor="let item of columnTypeList">
             <a href="javascript:">
@@ -48,15 +58,6 @@
         </ul>
       </div>
       <!-- //팝업 -->
-    </div>
-    <div class="ddp-data-form">
-      <strong>{{totalRowCnt | numberCommas}}</strong>
-      {{'msg.comm.detail.rows' | translate}}
-    </div>
-    <div class="ddp-data-form">
-      <strong >{{columnTypeCnt | numberCommas}}</strong>
-      {{'msg.comm.detail.types' | translate}}
-
     </div>
   </div>
   <!-- //right -->
@@ -70,7 +71,8 @@
      (selectedEvent)="gridRowClickHandler($event)"
      (onColumnResize)="drawChart($event)"
      (onContextMenuClick)="onContextMenuClick($event)"
-     (onHeaderRowCellRendered)="onHeaderRowCellRendered($event)" >
+     (onHeaderRowCellRendered)="onHeaderRowCellRendered($event)"
+     (onGridContextCloseEvent)="gridAllContextClose()">
 </div>
 <div *ngIf="barChartTooltipShow"
      [style.left]="barChartTooltipPosition"

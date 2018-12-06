@@ -14,6 +14,7 @@
 
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
 import { PrDataflow } from './pr-dataflow';
+import {header} from "../../common/component/grid/grid.header";
 
 export class PrDataset extends AbstractHistoryEntity {
 
@@ -165,6 +166,11 @@ export class PrDatasetHive extends PrDataset {
   public dsName: string;
   public dsDesc: string;
   */
+
+  public sqlInfo? : QueryInfo;
+  public tableInfo? : TableInfo;
+
+  public dataconnection?: any;
 }
 
 export class PrDatasetJdbc extends PrDataset {
@@ -178,6 +184,9 @@ export class PrDatasetJdbc extends PrDataset {
   public dsName: string;
   public dsDesc: string;
   */
+
+  public sqlInfo? : QueryInfo;
+  public tableInfo? : TableInfo;
 
   public dataconnection: any;
 }
@@ -218,4 +227,27 @@ export class Rule {
 
   public isEditMode: boolean;
   public isInsertStep: boolean;
+}
+
+export class QueryInfo {
+  public headers: header[];
+  public rows: any[];
+  public queryStmt: string;
+  public valid?: boolean;
+}
+
+export class TableInfo {
+  public headers: header[];
+  public rows: any[];
+  public databaseName: string;
+  public tableName: string;
+
+}
+
+export class SelectedInfo {
+  public headers : header[];
+  public rows : any[];
+  public database? : string;
+  public table? : string;
+  public query? : string;
 }

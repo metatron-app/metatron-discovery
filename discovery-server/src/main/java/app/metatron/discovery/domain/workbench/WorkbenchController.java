@@ -15,16 +15,16 @@
 package app.metatron.discovery.domain.workbench;
 
 import app.metatron.discovery.common.exception.BadRequestException;
-import app.metatron.discovery.common.exception.GlobalErrorCodes;
-import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
 import app.metatron.discovery.domain.workbench.dto.ImportFile;
 import app.metatron.discovery.domain.workbench.hive.WorkbenchHiveService;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.util.HibernateUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,13 +34,7 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.Map;
-
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
-import app.metatron.discovery.domain.workspace.Workspace;
 
 @RepositoryRestController
 public class WorkbenchController {
@@ -74,24 +68,11 @@ public class WorkbenchController {
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(workbenches, resourceAssembler));
   }
 
-  @RequestMapping(value = "/workbenchs/connection", method = RequestMethod.GET, produces = "application/json")
+  @RequestMapping(value = "/workbenchs/connection", method = RequestMethod.GET)
   @ResponseBody
   public ResponseEntity<?> currentConnection() {
     Map<String, WorkbenchDataSource> dataSourceMap = WorkbenchDataSourceUtils.getCurrentConnection();
-    return ResponseEntity.ok(
-            dataSourceMap.entrySet().stream()
-                    .map(e -> e.getValue().toString())
-                    .toArray());
-  }
-
-  @RequestMapping(value = "/workbenchdatasource", method = RequestMethod.GET, produces = "application/json")
-  @ResponseBody
-  public ResponseEntity<?> workbenchdatasource() {
-    Map<String, WorkbenchDataSource> dataSourceMap = WorkbenchDataSourceUtils.getCurrentConnection();
-    return ResponseEntity.ok(
-            dataSourceMap.entrySet().stream()
-                    .map(e -> e.getValue().toString())
-                    .toArray());
+    return ResponseEntity.ok(dataSourceMap);
   }
 
   @RequestMapping(value = "/workbenchs/{id}/import", method = RequestMethod.POST)

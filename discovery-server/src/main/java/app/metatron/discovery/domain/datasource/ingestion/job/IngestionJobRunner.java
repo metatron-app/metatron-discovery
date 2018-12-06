@@ -12,50 +12,29 @@
  * limitations under the License.
  */
 
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specic language governing permissions and
- * limitations under the License.
- */
-
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specic language governing permissions and
- * limitations under the License.
- */
-
 package app.metatron.discovery.domain.datasource.ingestion.job;
 
 import com.google.common.collect.Maps;
+
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
@@ -90,7 +69,6 @@ import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGE
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_ENGINE_TASK_ERROR;
 import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.FAILED;
 import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.SUCCESS;
-import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.UNKNOWN;
 import static app.metatron.discovery.domain.datasource.ingestion.job.IngestionProgress.END_INGESTION_JOB;
 import static app.metatron.discovery.domain.datasource.ingestion.job.IngestionProgress.ENGINE_INIT_TASK;
 import static app.metatron.discovery.domain.datasource.ingestion.job.IngestionProgress.ENGINE_REGISTER_DATASOURCE;
@@ -149,7 +127,14 @@ public class IngestionJobRunner {
 
   private TransactionTemplate transactionTemplate;
 
-  private Long interval = 5000L;
+  @Value("${polaris.datasource.ingestion.retries.delay:3}")
+  private Long delay;
+
+  @Value("${polaris.datasource.ingestion.retries.maxDelay:60}")
+  private Long maxDelay;
+
+  @Value("${polaris.datasource.ingestion.retries.maxDuration:3600}")
+  private Long maxDuration;
 
   public IngestionJobRunner() {
     // Empty Constructor
@@ -217,7 +202,7 @@ public class IngestionJobRunner {
       }
 
       // registering geoserver
-      if(BooleanUtils.isTrue(dataSource.getIncludeGeo())) {
+      if (BooleanUtils.isTrue(dataSource.getIncludeGeo())) {
         sendTopic(sendTopicUri, new ProgressResponse(95, GEOSERVER_REGISTER_DATASTORE));
         history = updateHistoryProgress(history.getId(), GEOSERVER_REGISTER_DATASTORE);
         ingestionJob.setDataStoreOnGeoserver();
@@ -247,10 +232,9 @@ public class IngestionJobRunner {
         if (history.getProgress() == GEOSERVER_REGISTER_DATASTORE) {
           engineMetaRepository.purgeDataSource(dataSource.getEngineName());
         }
-      }catch (Exception ex) {
+      } catch (Exception ex) {
         LOGGER.warn("Fail to delete datasource on engine during fail process : {}", ex.getMessage());
       }
-
 
       try {
         history = setFailProgress(history.getId(), ie);
@@ -300,7 +284,7 @@ public class IngestionJobRunner {
       history.setStatus(SUCCESS);
       history.setProgress(END_INGESTION_JOB);
 
-      dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.ENABLED, summary);
+      dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.ENABLED, summary, null);
 
       return historyRepository.save(history);
     });
@@ -311,7 +295,9 @@ public class IngestionJobRunner {
       IngestionHistory history = historyRepository.findOne(historyId);
       history.setStatus(FAILED, ie);
 
-      dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.FAILED, null);
+      dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.FAILED,
+                                            null,
+                                            history.getProgress() == ENGINE_REGISTER_DATASOURCE);
 
       return historyRepository.save(history);
     });
@@ -384,71 +370,67 @@ public class IngestionJobRunner {
 
   public SegmentMetaDataResponse checkDataSource(String engineName) {
 
-    SegmentMetaDataResponse segmentMetaData = null;
-    int checkCount = 0;
+    // @formatter:off
+    RetryPolicy retryPolicy = new RetryPolicy()
+        .retryOn(ResourceAccessException.class)
+        .retryOn(Exception.class)
+        .retryIf(result -> result == null)
+        .withBackoff(delay, maxDelay, TimeUnit.SECONDS)
+        .withMaxDuration(maxDuration, TimeUnit.SECONDS);
+		// @formatter:on
 
-    do {
-      if (checkCount == 20) {
-        LOGGER.info("Not Find datasource({}) in 20 times", engineName);
-        break;
-      }
+    Callable<SegmentMetaDataResponse> callable = () -> queryService.segmentMetadata(engineName);
 
-      try {
-        Thread.sleep(interval);
-      } catch (InterruptedException e) {
-      }
+    // @formatter:off
+    SegmentMetaDataResponse response = Failsafe.with(retryPolicy)
+            .onRetriesExceeded((o, throwable) -> {
+              throw new DataSourceIngestionException("Retries exceed for checking datasource : " + engineName);
+            })
+            .onComplete((o, throwable, ctx) -> {
+              if(ctx != null) {
+                LOGGER.debug("Completed checking datasource({}). {} tries. Take time {} seconds.", engineName, ctx.getExecutions(), ctx.getElapsedTime().toSeconds());
+              }
+            })
+            .get(callable);
+    // @formatter:on
 
-      try {
-        segmentMetaData = queryService.segmentMetadata(engineName);
-      } catch (Exception e) {
-        LOGGER.debug("{} : Check ingested datasource({}) : {}", checkCount, engineName, e.getMessage());
-        checkCount++;
-      }
-
-      if (segmentMetaData != null) {
-        LOGGER.debug("{} : Find datasource({})!!", checkCount, engineName);
-        break;
-      }
-
-    } while (true);
-
-    return segmentMetaData;
+    return response;
   }
 
   public IngestionStatusResponse checkIngestion(String taskId) {
 
-    IngestionStatusResponse statusResponse;
-    int unknownCount = 0;
+    // @formatter:off
+    RetryPolicy retryPolicy = new RetryPolicy()
+        .retryOn(ResourceAccessException.class)
+        .retryOn(Exception.class)
+        .retryIf(result -> {
+          if(result instanceof IngestionStatusResponse) {
+            IngestionStatusResponse response = (IngestionStatusResponse) result;
+            if(response.getStatus() == SUCCESS || response.getStatus() == FAILED) {
+              return false;
+            }
+          }
+          return true;
+        })
+        .withBackoff(delay, maxDelay, TimeUnit.SECONDS)
+        .withMaxDuration(maxDuration, TimeUnit.SECONDS);
+		// @formatter:on
 
-    do {
-      try {
-        Thread.sleep(interval);
-      } catch (InterruptedException e) {
-      }
 
-      try {
-        statusResponse = ingestionService.doCheckResult(taskId);
-      } catch (Exception e) {
-        LOGGER.warn("Keep task({}) status cause by engine error : {}", taskId, e.getMessage());
-        statusResponse = IngestionStatusResponse.unknownResponse(taskId, e);
-      }
+    Callable<IngestionStatusResponse> callable = () -> ingestionService.doCheckResult(taskId);
 
-      LOGGER.debug("Check Task({}) : {}", taskId, statusResponse);
-
-      if (statusResponse.getStatus() == SUCCESS
-          || statusResponse.getStatus() == FAILED) {
-        break;
-      } else if (statusResponse.getStatus() == UNKNOWN) {
-        // If an unrecognized server error occurs consistently, the failure is handled.
-        unknownCount++;
-        if (unknownCount == 10) {
-          LOGGER.info("Unknown error occurred over 10 time. It will mark 'fail'.");
-          statusResponse.setStatus(FAILED);
-          break;
-        }
-      }
-
-    } while (true);
+    // @formatter:off
+    IngestionStatusResponse statusResponse = Failsafe.with(retryPolicy)
+            .onRetriesExceeded((o, throwable) -> {
+              throw new DataSourceIngestionException("Retries exceed for ingestion task : " + taskId);
+            })
+            .onComplete((o, throwable, ctx) -> {
+              if(ctx != null) {
+                LOGGER.debug("Completed checking task ({}). {} tries. Take time {} seconds.", taskId, ctx.getExecutions(), ctx.getElapsedTime().toSeconds());
+              }
+            })
+            .get(callable);
+    // @formatter:on
 
     return statusResponse;
   }

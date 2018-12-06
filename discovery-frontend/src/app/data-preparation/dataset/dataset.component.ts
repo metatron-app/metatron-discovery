@@ -147,7 +147,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   */
 
   /** 데이터셋 리스트 조회 */
-  public getDatasets(sortByRefCount : boolean = false) {
+  public getDatasets() {
 
     this.loadingShow();
 
@@ -156,10 +156,6 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
       page : this.page,
       dsType : this.dsType
     };
-
-    if (sortByRefCount || this.selectedContentSort.key === 'refDfCount') {
-      params['refDfCountSort'] = this.selectedContentSort.sort;
-    }
 
     this.datasetService.getDatasets(params)
       .then((data) => {
@@ -322,7 +318,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
     this.page.sort = column + ',' + this.selectedContentSort.sort;
 
     // 데이터셋 리스트 조회
-    this.getDatasets(column === 'refDfCount');
+    this.getDatasets();
 
   }
 

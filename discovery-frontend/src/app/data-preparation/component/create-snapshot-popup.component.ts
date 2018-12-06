@@ -170,7 +170,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
       return;
     }
 
-    //if (this.snapshot.ssType.toString() === 'HIVE') {
     if (this.snapshot.ssType === SsType.STAGING_DB) {
 
       //if( this.snapshot.mode === this.overwriteMethod[0].value && this.hiveTblUntested===true ) {
@@ -328,7 +327,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     this.snapshot.ssName = this.ssName;
     this.snapshot.ssType = sstype;
 
-    //if (!this.isHiveDisable && sstype === 'HIVE') {
     if (!this.isHiveDisable && sstype === SsType.STAGING_DB) {
       this.snapshot.dbName = this.dbList[0];
       this.snapshot.tblName = 'snapshot1';
@@ -531,12 +529,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     this.ssName = '';
     this.fileLocations = [];
     this.fileUris = [];
-    /*
-    this.fileLocations = [
-      { value: 'WAS', label: 'WAS' },
-      { value: 'HDFS', label: 'HDFS' }
-    ];
-    */
+
 
     // -------------------
     // Hive

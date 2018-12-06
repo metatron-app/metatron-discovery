@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.workbook.configurations.chart;
 
+import com.google.common.base.Preconditions;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -27,7 +29,9 @@ public class MapChart extends Chart {
 
   Boolean showMapLayer;
 
-  Map map;
+  String baseMapType;
+
+  String baseMapUrl;
 
   String licenseNotation;
 
@@ -46,14 +50,18 @@ public class MapChart extends Chart {
                   @JsonProperty("toolTip") ChartToolTip toolTip,
                   @JsonProperty("limit") Integer limit,
                   @JsonProperty("showMapLayer") Boolean showMapLayer,
-                  @JsonProperty("map") String map,
+                  @JsonProperty("baseMapType") String baseMapType,
+                  @JsonProperty("baseMapUrl") String baseMapUrl,
                   @JsonProperty("licenseNotation") String licenseNotation,
                   @JsonProperty("showDistrictLayer") Boolean showDistrictLayer,
                   @JsonProperty("districtUnit") String districtUnit,
                   @JsonProperty("layers") List<MapChartLayer> layers) {
     super(null, valueFormat, legend, null, null, null, toolTip, limit);
     this.showMapLayer = showMapLayer;
-    this.map = EnumUtils.getUpperCaseEnum(Map.class, map, Map.OSM);
+    this.baseMapType = EnumUtils.getCaseEnum(BaseMap.class, baseMapType, BaseMap.OSM_LIGHT).name();
+    if(BaseMap.USER_DEFINED.name().equals(baseMapType)) {
+      this.baseMapUrl = Preconditions.checkNotNull(baseMapUrl, "baseMapUrl required if baseMapType is 'USER_DEFINED'");
+    }
     this.licenseNotation = licenseNotation;
     this.showDistrictLayer = showDistrictLayer;
     this.districtUnit = districtUnit;
@@ -68,12 +76,20 @@ public class MapChart extends Chart {
     this.showMapLayer = showMapLayer;
   }
 
-  public Map getMap() {
-    return map;
+  public String getBaseMapType() {
+    return baseMapType;
   }
 
-  public void setMap(Map map) {
-    this.map = map;
+  public void setBaseMapType(String baseMapType) {
+    this.baseMapType = baseMapType;
+  }
+
+  public String getBaseMapUrl() {
+    return baseMapUrl;
+  }
+
+  public void setBaseMapUrl(String baseMapUrl) {
+    this.baseMapUrl = baseMapUrl;
   }
 
   public String getLicenseNotation() {
@@ -112,7 +128,7 @@ public class MapChart extends Chart {
   public String toString() {
     return "MapChart{" +
         "showMapLayer=" + showMapLayer +
-        ", map=" + map +
+        ", baseMapType=" + baseMapType +
         ", licenseNotation='" + licenseNotation + '\'' +
         ", showDistrictLayer=" + showDistrictLayer +
         ", districtUnit='" + districtUnit + '\'' +
@@ -120,8 +136,8 @@ public class MapChart extends Chart {
         "} " + super.toString();
   }
 
-  public enum Map {
-    OSM
+  public enum BaseMap {
+    OSM_LIGHT, OSM_DARK, OSM_COLORED, USER_DEFINED
   }
 
 }

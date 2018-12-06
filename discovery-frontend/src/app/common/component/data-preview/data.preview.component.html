@@ -158,7 +158,7 @@
         </div>
 
         <!-- Content Top Menu -->
-        <div [class.ddp-setting]="isShowDataGrid" class="ddp-wrap-grid-option ddp-clear" >
+        <div [class.ddp-setting]="isShowDataGrid && timestampField" class="ddp-wrap-grid-option ddp-clear" >
 
           <!-- Common Menu -->
           <div class="ddp-fleft">
@@ -256,9 +256,9 @@
         <!-- 그리드 -->
         <div grid-component #main
              [style.display]="isShowDataGrid ? 'block' : 'none'"
-             [class.meta-grid]="isEnableSecondHeader()"
+             [ngClass]="{'meta-grid' : isEnableSecondHeader(), 'ddp-type' : timestampField }"
              (onHeaderRowCellRendered)="createMetaDataHeader($event)"
-             class="ddp-ui-grid2 ddp-type" ></div>
+             class="ddp-ui-grid2" ></div>
         <!-- //그리드 -->
         <!-- Column Detail -->
         <div [style.display]="isShowDataGrid ? 'none' : 'block'"

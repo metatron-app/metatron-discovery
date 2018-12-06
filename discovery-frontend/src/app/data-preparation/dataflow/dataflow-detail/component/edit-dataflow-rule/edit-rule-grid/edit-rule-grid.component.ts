@@ -44,7 +44,10 @@ declare const echarts: any;
 
 @Component({
   selector: 'edit-rule-grid',
-  templateUrl: 'edit-rule-grid.component.html'
+  templateUrl: 'edit-rule-grid.component.html',
+  host: {
+    '(document:click)': 'onClickHost($event)',
+  }
 })
 export class EditRuleGridComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -132,6 +135,8 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   @Output('selectContextMenu')
   public selectContextMenuEvent: EventEmitter<any> = new EventEmitter();
 
+  @ViewChild('typeListElement')
+  public typeListElement: ElementRef;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -298,19 +303,16 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   } // function - init
 
 
-
-
-
   /**
-   * 타입 목록 표시 변경
-   * @param {boolean} isShow
+   * Type list show/hide
+   * @param {Event} event
    */
-  public toggleShowColumnTypes(isShow?: boolean) {
-    if (isNullOrUndefined(isShow)) {
+  public toggleShowColumnTypes(event) {
+
+    if (event.target.tagName !== 'A') { // Not sure if this is a good idea..
       this.isShowColumnTypes = !this.isShowColumnTypes;
-    } else {
-      this.isShowColumnTypes = isShow;
     }
+
   } // function - toggleShowColumnTypes
 
   //noinspection JSUnusedGlobalSymbols
@@ -624,6 +626,16 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     });
 
   } // function - drawChart
+
+
+
+  /**
+   * 전체 컨텍스트 메뉴 close
+   * @param event
+   */
+  public gridAllContextClose(): void {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : false } );
+  }
 
   /**
    * 컨텍스트 메뉴 클릭
@@ -2090,10 +2102,19 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     this.columnTypeCnt = tempMap.size;
 
     tempMap.forEach((value: number, key: string) => {
-      this.columnTypeList.push({label : key, value : key + ' : ' + value + ' ' + this.translateService.instant('msg.comm.detail.rows')});
+      this.columnTypeList.push({label : key, value : value < 2 ? `${value} column` : `${value} columns`});
     });
 
   } // function - _summaryGridInfo
+
+
+  public onClickHost(event) {
+    // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
+    if (!this.typeListElement.nativeElement.contains(event.target)) {
+      // 팝업창 닫기
+      this.isShowColumnTypes = false;
+    }
+  }
 
 }
 
