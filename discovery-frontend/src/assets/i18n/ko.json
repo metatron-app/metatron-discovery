@@ -1285,6 +1285,7 @@
   "msg.dp.alert.enter.group.every" : "그룹 수를 입력하세요",
   "msg.dp.ui.join.prev.msg" : "필수 항목을 선택하면 결과를 확인할 수 있습니다",
   "msg.dp.ui.join.key.required" : "하나 이상의 조인 키가 필요합니다",
+  "msg.dp.alert.format.error" : "타임스탬프 패턴을 입력하세요",
 
   "msg.board.create.add-ds" : "데이터소스 추가",
   "msg.board.create.add-ds.desc" : "시각화 할 데이터소스를 추가하고 관계를 설정해 주세요",
@@ -1307,7 +1308,7 @@
   "msg.board.download.desc" : "최대 100만 건까지 다운로드됩니다,<br>100만 건 이상의 데이터는 관리자에게 문의해 주세요.",
   "msg.board.download.calc-size" : "데이터 용량 계산중...",
   "msg.board.ui.no.widget": "위젯이 없습니다",
-  "msg.board.ui.show.only": "보임 화면 보기",
+  "msg.board.ui.show.only": "보임 보드만",
   "msg.board.th.allowance": "오픈 데이터만 보기",
   "msg.board.btn.add.datasource.join": "조인을 위하여 데이터소스를 추가해 주세요",
   "msg.board.update-datasource.confirm.title" : "변경 사항을 저장하시겠습니까?",
