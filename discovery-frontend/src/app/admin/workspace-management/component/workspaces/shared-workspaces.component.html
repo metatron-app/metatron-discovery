@@ -81,6 +81,7 @@
         [customDateTypeList]="customDateTypeList"
         [roundSecond]="true"
         (changeDate)="onFilterDate($event)"
+        [title]="'msg.storage.ui.list.date' | translate"
       ></component-period>
       <!-- //edit -->
     </div>
@@ -200,7 +201,8 @@
           <!-- popup -->
           <div class="ddp-wrap-popup2">
             <ul class="ddp-list-popup">
-              <li *ngFor="let status of statusList" (click)="onOpenChangeStatus(workspace, status.value)">
+              <li *ngFor="let status of statusList" (click)="onOpenChangeStatus(workspace, status.value)"
+                  [class.ddp-selected]="status.active === workspace.active">
                 <a href="javascript:">
                   {{status.label}}
                   <em class="ddp-icon-check"></em>

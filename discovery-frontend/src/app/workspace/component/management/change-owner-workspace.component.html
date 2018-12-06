@@ -18,14 +18,17 @@
     <!-- popup -->
     <div class="ddp-ui-popup ddp-type">
       <a (click)="close()" href="javascript:" class="ddp-btn-close"></a>
-      <span class="ddp-ui-pop-title">change owner</span>
+      <span class="ddp-ui-pop-title">{{ 'msg.space.ui.change-owner' | translate }}</span>
       <div *ngIf="selectedUser" class="ddp-txt-pop-info ddp-padt0">
-        <strong>{{selectedUser.member.fullName}}</strong> 님을 새로운 오너로 지정하시겠습니까?
+        {{ 'msg.space.ui.change-owner.ph' | translate : {value : selectedUser.member.fullName} }}
       </div>
 
       <!-- contents -->
       <div class="ddp-ui-user-content">
-        <div class="ddp-box-owner">
+        <div *ngIf="isNoMember" class="ddp-box-owner">
+          <div class="ddp-nodata"> {{'msg.space.ui.change-owner.no-member' | translate }} </div>
+        </div>
+        <div *ngIf="!isNoMember" class="ddp-box-owner">
           <!-- search -->
           <div class="ddp-form-search">
             <em class="ddp-icon-search"></em>
@@ -64,7 +67,9 @@
       <!-- buttons -->
       <div class="ddp-ui-buttons2">
         <a (click)="close()" href="javascript:" class="ddp-btn-type-popup ">{{'msg.comm.btn.cancl' | translate }}</a>
-        <a (click)="done()" href="javascript:" class="ddp-btn-type-popup ddp-bg-black ">{{ 'msg.comm.btn.done' | translate }}</a>
+        <a (click)="done()" href="javascript:"
+           [class.ddp-disabled]="isNoMember || !selectedUser"
+           class="ddp-btn-type-popup ddp-bg-black ">{{ 'msg.comm.btn.done' | translate }}</a>
       </div>
       <!-- //buttons -->
 

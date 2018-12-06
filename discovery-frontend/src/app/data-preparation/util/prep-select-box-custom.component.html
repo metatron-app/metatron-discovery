@@ -31,7 +31,7 @@
         (click)="$event.stopImmediatePropagation(); onSelect(item);">
       <a href="javascript:">{{isStringArray ? item : item[viewKey]}}</a>
     </li>
-    <li *ngIf="filteredList !== undefined && filteredList.length === 0">
+    <li *ngIf="filteredList === undefined || filteredList === null || filteredList.length === 0">
       <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
     </li>
   </ul>

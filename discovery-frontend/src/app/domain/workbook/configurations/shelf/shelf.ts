@@ -12,53 +12,22 @@
  * limitations under the License.
  */
 
-export abstract class Shelf {
+import { ShelfType } from '../../../../common/component/chart/option/define/common';
+import { GeoField } from '../field/geo-field';
 
-  /**
-   * Shelf 타입
-   */
-  public type: string;
+/**
+ * map shelf
+ */
+export class Shelf {
+
+  // shelf type
+  public type: ShelfType;
 
   // Layers
-  public layers: [any[]];
+  public layers: [GeoField[]];
 
-}
-
-/**
- * 레이어 옵션 구조체
- */
-export class Layer {
-
-  public type: string;
-
-  public name: string;
-
-  public alias: string;
-
-  public ref: string;
-
-  public format?: DimensionFormat;
-
-  public aggregationType?: string;
-
-  public dataSource?: string;
-
-}
-
-/**
- * 포맷 옵션 구조체
- */
-export class DimensionFormat {
-
-  public type?: any;
-
-  public method?: string;
-
-  public precision?: number;
-
-  public dataSource?: string;
-
-  public geoColumn?: string;
-
-  public descColumn?: string;
+  constructor() {
+    this.type = ShelfType.GEO;
+    this.layers = [[]];
+  }
 }

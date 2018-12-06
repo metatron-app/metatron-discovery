@@ -65,7 +65,6 @@ import java.net.URI;
 import java.util.*;
 
 import static app.metatron.discovery.domain.workspace.Workspace.PublicType.PRIVATE;
-import static app.metatron.discovery.domain.workspace.Workspace.PublicType.SHARED;
 import static java.util.stream.Collectors.toList;
 
 
@@ -190,94 +189,8 @@ public class WorkspaceController {
       @RequestParam(required = false) String nameContains,
       Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
 
-    String username = AuthUtils.getAuthUserName();
-
-    List<String> targets = Lists.newArrayList(username);
-    targets.addAll(groupRepository.findGroupIdsByMemberId(username));
-
-    BooleanBuilder builder = new BooleanBuilder();
-    QWorkspace workspace = QWorkspace.workspace;
-    QWorkspaceFavorite workspaceFavorite = QWorkspaceFavorite.workspaceFavorite;
-
-    builder.and(workspace.publicType.eq(SHARED));
-
-    Predicate pOwnerEq = null;
-    if(myWorkspace != null) {
-      pOwnerEq = myWorkspace ? workspace.ownerId.eq(username) : workspace.ownerId.ne(username);
-    }
-    Predicate pPublished = null;
-    if(published != null) {
-      pPublished = published ? builder.and(workspace.published.isTrue())
-          : builder.andAnyOf(workspace.published.isNull(), workspace.published.isFalse());
-    }
-
-    if (onlyFavorite) {
-      BooleanExpression favorite = workspace.id
-          .in(JPAExpressions.select(workspace.id)
-                            .from(workspace, workspaceFavorite)
-                            .where(workspace.id.eq(workspaceFavorite.workspaceId).and(workspaceFavorite.username.eq(username))));
-      builder.and(favorite);
-
-      if (myWorkspace != null) {
-        builder.and(pOwnerEq);
-      }
-
-      if (published != null) {
-        builder.and(pPublished);
-      }
-    } else {
-
-      BooleanExpression memberIn = workspace.id
-          .in(JPAExpressions.select(workspace.id)
-                            .from(workspace)
-                            .innerJoin(workspace.members)
-                            .where(workspace.members.any().memberId.in(targets)));
-      if (myWorkspace != null) {
-        if(published == null) {
-          if(myWorkspace) {
-            builder.and(pOwnerEq);
-          } else {
-            builder.andAnyOf(memberIn, workspace.published.isTrue());
-          }
-        } else {
-          builder.and(pOwnerEq);
-          builder.and(pPublished);
-
-          if(!myWorkspace) {
-            builder.and(memberIn);
-          }
-        }
-      } else {
-        if (published == null) {
-          builder.andAnyOf(memberIn, workspace.ownerId.eq(username), workspace.published.isTrue());
-        } else {
-          builder.and(pPublished);
-        }
-
-      }
-    }
-
-    if (StringUtils.isNotEmpty(nameContains)) {
-      builder = builder.and(workspace.name.containsIgnoreCase(nameContains));
-    }
-
-    // 결과 질의
-    Page<Workspace> publicWorkspaces = workspaceRepository.findAll(builder, pageable);
-
-    // Favorite 여부 처리
-    if (onlyFavorite) {
-      publicWorkspaces.forEach(publicWorkspace -> publicWorkspace.setFavorite(true));
-    } else {
-      Set<String> favoriteWorkspaceIds = workspaceFavoriteRepository.findWorkspaceIdByUsername(username);
-      for (Workspace publicWorkspace : publicWorkspaces) {
-        if (favoriteWorkspaceIds.contains(publicWorkspace.getId())) {
-          publicWorkspace.setFavorite(true);
-        } else {
-          publicWorkspace.setFavorite(false);
-        }
-      }
-    }
-
+    Page<Workspace> publicWorkspaces = workspaceService.getPublicWorkspaces(
+            onlyFavorite, myWorkspace, published, nameContains, pageable);
 
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(publicWorkspaces, resourceAssembler));
   }

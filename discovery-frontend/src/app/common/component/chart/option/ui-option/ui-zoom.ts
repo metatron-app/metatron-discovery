@@ -37,5 +37,5 @@ export interface UIChartZoom {
   orient?: UIOrient;
 
   // 활성화 여부
-  auto: boolean;
+  auto?: boolean;
 }

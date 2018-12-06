@@ -14,7 +14,7 @@
 
 <!-- contents -->
 <em class="ddp-bg-back"></em> <!-- Background -->
-<div class="ddp-ui-space-contents">
+<div class="ddp-ui-space-contents page-workspace">
   <!-- top -->
   <div class="ddp-ui-top-info">
     <!-- title -->
@@ -44,7 +44,7 @@
       <div class="ddp-data-info-left">
         <div class="ddp-ui-number">
           <span class="ddp-box-tag ddp-workbook">{{'msg.space.ui.tag.workbook' | translate}}<strong>{{countByBookType.workBook}}</strong></span>
-          <span class="ddp-box-tag ddp-notebook">{{'msg.space.ui.tag.notebook' | translate}}<strong>{{countByBookType.notebook}}</strong></span>
+          <span *ngIf="isSetNotebookServer" class="ddp-box-tag ddp-notebook">{{'msg.space.ui.tag.notebook' | translate}}<strong>{{countByBookType.notebook}}</strong></span>
           <span class="ddp-box-tag ddp-workbench">{{'msg.space.ui.tag.workbench' | translate}}<strong>{{countByBookType.workBench}}</strong></span>
         </div>
         <div class="ddp-ui-info-tab">
@@ -142,14 +142,18 @@
       <div (click)="topFolder()" class="ddp-data-nav">
         <em class="ddp-icon-space" ></em>
         {{workspaceName}}
+        <!-- 폴더 생성 -->
+        <a *ngIf="!folder.hierarchies && permissionChecker && permissionChecker.isManageWsFolder()" (click)="createFolder()"
+           draggable="false" href="javascript:" class="ddp-btn-folderplus" ></a>
+        <!-- //폴더 생성 -->
       </div>
-      <div *ngFor="let hierarchies of folder.hierarchies" class="ddp-data-nav" >
+      <div *ngFor="let hierarchies of folder.hierarchies; let last = last;" class="ddp-data-nav" >
         <span class="ddp-data-namefolder" (click)="detailFolder(hierarchies.id)">{{hierarchies.name}}</span>
+        <!-- 폴더 생성 -->
+        <a *ngIf="last && permissionChecker && permissionChecker.isManageWsFolder()" (click)="createFolder()"
+           draggable="false" href="javascript:" class="ddp-btn-folderplus" ></a>
+        <!-- //폴더 생성 -->
       </div>
-      <!-- 폴더 생성 -->
-      <a draggable="false" href="javascript:" class="ddp-btn-folderplus"
-         (click)="createFolder()" *ngIf="permissionChecker && permissionChecker.isManageWsFolder()"></a>
-      <!-- //폴더 생성 -->
     </div>
     <!-- //nav -->
 
@@ -582,7 +586,7 @@
          draggable="false" href="javascript:" class="ddp-btn-solid2 ddp-dark" (click)="createWorkbook()">
         <em class="ddp-icon-btnplus"></em>{{'msg.space.btn.workbook' | translate}}
       </a>
-      <a *ngIf="permissionChecker && permissionChecker.isWriteNotebook()"
+      <a *ngIf="isSetNotebookServer && permissionChecker && permissionChecker.isWriteNotebook()"
          draggable="false" href="javascript:" class="ddp-btn-solid2 ddp-dark" (click)="createNotebook()">
         <em class="ddp-icon-btnplus"></em>{{'msg.space.btn.notebook' | translate}}
       </a>

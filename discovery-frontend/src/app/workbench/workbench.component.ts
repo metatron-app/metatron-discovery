@@ -1045,8 +1045,17 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   /**
    * open or cloe data connection info layer
    */
-  public dataConnectionInfoShow() {
+  public dataConnectionInfoShow(event:MouseEvent) {
+
     this.isDataConnectionInfoShow = !this.isDataConnectionInfoShow;
+    this.safelyDetectChanges();
+
+    const target = $( event.target );
+    let infoLeft : number = target.offset().left;
+    let infoTop : number = target.offset().top;
+    const element = document.getElementById(`dataConnectionInfo`);
+    $(element).css({'left':infoLeft-30, 'top': infoTop+17});
+
   } // function - dataConnectionInfoShow
 
   /**
@@ -1472,19 +1481,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     });
   } // function - deleteWorkBench
 
-  // 변수 추가
-  public addEditorVariable(event) {
-    // 선택되어 있는 탭에 텍스트가 없다면
-    if (StringUtil.isEmpty(this.getSelectedTabText())) {
-      // 선택된 탭 에디터에 TABLE SQL 주입
-      this.setSelectedTabText(event);
-    } else {
-      // 에디터 포커싱 위치에 SQL 주입
-      this.editor.insert(event);
-    }
-
-  }
-
   /**
    * update workbench name or description
    */
@@ -1572,10 +1568,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // } else {
     // 에디터 포커싱 위치에 SQL 주입
     this.editor.insert(tableSql);
+
+    // 사용중인 쿼리 저장 여부 체크
+    this.checkSaveQuery();
     // 쿼리 저장
-    this.textList[this.selectedTabNum]['query'] = this.getSelectedTabText();
-    // 로컬 스토리지에 쿼리에 저장
-    this.saveLocalStorage(this.getSelectedTabText(), this.textList[this.selectedTabNum]['editorId']);
+    // this.textList[this.selectedTabNum]['query'] = this.getSelectedTabText();
+    // // 로컬 스토리지에 쿼리에 저장
+    // this.saveLocalStorage(this.getSelectedTabText(), this.textList[this.selectedTabNum]['editorId']);
     // }
   }
 
@@ -1584,10 +1583,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     // 에디터 포커싱 위치에 SQL 주입
     this.editor.insertColumn(tableSql);
-    // 쿼리 저장
-    this.textList[this.selectedTabNum]['query'] = this.getSelectedTabText();
-    // 로컬 스토리지에 쿼리에 저장
-    this.saveLocalStorage(this.getSelectedTabText(), this.textList[this.selectedTabNum]['editorId']);
+
+    // 사용중인 쿼리 저장 여부 체크
+    this.checkSaveQuery();
   }
 
   /**
@@ -2473,6 +2471,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       const runningResultTab: ResultTab = this._getResultTab(this.runningResultTabId);
       runningResultTab.showLog = true;
       runningResultTab.setResultStatus( 'CANCEL' );
+      runningResultTab.doneTimer();
       if (isSuccess) {
         runningResultTab.name = this._genResultTabName(runningResultTab.queryEditor.name, 'RESULT', runningResultTab.order);
         if (isNullOrUndefined(runningResultTab.message)) {
@@ -2758,7 +2757,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       let fields = currentResultTab.result.fields;
 
       const currentDateTimeField: Field = new Field();
-      currentDateTimeField.name = 'current_datetime';
+      currentDateTimeField.name = CommonConstant.COL_NAME_CURRENT_DATETIME;
       currentDateTimeField.biType = BIType.TIMESTAMP;
       currentDateTimeField.logicalType = LogicalType.TIMESTAMP;
       currentDateTimeField.dataSource = boardDataSource.engineName;
@@ -2930,7 +2929,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   private _activeHorizontalSlider() {
     this._splitHorizontal = Split(['.sys-workbench-lnb-panel', '.sys-workbench-content-panel'], {
       direction: 'horizontal',
-      sizes: [18, 82],
+      sizes: [20, 80],
+      minSize: [260, 300],
       elementStyle: (dimension, size, gutterSize) => {
         return { 'width': `${size}%` };
       },
@@ -3076,6 +3076,27 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       };
     this.tableParam.dataconnection.username = selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginId : this.workbench.dataConnection.username;
     this.tableParam.dataconnection.password = selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginPw : this.workbench.dataConnection.password;
+  }
+
+  /**
+   * 화면 쿼리 저장 여부
+   */
+  private checkSaveQuery(){
+    const saveQuery:string = this.getLocalStorageQuery(this.selectedEditorId);
+    const currQuery:string = this.getSelectedTabText();
+    if (this.textList.length !== 0 && saveQuery !== currQuery) {
+      if( saveQuery == null && currQuery != null ){
+        this.useUnloadConfirm = true;
+      }
+      if( saveQuery && currQuery
+        && saveQuery.replace( /\s/gi, '' ) !== currQuery.replace( /\s/gi, '' ) ) {
+        this.useUnloadConfirm = true;
+      }
+      // 쿼리 저장
+      this.textList[this.selectedTabNum]['query'] = currQuery;
+      // 로컬 스토리지에 쿼리에 저장
+      this.saveLocalStorage(currQuery, this.textList[this.selectedTabNum]['editorId']);
+    }
   }
 
 }

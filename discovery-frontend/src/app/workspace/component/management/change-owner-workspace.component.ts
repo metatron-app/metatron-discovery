@@ -19,6 +19,7 @@ import { Page, PageResult } from 'app/domain/common/page';
 import { WorkspaceService } from '../../service/workspace.service';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { WorkspaceMemberProjection } from '../../../domain/workspace/workspace-member';
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'app-change-workspace-owner',
@@ -40,8 +41,8 @@ export class ChangeOwnerWorkspaceComponent extends AbstractComponent implements 
   @Output()
   public afterChange: EventEmitter<boolean> = new EventEmitter();
 
-  // 컴포넌트 표시 여부
-  public isShow: boolean = false;
+  public isShow: boolean = false;       // 컴포넌트 표시 여부
+  public isNoMember: boolean = false;   // Member 가 없는지 여부
 
   // 현재 워크스페이스 사용자 목록 및 선택된 사용자
   public users: any[] = [];
@@ -91,9 +92,11 @@ export class ChangeOwnerWorkspaceComponent extends AbstractComponent implements 
    * 컴포넌트 실행
    */
   public init(workspace: Workspace) {
+    this.selectedUser = undefined;
     $('body').removeClass('body-hidden').addClass('body-hidden');
     this._workspace = workspace;
     this._getUsers(workspace.id).then(() => {
+      this.isNoMember = ( 0 === this.users.length );
       this.isShow = true;
     });
   } // function - init
@@ -106,16 +109,23 @@ export class ChangeOwnerWorkspaceComponent extends AbstractComponent implements 
     this.isShow = false;
   } // function - close
 
-  /**
+  /*s
    * 소유자 변경 후 화면 종료
    */
   public done() {
-    this.loadingShow();
-    this.workspaceService.transferWorkspaceOwner(this._workspace.id, this.selectedUser.member.username).then(() => {
-      this.loadingHide();
-      this.afterChange.emit(true);
-      this.close();
-    }).catch(err => this.commonExceptionHandler(err));
+    if( !this.isNoMember && !isNullOrUndefined(this.selectedUser) ) {
+      this.loadingShow();
+      if(isNullOrUndefined(this.selectedUser)){
+        this.loadingHide();
+        Alert.warning(this.translateService.instant('msg.space.ui.ph.owner'));
+      }else{
+        this.workspaceService.transferWorkspaceOwner(this._workspace.id, this.selectedUser.member.username).then(() => {
+          this.loadingHide();
+          this.afterChange.emit(true);
+          this.close();
+        }).catch(err => this.commonExceptionHandler(err));
+      }
+    }
   } // function - done
 
   /**

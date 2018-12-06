@@ -186,7 +186,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
   public ngAfterViewInit() {
     setTimeout( () => {
-      this._split = Split(['.sys-dataflow-left-panel', '.sys-dataflow-right-panel'], { sizes: [80, 20], minSize: [700,300], onDragEnd : (() => {
+      this._split = Split(['.sys-dataflow-left-panel', '.sys-dataflow-right-panel'], { sizes: [80, 20], minSize: [300,300], onDragEnd : (() => {
         this.gridComponent.resize();
       }) });
     }, 500 );
@@ -707,9 +707,10 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       let extension = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName)[1];
       if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
         result =  'EXCEL'
-      } else if (extension.toUpperCase() === 'CSV') {
-        result =  'CSV'
-      }
+      } else {
+        result = extension.toUpperCase()
+       }
+
     }
 
     return result;

@@ -67,6 +67,7 @@ public class Histogram implements Serializable {
   public int matched;
 
   public Granule bestGranularity;
+  public String timestampFormat;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Constructors
@@ -80,6 +81,7 @@ public class Histogram implements Serializable {
     mismatchedRows = new ArrayList<>();
     matchedRows = new ArrayList<>();
     bestGranularity = NOT_USED;
+    timestampFormat = "NOT_USED";
   }
 
   public Histogram(int colWidth) {
@@ -436,46 +438,62 @@ public class Histogram implements Serializable {
       case NOT_USED:
         assert false;
       case YEAR:
+        timestampFormat = "yyyy";
         return DateTimeFormat.forPattern("yyyy");
       case MONTH:
+        timestampFormat = "yyyy-MM";
         return DateTimeFormat.forPattern("yyyy-MM");
       case DAY:
         if (min.getYear() == max.getYear()) {                   // 연도가 같으면 월부터만
+          timestampFormat = "MM-dd";
           return DateTimeFormat.forPattern("MM-dd");
         }
+        timestampFormat = "yyyy-MM-dd";
         return DateTimeFormat.forPattern("yyyy-MM-dd");
       case HOUR:
         if (min.getYear() == max.getYear()) {
           if (min.getMonthOfYear() == max.getMonthOfYear()) {   // 월이 같으면 일부터만
+            timestampFormat = "dd\\'T\\'hh";
             return DateTimeFormat.forPattern("dd'T'hh");
           }
+          timestampFormat = "MM-dd\\'T\\'hh";
           return DateTimeFormat.forPattern("MM-dd'T'hh");
         }
+        timestampFormat = "yyyy-MM-dd\\'T\\'hh";
         return DateTimeFormat.forPattern("yyyy-MM-dd'T'hh");
       case MINUTE:
         if (min.getYear() == max.getYear()) {
           if (min.getMonthOfYear() == max.getMonthOfYear()) {
             if (min.getDayOfMonth() == max.getDayOfMonth()) {
+              timestampFormat = "hh:mm";
               return DateTimeFormat.forPattern("hh:mm");        // 일이 같으면 시부터만
             }
+            timestampFormat = "dd\\'T\\'hh:mm";
             return DateTimeFormat.forPattern("dd'T'hh:mm");
           }
+          timestampFormat = "MM-dd\\'T\\'hh:mm";
           return DateTimeFormat.forPattern("MM-dd'T'hh:mm");
         }
+        timestampFormat = "yyyy-MM-dd\\'T\\'hh:mm";
         return DateTimeFormat.forPattern("yyyy-MM-dd'T'hh:mm");
       case SECOND:
         if (min.getYear() == max.getYear()) {
           if (min.getMonthOfYear() == max.getMonthOfYear()) {
             if (min.getDayOfMonth() == max.getDayOfMonth()) {
               if (min.getHourOfDay() == max.getDayOfMonth()) {  // 시가 같으면 분부터만
+                timestampFormat = "mm:ss";
                 return DateTimeFormat.forPattern("mm:ss");
               }
+              timestampFormat = "hh:mm:ss";
               return DateTimeFormat.forPattern("hh:mm:ss");
             }
+            timestampFormat = "dd\\'T\\'hh:mm:ss";
             return DateTimeFormat.forPattern("dd'T'hh:mm:ss");
           }
+          timestampFormat = "MM-dd\\'T\\'hh:mm:ss";
           return DateTimeFormat.forPattern("MM-dd'T'hh:mm:ss");
         }
+        timestampFormat = "yyyy-MM-dd\\'T\\'hh:mm:ss";
         return DateTimeFormat.forPattern("yyyy-MM-dd'T'hh:mm:ss");
       case MILLIS:
         if (min.getYear() == max.getYear()) {
@@ -483,16 +501,22 @@ public class Histogram implements Serializable {
             if (min.getDayOfMonth() == max.getDayOfMonth()) {
               if (min.getHourOfDay() == max.getDayOfMonth()) {
                 if (min.getMinuteOfHour() == max.getDayOfMonth()) {
+                  timestampFormat = "ss.SSS";
                   return DateTimeFormat.forPattern("ss.SSS");   // 분이 같으면 초부터만
                 }
+                timestampFormat = "mm:ss.SSS";
                 return DateTimeFormat.forPattern("mm:ss.SSS");
               }
+              timestampFormat = "hh:mm:ss.SSS";
               return DateTimeFormat.forPattern("hh:mm:ss.SSS");
             }
+            timestampFormat = "dd\\'T\\'hh:mm:ss.SSS";
             return DateTimeFormat.forPattern("dd'T'hh:mm:ss.SSS");
           }
+          timestampFormat = "MM-dd\\'T\\'hh:mm:ss.SSS";
           return DateTimeFormat.forPattern("MM-dd'T'hh:mm:ss.SSS");
         }
+        timestampFormat = "yyyy-MM-dd\\'T\\'hh:mm:ss.SSS";
         return DateTimeFormat.forPattern("yyyy-MM-dd'T'hh:mm:ss.SSS");
     }
     assert false;

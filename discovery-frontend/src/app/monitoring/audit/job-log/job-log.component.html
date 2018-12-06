@@ -80,7 +80,7 @@
 
             <div class="ddp-ui-time">
               <div class="ddp-box-calen">
-                <input type="text" class="ddp-input-typebasic" (keyup)="elapsedTimeKeyup($event)" input-mask="number" #elapsedTime>
+                <input class="ddp-input-typebasic" (keyup)="elapsedTimeKeyup($event)" input-mask="number" #elapsedTime>
               </div>
 
             </div>
@@ -99,7 +99,7 @@
       <div class="ddp-ui-option ddp-clear">
         <!-- edit -->
         <component-period
-          [title]="'Performed Start Time'"
+          [title]= "'msg.statistics.th.start.time' | translate"
           [roundSecond]="true"
           (changeDate)="onChangeDate($event)"
         ></component-period>

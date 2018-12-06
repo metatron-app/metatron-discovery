@@ -13,7 +13,7 @@
   -->
 
 <div (mouseover)="setForceStyle(true)" (mouseout)="setForceStyle(false)"
-     [ngClass]="{'ddp-active':isShowDownloadPopup, 'ddp-popup-show':isShowDownloadPopup}"
+     [ngClass]="{'ddp-active':isShowDownloadPopup, 'ddp-popup-show':isShowDownloadPopup, 'ddp-page-mapview' : 'map' === chartType}"
      class="ddp-box-widget ddp-box-graph">
 
   <!-- Top Control -->
@@ -365,11 +365,9 @@
     <map-chart #chart
                  *ngIf="chartType === 'map' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
                  (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
-                 (drawFinished)="updateComplete()"
-                 (drawChartParam)="onSetDrawChartParam($event)"
-                 [query]="query"
-                 [widget]="widget">
-
+                 (chartSelectInfo)="chartSelectInfo($event)"
+                 (noData)="showNoData()"
+                 (drawFinished)="updateComplete()">
     </map-chart>
 
   </div>
