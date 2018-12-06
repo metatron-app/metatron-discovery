@@ -61,7 +61,14 @@ export class AppComponent {
       const browserLang = translateService.getBrowserLang();
       // this.translateService.setDefaultLang('ko');
       // 브라우저 언어에 따라 메세지 선택
-      this.translateService.use(browserLang.match(/en/) ? 'en' : 'ko');
+      if (browserLang === "zh" || browserLang === "zh-CN") {
+        this.translateService.use("zh")
+      } else if (browserLang === "ko") {
+        this.translateService.use("ko")
+      } else {
+        this.translateService.use("en")
+      }
+      this.translateService.setDefaultLang('en');
     }
     router.events.subscribe((event: RouterEvent) => {
       this.navigationInterceptor(event);
