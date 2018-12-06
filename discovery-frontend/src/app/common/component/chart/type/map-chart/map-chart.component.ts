@@ -12,18 +12,11 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  HostListener,
-  Injector,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Injector, ViewChild, } from '@angular/core';
 import { BaseChart, ChartSelectInfo } from '../../base-chart';
-import {Pivot} from '../../../../../domain/workbook/configurations/pivot';
+import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
 import * as ol from 'openlayers';
-import {UIMapOption} from '../../option/ui-option/map/ui-map-chart';
+import { UIMapOption } from '../../option/ui-option/map/ui-map-chart';
 import {
   HeatmapColorList,
   MapBy,
@@ -32,43 +25,37 @@ import {
   MapLayerType,
   MapLineStyle,
   MapSymbolType,
-  MapThickness, SelectionColor,
+  MapThickness,
+  SelectionColor,
 } from '../../option/define/map/map-common';
-import {ColorRange} from '../../option/ui-option/ui-color';
-import {OptionGenerator} from '../../option/util/option-generator';
+import { ColorRange } from '../../option/ui-option/ui-color';
+import { OptionGenerator } from '../../option/util/option-generator';
 import {
-  ChartColorList, ChartSelectMode,
+  ChartColorList,
+  ChartSelectMode,
   ChartType,
   ColorRangeType,
   ShelveFieldType,
   UIChartDataLabelDisplayType,
   UIPosition,
 } from '../../option/define/common';
-import {UISymbolLayer} from '../../option/ui-option/map/ui-symbol-layer';
-import {
-  UIChartColorByDimension,
-  UIChartZoom,
-  UILayers,
-  UIOption,
-} from '../../option/ui-option';
+import { UISymbolLayer } from '../../option/ui-option/map/ui-symbol-layer';
+import { UIChartColorByDimension, UIChartZoom, UILayers, UIOption, } from '../../option/ui-option';
 import * as _ from 'lodash';
-import {BaseOption} from '../../option/base-option';
-import {FormatOptionConverter} from '../../option/converter/format-option-converter';
-import {UILineLayer} from '../../option/ui-option/map/ui-line-layer';
-import {
-  Field as AbstractField,
-  Field,
-} from '../../../../../domain/workbook/configurations/field/field';
-import {Shelf} from '../../../../../domain/workbook/configurations/shelf/shelf';
-import {LogicalType} from '../../../../../domain/datasource/datasource';
-import {GeoField} from '../../../../../domain/workbook/configurations/field/geo-field';
-import {TooltipOptionConverter} from '../../option/converter/tooltip-option-converter';
-import {ChartUtil} from '../../option/util/chart-util';
-import {isNullOrUndefined} from 'util';
-import {UIHeatmapLayer} from '../../option/ui-option/map/ui-heatmap-layer';
+import { BaseOption } from '../../option/base-option';
+import { FormatOptionConverter } from '../../option/converter/format-option-converter';
+import { UILineLayer } from '../../option/ui-option/map/ui-line-layer';
+import { Field as AbstractField, Field, } from '../../../../../domain/workbook/configurations/field/field';
+import { Shelf } from '../../../../../domain/workbook/configurations/shelf/shelf';
+import { LogicalType } from '../../../../../domain/datasource/datasource';
+import { GeoField } from '../../../../../domain/workbook/configurations/field/geo-field';
+import { TooltipOptionConverter } from '../../option/converter/tooltip-option-converter';
+import { ChartUtil } from '../../option/util/chart-util';
+import { isNullOrUndefined } from 'util';
+import { UIHeatmapLayer } from '../../option/ui-option/map/ui-heatmap-layer';
+import { UIPolygonLayer } from '../../option/ui-option/map/ui-polygon-layer';
+import { UITileLayer } from '../../option/ui-option/map/ui-tile-layer';
 import UI = OptionGenerator.UI;
-import {UIPolygonLayer} from '../../option/ui-option/map/ui-polygon-layer';
-import {UITileLayer} from '../../option/ui-option/map/ui-tile-layer';
 
 @Component({
   selector: 'map-chart',
@@ -1797,16 +1784,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     }
 
     ////////////////////////////////////////////////////////
-    // default Tooltip UI
-    ////////////////////////////////////////////////////////
-
-    // set display columns from shelf
-    if (!this.uiOption.toolTip.displayColumns) this.uiOption.toolTip.displayColumns = [];
-
-    let fields = TooltipOptionConverter.returnTooltipDataValue(_.cloneDeep(this.shelf.layers[this.getUiMapOption().layerNum]));
-    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(fields);
-
-    ////////////////////////////////////////////////////////
     // Create tooltip layer
     ////////////////////////////////////////////////////////
 
@@ -1917,11 +1894,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
 
     // Layer num
-    this.tooltipInfo.num = feature.get('layerNum');
+    this.tooltipInfo.num = _.cloneDeep(feature.get('layerNum')) + 1;
 
     // Layer name
     if(this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[17] !== null) {
-      this.tooltipInfo.name = this.getUiMapOption().layers[this.tooltipInfo.num].name;
+      this.tooltipInfo.name = this.getUiMapOption().layers[feature.get('layerNum')].name;
     }
     else {
       this.tooltipInfo.name = null;
@@ -2528,7 +2505,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       layer.color.by = MapBy.DIMENSION;
       layer.color.schema = 'SC1';
       layer.color.column = this.uiOption.fielDimensionList[0]['name'];
-      if (this.uiOption.fielDimensionList[0]['format']) layer.color.aggregationType = this.uiOption.fielDimensionList[0]['format']['unit'].toString();
+      layer.color.aggregationType = null;
+      if (this.uiOption.fielDimensionList[0]['format']) layer.color.granularity = this.uiOption.fielDimensionList[0]['format']['unit'].toString();
     }
 
     ////////////////////////////////////////////////////////
@@ -2583,6 +2561,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     else if( _.eq(layer.type, MapLayerType.POLYGON) ) {
 
     }
+
+    ////////////////////////////////////////////////////////
+    // Tooltip
+    ////////////////////////////////////////////////////////
+    if (!this.uiOption.toolTip.displayColumns) this.uiOption.toolTip.displayColumns = [];
+
+    let fields = TooltipOptionConverter.returnTooltipDataValue(_.cloneDeep(this.shelf.layers[this.getUiMapOption().layerNum]));
+    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(fields);
   }
 
   /**

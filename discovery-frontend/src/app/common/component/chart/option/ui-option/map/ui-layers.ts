@@ -67,4 +67,7 @@ interface SymbolColor {
 
   // Column Aggregation type (measure)
   aggregationType?: string;
+
+  // Column granularity (timestamp)
+  granularity?: string;
 }

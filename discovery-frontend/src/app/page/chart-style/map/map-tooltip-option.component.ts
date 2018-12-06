@@ -54,16 +54,6 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
       uiOption.toolTip = {};
     }
 
-    // init displayTypes
-    if (!uiOption.toolTip.displayTypes) {
-      uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(uiOption.type);
-    }
-
-    // set field list from displayColumn string list
-    if (!uiOption.toolTip.displayColumns) {
-      this.selectedLayerItems = this.setColumns(this.uiOption.toolTip.displayColumns);
-    }
-
     // Set
     this.uiOption = uiOption;
   }
@@ -75,15 +65,31 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     if (!shelf || !shelf.layers || !shelf.layers[this.uiOption.layerNum]) return;
 
-    const selectedLayerItems = _.cloneDeep(shelf.layers[this.uiOption.layerNum]);
+    const layerItems = _.cloneDeep(shelf.layers[this.uiOption.layerNum]);
 
     // return shelf list except geo dimension
-    this.selectedLayerItems = TooltipOptionConverter.returnTooltipDataValue(selectedLayerItems);
+    let uniqList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
 
-    if (!this.uiOption.toolTip.displayColumns) this.uiOption.toolTip.displayColumns = [];
+    // set displayColumns
+    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(uniqList);
 
-    // set displayColum string list from field list
-    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(this.selectedLayerItems);
+    this.selectedLayerItems = [];
+    this.unselectedLayerItems = [];
+
+    // 선반에는 있지만 displayColumns에 없으면 => unselected list에 설정
+    _.each(uniqList, (field) => {
+
+      let alias = ChartUtil.getAlias(field);
+
+      // selected list
+      if (-1 !== this.uiOption.toolTip.displayColumns.indexOf(alias)) {
+
+        this.selectedLayerItems.push(field);
+      // unselected list
+      } else {
+        this.unselectedLayerItems.push(field);
+      }
+    });
   }
 
   /**

@@ -145,15 +145,23 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     } else if (MapLayerType.SYMBOL === layerType) {
       // set color by shelf
-      this.uiOption.layers[this.index] = this.setColorByShelf();
+      this.uiOption.layers[this.index] = this.setColorByShelf(false);
+
+      // add color by dimension list
+      if (-1 === _.findIndex(this.colorByList, {'value' : MapBy.DIMENSION})) {
+        this.colorByList.splice(1, 0, {name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION});
+      }
 
       // remove measure aggregation type in shelf
       this.removeAggregationType();
 
     } else if (MapLayerType.TILE === layerType) {
       // set color by shelf
-      this.uiOption.layers[this.index] = this.setColorByShelf();
+      this.uiOption.layers[this.index] = this.setColorByShelf(true);
       this.uiOption.layers[this.index]['radius'] = 20;
+
+      // remove color by dimension list
+      _.remove(this.colorByList, {'value' : MapBy.DIMENSION});
 
       // if( isNullOrUndefined(this.uiOption.layers[this.index]['coverage']) ) {
       //   this.uiOption.layers[this.index]['coverage'] = 0.9;
@@ -168,7 +176,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     if ((MapLayerType.TILE === cloneLayerType || MapLayerType.TILE === layerType) && cloneLayerType !== layerType) {
       // call search api (for precision setting)
-      this.applyLayers({});
+      this.applyLayers({type : ''});
       return;
     }
 
@@ -338,10 +346,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public changeColorColumn(data: Field) {
 
-    let aggregationType = 'measure' === data.type ? data.aggregationType : data.format.unit.toString();
-
     this.uiOption.layers[this.index].color.column = data.name;
-    this.uiOption.layers[this.index].color.aggregationType = aggregationType;
+
+    // measure
+    if ('measure' === data.type) {
+      this.uiOption.layers[this.index].color.aggregationType = data.aggregationType;
+      this.uiOption.layers[this.index].color.granularity = null;
+    // granularity
+    } else {
+      if (data.format) this.uiOption.layers[this.index].color.granularity = data.format.unit.toString();
+      this.uiOption.layers[this.index].color.aggregationType = null;
+    }
 
     this.applyLayers();
   }
@@ -771,9 +786,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
   /**
    * set color by shelf
+   * @param {boolean} aggregationFl use aggregation type
    * @returns {UILayers}
    */
-  private setColorByShelf(): UILayers {
+  private setColorByShelf(aggregationFl: boolean): UILayers {
 
     let shelf: GeoField[] = this.shelf.layers[this.index];
 
@@ -801,16 +817,25 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       layer.color.by = MapBy.MEASURE;
       layer.color.schema = 'VC1';
       layer.color.column = this.measureList[0]['name'];
-      layer.color.aggregationType = this.measureList[0]['aggregationType'];
+      if (aggregationFl) layer.color.aggregationType = this.measureList[0]['aggregationType'];
+      else layer.color.aggregationType = null;
     }
     ///////////////////////////
     // Color by Dimension
     ///////////////////////////
+    // hexagon && isDimension => init as none
+    else if ( MapLayerType.TILE === layer.type && isDimension ) {
+      layer.color.by = MapBy.NONE;
+      layer.color.schema = '#6344ad';
+      layer.color.column = null;
+      layer.color.aggregationType = null;
+    }
     else if( isDimension ) {
       layer.color.by = MapBy.DIMENSION;
       layer.color.schema = 'SC1';
       layer.color.column = this.dimensionList[0]['name'];
-      if (this.dimensionList[0]['format']) layer.color.aggregationType = this.dimensionList[0]['format']['unit'].toString();
+      layer.color.aggregationType = null;
+      if (this.dimensionList[0]['format']) layer.color.granularity = this.dimensionList[0]['format']['unit'].toString();
     }
 
     return layer;
