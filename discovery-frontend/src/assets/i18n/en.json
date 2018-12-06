@@ -1287,6 +1287,7 @@
   "msg.dp.alert.enter.group.every" : "Please enter group every",
   "msg.dp.ui.join.prev.msg" : "You can check the results after selecting required items",
   "msg.dp.ui.join.key.required" : "At least one join key is required",
+  "msg.dp.alert.format.error" : "Please enter timestamp pattern",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",
@@ -1309,7 +1310,7 @@
   "msg.board.download.desc" : "Able to download up to 1 million data, <br>Please contact your administrator for above 1 million.",
   "msg.board.download.calc-size" : "Calculating data size ...",
   "msg.board.ui.no.widget": "No widgets",
-  "msg.board.ui.show.only": "Shown only",
+  "msg.board.ui.show.only": "Visible only",
   "msg.board.th.allowance": "Show open data only",
   "msg.board.btn.add.datasource.join": "Add datasource to join",
   "msg.board.update-datasource.confirm.title" : "Do you want to save your changes?",

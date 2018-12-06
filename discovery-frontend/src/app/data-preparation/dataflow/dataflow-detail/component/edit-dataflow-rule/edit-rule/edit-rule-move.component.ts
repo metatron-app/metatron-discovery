@@ -103,10 +103,7 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
     }
 
     const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+      return '`' + item.name + '`';
     }).join(', ');
 
     if (isNullOrUndefined(this.beforeOrAfter) || this.beforeOrAfter === '') {
@@ -127,7 +124,7 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
     return {
       command: 'move',
       col: columnsStr,
-      ruleString: `move col: ${columnsStr} ${this.beforeOrAfter}: ${this.selectedStandardField.indexOf(' ') === -1 ? this.selectedStandardField : '`' + this.selectedStandardField + '`'}`
+      ruleString: `move col: ${columnsStr} ${this.beforeOrAfter}: ${'`' + this.selectedStandardField + '`'}`
     };
 
   } // function - getRuleData
