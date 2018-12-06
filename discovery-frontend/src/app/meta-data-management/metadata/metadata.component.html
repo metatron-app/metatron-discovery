@@ -134,7 +134,7 @@
     </div>
     <!-- //option -->
   </div>
-  <table class="ddp-table-form ddp-table-type3 ddp-inherit" *ngIf="metadatas && metadatas.length > 0">
+  <table class="ddp-table-form ddp-table-type3" *ngIf="metadatas && metadatas.length > 0">
     <colgroup>
       <col width="100px">
       <col width="*">
@@ -179,7 +179,7 @@
       <th>
         {{'msg.comm.th.updated' | translate}}
       </th>
-      <th (click)="onClickSort('createdTime')">
+      <th (click)="onClickSort('createdTime')" class="ddp-cursor">
         {{'msg.comm.ui.list.created' | translate}}
         <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
         <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
