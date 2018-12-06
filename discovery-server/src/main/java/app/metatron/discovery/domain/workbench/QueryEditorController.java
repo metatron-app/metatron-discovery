@@ -28,6 +28,7 @@ import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
 import app.metatron.discovery.util.HibernateUtils;
 import app.metatron.discovery.util.HttpUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,10 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RepositoryRestController
 public class QueryEditorController {
@@ -81,14 +79,14 @@ public class QueryEditorController {
   @RequestMapping(path = "/queryeditors/{id}/query/run", method = RequestMethod.POST)
   @ResponseBody
   public ResponseEntity<?> runQuery(@PathVariable("id") String id,
-                               @RequestBody QueryRunRequest requestBody) {
+                               @RequestBody QueryRunRequest queryRunRequest) {
 
     //1. Parameter 확인
 
     //Request Param 확인
-    String query = StringUtils.defaultString(requestBody.getQuery());
-    String webSocketId = StringUtils.defaultString(requestBody.getWebSocketId());
-    String database = StringUtils.defaultString(requestBody.getDatabase());
+    String query = StringUtils.defaultString(queryRunRequest.getQuery());
+    String webSocketId = StringUtils.defaultString(queryRunRequest.getWebSocketId());
+    String database = StringUtils.defaultString(queryRunRequest.getDatabase());
 //    int numRows = requestBody.getNumRows();
 
     LOGGER.debug("id : {}", id);
@@ -139,14 +137,18 @@ public class QueryEditorController {
       throw new WorkbenchException(WorkbenchErrorCodes.QUERY_STATUS_ERROR_CODE, "Query is Running");
     }
 
-
     //3. 쿼리 실행 서비스 호출
     List<QueryResult> queryResults = queryEditorService.getQueryResult(queryEditor, jdbcDataConnection, workbench,
             query, webSocketId, database);
 
-    //4. Audit에 쿼리 결과 저장 (Hive Audit Hook와 충돌 방지 하기 위해 Controller 레벨에서 수행함)
+
     //Hive Hook에서 Update할때 버전이 안맞아 업데이트 에러방지
     entityManager.clear();
+
+    //4. 쿼리 결과를 나중에 복원하기 위해 저장
+    saveQueryEditorResults(id, queryResults, queryRunRequest);
+
+    //5. Audit에 쿼리 결과 저장 (Hive Audit Hook와 충돌 방지 하기 위해 Controller 레벨에서 수행함)
     for(QueryResult queryResult : queryResults){
       Audit.AuditStatus auditStatus = Audit.AuditStatus.valueOf(queryResult.getQueryResultStatus().toString());
       Audit audit = auditRepository.findOne(queryResult.getAuditId());
@@ -160,6 +162,40 @@ public class QueryEditorController {
     }
 
     return ResponseEntity.ok(queryResults);
+  }
+
+  private void saveQueryEditorResults(String queryEditorId, List<QueryResult> queryResults, QueryRunRequest queryRunRequest) {
+    if(CollectionUtils.isNotEmpty(queryResults)) {
+      try {
+        // 이전에 entityManager를 clear 하기 때문에 변경 감지 기능을 사용하여 queryEditor 엔티티의 queryEditorResult 를 사용할 수 없음
+        // 따라서 queryEditor를 다시 managed 상태로 하기 위해 재 조회
+        QueryEditor queryEditor = queryEditorRepository.findOne(queryEditorId);
+
+        if(queryRunRequest.isFirstRunInQueryEditor()) {
+          queryEditor.clearQueryResults();
+        }
+
+        if(queryRunRequest.isRetryRun()) {
+          if(queryResults.size() != 1) {
+            throw new Exception("The queryResults must be one.");
+          }
+          QueryEditorResult queryEditorResult = queryEditor.getQueryResults().get(queryRunRequest.getRetryQueryResultOrder() - 1);
+
+          queryEditorResult.setFilePath(queryResults.get(0).getCsvFilePath());
+          queryEditorResult.setFields(queryResults.get(0).getFields());
+          queryEditorResult.setNumRows(queryResults.get(0).getNumRows());
+        } else {
+          for(QueryResult queryResult : queryResults){
+            queryEditor.addQueryResult(
+                new QueryEditorResult(queryResult.getRunQuery(),
+                    queryResult.getCsvFilePath(), queryResult.getFields(),
+                    queryResult.getNumRows(), queryResult.getDefaultNumRows()));
+          }
+        }
+      } catch(Exception e) {
+        LOGGER.error("Fail to save Queryeditor's results", e);
+      }
+    }
   }
 
   @RequestMapping(path = "/queryeditors/{id}/query/cancel", method = RequestMethod.POST,

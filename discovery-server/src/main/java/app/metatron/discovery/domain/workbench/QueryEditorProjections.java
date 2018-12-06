@@ -18,6 +18,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
+import java.util.List;
 import java.util.Set;
 
 import app.metatron.discovery.common.BaseProjections;
@@ -48,6 +49,8 @@ public class QueryEditorProjections extends BaseProjections{
     UserProfile getModifiedBy();
 
     DateTime getModifiedTime();
+
+    List<QueryEditorResult> getQueryResults();
   }
 
   @Projection(name = "forQueryHistory", types = { QueryEditor.class })
