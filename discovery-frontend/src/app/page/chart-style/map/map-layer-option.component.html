@@ -368,8 +368,8 @@
                 </div>
                 <!-- //symbol, polygon : outline -->
 
-                <!-- symbol, polygon : cluster -->
-                <div class="ddp-wrap-divide" *ngIf="'symbol' === uiOption.layers[index].type.toString() || 'polygon' === uiOption.layers[index].type.toString()">
+                <!-- symbol : cluster -->
+                <div class="ddp-wrap-divide" *ngIf="'symbol' === uiOption.layers[index].type.toString()">
                   <!-- divide -->
                   <div class="ddp-divide2 ">
                     <div class="ddp-wrap-option-slider">
@@ -417,7 +417,7 @@
                   </div>
                   <!-- //divide -->
                 </div>
-                <!-- //symbol, polygon : cluster -->
+                <!-- //symbol : cluster -->
 
                 <!-- symbol : view original data -->
                 <!--<div *ngIf="'symbol' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">-->
