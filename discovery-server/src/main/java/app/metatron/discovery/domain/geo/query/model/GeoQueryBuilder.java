@@ -163,25 +163,31 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
           continue;
         }
 
-        unUsedVirtualColumnName.remove(originalName);
-
         ExpressionField exprField = (ExpressionField) userDefinedField;
         if (field instanceof DimensionField) {
           String dummyDimName = "__s" + dimensionCnt++;
 
           dimensions.add(new DefaultDimension(fieldName, dummyDimName));
           projectionMapper.put(dummyDimName, alias);
+
+          unUsedVirtualColumnName.remove(fieldName);
+
         } else if (field instanceof MeasureField) {
           MeasureField measureField = (MeasureField) field;
           String dummyMeasureName = "__d" + measureCnt++;
 
-          if (exprField.isAggregated() && measureField.getAggregationType() != MeasureField.AggregationType.NONE) {
+          if (exprField.isAggregated()) {
             addUserDefinedAggregationFunction((MeasureField) field);
             postAggregations.add(new ExprPostAggregator(dummyMeasureName + "=\\\"" + alias + "\\\""));
             projectionMapper.put(dummyMeasureName, alias);
+
+            if(!exprField.isAggregated()) {
+              unUsedVirtualColumnName.remove(fieldName);
+            }
           } else {
             dimensions.add(new DefaultDimension(fieldName, dummyMeasureName));
             projectionMapper.put(dummyMeasureName, alias);
+            unUsedVirtualColumnName.remove(fieldName);
           }
 
           minMaxFields.add(alias);

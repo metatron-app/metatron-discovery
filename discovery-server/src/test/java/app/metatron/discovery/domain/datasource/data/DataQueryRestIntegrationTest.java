@@ -98,6 +98,7 @@ import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFor
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
 
+import static app.metatron.discovery.domain.datasource.Field.FieldRole.MEASURE;
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 
@@ -1898,7 +1899,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     limit.setLimit(1000000);
 
     List<Filter> filters = Lists.newArrayList(
-        new ExpressionFilter("amt < 50000 && amt > 40000")
+        //new ExpressionFilter("amt < 50000 && amt > 40000")
     );
 
     GeoHashFormat hashFormat = new GeoHashFormat("geohex", 5);
@@ -1907,11 +1908,58 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     List<Field> layer1 = Lists.newArrayList(geoDimensionField,
                                             new MeasureField("py", null, MeasureField.AggregationType.AVG),
                                             new MeasureField("amt", null, MeasureField.AggregationType.SUM));
+
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
     ChartResultFormat format = new ChartResultFormat("map");
     request.setResultFormat(format);
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_gis_datasource.sql")
+  public void searchQueryForEstateGeoHashExprWithMapChart() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("estate");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(5);
+
+    List<Filter> filters = Lists.newArrayList();
+
+    ExpressionField expressionField1 = new ExpressionField("MEASURE_1", "COUNTOF( 1 )");
+    expressionField1.setRole(MEASURE);
+    expressionField1.setAggregated(true);
+
+    GeoHashFormat hashFormat = new GeoHashFormat("geohex", 5);
+    DimensionField geoDimensionField = new DimensionField("gis", null, hashFormat);
+
+    MeasureField measureField = new MeasureField("MEASURE_1", "user_defined");
+
+    List<Field> layer1 = Lists.newArrayList(geoDimensionField, measureField);
+
+    Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
+    ChartResultFormat format = new ChartResultFormat("map");
+    request.setResultFormat(format);
+    request.setUserFields(Lists.newArrayList(expressionField1));
 
     // @formatter:off
     given()
