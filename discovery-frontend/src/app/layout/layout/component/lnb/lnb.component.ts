@@ -116,10 +116,8 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     appVersion: BuildInfo.METATRON_APP_VERSION
   };
 
-  public extensions:Extension[] = [];
-
   public get getManagementExtensions():Extension[] {
-    return this.extensions.filter( item => 'management' === item.parent );
+    return CommonService.extensions.filter( item => 'management' === item.parent );
   } // get - getManagementExtensions
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -226,14 +224,12 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
 
     // extensions 설정
     this.commonService.getExtensions('lnb' ).then( items => {
-      console.info( '>>>>>>> item', items );
       if( items && 0 < items.length ) {
         const exts:Extension[] = items;
         exts.forEach( ext => {
           ( this.lnbManager[ext.parent] ) || ( this.lnbManager[ext.parent] = {} );
           this.lnbManager[ext.parent][ext.name] = { fold : true };
         });
-        this.extensions = exts;
       }
     });
   }

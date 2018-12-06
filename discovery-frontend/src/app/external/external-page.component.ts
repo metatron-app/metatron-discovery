@@ -18,7 +18,6 @@ import {
 } from '@angular/core';
 import {AbstractComponent} from "../common/component/abstract.component";
 import {ActivatedRoute} from "@angular/router";
-import {environment} from "../../environments/environment";
 import {CookieConstant} from "../common/constant/cookie.constant";
 import {CommonService} from "../common/service/common.service";
 import {Extension} from "../common/domain/extension";
@@ -71,6 +70,7 @@ export class ExternalPageComponent extends AbstractComponent implements OnInit, 
    */
   public ngOnInit() {
     super.ngOnInit();
+    this.loadingShow();
     window.history.pushState(null, null, window.location.href);
   } // function - ngOnInit
 
@@ -103,16 +103,23 @@ export class ExternalPageComponent extends AbstractComponent implements OnInit, 
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private _loadMenu() {
     this.loadingShow();
-    this.commonService.getExtensions('lnb' ).then( items => {
-      if( items && 0 < items.length ) {
-        const exts:Extension[] = items;
-        const arrUrl:string[] = this._url.split('_');
-        const menuItem = exts.filter( item => ( item.parent === arrUrl[0] && item.name === arrUrl[1] ) )[0];
-        this._openExternalView(menuItem.subContents[arrUrl[2]]);
-        this.loadingHide();
-      }
-    });
-  }
+    const arrUrl:string[] = this._url.split('_');
+    if( 0 < CommonService.extensions.length ) {
+      const menuItem = CommonService.extensions.filter( item => ( item.parent === arrUrl[0] && item.name === arrUrl[1] ) )[0];
+      this._openExternalView(menuItem.subContents[arrUrl[2]]);
+      this.loadingHide();
+    } else {
+      this.commonService.getExtensions('lnb' ).then( items => {
+        if( items && 0 < items.length ) {
+          const exts:Extension[] = items;
+          const menuItem = exts.filter( item => ( item.parent === arrUrl[0] && item.name === arrUrl[1] ) )[0];
+          this._openExternalView(menuItem.subContents[arrUrl[2]]);
+          this.loadingHide();
+        }
+      });
+    }
+  } // function - _loadMenu
+
   /**
    * Open external view in iframe
    * @param {string} targetUrl

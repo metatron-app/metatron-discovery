@@ -25,9 +25,12 @@ import { RoleSet } from '../../domain/user/role/roleSet';
 import { saveAs } from 'file-saver';
 import { CookieConstant } from '../../common/constant/cookie.constant';
 import { Headers, ResponseContentType } from '@angular/http';
+import {Extension} from "../domain/extension";
 
 @Injectable()
 export class CommonService extends AbstractService {
+
+  public static extensions:Extension[] = [];
 
   constructor(protected injector: Injector) {
     super(injector);
@@ -38,7 +41,10 @@ export class CommonService extends AbstractService {
    * @param type
    */
   public getExtensions( type:string ):Promise<any> {
-    return this.get(this.API_URL + `extensions/${type}`);
+    return this.get(this.API_URL + `extensions/${type}`).then( items => {
+      CommonService.extensions = items;
+      return items;
+    });
   } // function - getExtensions
 
   /**
