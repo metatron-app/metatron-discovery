@@ -332,7 +332,13 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     }
 
     // If grid data exists, draw grid.
-    let data = this.datasetJdbc[method.toLowerCase()+'Info'];
+    //let data = this.datasetJdbc[method.toLowerCase()+'Info'];
+    let data = null;
+    if(method===RsType.TABLE) {
+      data = this.datasetJdbc.sqlInfo;
+    } else if(method===RsType.QUERY) {
+      data = this.datasetJdbc.tableInfo;
+    }
     if (data.headers && data.headers.length > 0) {
       this.clearGrid = false;
       this._drawGrid(data.headers,data.rows)

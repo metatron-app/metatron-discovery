@@ -329,7 +329,13 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     }
 
     // If grid data exists, draw grid.
-    let data = this.datasetHive[method.toLowerCase()+'Info'];
+    //let data = this.datasetHive[method.toLowerCase()+'Info'];
+    let data = null;
+    if(method===RsType.TABLE) {
+      data = this.datasetHive.sqlInfo;
+    } else if(method===RsType.QUERY) {
+      data = this.datasetHive.tableInfo;
+    }
     if (data.headers && data.headers.length > 0) {
       this.clearGrid = false;
       this._drawGrid(data.headers,data.rows)

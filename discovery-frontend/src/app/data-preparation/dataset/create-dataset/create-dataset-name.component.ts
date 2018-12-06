@@ -427,8 +427,8 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     if (hive.rsType === RsType.QUERY) {
       hive.queryStmt = hive.sqlInfo.queryStmt;
     } else {
-      hive.tableName = hive.tableInfo.tableName;
-      hive['custom'] = `{"databaseName":"${hive.tableInfo.databaseName}"}`;
+      hive.tblName = hive.tableInfo.tableName;
+      hive.dbName = hive.tableInfo.databaseName;
     }
     return hive
   }
@@ -445,8 +445,8 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     if (jdbc.rsType === RsType.QUERY) {
       jdbc.queryStmt = jdbc.sqlInfo.queryStmt;
     } else {
-      jdbc.tableName = jdbc.tableInfo.tableName;
-      jdbc['custom'] = `{"databaseName":"${jdbc.tableInfo.databaseName}"}`
+      jdbc.tblName = jdbc.tableInfo.tableName;
+      jdbc.dbName = jdbc.tableInfo.databaseName;
     }
     return jdbc
   }
