@@ -115,7 +115,7 @@ a,u,a:hover {text-decoration:none; color:#707070;}
 a {outline:0;}
 textarea {resize:none;}
 input,select,textarea {outline:none; box-shadow:none;}
-input {line-height:1.3em; word-break:keep-all;}
+input {line-height:1.3em; word-break:keep-all; font-family:sans-serif;}
 input::-ms-clear {display: none;}
 input::placeholder {color:#b7b9c2; font-family:sans-serif; line-height:1.3em;}
 input::-webkit-input-placeholder {color:#b7b9c2; font-family:sans-serif; line-height:1.3em;}
