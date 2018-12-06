@@ -2313,7 +2313,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     headers.push(
       new SlickGridHeader()
         .Id('WORKBENCH_GRID_SEQ')
-        .Name('SEQ')
+        .Name('No.')
         .Field('WORKBENCH_GRID_SEQ')
         .Behavior('select')
         .CssClass('txt-center')
@@ -2376,6 +2376,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         .RowHeight(32)
         .CellExternalCopyManagerActivate(true)
         .EnableSeqSort(true)
+        .RowSelectionActivate(true)
         .build()
       );
     }
