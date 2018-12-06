@@ -81,7 +81,7 @@ public class TimeoutConnectionCloseJob extends QuartzJobBean {
             .map(workbenchMap -> workbenchMap.getValue())
             .collect(Collectors.toList());
     LOGGER.info("Workbench DataSource not in ws queue : {}",
-            dataSourceList.stream().map(workbenchDataSource -> workbenchDataSource.getWebSocketId()));
+            dataSourceList.stream().map(workbenchDataSource -> workbenchDataSource.getWebSocketId()).collect(Collectors.toList()));
 
     //4. destroy DataSource
     for(WorkbenchDataSource workbenchDataSource : dataSourceList){
