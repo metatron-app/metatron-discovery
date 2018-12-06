@@ -664,7 +664,7 @@ public class PrepDatasetSparkHiveService {
                     extTblPath, this.getHiveDefaultHDFSPath(), dbName, tblName ));
         }
 
-        LOGGER.info("HDFS du result: cmd=%s result_line=%s", cmd, line);
+        LOGGER.info("HDFS du result: cmd={} result_line={}", cmd, line);
         return Long.parseLong((line.split("\\s+"))[0]);
     }
 

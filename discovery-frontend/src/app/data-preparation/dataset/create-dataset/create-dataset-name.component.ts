@@ -472,7 +472,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     // Error when creating dataflow with dataset with no querystmt
     if (this.type !== 'FILE' && type.rsType === RsType.TABLE) {
-      params['queryStmt'] = `select * from ${tableInfo.databaseName}.${tableInfo.tableName};`;
+      params['queryStmt'] = `select * from ${tableInfo.databaseName}.${tableInfo.tableName}`;
     }
 
     this.datasetService.createDataSet(params).then((result) => {

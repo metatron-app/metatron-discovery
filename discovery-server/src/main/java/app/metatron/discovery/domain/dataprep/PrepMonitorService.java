@@ -58,12 +58,12 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
   private final String TBL_NEW_TRANSFORM_RULE        = "pr_transform_rule";
   private final String TBL_NEW_SNAPSHOT              = "pr_snapshot";
 
-  private final String TBL_OLD_DATASET               = "polaris_v2.prep_dataset";
-  private final String TBL_OLD_IMPORTED_DATASET_INFO = "polaris_v2.prep_imported_dataset_info";
-  private final String TBL_OLD_DATAFLOW              = "polaris_v2.prep_dataflow";
-  private final String TBL_OLD_DATAFLOW_DATASET      = "polaris_v2.prep_dataflow_dataset";
-  private final String TBL_OLD_TRANSFORM_RULE        = "polaris_v2.prep_transform_rule";
-  private final String TBL_OLD_SNAPSHOT              = "polaris_v2.prep_snapshot";
+  private final String TBL_OLD_DATASET               = "prep_dataset";
+  private final String TBL_OLD_IMPORTED_DATASET_INFO = "prep_imported_dataset_info";
+  private final String TBL_OLD_DATAFLOW              = "prep_dataflow";
+  private final String TBL_OLD_DATAFLOW_DATASET      = "prep_dataflow_dataset";
+  private final String TBL_OLD_TRANSFORM_RULE        = "prep_transform_rule";
+  private final String TBL_OLD_SNAPSHOT              = "prep_snapshot";
 
   private boolean dbMigratedAll = false;
   private boolean dbMigratedDataset = false;
