@@ -17,6 +17,8 @@ import {AbstractService} from '../../common/service/abstract.service';
 import {CommonUtil} from '../../common/util/common.util';
 import {Page} from '../../domain/common/page';
 import {isNullOrUndefined} from "util";
+import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
+import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
 
 @Injectable()
 export class DataconnectionService extends AbstractService {
@@ -313,4 +315,36 @@ export class DataconnectionService extends AbstractService {
   public getTableListForHiveInMetadata(params: object): Promise<any> {
     return this.post(this.URL_CONNECTIONS + '/metadata/tables/jdbc', params);
   }
+
+  /**
+   * Get criterion list in connection
+   * @returns {Promise<CriteriaFilter>}
+   */
+  public getCriterionListInConnection(): Promise<CriteriaFilter> {
+    return this.get(this.API_URL + 'connections/criteria');
+  }
+
+  /**
+   * Get criterion in connection
+   * @param {CriterionKey} criterionKey
+   * @returns {Promise<ListCriterion>}
+   */
+  public getCriterionInConnection(criterionKey: CriterionKey): Promise<ListCriterion> {
+    return this.get(this.API_URL + `connections/criteria/${criterionKey}`);
+  }
+
+  /**
+   * Get connection list
+   * @param {number} page
+   * @param {number} size
+   * @param {string} sort
+   * @param params
+   * @param {string} projection
+   * @returns {Promise<any>}
+   */
+  public getConnectionList(page: number, size: number, sort: string, params: any, projection: string = 'list'): Promise<any> {
+    return this.post(this.API_URL + `connections/filter?projection=${projection}&page=${page}&size=${size}&sort=${sort}`, params);
+  }
+
+
 }

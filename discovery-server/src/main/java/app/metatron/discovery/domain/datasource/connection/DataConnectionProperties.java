@@ -12,32 +12,21 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.datasource;
+package app.metatron.discovery.domain.datasource.connection;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by kyungtaak on 2016. 12. 11..
  */
 @Component
-@ConfigurationProperties(prefix = "polaris.datasource")
-public class DataSourceProperties {
-
-  Map<String, List<String>> connections;
+@ConfigurationProperties(prefix = "polaris.dataconnection")
+public class DataConnectionProperties {
 
   List<DefaultFilter> defaultFilters;
-
-  public Map<String, List<String>> getConnections() {
-    return connections;
-  }
-
-  public void setConnections(Map<String, List<String>> connections) {
-    this.connections = connections;
-  }
 
   public List<DefaultFilter> getDefaultFilters() {
     return defaultFilters;
