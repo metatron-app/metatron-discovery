@@ -25,7 +25,8 @@
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-box-result .ddp-txt-result {display:block;white-space:nowrap; text-overflow:ellipsis; overflow:Hidden;}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-box-result:before {display:inline-block; position:absolute; top:50%; right:0; width:8px; height:4px; margin-top:-2px; background:url(../../../images/icon_select.png) no-repeat; background-position:-16px top; content:'';}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-wrap-popup2 {display:none; position:absolute; top:24px; left:0;  min-width:180px; max-width:250px; max-height:250px; overflow:auto;}
-.ddp-wrap-top-filtering .ddp-form-filtering .ddp-box-result.ddp-selected .ddp-wrap-popup2 {display:block;}
+.ddp-wrap-top-filtering .ddp-result-filtering.ddp-selected .ddp-wrap-popup2 {display:block; top:31px;}
+.ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering.ddp-selected .ddp-wrap-popup2 {display:block; left:20px;}
 
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-wrap-popup2.ddp-date .ddp-ui-dateinfo .ddp-box-dateinfo input.ddp-input-calen {width:74px; padding-right:2px;}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-wrap-popup2.ddp-date .ddp-ui-dateinfo .ddp-box-dateinfo input.ddp-input-time {width:36px; padding-left:2px; padding-right:2px;}

@@ -46,7 +46,7 @@
   "msg.comm.ui.soring.frequency.desc" : "Frequency descending",
   "msg.comm.ui.soring.alphnumeric.asc" : "Alpahnumeric ascending",
   "msg.comm.ui.soring.alphnumeric.desc" : "Alpahnumeric descending",
-  
+
   "msg.comm.ui.beforeunload" : "Your changes may not be saved.",
   "msg.comm.menu.title.workspace": "WORKSPACE",
   "msg.comm.menu.title.management": "MANAGEMENT",
@@ -2074,9 +2074,9 @@
   "msg.storage.ui.criterion.creator": "Creator",
   "msg.storage.ui.criterion.created-time": "Created time",
   "msg.storage.ui.criterion.more": "More",
-  "msg.storage.ui.criterion.connection-type": "Connection type",
+  "msg.storage.ui.criterion.connection-type": "Ingestion type",
   "msg.storage.ui.criterion.ds-type": "Datasource type",
-  "msg.storage.ui.criterion.source-type": "Ingestion type",
+  "msg.storage.ui.criterion.source-type": "Source type",
   "msg.storage.ui.criterion.users": "User(s)",
   "msg.storage.ui.criterion.groups": "Group(s)",
   "msg.storage.ui.criterion.today": "Today",
