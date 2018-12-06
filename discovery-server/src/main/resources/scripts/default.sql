@@ -121,10 +121,10 @@ INSERT INTO role_set_workspace(RS_ID, WS_ID) VALUES
 
 -- DataSource
 INSERT INTO datasource(id, ds_name, ds_engine_name, ds_owner_id, ds_desc, ds_type, ds_src_type,ds_conn_type, ds_granularity, ds_status, ds_published, version, created_time, created_by, modified_time, modified_by) values
-('ds-gis-37', 'sales_geo', 'sales_geo', 'polaris', 'Sales data (2011~2014)', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris');
+('ds-gis-37', 'sales', 'sales_geo', 'polaris', 'Sales data (2011~2014)', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris');
 
 INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role, field_format) values
-(10047000, 'ds-gis-37', 0, 'OrderDate', 'TIMESTAMP', null, 'TIMESTAMP', null),
+(10047000, 'ds-gis-37', 0, 'OrderDate', 'TIMESTAMP', null, 'TIMESTAMP', '{"type":"time_format","format":"yyyy-MM-dd HH:mm:ss"}'),
 (10047001, 'ds-gis-37', 1, 'Category', 'STRING', null, 'DIMENSION', null),
 (10047002, 'ds-gis-37', 2, 'City', 'STRING', null, 'DIMENSION', null),
 (10047003, 'ds-gis-37', 3, 'Country', 'STRING', null, 'DIMENSION', null),
@@ -138,7 +138,7 @@ INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, fi
 (10047011, 'ds-gis-37', 11, 'Region', 'STRING', null, 'DIMENSION', null),
 (10047012, 'ds-gis-37', 12, 'Sales', 'DOUBLE', null, 'MEASURE', null),
 (10047013, 'ds-gis-37', 13, 'Segment', 'STRING', null, 'DIMENSION', null),
-(10047014, 'ds-gis-37', 14, 'ShipDate', 'STRING', 'TIMESTAMP', 'DIMENSION',  'yyyy. MM. dd.'),
+(10047014, 'ds-gis-37', 14, 'ShipDate', 'STRING', 'TIMESTAMP', 'DIMENSION', '{"type":"time_format","format":"yyyy. MM. dd."}'),
 (10047015, 'ds-gis-37', 15, 'ShipMode', 'STRING', null, 'DIMENSION', null),
 (10047016, 'ds-gis-37', 16, 'State', 'STRING', null, 'DIMENSION', null),
 (10047017, 'ds-gis-37', 17, 'Sub-Category', 'STRING', null, 'DIMENSION', null),
@@ -153,5 +153,5 @@ INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, fi
 (10047026, 'ds-gis-37', 26, 'latitude', 'STRING', 'LNT', 'DIMENSION', null),
 (10047027, 'ds-gis-37', 27, 'longitude', 'STRING', 'LNG', 'DIMENSION', null),
 (10047028, 'ds-gis-37', 27, 'location', 'STRUCT', 'GEO_POINT', 'DIMENSION', null);
-
+ 
 COMMIT;
