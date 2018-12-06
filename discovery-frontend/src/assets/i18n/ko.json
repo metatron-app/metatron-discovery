@@ -2067,6 +2067,7 @@
   "msg.storage.ui.geo.coordinate": "좌표계",
   "msg.storage.ui.config.extension.no.data": "Extension 타입은 미리보기를 지원하지 않습니다",
   "msg.storage.ui.config.no.data": "데이터가 없습니다",
+  "msg.storage.alert.clipboard.copy": "복사되었습니다",
   "msg.storage.ui.criterion.status": "상태",
   "msg.storage.ui.criterion.publish": "공개",
   "msg.storage.ui.criterion.creator": "생성한 사람",
