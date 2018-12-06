@@ -147,6 +147,49 @@ public class PrDataset extends AbstractHistoryEntity {
     @Column(name = "dc_id")
     private String dcId;
 
+    @Column(name = "dc_implementor")
+    private String dcImplementor;
+
+    @Column(name = "dc_name")
+    @Size(max = 150)
+    private String dcName;
+
+    @Lob
+    @Column(name = "dc_desc")
+    private String dcDesc;
+
+    @Column(name = "dc_type")
+    private String dcType;
+
+    @Column(name = "dc_hostname")
+    private String dcHostname;
+
+    @Column(name = "dc_port")
+    private Integer dcPort;
+
+    @Column(name = "dc_options")
+    private String dcOptions;
+
+    @Column(name = "dc_username")
+    private String dcUsername;
+
+    @Column(name = "dc_password")
+    private String dcPassword;
+
+    @Lob
+    @Column(name = "dc_url")
+    private String dcUrl;
+
+    @Lob
+    @Column(name = "dc_connecturl")
+    private String dcConnectUrl;
+
+    @Column(name = "dc_authentication_type")
+    private String dcAuthenticationType;
+
+    @Column(name = "dc_published")
+    private Boolean dcPublished;
+
     @Column(name = "rs_type")
     @Enumerated(EnumType.STRING)
     private PrDataset.RS_TYPE rsType;
@@ -323,6 +366,110 @@ public class PrDataset extends AbstractHistoryEntity {
 
     public void setDcId(String dcId) {
         this.dcId = dcId;
+    }
+
+    public String getDcImplementor() {
+        return dcImplementor;
+    }
+
+    public void setDcImplementor(String dcImplementor) {
+        this.dcImplementor = dcImplementor;
+    }
+
+    public String getDcName() {
+        return dcName;
+    }
+
+    public void setDcName(String dcName) {
+        this.dcName = dcName;
+    }
+
+    public String getDcDesc() {
+        return dcDesc;
+    }
+
+    public void setDcDesc(String dcDesc) {
+        this.dcDesc = dcDesc;
+    }
+
+    public String getDcType() {
+        return dcType;
+    }
+
+    public void setDcType(String dcType) {
+        this.dcType = dcType;
+    }
+
+    public String getDcHostname() {
+        return dcHostname;
+    }
+
+    public void setDcHostname(String dcHostname) {
+        this.dcHostname = dcHostname;
+    }
+
+    public Integer getDcPort() {
+        return dcPort;
+    }
+
+    public void setDcPort(Integer dcPort) {
+        this.dcPort = dcPort;
+    }
+
+    public String getDcOptions() {
+        return dcOptions;
+    }
+
+    public void setDcOptions(String dcOptions) {
+        this.dcOptions = dcOptions;
+    }
+
+    public String getDcUsername() {
+        return dcUsername;
+    }
+
+    public void setDcUsername(String dcUsername) {
+        this.dcUsername = dcUsername;
+    }
+
+    public String getDcPassword() {
+        return dcPassword;
+    }
+
+    public void setDcPassword(String dcPassword) {
+        this.dcPassword = dcPassword;
+    }
+
+    public String getDcUrl() {
+        return dcUrl;
+    }
+
+    public void setDcUrl(String dcUrl) {
+        this.dcUrl = dcUrl;
+    }
+
+    public String getDcConnectUrl() {
+        return dcConnectUrl;
+    }
+
+    public void setDcConnectUrl(String dcConnectUrl) {
+        this.dcConnectUrl = dcConnectUrl;
+    }
+
+    public String getDcAuthenticationType() {
+        return dcAuthenticationType;
+    }
+
+    public void setDcAuthenticationType(String dcAuthenticationType) {
+        this.dcAuthenticationType = dcAuthenticationType;
+    }
+
+    public Boolean getDcPublished() {
+        return dcPublished;
+    }
+
+    public void setDcPublished(Boolean dcPublished) {
+        this.dcPublished = dcPublished;
     }
 
     public RS_TYPE getRsType() {

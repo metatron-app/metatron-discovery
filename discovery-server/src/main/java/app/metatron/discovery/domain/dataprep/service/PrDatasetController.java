@@ -111,7 +111,7 @@ public class PrDatasetController {
     @RequestMapping(value="", method = RequestMethod.POST)
     public @ResponseBody
     PersistentEntityResource postDataset(
-            @RequestParam String storageType,
+            @RequestParam(value="storageType", required=false, defaultValue="") String storageType,
             @RequestBody Resource<PrDataset> datasetResource,
             PersistentEntityResourceAssembler resourceAssembler
     ) {
@@ -120,6 +120,7 @@ public class PrDatasetController {
 
         try {
             dataset = datasetResource.getContent();
+            this.datasetService.setConnectionInfo(dataset);
             savedDataset = datasetRepository.save(dataset);
             LOGGER.debug(savedDataset.toString());
 

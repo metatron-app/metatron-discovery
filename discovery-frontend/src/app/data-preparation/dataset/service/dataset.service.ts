@@ -156,7 +156,7 @@ export class DatasetService extends AbstractService {
     return this.post(this.API_URL + 'preparationdatasets', datasetHive);
   }
 
-  // 데이터셋  저장 HIVE
+  // 데이터셋  저장 DATABASE
   //public createDatasetJdbc(datasetJdbc: DatasetJdbc) {
   public createDatasetJdbc(datasetJdbc: PrDatasetJdbc) {
   /*
@@ -165,7 +165,15 @@ export class DatasetService extends AbstractService {
     }
     */
     console.info('datasetJdbc', datasetJdbc);
-    return this.post(this.API_URL + 'preparationdatasets', datasetJdbc);
+
+    let params = {};
+    for (var i in datasetJdbc) {
+      if(i==='dataconnection') { continue; }
+      params[i] = datasetJdbc[i];
+    }
+
+    //return this.post(this.API_URL + 'preparationdatasets', datasetJdbc);
+    return this.post(this.API_URL + 'preparationdatasets', params);
   }
 
   // 데이터셋  저장

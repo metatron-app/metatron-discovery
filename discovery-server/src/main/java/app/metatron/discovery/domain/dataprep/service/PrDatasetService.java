@@ -291,4 +291,24 @@ public class PrDatasetService {
 
     }
 
+    public void setConnectionInfo(PrDataset dataset) throws PrepException {
+        String dcId = dataset.getDcId();
+        if(null!=dcId) {
+            DataConnection dataConnection = this.dataConnectionRepository.getOne(dcId);
+
+            dataset.setDcName(dataConnection.getName());
+            dataset.setDcDesc(dataConnection.getDescription());
+            dataset.setDcImplementor(dataConnection.getImplementor());
+            dataset.setDcOptions(dataConnection.getOptions());
+            dataset.setDcType(dataConnection.getType().name());
+            dataset.setDcAuthenticationType(dataConnection.getAuthenticationType().name());
+            dataset.setDcHostname(dataConnection.getHostname());
+            dataset.setDcPort(dataConnection.getPort());
+            dataset.setDcUsername(dataConnection.getUsername());
+            dataset.setDcPassword(dataConnection.getPassword());
+            dataset.setDcUrl(dataConnection.getUrl());
+            dataset.setDcConnectUrl(dataConnection.getConnectUrl());
+            dataset.setDcPublished(dataConnection.getPublished());
+        }
+    }
 }
