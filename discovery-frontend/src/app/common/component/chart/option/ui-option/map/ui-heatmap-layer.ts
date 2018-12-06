@@ -12,22 +12,16 @@
  * limitations under the License.
  */
 
-import { ShelfType } from '../../../../common/component/chart/option/define/common';
-import { GeoField } from '../field/geo-field';
-
 /**
- * map shelf
+ * heatmap layer
  */
-export class Shelf {
+import { UILayers } from './ui-layers';
 
-  // shelf type
-  public type: ShelfType;
+export interface UIHeatmapLayer extends UILayers {
 
-  // Layers
-  public layers: [GeoField[]];
+  // Blur value (0~100), default 20
+  blur?: number;
 
-  constructor() {
-    this.type = ShelfType.GEO;
-    this.layers = [[]];
-  }
+  // Radius value (0~100), default 20
+  radius?: number;
 }

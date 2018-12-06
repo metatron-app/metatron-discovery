@@ -57,6 +57,7 @@ import { RoleSchemaComponent } from '../workspace/component/permission/role-sche
 import { ColorPickerComponent } from './component/color-picker/color.picker.component';
 import { GradationGeneratorComponent } from './component/gradation/gradation-generator.component';
 import { DashboardDatasourceComboComponent } from '../dashboard/component/dashboard-datasource-combo.component';
+import { ColorTemplateComponent } from './component/color-picker/color-template.component';
 
 
 @NgModule({
@@ -101,7 +102,8 @@ import { DashboardDatasourceComboComponent } from '../dashboard/component/dashbo
     PermissionSchemaChangeComponent,
     ColorPickerComponent,
     GradationGeneratorComponent,
-    DashboardDatasourceComboComponent
+    DashboardDatasourceComboComponent,
+    ColorTemplateComponent
   ],
   exports: [
     AngularCommonModule,
@@ -143,7 +145,8 @@ import { DashboardDatasourceComboComponent } from '../dashboard/component/dashbo
     PermissionSchemaChangeComponent,
     ColorPickerComponent,
     GradationGeneratorComponent,
-    DashboardDatasourceComboComponent
+    DashboardDatasourceComboComponent,
+    ColorTemplateComponent
   ],
   providers: [
     {
