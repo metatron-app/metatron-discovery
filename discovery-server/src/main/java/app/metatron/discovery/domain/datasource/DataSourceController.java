@@ -28,11 +28,39 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.common.CommonLocalVariable;
+import app.metatron.discovery.common.criteria.ListCriterion;
+import app.metatron.discovery.common.criteria.ListFilter;
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.entity.SearchParamValidator;
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.CollectionPatch;
+import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.datasource.data.DataSourceValidator;
+import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
+import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
+import app.metatron.discovery.domain.datasource.format.DateTimeFormatChecker;
+import app.metatron.discovery.domain.datasource.ingestion.*;
+import app.metatron.discovery.domain.datasource.ingestion.job.IngestionJobRunner;
+import app.metatron.discovery.domain.engine.EngineIngestionService;
+import app.metatron.discovery.domain.engine.EngineLoadService;
+import app.metatron.discovery.domain.engine.EngineQueryService;
+import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
+import app.metatron.discovery.domain.workbench.WorkbenchProperties;
+import app.metatron.discovery.domain.workbook.configurations.Limit;
+import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
+import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.util.CsvProcessor;
+import app.metatron.discovery.util.ExcelProcessor;
+import app.metatron.discovery.util.PolarisUtils;
+import app.metatron.discovery.util.ProjectionUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -54,61 +82,18 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
-
-import app.metatron.discovery.common.CommonLocalVariable;
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.entity.SearchParamValidator;
-import app.metatron.discovery.common.exception.BadRequestException;
-import app.metatron.discovery.common.exception.MetatronException;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.CollectionPatch;
-import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.data.DataSourceValidator;
-import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
-import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
-import app.metatron.discovery.domain.datasource.format.DateTimeFormatChecker;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionDataResultResponse;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionOption;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionProjections;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionService;
-import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.job.IngestionJobRunner;
-import app.metatron.discovery.domain.engine.EngineIngestionService;
-import app.metatron.discovery.domain.engine.EngineLoadService;
-import app.metatron.discovery.domain.engine.EngineQueryService;
-import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
-import app.metatron.discovery.domain.workbench.WorkbenchProperties;
-import app.metatron.discovery.domain.workbook.configurations.Limit;
-import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
-import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.util.CsvProcessor;
-import app.metatron.discovery.util.ExcelProcessor;
-import app.metatron.discovery.util.PolarisUtils;
-import app.metatron.discovery.util.ProjectionUtils;
 
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_COMMON_ERROR;
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_ENGINE_GET_TASK_LOG_ERROR;
@@ -917,6 +902,101 @@ public class DataSourceController {
     return ResponseEntity.ok(resultResponse);
   }
 
+  @RequestMapping(value = "/datasources/filter", method = RequestMethod.POST)
+  public @ResponseBody ResponseEntity<?> filterDataSources(@RequestBody DataSourceFilterRequest request,
+                                                           Pageable pageable,
+                                                           PersistentEntityResourceAssembler resourceAssembler) {
+
+    List<String> statuses = request == null ? null : request.getStatus();
+    List<String> workspaces = request == null ? null : request.getWorkspace();
+    List<String> createdBys = request == null ? null : request.getCreatedBy();
+    List<String> userGroups = request == null ? null : request.getUserGroup();
+    List<String> dataSourceTypes = request == null ? null : request.getDataSourceType();
+    List<String> sourceTypes = request == null ? null : request.getSourceType();
+    List<String> connectionTypes = request == null ? null : request.getConnectionType();
+    DateTime createdTimeFrom = request == null ? null : request.getCreatedTimeFrom();
+    DateTime createdTimeTo = request == null ? null : request.getCreatedTimeTo();
+    DateTime modifiedTimeFrom = request == null ? null : request.getModifiedTimeFrom();
+    DateTime modifiedTimeTo = request == null ? null : request.getModifiedTimeTo();
+    String containsText = request == null ? null : request.getContainsText();
+    List<Boolean> published = request == null ? null : request.getPublished();
+
+    LOGGER.debug("Parameter (status) : {}", statuses);
+    LOGGER.debug("Parameter (workspace) : {}", workspaces);
+    LOGGER.debug("Parameter (createdBy) : {}", createdBys);
+    LOGGER.debug("Parameter (userGroup) : {}", userGroups);
+    LOGGER.debug("Parameter (dataSourceType) : {}", dataSourceTypes);
+    LOGGER.debug("Parameter (sourceType) : {}", sourceTypes);
+    LOGGER.debug("Parameter (connectionType) : {}", connectionTypes);
+    LOGGER.debug("Parameter (createdTimeFrom) : {}", createdTimeFrom);
+    LOGGER.debug("Parameter (createdTimeTo) : {}", createdTimeTo);
+    LOGGER.debug("Parameter (modifiedTimeFrom) : {}", modifiedTimeFrom);
+    LOGGER.debug("Parameter (modifiedTimeTo) : {}", modifiedTimeTo);
+    LOGGER.debug("Parameter (containsText) : {}", containsText);
+    LOGGER.debug("Parameter (published) : {}", published);
+
+
+    // Validate status
+    List<DataSource.Status> statusEnumList
+            = request.getEnumList(statuses, DataSource.Status.class, "status");
+
+    // Validate DataSourceType
+    List<DataSource.DataSourceType> dataSourceTypeEnumList
+            = request.getEnumList(dataSourceTypes, DataSource.DataSourceType.class, "dataSourceType");
+
+    // Validate ConnectionType
+    List<DataSource.ConnectionType> connectionTypeEnumList
+            = request.getEnumList(connectionTypes, DataSource.ConnectionType.class, "connectionType");
+
+    // Validate SourceType
+    List<DataSource.SourceType> sourceTypeEnumList
+            = request.getEnumList(sourceTypes, DataSource.SourceType.class, "sourceType");
+
+    // Validate createdTimeFrom, createdTimeTo
+    SearchParamValidator.range(null, createdTimeFrom, createdTimeTo);
+
+    // Validate modifiedTimeFrom, modifiedTimeTo
+    SearchParamValidator.range(null, modifiedTimeFrom, modifiedTimeTo);
+
+    // 기본 정렬 조건 셋팅
+    if (pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {
+      pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(),
+              new Sort(Sort.Direction.DESC, "createdTime", "name"));
+    }
+
+    Page<DataSource> dataSources = dataSourceService.findDataSourceListByFilter(
+            statusEnumList, workspaces, createdBys, userGroups, createdTimeFrom, createdTimeTo, modifiedTimeFrom,
+            modifiedTimeTo, containsText, dataSourceTypeEnumList, sourceTypeEnumList, connectionTypeEnumList, published, pageable
+    );
+
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(dataSources, resourceAssembler));
+  }
+
+  @RequestMapping(value = "/datasources/criteria", method = RequestMethod.GET)
+  public ResponseEntity<?> getCriteria() {
+    List<ListCriterion> listCriteria = dataSourceService.getListCriterion();
+    List<ListFilter> defaultFilter = dataSourceService.getDefaultFilter();
+
+    HashMap<String, Object> response = new HashMap<>();
+    response.put("criteria", listCriteria);
+    response.put("defaultFilters", defaultFilter);
+
+    return ResponseEntity.ok(response);
+  }
+
+  @RequestMapping(value = "/datasources/criteria/{criterionKey}", method = RequestMethod.GET)
+  public ResponseEntity<?> getCriterionDetail(@PathVariable(value = "criterionKey") String criterionKey) {
+
+    DataSourceListCriterionKey criterionKeyEnum = DataSourceListCriterionKey.valueOf(criterionKey);
+
+    if(criterionKeyEnum == null){
+      throw new ResourceNotFoundException("Criterion(" + criterionKey + ") is not founded.");
+    }
+
+    ListCriterion criterion = dataSourceService.getListCriterionByKey(criterionKeyEnum);
+    return ResponseEntity.ok(criterion);
+  }
+
   class TimeFormatCheckResponse {
 
     Boolean valid;
@@ -946,5 +1026,4 @@ public class DataSourceController {
       this.pattern = pattern;
     }
   }
-
 }

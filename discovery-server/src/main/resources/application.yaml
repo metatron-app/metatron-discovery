@@ -4,7 +4,7 @@
 # --polaris.analyze.pivot=false --polaris.analyze.forward=JSON
 spring:
   profiles:
-    active: local,h2-default-db,logging-console-debug,spark-local-yarn,scheduling # cloud-local #, initial #, bcrypt-encoder, encode-password-initial
+    active: local,h2-default-db,logging-console-debug,spark-local-yarn,scheduling # cloud-local #, initial #, bcrypt-encoder, encode-password-initial, datasource-filter-sample
   application:
     name: ${METATRON_NAME:metatron}
   datasource:
@@ -250,7 +250,7 @@ polaris:
   workbench:
     defaultResultSize: 1000
     maxResultSize: 1000000
-    maxFetchSize: 10000
+    maxFetchSize: 1000
     tempHdfsPath: /tmp/hive
     tempCSVPath: /tmp
   geoserver:
@@ -413,3 +413,23 @@ polaris:
 ---
 spring:
   profiles: encode-password-initial
+
+---
+spring:
+  profiles: datasource-filter-sample
+polaris:
+  datasource:
+    default-filters:
+      - criterionKey: CREATOR
+        filterKey: createdBy
+        filterValue: me
+      - criterionKey: PUBLISH
+        filterKey: published
+        filterValue: true
+        filterName: msg.storage.ui.criterion.open-data
+  connections:
+    default-filters:
+      - criterionKey: PUBLISH
+        filterKey: published
+        filterValue: true
+        filterName: msg.storage.ui.criterion.open-data
