@@ -29,7 +29,7 @@ import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid
 import {FilterUtil} from '../../dashboard/util/filter.util';
 import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
 import {Dashboard} from '../../domain/dashboard/dashboard';
-import { Datasource, Field } from '../../domain/datasource/datasource';
+import { Datasource, Field, LogicalType } from '../../domain/datasource/datasource';
 import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
 import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
 import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
@@ -47,6 +47,8 @@ import {Limit} from "../../domain/workbook/configurations/limit";
 import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
 import {CommonConstant} from "../../common/constant/common.constant";
 import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
+import { UITileLayer } from '../../common/component/chart/option/ui-option/map/ui-tile-layer';
+import { MapLayerType } from '../../common/component/chart/option/define/map/map-common';
 
 @Injectable()
 export class DatasourceService extends AbstractService {
