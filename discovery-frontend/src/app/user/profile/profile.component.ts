@@ -406,9 +406,9 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     // 초기화
     this.user = new User();
     // email flag
-    this.resultEmail = undefined;
+    this.resultEmail = true;
     // name flag
-    this.resultName = undefined;
+    this.resultName = true;
   }
 
   /**
