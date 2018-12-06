@@ -657,7 +657,8 @@ public class ComputationalField {
       } else if ("countof".equals(context.IDENTIFIER().getText().toLowerCase())) {
         aggregations.add(new CountAggregation(paramName));
       } else if ("countd".equals(context.IDENTIFIER().getText().toLowerCase())) {
-        aggregations.add(new DistinctSketchAggregation(fieldName, fieldExpression.replaceAll("^\"|\"$", ""), 65536L, false));
+        // if you shouldFinalize to false, this route's return includes .estimation value. So you may need to modify UI code.
+        aggregations.add(new DistinctSketchAggregation(fieldName, fieldExpression.replaceAll("^\"|\"$", ""), 65536L, true));
         paramName = null;
         Map<String, Object> processingMap = Maps.newHashMap();
         processingMap.put("type", "sketch.estimate");
