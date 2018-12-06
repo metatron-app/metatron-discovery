@@ -400,7 +400,11 @@ export enum FieldRole {
 export enum FieldPivot {
   ROWS = <any>'ROWS',
   COLUMNS = <any>'COLUMNS',
-  AGGREGATIONS = <any>'AGGREGATIONS'
+  AGGREGATIONS = <any>'AGGREGATIONS',
+  // temp, for map chart
+  MAP_LAYER0 = <any>'MAP_LAYER0',
+  MAP_LAYER1 = <any>'MAP_LAYER1',
+  MAP_LAYER2 = <any>'MAP_LAYER2'
 }
 
 /**

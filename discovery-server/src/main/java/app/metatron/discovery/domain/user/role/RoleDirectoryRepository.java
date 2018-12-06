@@ -14,11 +14,12 @@
 
 package app.metatron.discovery.domain.user.role;
 
+import app.metatron.discovery.domain.user.DirectoryProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import app.metatron.discovery.domain.user.DirectoryProfile;
+import java.util.List;
 
 /**
  * Created by kyungtaak on 2016. 1. 7..
@@ -29,5 +30,7 @@ public interface RoleDirectoryRepository extends JpaRepository<RoleDirectory, Lo
     QueryDslPredicateExecutor<RoleDirectory> {
 
   RoleDirectory findByRoleAndTypeAndDirectoryId(Role role, DirectoryProfile.Type type, String directoryId);
+
+  List<RoleDirectory> findByTypeAndRoleId(DirectoryProfile.Type type, String roleId);
 
 }

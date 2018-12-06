@@ -455,11 +455,20 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
    */
   private _createDataset(params : object) {
 
-    let tableInfo = this.datasetHive.tableInfo;
-    let sqlInfo = this.datasetHive.sqlInfo;
+    let type = this.type === 'DB' ? this.datasetJdbc : this.datasetHive;
 
-    delete this.datasetHive.tableInfo;
-    delete this.datasetHive.sqlInfo;
+    let tableInfo = type.tableInfo;
+    let sqlInfo = type.sqlInfo;
+
+    // delete - only use in UI
+    delete type.tableInfo;
+    delete type.sqlInfo;
+
+
+    // Error when creating dataflow with dataset with no querystmt
+    if (this.type !== 'FILE' && type.rsType === RsType.TABLE) {
+      params['queryStmt'] = `select * from ${tableInfo.databaseName}.${tableInfo.tableName};`;
+    }
 
     this.datasetService.createDataSet(params).then((result) => {
 
@@ -470,6 +479,11 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
       this.datasetHive.tableInfo = tableInfo;
       this.datasetHive.sqlInfo = sqlInfo;
+
+      // Error when creating dataflow with dataset with no querystmt
+      if (this.type !== 'FILE' && type.rsType === RsType.TABLE) {
+        delete params['queryStmt'];
+      }
 
       this.loadingHide();
       this.errorAction(error);

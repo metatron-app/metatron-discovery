@@ -42,7 +42,7 @@ export class SearchQueryRequest {
   pivot: Pivot;
 
   /**
-   * Column/Row 관련 정보
+   * map shelf info
    */
   shelf: Shelf;
 

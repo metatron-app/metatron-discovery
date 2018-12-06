@@ -97,10 +97,10 @@ import { UICombineChart } from '../ui-option/ui-combine-chart';
 import { UIPieChart } from '../ui-option/ui-pie-chart';
 import { UIRadarChart } from '../ui-option/ui-radar-chart';
 
-import { UILayers } from '../ui-option/map/ui-layers';
-
 import { CustomSymbol } from '../../../../../domain/workbook/configurations/format';
 import { UIChartAxisLabel, UIChartAxisLabelCategory, UIChartAxisLabelValue } from '../ui-option/ui-axis';
+import {MapLineStyle, MapThickness, MapType} from '../define/map/map-common';
+import { UIMapOption } from '../ui-option/map/ui-map-chart';
 
 export namespace OptionGenerator {
 
@@ -2010,107 +2010,41 @@ export namespace OptionGenerator {
      *
      * @returns {UIOption}
      */
-    export function defaultMapViewChartUIOption(): UIOption {
-      return {
+    export function defaultMapViewChartUIOption(): UIMapOption {
+      return <any>{
         type: ChartType.MAP,
+        layerNum: 0,
         showMapLayer: true,
-        map: "Light",
-        licenseNotation: "© OpenStreetMap contributer",
+        map: MapType.OSM,
+        style: 'Light',
+        licenseNotation: "© OpenStreetMap contributors",
         showDistrictLayer: true,
         districtUnit: "state",
         layers: [
           {
             type: "symbol",
             name: "Layer1",
-            symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
+            symbol: "CIRCLE",        // CIRCLE, SQUARE, TRIANGLE
             color: {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
-              schema: "#602663",
-              transparency: 80
+              schema: "#6344ad",
+              transparency: 10
             },
             size: {
               "by": "NONE",
-              "column": "NONE"
-            },
-            thickness: {
-              "by": "NONE",
               "column": "NONE",
-              "maxValue": 10
+              "max": 10
             },
-            outline: {
-              "color": "#000000",
-              "thickness": "NONE"              // THIN, NORMAL, THICK
-            },
-            clustering: false,
-            viewRawData: false,
-            shape: "HEXAGON",
-            coverage: 8,
-            blur: 10,
-            radius: 10,
-            pathType: "STRAIGHT"
-          },
-          {
-            type: "symbol",
-            name: "Layer2",
-            symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
-            color: {
-              by: "NONE",            // NONE, MEASURE, DIMENSION
+            outline: null,
+            clustering: true,
+            coverage: 50,
+            thickness: {
+              by: "NONE",
               column: "NONE",
-              schema: "#888fb4",
-              transparency: 80
+              maxValue: 2
             },
-            size: {
-              "by": "NONE",
-              "column": "NONE"
-            },
-            thickness: {
-              "by": "NONE",
-              "column": "NONE",
-              "maxValue": 10
-            },
-            outline: {
-              "color": "#000000",
-              "thickness": "NONE"              // THIN, NORMAL, THICK
-            },
-            clustering: false,
-            viewRawData: false,
-            shape: "HEXAGON",
-            coverage: 8,
-            blur: 10,
-            radius: 10,
-            pathType: "STRAIGHT"
-          },
-          {
-            type: "symbol",
-            name: "Layer3",
-            symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
-            color: {
-              by: "NONE",            // NONE, MEASURE, DIMENSION
-              column: "NONE",
-              schema: "#bccada",
-              transparency: 80
-            },
-            size: {
-              "by": "NONE",
-              "column": "NONE"
-            },
-            thickness: {
-              "by": "NONE",
-              "column": "NONE",
-              "maxValue": 10
-            },
-            outline: {
-              "color": "#000000",
-              "thickness": "NONE"              // THIN, NORMAL, THICK
-            },
-            clustering: false,
-            viewRawData: false,
-            shape: "HEXAGON",
-            coverage: 8,
-            blur: 10,
-            radius: 10,
-            pathType: "STRAIGHT"
+            lineStyle: MapLineStyle.SOLID
           }
         ],
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true),
@@ -2118,6 +2052,31 @@ export namespace OptionGenerator {
           pos: UIPosition.RIGHT_BOTTOM,
           showName: true,
           auto: true
+        },
+        toolTip: {
+          displayColumns: [],
+          displayTypes: [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "LAYER_NAME",
+            "LOCATION_INFO",
+            "DATA_VALUE"
+          ]
         }
       };
     }

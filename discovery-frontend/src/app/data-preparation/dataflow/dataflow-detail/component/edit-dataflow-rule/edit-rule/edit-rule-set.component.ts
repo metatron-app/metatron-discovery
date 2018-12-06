@@ -102,13 +102,13 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
       this.inputValue = this.ruleConditionInputComponent['_results'][0].getCondition();
       let val = _.cloneDeep(this.inputValue);
       if (isUndefined(val) || '' === val.trim()) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
+        Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
         return undefined;
       }
       if (!isUndefined(val)) {
         let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
         if (check[0] === false) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.check.value'));
+          Alert.warning(this.translateService.instant('msg.dp.alert.check.expression'));
           return undefined;
         } else {
           val = check[1];
@@ -201,13 +201,12 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
       let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-      this.inputValue = data.ruleString.split('value: ')[1];
-
       if (data.jsonRuleString.row) {
         let row = data.ruleString.split('row: ');
         this.condition = row[1];
-
         this.inputValue = row[0].split('value: ')[1];
+      } else {
+        this.inputValue = data.ruleString.split('value: ')[1];
       }
     } else {
       if (data.jsonRuleString.condition) {

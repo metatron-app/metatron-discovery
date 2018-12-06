@@ -33,7 +33,7 @@
           </div>
           <!-- 선택시 ddp-selected 추가 -->
           <div class="ddp-view-option ddp-fright ddp-selected">
-            <input type="text" value="{{getColumnDataLength()}}" readonly="readonly">
+            <span>{{getColumnDataList().length}}</span>
             {{'msg.storage.ui.row' | translate}}
           </div>
         </div>
@@ -42,8 +42,11 @@
           <li class="ddp-data-none" *ngIf="columnData.length === 0">
             {{(column.derived && column.derivationRule.type !== 'user_defined' ? 'msg.storage.ui.config.no.data' : 'msg.storage.ui.config.extension.no.data') | translate}}
           </li>
-          <li *ngFor="let data of columnData">
+          <li *ngFor="let data of getColumnDataList()">
             {{data}}
+          </li>
+          <li class="ddp-data-none" *ngIf="columnData.length !== 0">
+            {{'msg.storage.ui.schema.column.rows.desc' | translate}}
           </li>
         </ul>
         <!-- //list value -->

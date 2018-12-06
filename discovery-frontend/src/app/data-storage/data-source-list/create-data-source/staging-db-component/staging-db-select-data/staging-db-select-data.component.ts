@@ -570,7 +570,14 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
         this.updateGrid(result['data'], result['fields']);
       })
       .catch((error) => {
-        this.commonExceptionHandler(error);
+        if (error.code && error.code === 'error.dataconnection.stagedb.preview.table') {
+          // loading hide
+          this.loadingHide();
+          // grid hide
+          this.clearGrid = true;
+        } else {
+          this.commonExceptionHandler(error);
+        }
       });
   }
 

@@ -468,8 +468,8 @@
                   <span *ngIf="getIngestionPeriod.frequency === 'EXPR'">{{getIngestionPeriod.value}}</span>
                   <a href="javascript:" class="ddp-link-detail" (click)="batchHistoryOpen()"> {{'msg.storage.ui.batch-history'| translate }} &gt;</a>
                 </li>
-                <li *ngIf="getIngestionSize">
-                  {{'msg.storage.th.max-query-row' | translate}} : {{getIngestionSize}}
+                <li *ngIf="getIngestion.maxLimit">
+                  {{'msg.storage.th.max-query-row' | translate}} : {{getIngestion.maxLimit}}
                 </li>
               </ul>
               <!-- //Engine 형 -->

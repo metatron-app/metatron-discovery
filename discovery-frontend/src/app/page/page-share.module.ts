@@ -24,11 +24,11 @@ import { PageFilterPanel } from './filter/filter-panel.component';
 import { DashboardService } from '../dashboard/service/dashboard.service';
 import { DragulaModule } from '../../lib/ng2-dragula';
 import { PageDataContextComponent } from './page-data/page-data-context.component';
-import {FormatItemComponent} from "./chart-style/format/format-item.component";
+import { FormatItemComponent } from './chart-style/format/format-item.component';
 import { DataPreviewModule } from '../common/data.preview.module';
 import { AnalysisModule } from './component/analysis/analysis.module';
 import { PopupValueAliasComponent } from './page-pivot/popup-value-alias.component';
-import {PageComponent} from "./page.component";
+import { PageComponent } from './page.component';
 import { CommonOptionComponent } from './chart-style/common-option.component';
 import { DataLabelOptionComponent } from './chart-style/datalabel-option.component';
 import { FormatOptionComponent } from './chart-style/format-option.component';
@@ -41,16 +41,15 @@ import { SplitOptionComponent } from './chart-style/split-option.component';
 import { AxisValueOptionComponent } from './chart-style/axis-value-option.component';
 import { AxisCategoryOptionComponent } from './chart-style/axis-category-option.component';
 import { CalculatedRowOptionComponent } from './chart-style/calrow-option.component';
-import {SecondaryIndicatorComponent} from "./chart-style/secondary-indicator.component";
+import { SecondaryIndicatorComponent } from './chart-style/secondary-indicator.component';
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
-import {MapPagePivotComponent} from "./page-pivot/map/map-page-pivot.component";
-import {MapLayerOptionComponent} from "./chart-style/map/map-layer-option.component";
-import {MapLayerOptionComponent2} from "./chart-style/map/map-layer-option2.component";
-import {MapLayerOptionComponent3} from "./chart-style/map/map-layer-option3.component";
-import {MapLegendOptionComponent} from "./chart-style/map/map-legend-option.component";
-import {MapFormatOptionComponent} from "./chart-style/map/map-format-option.component";
-import {MapTooltipOptionComponent} from "./chart-style/map/map-tooltip-option.component";
-import {MapCommonOptionComponent} from "./chart-style/map/map-common-option.component";
+import { MapPagePivotComponent } from './page-pivot/map/map-page-pivot.component';
+import { MapLayerOptionComponent } from './chart-style/map/map-layer-option.component';
+import { MapLegendOptionComponent } from './chart-style/map/map-legend-option.component';
+import { MapFormatOptionComponent } from './chart-style/map/map-format-option.component';
+import { MapTooltipOptionComponent } from './chart-style/map/map-tooltip-option.component';
+import { MapCommonOptionComponent } from './chart-style/map/map-common-option.component';
+import { PivotContextComponent } from './page-pivot/pivot-context.component';
 
 @NgModule({
   imports: [
@@ -84,11 +83,10 @@ import {MapCommonOptionComponent} from "./chart-style/map/map-common-option.comp
     MapPagePivotComponent,
     MapCommonOptionComponent,
     MapLayerOptionComponent,
-    MapLayerOptionComponent2,
-    MapLayerOptionComponent3,
     MapLegendOptionComponent,
+    MapTooltipOptionComponent,
     MapFormatOptionComponent,
-    MapTooltipOptionComponent
+    PivotContextComponent,
   ],
   providers: [
     DatasourceService,

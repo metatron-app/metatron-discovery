@@ -155,12 +155,18 @@ export class WorkbenchService extends AbstractService {
    *****************************************/
 
   // 쿼리 실행
-  public runSingleQueryWithInvalidQuery(params: QueryEditor) {
+  public runSingleQueryWithInvalidQuery(params: QueryEditor, additional: any) {
     const id = params.editorId;
     const param = {
       query: params.query,
-      webSocketId: params.webSocketId
+      webSocketId: params.webSocketId,
+      runIndex: additional.runIndex
     };
+
+    if(additional.retryQueryResultOrder) {
+      param['retryQueryResultOrder'] = additional.retryQueryResultOrder;
+    }
+
     return this.post(this.API_URL + `queryeditors/${id}/query/run`, param); // params => query  값만 사용.
   }
 

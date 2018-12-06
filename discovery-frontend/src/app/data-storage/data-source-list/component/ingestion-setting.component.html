@@ -67,9 +67,9 @@
               </label>
               <!-- single -->
               <ng-container *ngIf="selectedIngestionType.value === 'single'">
-                <div class="ddp-box-option-input ddp-inline">
+                <div class="ddp-box-option-input ddp-inline type-row">
                   <input type="text" placeholder="10,000"
-                         input-mask="sep-number" class="ddp-txt-right"
+                         input-mask="number" class="ddp-txt-right"
                          [disabled]="selectedIngestionScopeType.value !== 'ROW'"
                          [(ngModel)]="ingestionOnceRow">
                   <span class="ddp-txt-input">rows</span>
@@ -178,7 +178,7 @@
             <label class="ddp-label-type">{{'msg.storage.th.max-query-row' | translate}}</label>
             <div class="ddp-option-in ddp-inline">
               <input type="text" class="ddp-input-typebasic ddp-size-sm ddp-txt-right" placeholder="10,000"
-                     input-mask="sep-number"
+                     input-mask="number"
                      [(ngModel)]="ingestionPeriodRow">
               <div class="ddp-txt-error" *ngIf="isMaxRowOverValue('ingestionPeriodRow', 5000000)">
                 <em class="ddp-icon-error-s"></em>{{'msg.storage.ui.max.row.error' | translate : {value: '5,000,000'} }}
@@ -195,24 +195,25 @@
     <!-- Timestamp settings -->
     <div class="ddp-wrap-edit2 ddp-type">
       <label class="ddp-label-type ddp-bold">{{'msg.storage.th.gran.settings' | translate}}</label>
-
       <!-- Partition (staging) -->
-      <div class="ddp-ui-option-sub" *ngIf="createType === 'STAGING'">
+      <div class="ddp-ui-option-sub" *ngIf="createType === 'STAGING' && partitionKeyList.length !== 0">
         <label class="ddp-ui-label-name">
           {{'msg.storage.ui.dsource.create.partition.keys' | translate}}
         </label>
         <div class="ddp-ui-edit-option">
-          <label class="ddp-label-radio" (change)="onChangePartitionType(partitionTypeList[0])">
-            <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[0].value" [disabled]="partitionKeyList.length !== 0 && isStrictMode">
-            <i class="ddp-icon-radio"></i>
-            <span class="ddp-txt-radio">{{partitionTypeList[0].label}}</span>
-          </label>
-
-          <label class="ddp-label-radio ddp-mgr0" (change)="onChangePartitionType(partitionTypeList[1])">
-            <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[1].value" [disabled]="partitionKeyList.length === 0">
-            <i class="ddp-icon-radio"></i>
-            <span class="ddp-txt-radio">{{partitionTypeList[1].label}}</span>
-          </label>
+          <!-- not strict mode, show partition radio button -->
+          <ng-container *ngIf="!isStrictMode">
+            <label class="ddp-label-radio" (change)="onChangePartitionType(partitionTypeList[0])">
+              <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[0].value">
+              <i class="ddp-icon-radio"></i>
+              <span class="ddp-txt-radio">{{partitionTypeList[0].label}}</span>
+            </label>
+            <label class="ddp-label-radio ddp-mgr0" (change)="onChangePartitionType(partitionTypeList[1])">
+              <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[1].value">
+              <i class="ddp-icon-radio"></i>
+              <span class="ddp-txt-radio">{{partitionTypeList[1].label}}</span>
+            </label>
+          </ng-container>
           <!-- info -->
           <div class="ddp-wrap-hover-info ddp-type">
             <em class="ddp-icon-info3"></em>
