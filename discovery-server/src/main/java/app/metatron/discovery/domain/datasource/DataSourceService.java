@@ -313,8 +313,8 @@ public class DataSourceService {
             ListCriterionType.RANGE_DATETIME, "msg.storage.ui.criterion.modified-time"));
     moreCriterion.addSubCriterion(new ListCriterion(DataSourceListCriterionKey.CONNECTION_TYPE,
             ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.connection-type"));
-    moreCriterion.addSubCriterion(new ListCriterion(DataSourceListCriterionKey.DATASOURCE_TYPE,
-            ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.ds-type"));
+//    moreCriterion.addSubCriterion(new ListCriterion(DataSourceListCriterionKey.DATASOURCE_TYPE,
+//            ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.ds-type"));
     moreCriterion.addSubCriterion(new ListCriterion(DataSourceListCriterionKey.SOURCE_TYPE,
             ListCriterionType.CHECKBOX, "msg.storage.ui.criterion.source-type"));
     criteria.add(moreCriterion);
@@ -338,14 +338,14 @@ public class DataSourceService {
       case STATUS:
         for(DataSource.Status status : DataSource.Status.values()){
           String filterName = status.toString();
-          filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
+//          filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
           criterion.addFilter(new ListFilter(criterionKey, "status", status.toString(), filterName));
         }
         break;
       case DATASOURCE_TYPE:
         for(DataSource.DataSourceType dataSourceType : DataSource.DataSourceType.values()){
           String filterName = dataSourceType.toString();
-          filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
+//          filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
           criterion.addFilter(new ListFilter(criterionKey, "dataSourceType",
                   dataSourceType.toString(), filterName));
         }
@@ -353,7 +353,7 @@ public class DataSourceService {
       case SOURCE_TYPE:
         for(DataSource.SourceType sourceType : DataSource.SourceType.values()){
           String filterName = sourceType.toString();
-          filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
+//          filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
           criterion.addFilter(new ListFilter(criterionKey, "sourceType",
                   sourceType.toString(), filterName));
         }
@@ -361,7 +361,7 @@ public class DataSourceService {
       case CONNECTION_TYPE:
         for(DataSource.ConnectionType connectionType : DataSource.ConnectionType.values()){
           String filterName = connectionType.toString();
-          filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
+//          filterName = filterName.substring(0, 1).toUpperCase() + filterName.substring(1).toLowerCase();
           criterion.addFilter(new ListFilter(criterionKey, "connectionType",
                   connectionType.toString(), filterName));
         }

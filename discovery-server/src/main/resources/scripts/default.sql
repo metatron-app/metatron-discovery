@@ -105,7 +105,7 @@ INSERT INTO role_perm(ROLE_ID, PERM_ID) VALUES
 
 -- Workspace
 INSERT INTO workspace(id, ws_name, ws_owner_id, ws_pub_type, ws_desc, ws_published, version, created_time, created_by, modified_time, modified_by) VALUES
-('ws-00', 'Admin workspace', 'admin', 'PRIVATE', '', FALSE, 1.0, NOW(), 'admin',  NOW(), 'admin'),
+('ws-00', 'Admin Workspace', 'admin', 'PRIVATE', '', FALSE, 1.0, NOW(), 'admin',  NOW(), 'admin'),
 ('ws-02', 'Polaris Workspace', 'polaris', 'PRIVATE', '', NULL, 1.0, NOW(), 'admin',  NOW(), 'admin'),
 ('ws-05', 'Metatron Workspace', 'metatron', 'PRIVATE', '', FALSE, 1.0, NOW(), 'admin',  NOW(), 'admin'),
 ('ws-03', 'Shared Workspace', 'polaris', 'SHARED', '', NULL, 1.0, NOW(), 'polaris',  NOW(), 'polaris'),
