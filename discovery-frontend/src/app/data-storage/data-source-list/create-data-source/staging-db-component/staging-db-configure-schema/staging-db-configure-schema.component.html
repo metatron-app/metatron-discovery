@@ -72,7 +72,7 @@
           <!-- //타입 필터 -->
           <!-- add column -->
           <div class="ddp-wrap-add-column" [class.ddp-selected]="addColumnShowFl" (clickOutside)="addColumnShowFl = false">
-            <a href="javascript:" class="ddp-btn-selection ddp-gray" (click)="onClickAddColumn()"><em class="ddp-icon-add2"></em>Add column</a>
+            <a href="javascript:" class="ddp-btn-selection ddp-gray" (click)="onClickAddColumn()"><em class="ddp-icon-add2"></em>{{'msg.storage.ui.add.column' | translate}}</a>
             <!-- popup -->
             <add-column-component (addedColumn)="onClosedAddColumn($event)"></add-column-component>
             <!-- //popup -->

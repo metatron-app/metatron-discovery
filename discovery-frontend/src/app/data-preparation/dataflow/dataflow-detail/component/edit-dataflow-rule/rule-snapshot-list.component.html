@@ -52,9 +52,9 @@
 
       <!--Cancel popup-->
       <div class="ddp-txt-cancel" *ngIf="snapshot.isCancel">
-        <span class="ddp-txt-det">Sure to cancel snapshot creation?</span>
-        <a href="javascript:" class="ddp-btn-line" (click)="refreshSnapshotList(snapshot)">No</a>
-        <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="cancelSnapshotConfirm(snapshot)">Yes</a>
+        <span class="ddp-txt-det">{{'msg.dp.ui.snapshot.cancel.confirm' | translate }}</span>
+        <a href="javascript:" class="ddp-btn-line" (click)="refreshSnapshotList(snapshot)">{{'msg.dp.ui.no' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="cancelSnapshotConfirm(snapshot)">{{'msg.dp.ui.yes' | translate}}</a>
       </div>
       <!--Cancel popup-->
 

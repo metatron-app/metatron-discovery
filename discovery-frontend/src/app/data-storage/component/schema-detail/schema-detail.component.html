@@ -40,7 +40,7 @@
         <!-- list value -->
         <ul class="ddp-list-value">
           <li class="ddp-data-none" *ngIf="columnData.length === 0">
-            {{(column.derived && column.derivationRule.type !== 'user_defined' ? 'msg.storage.ui.config.no.data' : 'msg.storage.ui.config.extension.no.data') | translate}}
+            {{(column.derived && column.derivationRule.type === 'user_defined' ? 'msg.storage.ui.config.extension.no.data' : 'msg.storage.ui.config.no.data') | translate}}
           </li>
           <li *ngFor="let data of getColumnDataList()">
             {{data}}
