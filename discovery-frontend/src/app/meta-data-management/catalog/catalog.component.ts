@@ -52,7 +52,7 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
   public searchInput: ElementRef;
 
   // 카타로그, 메타데이터 리스트
-  public catalogs : any;
+  public catalogs : Catalog[];
   public metadatas : any;
 
   // 정렬
@@ -155,7 +155,7 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
    */
   public getCatalogList() {
     this.loadingShow();
-    this.catalogService.getTreeCatalogs(this.currentRoot.id).then((result) => {
+    this.catalogService.getTreeCatalogs(this.currentRoot.id).then((result: Catalog[]) => {
       this.loadingHide();
       this.selectedCatalog = new Catalog();
       this.catalogs = result;
@@ -234,27 +234,35 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
    */
   public goBack() {
 
-    this.isCreateCatalog ? this.isCreateCatalog = false : null;
+    // If is creating just close create input
+    if (this.isCreateCatalog) {
+      this.isCreateCatalog = !this.isCreateCatalog;
+    } else {
 
-    if (this.catalogPath.length > 1) {
+      if (this.catalogPath.length > 1) {
 
-      let ids = this.catalogPath.map((item) => {
-        return item.id;
-      });
+        let ids = []
+        this.catalogPath.forEach((item) => {
+          ids.push(item.id);
+        });
 
-      let currentRootId = ids.indexOf(this.currentRoot.id);
+        let currentRootId = ids.indexOf(this.currentRoot.id);
 
-      this.currentRoot = this.catalogPath[currentRootId-1];
-      this.catalogPath.splice(currentRootId,1);
+        this.currentRoot = this.catalogPath[currentRootId-1];
+        this.catalogPath.splice(currentRootId,1);
 
-      if (this.searchText) {
-         this.searchCatalog();
-      } else {
-        this.getCatalogList();
+        if (this.searchText) {
+          this.searchCatalog();
+        } else {
+          this.getCatalogList();
+        }
+
+
       }
 
-
     }
+
+
 
   }
 
@@ -487,5 +495,7 @@ class Order {
 class Catalog {
   name: string;
   id: string;
+  countOfChild?: number;
+  editing?: boolean;
 }
 
