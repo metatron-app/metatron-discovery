@@ -76,7 +76,7 @@
         </li>
 
         <li class="ddp-cursor"
-            [ngClass]="{'ddp-selected':selectedCatalog && selectedCatalog.id === catalog['id'] && !catalog['editing'], 'ddp-box-edit': catalog['editing'], 'ddp-sub':catalog }"
+            [ngClass]="{'ddp-selected':selectedCatalog && selectedCatalog.id === catalog.id && !catalog.editing, 'ddp-box-edit': catalog.editing, 'ddp-sub':catalog }"
             *ngFor="let catalog of catalogs; let index = index"
             (click)="catalogDetail(catalog)"
             (clickOutside)=" cancelEditing(catalog)">
