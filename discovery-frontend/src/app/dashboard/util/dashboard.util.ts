@@ -20,7 +20,7 @@ import {
   Dashboard, JoinMapping,
   LayoutWidgetInfo
 } from '../../domain/dashboard/dashboard';
-import {Datasource, Field, FieldRole} from '../../domain/datasource/datasource';
+import {Datasource, Field, FieldFormatType, FieldRole} from '../../domain/datasource/datasource';
 import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
 import {Filter} from '../../domain/workbook/configurations/filter/filter';
 import {Widget} from '../../domain/dashboard/widget/widget';
@@ -416,6 +416,15 @@ export class DashboardUtil {
   } // function - getFiltersForBoardDataSource
 
   /**
+   * Current Date Time 인지 확인
+   * @param field
+   */
+  public static isCurrentDateTime(field:Field) {
+    return CommonConstant.COL_NAME_CURRENT_DATETIME === field.name
+      && field.role === FieldRole.TIMESTAMP && field.format && field.format.type === FieldFormatType.TEMPORARY_TIME;
+  } // function - isCurrentDateTime
+
+  /**
    * 메인 데이터소스로부터 필드 목록을 얻는다.
    * @param {BoardConfiguration} boardConf
    * @param {string} engineName
@@ -423,9 +432,11 @@ export class DashboardUtil {
    */
   public static getFieldsForMainDataSource(boardConf: BoardConfiguration, engineName: string) {
     return (boardConf.fields) ? boardConf.fields.filter(item => {
-      return item.dataSource === engineName
-        && CommonConstant.COL_NAME_CURRENT_DATETIME !== item.name
-        && FieldRole.TIMESTAMP !== item.role
+      if( item.dataSource === engineName ) {
+        return !DashboardUtil.isCurrentDateTime( item );
+      } else {
+        return false;
+      }
     }) : [];
   } // function - getFieldsForMainDataSource
 

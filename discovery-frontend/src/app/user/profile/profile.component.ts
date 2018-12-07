@@ -174,24 +174,14 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
 
   /** Init */
   public init(user: User) {
-    // ui init
-    this._initView();
-    // user ID
-    this._userId = isNullOrUndefined(user.username) ? '' : user.username.trim();
-    // user email
-    this._userEmail = isNullOrUndefined(user.email) ? '' : user.email.trim();
-    // user name
-    this._userName = isNullOrUndefined(user.fullName) ? '' : user.fullName.trim();
-    // user tel
-    this._userTel = isNullOrUndefined(user.tel) ? '' : user.tel.trim();
-    // user image
-    this._imageUrl = isNullOrUndefined(user.imageUrl) ? '' : user.imageUrl.trim();
+    // 초기화
+    this.user = user ? user : new User();
     // 팝업 show
     this.isShow = true;
     // 팝업시 하단 스크롤 hide
     $("body").css("overflow", "hidden");
     // 유저 profile 정보 조회
-    this._getProfile();
+    this._getProfile(user.id);
   }
 
   /**
@@ -199,7 +189,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
    */
   public done(): void {
     // 프로필 수정이 가능하다면
-    if ((this.isPhoneChanged && this.isEmailChanged && this.isFullNameChanged) && this.doneValidation()) {
+    if ((this.isPhoneChanged || this.isEmailChanged || this.isFullNameChanged) && this.doneValidation()) {
       // 로딩 show
       this.loadingShow();
       // 프로필 사진이 있으면 프로필사진 업로드부터 시행
@@ -399,19 +389,6 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * ui init
-   * @private
-   */
-  private _initView(): void {
-    // 초기화
-    this.user = new User();
-    // email flag
-    this.resultEmail = true;
-    // name flag
-    this.resultName = true;
-  }
-
-  /**
    * 이메일 중복체크
    * @param {string} email
    * @private
@@ -515,12 +492,13 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
 
   /**
    * 사용자 정보 조회
+   * @param {string} userId
    * @private
    */
-  private _getProfile(): void {
+  private _getProfile(userId:string): void {
     // 로딩 show
     this.loadingShow();
-    this.userService.getUserDetail(this._userId)
+    this.userService.getUserDetail(userId)
       .then((result) => {
         // 로딩 hide
         this.loadingHide();
@@ -534,6 +512,24 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
             return ('' === strMsgCode) ? '' : this.translateService.instant(strMsgCode);
           }).join(',');
         }
+
+        // email flag
+        this.resultEmail = true;
+        // name flag
+        this.resultName = true;
+
+        // user ID
+        this._userId = isNullOrUndefined(result.username) ? '' : result.username.trim();
+        // user email
+        this._userEmail = isNullOrUndefined(result.email) ? '' : result.email.trim();
+        // user name
+        this._userName = isNullOrUndefined(result.fullName) ? '' : result.fullName.trim();
+        // user tel
+        this._userTel = isNullOrUndefined(result.tel) ? '' : result.tel.trim();
+        // user image
+        this._imageUrl = isNullOrUndefined(result.imageUrl) ? '' : result.imageUrl.trim();
+
+        this.safelyDetectChanges();
 
         // 워크스페이스 정보 조회
         this._getWorkspace();
@@ -605,6 +601,8 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
 
         // 데이터 존재 시 데이터 저장
         (workspaces['_embedded']) && (this.sharedWorkspaces = workspaces['_embedded']['workspaces']);
+
+        this.safelyDetectChanges();
 
         // 로딩 hide
         this.loadingHide();
