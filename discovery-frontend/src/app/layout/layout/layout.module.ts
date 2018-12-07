@@ -29,6 +29,7 @@ import { FileModule } from '../../common/file.module';
 import { ChangePasswordComponent } from '../../user/profile/change-password/change-password.component';
 import { MembersService } from '../../admin/user-management/service/members.service';
 import { MetadataManagementGuard } from '../../common/gaurd/metadata-management.guard';
+import {CommonService} from "../../common/service/common.service";
 
 const layoutRoutes: Routes = [
   {
@@ -66,6 +67,7 @@ const layoutRoutes: Routes = [
         canActivate: [MetadataManagementGuard]
       },
       { path: 'admin', loadChildren: 'app/admin/admin.module#AdminModule' },
+      { path: 'external', loadChildren: 'app/external/external-view.module#ExternalViewModule' },
       {
         path: 'samplecomponent',
         loadChildren: 'app/sample-component/sample-component.module#SampleComponentModule'
@@ -95,6 +97,7 @@ const layoutRoutes: Routes = [
     UserService,
     MembersService,
     WorkspaceService,
+    CommonService,
     MetadataManagementGuard,
     DatasourceManagementGuard
   ]
