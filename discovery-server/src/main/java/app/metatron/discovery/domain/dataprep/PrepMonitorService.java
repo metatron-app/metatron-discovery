@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,9 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringWriter;
 import java.net.URI;
 import java.sql.*;
 import java.util.ArrayList;
@@ -265,6 +269,20 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
       String rowCheckQueryFmt = "SELECT * FROM %s WHERE df_id = '%s' AND ds_id = '%s'";
       String rowCheckQuery = String.format(rowCheckQueryFmt, TBL_NEW_DATAFLOW_DATASET, rs.getString("df_id"), rs.getString("ds_id"));
       if (stmtForCheck.executeQuery(rowCheckQuery).next()) {
+        continue;
+      }
+
+      // skip if the dataflow does not exist
+      stmtForCheck = conn.createStatement();
+      rowCheckQuery = String.format("SELECT * FROM %s WHERE df_id = '%s'", TBL_NEW_DATAFLOW, rs.getString("df_id"));
+      if (!stmtForCheck.executeQuery(rowCheckQuery).next()) {
+        continue;
+      }
+
+      // skip if the dataset does not exist
+      stmtForCheck = conn.createStatement();
+      rowCheckQuery = String.format("SELECT * FROM %s WHERE ds_id = '%s'", TBL_NEW_DATASET, rs.getString("ds_id"));
+      if (!stmtForCheck.executeQuery(rowCheckQuery).next()) {
         continue;
       }
 
@@ -634,7 +652,7 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     copySameCol("engine",          colVals, rs);
     copySameCol("finish_time",     colVals, rs);
     copySameCol("launch_time",     colVals, rs);
-    colVals.put("lineage_info",    ((String) rs.getObject("lineage_info")).replaceAll("\"ruleStringinfos\":", "\"transformRules\":"));
+    colVals.put("lineage_info",    readClob(rs, "lineage_info").replaceAll("\"ruleStringinfos\":", "\"transformRules\":"));
     copySameCol("rule_cnt_done",   colVals, rs);
     copySameCol("rule_cnt_total",  colVals, rs);
     copySameCol("ss_name",         colVals, rs);
@@ -667,7 +685,7 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     colVals.put("hive_file_compression", rs.getObject("compression"));      // change column name
     colVals.put("hive_file_format",      rs.getObject("format"));           // change column name
     copySameCol("launch_time",           colVals, rs);
-    colVals.put("lineage_info",          ((String) rs.getObject("lineage_info")).replaceAll("\"ruleStringinfos\":", "\"transformRules\":"));
+    colVals.put("lineage_info",          readClob(rs, "lineage_info").replaceAll("\"ruleStringinfos\":", "\"transformRules\":"));
     copySameCol("rule_cnt_done",         colVals, rs);
     copySameCol("rule_cnt_total",        colVals, rs);
     copySameCol("ss_name",               colVals, rs);
@@ -721,7 +739,7 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
   }
 
   private String getCustomValue(ResultSet rs, String key) throws SQLException {
-    String custom = rs.getString("custom");
+    String custom = readClob(rs, "custom");
     if (custom == null) {
       return null;
     }
@@ -741,7 +759,7 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
   }
 
   private String getLineageInfoValue(ResultSet rs, String key) throws SQLException {
-    String lineageInfo = rs.getString("lineage_info");
+    String lineageInfo = readClob(rs, "lineage_info");
     if (lineageInfo == null) {
       return null;
     }
@@ -759,5 +777,22 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
     }
     return (String) obj;
   }
+
+  private static String readClob(ResultSet rs, String colName) throws SQLException {
+    Clob clob = rs.getClob(colName);
+    Reader reader = clob.getCharacterStream();
+    StringWriter writer = new StringWriter();
+
+    try {
+      IOUtils.copy(reader, writer);
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new SQLException(e.getMessage());   // This could be regarded as SQLException as well.
+                                                // Of course this is for coding convenience.
+    }
+
+    return writer.toString();
+  }
+
 }
 
