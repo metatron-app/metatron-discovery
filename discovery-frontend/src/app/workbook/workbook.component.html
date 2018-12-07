@@ -120,7 +120,7 @@
             </div>
             <!-- //데이터 베이스 수 -->
             <!-- show -->
-            <label *ngIf="publicType.SHARED === workspace?.publicType" class="ddp-label-checkbox ddp-type-show">
+            <label *ngIf="isChangeAuthUser && publicType.SHARED === workspace?.publicType" class="ddp-label-checkbox ddp-type-show">
               <input type="checkbox" [checked]="onlyShowingFlag" (change)="onlyShowingFlag = !onlyShowingFlag;">
               <i class="ddp-icon-checkbox"></i>
               <span class="ddp-txt-checkbox">{{ 'msg.board.ui.show.only' | translate }}</span>
@@ -160,7 +160,7 @@
                           (click)="changeFavorite(dashboard, $event);"></em>
                       <div class="ddp-ui-name">
                         <span class="ddp-data-name"
-                              [ngStyle]="publicType.SHARED === workspace?.publicType ? {}:{'padding-left': '0px' }"
+                              [ngStyle]="isChangeAuthUser && publicType.SHARED === workspace?.publicType ? {}:{'padding-left': '0px' }"
                               [class.ddp-data-new]="dashboard.createdTime | moment: 'isNew'">
                           <div class="ddp-ui-name">
                                {{dashboard.name}}
@@ -209,7 +209,7 @@
                     <a href="javascript:">
                       <span class="ddp-icon-number">{{x + 1}}</span>
                       <span class="ddp-data-name"
-                            [ngStyle]="publicType.SHARED === workspace?.publicType ? {}:{'padding-left': '0px' }" >
+                            [ngStyle]="isChangeAuthUser && publicType.SHARED === workspace?.publicType ? {}:{'padding-left': '0px' }" >
                         <em *ngIf="isChangeAuthUser && publicType.SHARED === workspace?.publicType"
                             [ngClass]="{'ddp-icon-eyes2' : !dashboard.hiding, 'ddp-icon-eyes2-none' : dashboard.hiding}"
                             (click)="changeFavorite(dashboard, $event);"></em>
