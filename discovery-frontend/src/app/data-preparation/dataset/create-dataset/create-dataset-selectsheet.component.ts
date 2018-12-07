@@ -122,7 +122,6 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
           value: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
         }
       ],
-      allowedMimeType: ['application/vnd.ms-excel','text/csv','text/plain','application/json'],
     });
 
     // add 가 처음
