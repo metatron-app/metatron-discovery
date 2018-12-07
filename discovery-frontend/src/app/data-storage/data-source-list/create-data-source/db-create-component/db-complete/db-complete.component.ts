@@ -198,18 +198,18 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
 
   /**
    * Get ingestion batch row
-   * @returns {string}
+   * @returns {number}
    */
-  public getIngestionBatchRow(): string {
-    return StringUtil.isEmpty(this.getIngestionData.ingestionPeriodRow) ? '10,000' : this.getIngestionData.ingestionPeriodRow;
+  public getIngestionBatchRow(): number {
+    return StringUtil.isEmpty(this.getIngestionData.ingestionPeriodRow) ? 10000 : this.getIngestionData.ingestionPeriodRow;
   }
 
   /**
    * Get ingestion once row
-   * @returns {string}
+   * @returns {number}
    */
-  public getIngestionOnceRow(): string {
-    return StringUtil.isEmpty(this.getIngestionData.ingestionOnceRow) ? '10,000' : this.getIngestionData.ingestionOnceRow;
+  public getIngestionOnceRow(): number {
+    return StringUtil.isEmpty(this.getIngestionData.ingestionOnceRow) ? 10000 : this.getIngestionData.ingestionOnceRow;
   }
 
   /**
@@ -584,7 +584,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       // add period
       ingestion['period'] = this._getPeriodParams();
       // add row size
-      ingestion['maxLimit'] = Number.parseInt(this.getIngestionBatchRow().replace(/(,)/g, ''));
+      ingestion['maxLimit'] = this.getIngestionBatchRow();
       // add data range
       ingestion['range'] = this.getIngestionData.selectedIngestionScopeType.value;
     } else if (this.getIngestionData.selectedIngestionType.value === 'single') {
@@ -592,7 +592,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       ingestion['scope'] = this.getIngestionData.selectedIngestionScopeType.value;
       // add row size
       if (this.getIngestionData.selectedIngestionScopeType.value === 'ROW') {
-        ingestion['maxLimit'] = Number.parseInt(this.getIngestionOnceRow().replace(/(,)/g, ''));
+        ingestion['maxLimit'] = this.getIngestionOnceRow();
       }
     }
     // if not exist connection preset

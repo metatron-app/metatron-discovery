@@ -60,8 +60,6 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _resultElement: ElementRef;
   @ViewChild('resultBoxElement')
   private _resultBoxElement: ElementRef;
-  @ViewChild('rowInput')
-  private _rowInput: ElementRef;
 
   // source create type
   public createType: string;
