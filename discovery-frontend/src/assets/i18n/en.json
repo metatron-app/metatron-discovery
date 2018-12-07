@@ -1826,7 +1826,7 @@
   "msg.storage.ui.th.two-digit-month" : "two-digit month (01=January, etc.)",
   "msg.storage.ui.th.two-digit-day" : "two-digit day of month",
   "msg.storage.ui.th.two-digit-day-thorough" : "(01 through 31)",
-  "msg.storage.ui.th.four-digit-hour" : "four-digit of hour (00 through 23)",
+  "msg.storage.ui.th.four-digit-hour" : "two-digit of hour (00 through 23)",
   "msg.storage.ui.th.four-digit-hour-allowed" : "(am/pm NOT allowed)",
   "msg.storage.ui.th.two-digit-minute" : "two digits of minute",
   "msg.storage.ui.th.two-digit-minute-thorough" : "(00 through 59)",
