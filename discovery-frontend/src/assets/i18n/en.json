@@ -46,7 +46,7 @@
   "msg.comm.ui.soring.frequency.desc" : "Frequency descending",
   "msg.comm.ui.soring.alphnumeric.asc" : "Alpahnumeric ascending",
   "msg.comm.ui.soring.alphnumeric.desc" : "Alpahnumeric descending",
-  
+
   "msg.comm.ui.beforeunload" : "Your changes may not be saved.",
   "msg.comm.menu.title.workspace": "WORKSPACE",
   "msg.comm.menu.title.management": "MANAGEMENT",
@@ -1802,6 +1802,8 @@
   "msg.storage.ui.list.geo.point" : "Point",
   "msg.storage.ui.list.geo.line" : "Line",
   "msg.storage.ui.list.geo.polygon" : "Polygon",
+  "msg.storage.ui.list.geo.block.custom.field.geo" : "Can't use custom field including geo data",
+  "msg.storage.ui.list.geo.block.custom.field.agg.function" : "Can't use custom field including Aggregate Function",
   "msg.storage.ui.list.expression" : "Expression",
   "msg.storage.ui.list.type" : "Change type",
   "msg.storage.ui.list.del" : "Delete",

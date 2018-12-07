@@ -1800,6 +1800,8 @@
   "msg.storage.ui.list.geo.point" : "포인트",
   "msg.storage.ui.list.geo.line" : "라인",
   "msg.storage.ui.list.geo.polygon" : "폴리곤",
+  "msg.storage.ui.list.geo.block.custom.field.geo" : "GEO 데이터가 포함된 사용자필드는 사용할 수 없습니다",
+  "msg.storage.ui.list.geo.block.custom.field.agg.function" : "Aggregate Function이 포함된 사용자 필드는 사용할 수 없습니다",
   "msg.storage.ui.list.expression" : "표현식",
   "msg.storage.ui.list.type" : "타입 변경",
   "msg.storage.ui.list.del" : "삭제",
