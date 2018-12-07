@@ -68,8 +68,6 @@ import java.util.concurrent.Future;
 
 import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
 import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
-import static app.metatron.discovery.domain.dataprep.entity.PrDataset.FILE_FORMAT.*;
-import static app.metatron.discovery.domain.dataprep.entity.PrDataset.IMPORT_TYPE.*;
 
 @Service
 public class PrepTransformService {
@@ -1423,15 +1421,14 @@ public class PrepTransformService {
         String storedUri = importedDataset.getStoredUri();
         LOGGER.debug(wrangledDsId + " storedUri=[" + storedUri + "]");
 
-        if (importedDataset.getFileFormat() == CSV || importedDataset.getFileFormat() == EXCEL) {
+        if (importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.CSV ||
+            importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.EXCEL ||
+            importedDataset.getFileFormat() == PrDataset.FILE_FORMAT.JSON) {
           gridResponse = teddyImpl.loadFileDataset(wrangledDsId, storedUri, importedDataset.getDelimiter(), wrangledDataset.getDsName());
-        }
-        else if (importedDataset.getFileFormat() == JSON) {
-          LOGGER.error("createStage0(): JSON not supported: " + storedUri);
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG);
-        }
-        else {
-          throw new IllegalArgumentException("invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
+        } else {
+          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG,
+                  "invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
+          //throw new IllegalArgumentException("invalid flie type: createWrangledDataset\nimportedDataset: " + importedDataset.toString());
         }
         break;
 
