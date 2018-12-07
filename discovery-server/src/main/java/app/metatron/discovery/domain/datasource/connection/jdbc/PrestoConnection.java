@@ -21,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -34,6 +36,7 @@ public class PrestoConnection extends HiveMetastoreConnection {
   private static final String PRESTO_URL_PREFIX = "jdbc:presto:/";
   private static final String PRESTO_DEFAULT_OPTIONS = "";
   private static final String[] DESCRIBE_PROP = {};
+  private static final String[] EXCLUDE_TABLES = {"__internal_partitions__"};
 
 //  @NotNull
   @Column(name = "dc_catalog")
@@ -309,5 +312,15 @@ public class PrestoConnection extends HiveMetastoreConnection {
       String[] spliced = StringUtils.split( url,"/");
       this.catalog = spliced[spliced.length - 1];
     }
+  }
+
+  @Override
+  public List<String> getExcludeTables() {
+    List<String> excludeTables = super.getExcludeTables();
+    if(excludeTables == null){
+      excludeTables = new ArrayList<>();
+    }
+    excludeTables.addAll(Arrays.asList(EXCLUDE_TABLES));
+    return excludeTables;
   }
 }
