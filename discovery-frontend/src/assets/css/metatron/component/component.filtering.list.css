@@ -19,7 +19,7 @@
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-txt-label {display:inline-block; color:#90969f; font-size:13px;}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-ui-result {display:inline-block; vertical-align:top;}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-ui-result + .ddp-ui-result {margin-left:20px;}
-.ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-ui-result .ddp-btn-del {display:inline-block; width:14px; height:14px; margin-left:4px; background:url(../../../images/btn_sclose.png) no-repeat; background-position:left -131px;}
+.ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-btn-del {display:inline-block; width:14px; height:14px; margin-left:4px; background:url(../../../images/btn_sclose.png) no-repeat; background-position:left -131px;}
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-box-result {display:inline-block; position:relative; margin-left:4px;max-width:250px; padding-right:15px; cursor:pointer; box-sizing:border-box; vertical-align:top;}
 
 .ddp-wrap-top-filtering .ddp-form-filtering .ddp-result-filtering .ddp-box-result .ddp-txt-result {display:block;white-space:nowrap; text-overflow:ellipsis; overflow:Hidden;}

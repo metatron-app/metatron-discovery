@@ -157,6 +157,10 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
     // 초기화
     this._reset();
 
+    this.isShow = true;
+
+    this.safelyDetectChanges();
+
     // 워크스페이스 정보 설정
     this._workspace = workspace;
 
@@ -170,15 +174,16 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
       this.permissionService.getRolesetDetail(workspace.roleSets[0].id).then((result: RoleSet) => {
         this.roleSet = result;
         this.defaultRole = result.roles.find(item => item.defaultRole);
+        this.safelyDetectChanges();
         resolve();
       }).catch(err => reject(err));
     }));
     Promise.all(promise).then(() => {
-      this.isShow = true;
       this.loadingHide();
+      this.safelyDetectChanges();
     }).catch(() => {
-      this.isShow = true;
       this.loadingHide();
+      this.safelyDetectChanges();
     });
   } // function - init
 
@@ -526,6 +531,7 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
         }
         this.showMoreWsUser = this._checkShowMore( data.page );
         this._orgWsUsers = _.cloneDeep(this.workspaceUsers);
+        this.safelyDetectChanges();
         resolve();
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
@@ -556,6 +562,7 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
         }
         this.showMoreWsGroup = this._checkShowMore( data.page );
         this._orgWsGroups = _.cloneDeep(this.workspaceGroups);
+        this.safelyDetectChanges();
         resolve();
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
@@ -592,6 +599,7 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
           this.totalUsers = users.page.totalElements;
         }
         this.showMoreAllUser = this._checkShowMore( users.page );
+        this.safelyDetectChanges();
         resolve();
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
@@ -627,6 +635,7 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
           this.totalGroups = groups.page.totalElements;
         }
         this.showMoreAllGroup = this._checkShowMore( groups.page );
+        this.safelyDetectChanges();
         resolve();
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.group.retrieve.fail'));

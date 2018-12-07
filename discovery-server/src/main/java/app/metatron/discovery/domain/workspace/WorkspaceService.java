@@ -223,7 +223,7 @@ public class WorkspaceService {
             memberMap.get(memberId).setRole(patch.getValue("role"));
             LOGGER.debug("Replaced member in workspace({}) : {}, {}", workspace.getId(), memberId, patch.getValue("role"));
           } else {
-            workspace.getMembers().add(new WorkspaceMember(patch, workspace));
+            workspace.getMembers().add(new WorkspaceMember(patch, workspace, this.cachedUserService));
             LOGGER.debug("Added member in workspace({}) : {}, {}", workspace.getId(), memberId, patch.getValue("role"));
           }
 

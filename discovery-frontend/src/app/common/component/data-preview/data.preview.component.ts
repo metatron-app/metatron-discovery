@@ -132,9 +132,9 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   public roles: any = {};
 
   // Datasource
+  public datasources: Datasource[] = [];
   public mainDatasource: Datasource;
   public joinMappings: JoinMapping[] = [];
-  public datasources: Datasource[] = [];
   public joinDataSources: Datasource[] = [];
 
   // 메인 그리드 rows 개수
@@ -1044,6 +1044,13 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     // seletedfield init
     this.selectedField = null;
     this.timestampField = null;
+    this.columns = [];
+    this.colTypes = [];
+    this.roles = {};
+
+    this.joinMappings = [];
+    this.joinDataSources = [];
+
     this.safelyDetectChanges();
 
     // set columns info
