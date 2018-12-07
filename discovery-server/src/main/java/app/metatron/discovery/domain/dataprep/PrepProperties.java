@@ -439,7 +439,7 @@ public class PrepProperties {
 
   public Integer getPmonInterval() {
     if (pmonInterval == null) {
-      pmonInterval = 30;
+      pmonInterval = 0;
     }
     return pmonInterval;
   }
