@@ -18,6 +18,7 @@ import { AbstractComponent } from '../../../common/component/abstract.component'
 import { StringUtil } from '../../../common/util/string.util';
 import { CriterionKey, CriterionType, ListCriterion } from '../../../domain/datasource/listCriterion';
 import { ListFilter } from '../../../domain/datasource/listFilter';
+import { ConnectionType, DataSourceType, SourceType, Status } from '../../../domain/datasource/datasource';
 
 @Component({
   selector: 'criterion-filter-box',
@@ -240,9 +241,9 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
       Object.keys(selectedItemList).forEach(key =>
         selectedItemList[key].forEach((item) => {
             if (StringUtil.isEmpty(temp)) {
-              temp += this._isRequireTranslate(item.filterName) ? this.translateService.instant(item.filterName) : item.filterName;
+              temp += this._getTranslateFilterName(item);
             } else {
-              temp += `, ${this._isRequireTranslate(item.filterName) ? this.translateService.instant(item.filterName) : item.filterName}`;
+              temp += `, ${this._getTranslateFilterName(item)}`;
             }
         }));
     }
@@ -316,5 +317,112 @@ export class CriterionFilterBoxComponent extends AbstractComponent {
   private _isRequireTranslate(label: string): boolean {
     // if start with msg.*, translate label
     return -1 !== label.indexOf('msg.');
+  }
+
+  /**
+   * Get translated filter name
+   * @param {ListFilter} filter
+   * @returns {string}
+   * @private
+   */
+  private _getTranslateFilterName(filter: ListFilter): string {
+    switch (filter.criterionKey) {
+      case CriterionKey.STATUS:
+        return this._getDatasourceStatusTranslate(filter.filterName);
+      case CriterionKey.DATASOURCE_TYPE:
+        return this._getDataSourceTypeTranslate(filter.filterName);
+      case CriterionKey.SOURCE_TYPE:
+        return this._getSourceTypeTranslate(filter.filterName);
+      case CriterionKey.CONNECTION_TYPE:
+        return this._getConnectionTypeTranslate(filter.filterName);
+      default:
+        return this._isRequireTranslate(filter.filterName) ? this.translateService.instant(filter.filterName): filter.filterName;
+    }
+  }
+
+  /**
+   * Get datasource type translated label
+   * @param {string} filterName
+   * @returns {string}
+   * @private
+   */
+  private _getDataSourceTypeTranslate(filterName: string): string {
+    switch (filterName) {
+      case DataSourceType.JOIN.toString():
+        return this.translateService.instant('msg.storage.ui.source.type.join');
+      case DataSourceType.MASTER.toString():
+        return this.translateService.instant('msg.storage.ui.source.type.master');
+      case DataSourceType.VOLATILITY.toString():
+        return this.translateService.instant('msg.storage.ui.source.type.volatility');
+      default:
+        return this._isRequireTranslate(filterName) ? this.translateService.instant(filterName): filterName;
+    }
+  }
+
+  /**
+   * Get connection type translated label
+   * @param {string} filterName
+   * @returns {string}
+   * @private
+   */
+  private _getConnectionTypeTranslate(filterName: string): string {
+    switch (filterName) {
+      case ConnectionType.ENGINE.toString():
+        return this.translateService.instant('msg.storage.ui.list.ingested.data');
+      case ConnectionType.LINK.toString():
+        return this.translateService.instant('msg.storage.ui.list.linked.data');
+      default:
+        return this._isRequireTranslate(filterName) ? this.translateService.instant(filterName): filterName;
+    }
+  }
+
+  /**
+   * Get datasource status translated label
+   * @param {string} filterName
+   * @returns {string}
+   * @private
+   */
+  private _getDatasourceStatusTranslate(filterName: string): string {
+    switch (filterName) {
+      case Status.ENABLED.toString():
+        return 'Enabled';
+      case Status.PREPARING.toString():
+        return 'Preparing';
+      case Status.DISABLED.toString():
+        return 'Disabled';
+      case Status.FAILED.toString():
+        return 'Failed';
+      case Status.BAD.toString():
+        return 'Bad';
+      default:
+        return 'Disabled';
+    }
+  }
+
+  /**
+   * Get source type translated label
+   * @param {string} filterName
+   * @returns {string}
+   * @private
+   */
+  private _getSourceTypeTranslate(filterName: string): string {
+    switch (filterName) {
+      case SourceType.IMPORT.toString():
+        return this.translateService.instant('msg.storage.li.druid');
+      case SourceType.FILE.toString():
+        return this.translateService.instant('msg.storage.li.file');
+      case SourceType.JDBC.toString():
+        return this.translateService.instant('msg.storage.li.db');
+      case SourceType.HIVE.toString():
+        return this.translateService.instant('msg.storage.li.hive');
+      case SourceType.REALTIME.toString():
+        return this.translateService.instant('msg.storage.li.stream');
+      case SourceType.SNAPSHOT.toString():
+        return this.translateService.instant('msg.storage.li.ss');
+      case SourceType.HDFS.toString():
+        return filterName;
+      default:
+        return this._isRequireTranslate(filterName) ? this.translateService.instant(filterName): filterName;
+    }
   }
 }
