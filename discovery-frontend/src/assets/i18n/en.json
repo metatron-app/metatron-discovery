@@ -1803,6 +1803,8 @@
   "msg.storage.ui.list.geo.point" : "Point",
   "msg.storage.ui.list.geo.line" : "Line",
   "msg.storage.ui.list.geo.polygon" : "Polygon",
+  "msg.storage.ui.list.geo.block.custom.field.geo" : "Can't use custom field including geo data",
+  "msg.storage.ui.list.geo.block.custom.field.agg.function" : "Can't use custom field including Aggregate Function",
   "msg.storage.ui.list.expression" : "Expression",
   "msg.storage.ui.list.type" : "Change type",
   "msg.storage.ui.list.del" : "Delete",

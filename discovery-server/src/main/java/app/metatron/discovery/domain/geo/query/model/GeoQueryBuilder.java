@@ -75,6 +75,7 @@ import app.metatron.discovery.domain.workbook.configurations.format.GeoHashForma
 import app.metatron.discovery.domain.workbook.configurations.format.GeoJoinFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.query.druid.AbstractQueryBuilder;
+import app.metatron.discovery.query.druid.Aggregation;
 import app.metatron.discovery.query.druid.Dimension;
 import app.metatron.discovery.query.druid.Query;
 import app.metatron.discovery.query.druid.dimensions.DefaultDimension;
@@ -119,7 +120,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
 
   boolean enableAggrExtension = false;
 
-  int limit = 5000;
+  int limit = 10000;
 
   public GeoQueryBuilder() {
   }
@@ -507,6 +508,22 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
     }
 
     if (enableAggrExtension) {
+      // remove deprecated name 'count', need refactoring
+      boolean existCount = false;
+      List<Aggregation> rmvAggrs = Lists.newArrayList();
+      for (Aggregation aggregation : aggregations) {
+        if("count".equals(aggregation.getName())) {
+          if(existCount) {
+            rmvAggrs.add(aggregation);
+          } else {
+            existCount = true;
+          }
+        }
+      }
+      if(CollectionUtils.isNotEmpty(rmvAggrs)) {
+        aggregations.removeAll(rmvAggrs);
+      }
+
       geoQuery.setExtension(new AggregationExtension(Lists.newArrayList(virtualColumns.values()), engineFilter,
                                                      dimensions, aggregations, postAggregations,
                                                      boundary, boundaryJoin));

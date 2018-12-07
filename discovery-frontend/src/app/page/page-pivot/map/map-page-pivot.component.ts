@@ -222,9 +222,8 @@ export class MapPagePivotComponent extends PagePivotComponent {
           }
         }
 
-        // point, heatmap => no aggregation / hexagon, line, polygon => set aggregation
-        if (MapLayerType.SYMBOL === this.uiOption.layers[this.uiOption.layerNum].type ||
-          MapLayerType.HEATMAP === this.uiOption.layers[this.uiOption.layerNum].type) {
+        // point, heatmap, line, polygon => no aggregation / hexagon => set aggregation
+        if (MapLayerType.TILE !== this.uiOption.layers[this.uiOption.layerNum].type) {
           delete field.aggregationType;
         }
       }

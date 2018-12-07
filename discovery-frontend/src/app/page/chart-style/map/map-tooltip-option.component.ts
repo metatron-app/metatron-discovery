@@ -67,6 +67,11 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     const layerItems = _.cloneDeep(shelf.layers[this.uiOption.layerNum]);
 
+    // set alias
+    for (const item of layerItems) {
+      item['alias'] = ChartUtil.getAlias(item);
+    }
+
     // return shelf list except geo dimension
     let uniqList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
 
