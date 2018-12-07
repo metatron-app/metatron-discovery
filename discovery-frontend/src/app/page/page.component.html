@@ -699,6 +699,7 @@
           <map-page-pivot
             #mapPivot
             *ngIf="shelf && selectChart == 'map'"
+            [pageDimensions]="pageDimensions"
             [(pivot)]="pivot"
             [(shelf)]="shelf"
             [geoType]="geoType"

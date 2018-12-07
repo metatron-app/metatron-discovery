@@ -34,6 +34,8 @@ import { Field as AbstractField } from '../../../domain/workbook/configurations/
 import * as $ from "jquery";
 import { MapLayerType } from '../../../common/component/chart/option/define/map/map-common';
 import { UIOption } from '../../../common/component/chart/option/ui-option';
+import { Alert } from '../../../common/util/alert.util';
+import { ChartUtil } from '../../../common/component/chart/option/util/chart-util';
 
 @Component({
   selector: 'map-page-pivot',
@@ -44,6 +46,9 @@ export class MapPagePivotComponent extends PagePivotComponent {
   public shelf: Shelf;
 
   public uiOption: UIMapOption;
+
+  @Input('pageDimensions')
+  public pageDimensions: Field[];
 
   // geo type from datasource fields
   @Input('geoType')
@@ -108,6 +113,63 @@ export class MapPagePivotComponent extends PagePivotComponent {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * map pivot validation check
+   * @param targetField
+   * @param currentMapLayer
+   * @param pageDimensions
+   * @returns {boolean}
+   */
+  public mapPivotValidationPass(targetField, currentMapLayer, pageDimensions): boolean {
+
+    // validation pass
+    let returnValue: boolean = true;
+
+    let diffDataSourceFl: boolean = false;
+    // prevent another datasource is set in same shelf
+    currentMapLayer.forEach((item) => {
+
+      if ('user_expr' !== targetField.subType && 'user_expr' !== item.field.type &&
+        item.field.dataSource != targetField.field.dataSource) {
+        diffDataSourceFl = true;
+        return;
+      }
+    });
+
+    // find geo type from custom fields
+    let geoFields = [];
+    for (const item of _.cloneDeep(pageDimensions)) {
+      if (item.logicalType && -1 !== item.logicalType.toString().indexOf('GEO')) {
+        geoFields.push(ChartUtil.getAlias(item));
+      }
+    }
+
+    // if custom field is geo type
+    for (const alias of geoFields) {
+      if (targetField.expr && -1 !== targetField.expr.indexOf(alias)) {
+        Alert.warning(this.translateService.instant('msg.storage.ui.list.geo.block.custom.field.geo'));
+        returnValue = false;
+        return;
+      }
+    }
+
+    // if another datasource is in a same shelf
+    if (diffDataSourceFl) {
+      Alert.warning(this.translateService.instant('msg.page.layer.multi.datasource.same.shelf'));
+      returnValue = false;
+      return;
+    }
+
+    // if custom field is aggregated true
+    if ('user_expr' === targetField.subType && true === targetField.aggregated) {
+      Alert.warning(this.translateService.instant('msg.storage.ui.list.geo.block.custom.field.agg.function'));
+      returnValue = false;
+      return;
+    }
+
+    return returnValue;
+  }
 
   /**
    * 선반에 있는 필드 중 선반용 필드가 아닌 것들을 변환
@@ -183,10 +245,16 @@ export class MapPagePivotComponent extends PagePivotComponent {
         field.ref = 'user_defined';
       }
 
+      shelf[idx] = field;
+
+      // map pivot validation check
+      if (!this.mapPivotValidationPass(field, shelf, _.cloneDeep(this.pageDimensions))) {
+        shelf.splice(idx, 1);
+        return;
+      }
+
       // 현재 드래그된 필드
       this.dragField = field;
-
-      shelf[idx] = field;
 
       let shelves = this.shelf.layers[this.uiOption.layerNum];
 
