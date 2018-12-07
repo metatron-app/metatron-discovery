@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+/*
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
 import { Dataflow } from './dataflow';
 import {header} from "../../common/component/grid/grid.header";
@@ -196,7 +197,6 @@ export class Rule {
   public isInsertStep: boolean;
 }
 
-
 export class QueryInfo {
   public headers: header[];
   public rows: any[];
@@ -219,3 +219,5 @@ export class SelectedInfo {
   public table? : string;
   public query? : string;
 }
+
+*/

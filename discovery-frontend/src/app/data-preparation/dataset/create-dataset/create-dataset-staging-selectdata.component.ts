@@ -18,7 +18,7 @@ import { AbstractPopupComponent } from '../../../common/component/abstract-popup
 import { PopupService } from '../../../common/service/popup.service';
 import { Alert } from '../../../common/util/alert.util';
 import { PreparationAlert } from '../../util/preparation-alert.util';
-import { DatasetHive, DsType, RsType, ImportType, Field, TableInfo, QueryInfo } from '../../../domain/data-preparation/dataset';
+import { PrDatasetHive, DsType, RsType, ImportType, Field, TableInfo, QueryInfo } from '../../../domain/data-preparation/pr-dataset';
 import { GridComponent } from '../../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
 import { GridOption } from '../../../common/component/grid/grid.option';
@@ -46,7 +46,8 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
-  public datasetHive: DatasetHive;
+  //public datasetHive: DatasetHive;
+  public datasetHive: PrDatasetHive;
 
   public isDatabaseListShow : boolean = false;  // Database list show/hide
   public isSchemaListShow: boolean = false;     // tables list show/hide
@@ -167,7 +168,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       return;
     }
 
-    if (this.datasetHive.rsType === RsType.SQL) {
+    if (this.datasetHive.rsType === RsType.QUERY) {
 
       if (this.showQueryStatus && this.isQuerySuccess) {
         this.datasetHive.sqlInfo.valid = true;
@@ -328,7 +329,13 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     }
 
     // If grid data exists, draw grid.
-    let data = this.datasetHive[method.toLowerCase()+'Info'];
+    //let data = this.datasetHive[method.toLowerCase()+'Info'];
+    let data = null;
+    if(method===RsType.TABLE) {
+      data = this.datasetHive.sqlInfo;
+    } else if(method===RsType.QUERY) {
+      data = this.datasetHive.tableInfo;
+    }
     if (data.headers && data.headers.length > 0) {
       this.clearGrid = false;
       this._drawGrid(data.headers,data.rows)
@@ -616,7 +623,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
             this._drawGrid(this.datasetHive.tableInfo.headers,this.datasetHive.tableInfo.rows);
 
             // QUERY AND GRID INFO
-          } else if (this.datasetHive.rsType === RsType.SQL && this.datasetHive.sqlInfo.queryStmt) {
+          } else if (this.datasetHive.rsType === RsType.QUERY && this.datasetHive.sqlInfo.queryStmt) {
 
             if (this.datasetHive.tableInfo && this.datasetHive.tableInfo.databaseName) {
               this.getTables(this.datasetHive.tableInfo.databaseName);
@@ -765,7 +772,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
     // Imported and Hive type is default value
     this.datasetHive.dsType = DsType.IMPORTED;
-    this.datasetHive.importType = ImportType.HIVE;
+    this.datasetHive.importType = ImportType.STAGING_DB;
 
 
     // When type info is null set it to TABLE
@@ -781,6 +788,15 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       this.clearGrid = false;
     }
 
+    /* FIXME: changed dataset schema
+    this.datasetHive.tblName = '';
+    this.datasetHive.dbName = '';
+    this.datasetHive.queryStmt = '';
+    this.datasetHive.dsType = DsType.IMPORTED;
+    this.datasetHive.rsType = RsType.TABLE;
+    this.datasetHive.importType = ImportType.STAGING_DB;
+    */
+
   }
 
   /**
@@ -790,7 +806,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    */
   private _deleteGridInfo(type : RsType) {
 
-    if (type === RsType.SQL) {
+    if (type === RsType.QUERY) {
 
       this.datasetHive.sqlInfo.headers = [];
       this.datasetHive.sqlInfo.rows = [];

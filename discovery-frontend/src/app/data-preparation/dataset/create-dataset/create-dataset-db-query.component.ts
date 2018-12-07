@@ -17,7 +17,7 @@ import { DatasetService } from '../service/dataset.service';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
 import { PreparationAlert } from '../../util/preparation-alert.util';
-import { DatasetJdbc, DsType, RsType, ImportType, Field, QueryInfo, TableInfo } from '../../../domain/data-preparation/dataset';
+import { PrDatasetJdbc, DsType, RsType, ImportType, Field, QueryInfo, TableInfo } from '../../../domain/data-preparation/pr-dataset';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
 import { GridComponent } from '../../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
@@ -47,7 +47,8 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
-  public datasetJdbc: DatasetJdbc;
+  //public datasetJdbc: DatasetJdbc;
+  public datasetJdbc: PrDatasetJdbc;
 
   public databaseList: any[] = [];
   public isDatabaseListShow : boolean = false;
@@ -163,7 +164,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
       return;
     }
 
-    if (this.datasetJdbc.rsType === RsType.SQL) {
+    if (this.datasetJdbc.rsType === RsType.QUERY) {
 
       if (this.showQueryStatus && this.isQuerySuccess) {
         this.datasetJdbc.sqlInfo.valid = true;
@@ -306,7 +307,6 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
   } // function - showSchemaList
 
-
   /**
    * Table or Query ?
    * @param method
@@ -332,7 +332,13 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     }
 
     // If grid data exists, draw grid.
-    let data = this.datasetJdbc[method.toLowerCase()+'Info'];
+    //let data = this.datasetJdbc[method.toLowerCase()+'Info'];
+    let data = null;
+    if(method===RsType.TABLE) {
+      data = this.datasetJdbc.sqlInfo;
+    } else if(method===RsType.QUERY) {
+      data = this.datasetJdbc.tableInfo;
+    }
     if (data.headers && data.headers.length > 0) {
       this.clearGrid = false;
       this._drawGrid(data.headers,data.rows)
@@ -642,7 +648,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
           this._drawGrid(this.datasetJdbc.tableInfo.headers,this.datasetJdbc.tableInfo.rows);
 
           // QUERY AND GRID INFO
-        } else if (this.datasetJdbc.rsType === RsType.SQL && this.datasetJdbc.sqlInfo.queryStmt) {
+        } else if (this.datasetJdbc.rsType === RsType.QUERY && this.datasetJdbc.sqlInfo.queryStmt) {
 
           // STILL NEED TO GET TABLE INFO
           if (this.datasetJdbc.tableInfo && this.datasetJdbc.tableInfo.databaseName) {
@@ -789,7 +795,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
     // Imported and DB type is default value
     this.datasetJdbc.dsType = DsType.IMPORTED;
-    this.datasetJdbc.importType = ImportType.DB;
+    this.datasetJdbc.importType = ImportType.DATABASE;
 
 
     // When no tab is selected -> default is TABLE
@@ -814,7 +820,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    */
   private _deleteGridInfo(type : RsType) {
 
-    if (type === RsType.SQL) {
+    if (type === RsType.QUERY) {
 
       this.datasetJdbc.sqlInfo.headers = [];
       this.datasetJdbc.sqlInfo.rows = [];

@@ -20,7 +20,8 @@ import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { GridComponent } from '../../common/component/grid/grid.component';
 import { DatasetService } from '../dataset/service/dataset.service';
-import { Dataset, Field } from '../../domain/data-preparation/dataset';
+//import { Dataset, Field } from '../../domain/data-preparation/dataset';
+import { PrDataset, Field } from '../../domain/data-preparation/pr-dataset';
 import { header, SlickGridHeader } from '../../common/component/grid/grid.header';
 import { isNull, isUndefined } from 'util';
 import { GridOption } from '../../common/component/grid/grid.option';
@@ -55,7 +56,8 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
   @Input()
   public datasetId : string;
 
-  public dataset : Dataset;
+  //public dataset : Dataset;
+  public dataset : PrDataset;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -96,7 +98,8 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
   public getDatasetInfo(dsId) {
       if (this.selectedDatasetId !== dsId) {
         this.selectedDatasetId = dsId;
-        this.dataset = new Dataset();
+        //this.dataset = new Dataset();
+        this.dataset = new PrDataset();
         this.loadingShow();
         this.datasetService.getDataPreview(this.selectedDatasetId).then((data) => {
           this.dataset = data;

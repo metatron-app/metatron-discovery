@@ -16,12 +16,14 @@ import {
   AfterViewInit, Component, ElementRef, Injector, OnInit, ViewChild, OnDestroy, Output,
   HostListener, EventEmitter
 } from '@angular/core';
-import { DataSnapshot, OriginDsInfo } from '../../domain/data-preparation/data-snapshot';
+//import { DataSnapshot, OriginDsInfo } from '../../domain/data-preparation/data-snapshot';
+import { PrDataSnapshot, Status, OriginDsInfo } from '../../domain/data-preparation/pr-snapshot';
 import { DataSnapshotService } from './service/data-snapshot.service';
 import { PopupService } from '../../common/service/popup.service';
 import { GridComponent } from '../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../common/component/grid/grid.header';
-import { Field } from '../../domain/data-preparation/dataset';
+//import { Field } from '../../domain/data-preparation/dataset';
+import { Field } from '../../domain/data-preparation/pr-dataset';
 import { GridOption } from '../../common/component/grid/grid.option';
 import { Alert } from '../../common/util/alert.util';
 import { PreparationAlert } from '../util/preparation-alert.util';
@@ -62,7 +64,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public ssId: string;
 
-  public selectedDataSnapshot: DataSnapshot = null;
+  //public selectedDataSnapshot: DataSnapshot = null;
+  public selectedDataSnapshot: PrDataSnapshot = null;
   public originDsInfo: OriginDsInfo = null;
   public colCnt: number = 0;
 
@@ -141,7 +144,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
     const griddata = { data: [], fields: [] };
     this.updateGrid(griddata);
-    this.selectedDataSnapshot = new DataSnapshot();
+    //this.selectedDataSnapshot = new DataSnapshot();
+    this.selectedDataSnapshot = new PrDataSnapshot();
     this.originDsInfo = new OriginDsInfo();
     this.colCnt = 0;
     this.commandList = [
@@ -200,7 +204,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       rows = new Intl.NumberFormat().format(this.selectedDataSnapshot.totalLines);
       return rows + ' rows';
     } else {
-      if (this.selectedDataSnapshot.status === 'FAILED') {
+      //if (this.selectedDataSnapshot.status === 'FAILED') {
+      if (this.selectedDataSnapshot.status === Status.FAILED) {
         return 0 + ' rows';
       }
       return '(counting rows)'
@@ -290,7 +295,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
     if (!this.flag) {
       this.flag = true;
-      this.datasnapshotservice.getDataSnapshot(this.ssId).then((snapshot : DataSnapshot) => {
+      //this.datasnapshotservice.getDataSnapshot(this.ssId).then((snapshot : DataSnapshot) => {
+      this.datasnapshotservice.getDataSnapshot(this.ssId).then((snapshot : PrDataSnapshot) => {
         this.selectedDataSnapshot = snapshot;
         this.flag = false;
 
@@ -303,6 +309,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         }
 
         //let linageInfo = JSON.parse( this.selectedDataSnapshot["lineageInfo"] );
+        /*
         let linageInfo = this.selectedDataSnapshot["jsonLineageInfo"];
         if( linageInfo.dsId ) {
           this.dsId = linageInfo.dsId;
@@ -312,17 +319,36 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         }
 
         this._setRuleList(linageInfo['ruleStringinfos']);
+        */
+        let sourceInfo = this.selectedDataSnapshot.sourceInfo;
+        this.dsId = sourceInfo.dsId;
+        this.dfId = sourceInfo.dfId;
+
+        let connectionInfo = this.selectedDataSnapshot.connectionInfo;
+        let ruleStringInfo = this.selectedDataSnapshot.ruleStringInfo;
+        this._setRuleList(ruleStringInfo);
 
         // % 계산
+        /*
         this.missing = this.selectedDataSnapshot.missingLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines) * 100 + '%';
         this.valid = this.selectedDataSnapshot.validLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines)  * 100 + '%';
         this.mismatched = this.selectedDataSnapshot.mismatchedLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines) * 100 + '%';
+        */
+        let totalLines = this.selectedDataSnapshot.totalLines ? this.selectedDataSnapshot.totalLines : 0;
+        let missingLines = this.selectedDataSnapshot.missingLines ? this.selectedDataSnapshot.missingLines : 0;
+        let mismatchedLines = this.selectedDataSnapshot.mismatchedLines ? this.selectedDataSnapshot.mismatchedLines : 0;
+        this.valid = (totalLines - missingLines - mismatchedLines ) / totalLines * 100 + '%';
+        this.missing = missingLines / totalLines * 100 + '%';
+        this.mismatched = mismatchedLines / totalLines * 100 + '%';
 
-        if ( ['SUCCEEDED'].indexOf(this.selectedDataSnapshot.status) >= 0){
+        //if ( ['SUCCEEDED'].indexOf(this.selectedDataSnapshot.status) >= 0){
+        if ( [Status.SUCCEEDED].indexOf(this.selectedDataSnapshot.status) >= 0){
           this.selectedDataSnapshot.displayStatus = 'SUCCESS';
+          this.getOriginData();
           this.getGridData();
 
-        } else if ( ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','CANCELING'].indexOf(this.selectedDataSnapshot.status) >= 0) {
+        //} else if ( ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','CANCELING'].indexOf(this.selectedDataSnapshot.status) >= 0) {
+        } else if ( [Status.INITIALIZING,Status.RUNNING,Status.WRITING,Status.TABLE_CREATING,Status.CANCELING].indexOf(this.selectedDataSnapshot.status) >= 0) {
           this.selectedDataSnapshot.displayStatus = 'PREPARING';
 
           if(isUndefined(this.selectedDataSnapshot.ruleCntDone) || isNull(this.selectedDataSnapshot.ruleCntDone)) this.selectedDataSnapshot.ruleCntDone = 0;
@@ -396,6 +422,31 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   }
 
 
+  private getOriginData() {
+    let sourceInfo = this.selectedDataSnapshot.sourceInfo;
+
+    if( isUndefined(sourceInfo) ) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.info'));
+    } else {
+      if( isUndefined(sourceInfo.origDsName) ) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.name'));
+        this.originDsInfo.dsName = '';
+      } else {
+        this.originDsInfo.dsName = sourceInfo.origDsName;
+      }
+      if( isUndefined(sourceInfo.origDsQueryStmt) ) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.querystmt'));
+      } else {
+        this.originDsInfo.qryStmt = sourceInfo.origDsQueryStmt;
+      }
+      if( isUndefined(sourceInfo.origDsCreatedTime) ) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.createdtime'));
+      } else {
+        this.originDsInfo.createdTime = sourceInfo.origDsCreatedTime;
+      }
+    }
+  }
+
   // 데이터스냅샷 디테일 팝업 안에 그리드데이터
   private getGridData() {
 
@@ -409,6 +460,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           return;
         }
 
+        /*
         this.originDsInfo.dsName = '';
         this.originDsInfo.qryStmt = '';
         this.originDsInfo.createdTime = '';
@@ -432,6 +484,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
             this.originDsInfo.createdTime = result.originDsInfo.createdTime;
           }
         }
+        */
 
         this.colCnt = result.gridResponse.colCnt;
         const colNames = result.gridResponse.colNames;
@@ -546,7 +599,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   } // end of method updateGrid
 
   public downloadSnapshot() {
-    let downloadFileName = this.selectedDataSnapshot.dsName + ".csv";
+    let downloadFileName = this.selectedDataSnapshot.sourceInfo.dsName + ".csv";
 
     this.datasnapshotservice.downloadSnapshot(this.ssId).subscribe((snapshotFile) => {
       saveAs(snapshotFile, downloadFileName);

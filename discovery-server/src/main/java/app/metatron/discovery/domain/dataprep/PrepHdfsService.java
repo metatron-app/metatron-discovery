@@ -47,22 +47,6 @@ public class PrepHdfsService {
         return uploadHdfsPath;
     }
 
-    /*
-    private String getSnapshotPath() {
-        if(null==snapshotHdfsPath && null!=prepProperties.getStagingBaseDir()) {
-            snapshotHdfsPath = prepProperties.getStagingBaseDir() + File.separator + PrepProperties.dirSnapshot;
-        }
-        return snapshotHdfsPath;
-    }
-
-    private String getPreviewPath() {
-        if(null==previewHdfsPath && null!=prepProperties.getStagingBaseDir()) {
-            previewHdfsPath = prepProperties.getStagingBaseDir() + File.separator + PrepProperties.dirPreview ;
-        }
-        return previewHdfsPath;
-    }
-    */
-
     public Configuration getConf() {
         if(null==hadoopConf) {
             hadoopConf = new Configuration();

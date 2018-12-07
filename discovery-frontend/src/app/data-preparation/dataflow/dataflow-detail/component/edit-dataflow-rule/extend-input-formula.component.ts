@@ -21,7 +21,8 @@ import {
   OnInit, Output, ViewChild
 } from '@angular/core';
 import { AbstractComponent } from '../../../../../common/component/abstract.component';
-import { Field } from '../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../domain/data-preparation/pr-dataset';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { DataflowService } from '../../../service/dataflow.service';
 import { Alert } from '../../../../../common/util/alert.util';

@@ -14,7 +14,8 @@
 
 import { Component, ElementRef, Injector, Input, OnInit } from '@angular/core';
 import { AbstractComponent } from '../../../common/component/abstract.component';
-import { DatasetHive, DatasetJdbc, DatasetFile } from '../../../domain/data-preparation/dataset';
+//import { DatasetHive, DatasetJdbc, DatasetFile } from '../../../domain/data-preparation/dataset';
+import { PrDatasetHive, PrDatasetJdbc, PrDatasetFile } from '../../../domain/data-preparation/pr-dataset';
 
 
 @Component({
@@ -37,9 +38,9 @@ export class CreateDatasetComponent extends AbstractComponent implements  OnInit
   @Input()
   public step: string;
 
-  public datasetFile: DatasetFile;
-  public datasetHive: DatasetHive;
-  public datasetJdbc: DatasetJdbc;
+  public datasetFile: PrDatasetFile;
+  public datasetHive: PrDatasetHive;
+  public datasetJdbc: PrDatasetJdbc;
 
   public type: string; // File or staging db
 
@@ -51,9 +52,12 @@ export class CreateDatasetComponent extends AbstractComponent implements  OnInit
               protected injector: Injector) {
     super(elementRef, injector);
 
-    this.datasetFile = new DatasetFile();
-    this.datasetHive = new DatasetHive();
-    this.datasetJdbc = new DatasetJdbc();
+    //this.datasetFile = new DatasetFile();
+    //this.datasetHive = new DatasetHive();
+    //this.datasetJdbc = new DatasetJdbc();
+    this.datasetFile = new PrDatasetFile();
+    this.datasetHive = new PrDatasetHive();
+    this.datasetJdbc = new PrDatasetJdbc();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -83,9 +87,12 @@ export class CreateDatasetComponent extends AbstractComponent implements  OnInit
 
   // 팝업끼리 관리하는 모델들 초기화
   public init() {
-    this.datasetFile = new DatasetFile();
-    this.datasetHive = new DatasetHive();
-    this.datasetJdbc = new DatasetJdbc();
+    //this.datasetFile = new DatasetFile();
+    //this.datasetHive = new DatasetHive();
+    //this.datasetJdbc = new DatasetJdbc();
+    this.datasetFile = new PrDatasetFile();
+    this.datasetHive = new PrDatasetHive();
+    this.datasetJdbc = new PrDatasetJdbc();
   }
 
   // set type for creating dataset

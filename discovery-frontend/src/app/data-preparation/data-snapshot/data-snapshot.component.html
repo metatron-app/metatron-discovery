@@ -154,7 +154,7 @@
         </td>
         <td>
           <span *ngIf="item.dsName === ''" class="ddp-data-delete">{{'msg.dp.ui.ds.del.success' | translate}}</span>
-          {{item.creatorDfName}} | {{item.dsName}}
+          {{item.dfName}} | {{item.dsName}}
         </td>
         <td>
           {{prepCommonUtil.getSnapshotType(item.ssType)}}

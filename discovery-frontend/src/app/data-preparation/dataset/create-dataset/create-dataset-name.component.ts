@@ -14,7 +14,7 @@
 
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import {DatasetFile, DatasetHive, DatasetJdbc, RsType} from '../../../domain/data-preparation/dataset';
+import { PrDatasetFile, PrDatasetHive, PrDatasetJdbc, RsType } from '../../../domain/data-preparation/pr-dataset';
 import { PopupService } from '../../../common/service/popup.service';
 import { DatasetService } from '../service/dataset.service';
 import { isUndefined } from 'util';
@@ -42,13 +42,16 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input() // Input from parent component if type is hive
-  public datasetHive: DatasetHive;
+  //public datasetHive: DatasetHive;
+  public datasetHive: PrDatasetHive;
 
   @Input() // Input from parent component if type is hive
-  public datasetJdbc: DatasetJdbc;
+  //public datasetJdbc: DatasetJdbc;
+  public datasetJdbc: PrDatasetJdbc;
 
   @Input() // Input from parent component if type if file
-  public datasetFile : DatasetFile;
+  //public datasetFile : DatasetFile;
+  public datasetFile : PrDatasetFile;
 
   @Input() // Type of Dataset. [DB,STAGING,FILE]
   public type : string;
@@ -147,7 +150,8 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       // 서버에 보낼 이름 설명 앞뒤 공백 제거
       switch(this.type) {
         case 'FILE':
-          this.datasetFile.name = this.name.trim();
+          //this.datasetFile.name = this.name.trim();
+          this.datasetFile.dsName = this.name.trim();
           break;
         case 'STAGING':
           this.datasetHive.dsName = this.name.trim();
@@ -159,7 +163,8 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       if (!isUndefined(this.description) && this.description.trim() !== '') {
         switch(this.type) {
           case 'FILE':
-            this.datasetFile.desc = this.description.trim();
+            //this.datasetFile.desc = this.description.trim();
+            this.datasetFile.dsDesc = this.description.trim();
             break;
           case 'STAGING':
             this.datasetHive.dsDesc = this.description.trim();
@@ -293,13 +298,13 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     if ('FILE' === type) {
 
-      let file = PreparationCommonUtil.getFileNameAndExtension(this.datasetFile.filename);
+      let file = PreparationCommonUtil.getFileNameAndExtension(this.datasetFile.filenameBeforeUpload);
       this.fileExtension = file[1];
       let fileName = file[0];
 
       if(this.fileExtension.toUpperCase() === 'XLSX' || this.fileExtension.toUpperCase() === 'XLS') {
 
-        this.name = `${fileName} - ${this.datasetFile.sheetname} (EXCEL)`;
+        this.name = `${fileName} - ${this.datasetFile.sheetName} (EXCEL)`;
 
       } else {
 
@@ -334,7 +339,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     if ('FILE' === this.type) {
 
-      this.datasetInfo.push({name : this.translateService.instant('msg.dp.ui.list.file'), value : this.datasetFile.filename});
+      this.datasetInfo.push({name : this.translateService.instant('msg.dp.ui.list.file'), value : this.datasetFile.filenameBeforeUpload});
 
       if ('XLSX' === this.fileExtension.toUpperCase() || 'XLS' === this.fileExtension.toUpperCase()) {
 
@@ -343,7 +348,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
         // } else if (this.datasetFile.sheetInformation.length > 1) {
         //   this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetNames()});
         // }
-        this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.datasetFile.sheetname});
+        this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.datasetFile.sheetName});
       }
 
     } else if ('DB' === this.type) {
@@ -419,11 +424,11 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
    */
   private _getHiveParams(hive): object {
 
-    if (hive.rsType === RsType.SQL) {
+    if (hive.rsType === RsType.QUERY) {
       hive.queryStmt = hive.sqlInfo.queryStmt;
     } else {
-      hive.tableName = hive.tableInfo.tableName;
-      hive['custom'] = `{"databaseName":"${hive.tableInfo.databaseName}"}`;
+      hive.tblName = hive.tableInfo.tableName;
+      hive.dbName = hive.tableInfo.databaseName;
     }
     return hive
   }
@@ -437,11 +442,11 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
    */
   private _getJdbcParams(jdbc) : object {
 
-    if (jdbc.rsType === RsType.SQL) {
+    if (jdbc.rsType === RsType.QUERY) {
       jdbc.queryStmt = jdbc.sqlInfo.queryStmt;
     } else {
-      jdbc.tableName = jdbc.tableInfo.tableName;
-      jdbc['custom'] = `{"databaseName":"${jdbc.tableInfo.databaseName}"}`
+      jdbc.tblName = jdbc.tableInfo.tableName;
+      jdbc.dbName = jdbc.tableInfo.databaseName;
     }
     return jdbc
   }
@@ -467,7 +472,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     // Error when creating dataflow with dataset with no querystmt
     if (this.type !== 'FILE' && type.rsType === RsType.TABLE) {
-      params['queryStmt'] = `select * from ${tableInfo.databaseName}.${tableInfo.tableName};`;
+      params['queryStmt'] = `select * from ${tableInfo.databaseName}.${tableInfo.tableName}`;
     }
 
     this.datasetService.createDataSet(params).then((result) => {

@@ -20,7 +20,8 @@ import { AbstractComponent } from '../../../../../common/component/abstract.comp
 import { GridComponent } from '../../../../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../../../../common/component/grid/grid.header';
 import { GridOption } from '../../../../../common/component/grid/grid.option';
-import { Field } from '../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../domain/data-preparation/pr-dataset';
 import * as pixelWidth from 'string-pixel-width';
 import { Alert } from '../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../common/util/string.util';

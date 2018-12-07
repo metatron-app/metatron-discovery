@@ -14,7 +14,8 @@
 
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
-import { Dataflow } from '../../domain/data-preparation/dataflow';
+//import { Dataflow } from '../../domain/data-preparation/dataflow';
+import { PrDataflow } from '../../domain/data-preparation/pr-dataflow';
 import { CommonUtil } from '../../common/util/common.util';
 import { DataflowService } from './service/dataflow.service';
 import { Alert } from '../../common/util/alert.util';
@@ -43,7 +44,8 @@ export class CreateDataflowNameDescComponent extends AbstractComponent implement
   public isShow = false;
 
   // 워크북
-  public dataflow: Dataflow = new Dataflow();
+  //public dataflow: Dataflow = new Dataflow();
+  public dataflow: PrDataflow = new PrDataflow();
 
   // 유효성 관련 - 이름
   public isInvalidName: boolean = false;

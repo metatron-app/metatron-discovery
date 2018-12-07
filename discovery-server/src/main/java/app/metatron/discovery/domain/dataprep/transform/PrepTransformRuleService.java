@@ -15,8 +15,8 @@
 package app.metatron.discovery.domain.dataprep.transform;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.dataprep.PrepDataset;
-import app.metatron.discovery.domain.dataprep.PrepDatasetRepository;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
@@ -38,7 +38,7 @@ public class PrepTransformRuleService {
   private static Logger LOGGER = LoggerFactory.getLogger(PrepTransformRuleService.class);
 
   @Autowired
-  private PrepDatasetRepository datasetRepository;
+  private PrDatasetRepository datasetRepository;
 
   public PrepTransformRuleService() { }
 
@@ -167,7 +167,7 @@ public class PrepTransformRuleService {
 
     if (map.containsKey("escapedValue")) {
       String dsId = (String) ((Map) node).get("escapedValue");
-      PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+      PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
       return dataset.getDsName();
     }
 
@@ -179,7 +179,7 @@ public class PrepTransformRuleService {
     }
 
     for (String dsId : dsIds) {
-      PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId.replace("'", "")));  // Currently, map contains '
+      PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId.replace("'", "")));  // Currently, map contains '
       dsNames.add(dataset.getDsName());
     }
 

@@ -12,13 +12,14 @@
  * limitations under the License.
  */
 
+/*
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
 
 export class DataSnapshot extends AbstractHistoryEntity{
 
   public ssId:string;
   public ssName: string;
-  public creatorDfName: string;
+  public dfName: string;
   public dsName: string;
   public elapsedTime: ElapsedTime = new ElapsedTime();
   public launchTime: Date;
@@ -108,5 +109,5 @@ export enum Format {
 
 }
 
-
+*/
 
