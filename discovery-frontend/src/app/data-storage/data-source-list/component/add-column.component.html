@@ -52,7 +52,7 @@
       <!-- //clear -->
       <!-- only expression -->
       <div class="ddp-option-form ddp-form-error" *ngIf="selectedMethodType.value === 'user_defined'">
-        <textarea class="ddp-textarea-auto" placeholder="Expression"
+        <textarea class="ddp-textarea-auto" placeholder="{{'msg.storage.ui.list.expression' | translate}}"
                   [(ngModel)]="expression" (ngModelChange)="expressionValid = null" (focusout)="onFocusOutExpressionField()"></textarea>
         <span class="ddp-data-error" *ngIf="expressionValid === false"> {{expressionInvalidMessage}}</span>
       </div>
@@ -99,7 +99,7 @@
     <div class="ddp-ui-option-in">
       <!-- clear -->
       <div class="ddp-option-form ddp-form-error">
-        <input type="text" class="ddp-input-typebasic" placeholder="Name"
+        <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.storage.ui.th.column.name' | translate}}"
                [(ngModel)]="columnName" (ngModelChange)="columnNameValid = null" (focusout)="onFocusOutColumnNameField()">
         <span class="ddp-data-error" *ngIf="columnNameValid === false"> {{columnNameInvalidMessage}}</span>
       </div>
