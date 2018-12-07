@@ -2379,7 +2379,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       // if custom field is geo type
       for (const alias of geoFields) {
-        if (-1 !== targetField.expr.indexOf(alias)) {
+        if (targetField.expr && -1 !== targetField.expr.indexOf(alias)) {
           Alert.warning(this.translateService.instant('msg.storage.ui.list.geo.block.custom.field.geo'));
           return;
         }
