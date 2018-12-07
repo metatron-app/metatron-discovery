@@ -333,7 +333,8 @@ export enum IngestionStatus {
 
 export enum DataSourceType {
   MASTER = <any>'MASTER',
-  JOIN = <any>'JOIN'
+  JOIN = <any>'JOIN',
+  VOLATILITY = <any>'VOLATILITY'
 }
 
 export enum ConnectionType {

@@ -20,8 +20,10 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { Dataflow } from '../../../../../domain/data-preparation/dataflow';
-import { Dataset, Field, Rule } from '../../../../../domain/data-preparation/dataset';
+//import { Dataflow } from '../../../../../domain/data-preparation/dataflow';
+import { PrDataflow } from '../../../../../domain/data-preparation/pr-dataflow';
+//import { Dataset, Field, Rule } from '../../../../../domain/data-preparation/dataset';
+import { PrDataset, Field, Rule } from '../../../../../domain/data-preparation/pr-dataset';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { Alert } from '../../../../../common/util/alert.util';
 import { PreparationAlert } from '../../../../util/preparation-alert.util';
@@ -82,16 +84,19 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public isInitDataLoaded: boolean = false;
 
   @Input()
-  public dataflow: Dataflow;
+  //public dataflow: Dataflow;
+  public dataflow: PrDataflow;
 
   @Input()
-  public selectedDataSet: Dataset;
+  //public selectedDataSet: Dataset;
+  public selectedDataSet: PrDataset;
 
   @Output()
   public closeEditRule = new EventEmitter();
 
   @Output()
-  public changeDataset = new EventEmitter<Dataset>();
+  //public changeDataset = new EventEmitter<Dataset>();
+  public changeDataset = new EventEmitter<PrDataset>();
 
   @Input()
   public step: string;
@@ -100,7 +105,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public commandSearchText: string = '';
 
   // 조인 편집시 필요한 데이터
-  public rightDataset: Dataset;
+  //public rightDataset: Dataset;
+  public rightDataset: PrDataset;
 
   // Layer show/hide
   public isMultiColumnListShow: boolean = false;
@@ -485,7 +491,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         this._editRuleComp.init(unnestList, selectedUnnestList);
         break;
       case 'Join':
-        this.rightDataset = new Dataset();
+        //this.rightDataset = new Dataset();
+        this.rightDataset = new PrDataset();
         this.rightDataset.dsId = '';
         this.isRuleJoinModalShow = true;
         break;
@@ -830,7 +837,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * Change to different dataset in same dataflow
    * @param dataset {Dataset}
    */
-  public changeWrangledDataset(dataset : Dataset) {
+  //public changeWrangledDataset(dataset : Dataset) {
+  public changeWrangledDataset(dataset : PrDataset) {
     this.loadingShow();
 
     let dataflows = this.selectedDataSet.dataflows ? this.selectedDataSet.dataflows : null;
@@ -1580,7 +1588,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           this.selectedDataSet.gridData = data.gridData;
 
           // Set rule list
-          this.setRuleList(apiData['ruleStringInfos']);
+          //this.setRuleList(apiData['ruleStringInfos']);
+          this.setRuleList(apiData['transformRules']);
 
           // init ruleVO
           this.initRule(apiData);
@@ -1950,10 +1959,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this._editRuleGridComp.unSelectionAll();
 
       this.serverSyncIndex = data.apiData.ruleCurIdx;
-      if (data.apiData.ruleStringInfos.length > 0) {
+      //if (data.apiData.ruleStringInfos.length > 0) {
+      if (data.apiData.transformRules.length > 0) {
         this._editRuleGridComp.setAffectedColumns(
           data.apiData.gridResponse['interestedColNames'],
-          data.apiData.ruleStringInfos[data.apiData.ruleStringInfos.length - 1].command);
+          //data.apiData.ruleStringInfos[data.apiData.ruleStringInfos.length - 1].command);
+          data.apiData.transformRules[data.apiData.transformRules.length - 1].command);
       }
 
       // 룰 리스트는 index 보다 하나 적게
@@ -1982,7 +1993,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param rule
    */
   private setJoinEditInfo(rule) {
-    this.rightDataset = new Dataset();
+    //this.rightDataset = new Dataset();
+    this.rightDataset = new PrDataset();
 
     // is it append or update ?
     this.rightDataset.joinButtonText = 'Edit Join';

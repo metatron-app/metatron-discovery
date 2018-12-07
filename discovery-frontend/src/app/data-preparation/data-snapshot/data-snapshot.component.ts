@@ -15,7 +15,8 @@
 import { Component, OnInit, Injector, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { DataSnapshotService } from './service/data-snapshot.service';
 import { AbstractComponent } from '../../common/component/abstract.component';
-import { DataSnapshot } from '../../domain/data-preparation/data-snapshot';
+//import { DataSnapshot } from '../../domain/data-preparation/data-snapshot';
+import { PrDataSnapshot, SsType, Status } from '../../domain/data-preparation/pr-snapshot';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
 import { Modal } from '../../common/domain/modal';
 import { Alert } from '../../common/util/alert.util';
@@ -44,10 +45,12 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
   public deleteModalComponent: DeleteModalComponent;
 
   /** 데이터스냅샷 리스트 */
-  public datasnapshots: DataSnapshot[] = [];
+  //public datasnapshots: DataSnapshot[] = [];
+  public datasnapshots: PrDataSnapshot[] = [];
 
   /** 데이터스냅샷 */
-  public datasnapshot: DataSnapshot;
+  //public datasnapshot: DataSnapshot;
+  public datasnapshot: PrDataSnapshot;
 
   /** 지울 데이터스냅샷 아이디 */
   public selectedDeletessId: string;
@@ -78,10 +81,10 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
   public snapshotTypes = [
     {label:'All', value : null},
-    {label:'Staging DB', value : 'HIVE'},
-    {label : 'Local', value : 'FILE'},
-    {label : 'Database', value : 'JDBC'},
-    {label : 'HDFS', value : 'HDFS'}
+    {label: 'Staging DB', value : SsType.STAGING_DB},
+    {label: 'FILE', value : SsType.URI},
+    {label: 'Database', value : SsType.DATABASE},
+    {label: 'DRUID', value : SsType.DRUID}
     ];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -145,11 +148,14 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
         this.datasnapshots = [];
 
         let statusNum = 0;
-        data['_embedded'].preparationsnapshots.forEach((obj : DataSnapshot) => {
-          if ( ['SUCCEEDED'].indexOf(obj.status) >= 0){
+        //data['_embedded'].preparationsnapshots.forEach((obj : DataSnapshot) => {
+        data['_embedded'].preparationsnapshots.forEach((obj : PrDataSnapshot) => {
+          //if ( ['SUCCEEDED'].indexOf(obj.status) >= 0){
+          if ( [Status.SUCCEEDED].indexOf(obj.status) >= 0){
             obj.displayStatus = 'SUCCESS';
             statusNum+=1;
-          } else if ( ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','CANCELING'].indexOf(obj.status) >= 0) {
+          //} else if ( ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','CANCELING'].indexOf(obj.status) >= 0) {
+          } else if ( [Status.INITIALIZING,Status.RUNNING,Status.WRITING,Status.TABLE_CREATING,Status.CANCELING].indexOf(obj.status) >= 0) {
             obj.displayStatus = 'PREPARING';
           } else  { //'FAILED','CANCELED','NOT_AVAILABLE'
             obj.displayStatus = 'FAIL';

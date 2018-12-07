@@ -14,7 +14,8 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import { DataflowService } from '../../../../service/dataflow.service';
@@ -228,10 +229,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
     }
 
     const columnsStr: string = this.selectedFields.map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+      return '`' + item.name + '`';
     }).join(', ');
 
     let ruleString = 'settype col: ' + columnsStr + ` type: ${this.selectedType}`;
@@ -320,7 +318,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
       this.isTimestamp = false;
     }
   }
-
+ 
   /**
    * Show/hide pattern tooltip
    * @param {boolean} isShow

@@ -16,7 +16,8 @@ import { EditRuleComponent } from './edit-rule.component';
 import {
   AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild
 } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import { DataflowService } from '../../../../service/dataflow.service';
@@ -139,7 +140,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
         // When at least one column is selected or this.selectedTimestamp is not empty
         this.selectedTimestamp = this.tempTimetampValue;
         if (cols.length > 0 || '' !== this.tempTimetampValue) {
-          if ('' === this.tempTimetampValue) {
+          if ('' === this.tempTimetampValue && this.selectedFields[0]) {
             let idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
             if(idx !== undefined && idx >= 0) {this.selectedTimestamp = this.colTypes[idx].timestampStyle;}
           }
@@ -180,15 +181,12 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
     }
 
     if ('Custom format' === this.selectedTimestamp && '' === this.customTimestamp || '' === this.selectedTimestamp) {
-      Alert.warning('Timestamp format must not be null');
+      Alert.warning(this.translateService.instant('msg.dp.alert.format.error'));
       return undefined;
     }
 
     const columnsStr: string = this.selectedFields.map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+      return '`' + item.name + '`';
     }).join(', ');
 
     let ruleString = 'setformat col: ' + columnsStr + ' format: ';

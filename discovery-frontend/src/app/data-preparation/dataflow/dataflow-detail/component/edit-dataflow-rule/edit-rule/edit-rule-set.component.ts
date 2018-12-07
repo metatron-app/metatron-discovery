@@ -15,7 +15,8 @@
 import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChildren
 } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
@@ -92,10 +93,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
       }
 
       const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-        if (-1 !== item.name.indexOf(' ')) {
-          item.name = '`' + item.name + '`';
-        }
-        return item.name
+        return '`' + item.name + '`';
       }).join(', ');
 
       // val
@@ -121,6 +119,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
         ruleString: `set col: ${columnsStr} value: ${val}`
       };
 
+      this.condition = this.ruleConditionInputComponent['_results'][1].getCondition();
       if ('' !== this.condition && !isNullOrUndefined(this.condition)) {
         rules.ruleString += ` row: ${this.condition}`;
       }

@@ -15,6 +15,8 @@
 package app.metatron.discovery.domain.dataprep;
 
 import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
@@ -62,6 +64,8 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.RS_TYPE.QUERY;
+
 @Service
 public class PrepDatasetSparkHiveService {
     private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetSparkHiveService.class);
@@ -85,7 +89,7 @@ public class PrepDatasetSparkHiveService {
     }
 
     @Autowired
-    PrepDatasetRepository datasetRepository;
+    PrDatasetRepository datasetRepository;
 
     @Autowired
     JdbcConnectionService connectionService;
@@ -102,8 +106,8 @@ public class PrepDatasetSparkHiveService {
         String username;
         String password;
         String customUrl;
-        String databaseName;
-        public PrepDatasetTotalLinesCallable(PrepDatasetSparkHiveService datasetSparkHiveService, String dsId, String sql, String connectUrl, String username, String password, String customUrl, String databaseName) {
+        String dbName;
+        public PrepDatasetTotalLinesCallable(PrepDatasetSparkHiveService datasetSparkHiveService, String dsId, String sql, String connectUrl, String username, String password, String customUrl, String dbName) {
             this.datasetSparkHiveService = datasetSparkHiveService;
             this.dsId = dsId;
             this.sql = sql;
@@ -111,7 +115,7 @@ public class PrepDatasetSparkHiveService {
             this.username = username;
             this.password = password;
             this.customUrl = customUrl;
-            this.databaseName = databaseName;
+            this.dbName = dbName;
         }
         public Integer call() {
             Integer totalLines = 0;
@@ -256,7 +260,7 @@ public class PrepDatasetSparkHiveService {
         return v;
     }
 
-    List<String> getQuerySchemas(PrepQueryRequest queryRequest) throws Exception {
+    public List<String> getQuerySchemas(PrepQueryRequest queryRequest) throws Exception {
         List<String> response;
 
         try {
@@ -286,7 +290,7 @@ public class PrepDatasetSparkHiveService {
         return response;
     }
 
-    List<String> getQueryTables(PrepQueryRequest queryRequest ) throws Exception {
+    public List<String> getQueryTables(PrepQueryRequest queryRequest ) throws Exception {
         List<String> response = Lists.newArrayList();
 
         try {
@@ -295,9 +299,9 @@ public class PrepDatasetSparkHiveService {
 
             if(listTableInfos!=null) {
                 for(Map<String,String> tableInfo : listTableInfos) {
-                    String tableName = tableInfo.get("name");
-                    if(tableName!=null && 0<tableName.length()) {
-                        response.add(tableName);
+                    String tblName = tableInfo.get("name");
+                    if(tblName!=null && 0<tblName.length()) {
+                        response.add(tblName);
                     }
                 }
             } else {
@@ -313,7 +317,7 @@ public class PrepDatasetSparkHiveService {
     }
 
     // FIXME: connectUrl에 명시된 server에 hiveserver2가 돌고 있어야 한다.
-    Map<String, Object> getPreviewStagedb(String queryStmt, String dbName, String tableName, String size) throws SQLException {
+    public Map<String, Object> getPreviewStagedb(String queryStmt, String dbName, String tblName, String size) throws SQLException {
 
         Map<String, Object> responseMap = Maps.newHashMap();
 
@@ -358,7 +362,7 @@ public class PrepDatasetSparkHiveService {
                     sql = queryStmt + " LIMIT " + size;
                 }
             } else {
-                sql = "SELECT * FROM " + dbName +"."+ tableName + " LIMIT " + size;
+                sql = "SELECT * FROM " + dbName +"."+ tblName + " LIMIT " + size;
             }
 
             Connection connection = null;
@@ -421,7 +425,7 @@ public class PrepDatasetSparkHiveService {
     }
 
     // FIXME: connectUrl에 명시된 server에 hiveserver2가 돌고 있어야 한다.
-    DataFrame getPreviewStagedbForDataFrame(String queryStmt, String dbName, String tableName, String size) throws SQLException {
+    public DataFrame getPreviewStagedbForDataFrame(String queryStmt, String dbName, String tblName, String size) throws SQLException {
 
         DataFrame dataFrame = new DataFrame();
 
@@ -462,7 +466,7 @@ public class PrepDatasetSparkHiveService {
                     sql = queryStmt + " LIMIT " + size;
                 }
             } else {
-                sql = "SELECT * FROM " + dbName +"."+ tableName + " LIMIT " + size;
+                sql = "SELECT * FROM " + dbName +"."+ tblName + " LIMIT " + size;
             }
 
             Connection connection;
@@ -514,7 +518,7 @@ public class PrepDatasetSparkHiveService {
     }
 
     // FIXME: connectUrl에 명시된 server에 hiveserver2가 돌고 있어야 한다.
-    DataFrame getPreviewLinesFromStagedbForDataFrame(PrepDataset dataset, String size) throws Exception {
+    public DataFrame getPreviewLinesFromStagedbForDataFrame(PrDataset dataset, String size) throws Exception {
 
         DataFrame dataFrame = new DataFrame();
 
@@ -522,12 +526,12 @@ public class PrepDatasetSparkHiveService {
             int limitSize = Integer.parseInt(size);
 
             String queryStmt = dataset.getQueryStmt();
-            String tableName = dataset.getTableName();
-            String databaseName = dataset.getCustomValue("databaseName");
+            String tblName = dataset.getTblName();
+            String dbName = dataset.getDbName();
             String sql = null;
-            if(dataset.getRsTypeEnum()== PrepDataset.RS_TYPE.SQL) {
-                if(databaseName==null || true==databaseName.isEmpty()) {
-                    databaseName = "default";
+            if(dataset.getRsType() == QUERY) {
+                if(dbName==null || true==dbName.isEmpty()) {
+                    dbName = "default";
                 }
                 if(queryStmt!=null && false==queryStmt.isEmpty()) {
                     String pattern0 = ".*\\s*;\\s*$";
@@ -545,7 +549,7 @@ public class PrepDatasetSparkHiveService {
                     }
                 }
             } else {
-                sql = "SELECT * FROM " + tableName + " LIMIT " + size;
+                sql = "SELECT * FROM " + tblName + " LIMIT " + size;
             }
 
             StageDataConnection stageDataConnection = new StageDataConnection();
@@ -555,7 +559,7 @@ public class PrepDatasetSparkHiveService {
             stageDataConnection.setPassword(    prepProperties.getHivePassword(true));
             stageDataConnection.setUrl(         prepProperties.getHiveCustomUrl(true));
             stageDataConnection.setMetastoreUrl(prepProperties.getHiveMetastoreUris(true));     // FIXME: metastore는 spark에서만 필요
-            stageDataConnection.setDatabase(databaseName);
+            stageDataConnection.setDatabase(dbName);
 
             String connectUrl = stageDataConnection.getConnectUrl();
             String username = stageDataConnection.getUsername();
@@ -603,12 +607,12 @@ public class PrepDatasetSparkHiveService {
                     dataFrame.rows.add(readRows++,row);
                     if( limitSize < readRows ) { break; }
                 }
-                dataset.setTotalLines(-1);
+                dataset.setTotalLines(-1L);
 
-                if(dataset.getRsTypeEnum()== PrepDataset.RS_TYPE.SQL) {
+                if(dataset.getRsType() == QUERY) {
                     dataset.setTotalBytes(-1L);
                 } else {
-                    String sql2 = "SHOW CREATE TABLE " + databaseName + "." + tableName;
+                    String sql2 = "SHOW CREATE TABLE " + dbName + "." + tblName;
                     Statement statement2 = conn.createStatement();
                     ResultSet rs2 = statement.executeQuery(sql2);
                     StringBuilder sb = new StringBuilder("");
@@ -625,7 +629,7 @@ public class PrepDatasetSparkHiveService {
                         extTblPath = ml.group(1);
                     }
                     if (null != extTblPath) {
-                        Long totalBytes = getTotalBytesFromHdfs(extTblPath, databaseName, tableName);
+                        Long totalBytes = getTotalBytesFromHdfs(extTblPath, dbName, tblName);
                         dataset.setTotalBytes(totalBytes);
                     }
                     JdbcUtils.closeResultSet(rs2);
@@ -636,7 +640,7 @@ public class PrepDatasetSparkHiveService {
                 JdbcUtils.closeStatement(statement);
                 JdbcUtils.closeConnection(conn);
 
-                Callable<Integer> callable = new PrepDatasetTotalLinesCallable(this, dataset.getDsId(), queryStmt, connectUrl, username, password, customUrl, databaseName);
+                Callable<Integer> callable = new PrepDatasetTotalLinesCallable(this, dataset.getDsId(), queryStmt, connectUrl, username, password, customUrl, dbName);
                 this.futures.add( poolExecutorService.submit(callable) );
             }
         } catch (Exception e) {
@@ -660,7 +664,7 @@ public class PrepDatasetSparkHiveService {
                     extTblPath, this.getHiveDefaultHDFSPath(), dbName, tblName ));
         }
 
-        LOGGER.info("HDFS du result: cmd=%s result_line=%s", cmd, line);
+        LOGGER.info("HDFS du result: cmd={} result_line={}", cmd, line);
         return Long.parseLong((line.split("\\s+"))[0]);
     }
 

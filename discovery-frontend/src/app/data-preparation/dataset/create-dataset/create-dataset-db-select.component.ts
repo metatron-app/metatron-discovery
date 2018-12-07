@@ -15,7 +15,7 @@
 import { Component, ElementRef, Injector, OnInit, Input } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
-import { DatasetJdbc, DsType, ImportType } from '../../../domain/data-preparation/dataset';
+import { PrDatasetJdbc, DsType, ImportType } from '../../../domain/data-preparation/pr-dataset';
 import { ConnectionType, Dataconnection } from '../../../domain/dataconnection/dataconnection';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
 import { ConnectionRequest } from '../../../domain/dataconnection/connectionrequest';
@@ -48,7 +48,8 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   public isUrl : boolean = false;
 
   @Input()
-  public datasetJdbc: DatasetJdbc;
+  //public datasetJdbc: DatasetJdbc;
+  public datasetJdbc: PrDatasetJdbc;
 
   // 데이터 커넥션 리스트
   public databaseTypeList: any[] = [
@@ -144,7 +145,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   public initView() {
 
     this.datasetJdbc.dsType = DsType.IMPORTED;
-    this.datasetJdbc.importType = ImportType.DB;
+    this.datasetJdbc.importType = ImportType.DATABASE;
 
     this.selectedDatabase = this.databaseTypeList[0];
 

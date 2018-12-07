@@ -199,21 +199,6 @@
       <div class="ddp-ui-option-sub" *ngIf="createType === 'STAGING' && partitionKeyList.length !== 0">
         <label class="ddp-ui-label-name">
           {{'msg.storage.ui.dsource.create.partition.keys' | translate}}
-        </label>
-        <div class="ddp-ui-edit-option">
-          <!-- not strict mode, show partition radio button -->
-          <ng-container *ngIf="!isStrictMode">
-            <label class="ddp-label-radio" (change)="onChangePartitionType(partitionTypeList[0])">
-              <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[0].value">
-              <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{partitionTypeList[0].label}}</span>
-            </label>
-            <label class="ddp-label-radio ddp-mgr0" (change)="onChangePartitionType(partitionTypeList[1])">
-              <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[1].value">
-              <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{partitionTypeList[1].label}}</span>
-            </label>
-          </ng-container>
           <!-- info -->
           <div class="ddp-wrap-hover-info ddp-type">
             <em class="ddp-icon-info3"></em>
@@ -359,6 +344,21 @@
             </div>
           </div>
           <!-- //info -->
+        </label>
+        <div class="ddp-ui-edit-option">
+          <!-- not strict mode, show partition radio button -->
+          <ng-container *ngIf="!isStrictMode">
+            <label class="ddp-label-radio" (change)="onChangePartitionType(partitionTypeList[0])">
+              <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[0].value">
+              <i class="ddp-icon-radio"></i>
+              <span class="ddp-txt-radio">{{partitionTypeList[0].label}}</span>
+            </label>
+            <label class="ddp-label-radio ddp-mgr0" (change)="onChangePartitionType(partitionTypeList[1])">
+              <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[1].value">
+              <i class="ddp-icon-radio"></i>
+              <span class="ddp-txt-radio">{{partitionTypeList[1].label}}</span>
+            </label>
+          </ng-container>
           <!-- partition -->
           <div class="ddp-wrap-partition" *ngIf="partitionKeyList.length !== 0 && selectedPartitionType.value === 'ENABLE'">
             <div class="ddp-ui-partition">

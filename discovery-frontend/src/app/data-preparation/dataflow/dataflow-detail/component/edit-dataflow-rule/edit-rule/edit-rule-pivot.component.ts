@@ -13,7 +13,8 @@
  */
 
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren} from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
@@ -104,10 +105,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
 
     let selFields = _.cloneDeep(this.selectedFields);
     const columnsStr: string = selFields.map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+      return '`' + item.name + '`';
     }).join(', ');
 
     const validFormulaList:string[] = [];
@@ -136,10 +134,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
     }
     let selGroupFields = _.cloneDeep(this.selectedGroupFields);
     const groupStr: string = selGroupFields.map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+      return '`' + item.name + '`';
     }).join(', ');
 
     return {

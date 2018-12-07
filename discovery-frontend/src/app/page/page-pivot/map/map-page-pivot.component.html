@@ -46,7 +46,7 @@
               <!-- //timestamp type -->
               <!-- aggregation type -->
               <span class="ddp-type-value" *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && 'measure' == field.type && ((field.aggregationType && 'user_expr' !== field.subType)
-              || (!field.aggregated && 'symbol' !== uiOption.layers[uiOption.layerNum].type.toString() && 'heatmap' !== uiOption.layers[uiOption.layerNum].type.toString() && 'user_expr' == field.subType))">
+              || (!field.aggregated && 'tile' === uiOption.layers[uiOption.layerNum].type.toString() && 'user_expr' == field.subType))">
                 {{field.aggregationType}}</span>
               <!-- //aggregation type -->
               <!-- geo-point type -->

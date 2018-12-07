@@ -14,7 +14,8 @@
 
 import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
-import { DataSnapshot } from '../../domain/data-preparation/data-snapshot';
+//import { DataSnapshot } from '../../domain/data-preparation/data-snapshot';
+import { PrDataSnapshot, Status } from '../../domain/data-preparation/pr-snapshot';
 import { DataSnapshotService } from '../data-snapshot/service/data-snapshot.service';
 import { Alert } from '../../common/util/alert.util';
 
@@ -37,7 +38,8 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public snapshot : DataSnapshot;
+  //public snapshot : DataSnapshot;
+  public snapshot : PrDataSnapshot;
 
   public interval;
 
@@ -108,10 +110,13 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
         if (result) {
           this.snapshot = result;
           this.isShow = true;
-          let progress = ['NOT_AVAILABLE', 'INITIALIZING', 'RUNNING', 'WRITING', 'TABLE_CREATING'];
-          if (this.snapshot.status === 'FAILED') {
+          //let progress = ['NOT_AVAILABLE', 'INITIALIZING', 'RUNNING', 'WRITING', 'TABLE_CREATING'];
+          let progress = [Status.NOT_AVAILABLE,Status.INITIALIZING,Status.RUNNING,Status.WRITING,Status.TABLE_CREATING];
+          //if (this.snapshot.status === 'FAILED') {
+          if (this.snapshot.status === Status.FAILED) {
             this._setFinishPopup('fail');
-          } else if (this.snapshot.status === 'SUCCEEDED') {
+          //} else if (this.snapshot.status === 'SUCCEEDED') {
+          } else if (this.snapshot.status === Status.SUCCEEDED) {
             this._setFinishPopup('success');
           } else if (-1 !== progress.indexOf(this.snapshot.status)) {
             this.progressPercentage = this.snapshot.ruleCntDone*100 / (this.snapshot.ruleCntTotal + 1);

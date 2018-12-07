@@ -20,7 +20,8 @@ import { AbstractComponent } from '../../../../../common/component/abstract.comp
 import { GridComponent } from '../../../../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../../../../common/component/grid/grid.header';
 import { GridOption } from '../../../../../common/component/grid/grid.option';
-import { Field } from '../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../domain/data-preparation/pr-dataset';
 import * as pixelWidth from 'string-pixel-width';
 import { Alert } from '../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../common/util/string.util';
@@ -296,9 +297,7 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
       }
 
       const columnsStr: string = cols.map((item) => {
-        if (-1 !== item.indexOf(' ')) {
-          item = '`' + item + '`';
-        }
+        item = '`' + item + '`';
         return item
       }).join(', ');
 
@@ -327,7 +326,7 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
 
     let rows: any[] = this.gridRows;
 
-    if( 0 === fields.length || 0 === rows.length ) {
+    if( 0 === fields.length) {
       return;
     }
 

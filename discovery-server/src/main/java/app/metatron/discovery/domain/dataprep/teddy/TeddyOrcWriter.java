@@ -14,7 +14,8 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.PrepSnapshot.COMPRESSION;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_COMPRESSION;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.ql.exec.vector.*;
@@ -38,7 +39,7 @@ public class TeddyOrcWriter {
     return (inputData == null) ? "".getBytes() : inputData.getBytes();
   }
 
-  private CompressionKind convertCompressionEnum(COMPRESSION compression) {
+  private CompressionKind convertCompressionEnum(HIVE_FILE_COMPRESSION compression) {
     switch (compression) {
       case SNAPPY:
         return CompressionKind.SNAPPY;
@@ -162,7 +163,7 @@ public class TeddyOrcWriter {
   }
 
   // 테스트를 위해 public이 되고, conf를 argument로 받음.
-  public Integer[] writeOrc(DataFrame df, Configuration conf, Path file, COMPRESSION compression) throws IOException {
+  public Integer[] writeOrc(DataFrame df, Configuration conf, Path file, PrSnapshot.HIVE_FILE_COMPRESSION compression) throws IOException {
     TypeDescription typeDescription = buildTypeDescription(df);
     Integer[] result = new Integer[2];
     int pos;    // batch상 position (0~1023)

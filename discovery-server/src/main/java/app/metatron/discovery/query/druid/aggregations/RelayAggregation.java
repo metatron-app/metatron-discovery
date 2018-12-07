@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import app.metatron.discovery.query.druid.Aggregation;
 
-@JsonTypeName("count")
+@JsonTypeName("relay")
 public class RelayAggregation implements Aggregation {
 
   String name;

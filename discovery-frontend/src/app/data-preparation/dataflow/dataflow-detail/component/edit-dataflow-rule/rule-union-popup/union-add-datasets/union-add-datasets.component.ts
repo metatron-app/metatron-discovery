@@ -14,8 +14,9 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../../../common/component/abstract-popup.component';
-import { Dataset } from '../../../../../../../domain/data-preparation/dataset';
-import { Dataflow } from '../../../../../../../domain/data-preparation/dataflow';
+//import { Dataset } from '../../../../../../../domain/data-preparation/dataset';
+import { PrDataset } from '../../../../../../../domain/data-preparation/pr-dataset';
+//import { Dataflow } from '../../../../../../../domain/data-preparation/dataflow';
 import { PopupService } from '../../../../../../../common/service/popup.service';
 import { DataflowService } from '../../../../../service/dataflow.service';
 import { Alert } from '../../../../../../../common/util/alert.util';
@@ -40,9 +41,11 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
   public isUpdate: boolean ; //수정 모드 여부
 
 
-  public datasets: Dataset[] = [];        // 화면에 보여지는 데이터셋 리스트
+  //public datasets: Dataset[] = [];        // 화면에 보여지는 데이터셋 리스트
+  public datasets: PrDataset[] = [];        // 화면에 보여지는 데이터셋 리스트
 
-  public tempDatasets: Dataset[] = [];     // 화면상에 체크 된 데이터셋들 유지해야해서 갖고 있는다
+  //public tempDatasets: Dataset[] = [];     // 화면상에 체크 된 데이터셋들 유지해야해서 갖고 있는다
+  public tempDatasets: PrDataset[] = [];     // 화면상에 체크 된 데이터셋들 유지해야해서 갖고 있는다
 
   private originalDsIds: string[] = [];    // existingDatasets안에 ids 모음
 
@@ -53,10 +56,12 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
   public dfId: string;
 
   @Input() // 받아오는 기존 데이터
-  public existingDatasets: Dataset[];
+  //public existingDatasets: Dataset[];
+  public existingDatasets: PrDataset[];
 
   @Input()
-  public editInfo: Dataset[];
+  //public editInfo: Dataset[];
+  public editInfo: PrDataset[];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Output Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -379,7 +384,8 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
 
       if (data && data['_embedded'] && data['_embedded'].preparationdatasets) {
 
-        this.datasets = data['_embedded'].preparationdatasets.filter((ds: Dataset) => {
+        //this.datasets = data['_embedded'].preparationdatasets.filter((ds: Dataset) => {
+        this.datasets = data['_embedded'].preparationdatasets.filter((ds: PrDataset) => {
 
           if (ds.dataflows.length !== 0) {
             if (ds.dataflows[0].dfId === this.dfId) {

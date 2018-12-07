@@ -116,7 +116,7 @@
       </colgroup>
       <thead>
       <tr>
-        <th (click)="changeOrder('ssName')">
+        <th (click)="changeOrder('ssName')" class="ddp-cursor">
           {{'msg.dp.th.ss' | translate}}
           <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'ssName' || selectedContentSort.sort === 'default'"></em>
           <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'ssName' && selectedContentSort.sort === 'asc'"></em>
@@ -134,7 +134,7 @@
         <th>
           {{'msg.dp.th.et' | translate}}
         </th>
-        <th (click)="changeOrder('createdTime')">
+        <th (click)="changeOrder('createdTime')" class="ddp-cursor">
           {{'msg.comm.th.created' | translate}}
           <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
           <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
@@ -154,7 +154,7 @@
         </td>
         <td>
           <span *ngIf="item.dsName === ''" class="ddp-data-delete">{{'msg.dp.ui.ds.del.success' | translate}}</span>
-          {{item.creatorDfName}} | {{item.dsName}}
+          {{item.dfName}} | {{item.dsName}}
         </td>
         <td>
           {{prepCommonUtil.getSnapshotType(item.ssType)}}

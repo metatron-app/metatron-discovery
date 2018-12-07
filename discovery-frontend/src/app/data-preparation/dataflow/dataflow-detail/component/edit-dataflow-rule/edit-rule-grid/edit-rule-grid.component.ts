@@ -26,7 +26,8 @@ import {
 } from '@angular/core';
 import { ScrollLoadingGridModel } from './scroll-loading-grid.model';
 import { isNull, isNullOrUndefined, isUndefined } from 'util';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { header, SlickGridHeader } from '../../../../../../common/component/grid/grid.header';
 import { DataflowService } from '../../../../service/dataflow.service';
 import { HeaderMenu } from '../../../../../../common/component/grid/grid.header.menu';
@@ -824,8 +825,8 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     if (data.more) {
       this._gridComp.columnAllUnSelection();
 
-      const singleSelectionMap: string[] = ['rename', 'unnest', 'extract', 'split',];
-      const multiSelectionMap: string[] = ['merge', 'replace', 'set', 'nest', 'settype', 'setformat', 'move', 'countpattern'];
+      const singleSelectionMap: string[] = ['rename', 'unnest'];
+      const multiSelectionMap: string[] = ['merge', 'replace', 'set', 'nest', 'settype', 'setformat', 'move', 'countpattern', 'extract', 'split'];
 
       if (-1 < singleSelectionMap.indexOf(data.more.command)) {
         this._gridComp.selectColumn(data.more.col.value[0], true);

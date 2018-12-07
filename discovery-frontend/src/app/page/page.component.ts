@@ -102,6 +102,7 @@ import { Shelf } from '../domain/workbook/configurations/shelf/shelf';
 import { MapPagePivotComponent } from './page-pivot/map/map-page-pivot.component';
 import { UIMapOption } from '../common/component/chart/option/ui-option/map/ui-map-chart';
 import { MapLayerType } from '../common/component/chart/option/define/map/map-common';
+import { ChartUtil } from '../common/component/chart/option/util/chart-util';
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -2368,9 +2369,31 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         }
       });
 
+      // find geo type from custom fields
+      let geoFields = [];
+      for (const item of _.cloneDeep(this.pageDimensions)) {
+        if (item.logicalType && -1 !== item.logicalType.toString().indexOf('GEO')) {
+          geoFields.push(ChartUtil.getAlias(item));
+        }
+      }
+
+      // if custom field is geo type
+      for (const alias of geoFields) {
+        if (-1 !== targetField.expr.indexOf(alias)) {
+          Alert.warning(this.translateService.instant('msg.storage.ui.list.geo.block.custom.field.geo'));
+          return;
+        }
+      }
+
       // if another datasource is in a same shelf
       if (diffDataSourceFl) {
         Alert.warning(this.translateService.instant('msg.page.layer.multi.datasource.same.shelf'));
+        return;
+      }
+
+      // if custom field is aggregated true
+      if ('user_expr' === targetField.type && true === targetField.aggregated) {
+        Alert.warning(this.translateService.instant('msg.storage.ui.list.geo.block.custom.field.agg.function'));
         return;
       }
 
@@ -2416,9 +2439,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
           this.mapPivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
 
-        // point, heatmap => no aggregation / hexagon, line, polygon => set aggregation
-        } else if (isAlreadyPivot && (MapLayerType.SYMBOL === (<UIMapOption>this.uiOption).layers[(<UIMapOption>this.uiOption).layerNum].type ||
-          MapLayerType.HEATMAP === (<UIMapOption>this.uiOption).layers[(<UIMapOption>this.uiOption).layerNum].type)) {
+        // point, heatmap, line, polygon => no aggregation / hexagon => set aggregation
+        } else if (isAlreadyPivot && MapLayerType.TILE !== (<UIMapOption>this.uiOption).layers[(<UIMapOption>this.uiOption).layerNum].type) {
 
           this.mapPivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
         // push pivotField to layers
