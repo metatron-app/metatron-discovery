@@ -258,7 +258,6 @@ polaris:
         subContents:
           Workflow: http://metatron-web-05:8280/integrator/sso?token=${token}&refreshToken=${refreshToken}&type=${type}&userId=${userId}&forwardUrl=http://metatron-web-05:8280/app/v2/management/integrator/workflow
           Monitoring: http://metatron-web-05:8280/integrator/sso?token=${token}&refreshToken=${refreshToken}&type=${type}&userId=${userId}&forwardUrl=http://metatron-web-05:8280/app/v2/management/integrator/monitoring
-          Code-Management: http://metatron-web-05:8280/integrator/sso?token=${token}&refreshToken=${refreshToken}&type=${type}&userId=${userId}&forwardUrl=http://metatron-web-05:8280/app/v2/management/integrator/code
 #    hadoopConfDir: /etc/hadoop
 #    stagingBaseDir: hdfs://localhost:9000/user/hive/dataprep
 #    hive:
