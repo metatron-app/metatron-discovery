@@ -1188,27 +1188,10 @@ public class PrepDatasetFileService {
     }
 
     public String moveExcelToCsv(String excelStrUri, String sheetName, String delimiter) {
-//        String csvFileName = null;
         String csvStrUri = null;
         try {
-//            int idx = fileKey.lastIndexOf(".");
-//            String extensionType = n;
-//            String newFileKey = fileKey.substring(0, idx) + ".csv";
-//
-//            String excelFileName = this.getPathLocal_new(fileKey);
-//            csvFileName = this.getPathLocal_new(newFileKey);
-
-            /*
-            File theFile = new File(excelFileName);
-            Workbook wb = null;
-            if ("xlsx".equals(extensionType)) {
-                wb = new XSSFWorkbook(theFile);
-            } else if ("xls".equals(extensionType)) {
-                wb = new HSSFWorkbook(new FileInputStream(theFile));
-            }
-            int findSheetIndex = wb.getSheetIndex(sheetName);
-            Sheet sheet = wb.getSheetAt(findSheetIndex);
-            */
+            int idx = excelStrUri.lastIndexOf(".");
+            csvStrUri = excelStrUri.substring(0, idx) + ".csv";
 
             URI excelUri = new URI(excelStrUri);
             String extensionType = FilenameUtils.getExtension(excelStrUri);
@@ -1254,10 +1237,7 @@ public class PrepDatasetFileService {
             sheet = wb.getSheet(sheetName);
             String separator = delimiter;
 
-            int idx = excelStrUri.lastIndexOf(".");
-            csvStrUri = excelStrUri.substring(0, idx) + ".csv";
             URI csvUri = new URI(csvStrUri);
-
             FileWriter writer = new FileWriter(new File(csvUri));
             for (Row r : sheet) {
                 StringBuilder sb = new StringBuilder();
@@ -1295,14 +1275,14 @@ public class PrepDatasetFileService {
         return csvStrUri;
     }
 
-    public String moveJsonToCsv(String fileKey, String mainKey, String delimiter) {
-        String csvFileName = null;
+    public String moveJsonToCsv(String jsonStrUri, String mainKey, String delimiter) {
+        String csvStrUri = null;
         try {
-            int idx = fileKey.lastIndexOf(".");
-            String newFileKey = fileKey.substring(0, idx) + ".csv";
-            String josnFileName = this.getPathLocal_new(fileKey);
-            csvFileName = this.getPathLocal_new(newFileKey);
-            File theFile = new File(josnFileName);
+            int idx = jsonStrUri.lastIndexOf(".");
+            csvStrUri = jsonStrUri.substring(0, idx) + ".csv";
+
+            URI jsonUri = new URI(jsonStrUri);
+            File theFile = new File(jsonUri);
 
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
             List<Map<String, String>> resultSet = Lists.newArrayList();
@@ -1326,7 +1306,8 @@ public class PrepDatasetFileService {
             }
 
             String separator = delimiter;
-            FileWriter writer = new FileWriter(csvFileName);
+            URI csvUri = new URI(csvStrUri);
+            FileWriter writer = new FileWriter(new File(csvUri));
             StringBuilder stringBuilder = new StringBuilder();
 
             for(int i=0; i<keys.size(); i++) {
@@ -1370,6 +1351,6 @@ public class PrepDatasetFileService {
             LOGGER.error("Failed to copy localFile : {}", e.getMessage());
         }
 
-        return csvFileName;
+        return csvStrUri;
     }
 }

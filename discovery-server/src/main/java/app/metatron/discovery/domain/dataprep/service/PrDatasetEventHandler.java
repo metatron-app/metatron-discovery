@@ -39,38 +39,7 @@ public class PrDatasetEventHandler {
 
     @HandleAfterCreate
     public void afterCreate(PrDataset dataset) {
-        /*
-        LOGGER.debug(dataset.toString());
-        try {
-
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-            String oAuthToken = "bearer ";
-            Cookie[] cookies = request.getCookies();
-            for(int i=0; i<cookies.length; i++){
-                if(cookies[i].getName().equals("LOGIN_TOKEN"))
-                    oAuthToken = oAuthToken + cookies[i].getValue();
-            }
-
-            // excel to csv
-            // below the file format is always csv
-            if(dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD || dataset.getImportType() == PrDataset.IMPORT_TYPE.URI) {
-                this.datasetService.changeExcelToCsv(dataset);
-            }
-
-            // upload file to storage
-            if(dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD) {
-                this.datasetService.uploadFileToStorage(dataset);
-            }
-
-            this.datasetService.savePreview(dataset, oAuthToken);
-
-        } catch (Exception e) {
-            LOGGER.debug(e.getMessage());
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_DATASET_FAILED_AFTERCREATE, e.getMessage());
-        }
-
-        this.datasetRepository.flush();
-        */
+        // LOGGER.debug(dataset.toString());
     }
 
     @HandleBeforeSave
