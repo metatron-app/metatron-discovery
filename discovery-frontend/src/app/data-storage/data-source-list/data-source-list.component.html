@@ -60,7 +60,7 @@
     <!-- create datasource -->
     <div class="ddp-filter-option">
       <!-- list length -->
-      <span class="ddp-data-total ddp-only" [innerHtml]="'msg.storage.ui.list.length' | translate: {value: datasourceList.length}"></span>
+      <span class="ddp-data-total ddp-only" [innerHtml]="'msg.storage.ui.list.length' | translate: {value: pageResult.totalElements || 0}"></span>
       <!-- //list length -->
       <a href="javascript:" class=" ddp-btn-pop ddp-bg-black" (click)="changeMode('create-data-source')"><em class="ddp-icon-add2"></em>{{'msg.comm.btn.new' | translate}}</a>
     </div>
