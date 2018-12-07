@@ -15,7 +15,5 @@
 export const environment = {
   production: true,
   // 도메인 (쿠키에서 사용)
-  baseHref: '/app/v2/',
-  // SAML 사용 여부
-  samlUrl:'http://adsso.airtel.com/adfs/services/trust'
+  baseHref: '/app/v2/'
 };
