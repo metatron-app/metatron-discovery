@@ -24,7 +24,8 @@ import {
   Output, SimpleChange, SimpleChanges, ViewChild
 } from '@angular/core';
 import { AbstractComponent } from '../../../../../../common/component/abstract.component';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { isNullOrUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import { StringUtil } from '../../../../../../common/util/string.util';

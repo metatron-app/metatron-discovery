@@ -14,9 +14,12 @@
 
 import { Injectable, Injector } from '@angular/core';
 import { AbstractService } from '../../../common/service/abstract.service';
-import { Dataflow, Dataflows } from '../../../domain/data-preparation/dataflow';
-import { Dataset, Datasets } from '../../../domain/data-preparation/dataset';
-import { DataSnapshot } from '../../../domain/data-preparation/data-snapshot';
+//import { Dataflow, Dataflows } from '../../../domain/data-preparation/dataflow';
+import { PrDataflow, Dataflows } from '../../../domain/data-preparation/pr-dataflow';
+//import { Dataset, Datasets } from '../../../domain/data-preparation/dataset';
+import { PrDataset, Datasets } from '../../../domain/data-preparation/pr-dataset';
+//import { DataSnapshot } from '../../../domain/data-preparation/data-snapshot';
+import { PrDataSnapshot } from '../../../domain/data-preparation/pr-snapshot';
 import { Page } from '../../../domain/common/page';
 import { CommonUtil } from '../../../common/util/common.util';
 import { StringUtil } from '../../../common/util/string.util';
@@ -45,7 +48,8 @@ export class DataflowService extends AbstractService {
   }
 
   // 데이터 플로우 상세조회
-  public getDataflow(dfId: string): Promise<Dataflow> {
+  //public getDataflow(dfId: string): Promise<Dataflow> {
+  public getDataflow(dfId: string): Promise<PrDataflow> {
     const url = this.API_URL + 'preparationdataflows/' + dfId;
     return this.get(url);
   }
@@ -78,13 +82,15 @@ export class DataflowService extends AbstractService {
   }
 
   // 데이터셋 상세 조회
-  public getDataset(dsId: string): Promise<Dataset> {
+  //public getDataset(dsId: string): Promise<Dataset> {
+  public getDataset(dsId: string): Promise<PrDataset> {
     const url = this.API_URL + 'preparationdatasets/' + dsId + '?projection=detail';
     return this.get(url);
   }
 
   // 데이터 플로우 생성
-  public createDataflow(dataflow: Dataflow) {
+  //public createDataflow(dataflow: Dataflow) {
+  public createDataflow(dataflow: PrDataflow) {
     let popupService = this.popupService;
     return this.post(this.API_URL + 'preparationdataflows', dataflow)
       .catch((error) => {
@@ -114,7 +120,8 @@ export class DataflowService extends AbstractService {
   }
 
   // 데이터 플로우 수정
-  public updateDataflow(dataflow: any): Promise<Dataflow> {
+  //public updateDataflow(dataflow: any): Promise<Dataflow> {
+  public updateDataflow(dataflow: any): Promise<PrDataflow> {
     let popupService = this.popupService;
     return this.patch(this.API_URL + 'preparationdataflows/' + dataflow.dfId, dataflow)
       .catch((error) => {
@@ -207,7 +214,8 @@ export class DataflowService extends AbstractService {
   }
 
   // 데이터 스냅샷 생성
-  public createDataSnapshot(datasetId: string, datasnapshot: DataSnapshot): Promise<any> {
+  //public createDataSnapshot(datasetId: string, datasnapshot: DataSnapshot): Promise<any> {
+  public createDataSnapshot(datasetId: string, datasnapshot: PrDataSnapshot): Promise<any> {
     let popupService = this.popupService;
     return this.post(this.API_URL + `preparationdatasets/${datasetId}/transform/snapshot`, datasnapshot)
       .catch((error) => {

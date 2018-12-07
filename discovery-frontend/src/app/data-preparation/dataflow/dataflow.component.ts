@@ -15,7 +15,8 @@
 import { Component, ElementRef, OnInit, Injector, ViewChild, OnDestroy, HostListener } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { DataflowService } from './service/dataflow.service';
-import { Dataflow } from '../../domain/data-preparation/dataflow';
+//import { Dataflow } from '../../domain/data-preparation/dataflow';
+import { PrDataflow } from '../../domain/data-preparation/pr-dataflow';
 import { Subscription } from 'rxjs/Subscription';
 import { Modal } from '../../common/domain/modal';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
@@ -49,7 +50,8 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
   public createDataflowComponent : CreateDataflowNameDescComponent;
 
   // 데이터플로우 리스트
-  public dataflows : Dataflow[] = [];
+  //public dataflows : Dataflow[] = [];
+  public dataflows : PrDataflow[] = [];
 
   // 상세 조회 할 데이터 플로우 아이디
   public dfId: string;

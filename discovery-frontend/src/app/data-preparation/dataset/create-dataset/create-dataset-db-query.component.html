@@ -32,7 +32,7 @@
         쿼리 선택시 : ddp-selected-query
     -->
     <div class="ddp-ui-import-option"
-         [ngClass]="{'TABLE':'ddp-selected-table', 'SQL':'ddp-selected-query'}[datasetJdbc.rsType]">
+         [ngClass]="{'TABLE':'ddp-selected-table', 'QUERY':'ddp-selected-query'}[datasetJdbc.rsType]">
 
       <!-- tab -->
       <ul class="ddp-list-buttons">
@@ -41,8 +41,8 @@
             [ngClass]="{'ddp-selected': datasetJdbc.rsType === rsType.TABLE}">
           {{'msg.lineage.ui.list.search.table' | translate}}
         </li>
-        <li (click)="selectTab('SQL')"
-            [ngClass]="{'ddp-selected':datasetJdbc.rsType === rsType.SQL}">
+        <li (click)="selectTab('QUERY')"
+            [ngClass]="{'ddp-selected':datasetJdbc.rsType === rsType.QUERY}">
           {{'msg.dp.btn.query' | translate}}
         </li>
       </ul>

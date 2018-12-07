@@ -20,7 +20,7 @@ import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.jdbc.JdbcDataPrepService;
+import app.metatron.discovery.domain.dataprep.jdbc.PrepJdbcService;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
 import app.metatron.discovery.domain.dataprep.teddy.Revision;
@@ -248,9 +248,8 @@ public class TeddyImpl {
     addRev(dsId, newRev);
   }
 
-  public DataFrame loadFileDataset(String dsId, String targetUrl, String delimiter, String dsName) {
+  public DataFrame loadFileDataset(String dsId, String strUri, String delimiter, String dsName) {
     DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
-    String strUri = targetUrl.startsWith("hdfs") ? targetUrl : "file://" + targetUrl;
     df.setByGrid(PrepCsvUtil.parse(strUri, delimiter, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
 
     return createStage0(dsId, df);
@@ -273,7 +272,7 @@ public class TeddyImpl {
     hiveConnection.setPassword(prepProperties.getHivePassword(true));
     hiveConnection.setUrl(     prepProperties.getHiveCustomUrl(true));
 
-    JdbcDataPrepService jdbcConnectionService = new JdbcDataPrepService();
+    PrepJdbcService jdbcConnectionService = new PrepJdbcService();
     DataSource dataSource = jdbcConnectionService.getDataSource(hiveConnection, true);
     Statement stmt;
 
@@ -301,7 +300,7 @@ public class TeddyImpl {
 
   public DataFrame loadJdbcDataset(String dsId, DataConnection dataConnection, String dbName, String sql,
                                    String dsName) throws PrepException {
-    JdbcDataPrepService jdbcConnectionService = new JdbcDataPrepService();
+    PrepJdbcService jdbcConnectionService = new PrepJdbcService();
     JdbcDataConnection jdbcDataConnection;
     if( dataConnection instanceof JdbcDataConnection ) {
       jdbcDataConnection = (JdbcDataConnection) dataConnection;

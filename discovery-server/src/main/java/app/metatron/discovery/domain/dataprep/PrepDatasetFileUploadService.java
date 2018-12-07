@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +27,8 @@ public class PrepDatasetFileUploadService {
 
     @Async("prepFileUploadExecutor")
     public Future<Map<String,Object>> postUpload(String extensionType, Map<String,Object> responseMap) throws Exception {
-        String fileName = (String)responseMap.get("filename");
-        String filePath = (String)responseMap.get("filepath");
-        String fileKey = (String)responseMap.get("filekey");
+        String storedUri = (String)responseMap.get("storedUri");
+        String filenameBeforeUpload = (String)responseMap.get("filenameBeforeUpload");
 
         List<String> sheets = Lists.newArrayList();
         responseMap.put("sheets", sheets);
@@ -36,14 +36,47 @@ public class PrepDatasetFileUploadService {
         FileInputStream fis = null;
         FileOutputStream fos = null;
         try {
-            if(extensionType.equals("csv")
+            if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
+                /*
+                Workbook wb = null;
+                wb = WorkbookFactory.create(new File(filePath));
+                if (null != wb) {
+                    int sheetsCount = wb.getNumberOfSheets();
+                    for (int j = 0; j < sheetsCount; j++) {
+                        sheets.add(wb.getSheetAt(j).getSheetName());
+                    }
+                }
+                */
+
+                Workbook workbook;
+                File origFile = new File(new URI(storedUri));
+                if ("xls".equals(extensionType)) {       // 97~2003
+                    workbook = new HSSFWorkbook(new FileInputStream(origFile));
+                } else {   // 2007 ~
+                    InputStream is = new FileInputStream(origFile);
+                    workbook = StreamingReader.builder()
+                            .rowCacheSize(100)
+                            .bufferSize(4096)
+                            .open(is);
+                }
+
+                for (Sheet sheet : workbook) {
+                    sheets.add(sheet.getSheetName());
+                        /*
+                        for (Row r : sheet) {
+                            for (Cell c : r) {
+                                System.out.println(c.getStringCellValue());
+                            }
+                        }
+                        */
+                }
+            } else if(extensionType.equals("csv")
                 || extensionType.equals("txt") // txt is csv
                 || extensionType.equals("json") // json is not implement
-                || false==("xlsx".equals(extensionType) ||"xls".equals(extensionType)) // excel is not csv
                 || true // the others are csv
             ) {
                 boolean convert = true;
-                fis = new FileInputStream(filePath);
+                fis = new FileInputStream(new File(new URI(storedUri)));
                 ByteOrderMark byteOrderMark = ByteOrderMark.UTF_8;
                 Charset charSet = Charset.defaultCharset();
                 BOMInputStream bomInputStream = new BOMInputStream(fis,
@@ -70,8 +103,8 @@ public class PrepDatasetFileUploadService {
                 }
 
                 if(true==convert) {
-                    String newFilePath = filePath + ".new";
-                    fos = new FileOutputStream(newFilePath);
+                    String newStoredUri = storedUri + ".new";
+                    fos = new FileOutputStream(new File(new URI(newStoredUri)));
 
                     InputStreamReader isr = new InputStreamReader(bomInputStream, charSet);
                     BufferedReader br = new BufferedReader(isr);
@@ -86,53 +119,19 @@ public class PrepDatasetFileUploadService {
                         fos.write('\n');
                     }
 
-                    File origFile = new File(filePath);
-                    File newFile = new File(newFilePath);
+                    File origFile = new File(new URI(storedUri));
+                    File newFile = new File(new URI(newStoredUri));
                     origFile.delete();
                     newFile.renameTo(origFile);
-                }
-            } else if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
-                /*
-                Workbook wb = null;
-                wb = WorkbookFactory.create(new File(filePath));
-                if (null != wb) {
-                    int sheetsCount = wb.getNumberOfSheets();
-                    for (int j = 0; j < sheetsCount; j++) {
-                        sheets.add(wb.getSheetAt(j).getSheetName());
-                    }
-                }
-                */
-
-                Workbook workbook;
-                File origFile = new File(filePath);
-                if ("xls".equals(extensionType)) {       // 97~2003
-                    workbook = new HSSFWorkbook(new FileInputStream(origFile));
-                } else {   // 2007 ~
-                    InputStream is = new FileInputStream(origFile);
-                    workbook = StreamingReader.builder()
-                            .rowCacheSize(100)
-                            .bufferSize(4096)
-                            .open(is);
-                }
-
-                for (Sheet sheet : workbook) {
-                    sheets.add(sheet.getSheetName());
-                    /*
-                    for (Row r : sheet) {
-                        for (Cell c : r) {
-                            System.out.println(c.getStringCellValue());
-                        }
-                    }
-                    */
                 }
             } else {
                 // not reachable
             }
 
             responseMap.put("success", true);
-            responseMap.put("filekey", fileKey);
-            responseMap.put("filepath", filePath);
-            responseMap.put("filename", fileName);
+            responseMap.put("storedUri", storedUri);
+            responseMap.put("sheets", sheets);
+            responseMap.put("filenameBeforeUpload", filenameBeforeUpload);
         } catch (Exception e) {
             LOGGER.error("Failed to upload file : {}", e.getMessage());
             responseMap.put("success", false);

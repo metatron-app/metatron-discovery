@@ -30,7 +30,7 @@
         table 선택시 : ddp-selected-table
         쿼리 선택시 : ddp-selected-query
     -->
-    <div class="ddp-ui-import-option" [ngClass]="{'TABLE' : 'ddp-selected-table', 'SQL': 'ddp-selected-query'}[datasetHive.rsType]">
+    <div class="ddp-ui-import-option" [ngClass]="{'TABLE' : 'ddp-selected-table', 'QUERY': 'ddp-selected-query'}[datasetHive.rsType]">
 
       <!-- tab -->
       <ul class="ddp-list-buttons">
@@ -38,8 +38,8 @@
             [ngClass]="{'ddp-selected': datasetHive.rsType === rsType.TABLE}">
           {{'msg.lineage.ui.list.search.table' | translate}}
         </li>
-        <li (click)="selectTab('SQL')"
-            [ngClass]="{'ddp-selected': datasetHive.rsType === rsType.SQL}">
+        <li (click)="selectTab('QUERY')"
+            [ngClass]="{'ddp-selected': datasetHive.rsType === rsType.QUERY}">
           {{'msg.dp.btn.query' | translate}}
         </li>
       </ul>

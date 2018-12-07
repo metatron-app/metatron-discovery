@@ -14,7 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.prep.parser.preparation.rule.Set;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.ql.exec.vector.BytesColumnVector;
@@ -27,21 +27,12 @@ import org.apache.orc.Writer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
 
-import app.metatron.discovery.domain.dataprep.PrepSnapshot;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
-import app.metatron.discovery.prep.parser.preparation.rule.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -1130,7 +1121,7 @@ public class OrcTest extends TeddyTest {
     Path file = new Path("/user/hive/dataprep/orc4/test_writeOrc.orc");
 
     TeddyOrcWriter orcWriter = new TeddyOrcWriter();
-    orcWriter.writeOrc(df, conf, file, PrepSnapshot.COMPRESSION.SNAPPY);
+    orcWriter.writeOrc(df, conf, file, PrSnapshot.HIVE_FILE_COMPRESSION.SNAPPY);
   }
 
   @Test
@@ -1149,13 +1140,13 @@ public class OrcTest extends TeddyTest {
     Path file = new Path(location + "/file1.orc");
 
     TeddyOrcWriter orcWriter = new TeddyOrcWriter();
-    orcWriter.writeOrc(df, conf, file, PrepSnapshot.COMPRESSION.SNAPPY);
+    orcWriter.writeOrc(df, conf, file, PrSnapshot.HIVE_FILE_COMPRESSION.SNAPPY);
 
     TeddyExecutor executor = new TeddyExecutor();
     executor.hiveHostname = "localhost";
     executor.hivePort = 10000;
     executor.hiveUsername = "hadoop";
     executor.hivePassword = "hadoop";
-    executor.makeHiveTable(df, new ArrayList<>(), "default.test_orc_hive", location, PrepSnapshot.FORMAT.ORC, PrepSnapshot.COMPRESSION.SNAPPY);
+    executor.makeHiveTable(df, new ArrayList<>(), "default.test_orc_hive", location, PrSnapshot.HIVE_FILE_FORMAT.ORC, PrSnapshot.HIVE_FILE_COMPRESSION.SNAPPY);
   }
 }

@@ -19,7 +19,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { GridComponent } from '../../../../../../common/component/grid/grid.component';
-import { Dataset, DsType, Field } from '../../../../../../domain/data-preparation/dataset';
+import { PrDataset, DsType, Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { PopupService } from '../../../../../../common/service/popup.service';
 import { DataflowService } from '../../../../service/dataflow.service';
 import { DatasetService } from '../../../../../dataset/service/dataset.service';
@@ -81,10 +81,12 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   public joinComplete = new EventEmitter();
 
   @Input('existingDataSet')
-  public leftDataset: Dataset;            // 기존 데이터
+  //public leftDataset: Dataset;            // 기존 데이터
+  public leftDataset: PrDataset;            // 기존 데이터
 
   @Input()
-  public rightDataset: Dataset;   // 조인하게될 선택된 데이터 셋
+  //public rightDataset: Dataset;   // 조인하게될 선택된 데이터 셋
+  public rightDataset: PrDataset;   // 조인하게될 선택된 데이터 셋
 
   @Input()
   public editRuleStr: string;
@@ -126,7 +128,8 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   public rightCheckAll: boolean = false;
 
   // 데이터셋 리스트 - selectbox 에서 사용할 리스트
-  public datasets: Dataset[] = [];
+  //public datasets: Dataset[] = [];
+  public datasets: PrDataset[] = [];
 
   // Show/hide datasets only in this flow
   public isChecked: boolean = true;
@@ -226,7 +229,8 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       this.joinButtonText = this.rightDataset.joinButtonText;
       this.editVersionRightDataset(this.rightDataset);
     } else { // 처음생성할때
-      this.rightDataset = new Dataset();
+      //this.rightDataset = new Dataset();
+      this.rightDataset = new PrDataset();
     }
     this.getDatasets();
   }
@@ -1178,7 +1182,8 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
    * @param {Dataset} dataset
    * @param {boolean} checkAll
    */
-  private gridHeaderClickHandler(event: { id: string, isSelect: boolean }, selectCols: string[], dataset: Dataset, checkAll: boolean) {
+  //private gridHeaderClickHandler(event: { id: string, isSelect: boolean }, selectCols: string[], dataset: Dataset, checkAll: boolean) {
+  private gridHeaderClickHandler(event: { id: string, isSelect: boolean }, selectCols: string[], dataset: PrDataset, checkAll: boolean) {
 
     // 선택 결과에 따라 선택 항목을 재조정한다
     const colIdx = selectCols.indexOf(event.id);
