@@ -163,10 +163,7 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     if (this.selectedFields.length !== 0) {
       let selFields = _.cloneDeep(this.selectedFields);
       groupStr = selFields.map((item) => {
-        if (-1 !== item.name.indexOf(' ')) {
-          item.name = '`' + item.name + '`';
-        }
-        return item.name
+        return '`' + item.name + '`';
       }).join(', ');
     }
 
@@ -174,10 +171,7 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     if (this.selectedSortFields.length !== 0) {
       let selSortFields = _.cloneDeep(this.selectedSortFields);
       sortStr = selSortFields.map((item) => {
-        if (-1 !== item.name.indexOf(' ')) {
-          item.name = '`' + item.name + '`';
-        }
-        return item.name
+        return '`' + item.name + '`';
       }).join(', ');
     }
 

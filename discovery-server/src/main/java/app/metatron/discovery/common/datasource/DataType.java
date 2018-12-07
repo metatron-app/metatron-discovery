@@ -14,11 +14,12 @@
 
 package app.metatron.discovery.common.datasource;
 
-import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
-import app.metatron.discovery.domain.datasource.Field;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Types;
+
+import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
+import app.metatron.discovery.domain.datasource.Field;
 
 /**
  * Created by kyungtaak on 2017. 6. 11..
@@ -76,31 +77,6 @@ public enum DataType {
         return LogicalType.ARRAY;
       default:
         return LogicalType.STRING;
-    }
-  }
-
-  public String toEngineType() {
-    switch (this) {
-      case TEXT:
-      case STRING:
-        return "string";
-      case NUMBER:
-        return "number";
-      case INTEGER:
-        return "integer";
-      case LONG:
-        return "long";
-      case FLOAT:
-        return "float";
-      case DOUBLE:
-        return "double";
-      case TIMESTAMP:
-      case BOOLEAN:
-      case MAP:
-      case STRUCT:
-      case ARRAY:
-      default:
-        return "string";
     }
   }
 

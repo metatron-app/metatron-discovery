@@ -1924,11 +1924,13 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         // granularity함수값을 deep copy
         let copiedTimestampList = _.cloneDeep(this.timestampTypeList);
 
-        copiedTimestampList = copiedTimestampList.filter((item) => {
+        if (this.dragField) {
+          copiedTimestampList = copiedTimestampList.filter((item) => {
 
-          // none인 경우 무조건 통과
-          return item['id'] == GranularityType.NONE ? true : this.useGranularity(false, item['id'], this.dragField.granularity);
-        });
+            // none인 경우 무조건 통과
+            return item['id'] == GranularityType.NONE ? true : this.useGranularity(false, item['id'], this.dragField.granularity);
+          });
+        }
 
         // 중복된경우
         if (duplicateList.length > 1) {

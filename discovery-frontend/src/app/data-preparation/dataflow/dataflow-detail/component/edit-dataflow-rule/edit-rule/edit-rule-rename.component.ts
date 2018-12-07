@@ -115,15 +115,12 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
     }
 
     let selectedFieldName:string = this.selectedFields[0].name;
-    if (-1 !== this.selectedFields[0].name.indexOf(' ')) {
-      selectedFieldName = '`' + selectedFieldName + '`';
-    }
 
     return {
       command: 'rename',
       to: this.newFieldName,
       col: selectedFieldName,
-      ruleString: 'rename col: ' + selectedFieldName + ' to: ' + clonedNewFieldName
+      ruleString: 'rename col: `' + selectedFieldName + '`' + `to: ${clonedNewFieldName}`
     };
 
   } // function - getRuleData

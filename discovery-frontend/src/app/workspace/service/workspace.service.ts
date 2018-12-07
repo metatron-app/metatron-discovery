@@ -377,22 +377,4 @@ export class WorkspaceService extends AbstractService {
     return this.get(url);
   }
 
-  /**
-   * 메뉴얼 다운로드
-   * @param {string} lang
-   */
-  public downloadManual(lang:string) {
-
-    const headers = new Headers({
-      'Accept': 'application/pdf,*/*;',
-      'Content-Type': 'application/octet-binary',
-      'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
-      + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
-    });
-    this.http.get(this.API_URL + `common/manual/download?lang=${lang}`,
-      { headers: headers, responseType: ResponseContentType.Blob })
-      .toPromise()
-      .then((result) => saveAs(result.blob(), 'metatronDiscovery.user.manual.pdf'));
-
-  } // function - downloadManual
 }

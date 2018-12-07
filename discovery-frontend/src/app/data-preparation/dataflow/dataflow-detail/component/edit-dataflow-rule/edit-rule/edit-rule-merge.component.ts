@@ -110,10 +110,7 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
     }
 
     const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+      return '`' + item.name + '`';
     }).join(', ');
 
     let ruleString = 'merge col: ' + columnsStr

@@ -59,8 +59,8 @@ public class TemporaryCSVFileCleanJob extends QuartzJobBean {
 
     LOGGER.info("## Start batch job for checking expired temporary csv file.");
 
-    //expire duration 1 day
-    Duration expireDuration = Period.parse("P1D").toStandardDuration();
+    //expire duration
+    Duration expireDuration = Period.parse(String.format("P%sD", workbenchProperties.getTempCSVExpireDuration())).toStandardDuration();
     Long currentDateTime = DateTime.now().getMillis();
 
     List<Path> deleteTargetPathList = new ArrayList<>();

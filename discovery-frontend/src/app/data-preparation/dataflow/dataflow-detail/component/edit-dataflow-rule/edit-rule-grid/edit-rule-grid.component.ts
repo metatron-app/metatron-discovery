@@ -825,8 +825,8 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     if (data.more) {
       this._gridComp.columnAllUnSelection();
 
-      const singleSelectionMap: string[] = ['rename', 'unnest', 'extract', 'split',];
-      const multiSelectionMap: string[] = ['merge', 'replace', 'set', 'nest', 'settype', 'setformat', 'move', 'countpattern'];
+      const singleSelectionMap: string[] = ['rename', 'unnest'];
+      const multiSelectionMap: string[] = ['merge', 'replace', 'set', 'nest', 'settype', 'setformat', 'move', 'countpattern', 'extract', 'split'];
 
       if (-1 < singleSelectionMap.indexOf(data.more.command)) {
         this._gridComp.selectColumn(data.more.col.value[0], true);

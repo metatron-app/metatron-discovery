@@ -509,7 +509,7 @@ export class GridComponent implements AfterViewInit, OnDestroy {
       if (this.option.dualSelectionActivate) {
         headers.unshift(new SlickGridHeader()
           .Id(this.ID_PROPERTY)
-          .Name(!this.option.enableSeqSort ? '' : 'SEQ')
+          .Name(!this.option.enableSeqSort ? '' : 'No.')
           .Field(this.ID_PROPERTY)
           .Behavior('select')
           .CssClass(`dual_selection${this.ID_PROPERTY}`)
@@ -979,6 +979,43 @@ export class GridComponent implements AfterViewInit, OnDestroy {
    * 그리드 이벤트 바인딩
    */
   private bindingGridEvents(): void {
+
+    // -----------------------------------------------------------------------------------------------------------------
+    //  onSelectedRowsChanged
+    //    - select row 이벤트
+    // -----------------------------------------------------------------------------------------------------------------
+
+    if( this.option.rowSelectionActivate ) {
+      this.grid.onClick.subscribe(
+        (function (scope) {
+          return function (event, args) {
+
+            const rowIndex: number = args.row;
+
+            if (args.cell !== 0) {
+              scope.gridSelectionModelType = 'cell';
+
+              // 컬럼 전체 선택 해제
+              scope.columnAllUnSelection();
+
+              // 전체 선택 해제
+              scope.rowAllUnSelection();
+
+              // 셀 드래그 옵션 초기화
+              scope.initCellExternalCopyManager(scope);
+              return;
+            }
+
+            scope.gridSelectionModelType = 'row';
+
+            // 그리드 로우 선택 기능 활성화
+            scope.initRowSelectionModel(scope);
+            scope.selectRowActivate(rowIndex);
+
+          };
+        })(this)
+      );
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     //  onSort

@@ -129,11 +129,19 @@ public class DataConnectionPredicate {
     //createdTime
     if(createdTimeFrom != null && createdTimeTo != null) {
       builder = builder.and(dataConnection.createdTime.between(createdTimeFrom, createdTimeTo));
+    } else if(createdTimeFrom != null){
+      builder = builder.and(dataConnection.createdTime.goe(createdTimeFrom));
+    } else if(createdTimeTo != null){
+      builder = builder.and(dataConnection.createdTime.loe(createdTimeTo));
     }
 
     //modifiedTime
     if(modifiedTimeFrom != null && modifiedTimeTo != null) {
       builder = builder.and(dataConnection.modifiedTime.between(modifiedTimeFrom, modifiedTimeTo));
+    } else if(modifiedTimeFrom != null){
+      builder = builder.and(dataConnection.modifiedTime.goe(modifiedTimeFrom));
+    } else if(modifiedTimeTo != null){
+      builder = builder.and(dataConnection.modifiedTime.loe(modifiedTimeTo));
     }
 
     //published

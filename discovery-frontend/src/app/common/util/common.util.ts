@@ -43,7 +43,7 @@ export class CommonUtil {
    */
   public static moveToStartPage(router?: Router) {
     if (CommonUtil.isSamlSSO()) {
-      location.href = '/saml/login?idp=' + environment.samlUrl;
+      location.href = '/saml/login?idp=' + environment['samlUrl'];
     } else {
       (router) && (router.navigate(['/user/login']).then());
     }

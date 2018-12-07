@@ -20,7 +20,7 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
+import * as _ from 'lodash';
 
 @Component({
   selector : 'edit-rule-countpattern',
@@ -101,11 +101,8 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
       return undefined;
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
+      return '`' + item.name + '`';
     }).join(', ');
 
     // rule string

@@ -811,37 +811,31 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     }
 
     const conditions = this.joinList.map((joinInfo) => {
-      return (joinInfo.leftJoinKey.indexOf(' ') === -1 ? joinInfo.leftJoinKey :  '`' + joinInfo.leftJoinKey + '`') + '=' + (joinInfo.rightJoinKey.indexOf(' ') === -1 ? joinInfo.rightJoinKey :  '`' + joinInfo.rightJoinKey + '`')
+      return ('`' + joinInfo.leftJoinKey + '`') + '=' + ('`' + joinInfo.rightJoinKey + '`')
     }).join(' && ');
 
     let ruleStr: string = 'join leftSelectCol: ';
     if (this.leftSelCols.constructor === Array) {
 
       const leftStr: string = this.leftSelCols.map((item) => {
-        if (-1 !== item.indexOf(' ')) {
-          item = '`' + item + '`';
-        }
-        return item
+        return '`' + item + '`';
       }).join(', ');
 
       ruleStr += leftStr
     } else {
-      ruleStr += this.leftSelCols.indexOf(' ') === -1 ? this.leftSelCols  :  '`' + this.leftSelCols + '`';
+      ruleStr += '`' + this.leftSelCols + '`';
     }
     ruleStr += ' rightSelectCol: ';
 
     const rightStr: string = this.rightSelCols.map((item) => {
-      if (-1 !== item.indexOf(' ')) {
-        item = '`' + item + '`';
-      }
-      return item
+      return '`' + item + '`';
     }).join(', ');
 
 
     if (this.rightSelCols.constructor === Array) {
       ruleStr += rightStr
     } else {
-      ruleStr += this.rightSelCols.indexOf(' ') === -1 ? this.rightSelCols  :  '`' + this.rightSelCols + '`';
+      ruleStr += '`' + this.rightSelCols + '`';
     }
 
     ruleStr += ' condition: ' + conditions + ' joinType: \'' + this.selectedJoinType.toLowerCase() + '\' dataset2: \'' + this.rightDataset.dsId + '\'';

@@ -100,10 +100,7 @@ export class EditRuleUnpivotComponent extends EditRuleComponent implements OnIni
 
     // TODO : condition validation
     const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+      return '`' + item.name + '`';
     }).join(', ');
 
 

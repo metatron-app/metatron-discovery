@@ -16,6 +16,7 @@ import { AbstractComponent } from '../../abstract.component';
 import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Log } from '../../../domain/modal';
 import * as Clipboard from 'clipboard';
+import { Alert } from '../../../util/alert.util';
 
 @Component({
   selector: 'app-log-component',
@@ -104,6 +105,8 @@ export class LogComponent extends AbstractComponent implements OnInit, OnDestroy
       text: () => this.log.data
     };
     new Clipboard(this.element.nativeElement, option);
+    // alert
+    Alert.success(this.translateService.instant('msg.storage.alert.clipboard.copy'));
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

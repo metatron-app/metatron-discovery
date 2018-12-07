@@ -211,11 +211,19 @@ public class DataSourcePredicate {
     //createdTime
     if(createdTimeFrom != null && createdTimeTo != null) {
       builder = builder.and(dataSource.createdTime.between(createdTimeFrom, createdTimeTo));
+    } else if(createdTimeFrom != null){
+      builder = builder.and(dataSource.createdTime.goe(createdTimeFrom));
+    } else if(createdTimeTo != null){
+      builder = builder.and(dataSource.createdTime.loe(createdTimeTo));
     }
 
     //modifiedTime
     if(modifiedTimeFrom != null && modifiedTimeTo != null) {
       builder = builder.and(dataSource.modifiedTime.between(modifiedTimeFrom, modifiedTimeTo));
+    } else if(modifiedTimeFrom != null){
+      builder = builder.and(dataSource.modifiedTime.goe(modifiedTimeFrom));
+    } else if(modifiedTimeTo != null){
+      builder = builder.and(dataSource.modifiedTime.loe(modifiedTimeTo));
     }
 
     //published

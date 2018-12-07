@@ -70,7 +70,7 @@
           {{'msg.metadata.md.ui.data.type' | translate}}
         </th>
         <td>
-          <span class="ddp-box-tag-value ddp-hive">
+          <span class="ddp-box-tag-value" [ngClass]="{'ddp-datasource':metadataModelService.getMetadata().sourceType.toString() === 'ENGINE', 'ddp-hive': 'JDBC' == metadataModelService.getMetadata().sourceType.toString(), 'ddp-stagingdb' : 'STAGING' == metadataModelService.getMetadata().sourceType.toString()}">
             {{ 'ENGINE' == metadataModelService.getMetadata().sourceType.toString() ? ( 'msg.comm.th.ds' | translate) : 'STAGING' == metadataModelService.getMetadata().sourceType.toString() ? 'Staging DB' : 'JDBC' == metadataModelService.getMetadata().sourceType.toString() ? 'HIVE'  :  metadataModelService.getMetadata().sourceType }}
           </span>
         </td>
