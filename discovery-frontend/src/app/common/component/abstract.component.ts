@@ -483,6 +483,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
       {label: 'PostgreSQL', value: 'POSTGRESQL', icon: 'type-postgre'},
       {label: 'Hive', value: 'HIVE', icon: 'type-hive'},
       {label: 'Presto', value: 'PRESTO', icon: 'type-presto'},
+      {label: 'Druid', value: 'DRUID', icon: 'type-druid'}
       // { label: 'Apache Phoenix', value: 'PHOENIX', icon: 'type-pache' },
       // { label: 'Tibero', value: 'TIBERO', icon: 'type-tibero' }
     ];

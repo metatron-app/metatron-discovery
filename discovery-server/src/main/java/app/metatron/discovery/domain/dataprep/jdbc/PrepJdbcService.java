@@ -30,6 +30,7 @@ public class PrepJdbcService extends JdbcConnectionService {
             case "HIVE": jdbcDataConnection = new HiveConnection(); break;
             case "PRESTO": jdbcDataConnection = new PrestoConnection(); break;
             case "TIBERO": jdbcDataConnection = new TiberoConnection(); break;
+            case "DRUID": jdbcDataConnection = new DruidConnection(); break;
         }
 
         jdbcDataConnection.setUrl(dataConnection.getUrl());
