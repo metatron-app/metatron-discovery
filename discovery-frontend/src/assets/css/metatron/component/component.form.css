@@ -67,6 +67,7 @@
 .ddp-wrap-edit2 .ddp-wrap-hover-info .ddp-box-layout4.ddp-config,
 .ddp-wrap-edit3 .ddp-wrap-hover-info .ddp-box-layout4.ddp-config{margin:0; padding:0; height:auto;}
 .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-ui-label-name {display:block; padding-bottom:10px; color:#4c515a; font-size:13px;}
+.ddp-wrap-edit2 .ddp-ui-option-sub .ddp-ui-label-name .ddp-wrap-hover-info {position:relative; top:2px; vertical-align:middle;}
 
 .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-radio-set {float:left;}
 .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-radio-hidden {overflow:hidden;}
