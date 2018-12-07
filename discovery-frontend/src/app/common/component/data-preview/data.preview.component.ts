@@ -26,7 +26,7 @@ import {
 } from '@angular/core';
 import {BoardDataSource, Dashboard, JoinMapping, QueryParam} from '../../../domain/dashboard/dashboard';
 import {DatasourceService} from 'app/datasource/service/datasource.service';
-import {Datasource, DataSourceSummary, Field, FieldFormatType, FieldRole} from '../../../domain/datasource/datasource';
+import {Datasource, DataSourceSummary, Field} from '../../../domain/datasource/datasource';
 import {SlickGridHeader} from 'app/common/component/grid/grid.header';
 import {header} from '../grid/grid.header';
 import {GridComponent} from '../grid/grid.component';
@@ -164,7 +164,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
   public timestampField: Field;
 
-  public downloadPreview:PreviewResult;
+  public downloadPreview: PreviewResult;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -211,7 +211,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
         // set meta data information
         this._setMetaDataField(field, source);
         //  if current time in fields, hide
-        if (field.role === FieldRole.TIMESTAMP && field.format &&  field.format.type === FieldFormatType.TEMPORARY_TIME) {
+        if (DashboardUtil.isCurrentDateTime(field)) {
           object.splice(index, 1);
         }
       });
@@ -362,12 +362,12 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
         // 쿼리 조건 저장
         params.limits.limit = 10000000;
-        this._queryParams = _.cloneDeep( params );
+        this._queryParams = _.cloneDeep(params);
 
         params.metaQuery = true;
-        this.datasourceService.getDatasourceQuery(params).then( metaData => {
-          this.downloadPreview = new PreviewResult( metaData.estimatedSize, metaData.totalCount );
-          ( this.rowNum > this.downloadPreview.count ) && ( this.rowNum = this.downloadPreview.count );
+        this.datasourceService.getDatasourceQuery(params).then(metaData => {
+          this.downloadPreview = new PreviewResult(metaData.estimatedSize, metaData.totalCount);
+          (this.rowNum > this.downloadPreview.count) && (this.rowNum = this.downloadPreview.count);
           res(gridData);
           this.loadingHide();
         });
@@ -1058,9 +1058,9 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
       this.mainDsSummary = (this.mainDatasource && this.mainDatasource.summary) ? this.mainDatasource.summary : undefined;
       this.columns = this.mainDatasource.fields;
-      if( this.mainDsSummary ) {
-        this.downloadPreview = new PreviewResult( this.mainDsSummary.size, this.mainDsSummary.count );
-        if( this.rowNum > this.mainDsSummary.count ) {
+      if (this.mainDsSummary) {
+        this.downloadPreview = new PreviewResult(this.mainDsSummary.size, this.mainDsSummary.count);
+        if (this.rowNum > this.mainDsSummary.count) {
           this.rowNum = this.mainDsSummary.count;
         }
       }
@@ -1397,7 +1397,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
     this.loadingShow();
     this.datasourceService.getDatasourceQuery(this._queryParams).then(downData => {
-      this._dataDownComp.openDataDown(event, this.columns, downData, this.downloadPreview );
+      this._dataDownComp.openDataDown(event, this.columns, downData, this.downloadPreview);
       this.loadingHide();
     }).catch((err) => {
 
