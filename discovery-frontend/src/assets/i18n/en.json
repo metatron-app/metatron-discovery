@@ -1808,6 +1808,7 @@
   "msg.storage.ui.list.geo.polygon" : "Polygon",
   "msg.storage.ui.list.geo.block.custom.field.geo" : "Can't use custom field including geo data",
   "msg.storage.ui.list.geo.block.custom.field.agg.function" : "Can't use custom field including Aggregate Function",
+  "msg.storage.ui.list.geo.block.other.charts" : "GEO data is only usable in Map View",
   "msg.storage.ui.list.expression" : "Expression",
   "msg.storage.ui.list.type" : "Change type",
   "msg.storage.ui.list.del" : "Delete",
