@@ -785,7 +785,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             gradient: HeatmapColorList[heatmapLayer.color.schema],
             opacity: 1 - (heatmapLayer.color.transparency * 0.01),
             radius: heatmapLayer.radius,
-            blur: heatmapLayer.blur
+            blur: heatmapLayer.blur * 0.7
           });
         }
 
@@ -807,7 +807,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             this.heatmapLayer.setGradient(HeatmapColorList[heatmapLayer.color.schema]);
             this.heatmapLayer.setOpacity(1 - (heatmapLayer.color.transparency * 0.01));
             this.heatmapLayer.setRadius(heatmapLayer.radius);
-            this.heatmapLayer.setBlur(heatmapLayer.blur);
+            this.heatmapLayer.setBlur(heatmapLayer.blur * 0.7);
             if( !_.eq(geomType, LogicalType.GEO_POINT) ) {
               // Set style
               this.symbolLayer.setStyle(new ol.style.Style());
@@ -1743,8 +1743,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
       let style = new ol.style.Style({
         stroke: new ol.style.Stroke({
-          color: outlineColor,
-          width: outlineWidth
+          color: featureColor,
+          width: 1
         }),
         fill: new ol.style.Fill({
           color: featureColor
@@ -2302,7 +2302,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
 
     // less than 0, set minValue
-    const minValue = data.valueRange[this.getFieldAlias(uiOption.layers[layerIndex].color.column, uiOption.layers[layerIndex].color.aggregationType)].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[this.getFieldAlias(uiOption.layers[layerIndex].color.column, uiOption.layers[layerIndex].color.aggregationType)].minValue);
+    //const minValue = data.valueRange[this.getFieldAlias(uiOption.layers[layerIndex].color.column,uiOption.layers[layerIndex].color.aggregationType)].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[this.getFieldAlias(uiOption.layers[layerIndex].color.column, uiOption.layers[layerIndex].color.aggregationType)].minValue);
+    const minValue = _.cloneDeep(data.valueRange[this.getFieldAlias(uiOption.layers[layerIndex].color.column, uiOption.layers[layerIndex].color.aggregationType)].minValue);
 
     // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
     const addValue = (data.valueRange[this.getFieldAlias(uiOption.layers[layerIndex].color.column, uiOption.layers[layerIndex].color.aggregationType)].maxValue - minValue) / (colorListLength + 1);

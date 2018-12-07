@@ -148,7 +148,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       this.uiOption.layers[this.index] = this.setColorByShelf(false);
 
       // add color by dimension list
-      if (-1 === _.findIndex(this.colorByList, {'value' : MapBy.DIMENSION})) {
+      if (this.dimensionList.length > 0 && -1 === _.findIndex(this.colorByList, {'value' : MapBy.DIMENSION})) {
         this.colorByList.splice(1, 0, {name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION});
       }
 
