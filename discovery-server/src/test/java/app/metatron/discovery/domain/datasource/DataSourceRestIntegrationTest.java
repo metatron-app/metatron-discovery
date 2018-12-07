@@ -93,7 +93,6 @@ import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJobIntegra
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
-import app.metatron.discovery.domain.workbook.configurations.format.GeoFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoPointFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TemporaryTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
@@ -1345,7 +1344,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     locationField.setDerived(true);
     locationField.setDerivationRule(GlobalObjectMapper.writeValueAsString(new GeoPointRule(null, latField.getName(), lonField.getName())));
     locationField.setIngestionRule(GlobalObjectMapper.writeValueAsString(new DiscardNullRule()));
-    locationField.setFormat(GlobalObjectMapper.writeValueAsString(new GeoPointFormat(GeoFormat.DEFAULT_SRSNAME, null)));
+    locationField.setFormat(GlobalObjectMapper.writeValueAsString(new GeoPointFormat("EPSG:4301", null)));
     fields.add(locationField);
 
     dataSource.setFields(fields);
