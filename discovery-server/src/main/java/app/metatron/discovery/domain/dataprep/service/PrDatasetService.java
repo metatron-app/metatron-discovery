@@ -105,7 +105,7 @@ public class PrDatasetService {
         }
     }
 
-    public void changeExcelToCsv(PrDataset dataset) throws Exception {
+    public void changeFileFormatToCsv(PrDataset dataset) throws Exception {
         String storedUri = dataset.getStoredUri();
         String sheetName = dataset.getSheetName();
         String delimiter = dataset.getDelimiter();
@@ -116,31 +116,15 @@ public class PrDatasetService {
                             dataset.getFileFormat(), storedUri));
         }
 
+        String csvStrUri = null;
         if(dataset.getFileFormat() == PrDataset.FILE_FORMAT.EXCEL) {
-//            String csvFileName = this.datasetFilePreviewService.moveExcelToCsv(storedUri,sheetName,delimiter);
-            String csvStrUri = this.datasetFilePreviewService.moveExcelToCsv(storedUri,sheetName,delimiter);
-//            dataset.putCustomValue("filePath", csvFileName);
-//            int lastIdx = csvFileName.lastIndexOf(File.separator);
-//            String newFileKey = csvFileName.substring(lastIdx+1);
-//            dataset.setFilekey(newFileKey);
-//            filekey = newFileKey;
+            csvStrUri = this.datasetFilePreviewService.moveExcelToCsv(storedUri, sheetName, delimiter);
+        } else if(dataset.getFileFormat() == PrDataset.FILE_FORMAT.JSON) {
+            csvStrUri = this.datasetFilePreviewService.moveJsonToCsv(storedUri, null, delimiter);
+        }
+        if(csvStrUri!=null) {
             dataset.setStoredUri(csvStrUri);
         }
-
-//        assert dataset.getStorageType() != PrDataset.STORAGE_TYPE.HDFS;
-
-//        if(dataset.getFileTypeEnum() == PrDataset.FILE_TYPE.HDFS) {
-//            if (false == dataset.getCustomValue("filePath").toLowerCase().startsWith("hdfs://")) {
-//                String localFilePath = dataset.getCustomValue("filePath");
-//                String hdfsFilePath = this.hdfsService.moveLocalToHdfs(localFilePath, filekey);
-//                if (null != hdfsFilePath) {
-//                    dataset.putCustomValue("filePath", hdfsFilePath);
-//                    dataset.setFileType(PrDataset.FILE_TYPE.HDFS);
-//                } else {
-//                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, hdfsFilePath);
-//                }
-//            }
-//        }
 
         return;
     }
@@ -274,7 +258,7 @@ public class PrDatasetService {
             // excel to csv
             // below the file format is always csv
             if(dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD || dataset.getImportType() == PrDataset.IMPORT_TYPE.URI) {
-                this.changeExcelToCsv(dataset);
+                this.changeFileFormatToCsv(dataset);
             }
 
             // upload file to storage
