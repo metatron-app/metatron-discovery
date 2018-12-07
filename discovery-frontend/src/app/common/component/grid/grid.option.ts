@@ -412,7 +412,23 @@ export class GridOption {
    */
   private _enableMultiSelectionWithCtrlAndShift: boolean = false;
 
+  /**
+   * No. row seleted
+   * @type {boolean} : 활성여부
+   * @private
+   */
+  private _enableRowSelected: boolean = false;
+
   constructor() {
+  }
+
+  get rowSelectionActivate(): boolean {
+    return this._enableRowSelected;
+  }
+
+  RowSelectionActivate(value: boolean): GridOption {
+    this._enableRowSelected = value;
+    return this;
   }
 
   get dualSelectionActivate(): boolean {
@@ -1044,6 +1060,9 @@ export class Option {
     if (typeof builder.enableMultiSelectionWithCtrlAndShift !== 'undefined') {
       this._enableMultiSelectionWithCtrlAndShift = builder.enableMultiSelectionWithCtrlAndShift;
     }
+    if (typeof builder.rowSelectionActivate !== 'undefined') {
+      this._enableRowSelected = builder.rowSelectionActivate;
+    }
 
   }
 
@@ -1097,8 +1116,17 @@ export class Option {
   private _enableSeqSort : boolean;
 
   private _dualSelectionActivate: boolean;
+  private _enableRowSelected: boolean;
   private _cellExternalCopyManagerActivate: boolean;
   private _enableMultiSelectionWithCtrlAndShift : boolean;
+
+  get rowSelectionActivate(): boolean {
+    return this._enableRowSelected;
+  }
+
+  set rowSelectionActivate(value: boolean) {
+    this._enableRowSelected = value;
+  }
 
   get dualSelectionActivate(): boolean {
     return this._dualSelectionActivate;
