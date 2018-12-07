@@ -2358,45 +2358,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       let currentMapLayer = this.shelf.layers[layerNum];
 
-      let diffDataSourceFl: boolean = false;
-      // prevent another datasource is set in same shelf
-      currentMapLayer.forEach((item) => {
-
-        if ('user_expr' !== targetField.type && 'user_expr' !== item.field.type &&
-            item.field.dataSource != targetField.dataSource) {
-          diffDataSourceFl = true;
-          return;
-        }
-      });
-
-      // find geo type from custom fields
-      let geoFields = [];
-      for (const item of _.cloneDeep(this.pageDimensions)) {
-        if (item.logicalType && -1 !== item.logicalType.toString().indexOf('GEO')) {
-          geoFields.push(ChartUtil.getAlias(item));
-        }
-      }
-
-      // if custom field is geo type
-      for (const alias of geoFields) {
-        if (targetField.expr && -1 !== targetField.expr.indexOf(alias)) {
-          Alert.warning(this.translateService.instant('msg.storage.ui.list.geo.block.custom.field.geo'));
-          return;
-        }
-      }
-
-      // if another datasource is in a same shelf
-      if (diffDataSourceFl) {
-        Alert.warning(this.translateService.instant('msg.page.layer.multi.datasource.same.shelf'));
-        return;
-      }
-
-      // if custom field is aggregated true
-      if ('user_expr' === targetField.type && true === targetField.aggregated) {
-        Alert.warning(this.translateService.instant('msg.storage.ui.list.geo.block.custom.field.agg.function'));
-        return;
-      }
-
       let fieldPivot: FieldPivot;
 
       if ('MAP_LAYER' + layerNum === FieldPivot.MAP_LAYER0.toString()) {
@@ -2451,6 +2412,15 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         }
       }
       return;
+
+    // other charts
+    } else {
+
+      // GEO data is only usable in map chart
+      if (targetField.logicalType && -1 !== targetField.logicalType.toString().indexOf('GEO')) {
+        Alert.warning(this.translateService.instant('msg.storage.ui.list.geo.block.other.charts'));
+        return;
+      }
     }
 
     // 이미 들어가있는 선반을 찾는다.
