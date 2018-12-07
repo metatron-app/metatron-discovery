@@ -145,7 +145,7 @@
     </dl>
     <!-- //detail -->
     <!-- detail 사이즈 [DB,FILE] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.dsType && selectedDataSet.dsType===DsType.IMPORTED && selectedDataSet.importType && selectedDataSet.importType !==ImportType.DB">
+    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.dsType && selectedDataSet.dsType===DsType.IMPORTED && selectedDataSet.importType && selectedDataSet.importType !==ImportType.DATABASE">
       <dt>
         {{'msg.comm.detail.size' | translate}}
       </dt>
@@ -176,7 +176,7 @@
     <!-- //detail -->
 
     <!-- detail host [DB] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType===ImportType.DB && getHost !== null">
+    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType===ImportType.DATABASE && getHost !== null">
       <dt>
         {{'msg.comm.th.host' | translate}}
       </dt>
@@ -186,7 +186,7 @@
     </dl>
     <!-- //detail -->
     <!-- detail port [DB] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType===ImportType.DB && getPort !== null">
+    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType===ImportType.DATABASE && getPort !== null">
       <dt>
         {{'msg.comm.th.port' | translate}}
       </dt>
@@ -196,7 +196,7 @@
     </dl>
     <!-- //detail -->
     <!-- detail database [DB] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType===ImportType.DB && getDatabase !== null ">
+    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType===ImportType.DATABASE && getDatabase !== null ">
       <dt>
         {{'msg.dp.th.database' | translate}}
       </dt>
