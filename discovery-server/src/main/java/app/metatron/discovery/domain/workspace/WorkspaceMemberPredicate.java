@@ -43,7 +43,8 @@ public class WorkspaceMemberPredicate {
     }
 
     if(StringUtils.isNotEmpty(nameContains)) {
-      builder.and(workspaceMember.memberName.containsIgnoreCase(nameContains));
+      builder.andAnyOf(workspaceMember.memberName.containsIgnoreCase(nameContains)
+          , workspaceMember.memberId.containsIgnoreCase(nameContains));
     }
 
     return builder;
