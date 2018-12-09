@@ -34,6 +34,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 
 import java.util.List;
 import java.util.Map;
@@ -182,7 +183,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
             postAggregations.add(new ExprPostAggregator(dummyMeasureName + "=\\\"" + alias + "\\\""));
             projectionMapper.put(dummyMeasureName, alias);
 
-            if(!exprField.isAggregated()) {
+            if (!exprField.isAggregated()) {
               unUsedVirtualColumnName.remove(fieldName);
             }
           } else {
@@ -467,7 +468,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
       OrOperator orOperator = new OrOperator();
       for (String engineInterval : timeFilter.getEngineIntervals()) {
         String[] spiltedTimes = StringUtils.split(engineInterval, "/");
-        orOperator.addFilter(new PropertyIsBetween("__time", spiltedTimes[0], spiltedTimes[1]));
+        orOperator.addFilter(new PropertyIsBetween("__time", DateTime.parse(spiltedTimes[0]).getMillis() + "", DateTime.parse(spiltedTimes[1]).getMillis() + ""));
       }
       andOperator.addLogicalOperator(orOperator);
     } else {
@@ -496,15 +497,28 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
         virtualColumns.remove(removeColumnName);
       }
 
-      // Replace double quote
+      // Replace double quote in expression
       virtualColumns.forEach((s, virtualColumn) -> {
         if (!(virtualColumn instanceof ExprVirtualColumn)) {
           return;
         }
         ExprVirtualColumn exprVirtualColumn = (ExprVirtualColumn) virtualColumn;
         exprVirtualColumn.setExpression(
-            StringUtils.replace(exprVirtualColumn.getExpression(), "\"", "\\\""));
+            StringUtils.replace(exprVirtualColumn.getExpression(), "\"", "\\\"")
+        );
       });
+    }
+
+    // Replace double quote in expr filter
+    if (engineFilter != null && CollectionUtils.isNotEmpty(engineFilter.getFields())) {
+      for (app.metatron.discovery.query.druid.Filter filter : engineFilter.getFields()) {
+        if (filter instanceof ExprFilter) {
+          ExprFilter exprFilter = (ExprFilter) filter;
+          exprFilter.setExpression(
+              StringUtils.replace(exprFilter.getExpression(), "\"", "\\\"")
+          );
+        }
+      }
     }
 
     if (enableAggrExtension) {
@@ -512,15 +526,15 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
       boolean existCount = false;
       List<Aggregation> rmvAggrs = Lists.newArrayList();
       for (Aggregation aggregation : aggregations) {
-        if("count".equals(aggregation.getName())) {
-          if(existCount) {
+        if ("count".equals(aggregation.getName())) {
+          if (existCount) {
             rmvAggrs.add(aggregation);
           } else {
             existCount = true;
           }
         }
       }
-      if(CollectionUtils.isNotEmpty(rmvAggrs)) {
+      if (CollectionUtils.isNotEmpty(rmvAggrs)) {
         aggregations.removeAll(rmvAggrs);
       }
 
