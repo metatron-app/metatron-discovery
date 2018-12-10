@@ -52,6 +52,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
   public databaseList: any[] = [];
   public isDatabaseListShow : boolean = false;
+  public isQueryDatabaseListShow: boolean = false;
 
   public schemaList: any[] = [];
   public isSchemaListShow: boolean = false;
@@ -63,6 +64,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   public clickable: boolean = false;            // is next btn clickable
 
   public dbSearchText: string = '';
+  public queryDbSearchText: string = '';
   public schemaSearchText: string = '';
 
   public flag: boolean = false;
@@ -85,6 +87,23 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     enableSnippets: true,
     enableLiveAutocompletion: true
   };
+
+
+  get filteredQueryDbList() {
+    let databaseList = this.databaseList;
+
+    const isDbSearchTextEmpty = StringUtil.isNotEmpty(this.queryDbSearchText);
+
+    // 검색어가 있다면
+    if (isDbSearchTextEmpty) {
+      databaseList = databaseList.filter((item) => {
+        return item.name.toLowerCase().indexOf(this.queryDbSearchText.toLowerCase()) > -1;
+      });
+    }
+    return databaseList;
+
+  }
+
 
   get filteredDbList() {
     let databaseList = this.databaseList;
@@ -214,19 +233,29 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    * @param event
    * @param database
    */
-  public onChangeDatabase(event,database) {
+  public selectDatabase(database) {
 
     this.isDatabaseListShow = false;
-    event.stopPropagation();
-
     this.datasetJdbc.tableInfo.databaseName = database.name;
     this.datasetJdbc.tableInfo.tableName = undefined;
-
     this._deleteGridInfo(this.datasetJdbc.rsType);
-
     this.getTables(database.name);
     this.initSelectedCommand(this.filteredDbList);
+
   } // function - onChangeDatabase
+
+
+  /**
+   * Query tab : Select database from select box
+   * @param database
+   */
+  public selectQueryDatabase(database) {
+    this.isQueryDatabaseListShow = false;
+    this.datasetJdbc.sqlInfo.databaseName = database.name;
+    this._deleteGridInfo(this.datasetJdbc.rsType);
+    this.initSelectedCommand(this.filteredDbList);
+
+  }
 
   /**
    * change selected table
@@ -281,17 +310,51 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
 
   /**
-   * Open/close database select box
+   * Table Tab : open/close database select box
    * @param event
    */
   public showDatabaseList(event?) {
+
     event ? event.stopImmediatePropagation() : null;
-    this.isDatabaseListShow = true;
+
+    // Reset search text
+    this.dbSearchText = '';
+
+    // Open select box and focus on input
+    setTimeout(() => {
+      this.isDatabaseListShow = true;
+      $('#table-db-input').trigger('focus');
+    });
+
     this.isSchemaListShow = false;
-    this.dbSearchText = ''; //검색어 초기화
-    setTimeout(() => $('.db-search').trigger('focus')); // focus on input
 
   } // function - showDatabaseList
+
+
+  /**
+   * Query Tab : open/close database select box
+   * @param event
+   */
+  public showQueryDatabaseList(event?) {
+
+    event ? event.stopImmediatePropagation() : null;
+
+    // Reset search text
+    this.queryDbSearchText = '';
+
+    // open select box and focus on input
+    setTimeout(() => {
+      this.isQueryDatabaseListShow = true;
+    });
+
+    setTimeout(() => {
+      $('#query-db-input').trigger('focus');
+    });
+
+    // Query tab - X schema list
+    this.isSchemaListShow = false;
+
+  }
 
 
   /**
@@ -300,10 +363,13 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    */
   public showSchemaList(event?) {
     event ? event.stopImmediatePropagation() : null;
-    this.isSchemaListShow = true;
     this.isDatabaseListShow = false;
     this.schemaSearchText = ''; //검색어 초기화
-    setTimeout(() => $('.schema-search').trigger('focus')); // focus on input
+
+    setTimeout(() => {
+      this.isSchemaListShow = true;
+      $('.schema-search').trigger('focus')
+    }); // focus on input
 
   } // function - showSchemaList
 
@@ -324,21 +390,22 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     // destroy grid
     this.gridComponent.destroy();
 
-    // When QUERY tab => db, schema select box is hidden
-    if (this.datasetJdbc.rsType !== RsType.TABLE) {
-      this.isDatabaseListShow = false;
-      this.isSchemaListShow = false;
-      this.clickable = true;
+    let data = null;
+    if (this.datasetJdbc.rsType === RsType.TABLE) {
+      data = this.datasetJdbc.tableInfo;
+
+      if (this.datasetJdbc.tableInfo.databaseName === undefined) {
+        this.showDatabaseList();
+      } else if (this.datasetJdbc.tableInfo.tableName === undefined) {
+        this.showSchemaList();
+      }
+    } else {
+      data = this.datasetJdbc.sqlInfo;
+      if (this.datasetJdbc.sqlInfo.databaseName === undefined) {
+        this.showQueryDatabaseList();
+      }
     }
 
-    // If grid data exists, draw grid.
-    //let data = this.datasetJdbc[method.toLowerCase()+'Info'];
-    let data = null;
-    if(method===RsType.TABLE) {
-      data = this.datasetJdbc.sqlInfo;
-    } else if(method===RsType.QUERY) {
-      data = this.datasetJdbc.tableInfo;
-    }
     if (data.headers && data.headers.length > 0) {
       this.clearGrid = false;
       this._drawGrid(data.headers,data.rows)
@@ -354,7 +421,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    */
   public runJdbcQuery() {
 
-    if (this.datasetJdbc.sqlInfo.queryStmt == '' ) {
+    if (this.datasetJdbc.sqlInfo.databaseName === undefined || this.datasetJdbc.sqlInfo.queryStmt === '') {
       return;
     }
 
@@ -369,6 +436,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     // param.password = this.datasetJdbc.dataconnection.connection.password;
     // param.port = this.datasetJdbc.dataconnection.connection.port;
     param.query = this.datasetJdbc.sqlInfo.queryStmt;
+    param.database = this.datasetJdbc.sqlInfo.databaseName;
     param.type = 'QUERY';
 
     this.queryErrorMsg = '';
@@ -455,6 +523,9 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         case 'schema' :
           !this.isSchemaListShow ? this.isSchemaListShow = true: null;
           break;
+        case 'query' :
+          !this.isQueryDatabaseListShow ? this.isQueryDatabaseListShow = true: null;
+          break;
       }
     }
 
@@ -539,10 +610,13 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
       } else {
         switch(method) {
           case 'db' :
-            this.onChangeDatabase(event,currentList[idx]);
+            this.selectDatabase(currentList[idx]);
             break;
           case 'schema' :
             this.onChangeTable(event, currentList[idx]);
+            break;
+          case 'query' :
+            this.selectQueryDatabase(currentList[idx]);
             break;
         }
       }
@@ -567,6 +641,9 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         break;
       case 'schema':
         tempList = this.filteredSchemaList;
+        break;
+      case 'query':
+        tempList = this.filteredQueryDbList;
         break;
     }
 
@@ -642,13 +719,13 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         }
 
         // TABLE && GRID INFO
-        if (this.datasetJdbc.rsType === RsType.TABLE && this.datasetJdbc.tableInfo.headers) {
+        if (this.datasetJdbc.rsType === RsType.TABLE && this.datasetJdbc.tableInfo.headers && this.datasetJdbc.tableInfo.headers.length > 0) {
           this.clearGrid = false;
           this.getTables(this.datasetJdbc.tableInfo.databaseName);
           this._drawGrid(this.datasetJdbc.tableInfo.headers,this.datasetJdbc.tableInfo.rows);
 
           // QUERY AND GRID INFO
-        } else if (this.datasetJdbc.rsType === RsType.QUERY && this.datasetJdbc.sqlInfo.queryStmt) {
+        } else if (this.datasetJdbc.rsType === RsType.QUERY && this.datasetJdbc.sqlInfo.databaseName && this.datasetJdbc.sqlInfo.queryStmt !== '') {
 
           // STILL NEED TO GET TABLE INFO
           if (this.datasetJdbc.tableInfo && this.datasetJdbc.tableInfo.databaseName) {
@@ -705,11 +782,12 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         this.schemaList = [];
         this.datasetJdbc.tableInfo.tableName = undefined;
         this.isTableEmpty = true;
-
+        setTimeout(() => this.isSchemaListShow = true );
         if (this.gridComponent) {
           this.gridComponent.destroy();
         }
       }
+
     }).catch((error) => {
       this.schemaList = [];
       this.isTableEmpty = true;

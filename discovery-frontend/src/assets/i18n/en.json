@@ -1274,7 +1274,7 @@
   "msg.dp.ui.add.expression" : "Add expression",
   "msg.dp.ui.add.expression.ph" : "Search expression",
   "msg.dp.btn.advanced.editor" : "Advanced editor",
-  "msg.dp.btn.make.copy" : "Make a copy",
+  "msg.dp.btn.make.copy" : "Clone dataset",
   "msg.dp.ui.no.preview" : "No preview",
   "msg.dp.ui.sel.dataflow.dataset" : "Select dataflow to add dataset",
   "msg.dp.ui.add.existing.dataflow" : "Add to existing dataflow",

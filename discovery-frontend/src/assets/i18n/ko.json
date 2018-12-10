@@ -1272,7 +1272,7 @@
   "msg.dp.ui.add.expression" : "수식 추가",
   "msg.dp.ui.add.expression.ph" : "수식 검색",
   "msg.dp.btn.advanced.editor" : "고급 편집기",
-  "msg.dp.btn.make.copy" : "데이터셋 복사",
+  "msg.dp.btn.make.copy" : "데이터셋 복제",
   "msg.dp.ui.no.preview" : "미리보기 없음",
   "msg.dp.ui.sel.dataflow.dataset" : "데이터셋을 추가할 데이터플로우를 선택하세요",
   "msg.dp.ui.add.existing.dataflow" : "기존 데이터플로우에 추가",
