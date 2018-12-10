@@ -37,7 +37,7 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
   @Input('sourceData')
   public set setSourceData(sourceData: DatasourceInfo) {
     this._sourceData = sourceData;
-    this._ingestionSettingComponent.init(this._sourceData, 'DB');
+    this._ingestionSettingComponent.init(this._sourceData, 'DB', this._sourceData.schemaData.selectedColumn);
   }
 
   @Input()
