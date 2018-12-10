@@ -17,7 +17,12 @@ import { isUndefined } from 'util';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
 import {
-  Field, FieldFormat, FieldFormatType, FieldFormatUnit, FieldRole, IngestionRuleType,
+  Field,
+  FieldFormat,
+  FieldFormatType,
+  FieldFormatUnit,
+  FieldRole,
+  IngestionRuleType,
   LogicalType
 } from '../../../domain/datasource/datasource';
 import { StringUtil } from '../../../common/util/string.util';
@@ -38,6 +43,23 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
   private timestampType: string;
 
   private currentMilliseconds: number = moment().valueOf();
+
+  // origin logical type list
+  private _originLogicalTypeList: any[] = [
+    { label: this.translateService.instant('msg.storage.ui.list.string'), icon: 'ddp-icon-type-ab', value: LogicalType.STRING, role: FieldRole.DIMENSION },
+    { label: this.translateService.instant('msg.storage.ui.list.boolean'), icon: 'ddp-icon-type-tf', value: LogicalType.BOOLEAN, role: FieldRole.DIMENSION },
+    { label: this.translateService.instant('msg.storage.ui.list.integer'), icon: 'ddp-icon-type-int', value: LogicalType.INTEGER, role: FieldRole.DIMENSION },
+    { label: this.translateService.instant('msg.storage.ui.list.double'), icon: 'ddp-icon-type-float', value: LogicalType.DOUBLE, role: FieldRole.DIMENSION },
+    { label: this.translateService.instant('msg.storage.ui.list.date'), icon: 'ddp-icon-type-calen', value: LogicalType.TIMESTAMP, role: FieldRole.DIMENSION },
+    { label: this.translateService.instant('msg.storage.ui.list.lnt'), icon: 'ddp-icon-type-latitude', value: LogicalType.LNT, role: FieldRole.DIMENSION },
+    { label: this.translateService.instant('msg.storage.ui.list.lng'), icon: 'ddp-icon-type-longitude', value: LogicalType.LNG, role: FieldRole.DIMENSION },
+    { label: this.translateService.instant('msg.storage.ui.list.integer'), icon: 'ddp-icon-type-int', value: LogicalType.INTEGER, role: FieldRole.MEASURE },
+    { label: this.translateService.instant('msg.storage.ui.list.double'), icon: 'ddp-icon-type-float', value: LogicalType.DOUBLE, role: FieldRole.MEASURE },
+    { label: this.translateService.instant('msg.storage.ui.list.geo.point'), icon: 'ddp-icon-type-point', value: LogicalType.GEO_POINT, role: FieldRole.DIMENSION, derived: true },
+    { label: this.translateService.instant('msg.storage.ui.list.geo.line'), icon: 'ddp-icon-type-line', value: LogicalType.GEO_LINE, role: FieldRole.DIMENSION, derived: true },
+    { label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), icon: 'ddp-icon-type-polygon', value: LogicalType.GEO_POLYGON, role: FieldRole.DIMENSION, derived: true },
+    { label: this.translateService.instant('msg.storage.ui.list.expression'), icon: 'ddp-icon-type-expression', value: LogicalType.USER_DEFINED, role: FieldRole.DIMENSION, derived: true }
+  ];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -103,8 +125,8 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
 
   // type
   public type: any[];
-  public dimensionType: any[];
-  public measureType: any[];
+  // logical type list
+  public logicalTypeList: any[] = [];
 
   // select flag
   public selectFl: boolean = false;
@@ -174,19 +196,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
   }
 
   /**
-   * 해당 컬럼의 role에 따라 보여줄 type 필터링
-   * @returns {any[]}
-   */
-  public getRoleFilter() {
-    const types = this.getType().filter((item) => {
-      if (item.role === this.column.role) {
-        return item;
-      }
-    });
-    return types;
-  }
-
-  /**
    * 타입에 대한 기본값 placeholder 표시
    * @param {string} itemType
    * @returns {any}
@@ -242,11 +251,54 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
    */
   public getLogicalType(logicalType: string) {
     if (isUndefined(logicalType)) {
-      return this.getType()[0];
+      return this.logicalTypeList[0];
     }
-    return this.getType()[this.getType().findIndex((item) => {
-      return item.value === logicalType.toUpperCase();
-    })];
+    return this.logicalTypeList.find(type => logicalType === type.value);
+  }
+
+  /**
+   * Get logical type label
+   * @param column
+   */
+  public getLogicalTypeLabel(column: Field): string {
+    // if column is USER_DEFINED
+    return (column.derived && LogicalType.STRING === column.logicalType
+      // return USER_DEFINED
+      ? this.logicalTypeList[this.logicalTypeList.findIndex(type =>  LogicalType.USER_DEFINED === type.value)]
+      // return type
+      : this.logicalTypeList[this.logicalTypeList.findIndex(type => type.value === column.logicalType)]).label;
+  }
+
+  /**
+   * Get logical type icon class
+   * @param column
+   */
+  public getLogicalTypeIconClass(column: Field): string {
+    switch (column.logicalType) {
+      case LogicalType.TIMESTAMP:
+        return 'ddp-icon-type-calen';
+      case LogicalType.BOOLEAN:
+        return 'ddp-icon-type-tf';
+      case LogicalType.STRING:
+        return column.derived ? 'ddp-icon-type-expression' : 'ddp-icon-type-ab';
+      case LogicalType.INTEGER:
+        return 'ddp-icon-type-int';
+      case LogicalType.FLOAT:
+      case LogicalType.DOUBLE:
+        return 'ddp-icon-type-float';
+      case LogicalType.LNG:
+        return 'ddp-icon-type-longitude';
+      case LogicalType.LNT:
+        return 'ddp-icon-type-latitude';
+      case LogicalType.GEO_POINT:
+        return 'ddp-icon-type-point';
+      case LogicalType.GEO_LINE:
+        return 'ddp-icon-type-line';
+      case LogicalType.GEO_POLYGON:
+        return 'ddp-icon-type-polygon';
+      default:
+        return '';
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -325,9 +377,10 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     // role 타입 변경
     this.column.role = type.value;
 
-    // 타입변경
-    const types = this.getRoleFilter();
-    this.column.logicalType = types[0].value;
+    // init logical type list
+    this._initLogicalTypeList();
+    // set logical type
+    this.column.logicalType = this.logicalTypeList[0].value;
     // null 타입 변경
     this.column.ingestionRule.type = IngestionRuleType.DEFAULT;
     // 플래그 제거
@@ -447,9 +500,24 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     this.column.format.originalSrsName = name;
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method - validation
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Logical list show event
+   */
+  public onShowLogicalList(): void {
+    if (!this.isDisabledTypeChange()) {
+      this.selectFl = !this.selectFl;
+    }
+  }
+
+  /**
+   * Is disabled change logical type
+   */
+  public isDisabledTypeChange(): boolean {
+    // if selected column is derived or TIMESTAMP column
+    return this.column.derived || this.isTimestampColumn();
+  }
+
+
 
   /**
    * 현재 컬럼이 타임스탬프 컬럼인가
@@ -583,37 +651,8 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
       { label: this.translateService.instant('msg.storage.ui.list.dimension'), value: 'DIMENSION' },
       { label: this.translateService.instant('msg.storage.ui.list.measure'), value: 'MEASURE' }
     ];
-
-    // dimension types
-    this.dimensionType = this.column.derived ? [
-        { label: this.translateService.instant('msg.storage.ui.list.string'), icon: 'ddp-icon-type-ab', value: 'STRING', role: 'DIMENSION' },
-        { label: this.translateService.instant('msg.storage.ui.list.boolean'), icon: 'ddp-icon-type-tf', value: 'BOOLEAN', role: 'DIMENSION' },
-        { label: this.translateService.instant('msg.storage.ui.list.integer'), icon: 'ddp-icon-type-int', value: 'INTEGER', role: 'DIMENSION' },
-        { label: this.translateService.instant('msg.storage.ui.list.double'), icon: 'ddp-icon-type-float', value: 'DOUBLE', role: 'DIMENSION' },
-        { label: this.translateService.instant('msg.storage.ui.list.date'), icon: 'ddp-icon-type-calen', value: 'TIMESTAMP', role: 'DIMENSION' },
-        { label: this.translateService.instant('msg.storage.ui.list.lnt'), icon: 'ddp-icon-type-latitude', value: 'LNT', role: 'DIMENSION' },
-        { label: this.translateService.instant('msg.storage.ui.list.lng'), icon: 'ddp-icon-type-longitude', value: 'LNG', role: 'DIMENSION' },
-        { label: this.translateService.instant('msg.storage.ui.list.geo.point'), icon: 'ddp-icon-type-point', value: LogicalType.GEO_POINT},
-        // {label: this.translateService.instant('msg.storage.ui.list.geo.line'), icon: 'ddp-icon-type-line', value: LogicalType.GEO_LINE},
-        // {label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), icon: 'ddp-icon-type-polygon', value: LogicalType.GEO_POLYGON},
-        { label: this.translateService.instant('msg.storage.ui.list.expression'), icon: null, disableIcon: true, value: LogicalType.USER_DEFINED}
-      ]
-      :  [
-      { label: this.translateService.instant('msg.storage.ui.list.string'), icon: 'ddp-icon-type-ab', value: 'STRING', role: 'DIMENSION' },
-      { label: this.translateService.instant('msg.storage.ui.list.boolean'), icon: 'ddp-icon-type-tf', value: 'BOOLEAN', role: 'DIMENSION' },
-      { label: this.translateService.instant('msg.storage.ui.list.integer'), icon: 'ddp-icon-type-int', value: 'INTEGER', role: 'DIMENSION' },
-      { label: this.translateService.instant('msg.storage.ui.list.double'), icon: 'ddp-icon-type-float', value: 'DOUBLE', role: 'DIMENSION' },
-      { label: this.translateService.instant('msg.storage.ui.list.date'), icon: 'ddp-icon-type-calen', value: 'TIMESTAMP', role: 'DIMENSION' },
-      { label: this.translateService.instant('msg.storage.ui.list.lnt'), icon: 'ddp-icon-type-latitude', value: 'LNT', role: 'DIMENSION' },
-      { label: this.translateService.instant('msg.storage.ui.list.lng'), icon: 'ddp-icon-type-longitude', value: 'LNG', role: 'DIMENSION' }
-    ];
-    // measure types
-    this.measureType = [
-      { label: this.translateService.instant('msg.storage.ui.list.integer'), icon: 'ddp-icon-type-int', value: 'INTEGER', role: 'MEASURE' },
-      { label: this.translateService.instant('msg.storage.ui.list.double'), icon: 'ddp-icon-type-float', value: 'DOUBLE', role: 'MEASURE' }
-    ];
-    // types
-    this.type = this.getType();
+    // init logical type list
+    this._initLogicalTypeList();
 
     // ingestionRule
     if (!this.column['ingestionRule']) {
@@ -621,6 +660,23 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
         type: IngestionRuleType.DEFAULT,
         value: ''
       };
+    }
+  }
+
+  /**
+   * Init logical type list
+   * @private
+   */
+  private _initLogicalTypeList(): void {
+    // if derived
+    if (this.column.derived) {
+      this.logicalTypeList = this._originLogicalTypeList.filter(type => type.derived);
+    } else if (FieldRole.DIMENSION === this.column.role) {
+      this.logicalTypeList = this.column.type === LogicalType.STRING.toString()
+        ? this._originLogicalTypeList.filter(type => LogicalType.USER_DEFINED !== type.value && FieldRole.DIMENSION === type.role)
+        : this._originLogicalTypeList.filter(type => FieldRole.DIMENSION === type.role && type.derived) ;
+    } else if (FieldRole.MEASURE === this.column.role) {
+      this.logicalTypeList = this._originLogicalTypeList.filter(type => type.role === FieldRole.MEASURE);
     }
   }
 
@@ -677,16 +733,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method - getter
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * logical type 목록
-   * @returns {any[]}
-   */
-  private getType(): any[] {
-    if (this.column.hasOwnProperty('role')) {
-      return this.column.role === FieldRole.MEASURE ? this.measureType : this.dimensionType;
-    }
-  }
 
   /**
    * Format validation

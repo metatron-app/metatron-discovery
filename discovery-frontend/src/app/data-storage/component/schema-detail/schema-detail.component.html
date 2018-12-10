@@ -69,7 +69,7 @@
                   <li *ngFor="let role of roleType">
                     <label class="ddp-label-radio" (change)="onChangeRole(role)">
                       <input type="radio" [checked]="column.role === role.value"
-                             [disabled]="column.derived && column.role !== role.value">
+                             [disabled]="isDisabledTypeChange() && column.role !== role.value">
                       <i class="ddp-icon-radio"></i>
                       <span class="ddp-txt-radio">{{role.label}}</span>
                     </label>
@@ -93,24 +93,24 @@
                 <!-- seletbox -->
                 <!-- 선택시 ddp-selected 추가 -->
                 <div class="ddp-type-selectbox"
-                     [class.ddp-disabled]="column.derived"
-                     [class.ddp-selected]="!column.derived && selectFl"
-                     (click)="selectFl = !selectFl" (clickOutside)="selectFl = false">
+                     [class.ddp-disabled]="isDisabledTypeChange()"
+                     [class.ddp-selected]="selectFl"
+                     (click)="onShowLogicalList()" (clickOutside)="selectFl = false">
                   <span class="ddp-txt-selectbox">
                       <span class="ddp-type-txt">
-                          <em class="{{getFieldTypeIconClass(column.logicalType)}}"></em>
-                          {{getLogicalType(column.logicalType).label}}
+                          <em class="{{getLogicalTypeIconClass(column)}}"></em>
+                          {{getLogicalTypeLabel(column)}}
                       </span>
                   </span>
                   <div class="ddp-wrap-popup2 ddp-types">
                     <ul class="ddp-list-popup">
                       <!-- ddp-selected -->
-                      <li *ngFor="let data of getRoleFilter()" [ngClass]="{'ddp-selected' : getLogicalType(column.logicalType).value === data.value}"
+                      <li *ngFor="let data of logicalTypeList" [ngClass]="{'ddp-selected' : column.logicalType === data.value}"
                           (click)="onChangeType(data)">
                         <a href="javascript:">
                           <em class="{{data.icon}}"></em>
                           {{data.label}}
-                          <em class="ddp-icon-check" *ngIf="getLogicalType(column.logicalType).value === data.value"></em>
+                          <em class="ddp-icon-check" *ngIf="column.logicalType === data.value"></em>
                         </a>
                       </li>
                     </ul>
