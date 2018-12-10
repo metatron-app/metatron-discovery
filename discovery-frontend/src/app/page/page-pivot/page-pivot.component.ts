@@ -1231,7 +1231,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     // 보조축
     let secondaryAxis: UIChartAxis = _.cloneDeep(this.uiOption.yAxis);
     secondaryAxis.name = this.editingField.alias;
-    this.uiOption.subAxis = secondaryAxis;
+    this.uiOption.secondaryAxis = secondaryAxis;
 
     // 이벤트 발생
     this.changePivot();
@@ -1330,12 +1330,12 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   protected isSecondaryAxis(): boolean {
 
     // X, Y축만 있다면 사용중이 아님
-    if (this.uiOption.subAxis) {
+    if (this.uiOption.secondaryAxis) {
       return false;
     }
 
     // 현재필드의 보조축인지 체크
-    if (this.uiOption.subAxis && this.uiOption.subAxis.name == this.editingField.alias) {
+    if (this.uiOption.secondaryAxis && this.uiOption.secondaryAxis.name == this.editingField.alias) {
       return true;
     }
     else {

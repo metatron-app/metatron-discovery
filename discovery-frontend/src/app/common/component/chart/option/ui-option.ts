@@ -73,8 +73,6 @@ export interface UIOption {
   // Secondary Axis
   secondaryAxis?: UIChartAxis;
 
-  subAxis?: UIChartAxis;
-
   // 폰트 사이즈
   fontSize?: FontSize;
 
