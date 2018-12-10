@@ -273,9 +273,10 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
           if (checkIgnore(field.getRef())) {
             continue;
           }
+
           propertyNames.add(new PropertyName(fieldName));
-          dimensions.add(new DefaultDimension(fieldName, field.getAlias()));
           projectionMapper.put(fieldName, field.getAlias());
+          //dimensions.add(new DefaultDimension(fieldName, field.getAlias()));
         }
       } else if (datasourceField.getRole() == FieldRole.MEASURE) {
 
@@ -299,6 +300,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
           projectionMapper.put(originalName, alias);
         }
         minMaxFields.add(alias);
+
       } else if (datasourceField.getRole() == FieldRole.TIMESTAMP) {
         TimestampField timestampField = (TimestampField) field;
         TimeFieldFormat timeFormat = getTimeFieldFormat(field.getFormat(), datasourceField.getFormatObject());
