@@ -54,9 +54,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.sql.DataSource;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -223,6 +221,103 @@ public class TeddyExecutor {
     try {
       printer.close(true);
     } catch (IOException e) {
+      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_CSV, e.getMessage());
+    }
+
+    if (errmsg != null) {
+      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV, errmsg);
+    }
+
+    return df.rows.size();
+  }
+
+  private PrintWriter getJsonPrinter(String strUri, Configuration conf) {
+    PrintWriter printWriter;
+    URI uri;
+
+    try {
+      uri = new URI(strUri);
+    } catch (URISyntaxException e) {
+      e.printStackTrace();
+      throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strUri);
+    }
+
+    switch (uri.getScheme()) {
+      case "hdfs":
+        if (conf == null) {
+          throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+        }
+        Path path = new Path(uri);
+
+        FileSystem hdfsFs;
+        try {
+          hdfsFs = FileSystem.get(conf);
+        } catch (IOException e) {
+          e.printStackTrace();
+          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, strUri);
+        }
+
+        FSDataOutputStream hos;
+        try {
+          hos = hdfsFs.create(path);
+        } catch (IOException e) {
+          e.printStackTrace();
+          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_HDFS_PATH, strUri);
+        }
+
+        printWriter = new PrintWriter(new BufferedWriter( new OutputStreamWriter(hos)));
+        break;
+
+      case "file":
+        File file = new File(uri);
+
+        FileOutputStream fos;
+        try {
+          fos = new FileOutputStream(file);
+        } catch (FileNotFoundException e) {
+          e.printStackTrace();
+          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strUri);
+        }
+
+        printWriter = new PrintWriter(new BufferedWriter( new OutputStreamWriter(fos)));
+        break;
+
+      default:
+        throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, strUri);
+    }
+
+    return printWriter;
+  }
+
+  private int writeJSON(String strUri, DataFrame df, String ssId) {
+    LOGGER.debug("TeddyExecutor.wirteJSON(): strUri={} conf={}", strUri, conf);
+    PrintWriter printWriter = getJsonPrinter(strUri, conf);
+    ObjectMapper mapper = new ObjectMapper();
+    String errmsg = null;
+
+    try {
+      for (int rowno = 0; rowno < df.rows.size(); cancelCheck(ssId, ++rowno)) {
+        Row row = df.rows.get(rowno);
+        Map<String, Object> jsonRow = new HashMap<>();
+
+        for (int colno = 0; colno < df.getColCnt(); ++colno) {
+          if(df.getColType(colno).equals(ColumnType.TIMESTAMP)) {
+            jsonRow.put(df.getColName(colno), ((DateTime) row.get(colno)).toString(df.getColTimestampStyle(colno), Locale.ENGLISH));
+          } else {
+            jsonRow.put(df.getColName(colno), row.get(colno));
+          }
+        }
+
+        String json = mapper.writeValueAsString(jsonRow);
+        printWriter.println(json);
+      }
+    } catch (IOException e) {
+      errmsg = e.getMessage();
+    }
+
+    try {
+      printWriter.close();
+    } catch (Exception e) {
       throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_CSV, e.getMessage());
     }
 
