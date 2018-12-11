@@ -31,6 +31,7 @@ import {
 } from '../../../domain/workbook/configurations/filter/time-relative-filter';
 import { isNullOrUndefined } from 'util';
 import { EventBroadcaster } from '../../../common/event/event.broadcaster';
+import {TimeRangeFilter} from "../../../domain/workbook/configurations/filter/time-range-filter";
 
 declare let moment;
 
@@ -117,7 +118,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   public ngOnChanges(changes: SimpleChanges) {
     const filterChanges: SimpleChange = changes.inputFilter;
     if (filterChanges) {
-      this.setData(filterChanges.currentValue);
+      this.setData(filterChanges.currentValue, true);
     }
   } // function - ngOnChanges
 
@@ -156,8 +157,9 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   /**
    * 강제 데이터 설정
    * @param {TimeRelativeFilter} filter
+   * @param {boolean} isBroadcast
    */
-  public setData(filter: TimeRelativeFilter) {
+  public setData(filter: TimeRelativeFilter, isBroadcast:boolean = false ) {
     let tempFilter: TimeRelativeFilter = filter;
 
     {
@@ -171,6 +173,8 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
     }
 
     this.targetFilter = tempFilter;
+
+    ( isBroadcast ) && ( this.changeEvent.emit(this.targetFilter) );
 
     this.safelyDetectChanges();
   } // function - setData
