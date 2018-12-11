@@ -34,7 +34,6 @@ import {
   ChartColorList,
   ChartSelectMode,
   ChartType,
-  ColorRangeType,
   ShelveFieldType,
   UIChartDataLabelDisplayType,
   UIPosition,
@@ -55,7 +54,7 @@ import { isNullOrUndefined } from 'util';
 import { UIHeatmapLayer } from '../../option/ui-option/map/ui-heatmap-layer';
 import { UIPolygonLayer } from '../../option/ui-option/map/ui-polygon-layer';
 import { UITileLayer } from '../../option/ui-option/map/ui-tile-layer';
-import UI = OptionGenerator.UI;
+import { ColorOptionConverter } from '../../option/converter/color-option-converter';
 
 @Component({
   selector: 'map-chart',
@@ -988,22 +987,32 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             let rangeMin = range.fixMin;
 
             if(rangeMax === null) {
-              rangeMax = rangeMin + 1;
-            } else if(rangeMin === null) {
-              rangeMin = rangeMax;
-            }
 
-            if(rangeMax === rangeMin) {
-              rangeMin = rangeMax - 1;
-            }
+              // if feature value is bigger than max value, set max color
+              if( feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] > rangeMin) {
+                featureColor = range.color;
+              }
 
-            if( feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] > rangeMin &&
-              feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] <= rangeMax) {
-              featureColor = range.color;
+            } else {
+              if(rangeMin === null) {
+                let minValue = styleData.valueRange[scope.getFieldAlias(styleLayer.color.column)].minValue;
+
+                if (minValue >= 0) {
+                  rangeMin = 0;
+                  // when minValue is negative, set minValue to range min
+                } else {
+                  rangeMin = minValue;
+                }
+              }
+
+              if( feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] >= rangeMin &&
+                feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] <= rangeMax) {
+                featureColor = range.color;
+              }
             }
           }
         } else {
-          const ranges = scope.setColorRange(styleOption, styleData, scope.getColorList(styleLayer), layerNum);
+          const ranges = ColorOptionConverter.setMapMeasureColorRange(styleOption, styleData, scope.getColorList(styleLayer), layerNum, scope.shelf.layers[layerNum]);
 
           // set decimal value
           const formatValue = ((value) => {
@@ -1015,19 +1024,29 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             let rangeMin = range.fixMin;
 
             if(rangeMax === null) {
-              rangeMax = rangeMin + 1;
-            } else if(rangeMin === null) {
-              rangeMin = 0;
-            }
 
-            if(rangeMax === rangeMin) {
-              rangeMin = rangeMax - 1;
-            }
+              // if feature value is bigger than max value, set max color
+              if( feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] > rangeMin) {
+                featureColor = range.color;
+              }
 
-            let value = formatValue(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)]);
+            } else {
+              if(rangeMin === null) {
+                let minValue = styleData.valueRange[scope.getFieldAlias(styleLayer.color.column)].minValue;
 
-            if( (rangeMin == 0 && rangeMin == value) || (value > rangeMin && value <= rangeMax) ) {
-              featureColor = range.color;
+                if (minValue >= 0) {
+                  rangeMin = 0;
+                  // when minValue is negative, set minValue to range min
+                } else {
+                  rangeMin = minValue;
+                }
+              }
+
+              let value = formatValue(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)]);
+
+              if( (rangeMin == 0 && rangeMin == value) || (value >= rangeMin && value <= rangeMax) ) {
+                featureColor = range.color;
+              }
             }
           }
         }
@@ -1172,7 +1191,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       let layerType = styleLayer.type;
       let featureColor = styleLayer.color.schema;
       let featureColorType = styleLayer.color.by;
-      let symbolType = symbolLayer.symbol
+      let symbolType = symbolLayer.symbol;
       let outlineType = symbolLayer.outline ? symbolLayer.outline.thickness : null;
       let outlineColor = symbolLayer.outline ? symbolLayer.outline.color : null;
       let lineMaxVal = 1; //styleLayer.size.max;
@@ -1215,22 +1234,30 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
               let rangeMin = range.fixMin;
 
               if(rangeMax === null) {
-                rangeMax = rangeMin + 1;
-              } else if(rangeMin === null) {
-                rangeMin = rangeMax;
-              }
+                // if feature value is bigger than max value, set max color
+                if( feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] > rangeMin) {
+                  featureColor = range.color;
+                }
+              } else {
+                if(rangeMin === null) {
+                  let minValue = styleData.valueRange[scope.getFieldAlias(styleLayer.color.column)].minValue;
 
-              if(rangeMax === rangeMin) {
-                rangeMin = rangeMax - 1;
-              }
+                  if (minValue >= 0) {
+                    rangeMin = 0;
+                    // when minValue is negative, set minValue to range min
+                  } else {
+                    rangeMin = minValue;
+                  }
+                }
 
-              if( feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] > rangeMin &&
-                feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] <= rangeMax) {
-                featureColor = range.color;
+                if( feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] >= rangeMin &&
+                  feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] <= rangeMax) {
+                  featureColor = range.color;
+                }
               }
             }
           } else {
-            const ranges = scope.setColorRange(styleOption, styleData, scope.getColorList(styleLayer), layerNum);
+            const ranges = ColorOptionConverter.setMapMeasureColorRange(styleOption, styleData, scope.getColorList(styleLayer), layerNum, scope.shelf.layers[layerNum]);
 
             // set decimal value
             const formatValue = ((value) => {
@@ -1242,19 +1269,28 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
               let rangeMin = range.fixMin;
 
               if(rangeMax === null) {
-                rangeMax = rangeMin + 1;
-              } else if(rangeMin === null) {
-                rangeMin = 0;
-              }
+                // if feature value is bigger than max value, set max color
+                if (feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] > rangeMin) {
+                  featureColor = range.color;
+                }
 
-              if(rangeMax === rangeMin) {
-                rangeMin = rangeMax - 1;
-              }
+              } else {
+                if (rangeMin === null) {
+                  let minValue = styleData.valueRange[scope.getFieldAlias(styleLayer.color.column)].minValue;
 
-              let value = formatValue(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)]);
+                  if (minValue >= 0) {
+                    rangeMin = 0;
+                    // when minValue is negative, set minValue to range min
+                  } else {
+                    rangeMin = minValue;
+                  }
+                }
 
-              if( (rangeMin == 0 && rangeMin == value) || (value > rangeMin && value <= rangeMax) ) {
-                featureColor = range.color;
+                let value = formatValue(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)]);
+
+                if ((rangeMin == 0 && rangeMin == value) || (value >= rangeMin && value <= rangeMax)) {
+                  featureColor = range.color;
+                }
               }
             }
           }
@@ -1650,23 +1686,32 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             let rangeMin = range.fixMin;
 
             if(rangeMax === null) {
-              rangeMax = rangeMin + 1;
-            } else if(rangeMin === null) {
-              rangeMin = rangeMax;
-            }
 
-            if(rangeMax === rangeMin) {
-              rangeMin = rangeMax - 1;
-            }
+              // if feature value is bigger than max value, set max color
+              if (feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] > rangeMin) {
+                featureColor = range.color;
+              }
 
-            if( feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] > rangeMin &&
-              feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] <= rangeMax) {
-              featureColor = range.color;
+            } else {
+              if (rangeMin === null) {
+                let minValue = styleData.valueRange[scope.getFieldAlias(styleLayer.color.column)].minValue;
+
+                if (minValue >= 0) {
+                  rangeMin = 0;
+                  // when minValue is negative, set minValue to range min
+                } else {
+                  rangeMin = minValue;
+                }
+              }
+
+              if (feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] >= rangeMin &&
+                feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] <= rangeMax) {
+                featureColor = range.color;
+              }
             }
           }
         } else {
-          const ranges = scope.setColorRange(styleOption, styleData, scope.getColorList(styleLayer), layerNum);
-
+          const ranges = ColorOptionConverter.setMapMeasureColorRange(styleOption, styleData, scope.getColorList(styleLayer), layerNum, scope.shelf.layers[layerNum]);
           // set decimal value
           const formatValue = ((value) => {
             return parseFloat((Number(value) * (Math.pow(10, styleOption.valueFormat.decimal)) / Math.pow(10, styleOption.valueFormat.decimal)).toFixed(styleOption.valueFormat.decimal));
@@ -1677,19 +1722,29 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             let rangeMin = range.fixMin;
 
             if(rangeMax === null) {
-              rangeMax = rangeMin + 1;
-            } else if(rangeMin === null) {
-              rangeMin = 0;
-            }
 
-            if(rangeMax === rangeMin) {
-              rangeMin = rangeMax - 1;
-            }
+              // if feature value is bigger than max value, set max color
+              if( feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] > rangeMin) {
+                featureColor = range.color;
+              }
 
-            let value = formatValue(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)]);
+            } else {
+              if(rangeMin === null) {
+                let minValue = styleData.valueRange[scope.getFieldAlias(styleLayer.color.column)].minValue;
 
-            if( (rangeMin == 0 && rangeMin == value) || (value > rangeMin && value <= rangeMax) ) {
-              featureColor = range.color;
+                if (minValue >= 0) {
+                  rangeMin = 0;
+                  // when minValue is negative, set minValue to range min
+                } else {
+                  rangeMin = minValue;
+                }
+              }
+
+              let value = formatValue(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)]);
+
+              if( (rangeMin == 0 && rangeMin == value) || (value >= rangeMin && value <= rangeMax) ) {
+                featureColor = range.color;
+              }
             }
           }
         }
@@ -2170,7 +2225,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
           if(this.data[num].valueRange && this.data[num].valueRange[this.getFieldAlias(layer.color.column, layer.color.aggregationType)]) {
 
-            const ranges = this.setColorRange(this.getUiMapOption(), this.data[num], this.getColorList(layer), num, []);
+            const ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[num], this.getColorList(layer), num, this.shelf.layers[num]);
+
             _.each(ranges, (range, index) => {
               let minVal: number = range.fixMin;
               let maxVal: number = range.fixMax;
@@ -2281,61 +2337,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       let color = colorList[index % colorList.length];
       rangeList.push({column: column, color: color});
     });
-
-    return rangeList;
-  }
-
-  /**
-   * return ranges of color by measure
-   * @returns {any}
-   */
-  private setColorRange(uiOption: UIMapOption, data: any, colorList: any, layerIndex: number, colorAlterList = []): ColorRange[] {
-
-    // return value
-    let rangeList = [];
-
-    let rowsListLength = data.features.length;
-
-    let gridRowsListLength = data.features.length;
-
-    // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
-    let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
-
-    // less than 0, set minValue
-    //const minValue = data.valueRange[this.getFieldAlias(uiOption.layers[layerIndex].color.column,uiOption.layers[layerIndex].color.aggregationType)].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[this.getFieldAlias(uiOption.layers[layerIndex].color.column, uiOption.layers[layerIndex].color.aggregationType)].minValue);
-    const minValue = _.cloneDeep(data.valueRange[this.getFieldAlias(uiOption.layers[layerIndex].color.column, uiOption.layers[layerIndex].color.aggregationType)].minValue);
-
-    // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-    const addValue = (data.valueRange[this.getFieldAlias(uiOption.layers[layerIndex].color.column, uiOption.layers[layerIndex].color.aggregationType)].maxValue - minValue) / (colorListLength + 1);
-
-    let maxValue = _.cloneDeep(data.valueRange[this.getFieldAlias(uiOption.layers[layerIndex].color.column, uiOption.layers[layerIndex].color.aggregationType)].maxValue);
-
-    let shape;
-
-    // set decimal value
-    const formatValue = ((value) => {
-      return parseFloat((Number(value) * (Math.pow(10, uiOption.valueFormat.decimal)) / Math.pow(10, uiOption.valueFormat.decimal)).toFixed(uiOption.valueFormat.decimal));
-    });
-
-    // decimal min value
-    let formatMinValue = formatValue(data.valueRange[this.getFieldAlias(uiOption.layers[layerIndex].color.column, uiOption.layers[layerIndex].color.aggregationType)].minValue);
-    // decimal max value
-    let formatMaxValue = formatValue(data.valueRange[this.getFieldAlias(uiOption.layers[layerIndex].color.column, uiOption.layers[layerIndex].color.aggregationType)].maxValue);
-
-    // set ranges
-    for (let index = colorListLength; index >= 0; index--) {
-
-      let color = colorList[index];
-
-      let min = 0 == index ? null : formatValue(maxValue - addValue);
-
-      // if value if lower than minValue, set it as minValue
-      if (min < data.valueRange.minValue && min < 0) min = _.cloneDeep(formatMinValue);
-
-      rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, formatValue(maxValue), min, formatValue(maxValue), shape));
-
-      maxValue = min;
-    }
 
     return rangeList;
   }

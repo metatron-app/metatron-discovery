@@ -47,7 +47,7 @@
       <li *ngIf="editingField.subType == 'user_expr'">
         <a href="javascript:">
           {{'msg.page.th.edit-cond' | translate}}
-          <div class="ddp-data-result">
+          <div class="ddp-data-result ddp-padr0">
             <span class="ddp-txt-result">{{unescapeCustomColumnExpr(editingField.field.expr)}}</span>
             <em (click)="changePivotContext.emit({type: 'customField', value: editingField.field})" class="ddp-btn-option"></em>
           </div>

@@ -83,9 +83,7 @@
                   <div class="ddp-divide2 ">
                     <div class="ddp-list-label">{{'msg.page.layer.map.color' | translate}}</div>
                     <div [ngClass]="{'ddp-list-sub2' : 'heatmap' !== uiOption.layers[index].type.toString()}">
-                      <!--<div class="ddp-list-sub2">-->
-                      <div>
-                        <!--<div class="ddp-wrap-disabled">-->
+                      <div [ngClass]="{'ddp-wrap-disabled' : 'MEASURE' === uiOption.layers[index].color.by.toString() && uiOption.layers[index].color['settingUseFl']}">
                         <div *ngIf="'heatmap' !== uiOption.layers[index].type.toString()" class="ddp-divide2">
                           <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
                           <!-- SELECTBOX -->
@@ -99,7 +97,7 @@
                         </div>
                         <!-- color by dimension column -->
                         <div
-                          *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'DIMENSION' === this.uiOption.layers[this.index].color.by.toString()"
+                          *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'DIMENSION' === uiOption.layers[index].color.by.toString()"
                           class="ddp-divide2">
                           <!-- SELECTBOX -->
                           <component-select
@@ -113,7 +111,7 @@
                         <!-- //color by dimension column -->
                         <!-- color by measure column -->
                         <div
-                          *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'MEASURE' === this.uiOption.layers[this.index].color.by.toString()"
+                          *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'MEASURE' === uiOption.layers[index].color.by.toString()"
                           class="ddp-divide2">
                           <!-- SELECTBOX -->
                           <component-select
@@ -129,7 +127,7 @@
                         <div class="ddp-divide2">
                           <!-- color by none -->
                           <div
-                            *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'NONE' === this.uiOption.layers[this.index].color.by.toString()"
+                            *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'NONE' === uiOption.layers[index].color.by.toString()"
                             class="ddp-ui-colorby ddp-box-color">
                             <!-- colorby button -->
                             <div class="ddp-wrap-colorby-button ddp-solid-color">
@@ -144,7 +142,7 @@
                           <!-- color by none -->
                           <!-- color by dimension / measure -->
                           <div
-                            *ngIf="'heatmap' === uiOption.layers[index].type.toString() || ('heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== this.uiOption.layers[this.index].color.by.toString())"
+                            *ngIf="'heatmap' === uiOption.layers[index].type.toString() || ('heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== uiOption.layers[index].color.by.toString())"
                             class="ddp-ui-colorby">
                             <!-- colorby button -->
                             <div class="ddp-wrap-colorby-button" (click)="colorListFlag = !colorListFlag"
@@ -173,24 +171,80 @@
                         </div>
                       </div>
 
-                      <!-- on/off custom color setting -->
-                      <!--<div *ngIf="'heatmap' === uiOption.layers[index].type.toString() || ('heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== this.uiOption.layers[this.index].color.by.toString())" class="ddp-wrap-option-slider">-->
-                      <!--<span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>-->
-                      <!--&lt;!&ndash; Slide THREE &ndash;&gt;-->
-                      <!--<div class="ddp-checkbox-slide ddp-checkbox-automatic2">-->
-                      <!--<input type="checkbox" [checked]="uiOption.layers[index].color['settingUseFl']"-->
-                      <!--(click)="toggleCustomColor()">-->
-                      <!--<label><span class="ddp-slide"></span></label>-->
-                      <!--</div>-->
-                      <!--&lt;!&ndash; //Slide THREE &ndash;&gt;-->
-                      <!--</div>-->
-                      <!-- //on/off custom color setting -->
+                      <!-- custom color setting -->
+                      <!--<ng-container *ngIf="'heatmap' === uiOption.layers[index].type.toString() || ('heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== uiOption.layers[index].color.by.toString())">-->
+                      <ng-container *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== uiOption.layers[index].color.by.toString()">
 
-                      <!-- color by dimension custom color setting -->
-                      <!-- //color by dimension custom color setting -->
+                        <!-- on/off custom color setting -->
+                        <div class="ddp-wrap-option-slider">
+                        <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
+                          <!-- Slide THREE -->
+                          <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+                            <input type="checkbox" [checked]="uiOption.layers[index].color['settingUseFl']"
+                                   (click)="changeColorRange()">
+                            <label><span class="ddp-slide"></span></label>
+                          </div>
+                          <!-- //Slide THREE -->
+                        </div>
+                        <!-- //on/off custom color setting -->
 
-                      <!-- color by measure custom color setting -->
-                      <!-- //color by measure custom color setting -->
+                        <!-- color by measure custom color setting -->
+                        <div *ngIf="uiOption.layers[index].color['settingUseFl']" class="ddp-user-color">
+
+                          <div *ngFor="let item of rangesViewList; let rangeIndex = index" class="ddp-wrap-usercolor">
+                            <!-- blank -->
+                            <div *ngIf="0 !== rangeIndex" (click)="addNewRange(rangeIndex)" class="ddp-list-blank">
+                              {{'msg.page.chart.color.measure.new.range.add.description' | translate}}
+                            </div>
+                            <!-- //blank -->
+                            <!-- list usercolor -->
+                            <div class="ddp-list-usercolor">
+                              <div class="ddp-box-color">
+                                <color-picker [showAlpha]="true" [color]="item.color" [showInitial]="true"
+                                              [showInput]="true" [showUserColor]="true" #colorPicker (selected)="colorPaletteSelected($event, item)"></color-picker>
+                              </div>
+                              <div class="ddp-data-range ddp-clear">
+                                <div class="ddp-input-range">
+                                  <input [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.gt"
+                                         (keyup.enter)="changeRangeMinInput(item, rangeIndex)" (focus)="availableRange(item, rangeIndex)">
+                                  <!-- tooltip -->
+                                  <div class="ddp-ui-tooltip-info">
+                                    <em class="ddp-icon-view-down"></em>
+                                    {{'msg.page.chart.color.measure.new.range.add.available.range' | translate}} {{availableRangeValue}}
+                                  </div>
+                                  <!-- //tooltip -->
+                                </div>
+                                <div class="ddp-bar ">
+                                  ~
+                                </div>
+                                <div class="ddp-input-range">
+                                  <input [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.lte"
+                                         (keyup.enter)="changeRangeMaxInput(item, rangeIndex)" (focus)="availableRange(item, rangeIndex)">
+                                  <!-- tooltip -->
+                                  <div class="ddp-ui-tooltip-info">
+                                    <em class="ddp-icon-view-down"></em>
+                                    {{'msg.page.chart.color.measure.new.range.add.available.range' | translate}} {{availableRangeValue}}
+                                  </div>
+                                  <!-- //tooltip -->
+                                </div>
+                              </div>
+
+                              <em *ngIf="uiOption.layers[index].color['ranges']?.length - 1 !== rangeIndex && 0 !== rangeIndex && uiOption.layers[index].color['ranges']?.length > 3" (click)="removeColorRange(item, rangeIndex)" class="ddp-icon-listdelete"></em>
+                            </div>
+                          </div>
+                          <!-- //list usercolor -->
+
+                        </div>
+
+                        <div *ngIf="uiOption.layers[index].color['settingUseFl']" class="ddp-data-sum">
+                          {{'msg.page.chart.color.measure.new.range.min' | translate}} : {{minValue}} ~ {{'msg.page.chart.color.measure.new.range.max' | translate}} : {{maxValue}}
+                        </div>
+                        <a *ngIf="uiOption.layers[index].color['settingUseFl']" (click)="equalColorRange()" href="javascript:" class="ddp-btn-set">
+                          {{'msg.page.chart.color.measure.new.range.split.equal' | translate}}
+                        </a>
+                        <!-- //color by measure custom color setting -->
+                      </ng-container>
+                      <!-- custom color setting -->
 
                       <!-- transparency -->
                       <div class="ddp-divide2">

@@ -14,6 +14,7 @@
 
 import * as _ from 'lodash';
 import { Field } from '../../../../../domain/workbook/configurations/field/field';
+import { GeoField } from '../../../../../domain/workbook/configurations/field/geo-field';
 
 export class ChartUtil {
 
@@ -71,6 +72,23 @@ export class ChartUtil {
       alias2 = alias2 ? field.format.unit +"("+ alias2 +")" : "";
     }
     let alias: string = alias3 ? alias3 : alias2 ? alias2: alias1;
+    return alias;
+  }
+
+  /**
+   * get field name to alias
+   * @param {string} name
+   * @returns {string}
+   */
+  public static getFieldAlias(name: string, layers: GeoField[]): string {
+
+    let alias: string = name;
+    _.each(layers, (field) => {
+      if( _.eq(name, field['name']) ) {
+        alias = ChartUtil.getAlias(field);
+        return false;
+      }
+    });
     return alias;
   }
 }
