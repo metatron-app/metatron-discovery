@@ -255,6 +255,12 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this._deleteGridInfo(this.datasetJdbc.rsType);
     this.initSelectedCommand(this.filteredDbList);
 
+    this.datasetJdbc.sqlInfo.valid = false;
+    this.isQuerySuccess = false;
+    if (StringUtil.isNotEmpty(this.datasetJdbc.sqlInfo.queryStmt)) {
+      this.clickable = true;
+    }
+
   }
 
   /**
@@ -421,7 +427,11 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    */
   public runJdbcQuery() {
 
-    if (this.datasetJdbc.sqlInfo.databaseName === undefined || this.datasetJdbc.sqlInfo.queryStmt === '') {
+    if (this.datasetJdbc.sqlInfo.databaseName === undefined) {
+      this.queryErrorMsg = this.translateService.instant('msg.storage.ui.dsource.create.choose-db');
+      this.isQuerySuccess = false;
+      this.showQueryStatus = true;
+      this.clickable = false;
       return;
     }
 
