@@ -57,7 +57,7 @@ public class GeoRepository {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GeoRepository.class);
 
-  @Value("${polaris.engine.timeout.query:120000}")
+  @Value("${polaris.geoserver.timeout:120000}")
   Integer timeout;
 
   @Autowired
