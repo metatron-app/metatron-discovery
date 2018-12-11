@@ -442,7 +442,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
       this.datasetInformationList = [
         { name : this.translateService.instant('msg.comm.th.type') , value : dataset.importType === 'STAGING_DB' ? 'STAGING_DB' : 'DB' },
-        { name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${this.dataset.connectionInfo['database']}` }];
+        { name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${ !isNullOrUndefined(this.dataset.dbName) ? this.dataset.dbName : this.dataset.connectionInfo['database']}` }];
 
       if (dataset.rsType === 'TABLE') {
         this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.table')}`, value : `${dataset.tblName}` })
@@ -450,15 +450,17 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.sql')}`, value : `${dataset.queryStmt}` })
       }
 
-      if (this.dataset.connectionInfo['port'] && this.dataset.connectionInfo['hostname']) {
-        this.datasetInformationList.push({ name : `${this.translateService.instant('Host')}`, value : `${this.dataset.connectionInfo['hostname']}` },
-          { name : `${this.translateService.instant('Port')}`, value : `${this.dataset.connectionInfo['port']}` })
-      } else {
-        this.datasetInformationList.push({ name : `${this.translateService.instant('Url')}`, value : `${this.dataset.connectionInfo['url']}` });
-      }
-
       if (dataset.importType === 'STAGING_DB') {
         this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.detail.size') , value : this.getTotalBytes });
+      } else {
+
+        if (this.dataset.connectionInfo['port'] && this.dataset.connectionInfo['hostname']) {
+          this.datasetInformationList.push({ name : `${this.translateService.instant('Host')}`, value : `${this.dataset.connectionInfo['hostname']}` },
+            { name : `${this.translateService.instant('Port')}`, value : `${this.dataset.connectionInfo['port']}` })
+        } else {
+          this.datasetInformationList.push({ name : `${this.translateService.instant('Url')}`, value : `${this.dataset.connectionInfo['url']}` });
+        }
+
       }
 
       this.datasetInformationList.push(

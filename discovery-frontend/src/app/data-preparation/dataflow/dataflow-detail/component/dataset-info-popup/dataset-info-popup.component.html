@@ -17,7 +17,7 @@
   <div class="ddp-data-filename"
        [class.ddp-selected]="isDatasetNameEdit"
        (clickOutside)="isDatasetNameEdit ? setDatasetName(): null;">
-    <em class="{{getIconClass(selectedDataSet.dsType?.toString()==='WRANGLED' ? 'dataset' : 'hive')}}"></em>
+    <em class="{{ prepCommonUtil.getIconClass(selectedDataSet.dsType === DsType.WRANGLED ? 'dataset' : 'hive') }}"></em>
     <div class="ddp-ui-input">
       <textarea #dsName maxlength="50"
                 placeholder="{{'msg.comm.ui.create.name' | translate}}"
@@ -123,101 +123,16 @@
         <div class="ddp-box-gridarea" grid-component style="width:100%; height: 100%;" [hidden]="clearGrid"></div>
       </div>
     </div>
-    <!-- //데이터 미리보기 -->
-    <!-- detail 타입 [DB,FILE,WRANGLED(curr),WRANGLED] -->
-    <dl class="ddp-dl-detail">
-      <dt>
-        {{'msg.comm.th.type' | translate}}
-      </dt>
-      <dd>
-        {{getFileType(selectedDataSet.dsType, selectedDataSet.importType, selectedDataSet.filenameBeforeUpload)}}
-      </dd>
-    </dl>
-    <!-- //detail -->
-    <!-- detail 파일 [FILE] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType===ImportType.UPLOAD">
-      <dt>
-        {{'msg.dp.th.file' | translate}}
-      </dt>
-      <dd>
-        {{selectedDataSet.filenameBeforeUpload}}
-      </dd>
-    </dl>
-    <!-- //detail -->
-    <!-- detail 사이즈 [DB,FILE] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.dsType && selectedDataSet.dsType===DsType.IMPORTED && selectedDataSet.importType && selectedDataSet.importType !==ImportType.DATABASE">
-      <dt>
-        {{'msg.comm.detail.size' | translate}}
-      </dt>
-      <dd>
-        {{getTotalBytes}}
-      </dd>
-    </dl>
-    <!-- //detail -->
-    <!-- detail 시트 [FILE] -->
-    <dl class="ddp-dl-detail" *ngIf="getDatasetType(selectedDataSet.importType,selectedDataSet.filenameBeforeUpload) === 'EXCEL'">
-      <dt>
-        {{'msg.dp.th.sheet' | translate}}
-      </dt>
-      <dd>
-        {{getSheetName()}}
-      </dd>
-    </dl>
-    <!-- //detail -->
-    <!-- detail summary [DB,FILE,WRANGLED(curr)] -->
-    <dl class="ddp-dl-detail">
-      <dt>
-        {{'msg.dp.th.summary' | translate}}
-      </dt>
-      <dd *ngIf="selectedDataSet">
-        {{getRows}} / {{getColCnt}}
-      </dd>
-    </dl>
-    <!-- //detail -->
 
-    <!-- detail host [DB] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType===ImportType.DATABASE && getHost !== null">
+    <dl class="ddp-dl-detail" *ngFor="let item of datasetInformationList">
       <dt>
-        {{'msg.comm.th.host' | translate}}
+        {{item.name}}
       </dt>
       <dd>
-        {{getHost}}
+        {{item.value}}
       </dd>
     </dl>
-    <!-- //detail -->
-    <!-- detail port [DB] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType===ImportType.DATABASE && getPort !== null">
-      <dt>
-        {{'msg.comm.th.port' | translate}}
-      </dt>
-      <dd>
-        {{getPort}}
-      </dd>
-    </dl>
-    <!-- //detail -->
-    <!-- detail database [DB] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType===ImportType.DATABASE && getDatabase !== null ">
-      <dt>
-        {{'msg.dp.th.database' | translate}}
-      </dt>
-      <dd>
-        {{getDatabase}}
-      </dd>
-    </dl>
-    <!-- //detail -->
-    <!-- detail table/sql [DB] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType!==ImportType.UPLOAD">
-      <dt>
-        {{'msg.lineage.ui.list.search.table' | translate}}/{{'msg.lineage.ui.list.search.sql' | translate}}
-      </dt>
-      <dd>
-        {{getTableOrSql}}
-      </dd>
-    </dl>
-    <!-- //detail -->
 
-
-    <!-- detail 사용 [DB,FILE,WRANGLED(curr)] *ngIf="selectedDataSet.creatorDfId === dataflow.dfId"-->
     <dl class="ddp-dl-detail" *ngIf="selectedDataSet.creatorDfId === dataflow.dfId || selectedDataSet.dsType !== DsType.WRANGLED">
       <dt>
         {{'msg.comm.th.used' | translate}}
@@ -240,9 +155,7 @@
 
       </dd>
     </dl>
-    <!-- //detail -->
 
-    <!-- detail rulelist [WRANGLED(curr)] -->
     <div class="ddp-ui-preview ddp-type-rule" *ngIf="selectedDataSet.dsType && selectedDataSet.dsType === DsType.WRANGLED && selectedDataSet.creatorDfId === dataflow.dfId">
       <div class="ddp-txt-title">
         {{'msg.dp.ui.rule.list' | translate}}
@@ -265,23 +178,9 @@
           {{'msg.dp.ui.no.rules' | translate}}
         </div>
       </div>
-      <span class="ddp-data-rule">{{ ruleList ? ruleList.length : 0}} {{'msg.dp.ui.rules' | translate}}</span>
+      <span class="ddp-data-rule">{{'msg.dp.ui.rules' | translate :  { value : (ruleList ? ruleList.length : 0) } }}</span>
     </div>
     <!-- //detail -->
-
-    <!-- detail sourceflow [WRANGLED] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.creatorDfId != dataflow.dfId && selectedDataSet.dsType === DsType.WRANGLED">
-      <dt>
-        {{'msg.dp.th.source.flow' | translate}}
-      </dt>
-      <dd>
-        <a href="javascript:" (click)="changeDataflow.emit(selectedDataSet.creatorDfId)">
-          <em class="ddp-icon-flow"></em>
-          {{selectedDataSet.creatorDfName}}
-        </a>
-      </dd>
-    </dl>
-    <!-- //detail  -->
 
   </div>
 

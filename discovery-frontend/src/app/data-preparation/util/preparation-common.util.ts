@@ -400,4 +400,56 @@ export class PreparationCommonUtil {
 
   }
 
+  /**
+   * Returns icon class
+   * @param type
+   */
+  public static getIconClass(type): string {
+    let result = '';
+    switch (type.toLowerCase()) {
+      case 'dataset':
+        result = 'ddp-icon-flow-dataset';
+        break;
+      case 'wrangled':
+        result = 'ddp-icon-flow-wrangled';
+        break;
+      case 'db':
+        result = 'ddp-icon-flow-db';
+        break;
+      case 'mysql':
+        result = 'ddp-icon-flow-mysql';
+        break;
+      case 'post':
+        result = 'ddp-icon-flow-post';
+        break;
+      case 'hive':
+        result = 'ddp-icon-flow-db';
+        break;
+      case 'presto':
+        result = 'ddp-icon-flow-presto';
+        break;
+      case 'phoenix':
+        result = 'ddp-icon-flow-phoenix';
+        break;
+      case 'tibero':
+        result = 'ddp-icon-flow-tibero';
+        break;
+      case 'file':
+        result = 'ddp-icon-flow-file';
+        break;
+      case 'xls':
+        result = 'ddp-icon-flow-xls';
+        break;
+      case 'xlsx':
+        result = 'ddp-icon-flow-xlsx';
+        break;
+      case 'csv':
+        result = 'ddp-icon-flow-csv';
+        break;
+      default:
+        break;
+    }
+    return result;
+  }
+
 }

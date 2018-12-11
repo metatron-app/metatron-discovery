@@ -260,7 +260,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this._split = [];
     this._split.push(Split(['.rule-left', '.rule-right'], {
         sizes: [80, 20],
-      minSize: [700, 300],
+      minSize: [300, 300],
         onDragEnd: (() => {
           this._editRuleGridComp.resizeGrid();
         }),

@@ -1139,7 +1139,7 @@
   "msg.dp.ui.replace.explain.title" : "Select String or Regular Expression to replace values of selected column",
   "msg.dp.ui.replace.explain.two" : "Replaces any value with aeiou to @",
   "msg.dp.ui.rule.list": "Rule list",
-  "msg.dp.ui.rules": "Rules",
+  "msg.dp.ui.rules": "{{value}} rule(s)",
   "msg.dp.ui.search.no.rslt": "No results were found for your search",
   "msg.dp.ui.sel.col.num" : "Please enter group every",
   "msg.dp.ui.sel.count": "{{value}} selections",
