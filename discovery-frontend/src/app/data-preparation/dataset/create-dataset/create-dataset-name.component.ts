@@ -431,6 +431,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     if (hive.rsType === RsType.QUERY) {
       hive.queryStmt = hive.sqlInfo.queryStmt;
+      hive.dbName = hive.sqlInfo.databaseName;
     } else {
       hive.tblName = hive.tableInfo.tableName;
       hive.dbName = hive.tableInfo.databaseName;

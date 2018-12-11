@@ -437,14 +437,8 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
     this.loadingShow();
 
-    // console.info('runJdbcQuery', this.datasetJdbc);
     const param: any = {};
     param.connection = this.datasetJdbc.dataconnection.connection;
-    // param.hostname = this.datasetJdbc.dataconnection.connection.hostname;
-    // param.implementor = this.datasetJdbc.dataconnection.connection.implementor;
-    // param.username = this.datasetJdbc.dataconnection.connection.username;
-    // param.password = this.datasetJdbc.dataconnection.connection.password;
-    // param.port = this.datasetJdbc.dataconnection.connection.port;
     param.query = this.datasetJdbc.sqlInfo.queryStmt;
     param.database = this.datasetJdbc.sqlInfo.databaseName;
     param.type = 'QUERY';
@@ -456,7 +450,6 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
       .then((result) => {
 
         this.loadingHide();
-        // console.info('getTableDetailWitoutId', result);
         if (result.hasOwnProperty('errorMsg')) {
           this.queryErrorMsg = this.translateService.instant('msg.dp.ui.invalid.conn');
           this.clickable = false;

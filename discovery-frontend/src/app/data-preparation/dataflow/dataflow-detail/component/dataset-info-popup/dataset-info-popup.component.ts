@@ -262,7 +262,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    */
   public get getTotalBytes() {
     if( this.selectedDataSet.importType===ImportType.STAGING_DB && this.selectedDataSet.rsType!==RsType.TABLE ) {
-      return this.translateService.instant('msg.dp.alert.rstype.no.table');
+      return null;
     } else {
       let size = 0;
       if(true==Number.isInteger(this.selectedDataSet.totalBytes)) {
@@ -708,16 +708,22 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
         this.datasetInformationList.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetName() })
       }
 
-      this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes },
-        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${ cols } ${ cols === '1' || cols === '0' ? 'column': 'columns'}`})
+      if (!isNullOrUndefined(this.getTotalBytes)) {
+        this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes });
+      }
+
+      this.datasetInformationList.push({name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${ cols } ${ cols === '1' || cols === '0' ? 'column': 'columns'}`})
 
 
       // STAGING OR DB
     } else if (dataset.importType === 'STAGING_DB' || dataset.importType === 'DATABASE') {
 
       this.datasetInformationList = [
-        { name : this.translateService.instant('msg.comm.th.type') , value : dataset.importType === 'STAGING_DB' ? 'STAGING_DB' : 'DB' },
-        { name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${this.getDatabase}` }];
+        { name : this.translateService.instant('msg.comm.th.type') , value : dataset.importType === 'STAGING_DB' ? 'STAGING_DB' : 'DB' }];
+
+      if (!isNullOrUndefined(this.getDatabase)) {
+        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${this.getDatabase}` });
+      }
 
       if (dataset.rsType === 'TABLE') {
         this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.table')}`, value : `${this.getTable}` })
@@ -726,7 +732,9 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       }
 
       if (dataset.importType === 'STAGING_DB') {
-        this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.detail.size') , value : this.getTotalBytes });
+        if (!isNullOrUndefined(this.getTotalBytes)) {
+          this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes });
+        }
       } else {
         if (this.getPort && this.getHost) {
           this.datasetInformationList.push({ name : `${this.translateService.instant('Host')}`, value : `${this.getHost}` },

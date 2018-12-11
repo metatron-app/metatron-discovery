@@ -314,11 +314,9 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
   /** get total bytes */
   public get getTotalBytes() {
-    if( this.dataset.importType===ImportType.STAGING_DB &&
-      this.dataset.rsType!==RsType.TABLE ) {
-      return this.translateService.instant('msg.dp.alert.rstype.no.table');
-    } else if( this.dataset.importType===ImportType.DATABASE ) {
-      return this.translateService.instant('msg.dp.alert.importtype.db');
+    if( (this.dataset.importType===ImportType.STAGING_DB &&
+      this.dataset.rsType!==RsType.TABLE)  || this.dataset.importType===ImportType.DATABASE) {
+      return null
     } else {
       let size = 0;
       if(true==Number.isInteger(this.dataset.totalBytes)) {
@@ -433,7 +431,11 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         this.datasetInformationList.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetName() })
       }
 
-      this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes },
+      if (!isNullOrUndefined(this.getTotalBytes)) {
+        this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes });
+      }
+
+      this.datasetInformationList.push(
         {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}`})
 
 
@@ -441,8 +443,12 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     } else if (dataset.importType === 'STAGING_DB' || dataset.importType === 'DATABASE') {
 
       this.datasetInformationList = [
-        { name : this.translateService.instant('msg.comm.th.type') , value : dataset.importType === 'STAGING_DB' ? 'STAGING_DB' : 'DB' },
-        { name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${ !isNullOrUndefined(this.dataset.dbName) ? this.dataset.dbName : this.dataset.connectionInfo['database']}` }];
+        { name : this.translateService.instant('msg.comm.th.type') , value : dataset.importType === 'STAGING_DB' ? 'STAGING_DB' : 'DB' }];
+
+      if (this.dataset.dbName || this.dataset.connectionInfo) {
+        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${ !isNullOrUndefined(this.dataset.dbName) ? this.dataset.dbName : this.dataset.connectionInfo['database']}` });
+      }
+
 
       if (dataset.rsType === 'TABLE') {
         this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.table')}`, value : `${dataset.tblName}` })
@@ -451,7 +457,11 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       }
 
       if (dataset.importType === 'STAGING_DB') {
-        this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.detail.size') , value : this.getTotalBytes });
+
+        if (!isNullOrUndefined(this.getTotalBytes)) {
+          this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes });
+        }
+
       } else {
 
         if (this.dataset.connectionInfo['port'] && this.dataset.connectionInfo['hostname']) {
