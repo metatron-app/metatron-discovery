@@ -147,15 +147,29 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     }
   }
 
+  /**
+   * unload 전 실행
+   */
+  public execBeforeUnload() {}
+
+  /**
+   * deactive 체크
+   */
   public canDeactivate(): Observable<boolean> | boolean {
+    this.execBeforeUnload();
     if (this.useUnloadConfirm) {
       return this.unloadConfirmSvc.confirm();
     }
     return true;
   } // function - canDeactivate
 
+  /**
+   * unload 체크
+   * @param event
+   */
   @HostListener('window:beforeunload', ['$event'])
   public beforeUnloadHandler(event) {
+    this.execBeforeUnload();
     if (this.useUnloadConfirm) {
       const confirmationMessage: string = this.translateService.instant('msg.comm.ui.beforeunload');
       event.returnValue = confirmationMessage;  // Gecko, Trident, Chrome 34+
@@ -166,6 +180,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // noinspection JSMethodCanBeStatic
   /**
    * add body scroll hidden class
    */
@@ -173,6 +188,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     $('body').removeClass('body-hidden').addClass('body-hidden');
   } // function - addBodyScrollHidden
 
+  // noinspection JSMethodCanBeStatic
   /**
    * remove body scroll hidden class
    */
@@ -314,6 +330,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     return result;
   } // function - getIconClass
 
+  // noinspection JSMethodCanBeStatic
   /**
    * 필드에 맞는 role 타입 아이콘
    * @param {string} roleType
@@ -323,6 +340,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     return roleType === 'MEASURE' ? 'ddp-measure' : 'ddp-dimension' ;
   }
 
+  // noinspection JSMethodCanBeStatic
   /**
    * 필드에 맞는 Dimension 타입의 아이콘
    * @param {string} type
@@ -382,6 +400,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
 
   }
 
+  // noinspection JSMethodCanBeStatic
   /**
    * 필드에 맞는 Measure 타입의 아이콘
    * @param {string} type
@@ -638,6 +657,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     });
   } // function - checkAndConnectWebSocket
 
+  // noinspection JSUnusedGlobalSymbols
   /**
    * 웹소켓 연결 해제
    */

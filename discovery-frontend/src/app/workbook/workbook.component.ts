@@ -575,7 +575,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   public changeMode(mode: string, startupCmd?: { cmd: string, id?: string, type?: string }) {
     this.updateDashboardStartupCmd = startupCmd ? startupCmd : {cmd: 'NONE'};
-    this.useUnloadConfirm = ('UPDATE' === mode);
     this.mode = mode;
     this.safelyDetectChanges();
   } // function - changeMode
