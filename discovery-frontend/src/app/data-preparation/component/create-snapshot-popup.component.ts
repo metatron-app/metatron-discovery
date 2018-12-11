@@ -523,7 +523,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
     this.fileFormat = [
       { value: 'CSV', label: 'CSV' },
-      // { value: 'JSON', label: 'JSON' }
+      { value: 'JSON', label: 'JSON' }
     ];
 
     this.ssName = '';
