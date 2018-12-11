@@ -709,9 +709,7 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
       String tblCheckQuery = String.format("SELECT * FROM %s", tblName);
       stmt.executeQuery(tblCheckQuery);
     } catch (SQLException e) {
-      // It probably be TABLE NOT FOUND.
-      e.printStackTrace();
-      LOGGER.info("checkOldTableExists(): no old table: {}", tblName);
+      // It will probably be TABLE NOT FOUND: just suppress
       return false;
     }
 
