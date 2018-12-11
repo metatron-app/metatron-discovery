@@ -18,12 +18,12 @@ import app.metatron.discovery.domain.dataprep.PrepParamDatasetIdList;
 import app.metatron.discovery.domain.dataprep.PrepSwapRequest;
 import app.metatron.discovery.domain.dataprep.PrepUpstream;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
-import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
-import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformResponse;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
 import com.google.common.collect.Lists;
@@ -31,6 +31,7 @@ import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,6 +53,27 @@ public class PrDataflowController {
 
     @Autowired(required = false)
     private PrepTransformService transformService;
+
+    @RequestMapping(value = "/{dfId}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<?> getDataflow(
+            @PathVariable("dfId") String dfId,
+            PersistentEntityResourceAssembler persistentEntityResourceAssembler
+    ) {
+        PrDataflow dataflow = null;
+        try {
+            dataflow = this.dataflowRepository.findOne(dfId);
+            if(dataflow!=null) {
+            } else {
+                throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATAFLOW, dfId);
+            }
+        } catch (Exception e) {
+            LOGGER.error("getDataflow(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, e);
+        }
+
+        return ResponseEntity.status(HttpStatus.SC_OK).body(persistentEntityResourceAssembler.toFullResource(dataflow));
+    }
 
     @RequestMapping(value = "/{dfId}", method = RequestMethod.DELETE)
     @ResponseBody

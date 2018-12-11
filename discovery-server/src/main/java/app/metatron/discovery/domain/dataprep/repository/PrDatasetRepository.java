@@ -15,7 +15,6 @@
 package app.metatron.discovery.domain.dataprep.repository;
 
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
-import app.metatron.discovery.domain.dataprep.entity.PrDatasetProjections;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,8 +22,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-@RepositoryRestResource(path = "preparationdatasets", itemResourceRel = "preparationdataset" , collectionResourceRel = "preparationdatasets",
-        excerptProjection = PrDatasetProjections.DefaultProjection.class)
+@RepositoryRestResource(path = "preparationdatasets", itemResourceRel = "preparationdataset" , collectionResourceRel = "preparationdatasets"
+                          ) //, excerptProjection = PrDatasetProjections.DefaultProjection.class)
 public interface PrDatasetRepository extends JpaRepository<PrDataset, String>,PrDatasetRepositoryCustom {
 
     /*

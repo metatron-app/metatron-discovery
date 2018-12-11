@@ -12,14 +12,10 @@
  * limitations under the License.
  */
 
+/*
 package app.metatron.discovery.domain.dataprep.entity;
 
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import org.joda.time.DateTime;
 import org.springframework.data.rest.core.config.Projection;
-
-import java.util.List;
-import java.util.Map;
 
 public class PrDatasetProjections {
 
@@ -145,4 +141,5 @@ public class PrDatasetProjections {
     }
 
 }
+*/
 

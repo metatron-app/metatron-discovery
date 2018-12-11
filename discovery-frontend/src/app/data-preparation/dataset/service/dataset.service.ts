@@ -69,7 +69,8 @@ export class DatasetService extends AbstractService {
       }
     }
 
-    url += `dsName=${encodeURIComponent(param.searchText)}&projection=listing&${CommonUtil.objectToUrlString(param.page)}`;
+    //url += `dsName=${encodeURIComponent(param.searchText)}&projection=listing&${CommonUtil.objectToUrlString(param.page)}`;
+    url += `dsName=${encodeURIComponent(param.searchText)}&${CommonUtil.objectToUrlString(param.page)}`;
 
     return this.get(url);
 
@@ -116,7 +117,8 @@ export class DatasetService extends AbstractService {
   }
 
   public getDataPreview(dsId: string) {
-    return this.get(this.API_URL + 'preparationdatasets/' + dsId +'?projection=detail');
+    //return this.get(this.API_URL + 'preparationdatasets/' + dsId +'?projection=detail');
+    return this.get(this.API_URL + 'preparationdatasets/' + dsId +'?preview=true');
   }
 
 

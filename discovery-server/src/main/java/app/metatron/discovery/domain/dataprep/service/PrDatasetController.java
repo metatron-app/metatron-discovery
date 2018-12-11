@@ -141,20 +141,24 @@ public class PrDatasetController {
     @ResponseBody
     public ResponseEntity<?> getDataset(
             @PathVariable("dsId") String dsId,
-            @RequestParam(value="projection", required=false, defaultValue="default") String projection,
+            //@RequestParam(value="projection", required=false, defaultValue="default") String projection,
+            @RequestParam(value="preview", required=false, defaultValue="false") Boolean preview,
             PersistentEntityResourceAssembler persistentEntityResourceAssembler
     ) {
         PrDataset dataset = null;
         try {
             dataset = this.datasetRepository.findOne(dsId);
             if(dataset!=null) {
-                if(true == projection.equalsIgnoreCase("detail")) {
+                //if(true == projection.equalsIgnoreCase("detail")) {
+                if(true == preview) {
                     DataFrame dataFrame = this.previewLineService.getPreviewLines(dsId);
                     dataset.setGridResponse(dataFrame);
                 }
 
+                /*
                 Map<String,Object> connectionInfo = this.datasetService.getConnectionInfo(dataset.getDcId());
                 dataset.setConnectionInfo(connectionInfo);
+                */
 
             } else {
                 throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET, dsId);

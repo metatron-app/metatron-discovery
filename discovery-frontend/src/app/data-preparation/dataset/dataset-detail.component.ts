@@ -362,19 +362,19 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   }
 
   public get getHost() {
-    //if( this.dataset['importType'] && this.dataset['importType']===ImportType.DB && !isNullOrUndefined(this.dataset.connectionInfo['hostname'])) {
-    if( this.dataset.importType===ImportType.DATABASE && !isNullOrUndefined(this.dataset.connectionInfo['hostname'])) {
+    //if( this.dataset['importType'] && this.dataset['importType']===ImportType.DB && !isNullOrUndefined(this.dataset.dcHostname)) {
+    if( this.dataset.importType===ImportType.DATABASE && !isNullOrUndefined(this.dataset.dcHostname)) {
       //return 'host from '+this.dataset['dcId'];
-      return this.dataset.connectionInfo['hostname'];
+      return this.dataset.dcHostname;
     }
     return null;
   }
 
   public get getPort() {
-    //if( this.dataset['importType'] && this.dataset['importType']===ImportType.DB && !isNullOrUndefined(this.dataset.connectionInfo['port'])) {
-    if( this.dataset.importType===ImportType.DATABASE && !isNullOrUndefined(this.dataset.connectionInfo['port'])) {
+    //if( this.dataset['importType'] && this.dataset['importType']===ImportType.DB && !isNullOrUndefined(this.dataset.dcPort)) {
+    if( this.dataset.importType===ImportType.DATABASE && !isNullOrUndefined(this.dataset.dcPort)) {
       //return 'port from '+this.dataset['dcId'];
-      return this.dataset.connectionInfo['port'];
+      return this.dataset.dcPort;
     }
     return null;
   }
@@ -626,6 +626,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
           this.getDatasetInformationList(this.dataset);
           this._updateGrid(gridData);
         } else {
+          /*
           this.datasetService.getImportedPreviewReload(this.dataset.dsId).then((preview: any) => {
             if(!isUndefined(preview['gridResponse'])) {
               result.gridResponse = preview['gridResponse'];
@@ -639,6 +640,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
             let prep_error = this.dataprepExceptionHandler(error);
             PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
           });
+          */
         }
       }
     })

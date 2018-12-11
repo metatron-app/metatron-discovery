@@ -25,7 +25,6 @@ import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
@@ -237,10 +236,13 @@ public class PrDataset extends AbstractHistoryEntity {
     private String custom;
 
     @Transient
+    @JsonProperty
     DataFrame gridResponse;
 
+    /*
     @Transient
     Map<String,Object> connectionInfo;
+    */
 
     public boolean addDataflow(PrDataflow dataflow) {
         if(dataflow!=null) {
@@ -577,6 +579,7 @@ public class PrDataset extends AbstractHistoryEntity {
         this.gridResponse = gridResponse;
     }
 
+    /*
     public Map<String, Object> getConnectionInfo() {
         return connectionInfo;
     }
@@ -584,6 +587,7 @@ public class PrDataset extends AbstractHistoryEntity {
     public void setConnectionInfo(Map<String, Object> connectionInfo) {
         this.connectionInfo = connectionInfo;
     }
+    */
 
     // Temporary functions for backward compatibility
     /*
