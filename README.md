@@ -83,6 +83,9 @@ Untar the archive binary file of Metatron Discovery.
 <pre><code>$ tar zxf metatron-discovery-{VERSION}-{TIMESTAMP}-bin.tar.gz</code></pre>
 Initialize and run with the following command.
 <pre><code>$ bin/metatron.sh --init start</code></pre>
+> Cautions! --init option initialize whole data.  
+> Add this argument only the first time or when you want to reset your development environment.
+
 Running options are provided as well.
 <pre><code>$ bin/metatron.sh [--config=directory] [--init] [--management] [--debug=port] {start|stop|restart|status}</code></pre>
 To access Metatron Discovery, go to [http://localhost:8180](http://localhost:8180). (The default admin user account is provided as ID: admin, PW: admin.)
