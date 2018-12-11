@@ -116,7 +116,7 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
   public ngOnChanges(changes: SimpleChanges) {
     const filterChanges: SimpleChange = changes.inputFilter;
     if (filterChanges) {
-      this.setData(filterChanges.currentValue);
+      this.setData(filterChanges.currentValue, true );
     }
   } // function - ngOnChanges
 
@@ -133,8 +133,9 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
   /**
    * 강제 데이터 설정
    * @param {TimeListFilter} filter
+   * @param {boolean} isBroadcast
    */
-  public setData(filter: TimeListFilter) {
+  public setData(filter: TimeListFilter, isBroadcast:boolean = false ) {
 
     // 값 정보 설정
     if (filter.valueList && 0 < filter.valueList.length) {
@@ -148,7 +149,7 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
     }
 
     // 후보값 불러오기
-    this._loadCandidateList(filter);
+    this._loadCandidateList(filter, 'VALUE', isBroadcast);
 
   } // function - setData
 
@@ -362,14 +363,19 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
    * 후보값 불러오기
    * @param {TimeListFilter} filter
    * @param {string} sortBy
+   * @param {boolean} isBroadcast
    * @private
    */
-  private _loadCandidateList(filter: TimeListFilter, sortBy: string = 'VALUE') {
+  private _loadCandidateList(filter: TimeListFilter, sortBy: string = 'VALUE', isBroadcast:boolean = false ) {
     this.loadingShow();
     this.datasourceService.getCandidateForFilter(filter, this.dashboard, [], null, sortBy ).then(result => {
       this._setCandidateResult(result, filter, sortBy);
       this.targetFilter = filter;
       this.safelyDetectChanges();
+
+      // 변경사항 전파
+      ( isBroadcast ) && ( this.changeEvent.emit(this.getData()) );
+
       this.loadingHide();
     }).catch(err => this.commonExceptionHandler(err));
   } // function - _loadCandidateList

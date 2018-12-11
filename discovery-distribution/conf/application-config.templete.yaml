@@ -1,6 +1,6 @@
 spring:
   profiles: ${METATRON_ENV_MODE:local}
-# METATRON_DB_TYPE 이 mysql 인경우 지정
+# If "METATRON_DB_TYPE" property in metatron-env file is "mysql"
 #  datasource:
 #    url: jdbc:mysql://localhost:3306/polaris?useUnicode=true&amp;characterEncoding=utf8
 #    username: polaris
@@ -30,7 +30,12 @@ polaris:
           port: 22
           username: abc
           password: test
-# Data Prep. 기능 활용시 Hive 관련 정보 기재
+  geoserver:
+    baseUrl: http://localhost:9090
+    username: admin
+    password: xxxxx
+    defaultWorkspace: metatron
+# Set up Hive related information when using Data Prep.
 #  dataprep:
 #    localBaseDir: ${METATRON_HOME}/dataprep
 #    hadoopConfDir: /etc/hadoop

@@ -149,6 +149,9 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
     if (isNullOrUndefined(filter) || !FilterUtil.isTimeFilter(filter)) {
       return;
     }
+
+    console.info( '>>>>>>> changeFilterEvent', filter );
+
     // this.filter = _.cloneDeep(filter);
     // this._setStatus();
     this._updateFilter(filter);
@@ -202,11 +205,7 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
   public setTimeAllFilter() {
     this.filter = FilterUtil.getTimeAllFilter( this.filter.clzField, this.filter.ui.importanceType );
     this._setStatus();
-    // 피곤해서 코드 진행이 되지 않아 임시 코드 작성
-    // -> 후에 실제 컴포넌트 완성 후에 실행 될 수 있도록 수정되어야 한다...
-    setTimeout( () => {
-      this._updateFilter( this.filter );
-    }, 700 );
+    this._updateFilter( this.filter );
   } // function - setTimeAllFilter
 
   /**
@@ -219,11 +218,6 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
       this.filter = FilterUtil.getTimeRangeFilter( this.filter.clzField, this.filter.timeUnit, this.filter.ui.importanceType );
     }
     this._setStatus();
-    // 피곤해서 코드 진행이 되지 않아 임시 코드 작성
-    // -> 후에 실제 컴포넌트 완성 후에 실행 될 수 있도록 수정되어야 한다...
-    setTimeout( () => {
-      this._updateFilter( this.filter );
-    }, 700 );
   } // function - setTimeRangeFilter
 
   /**
@@ -236,11 +230,6 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
       this.filter = FilterUtil.getTimeRelativeFilter( this.filter.clzField, this.filter.timeUnit, this.filter.ui.importanceType );
     }
     this._setStatus();
-    // 피곤해서 코드 진행이 되지 않아 임시 코드 작성
-    // -> 후에 실제 컴포넌트 완성 후에 실행 될 수 있도록 수정되어야 한다...
-    setTimeout( () => {
-      this._updateFilter( this.filter );
-    }, 700 );
   } // function - setTimeRelativeFilter
 
   /**
@@ -257,11 +246,6 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
       );
     }
     this._setStatus();
-    // 피곤해서 코드 진행이 되지 않아 임시 코드 작성
-    // -> 후에 실제 컴포넌트 완성 후에 실행 될 수 있도록 수정되어야 한다...
-    setTimeout( () => {
-      this._updateFilter( this.filter );
-    }, 700 );
   } // function - setTimeListFilter
 
   /**
