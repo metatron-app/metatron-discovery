@@ -77,6 +77,7 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
   private boolean dbMigratedSnapshot = false;
 
   private long lastLogTime;
+  private int retry = 3;
 
   @Override
   public void onApplicationEvent(ApplicationReadyEvent event) {
@@ -106,7 +107,7 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
         lastLogTime = DateTime.now().getMillis();
       }
 
-      if (!dbMigratedAll) {
+      if (!dbMigratedAll && --retry >= 0) {     // do not retry too much
         dbMigratedAll = migratePrepEntities();
       }
     }
@@ -257,6 +258,7 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
   private void migrateDataflowDataset(Connection conn) throws SQLException {
     if (!checkOldTableExists(conn, TBL_OLD_DATAFLOW_DATASET)) {
       LOGGER.info("migrateDataflowDataset(): no old dataflow-dataset table found");
+      return;
     }
 
     Statement stmt = conn.createStatement();
@@ -321,6 +323,7 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
 
   private int migrateSnapshot(Connection conn) throws SQLException {
     if (!checkOldTableExists(conn, TBL_OLD_SNAPSHOT)) {
+      LOGGER.info("migrateSnapshot(): no old snapshot table found");
       return 0;
     }
 
