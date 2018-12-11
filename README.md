@@ -83,7 +83,7 @@ Untar the archive binary file of Metatron Discovery.
 <pre><code>$ tar zxf metatron-discovery-{VERSION}-{TIMESTAMP}-bin.tar.gz</code></pre>
 Initialize and run with the following command.
 <pre><code>$ bin/metatron.sh --init start</code></pre>
-> Cautions! --init option initialize whole data.  
+> :warning: Cautions! `--init` option initialize whole data.  
 > Add this argument only the first time or when you want to reset your development environment.
 
 Running options are provided as well.
