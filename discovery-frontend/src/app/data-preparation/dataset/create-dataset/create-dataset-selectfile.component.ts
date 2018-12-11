@@ -15,7 +15,6 @@
 import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
-import { FileLikeObject, FileUploader } from 'ng2-file-upload';
 import { CommonConstant } from '../../../common/constant/common.constant';
 import { CookieConstant } from '../../../common/constant/cookie.constant';
 //import { DatasetFile } from '../../../domain/data-preparation/dataset';
@@ -23,6 +22,8 @@ import { PrDatasetFile } from '../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../common/util/alert.util';
 import { isUndefined } from 'util';
 import { DatasetService } from "../service/dataset.service";
+
+declare let plupload: any;
 
 @Component({
   selector: 'app-create-dataset-selectfile',
@@ -33,8 +34,12 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild('fileUpload')
-  private fileUpload: ElementRef;
+
+  @ViewChild('pickfiles')
+  private pickfiles: ElementRef;
+
+  @ViewChild('drop_container')
+  private drop_container: ElementRef;
 
   private interval : any;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -48,11 +53,16 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   //public datasetFile: DatasetFile;
   public datasetFile: PrDatasetFile;
 
-  // 파일 업로드
-  public uploader: FileUploader;
-
-  // 파일 업로드 결과
+  // file uploade result
   public uploadResult;
+
+  // file uploader
+  public chunk_uploader: any;
+
+  private isUploadCancel :boolean = false;
+  public progressbarWidth: string = '100%';
+  public progressPercent : number = 0;
+  public isUploading : boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -66,74 +76,6 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
 
     super(elementRef, injector);
 
-    this.uploader = new FileUploader(
-      {
-        url: CommonConstant.API_CONSTANT.API_URL + 'preparationdatasets/upload_async',
-      }
-    );
-
-    // 옵션 설정
-    this.uploader.setOptions({
-      url: CommonConstant.API_CONSTANT.API_URL
-      + 'preparationdatasets/upload_async',
-      headers: [
-        { name: 'Accept', value: 'application/json, text/plain, */*' },
-        {
-          name: 'Authorization',
-          value: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
-        }
-      ],
-    });
-
-    // add 가 처음
-    this.uploader.onAfterAddingFile = (item) => {
-      this.loadingShow();
-      if(!new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).test( item.file.name )) { // check file extension
-        this.uploader.clearQueue();
-        this.fileUpload.nativeElement.value = ''; // 같은 파일은 연속으로 올리면 잡지 못해서 초기화
-        Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
-        this.loadingHide();
-      } else{
-        this.uploader.setOptions({ additionalParameter: { dest: 'LOCAL'}});
-        this.uploader.uploadAll();
-      }
-    };
-
-    // add 할때 에러난다면
-    this.uploader.onWhenAddingFileFailed = (item: FileLikeObject, filter: any, options: any) => {
-      Alert.error(item.name + ' ' + this.translateService.instant('msg.dp.alert.file.format.wrong'));
-    };
-
-    // 업로드 전 ..
-    this.uploader.onBeforeUploadItem = (item) => {
-      item.method = 'POST';
-    };
-
-    // 업로드 성공
-    this.uploader.onSuccessItem = (item, response, status, headers) => {
-      const success = true;
-      this.uploadResult = { success, item, response, status, headers };
-      this.checkIfUploaded(response);
-    };
-
-    // 업로드 하고 에러났을때
-    this.uploader.onErrorItem = (item, response, status, headers) => {
-      Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
-      this.loadingHide();
-    };
-
-    // // 마지막
-    // this.uploader.onCompleteAll = () => {
-    //   this.loadingHide();
-    //   let res = JSON.parse(this.uploadResult.response);
-    //   if (res.success !== false) {
-    //     this.getDataFile();
-    //   } else {
-    //     Alert.error(this.translateService.instant('Failed to upload. Please select another file'));
-    //     return;
-    //   }
-    // };
-
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -142,17 +84,173 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
 
   public ngOnInit() {
     super.ngOnInit();
+
+    this.initPlupload();
   }
 
 
   public ngOnDestroy() {
     super.ngOnDestroy();
-    this.uploader = null;
+    //this.uploader = null;
+
+    this.chunk_uploader = null;
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  public cancelClick(param:boolean){
+    let elm = $('.ddp-wrap-progress');
+    if (param) {
+      if(this.progressPercent === 100) {
+        Alert.info('Generating completed');
+        this.isUploadCancel = false;
+        this.chunk_uploader.start();
+        this.isUploading = false;
+
+      } else {
+        this.isUploadCancel = true;
+        this.chunk_uploader.stop();
+        elm[0].style.display = "none";
+        elm[1].style.display = "";
+      }
+    } else {
+      this.isUploadCancel = false;
+      this.chunk_uploader.start();
+      elm[0].style.display = "";
+      elm[1].style.display = "none";
+    }
+  }
+
+  public cancelUpload(){
+    this.isUploadCancel = true;
+    this.chunk_uploader.stop();
+    this.chunk_uploader.start();
+    this.isUploadCancel = false;
+    this.isUploading = false;
+  }
+  public startUpload(){
+    this.isUploading = true;
+    this.isUploadCancel = false;
+    this.chunk_uploader.start();
+  }
+
+  public initPlupload() {
+    this.chunk_uploader = new plupload.Uploader({
+      runtimes : 'html5,html4',
+      chunk_size: '0',
+      browse_button : this.pickfiles.nativeElement,
+      drop_element : this.drop_container.nativeElement,
+      url : CommonConstant.API_CONSTANT.API_URL + 'preparationdatasets/upload_async',
+      headers:{
+        'Accept': 'application/json, text/plain, */*',
+        'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
+      },
+      filters : {
+        max_file_size : 0,
+        prevent_duplicate: true,
+        mime_types: [
+          {title: "Datapreparation files", extensions: "csv,txt,xls,xlsx,json"}
+        ],
+
+      },
+      multipart_params: {
+        file_key : '',
+        upload_target: '',
+        total_size : ''
+      },
+      init: {
+        PostInit: () => {
+          for ( let idx in this.chunk_uploader.settings.multipart_params){
+            this.chunk_uploader.settings.multipart_params[idx] = ''
+          };
+        },
+
+        FilesAdded: (up, files) => {
+          if (files && files.length > 1){
+            plupload.each(files, (file) => {
+              up.removeFile(file);
+            });
+            Alert.error('Only one file can be uploaded.');
+          } else {
+            plupload.each(files, (file) => {
+              this.chunk_uploader.settings.multipart_params.total_size = file.size;
+
+              // get and set file_key, chunk_size, upload_target
+
+              this.chunk_uploader.setOption('chunk_size','0');
+              //this.chunk_uploader.settings.multipart_params.file_key = '';
+              //this.chunk_uploader.settings.multipart_params.upload_target = '';
+
+            });
+            this.startUpload();
+
+          }
+        },
+
+        UploadProgress: (up, file) => {
+          this.progressPercent = file.percent;
+          this.progressbarWidth = file.percent + "%";
+          this.drop_container.nativeElement.click();
+        },
+
+        // BeforeUpload: (up, file)=>{
+        // },
+
+        UploadFile: (up,file)=>{
+          if (this.isUploadCancel) {
+            up.removeFile(file);
+            for ( let idx in this.chunk_uploader.settings.multipart_params){
+              this.chunk_uploader.settings.multipart_params[idx] = ''
+            };
+          }
+        },
+
+        FileUploaded: (up, file, info)=>{
+          this.isUploading = false;
+
+          const success = true;
+          let res = info.response;
+          this.uploadResult = { success, res };
+          this.checkIfUploaded(res);
+        },
+
+        // BeforeChunkUpload: (up, file, args, blob, offset)=>{
+        // },
+        // ChunkUploaded: (up, file, info)=>{
+        // },
+
+        /* error define
+        -100 GENERIC_ERROR
+        -200 HTTP_ERROR
+        -300 IO_ERROR
+        -400 SECURITY_ERROR
+        -500 INIT_ERROR
+        -600 FILE_SIZE_ERROR
+        -601 FILE_EXTENSION_ERROR
+        -602 FILE_DUPLICATE_ERROR
+        -701 MEMORY_ERROR
+         */
+        Error: (up, err) => {
+          this.cancelUpload();
+          this.drop_container.nativeElement.click();
+          switch (err.code){
+            case -601:
+              Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
+              break;
+            default:
+              Alert.error(err.message);
+          }
+          console.log('error',err);
+        }
+      }
+    });
+
+    this.chunk_uploader.init();
+  }
+
   public next() {
     //if (!isUndefined(this.datasetFile.filename)) {
     if (!isUndefined(this.datasetFile.filenameBeforeUpload)) {
@@ -218,6 +316,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
         data: null
       });
 
+      this.drop_container.nativeElement.click();
     }
   }
 
@@ -243,6 +342,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   public fetchUploadStatus(storedUri: string) {
     //this.datasetService.checkFileUploadStatus(fileKey).then((result) => {
     this.datasetService.checkFileUploadStatus(storedUri).then((result) => {
+      this.loadingHide();
 
       if (result.state === 'done' && result.success) { // Upload finished
         clearInterval(this.interval);
@@ -253,7 +353,6 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
         Alert.error(this.translateService.instant('Failed to upload. Please select another file'));
         clearInterval(this.interval);
         this.interval = undefined;
-        this.loadingHide();
         return;
       }
     });

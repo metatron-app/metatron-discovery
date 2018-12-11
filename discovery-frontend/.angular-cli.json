@@ -91,7 +91,8 @@
         "./lib/nicEdit/nicEdit.js",
         "./lib/async/async.js",
         "./lib/vis/vis.js",
-        "./lib/split/split.js"
+        "./lib/split/split.js",
+        "./lib/plupload/plupload.full.min.js"
       ],
       "environmentSource": "environments/environment.ts",
       "environments": {
