@@ -64,6 +64,11 @@ Installation
 To install the Metatron distributed Druid, simply untar the downloaded archive. And start | stop the druid with the following commands.
 <pre><code> $ start-single.sh | stop-single.sh </code></pre>
 
+### (Optional) Install the GEO server
+We introduced map view since 3.1.0.
+If you want to using this feature, download [this archive](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/latest/geoserver-metatron-latest.tar.gz) and run the geo server with the following commands.
+<pre><code> $ bin/startup.sh | bin/shutdown.sh </code></pre>
+
 ### Build from source
 Git clone this project.
 <pre><code>$ git clone https://github.com/metatron-app/metatron-discovery.git</code></pre>
@@ -81,11 +86,6 @@ Initialize and run with the following command.
 Running options are provided as well.
 <pre><code>$ bin/metatron.sh [--config=directory] [--init] [--management] [--debug=port] {start|stop|restart|status}</code></pre>
 To access Metatron Discovery, go to [http://localhost:8180](http://localhost:8180). (The default admin user account is provided as ID: admin, PW: admin.)
-
-### (Optional) Install the GEO server
-We introduced map view since 3.1.0.
-If you want to using this feature, download [this archive](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/latest/geoserver-metatron-latest.tar.gz) and run the geo server with the following commands.
-<pre><code> $ bin/startup.sh | bin/shutdown.sh </code></pre>
 
 
 Problems & Suggestions
