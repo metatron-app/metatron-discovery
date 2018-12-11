@@ -111,6 +111,42 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
   }
 
   /**
+   * 축 타이틀 표시여부
+   *
+   * @param axisType
+   * @param index
+   * @param show
+   * @param event
+   */
+  public showAxisName(axisLabelType: any, show: boolean): void {
+
+    if( _.eq(this.uiOption.secondaryAxis.mode, axisLabelType) ) {
+      this.uiOption.secondaryAxis.showName = show;
+    }
+    this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryAxis: this.uiOption.secondaryAxis });
+
+    this.update();
+  }
+
+  /**
+   * 축 라벨 표시여부
+   *
+   * @param axisType
+   * @param index
+   * @param show
+   * @param event
+   */
+  public showAxisLabel(axisLabelType: any, show: boolean): void {
+
+    if( _.eq(this.uiOption.secondaryAxis.mode, axisLabelType) ) {
+      this.uiOption.secondaryAxis.showLabel = show;
+    }
+    this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryAxis: this.uiOption.secondaryAxis });
+
+    this.update();
+  }
+
+  /**
    * Secondary Axis Setting
    */
   public changeSecondaryAxisValue(axis: UIChartAxis): void {

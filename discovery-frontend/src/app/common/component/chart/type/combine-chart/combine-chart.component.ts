@@ -151,6 +151,11 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
    */
   protected additionalBasic(): BaseOption {
 
+    // Secondary Axis Migration
+    if( !this.uiOption.secondaryAxis  ) {
+      this.uiOption.secondaryAxis = _.cloneDeep(this.uiOption.yAxis);
+    }
+
     // 차트가 그려진 후 UI에 필요한 옵션 설정 - 축 정보
     this.setAxisNameInfo();
 
@@ -198,35 +203,12 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
     return this.chartOption;
   }
 
-  // /**
-  //  * Y축 정보를 변환한다.
-  //  * - 필요시 각 차트에서 Override
-  //  * @param chartOption
-  //  * @param option
-  //  * @returns {BaseOption}
-  //  */
-  // protected convertSecondaryYAxis(): void {
-  //
-  //   if( this.uiOption.secondaryAxis  ) {
-  //     this.uiOption.yAxis[1] = this.uiOption.secondaryAxis[0];
-  //   }
-  //   else {
-  //     this.uiOption.secondaryAxis[0] =
-  //   }
-  // }
-
   /**
    * 차트별 Y축 추가정보
    * - 필요시 각 차트에서 Override
    * @returns {BaseOption}
    */
   protected additionalYAxis(): BaseOption {
-
-    ///////////////////////////
-    // Additional Secondary Axis
-    ///////////////////////////
-
-    //this.convertSecondaryYAxis();
 
     // Min / Max값을 재계산한다.
     ///////////////////////////
