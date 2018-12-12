@@ -165,8 +165,11 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
   public next() {
     // validation
     if (this.getNextValidation()) {
+      const isChangedTimestampField: boolean = this._isChangedTimestampField();
       // 기존 스키마정보 삭제후 생성
       this.deleteAndSaveSchemaData();
+      // if changed timestamp field
+      this.sourceData.schemaData['isChangedTimestampField'] = isChangedTimestampField;
       // 다음 step 으로 이동
       this.step = 'staging-db-ingestion';
       this.stepChange.emit(this.step);
@@ -1045,5 +1048,18 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
     // 초기화
     this.fields = [];
     this.data = [];
+  }
+
+  /**
+   * Is changed TIMESTAMP field
+   * @private
+   */
+  private _isChangedTimestampField(): boolean {
+    if (this.sourceData.schemaData) {
+      return (this.selectedTimestampType !== this.sourceData.schemaData.selectedTimestampType) ||
+        this.selectedTimestampColumn && (this.selectedTimestampColumn.name !== this.sourceData.schemaData.selectedTimestampColumn.name);
+    } else {
+      return false;
+    }
   }
 }

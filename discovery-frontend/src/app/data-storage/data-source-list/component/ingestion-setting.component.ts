@@ -153,7 +153,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   public dateList: any[];
   // day list show flag (only engine source type)
   public isShowDateList: boolean = false;
-  // seleted time in week (only engine source type)
+  // selected time in week (only engine source type)
   public selectedWeeklyTime: string;
 
   // cron text (only engine source type)
@@ -220,7 +220,7 @@ export class IngestionSettingComponent extends AbstractComponent {
    * Init
    * @param {DatasourceInfo} sourceData
    */
-  public init(sourceData: DatasourceInfo, createType: string, selectedTimestampColumn: Field): void {
+  public init(sourceData: DatasourceInfo, createType: string, selectedTimestampColumn: Field, isChangedTimestampField: boolean = false): void {
     // datasource data
     this._sourceData = sourceData;
     // create datasource type
@@ -232,8 +232,12 @@ export class IngestionSettingComponent extends AbstractComponent {
     // if exist ingestionData
     if (this._sourceData.hasOwnProperty("ingestionData")) {
       this._loadIngestionData(this._sourceData.ingestionData);
+      // if changed timestamp field, init granularity
+      isChangedTimestampField && this._initGranularity();
     } else { // init
       this._setDefaultIngestionOption();
+      // init granularity
+      this._initGranularity();
       // if staging type, set partition key list
       if (this.createType === 'STAGING' && this._sourceData.databaseData.selectedTableDetail.partitionFields.length > 0) {
         // set key list
@@ -609,8 +613,6 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @private
    */
   private _initView(): void {
-    // init granularity setting
-    this._initGranularity();
     // init roll up type list
     this.rollUpTypeList = [
       { label: this.translateService.instant('msg.storage.ui.set.true'), value: true },

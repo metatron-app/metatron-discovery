@@ -13,7 +13,7 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
+  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges,
   ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
@@ -27,19 +27,14 @@ import { IngestionSettingComponent } from '../../../component/ingestion-setting.
   selector: 'staging-db-ingestion',
   templateUrl: './staging-db-ingestion.component.html'
 })
-export class StagingDbIngestionComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+export class StagingDbIngestionComponent extends AbstractPopupComponent implements OnInit, OnDestroy, OnChanges {
 
   // datasource data
+  @Input('sourceData')
   private _sourceData: DatasourceInfo;
 
   @ViewChild(IngestionSettingComponent)
   private _ingestionSettingComponent: IngestionSettingComponent;
-
-  @Input('sourceData')
-  public set setSourceData(sourceData: DatasourceInfo) {
-    this._sourceData = sourceData;
-    this._ingestionSettingComponent.init(this._sourceData, 'STAGING', this._sourceData.schemaData.selectedTimestampColumn);
-  }
 
   @Input()
   public step: string;
@@ -76,6 +71,22 @@ export class StagingDbIngestionComponent extends AbstractPopupComponent implemen
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
+  }
+
+  /**
+   * ngOnChanges
+   * @param changes
+   */
+  ngOnChanges(changes: SimpleChanges): void {
+    // if changed source Data
+    if (changes._sourceData) {
+      this._ingestionSettingComponent.init(
+        this._sourceData,
+        'STAGING',
+        this._sourceData.schemaData.selectedTimestampType === 'CURRENT' ? null :  this._sourceData.schemaData.selectedTimestampColumn,
+        this._sourceData.schemaData.isChangedTimestampField
+      );
+    }
   }
 
   /**
