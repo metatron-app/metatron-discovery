@@ -62,15 +62,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   @Input('data')
   public data: Object[];
 
-  @Input('shelf')
-  public set setShelf(shelf: Shelf) {
-
-    // set by type list by dimension, measure count
-    this.setByType(shelf);
-
-    this.shelf = shelf;
-  }
-
   @Input('uiOption')
   public set setUiOption(uiOption: UIMapOption) {
 
@@ -80,14 +71,19 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     this.rangesViewList = this.setRangeViewByDecimal(this.uiOption.layers[this.index].color['ranges']);
 
     // set min / max by decimal format
-    if (!_.isEmpty(this.uiOption.layers[this.index].color.column) && this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal && this.data && this.data.length > 0) {
-
-      let valueRange = _.cloneDeep(this.data[0]['valueRange'][this.getFieldAlias(this.uiOption.layers[this.index].color.column)]);
-      if (valueRange) {
-        this.minValue = FormatOptionConverter.getDecimalValue(valueRange.minValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
-        this.maxValue = FormatOptionConverter.getDecimalValue(valueRange.maxValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
-      }
+    if (this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal) {
+      this.minValue = FormatOptionConverter.getDecimalValue(this.uiOption.minValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
+      this.maxValue = FormatOptionConverter.getDecimalValue(this.uiOption.maxValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
     }
+  }
+
+  @Input('shelf')
+  public set setShelf(shelf: Shelf) {
+
+    // set by type list by dimension, measure count
+    this.setByType(shelf);
+
+    this.shelf = shelf;
   }
 
   // color template popup
@@ -174,6 +170,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // change layer type
     this.uiOption.layers[this.index].type = layerType;
 
+    // init color ranges
+    this.uiOption.layers[this.index].color.ranges = undefined;
+    // hide custom color
+    this.uiOption.layers[this.index].color['settingUseFl'] = false;
+
     // change color type by layer type
     if (MapLayerType.HEATMAP === layerType) {
       this.uiOption.layers[this.index].color.schema = 'HC1';
@@ -217,11 +218,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     this.setMeasureDimensions(this.shelf, true);
 
     if ((MapLayerType.TILE === cloneLayerType || MapLayerType.TILE === layerType) && cloneLayerType !== layerType) {
-
-      // init color ranges
-      this.uiOption.layers[this.index].color.ranges = undefined;
-      // hide custom color
-      this.uiOption.layers[this.index].color['settingUseFl'] = false;
 
       // call search api (for precision setting)
       this.applyLayers({type : EventType.CHANGE_PIVOT});
@@ -354,6 +350,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public changeColorBy(data: Object) {
 
+    if (this.uiOption.layers[this.index].color.by === data['value']) return;
+
+    // init color ranges
+    this.uiOption.layers[this.index].color.ranges = undefined;
+    // hide custom color
+    this.uiOption.layers[this.index].color['settingUseFl'] = false;
+
     this.uiOption.layers[this.index].color.by = data['value'];
 
     this.uiOption.layers[this.index].color.aggregationType = undefined;
@@ -402,12 +405,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public changeColorColumn(data: Field) {
 
+    if (this.uiOption.layers[this.index].color.column === data.name && (!data.aggregationType || (data.aggregationType && this.uiOption.layers[this.index].color.aggregationType === data.aggregationType))) return;
+
     this.uiOption.layers[this.index].color.column = data.name;
 
     // measure
     if ('measure' === data.type) {
       this.uiOption.layers[this.index].color.aggregationType = data.aggregationType;
       this.uiOption.layers[this.index].color.granularity = null;
+      // init ranges
+      const colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[this.index].color['schema']]);
+      this.uiOption.layers[this.index].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[0], colorList, this.index, this.shelf.layers[this.index], []);
     // granularity
     } else {
       if (data.format) this.uiOption.layers[this.index].color.granularity = data.format.unit.toString();
@@ -755,7 +763,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     let colorOption = this.uiOption.layers[this.uiOption.layerNum].color;
 
-    this.uiOption.layers[this.index].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[0], <any>ChartColorList[colorOption.schema], this.index, this.shelf.layers[this.index], colorOption.ranges);
+    // custom user color is show, set ranges
+    const ranges = this.uiOption.layers[this.index].color.settingUseFl ? colorOption.ranges : [];
+
+    this.uiOption.layers[this.index].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[0], <any>ChartColorList[colorOption.schema], this.index, this.shelf.layers[this.index], ranges);
 
     this.applyLayers();
   }
@@ -1251,23 +1262,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     }
 
     return returnList;
-  }
-
-  /**
-   * return alias from name
-   * @param {string} name
-   * @returns {string}
-   */
-  private getFieldAlias(name: string): string {
-
-    let alias: string = name;
-    _.each(this.shelf.layers[this.index], (field) => {
-      if( _.eq(name, field['name']) ) {
-        alias = ChartUtil.getAlias(field);
-        return false;
-      }
-    });
-    return alias;
   }
 
   /**

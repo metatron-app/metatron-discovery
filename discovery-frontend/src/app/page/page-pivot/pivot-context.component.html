@@ -86,7 +86,8 @@
         </div>
         <!-- //2depth -->
       </li>
-      <li *ngIf="editingField.type == 'measure' && !editingField.aggregated" (mouseover)="fix2DepthContext = false;">
+      <!--<li *ngIf="editingField.type == 'measure' && !editingField.aggregated" (mouseover)="fix2DepthContext = false;">-->
+      <li *ngIf="showAggregate()" (mouseover)="fix2DepthContext = false;">
         <a href="javascript:">
           {{'msg.page.th.aggregate' | translate}}
           <div class="ddp-data-result ddp-type">

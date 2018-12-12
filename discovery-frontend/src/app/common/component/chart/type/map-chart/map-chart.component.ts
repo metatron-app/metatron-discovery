@@ -2483,6 +2483,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Color
     ////////////////////////////////////////////////////////
 
+    // init custom user color setting
+    layer.color.ranges = undefined;
+    layer.color['settingUseFl'] = false;
+
     ///////////////////////////
     // Color by None
     ///////////////////////////
@@ -2495,11 +2499,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     ///////////////////////////
     // Color by Measure
     ///////////////////////////
-    else if( !_.eq(layer.color.by, MapBy.DIMENSION) && isMeasure ) {
+    // TODO remove !_.eq(layer.color.by, MapBy.DIMENSION) => exceptional case (select color by dimension, remove dimension in shelf) by juhee
+    else if( isMeasure ) {
       layer.color.by = MapBy.MEASURE;
       layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : 'VC1';
       layer.color.column = this.uiOption.fieldMeasureList[0]['name'];
       layer.color.aggregationType = this.uiOption.fieldMeasureList[0]['aggregationType'];
+      layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[0], this.getColorList(layer), this.getUiMapOption().layerNum, this.shelf.layers[this.getUiMapOption().layerNum]);
     }
     ///////////////////////////
     // Color by Dimension
@@ -2564,6 +2570,22 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     ////////////////////////////////////////////////////////
     else if( _.eq(layer.type, MapLayerType.LINE) ) {
 
+      // line layer
+      let lineLayer: UILineLayer = <UILineLayer>layer;
+
+      ///////////////////////////
+      // Thickness by None
+      ///////////////////////////
+      if( isNone || !isMeasure ) {
+        lineLayer.thickness.by = MapBy.NONE;
+      }
+      ///////////////////////////
+      // Thickness by Measure
+      ///////////////////////////
+      else if ( isMeasure ) {
+        lineLayer.thickness.by = MapBy.MEASURE;
+        lineLayer.thickness.column = this.uiOption.fieldMeasureList[0]['name'];
+      }
     }
     ////////////////////////////////////////////////////////
     // Polygon
@@ -2577,8 +2599,23 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     ////////////////////////////////////////////////////////
     if (!this.uiOption.toolTip.displayColumns) this.uiOption.toolTip.displayColumns = [];
 
-    let fields = TooltipOptionConverter.returnTooltipDataValue(_.cloneDeep(this.shelf.layers[this.getUiMapOption().layerNum]));
+    let fields = TooltipOptionConverter.returnTooltipDataValue(shelf);
     this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(fields);
+
+    ////////////////////////////////////////////////////////
+    // min, max value
+    ////////////////////////////////////////////////////////
+    // set min / max by decimal format
+    if (!_.isEmpty(layer.color.column) && this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal && this.data && this.data.length > 0) {
+
+      let alias = ChartUtil.getFieldAlias(layer.color.column, shelf, layer.color.aggregationType);
+
+      let valueRange = _.cloneDeep(this.data[0]['valueRange'][alias]);
+      if (valueRange) {
+        this.uiOption.minValue = valueRange.minValue;
+        this.uiOption.maxValue = valueRange.maxValue;
+      }
+    }
   }
 
   /**

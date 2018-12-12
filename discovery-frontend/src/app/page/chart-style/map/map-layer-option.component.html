@@ -172,8 +172,7 @@
                       </div>
 
                       <!-- custom color setting -->
-                      <!--<ng-container *ngIf="'heatmap' === uiOption.layers[index].type.toString() || ('heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== uiOption.layers[index].color.by.toString())">-->
-                      <ng-container *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== uiOption.layers[index].color.by.toString()">
+                      <ng-container *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'MEASURE' === uiOption.layers[index].color.by.toString()">
 
                         <!-- on/off custom color setting -->
                         <div class="ddp-wrap-option-slider">
