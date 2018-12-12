@@ -176,7 +176,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    * @returns {boolean}
    */
   public isDisableEditFilter(): boolean {
-    return this.isLinkedTypeSource(this.datasource) && this.datasource.ingestion && this.datasource.ingestion.dataType === 'QUERY';
+    return this.datasource.ingestion && this.datasource.ingestion.type === 'link' && this.datasource.ingestion.dataType === 'QUERY';
   }
 
   /**
