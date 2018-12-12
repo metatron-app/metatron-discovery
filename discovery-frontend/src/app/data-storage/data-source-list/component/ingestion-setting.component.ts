@@ -17,7 +17,13 @@ import {
   Component, ElementRef, EventEmitter, Injector, Output, Renderer2,
   ViewChild
 } from '@angular/core';
-import { DatasourceInfo, FieldFormat, FieldFormatType, FieldFormatUnit } from '../../../domain/datasource/datasource';
+import {
+  DatasourceInfo,
+  Field,
+  FieldFormat,
+  FieldFormatType,
+  FieldFormatUnit
+} from '../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
 import { StringUtil } from '../../../common/util/string.util';
@@ -214,15 +220,15 @@ export class IngestionSettingComponent extends AbstractComponent {
    * Init
    * @param {DatasourceInfo} sourceData
    */
-  public init(sourceData: DatasourceInfo, createType: string, format: FieldFormat): void {
-    // ui init
-    this._initView();
+  public init(sourceData: DatasourceInfo, createType: string, selectedTimestampColumn: Field): void {
     // datasource data
     this._sourceData = sourceData;
     // create datasource type
     this.createType = createType;
     // set format
-    this._format = format;
+    this._format = selectedTimestampColumn ? selectedTimestampColumn.format : null;
+    // ui init
+    this._initView();
     // if exist ingestionData
     if (this._sourceData.hasOwnProperty("ingestionData")) {
       this._loadIngestionData(this._sourceData.ingestionData);
@@ -605,12 +611,6 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _initView(): void {
     // init granularity setting
     this._initGranularity();
-    // init Segment Granularity list
-    // this.segmentGranularityList = _.filter(this._granularityList, item => item.value !== 'NONE');
-    // this.selectedSegmentGranularity = this.segmentGranularityList[3];
-    // // init Query Granularity list
-    // this.queryGranularityList = this._granularityList;
-    // this.selectedQueryGranularity = this.queryGranularityList[4];
     // init roll up type list
     this.rollUpTypeList = [
       { label: this.translateService.instant('msg.storage.ui.set.true'), value: true },

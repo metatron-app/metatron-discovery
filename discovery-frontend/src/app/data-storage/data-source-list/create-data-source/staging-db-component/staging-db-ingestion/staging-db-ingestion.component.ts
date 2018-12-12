@@ -38,7 +38,7 @@ export class StagingDbIngestionComponent extends AbstractPopupComponent implemen
   @Input('sourceData')
   public set setSourceData(sourceData: DatasourceInfo) {
     this._sourceData = sourceData;
-    this._ingestionSettingComponent.init(this._sourceData, 'STAGING', this._sourceData.schemaData.selectedColumn);
+    this._ingestionSettingComponent.init(this._sourceData, 'STAGING', this._sourceData.schemaData.selectedTimestampColumn);
   }
 
   @Input()

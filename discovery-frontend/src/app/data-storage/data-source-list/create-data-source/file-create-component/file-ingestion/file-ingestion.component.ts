@@ -38,7 +38,7 @@ export class FileIngestionComponent extends AbstractPopupComponent implements On
   @Input('sourceData')
   public set setSourceData(sourceData: DatasourceInfo) {
     this._sourceData = sourceData;
-    this._ingestionSettingComponent.init(this._sourceData, 'FILE', this._sourceData.schemaData.selectedColumn);
+    this._ingestionSettingComponent.init(this._sourceData, 'FILE', this._sourceData.schemaData.selectedTimestampColumn);
   }
 
   @Input()
