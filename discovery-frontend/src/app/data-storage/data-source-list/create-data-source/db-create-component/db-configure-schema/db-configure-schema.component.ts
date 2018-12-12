@@ -24,7 +24,6 @@ import {
 import { isUndefined } from 'util';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import * as _ from 'lodash';
-import { StringUtil } from '../../../../../common/util/string.util';
 import { Alert } from '../../../../../common/util/alert.util';
 import { AddColumnComponent } from '../../../component/add-column.component';
 
@@ -127,7 +126,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
     // 현재 페이지 schema 정보가 있다면
     if (this.sourceData.hasOwnProperty('schemaData')) {
       // init data
-      this.initData(this.sourceData.schemaData);
+      this.initData(_.cloneDeep(this.sourceData.schemaData));
     } else {
       // 데이터베이스 상세데이터
       this.initColumnData(this.sourceData.databaseData);
@@ -1064,12 +1063,14 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
 
   /**
    * Is changed TIMESTAMP field
+   * @returns {boolean}
    * @private
    */
   private _isChangedTimestampField(): boolean {
     if (this.sourceData.schemaData) {
       return (this.selectedTimestampType !== this.sourceData.schemaData.selectedTimestampType) ||
-        this.selectedTimestampColumn && (this.selectedTimestampColumn.name !== this.sourceData.schemaData.selectedTimestampColumn.name);
+        this.selectedTimestampColumn &&
+        (this.selectedTimestampColumn.name !== this.sourceData.schemaData.selectedTimestampColumn.name || this.selectedTimestampColumn.format.type !== this.sourceData.schemaData.selectedTimestampColumn.format.type);
     } else {
       return false;
     }
