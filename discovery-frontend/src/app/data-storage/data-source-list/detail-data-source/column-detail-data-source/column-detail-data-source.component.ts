@@ -172,6 +172,14 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   }
 
   /**
+   * is disable edit filter
+   * @returns {boolean}
+   */
+  public isDisableEditFilter(): boolean {
+    return this.isLinkedTypeSource(this.datasource) && this.datasource.ingestion && this.datasource.ingestion.dataType === 'QUERY';
+  }
+
+  /**
    * Is exist metadata
    * @returns {boolean}
    */
