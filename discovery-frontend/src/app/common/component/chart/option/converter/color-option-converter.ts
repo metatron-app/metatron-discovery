@@ -479,13 +479,15 @@ export class ColorOptionConverter {
     // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
     let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
 
+    let alias = ChartUtil.getFieldAlias(uiOption.layers[layerIndex].color.column, layers, uiOption.layers[layerIndex].color.aggregationType);
+
     // less than 0, set minValue
-    const minValue = _.cloneDeep(data.valueRange[ChartUtil.getFieldAlias(uiOption.layers[layerIndex].color.column, layers)].minValue);
+    const minValue = _.cloneDeep(data.valueRange[alias].minValue);
 
     // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-    const addValue = (data.valueRange[ChartUtil.getFieldAlias(uiOption.layers[layerIndex].color.column, layers)].maxValue - minValue) / (colorListLength + 1);
+    const addValue = (data.valueRange[alias].maxValue - minValue) / (colorListLength + 1);
 
-    let maxValue = _.cloneDeep(data.valueRange[ChartUtil.getFieldAlias(uiOption.layers[layerIndex].color.column, layers)].maxValue);
+    let maxValue = _.cloneDeep(data.valueRange[alias].maxValue);
 
     let shape;
 
@@ -495,9 +497,9 @@ export class ColorOptionConverter {
     });
 
     // decimal min value
-    let formatMinValue = formatValue(data.valueRange[ChartUtil.getFieldAlias(uiOption.layers[layerIndex].color.column, layers)].minValue);
+    let formatMinValue = formatValue(data.valueRange[alias].minValue);
     // decimal max value
-    let formatMaxValue = formatValue(data.valueRange[ChartUtil.getFieldAlias(uiOption.layers[layerIndex].color.column, layers)].maxValue);
+    let formatMaxValue = formatValue(data.valueRange[alias].maxValue);
 
     // set ranges
     for (let index = colorListLength; index >= 0; index--) {

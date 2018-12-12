@@ -80,11 +80,11 @@ export class ChartUtil {
    * @param {string} name
    * @returns {string}
    */
-  public static getFieldAlias(name: string, layers: GeoField[]): string {
+  public static getFieldAlias(name: string, layers: GeoField[], aggregationType?: string): string {
 
     let alias: string = name;
     _.each(layers, (field) => {
-      if( _.eq(name, field['name']) ) {
+      if( _.eq(name, field['name']) && (!aggregationType || (aggregationType && _.eq(aggregationType, field['aggregationType']))) ) {
         alias = ChartUtil.getAlias(field);
         return false;
       }

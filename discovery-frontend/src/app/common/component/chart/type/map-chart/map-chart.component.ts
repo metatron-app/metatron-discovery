@@ -899,9 +899,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         }
 
         if(this.uiOption.fieldMeasureList.length > 0) {
+
+          const alias = ChartUtil.getFieldAlias(this.getUiMapOption().layers[0].color.column, this.shelf.layers[0], this.getUiMapOption().layers[0].color.aggregationType);
+
           //히트맵 weight 설정
-          if(this.data[0].valueRange[this.getFieldAlias(this.getUiMapOption().layers[0].color.column, this.getUiMapOption().layers[0].color.aggregationType)]) {
-            feature.set('weight', feature.getProperties()[this.getFieldAlias(this.getUiMapOption().layers[0].color.column, this.getUiMapOption().layers[0].color.aggregationType)] / this.data[0].valueRange[this.getFieldAlias(this.getUiMapOption().layers[0].color.column, this.getUiMapOption().layers[0].color.aggregationType)].maxValue);
+          if(this.data[0].valueRange[alias]) {
+            feature.set('weight', feature.getProperties()[alias] / this.data[0].valueRange[alias].maxValue);
           }
         }
       }
@@ -950,6 +953,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       let outlineColor = null;
       let featureSizeType = null;
       let featureThicknessType = null;
+      let alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[styleOption.layerNum], styleLayer.color.aggregationType)
 
       // Symbol type
       if( _.eq(layerType, MapLayerType.SYMBOL) ) {
@@ -989,13 +993,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             if(rangeMax === null) {
 
               // if feature value is bigger than max value, set max color
-              if( feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] > rangeMin) {
+              if( feature.getProperties()[alias] > rangeMin) {
                 featureColor = range.color;
               }
 
             } else {
               if(rangeMin === null) {
-                let minValue = styleData.valueRange[scope.getFieldAlias(styleLayer.color.column)].minValue;
+                let minValue = styleData.valueRange[alias].minValue;
 
                 if (minValue >= 0) {
                   rangeMin = 0;
@@ -1005,8 +1009,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
                 }
               }
 
-              if( feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] >= rangeMin &&
-                feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] <= rangeMax) {
+              if( feature.getProperties()[alias] >= rangeMin &&
+                feature.getProperties()[alias] <= rangeMax) {
                 featureColor = range.color;
               }
             }
@@ -1026,13 +1030,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             if(rangeMax === null) {
 
               // if feature value is bigger than max value, set max color
-              if( feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] > rangeMin) {
+              if( feature.getProperties()[alias] > rangeMin) {
                 featureColor = range.color;
               }
 
             } else {
               if(rangeMin === null) {
-                let minValue = styleData.valueRange[scope.getFieldAlias(styleLayer.color.column)].minValue;
+                let minValue = styleData.valueRange[alias].minValue;
 
                 if (minValue >= 0) {
                   rangeMin = 0;
@@ -1042,7 +1046,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
                 }
               }
 
-              let value = formatValue(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)]);
+              let value = formatValue(feature.getProperties()[alias]);
 
               if( (rangeMin == 0 && rangeMin == value) || (value >= rangeMin && value <= rangeMax) ) {
                 featureColor = range.color;
@@ -1058,7 +1062,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         // Get dimension color
         const ranges = scope.setDimensionColorRange(styleLayer, styleData, scope.getColorList(styleLayer), []);
         _.each(ranges, (range) => {
-          if( _.eq(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)], range.column) ) {
+          if( _.eq(feature.getProperties()[alias], range.column) ) {
             featureColor = range.color;
             return false;
           }
@@ -1102,8 +1106,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       if( _.eq(layerType, MapLayerType.LINE) ) {
         try {
           let lineLayer: UILineLayer = <UILineLayer>styleLayer;
+          const lineAlias = ChartUtil.getFieldAlias(lineLayer.thickness.column, scope.shelf.layers[styleOption.layerNum], lineLayer.thickness.aggregationType);
+
           if( !_.eq(lineLayer.thickness.column, "NONE") && _.eq(featureThicknessType, MapBy.MEASURE) ) {
-            lineThickness = parseInt(feature.get(scope.getFieldAlias(lineLayer.thickness.column, lineLayer.thickness.aggregationType))) / (styleData.valueRange[scope.getFieldAlias(lineLayer.thickness.column, lineLayer.thickness.aggregationType)].maxValue / lineMaxVal);
+            lineThickness = parseInt(feature.get(lineAlias)) / (styleData.valueRange[lineAlias].maxValue / lineMaxVal);
             if(lineThickness < 1) {
               lineThickness = 1;
             }
@@ -1197,6 +1203,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       let lineMaxVal = 1; //styleLayer.size.max;
       let featureSizeType = symbolLayer.size.by;
       let style = null;
+      let alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[styleOption.layerNum], styleLayer.color.aggregationType);
 
       ////////////////////////////////////////////////////////
       // Cluster size
@@ -1235,12 +1242,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
               if(rangeMax === null) {
                 // if feature value is bigger than max value, set max color
-                if( feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] > rangeMin) {
+                if( feature.getProperties()[alias] > rangeMin) {
                   featureColor = range.color;
                 }
               } else {
                 if(rangeMin === null) {
-                  let minValue = styleData.valueRange[scope.getFieldAlias(styleLayer.color.column)].minValue;
+                  let minValue = styleData.valueRange[alias].minValue;
 
                   if (minValue >= 0) {
                     rangeMin = 0;
@@ -1250,8 +1257,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
                   }
                 }
 
-                if( feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] >= rangeMin &&
-                  feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] <= rangeMax) {
+                if( feature.getProperties()[alias] >= rangeMin &&
+                  feature.getProperties()[alias] <= rangeMax) {
                   featureColor = range.color;
                 }
               }
@@ -1270,13 +1277,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
               if(rangeMax === null) {
                 // if feature value is bigger than max value, set max color
-                if (feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] > rangeMin) {
+                if (feature.getProperties()[alias] > rangeMin) {
                   featureColor = range.color;
                 }
 
               } else {
                 if (rangeMin === null) {
-                  let minValue = styleData.valueRange[scope.getFieldAlias(styleLayer.color.column)].minValue;
+                  let minValue = styleData.valueRange[alias].minValue;
 
                   if (minValue >= 0) {
                     rangeMin = 0;
@@ -1286,7 +1293,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
                   }
                 }
 
-                let value = formatValue(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)]);
+                let value = formatValue(feature.getProperties()[alias]);
 
                 if ((rangeMin == 0 && rangeMin == value) || (value >= rangeMin && value <= rangeMax)) {
                   featureColor = range.color;
@@ -1302,7 +1309,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
           // Get dimension color
           const ranges = scope.setDimensionColorRange(styleLayer, styleData, scope.getColorList(styleLayer), []);
           _.each(ranges, (range) => {
-            if( _.eq(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)], range.column) ) {
+            if( _.eq(feature.getProperties()[alias], range.column) ) {
               featureColor = range.color;
               return false;
             }
@@ -1336,7 +1343,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         let featureSize = 5;
         try {
           if( _.eq(featureSizeType, MapBy.MEASURE) ) {
-            featureSize = parseInt(feature.get(scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column))) / (styleData.valueRange[scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column)].maxValue / 30);
+            featureSize = parseInt(feature.get(ChartUtil.getFieldAlias((<UISymbolLayer>styleLayer).size.column, scope.shelf.layers[styleOption.layerNum]))) / (styleData.valueRange[ChartUtil.getFieldAlias((<UISymbolLayer>styleLayer).size.column, scope.shelf.layers[styleOption.layerNum])].maxValue / 30);
             if(featureSize < 5) {
               featureSize = 5;
             }
@@ -1347,7 +1354,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         let lineThickness = 2;
         try {
           if( _.eq(featureSizeType, MapBy.MEASURE) ) {
-            lineThickness = parseInt(feature.get(scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column))) / (styleData.valueRange[scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column)].maxValue / lineMaxVal);
+            lineThickness = parseInt(feature.get(ChartUtil.getFieldAlias((<UISymbolLayer>styleLayer).size.column, scope.shelf.layers[styleOption.layerNum]))) / (styleData.valueRange[ChartUtil.getFieldAlias((<UISymbolLayer>styleLayer).size.column, scope.shelf.layers[styleOption.layerNum])].maxValue / lineMaxVal);
             if(lineThickness < 1) {
               lineThickness = 1;
             }
@@ -1657,6 +1664,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     let styleOption: UIMapOption = this.getUiMapOption();
     let styleLayer: UILayers = styleOption.layers[layerNum];
     let styleData = data[layerNum];
+    let alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[styleOption.layerNum], styleLayer.color.aggregationType);
 
     return function (feature, resolution) {
 
@@ -1688,13 +1696,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             if(rangeMax === null) {
 
               // if feature value is bigger than max value, set max color
-              if (feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] > rangeMin) {
+              if (feature.getProperties()[alias] > rangeMin) {
                 featureColor = range.color;
               }
 
             } else {
               if (rangeMin === null) {
-                let minValue = styleData.valueRange[scope.getFieldAlias(styleLayer.color.column)].minValue;
+                let minValue = styleData.valueRange[alias].minValue;
 
                 if (minValue >= 0) {
                   rangeMin = 0;
@@ -1704,8 +1712,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
                 }
               }
 
-              if (feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] >= rangeMin &&
-                feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] <= rangeMax) {
+              if (feature.getProperties()[alias] >= rangeMin &&
+                feature.getProperties()[alias] <= rangeMax) {
                 featureColor = range.color;
               }
             }
@@ -1724,13 +1732,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             if(rangeMax === null) {
 
               // if feature value is bigger than max value, set max color
-              if( feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)] > rangeMin) {
+              if( feature.getProperties()[alias] > rangeMin) {
                 featureColor = range.color;
               }
 
             } else {
               if(rangeMin === null) {
-                let minValue = styleData.valueRange[scope.getFieldAlias(styleLayer.color.column)].minValue;
+                let minValue = styleData.valueRange[alias].minValue;
 
                 if (minValue >= 0) {
                   rangeMin = 0;
@@ -1740,7 +1748,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
                 }
               }
 
-              let value = formatValue(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)]);
+              let value = formatValue(feature.getProperties()[alias]);
 
               if( (rangeMin == 0 && rangeMin == value) || (value >= rangeMin && value <= rangeMax) ) {
                 featureColor = range.color;
@@ -1754,7 +1762,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         // Get dimension color
         const ranges = scope.setDimensionColorRange(styleLayer, styleData, scope.getColorList(styleLayer), []);
         _.each(ranges, (range) => {
-          if( _.eq(feature.getProperties()[scope.getFieldAlias(styleLayer.color.column, styleLayer.color.aggregationType)], range.column) ) {
+          if( _.eq(feature.getProperties()[alias], range.column) ) {
             featureColor = range.color;
             return false;
           }
@@ -2151,7 +2159,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       ////////////////////////////////////////////////////////
 
       if( MapLayerType.SYMBOL === layer.type && _.eq((<UISymbolLayer>layer).size.by, MapBy.MEASURE) ) {
-        legendInfo.radiusColumn = 'By ' + this.getFieldAlias((<UISymbolLayer>layer).size.column);
+        legendInfo.radiusColumn = 'By ' + ChartUtil.getFieldAlias((<UISymbolLayer>layer).size.column, this.shelf.layers[num]);
       }
 
       ////////////////////////////////////////////////////////
@@ -2160,7 +2168,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       if( _.eq(layer.color.by, MapBy.DIMENSION) ) {
 
         // Layer column
-        legendInfo.column = 'By ' + this.getFieldAlias(layer.color.column, layer.color.aggregationType);
+        legendInfo.column = 'By ' + ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[num], layer.color.aggregationType);
 
         if( layer.color.ranges ) {
           _.each(layer.color.ranges, (range) => {
@@ -2196,7 +2204,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       else if( _.eq(layer.color.by, MapBy.MEASURE) ) {
 
         // Layer column
-        legendInfo.column = 'By ' + this.getFieldAlias(layer.color.column, layer.color.aggregationType);
+        legendInfo.column = 'By ' + ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[this.getUiMapOption().layerNum], layer.color.aggregationType);
 
         if( layer.color.ranges ) {
           _.each(layer.color.ranges, (range, index) => {
@@ -2223,7 +2231,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         }
         else {
 
-          if(this.data[num].valueRange && this.data[num].valueRange[this.getFieldAlias(layer.color.column, layer.color.aggregationType)]) {
+          if(this.data[num].valueRange && this.data[num].valueRange[ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[this.getUiMapOption().layerNum], layer.color.aggregationType)]) {
 
             const ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[num], this.getColorList(layer), num, this.shelf.layers[num]);
 
@@ -2332,7 +2340,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       featureList.push(feature.properties)
     });
 
-    let featuresGroup = _.groupBy(featureList, this.getFieldAlias(layer.color.column, layer.color.aggregationType));
+    let featuresGroup = _.groupBy(featureList, ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[this.getUiMapOption().layerNum], layer.color.aggregationType));
     _.each(Object.keys(featuresGroup), (column, index) => {
       let color = colorList[index % colorList.length];
       rangeList.push({column: column, color: color});
@@ -2590,27 +2598,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     } else {
       return 'rgba(255,255,255,1)';
     }
-  }
-
-  /**
-   * Get field name to alias
-   * @param name
-   */
-  private getFieldAlias(name: string, aggregationType?: string): string {
-
-    let alias: string = name;
-    _.each(this.shelf.layers, (shelf) => {
-      _.each(shelf, (field) => {
-        if( _.eq(name, field['name']) ) {
-          alias = ChartUtil.getAlias(field);
-          // if( aggregationType ) {
-          //   alias = aggregationType + "(" + alias +")";
-          // }
-          return false;
-        }
-      });
-    });
-    return alias;
   }
 
   /**

@@ -81,7 +81,7 @@
 
 /* 라이브러리 tooltip */
 .ol-viewport {overflow:inherit !important;}
-.ol-viewport .ol-overlaycontainer .ol-overlay-container.ol-selectable {z-index:1;}
+.ol-viewport .ol-overlaycontainer .ol-overlay-container.ol-selectable {z-index:15;}
 
 
 

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, ElementRef, Injector, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
 import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
 import {
   MapBy,
@@ -80,7 +80,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     this.rangesViewList = this.setRangeViewByDecimal(this.uiOption.layers[this.index].color['ranges']);
 
     // set min / max by decimal format
-    if (!_.isEmpty(this.uiOption.layers[this.index].color.column) && this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal && this.data.length > 0) {
+    if (!_.isEmpty(this.uiOption.layers[this.index].color.column) && this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal && this.data && this.data.length > 0) {
 
       let valueRange = _.cloneDeep(this.data[0]['valueRange'][this.getFieldAlias(this.uiOption.layers[this.index].color.column)]);
       if (valueRange) {
@@ -93,6 +93,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   // color template popup
   @ViewChild('colorTemplate')
   public colorTemplate: ColorTemplateComponent;
+
+  // set z index
+  @Output()
+  public setZIndex: EventEmitter<boolean> = new EventEmitter();
 
   public shelf: Shelf;
 
@@ -161,6 +165,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * @param {MapLayerType} layerType
    */
   public changeSymbolLayerType(layerType : MapLayerType) {
+
+    if (this.uiOption.layers[this.index].type === layerType) return;
 
     // deep copy layer type
     let cloneLayerType = _.cloneDeep(this.uiOption.layers[this.index].type);
@@ -373,6 +379,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
       } else {
         this.uiOption.layers[this.index].color.column = '';
+      }
+
+      const colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[this.index].color['schema']]);
+
+      // not heatmap => set ranges
+      if (MapLayerType.HEATMAP !== this.uiOption.layers[this.index].type && MapBy.MEASURE === this.uiOption.layers[this.index].color.by) {
+        this.uiOption.layers[this.index].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[0], colorList, this.index, this.shelf.layers[this.index], []);
       }
 
     } else if (MapBy.NONE === data['value']) {
@@ -1017,6 +1030,18 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     this.uiOption.layers[this.index].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[0], colorList, this.index, this.shelf.layers[this.index], rangeList);
 
     this.applyLayers();
+  }
+
+  /**
+   * toggle color palette
+   * @param {boolean} colorListFlag
+   */
+  public toggleColorPalette(colorListFlag: boolean) {
+
+    this.colorListFlag = colorListFlag;
+
+    // emit
+    this.setZIndex.emit(this.colorListFlag);
   }
 
   /**

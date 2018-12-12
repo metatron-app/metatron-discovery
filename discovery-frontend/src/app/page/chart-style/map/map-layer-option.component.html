@@ -145,8 +145,8 @@
                             *ngIf="'heatmap' === uiOption.layers[index].type.toString() || ('heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== uiOption.layers[index].color.by.toString())"
                             class="ddp-ui-colorby">
                             <!-- colorby button -->
-                            <div class="ddp-wrap-colorby-button" (click)="colorListFlag = !colorListFlag"
-                                 (clickOutside)="colorListFlag=false">
+                            <div class="ddp-wrap-colorby-button" (click)="toggleColorPalette(!colorListFlag)"
+                                 (clickOutside)="toggleColorPalette(false)">
                               <em class="ddp-icon-colorby"></em>
                               <!-- 클릭시 ddp-selected 추가 -->
                               <button
