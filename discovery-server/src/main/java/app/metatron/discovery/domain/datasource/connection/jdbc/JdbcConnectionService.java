@@ -1245,7 +1245,6 @@ public class JdbcConnectionService {
       jdbcCSVWriter.setQuery(queryString);
       jdbcCSVWriter.setFileName(tempFileName);
       jdbcCSVWriter.setFetchSize(fetchSize);
-      jdbcCSVWriter.setMaxRow(maxLimit);
       jdbcCSVWriter.setWithHeader(false);
     } catch (IOException e) {
     }
