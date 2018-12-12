@@ -12,6 +12,8 @@
  * limitations under the License.
  */
 
+//import {calcPossibleSecurityContexts} from "@angular/compiler/src/template_parser/binding_parser";
+
 declare let moment : any;
 import { isUndefined } from 'util';
 import { Alert } from '../../common/util/alert.util';
@@ -25,9 +27,7 @@ import { AbstractPopupComponent } from '../../common/component/abstract-popup.co
 import { DatasetService } from '../dataset/service/dataset.service';
 import { DataflowService } from '../dataflow/service/dataflow.service';
 import { PopupService } from '../../common/service/popup.service';
-//import { Compression, DataSnapshot, SsType } from '../../domain/data-preparation/data-snapshot';
 import { HiveFileCompression, Engine, PrDataSnapshot, SsType, StorageType } from '../../domain/data-preparation/pr-snapshot';
-//import { Field } from '../../domain/data-preparation/dataset';
 import { Field } from '../../domain/data-preparation/pr-dataset';
 
 @Component({
@@ -51,7 +51,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
   public fileFormat: any[];
 
-  //public snapshot: DataSnapshot;
   public snapshot: PrDataSnapshot;
 
   public SsType = SsType;
@@ -139,8 +138,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     this._initialiseValues();
 
     this.getConfig();
-    //this.getHiveDatabase();
-
 
   } // function - init
 
@@ -162,7 +159,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    */
   public complete() {
 
-    // validation..
     if ( (this.snapshot.ssType===SsType.URI && isUndefined(this.snapshot.uriFileFormat))
       || (this.snapshot.ssType===SsType.STAGING_DB && isUndefined(this.snapshot.hiveFileFormat))
     ) {
@@ -172,7 +168,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
     if (this.snapshot.ssType === SsType.STAGING_DB) {
 
-      //if( this.snapshot.mode === this.overwriteMethod[0].value && this.hiveTblUntested===true ) {
       if( this.snapshot.appendMode === this.overwriteMethod[0].value && this.hiveTblUntested===true ) {
         Alert.warning(this.translateService.instant('msg.dp.alert.wait.hive.table'));
         return;
@@ -188,11 +183,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         return;
       }
 
-      /*
-      if (isUndefined(this.snapshot.partKeys)) {
-        this.snapshot.partKeys = [];
-      }
-      */
       if (isUndefined(this.snapshot.partitionColNames)) {
         this.snapshot.partitionColNames = [];
       }
@@ -205,32 +195,19 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
       }
     }
 
-    //if (SsType.FILE === this.snapshot.ssType) {
     if (SsType.URI === this.snapshot.ssType) {
-      //this.snapshot.compression = Compression.NONE;
       this.snapshot.hiveFileCompression = HiveFileCompression.NONE;
-      //this.snapshot.engine = "EMBEDDED";
       this.snapshot.engine = Engine.EMBEDDED;
-
       // 변경한 게 없으면 보내지 않음
       for(let idx=0;idx<this.fileLocations.length;idx++) {
-        //if( this.snapshot.location == this.fileLocations[idx].value ) {
         if( this.snapshot.storageType == this.fileLocations[idx].value ) {
-          //if( this.snapshot.uri == this.fileUris[idx] ) {
           if( this.snapshot.storedUri == this.fileUris[idx] ) {
-            //delete this.snapshot.uri;
             delete this.snapshot.storedUri;
           }
           break;
         }
       }
 
-      /*
-      if ('HDFS' === this.snapshot.location) {
-        this.snapshot.ssType = SsType.HDFS;
-      }
-      delete this.snapshot.location
-      */
     }
 
     this.loadingShow();
@@ -260,7 +237,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * When snapshot Name change, modfiy file type uris
    * */
   public chnageSSUri(){
-    //if(this.snapshot.uri && this.snapshot.uri.lastIndexOf("/") > 0) this.snapshot.uri = this.snapshot.uri.substring(0,this.snapshot.uri.lastIndexOf("/")+1)  +  this.snapshot.ssName;
     if(this.snapshot.storedUri && this.snapshot.storedUri.lastIndexOf("/") > 0) this.snapshot.storedUri = this.snapshot.storedUri.substring(0,this.snapshot.storedUri.lastIndexOf("/")+1)  +  this.snapshot.ssName;
   }
 
@@ -271,22 +247,28 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * */
   public onSelected(event,type) {
     this.snapshot[type] = event.value;
-    if ('EMBEDDED' === event.value) {
-      //this.snapshot.format = this.hiveEmbeddedFormat[0].value;
-      this.snapshot.hiveFileFormat = this.hiveEmbeddedFormat[0].value;
-    }
-    if (type=='location') {
-      for(let idx=0;idx<this.fileLocations.length;idx++) {
-        if( event.value==this.fileLocations[idx].value ) {
-          //this.snapshot.location = this.fileLocations[idx].value;
-          this.snapshot.storageType = this.fileLocations[idx].value;
-          //this.snapshot.uri = this.fileUris[idx];
-          this.snapshot.storedUri = this.fileUris[idx];
-          this.chnageSSUri();
-          break;
+    switch (type){
+      case 'engine':
+        if ('EMBEDDED' === event.value) {
+          this.snapshot.hiveFileFormat = this.hiveEmbeddedFormat[0].value;
         }
-      }
+        break;
+      case 'format':
+        if ( this.snapshot.ssType && this.snapshot.ssType === SsType.URI) this.snapshot.uriFileFormat = event.value;
+        if ( this.snapshot.ssType && this.snapshot.ssType === SsType.STAGING_DB) this.snapshot.hiveFileFormat = event.value;
+        break;
+      case 'location':
+        for(let idx=0;idx<this.fileLocations.length;idx++) {
+          if( event.value==this.fileLocations[idx].value ) {
+            this.snapshot.storageType = this.fileLocations[idx].value;
+            this.snapshot.storedUri = this.fileUris[idx];
+            this.chnageSSUri();
+            break;
+          }
+        }
+        break;
     }
+
   } // function - onSelected
 
 
@@ -303,11 +285,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * @param item
    */
   public onPartitionSelected(item) {
-    /*
-    this.snapshot.partKeys = item.map(function(x) {
-      return x.name;
-    });
-    */
     this.snapshot.partitionColNames = item.map(function(x) {
       return x.name;
     });
@@ -320,7 +297,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    */
   public changeSsType(sstype : SsType) {
 
-    //this.snapshot = new DataSnapshot();
     this.snapshot = new PrDataSnapshot();
     //let today = moment();
     //this.snapshot.ssName = `${this.datasetName}_${today.format('YYYYMMDDHHmmss')}`;
@@ -330,12 +306,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     if (!this.isHiveDisable && sstype === SsType.STAGING_DB) {
       this.snapshot.dbName = this.dbList[0];
       this.snapshot.tblName = 'snapshot1';
-      /*
-      this.snapshot.mode = this.overwriteMethod[0].value;
-      this.snapshot.engine = this.engineList[0].value;
-      this.snapshot.format = this.hiveEmbeddedFormat[0].value;
-      this.snapshot.compression = this.compressionType[0].value;
-      */
       this.snapshot.appendMode = this.overwriteMethod[0].value;
       this.snapshot.engine = this.engineList[0].value;
       this.snapshot.hiveFileFormat = this.hiveEmbeddedFormat[0].value;
@@ -344,20 +314,14 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
       this.hiveTblExist = false;
       this.hiveTblUntested = false;
 
-    //} else if (sstype === 'FILE') {
     } else if (sstype === SsType.URI) {
 
       delete this.snapshot.elapsedTime;
       // delete this.snapshot.location;
       delete this.snapshot.dbName;
 
-      /*
-      this.snapshot.ssType = SsType.FILE;
-      this.snapshot.format = this.fileFormat[0].value;
-      */
       this.snapshot.uriFileFormat = this.fileFormat[0].value;
 
-      //this.snapshot.location = this.fileLocations[0].value;
       if(0<this.fileLocations.length) {
         let idx = this.fileLocations.findIndex((item) => {
           return item.value.toUpperCase() === 'LOCAL';
@@ -366,9 +330,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         if (idx === -1) {
           idx = 0;
         }
-        //this.snapshot.location = this.fileLocations[idx].value;
         this.snapshot.storageType = this.fileLocations[idx].value;
-        //this.snapshot.uri = this.fileUris[idx];
         this.snapshot.storedUri = this.fileUris[idx];
         this.fileLocationDefaultIdx = idx;
       }
@@ -407,9 +369,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
               this.fileUris.push( conf['file_uri'][locType] );
             }
             if(0<this.fileLocations.length) {
-              //this.snapshot.location = this.fileLocations[0].value;
               this.snapshot.storageType = this.fileLocations[0].value;
-              //this.snapshot.uri = this.fileUris[0];
               this.snapshot.storedUri = this.fileUris[0];
             }
           }
@@ -439,7 +399,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
           } else {
             this.isHiveDisable = true;
           }
-          //this.changeSsType('FILE');
+
           this.changeSsType(SsType.URI);
           this.loadingHide();
         })
@@ -449,33 +409,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
           PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
         });
   }
-
-  /**
-   * 데이터베이스 리스트 가져오기
-   */
-  public getHiveDatabase() {
-
-    this.loadingShow();
-    this.datasetService.getStagingConnectionInfo().then((data) => {
-      this.loadingHide();
-      this.datasetService.setConnInfo(data);
-      this.datasetService.getStagingSchemas().then((data) => {
-        this.dbList = data;
-        this.snapshot.dbName = data[0];
-        if (this.dbList.length === 0 ) {
-          this.isHiveDisable = true;
-        }
-        this.loadingHide();
-      }).catch(() => {
-        this.isHiveDisable = true;
-        this.loadingHide();
-      });
-    }).catch(()=> {
-      this.loadingHide();
-      this.isHiveDisable = true;
-    });
-
-  } // function - getHiveDatabase
 
   /**
    * Make snapshot with enter key
@@ -514,7 +447,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    */
   private _initialiseValues() {
 
-    //this.snapshot = new DataSnapshot();
     this.snapshot = new PrDataSnapshot();
 
     // -------------------
