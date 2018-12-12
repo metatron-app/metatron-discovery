@@ -130,6 +130,8 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   @Output()
   public goToSelectField: EventEmitter<any> = new EventEmitter();
 
+  public useAll:boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -224,6 +226,13 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
       this.targetFilter = targetFilter;
       this._targetField = targetField;
       this._board = board;
+
+      // 전체 선택 기능 체크 및 전체 선택 기능이 비활성 일떄, 초기값 기본 선택 - for Essential Filter
+      this.useAll = !( -1 < targetField.filteringSeq );
+      if( false === this.useAll && 0 === this._selectedValues.length ) {
+        this._selectedValues.push( this._candidateList[0] );
+      }
+
       this.isShow = true;
       this.safelyDetectChanges();
       this.loadingHide();
@@ -592,7 +601,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    * @return {boolean}
    */
   public isCheckedAllItem(): boolean {
-    if (this.isSingleSelect(this.targetFilter)) {
+    if (this.useAll && this.isSingleSelect(this.targetFilter)) {
       return 0 === this._selectedValues.length
     } else {
       return this._candidateList.length === this._selectedValues.length;

@@ -191,6 +191,7 @@ export class DashboardService extends AbstractService {
           delete boardConf.dataSource.engineName;
           delete boardConf.dataSource.uiFields;
           delete boardConf.dataSource.metaDataSource;
+          delete boardConf.dataSource['orgDataSource'];
           if (boardConf.dataSource.dataSources) {
             boardConf.dataSource.dataSources.forEach(item => {
               delete item.uiFields;

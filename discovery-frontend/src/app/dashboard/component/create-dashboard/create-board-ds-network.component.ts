@@ -133,8 +133,6 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     this.subscriptions.push(
       this.broadCaster.on('CREATE_BOARD_REMOVE_DS').subscribe((data: { dataSourceId: string }) => {
         this.selectedDataSource = null;
-        const removeIdx: number = this._dataSources.findIndex(item => item.id === data.dataSourceId);
-        this._dataSources.splice(removeIdx, 1);
         this._removeDataSource(data.dataSourceId);
       })
     );
@@ -180,11 +178,11 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     this.subscriptions.push(
       this.broadCaster.on('CREATE_BOARD_RE_INGESTION').subscribe((data: { dataSource: BoardDataSource }) => {
         this._clearSelection();
-        const dataSource: BoardDataSource = BoardDataSource.convertDsToMetaDs(data.dataSource.metaDataSource);
-        dataSource.temporary = false;
-        dataSource.engineName = dataSource.name;
-        dataSource.type = 'default';
-        this.candidateIngestionList.push(dataSource);
+        // const dataSource: BoardDataSource = BoardDataSource.convertDsToMetaDs(data.dataSource.metaDataSource);
+        // dataSource.temporary = false;
+        // dataSource.engineName = dataSource.name;
+        // dataSource.type = 'default';
+        this.candidateIngestionList.push(data.dataSource['orgDataSource']);
         this._showDataIngestion();
       })
     );
@@ -397,8 +395,6 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
 
     if (data.remove) {
       data.remove.forEach(id => {
-        const removeIdx: number = this._dataSources.findIndex(item => item.id === id);
-        this._dataSources.splice(removeIdx, 1);
         this._removeDataSource(id);
       });
     }
@@ -481,8 +477,14 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     dataSource.metaDataSource = tempDatasource.info;
     dataSource.uiFilters = tempDatasource.filters;
     dataSource['temporaryId'] = tempDatasource.id;
+    dataSource['orgDataSource'] = this.ingestionTargetDatasource;
 
-    this._dataSources.push(tempDatasource.info);
+    const targetIdx: number = this._dataSources.findIndex(item => item.id === dataSource.id);
+    if( -1 < targetIdx ) {
+      this._dataSources[targetIdx] = tempDatasource.info;
+    } else {
+      this._dataSources.push(tempDatasource.info);
+    }
     this._addDataSource(dataSource);
 
     // 다음 예정 데이터소스 표시
@@ -672,10 +674,15 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
    * @private
    */
   private _removeDataSource(dataSourceId: string) {
+
+    // 데이터소스 삭제
+    const dsRemoveIdx: number = this._dataSources.findIndex(item => item.id === dataSourceId);
+    ( dsRemoveIdx ) && (this._dataSources.splice(dsRemoveIdx, 1));
+
     // 네트워크 노드 삭제
     this._nodes.remove({ id: dataSourceId });
 
-    // 데이터 소스 삭제
+    // 보드 데이터 소스 삭제
     const removeIdx = this._boardDataSources.findIndex(item => item.id === dataSourceId);
     (-1 < removeIdx) && (this._boardDataSources.splice(removeIdx, 1));
 
