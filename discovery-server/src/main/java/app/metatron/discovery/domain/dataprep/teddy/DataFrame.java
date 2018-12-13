@@ -767,6 +767,10 @@ public class DataFrame implements Serializable, Transformable {
           resultType = ColumnType.LONG;
           assertArgsEq(2, args, func);
           break;
+        case "time_between":
+          resultType = ColumnType.BOOLEAN;
+          assertArgsEq(3, args, func);
+          break;
         case "timestamp":
           resultType = ColumnType.TIMESTAMP;
           assertArgsEq(2, args, func);

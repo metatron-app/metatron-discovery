@@ -49,6 +49,7 @@ public class Histogram implements Serializable {
   public String colName;              // only for debugging
 
   public List<String> labels;
+  public List<String> timestampLabels;
   public Integer distinctValCount;    // 몇 개의 구분값이 있는지 기록 (N categories)
 
   public List<Integer> counts;        // 각 label에 해당되는 개수
@@ -75,6 +76,7 @@ public class Histogram implements Serializable {
   public Histogram() {
     // JSON으로 serialize되려면 기본 생성자에서 collection을 초기화해줘야 한다.
     labels = new ArrayList<>();
+    timestampLabels = new ArrayList<>();
     counts = new ArrayList<>();
     rownos = new ArrayList<>();
     missingRows = new ArrayList<>();
@@ -619,6 +621,7 @@ public class Histogram implements Serializable {
     int i = 0;
     for (/* NOP */; i < tsLabels.size(); i++) {
       labels.add(getBestFormatter(min, max).print(tsLabels.get(i)));
+      timestampLabels.add(tsLabels.get(i).toString());
     }
   }
 
