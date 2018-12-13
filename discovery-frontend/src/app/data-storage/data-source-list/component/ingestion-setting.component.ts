@@ -736,6 +736,13 @@ export class IngestionSettingComponent extends AbstractComponent {
     } else if (this._format.type === FieldFormatType.UNIX_TIME) { // if exist format, UNIX_TIME type
       // set segment granularity HOUR
       this.selectedSegmentGranularity = this.segmentGranularityList[2];
+      // set query granularity SECOND
+      this.selectedQueryGranularity = this.segmentGranularityList[0];
+    } else { // default
+      // set segment granularity HOUR
+      this.selectedSegmentGranularity = this.segmentGranularityList[2];
+      // set query granularity SECOND
+      this.selectedQueryGranularity = this.segmentGranularityList[0];
     }
     // init query granularity list
     this._updateQueryGranularityList(this.selectedSegmentGranularity);
