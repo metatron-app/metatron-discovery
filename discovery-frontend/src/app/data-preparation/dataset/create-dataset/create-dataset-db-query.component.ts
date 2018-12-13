@@ -451,7 +451,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
         this.loadingHide();
         if (result.hasOwnProperty('errorMsg')) {
-          this.queryErrorMsg = this.translateService.instant('msg.dp.ui.invalid.conn');
+          this.queryErrorMsg = this.translateService.instant('msg.storage.ui.invalid.query');
           this.clickable = false;
           this.datasetJdbc.sqlInfo.valid = false;
           this._deleteGridInfo(this.datasetJdbc.rsType);
@@ -481,7 +481,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         this.showQueryStatus = true;
         this.isQuerySuccess = false;
         this.clearGrid = true;
-        this.queryErrorMsg = this.translateService.instant('msg.dp.ui.invalid.conn');
+        this.queryErrorMsg = this.translateService.instant('msg.storage.ui.invalid.query');
         this.clickable = false;
 
       });

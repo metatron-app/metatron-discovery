@@ -398,7 +398,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       this.loadingHide();
       if (result.hasOwnProperty('errorMsg')) {
         this.showQueryStatus = true;
-        this.queryErrorMsg = this.translateService.instant('msg.dp.ui.invalid.conn');
+        this.queryErrorMsg = this.translateService.instant('msg.storage.ui.invalid.query');
         this.clickable = false;
         this.datasetHive.sqlInfo.valid = false;
         this._deleteGridInfo(this.datasetHive.rsType);
@@ -424,7 +424,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
       this.loadingHide();
       this.showQueryStatus = true;
-      this.queryErrorMsg = this.translateService.instant('msg.dp.ui.invalid.conn');
+      this.queryErrorMsg = this.translateService.instant('msg.storage.ui.invalid.query');
       this.clickable = false;
       this.datasetHive.sqlInfo.valid = false;
       this.gridComponent.destroy();
