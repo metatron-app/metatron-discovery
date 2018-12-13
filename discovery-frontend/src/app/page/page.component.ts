@@ -396,6 +396,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   // dimension / measure / parameter 구분값
   public columnType: string;
 
+  // set z-index class in map
+  public panelZIndex: boolean = false;
+
   get widgetConfiguration(): PageWidgetConfiguration {
     return <PageWidgetConfiguration>this.widget.configuration;
   }
@@ -3242,6 +3245,14 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // set disable class
     return true;
+  }
+
+  /**
+   * set z-index class in map
+   * @param event
+   */
+  public onSetZIndex(value: any) {
+    this.panelZIndex = value;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
