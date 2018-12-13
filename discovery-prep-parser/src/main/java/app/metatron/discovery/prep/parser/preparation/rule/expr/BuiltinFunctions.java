@@ -950,6 +950,22 @@ public interface BuiltinFunctions extends Function.Library {
       }
     }
 
+    class TimeBetweenFunc implements Function {
+      @Override
+      public String name() {
+        return "time_between";
+      }
+
+      @Override
+      public boolean validate(List<Expr> args) {
+        if (args.size() != 3) {
+          LOGGER.warn("function 'time_diff' needs 2 argument");
+          return false;
+        }
+        return true;
+      }
+    }
+
     class TimestampFunc implements Function {
       @Override
       public String name() {
