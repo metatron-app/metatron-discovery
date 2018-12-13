@@ -78,6 +78,9 @@ public class DataConnectionProjections {
 
     @Value("#{@jdbcConnectionService.getConnectionInformation(target)}")
     Object getConnectionInformation();
+
+    @Value("#{target instanceof T(app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection) ? target.supportPersonalDatabase : null}")
+    Boolean isSupportPersonalDatabase();
   }
 
   @Projection(name = "forSimpleListView", types = { DataConnection.class })

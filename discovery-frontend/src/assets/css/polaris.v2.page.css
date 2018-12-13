@@ -6897,6 +6897,8 @@ ul.ddp-list-table li em.ddp-icon-tableinfo.ddp-selected:before  {background-posi
 ul.ddp-list-table li em.ddp-icon-tableinfo.ddp-disabled {cursor:no-drop;}
 ul.ddp-list-table li em.ddp-icon-tableinfo.ddp-disabled:before,
 ul.ddp-list-table li em.ddp-icon-tableinfo.ddp-disabled:hover:before {background-position:left top;}
+ul.ddp-list-table li div.ddp-btn-control {display: none;}
+ul.ddp-list-table li:hover .ddp-btn-control {display: inline;}
 
 	/* 팝업 */
 .ddp-box-layout4 {position:relative; width:211px; border-radius:2px; border:1px solid #ddd; background-color:#fff; z-index:1; box-sizing:border-box;

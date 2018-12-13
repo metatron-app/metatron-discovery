@@ -15,6 +15,8 @@
 package app.metatron.discovery.domain.datasource.connection;
 
 import app.metatron.discovery.fixture.HiveTestFixture;
+import app.metatron.discovery.TestJdbcUtils;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
 import com.google.common.collect.Maps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,14 +25,25 @@ import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hive.jdbc.HiveDriver;
 import org.apache.http.HttpStatus;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.util.Assert;
 
+import java.io.ByteArrayInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +61,7 @@ import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformati
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 
@@ -94,12 +108,12 @@ import static org.hamcrest.Matchers.hasSize;
 
     // @formatter:off
     Response createResponse =
-    given()
-      .auth().oauth2(oauth_token)
-      .body(reqBody)
-      .contentType(ContentType.JSON)
-    .when()
-      .post("/api/connections");
+        given()
+            .auth().oauth2(oauth_token)
+            .body(reqBody)
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/api/connections");
 
     String connId = from(createResponse.asString()).get("id");
 
@@ -2472,4 +2486,119 @@ import static org.hamcrest.Matchers.hasSize;
     assertThat(databases.get(0)).isEqualTo("metatron_test_db");
   }
 
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql({"/sql/test_dataconnection.sql"})
+  public void deleteTableInDatabase() throws SQLException, ClassNotFoundException {
+    // given
+    final String webSocketId = "test-ws";
+    final String hdfsConfPath = "/tmp/hdfs-conf";
+    final String loginUserId = "polaris";
+    final String personalDatabasePrefix = "private";
+
+    HiveConnection hiveConnection = new HiveConnection();
+    hiveConnection.setUsername("read_only");
+    hiveConnection.setPassword("1111");
+    hiveConnection.setHostname("localhost");
+    hiveConnection.setPort(10000);
+    hiveConnection.setProperties("{" +
+        "  \"metatron.hdfs.conf.path\": \"" + hdfsConfPath + "\"," +
+        "  \"metatron.hive.admin.name\": \"hive_admin\"," +
+        "  \"metatron.hive.admin.password\": \"1111\"," +
+        "  \"metatron.personal.database.prefix\": \"" + personalDatabasePrefix + "\"" +
+        "}");
+    WorkbenchDataSourceUtils.createDataSourceInfo(hiveConnection, webSocketId, hiveConnection.getUsername(), hiveConnection.getPassword(), false);
+
+    final String personalDatabase = String.format("%s_%s", personalDatabasePrefix, loginUserId);
+
+    cleanUpHivePersonalDatabaseTestFixture(createHiveJdbcConnection(hiveConnection), personalDatabase);
+    createDummyTableHivePersonalDatabase(createHiveJdbcConnection(hiveConnection), personalDatabase);
+
+    final String connectionId = "hive-local-enable-personal-database";
+    final String table = "dummy";
+
+    // REST when/then
+    given()
+        .auth().oauth2(oauth_token)
+        .param("webSocketId", webSocketId)
+        .log().all()
+    .when()
+        .delete("/api/connections/{connectionId}/databases/{personalDatabase}/tables/{table}", connectionId, personalDatabase, table)
+    .then()
+        .statusCode(HttpStatus.SC_NO_CONTENT)
+        .log().all();
+
+  }
+
+  private Connection createHiveJdbcConnection(HiveConnection hiveConnection) throws SQLException, ClassNotFoundException {
+    final String URL = String.format("jdbc:hive2://%s:%s", hiveConnection.getHostname(), hiveConnection.getPort());
+    Class.forName(HiveDriver.class.getName());
+    return DriverManager.getConnection(URL,
+        hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_ADMIN_NAME),
+        hiveConnection.getPropertiesMap().get(HiveConnection.PROPERTY_KEY_ADMIN_PASSWORD));
+  }
+
+  private void cleanUpHivePersonalDatabaseTestFixture(Connection conn, String personalDatabase) {
+    StringBuffer script = new StringBuffer();
+    script.append(String.format("DROP DATABASE IF EXISTS %s CASCADE;", personalDatabase));
+
+    TestJdbcUtils.executeSqlScript(conn, script.toString());
+  }
+
+  private void createDummyTableHivePersonalDatabase(Connection conn, String personalDatabase) {
+    StringBuffer script = new StringBuffer();
+    script.append(String.format("CREATE DATABASE %s;", personalDatabase));
+    script.append(String.format("CREATE TABLE %s.dummy (eid INT, name STRING);", personalDatabase));
+
+    TestJdbcUtils.executeSqlScript(conn, script.toString());
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql({"/sql/test_dataconnection.sql"})
+  public void renameTableInDatabase() throws SQLException, ClassNotFoundException {
+    // given
+    final String webSocketId = "test-ws";
+    final String hdfsConfPath = "/tmp/hdfs-conf";
+    final String loginUserId = "polaris";
+    final String personalDatabasePrefix = "private";
+
+    HiveConnection hiveConnection = new HiveConnection();
+    hiveConnection.setUsername("read_only");
+    hiveConnection.setPassword("1111");
+    hiveConnection.setHostname("localhost");
+    hiveConnection.setPort(10000);
+    hiveConnection.setProperties("{" +
+        "  \"metatron.hdfs.conf.path\": \"" + hdfsConfPath + "\"," +
+        "  \"metatron.hive.admin.name\": \"hive_admin\"," +
+        "  \"metatron.hive.admin.password\": \"1111\"," +
+        "  \"metatron.personal.database.prefix\": \"" + personalDatabasePrefix + "\"" +
+        "}");
+    WorkbenchDataSourceUtils.createDataSourceInfo(hiveConnection, webSocketId, hiveConnection.getUsername(), hiveConnection.getPassword(), false);
+
+    final String personalDatabase = String.format("%s_%s", personalDatabasePrefix, loginUserId);
+
+    cleanUpHivePersonalDatabaseTestFixture(createHiveJdbcConnection(hiveConnection), personalDatabase);
+    createDummyTableHivePersonalDatabase(createHiveJdbcConnection(hiveConnection), personalDatabase);
+
+    final String connectionId = "hive-local-enable-personal-database";
+    final String table = "dummy";
+
+    // REST when/then
+    final String requestBody = "{" +
+        "  \"webSocketId\": \"" + webSocketId + "\"," +
+        "  \"table\": \"renamedTable\"" +
+        "}";
+
+    given()
+        .auth().oauth2(oauth_token)
+        .contentType(ContentType.JSON)
+        .body(requestBody)
+        .log().all()
+    .when()
+        .put("/api/connections/{connectionId}/databases/{personalDatabase}/tables/{table}", connectionId, personalDatabase, table)
+    .then()
+        .statusCode(HttpStatus.SC_NO_CONTENT)
+        .log().all();
+  }
 }

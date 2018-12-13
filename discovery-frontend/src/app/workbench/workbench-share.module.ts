@@ -12,24 +12,25 @@
  * limitations under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CreateWorkbenchSelectComponent } from './component/create-workbench/create-workbench-select/create-workbench-select.component';
-import { CreateWorkbenchCompleteComponent } from './component/create-workbench/create-workbench-complete/create-workbench-complete.component';
-import { CreateWorkbenchComponent } from './component/create-workbench/create-workbench.component';
-import { WorkbenchService } from './service/workbench.service';
-import { DataconnectionService } from '../dataconnection/service/dataconnection.service';
-import { CommonModule } from '../common/common.module';
-import { DetailWorkbenchDataconnectionInfo } from './component/detail-workbench/detail-workbench-dataconnection-info/detail-workbench-dataconnection-info';
-import { DetailWorkbenchDatabase } from './component/detail-workbench/detail-workbench-database/detail-workbench-database';
-import { DetailWorkbenchTable } from './component/detail-workbench/detail-workbench-table/detail-workbench-table';
-import { DetailWorkbenchNavigation } from './component/detail-workbench/detail-workbench-navigation/detail-workbench-navigation';
-import { DetailWorkbenchHistory } from './component/detail-workbench/detail-workbench-history/detail-workbench-history';
-import { DetailWorkbenchVariable } from './component/detail-workbench/detail-workbench-variable/detail-workbench-variable';
-import { DetailWorkbenchTableInfoDesc } from './component/detail-workbench/detail-workbench-table-info-desc/detail-workbench-table-info-desc';
-import { DetailWorkbenchTableInfoSchema } from './component/detail-workbench/detail-workbench-table-info-schema/detail-workbench-table-info-schema';
-import { WorkbenchLoginComponent } from './component/detail-workbench/workbench-login/workbench-login.component';
-import { DetailWorkbenchTabComponent } from './component/detail-workbench/detail-workbench-tab/detail-workbench-tab.component';
-import { DetailWorkbenchSchemaBrowserComponent } from './component/detail-workbench/detail-workbench-schema-browser/detail-workbench-schema-browser.component';
+import {NgModule} from '@angular/core';
+import {CreateWorkbenchSelectComponent} from './component/create-workbench/create-workbench-select/create-workbench-select.component';
+import {CreateWorkbenchCompleteComponent} from './component/create-workbench/create-workbench-complete/create-workbench-complete.component';
+import {CreateWorkbenchComponent} from './component/create-workbench/create-workbench.component';
+import {WorkbenchService} from './service/workbench.service';
+import {DataconnectionService} from '../dataconnection/service/dataconnection.service';
+import {CommonModule} from '../common/common.module';
+import {DetailWorkbenchDataconnectionInfo} from './component/detail-workbench/detail-workbench-dataconnection-info/detail-workbench-dataconnection-info';
+import {DetailWorkbenchDatabase} from './component/detail-workbench/detail-workbench-database/detail-workbench-database';
+import {DetailWorkbenchTable} from './component/detail-workbench/detail-workbench-table/detail-workbench-table';
+import {DetailWorkbenchNavigation} from './component/detail-workbench/detail-workbench-navigation/detail-workbench-navigation';
+import {DetailWorkbenchHistory} from './component/detail-workbench/detail-workbench-history/detail-workbench-history';
+import {DetailWorkbenchVariable} from './component/detail-workbench/detail-workbench-variable/detail-workbench-variable';
+import {DetailWorkbenchTableInfoDesc} from './component/detail-workbench/detail-workbench-table-info-desc/detail-workbench-table-info-desc';
+import {DetailWorkbenchTableInfoSchema} from './component/detail-workbench/detail-workbench-table-info-schema/detail-workbench-table-info-schema';
+import {WorkbenchLoginComponent} from './component/detail-workbench/workbench-login/workbench-login.component';
+import {DetailWorkbenchTabComponent} from './component/detail-workbench/detail-workbench-tab/detail-workbench-tab.component';
+import {DetailWorkbenchSchemaBrowserComponent} from './component/detail-workbench/detail-workbench-schema-browser/detail-workbench-schema-browser.component';
+import {RenameTableComponent} from "./component/detail-workbench/detail-workbench-table/rename-table/rename-table.component";
 
 
 @NgModule({
@@ -52,7 +53,8 @@ import { DetailWorkbenchSchemaBrowserComponent } from './component/detail-workbe
     DetailWorkbenchTableInfoDesc,
     WorkbenchLoginComponent,
     DetailWorkbenchTabComponent,
-    DetailWorkbenchSchemaBrowserComponent
+    DetailWorkbenchSchemaBrowserComponent,
+    RenameTableComponent
   ],
   // 서비스
   providers: [

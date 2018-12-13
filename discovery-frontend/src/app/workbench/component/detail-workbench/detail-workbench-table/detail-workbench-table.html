@@ -61,6 +61,10 @@
           <!-- 클릭시 ddp-selected 추가 -->
           <!--<em class="ddp-icon-info" [ngClass]="{'ddp-disabled':disable}" id="info{{index}}" (click)="showTableInfo(item, index)"></em>-->
           <!-- 클릭시 ddp-selected 추가 -->
+          <div class="ddp-btn-control" *ngIf="isPersonalDatabase">
+            <em class="ddp-icon-control-edit" (click)="openModalRenameTableInPersonalDatabase(item); $event.stopPropagation();"></em>
+            <em class="ddp-icon-control-cut" (click)="openModalDeleteTableInPersonalDatabase(item); $event.stopPropagation();"></em>
+          </div>
           <em class="ddp-icon-tableinfo" [ngClass]="{'ddp-disabled':disable}" id="tableInfo{{index}}" (click)="showTableSchemaInfo(item, index)"></em>
         </div>
         <!-- //버튼 -->
@@ -98,3 +102,12 @@
   [exclude]="'.ddp-icon-info'">
 </detail-workbench-table-info-desc>
 
+<app-delete-modal (deleteConfirm)="deleteTableInPersonalDatabase()"></app-delete-modal>
+
+<app-rename-table *ngIf="showRenameTableModal"
+                  [webSocketId]="webSocketId"
+                  [dataConnectionId]="dataConnectionId"
+                  [database]="database"
+                  [renameTable]="renameTable"
+                  (close)="showRenameTableModal = false"
+                  (renameSucceed)="renameTableSucceed()"></app-rename-table>

@@ -676,6 +676,10 @@
   "msg.bench.alert.invalid-hive-name-rule": "{{value}} Only numbers, alphabets, and underscores are allowed",
   "msg.bench.alert.already-exists-table": "The table already exists.",
   "msg.bench.ui.import-file.title": "Import file to personal database",
+  "msg.bench.ui.delete.table.title": "Delete table",
+  "msg.bench.ui.delete.table.description": "Are you sure you want to delete {{value}} table?",
+  "msg.bench.ui.rename.table.title": "Rename table",
+  "msg.bench.alert.invalid-table-name": "The table name you are trying to change is the same as the current table name.",
 
   "msg.nbook.alert.input.name": "Please enter notebook name",
   "msg.nbook.alert.input.description": "Please enter notebook description",

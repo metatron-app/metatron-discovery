@@ -676,6 +676,10 @@
   "msg.bench.alert.invalid-hive-name-rule": "{{value}}은 숫자와 알파벳 그리고 언더 스코어(_)만 허용됩니다",
   "msg.bench.alert.already-exists-table": "이미 테이블이 존재 합니다",
   "msg.bench.ui.import-file.title": "개인 데이터베이스로 파일 불러오기",
+  "msg.bench.ui.delete.table.title": "테이블 삭제",
+  "msg.bench.ui.delete.table.description": "{{value}} 테이블을 삭제하시겠습니까?",
+  "msg.bench.ui.rename.table.title": "테이블 이름 변경",
+  "msg.bench.alert.invalid-table-name": "변경하려고 하는 테이블명이 현재 테이블명과 동일 합니다.",
 
   "msg.nbook.alert.input.name": "노트북 이름을 입력해 주세요",
   "msg.nbook.alert.input.description": "노트북 설명을 입력해 주세요",

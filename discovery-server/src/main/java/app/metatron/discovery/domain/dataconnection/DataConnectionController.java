@@ -392,6 +392,70 @@ public class DataConnectionController {
     );
   }
 
+  @RequestMapping(value = "/connections/{connectionId}/databases/{databaseName}/tables/{tableName}", method = RequestMethod.DELETE)
+  public @ResponseBody ResponseEntity<?> deleteTableInDatabase(
+      @PathVariable("connectionId") String connectionId,
+      @PathVariable("databaseName") String database,
+      @PathVariable("tableName") String table,
+      @RequestParam(value = "webSocketId") String webSocketId) {
+    DataConnection connection = connectionRepository.findOne(connectionId);
+    if(connection == null) {
+      throw new ResourceNotFoundException(connectionId);
+    }
+
+    SingleConnectionDataSource connectionDataSource = getConnectionDataSourceFromWebSocket(connection, database, webSocketId);
+
+    final String sql = String.format("DROP TABLE %s.%s", database, table);
+    connectionService.ddlQuery((JdbcDataConnection)connection, connectionDataSource, sql);
+
+    return ResponseEntity.noContent().build();
+  }
+
+  @RequestMapping(value = "/connections/{connectionId}/databases/{databaseName}/tables/{tableName}", method = RequestMethod.PUT)
+  public @ResponseBody ResponseEntity<?> renameTableInDatabase(
+      @PathVariable("connectionId") String connectionId,
+      @PathVariable("databaseName") String database,
+      @PathVariable("tableName") String table,
+      @RequestBody RenameDatabaseTable renameTable) {
+    DataConnection connection = connectionRepository.findOne(connectionId);
+    if(connection == null) {
+      throw new ResourceNotFoundException(connectionId);
+    }
+
+    SingleConnectionDataSource connectionDataSource = getConnectionDataSourceFromWebSocket(connection, database, renameTable.getWebSocketId());
+
+    final String sql = String.format("ALTER TABLE %s.%s RENAME TO %s.%s", database, table, database, renameTable.getTable());
+    connectionService.ddlQuery((JdbcDataConnection)connection, connectionDataSource, sql);
+
+    return ResponseEntity.noContent().build();
+  }
+
+  private SingleConnectionDataSource getConnectionDataSourceFromWebSocket(DataConnection connection, String database, String webSocketId) {
+    WorkbenchDataSource dataSourceInfo = WorkbenchDataSourceUtils.findDataSourceInfo(webSocketId);
+    if(connection instanceof JdbcDataConnection) {
+      SingleConnectionDataSource connectionDataSource;
+      if(connection instanceof HiveConnection) {
+        HiveConnection hiveConnection = (HiveConnection)connection;
+
+        if(hiveConnection.isSupportPersonalDatabase()) {
+          if(hiveConnection.isOwnPersonalDatabase(AuthUtils.getAuthUserName(), database)) {
+            connectionDataSource = dataSourceInfo.getSecondarySingleConnectionDataSource();
+          } else {
+            throw new MetatronException(GlobalErrorCodes.BAD_REQUEST_CODE, String.format("%s database is not %s", database, AuthUtils.getAuthUserName()));
+          }
+        } else {
+          throw new MetatronException(GlobalErrorCodes.BAD_REQUEST_CODE, String.format("%s connection is not supported", connection.getId()));
+        }
+      } else {
+        connectionDataSource = dataSourceInfo.getSingleConnectionDataSource();
+      }
+
+      return connectionDataSource;
+    } else {
+      throw new MetatronException(GlobalErrorCodes.BAD_REQUEST_CODE, String.format("%s connection is not supported", connection.getId()));
+    }
+  }
+
   @RequestMapping(value = "/connections/{connectionId}/databases/{databaseName}/tables/{tableName}/columns",
           method = RequestMethod.GET,  produces = "application/json")
   public @ResponseBody ResponseEntity<?> queryForListOfDatabasesByConnectionid(
