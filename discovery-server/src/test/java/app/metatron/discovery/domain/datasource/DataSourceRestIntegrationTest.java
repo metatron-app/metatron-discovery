@@ -93,6 +93,7 @@ import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJobIntegra
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoPointFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TemporaryTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
@@ -272,6 +273,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     TestUtils.printTestTitle("1. add DataSource with Fields include filteringOption property");
 
     Field f1 = new Field("filtering field1", DataType.TIMESTAMP, TIMESTAMP, 0L);
+    f1.setFormat(GlobalObjectMapper.writeValueAsString(new CustomDateTimeFormat("yyyy-MM-dd")));
     f1.setFiltering(true);
     f1.setFilteringSeq(0L);
     f1.setFilteringOptions(new Field.FilterOption("time", "relative", Lists.newArrayList("range", "relative")));
@@ -326,7 +328,11 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     updateField.put("id", field1Id);
     updateField.put("alias", "update field name");
     updateField.put("description", "update description");
-    //    updateField.put("filtering", false);
+
+    Map<String, Object> formatMap = Maps.newHashMap();
+    formatMap.put("type", "time_format");
+    formatMap.put("format", "yyyy-MM-dd");
+    updateField.put("format", formatMap);
     updateField.put("filteringOptions", new Field.FilterOption("time", "range", Lists.newArrayList("range", "relative")));
 
     Map<String, Object> removeField = Maps.newHashMap();
