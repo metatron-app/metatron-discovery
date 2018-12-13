@@ -3,6 +3,34 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -29,6 +57,7 @@ import org.junit.Test;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.jdbc.Sql;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -63,9 +92,13 @@ import app.metatron.discovery.domain.workbook.configurations.field.TimestampFiel
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import app.metatron.discovery.domain.workbook.configurations.format.ContinuousTimeFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.GeoFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.GeoHashFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
 
-import static app.metatron.discovery.domain.datasource.data.result.ChartResultFormat.OPTION_INTERSECION_VALUE;
+import static app.metatron.discovery.domain.datasource.Field.FieldRole.MEASURE;
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 
@@ -88,7 +121,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Limit
     Limit limit = new Limit();
-    limit.setLimit(1000000);
+    limit.setLimit(1000);
     limit.setSort(Lists.newArrayList(
         //        new Sort("OrderDate","ASC")
     ));
@@ -151,7 +184,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     ));
 
     List<UserDefinedField> userDefinedFields = Lists.newArrayList(
-        new ExpressionField("calc", "sumof(\"Sales\")", "measure",true)
+        new ExpressionField("calc", "sumof(\"Sales\")", "measure", true)
     );
 
 
@@ -188,6 +221,52 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
       .post("/api/datasources/query/search")
     .then()
 //      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void searchQuerySelectForSales() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("sales");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(1000);
+    limit.setSort(Lists.newArrayList(
+        new Sort("OrderDate", "DESC")
+    ));
+
+    List<Filter> filters = Lists.newArrayList(
+        //        new IntervalFilter("OrderDate", "2011-01-04T00:00:00.000", "2012-05-19T00:00:00.000"),
+        //        new LikeFilter("Category", "T_chnology")
+    );
+
+    List<Field> projections = Lists.newArrayList(
+        new TimestampField("OrderDate"),
+        new DimensionField("City"),
+        new DimensionField("Sub-Category"),
+        new DimensionField("Category"),
+        new MeasureField("Sales", MeasureField.AggregationType.NONE)
+    );
+
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, projections, limit);
+
+    System.out.println(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request));
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request))
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
       .log().all();
     // @formatter:on
 
@@ -245,7 +324,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
                                                      "Technology", "가전");
 
     List<UserDefinedField> userFields = Lists.newArrayList(
-        new ExpressionField("test", "Category + '1'", "measure",false)
+        new ExpressionField("test", "Category + '1'", "measure", false)
     );
 
     List<Filter> filters = Lists.newArrayList(
@@ -559,7 +638,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     List<Filter> filters = Lists.newArrayList();
 
     List<UserDefinedField> userFields = Lists.newArrayList(
-        new ExpressionField("test(%)", "AVGOF(\"Sales\")", "measure",true)
+        new ExpressionField("test(%)", "AVGOF(\"Sales\")", "measure", true)
         //        new ExpressionField("test", "countd(\"City\")", "measure", null,true)
         //        new ExpressionField("test", "Sales + 1", "measure", null,false)
     );
@@ -568,8 +647,8 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     Pivot pivot = new Pivot();
     pivot.setColumns(Lists.newArrayList(new DimensionField("Category")));
     pivot.setAggregations(Lists.newArrayList(
-//        new MeasureField("Sales", null, MeasureField.AggregationType.SUM)
-                new MeasureField("test(%)", "user_defined", MeasureField.AggregationType.NONE)
+        //        new MeasureField("Sales", null, MeasureField.AggregationType.SUM)
+        new MeasureField("test(%)", "user_defined", MeasureField.AggregationType.NONE)
     ));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot, limit);
@@ -1083,7 +1162,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Ignore
-//  @Test
+  //  @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   @Sql("/sql/test_sample_network_datasource.sql")
   public void searchQueryForSampleWithNetworkChart() throws JsonProcessingException {
@@ -1170,7 +1249,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Limit
     Limit limit = new Limit();
-    limit.setLimit(1000000);
+    limit.setLimit(20);
     limit.setSort(Lists.newArrayList(
         //new Sort("OrderDate", Sort.Direction.ASC)
     ));
@@ -1247,9 +1326,9 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     ChartResultFormat format = new ChartResultFormat("bar");
     format.addOptions("showPercentage", true);
     format.addOptions("showCategory", true);
-    format.addOptions(OPTION_INTERSECION_VALUE, 30.59);
     format.addOptions("addMinMax", true);
     request.setResultFormat(format);
+    //request.setMetaQuery(true);
 
 
     // @formatter:off
@@ -1383,7 +1462,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     pivot1.setColumns(Lists.newArrayList(new DimensionField("Category")));
     pivot1.setRows(Lists.newArrayList(new DimensionField("Sub-Category"), new DimensionField("Region")));
     pivot1.setAggregations(Lists.newArrayList(
-        new MeasureField("Sales", MeasureField.AggregationType.AVG)
+        new MeasureField("Sales", MeasureField.AggregationType.NONE)
         //new MeasureField("Sales", MeasureField.AggregationType.SUM)
     ));
 
@@ -1437,7 +1516,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot1, limit);
     ChartResultFormat format = new ChartResultFormat("grid");
-    format.addOptions("isOriginal", false);
+    format.addOptions("isOriginal", true);
     format.addOptions("addMinMax", true);
     format.addOptions("columnAggregation", "SUM");
     request.setResultFormat(format);
@@ -1509,14 +1588,14 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Limit
     Limit limit = new Limit();
-    limit.setLimit(1000000);
+    limit.setLimit(5);
 
     List<Filter> filters = Lists.newArrayList();
 
     // Case 1. 교차에 차원값 1개, 측정값 1개씩
     Pivot pivot1 = new Pivot();
     pivot1.setAggregations(Lists.newArrayList(
-        new DimensionField("Category"),
+        new DimensionField("City"),
         new MeasureField("Sales", MeasureField.AggregationType.AVG)
     ));
 
@@ -1656,7 +1735,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Limit
     Limit limit = new Limit();
-    limit.setLimit(1000000);
+    limit.setLimit(5);
 
     List<Filter> filters = Lists.newArrayList();
     //List<Filter> filters = Lists.newArrayList(new IntervalFilter("OrderDate", 1, "MINUTES"));
@@ -1681,13 +1760,13 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     // Case 1. 행 차원값 2개 열 차원값 1개 교차에 측정값 1개씩
     Pivot pivot3 = new Pivot();
     pivot3.setRows(Lists.newArrayList(new DimensionField("Category")));
-//    pivot3.setColumns(Lists.newArrayList(new DimensionField("Category")));
+    //    pivot3.setColumns(Lists.newArrayList(new DimensionField("Category")));
     //pivot3.setRows(Lists.newArrayList(new DimensionField("Region"), new DimensionField("State")));
     pivot3.setAggregations(Lists.newArrayList(
         new MeasureField("Sales", MeasureField.AggregationType.AVG)
     ));
 
-    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot3, limit);
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot1, limit);
     ChartResultFormat format = new ChartResultFormat("heatmap");
     format.addOptions("showPercentage", true);
     format.addOptions("showCategory", true);
@@ -1767,7 +1846,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Limit
     Limit limit = new Limit();
-    limit.setLimit(1000000);
+    limit.setLimit(5);
 
     List<Filter> filters = Lists.newArrayList();
 
@@ -1775,7 +1854,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     Pivot pivot1 = new Pivot();
     pivot1.setAggregations(Lists.newArrayList(
         new MeasureField("Sales", MeasureField.AggregationType.AVG),
-        new DimensionField("Category")
+        new DimensionField("City")
     ));
 
     // Case 1. 교차에 측정값 1개 + 차원값 1개씩
@@ -1785,7 +1864,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         new DimensionField("Category"), new DimensionField("Sub-Category")
     ));
 
-    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot2, limit);
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot1, limit);
     ChartResultFormat format = new ChartResultFormat("pie");
     format.addOptions("showPercentage", true);
     format.addOptions("showCategory", true);
@@ -1803,6 +1882,186 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
       .post("/api/datasources/query/search")
     .then()
 //      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_gis_datasource.sql")
+  public void searchQueryForEstateGeoHashWithMapChart() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("estate");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(1000000);
+
+    List<Filter> filters = Lists.newArrayList(
+        //new ExpressionFilter("amt < 50000 && amt > 40000")
+    );
+
+    GeoHashFormat hashFormat = new GeoHashFormat("geohex", 5);
+    DimensionField geoDimensionField = new DimensionField("gis", null, hashFormat);
+
+    List<Field> layer1 = Lists.newArrayList(geoDimensionField,
+                                            new MeasureField("py", null, MeasureField.AggregationType.AVG),
+                                            new MeasureField("amt", null, MeasureField.AggregationType.SUM));
+
+    Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
+    ChartResultFormat format = new ChartResultFormat("map");
+    request.setResultFormat(format);
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_gis_datasource.sql")
+  public void searchQueryForEstateGeoHashExprWithMapChart() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("estate");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(5);
+
+    List<Filter> filters = Lists.newArrayList();
+
+    ExpressionField expressionField1 = new ExpressionField("MEASURE_1", "COUNTOF( 1 )");
+    expressionField1.setRole(MEASURE);
+    expressionField1.setAggregated(true);
+
+    GeoHashFormat hashFormat = new GeoHashFormat("geohex", 5);
+    DimensionField geoDimensionField = new DimensionField("gis", null, hashFormat);
+
+    MeasureField measureField = new MeasureField("MEASURE_1", "user_defined");
+
+    List<Field> layer1 = Lists.newArrayList(geoDimensionField, measureField);
+
+    Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
+    ChartResultFormat format = new ChartResultFormat("map");
+    request.setResultFormat(format);
+    request.setUserFields(Lists.newArrayList(expressionField1));
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_gis_datasource.sql")
+  public void searchQueryForEstateWithMapChart() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("estate");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(10);
+
+    List<String> valueList = Lists.newArrayList(
+        "Jul 2018"
+    );
+
+    TimeListFilter timeListFilter = new TimeListFilter("event_time", null, "MONTH", "MONTH", false,
+                                                       valueList, null);
+
+    List<Filter> filters = Lists.newArrayList(
+        new ExpressionFilter("amt < 50000 && amt > 40000"),
+        new InclusionFilter("gu_new", "user_defined", Arrays.asList("강남구_new")),
+        new SpatialBboxFilter(null, "gis", null, "126.8060772 37.4458596", "127.1810908 37.6874771"),
+        timeListFilter
+        //        new BoundFilter("amt", null, 0, 62510)
+    );
+
+    ExpressionField expressionField1 = new ExpressionField("gu_new", "\"gu\" + '_new'");
+
+    //    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()), new DimensionField("gu"), new MeasureField("py", null, MeasureField.AggregationType.NONE));
+    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()), new DimensionField("gu_new", "user_defined"), new MeasureField("amt", null, MeasureField.AggregationType.NONE));
+    Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
+    ChartResultFormat format = new ChartResultFormat("map");
+    request.setResultFormat(format);
+    request.setUserFields(Lists.newArrayList(expressionField1));
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_gis_datasource.sql")
+  public void searchQueryTimeFieldForSaleGeoWithMapChart() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(10);
+
+    List<Filter> filters = Lists.newArrayList();
+
+    GeoHashFormat hashFormat = new GeoHashFormat("geohex", 5);
+
+    //    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()), new DimensionField("gu"), new MeasureField("py", null, MeasureField.AggregationType.NONE));
+//    List<Field> layer1 = Lists.newArrayList(new DimensionField("location", null, new GeoFormat()), new TimestampField("OrderDate", null), new MeasureField("Sales", null, MeasureField.AggregationType.NONE));
+    List<Field> layer1 = Lists.newArrayList(new DimensionField("location", null, hashFormat), new MeasureField("Profit", null, MeasureField.AggregationType.AVG), new MeasureField("Sales", null, MeasureField.AggregationType.AVG));
+    Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
+    ChartResultFormat format = new ChartResultFormat("map");
+    request.setResultFormat(format);
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
       .log().all();
     // @formatter:on
 

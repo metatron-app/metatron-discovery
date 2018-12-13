@@ -43,8 +43,10 @@
           <span class="ddp-data-type">
             <em class="ddp-ui-round">{{rule.alias}}</em>
           </span>
-          <div class="ddp-ui-code" title="{{idx !== 0 ? rule.ruleString : null}}">
-            {{rule.simplifiedRule !== '' ? rule.simplifiedRule : rule.ruleString}}
+          <div class="ddp-ui-code"
+               [ngClass]="{'ddp-error':!rule.valid}"
+               title="{{idx !== 0 ? rule.ruleString : null}}">
+            {{rule.simplifiedRule}}
           </div>
           <div class="ddp-ui-edit-button" *ngIf="idx !== 0">
             <span class="ddp-btn-icon" (click)="$event.stopImmediatePropagation(); editRule(rule)">

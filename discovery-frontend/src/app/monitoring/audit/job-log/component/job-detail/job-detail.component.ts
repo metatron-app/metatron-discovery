@@ -24,7 +24,9 @@ import { isUndefined } from 'util';
 import { LogEditorComponent } from '../../../component/log-editor/log-editor.component';
 import { MomentDatePipe } from '../../../../../common/pipe/moment.date.pipe';
 import { ActivatedRoute } from '@angular/router';
+import { CommonUtil } from '../../../../../common/util/common.util';
 
+declare let moment: any;
 
 @Component({
   selector: 'app-job-detail',
@@ -103,6 +105,7 @@ export class JobDetailComponent extends AbstractPopupComponent {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
 
   /**
    * 상세 팝업 종료
@@ -126,25 +129,6 @@ export class JobDetailComponent extends AbstractPopupComponent {
     return isUndefined(this.audit.plan) || this.audit.plan === null;
   }
 
-  /**
-   * ms를 min과 sec로 변환
-   * @param {number} ms
-   * @returns {string}
-   */
-  public convertMilliseconds(ms: number): string {
-    if (ms === undefined) {
-      return 0 + ' sec';
-    }
-
-    if (ms < 1000) {
-      return ms + 'ms'
-    }
-
-    const min = Math.floor((ms / 1000 / 60) << 0);
-    const sec = Math.floor((ms / 1000) % 60);
-    return min !== 0 ? (min + ' min ' + sec + ' sec') : (sec + ' sec');
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - event
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -158,11 +142,10 @@ export class JobDetailComponent extends AbstractPopupComponent {
       return;
     }
     const log: Log = new Log;
-    const datePipe = new DatePipe('en-EN');
     log.title = 'Plan Information';
     // 생성시간
     log.subTitle = [];
-    log.subTitle.push(datePipe.transform(this.audit.startTime, 'yyyy-MM-dd HH:mm'));
+    log.subTitle.push(moment(this.audit.startTime).format('YYYY-MM-DD HH:mm'));
     log.data = this.audit.plan;
     // log 모달 오픈
     this.logComponent.init(log);

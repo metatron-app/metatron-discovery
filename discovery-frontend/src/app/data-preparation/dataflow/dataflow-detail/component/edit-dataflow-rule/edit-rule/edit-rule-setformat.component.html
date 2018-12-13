@@ -15,19 +15,23 @@
     {{'msg.dp.ui.set.pattern' | translate}}<em class="ddp-icon-essential"></em>
   </div>
   <!-- select box -->
-  <component-select
-    [array]="timestampFormats"
-    (onSelected)="selectItem($event)" [defaultIndex]="defaultIndex" [viewKey]="'value'">
-  </component-select>
+  <prep-select-box-custom
+    (onSelected)="selectItem($event)"
+    [viewKey]="'value'"
+    [isSearchAllowed]="true"
+    [isWritable]="true"
+    [isAllowKeyboardManipulation]="false">
+  </prep-select-box-custom>
   <!-- //select box -->
 </div>
 <!-- //part -->
+
 <!-- part -->
 <div class="ddp-box-part" *ngIf="isShow && 'Custom format' === selectedTimestamp">
   <div class="ddp-box-title">
     {{'msg.dp.ui.custom.format' | translate}}<em class="ddp-icon-essential"></em>
   </div>
   <div class="ddp-wrap-datainput">
-    <input type="text" class="ddp-input-typebasic newColumnInput" tabindex="5" placeholder="{{'msg.dp.ui.timestamp.ph' | translate}}" [(ngModel)]="customTimestamp">
+    <input class="ddp-input-typebasic newColumnInput" tabindex="5" placeholder="{{'msg.dp.ui.timestamp.ph' | translate}}" [(ngModel)]="customTimestamp">
   </div>
 </div>

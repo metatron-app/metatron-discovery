@@ -13,57 +13,87 @@
  */
 
 import { Component, ElementRef, Injector, Input } from '@angular/core';
+import { BaseOptionComponent } from '../base-option.component';
 import * as _ from 'lodash';
-import {BaseOptionComponent} from "../base-option.component";
+import { MapType } from '../../../common/component/chart/option/define/map/map-common';
+import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
+
 @Component({
   selector: 'map-common-option',
   templateUrl: './map-common-option.component.html'
 })
 export class MapCommonOptionComponent extends BaseOptionComponent {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @Input('uiOption')
+  public uiOption: UIMapOption;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // map service list
+  public mapServiceList = [{name : this.translateService.instant('msg.page.common.map.layer.service.openstreet'), value : MapType.OSM}];
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // map style list
+  public mapStyleList = [{name : this.translateService.instant('msg.page.common.map.layer.map.style.light'), value : 'Light'},
+                         {name : this.translateService.instant('msg.page.common.map.layer.map.style.dark'), value : 'Dark'},
+                         {name : this.translateService.instant('msg.page.common.map.layer.map.style.colored'), value : 'Colored'}];
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Constructor
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
 
     super(elementRef, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Override Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * set license
+   */
+  public setLicense() {
 
-  // Init
-  public ngOnInit() {
+    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
+      licenseNotation: this.uiOption.licenseNotation
+    });
 
-    // Init
-    super.ngOnInit();
+    this.update();
   }
 
-  // Destory
-  public ngOnDestroy() {
+  /**
+   * set map style
+   * @param data
+   */
+  public setMapStyle(data: Object) {
 
-    // Destory
-    super.ngOnDestroy();
+    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
+      style: data['value']
+    });
+
+    this.update();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * set map service
+   * @param data
+   */
+  public setMapService(data: Object) {
+
+    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
+      map: data['value']
+    });
+
+    this.update();
+  }
+
+  /**
+   * return service default index
+   * @returns {number}
+   */
+  public findServiceDefaultIndex() {
+    return _.findIndex(this.mapServiceList, {value : this.uiOption.map});
+  }
+
+  /**
+   * return style default index
+   * @returns {number}
+   */
+  public findStyleDefaultIndex() {
+    return _.findIndex(this.mapStyleList, {value : this.uiOption.style});
+  }
 
 }

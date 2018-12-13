@@ -14,7 +14,8 @@
 
 import { Injectable, Injector } from '@angular/core';
 import { AbstractService } from '../../../common/service/abstract.service';
-import { DataSnapshot, DataSnapshots } from '../../../domain/data-preparation/data-snapshot';
+//import { DataSnapshot, DataSnapshots } from '../../../domain/data-preparation/data-snapshot';
+import { PrDataSnapshot, DataSnapshots, SsType } from '../../../domain/data-preparation/pr-snapshot';
 import { Page } from '../../../domain/common/page';
 import { CommonUtil } from '../../../common/util/common.util';
 import { CookieConstant } from '../../../common/constant/cookie.constant';
@@ -40,30 +41,39 @@ export class DataSnapshotService extends AbstractService {
   }
 
   // 데이터 스냅샷 상태별 목록 조회
-  public getDataSnapshotsByStatus(searchText: string, status: string, page:Page, projection?: string): Promise<DataSnapshots> {
+  public getDataSnapshotsByStatus(param): Promise<DataSnapshots> {
     let statuses = '';
     // except CANCELED starus
-    if( 'all'==status) {
+    if( 'all'== param.status) {
       statuses = 'SUCCEEDED,FAILED,NOT_AVAILABLE,INITIALIZING,RUNNING,WRITING,TABLE_CREATING';
-    } else if( 'success'==status ) {
+    } else if( 'success'== param.status ) {
       statuses = 'SUCCEEDED';
-    } else if( 'fail'==status ) {
+    } else if( 'fail'== param.status ) {
       statuses = 'FAILED';
-    } else if( 'preparing'==status ) {
+    } else if( 'preparing'== param.status ) {
       statuses = 'INITIALIZING,RUNNING,WRITING,TABLE_CREATING,CANCELING';
     }
 
-    let url = this.API_URL + `preparationsnapshots/search/findBySsNameContainingAndStatusIn?ssName=${encodeURIComponent(searchText)}&statuses=${statuses}`;
-    if (projection) {
-      url = url + '&projection=' + projection;
+    let url = this.API_URL + `preparationsnapshots/search/findBySsNameContainingAndStatusInAndSsTypeIn?ssName=${encodeURIComponent(param.searchText)}&statuses=${statuses}`;
+
+    if (!param.ssType) {
+      url +=  `&ssTypes=${SsType.URI},${SsType.DATABASE},${SsType.STAGING_DB},${SsType.DRUID}`;
+    } else {
+      url +=  `&ssTypes=${param.ssType}`;
+    }
+    if (param.projection) {
+      url = url + '&projection=' +param.projection;
     }
 
-    url += '&' + CommonUtil.objectToUrlString(page);
+    delete param.page.column;
+
+    url += '&' + CommonUtil.objectToUrlString(param.page);
     return this.get(url);
   }
 
   // 데이터스냅샷 상세 조회
-  public getDataSnapshot(ssId: string): Promise<DataSnapshot> {
+  //public getDataSnapshot(ssId: string): Promise<DataSnapshot> {
+  public getDataSnapshot(ssId: string): Promise<PrDataSnapshot> {
     const url = this.API_URL + 'preparationsnapshots/' + ssId + '?projection=detail';
     return this.get(url);
   }

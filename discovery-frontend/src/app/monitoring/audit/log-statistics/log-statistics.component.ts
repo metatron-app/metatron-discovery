@@ -25,6 +25,7 @@ import { MomentDatePipe } from '../../../common/pipe/moment.date.pipe';
 import { Alert } from '../../../common/util/alert.util';
 import { PageResult } from '../../../domain/common/page';
 import { isUndefined } from 'util';
+import { CommonUtil } from '../../../common/util/common.util';
 
 declare let echarts: any;
 
@@ -168,25 +169,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * ms를 min과 sec로 변환
-   * @param {number} ms
-   * @returns {string}
-   */
-  public convertMilliseconds(ms: number) {
-    if (ms === undefined) {
-      return 0 + 'sec';
-    }
-
-    if (ms < 1000) {
-      return ms + 'ms'
-    }
-
-    const min = Math.floor((ms / 1000 / 60) << 0);
-    const sec = Math.floor((ms / 1000) % 60);
-    return min !== 0 ? (min + ' min ' + sec + ' sec') : (sec + ' sec');
-  }
+  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
 
   /**
    * audit 상세보기 오픈
@@ -472,9 +455,9 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
     // date
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       if (this.selectedDate.startDateStr) {
-        params['from'] = moment(this.selectedDate.startDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+        params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      params['to'] = moment(this.selectedDate.endDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+      params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
     }
 
     // type
@@ -490,7 +473,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
     if(name !== 'successRate') {
 
       // 한 페이지에 보여줄 개수 = 15 개씩 보여준다
-      params['size']=this.pageResult.size;
+      params['size']= ( this.pageResult.size ) ? this.pageResult.size : 5;
 
       // 몇번째 페이지 인지 처음은 0
       if (isUndefined(this.pageResult.number)){

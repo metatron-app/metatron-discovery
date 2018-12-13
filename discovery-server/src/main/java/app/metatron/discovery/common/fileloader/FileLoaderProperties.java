@@ -55,7 +55,7 @@ public class FileLoaderProperties implements Serializable {
 
   public FileLoaderProperties targetHostProperties(String targetHost) {
     if(!hosts.containsKey(targetHost)) {
-      throw new RuntimeException("Target hostname(" + targetHost + ") not found in " + hosts.keySet());
+      throw new IllegalArgumentException("Target hostname(" + targetHost + ") not found in " + hosts.keySet() + ". Check hostname.");
     }
 
     // Rewrite only selected hosts map.

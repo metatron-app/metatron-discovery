@@ -14,16 +14,35 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
+import app.metatron.discovery.domain.dataprep.service.PrDatasetService;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnDescription;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.Row;
+import app.metatron.discovery.domain.dataprep.transform.PrepTransformResponse;
+import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
 
 @Service
 public class PrepPreviewLineService {
@@ -33,16 +52,22 @@ public class PrepPreviewLineService {
     PrepProperties prepProperties;
 
     @Autowired
-    PrepDatasetRepository datasetRepository;
+    PrDatasetRepository datasetRepository;
+
+    @Autowired
+    PrDatasetService datasetService;
+
+    @Autowired
+    PrepTransformService transformService;
 
     Integer limit;
 
     PrepPreviewLineService() {
-        this.limit = 50;
+        this.limit = 200;
     }
 
     private String getPreviewPath() {
-        String tempDirPath = prepProperties.getLocalBaseDir() + File.separator + PrepProperties.dirDataprep;
+        String tempDirPath = prepProperties.getLocalBaseDir() + File.separator + PrepProperties.dirPreview;
 
         File tempPath = new File(tempDirPath);
         if(!tempPath.exists()){
@@ -61,15 +86,10 @@ public class PrepPreviewLineService {
 
     public int putPreviewLines(String dsId, DataFrame gridResponse) {
         int size = 0;
-        int limitSize = 2000;
 
         LOGGER.trace("putPreviewLines(): start");
-        PrepDataset dataset = this.datasetRepository.findRealOne(this.datasetRepository.findOne(dsId));
+        PrDataset dataset = this.datasetRepository.findRealOne(this.datasetRepository.findOne(dsId));
         assert(dataset!=null);
-
-        if(dataset.getDsTypeForEnum()== PrepDataset.DS_TYPE.WRANGLED) {
-            limitSize = 100;
-        }
 
         DataFrame previewGrid = new DataFrame();
         previewGrid.colCnt = gridResponse.colCnt;
@@ -82,26 +102,153 @@ public class PrepPreviewLineService {
         previewGrid.dsName = gridResponse.dsName;
         previewGrid.slaveDsNameMap = gridResponse.slaveDsNameMap;
         previewGrid.ruleString = gridResponse.ruleString;
+
         size = gridResponse.rows.size();
-        if(limitSize<size) {
-            previewGrid.rows = gridResponse.rows.subList(0, limitSize);
+        if(this.limit<size) {
+            previewGrid.rows = gridResponse.rows.subList(0, this.limit);
         } else {
             previewGrid.rows = gridResponse.rows;
         }
 
         String previewPath = getPreviewPath(dsId);
         try {
-            ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = GlobalObjectMapper.getDefaultMapper();
             mapper.writeValue(new File(previewPath), previewGrid);
         } catch(Exception e) {
             e.printStackTrace();
             LOGGER.debug(e.getMessage());
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
         }
-        dataset.putCustomValue("previewPath", getPreviewPath());
 
         LOGGER.trace("putPreviewLines(): end");
         return size;
+    }
+
+    public DataFrame getPreviewLines(String dsId) {
+        DataFrame dataFrame = null;
+
+        try {
+            PrDataset dataset = this.datasetRepository.findRealOne(this.datasetRepository.findOne(dsId));
+            assert(dataset!=null);
+
+            ObjectMapper mapper = GlobalObjectMapper.getDefaultMapper();
+            String filepath = getPreviewPath() + File.separator + dataset.getDsId() + ".df";
+            File theFile = new File(filepath);
+            if (true == theFile.exists()) {
+                dataFrame = mapper.readValue(theFile, DataFrame.class);
+            } else {
+                dataFrame = this.remakePreviewLines(dsId);
+                // regenerate
+                // throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, filepath);
+            }
+
+            if(dataFrame!=null) {
+                List<ColumnDescription> columnDescs = dataFrame.colDescs;
+                List<Integer> colNos = Lists.newArrayList();
+                int colIdx = 0;
+                for (ColumnDescription columnDesc : columnDescs) {
+                    if (columnDesc.getType().equals(ColumnType.TIMESTAMP)) {
+                        colNos.add(colIdx);
+                    }
+                    colIdx++;
+                }
+
+                if (0 < colNos.size()) {
+                    for (Row row : dataFrame.rows) {
+                        for (Integer colNo : colNos) {
+                            Object jodaTime = row.get(colNo);
+                            if (jodaTime instanceof LinkedHashMap) {
+                                LinkedHashMap mapTime = (LinkedHashMap) jodaTime;
+                                DateTime dateTime = new DateTime(Long.parseLong(mapTime.get("millis").toString()));
+                                row.objCols.set(colNo, dateTime);
+                            }
+                        }
+                    }
+                }
+            } else {
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREVIEWLINES_CRASHED, "get preview==(null)");
+            }
+        } catch (Exception e) {
+            LOGGER.debug(e.getMessage());
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
+        }
+
+        return dataFrame;
+    }
+
+    public Map<String,Object> ready_to_preview(String dsId) {
+        Map<String,Object> response = Maps.newHashMap();
+
+        boolean remake = false;
+        DataFrame dataFrame = null;
+        try {
+            dataFrame = this.getPreviewLines(dsId);
+        } catch(PrepException e) {
+            if( e.getMessageKey().equals(PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND)
+                || e.getMessageKey().equals(PrepMessageKey.MSG_DP_ALERT_PREVIEWLINES_CRASHED) ) {
+                remake = true;
+            } else {
+                LOGGER.debug(e.getMessage());
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
+            }
+        } catch(Exception e) {
+            LOGGER.debug(e.getMessage());
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
+        }
+
+        try {
+            if (true == remake) {
+                dataFrame = this.remakePreviewLines(dsId);
+                if (null != dataFrame) {
+                    int size = this.putPreviewLines(dsId, dataFrame);
+                } else {
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREVIEWLINES_CRASHED, "remake preview==(null)");
+                }
+            }
+        } catch(Exception e) {
+            LOGGER.debug(e.getMessage());
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
+        }
+
+        response.put("gridResponse", dataFrame);
+
+        return response;
+    }
+
+    public DataFrame remakePreviewLines(String dsId) {
+        DataFrame dataFrame = null;
+
+        try {
+            PrDataset dataset = this.datasetRepository.findRealOne(this.datasetRepository.findOne(dsId));
+            assert(dataset!=null);
+
+            if(dataset.getDsType()== IMPORTED) {
+                dataFrame = this.datasetService.getImportedPreview(dataset);
+                if(null==dataFrame) {
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREVIEWLINES_CRASHED, "get Imported preview==(null)");
+                }
+            } else if(dataset.getDsType() == WRANGLED) {
+                PrepTransformResponse transformResponse = this.transformService.fetch(dsId, null);
+                dataFrame = transformResponse.getGridResponse();
+                if(null==dataFrame) {
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREVIEWLINES_CRASHED, "get Wrangled preview==(null)");
+                }
+            } else {
+                assert false;
+            }
+
+            if(dataFrame!=null) {
+                int size = putPreviewLines(dsId, dataFrame);
+            } else {
+                LOGGER.debug(dsId + " dataframe is null");
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREVIEWLINES_CRASHED, "no dataframe of preview");
+            }
+        } catch(Exception e) {
+            LOGGER.debug(e.getMessage());
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
+        }
+
+        return dataFrame;
     }
 }
 

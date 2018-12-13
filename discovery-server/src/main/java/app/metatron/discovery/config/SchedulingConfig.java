@@ -15,6 +15,7 @@
 package app.metatron.discovery.config;
 
 import app.metatron.discovery.common.scheduling.AutowiringSpringBeanJobFactory;
+import app.metatron.discovery.domain.scheduling.common.TemporaryCSVFileCleanJob;
 import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJob;
 import app.metatron.discovery.domain.scheduling.engine.DataSourceIngestionCheckJob;
 import app.metatron.discovery.domain.scheduling.engine.DataSourceSizeCheckJob;
@@ -22,6 +23,7 @@ import app.metatron.discovery.domain.scheduling.engine.TemporaryCleanJob;
 import app.metatron.discovery.domain.scheduling.ingestion.IncrementalIngestionJob;
 import app.metatron.discovery.domain.scheduling.mdm.CalculatePopularityJob;
 import app.metatron.discovery.domain.scheduling.notebook.KillNotebookKernelJob;
+import app.metatron.discovery.domain.scheduling.workbench.TimeoutConnectionCloseJob;
 import org.quartz.spi.JobFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -81,13 +83,17 @@ public class SchedulingConfig {
                                        incrementalJob().getObject(),
                                        tempDataSourceCleanJob().getObject(),
                                        calculatePopularityJob().getObject(),
-                                       notebookKillKernelJob().getObject());
+                                       notebookKillKernelJob().getObject(),
+                                       tempCSVFileCleanJob().getObject(),
+                                       timeoutWorkbenchConnectionCloseJob().getObject());
     schedulerFactoryBean.setTriggers(dataSourceCheckTrigger().getObject(),
                                      dataSourceIngestionCheckTrigger().getObject(),
                                      dataSourceSizeCheckTrigger().getObject(),
                                      tempDataSourceCleanTrigger().getObject(),
                                      calculatePopularityTrigger().getObject(),
-                                     notebookKillKernelTrigger().getObject());
+                                     notebookKillKernelTrigger().getObject(),
+                                     tempCSVFileCleanTrigger().getObject(),
+                                     timeoutWorkbenchConnectionCloseTrigger().getObject());
 
     return schedulerFactoryBean;
   }
@@ -270,6 +276,68 @@ public class SchedulingConfig {
     triggerFactory.setName("kill-notebook-kernel-trigger");
     triggerFactory.setGroup(JOB_GROUP_CLEANER);
     triggerFactory.setCronExpression("0 0 1 1/1 * ? *");
+    return triggerFactory;
+  }
+
+  /**
+   * Temporary CSV File Cleaner
+   *
+   * @return
+   */
+  @Bean
+  public JobDetailFactoryBean tempCSVFileCleanJob() {
+    JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
+    jobDetailFactory.setName("temporary-csv-cleaner");
+    jobDetailFactory.setGroup(JOB_GROUP_CLEANER);
+    jobDetailFactory.setJobClass(TemporaryCSVFileCleanJob.class);
+    jobDetailFactory.setDurability(true);
+    return jobDetailFactory;
+  }
+
+  /**
+   * 매일 새벽 2시에 실행
+   *
+   * @return
+   */
+  @Bean
+  public CronTriggerFactoryBean tempCSVFileCleanTrigger(){
+    CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
+    triggerFactory.setJobDetail(tempCSVFileCleanJob().getObject());
+    triggerFactory.setStartDelay(20000);
+    triggerFactory.setName("temporary-csv-cleaner-trigger");
+    triggerFactory.setGroup(JOB_GROUP_CLEANER);
+    triggerFactory.setCronExpression("0 0 2 1/1 * ? *");
+    return triggerFactory;
+  }
+
+  /**
+   * timeout workbench connection close
+   *
+   * @return
+   */
+  @Bean
+  public JobDetailFactoryBean timeoutWorkbenchConnectionCloseJob() {
+    JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
+    jobDetailFactory.setName("timeout-connection-close");
+    jobDetailFactory.setGroup(JOB_GROUP_DOMAIN);
+    jobDetailFactory.setJobClass(TimeoutConnectionCloseJob.class);
+    jobDetailFactory.setDurability(true);
+    return jobDetailFactory;
+  }
+
+  /**
+   * 매 30분마다 실행
+   *
+   * @return
+   */
+  @Bean
+  public CronTriggerFactoryBean timeoutWorkbenchConnectionCloseTrigger(){
+    CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
+    triggerFactory.setJobDetail(timeoutWorkbenchConnectionCloseJob().getObject());
+    triggerFactory.setStartDelay(1000);
+    triggerFactory.setName("timeout-connection-close-trigger");
+    triggerFactory.setGroup(JOB_GROUP_DOMAIN);
+    triggerFactory.setCronExpression("0 0/30 * 1/1 * ? *");
     return triggerFactory;
   }
 

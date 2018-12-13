@@ -12,15 +12,20 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
 import { AbstractComponent } from '../../../../../../../common/component/abstract.component';
 import { SourceType, Status } from '../../../../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { WorkspaceService } from '../../../../../../../workspace/service/workspace.service';
+import {PageResult} from "../../../../../../../domain/common/page";
 
 @Component({
   selector: 'resources-viewer',
-  templateUrl: './resources-view.component.html'
+  templateUrl: './resources-view.component.html',
+  styles : [
+    'table tbody tr:hover td { background-color : initial }',
+    'table tbody tr:nth-child(odd):hover td { background-color : #fafafa }'
+  ]
 })
 export class ResourcesViewComponent extends AbstractComponent implements OnInit, OnDestroy{
 
@@ -47,9 +52,6 @@ export class ResourcesViewComponent extends AbstractComponent implements OnInit,
 
   // show flag
   public isShowFl: boolean = false;
-
-  // list total count
-  public totalCount: number = 0;
 
   // 정렬
   public selectedContentSort: Order = new Order();
@@ -91,9 +93,9 @@ export class ResourcesViewComponent extends AbstractComponent implements OnInit,
    * @param {string} mode
    * @param {string} workspaceId
    * @param dataList
-   * @param {number} listCount
+   * @param {PageResult} pageResult
    */
-  public init(mode: string, workspaceId: string, dataList: any, listCount: number): void {
+  public init(mode: string, workspaceId: string, dataList: any, pageResult: PageResult): void {
     // ui init
     this._initView();
     // mode
@@ -101,12 +103,22 @@ export class ResourcesViewComponent extends AbstractComponent implements OnInit,
     // data
     this.dataList = _.cloneDeep(dataList);
     // list count
-    this.totalCount = listCount;
+    this.pageResult = pageResult;
     // workspace id
     this._workspaceId = workspaceId;
     // flag
     this.isShowFl = true;
+
+    this.addBodyScrollHidden();
   }
+
+  /**
+   * close popup
+   */
+  public close() {
+    this.removeBodyScrollHidden();
+    this.isShowFl = false;
+  } // function - close
 
   /**
    * 정렬 버튼 클릭
@@ -274,13 +286,15 @@ export class ResourcesViewComponent extends AbstractComponent implements OnInit,
   public getDataTypeString(srcType: SourceType): string {
     switch (srcType) {
       case SourceType.IMPORT:
-        return this.translateService.instant('msg.storage.ui.list.import');
+        return this.translateService.instant('msg.storage.li.druid');
       case SourceType.FILE:
-        return this.translateService.instant('msg.storage.ui.list.file');
+        return this.translateService.instant('msg.storage.li.file');
       case SourceType.JDBC:
-        return this.translateService.instant('msg.storage.ui.list.jdbc');
+        return this.translateService.instant('msg.storage.li.db');
       case SourceType.HIVE:
-        return this.translateService.instant('msg.storage.ui.list.hive');
+        return this.translateService.instant('msg.storage.li.hive');
+      case SourceType.REALTIME:
+        return this.translateService.instant('msg.storage.li.stream');
     }
   }
 
@@ -367,8 +381,6 @@ export class ResourcesViewComponent extends AbstractComponent implements OnInit,
     this.dataList = [];
     // page result init
     this.pageResult.number = 0;
-    // total count
-    this.totalCount = 0;
   }
 
   /**
@@ -464,7 +476,7 @@ export class ResourcesViewComponent extends AbstractComponent implements OnInit,
     return {
       sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,
       page: this.pageResult.number,
-      size: 15
+      size: 30
     };
   }
 

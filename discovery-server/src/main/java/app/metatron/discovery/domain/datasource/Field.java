@@ -3,6 +3,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,14 +42,14 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.datanucleus.metadata.FieldRole;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.NotBlank;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,11 +66,15 @@ import app.metatron.discovery.common.entity.Spec;
 import app.metatron.discovery.domain.CollectionPatch;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionRule;
+import app.metatron.discovery.domain.datasource.ingestion.rule.IngestionRule;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
+import app.metatron.discovery.domain.workbook.configurations.format.ContinuousTimeFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
 import app.metatron.discovery.query.druid.Aggregation;
 import app.metatron.discovery.query.druid.aggregations.ApproxHistogramFoldAggregation;
 import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
@@ -64,7 +82,10 @@ import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericMinAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
 import app.metatron.discovery.query.druid.aggregations.RangeAggregation;
+import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
 import app.metatron.discovery.query.druid.aggregations.VarianceAggregation;
+import app.metatron.discovery.spec.druid.ingestion.parser.TimestampSpec;
+import app.metatron.discovery.util.TimeUnits;
 
 import static app.metatron.discovery.domain.workbook.configurations.field.MeasureField.AggregationType.NONE;
 
@@ -89,34 +110,34 @@ public class Field implements MetatronDomain<Long> {
    * ID
    */
   @Column(name = "id")
-//  @GeneratedValue(strategy = GenerationType.AUTO)
-  @GeneratedValue(strategy= GenerationType.AUTO, generator="native")
+  //  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
   @GenericGenerator(name = "native", strategy = "native")
   @Id
   private Long id;
 
   /**
-   * Field 명 (물리명)
+   * Field name on engine
    */
   @Column(name = "field_name")
   @NotBlank
   private String name;
 
   /**
-   * Field 별칭 (논리명)
+   * Field alias
    */
   @Column(name = "field_alias")
   private String alias;
 
   /**
-   * Field 설명
+   * Field description
    */
   @Column(name = "field_desc", length = 1000)
   @Size(max = 900)
   private String description;
 
   /**
-   * 데이터 타입
+   * Physical data type on engine
    */
   @Column(name = "field_type")
   @Enumerated(EnumType.STRING)
@@ -124,7 +145,7 @@ public class Field implements MetatronDomain<Long> {
   private DataType type;
 
   /**
-   * 저장공간과 다른 논리적 데이터 타입
+   * Logical data type
    */
   @Column(name = "field_logical_type")
   @Enumerated(EnumType.STRING)
@@ -138,25 +159,25 @@ public class Field implements MetatronDomain<Long> {
   private FieldRole role;
 
   /**
-   * Partition 대상 필드 인지 여부
+   * Whether partitioned field
    */
   @Column(name = "field_partitioned")
   private Boolean partitioned;
 
   /**
-   * 필수적으로 필터링을 수행해야하는 필드인지 여부
+   * Whether to use as mandatory filter
    */
   @Column(name = "field_filtering")
   private Boolean filtering;
 
   /**
-   * 필수 필터링 순서 지정
+   * Sequence for mandatory filtered field
    */
   @Column(name = "field_filtering_seq")
   private Long filteringSeq;
 
   /**
-   * 필수 필터링 옵션 지정
+   * Option of mandatory filter
    */
   @Column(name = "field_filtering_options", length = 65535, columnDefinition = "TEXT")
   @Basic(fetch = FetchType.LAZY)
@@ -166,20 +187,42 @@ public class Field implements MetatronDomain<Long> {
   private String filteringOptions;
 
   /**
-   * 사전 집계 타입
+   * Type of pre-aggregation
    */
   @Column(name = "pre_aggr_type")
   @Enumerated(EnumType.STRING)
   private MeasureField.AggregationType aggrType = NONE;
 
   /**
-   * 필드 정렬 순서
+   * Whether to exclude what to load to engine
+   */
+  @Column(name = "field_unloaded")
+  private Boolean unloaded;
+
+  /**
+   * Sequence for field alignment
    */
   @Column(name = "seq")
   private Long seq;
 
   /**
-   * 적재 방식 (Discard or Set Default Value)
+   * Whether to derived field (not physical field)
+   */
+  @Column(name = "field_derived")
+  private Boolean derived;
+
+  /**
+   * Derivation rule
+   */
+  @Column(name = "field_derivation_rule", length = 65535, columnDefinition = "TEXT")
+  @Basic(fetch = FetchType.LAZY)
+  @Spec(target = IngestionRule.class)
+  @JsonRawValue
+  @JsonDeserialize(using = KeepAsJsonDeserialzier.class)
+  private String derivationRule;
+
+  /**
+   * Ingestion rule (Discard or Set Default Value)
    */
   @Column(name = "field_ingestion_rule", length = 65535, columnDefinition = "TEXT")
   @Basic(fetch = FetchType.LAZY)
@@ -189,18 +232,20 @@ public class Field implements MetatronDomain<Long> {
   private String ingestionRule;
 
   /**
-   * 필드 데이터 형태 </br>
-   * (timestamp type인 경우, ISO8601 Date format)
+   * Field data format
    */
-  @Column(name = "field_format")
+  @Column(name = "field_format", length = 65535, columnDefinition = "TEXT")
+  @Spec(target = FieldFormat.class)
+  @JsonRawValue
+  @JsonDeserialize(using = KeepAsJsonDeserialzier.class)
   private String format;
 
-  @ManyToOne(cascade={CascadeType.ALL})
+  @ManyToOne(cascade = {CascadeType.ALL})
   @JoinColumn(name = "ref_id", referencedColumnName = "id")
   private Field mapper;
 
   /**
-   * 기존 물리적인 필드를 매핑하여 신규 필드를 구성할 경우 관련 필드 정보
+   * Related field information, When you configure a new field by mapping an existing physical field
    */
   @OneToMany(mappedBy = "mapper")
   @JsonBackReference
@@ -211,13 +256,6 @@ public class Field implements MetatronDomain<Long> {
 
   @Transient
   private String originalType;
-
-  /**
-   * 필드 삭제 여부 처리
-   */
-  @Transient
-  @JsonProperty
-  private Boolean removed;
 
   public Field() {
     // Empty Constructor
@@ -247,7 +285,7 @@ public class Field implements MetatronDomain<Long> {
 
     this.filtering = patch.getValue("filtering");
 
-    if(BooleanUtils.isTrue(this.filtering)) {
+    if (BooleanUtils.isTrue(this.filtering)) {
       this.filteringSeq = patch.getLongValue("filteringSeq");
       setFilteringOptions(patch.getObjectValue("filteringOptions"));
     }
@@ -255,15 +293,16 @@ public class Field implements MetatronDomain<Long> {
 
   public void updateField(CollectionPatch patch) {
     // if(patch.hasProperty("name")) this.name = patch.getValue("name");
-    if(patch.hasProperty("alias")) this.alias = patch.getValue("alias");
-    if(patch.hasProperty("description")) this.description = patch.getValue("description");
-    if(patch.hasProperty("logicalType")) this.logicalType = SearchParamValidator.enumUpperValue(LogicalType.class, patch.getValue("logicalType"), "logicalType");
-    if(patch.hasProperty("format")) this.format = patch.getValue("format");
-    if(patch.hasProperty("seq")) this.seq = patch.getLongValue("seq");
+    if (patch.hasProperty("alias")) this.alias = patch.getValue("alias");
+    if (patch.hasProperty("description")) this.description = patch.getValue("description");
+    if (patch.hasProperty("logicalType"))
+      this.logicalType = SearchParamValidator.enumUpperValue(LogicalType.class, patch.getValue("logicalType"), "logicalType");
+    if (patch.hasProperty("format")) this.format = patch.getValue("format");
+    if (patch.hasProperty("seq")) this.seq = patch.getLongValue("seq");
 
-    if(patch.hasProperty("filtering")) this.filtering = patch.getValue("filtering");
+    if (patch.hasProperty("filtering")) this.filtering = patch.getValue("filtering");
 
-    if(BooleanUtils.isTrue(this.filtering)) {
+    if (BooleanUtils.isTrue(this.filtering)) {
       if (patch.hasProperty("filteringOptions"))
         setFilteringOptions(patch.getObjectValue("filteringOptions"));
       if (patch.hasProperty("filteringSeq")) this.filteringSeq = patch.getLongValue("filteringSeq");
@@ -278,7 +317,11 @@ public class Field implements MetatronDomain<Long> {
    * Ingestion spec. 처리시 확인 할 것
    */
   @JsonIgnore
-  public Aggregation getAggregation() {
+  public Aggregation getAggregation(boolean isRelay) {
+
+    if(isRelay) {
+      return new RelayAggregation(name,logicalType.toEngineMetricType());
+    }
 
     if (aggrType == null) {
       return new GenericSumAggregation(name, name, "double");
@@ -303,6 +346,14 @@ public class Field implements MetatronDomain<Long> {
       default:
         return new GenericSumAggregation(name, name, "double");
     }
+  }
+
+  @JsonIgnore
+  public boolean isGeoType() {
+    LogicalType logicalType = getLogicalType();
+    return logicalType == LogicalType.GEO_POINT
+        || logicalType == LogicalType.GEO_LINE
+        || logicalType == LogicalType.GEO_POLYGON;
   }
 
   public void setColumnType(JdbcDataConnection connection, String columnType) {
@@ -351,6 +402,71 @@ public class Field implements MetatronDomain<Long> {
     }
   }
 
+  @JsonIgnore
+  public String getTimeFormat() {
+
+    if (StringUtils.isEmpty(format)) {
+      return format;
+    }
+
+    FieldFormat fieldFormat = getFormatObject();
+
+    // If it is a simple string, it is recognized as datetime format
+    if (StringUtils.isNotEmpty(format)
+        && (fieldFormat == null || !(fieldFormat instanceof TimeFieldFormat))) {
+      return format;
+    }
+
+    return ((TimeFieldFormat) fieldFormat).getFormat();
+  }
+
+  @JsonIgnore
+  public TimestampSpec createTimestampSpec() {
+
+    TimestampSpec timestampSpec = new TimestampSpec();
+    timestampSpec.setColumn(this.getName());
+    DateTime defaultReplaceDateTime = DateTime.now(DateTimeZone.UTC);
+    timestampSpec.setInvalidValue(defaultReplaceDateTime);
+    timestampSpec.setMissingValue(defaultReplaceDateTime);
+    timestampSpec.setReplaceWrongColumn(true);
+
+    FieldFormat fieldFormat = GlobalObjectMapper.readValue(this.format, FieldFormat.class);
+
+    // If it is a simple string, it is recognized as datetime format
+    if (StringUtils.isNotEmpty(this.format) && fieldFormat == null) {
+      timestampSpec.setFormat(this.format);
+      return timestampSpec;
+    }
+
+    if (fieldFormat == null && !(fieldFormat instanceof TimeFieldFormat)) {
+      timestampSpec.setFormat("auto");
+      return timestampSpec;
+    }
+
+    TimeFieldFormat timeFieldFormat = (TimeFieldFormat) fieldFormat;
+    // add timezone or locales ?..
+
+    if (fieldFormat instanceof CustomDateTimeFormat) {
+      timestampSpec.setFormat(timeFieldFormat.getFormat());
+    } else if (fieldFormat instanceof UnixTimeFormat) {
+      TimeUnits unit = ((UnixTimeFormat) fieldFormat).getUnit();
+      if (unit != null && unit == TimeUnits.SECOND) {
+        timestampSpec.setFormat("posix");
+      } else {
+        timestampSpec.setFormat("millis");
+      }
+    } else if (fieldFormat instanceof ContinuousTimeFormat) {
+      timestampSpec.setFormat(timeFieldFormat.getFormat());
+    }
+
+    return timestampSpec;
+  }
+
+  @JsonIgnore
+  public boolean isNotPhysicalField() {
+    return BooleanUtils.isTrue(derived) || BooleanUtils.isTrue(unloaded);
+  }
+
   public Long getId() {
     return id;
   }
@@ -384,7 +500,7 @@ public class Field implements MetatronDomain<Long> {
   }
 
   public LogicalType getLogicalType() {
-    if(logicalType == null) {
+    if (logicalType == null) {
       return type.toLogicalType();
     }
     return logicalType;
@@ -402,10 +518,10 @@ public class Field implements MetatronDomain<Long> {
     this.seq = seq;
   }
 
-//  @JsonIgnore
+  //  @JsonIgnore
   @Deprecated
   public BIType getBiType() {
-    if(role == null) {
+    if (role == null) {
       return null;
     }
     return BIType.valueOf(role.name());
@@ -438,6 +554,19 @@ public class Field implements MetatronDomain<Long> {
     this.alias = alias;
   }
 
+  @JsonIgnore
+  public IngestionRule getDerivationRuleObject() {
+    return GlobalObjectMapper.readValue(derivationRule, IngestionRule.class);
+  }
+
+  public String getDerivationRule() {
+    return derivationRule;
+  }
+
+  public void setDerivationRule(String derivationRule) {
+    this.derivationRule = derivationRule;
+  }
+
   public String getIngestionRule() {
     return ingestionRule;
   }
@@ -451,7 +580,21 @@ public class Field implements MetatronDomain<Long> {
     this.ingestionRule = ingestionRule;
   }
 
+  @JsonIgnore
+  public FieldFormat getFormatObject() {
+    return GlobalObjectMapper.readValue(format, FieldFormat.class);
+  }
+
   public String getFormat() {
+    if (format == null) {
+      return null;
+    }
+
+    // For the backward compatibility of existing plain text.
+    if (format != null && getFormatObject() == null) {
+      return GlobalObjectMapper.writeValueAsString(new CustomDateTimeFormat(format));
+    }
+
     return format;
   }
 
@@ -465,6 +608,14 @@ public class Field implements MetatronDomain<Long> {
 
   public void setPartitioned(Boolean partitioned) {
     this.partitioned = partitioned;
+  }
+
+  public Boolean getUnloaded() {
+    return unloaded;
+  }
+
+  public void setUnloaded(Boolean unloaded) {
+    this.unloaded = unloaded;
   }
 
   public Boolean getFiltering() {
@@ -488,7 +639,7 @@ public class Field implements MetatronDomain<Long> {
   }
 
   public void setFilteringOptions(Object object) {
-    if(object == null) {
+    if (object == null) {
       this.filteringOptions = null;
     } else {
       FilterOption option = GlobalObjectMapper.getDefaultMapper().convertValue(object, Field.FilterOption.class);
@@ -516,6 +667,14 @@ public class Field implements MetatronDomain<Long> {
     this.mappedField = mappedField;
   }
 
+  public Boolean getDerived() {
+    return derived;
+  }
+
+  public void setDerived(Boolean derived) {
+    this.derived = derived;
+  }
+
   public String getOriginalName() {
     return originalName;
   }
@@ -532,22 +691,15 @@ public class Field implements MetatronDomain<Long> {
     this.originalType = originalType;
   }
 
-  public Boolean getRemoved() {
-    return removed;
-  }
-
-  public void setRemoved(Boolean removed) {
-    this.removed = removed;
-  }
-
   @Override
   public String toString() {
     return "Field{" +
         "id=" + id +
         ", name='" + name + '\'' +
-        ", type='" + type + '\'' +
-        ", role=" + getRole() +
-        ", seq=" + seq +
+        ", type=" + type +
+        ", logicalType=" + logicalType +
+        ", role=" + role +
+        ", format='" + format + '\'' +
         '}';
   }
 
@@ -597,7 +749,7 @@ public class Field implements MetatronDomain<Long> {
       Preconditions.checkNotNull(selectorType, "selectorType required");
       switch (this) {
         case TIME:
-          if(TimeFilter.filterOptionTypes.contains(selectorType.toUpperCase())) {
+          if (TimeFilter.filterOptionTypes.contains(selectorType.toUpperCase())) {
             return selectorType;
           }
         case INCLUSION:
@@ -627,10 +779,10 @@ public class Field implements MetatronDomain<Long> {
 
       this.defaultSelector = this.type.checkSelector(defaultSelector);
 
-      if(CollectionUtils.isNotEmpty(allowSelectors)) {
+      if (CollectionUtils.isNotEmpty(allowSelectors)) {
         this.allowSelectors = allowSelectors.stream()
-                                          .map(s -> this.type.checkSelector(s))
-                                          .collect(Collectors.toList());
+                                            .map(s -> this.type.checkSelector(s))
+                                            .collect(Collectors.toList());
       }
     }
 

@@ -31,7 +31,7 @@
       <div class="ddp-box-upload" ng2FileDrop [uploader]="uploader">
         <!-- name -->
         <div class="ddp-data-load-name">
-          <em class="ddp-icon-file2"></em>{{datasetFile.filename}}
+          <em class="ddp-icon-file2"></em>{{datasetFile.filenameBeforeUpload}}
         </div>
         <!-- //name -->
         <div class="ddp-txt-file-info">
@@ -51,7 +51,7 @@
           <!-- sheet list -->
           <div class="ddp-ui-sheet-list">
             <ul class="ddp-list-sheet"  *ngFor="let item of datasetFile.selectedSheets; let idx = index">
-              <li [ngClass]="{'ddp-selected' : item.name === datasetFile.sheetname}" (click)="setDataSetSheetIndex($event,item.name, idx)">
+              <li [ngClass]="{'ddp-selected' : item.name === datasetFile.sheetName}" (click)="setDataSetSheetIndex($event,item.name, idx)">
                 <span class="ddp-txt-checkbox">{{item.name}}</span>
               </li>
             </ul>
@@ -60,12 +60,13 @@
           <!-- //sheet list -->
           <!-- sheet view -->
           <div class="ddp-view-sheet">
-            <div class="ddp-data-name" *ngIf="datasetFile.sheetname && ''!==datasetFile.sheetname">
+            <div class="ddp-data-name" *ngIf="datasetFile.sheetName && ''!==datasetFile.sheetName">
               {{datasetFile.sheetname}}
             </div>
             <!-- 그리드 영역 -->
-            <div class="ddp-wrap-grid" [hidden]="clearGrid" [ngStyle]="getGridStyle()">
-              <div grid-component style="width:100%; height:100%;" ></div>
+            <div class="ddp-wrap-grid"  [ngStyle]="getGridStyle()">
+              <div class="ddp-ui-empty" *ngIf="clearGrid">{{'msg.dp.ui.no.preview' | translate}}</div>
+              <div grid-component style="width:100%; height:100%;" [hidden]="clearGrid" ></div>
             </div>
 
             <!-- //그리드 영역 -->
@@ -75,18 +76,40 @@
         </div>
         <!-- //wrap sheet -->
       </div>
-      <div class="ddp-wrap-edit-form">
-        <div class="ddp-wrap-edit3 ddp-type">
-          <label class="ddp-label-type">{{'msg.dp.th.col.delimiter' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option">
-            <input type="text" class="ddp-input-typebasic ddp-input-size" id="fileDelimiter" placeholder="{{'msg.dp.th.col.delimiter.ph' | translate}}" [(ngModel)]="columnDelimiter" maxlength="5">
+      <div class="ddp-wrap-edit-form" >
+        <div class="ddp-clear">
+          <!--<div class="ddp-col-6" *ngIf="!datasetFile.sheets || 0 == datasetFile.sheets.length">  this.isCSV = true-->
+          <div class="ddp-col-6" *ngIf="isCSV">
+            <div class="ddp-wrap-edit3 ddp-type">
+              <label class="ddp-label-type">{{'msg.dp.th.col.delimiter' | translate}}</label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                <input class="ddp-input-typebasic ddp-input-size"
+                       id="fileDelimiter" maxlength="5"
+                       placeholder="{{'msg.dp.th.col.delimiter.ph' | translate}}"
+                       [(ngModel)]="columnDelimiter"
+                       (keyup)="changeDelimiter()">
+              </div>
+              <!-- //edit option -->
+            </div>
           </div>
-          <!-- //edit option -->
+          <div class="ddp-col-6">
+            <div class="ddp-wrap-edit3 ddp-type">
+              <label class="ddp-label-type ">{{'msg.dp.ui.file.upload.location' | translate}}</label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option ">
+                <component-select
+                  [array]="uploadLocationList"
+                  [viewKey]="'name'"
+                  [defaultIndex]="0"
+                  (onSelected)="onChangeUploadLocation($event)">
+                </component-select>
+              </div>
+              <!-- //edit option -->
+            </div>
+          </div>
         </div>
       </div>
-
-
 
     </div>
   </div>
@@ -95,7 +118,7 @@
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.cancl' | translate}}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    <a href="javascript:" [ngClass]="{'ddp-disabled':clearGrid}" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->
 

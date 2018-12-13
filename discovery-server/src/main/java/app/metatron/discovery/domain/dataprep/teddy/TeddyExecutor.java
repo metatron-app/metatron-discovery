@@ -15,12 +15,17 @@
 package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.dataprep.PrepSnapshot;
-import app.metatron.discovery.domain.dataprep.PrepSnapshot.COMPRESSION;
-import app.metatron.discovery.domain.dataprep.PrepSnapshot.FORMAT;
-import app.metatron.discovery.domain.dataprep.PrepSnapshotService;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_COMPRESSION;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_FORMAT;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.jdbc.JdbcDataPrepService;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.jdbc.PrepJdbcService;
+import app.metatron.discovery.domain.dataprep.service.PrSnapshotService;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcTypeNotSupportedException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
@@ -30,6 +35,7 @@ import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -48,11 +54,11 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.sql.DataSource;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -78,7 +84,7 @@ public class TeddyExecutor {
   DataFrameService dataFrameService;
 
   @Autowired
-  PrepSnapshotService snapshotService;
+  PrSnapshotService snapshotService;
 
   public String  hadoopConfDir;
 
@@ -151,15 +157,17 @@ public class TeddyExecutor {
       updateSnapshot("ruleCntTotal", String.valueOf(ruleCntTotal), ssId);
       updateAsRunning(ssId);
 
-      if (snapshotInfo.get("ssType").equals(PrepSnapshot.SS_TYPE.FILE.name())) {
-        result = createFileSnapshot(argv);
-      } else if (snapshotInfo.get("ssType").equals(PrepSnapshot.SS_TYPE.HDFS.name())) {
-        result = createHdfsSnapshot(hadoopConfDir, argv);
-      } else if (snapshotInfo.get("ssType").equals(PrepSnapshot.SS_TYPE.HIVE.name())) {
+      String ssType = (String) snapshotInfo.get("ssType");
+
+      if (ssType.equals(PrSnapshot.SS_TYPE.URI.name())) {
+        result = createUriSnapshot(argv);
+//      } else if (snapshotInfo.get("ssType").equals(PrSnapshot.SS_TYPE.HDFS.name())) {
+//        result = createHdfsSnapshot(hadoopConfDir, argv);
+      } else if (ssType.equals(PrSnapshot.SS_TYPE.STAGING_DB.name())) {
         result = createHiveSnapshot(hadoopConfDir, datasetInfo, snapshotInfo);
       } else {
         updateAsFailed(ssId);
-        throw new IllegalArgumentException("run(): ssType not supported: ssType=" + snapshotInfo.get("ssType"));
+        throw new IllegalArgumentException("run(): ssType not supported: ssType=" + ssType);
       }
     } catch(CancellationException ce) {
       LOGGER.info("run(): snapshot canceled from run_internal(): ", ce);
@@ -191,8 +199,42 @@ public class TeddyExecutor {
     return result;
   }
 
-  private Future<String> createFileSnapshot(String[] argv) throws Throwable {
-    LOGGER.info("createFileSnapshot(): started");
+  private int writeCsv(String strUri, DataFrame df, String ssId) {
+    CSVPrinter printer = PrepCsvUtil.getPrinter(strUri, conf);
+    String errmsg = null;
+
+    try {
+      for(int colno=0; colno < df.getColCnt(); colno++) {
+        printer.print(df.getColName(colno));
+      }
+      printer.println();
+
+      for (int rowno = 0; rowno < df.rows.size(); cancelCheck(ssId, ++rowno)) {
+        Row row = df.rows.get(rowno);
+        for (int colno = 0; colno < df.getColCnt(); ++colno) {
+          printer.print(row.get(colno));
+        }
+        printer.println();
+      }
+    } catch (IOException e) {
+      errmsg = e.getMessage();
+    }
+
+    try {
+      printer.close(true);
+    } catch (IOException e) {
+      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_CSV, e.getMessage());
+    }
+
+    if (errmsg != null) {
+      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV, errmsg);
+    }
+
+    return df.rows.size();
+  }
+
+  private Future<String> createUriSnapshot(String[] argv) throws Throwable {
+    LOGGER.info("createUriSnapshot(): started");
 
     Map<String, Object> datasetInfo = GlobalObjectMapper.readValue(argv[2], HashMap.class);
     Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
@@ -205,95 +247,124 @@ public class TeddyExecutor {
 
     updateAsWriting(ssId);
 
-    String ssDir = (String) snapshotInfo.get("fileUri");
-    if(null==ssDir) {
-      String localBaseDir = (String) snapshotInfo.get("localBaseDir");
-      String ssName = (String) snapshotInfo.get("ssName");
-      ssDir = this.snapshotService.getSnapshotDir(localBaseDir, ssName);
-    }
-    ssDir = this.snapshotService.escapeSsNameOfUri(ssDir);
-    Files.createDirectories(Paths.get(ssDir));
-
     DataFrame df = cache.get(masterFullDsId);
-    String filePath = Paths.get(ssDir, "part-00000-" + masterTeddyDsId + ".csv").toString();
-    BufferedWriter br = new BufferedWriter(new FileWriter(filePath));
-    int totalLines = writeCsv(ssId, df, br, df.colNames);
+
+//    String fileUri = (String) snapshotInfo.get("fileUri");
+//    if(fileUri == null) {
+//      String localBaseDir = (String) snapshotInfo.get("localBaseDir");
+//      String ssName = (String) snapshotInfo.get("ssName");
+//      fileUri = this.snapshotService.getSnapshotDir(localBaseDir, ssName);
+//      fileUri = this.snapshotService.escapeSsNameOfUri(fileUri);
+//      Files.createDirectories(Paths.get(fileUri));
+//
+//      fileUri = fileUri.replace(" ",  "%20");
+//    }
+//    String fullPath = fileUri + "/part-00000-" + masterTeddyDsId + ".csv";
+//    String strUri = "file://" + fullPath;
+//
+//    writeCsvForUriSnapshot(strUri, df, ssId);
+
+//    String fileUri = ((String) snapshotInfo.get("fileUri")).replace(" ",  "%20");
+//    String storageType = (String) snapshotInfo.get("storageType");
+
+    // Currently, fileUri from UI for HDFS storage_type is the directory's URI of the destination of the snapshot.
+//    switch (storageType) {  // PrSnapshot.STORAGE_TYPE
+//      case "LOCAL":
+//        storedUri = fileUri;
+//        writeCsv(storedUri, df, ssId);
+//        break;
+//      case "HDFS":
+//        storedUri = fileUri + File.separator + "/part-00000-" + masterTeddyDsId + ".csv";;
+//        writeCsv(storedUri, df, ssId);
+//        break;
+//      default:
+//        assert false : storageType;
+//    }
+
+    String fileUri = (String) snapshotInfo.get("storedUri");
+    String dirUri = snapshotService.escapeUri(fileUri);
+    String storedUri = dirUri + File.separator + "part-00000-" + masterTeddyDsId + ".csv";;
+    writeCsv(storedUri, df, ssId);
 
     // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
     for (String fullDsId : reverseMap.keySet()) {
       cache.remove(fullDsId);
     }
 
-    ssDir = this.snapshotService.unescapeSsNameOfUri(ssDir);
-    updateSnapshot("uri", ssDir, ssId);   // 필드명은 uri지만, local full path가 들어간다.
+    updateSnapshot("storedUri", storedUri, ssId);
 
-    LOGGER.info("createFileSnapshot() finished: totalLines={}", totalLines);
+    LOGGER.info("createUriSnapshot() finished: totalLines={}", df.rows.size());
 
     DateTime finishTime = DateTime.now(DateTimeZone.UTC);
     updateSnapshot("finishTime", finishTime.toString(), ssId);
-    updateSnapshot("totalLines", String.valueOf(totalLines), ssId);
+    updateSnapshot("totalLines", String.valueOf(df.rows.size()), ssId);
     updateAsSucceeded(ssId);
 
     return new AsyncResult<>("Success");
   }
 
-  private Future<String> createHdfsSnapshot(String hadoopConfDir, String[] argv) throws Throwable {
-    LOGGER.info("createHdfsSnapshot(): adding hadoop config files (if exists): " + hadoopConfDir);
-
-    Map<String, Object> datasetInfo = GlobalObjectMapper.readValue(argv[2], HashMap.class);
-    Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
-
-    // master dataset 정보에 모든 upstream 정보도 포함되어있음.
-    String ssId = (String) snapshotInfo.get("ssId");
-    String masterTeddyDsId = ((String) datasetInfo.get("origTeddyDsId"));
-    transformRecursive(datasetInfo, ssId);
-    String masterFullDsId = replaceMap.get(masterTeddyDsId);
-
-    updateAsWriting(ssId);
-
-    String stagingBaseDir = (String) snapshotInfo.get("stagingBaseDir");
-    String ssUri = (String) snapshotInfo.get("fileUri");
-    if(null==ssUri) {
-      String ssName = (String) snapshotInfo.get("ssName");
-      ssUri = this.snapshotService.getSnapshotDir(stagingBaseDir, ssName);
-    }
-
-    /* 변경됨.
-    // 겹치지는 않을 것. garbage collection 필요. (주기적으로 참조되지 않는 snapshot 디렉토리 제거)
-    Path ssDir = new Path(stagingBaseDir + "/snapshots/", ssId);
-    */
-    FileSystem fs = FileSystem.get(conf);
-    ssUri = this.snapshotService.escapeSsNameOfUri(ssUri);
-    Path ssDir = new Path(ssUri);
-    if (fs.exists(ssDir)) {
-      fs.delete(ssDir, true);
-    }
-
-    Path file = new Path(ssDir.toString() + File.separator + "part-00000-" + ssId + ".csv"); // masterTeddyDsId 대신 ssId를 쓰고 있었음
-    OutputStream os = fs.create(file);
-    BufferedWriter br = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-
-    LOGGER.info("createHdfsSnapshot() path={}", file.toString());
-
-    DataFrame df = cache.get(masterFullDsId);
-    int totalLines = writeCsv(ssId, df, br, null);
-
-    // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
-    for (String fullDsId : reverseMap.keySet()) {
-      cache.remove(fullDsId);
-    }
-
-    updateSnapshot("uri", this.snapshotService.unescapeSsNameOfUri(file.toString()), ssId);   // 필드명은 uri지만, hdfs full path가 들어간다.
-
-    LOGGER.info("createHdfsSnapshot() finished: totalLines={}", totalLines);
-
-    DateTime finishTime = DateTime.now(DateTimeZone.UTC);
-    updateSnapshot("finishTime", finishTime.toString(), ssId);
-    updateSnapshot("totalLines", String.valueOf(totalLines), ssId);
-    updateAsSucceeded(ssId);
-
-    return new AsyncResult<>("Success");
-  }
+//  private Future<String> createHdfsSnapshot(String hadoopConfDir, String[] argv) throws Throwable {
+//    LOGGER.info("createHdfsSnapshot(): adding hadoop config files (if exists): " + hadoopConfDir);
+//
+//    Map<String, Object> datasetInfo = GlobalObjectMapper.readValue(argv[2], HashMap.class);
+//    Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
+//
+//    // master dataset 정보에 모든 upstream 정보도 포함되어있음.
+//    String ssId = (String) snapshotInfo.get("ssId");
+//    String masterTeddyDsId = ((String) datasetInfo.get("origTeddyDsId"));
+//    transformRecursive(datasetInfo, ssId);
+//    String masterFullDsId = replaceMap.get(masterTeddyDsId);
+//
+//    updateAsWriting(ssId);
+//
+//    String stagingBaseDir = (String) snapshotInfo.get("stagingBaseDir");
+//    String ssUri = (String) snapshotInfo.get("fileUri");
+//    if(null==ssUri) {
+//      String ssName = (String) snapshotInfo.get("ssName");
+//      ssUri = this.snapshotService.getSnapshotDir(stagingBaseDir, ssName);
+//    }
+//
+//    /* 변경됨.
+//    // 겹치지는 않을 것. garbage collection 필요. (주기적으로 참조되지 않는 snapshot 디렉토리 제거)
+//    Path ssDir = new Path(stagingBaseDir + "/snapshots/", ssId);
+//    */
+//    FileSystem fs = FileSystem.get(conf);
+//    ssUri = this.snapshotService.escapeUri(ssUri);
+//    Path ssDir = new Path(ssUri);
+//    if (fs.exists(ssDir)) {
+//      fs.delete(ssDir, true);
+//    }
+//
+//    Path file = new Path(ssDir.toString() + File.separator + "part-00000-" + ssId + ".csv"); // masterTeddyDsId 대신 ssId를 쓰고 있었음
+////    OutputStream os = fs.create(file);
+////    BufferedWriter br = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+////
+////    LOGGER.info("createHdfsSnapshot() path={}", file.toString());
+//
+//    DataFrame df = cache.get(masterFullDsId);
+////    int totalLines = writeCsvForUriSnapshot(ssId, df, br, df.colNames);
+//
+//    String strUri = ssUri + File.separator + "part-00000-" + ssId + ".csv";
+//
+//    LOGGER.info("createHdfsSnapshot() strUri={}", strUri);
+//    int totalLines = writeCsvForUriSnapshot(strUri, df, ssId);
+//
+//    // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
+//    for (String fullDsId : reverseMap.keySet()) {
+//      cache.remove(fullDsId);
+//    }
+//
+//    updateSnapshot("uri", this.snapshotService.unescapeSsNameOfUri(file.toString()), ssId);   // 필드명은 uri지만, hdfs full path가 들어간다.
+//
+//    LOGGER.info("createHdfsSnapshot() finished: totalLines={}", totalLines);
+//
+//    DateTime finishTime = DateTime.now(DateTimeZone.UTC);
+//    updateSnapshot("finishTime", finishTime.toString(), ssId);
+//    updateSnapshot("totalLines", String.valueOf(totalLines), ssId);
+//    updateAsSucceeded(ssId);
+//
+//    return new AsyncResult<>("Success");
+//  }
 
   private Future<String> createHiveSnapshot(String hadoopConfDir,
                                             Map<String, Object> datasetInfo,
@@ -315,9 +386,9 @@ public class TeddyExecutor {
     finalDf.checkAlphaNumericalColNames();
 
     List<String> ruleStrings = (List<String>) datasetInfo.get("ruleStrings");
-    List<String> partKeys = (List<String>) snapshotInfo.get("partKeys");
-    String format = (String) snapshotInfo.get("format");
-    String compression = (String) snapshotInfo.get("compression");
+    List<String> partKeys = (List<String>) snapshotInfo.get("partitionColNames");
+    String format = (String) snapshotInfo.get("hiveFileFormat");
+    String compression = (String) snapshotInfo.get("hiveFileCompression");
     String database = (String) snapshotInfo.get("dbName");
     String tableName = (String) snapshotInfo.get("tblName");
     String extHdfsDir = snapshotInfo.get("stagingBaseDir") + File.separator + "snapshots";
@@ -334,7 +405,7 @@ public class TeddyExecutor {
 
     DateTime finishTime = DateTime.now(DateTimeZone.UTC);
     updateSnapshot("finishTime", finishTime.toString(), ssId);
-    // totalLines is already written in writeToHdfs()
+    // totalLines is already written in writeCsvForStagingDbSnapshot()
     updateAsSucceeded(ssId);
 
     return new AsyncResult<>("Success");
@@ -477,14 +548,13 @@ public class TeddyExecutor {
     LOGGER.trace("applyRuleStrings(): end");
   }
 
-  private void loadCsvFile(String dsId, String filePath, String delimiter) throws URISyntaxException {
+  private void loadCsvFile(String dsId, String strUri, String delimiter) throws URISyntaxException {
     DataFrame df = new DataFrame();
 
-    LOGGER.info(String.format("loadCsvFile(): dsId=%s filePath=%s delemiter=%s", dsId, filePath, delimiter));
+    LOGGER.info("loadCsvFile(): dsId={} strUri={} delemiter={}", dsId, strUri, delimiter);
 
-    List<String[]> grid = Util.loadGridLocalCsv(filePath, delimiter, limitRows, conf, null);
-    //List<String[]> grid = Util.loadGridLocalCsv(filePath, delimiter, limitRows);
-    df.setByGrid(grid, null);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, conf, false);
+    df.setByGrid(result);
 
     LOGGER.info("loadCsvFile(): done");
     cache.put(dsId, df);
@@ -493,29 +563,36 @@ public class TeddyExecutor {
   public String createStage0(Map<String, Object> datasetInfo) throws Throwable {
     String newFullDsId = UUID.randomUUID().toString();
 
-    LOGGER.trace("createStage0(): start");
+    LOGGER.trace("TeddyExecutor.createStage0(): newFullDsId={}", newFullDsId);
 
-    switch ((String) datasetInfo.get("importType")) {
-      case "FILE":
-        loadCsvFile(newFullDsId, (String) datasetInfo.get("filePath"), (String) datasetInfo.get("delimiter"));
+    if (datasetInfo.get("importType") == null) {
+      throw new IllegalArgumentException("TeddyExecutor.createStage0(): importType should not be null");
+    }
+
+    String importType = (String) datasetInfo.get("importType");
+    switch (importType) {
+      case "UPLOAD":
+        loadCsvFile(newFullDsId, (String) datasetInfo.get("storedUri"), (String) datasetInfo.get("delimiter"));
         break;
-      case "HIVE":
-        loadHiveTable(newFullDsId, (String) datasetInfo.get("sourceQuery"));
-        break;
-      case "DB":
+
+      case "DATABASE":
         loadJdbcTable(newFullDsId,
                 (String) datasetInfo.get("sourceQuery"),
                 (String) datasetInfo.get("implementor"),
                 (String) datasetInfo.get("connectUri"),
                 (String) datasetInfo.get("username"),
-                (String) datasetInfo.get("password")
-        );
+                (String) datasetInfo.get("password"));
         break;
+
+      case "STAGING_DB":
+        loadHiveTable(newFullDsId, (String) datasetInfo.get("sourceQuery"));
+        break;
+
       default:
-        assert false : datasetInfo.get("importType").toString();
+        throw new IllegalArgumentException("TeddyExecutor.createStage0(): not supported importType: " + importType);
     }
 
-    LOGGER.trace("createStage0(): end");
+    LOGGER.trace("TeddyExecutor.createStage0(): end");
     return newFullDsId;
   }
 
@@ -572,7 +649,7 @@ public class TeddyExecutor {
   // 테스트를 위해 public으로 바꾸고, dsId대신 dataframe을 받도록 수정
   public void makeHiveTable(DataFrame df, List<String> partitions,
                             String fullTblName, String location,
-                            FORMAT format, COMPRESSION compression) throws SQLException, ClassNotFoundException {
+                            HIVE_FILE_FORMAT hiveFileFormat, HIVE_FILE_COMPRESSION compression) throws SQLException, ClassNotFoundException {
     StringBuffer createTable = null;
     StringBuffer partitionedBy = null;
 
@@ -601,30 +678,29 @@ public class TeddyExecutor {
       createTable.append(String.format(" %s)", partitionedBy));
     }
 
-    switch (format) {
+    switch (hiveFileFormat) {
       case CSV:
         // 아래 방법으로 table을 만들면 quote 문자를 지정하지 못한다.
         // 내용 중간에 comma가 있는 경우 다음 컬럼으로 인식된다.
         // 대신 type이 모두 string이 되는 현상은 없다.
-        //createTable.append(String.format(" ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '%s'", location));
+        createTable.append(String.format(" ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '%s'", location));
 
         // 아래 방법으로 table을 만들면 quote 문자를 지정할 수 있다.
         // 하지만 모든 컬럼이 string이 된다.
-        String quote = "\"";
-        String slash = "\\";
-        createTable.append(" ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde' ");
-        createTable.append("WITH SERDEPROPERTIES (");
-        createTable.append(String.format("%sseparatorChar%s = %s%s,%s, ", quote, quote, quote, slash, quote));        // "separatorChar" = "\,",
-        createTable.append(String.format("%squoteChar%s     = %s%s%s%s", quote, quote, quote, slash, quote, quote));  // "quoteChar"     = "\""
-        createTable.append(")");
-        createTable.append(String.format(" STORED AS TEXTFILE LOCATION '%s'", location));
+//        String quote = "\"";
+//        String slash = "\\";
+//        createTable.append(" ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde' ");
+//        createTable.append("WITH SERDEPROPERTIES (");
+//        createTable.append(String.format("%sseparatorChar%s = %s%s,%s, ", quote, quote, quote, slash, quote));        // "separatorChar" = "\,",
+//        createTable.append(String.format("%squoteChar%s     = %s%s%s%s", quote, quote, quote, slash, quote, quote));  // "quoteChar"     = "\""
+//        createTable.append(")");
+//        createTable.append(String.format(" STORED AS TEXTFILE LOCATION '%s'", location));
         break;
       case ORC:
         createTable.append(String.format(" STORED AS ORC LOCATION '%s' TBLPROPERTIES (\"orc.compress\"=\"%s\")", location, compression.name()));
         break;
-      case JSON:
-      case PARQUET:
-        assert false : format;
+      default:
+        assert false : hiveFileFormat;
     }
     LOGGER.info("makeHiveTable(): create table statement=" + createTable.toString());
 
@@ -647,8 +723,8 @@ public class TeddyExecutor {
     }
   }
 
-  private int writeCsv(String ssId, DataFrame df, BufferedWriter br, List<String> colNames) throws IOException {
-    LOGGER.trace("writeCsv(): start");
+  private int writeCsvForUriSnapshot(String ssId, DataFrame df, BufferedWriter br, List<String> colNames) throws IOException {
+    LOGGER.trace("writeCsvForUriSnapshot(): start");
 
     if (colNames != null) {
       for (int colno = 0; colno < df.getColCnt(); colno++) {
@@ -693,16 +769,16 @@ public class TeddyExecutor {
     }
     br.close();
 
-    LOGGER.trace("writeCsv(): end");
+    LOGGER.trace("writeCsvForUriSnapshot(): end");
     return df.rows.size();
   }
 
-  public String writeToHdfs(String ssId, String dsId, String extHdfsDir, String dbName, String tblName,
-                            FORMAT format, COMPRESSION compression) throws IOException {
+  public String writeCsvForStagingDbSnapshot(String ssId, String dsId, String extHdfsDir, String dbName, String tblName,
+                            HIVE_FILE_FORMAT hiveFileFormat, HIVE_FILE_COMPRESSION compression) throws IOException, IllegalColumnNameForHiveException {
     Integer[] rowCnt = new Integer[2];
     FileSystem fs = FileSystem.get(conf);
 
-    LOGGER.trace("writeToHdfs(): start");
+    LOGGER.trace("writeCsvForStagingDbSnapshot(): start");
     assert extHdfsDir.equals("") == false : extHdfsDir;
     LOGGER.info("extHdfsDir=" + extHdfsDir);
 
@@ -713,21 +789,19 @@ public class TeddyExecutor {
 
     DataFrame df = cache.get(dsId);
 
-    switch (format) {
+    switch (hiveFileFormat) {
       case CSV:
-        Path file = new Path(dir.toString() + File.separator + "part-00000-" + dsId + ".csv");
-        OutputStream os = fs.create(file);
-        BufferedWriter br = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-        rowCnt[0] = writeCsv(ssId, df, br, null);
+        String strUri = dir.toString() + File.separator + "part-00000-" + dsId + ".csv";
+        rowCnt[0] = writeCsv(strUri, df, ssId);
         break;
       case ORC:
-        file = new Path(dir.toString() + File.separator + "part-00000-" + dsId + ".orc");
+        df.lowerColNames();
+        Path file = new Path(dir.toString() + File.separator + "part-00000-" + dsId + ".orc");
         TeddyOrcWriter orcWriter = new TeddyOrcWriter();
         rowCnt = orcWriter.writeOrc(df, conf, file, compression);
         break;
-      case PARQUET:
-      case JSON:
-        assert false : format;
+      default:
+        assert false : hiveFileFormat;
     }
 
     Path success = new Path(extHdfsDir + File.separator + "_SUCCESS");
@@ -747,7 +821,7 @@ public class TeddyExecutor {
       updateSnapshot("lineageInfo", mapper.writeValueAsString(lineageInfo), ssId);
     }
 
-    LOGGER.trace("writeToHdfs(): end");
+    LOGGER.trace("writeCsvForStagingDbSnapshot(): end");
     return dir.toUri().toString();
   }
 
@@ -756,23 +830,23 @@ public class TeddyExecutor {
                                          String format, String compression) throws Throwable {
     LOGGER.info("createHiveSnapshotInternal(): ruleStrings.size()={} fullTblName={}.{} format={} compression={}",
             ruleStrings.size(), dbName, tblName, format, compression);
-    FORMAT enumFormat = null;
-    COMPRESSION enumCompression = null;
+    HIVE_FILE_FORMAT enumFormat = null;
+    HIVE_FILE_COMPRESSION enumCompression = null;
 
     // format -> CSV or ORC
-    if (format.equalsIgnoreCase(FORMAT.CSV.name())) {
-      enumFormat = FORMAT.CSV;
-    } else if (format.equalsIgnoreCase(FORMAT.ORC.name())) {
-      enumFormat = FORMAT.ORC;
+    if (format.equalsIgnoreCase(HIVE_FILE_FORMAT.CSV.name())) {
+      enumFormat = HIVE_FILE_FORMAT.CSV;
+    } else if (format.equalsIgnoreCase(HIVE_FILE_FORMAT.ORC.name())) {
+      enumFormat = HIVE_FILE_FORMAT.ORC;
 
       // compression -> SNAPPY, ZLIB or LZO
-      if (compression.equalsIgnoreCase(COMPRESSION.SNAPPY.name())) {
-        enumCompression = COMPRESSION.SNAPPY;
-      } else if (compression.equalsIgnoreCase(COMPRESSION.ZLIB.name())) {
-        enumCompression = COMPRESSION.ZLIB;
-      } else if (compression.equalsIgnoreCase(COMPRESSION.NONE.name())) {
-        enumCompression = COMPRESSION.NONE;
-      } else if (compression.equalsIgnoreCase(COMPRESSION.LZO.name())) {
+      if (compression.equalsIgnoreCase(HIVE_FILE_COMPRESSION.SNAPPY.name())) {
+        enumCompression = HIVE_FILE_COMPRESSION.SNAPPY;
+      } else if (compression.equalsIgnoreCase(HIVE_FILE_COMPRESSION.ZLIB.name())) {
+        enumCompression = HIVE_FILE_COMPRESSION.ZLIB;
+      } else if (compression.equalsIgnoreCase(HIVE_FILE_COMPRESSION.NONE.name())) {
+        enumCompression = HIVE_FILE_COMPRESSION.NONE;
+      } else if (compression.equalsIgnoreCase(HIVE_FILE_COMPRESSION.LZO.name())) {
         assert false : "LZO not supported by embedded engine";
       } else {
         assert false : compression;   // FIXME: make and throw an appropriate Exception
@@ -783,7 +857,7 @@ public class TeddyExecutor {
     }
 
     updateAsWriting(ssId);
-    String location = writeToHdfs(ssId, masterFullDsId, extHdfsDir, dbName, tblName, enumFormat, enumCompression);
+    String location = writeCsvForStagingDbSnapshot(ssId, masterFullDsId, extHdfsDir, dbName, tblName, enumFormat, enumCompression);
 
     updateAsTableCreating(ssId);
     makeHiveTable(cache.get(masterFullDsId), partKeys, dbName + "." + tblName, location, enumFormat, enumCompression);
@@ -827,7 +901,7 @@ public class TeddyExecutor {
     hiveConn.setPassword(hivePassword);
     hiveConn.setUrl(hiveCustomUrl);
 
-    JdbcDataPrepService jdbcConnectionService = new JdbcDataPrepService();
+    PrepJdbcService jdbcConnectionService = new PrepJdbcService();
     DataSource dataSource = jdbcConnectionService.getDataSource(hiveConn, true);
     Statement stmt;
 
@@ -879,36 +953,36 @@ public class TeddyExecutor {
 
   private void updateAsRunning(String ssId) {
     cancelCheck(ssId);
-    updateSnapshot("status", PrepSnapshot.STATUS.RUNNING.name(), ssId);
+    updateSnapshot("status", PrSnapshot.STATUS.RUNNING.name(), ssId);
   }
 
   private void updateAsWriting(String ssId) {
     cancelCheck(ssId);
-    updateSnapshot("status", PrepSnapshot.STATUS.WRITING.name(), ssId);
+    updateSnapshot("status", PrSnapshot.STATUS.WRITING.name(), ssId);
   }
 
   private void updateAsTableCreating(String ssId) {
     cancelCheck(ssId);
-    updateSnapshot("status", PrepSnapshot.STATUS.TABLE_CREATING.name(), ssId);
+    updateSnapshot("status", PrSnapshot.STATUS.TABLE_CREATING.name(), ssId);
   }
 
   private void updateAsSucceeded(String ssId) {
-    updateSnapshot("status", PrepSnapshot.STATUS.SUCCEEDED.name(), ssId);
+    updateSnapshot("status", PrSnapshot.STATUS.SUCCEEDED.name(), ssId);
     snapshotRuleDoneCnt.remove(ssId);
   }
 
   private void updateAsFailed(String ssId) {
-    updateSnapshot("status", PrepSnapshot.STATUS.FAILED.name(), ssId);
+    updateSnapshot("status", PrSnapshot.STATUS.FAILED.name(), ssId);
     snapshotRuleDoneCnt.remove(ssId);
   }
 
   private void updateAsCanceled(String ssId) {
-    updateSnapshot("status", PrepSnapshot.STATUS.CANCELED.name(), ssId);
+    updateSnapshot("status", PrSnapshot.STATUS.CANCELED.name(), ssId);
     snapshotRuleDoneCnt.remove(ssId);
   }
 
   synchronized public void cancelCheck(String ssId) throws CancellationException{
-    if(snapshotService.getSnapshotStatus(ssId).equals(PrepSnapshot.STATUS.CANCELED)) {
+    if(snapshotService.getSnapshotStatus(ssId).equals(PrSnapshot.STATUS.CANCELED)) {
       throw new CancellationException("This snapshot generating was canceled by user. ssid: " + ssId);
     }
   }
@@ -919,7 +993,7 @@ public class TeddyExecutor {
     }
   }
 
-  public PrepSnapshot.STATUS statusCheck(String ssId) {
+  public PrSnapshot.STATUS statusCheck(String ssId) {
     return snapshotService.getSnapshotStatus(ssId);
   }
 }

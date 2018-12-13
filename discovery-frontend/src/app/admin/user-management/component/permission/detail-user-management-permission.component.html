@@ -18,24 +18,22 @@
   <div class="ddp-wrap-navi">
     <a href="javascript:" class="ddp-btn-back" (click)="onClickPermissionList()"></a>
     <!-- navi -->
-    <div class="ddp-ui-naviarea">
+    <div *ngIf="role.name" class="ddp-ui-naviarea">
       <!-- name -->
-      <!-- 클릭시 ddp-selected 추가 -->
       <div class="ddp-box-navi ">
-        <div class="ddp-wrap-naviname" *ngIf="role.name">
+        <div class="ddp-wrap-naviname" >
           <span class="ddp-data-naviname ddp-readonly">{{getRoleName(role.name)}}</span>
         </div>
       </div>
       <!-- //name -->
 
       <!-- description -->
-      <!-- 클릭시 ddp-selected 추가 -->
-      <div class="ddp-box-navidet" *ngIf="role.description">
+      <div class="ddp-box-navidet" >
         <div class="ddp-wrap-navidet">
-          <span class="ddp-data-navidet ddp-readonly">{{role.description}}</span>
+          <span class="ddp-data-navidet ddp-readonly">{{getRoleDesc(role.name)}}</span>
         </div>
       </div>
-      <!-- //description -->
+      <!-- // description -->
     </div>
     <!-- //navi -->
 
@@ -50,19 +48,19 @@
 
   <div class="ddp-ui-datadetail">
     <label class="ddp-label-detail">{{'msg.comm.ui.info' | translate}}</label>
-    <table class="ddp-table-detail">
+    <table *ngIf="role.name" class="ddp-table-detail">
       <colgroup>
         <col width="160px">
         <col width="*">
       </colgroup>
       <tbody>
-      <tr *ngIf="role.name">
+      <tr>
         <th> {{'msg.comm.ui.name' | translate}} </th>
         <td> {{getRoleName(role.name)}} </td>
       </tr>
-      <tr *ngIf="role.description">
+      <tr>
         <th> {{'msg.comm.ui.description' | translate}} </th>
-        <td> {{role.description}} </td>
+        <td> {{getRoleDesc(role.name)}} </td>
       </tr>
       </tbody>
     </table>

@@ -14,13 +14,19 @@
 
 import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit,
-  Output
+  Output, ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
+import {
+  DatasourceInfo, Field, FieldFormat, FieldFormatType, IngestionRuleType,
+  LogicalType
+} from '../../../../../domain/datasource/datasource';
 import { isUndefined } from 'util';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import * as _ from 'lodash';
+import { StringUtil } from '../../../../../common/util/string.util';
+import { Alert } from '../../../../../common/util/alert.util';
+import { AddColumnComponent } from '../../../component/add-column.component';
 
 @Component({
   selector: 'db-configure-schema',
@@ -42,6 +48,10 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
 
   // 선택된 컬럼리스트
   private checkedColumnList: any[];
+
+  // add column component
+  @ViewChild(AddColumnComponent)
+  private _addColumnComponent: AddColumnComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -88,6 +98,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
   // show flag
   public typeShowFl: boolean = false;
   public timestampShowFl: boolean = false;
+  public addColumnShowFl: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -202,10 +213,9 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @returns {any[]}
    */
   public getTimeTypeColumns() {
-    const columnList = this.fields.filter((column) => {
+    return this.fields.filter((column) => {
       return column.logicalType === 'TIMESTAMP' && !this.isDeletedColumn(column);
     });
-    return columnList;
   }
 
   /**
@@ -213,10 +223,9 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @returns {any[]}
    */
   public getNotDeletedColumns() {
-    const columnList = this.fields.filter((column) => {
-      return column.removed === false;
+    return this.fields.filter((column) => {
+      return column.unloaded === false;
     });
-    return columnList;
   }
 
   /**
@@ -320,7 +329,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    */
   public onSelectedColumn(column) {
     // 삭제된 상태라면 선택 x
-    if (column.removed) {
+    if (column.unloaded) {
       return;
     }
     // 컬럼 선택
@@ -358,7 +367,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    */
   public onClickRevival(column) {
     // 삭제상태 해제
-    column.removed = false;
+    column.unloaded = false;
     // init timestamp
     if (this.selectedTimestampType === 'CURRENT' && column.logicalType === 'TIMESTAMP') {
       this.initTimestampColumn();
@@ -374,6 +383,45 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
       return;
     }
     this.timestampShowFl = !this.timestampShowFl;
+  }
+
+  /**
+   * Add column button click event
+   */
+  public onClickAddColumn(): void {
+    this.addColumnShowFl = !this.addColumnShowFl;
+    if (this.addColumnShowFl) {
+      this._addColumnComponent.init(this.fields);
+    }
+  }
+
+  /**
+   * Closed add column modal
+   * @param data
+   */
+  public onClosedAddColumn(data: any): void {
+    if (data) {
+      // data push in fields
+      this.fields.unshift(data);
+      // if new column type GEO
+      if (data.logicalType.indexOf('GEO_') !== -1) {
+        const latColumnName = data.derivationRule.latField;
+        const lonColumnName = data.derivationRule.lonField;
+        // temp
+        let temp: string;
+        // set data list
+        this.data.forEach((item) => {
+          // if exist property not empty
+          if (item[latColumnName] || item[lonColumnName]) {
+            temp = item[latColumnName] || '';
+            temp += ',';
+            temp += item[lonColumnName] || '';
+            item[data.name] = temp;
+          }
+        });
+      }
+    }
+    this.addColumnShowFl = false;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -434,7 +482,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @returns {boolean}
    */
   public isDeletedColumn(column): boolean {
-    return column.removed === true;
+    return column.unloaded === true;
   }
 
   /**
@@ -446,7 +494,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
     // 현재 선택된 컬럼이고 삭제상태가 아닌경우
     return (!isUndefined(this.selectedColumn)
       && this.selectedColumn.name === column.name
-      && !column.removed);
+      && !column.unloaded);
   }
 
 
@@ -639,13 +687,14 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
         .then((result) => {
           // pattern 이 있을경우
           if (result.hasOwnProperty('pattern')) {
-            column.format = result.pattern;
+            column.format.format = result.pattern;
+            // set valid
+            column.isValidTimeFormat = true;
           }
           resolve(result);
         })
         .catch((error) => {
-          // Alert.error(error.details);
-          column.errorFl = true;
+          column.format.format = 'yyyy-MM-dd';
           reject(error);
         });
     }));
@@ -662,7 +711,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
   private onDeleteAction(columnList: any[]) {
     columnList.forEach((column) => {
       // 삭제 플래그
-      column.removed = true;
+      column.unloaded = true;
       // 타임스탬프에 대한 처리
       // 현재 컬럼이 타임스탬프로 지정된 컬럼이였다면
       if (this.isTimestampColumn(column)) {
@@ -686,7 +735,6 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
     columnList.forEach((column) => {
       // 선택한 타입하고 같지않을때만 동작
       if (!this.isEqualType(column.logicalType, logicalType)) {
-
         // ingestion에 대한 처리
         this.initIngestionRuleInChangeType(column);
         // 타임스탬프에 대한 처리
@@ -749,9 +797,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @private
    */
   private _getEnabledColumnList() {
-    return this.getColumnList().filter((column) => {
-      return column.removed === false;
-    });
+    return this.getColumnList().filter(column => !column.unloaded);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -796,42 +842,37 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @returns {boolean}
    */
   private isErrorColumn(column): boolean {
-    // ingestion rule
-    if (!this.ingestionRuleValidation(column)) {
+    if (this._isErrorTimestamp(column)) {
       return true;
     }
-    // error
-    if (!this.timestampValidation(column)) {
+    if (this._isErrorIngestionRule(column)) {
       return true;
     }
     return false;
   }
 
   /**
-   * ingestionRule validation
-   * @param column
+   * Is ingestion rule error
+   * @param {Field} column
    * @returns {boolean}
+   * @private
    */
-  private ingestionRuleValidation(column): boolean {
-    // ingestionRule type이  replace 인 경우 error가 있다면 false
-    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === 'replace' && column.replaceFl === false) {
-      return false;
-    }
-    return true;
+  private _isErrorIngestionRule(column: Field): boolean {
+    return column.ingestionRule
+    && column.ingestionRule.type === IngestionRuleType.REPLACE
+    && column.isValidReplaceValue === false;
   }
 
   /**
-   * timestamp validation
-   * @param column
+   * Is timestamp error
+   * @param {Field} column
    * @returns {boolean}
+   * @private
    */
-  private timestampValidation(column): boolean {
-    // timestamp 컬럼이 format이 없거나 error가 있다면 false
-    if (column.logicalType === 'TIMESTAMP'
-      && (isUndefined(column.format) || column.format === '' || column.hasOwnProperty('errorFl'))) {
-      return false;
-    }
-    return true;
+  private _isErrorTimestamp(column: Field): boolean {
+    return column.logicalType === LogicalType.TIMESTAMP
+      && (column.format && column.format.type === FieldFormatType.DATE_TIME)
+      && column.isValidTimeFormat === false;
   }
 
   /**
@@ -840,10 +881,23 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @returns {boolean}
    */
   private columnsErrorValidation(columnList: any[]): boolean {
-    const result = columnList.filter((column) => {
-      return this.isErrorColumn(column);
+    // check error
+    columnList.forEach((column: Field) => {
+      if (column.logicalType === LogicalType.TIMESTAMP && column.format.type === FieldFormatType.DATE_TIME && isUndefined(column.isValidTimeFormat)) {
+        column.isValidTimeFormat = false;
+        column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
+      }
+      if (column.ingestionRule && column.ingestionRule.type === IngestionRuleType.REPLACE && isUndefined(column.isValidReplaceValue)) {
+        column.isValidReplaceValue = false;
+        column.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
+      }
     });
-    return result.length !== 0;
+    if (_.some(columnList, column => this.isErrorColumn(column))) {
+      Alert.warning(this.translateService.instant('msg.storage.ui.schema.error.desc'));
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -856,14 +910,15 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @param type
    * @param timestampPromise
    */
-  private initTimestampInChangeType(column, type, timestampPromise) {
+  private initTimestampInChangeType(column: Field, type: string, timestampPromise) {
     // 변경된 타입이 타임일 경우
-    if (this.isEqualType('TIMESTAMP', type)) {
+    if (type === 'TIMESTAMP') {
+      // init format
+      column.format = new FieldFormat();
+      delete column.isValidTimeFormat;
+      delete column.isValidReplaceValue;
       timestampPromise.push(column);
-    }
-
-    // 컬럼이 타임스탬프로 지정되었던 경우
-    if (this.isTimestampColumn(column)) {
+    } else if (this.isTimestampColumn(column)) { // 컬럼이 타임스탬프로 지정되었던 경우
       this.selectedTimestampColumn = null;
     }
   }
@@ -874,8 +929,8 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    */
   private initIngestionRuleInChangeType(column) {
     // ingestionRule이 있다면
-    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === 'replace') {
-      column.ingestionRule.type = 'default';
+    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === IngestionRuleType.REPLACE) {
+      column.ingestionRule.type = IngestionRuleType.DEFAULT;
     }
   }
 
@@ -891,12 +946,15 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
 
     const promise = [];
     columnList.forEach((column) => {
+      // init format
+      column.format = new FieldFormat();
       // column DetailData
       let columnDetailData = this.getColumnDetailData(column);
 
       // data 가 없다면 타임스탬프를 지정할수 없다.
       if (columnDetailData.length === 0) {
-        column.errorFl = true;
+        column.isValidTimeFormat = false;
+        column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.no.data');
       } else {
         columnDetailData = columnDetailData.length > 20 ? columnDetailData.slice(0, 19) : columnDetailData;
         promise.push(this.getTimestampFormat(column, columnDetailData));
@@ -923,7 +981,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    */
   private initFields(fields: any[]) {
     fields.forEach((column) => {
-      column['removed'] = false;
+      column['unloaded'] = false;
     });
     // init timestamp
     this.initTimestampFormat(this.getTimeTypeColumns());
@@ -988,7 +1046,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
       { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
       { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER' },
       { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE' },
-      { label: this.translateService.instant('msg.storage.ui.list.timestamp'), value: 'TIMESTAMP' },
+      { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
       { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
       { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
     ];

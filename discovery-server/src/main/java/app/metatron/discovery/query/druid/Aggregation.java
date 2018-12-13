@@ -22,6 +22,7 @@ import app.metatron.discovery.query.druid.aggregations.*;
 @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.EXTERNAL_PROPERTY, property="type")
 @JsonSubTypes({
     @JsonSubTypes.Type(value = CountAggregation.class, name = "count"),
+    @JsonSubTypes.Type(value = RelayAggregation.class, name = "relay"),
     @JsonSubTypes.Type(value = LongSumAggregation.class, name = "longSum"),
     @JsonSubTypes.Type(value = DoubleSumAggregation.class, name = "doubleSum"),
     @JsonSubTypes.Type(value = DoubleMinAggregation.class, name = "doubleMin"),
@@ -31,6 +32,7 @@ import app.metatron.discovery.query.druid.aggregations.*;
     @JsonSubTypes.Type(value = JavaScriptAggregation.class, name = "javascript"),
     @JsonSubTypes.Type(value = CardinalityAggregation.class, name = "cardinality"),
     @JsonSubTypes.Type(value = SketchAggregation.class, name = "sketch"),
+    @JsonSubTypes.Type(value = DistinctSketchAggregation.class, name = "thetaSketch"),
     @JsonSubTypes.Type(value = ApproxHistogramAggregation.class, name = "approxHistogram"),
     @JsonSubTypes.Type(value = ApproxHistogramFoldAggregation.class, name = "approxHistogramFold"),
     @JsonSubTypes.Type(value = FilteredAggregation.class, name = "filtered")

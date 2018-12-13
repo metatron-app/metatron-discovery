@@ -451,6 +451,31 @@ export class StringUtil {
     return regExpFormula.test(str);
   } // function - checkFormula
 
+  public static isAlphaNumericUnderscore(str: string): boolean {
+    if (str.match(/^[a-zA-Z0-9_]+$/) == null) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  /**
+   * thousand separator comma in string
+   * @param {string} str
+   * @returns {string}
+   */
+  public static thousandSeparatorNumber(str: string): string {
+    return str.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  /**
+   * remove not number in string
+   * @param {string} str
+   * @returns {string}
+   */
+  public static removeNotNumberString(str: string): string {
+    return str.replace(/[^0-9\.]+/g, '');
+  }
 }
 
 

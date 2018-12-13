@@ -13,12 +13,17 @@
  */
 
 import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, EventEmitter, Injector, Output } from '@angular/core';
+import {
+  Component, ElementRef, EventEmitter, Injector, Output, Renderer2,
+  ViewChild
+} from '@angular/core';
 import { DatasourceInfo } from '../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
 import { StringUtil } from '../../../common/util/string.util';
 import { Alert } from '../../../common/util/alert.util';
+import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
+import { CommonUtil } from '../../../common/util/common.util';
 
 declare let moment: any;
 /**
@@ -49,6 +54,12 @@ export class IngestionSettingComponent extends AbstractComponent {
     { label: this.translateService.instant('msg.storage.th.dsource.scope-all'), value: 'ALL' },
     { label: this.translateService.instant('msg.storage.th.dsource.scope-row'), value: 'ROW' }
   ];
+
+  // element
+  @ViewChild('resultElement')
+  private _resultElement: ElementRef;
+  @ViewChild('resultBoxElement')
+  private _resultBoxElement: ElementRef;
 
   // source create type
   public createType: string;
@@ -144,8 +155,8 @@ export class IngestionSettingComponent extends AbstractComponent {
   public cronValidationMessage: string;
 
   // row (only engine source type)
-  public ingestionOnceRow: string = '10,000';
-  public ingestionPeriodRow: string = '10,000';
+  public ingestionOnceRow: number = 10000;
+  public ingestionPeriodRow: number = 10000;
 
   // advanced settings
   public tuningConfig: any[] = [];
@@ -153,15 +164,33 @@ export class IngestionSettingComponent extends AbstractComponent {
   // isShowAdvancedSetting
   public isShowAdvancedSetting: boolean = false;
 
+  // is show partition validation button (only stagingDB)
+  public isStrictMode: boolean = false;
+  // partition validation result (only stagingDB)
+  public partitionValidationResult: boolean = null;
+  // partition validation message
+  public partitionValidationResultMessage: string;
+  // partition validation result data
+  public partitionValidationResultData: any;
+  // partition result modal show flag
+  public isShowPartitionValidResult: boolean = false;
+
+  // clicked next button flag
+  public isClickedNext: boolean;
+
   // step change
   @Output()
   public prevStep: EventEmitter<any> = new EventEmitter();
   @Output()
   public nextStep: EventEmitter<any> = new EventEmitter();
 
+
+
   // constructor
   constructor(private _dataSourceService: DatasourceService,
+              private _dataConnectionService: DataconnectionService,
               protected element: ElementRef,
+              protected renderer: Renderer2,
               protected injector: Injector) {
     super(element, injector);
   }
@@ -192,11 +221,14 @@ export class IngestionSettingComponent extends AbstractComponent {
     // if exist ingestionData
     if (this._sourceData.hasOwnProperty("ingestionData")) {
       this._loadIngestionData(this._sourceData.ingestionData);
-    } else {
+    } else { // init
       this._setDefaultIngestionOption();
       // if staging type, set partition key list
       if (this.createType === 'STAGING' && this._sourceData.databaseData.selectedTableDetail.partitionFields.length > 0) {
+        // set key list
         this.partitionKeyList.push(_.cloneDeep(this._sourceData.databaseData.selectedTableDetail.partitionFields));
+        // set enable partition
+        this.selectedPartitionType = this.partitionTypeList[1];
       }
     }
   }
@@ -256,6 +288,8 @@ export class IngestionSettingComponent extends AbstractComponent {
    * Next button click event
    */
   public onClickNext(): void {
+    // click next button flag
+    this.isClickedNext = true;
     // if enable next
     if (this._isEnableNext()) {
       // if exist ingestionData, delete IngestionData
@@ -267,6 +301,89 @@ export class IngestionSettingComponent extends AbstractComponent {
     } else {
       Alert.error(this.translateService.instant('msg.comm.alert.error'));
     }
+  }
+
+  /**
+   * Partition validation click events
+   */
+  public onClickPartitionKeysValidation(): void {
+    // if open result view, close
+    if (this.isShowPartitionValidResult) {
+      this.isShowPartitionValidResult = false;
+    }
+    // if multi partition, first partition required
+    if (this._isEnablePartitionKeys(this.partitionKeyList)) {
+      // set result
+      this.partitionValidationResult = false;
+      // set result message
+      this.partitionValidationResultMessage = this.translateService.instant('msg.storage.ui.partition.valid.no.key');
+      return;
+    }
+
+    const partitionParams = this._getPartitionParams(this.partitionKeyList);
+    // if not exist params
+    if (partitionParams.length === 0) {
+      // set result
+      this.partitionValidationResult = false;
+      // set result message
+      this.partitionValidationResultMessage = this.translateService.instant('msg.storage.ui.partition.valid.no.key');
+      return;
+    }
+    // loading show
+    this.loadingShow();
+    // partition keys valid
+    this._dataConnectionService.partitionValidationForStagingDB({
+      database: this._sourceData.databaseData.selectedDatabase,
+      query: this._sourceData.databaseData.selectedTable,
+      type: 'TABLE',
+      partitions: partitionParams
+    })
+      .then((result) => {
+        // loading hide
+        this.loadingHide();
+        // set result
+        this.partitionValidationResult = true;
+        // set data
+        this.partitionValidationResultData = result;
+        // set result message
+        this.partitionValidationResultMessage = this.translateService.instant('msg.storage.ui.partition.valid.success');
+      })
+      .catch(error => {
+        // set result
+        this.partitionValidationResult = false;
+        // set result message
+        if (error.code && error.code === 'JDC0006') {
+          this.partitionValidationResultMessage = this.translateService.instant('msg.storage.ui.partition.valid.fail.invalid.key');
+        } else {
+          this.partitionValidationResultMessage = this.translateService.instant('msg.storage.ui.partition.valid.fail');
+        }
+        // loading hide
+        this.loadingHide();
+      });
+  }
+
+  /**
+   * Partition validation result click event
+   */
+  public onClickPartitionKeyValidResult(): void {
+    this.isShowPartitionValidResult = true;
+    this.safelyDetectChanges();
+    // set style
+    $(this._resultBoxElement.nativeElement).css({
+      display: 'block',
+      top: $(this._resultElement.nativeElement).offset().top - 20,
+      left: $(this._resultElement.nativeElement).offset().left + 80
+    });
+  }
+
+  /**
+   * Init partition validation event
+   */
+  public initPartitionValidation(): void {
+    // init partitionValidationResult flag
+    this.partitionValidationResult = null;
+    // init isClickedNext flag
+    this.isClickedNext = false;
   }
 
   /**
@@ -364,6 +481,8 @@ export class IngestionSettingComponent extends AbstractComponent {
       return;
     }
     this.selectedIngestionScopeType = scopeType;
+    //
+    this.safelyDetectChanges();
   }
 
   /**
@@ -423,9 +542,7 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @returns {boolean}
    */
   public isEnabledPartitionInput(partitions: any[], partition: any): boolean {
-    const index = partitions.findIndex((item) => {
-      return item === partition;
-    });
+    const index = partitions.findIndex(item => item === partition);
     if (index !== 0
       && (partitions[index - 1].value === undefined || partitions[index - 1].value === '')) {
       return false;
@@ -440,26 +557,41 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @returns {boolean}
    */
   public isMaxRowOverValue(row: any, value: number): boolean {
-    if (this[row]) {
-      return Number.parseInt(this[row].replace(/(,)/g, '')) > value;
-    }
+    return this[row] && this[row] > value;
   }
 
   /**
    * add partition in partition list
-   * TODO f#35
    */
   public addPartitionKeys(): void {
+    // init validation
+    this.initPartitionValidation();
+    // create keys
     this.partitionKeyList.push(_.cloneDeep(this._sourceData.databaseData.selectedTableDetail.partitionFields));
   }
 
   /**
    * delete partition in partition list
-   * TODO f#35
    */
   public deletePartitionKeys(): void {
+    // init validation
+    this.initPartitionValidation();
+    // remove keys
     this.partitionKeyList = this.partitionKeyList.slice(0, this.partitionKeyList.length - 1);
   }
+
+  /**
+   * convert file size
+   * @param bytes
+   * @returns {any}
+   */
+  public bytesToSize(bytes: number) {
+    if (bytes === undefined || bytes === null || (typeof bytes !== 'number' && bytes === '')) {
+      return ' bytes';
+    } else {
+      return CommonUtil.formatBytes(bytes, 2);
+    }
+  };
 
   /**
    * ui init
@@ -569,14 +701,20 @@ export class IngestionSettingComponent extends AbstractComponent {
       )) {
       return false;
     }
-    // If create type is StagingDB and value is empty in jobProperties's default option
-    // if (this.createType === 'STAGING' && this.jobProperties.some(item => item.defaultOpt && StringUtil.isEmpty(item.value))) {
-    //   return false;
-    // }
-    // value is empty in tuningConfig's default option
-    // if (this.tuningConfig.some(item => item.defaultOpt && StringUtil.isEmpty(item.value))) {
-    //   return false;
-    // }
+    // If create type is StagingDB and strict mode
+    if (this.createType === 'STAGING' && this.isStrictMode && this.partitionKeyList.length !== 0 && !this.partitionValidationResult) {
+      return false;
+    }
+    // valid tuning config
+    if (this.tuningConfig.length !== 0) {
+      // if exist tuningConfig error
+      return !_.some(this.tuningConfig, config => config.keyError || config.valueError);
+    }
+    // valid job properties
+    if (this.jobProperties.length !== 0) {
+      // if exist jobProperties error
+      return !_.some(this.jobProperties, config => config.keyError || config.valueError);
+    }
     return true;
   }
 
@@ -589,8 +727,6 @@ export class IngestionSettingComponent extends AbstractComponent {
     this.loadingShow();
     this._dataSourceService.getDefaultIngestionOptions(this.createType === 'STAGING' ? 'hadoop' : 'batch')
       .then((result) => {
-        // loading hide
-        this.loadingHide();
         // result
         this.tuningConfig = result.filter(item => item.type === 'TUNING').map((item) => {
           return {key: item.name, value: '', ph: item.defaultValue, defaultOpt: true};
@@ -598,6 +734,30 @@ export class IngestionSettingComponent extends AbstractComponent {
         this.jobProperties = result.filter(item => item.type === 'JOB').map((item) => {
           return {key: item.name, value: '', ph: item.defaultValue,  defaultOpt: true};
         });
+        // in stagingDB
+        if (this.createType === 'STAGING') {
+          // set strict mode flag
+          this._setStrictModeFlag();
+        } else {
+          // loading hide
+          this.loadingHide();
+        }
+      })
+      .catch(error => this.commonExceptionHandler(error));
+  }
+
+  /**
+   * Set strict mode flag
+   * @private
+   */
+  private _setStrictModeFlag(): void {
+    // is check strict mode
+    this._dataConnectionService.isStrictModeForStagingDB()
+      .then((result) => {
+        // set validation
+        this.isStrictMode = result;
+        // loading hide
+        this.loadingHide();
       })
       .catch(error => this.commonExceptionHandler(error));
   }
@@ -630,6 +790,53 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _getCurrentTime(): string {
     const date = new Date();
     return ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
+  }
+
+  /**
+   * Get partition parameter
+   * @param partitionKeyList
+   * @returns {any}
+   * @private
+   */
+  private _getPartitionParams(partitionKeyList: any): any {
+    // result
+    const result = [];
+    // partition fields
+    for (let i = 0; i < partitionKeyList.length; i++) {
+      // partition keys
+      const partitionKeys = partitionKeyList[i];
+      // partition
+      const partition = {};
+      // loop
+      for (let j = 0; j < partitionKeys.length; j++) {
+        // #619 enable empty value
+        // is value empty break for loop
+        // if (StringUtil.isEmpty(partitionKeys[j].value)) {
+        //   break;
+        // }
+        // add partition #619 enable empty value
+        partition[partitionKeys[j].name] = (partitionKeys[j].value || '');
+      }
+      // if exist partition, add in result
+      if (Object.keys(partition).length) {
+        result.push(partition);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Check enable partition keys
+   * @param partitionList
+   * @returns {boolean}
+   * @private
+   */
+  private _isEnablePartitionKeys(partitionList: any): boolean {
+    return _.some(partitionList, (partition) => {
+      return _.some(partition.filter((item, index, array) => {
+        return index !== array.length -1;
+      }), item => StringUtil.isEmpty(item.value));
+    });
   }
 
   /**
@@ -694,6 +901,18 @@ export class IngestionSettingComponent extends AbstractComponent {
       this.endDateTime = ingestionData.endDateTime;
       // partition key list
       this.partitionKeyList = ingestionData.partitionKeyList;
+      // is show partition validation button (only stagingDB)
+      this.isStrictMode = ingestionData.isStrictMode;
+      // partition validation result (only stagingDB)
+      this.partitionValidationResult = ingestionData.partitionValidationResult;
+      // partition validation message
+      this.partitionValidationResultMessage = ingestionData.partitionValidationResultMessage;
+      // partition validation result data
+      this.partitionValidationResultData = ingestionData.partitionValidationResultData;
+      // partition result modal show flag
+      this.isShowPartitionValidResult = ingestionData.isShowPartitionValidResult;
+      // clicked next button flag
+      this.isClickedNext = ingestionData.isClickedNext;
     }
   }
 
@@ -753,6 +972,18 @@ export class IngestionSettingComponent extends AbstractComponent {
       sourceData['ingestionData'].endDateTime = this.endDateTime;
       // partition key list
       sourceData['ingestionData'].partitionKeyList = this.partitionKeyList;
+      // is show partition validation button (only stagingDB)
+      sourceData['ingestionData'].isStrictMode = this.isStrictMode;
+      // partition validation result (only stagingDB)
+      sourceData['ingestionData'].partitionValidationResult = this.partitionValidationResult;
+      // partition validation message
+      sourceData['ingestionData'].partitionValidationResultMessage = this.partitionValidationResultMessage;
+      // partition validation result data
+      sourceData['ingestionData'].partitionValidationResultData = this.partitionValidationResultData;
+      // partition result modal show flag
+      sourceData['ingestionData'].isShowPartitionValidResult = this.isShowPartitionValidResult;
+      // clicked next button flag
+      sourceData['ingestionData'].isClickedNext = this.isClickedNext;
     }
   }
 }

@@ -3,6 +3,34 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -22,6 +50,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -43,9 +72,11 @@ import app.metatron.discovery.domain.workbook.configurations.datasource.DataSour
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.JoinMapping;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MappingDataSource;
+import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.MapField;
+import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.filter.BoundFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.ExpressionFilter;
@@ -57,6 +88,15 @@ import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeListFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimestampFilter;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
+import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
+import app.metatron.discovery.query.druid.aggregations.CountAggregation;
+import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
+import app.metatron.discovery.query.druid.aggregations.GenericMinAggregation;
+import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
+import app.metatron.discovery.query.druid.aggregations.HyperUniqueAggregation;
+import app.metatron.discovery.query.druid.aggregations.RangeAggregation;
+import app.metatron.discovery.query.druid.aggregations.SketchAggregation;
+import app.metatron.discovery.query.druid.aggregations.VarianceAggregation;
 import app.metatron.discovery.query.druid.datasource.QueryDataSource;
 import app.metatron.discovery.query.druid.datasource.TableDataSource;
 import app.metatron.discovery.query.druid.extractionfns.LookupFunction;
@@ -70,11 +110,17 @@ import app.metatron.discovery.query.druid.filters.SelectorFilter;
 import app.metatron.discovery.query.druid.funtions.DateTimeMillisFunc;
 import app.metatron.discovery.query.druid.funtions.InFunc;
 import app.metatron.discovery.query.druid.funtions.TimeFormatFunc;
+import app.metatron.discovery.query.druid.limits.WindowingSpec;
 import app.metatron.discovery.query.druid.lookup.MapLookupExtractor;
+import app.metatron.discovery.query.druid.postaggregations.ArithmeticPostAggregation;
+import app.metatron.discovery.query.druid.postaggregations.FieldAccessorPostAggregator;
+import app.metatron.discovery.query.druid.postaggregations.SketchQuantilePostAggregator;
+import app.metatron.discovery.query.druid.postaggregations.StddevPostAggregator;
 import app.metatron.discovery.query.druid.queries.JoinQuery;
 import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
 import app.metatron.discovery.query.druid.virtualcolumns.IndexVirtualColumn;
 import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
+import app.metatron.discovery.query.polaris.ComputationalField;
 import app.metatron.discovery.util.PolarisUtils;
 
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.CONFUSING_FIELD_CODE;
@@ -124,6 +170,11 @@ public abstract class AbstractQueryBuilder {
   protected List<app.metatron.discovery.domain.datasource.DataSource> joinMetaDataSources = Lists.newArrayList();
 
   /**
+   * Meta-info Map (for multi-datasource)
+   */
+  protected Map<String, app.metatron.discovery.domain.datasource.DataSource> metaDataSourceMap = Maps.newHashMap();
+
+  /**
    * Meta field map in meta-datasources
    */
   protected Map<String, app.metatron.discovery.domain.datasource.Field> metaFieldMap = Maps.newLinkedHashMap();
@@ -163,10 +214,19 @@ public abstract class AbstractQueryBuilder {
    */
   protected List<String> unUsedVirtualColumnName = Lists.newArrayList();
 
+  protected List<Aggregation> aggregations = Lists.newArrayList();
+
+  protected List<PostAggregation> postAggregations = Lists.newArrayList();
+
+  /**
+   * need to process user defined field
+   */
+  protected List<WindowingSpec> windowingSpecs = Lists.newArrayList();
+
   /**
    * 엔진에 질의할 때 필요한 추가 정보
    */
-  protected Map<String, Object> context;
+  protected Map<String, Object> context = Maps.newHashMap();
 
   /**
    * 질의할 queryId, 캔슬시 활용
@@ -181,17 +241,25 @@ public abstract class AbstractQueryBuilder {
     this.dataSource = dataSource;
 
     // Segmentmeta Query 의 경우 별로 datasource 메타정보가 필요없는 경우가 존재함
-    if (dataSource.getMetaDataSource() == null) {
+    if (dataSource.getMetaDataSource() == null
+        && !(dataSource instanceof MultiDataSource)) {
       return;
     }
 
-    mainMetaDataSource = dataSource.getMetaDataSource();
 
-    // 데이터 소스 MetaFieldMap
+    // make list of field
     if (dataSource instanceof DefaultDataSource) {
+      mainMetaDataSource = dataSource.getMetaDataSource();
       metaFieldMap.putAll(mainMetaDataSource.getMetaFieldMap(false, ""));
 
+    } else if(dataSource instanceof MultiDataSource) {
+      MultiDataSource multiDataSource = (MultiDataSource) dataSource;
+      for (DataSource source : multiDataSource.getDataSources()) {
+        metaFieldMap.putAll(source.getMetaDataSource().getMetaFieldMap(true, null));
+        metaDataSourceMap.put(source.getName(), source.getMetaDataSource());
+      }
     } else {
+      mainMetaDataSource = dataSource.getMetaDataSource();
 
       MappingDataSource mappingDataSource = (MappingDataSource) dataSource;
 
@@ -445,7 +513,7 @@ public abstract class AbstractQueryBuilder {
           for (String interval : curIntervals) {
             String[] splitedInterval = StringUtils.split(interval, "/");
             String expr = String.format("(timestamp(%s, format='%s') >= timestamp('%s') && (timestamp(%s, format='%s') <= timestamp('%s')",
-                                        column, datasourceField.getFormat(), splitedInterval[0], column, datasourceField.getFormat(), splitedInterval[1]);
+                                        column, datasourceField.getTimeFormat(), splitedInterval[0], column, datasourceField.getFormat(), splitedInterval[1]);
 
             orFilter.addField(new MathFilter(expr));
           }
@@ -467,7 +535,7 @@ public abstract class AbstractQueryBuilder {
           field = "__time";
         } else {
           DateTimeMillisFunc millisFunc = new DateTimeMillisFunc(reqFilter.getColumn(),
-                                                                 datasourceField.getFormat(),
+                                                                 datasourceField.getTimeFormat(),
                                                                  null, null);
           field = millisFunc.toExpression();
         }
@@ -501,10 +569,157 @@ public abstract class AbstractQueryBuilder {
       intervals.addAll(timeFilter.getEngineIntervals());
     } else {
       String expr = timeFilter.getExpression(columnName, datasourceField);
-      if(StringUtils.isNotEmpty(expr)) {
+      if (StringUtils.isNotEmpty(expr)) {
         filter.addField(new ExprFilter(timeFilter.getExpression(columnName, datasourceField)));
       }
     }
+
+  }
+
+  protected void addAggregationFunction(MeasureField measureField) {
+
+    String fieldName = dataSource instanceof MultiDataSource ? measureField.getName() : measureField.getColunm();
+    String aliasName = measureField.getAlias();
+    String paramName = null;
+    String dataType = "double";
+
+    switch (measureField.getAggregationType()) {
+      case NONE:
+        break;
+      case MIN:
+        aggregations.add(new GenericMinAggregation(aliasName, fieldName, dataType));
+        break;
+      case MAX:
+        aggregations.add(new GenericMaxAggregation(aliasName, fieldName, dataType));
+        break;
+      case COUNT:
+        aggregations.add(new CountAggregation(aliasName));
+        break;
+      case COUNTD:
+        aggregations.add(new HyperUniqueAggregation(aliasName, fieldName));
+        break;
+      case SUM:
+        aggregations.add(new GenericSumAggregation(aliasName, fieldName, dataType));
+        break;
+
+      case AVG:
+        String countField = measureField.getRef() == null ? "count" : measureField.getRef() + "." + "count";
+        aggregations.add(new GenericSumAggregation(fieldName + "_sum", fieldName, dataType));
+
+        if(!(dataSource instanceof MultiDataSource)
+            && dataSource.getMetaDataSource().rollup()) {
+          aggregations.add(new GenericSumAggregation("count", countField, dataType));
+        } else {
+          aggregations.add(new CountAggregation("count"));
+        }
+
+        ArithmeticPostAggregation postAggregation = new ArithmeticPostAggregation();
+        postAggregation.setName(aliasName);
+        postAggregation.setFn(ArithmeticPostAggregation.AggregationFunction.DIVISION);
+
+        List<PostAggregation> postAggregationFields = new ArrayList<PostAggregation>();
+
+        postAggregationFields.add(new FieldAccessorPostAggregator(fieldName + "_sum", fieldName + "_sum"));
+        postAggregationFields.add(new FieldAccessorPostAggregator("count", "count"));
+
+        postAggregation.setFields(postAggregationFields);
+
+        postAggregations.add(postAggregation);
+        break;
+      case STDDEV:
+        paramName = "aggregationfunc" + String.format("_%03d", aggregations.size());
+        aggregations.add(new VarianceAggregation(paramName, fieldName));
+
+        StddevPostAggregator stddevPostAggregator = new StddevPostAggregator(aliasName, paramName);
+        postAggregations.add(stddevPostAggregator);
+        break;
+      case MEDIAN:
+        // TODO: Field 메타 정보를 뒤져 approxHistogram 으로 preaggregation 되었는지 확인후 타입 결정
+        // 현재는 preaggregation 고려하지 않음
+        // http://druid.io/docs/latest/development/extensions-core/approximate-histograms.html
+        paramName = "aggregationfunc" + String.format("_%03d", aggregations.size());
+        aggregations.add(new SketchAggregation(paramName, fieldName, SketchAggregation.SKETCH_OP_QUANTILE));
+
+        SketchQuantilePostAggregator medianPostAggregator = new SketchQuantilePostAggregator(aliasName, paramName, 0.5);
+        postAggregations.add(medianPostAggregator);
+        break;
+      case AREA:
+        aggregations.add(new AreaAggregation(aliasName, fieldName));
+        break;
+      case RANGE:
+        aggregations.add(new RangeAggregation(aliasName, fieldName));
+        break;
+      case PERCENTILE:
+        paramName = "aggregationfunc" + String.format("_%03d", aggregations.size());
+        aggregations.add(new SketchAggregation(paramName, fieldName, SketchAggregation.SKETCH_OP_QUANTILE));
+
+        SketchQuantilePostAggregator quantilePostAggregator = new SketchQuantilePostAggregator(aliasName, paramName, measureField.getParamValue("value"));
+        postAggregations.add(quantilePostAggregator);
+        break;
+      case VARIATION:
+        aggregations.add(new VarianceAggregation(aliasName, fieldName));
+        break;
+      case APPROX:
+        break;
+      case COMPLEX:
+        break;
+    }
+
+    return;
+  }
+
+  protected void addUserDefinedAggregationFunction(MeasureField field) {
+
+    ExpressionField expressionField = (ExpressionField) userFieldsMap.get(field.getName());
+
+    String curExpr = expressionField.getExpr();
+
+    switch (field.getAggregationType()) {
+
+      case NONE:
+        break;
+      case MIN:
+        curExpr = "minof(" + curExpr + ")";
+        break;
+      case MAX:
+        curExpr = "maxof(" + curExpr + ")";
+        break;
+      case COUNT:
+        curExpr = "countof(" + curExpr + ")";
+        break;
+      case SUM:
+        curExpr = "sumof(" + curExpr + ")";
+        break;
+      case AVG:
+        curExpr = "avgof(" + curExpr + ")";
+        break;
+      case STDDEV:
+        curExpr = "stddevof(" + curExpr + ")";
+        break;
+      case MEDIAN:
+        break;
+      case AREA:
+        break;
+      case RANGE:
+        break;
+      case PERCENTILE:
+        break;
+      case VARIATION:
+        curExpr = "varianceof(" + curExpr + ")";
+        break;
+      case APPROX:
+        break;
+      case COMPLEX:
+        break;
+    }
+
+    // TODO: 파라미터도 추가해야함, 일단 기존 로직 유지
+    Map<String, String> exprMap = userFieldsMap.values().stream()
+        .filter(userDefinedField -> userDefinedField instanceof ExpressionField)
+        .collect(Collectors.toMap(UserDefinedField::getName, f -> ((ExpressionField) f).getExpr()));
+
+    ComputationalField.makeAggregationFunctionsIn(field.getAlias(), curExpr, aggregations
+        , postAggregations, windowingSpecs, context, exprMap);
 
   }
 
@@ -519,12 +734,12 @@ public abstract class AbstractQueryBuilder {
     String escapedName = PolarisUtils.escapeSpecialRegexChars(name);
     Pattern pattern = Pattern.compile(String.format(PATTERN_FIELD_NAME_STRING, escapedName));
 
-    List<String> vailidColumn = validColumnNames.parallelStream()
+    List<String> validColumn = validColumnNames.parallelStream()
                                                 .filter(colName -> pattern.matcher(colName).matches())
                                                 .collect(Collectors.toList());
 
-    if (vailidColumn.size() == 1) {
-      return vailidColumn.get(0);
+    if (validColumn.size() == 1) {
+      return validColumn.get(0);
     } else {
       throw new QueryTimeExcetpion(CONFUSING_FIELD_CODE, String.format("Confusing '%s' field name.", name));
     }

@@ -13,11 +13,11 @@
  */
 
 import {
-  Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild,
+  Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild,
   ViewChildren
 } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
-import { FieldRole, LogicalType } from '../../domain/datasource/datasource';
+import { FieldFormat, FieldFormatType, FieldRole, LogicalType } from '../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { ChooseCodeTableComponent } from '../component/choose-code-table/choose-code-table.component';
 import { ChooseColumnDictionaryComponent } from '../component/choose-column-dictionary/choose-column-dictionary.component';
@@ -44,14 +44,6 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   // 필드 목록 원본
   private _originColumnList: MetadataColumn[];
 
-  // 코드 테이블 선택 컴포넌트
-  @ViewChild(ChooseCodeTableComponent)
-  private _chooseCodeTableComp: ChooseCodeTableComponent;
-
-  // 컬럼사전 선택 컴포넌트
-  @ViewChild(ChooseColumnDictionaryComponent)
-  private _chooseColumnDictionaryComp: ChooseColumnDictionaryComponent;
-
   // 코드 테이블 프리뷰 레이어
   @ViewChildren('codeTablePreview')
   private _codeTablePreview: ElementRef;
@@ -69,6 +61,12 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
 
   // 코드 테이블의 조직 상세정보
   private _codeTableDetailList: CodeTable[];
+
+  @Output()
+  private chooseCodeTableEvent = new EventEmitter();
+
+  @Output()
+  private chooseDictionaryEvent = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -290,6 +288,11 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   public onChangeLogicalType(column: MetadataColumn, logicalType: any): void {
     // 변경이벤트 체크
     this.onChangedValue(column);
+    // 만약 변경될 타입이 logicalType이라면 format init
+    if (logicalType === 'TIMESTAMP') {
+      column.format = new FieldFormat();
+      column.format.type = FieldFormatType.DATE_TIME;
+    }
     // logical type 변경
     column.type = logicalType;
   }
@@ -379,10 +382,10 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   public onClickSearchDictionary(column: MetadataColumn): void {
     // event bubbling stop
     event.stopImmediatePropagation();
-    // 현재 선택한 컬럼 저장
+    // 현재 선택한 컬럼 저장₩
     this._selectedColumn = column;
     // 컬럼 사전 선택 컴포넌트
-    this._chooseColumnDictionaryComp.init('CREATE', column.dictionary);
+    this.chooseDictionaryEvent.emit({name : 'CREATE', dictionary : column.dictionary});
   }
 
   /**
@@ -397,7 +400,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
       // 현재 선택한 컬럼 저장
       this._selectedColumn = column;
       // 코드 테이블 선택 컴포넌트
-      this._chooseCodeTableComp.init('CREATE', column.codeTable);
+      this.chooseCodeTableEvent.emit({name : 'CREATE', codeTable : column.codeTable})
     }
   }
 
@@ -499,7 +502,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   private _getUpdateColumnParams(): any {
     // 변경이 일어난 컬럼 목록
     const result: any = _.cloneDeep(this._getReplaceColumns());
-    result.forEach((item) => {
+    result.forEach((item: any) => {
       // id 강제 형변환 ( string -> int )
       ( item['id'] ) && ( item['id'] = ( item['id'] * 1 ) );
       // op 설정
@@ -518,8 +521,10 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
         item.description = item.description.substr(0, 999);
       }
       // format이 있고 255자가 넘어간다면
-      if (item.format && item.format.length > 255) {
-        item.format = item.format.substr(0, 254);
+      if (item.type === 'TIMESTAMP' && item.format && item.format.format && item.format.format.length > 255) {
+        item.format = {
+          format : item.format.format.substr(0, 254)
+        }
       }
       // dictionary가 있다면
       item.dictionary && (item['dictionary'] = `/api/dictionaries/${item.dictionary.id}`);
@@ -572,7 +577,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
       .then((result) => {
         // 변경된 컬럼의 사전정보로 logicalType, Format, CodeTable, Description 적용
         this._selectedColumn.type = result.logicalType || null;
-        this._selectedColumn.format = result.format || null;
+        this._selectedColumn.format = result.format || new FieldFormat();
         this._selectedColumn.description = result.description || null;
         // 이름이 사용자에 의해 변경되지 않았다면 컬럼 사전의 이름을 name으로 지정함
         !this._selectedColumn['nameChangeFl'] && (this._selectedColumn.name = result.logicalName);

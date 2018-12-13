@@ -14,12 +14,13 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
+import * as _ from 'lodash';
 
 @Component({
   selector : 'edit-rule-countpattern',
@@ -100,8 +101,12 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
       return undefined;
     }
 
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
+      return '`' + item.name + '`';
+    }).join(', ');
+
     // rule string
-    let ruleString = 'countpattern col: ' + this.selectedFields.map( item => item.name ).join(', ')
+    let ruleString = 'countpattern col: ' + columnsStr
       + ' on: ' + patternResult[1] + ' ignoreCase: ' + this.isIgnoreCase;
 
     // Ignore between characters
@@ -159,21 +164,27 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
 
   /**
    * parse rule string
-   * @param ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
+  protected parsingRuleString(data : {ruleString : string, jsonRuleString : any}) {
 
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+    // COLUMN
+    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+
+
+    if (data.jsonRuleString.on.value.startsWith('/') && data.jsonRuleString.on.value.endsWith('/')) {
+      this.pattern = data.jsonRuleString.on.value;
+    }  else {
+      this.pattern = data.jsonRuleString.on.escapedValue;
     }
 
-    this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
 
-    this.isIgnoreCase = this.getAttrValueInRuleString( 'ignoreCase', ruleString ) === 'true';
+    this.isIgnoreCase = Boolean(data.jsonRuleString.ignoreCase);
 
-    this.ignore = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'quote', ruleString ));
+    if (data.jsonRuleString.quote) {
+      this.ignore = data.jsonRuleString.quote.escapedValue;
+    }
 
   } // function - _parsingRuleString
 

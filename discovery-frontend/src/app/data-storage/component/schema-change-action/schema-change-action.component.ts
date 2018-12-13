@@ -13,13 +13,16 @@
  */
 
 import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import {
+  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit,
+  Output, SimpleChanges
+} from '@angular/core';
 
 @Component({
   selector: 'schema-change-action',
   templateUrl: './schema-change-action.component.html'
 })
-export class SchemaChangeActionComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class SchemaChangeActionComponent extends AbstractComponent implements OnInit, OnDestroy, OnChanges {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -36,6 +39,9 @@ export class SchemaChangeActionComponent extends AbstractComponent implements On
   // 변경할 컬럼 데이터
   @Input()
   public items: any[];
+
+  @Input()
+  public listLength: number;
 
   @Output()
   public changeActionEvent: EventEmitter<any> = new EventEmitter();
@@ -81,8 +87,7 @@ export class SchemaChangeActionComponent extends AbstractComponent implements On
 
     // Init
     super.ngOnInit();
-    // ui init
-    this.initView();
+
   }
 
   // Destory
@@ -90,6 +95,33 @@ export class SchemaChangeActionComponent extends AbstractComponent implements On
 
     // Destory
     super.ngOnDestroy();
+  }
+
+  /**
+   * ngOnChnages
+   * @param {SimpleChanges} changes
+   */
+  public ngOnChanges(changes: SimpleChanges) {
+    // if change item list
+    if (changes.listLength) {
+      // if first init
+      if (changes.listLength.firstChange) {
+        // ui init
+        this.initView();
+      }
+      if (this.items.some(item => item.derived)) {
+        this.actionTypes = [
+          { label: this.translateService.instant('msg.storage.ui.list.del'), value: 'DELETE' },
+        ];
+        this.selectedActionType = this.actionTypes[0];
+      } else {
+        this.actionTypes = [
+          { label: this.translateService.instant('msg.storage.ui.list.type'), value: 'CHANGE' },
+          { label: this.translateService.instant('msg.storage.ui.list.del'), value: 'DELETE' },
+        ];
+      }
+    }
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -189,7 +221,7 @@ export class SchemaChangeActionComponent extends AbstractComponent implements On
       { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN', icon: 'ddp-icon-type-tf' },
       { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER', icon: 'ddp-icon-type-int' },
       { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', icon: 'ddp-icon-type-float' },
-      { label: this.translateService.instant('msg.storage.ui.list.timestamp'), value: 'TIMESTAMP', icon: 'ddp-icon-type-calen' },
+      { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP', icon: 'ddp-icon-type-calen' },
       { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT', icon: 'ddp-icon-type-latitude' },
       { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG', icon: 'ddp-icon-type-longitude' }
     ];

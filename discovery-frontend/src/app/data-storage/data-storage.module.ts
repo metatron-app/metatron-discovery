@@ -60,6 +60,12 @@ import { MetadataService } from '../meta-data-management/metadata/service/metada
 import { EditFilterDataSourceComponent } from './data-source-list/detail-data-source/edit-filter-data-source.component';
 import { IngestionSettingComponent } from './data-source-list/component/ingestion-setting.component';
 import { AdvancedSettingComponent } from './data-source-list/component/advanced-setting.component';
+import { IngestionLogComponent } from './data-source-list/detail-data-source/information-dats-source/component/ingestion-log/ingestion-log.component';
+import { AddColumnComponent } from './data-source-list/component/add-column.component';
+import { ColumnSelectBoxComponent } from './data-source-list/component/column-select-box.component';
+import { CriterionFilterBoxComponent } from './component/criterion/criterion-filter-box.component';
+import { CriterionCheckboxComponent } from './component/criterion/criterion-checkbox.component';
+import { CriterionTimeRadioboxComponent } from './component/criterion/criterion-time-radiobox.component';
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -116,10 +122,15 @@ const storageRoutes: Routes = [
     BatchHistoryComponent,
     EditFilterDataSourceComponent,
     EditConfigSchemaComponent,
+    IngestionLogComponent,
     // ingestion
     IngestionSettingComponent,
     // ingestion - advanced setting
     AdvancedSettingComponent,
+    // configuration - add column
+    AddColumnComponent,
+    // column select box
+    ColumnSelectBoxComponent,
 
     // data connection
     DataConnectionComponent,
@@ -127,7 +138,13 @@ const storageRoutes: Routes = [
     // data connection - create
     CreateConnectionComponent,
     // data connection - update
-    UpdateConnectionComponent
+    UpdateConnectionComponent,
+    // criterion filter creator box
+    CriterionFilterBoxComponent,
+    // criterion checkbox
+    CriterionCheckboxComponent,
+    // criterion time radiobox
+    CriterionTimeRadioboxComponent
   ],
   exports: [
     // 워크벤치에서 사용하기 위해

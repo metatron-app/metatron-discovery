@@ -3,6 +3,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -137,6 +151,7 @@ public class DruidEngineMetaRepository extends AbstractEngineRepository {
 
     return call(GET_DATASOURCE_LIST, Maps.newHashMap(), List.class)
         .orElse(Lists.newArrayList());
+
   }
 
   public Optional<IngestionStatusResponse> getIngestionStatus(String taskId) {
@@ -145,6 +160,17 @@ public class DruidEngineMetaRepository extends AbstractEngineRepository {
 
     return call(GET_INGESTION_STATUS, param, IngestionStatusResponse.class);
 
+  }
+
+  public Optional<String> getIngestionTaskLog(String taskId, Integer offset) {
+    Map<String, Object> param = Maps.newHashMap();
+    param.put("taskId", taskId);
+
+    if (offset != null) {
+      param.put("offset", offset);
+    }
+
+    return call(GET_INGESTION_LOG, param, String.class);
   }
 
   public Optional<Map> getSupervisorIngestionStatus(String taskId) {
@@ -160,6 +186,13 @@ public class DruidEngineMetaRepository extends AbstractEngineRepository {
     params.put("taskId", taskId);
 
     call(SHUTDOWN_SUPERVISOR, params);
+  }
+
+  public void resetSupervisorIngestionTask(String taskId) {
+    Map<String, Object> params = Maps.newHashMap();
+    params.put("taskId", taskId);
+
+    call(RESET_SUPERVISOR, params);
   }
 
   public void shutDownIngestionTask(String taskId) {

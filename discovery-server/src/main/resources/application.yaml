@@ -4,7 +4,7 @@
 # --polaris.analyze.pivot=false --polaris.analyze.forward=JSON
 spring:
   profiles:
-    active: local,h2-default-db,logging-console-debug,spark-local-yarn,scheduling # cloud-local #, initial #, bcrypt-encoder, encode-password-initial
+    active: local,h2-default-db,logging-console-debug,spark-local-yarn #,scheduling # cloud-local #, initial #, bcrypt-encoder, encode-password-initial, datasource-filter-sample
   application:
     name: ${METATRON_NAME:metatron}
   datasource:
@@ -133,6 +133,10 @@ polaris:
         target: overlord
         method: GET
         uri: /druid/indexer/v1/task/{taskId}/status
+      ingestionLog:
+        target: overlord
+        method: GET
+        uri: /druid/indexer/v1/task/{taskId}/log
       ingestionShutdown:
         target: overlord
         method: POST
@@ -149,6 +153,10 @@ polaris:
         target: overlord
         method: POST
         uri: /druid/indexer/v1/supervisor/{taskId}/shutdown
+      supervisorReset:
+        target: overlord
+        method: POST
+        uri: /druid/indexer/v1/supervisor/{taskId}/reset
       workerStatus:
         target: overlord
         method: GET
@@ -208,6 +216,12 @@ polaris:
       - 'dd/MM/yyyy'
   chart:
     profile: default
+  datasource:
+    ingestion:
+      retries:
+        delay: 3
+        maxDelay: 90
+        maxDuration : 3600
   engine:
     hostname:
       broker: http://localhost:8082
@@ -222,6 +236,7 @@ polaris:
         port: 10000
         username: hive
         password: hive
+        metastoreUri: thrift://localhost:9083
     query:
       loader:
         remoteType: LOCAL
@@ -234,10 +249,15 @@ polaris:
     baseUrl: http://localhost:8180
   workbench:
     defaultResultSize: 1000
-    maxResultSize: 100000
-    maxFetchSize: 10000
+    maxResultSize: 1000000
+    maxFetchSize: 1000
     tempHdfsPath: /tmp/hive
     tempCSVPath: /tmp
+  geoserver:
+    baseUrl: http://localhost:9090
+    username: admin
+    password: geoserver
+    defaultWorkspace: metatron
   dataprep:
     localBaseDir: ${user.home}/dataprep
 #    hadoopConfDir: /etc/hadoop
@@ -393,3 +413,23 @@ polaris:
 ---
 spring:
   profiles: encode-password-initial
+
+---
+spring:
+  profiles: datasource-filter-sample
+polaris:
+  datasource:
+    default-filters:
+      - criterionKey: CREATOR
+        filterKey: createdBy
+        filterValue: me
+      - criterionKey: PUBLISH
+        filterKey: published
+        filterValue: true
+        filterName: msg.storage.ui.criterion.open-data
+  connections:
+    default-filters:
+      - criterionKey: PUBLISH
+        filterKey: published
+        filterValue: true
+        filterName: msg.storage.ui.criterion.open-data

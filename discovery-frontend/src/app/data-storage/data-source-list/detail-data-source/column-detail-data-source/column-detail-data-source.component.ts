@@ -172,6 +172,14 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   }
 
   /**
+   * is disable edit filter
+   * @returns {boolean}
+   */
+  public isDisableEditFilter(): boolean {
+    return this.datasource.ingestion && this.datasource.ingestion.type === 'link' && this.datasource.ingestion.dataType === 'QUERY';
+  }
+
+  /**
    * Is exist metadata
    * @returns {boolean}
    */
@@ -198,6 +206,24 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   }
 
   /**
+   * Is GEO type column
+   * @param column
+   * @returns {boolean}
+   */
+  public isGeoType(column: any): boolean {
+    return column.logicalType.indexOf('GEO_') !== -1;
+  }
+
+  /**
+   * Is derived column
+   * @param {Field} column
+   * @returns {boolean}
+   */
+  public isDerivedColumn(column: Field): boolean {
+    return column.derived;
+  }
+
+  /**
    * Is tooltip class changed
    * @param columnList
    * @param {number} index
@@ -206,6 +232,14 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   // public isChangeTooltipClass(columnList: any, index: number): boolean {
   //   return index > (columnList.length / 2 - 1) ? true : false;
   // }
+
+  /**
+   * Get enable change physical type list
+   * @returns {any}
+   */
+  public getEnableChangePhysicalTypeList(): any {
+    return this.physicalTypeList.filter(type => !type.derived);
+  }
 
   /**
    * Get column type label
@@ -398,7 +432,8 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     // set engineName
     const engineName = source.engineName;
     // if only engine type source, get statistics and covariance
-    if (!this.isLinkedTypeSource(source)) {
+    // #728 except GEO types, not get statistics and covariance
+    if (!this.isLinkedTypeSource(source) && !this.isGeoType(field)) {
       // if role is TIMESTAMP and __time variable not exist in statsData,
       // else if role is not TIMESTAMP and field name not existed in statsData
       if ((this.selectedField.role === 'TIMESTAMP' && !this.statsData.hasOwnProperty('__time'))
@@ -477,9 +512,12 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
       { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
       { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER', measure: true },
       { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', measure: true  },
-      { label: this.translateService.instant('msg.storage.ui.list.timestamp'), value: 'TIMESTAMP' },
+      { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
       { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
-      { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
+      { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' },
+      { label: this.translateService.instant('msg.storage.ui.list.geo.point'), value: 'GEO_POINT', derived: true },
+      { label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), value: 'GEO_POLYGON', derived: true },
+      { label: this.translateService.instant('msg.storage.ui.list.geo.line'), value: 'GEO_LINE', derived: true },
     ];
     this.selectedTypeFilter = this.typeFilterList[0];
     this.roleTypeFilterList = [
@@ -753,10 +791,10 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     if (stats.hasOwnProperty('iqr')) {
       const length = stats.iqr.length;
       switch (type) {
-        case 'UPPER':
+        case 'LOWER':
           result = stats.iqr[0];
           break;
-        case 'LOWER':
+        case 'UPPER':
           result = stats.iqr[length - 1];
           break;
       }

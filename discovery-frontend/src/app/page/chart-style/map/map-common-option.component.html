@@ -12,13 +12,62 @@
   ~ limitations under the License.
   -->
 
+<!-- 공통 설정 -->
 <div class="ddp-ui-chart-side ddp-show">
+  <div class="ddp-filter">
+    <!-- title -->
+    <div class="ddp-ui-side-title">
+      {{'msg.page.ui.common' | translate}}
+    </div>
+    <!-- //title -->
+    <div class="ddp-wrap-downmenu">
+      <div class="ddp-box-down">
+        <div class="ddp-wrap-divide">
+          <div class="ddp-divide2">
+            <!-- slider -->
+            <div class="ddp-wrap-option-slider">
+              <span class="ddp-label-slider">{{'msg.page.common.map.layer' | translate}}</span>
+            </div>
+            <!-- //slider -->
+            <div class="ddp-list-sub2">
+              <!-- divide -->
+              <!--<div class="ddp-divide2">-->
+                <!--<div class="ddp-list-label">{{'msg.page.common.map.layer.service' | translate}}</div>-->
+                <!--&lt;!&ndash; SELECTBOX &ndash;&gt;-->
+                <!--<component-select-->
+                  <!--[array]="mapServiceList"-->
+                  <!--[defaultIndex]="findServiceDefaultIndex()"-->
+                  <!--[viewKey]="'name'"-->
+                  <!--(onSelected)="setMapService($event)"-->
+                <!--&gt;</component-select>-->
+                <!--&lt;!&ndash; //SELECTBOX &ndash;&gt;-->
+              <!--</div>-->
+              <!-- //divide -->
 
-  <div class="ddp-ui-side-title">
-    {{'msg.page.ui.common' | translate}}
-  </div>
-  <div class="ddp-wrap-downmenu">
-    <div class="ddp-box-down">
+              <!-- divide -->
+              <div class="ddp-divide2">
+                <div class="ddp-list-label">{{'msg.page.common.map.layer.map.style' | translate}}</div>
+                <!-- SELECTBOX -->
+                <component-select
+                  [array]="mapStyleList"
+                  [defaultIndex]="findStyleDefaultIndex()"
+                  [viewKey]="'name'"
+                  (onSelected)="setMapStyle($event)"
+                ></component-select>
+                <!-- //SELECTBOX -->
+              </div>
+              <!-- //divide -->
+              <!-- divide -->
+              <div class="ddp-divide2">
+                <div class="ddp-list-label">{{'msg.page.common.map.layer.license' | translate}}</div>
+                <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.licenseNotation" (keyup.enter)="setLicense()">
+              </div>
+              <!-- //divide -->
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+<!-- //공통 설정 -->

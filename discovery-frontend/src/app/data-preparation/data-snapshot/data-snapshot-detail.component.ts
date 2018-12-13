@@ -16,12 +16,14 @@ import {
   AfterViewInit, Component, ElementRef, Injector, OnInit, ViewChild, OnDestroy, Output,
   HostListener, EventEmitter
 } from '@angular/core';
-import { DataSnapshot, OriginDsInfo } from '../../domain/data-preparation/data-snapshot';
+//import { DataSnapshot, OriginDsInfo } from '../../domain/data-preparation/data-snapshot';
+import { PrDataSnapshot, Status, OriginDsInfo } from '../../domain/data-preparation/pr-snapshot';
 import { DataSnapshotService } from './service/data-snapshot.service';
 import { PopupService } from '../../common/service/popup.service';
 import { GridComponent } from '../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../common/component/grid/grid.header';
-import { Field } from '../../domain/data-preparation/dataset';
+//import { Field } from '../../domain/data-preparation/dataset';
+import { Field } from '../../domain/data-preparation/pr-dataset';
 import { GridOption } from '../../common/component/grid/grid.option';
 import { Alert } from '../../common/util/alert.util';
 import { PreparationAlert } from '../util/preparation-alert.util';
@@ -30,6 +32,7 @@ import { saveAs } from 'file-saver';
 import * as pixelWidth from 'string-pixel-width';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import * as $ from "jquery";
+import {PreparationCommonUtil} from "../util/preparation-common.util";
 
 @Component({
   selector: 'app-data-snapshot-detail',
@@ -61,7 +64,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public ssId: string;
 
-  public selectedDataSnapshot: DataSnapshot = null;
+  //public selectedDataSnapshot: DataSnapshot = null;
+  public selectedDataSnapshot: PrDataSnapshot = null;
   public originDsInfo: OriginDsInfo = null;
   public colCnt: number = 0;
 
@@ -85,6 +89,10 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   public isShow : boolean = false;
 
   public progressbarWidth = '100%';
+
+  public prepCommonUtil = PreparationCommonUtil;
+
+  public flag: boolean = false; // Restrict api calling again and again
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -119,6 +127,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   public ngOnDestroy() {
     super.ngOnDestroy();
     clearInterval(this.interval);
+    this.interval = undefined;
     $('body').removeClass('body-hidden');
   }
 
@@ -135,7 +144,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
     const griddata = { data: [], fields: [] };
     this.updateGrid(griddata);
-    this.selectedDataSnapshot = new DataSnapshot();
+    //this.selectedDataSnapshot = new DataSnapshot();
+    this.selectedDataSnapshot = new PrDataSnapshot();
     this.originDsInfo = new OriginDsInfo();
     this.colCnt = 0;
     this.commandList = [
@@ -162,6 +172,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       { command: 'sort', alias: 'So', desc: this.translateService.instant('msg.dp.li.so.description'), isHover:false },
       { command: 'move', alias: 'Mv', desc: this.translateService.instant('msg.dp.li.mv.description'), isHover:false },
       { command: 'Union', alias: 'Ui', desc: this.translateService.instant('msg.dp.li.ui.description'), isHover:false },
+      { command: 'window', alias: 'Wn', desc: this.translateService.instant('msg.dp.li.ui.description'), isHover:false },
       { command: 'setformat', alias: 'Sf', desc: 'set timestamp type .... ', isHover:false }
 
     ];
@@ -173,6 +184,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   // 데이터 스냅샷 디테일 페이지 팝업 닫기
   public close() {
     clearInterval(this.interval);
+    this.interval = undefined;
     this.isShow = false;
     $('body').removeClass('body-hidden');
     this.snapshotDetailCloseEvent.emit();
@@ -192,7 +204,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       rows = new Intl.NumberFormat().format(this.selectedDataSnapshot.totalLines);
       return rows + ' rows';
     } else {
-      if (this.selectedDataSnapshot.status === 'FAILED') {
+      //if (this.selectedDataSnapshot.status === 'FAILED') {
+      if (this.selectedDataSnapshot.status === Status.FAILED) {
         return 0 + ' rows';
       }
       return '(counting rows)'
@@ -272,64 +285,95 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   }
 
   private getSnapshot(isInitial?) {
+
     if (isInitial) {
+
+      this.flag = false;
       this.loadingShow();
     }
 
-    this.datasnapshotservice.getDataSnapshot(this.ssId).then((snapshot : DataSnapshot) => {
-      this.selectedDataSnapshot = snapshot;
 
-      this.loadingHide();
-      if (this.selectedDataSnapshot.totalLines === -1) {
-        this.selectedDataSnapshot.totalLines = null;
-      } else {
-        clearInterval(this.interval);
-      }
+    if (!this.flag) {
+      this.flag = true;
+      //this.datasnapshotservice.getDataSnapshot(this.ssId).then((snapshot : DataSnapshot) => {
+      this.datasnapshotservice.getDataSnapshot(this.ssId).then((snapshot : PrDataSnapshot) => {
+        this.selectedDataSnapshot = snapshot;
+        this.flag = false;
 
-      //let linageInfo = JSON.parse( this.selectedDataSnapshot["lineageInfo"] );
-      let linageInfo = this.selectedDataSnapshot["jsonLineageInfo"];
-      if( linageInfo.dsId ) {
-        this.dsId = linageInfo.dsId;
-      }
-      if( linageInfo.dfId ) {
-        this.dfId = linageInfo.dfId;
-      }
-
-      this._setRuleList(linageInfo['ruleStringinfos']);
-
-      // % 계산
-      this.missing = this.selectedDataSnapshot.missingLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines) * 100 + '%';
-      this.valid = this.selectedDataSnapshot.validLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines)  * 100 + '%';
-      this.mismatched = this.selectedDataSnapshot.mismatchedLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines) * 100 + '%';
-
-      if ( ['SUCCEEDED'].indexOf(this.selectedDataSnapshot.status) >= 0){
-        this.selectedDataSnapshot.displayStatus = 'SUCCESS';
-        this.getGridData();
-
-      } else if ( ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','CANCELING'].indexOf(this.selectedDataSnapshot.status) >= 0) {
-        this.selectedDataSnapshot.displayStatus = 'PREPARING';
-
-        if(isUndefined(this.selectedDataSnapshot.ruleCntDone) || isNull(this.selectedDataSnapshot.ruleCntDone)) this.selectedDataSnapshot.ruleCntDone = 0;
-        if(isUndefined(this.selectedDataSnapshot.ruleCntTotal) || isNull(this.selectedDataSnapshot.ruleCntTotal)) this.selectedDataSnapshot.ruleCntTotal = 0;
-        if (this.selectedDataSnapshot.ruleCntTotal > 0 && this.selectedDataSnapshot.ruleCntDone < this.selectedDataSnapshot.ruleCntTotal){
-          this.progressbarWidth = Math.ceil(this.selectedDataSnapshot.ruleCntDone * 100  / (this.selectedDataSnapshot.ruleCntTotal + 1)) + "%";
+        this.loadingHide();
+        if (this.selectedDataSnapshot.totalLines === -1) {
+          this.selectedDataSnapshot.totalLines = null;
         } else {
-          this.progressbarWidth = '100%';
+          clearInterval(this.interval);
+          this.interval = undefined;
         }
-        this.interval =  setInterval(() => this.getSnapshot(), 1000);
 
-      } else  { //'FAILED','CANCELED','NOT_AVAILABLE'
-        this.selectedDataSnapshot.displayStatus = 'FAIL';
-        if(false===isUndefined(this.selectedDataSnapshot.custom) && "fail_msg"==this.selectedDataSnapshot.custom.match("fail_msg")) {
-          this.selectedDataSnapshot.custom = JSON.parse(this.selectedDataSnapshot.custom.replace(/\n/g, '<br>').replace(/'/g, '"'));
+        //let linageInfo = JSON.parse( this.selectedDataSnapshot["lineageInfo"] );
+        /*
+        let linageInfo = this.selectedDataSnapshot["jsonLineageInfo"];
+        if( linageInfo.dsId ) {
+          this.dsId = linageInfo.dsId;
         }
-      }
+        if( linageInfo.dfId ) {
+          this.dfId = linageInfo.dfId;
+        }
 
-    }).catch((error) => {
-      this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-    });
+        this._setRuleList(linageInfo['ruleStringinfos']);
+        */
+        let sourceInfo = this.selectedDataSnapshot.sourceInfo;
+        this.dsId = sourceInfo.dsId;
+        this.dfId = sourceInfo.dfId;
+
+        let connectionInfo = this.selectedDataSnapshot.connectionInfo;
+        let ruleStringInfo = this.selectedDataSnapshot.ruleStringInfo;
+        this._setRuleList(ruleStringInfo);
+
+        // % 계산
+        /*
+        this.missing = this.selectedDataSnapshot.missingLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines) * 100 + '%';
+        this.valid = this.selectedDataSnapshot.validLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines)  * 100 + '%';
+        this.mismatched = this.selectedDataSnapshot.mismatchedLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines) * 100 + '%';
+        */
+        let totalLines = this.selectedDataSnapshot.totalLines ? this.selectedDataSnapshot.totalLines : 0;
+        let missingLines = this.selectedDataSnapshot.missingLines ? this.selectedDataSnapshot.missingLines : 0;
+        let mismatchedLines = this.selectedDataSnapshot.mismatchedLines ? this.selectedDataSnapshot.mismatchedLines : 0;
+        this.valid = (totalLines - missingLines - mismatchedLines ) / totalLines * 100 + '%';
+        this.missing = missingLines / totalLines * 100 + '%';
+        this.mismatched = mismatchedLines / totalLines * 100 + '%';
+
+        //if ( ['SUCCEEDED'].indexOf(this.selectedDataSnapshot.status) >= 0){
+        if ( [Status.SUCCEEDED].indexOf(this.selectedDataSnapshot.status) >= 0){
+          this.selectedDataSnapshot.displayStatus = 'SUCCESS';
+          this.getOriginData();
+          this.getGridData();
+
+        //} else if ( ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','CANCELING'].indexOf(this.selectedDataSnapshot.status) >= 0) {
+        } else if ( [Status.INITIALIZING,Status.RUNNING,Status.WRITING,Status.TABLE_CREATING,Status.CANCELING].indexOf(this.selectedDataSnapshot.status) >= 0) {
+          this.selectedDataSnapshot.displayStatus = 'PREPARING';
+
+          if(isUndefined(this.selectedDataSnapshot.ruleCntDone) || isNull(this.selectedDataSnapshot.ruleCntDone)) this.selectedDataSnapshot.ruleCntDone = 0;
+          if(isUndefined(this.selectedDataSnapshot.ruleCntTotal) || isNull(this.selectedDataSnapshot.ruleCntTotal)) this.selectedDataSnapshot.ruleCntTotal = 0;
+          if (this.selectedDataSnapshot.ruleCntTotal > 0 && this.selectedDataSnapshot.ruleCntDone < this.selectedDataSnapshot.ruleCntTotal){
+            this.progressbarWidth = Math.ceil(this.selectedDataSnapshot.ruleCntDone * 100  / (this.selectedDataSnapshot.ruleCntTotal + 1)) + "%";
+          } else {
+            this.progressbarWidth = '100%';
+          }
+          this.interval =  setInterval(() => this.getSnapshot(), 1000);
+
+        } else  { //'FAILED','CANCELED','NOT_AVAILABLE'
+          this.selectedDataSnapshot.displayStatus = 'FAIL';
+          if(false===isUndefined(this.selectedDataSnapshot.custom) && "fail_msg"==this.selectedDataSnapshot.custom.match("fail_msg")) {
+            this.selectedDataSnapshot.custom = JSON.parse(this.selectedDataSnapshot.custom.replace(/\n/g, '<br>').replace(/'/g, '"'));
+          }
+        }
+
+      }).catch((error) => {
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      });
+    }
+
   } // end of method getSnapshot
 
   /**
@@ -349,21 +393,59 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       rule['ruleVO']['command'] = rule['ruleVO']['name'];
       rule['ruleVO']['ruleNo'] = rule['ruleNo'];
 
-      const idx = commandNames.indexOf(rule['ruleVO'].name);
+      if (rule['ruleVO'].command === 'join') {
+        rule['ruleVO'].command = 'Join'
+      } else if (rule['ruleVO'].command === 'union') {
+        rule['ruleVO'].command = 'Union'
+      }
+
+      const idx = commandNames.indexOf(rule['ruleVO'].command);
       if (idx > -1) {
         rule['command'] = this.commandList[idx].command;
         rule['alias'] = this.commandList[idx].alias;
         rule['desc'] = this.commandList[idx].desc;
+        rule['desc'] = this.commandList[idx].desc;
+
+        if (rule.shortRuleString) {
+          rule['simplifiedRule'] = rule.shortRuleString;
+        } else {
+          rule['simplifiedRule'] = rule.ruleString;
+        }
       } else {
+        rule['simplifiedRule'] = rule.shortRuleString ? rule.shortRuleString : rule.ruleString;
         rule['command'] = 'Create';
         rule['alias'] = 'Cr';
-        rule['simplifiedRule'] = rule.ruleString;
+        rule['desc'] = '';
       }
-      // rule['simplifiedRule'] = this.simplifyRule(rule['ruleVO'], rule.ruleString);
       this.ruleList.push(rule);
     });
   }
 
+
+  private getOriginData() {
+    let sourceInfo = this.selectedDataSnapshot.sourceInfo;
+
+    if( isUndefined(sourceInfo) ) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.info'));
+    } else {
+      if( isUndefined(sourceInfo.origDsName) ) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.name'));
+        this.originDsInfo.dsName = '';
+      } else {
+        this.originDsInfo.dsName = sourceInfo.origDsName;
+      }
+      if( isUndefined(sourceInfo.origDsQueryStmt) ) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.querystmt'));
+      } else {
+        this.originDsInfo.qryStmt = sourceInfo.origDsQueryStmt;
+      }
+      if( isUndefined(sourceInfo.origDsCreatedTime) ) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.createdtime'));
+      } else {
+        this.originDsInfo.createdTime = sourceInfo.origDsCreatedTime;
+      }
+    }
+  }
 
   // 데이터스냅샷 디테일 팝업 안에 그리드데이터
   private getGridData() {
@@ -378,6 +460,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           return;
         }
 
+        /*
         this.originDsInfo.dsName = '';
         this.originDsInfo.qryStmt = '';
         this.originDsInfo.createdTime = '';
@@ -401,6 +484,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
             this.originDsInfo.createdTime = result.originDsInfo.createdTime;
           }
         }
+        */
 
         this.colCnt = result.gridResponse.colCnt;
         const colNames = result.gridResponse.colNames;
@@ -433,8 +517,11 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       })
       .catch((error) => {
         this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        // let prep_error = this.dataprepExceptionHandler(error);
+        // PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        Alert.error(error.details);
+
+
       });
   } // end of method getGridData
 
@@ -512,7 +599,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   } // end of method updateGrid
 
   public downloadSnapshot() {
-    let downloadFileName = this.selectedDataSnapshot.dsName + ".csv";
+    let downloadFileName = this.selectedDataSnapshot.sourceInfo.dsName + ".csv";
 
     this.datasnapshotservice.downloadSnapshot(this.ssId).subscribe((snapshotFile) => {
       saveAs(snapshotFile, downloadFileName);
@@ -520,6 +607,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   }
   public cancelClick(param:boolean){
     clearInterval(this.interval);
+    this.interval = undefined;
     let elm = $('.ddp-wrap-progress');
     if (param) {
       if(this.selectedDataSnapshot.ruleCntDone == this.selectedDataSnapshot.ruleCntTotal) {

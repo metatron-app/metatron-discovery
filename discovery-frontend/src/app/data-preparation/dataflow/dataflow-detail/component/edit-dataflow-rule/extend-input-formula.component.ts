@@ -21,7 +21,8 @@ import {
   OnInit, Output, ViewChild
 } from '@angular/core';
 import { AbstractComponent } from '../../../../../common/component/abstract.component';
-import { Field } from '../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../domain/data-preparation/pr-dataset';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { DataflowService } from '../../../service/dataflow.service';
 import { Alert } from '../../../../../common/util/alert.util';
@@ -118,7 +119,7 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
     this._fields = _.cloneDeep(fields);
 
     // add $col to field list when command is 'SET'
-    if ('set' === this._command) {
+    if ('set' === this._command || 'setCondition' === this._command) {
       this._fields.unshift({name :'$col', type : 'STRING'});
     }
 

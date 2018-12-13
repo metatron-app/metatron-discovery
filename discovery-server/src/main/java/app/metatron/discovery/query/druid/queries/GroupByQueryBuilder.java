@@ -3,6 +3,34 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -47,7 +75,6 @@ import app.metatron.discovery.domain.workbook.configurations.analysis.Analysis;
 import app.metatron.discovery.domain.workbook.configurations.analysis.PredictionAnalysis;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MappingDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
-import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.field.TimestampField;
@@ -69,15 +96,7 @@ import app.metatron.discovery.query.druid.Having;
 import app.metatron.discovery.query.druid.PostAggregation;
 import app.metatron.discovery.query.druid.PostProcessor;
 import app.metatron.discovery.query.druid.Query;
-import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericMinAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
-import app.metatron.discovery.query.druid.aggregations.HyperUniqueAggregation;
-import app.metatron.discovery.query.druid.aggregations.RangeAggregation;
-import app.metatron.discovery.query.druid.aggregations.SketchAggregation;
-import app.metatron.discovery.query.druid.aggregations.VarianceAggregation;
 import app.metatron.discovery.query.druid.dimensions.DefaultDimension;
 import app.metatron.discovery.query.druid.dimensions.ExtractionDimension;
 import app.metatron.discovery.query.druid.dimensions.LookupDimension;
@@ -96,17 +115,11 @@ import app.metatron.discovery.query.druid.havings.LessThanOrEqual;
 import app.metatron.discovery.query.druid.limits.DefaultLimit;
 import app.metatron.discovery.query.druid.limits.OrderByColumn;
 import app.metatron.discovery.query.druid.limits.PivotWindowingSpec;
-import app.metatron.discovery.query.druid.limits.WindowingSpec;
 import app.metatron.discovery.query.druid.lookup.MapLookupExtractor;
 import app.metatron.discovery.query.druid.model.HoltWintersPostProcessor;
-import app.metatron.discovery.query.druid.postaggregations.ArithmeticPostAggregation;
-import app.metatron.discovery.query.druid.postaggregations.FieldAccessorPostAggregator;
 import app.metatron.discovery.query.druid.postaggregations.MathPostAggregator;
-import app.metatron.discovery.query.druid.postaggregations.SketchQuantilePostAggregator;
-import app.metatron.discovery.query.druid.postaggregations.StddevPostAggregator;
 import app.metatron.discovery.query.druid.postprocessor.PostAggregationProcessor;
 import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
-import app.metatron.discovery.query.polaris.ComputationalField;
 
 import static app.metatron.discovery.domain.datasource.data.CandidateQueryRequest.RESULT_VALUE_NAME_PREFIX;
 import static app.metatron.discovery.domain.workbook.configurations.Sort.Direction.ASC;
@@ -119,7 +132,7 @@ import static app.metatron.discovery.domain.workbook.configurations.filter.WildC
 import static app.metatron.discovery.query.druid.Query.RESERVED_WORD_COUNT;
 
 /**
- * Created by hsp on 2016. 7. 5..
+ *
  */
 public class GroupByQueryBuilder extends AbstractQueryBuilder {
 
@@ -132,12 +145,6 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
   private GroupingSet groupingSet;
 
   private Set<String> outputColumns = Sets.newLinkedHashSet();
-
-  private List<Aggregation> aggregations = Lists.newArrayList();
-
-  private List<PostAggregation> postAggregations = Lists.newArrayList();
-
-  private List<WindowingSpec> windowingSpecs = Lists.newArrayList();
 
   private Granularity granularity;
 
@@ -238,7 +245,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
             String innerFieldName = aliasName + Query.POSTFIX_INNER_FIELD;
 
             TimeFormatFunc timeFormatFunc = new TimeFormatFunc("\"" + fieldName + "\"",
-                                                               datasourceField.getFormat(),
+                                                               datasourceField.getTimeFormat(),
                                                                null,
                                                                null,
                                                                timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
@@ -378,148 +385,6 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     // 추후 dimension 체크 진행
     groupingSet = new GroupingSet.Names(names);
     return this;
-  }
-
-  private void addAggregationFunction(MeasureField measureField) {
-
-    String fieldName = measureField.getColunm();
-    String aliasName = measureField.getAlias();
-    String paramName = null;
-    String dataType = "double";
-
-    switch (measureField.getAggregationType()) {
-      case NONE:
-        break;
-      case MIN:
-        aggregations.add(new GenericMinAggregation(aliasName, fieldName, dataType));
-        break;
-      case MAX:
-        aggregations.add(new GenericMaxAggregation(aliasName, fieldName, dataType));
-        break;
-      case COUNT:
-        aggregations.add(new CountAggregation(aliasName));
-        break;
-      case COUNTD:
-        aggregations.add(new HyperUniqueAggregation(aliasName, fieldName));
-        break;
-      case SUM:
-        aggregations.add(new GenericSumAggregation(aliasName, fieldName, dataType));
-        break;
-
-      case AVG:
-        String countField = measureField.getRef() == null ? "count" : measureField.getRef() + "." + "count";
-        aggregations.add(new GenericSumAggregation(fieldName + "_sum", fieldName, dataType));
-        aggregations.add(new GenericSumAggregation("count", countField, dataType));
-
-        ArithmeticPostAggregation postAggregation = new ArithmeticPostAggregation();
-        postAggregation.setName(aliasName);
-        postAggregation.setFn(ArithmeticPostAggregation.AggregationFunction.DIVISION);
-
-        List<PostAggregation> postAggregationFields = new ArrayList<PostAggregation>();
-
-        postAggregationFields.add(new FieldAccessorPostAggregator(fieldName + "_sum", fieldName + "_sum"));
-        postAggregationFields.add(new FieldAccessorPostAggregator("count", "count"));
-
-        postAggregation.setFields(postAggregationFields);
-
-        postAggregations.add(postAggregation);
-        break;
-      case STDDEV:
-        paramName = "aggregationfunc" + String.format("_%03d", aggregations.size());
-        aggregations.add(new VarianceAggregation(paramName, fieldName));
-
-        StddevPostAggregator stddevPostAggregator = new StddevPostAggregator(aliasName, paramName);
-        postAggregations.add(stddevPostAggregator);
-        break;
-      case MEDIAN:
-        // TODO: Field 메타 정보를 뒤져 approxHistogram 으로 preaggregation 되었는지 확인후 타입 결정
-        // 현재는 preaggregation 고려하지 않음
-        // http://druid.io/docs/latest/development/extensions-core/approximate-histograms.html
-        paramName = "aggregationfunc" + String.format("_%03d", aggregations.size());
-        aggregations.add(new SketchAggregation(paramName, fieldName, SketchAggregation.SKETCH_OP_QUANTILE));
-
-        SketchQuantilePostAggregator medianPostAggregator = new SketchQuantilePostAggregator(aliasName, paramName, 0.5);
-        postAggregations.add(medianPostAggregator);
-        break;
-      case AREA:
-        aggregations.add(new AreaAggregation(aliasName, fieldName));
-        break;
-      case RANGE:
-        aggregations.add(new RangeAggregation(aliasName, fieldName));
-        break;
-      case PERCENTILE:
-        paramName = "aggregationfunc" + String.format("_%03d", aggregations.size());
-        aggregations.add(new SketchAggregation(paramName, fieldName, SketchAggregation.SKETCH_OP_QUANTILE));
-
-        SketchQuantilePostAggregator quantilePostAggregator = new SketchQuantilePostAggregator(aliasName, paramName, measureField.getParamValue("value"));
-        postAggregations.add(quantilePostAggregator);
-        break;
-      case VARIATION:
-        aggregations.add(new VarianceAggregation(aliasName, fieldName));
-        break;
-      case APPROX:
-        break;
-      case COMPLEX:
-        break;
-    }
-
-    return;
-  }
-
-  private void addUserDefinedAggregationFunction(MeasureField field) {
-
-    ExpressionField expressionField = (ExpressionField) userFieldsMap.get(field.getName());
-
-    String curExpr = expressionField.getExpr();
-
-    switch (field.getAggregationType()) {
-
-      case NONE:
-        break;
-      case MIN:
-        curExpr = "minof(" + curExpr + ")";
-        break;
-      case MAX:
-        curExpr = "maxof(" + curExpr + ")";
-        break;
-      case COUNT:
-        curExpr = "countof(" + curExpr + ")";
-        break;
-      case SUM:
-        curExpr = "sumof(" + curExpr + ")";
-        break;
-      case AVG:
-        curExpr = "avgof(" + curExpr + ")";
-        break;
-      case STDDEV:
-        curExpr = "stddevof(" + curExpr + ")";
-        break;
-      case MEDIAN:
-        break;
-      case AREA:
-        break;
-      case RANGE:
-        break;
-      case PERCENTILE:
-        break;
-      case VARIATION:
-        curExpr = "varianceof(" + curExpr + ")";
-        break;
-      case APPROX:
-        break;
-      case COMPLEX:
-        break;
-    }
-
-    // TODO: 파라미터도 추가해야함, 일단 기존 로직 유지
-    Map<String, String> exprMap = userFieldsMap.values().stream()
-                                               .filter(userDefinedField -> userDefinedField instanceof ExpressionField)
-                                               .collect(Collectors.toMap(UserDefinedField::getName, f -> ((ExpressionField) f).getExpr()));
-
-    ComputationalField.makeAggregationFunctionsIn(field.getAlias(), curExpr,
-                                                  aggregations, postAggregations, windowingSpecs,
-                                                  exprMap);
-
   }
 
   public GroupByQueryBuilder advancedFilters(List<app.metatron.discovery.domain.workbook.configurations.filter.Filter> filters) {
@@ -776,7 +641,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
           partitionExpressions.add("_ = _ - " + intersectionValue);
         }
 
-        if("treemap".equals(chartFormat.getMode())) {
+        if ("treemap".equals(chartFormat.getMode())) {
           this.groupingSet = pivotFormat.toGroupingSet();
           // 피봇 키 필드를 피봇필드로 이동 (Tree 를 구하기 위함)
           PivotResultFormat.Pivot newPivot =

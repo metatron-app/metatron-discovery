@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import { Dataset } from '../../../domain/data-preparation/dataset';
 import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild
 } from '@angular/core';
@@ -22,6 +21,10 @@ import { DataflowService } from '../service/dataflow.service';
 import * as _ from 'lodash';
 import { Alert } from '../../../common/util/alert.util';
 import { DatasetService } from '../../dataset/service/dataset.service';
+import { DataflowModelService } from "../service/dataflow.model.service";
+//import { Dataset, DsType } from '../../../domain/data-preparation/dataset';
+import { PrDataset, DsType } from '../../../domain/data-preparation/pr-dataset';
+import {PreparationCommonUtil} from "../../util/preparation-common.util";
 
 @Component({
   selector: 'app-add-dataset',
@@ -45,11 +48,14 @@ export class AddDatasetComponent extends AbstractComponent implements OnInit, On
   public dataflowId : string; // 현재 데이터플로우 아이디
 
   @Input()
-  public originalDatasetList: any[] = []; // 현재 데이터플로우에 추가되어 있는 모든 데이터셋 정보
+  //public originalDatasetList: Dataset[] = []; // 현재 데이터플로우에 추가되어 있는 모든 데이터셋 정보
+  public originalDatasetList: PrDataset[] = []; // 현재 데이터플로우에 추가되어 있는 모든 데이터셋 정보
   public clonedOriginalDatasetList : any [] = []; // 현재 데이터플로우에 추가되어있는 imported datasets
-  public datasets: Dataset[] = []; // 화면에 보여지는 데이터셋 리스트
+  //public datasets: Dataset[] = []; // 화면에 보여지는 데이터셋 리스트
+  public datasets: PrDataset[] = []; // 화면에 보여지는 데이터셋 리스트
   public selectedDatasetId: string = ''; // 선택된 데이터셋 아이디
-  public selectedDatasets : Dataset[]; // 선택된 데이터셋 리스트
+  //public selectedDatasets : Dataset[]; // 선택된 데이터셋 리스트
+  public selectedDatasets : PrDataset[]; // 선택된 데이터셋 리스트
   public isCheckAllDisabled : boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -65,6 +71,7 @@ export class AddDatasetComponent extends AbstractComponent implements OnInit, On
 
   public isShow : boolean = false;
 
+  public prepCommonUtil = PreparationCommonUtil;
 
   get countSelected() {
 
@@ -83,9 +90,10 @@ export class AddDatasetComponent extends AbstractComponent implements OnInit, On
 
   // 생성자
   constructor(protected elementRef: ElementRef,
+              protected injector: Injector,
               private dataflowService: DataflowService,
               private datasetService : DatasetService,
-              protected injector: Injector) {
+              private dataflowModelService : DataflowModelService) {
     super(elementRef, injector);
   }
 
@@ -124,10 +132,15 @@ export class AddDatasetComponent extends AbstractComponent implements OnInit, On
    */
   public init() {
 
+    if (this.dataflowModelService.getDatasetsFromDataflow().length !== 0 ) {
+      this.originalDatasetList = this.dataflowModelService.getDatasetsFromDataflow();
+      this.dataflowModelService.setDatasetsFromDataflow([]);
+    }
+
     // 데이터플로우에 이미 추가된 데이터셋이 있다면 imported 만 clonedOriginalDatasetList에 넣는다.
     if (this.originalDatasetList.length > 0 ) {
       this.originalDatasetList.forEach((item) => {
-        if (item.dsType === 'IMPORTED' ) {
+        if (item.dsType === DsType.IMPORTED ) {
           this.clonedOriginalDatasetList.push(item.dsId)
         }
       });
@@ -377,6 +390,8 @@ export class AddDatasetComponent extends AbstractComponent implements OnInit, On
     // 데이터셋 생성 페이지로 이동
     this.router.navigate(['/management/datapreparation/dataset']);
     sessionStorage.setItem('DATAFLOW_ID',this.dataflowId);
+    this.dataflowModelService.setDatasetsFromDataflow(this.originalDatasetList)
+
 
   } // function - createDataset
 
@@ -430,6 +445,12 @@ export class AddDatasetComponent extends AbstractComponent implements OnInit, On
 
         if (sessionStorage.getItem('DATASET_ID')) {
           this.selectedDatasetId = sessionStorage.getItem('DATASET_ID');
+          this.datasets.filter((item) => {
+            if (item.dsId === this.selectedDatasetId) {
+              item.selected = true;
+              this.selectedDatasets.push(item);
+            }
+          });
           sessionStorage.removeItem('DATASET_ID');
           this.datasetService.dataflowId = undefined;
         }

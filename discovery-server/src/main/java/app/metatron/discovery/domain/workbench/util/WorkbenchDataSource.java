@@ -14,22 +14,26 @@
 
 package app.metatron.discovery.domain.workbench.util;
 
+import app.metatron.discovery.domain.workbench.QueryStatus;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.jdbc.support.JdbcUtils;
 
 import java.sql.Statement;
-
-import app.metatron.discovery.domain.workbench.QueryStatus;
+import java.util.List;
 
 public class WorkbenchDataSource {
 
   private String connectionId;
   private String queryEditorId;
   private String webSocketId;
-  private SingleConnectionDataSource singleConnectionDataSource;
+  private List<String> queryList;
+  private SingleConnectionDataSource primarySingleConnectionDataSource;
+  private SingleConnectionDataSource secondarySingleConnectionDataSource;
   private QueryStatus queryStatus = QueryStatus.IDLE;
   private String applicationId;
   private Statement currentStatement;
+  private Long queryHistoryId;
+  private String auditId;
 
   /**
    * Instantiates a new Single connection data source info.
@@ -41,7 +45,7 @@ public class WorkbenchDataSource {
   public WorkbenchDataSource(String connectionId, String webSocketId, SingleConnectionDataSource singleConnectionDataSource){
     this.connectionId = connectionId;
     this.webSocketId = webSocketId;
-    this.singleConnectionDataSource = singleConnectionDataSource;
+    this.primarySingleConnectionDataSource = singleConnectionDataSource;
   }
 
   /**
@@ -86,7 +90,7 @@ public class WorkbenchDataSource {
    * @return the single connection data source
    */
   public SingleConnectionDataSource getSingleConnectionDataSource() {
-    return singleConnectionDataSource;
+    return primarySingleConnectionDataSource;
   }
 
   /**
@@ -95,7 +99,7 @@ public class WorkbenchDataSource {
    * @param singleConnectionDataSource the single connection data source
    */
   public void setSingleConnectionDataSource(SingleConnectionDataSource singleConnectionDataSource) {
-    this.singleConnectionDataSource = singleConnectionDataSource;
+    this.primarySingleConnectionDataSource = singleConnectionDataSource;
   }
 
   public String getQueryEditorId() {
@@ -130,14 +134,51 @@ public class WorkbenchDataSource {
     this.currentStatement = currentStatement;
   }
 
+  public List<String> getQueryList() {
+    return queryList;
+  }
+
+  public void setQueryList(List<String> queryList) {
+    this.queryList = queryList;
+  }
+
+  public SingleConnectionDataSource getSecondarySingleConnectionDataSource() {
+    return secondarySingleConnectionDataSource;
+  }
+
+  public void setSecondarySingleConnectionDataSource(SingleConnectionDataSource secondarySingleConnectionDataSource) {
+    this.secondarySingleConnectionDataSource = secondarySingleConnectionDataSource;
+  }
+
+  public Long getQueryHistoryId() {
+    return queryHistoryId;
+  }
+
+  public void setQueryHistoryId(Long queryHistoryId) {
+    this.queryHistoryId = queryHistoryId;
+  }
+
+  public String getAuditId() {
+    return auditId;
+  }
+
+  public void setAuditId(String auditId) {
+    this.auditId = auditId;
+  }
+
   /**
    * Destroy.
    */
   public void destroy(){
     //Statement Close
     JdbcUtils.closeStatement(this.getCurrentStatement());
-    this.singleConnectionDataSource.destroy();
-    this.singleConnectionDataSource = null;
+    this.primarySingleConnectionDataSource.destroy();
+    this.primarySingleConnectionDataSource = null;
+
+    if(this.secondarySingleConnectionDataSource != null) {
+      this.secondarySingleConnectionDataSource.destroy();
+      this.secondarySingleConnectionDataSource = null;
+    }
   }
 
   public String toString(){

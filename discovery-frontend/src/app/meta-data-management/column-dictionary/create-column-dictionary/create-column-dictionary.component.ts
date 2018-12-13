@@ -12,19 +12,20 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ColumnDictionaryService } from '../service/column-dictionary.service';
 import { Alert } from '../../../common/util/alert.util';
 import { CommonUtil } from '../../../common/util/common.util';
 import { ChooseCodeTableComponent } from '../../component/choose-code-table/choose-code-table.component';
 import { CodeTable } from '../../../domain/meta-data-management/code-table';
+import { FieldFormat, FieldFormatType } from '../../../domain/datasource/datasource';
+import { AbstractComponent } from '../../../common/component/abstract.component';
 
 @Component({
   selector: 'app-create-column-dictionary',
   templateUrl: './create-column-dictionary.component.html'
 })
-export class CreateColumnDictionaryComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+export class CreateColumnDictionaryComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -359,14 +360,18 @@ export class CreateColumnDictionaryComponent extends AbstractPopupComponent impl
   private _getCreateColumnDictionaryParams(): object {
     const params = {
       name: this.columnName.trim(),
-      shortName: this.shortName.trim(),
+      suggestionShortName: this.shortName.trim(),
       logicalName: this.logicalName.trim(),
       description: this.description.trim(),
       logicalType: this.selectedType,
       dataType: 'STRING'
     };
     // 타입이 시간인경우 format 추가
-    (this.selectedType === 'TIMESTAMP') && (params['format'] = this.timeFormat);
+    if (this.selectedType === 'TIMESTAMP') {
+      params['format'] = new FieldFormat();
+      params['format'].format = this.timeFormat;
+      params['format'].type = FieldFormatType.DATE_TIME;
+    }
 
     // 선택한 코드 테이블이 있다면
     this.selectedCodeTable && (params['codeTable'] = `api/codetables/${this.selectedCodeTable.id}`);

@@ -16,6 +16,9 @@ import {Injectable, Injector} from '@angular/core';
 import {AbstractService} from '../../common/service/abstract.service';
 import {CommonUtil} from '../../common/util/common.util';
 import {Page} from '../../domain/common/page';
+import {isNullOrUndefined} from "util";
+import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
+import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
 
 @Injectable()
 export class DataconnectionService extends AbstractService {
@@ -118,6 +121,44 @@ export class DataconnectionService extends AbstractService {
       url += '?' + CommonUtil.objectToUrlString(params);
     }
     return this.get(url);
+  }
+
+  /**
+   * Get table list
+   * @param dataconnection
+   * @param page
+   * @returns {Promise<any>}
+   */
+  public getTableListInConnectionQuery(dataconnection: any, param: any): Promise<any> {
+    let url: string = this.API_URL + `connections/query/tables`;
+    if (param) {
+      url += '?' + CommonUtil.objectToUrlString(param);
+    }
+    const params:any = {};
+    let connInfo: any = {};
+    connInfo.implementor = dataconnection.implementor;
+    // connection 정보가 USERINFO 일 경우 제외
+    if( connInfo.authenticationType != 'USERINFO' ) {
+      connInfo.username = dataconnection.username;
+      connInfo.password = dataconnection.password;
+    }
+    connInfo.authenticationType = dataconnection.authenticationType;
+    connInfo.hostname = dataconnection.hostname;
+    connInfo.port = dataconnection.port;
+    connInfo.database = dataconnection.connectionDatabase;
+    connInfo.catalog = dataconnection.catalog;
+    connInfo.url = dataconnection.url;
+
+    // properties 속성이 존재 할경우
+    if( !isNullOrUndefined(dataconnection.properties) ){
+      connInfo.properties = dataconnection.properties;
+    }
+
+    params.connection = connInfo;
+    params.database = dataconnection.database;
+    params.table = param.tableName;
+
+    return this.post(url, params);
   }
 
   // 커넥션 정보로만 데이터베이스 조회
@@ -241,6 +282,23 @@ export class DataconnectionService extends AbstractService {
   }
 
   /**
+   * Check partition valid in stagingDB
+   * @param params
+   * @returns {Promise<any>}
+   */
+  public partitionValidationForStagingDB(params: any): Promise<any> {
+    return this.post(this.URL_CONNECTIONS + '/query/hive/partitions/validate', params);
+  }
+
+  /**
+   * Is String mode in stagingDB
+   * @returns {Promise<any>}
+   */
+  public isStrictModeForStagingDB(): Promise<any> {
+    return this.get(this.URL_CONNECTIONS + '/query/hive/strict');
+  }
+
+  /**
    * 메타데이터 내에서 stageDB로 생성시 테이블 목록 조회
    * @param {string} databaseName
    * @returns {Promise<any>}
@@ -257,4 +315,36 @@ export class DataconnectionService extends AbstractService {
   public getTableListForHiveInMetadata(params: object): Promise<any> {
     return this.post(this.URL_CONNECTIONS + '/metadata/tables/jdbc', params);
   }
+
+  /**
+   * Get criterion list in connection
+   * @returns {Promise<CriteriaFilter>}
+   */
+  public getCriterionListInConnection(): Promise<CriteriaFilter> {
+    return this.get(this.API_URL + 'connections/criteria');
+  }
+
+  /**
+   * Get criterion in connection
+   * @param {CriterionKey} criterionKey
+   * @returns {Promise<ListCriterion>}
+   */
+  public getCriterionInConnection(criterionKey: CriterionKey): Promise<ListCriterion> {
+    return this.get(this.API_URL + `connections/criteria/${criterionKey}`);
+  }
+
+  /**
+   * Get connection list
+   * @param {number} page
+   * @param {number} size
+   * @param {string} sort
+   * @param params
+   * @param {string} projection
+   * @returns {Promise<any>}
+   */
+  public getConnectionList(page: number, size: number, sort: string, params: any, projection: string = 'list'): Promise<any> {
+    return this.post(this.API_URL + `connections/filter?projection=${projection}&page=${page}&size=${size}&sort=${sort}`, params);
+  }
+
+
 }

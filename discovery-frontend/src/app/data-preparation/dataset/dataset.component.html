@@ -43,7 +43,7 @@
         <!-- //검색 -->
         <div class="ddp-ui-rightoption">
           <div class="ddp-wrap-edit">
-            <label class="ddp-label-type"> Type</label>
+            <label class="ddp-label-type"> {{'msg.comm.th.type' | translate}}</label>
             <!-- edit option -->
             <div class="ddp-ui-edit-option ddp-inline">
               <label class="ddp-label-checkbox" *ngFor="let item of datasetTypes">
@@ -72,13 +72,13 @@
       </colgroup>
       <thead>
       <tr>
-        <th (click)="changeOrder('dsName')" colspan="2">
+        <th (click)="changeOrder('dsName')" colspan="2" class="ddp-cursor">
           {{'msg.comm.menu.manage.prep.set' | translate}}
           <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'dsName' || selectedContentSort.sort === 'default'"></em>
           <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'dsName' && selectedContentSort.sort === 'asc'"></em>
           <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'dsName' && selectedContentSort.sort === 'desc'"></em>
         </th>
-        <th (click)="changeOrder('refDfCount')">
+        <th (click)="changeOrder('refDfCount')"  class="ddp-cursor">
           {{'msg.comm.th.used' | translate}}
           <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'refDfCount' || selectedContentSort.sort === 'default'"></em>
           <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'refDfCount' && selectedContentSort.sort === 'asc'"></em>
@@ -87,7 +87,7 @@
         <th>
           {{'msg.dp.th.source' | translate}}
         </th>
-        <th (click)="changeOrder('createdTime')">
+        <th (click)="changeOrder('createdTime')"  class="ddp-cursor">
           {{'msg.comm.th.created' | translate}}
           <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
           <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
@@ -115,8 +115,12 @@
         <td>
           <span class="ddp-data-source" *ngIf="item.dsType.toString() === 'IMPORTED'">
             <span>
+              <!--
               <em [ngClass]="{HIVE:'ddp-icon-dbdata2', DB:'ddp-icon-db-s', 'FILE':'ddp-icon-file'}[item.importType.toString()]" ></em>
-              {{item.importType}}
+              -->
+              <!-- FIXME: need to append classes URI,DRUID -->
+              <em [ngClass]="{ STAGING_DB:'ddp-icon-dbdata2', DATABASE:'ddp-icon-db-s', UPLOAD:'ddp-icon-file', URI:'', DRUID:'' }[item.importType]" ></em>
+              {{prepCommonUtil.getImportType(item.importType)}}
               </span>
             </span>
           <span class="ddp-data-source" *ngIf="item.dsType.toString() === 'WRANGLED'">

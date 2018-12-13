@@ -1,17 +1,3 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /**
  * Created by Dolkkok on 2017. 7. 20..
  */
@@ -27,6 +13,8 @@ import {UIChartAxis} from "./ui-option/ui-axis";
 import {UIChartFormat} from "./ui-option/ui-format";
 import {UIChartDataLabel} from "./ui-option/ui-datalabel";
 import { UIChartTooltip } from './ui-option/ui-tooltip';
+import { UILayers } from './ui-option/map/ui-layers';
+import { MapType } from './define/map/map-common';
 
 /**
  * Export
@@ -40,6 +28,7 @@ export * from "./ui-option/ui-format";
 export * from "./ui-option/ui-zoom";
 export * from "./ui-option/ui-legend";
 export * from "./ui-option/ui-axis";
+export * from "./ui-option/map/ui-layers";
 
 /**
  * 화면 UI에 필요한 옵션
@@ -78,6 +67,8 @@ export interface UIOption {
 
   // 툴팁
   toolTip?: UIChartTooltip;
+
+  limit?:number;
 
   ////////////////////////////////////////////
   // UI 스펙

@@ -256,6 +256,16 @@ export class DetailUserManagementPermissionComponent extends AbstractUserManagem
     return ( '' === strMsgCode ) ? '' : this.translateService.instant(strMsgCode);
   } // function - getRoleName
 
+  /**
+   * 시스템의 RoleName 을 이용하여, Resource에 정의된 Role 설명을 얻음
+   * @param {string} role
+   * @return {string}
+   */
+  public getRoleDesc(role:string):string {
+    const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole( role );
+    return ( '' === strMsgCode ) ? '' : this.translateService.instant(strMsgCode + '.desc') ;
+  } // function - getRoleDesc
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

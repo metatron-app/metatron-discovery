@@ -25,9 +25,11 @@ import {
   Output, SimpleChange, SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { Field, Rule } from '../../../../../../domain/data-preparation/dataset';
+//import { Field, Rule } from '../../../../../../domain/data-preparation/dataset';
+import { Field, Rule } from '../../../../../../domain/data-preparation/pr-dataset';
 import { PreparationAlert } from '../../../../../util/preparation-alert.util';
 import { DataflowService } from '../../../../service/dataflow.service';
+import { EventBroadcaster } from "../../../../../../common/event/event.broadcaster";
 
 @Component({
   selector: 'rule-condition-input',
@@ -66,6 +68,9 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
   @Input()
   public forceFormula: string;
 
+  @Input()
+  public forceCondition: string;
+
   public formula: string;
 
   @Input()
@@ -84,6 +89,7 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
   constructor(
     protected elementRef: ElementRef,
     protected injector: Injector,
+    private broadCaster: EventBroadcaster,
     protected dataflowService: DataflowService) {
     super(elementRef, injector);
   }
@@ -97,6 +103,12 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
    */
   public ngOnInit() {
     super.ngOnInit();
+
+    this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe((data: { id : string, isShow : boolean }) => {
+
+      this.isAutoCompleteSuggestionListOpen = false;
+
+    })
   } // function - ngOnInit
 
   /**
@@ -113,10 +125,14 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
   public ngOnChanges(changes: SimpleChanges) {
     const inputFormulaChanges: SimpleChange = changes.inputFormula;
     const forceFormulaChanges:SimpleChange = changes.forceFormula;
+    const forceConditionChanges:SimpleChange = changes.forceCondition;
     if( inputFormulaChanges && inputFormulaChanges.firstChange ) {
       this.formula = inputFormulaChanges.currentValue;
     } else if( forceFormulaChanges && forceFormulaChanges.currentValue !== forceFormulaChanges.previousValue ) {
       this.formula = forceFormulaChanges.currentValue;
+      this.onChange.emit(this.formula);
+    } else if( forceConditionChanges && forceConditionChanges.currentValue !== forceConditionChanges.previousValue ) {
+      this.formula = forceConditionChanges.currentValue;
       this.onChange.emit(this.formula);
     }
   } // function - ngOnChanges
@@ -136,12 +152,28 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
   public init(data: { fields: Field[], command: string, ruleVO: Rule, pivotFormulaValueList?: any, idx?: number }) {
   } // end of init
 
+
+  /**
+   * Set focus on input
+   */
+  public setFocus() {
+    this._inputFormula.nativeElement.focus();
+  }
+
   /**
    * Returns condition va
    * @returns {string}
    */
   public getCondition(): string {
     return this.formula;
+  }
+
+  /**
+   * When you want to set value to input
+   * @param {string} condition
+   */
+  public setCondition(condition: string) {
+    this.formula = condition;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -188,82 +220,79 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
       }
       if (this.autoCompleteSuggestions && 0 < this.autoCompleteSuggestions.length) {
         if ($event.keyCode === 38 || $event.keyCode === 40) {
-          if ($event.keyCode === 38) {
+          if ($event.keyCode === 38) {  // Arrow Up
             this.autoCompleteSuggestions_selectedIdx--;
-          } else if ($event.keyCode === 40) {
+          } else if ($event.keyCode === 40) { // Arrow Down
             this.autoCompleteSuggestions_selectedIdx++;
           }
-
           if (this.autoCompleteSuggestions_selectedIdx < 0) {
             this.autoCompleteSuggestions_selectedIdx = this.autoCompleteSuggestions.length - 1;
           } else if (this.autoCompleteSuggestions.length <= this.autoCompleteSuggestions_selectedIdx) {
             this.autoCompleteSuggestions_selectedIdx = 0;
           }
-
           let height = 25;
           this.$element.find('.ddp-list-command').scrollTop(this.autoCompleteSuggestions_selectedIdx * height);
-
           return false;
-        } else if ($event.keyCode === 27) {
+        } else if ($event.keyCode === 27) {   // ESC
           this.isAutoCompleteSuggestionListOpen = false;
           this.autoCompleteSuggestions = [];
           this.autoCompleteSuggestions_selectedIdx = -2;
           return false;
-        } else if ($event.keyCode === 13 || $event.keyCode === 108) {
+        } else if ($event.keyCode === 13 || $event.keyCode === 108) {   // Enter
           if (0 <= this.autoCompleteSuggestions_selectedIdx
             && this.autoCompleteSuggestions_selectedIdx < this.autoCompleteSuggestions.length) {
             this.onSelectAutoComplete(this.autoCompleteSuggestions[this.autoCompleteSuggestions_selectedIdx]);
           }
           return false;
         } else if ($event.keyCode === 8 || $event.keyCode === 46 || $event.keyCode === 37 || $event.keyCode === 39) {
-
-          let input = $event.target;
-          let input_value = input.value;
-          let start = input.selectionStart;
-          let end = input.selectionEnd;
-
-          if ($event.keyCode === 8) {
-            if (0 <= start && end <= input_value.length) {
-              if (start == end) {
+          if( !$event.shiftKey ) {
+            let input = $event.target;
+            let input_value = input.value;
+            let start = input.selectionStart;
+            let end = input.selectionEnd;
+            if ($event.keyCode === 8) {
+              // 8 : Backspace
+              if (0 <= start && end <= input_value.length) {
+                if (start == end) {
+                  start--;
+                  end--;
+                  input_value = input_value.substring(0, start) + input_value.substring(start + 1);
+                } else if (start < end) {
+                  input_value = input_value.substring(0, start) + input_value.substring(end);
+                  end = start;
+                }
+              }
+            } else if ($event.keyCode === 46) {
+              // 46 : Delete
+              if (0 <= start && end <= input_value.length) {
+                if (start == end) {
+                  input_value = input_value.substring(0, start + 1) + input_value.substring(end + 2);
+                } else if (start < end) {
+                  input_value = input_value.substring(0, start) + input_value.substring(end);
+                  end = start;
+                }
+              }
+            } else if ($event.keyCode === 37 && !$event.shiftKey) {
+              // 37 : Arrow Left
+              if (0 < start) {
                 start--;
                 end--;
-                input_value = input_value.substring(0, start) + input_value.substring(start + 1);
-              } else if (start < end) {
-                input_value = input_value.substring(0, start) + input_value.substring(end);
-                end = start;
+              }
+            } else if ($event.keyCode === 39 && !$event.shiftKey) {
+              // 37 : Arrow Right
+              if (end < input_value.length) {
+                start++;
+                end++;
               }
             }
-          } else if ($event.keyCode === 46) {
-            if (0 <= start && end <= input_value.length) {
-              if (start == end) {
-                input_value = input_value.substring(0, start + 1) + input_value.substring(end + 2);
-              } else if (start < end) {
-                input_value = input_value.substring(0, start) + input_value.substring(end);
-                end = start;
-              }
-            }
-          } else if ($event.keyCode === 37) {
-            if (0 < start) {
-              start--;
-              end--;
-            }
-          } else if ($event.keyCode === 39) {
-            if (end < input_value.length) {
-              start++;
-              end++;
-            }
+            input.blur();
+            input.value = input_value;
+            input.selectionStart = start;
+            input.selectionEnd = end;
+            input.dispatchEvent(new Event('input'));
+            input.focus();
+            return false;
           }
-
-          input.blur();
-
-          input.value = input_value;
-          input.selectionStart = start;
-          input.selectionEnd = end;
-
-          input.dispatchEvent(new Event('input'));
-          input.focus();
-
-          return false;
         } else if (
           (8 <= $event.keyCode && $event.keyCode <= 9) ||
           (12 <= $event.keyCode && $event.keyCode <= 13) ||
@@ -291,7 +320,9 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
             if (suggest.type != '@_OPERATOR_@'
               && suggest.type != '@_STRING_@'
               && suggest.type != '@_FUNCTION_EXPRESSION_@'
-              && suggest.type != '@_AGGREGATE_FUNCTION_EXPRESSION_@') {
+              && suggest.type != '@_AGGREGATE_FUNCTION_EXPRESSION_@'
+              && suggest.type != '@_WINDOW_FUNCTION_EXPRESSION_@'
+            ) {
               let lastIdx = rulePart.lastIndexOf(suggest.value);
               rulePart = rulePart.substring(0, lastIdx) + suggest.type + rulePart.substring(lastIdx + suggest.value.length);
             }
@@ -300,25 +331,23 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
         }
       }
     }
-
     this.onChange.emit(value);
-
     this.dataflowService.autoComplete('', this.command, rulePart).then((data) => {
       let columnNames = [];
-
       if (this.command == 'set' && 0 < this.fields.length) {
         columnNames.push('$col');
       }
-
       for (let _column of this.fields) {
         columnNames.push(_column.name);
       }
       let functionNames = [
-        'add_time', 'concat', 'concat_ws', 'day', 'hour', 'if', 'ismismatched', 'isnan', 'isnull', 'length', 'lower', 'ltrim', 'math.abs', 'math.acos', 'math.asin', 'math.atan', 'math.cbrt', 'math.ceil', 'math.cos', 'math.cosh', 'math.exp', 'math.expm1', 'math.getExponent', 'math.round', 'math.signum', 'math.sin', 'math.sinh', 'math.sqrt', 'math.tan', 'math.tanh', 'millisecond', 'minute', 'month', 'now', 'rtrim', 'second', 'substring', 'time_diff', 'timestamp', 'trim', 'upper', 'year'
+        'contains', 'startswith', 'endswith', 'add_time', 'concat', 'concat_ws', 'day', 'hour', 'if', 'ismismatched', 'isnan', 'isnull', 'length', 'lower', 'ltrim', 'math.abs', 'math.acos', 'math.asin', 'math.atan', 'math.cbrt', 'math.ceil', 'math.cos', 'math.cosh', 'math.exp', 'math.expm1', 'math.getExponent', 'math.round', 'math.signum', 'math.sin', 'math.sinh', 'math.sqrt', 'math.tan', 'math.tanh', 'millisecond', 'minute', 'month', 'now', 'rtrim', 'second', 'substring', 'time_diff', 'timestamp', 'trim', 'upper', 'year'
       ];
-      // 2018.5.23  'now','month','day','hour','minute','second','millisecond','if','isnull','isnan','length','trim','ltrim','rtrim','upper','lower','substring','math.abs','math.acos','math.asin','math.atan','math.cbrt','math.ceil','math.cos','math.cosh','math.exp','math.expm1','math.getExponent','math.round','math.signum','math.sin','math.sinh','math.sqrt','math.tan','math.tanh','left','right','if','substring','add_time','concat','concat_ws'
       let functionAggrNames = [
         'sum', 'avg', 'max', 'min', 'count',
+      ];
+      let functionWindowNames = [
+        'row_number', 'rolling_sum', 'rolling_avg', 'lag', 'lead', 'sum', 'avg', 'max', 'min', 'count',
       ];
       if (!isUndefined(data.suggest)) {
         let suggests: any = [];
@@ -402,10 +431,32 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
                   suggests.push(suggest);
                 }
               }
+            } else if (item.tokenString == '@_WINDOW_FUNCTION_EXPRESSION_@') {
+              for (let functionName of functionWindowNames) {
+                if (functionName.startsWith(item.tokenSource)) {
+                  let suggest = {
+                    'type': item.tokenString,
+                    'class': 'Olive',
+                    'source': item.tokenSource,
+                    'value': functionName
+                  };
+                  suggests.push(suggest);
+                }
+              }
             } else if (item.tokenString == 'count' || item.tokenString == 'avg' || item.tokenString == 'sum' || item.tokenString == 'min' || item.tokenString == 'max') {
               if (item.tokenString.startsWith(item.tokenSource)) {
                 let suggest = {
                   'type': '@_AGGREGATE_FUNCTION_EXPRESSION_@', // item.tokenString,
+                  'class': 'Olive',
+                  'source': item.tokenSource,
+                  'value': item.tokenString
+                };
+                suggests.push(suggest);
+              }
+            } else if (item.tokenString == 'row_number' || item.tokenString == 'rolling_sum' || item.tokenString == 'rolling_avg' || item.tokenString == 'lag' || item.tokenString == 'lead') {
+              if (item.tokenString.startsWith(item.tokenSource)) {
+                let suggest = {
+                  'type': '@_WINDOW_FUNCTION_EXPRESSION_@', // item.tokenString,
                   'class': 'Olive',
                   'source': item.tokenSource,
                   'value': item.tokenString
@@ -419,7 +470,6 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
                 'source': item.tokenSource,
                 'value': item.tokenString
               };
-
               // column name for aggregate function
               if (suggest.value == ')' &&
                 (tokenSource0.startsWith('sum') || tokenSource0.startsWith('avg') || tokenSource0.startsWith('min') || tokenSource0.startsWith('max'))
@@ -458,7 +508,6 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
       this.isAutoCompleteSuggestionListOpen = false;
       this.autoCompleteSuggestions_selectedIdx = -1;
       this.autoCompleteSuggestions = [];
-
       let prep_error = this.dataprepExceptionHandler(error);
       PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     });
@@ -479,6 +528,8 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
     let result: any[] = [];
     if ('pivot' === this.command || 'aggregate' === this.command) {
       result = this.formulaSuggestionPivot(item, inputVal, start, end);
+    } else if ('window' === this.command ) {
+      result = this.formulaSuggestionWindow(item, inputVal, start, end);
     } else {
       result = this.formulaSuggestion(item, inputVal, start, end);
     }
@@ -531,6 +582,31 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
     let value = inputVal.substring(0, start);
 
     if (item.type == '@_AGGREGATE_FUNCTION_EXPRESSION_@') {
+      value = item.value;
+    } else if (item.type == '@_COLUMN_NAME_@') {
+      let bracketIdx = value.lastIndexOf('(');
+      value = value.substring(0, bracketIdx);
+      let colname = value.substring(bracketIdx + 1);
+      if (item.value.startsWith(colname)) {
+        value += '(';
+      } else {
+        value += '(' + colname;
+      }
+      value += item.value;
+    } else if (item.type == '@_OPERATOR_@') {
+      value += item.value;
+    }
+
+    let caretPos = value.length;
+
+    return [value, caretPos];
+  } // function - formulaSuggestionPivot
+
+  public formulaSuggestionWindow(item, inputVal, start, end) {
+
+    let value = inputVal.substring(0, start);
+
+    if (item.type == '@_WINDOW_FUNCTION_EXPRESSION_@' || item.type == '@_AGGREGATE_FUNCTION_EXPRESSION_@') {
       value = item.value;
     } else if (item.type == '@_COLUMN_NAME_@') {
       let bracketIdx = value.lastIndexOf('(');

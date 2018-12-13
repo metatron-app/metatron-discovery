@@ -11,216 +11,217 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<div class="ddp-type-contents2">
+  <div class="ddp-top-flow">
 
-<div class="ddp-top-flow">
-
-  <!-- navi wrap -->
-  <div class="ddp-wrap-navi">
-    <a href="javascript:" class="ddp-btn-back" (click)="onClickPrevButton()"></a>
-    <!-- navi -->
-    <div class="ddp-ui-naviarea ">
-      <!-- name -->
-      <!-- 클릭시 ddp-selected 추가 -->
-      <div class="ddp-box-navi ddp-">
-        <!-- 상세 내용이 없을 경우 ddp-full 추가 -->
-        <div class="ddp-wrap-naviname">
-          <span class="ddp-data-naviname ddp-readonly">{{columnDictionary.logicalName}}</span>
-        </div>
-      </div>
-      <!-- //name -->
-    </div>
-    <!-- //navi -->
-  </div>
-  <!-- //navi wrap -->
-</div>
-
-<!-- 상세 -->
-<div class="ddp-wrap-datadetail ddp-meta">
-  <!-- option -->
-  <div class="ddp-ui-option ddp-clear">
-    <!-- edit -->
-    <div class="ddp-wrap-edit">
-      <label class="ddp-label-type">{{'msg.metadata.ui.codetable.detail.created.on' | translate}}</label>
-      <!-- edit option -->
-      <div class="ddp-ui-edit-option">
-        <div class="ddp-data-txt">
-          {{columnDictionary.createdTime | mdate:'YYYY-MM-DD HH:mm'}} {{'msg.metadata.ui.codetable.detail.by' | translate}}
-          <div class="ddp-wrap-link-detail2">
-            <a href="javascript:" class="ddp-link-info">{{columnDictionary.createdBy?.fullName}}</a>
-            <user-information [name]="columnDictionary.createdBy?.fullName"
-                              [id]="columnDictionary.createdBy?.username"
-                              [email]="columnDictionary.createdBy?.email">
-            </user-information>
+    <!-- navi wrap -->
+    <div class="ddp-wrap-navi">
+      <a href="javascript:" class="ddp-btn-back" (click)="onClickPrevButton()"></a>
+      <!-- navi -->
+      <div class="ddp-ui-naviarea ">
+        <!-- name -->
+        <!-- 클릭시 ddp-selected 추가 -->
+        <div class="ddp-box-navi ddp-">
+          <!-- 상세 내용이 없을 경우 ddp-full 추가 -->
+          <div class="ddp-wrap-naviname">
+            <span class="ddp-data-naviname ddp-readonly">{{columnDictionary.logicalName}}</span>
           </div>
         </div>
+        <!-- //name -->
       </div>
-      <!-- //edit option -->
+      <!-- //navi -->
     </div>
-    <!-- //edit -->
-    <!-- edit -->
-    <div class="ddp-wrap-edit">
-      <label class="ddp-label-type">{{'msg.metadata.ui.codetable.detail.updated.on' | translate}}</label>
-      <!-- edit option -->
-      <div class="ddp-ui-edit-option">
-        <div class="ddp-data-txt">
-          {{columnDictionary.modifiedTime | mdate:'YYYY-MM-DD HH:mm'}} {{'msg.metadata.ui.codetable.detail.by' | translate}}
-          <div class="ddp-wrap-link-detail2">
-            <a href="javascript:" class="ddp-link-info">{{columnDictionary.modifiedBy?.fullName}}</a>
-            <user-information [name]="columnDictionary.modifiedBy?.fullName"
-                              [id]="columnDictionary.modifiedBy?.username"
-                              [email]="columnDictionary.modifiedBy?.email">
-            </user-information>
+    <!-- //navi wrap -->
+  </div>
+
+  <!-- 상세 -->
+  <div class="ddp-wrap-datadetail ddp-meta">
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear">
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.metadata.ui.codetable.detail.created.on' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <div class="ddp-data-txt">
+            {{columnDictionary.createdTime | mdate:'YYYY-MM-DD HH:mm'}} {{'msg.metadata.ui.codetable.detail.by' | translate}}
+            <div class="ddp-wrap-link-detail2">
+              <a href="javascript:" class="ddp-link-info">{{columnDictionary.createdBy?.fullName}}</a>
+              <user-information [name]="columnDictionary.createdBy?.fullName"
+                                [id]="columnDictionary.createdBy?.username"
+                                [email]="columnDictionary.createdBy?.email">
+              </user-information>
+            </div>
           </div>
         </div>
+        <!-- //edit option -->
       </div>
-      <!-- //edit option -->
-    </div>
-    <!-- //edit -->
+      <!-- //edit -->
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.metadata.ui.codetable.detail.updated.on' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <div class="ddp-data-txt">
+            {{columnDictionary.modifiedTime | mdate:'YYYY-MM-DD HH:mm'}} {{'msg.metadata.ui.codetable.detail.by' | translate}}
+            <div class="ddp-wrap-link-detail2">
+              <a href="javascript:" class="ddp-link-info">{{columnDictionary.modifiedBy?.fullName}}</a>
+              <user-information [name]="columnDictionary.modifiedBy?.fullName"
+                                [id]="columnDictionary.modifiedBy?.username"
+                                [email]="columnDictionary.modifiedBy?.email">
+              </user-information>
+            </div>
+          </div>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
 
-    <!-- right -->
-    <div class="ddp-ui-rightoption">
-      <a href="javascript:" class="ddp-btn-selection ddp-reject" (click)="onClickDeleteColumnDictionary()"><em class="ddp-icon-delete"></em>{{'msg.metadata.ui.dictionary.detail.delete' | translate}}</a>
+      <!-- right -->
+      <div class="ddp-ui-rightoption">
+        <a href="javascript:" class="ddp-btn-selection ddp-reject" (click)="onClickDeleteColumnDictionary()"><em class="ddp-icon-delete"></em>{{'msg.metadata.ui.dictionary.detail.delete' | translate}}</a>
+      </div>
+      <!-- //right -->
     </div>
-    <!-- //right -->
-  </div>
-  <!-- //option -->
+    <!-- //option -->
 
-  <div class="ddp-ui-datadetail">
-    <label class="ddp-label-detail">{{'msg.metadata.ui.dictionary.create.dictionary.information' | translate}}</label>
-    <table class="ddp-table-detail">
-      <colgroup>
-        <col width="160px">
-        <col width="*">
-      </colgroup>
-      <tbody>
-      <tr>
-        <th>
-          {{'msg.metadata.ui.dictionary.create.column.name' | translate}}
-        </th>
-        <td>
-          <!-- 클릭시 ddp-selected 추가 -->
-          <div class="ddp-txt-edit" [class.ddp-selected]="logicalNameEditFl" (clickOutside)="logicalNameEditFl = false">
-            <!-- data -->
-            <span class="ddp-data-name" (click)="onChangeLogicalNameMode()">
+    <div class="ddp-ui-datadetail">
+      <label class="ddp-label-detail">{{'msg.metadata.ui.dictionary.create.dictionary.information' | translate}}</label>
+      <table class="ddp-table-detail">
+        <colgroup>
+          <col width="160px">
+          <col width="*">
+        </colgroup>
+        <tbody>
+        <tr>
+          <th>
+            {{'msg.metadata.ui.dictionary.create.column.name' | translate}}
+          </th>
+          <td>
+            <!-- 클릭시 ddp-selected 추가 -->
+            <div class="ddp-txt-edit" [class.ddp-selected]="logicalNameEditFl" (clickOutside)="logicalNameEditFl = false">
+              <!-- data -->
+              <span class="ddp-data-name" (click)="onChangeLogicalNameMode()">
               {{columnDictionary.logicalName}}
               <em class="ddp-icon-edit2"></em>
             </span>
-            <!-- //data -->
+              <!-- //data -->
 
-            <!-- edit -->
-            <div class="ddp-wrap-input">
-              <input #logicalNameElement type="text" class="ddp-input-edit"
-                     [(ngModel)]="reLogicalName"
-                     [focus]="logicalNameEditFl"
-                     (keyup.enter)="onClickUpdateLogicalName()"
-                     placeholder="{{'msg.metadata.ph.dictionary.create.column.name' | translate}}">
-              <span class="ddp-btn-check" (click)="onClickUpdateLogicalName()"></span>
+              <!-- edit -->
+              <div class="ddp-wrap-input">
+                <input #logicalNameElement type="text" class="ddp-input-edit"
+                       [(ngModel)]="reLogicalName"
+                       [focus]="logicalNameEditFl"
+                       (keyup.enter)="onClickUpdateLogicalName()"
+                       placeholder="{{'msg.metadata.ph.dictionary.create.column.name' | translate}}">
+                <span class="ddp-btn-check" (click)="onClickUpdateLogicalName()"></span>
+              </div>
+              <!-- //edit -->
             </div>
-            <!-- //edit -->
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <th>
-          {{'msg.metadata.ui.dictionary.create.recommendation.column.name' | translate}}
-        </th>
-        <td>
-          <!-- 클릭시 ddp-selected 추가 -->
-          <div class="ddp-txt-edit" [class.ddp-selected]="columnNameEditFl" (clickOutside)="columnNameEditFl = false">
-            <!-- data -->
-            <span class="ddp-data-name" (click)="onChangeColumnNameMode()">
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.metadata.ui.dictionary.create.recommendation.column.name' | translate}}
+          </th>
+          <td>
+            <!-- 클릭시 ddp-selected 추가 -->
+            <div class="ddp-txt-edit" [class.ddp-selected]="columnNameEditFl" (clickOutside)="columnNameEditFl = false">
+              <!-- data -->
+              <span class="ddp-data-name" (click)="onChangeColumnNameMode()">
               {{columnDictionary.name}}
               <em class="ddp-icon-edit2"></em>
             </span>
-            <!-- //data -->
-            <!-- edit -->
-            <div class="ddp-wrap-input">
-              <input #columnNameElement type="text" class="ddp-input-edit"
-                     [(ngModel)]="reColumnName"
-                     [focus]="columnNameEditFl"
-                     (keyup.enter)="onClickUpdateColumnName()"
-                     placeholder="{{'msg.metadata.ph.dictionary.create.recommendation.column.name' | translate}}">
-              <span class="ddp-btn-check" (click)="onClickUpdateColumnName()"></span>
+              <!-- //data -->
+              <!-- edit -->
+              <div class="ddp-wrap-input">
+                <input #columnNameElement type="text" class="ddp-input-edit"
+                       [(ngModel)]="reColumnName"
+                       [focus]="columnNameEditFl"
+                       (keyup.enter)="onClickUpdateColumnName()"
+                       placeholder="{{'msg.metadata.ph.dictionary.create.recommendation.column.name' | translate}}">
+                <span class="ddp-btn-check" (click)="onClickUpdateColumnName()"></span>
+              </div>
+              <!-- //edit -->
             </div>
-            <!-- //edit -->
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <th>
-          {{'msg.metadata.ui.dictionary.create.recommendation.short.name' | translate}}
-        </th>
-        <td>
-          <!-- 클릭시 ddp-selected 추가 -->
-          <div class="ddp-txt-edit" [class.ddp-selected]="shortNameEditFl" (clickOutside)="shortNameEditFl = false">
-            <!-- data -->
-            <span class="ddp-data-name" (click)="onChangeShortNameMode()">
-              {{columnDictionary.shortName}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.metadata.ui.dictionary.create.recommendation.short.name' | translate}}
+          </th>
+          <td>
+            <!-- 클릭시 ddp-selected 추가 -->
+            <div class="ddp-txt-edit" [class.ddp-selected]="shortNameEditFl" (clickOutside)="shortNameEditFl = false">
+              <!-- data -->
+              <span class="ddp-data-name" (click)="onChangeShortNameMode()">
+              {{columnDictionary.suggestionShortName}}
               <em class="ddp-icon-edit2"></em>
             </span>
-            <!-- //data -->
-            <!-- edit -->
-            <div class="ddp-wrap-input">
-              <input #shortNameElement type="text" class="ddp-input-edit"
-                     [(ngModel)]="reShortName"
-                     [focus]="shortNameEditFl"
-                     (keyup.enter)="onClickUpdateShortName()"
-                     placeholder="{{'msg.metadata.ph.dictionary.create.recommendation.short.name' | translate}}">
-              <span class="ddp-btn-check" (click)="onClickUpdateShortName()"></span>
+              <!-- //data -->
+              <!-- edit -->
+              <div class="ddp-wrap-input">
+                <input #shortNameElement type="text" class="ddp-input-edit"
+                       [(ngModel)]="reShortName"
+                       [focus]="shortNameEditFl"
+                       (keyup.enter)="onClickUpdateShortName()"
+                       placeholder="{{'msg.metadata.ph.dictionary.create.recommendation.short.name' | translate}}">
+                <span class="ddp-btn-check" (click)="onClickUpdateShortName()"></span>
+              </div>
+              <!-- //edit -->
             </div>
-            <!-- //edit -->
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <th>
-          {{'msg.metadata.ui.dictionary.create.description' | translate}}
-        </th>
-        <td>
-          <!-- 클릭시 ddp-selected 추가 -->
-          <div class="ddp-txt-edit" [class.ddp-selected]="descEditFl" (clickOutside)="descEditFl = false">
-            <!-- data -->
-            <span class="ddp-data-name" (click)="onChangeDescMode()">
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.metadata.ui.dictionary.create.description' | translate}}
+          </th>
+          <td>
+            <!-- 클릭시 ddp-selected 추가 -->
+            <div class="ddp-txt-edit" [class.ddp-selected]="descEditFl" (clickOutside)="descEditFl = false">
+              <!-- data -->
+              <span class="ddp-data-name" (click)="onChangeDescMode()">
               <span [innerHtml]="description"></span>
               <em class="ddp-icon-edit2"></em>
             </span>
-            <!-- //data -->
-            <!-- edit -->
-            <div class="ddp-wrap-input">
+              <!-- //data -->
+              <!-- edit -->
+              <div class="ddp-wrap-input">
               <textarea #descElement type="text"
                         rows="3"
                         placeholder="{{'msg.comm.ui.create.desc' | translate}}"
                         [(ngModel)]="reDesc"
                         [focus]="descEditFl">
               </textarea>
-              <span class="ddp-btn-check" (click)="onClickUpdateDescription()"></span>
-            </div>
-            <!-- //edit -->
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <th>
-          {{'msg.metadata.ui.dictionary.create.code-table' | translate}}
-        </th>
-        <td>
-          <div class="ddp-hover-search">
-            <a href="javascript:" class="ddp-ui-search2" (click)="onClickChooseCodeTable()">
-              {{columnDictionary.codeTable?.name}}
-              <span class="ddp-icon-search"></span>
-            </a>
-            <!-- hover -->
-            <div class="ddp-box-layout4 " style="" *ngIf="columnDictionary.linkCodeTable">
-              <div class="ddp-data-title">
-                {{'msg.metadata.ui.codetable.choose.code.table.preview.title' | translate}}
+                <span class="ddp-btn-check" (click)="onClickUpdateDescription()"></span>
               </div>
-              <div class="ddp-data-code">
-                <table class="ddp-table-code ddp-inherit">
-                  <colgroup>
-                    <col width="90px">
-                    <col width="*">
-                  </colgroup>
-                  <tbody>
+              <!-- //edit -->
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.metadata.ui.dictionary.create.code-table' | translate}}
+          </th>
+          <td>
+            <div class="ddp-select-search" [class.ddp-selected]="isShowCodeTableDetail" (clickOutside)="isShowCodeTableDetail = false">
+              <a href="javascript:" class="ddp-ui-search2" (click)="onClickShowCodeTableDetail()">
+                {{columnDictionary.codeTable?.name}}
+                <span class="ddp-icon-search" (click)="onClickChooseCodeTable(); $event.stopImmediatePropagation()"></span>
+              </a>
+              <!-- hover -->
+              <div class="ddp-box-layout4 " style="" *ngIf="columnDictionary.linkCodeTable">
+                <a href="javascript:" class="ddp-btn-close" (click)="isShowCodeTableDetail = false"></a>
+                <div class="ddp-data-title">
+                  {{'msg.metadata.ui.codetable.choose.code.table.preview.title' | translate}}
+                </div>
+                <div class="ddp-data-code">
+                  <table class="ddp-table-code ddp-inherit">
+                    <colgroup>
+                      <col width="90px">
+                      <col width="*">
+                    </colgroup>
+                    <tbody>
                     <tr *ngFor="let pair of columnDictionary.codeTable?.codes">
                       <td>
                         <span class="ddp-txt-long">{{pair.code}}</span>
@@ -241,343 +242,344 @@
                         <!-- //tooltip -->
                       </td>
                     </tr>
-                  </tbody>
-                </table>
-                <a href="javascript:" class="ddp-link-detail" (click)="onClickCodeTableDetails(columnDictionary.codeTable)">{{'msg.storage.btn.detail' | translate}}</a>
-              </div>
+                    </tbody>
+                  </table>
+                  <a href="javascript:" class="ddp-link-detail" (click)="onClickCodeTableDetails(columnDictionary.codeTable)">{{'msg.storage.btn.detail' | translate}}</a>
+                </div>
 
+              </div>
+              <!-- //hover -->
             </div>
-            <!-- //hover -->
-          </div>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-    <!-- table detail -->
-    <div class="ddp-wrap-table-detail">
-      <label class="ddp-label-detail">{{'msg.metadata.ui.dictionary.create.format.information' | translate}}</label>
-      <table class="ddp-table-detail ddp-type">
-        <colgroup>
-          <col width="160px">
-          <col width="*">
-        </colgroup>
-        <tbody>
-        <!-- 첫번째 타입 셀렉트 박스 -->
-        <tr>
-          <th>
-            {{'msg.metadata.ui.dictionary.create.type' | translate}}
-          </th>
-          <td>
-            <div class="ddp-clear ddp-type-multy">
-              <div class="ddp-col-6">
-                <!-- selectbox -->
-                <div class="ddp-type-selectbox"
-                     [class.ddp-selected]="logicalTypeShowFl"
-                     (click)="logicalTypeShowFl = !logicalTypeShowFl" (clickOutside)="logicalTypeShowFl = false">
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <!-- table detail -->
+      <div class="ddp-wrap-table-detail">
+        <label class="ddp-label-detail">{{'msg.metadata.ui.dictionary.create.format.information' | translate}}</label>
+        <table class="ddp-table-detail ddp-type">
+          <colgroup>
+            <col width="160px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <!-- 첫번째 타입 셀렉트 박스 -->
+          <tr>
+            <th>
+              {{'msg.metadata.ui.dictionary.create.type' | translate}}
+            </th>
+            <td>
+              <div class="ddp-clear ddp-type-multy">
+                <div class="ddp-col-6">
+                  <!-- selectbox -->
+                  <div class="ddp-type-selectbox"
+                       [class.ddp-selected]="logicalTypeShowFl"
+                       (click)="logicalTypeShowFl = !logicalTypeShowFl" (clickOutside)="logicalTypeShowFl = false">
                   <span class="ddp-txt-selectbox ddp-icon">
                     <em class="{{getFieldTypeIconClass(columnDictionary.logicalType?.toString())}}"></em>
                     {{getLogicalTypeLabel()}}
                   </span>
-                  <div class="ddp-wrap-popup2 ddp-types ddp-top2 ddp-scroll-none">
-                    <ul class="ddp-list-popup">
-                      <li [class.ddp-selected]="isSelectedLogicalType('STRING')">
-                        <a href="javascript:" (click)="onChangeLogicalType('STRING')">
-                          <em class="ddp-icon-type-ab"></em>
-                          {{'msg.metadata.ui.dictionary.type.string' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-selected]="isSelectedLogicalType('BOOLEAN')">
-                        <a href="javascript:" (click)="onChangeLogicalType('BOOLEAN')">
-                          <em class="ddp-icon-type-tf"></em>
-                          {{'msg.metadata.ui.dictionary.type.boolean' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-selected]="isSelectedLogicalType('INTEGER')">
-                        <a href="javascript:" (click)="onChangeLogicalType('INTEGER')">
-                          <em class="ddp-icon-type-int"></em>
-                          {{'msg.metadata.ui.dictionary.type.integer' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-selected]="isSelectedLogicalType('DOUBLE')">
-                        <a href="javascript:" (click)="onChangeLogicalType('DOUBLE')">
-                          <em class="ddp-icon-type-float"></em>
-                          {{'msg.metadata.ui.dictionary.type.double' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-selected]="isSelectedLogicalType('TIMESTAMP')">
-                        <a href="javascript:" (click)="onChangeLogicalType('TIMESTAMP')">
-                          <em class="ddp-icon-type-calen"></em>
-                          {{'msg.metadata.ui.dictionary.type.timestamp' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
+                    <div class="ddp-wrap-popup2 ddp-types ddp-top2 ddp-scroll-none">
+                      <ul class="ddp-list-popup">
+                        <li [class.ddp-selected]="isSelectedLogicalType('STRING')">
+                          <a href="javascript:" (click)="onChangeLogicalType('STRING')">
+                            <em class="ddp-icon-type-ab"></em>
+                            {{'msg.metadata.ui.dictionary.type.string' | translate}}
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                        <li [class.ddp-selected]="isSelectedLogicalType('BOOLEAN')">
+                          <a href="javascript:" (click)="onChangeLogicalType('BOOLEAN')">
+                            <em class="ddp-icon-type-tf"></em>
+                            {{'msg.metadata.ui.dictionary.type.boolean' | translate}}
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                        <li [class.ddp-selected]="isSelectedLogicalType('INTEGER')">
+                          <a href="javascript:" (click)="onChangeLogicalType('INTEGER')">
+                            <em class="ddp-icon-type-int"></em>
+                            {{'msg.metadata.ui.dictionary.type.integer' | translate}}
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                        <li [class.ddp-selected]="isSelectedLogicalType('DOUBLE')">
+                          <a href="javascript:" (click)="onChangeLogicalType('DOUBLE')">
+                            <em class="ddp-icon-type-float"></em>
+                            {{'msg.metadata.ui.dictionary.type.double' | translate}}
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                        <li [class.ddp-selected]="isSelectedLogicalType('TIMESTAMP')">
+                          <a href="javascript:" (click)="onChangeLogicalType('TIMESTAMP')">
+                            <em class="ddp-icon-type-calen"></em>
+                            {{'msg.metadata.ui.dictionary.type.timestamp' | translate}}
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
 
-                    </ul>
+                      </ul>
 
-                    <ul class="ddp-list-popup">
-                      <li [class.ddp-selected]="isSelectedLogicalType('LNT')">
-                        <a href="javascript:" (click)="onChangeLogicalType('LNT')">
-                          <em class="ddp-icon-type-latitude"></em>
-                          {{'msg.metadata.ui.dictionary.type.latitude' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-selected]="isSelectedLogicalType('LNG')">
-                        <a href="javascript:" (click)="onChangeLogicalType('LNG')">
-                          <em class="ddp-icon-type-longitude"></em>
-                          {{'msg.metadata.ui.dictionary.type.longitude' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                    </ul>
+                      <ul class="ddp-list-popup">
+                        <li [class.ddp-selected]="isSelectedLogicalType('LNT')">
+                          <a href="javascript:" (click)="onChangeLogicalType('LNT')">
+                            <em class="ddp-icon-type-latitude"></em>
+                            {{'msg.metadata.ui.dictionary.type.latitude' | translate}}
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                        <li [class.ddp-selected]="isSelectedLogicalType('LNG')">
+                          <a href="javascript:" (click)="onChangeLogicalType('LNG')">
+                            <em class="ddp-icon-type-longitude"></em>
+                            {{'msg.metadata.ui.dictionary.type.longitude' | translate}}
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                      </ul>
 
-                    <!--<ul class="ddp-list-popup">-->
+                      <!--<ul class="ddp-list-popup">-->
                       <!--<li class="ddp-sub">-->
-                        <!--<a href="javascript:">-->
-                          <!--{{'msg.metadata.ui.dictionary.type.more' | translate}}-->
-                          <!--<em class="ddp-icon-view"></em>-->
-                        <!--</a>-->
-                        <!--&lt;!&ndash; sub popup &ndash;&gt;-->
-                        <!--<div class="ddp-wrap-popup2 ddp-types ">-->
-                          <!--<ul class="ddp-list-popup">-->
-                            <!--<li [class.ddp-selected]="isSelectedLogicalType('IMAGE')">-->
-                              <!--<a href="javascript:" (click)="onChangeLogicalType('IMAGE')">-->
-                                <!--<em class="ddp-icon-type-image "></em>-->
-                                <!--{{'msg.metadata.ui.dictionary.type.image' | translate}}-->
-                                <!--<em class="ddp-icon-check"></em>-->
-                              <!--</a>-->
-                            <!--</li>-->
-                            <!--<li [class.ddp-selected]="isSelectedLogicalType('BINARY')">-->
-                              <!--<a href="javascript:" (click)="onChangeLogicalType('BINARY')">-->
-                                <!--<em class="ddp-icon-type-binary"></em>-->
-                                <!--{{'msg.metadata.ui.dictionary.type.binary' | translate}}-->
-                                <!--<em class="ddp-icon-check"></em>-->
-                              <!--</a>-->
-                            <!--</li>-->
-                            <!--<li [class.ddp-selected]="isSelectedLogicalType('SPATIAL')">-->
-                              <!--<a href="javascript:" (click)="onChangeLogicalType('SPATIAL')">-->
-                                <!--<em class="ddp-icon-type-spatial"></em>-->
-                                <!--{{'msg.metadata.ui.dictionary.type.spatial' | translate}}-->
-                                <!--<em class="ddp-icon-check"></em>-->
-                              <!--</a>-->
-                            <!--</li>-->
-                          <!--</ul>-->
-                          <!--<ul class="ddp-list-popup">-->
-                            <!--<li [class.ddp-selected]="isSelectedLogicalType('PRIVATE')">-->
-                              <!--<a href="javascript:" (click)="onChangeLogicalType('PRIVATE')">-->
-                                <!--<em class="ddp-icon-type-private"></em>-->
-                                <!--{{'msg.metadata.ui.dictionary.type.private' | translate}}-->
-                                <!--<em class="ddp-icon-check"></em>-->
-                              <!--</a>-->
-                            <!--</li>-->
-                          <!--</ul>-->
-                          <!--<ul class="ddp-list-popup">-->
-                            <!--<li [class.ddp-selected]="isSelectedLogicalType('PHONE')" [class.ddp-disabled]="true">-->
-                              <!--<a href="javascript:">-->
-                                <!--<em class="ddp-icon-type-phone"></em>-->
-                                <!--{{'msg.metadata.ui.dictionary.type.phone' | translate}}-->
-                                <!--<em class="ddp-icon-check"></em>-->
-                              <!--</a>-->
-                            <!--</li>-->
-                            <!--<li [class.ddp-selected]="isSelectedLogicalType('EMAIL')" [class.ddp-disabled]="true">-->
-                              <!--<a href="javascript:">-->
-                                <!--<em class="ddp-icon-type-email"></em>-->
-                                <!--{{'msg.metadata.ui.dictionary.type.email' | translate}}-->
-                                <!--<em class="ddp-icon-check"></em>-->
-                              <!--</a>-->
-                            <!--</li>-->
-                            <!--<li [class.ddp-selected]="isSelectedLogicalType('GENDER')" [class.ddp-disabled]="true">-->
-                              <!--<a href="javascript:">-->
-                                <!--<em class="ddp-icon-type-gender"></em>-->
-                                <!--{{'msg.metadata.ui.dictionary.type.gender' | translate}}-->
-                                <!--<em class="ddp-icon-check"></em>-->
-                              <!--</a>-->
-                            <!--</li>-->
-                          <!--</ul>-->
-                          <!--<ul class="ddp-list-popup">-->
-                            <!--<li [class.ddp-selected]="isSelectedLogicalType('URL')" [class.ddp-disabled]="true">-->
-                              <!--<a href="javascript:">-->
-                                <!--<em class="ddp-icon-type-url"></em>-->
-                                <!--{{'msg.metadata.ui.dictionary.type.url' | translate}}-->
-                                <!--<em class="ddp-icon-check"></em>-->
-                              <!--</a>-->
-                            <!--</li>-->
-                            <!--<li [class.ddp-selected]="isSelectedLogicalType('POST')" [class.ddp-disabled]="true">-->
-                              <!--<a href="javascript:">-->
-                                <!--<em class="ddp-icon-type-zipcode"></em>-->
-                                <!--{{'msg.metadata.ui.dictionary.type.post' | translate}}-->
-                                <!--<em class="ddp-icon-check"></em>-->
-                              <!--</a>-->
-                            <!--</li>-->
-                            <!--<li [class.ddp-selected]="isSelectedLogicalType('COUNTRY')" [class.ddp-disabled]="true">-->
-                              <!--<a href="javascript:">-->
-                                <!--<em class="ddp-icon-type-local "></em>-->
-                                <!--{{'msg.metadata.ui.dictionary.type.country' | translate}}-->
-                                <!--<em class="ddp-icon-check"></em>-->
-                              <!--</a>-->
-                            <!--</li>-->
-                            <!--<li [class.ddp-selected]="isSelectedLogicalType('STATE')" [class.ddp-disabled]="true">-->
-                              <!--<a href="javascript:">-->
-                                <!--<em class="ddp-icon-type-local "></em>-->
-                                <!--{{'msg.metadata.ui.dictionary.type.state' | translate}}-->
-                                <!--<em class="ddp-icon-check"></em>-->
-                              <!--</a>-->
-                            <!--</li>-->
-                            <!--<li [class.ddp-selected]="isSelectedLogicalType('CITY')" [class.ddp-disabled]="true">-->
-                              <!--<a href="javascript:">-->
-                                <!--<em class="ddp-icon-type-local "></em>-->
-                                <!--{{'msg.metadata.ui.dictionary.type.city' | translate}}-->
-                                <!--<em class="ddp-icon-check"></em>-->
-                              <!--</a>-->
-                            <!--</li>-->
-                            <!--<li [class.ddp-selected]="isSelectedLogicalType('GU')" [class.ddp-disabled]="true">-->
-                              <!--<a href="javascript:">-->
-                                <!--<em class="ddp-icon-type-local "></em>-->
-                                <!--{{'msg.metadata.ui.dictionary.type.gu' | translate}}-->
-                                <!--<em class="ddp-icon-check"></em>-->
-                              <!--</a>-->
-                            <!--</li>-->
-                            <!--<li [class.ddp-selected]="isSelectedLogicalType('DONG')" [class.ddp-disabled]="true">-->
-                              <!--<a href="javascript:">-->
-                                <!--<em class="ddp-icon-type-local "></em>-->
-                                <!--{{'msg.metadata.ui.dictionary.type.dong' | translate}}-->
-                                <!--<em class="ddp-icon-check"></em>-->
-                              <!--</a>-->
-                            <!--</li>-->
-                          <!--</ul>-->
-                          <!--<ul class="ddp-list-popup">-->
-                            <!--<li [class.ddp-selected]="isSelectedLogicalType('ETC')">-->
-                              <!--<a href="javascript:"  (click)="onChangeLogicalType('ETC')">-->
-                                <!--<em class="ddp-icon-type-etc"></em>-->
-                                <!--{{'msg.metadata.ui.dictionary.type.etc' | translate}}-->
-                                <!--<em class="ddp-icon-check"></em>-->
-                              <!--</a>-->
-                            <!--</li>-->
-                          <!--</ul>-->
+                      <!--<a href="javascript:">-->
+                      <!--{{'msg.metadata.ui.dictionary.type.more' | translate}}-->
+                      <!--<em class="ddp-icon-view"></em>-->
+                      <!--</a>-->
+                      <!--&lt;!&ndash; sub popup &ndash;&gt;-->
+                      <!--<div class="ddp-wrap-popup2 ddp-types ">-->
+                      <!--<ul class="ddp-list-popup">-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType('IMAGE')">-->
+                      <!--<a href="javascript:" (click)="onChangeLogicalType('IMAGE')">-->
+                      <!--<em class="ddp-icon-type-image "></em>-->
+                      <!--{{'msg.metadata.ui.dictionary.type.image' | translate}}-->
+                      <!--<em class="ddp-icon-check"></em>-->
+                      <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType('BINARY')">-->
+                      <!--<a href="javascript:" (click)="onChangeLogicalType('BINARY')">-->
+                      <!--<em class="ddp-icon-type-binary"></em>-->
+                      <!--{{'msg.metadata.ui.dictionary.type.binary' | translate}}-->
+                      <!--<em class="ddp-icon-check"></em>-->
+                      <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType('SPATIAL')">-->
+                      <!--<a href="javascript:" (click)="onChangeLogicalType('SPATIAL')">-->
+                      <!--<em class="ddp-icon-type-spatial"></em>-->
+                      <!--{{'msg.metadata.ui.dictionary.type.spatial' | translate}}-->
+                      <!--<em class="ddp-icon-check"></em>-->
+                      <!--</a>-->
+                      <!--</li>-->
+                      <!--</ul>-->
+                      <!--<ul class="ddp-list-popup">-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType('PRIVATE')">-->
+                      <!--<a href="javascript:" (click)="onChangeLogicalType('PRIVATE')">-->
+                      <!--<em class="ddp-icon-type-private"></em>-->
+                      <!--{{'msg.metadata.ui.dictionary.type.private' | translate}}-->
+                      <!--<em class="ddp-icon-check"></em>-->
+                      <!--</a>-->
+                      <!--</li>-->
+                      <!--</ul>-->
+                      <!--<ul class="ddp-list-popup">-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType('PHONE')" [class.ddp-disabled]="true">-->
+                      <!--<a href="javascript:">-->
+                      <!--<em class="ddp-icon-type-phone"></em>-->
+                      <!--{{'msg.metadata.ui.dictionary.type.phone' | translate}}-->
+                      <!--<em class="ddp-icon-check"></em>-->
+                      <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType('EMAIL')" [class.ddp-disabled]="true">-->
+                      <!--<a href="javascript:">-->
+                      <!--<em class="ddp-icon-type-email"></em>-->
+                      <!--{{'msg.metadata.ui.dictionary.type.email' | translate}}-->
+                      <!--<em class="ddp-icon-check"></em>-->
+                      <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType('GENDER')" [class.ddp-disabled]="true">-->
+                      <!--<a href="javascript:">-->
+                      <!--<em class="ddp-icon-type-gender"></em>-->
+                      <!--{{'msg.metadata.ui.dictionary.type.gender' | translate}}-->
+                      <!--<em class="ddp-icon-check"></em>-->
+                      <!--</a>-->
+                      <!--</li>-->
+                      <!--</ul>-->
+                      <!--<ul class="ddp-list-popup">-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType('URL')" [class.ddp-disabled]="true">-->
+                      <!--<a href="javascript:">-->
+                      <!--<em class="ddp-icon-type-url"></em>-->
+                      <!--{{'msg.metadata.ui.dictionary.type.url' | translate}}-->
+                      <!--<em class="ddp-icon-check"></em>-->
+                      <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType('POST')" [class.ddp-disabled]="true">-->
+                      <!--<a href="javascript:">-->
+                      <!--<em class="ddp-icon-type-zipcode"></em>-->
+                      <!--{{'msg.metadata.ui.dictionary.type.post' | translate}}-->
+                      <!--<em class="ddp-icon-check"></em>-->
+                      <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType('COUNTRY')" [class.ddp-disabled]="true">-->
+                      <!--<a href="javascript:">-->
+                      <!--<em class="ddp-icon-type-local "></em>-->
+                      <!--{{'msg.metadata.ui.dictionary.type.country' | translate}}-->
+                      <!--<em class="ddp-icon-check"></em>-->
+                      <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType('STATE')" [class.ddp-disabled]="true">-->
+                      <!--<a href="javascript:">-->
+                      <!--<em class="ddp-icon-type-local "></em>-->
+                      <!--{{'msg.metadata.ui.dictionary.type.state' | translate}}-->
+                      <!--<em class="ddp-icon-check"></em>-->
+                      <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType('CITY')" [class.ddp-disabled]="true">-->
+                      <!--<a href="javascript:">-->
+                      <!--<em class="ddp-icon-type-local "></em>-->
+                      <!--{{'msg.metadata.ui.dictionary.type.city' | translate}}-->
+                      <!--<em class="ddp-icon-check"></em>-->
+                      <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType('GU')" [class.ddp-disabled]="true">-->
+                      <!--<a href="javascript:">-->
+                      <!--<em class="ddp-icon-type-local "></em>-->
+                      <!--{{'msg.metadata.ui.dictionary.type.gu' | translate}}-->
+                      <!--<em class="ddp-icon-check"></em>-->
+                      <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType('DONG')" [class.ddp-disabled]="true">-->
+                      <!--<a href="javascript:">-->
+                      <!--<em class="ddp-icon-type-local "></em>-->
+                      <!--{{'msg.metadata.ui.dictionary.type.dong' | translate}}-->
+                      <!--<em class="ddp-icon-check"></em>-->
+                      <!--</a>-->
+                      <!--</li>-->
+                      <!--</ul>-->
+                      <!--<ul class="ddp-list-popup">-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType('ETC')">-->
+                      <!--<a href="javascript:"  (click)="onChangeLogicalType('ETC')">-->
+                      <!--<em class="ddp-icon-type-etc"></em>-->
+                      <!--{{'msg.metadata.ui.dictionary.type.etc' | translate}}-->
+                      <!--<em class="ddp-icon-check"></em>-->
+                      <!--</a>-->
+                      <!--</li>-->
+                      <!--</ul>-->
 
-                        <!--</div>-->
-                        <!--&lt;!&ndash; //sub popup &ndash;&gt;-->
+                      <!--</div>-->
+                      <!--&lt;!&ndash; //sub popup &ndash;&gt;-->
 
                       <!--</li>-->
 
-                    <!--</ul>-->
+                      <!--</ul>-->
+                    </div>
                   </div>
+                  <!-- //selectbox -->
                 </div>
-                <!-- //selectbox -->
               </div>
-            </div>
-          </td>
-        </tr>
-        <!-- //첫번째 타입 셀렉트 박스 -->
-        <!-- time format -->
-        <tr *ngIf="isShowTimeFormat()">
-          <th>
-            {{'msg.metadata.ui.dictionary.create.time.format' | translate}}
-          </th>
-          <td>
-            <!-- 클릭시 ddp-selected 추가 -->
-            <div class="ddp-txt-edit"
-                 [class.ddp-selected]="timeFormatEditFl"
-                 (clickOutside)="timeFormatEditFl = false">
-              <!-- data -->
-              <span class="ddp-data-name" (click)="onChangeTimeFormatMode()">
-              {{columnDictionary.format}}
+            </td>
+          </tr>
+          <!-- //첫번째 타입 셀렉트 박스 -->
+          <!-- time format -->
+          <tr *ngIf="isShowTimeFormat()">
+            <th>
+              {{'msg.metadata.ui.dictionary.create.time.format' | translate}}
+            </th>
+            <td>
+              <!-- 클릭시 ddp-selected 추가 -->
+              <div class="ddp-txt-edit"
+                   [class.ddp-selected]="timeFormatEditFl"
+                   (clickOutside)="timeFormatEditFl = false">
+                <!-- data -->
+                <span class="ddp-data-name" (click)="onChangeTimeFormatMode()">
+              {{(columnDictionary.format && columnDictionary.format.hasOwnProperty('format')) ? columnDictionary.format.format : columnDictionary.format}}
               <em class="ddp-icon-edit2"></em>
             </span>
-              <!-- //data -->
-              <!-- edit -->
-              <div class="ddp-wrap-input">
-                <input #descElement type="text" class="ddp-input-edit"
-                       [(ngModel)]="reTimeFormat"
-                       [focus]="timeFormatEditFl"
-                       (keyup.enter)="onClickUpdateTimeFormat()"
-                       placeholder="">
-                <span class="ddp-btn-check" (click)="onClickUpdateTimeFormat()"></span>
+                <!-- //data -->
+                <!-- edit -->
+                <div class="ddp-wrap-input">
+                  <input #descElement type="text" class="ddp-input-edit"
+                         [(ngModel)]="reTimeFormat"
+                         [focus]="timeFormatEditFl"
+                         (keyup.enter)="onClickUpdateTimeFormat()"
+                         placeholder="">
+                  <span class="ddp-btn-check" (click)="onClickUpdateTimeFormat()"></span>
+                </div>
+                <!-- //edit -->
               </div>
-              <!-- //edit -->
-            </div>
-          </td>
-        </tr>
-        <!-- //time format -->
-        <!-- value Unit -->
-        <!--<tr>-->
+            </td>
+          </tr>
+          <!-- //time format -->
+          <!-- value Unit -->
+          <!--<tr>-->
           <!--<th>-->
-            <!--Value Unit-->
+          <!--Value Unit-->
           <!--</th>-->
           <!--<td>-->
-            <!--¥-->
+          <!--¥-->
           <!--</td>-->
-        <!--</tr>-->
-        <!-- //value Unit -->
-        </tbody>
-      </table>
-    </div>
-    <!-- //table detail -->
-
-    <!-- table detail -->
-    <div class="ddp-wrap-table-detail">
-      <div class="ddp-type-plan">
-        <label class="ddp-label-detail">{{'msg.metadata.dictionary.used.metadata' | translate}} ({{linkedMetadataTotalCount}})</label>
+          <!--</tr>-->
+          <!-- //value Unit -->
+          </tbody>
+        </table>
       </div>
-      <table class="ddp-table-form ddp-table-type3 ddp-full ddp-cursor-none">
-        <colgroup>
-          <col width="*">
-          <col width="20%">
-          <col width="15%">
-          <col width="15%">
-        </colgroup>
-        <thead>
-        <tr>
-          <th>
-            {{'msg.comm.detail.metadata-name' | translate}}
-          </th>
-          <th>
-            {{'msg.metadata.th.name' | translate}}
-          </th>
-          <th>
-            {{'msg.storage.ui.th.logical.type' | translate}}
-          </th>
-          <th>
-            {{'msg.storage.ui.th.format' | translate}}
-          </th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let metadata of linkedMetadataList">
-          <td>
+      <!-- //table detail -->
+
+      <!-- table detail -->
+      <div class="ddp-wrap-table-detail">
+        <div class="ddp-type-plan">
+          <label class="ddp-label-detail">{{'msg.metadata.dictionary.used.metadata' | translate}} ({{linkedMetadataTotalCount}})</label>
+        </div>
+        <table class="ddp-table-form ddp-table-type3 ddp-full ddp-cursor-none">
+          <colgroup>
+            <col width="*">
+            <col width="20%">
+            <col width="15%">
+            <col width="15%">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>
+              {{'msg.comm.detail.metadata-name' | translate}}
+            </th>
+            <th>
+              {{'msg.metadata.th.name' | translate}}
+            </th>
+            <th>
+              {{'msg.storage.ui.th.logical.type' | translate}}
+            </th>
+            <th>
+              {{'msg.storage.ui.th.format' | translate}}
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let metadata of getLinkedMetaDataColumn()">
+            <td>
             <span class=" ddp-txt-long" (click)="onClickMetadataName(metadata)">
                 {{metadata.metadataName}}
             </span>
-          </td>
-          <td>
-            {{metadata.name}}
-          </td>
-          <td>
-            {{metadata.type}}
-          </td>
-          <td>
-            {{metadata.format}}
-          </td>
-        </tr>
-        <tr *ngIf="linkedMetadataList.length === 0">
-          <td colspan="4" class="ddp-nodata">{{'msg.storage.ui.no.data' | translate}}</td>
-        </tr>
-        </tbody>
-      </table>
-      <!-- 더보기 -->
-      <a href="javascript:" class="ddp-btn-moretype2"
-         *ngIf="linkedMetadataList.length > 3"
-         (click)="onClickUsedInMetadataMoreList()">{{'msg.comm.ui.more' | translate}} &gt;</a>
-      <!-- //더보기 -->
+            </td>
+            <td>
+              {{metadata.name}}
+            </td>
+            <td>
+              {{metadata.type}}
+            </td>
+            <td>
+              {{metadata.format}}
+            </td>
+          </tr>
+          <tr *ngIf="linkedMetadataList.length === 0">
+            <td colspan="4" class="ddp-nodata">{{'msg.storage.ui.no.data' | translate}}</td>
+          </tr>
+          </tbody>
+        </table>
+        <!-- 더보기 -->
+        <a href="javascript:" class="ddp-btn-moretype2"
+           *ngIf="linkedMetadataList.length > 3"
+           (click)="onClickUsedInMetadataMoreList()">{{'msg.comm.ui.more' | translate}} &gt;</a>
+        <!-- //더보기 -->
+      </div>
+      <!-- //table detail -->
     </div>
-    <!-- //table detail -->
   </div>
+  <!-- //상세 -->
 </div>
-<!-- //상세 -->
 <!-- 코드테이블 선택 컴포넌트 -->
 <app-choose-code-table (chooseComplete)="onChangeSelectCodeTable($event)"></app-choose-code-table>
 <!-- //코드테이블 선택 컴포넌트 -->

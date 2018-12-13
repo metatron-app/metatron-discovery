@@ -60,6 +60,8 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
   private readonly _ROW_EMPTY: number = -1;       // 로우 데이터가 없는 경우 -1
 
+  private __selectedRows: any = [];            // 그리드에서 선택된 로우 리스트
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -68,8 +70,6 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public static readonly ID_PROPERTY: string = '_idProperty_';     // 아이디
-
-  @Output() private selectedHeaderMenuEvent = new EventEmitter();
 
   @Output() private selectedHeaderEvent = new EventEmitter();           // 헤더 선택시 알림
 
@@ -80,6 +80,14 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   @Output() private onContextMenuClick = new EventEmitter();
 
   @Output() private onHeaderRowCellRendered = new EventEmitter();
+
+  @Output() private onGridContextCloseEvent = new EventEmitter();            // 그리드 context menu close
+
+
+  public totalRowCnt: number = 0;
+
+  private _currentScrollLeft: number = 0; // grid current scrollLeft value
+  private _gridTimer = null;   // grid timer
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -124,13 +132,27 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  public getPageInfo(): any {
+    return this._gridModel.getPageInfo();
+  }
+
+  public setExternalData(data:any, currentPage:number): void {
+    this._gridModel.setExternalData(data, currentPage);
+  }
+
+  public searchProcessReset(): void {
+    this._gridModel.searchProcessReset();
+  }
+
   /**
    * 그리드 생성
    * @param {header[]} headers
    * @param {ScrollLoadingGridModel} gridModel
    * @param {Option} option
+   * @param {number} ruleIdx
+   * @param {number} totalRowCnt
    */
-  public create(headers: header[], gridModel: ScrollLoadingGridModel, option: Option = null) {
+  public create(headers: header[], gridModel: ScrollLoadingGridModel, option: Option = null, ruleIdx: number, totalRowCnt: number) {
 
     // 기존 그리드 삭제
     this.destroy();
@@ -175,6 +197,15 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
     // 그리드 모델 정의
     this._gridModel = gridModel;
+
+
+    // this._gridModel.
+
+    // 데이터 전체 카운트 & ruleIdx
+    if(this._gridModel) {
+      this._gridModel.setTotalRowCnt(totalRowCnt);
+      this._gridModel.setRuleIndex(ruleIdx);
+    }
 
     // 그리드 생성
     this._grid = this._generateGrid(headers, gridModel);
@@ -226,8 +257,6 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
    */
   public search(searchText: string = '') {
     try {
-      // 선택표시 전체 해제
-      this._grid.setSelectedRows([]);
       this._gridModel.search(searchText);
     } catch (e) {
       // 오류 로그 출력
@@ -281,43 +310,35 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   /**
    *
    * 컬럼 선택
-   * @param {number|string} column
+   * @param {string} id -- UUID
    * @param {boolean|string} isSelectOrToggle
    * @param {string} type 컬럼 타입
    * @param {{ isShiftKeyPressed?: boolean, isCtrlKeyPressed?: boolean, batchCount:number }} opts 부가정보
    */
-  public selectColumn(column: number | string, isSelectOrToggle: boolean | string, type?: string,
+  public selectColumn(id: string, isSelectOrToggle: boolean | string, type?: string,
                       opts?: { isShiftKeyPressed?: boolean, isCtrlKeyPressed?: boolean, batchCount?:number }): void {
-
-    let columnId = '';
-    let columnIdx = 0;
 
     (opts) || (opts = {});
 
-    if ('string' === typeof column) {
-      columnId = column;
-      columnIdx = this._grid.getColumnIndex(columnId);
-    } else {
-      columnIdx = column;
-      columnId = this._grid.getColumns()[columnIdx].id;
-    }
+    // get column index with column id
+    let columnIdx = this._grid.getColumnIndex(id);
 
     let isSelect = false;
     if ('string' === typeof isSelectOrToggle && 'TOGGLE' === isSelectOrToggle) {
-      isSelect = (0 === this._selectColumnIds.filter(item => item === columnId).length);
+      isSelect = (0 === this._selectColumnIds.filter(item => item === id).length);
     } else {
       isSelect = <boolean>isSelectOrToggle;
     }
 
     // 선택 컬럼 목록 변경
-    this._selectColumnIds = this._selectColumnIds.filter(item => item !== columnId);
-    (isSelect) && (this._selectColumnIds.push(columnId));
+    this._selectColumnIds = this._selectColumnIds.filter(item => item !== id);
+    (isSelect) && (this._selectColumnIds.push(id));
 
     // 이벤트 발생
     (this._grid.getColumns()[columnIdx]) && (this._grid.getColumns()[columnIdx]['select'] = isSelect);
 
     let selectedColumnData = {
-      id: columnId,
+      id: id,
       isSelect: isSelect,
       selectColumnIds: this._selectColumnIds,
       shiftKey: opts.isShiftKeyPressed,
@@ -354,28 +375,28 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   // noinspection JSUnusedGlobalSymbols
   /**
    * 컬럼 선택
-   * @param {number | string} column
+   * @param {string} id
    */
-  public columnSelection(column: number | string): void {
-    this.selectColumn(column, true);
+  public columnSelection(id: string): void {
+    this.selectColumn(id, true);
   } // function - columnSelection
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * 컬럼 선택 해제
-   * @param {number | string} column
+   * @param {string} id
    */
-  public columnUnSelection(column: number | string): void {
-    this.selectColumn(column, false);
+  public columnUnSelection( id: string): void {
+    this.selectColumn(id, false);
   } // function - columnUnSelection
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * 컬럼 선택 변경
-   * @param {number | string} column
+   * @param {string} id
    */
-  public columnSelectionToggle(column: number | string): void {
-    this.selectColumn(column, 'TOGGLE');
+  public columnSelectionToggle(id: string): void {
+    this.selectColumn(id, 'TOGGLE');
   } // function - columnSelectionToggle
 
   // noinspection JSUnusedGlobalSymbols
@@ -405,6 +426,8 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
    * @param index
    */
   public rowSelection(index): void {
+    // console.info('index', index);
+    this.__selectedRows = index;
     if (this._gridSelectionModelType === 'cell') {
       this.rowAllUnSelection();
     }
@@ -461,14 +484,22 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
       // Header menu plugin
       let headerButtonsPlugin = new Slick.Plugins.HeaderButtons();
       headerButtonsPlugin.onCommand.subscribe((e, args) => {
-        this.onContextMenuClick.emit({
+
+        const contextMenuParam = {
           columnName: args.button.command,
           index: args.button.index,
           left: e.pageX,
           top: e.pageY,
           columnType: args.button.type
-        });
+        };
+
+        if (args.button.timestampStyle){ // only if column is timestamp type
+          contextMenuParam['timestampStyle'] = args.button.timestampStyle;
+        }
+
+        this.onContextMenuClick.emit(contextMenuParam);
         grid.invalidate();
+
       });
       grid.registerPlugin(headerButtonsPlugin);
     }
@@ -477,17 +508,47 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   } // function - _generateGrid
 
   /**
+   * Grid horizaltal scroll timer
+   * @param {viewPortLeftPx} number
+   * @private
+   */
+  private fixGridScroll(viewPortLeftPx: number): void {
+    if(this._gridTimer) {clearTimeout(this._gridTimer);}
+    this._gridTimer = setTimeout(() => {this._currentScrollLeft = viewPortLeftPx;this._grid.invalidate();this._grid.render();}, 400);
+  }
+
+
+  /**
+   * Grid onScroll 이벤트 발생
+   * @private
+   */
+  private allContextMenuClose(): void {
+    this.onGridContextCloseEvent.emit();
+  }
+
+  /**
    * 그리드 이벤트 연결
    * @param grid
    * @param {ScrollLoadingGridModel} gridModel
    * @private
    */
   private _bindEvent(grid, gridModel: ScrollLoadingGridModel) {
+
     // 그리드 스크롤 이벤트 정의
     grid.onViewportChanged.subscribe(() => {
       const viewPort = grid.getViewport();
       gridModel.ensureData(viewPort.top, viewPort.bottom);
+      const viewPortLeftPx: number = viewPort.leftPx;
+      if(this._currentScrollLeft !==  viewPortLeftPx) {
+        this.fixGridScroll(viewPortLeftPx)
+      }
     });
+
+    // 그리드 스크롤 이벤트
+    grid.onScroll.subscribe((e: any, args:any) => {
+      this.allContextMenuClose();
+    });
+
 
     // 로더 이벤트 정의
     gridModel.onDataLoading.subscribe(() => {
@@ -501,6 +562,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
       }
       this._loadingIndicator.show();
     });
+
     gridModel.onDataLoaded.subscribe((e, args) => {
 
       // 데이터 업데이트
@@ -519,6 +581,12 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     });
     // load the first page
     grid.onViewportChanged.notify();
+
+
+    // 로더 이벤트 정의 - more complete
+    gridModel.onMoreDataComplete.subscribe(() => {
+      this.moreEventAfterSelectRow();
+    });
 
     // -----------------------------------------------------------------------------------------------------------------
     //  onClick
@@ -690,13 +758,14 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
         this._columnResized = true;
         //Check if column width has changed
         if (column.width != column.previousWidth) {
-          this.onColumnResize.emit({ idx: i, name: column.id, width: column.width });
+          this.onColumnResize.emit({ idx: i, field : column.field,name: column.name, uuid : column.id, width: column.width });
           setTimeout(() => {
             this._columnResized = false;
           }, 300);
         }
       }
     });
+
 
     // -----------------------------------------------------------------------------------------------------------------
     // 윈도우 리사이징에 대한 이벤트 처리
@@ -711,6 +780,18 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     });
 
   } // function - _bindEvent
+
+
+  /**
+   * MORE 이벤트 > 로우 선택 표시
+   * @private
+   */
+  private moreEventAfterSelectRow(): void {
+    if(this._gridSelectionModelType !== 'row') return;
+    this._grid.setSelectedRows(this.__selectedRows);
+  }
+
+
 
   /**
    * 클릭 이벤트 > 로우 선택 표시
@@ -751,7 +832,23 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   private _rowClickWithCtrlShiftOption(scope: any, row: any, result: { event: any; row: any; selected: any; error: boolean }, rowIndex: number): void {
 
     const idProperty: string = ScrollLoadingGridComponent.ID_PROPERTY;
-    result.selected = !(scope.getSelectedRows().some(selectedRow => selectedRow[idProperty] === row[idProperty]));
+    const selectedList: any[] = scope.getSelectedRows();
+    let currentSelected: boolean = false;
+    if(selectedList==null || selectedList.length === 0) {
+        result.selected = true;
+    }else{
+      if(row.hasOwnProperty(idProperty)) {
+        for(let i: number = 0; i < selectedList.length; i = i + 1) {
+          if(selectedList[i] === undefined) continue;
+          if(selectedList[i].hasOwnProperty(idProperty) === false) continue;
+          if(selectedList[i][idProperty] === row[idProperty]) {
+              currentSelected = true;
+              break;
+          }
+        }
+      }
+      result.selected = !currentSelected;
+    }
 
     const isDisableOptionKey: boolean = (
       result.event.metaKey === false && result.event.ctrlKey === false && result.event.shiftKey === false

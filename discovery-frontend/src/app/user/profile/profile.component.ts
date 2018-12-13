@@ -16,24 +16,23 @@ import {
   Component, ElementRef, EventEmitter, HostListener, Injector, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { FileUploader } from 'ng2-file-upload';
-import { CommonConstant } from '../../common/constant/common.constant';
-import { Alert } from '../../common/util/alert.util';
-import { User } from '../../domain/user/user';
-import { UserService } from '../service/user.service';
-import { isUndefined } from 'util';
-import { CommonUtil } from '../../common/util/common.util';
-import { StringUtil } from '../../common/util/string.util';
-import { ChangePasswordComponent } from './change-password/change-password.component';
-import { Group } from '../../domain/user/group';
-import { SYSTEM_PERMISSION } from '../../common/permission/permission';
-import { WorkspaceService } from '../../workspace/service/workspace.service';
-import { Workspace } from '../../domain/workspace/workspace';
-import { CookieConstant } from '../../common/constant/cookie.constant';
-import { Modal } from '../../common/domain/modal';
-import { ConfirmModalComponent } from '../../common/component/modal/confirm/confirm.component';
-import { EventBroadcaster } from '../../common/event/event.broadcaster';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {FileUploader} from 'ng2-file-upload';
+import {CommonConstant} from '../../common/constant/common.constant';
+import {Alert} from '../../common/util/alert.util';
+import {User} from '../../domain/user/user';
+import {UserService} from '../service/user.service';
+import {isNullOrUndefined, isUndefined} from 'util';
+import {CommonUtil} from '../../common/util/common.util';
+import {StringUtil} from '../../common/util/string.util';
+import {ChangePasswordComponent} from './change-password/change-password.component';
+import {Group} from '../../domain/user/group';
+import {WorkspaceService} from '../../workspace/service/workspace.service';
+import {Workspace} from '../../domain/workspace/workspace';
+import {CookieConstant} from '../../common/constant/cookie.constant';
+import {Modal} from '../../common/domain/modal';
+import {ConfirmModalComponent} from '../../common/component/modal/confirm/confirm.component';
+import {EventBroadcaster} from '../../common/event/event.broadcaster';
 
 @Component({
   selector: 'app-profile',
@@ -81,9 +80,9 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
   public isShow = false;
 
   // email flag
-  public resultEmail: boolean = true;
+  public resultEmail: boolean;
   // name flag
-  public resultName: boolean = true;
+  public resultName: boolean;
 
   // email error message
   public emailMessage: string;
@@ -129,7 +128,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     super(element, injector);
     // 이미지 업로드 URL 설정
     this.uploader
-      = new FileUploader({ url: CommonConstant.API_CONSTANT.API_URL + 'images/upload' });
+      = new FileUploader({url: CommonConstant.API_CONSTANT.API_URL + 'images/upload'});
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -149,27 +148,40 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Phone 변경 여부
+   */
+  public get isPhoneChanged(): boolean {
+    const userTel = isNullOrUndefined(this.user.tel) ? '' : this.user.tel.trim();
+    return this._userTel !== userTel;
+  } // function - isPhoneChanged
+
+  /**
+   * E-Mail 변경 여부
+   */
+  public get isEmailChanged(): boolean {
+    const userEmail = isNullOrUndefined(this.user.email) ? '' : this.user.email.trim();
+    return this._userEmail !== userEmail;
+  } // function - isEmailChanged
+
+  /**
+   * Full Name 변경 여부
+   */
+  public get isFullNameChanged(): boolean {
+    const userName = isNullOrUndefined(this.user.fullName) ? '' : this.user.fullName.trim();
+    return this._userName !== userName;
+  } // function - isFullNameChanged
 
   /** Init */
   public init(user: User) {
-    // ui init
-    this._initView();
-    // user ID
-    this._userId = user.username;
-    // user email
-    this._userEmail = user.email;
-    // user name
-    this._userName = user.fullName;
-    // user tel
-    this._userTel = user.tel;
-    // user image
-    this._imageUrl = user.imageUrl;
+    // 초기화
+    this.user = user ? user : new User();
     // 팝업 show
     this.isShow = true;
     // 팝업시 하단 스크롤 hide
     $("body").css("overflow", "hidden");
     // 유저 profile 정보 조회
-    this._getProfile();
+    this._getProfile(user.id);
   }
 
   /**
@@ -177,7 +189,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
    */
   public done(): void {
     // 프로필 수정이 가능하다면
-    if (this.doneValidation()) {
+    if ((this.isPhoneChanged || this.isEmailChanged || this.isFullNameChanged) && this.doneValidation()) {
       // 로딩 show
       this.loadingShow();
       // 프로필 사진이 있으면 프로필사진 업로드부터 시행
@@ -377,19 +389,6 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * ui init
-   * @private
-   */
-  private _initView(): void {
-    // 초기화
-    this.user = new User();
-    // email flag
-    this.resultEmail = true;
-    // name flag
-    this.resultName = true;
-  }
-
-  /**
    * 이메일 중복체크
    * @param {string} email
    * @private
@@ -448,8 +447,8 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     // 헤더설정
     this.uploader.setOptions({
       url: CommonConstant.API_CONSTANT.API_URL
-      + 'images/upload'
-      + '?domain=user&itemId=' + this._userId,
+        + 'images/upload'
+        + '?domain=user&itemId=' + this._userId,
       headers: [{
         name: 'Accept',
         value: 'application/json, text/plain, */*',
@@ -468,7 +467,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     // 이미지 업로드 성공
     this.uploader.onSuccessItem = (item, response, status, headers) => {
       const success = true;
-      this._uploadResult = { success, item, response, status, headers };
+      this._uploadResult = {success, item, response, status, headers};
       // 이미지 주소 parse
       const result = JSON.parse(response);
       // user에 imageUrl 저장
@@ -476,7 +475,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     };
 
     // 에러 처리
-    this.uploader.onErrorItem = (item, response, status, headers) => {
+    this.uploader.onErrorItem = () => {
       // TODO 이미지 업로드 에러 처리
       console.log('error');
       this.loadingHide();
@@ -493,12 +492,13 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
 
   /**
    * 사용자 정보 조회
+   * @param {string} userId
    * @private
    */
-  private _getProfile(): void {
+  private _getProfile(userId:string): void {
     // 로딩 show
     this.loadingShow();
-    this.userService.getUserDetail(this._userId)
+    this.userService.getUserDetail(userId)
       .then((result) => {
         // 로딩 hide
         this.loadingHide();
@@ -506,12 +506,30 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
         this.user = result;
 
         // 사용자 권한 목록
-        if( result.roleNames ) {
+        if (result.roleNames) {
           this.permissions = result.roleNames.map(role => {
-            const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole( role );
-            return ( '' === strMsgCode ) ? '' : this.translateService.instant(strMsgCode);
+            const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole(role);
+            return ('' === strMsgCode) ? '' : this.translateService.instant(strMsgCode);
           }).join(',');
         }
+
+        // email flag
+        this.resultEmail = true;
+        // name flag
+        this.resultName = true;
+
+        // user ID
+        this._userId = isNullOrUndefined(result.username) ? '' : result.username.trim();
+        // user email
+        this._userEmail = isNullOrUndefined(result.email) ? '' : result.email.trim();
+        // user name
+        this._userName = isNullOrUndefined(result.fullName) ? '' : result.fullName.trim();
+        // user tel
+        this._userTel = isNullOrUndefined(result.tel) ? '' : result.tel.trim();
+        // user image
+        this._imageUrl = isNullOrUndefined(result.imageUrl) ? '' : result.imageUrl.trim();
+
+        this.safelyDetectChanges();
 
         // 워크스페이스 정보 조회
         this._getWorkspace();
@@ -576,13 +594,15 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
     this.workspaceService.getMyWorkspace('forDetailView').then((workspace) => {
 
       // 개인 워크스페이스 정보 저장
-      ( workspace) && (this.privateWorkspace = workspace );
+      (workspace) && (this.privateWorkspace = workspace);
 
       // 공유 워크스페이스 조회
       this.workspaceService.getSharedFavoriteWorkspaces('default').then((workspaces) => {
 
         // 데이터 존재 시 데이터 저장
-        (workspaces['_embedded']) && ( this.sharedWorkspaces = workspaces['_embedded']['workspaces'] );
+        (workspaces['_embedded']) && (this.sharedWorkspaces = workspaces['_embedded']['workspaces']);
+
+        this.safelyDetectChanges();
 
         // 로딩 hide
         this.loadingHide();
@@ -598,11 +618,11 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
   public moveToWorkspace(workspace?: Workspace) {
     if (workspace && !workspace.active) {
       const modal = new Modal();
-      modal.name = '비활성 워크스페이스';
-      modal.description = '비활성화된 워크스페이스 입니다';
-      modal.subDescription = '다시 활성시키려면 관리자에게 문의해 주세요';
+      modal.name = this.translateService.instant('msg.space.alert.workspace.disabled');
+      modal.description = this.translateService.instant('msg.space.alert.workspace.disabled.desc');
+      modal.subDescription = this.translateService.instant('msg.space.alert.workspace.disabled.desc.sub');
       modal.isShowCancel = false;
-      modal.btnName = '확인';
+      modal.btnName = this.translateService.instant('msg.comm.ui.ok');
       modal.data = {
         type: 'INACTIVE',
         afterConfirm: function () {
@@ -610,7 +630,7 @@ export class ProfileComponent extends AbstractComponent implements OnInit, OnDes
       };
       this._confirmModalComp.init(modal);
     } else {
-      const workspaceId: string = ( workspace ) ? workspace.id : 'my';
+      const workspaceId: string = (workspace) ? workspace.id : 'my';
       let navigateInfo: string[] = [];
       if (workspaceId) {
         navigateInfo = ['/workspace', workspaceId];

@@ -12,14 +12,15 @@
  * limitations under the License.
  */
 
-import * as _ from 'lodash';
 import { EditRuleComponent } from './edit-rule.component';
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+import {
+  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
+  ViewChild
+} from '@angular/core';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { StringUtil } from '../../../../../../common/util/string.util';
-import { isNullOrUndefined, isUndefined } from 'util';
-import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
+import {isNullOrUndefined, isUndefined} from 'util';
 
 @Component({
   selector: 'edit-rule-rename',
@@ -105,27 +106,21 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
     }
 
     let clonedNewFieldName : string = this.newFieldName;
-    let check = StringUtil.checkSingleQuote(clonedNewFieldName, { isAllowBlank: false, isWrapQuote: true });
-    if (check[0] === false) {
-      Alert.warning('Special characters are not allowed');
-      return undefined
+    const renameReg = /^[a-zA-Z가-힣\s][가-힣a-zA-Z0-9_ \s]*$/;
+    if (!renameReg.test(clonedNewFieldName)) {
+      Alert.warning('There is a special character or Hangul is not completed');
+      return undefined;
     } else {
-      const renameReg = /^[a-zA-Z][a-zA-Z0-9_]*$/;
-      if (!renameReg.test(check[1])) {
-        if (check[1].indexOf(' ') > -1) {
-          check[1] = check[1].replace(' ', '_');
-        }
-      }
-      clonedNewFieldName = check[1];
+      clonedNewFieldName = "'" + clonedNewFieldName + "'";
     }
 
-    const selectedFieldName:string = this.selectedFields[0].name;
+    let selectedFieldName:string = this.selectedFields[0].name;
 
     return {
       command: 'rename',
       to: this.newFieldName,
       col: selectedFieldName,
-      ruleString: 'rename col: ' + selectedFieldName + ' to: ' + clonedNewFieldName
+      ruleString: 'rename col: `' + selectedFieldName + '`' + `to: ${clonedNewFieldName}`
     };
 
   } // function - getRuleData
@@ -163,7 +158,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
    * @protected
    */
   protected afterShowComp() {
-    if (this.selectedFields.length === 1) {
+    if (this.selectedFields.length === 1 && isNullOrUndefined(this.newFieldName)) {
       this.newFieldName = this.selectedFields[0].name + '_1';
     }
     setTimeout(() => {
@@ -172,21 +167,21 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
   } // function - _afterShowComp
 
   /**
-   * rule string 을 분석한다.
-   * @param ruleString
+   * parse ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
-    }
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    this.newFieldName = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'to', ruleString ));
-    if (-1  !== this.newFieldName.indexOf( ',' )) {
+    // COLUMN
+    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+
+    // NEW COLUMN NAME
+    if (data.jsonRuleString.to.escapedValue) {
+      this.newFieldName = data.jsonRuleString.to.escapedValue;
+    } else {
       this.newFieldName = '';
     }
-
 
   } // function - _parsingRuleString
 

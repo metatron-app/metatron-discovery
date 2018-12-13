@@ -14,19 +14,27 @@
 
 package app.metatron.discovery.domain.datasource.connection;
 
+import app.metatron.discovery.common.criteria.ListCriterion;
+import app.metatron.discovery.common.criteria.ListFilter;
 import app.metatron.discovery.common.entity.SearchParamValidator;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.datasource.DataSourceProperties;
+import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.jdbc.*;
+import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
 import app.metatron.discovery.domain.mdm.source.MetadataSourceRepository;
 import app.metatron.discovery.domain.workbench.Workbench;
 import app.metatron.discovery.domain.workbench.WorkbenchRepository;
+import app.metatron.discovery.domain.workbench.hive.HiveNamingRule;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.util.PolarisUtils;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.querydsl.core.types.Predicate;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -43,9 +51,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.sql.DataSource;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -58,6 +64,9 @@ public class DataConnectionController {
 
   @Autowired
   JdbcConnectionService connectionService;
+
+  @Autowired
+  DataConnectionFilterService connectionFilterService;
 
   @Autowired
   DataConnectionRepository connectionRepository;
@@ -194,7 +203,7 @@ public class DataConnectionController {
                                                               Pageable pageable) {
 
     return ResponseEntity.ok(
-        connectionService.findTablesInDatabase(checkRequest.getConnection(), checkRequest.getDatabase(), pageable)
+        connectionService.findTablesInDatabase(checkRequest.getConnection(), checkRequest.getDatabase(), checkRequest.getTable(), pageable)
     );
   }
 
@@ -266,20 +275,52 @@ public class DataConnectionController {
       hiveConnection.setDatabase(checkRequest.getDatabase());
     }
 
-    JdbcQueryResultResponse resultSet =
-            connectionService.selectQueryForIngestion(hiveConnection, checkRequest.getDatabase(),
-                    checkRequest.getType(), checkRequest.getQuery(), limit, extractColumnName);
-
+    List<Field> partitionFielsList = null;
+    FileFormat fileFormat = null;
     //Partition 정보 ..
     if(checkRequest.getType() == JdbcIngestionInfo.DataType.TABLE){
       HiveTableInformation hiveTableInformation = connectionService.showHiveTableDescription(hiveConnection,
               checkRequest.getDatabase(), checkRequest.getQuery(), false);
 
       //Partition Field
-      resultSet.setPartitionFields(hiveTableInformation.getPartitionFields());
+      partitionFielsList = hiveTableInformation.getPartitionFields();
 
       //File Format
-      resultSet.setFileFormat(hiveTableInformation.getFileFormat());
+      fileFormat = hiveTableInformation.getFileFormat();
+
+      //when strict mode, requires hive metastore connection info
+      if(hivePropertyConnection.isStrictMode() && !partitionFielsList.isEmpty()){
+        hiveConnection.setMetastoreHost(hivePropertyConnection.getMetastoreHost());
+        hiveConnection.setMetastorePort(hivePropertyConnection.getMetastorePort());
+        hiveConnection.setMetastoreSchema(hivePropertyConnection.getMetastoreSchema());
+        hiveConnection.setMetastoreUserName(hivePropertyConnection.getMetastoreUserName());
+        hiveConnection.setMetastorePassword(hivePropertyConnection.getMetastorePassword());
+
+        //getting recent partition
+        List<Map<String, Object>> partitionList = connectionService.getPartitionList(hiveConnection, checkRequest);
+        if(partitionList == null || partitionList.isEmpty()){
+          throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.STAGEDB_PREVIEW_TABLE_SQL_ERROR,
+                  "There is no partitions in table(" + checkRequest.getQuery() + ").");
+        }
+
+        Map<String, Object> recentPartition
+                = PolarisUtils.partitionStringToMap(partitionList.get(0).get("PART_NAME").toString());
+        checkRequest.setPartitions(Lists.newArrayList(recentPartition));
+      }
+    }
+
+    JdbcQueryResultResponse resultSet =
+            connectionService.selectQueryForIngestion(hiveConnection, checkRequest.getDatabase(),
+                    checkRequest.getType(), checkRequest.getQuery(), checkRequest.getPartitions(), limit, extractColumnName);
+
+    //Partition 정보 ..
+    if(checkRequest.getType() == JdbcIngestionInfo.DataType.TABLE){
+
+      //Partition Field
+      resultSet.setPartitionFields(partitionFielsList);
+
+      //File Format
+      resultSet.setFileFormat(fileFormat);
     }
 
     return ResponseEntity.ok(resultSet);
@@ -307,6 +348,7 @@ public class DataConnectionController {
           @PathVariable("connectionId") String connectionId,
           @RequestParam(required = false) String databaseName,
           @RequestParam(required = false) String webSocketId,
+          @RequestParam(required = false) String loginUserId,
           Pageable pageable) {
 
     DataConnection connection = connectionRepository.findOne(connectionId);
@@ -319,7 +361,40 @@ public class DataConnectionController {
       SearchParamValidator.checkNull(webSocketId, "webSocketId");
     }
 
-    return ResponseEntity.ok(connectionService.findDatabases((JdbcDataConnection) connection, databaseName, webSocketId, pageable));
+    Map<String, Object> findDatabases = connectionService.findDatabases((JdbcDataConnection) connection, databaseName, webSocketId, pageable);
+
+    if(findDatabases.get("databases") != null
+        && StringUtils.isNotEmpty(loginUserId)
+        && connection instanceof HiveConnection
+        && ((HiveConnection)connection).isSupportSaveAsHiveTable()) {
+      List<String> filteredDatabases = filterOtherPersonalDatabases((List<String>)findDatabases.get("databases"),
+          ((HiveConnection)connection).getPropertiesMap().get(HiveConnection.PROPERTY_KEY_PERSONAL_DATABASE_PREFIX),
+          HiveNamingRule.replaceNotAllowedCharacters(loginUserId));
+
+      findDatabases.put("databases", filteredDatabases);
+    }
+
+    return ResponseEntity.ok(findDatabases);
+  }
+
+  private List<String> filterOtherPersonalDatabases(List<String> databases, String personalDatabasePrefix, String loginUserId) {
+    final String personalDatabase = String.format("%s_%s", personalDatabasePrefix, loginUserId);
+
+    if(CollectionUtils.isNotEmpty(databases)) {
+      return databases.stream().filter(database -> {
+        if (database.startsWith(personalDatabasePrefix + "_")) {
+          if (database.equalsIgnoreCase(personalDatabase)) {
+            return true;
+          } else {
+            return false;
+          }
+        } else {
+          return true;
+        }
+      }).collect(Collectors.toList());
+    } else {
+      return Collections.emptyList();
+    }
   }
 
   @RequestMapping(value = "/connections/{connectionId}/databases/{databaseName}/tables", method = RequestMethod.GET,
@@ -548,5 +623,162 @@ public class DataConnectionController {
     return filteredTableNameList;
   }
 
+  @RequestMapping(value = "/connections/query/hive/strict", method = RequestMethod.GET)
+  public @ResponseBody ResponseEntity<?> strictModeForHiveIngestion() {
+    EngineProperties.HiveConnection hivePropertyConnection = engineProperties.getIngestion().getHive();
+    if(hivePropertyConnection == null){
+      throw new ResourceNotFoundException("EngineProperties.HiveConnection");
+    }
+    return ResponseEntity.ok(hivePropertyConnection.isStrictMode());
+  }
+
+  @RequestMapping(value = "/connections/query/hive/partitions", method = RequestMethod.POST)
+  public @ResponseBody ResponseEntity<?> partitionInforForHiveIngestion(@RequestBody ConnectionRequest checkRequest) {
+
+    // validation check
+    SearchParamValidator.checkNull(checkRequest.getType(), "type");
+    SearchParamValidator.checkNull(checkRequest.getQuery(), "query");
+    SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
+
+    EngineProperties.HiveConnection hivePropertyConnection = engineProperties.getIngestion().getHive();
+
+    if(hivePropertyConnection == null){
+      throw new ResourceNotFoundException("EngineProperties.HiveConnection");
+    }
+
+    //when strict mode, requires hive metastore connection info
+    if(hivePropertyConnection.isStrictMode()){
+      HiveConnection hiveConnection = new HiveConnection();
+      hiveConnection.setMetastoreHost(hivePropertyConnection.getMetastoreHost());
+      hiveConnection.setMetastorePort(hivePropertyConnection.getMetastorePort());
+      hiveConnection.setMetastoreSchema(hivePropertyConnection.getMetastoreSchema());
+      hiveConnection.setMetastoreUserName(hivePropertyConnection.getMetastoreUserName());
+      hiveConnection.setMetastorePassword(hivePropertyConnection.getMetastorePassword());
+
+      if(!hiveConnection.includeMetastoreInfo()){
+        throw new ResourceNotFoundException("EngineProperties.HiveConnection's MetaStoreInfo");
+      }
+
+      List<Map<String, Object>> partitionList = connectionService.getPartitionList(hiveConnection, checkRequest);
+      return ResponseEntity.ok(partitionList);
+    } else {
+      throw new DataConnectionException(DataConnectionErrorCodes.NOT_SUPPORTED_API,
+              "/connections/query/hive/partitions API required strict mode.");
+    }
+  }
+
+  @RequestMapping(value = "/connections/query/hive/partitions/validate", method = RequestMethod.POST)
+  public @ResponseBody ResponseEntity<?> validatePartitionInforForHiveIngestion(@RequestBody ConnectionRequest checkRequest) {
+
+    // validation check
+    SearchParamValidator.checkNull(checkRequest.getType(), "type");
+    SearchParamValidator.checkNull(checkRequest.getQuery(), "query");
+    SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
+    SearchParamValidator.checkNull(checkRequest.getPartitions(), "partitions");
+
+    EngineProperties.HiveConnection hivePropertyConnection = engineProperties.getIngestion().getHive();
+
+    if(hivePropertyConnection == null){
+      throw new ResourceNotFoundException("EngineProperties.HiveConnection");
+    }
+
+    //when strict mode, requires hive metastore connection info
+    if(hivePropertyConnection.isStrictMode()){
+      HiveConnection hiveConnection = new HiveConnection();
+      hiveConnection.setMetastoreHost(hivePropertyConnection.getMetastoreHost());
+      hiveConnection.setMetastorePort(hivePropertyConnection.getMetastorePort());
+      hiveConnection.setMetastoreSchema(hivePropertyConnection.getMetastoreSchema());
+      hiveConnection.setMetastoreUserName(hivePropertyConnection.getMetastoreUserName());
+      hiveConnection.setMetastorePassword(hivePropertyConnection.getMetastorePassword());
+
+      List<Map<String, Object>> validatePartition = connectionService.validatePartition(hiveConnection, checkRequest);
+      return ResponseEntity.ok(validatePartition);
+    } else {
+      throw new DataConnectionException(DataConnectionErrorCodes.NOT_SUPPORTED_API,
+              "/connections/query/hive/partitions/validate API required strict mode.");
+    }
+  }
+
+  @RequestMapping(value = "/connections/criteria", method = RequestMethod.GET)
+  public ResponseEntity<?> getCriteria() {
+    List<ListCriterion> listCriteria = connectionFilterService.getListCriterion();
+    List<ListFilter> defaultFilter = connectionFilterService.getDefaultFilter();
+
+    HashMap<String, Object> response = new HashMap<>();
+    response.put("criteria", listCriteria);
+    response.put("defaultFilters", defaultFilter);
+
+    return ResponseEntity.ok(response);
+  }
+
+  @RequestMapping(value = "/connections/criteria/{criterionKey}", method = RequestMethod.GET)
+  public ResponseEntity<?> getCriterionDetail(@PathVariable(value = "criterionKey") String criterionKey) {
+
+    DataConnectionListCriterionKey criterionKeyEnum = DataConnectionListCriterionKey.valueOf(criterionKey);
+
+    if(criterionKeyEnum == null){
+      throw new ResourceNotFoundException("Criterion(" + criterionKey + ") is not founded.");
+    }
+
+    ListCriterion criterion = connectionFilterService.getListCriterionByKey(criterionKeyEnum);
+    return ResponseEntity.ok(criterion);
+  }
+
+  @RequestMapping(value = "/connections/filter", method = RequestMethod.POST)
+  public @ResponseBody ResponseEntity<?> filterDataConnection(@RequestBody DataConnectionFilterRequest request,
+                                                           Pageable pageable,
+                                                           PersistentEntityResourceAssembler resourceAssembler) {
+
+    List<String> workspaces = request == null ? null : request.getWorkspace();
+    List<String> createdBys = request == null ? null : request.getCreatedBy();
+    List<String> userGroups = request == null ? null : request.getUserGroup();
+    List<String> implementors = request == null ? null : request.getImplementor();
+    List<String> authenticationTypes = request == null ? null : request.getAuthenticationType();
+    DateTime createdTimeFrom = request == null ? null : request.getCreatedTimeFrom();
+    DateTime createdTimeTo = request == null ? null : request.getCreatedTimeTo();
+    DateTime modifiedTimeFrom = request == null ? null : request.getModifiedTimeFrom();
+    DateTime modifiedTimeTo = request == null ? null : request.getModifiedTimeTo();
+    String containsText = request == null ? null : request.getContainsText();
+    List<Boolean> published = request == null ? null : request.getPublished();
+
+    LOGGER.debug("Parameter (workspace) : {}", workspaces);
+    LOGGER.debug("Parameter (createdBy) : {}", createdBys);
+    LOGGER.debug("Parameter (userGroup) : {}", userGroups);
+    LOGGER.debug("Parameter (implementors) : {}", implementors);
+    LOGGER.debug("Parameter (authenticationTypes) : {}", authenticationTypes);
+    LOGGER.debug("Parameter (createdTimeFrom) : {}", createdTimeFrom);
+    LOGGER.debug("Parameter (createdTimeTo) : {}", createdTimeTo);
+    LOGGER.debug("Parameter (modifiedTimeFrom) : {}", modifiedTimeFrom);
+    LOGGER.debug("Parameter (modifiedTimeTo) : {}", modifiedTimeTo);
+    LOGGER.debug("Parameter (containsText) : {}", containsText);
+    LOGGER.debug("Parameter (published) : {}", published);
+
+    // Validate Implements
+    List<DataConnection.Implementor> implementorEnumList
+            = request.getEnumList(implementors, DataConnection.Implementor.class, "implementor");
+
+    // Validate authenticationTypes
+    List<DataConnection.AuthenticationType> authenticationTypeEnumList
+            = request.getEnumList(authenticationTypes, DataConnection.AuthenticationType.class, "authenticationType");
+
+    // Validate createdTimeFrom, createdTimeTo
+    SearchParamValidator.range(null, createdTimeFrom, createdTimeTo);
+
+    // Validate modifiedTimeFrom, modifiedTimeTo
+    SearchParamValidator.range(null, modifiedTimeFrom, modifiedTimeTo);
+
+    // 기본 정렬 조건 셋팅
+    if (pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {
+      pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(),
+              new Sort(Sort.Direction.DESC, "createdTime", "name"));
+    }
+
+    Page<DataConnection> dataConnections = connectionFilterService.findDataConnectionByFilter(
+            workspaces, createdBys, userGroups, implementorEnumList, authenticationTypeEnumList,
+            createdTimeFrom, createdTimeTo, modifiedTimeFrom, modifiedTimeTo, containsText, published, pageable
+    );
+
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(dataConnections, resourceAssembler));
+  }
 }
 

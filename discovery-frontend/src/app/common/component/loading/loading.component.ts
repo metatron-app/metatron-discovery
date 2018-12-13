@@ -70,8 +70,6 @@ export class LoadingComponent extends AbstractComponent {
 
     // Init
     public ngOnInit() {
-
-        // Init
         super.ngOnInit();
 
         // Element Visible
@@ -80,8 +78,6 @@ export class LoadingComponent extends AbstractComponent {
 
     // Destory
     public ngOnDestroy() {
-
-        // Destory
         super.ngOnDestroy();
     }
 

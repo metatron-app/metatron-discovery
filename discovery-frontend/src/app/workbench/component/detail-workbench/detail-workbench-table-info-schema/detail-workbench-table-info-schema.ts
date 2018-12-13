@@ -109,13 +109,11 @@ export class DetailWorkbenchTableInfoSchema extends AbstractWorkbenchComponent i
   }
 
   public ngOnChanges(): void {
-    this.page.page === 0;
+    this.page.page = 0;
     this.getTableDetail();
   }
 
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
@@ -177,7 +175,7 @@ export class DetailWorkbenchTableInfoSchema extends AbstractWorkbenchComponent i
    * @param {string} param
    */
   public setColumn(param: string) {
-    this.insertName.emit(param);
+    this.insertName.emit(param + ',');
   }
 
 }

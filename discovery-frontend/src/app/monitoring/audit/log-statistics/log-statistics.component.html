@@ -28,9 +28,6 @@
       <li>
         <a [routerLink]="['/management/monitoring/audit']">{{'msg.comm.menu.manage.monitoring.audit' | translate}}</a>
       </li>
-      <li>
-        <a [routerLink]="['/management/monitoring/lineage']">{{'msg.comm.menu.manage.monitoring.data-lineage' | translate}}</a>
-      </li>
     </ul>
     <!-- //tab -->
 
@@ -60,7 +57,7 @@
       <!-- edit -->
       <div class="ddp-wrap-edit">
         <component-period
-          [title]="'Performed Start Time'"
+          [title]="'msg.statistics.th.start.time' | translate"
           [roundSecond]="true"
           (changeDate)="onChangeDate($event)"
           [useAllButton]=false
@@ -122,7 +119,7 @@
 
             <col width="190px">
             <col width="100px">
-            <col width="80px">
+            <col width="90px">
             <col width="96px">
           </colgroup>
           <thead>
@@ -161,7 +158,10 @@
             </td>
             <td>
               <span class="ddp-data-state"
-                    [ngClass]="{'ddp-fail' : data.status.toString() === 'FAIL', 'ddp-success' : data.status.toString() === 'SUCCESS'}">
+                    [class.ddp-fail]="data.status && data.status.toString() === 'FAIL'"
+                    [class.ddp-success]="data.status && data.status.toString() === 'SUCCESS'"
+                    [class.ddp-running]="data.status && data.status.toString() === 'RUNNING'"
+                    [class.ddp-cancelled]="data.status && data.status.toString() === 'CANCELLED'">
                 {{data.status}}
               </span>
             </td>
@@ -235,7 +235,7 @@
             <col width="*">
             <col width="190px">
             <col width="100px">
-            <col width="80px">
+            <col width="90px">
             <col width="96px">
           </colgroup>
           <thead>
@@ -276,7 +276,10 @@
             </td>
             <td>
               <span class="ddp-data-state"
-                    [ngClass]="{'ddp-fail' : data.status.toString() === 'FAIL', 'ddp-success' : data.status.toString() === 'SUCCESS'}">
+                    [class.ddp-fail]="data.status && data.status.toString() === 'FAIL'"
+                    [class.ddp-success]="data.status && data.status.toString() === 'SUCCESS'"
+                    [class.ddp-running]="data.status && data.status.toString() === 'RUNNING'"
+                    [class.ddp-cancelled]="data.status && data.status.toString() === 'CANCELLED'">
                 {{data.status}}
               </span>
             </td>
@@ -537,4 +540,11 @@
 <!--<app-job-detail *ngIf="mode==='detail-job-log'"-->
                 <!--[setAuditId]="selectedId"-->
                 <!--(close)="mode=''"></app-job-detail>-->
-<app-log-statistics-detail *ngIf="isDetailPopupOpen" (closeOutput)="closeDetail()" [statisticsData]="statisticsData" (sortOutput)="sortDetail($event)" [selectedContentSort]="selectedContentSort" [pageResult]="pageResult" (getMoreContentsOutput)="getMoreContents($event)"></app-log-statistics-detail>
+<app-log-statistics-detail *ngIf="isDetailPopupOpen"
+                           (closeOutput)="closeDetail()"
+                           [statisticsData]="statisticsData"
+                           (sortOutput)="sortDetail($event)"
+                           [selectedContentSort]="selectedContentSort"
+                           [pageResult]="pageResult"
+                           (getMoreContentsOutput)="getMoreContents($event)">
+</app-log-statistics-detail>

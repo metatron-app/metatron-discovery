@@ -55,6 +55,16 @@ export class StagingDbIngestionComponent extends AbstractPopupComponent implemen
   }
 
   /**
+   * scroll event
+   */
+  public onWindowScroll() {
+    if (this._ingestionSettingComponent.isShowPartitionValidResult) {
+      this._ingestionSettingComponent.isShowPartitionValidResult = false;
+    }
+  }
+
+
+  /**
    * ngOnInit
    */
   public ngOnInit() {

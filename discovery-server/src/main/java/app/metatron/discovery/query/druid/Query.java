@@ -18,8 +18,6 @@ package app.metatron.discovery.query.druid;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import javax.validation.constraints.NotNull;
-
 import app.metatron.discovery.query.druid.datasource.DataSource;
 import app.metatron.discovery.query.druid.queries.*;
 
@@ -28,6 +26,7 @@ import app.metatron.discovery.query.druid.queries.*;
     @JsonSubTypes.Type(value = TimeseriesQuery.class, name = "timeseries"),
     @JsonSubTypes.Type(value = JoinQuery.class, name = "join"),
     @JsonSubTypes.Type(value = GroupByQuery.class, name = "groupBy"),
+    @JsonSubTypes.Type(value = GroupByMetaQuery.class, name = "groupBy.meta"),
     @JsonSubTypes.Type(value = SearchQuery.class, name = "search"),
     @JsonSubTypes.Type(value = DataSourceMetadataQuery.class, name = "dataSourceMetadata"),
     @JsonSubTypes.Type(value = SegmentMetaDataQuery.class, name = "segmentMetadata"),
@@ -49,7 +48,6 @@ public abstract class Query {
 
   public static final String POSTFIX_SORT_FIELD = ".sort";
 
-  @NotNull
   DataSource dataSource;
 
   public Query() {

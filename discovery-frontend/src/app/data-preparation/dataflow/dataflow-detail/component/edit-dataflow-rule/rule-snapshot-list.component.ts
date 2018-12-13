@@ -15,9 +15,11 @@
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractComponent } from '../../../../../common/component/abstract.component';
 import { DataflowService } from '../../../service/dataflow.service';
-import { DataSnapshot } from '../../../../../domain/data-preparation/data-snapshot';
+//import { DataSnapshot } from '../../../../../domain/data-preparation/data-snapshot';
+import { PrDataSnapshot, Status } from '../../../../../domain/data-preparation/pr-snapshot';
 import { DataSnapshotService } from '../../../../data-snapshot/service/data-snapshot.service';
 import { Alert } from '../../../../../common/util/alert.util';
+import {PreparationCommonUtil} from "../../../../util/preparation-common.util";
 
 @Component({
   selector: 'app-rule-snapshot-list',
@@ -47,7 +49,11 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public snapshotList : DataSnapshot[];
+  //public snapshotList : DataSnapshot[];
+  public snapshotList : PrDataSnapshot[];
+
+  public prepCommonUtil = PreparationCommonUtil;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -90,11 +96,27 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
       result = ['Failed','failed'];
     } else if (-1 !== progress.indexOf(status)) {
       result = ['Preparing','play'];
-    } else {
+    }  else {
       result = [status[0].toUpperCase() + status.slice(1),'cancel'];
     }
     return result
   }
+
+/*
+  public getSnapshotType(type: string) : string {
+
+    let result = type;
+    if (type.toUpperCase() === 'FILE') {
+      result = 'Local';
+    } else if (type.toUpperCase() === 'JDBC') {
+      result = 'Database';
+    } else if (type.toUpperCase() === 'HIVE') {
+      result = 'Staging DB';
+    }
+
+    return result;
+  }
+*/
 
   /**
    * Navigate to snapshot list
@@ -107,7 +129,8 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
    * INIT
    * @param {DataSnapshot[]} list
    */
-  public init(list : DataSnapshot[]) {
+  //public init(list : DataSnapshot[]) {
+  public init(list : PrDataSnapshot[]) {
     this.snapshotList = list;
   } // function - init
 
@@ -115,9 +138,11 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
    * Open snapshot detail popup
    * @param {DataSnapshot} snapshot
    */
-  public snapshotDetail(snapshot : DataSnapshot) {
+  //public snapshotDetail(snapshot : DataSnapshot) {
+  public snapshotDetail(snapshot : PrDataSnapshot) {
 
-    if (snapshot.status === 'CANCELED') {
+    //if (snapshot.status === 'CANCELED' || snapshot.isCancel) {
+    if (snapshot.status === Status.CANCELED || snapshot.isCancel) {
       return;
     }
 
@@ -132,7 +157,8 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
    * Snapshot cancel confirm popup open
    * @param {DataSnapshot} snapshot
    */
-  public cancelSnapshot(snapshot: DataSnapshot) {
+  //public cancelSnapshot(snapshot: DataSnapshot) {
+  public cancelSnapshot(snapshot: PrDataSnapshot) {
     this.snapshotIntervalStopEvent.emit(); // Stop interval
 
     if (snapshot.elapsedTime) { // cannot cancel already created snapshot
@@ -148,7 +174,8 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
    * Cancel snapshot
    * @param snapshot {DataSnapshot}
    */
-  public cancelSnapshotConfirm(snapshot : DataSnapshot) {
+  //public cancelSnapshotConfirm(snapshot : DataSnapshot) {
+  public cancelSnapshotConfirm(snapshot : PrDataSnapshot) {
     snapshot.isCancel = false;
     this.snapshotService.cancelSnapshot(snapshot.ssId).then((result) => {
       if (result.result === 'OK') {
@@ -171,7 +198,8 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
    * 스냅샷 리스트 다시 불러오기
    * @param {DataSnapshot} snapshot
    */
-  public refreshSnapshotList(snapshot? : DataSnapshot) {
+  //public refreshSnapshotList(snapshot? : DataSnapshot) {
+  public refreshSnapshotList(snapshot? : PrDataSnapshot) {
     if (snapshot) {
       snapshot.isCancel = false;
     }

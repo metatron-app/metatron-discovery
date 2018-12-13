@@ -42,8 +42,6 @@ export class GridComponent implements AfterViewInit, OnDestroy {
   private $ = jQuery_1_7;
   // 클릭 이벤트 타임아웃 체크
   private clickEnabled: boolean = true;
-  // 정렬 변경 이벤트 타임아웃 체크
-  private sortingEnabled: boolean = true;
 
   // -------------------------------------------------------------------------------------------------------------------
   // 상수
@@ -341,6 +339,42 @@ export class GridComponent implements AfterViewInit, OnDestroy {
   } // function - columnSelection
 
   /**
+   * row 선택 효과
+   * @param {number | string} column
+   * @param scope
+   */
+  public selectRowActivate(column: number | string, scope: any = null,): void {
+
+    const fnScope: any = scope === null ? this : scope;
+
+    const selectedRows: any[] = [];
+    selectedRows.push(column);
+    fnScope.grid.setSelectedRows(selectedRows);
+  } // function - selectRowActivate
+
+
+  /**
+   * 현재의 sort column 상태 변경
+   * @param isAsc - ASC : true, DESC : false
+   * @param scope
+   */
+  public setCurrentSortColumns(isAsc : boolean, scope: any = null,): void {
+
+    const fnScope: any = scope === null ? this : scope;
+    let arr = [];
+    const columnsList = fnScope.grid.getColumns();
+    for (let index: number = 0; index < columnsList.length; index++) {
+      let obj = {
+        columnId : columnsList[index]['id'],
+        sortAsc : isAsc
+      };
+      arr.push(obj);
+    }
+    fnScope.grid.setSortColumns(arr, isAsc);
+
+  } // function - setCurrentSortColumn
+
+  /**
    * 컬럼 선택 해제
    * @param {number | string} column
    * @param scope
@@ -475,7 +509,7 @@ export class GridComponent implements AfterViewInit, OnDestroy {
       if (this.option.dualSelectionActivate) {
         headers.unshift(new SlickGridHeader()
           .Id(this.ID_PROPERTY)
-          .Name(!this.option.enableSeqSort ? '' : 'SEQ')
+          .Name(!this.option.enableSeqSort ? '' : 'No.')
           .Field(this.ID_PROPERTY)
           .Behavior('select')
           .CssClass(`dual_selection${this.ID_PROPERTY}`)
@@ -947,6 +981,43 @@ export class GridComponent implements AfterViewInit, OnDestroy {
   private bindingGridEvents(): void {
 
     // -----------------------------------------------------------------------------------------------------------------
+    //  onSelectedRowsChanged
+    //    - select row 이벤트
+    // -----------------------------------------------------------------------------------------------------------------
+
+    if( this.option.rowSelectionActivate ) {
+      this.grid.onClick.subscribe(
+        (function (scope) {
+          return function (event, args) {
+
+            const rowIndex: number = args.row;
+
+            if (args.cell !== 0) {
+              scope.gridSelectionModelType = 'cell';
+
+              // 컬럼 전체 선택 해제
+              scope.columnAllUnSelection();
+
+              // 전체 선택 해제
+              scope.rowAllUnSelection();
+
+              // 셀 드래그 옵션 초기화
+              scope.initCellExternalCopyManager(scope);
+              return;
+            }
+
+            scope.gridSelectionModelType = 'row';
+
+            // 그리드 로우 선택 기능 활성화
+            scope.initRowSelectionModel(scope);
+            scope.selectRowActivate(rowIndex);
+
+          };
+        })(this)
+      );
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
     //  onSort
     //    - sorting 이벤트
     // -----------------------------------------------------------------------------------------------------------------
@@ -956,14 +1027,6 @@ export class GridComponent implements AfterViewInit, OnDestroy {
         (function (scope) {
           return function (event, args) {
             try {
-
-              if (!scope.sortingEnabled) {
-                return;
-              }
-
-              setTimeout(() => scope.sortingEnabled = true, 300);
-
-              scope.sortingEnabled = false;
 
               if (scope.isCellExternalCopyManagerActivate()) {
                 scope.grid.setSelectedRows([]);
@@ -1046,7 +1109,6 @@ export class GridComponent implements AfterViewInit, OnDestroy {
                   scope.dataView.getItemMetadata(scope.getRows().length - 1);
                 }
               }
-
 
               scope.grid.invalidate();
               scope.grid.render();

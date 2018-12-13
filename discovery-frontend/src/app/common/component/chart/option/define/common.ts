@@ -39,7 +39,7 @@ export enum ChartType {
   SCATTER = <any>'scatter',
   HEATMAP = <any>'heatmap',
   PIE = <any>'pie',
-  MAPVIEW = <any>'mapview',
+  MAP = <any>'map',
   CONTROL = <any>'control',
   LABEL = <any>'label',
   LABEL2 = <any>'label2',
@@ -499,7 +499,11 @@ export enum EventType {
   // change chart type
   CHART_TYPE = <any>'chartType',
   // filter changed
-  FILTER = <any>'filter'
+  FILTER = <any>'filter',
+  // change pivot alias
+  PIVOT_ALIAS = <any>'pivotAlias',
+  // change dashboard alias
+  DASHBOARD_ALIAS = <any>'dashboardAlias'
 }
 
 /**
@@ -764,7 +768,11 @@ export enum UIPosition {
   CENTER = <any>'CENTER',
   TOP = <any>'TOP',
   MIDDLE = <any>'MIDDLE',
-  BOTTOM = <any>'BOTTOM'
+  BOTTOM = <any>'BOTTOM',
+  RIGHT_BOTTOM = <any>'RIGHT_BOTTOM',
+  LEFT_BOTTOM = <any>'LEFT_BOTTOM',
+  RIGHT_TOP = <any>'RIGHT_TOP',
+  LEFT_TOP = <any>'LEFT_TOP'
 }
 
 /**
@@ -787,7 +795,10 @@ export enum UIChartDataLabelDisplayType {
   THREE_Q_VALUE = <any>'THREE_Q_VALUE',
   MEDIAN_VALUE = <any>'MEDIAN_VALUE',
   FIRST_Q_VALUE = <any>'FIRST_Q_VALUE',
-  LOW_VALUE = <any>'LOW_VALUE'
+  LOW_VALUE = <any>'LOW_VALUE',
+  LAYER_NAME = <any>'LAYER_NAME',
+  LOCATION_INFO = <any>'LOCATION_INFO',
+  DATA_VALUE = <any>'DATA_VALUE'
 }
 
 /**
@@ -905,6 +916,26 @@ export enum TextAlign {
   LEFT = <any>'LEFT',
   CENTER = <any>'CENTER',
   RIGHT = <any>'RIGHT'
+}
+
+/**
+ * shelf type
+ */
+export enum ShelfType {
+  PIVOT = <any>'pivot',
+  GRAPH = <any>'graph',
+  GEO = <any>'geo'
+}
+
+/**
+ * field format type
+ */
+export enum FormatType {
+  DEFAULT = <any>'default',
+  GEO = <any>'geo',
+  GEO_HASH = <any>'geo_hash',
+  GEO_BOUNDARY = <any>'geo_boundary',
+  GEO_JOIN = <any>'geo_join'
 }
 
 /**

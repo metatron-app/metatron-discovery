@@ -45,7 +45,7 @@ public class PrepRuleVisitorParser implements PrepParser {
 
     // 2018.05.23 "(?i).*(sum|avg|max|min|count|now|month|day|hour|minute|second|millisecond|if|isnull|isnan|length|trim|ltrim|rtrim|upper|lower|substring|math[.]abs|math[.]acos|math[.]asin|math[.]atan|math[.]cbrt|math[.]ceil|math[.]cos|math[.]cosh|math[.]exp|math[.]expm1|math[.]getExponent|math[.]round|math[.]signum|math[.]sin|math[.]sinh|math[.]sqrt|math[.]tan|math[.]tanh|left|right|if|substring|add_time|concat|concat_ws)\\s*$"
     private static final Pattern patternFunctionName = Pattern.compile(
-            "(?i).*(add_time| concat| concat_ws| day| hour| if| ismismatched| isnan| isnull| length| lower| ltrim| math[.]abs| math[.]acos| math[.]asin| math[.]atan| math[.]cbrt| math[.]ceil| math[.]cos| math[.]cosh| math[.]exp| math[.]expm1| math[.]getExponent| math[.]round| math[.]signum| math[.]sin| math[.]sinh| math[.]sqrt| math[.]tan| math[.]tanh| millisecond| minute| month| now| rtrim| second| substring| time_diff| timestamp| trim| upper| year)\\s*$"
+            "(?i).*(row_number | rolling_sum | rolling_avg | lag | lead | contains | startswith | endswith | add_time| concat| concat_ws| day| hour| if| ismismatched| isnan| isnull| length| lower| ltrim| math[.]abs| math[.]acos| math[.]asin| math[.]atan| math[.]cbrt| math[.]ceil| math[.]cos| math[.]cosh| math[.]exp| math[.]expm1| math[.]getExponent| math[.]round| math[.]signum| math[.]sin| math[.]sinh| math[.]sqrt| math[.]tan| math[.]tanh| millisecond| minute| month| now| rtrim| second| substring| time_diff| timestamp| trim| upper| year)\\s*$"
     );
 
     private static final Map<String, Supplier<Function>> functions = Maps.newHashMap();
@@ -75,6 +75,42 @@ public class PrepRuleVisitorParser implements PrepParser {
             } else if ( clazz.isInterface())
                 register(clazz);
         }
+    }
+
+    public Map<String,String> extractWindowPartRule(String _ruleString) {
+        String ruleString = _ruleString;
+        StringBuffer sb = new StringBuffer();
+
+        Map<String, String> extracts = Maps.newHashMap();
+        extracts.put("entire", _ruleString);
+        extracts.put("extract", "entire");
+
+        // aggregate_function
+        int openIdx = ruleString.indexOf('(');
+        int closeIdx = ruleString.lastIndexOf(')');
+        if(0<=openIdx && 0<=closeIdx && openIdx<closeIdx) {
+            sb.append(ruleString.substring(0, openIdx));
+            if( 0<ruleString.substring(openIdx+1,closeIdx).trim().length()) {
+                sb.append("(@_COLUMN_NAME_@");
+            } else {
+                sb.append("(");
+            }
+            sb.append(ruleString.substring(closeIdx));
+        } else if(0<openIdx && -1==closeIdx) {
+            sb.append(ruleString.substring(0, openIdx));
+            if (openIdx + 1 < ruleString.length() && 0 < ruleString.substring(openIdx + 1).trim().length()) {
+                sb.append("(@_COLUMN_NAME_@");
+            } else {
+                sb.append("(");
+            }
+        } else {
+            sb.append(ruleString);
+        }
+
+        extracts.put("window",sb.toString());
+        extracts.put("extract","window");
+
+        return extracts;
     }
 
     public Map<String,String> extractAggrPartRule(String _ruleString) {
@@ -394,6 +430,45 @@ public class PrepRuleVisitorParser implements PrepParser {
         PrepTestAggregateExpressionVisitor prepTestAggregateExpressionVisitor = new PrepTestAggregateExpressionVisitor();
         PrepRuleParser.Test_aggregate_expressionContext test_aggregate_expressionContext = parser.test_aggregate_expression();
         token_nums = prepTestAggregateExpressionVisitor.visit(test_aggregate_expressionContext);
+        for(SuggestToken token_num : token_nums) {
+            String tokenName = vocabulary.getDisplayName(token_num.getTokenNum());
+            String tokenName2 = vocabulary.getLiteralName(token_num.getTokenNum());
+            String tokenName3 = vocabulary.getSymbolicName(token_num.getTokenNum());
+            token_num.setTokenString(tokenName);
+            suggests.add(token_num);
+        }
+
+        return suggests;
+    }
+
+    @Override
+    public List<SuggestToken> suggest_window_rules(String _code) {
+        List<SuggestToken> suggests = Lists.newArrayList();
+
+        Map<String,String> extracts = this.extractWindowPartRule(_code);
+        String entire = extracts.get("entire");
+        String target = extracts.get("extract");
+        String code = extracts.get(target);
+
+        SuggestToken token = new SuggestToken();
+        token.setStart(-1);
+        token.setStop(-1);
+        token.setTokenNum(-1);
+        token.setTokenSource(entire);
+        token.setTokenString(code);
+        suggests.add(token);
+
+        CharStream charStream = new ANTLRInputStream(code);
+        PrepRuleLexer lexer = new PrepRuleLexer(charStream);
+        TokenStream tokens = new CommonTokenStream(lexer);
+        PrepRuleParser parser = new PrepRuleParser(tokens);
+        Vocabulary vocabulary = parser.getVocabulary();
+
+        List<SuggestToken> token_nums;
+
+        PrepTestWindowExpressionVisitor prepTestWindowExpressionVisitor = new PrepTestWindowExpressionVisitor();
+        PrepRuleParser.Test_window_expressionContext test_window_expressionContext = parser.test_window_expression();
+        token_nums = prepTestWindowExpressionVisitor.visit(test_window_expressionContext);
         for(SuggestToken token_num : token_nums) {
             String tokenName = vocabulary.getDisplayName(token_num.getTokenNum());
             String tokenName2 = vocabulary.getLiteralName(token_num.getTokenNum());
@@ -1428,6 +1503,56 @@ public class PrepRuleVisitorParser implements PrepParser {
                     }
                 }
             }
+            return suggest;
+        }
+    }
+    private static class PrepTestWindowExpressionVisitor extends PrepRuleBaseVisitor<List<SuggestToken>> {
+        public List<SuggestToken> visitTest_window_expression(PrepRuleParser.Test_window_expressionContext ctx) {
+            List<SuggestToken> suggest = Lists.newArrayList();
+
+            if(0==suggest.size() && null!=ctx.exception) {// && false==(ctx.exception instanceof NoViableAltException)) {
+                Token offendingToken = ctx.exception.getOffendingToken();
+                String offendingSource = offendingToken.getText();
+                int offendingStart = offendingToken.getStartIndex();
+                int offendingStop = offendingToken.getStopIndex();
+                IntervalSet intervalSet = ctx.exception.getExpectedTokens();
+                if (null != intervalSet) {
+                    for (Interval expected : intervalSet.getIntervals()) {
+                        for (int token_num = expected.a; token_num <= expected.b; token_num++) {
+                            SuggestToken suggestToken = new SuggestToken();
+                            suggestToken.setStart(offendingStart);
+                            suggestToken.setStop(offendingStop);
+                            suggestToken.setTokenNum(token_num);
+                            suggestToken.setTokenSource(offendingSource);
+                            suggest.add(suggestToken);
+                        }
+                    }
+                }
+            }
+
+            if(0==suggest.size()) {
+                int childCount = ctx.getChildCount();
+                for (int i = 0; i < childCount; i++) {
+                    ParseTree child = ctx.getChild(i);
+                    if (suggest.size() == 0) {
+                        if (child instanceof ErrorNodeImpl) {
+                            ErrorNodeImpl eni = (ErrorNodeImpl) child;
+                            CommonToken offendingToken = (CommonToken) eni.getSymbol();
+                            int offendingStart = offendingToken.getCharPositionInLine();
+                            int offendingStop = -1;
+                            String offendingSource = "";
+
+                            SuggestToken suggestToken = new SuggestToken();
+                            suggestToken.setStart(offendingStart + 1);
+                            suggestToken.setStop(offendingStop);
+                            suggestToken.setTokenNum(offendingToken.getType());
+                            suggestToken.setTokenSource(offendingSource);
+                            suggest.add(suggestToken);
+                        }
+                    }
+                }
+            }
+
             return suggest;
         }
     }

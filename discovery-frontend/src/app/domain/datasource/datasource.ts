@@ -40,6 +40,7 @@ export class Datasource extends AbstractHistoryEntity {
   // dashBoards
   connection: Dataconnection;
   summary: DataSourceSummary;
+  fieldsMatched: boolean;
 
   implementor: string;
   owner: any[];
@@ -155,8 +156,16 @@ export class Field {
   // IngestionRule
   ingestionRule: IngestionRule;
 
+  // derivationRule
+  derivationRule?: DerivationRule;
+
   // format
-  format: string;
+  // TODO 추후 FieldFormat으로 변환
+  // format: FieldFormat;
+  format: any;
+
+  // is create field (optional)
+  derived?: boolean;
 
   // description
   description: string;
@@ -175,6 +184,13 @@ export class Field {
   granularity?: GranularityType;     // granularity
   segGranularity?: GranularityType;  // segGranularity
 
+  // [UI] for Create Datasource
+  isValidTimeFormat?: boolean;
+  isValidReplaceValue?: boolean;
+  replaceValidMessage?: string;
+  timeFormatValidMessage?: string;
+  unloaded?: boolean;
+
   // [UI] for Alias
   dsId?:string;                   // 데이터소스 아이디
   dataSource?: string;            // 데이터소스 engine Name
@@ -191,6 +207,7 @@ export class Field {
    * @return {string}
    */
   public static getDimensionTypeIconClass(field: Field): string {
+    //debugger
     const logicalType: string = (field.logicalType) ? field.logicalType.toString() : '';
     if ('STRING' === logicalType || 'user_expr' === field.type) {
       return 'ddp-icon-dimension-ab';
@@ -204,6 +221,12 @@ export class Field {
       return 'ddp-icon-dimension-sharp';
     } else if ('BOOLEAN' === logicalType) {
       return 'ddp-icon-dimension-tf';
+    } else if ('GEO_POINT' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-dimension-point';
+    } else if ('GEO_LINE' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-dimension-line';
+    } else if ('GEO_POLYGON' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-dimension-polygon';
     }
   } // function - getDimensionTypeIconClass
 
@@ -213,6 +236,7 @@ export class Field {
    * @return {string}
    */
   public static getMeasureTypeIconClass(field: Field): string {
+    //debugger
     const logicalType: string = (field.logicalType) ? field.logicalType.toString() : '';
     if ('STRING' === logicalType) {
       return 'ddp-icon-measure-ab';
@@ -226,6 +250,12 @@ export class Field {
       return 'ddp-icon-measure-sharp';
     } else if ('BOOLEAN' === logicalType) {
       return 'ddp-icon-measure-tf';
+    } else if ('GEO_POINT' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-measure-point';
+    } else if ('GEO_LINE' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-measure-line';
+    } else if ('GEO_POLYGON' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-measure-polygon';
     }
   } // function - getMeasureTypeIconClass
 }
@@ -245,7 +275,6 @@ export class DatasourceInfo {
   public schemaData: any;
 
   // 4step
-  public permissionData: any;
   public ingestionData: any;
 
   // 5step 생성정보
@@ -258,10 +287,21 @@ export class DatasourceInfo {
 export class IngestionRule {
 
   // type
-  public type: string;
+  public type: IngestionRuleType;
 
   // value
   public value: string;
+}
+
+export class DerivationRule {
+  // type
+  public type: string;
+  // latField
+  public latField: string;
+  // lonField
+  public lonField: string;
+  // expr
+  public expr: string;
 }
 
 // batch history 조회
@@ -293,7 +333,8 @@ export enum IngestionStatus {
 
 export enum DataSourceType {
   MASTER = <any>'MASTER',
-  JOIN = <any>'JOIN'
+  JOIN = <any>'JOIN',
+  VOLATILITY = <any>'VOLATILITY'
 }
 
 export enum ConnectionType {
@@ -341,7 +382,11 @@ export enum LogicalType {
   LNG = <any>'LNG',
   POSTAL_CODE = <any>'POSTAL_CODE',
   PHONE_NUMBER = <any>'PHONE_NUMBER',
-  ETC = <any>'ETC'
+  ETC = <any>'ETC',
+  GEO_POINT = <any>'GEO_POINT',
+  GEO_LINE = <any>'GEO_LINE',
+  GEO_POLYGON = <any>'GEO_POLYGON',
+  USER_DEFINED = <any>'user_defined',
 }
 
 export enum FieldRole {
@@ -356,7 +401,11 @@ export enum FieldRole {
 export enum FieldPivot {
   ROWS = <any>'ROWS',
   COLUMNS = <any>'COLUMNS',
-  AGGREGATIONS = <any>'AGGREGATIONS'
+  AGGREGATIONS = <any>'AGGREGATIONS',
+  // temp, for map chart
+  MAP_LAYER0 = <any>'MAP_LAYER0',
+  MAP_LAYER1 = <any>'MAP_LAYER1',
+  MAP_LAYER2 = <any>'MAP_LAYER2'
 }
 
 /**
@@ -392,7 +441,32 @@ export enum TempDsStatus {
   DISABLE = <any>'DISABLE'
 }
 
+export class FieldFormat {
+  format: string;
+  // default FieldFormatType.DATE_TIME
+  type: FieldFormatType;
+  // default FieldFormatUnit.MILLISECOND
+  unit: FieldFormatUnit;
+  constructor() {
+    this.unit = FieldFormatUnit.MILLISECOND;
+    this.type = FieldFormatType.DATE_TIME;
+  }
+}
 
+export enum FieldFormatType {
+  DATE_TIME = <any>'time_format',
+  UNIX_TIME = <any>'time_unix',
+  TEMPORARY_TIME = <any>'time_temporary',
+}
 
+export enum FieldFormatUnit {
+  SECOND = <any>'second',
+  MILLISECOND = <any>'millisecond'
+}
 
-
+export enum IngestionRuleType {
+  DISCARD = <any>'discard',
+  REPLACE = <any>'replace',
+  // only used in UI
+  DEFAULT = <any>'default'
+}

@@ -77,6 +77,12 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
   public selectedRoleSetInfo: RoleSet;      // RoleSet 선택 정보
   public selectedRoleSetDetail: RoleSet;    // 선택된 RoleSet 상세 정보
 
+  get disableCreateWorkspace() {
+    return this.isInvalidName || this.isInvalidDesc
+      || !this.shareWorkspace.name || '' === this.shareWorkspace.name
+      || !this.selectedRoleSetDetail;
+  } // get - disableCreateWorkspace
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -170,6 +176,11 @@ export class CreateWorkspaceComponent extends AbstractComponent implements OnIni
    * 공유 워크스페이스 생성
    */
   public createShareWorkspace() {
+
+    if( this.disableCreateWorkspace ) {
+      return;
+    }
+
     this.shareWorkspace.name = this.shareWorkspace.name ? this.shareWorkspace.name.trim() : '';
     if (this.shareWorkspace.name == null || this.shareWorkspace.name.length === 0) {
       this.isInvalidName = true;

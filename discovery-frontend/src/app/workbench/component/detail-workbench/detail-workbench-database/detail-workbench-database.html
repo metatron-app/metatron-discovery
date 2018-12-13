@@ -15,21 +15,23 @@
 <!-- database name -->
 <!-- 클릭시 ddp-selected 추가 -->
 <div class="ddp-data-namesub">
-  <div class="ddp-data-in" [ngClass]="{'ddp-selected':isDatabaseSearchShow}" (click)="databaseSearchShow()" (clickOutside)="isDatabaseSearchShow=false">
+  <div class="ddp-data-in" [ngClass]="{'ddp-selected':isDatabaseSearchShow}" [class.ddp-disabled]="disable" (click)="databaseSearchShow()" (clickOutside)="isDatabaseSearchShow=false">
     <em class="ddp-icon-database3"></em>
     <span class="ddp-txt-namesub">{{selectedDatabaseName}}</span>
     <em class="ddp-icon-view" ></em>
     <!-- box layout -->
     <div class="ddp-box-layout4" *ngIf="isDatabaseSearchShow" (click)="$event.stopImmediatePropagation()">
       <!-- search -->
-      <div class="ddp-form-search">
-        <em class="ddp-icon-search"></em>
-        <input
-          #inputSearch
-          [ngModel]="searchText"
-          (keypress)="onSearchDatabase($event)" (keyup.esc)="onSearchDatabaseInit()"
-          type="text" placeholder="{{'msg.bench.ui.db.name.search'|translate}}" >
-        <em *ngIf="isShowBtnClear()" (click)="onSearchDatabaseInit()" class="ddp-btn-search-close" ></em>
+      <div class="ddp-wrap-search">
+        <div class="ddp-form-search">
+          <em class="ddp-icon-search"></em>
+          <input
+            #inputSearch
+            [ngModel]="searchText"
+            (keypress)="onSearchDatabase($event)" (keyup.esc)="onSearchDatabaseInit()"
+            type="text" placeholder="{{'msg.bench.ui.db.name.search'|translate}}" >
+          <em *ngIf="isShowBtnClear()" (click)="onSearchDatabaseInit()" class="ddp-btn-search-close" ></em>
+        </div>
       </div>
       <!-- //search -->
       <div class="ddp-ui-list-type">
@@ -51,7 +53,7 @@
   </div>
   <!-- //database name -->
   <!-- table button -->
-  <a href="javascript:" class="ddp-link-btn" (click)="openSchemaBrowser()">
+  <a href="javascript:" class="ddp-link-btn" [ngClass]="{'ddp-disabled':disable}" (click)="openSchemaBrowser()">
     <em class="ddp-icon-table"></em>
   </a>
   <!-- //table button -->

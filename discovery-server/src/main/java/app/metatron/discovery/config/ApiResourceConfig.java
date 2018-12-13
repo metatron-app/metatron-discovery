@@ -17,10 +17,11 @@ package app.metatron.discovery.config;
 import app.metatron.discovery.MetatronDiscoveryApplication;
 import app.metatron.discovery.common.MetatronProperties;
 import app.metatron.discovery.domain.comment.Comment;
-import app.metatron.discovery.domain.dataprep.PrepDataflow;
-import app.metatron.discovery.domain.dataprep.PrepDataflowEventHandler;
-import app.metatron.discovery.domain.dataprep.PrepDataset;
-import app.metatron.discovery.domain.dataprep.PrepDatasetEventHandler;
+import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
+import app.metatron.discovery.domain.dataprep.service.PrDataflowEventHandler;
+import app.metatron.discovery.domain.dataprep.service.PrDatasetEventHandler;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceAlias;
 import app.metatron.discovery.domain.datasource.DataSourceEventHandler;
@@ -29,6 +30,7 @@ import app.metatron.discovery.domain.datasource.connection.DataConnectionEventHa
 import app.metatron.discovery.domain.datasource.connection.file.HdfsConnection;
 import app.metatron.discovery.domain.datasource.connection.file.LocalFileConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.*;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
 import app.metatron.discovery.domain.mdm.*;
 import app.metatron.discovery.domain.mdm.catalog.Catalog;
 import app.metatron.discovery.domain.mdm.catalog.CatalogEventHandler;
@@ -159,6 +161,7 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/app/v2/assets/i18n/en.json").setViewName("forward:/resource/assets/i18n/en.json");
         registry.addViewController("/app/v2/assets/i18n/ko.json").setViewName("forward:/resource/assets/i18n/ko.json");
+        registry.addViewController("/app/v2/assets/i18n/zh.json").setViewName("forward:/resource/assets/i18n/zh.json");
 //        registry.addViewController("/app/v2/assets/images/img_photo.png").setViewName("forward:/resource/assets/images/img_photo.png");
 //        registry.addViewController("/assets/**").setViewName("forward:/resource/index.html");
         registry.addViewController("/app/**").setViewName("forward:/resource/index.html");
@@ -284,7 +287,8 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
                 config.setMaxPageSize(5000);
 
                 // 리턴되는 결과 값내 ID 항목을 표시할 Entity 정보 기록
-                config.exposeIdsFor(Workspace.class, WorkBook.class, DashBoard.class, Widget.class, DataSource.class, Field.class, DataSourceAlias.class,
+                config.exposeIdsFor(Workspace.class, WorkBook.class, DashBoard.class, Widget.class,
+                                    DataSource.class, Field.class, DataSourceAlias.class, IngestionHistory.class,
                                     PhoenixConnection.class, PrestoConnection.class, H2Connection.class, MySQLConnection.class,
                                     HiveConnection.class, HawqConnection.class, OracleConnection.class, StageDataConnection.class,
                                     TiberoConnection.class, LocalFileConnection.class, HdfsConnection.class, PostgresqlConnection.class,
@@ -292,7 +296,7 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
                                     Widget.class, PageWidget.class, TextWidget.class, FilterWidget.class,
                                     QueryEditor.class, QueryHistory.class,
                                     Comment.class,
-                                    PrepDataflow.class, PrepDataset.class,
+                                    PrDataflow.class, PrDataset.class, PrTransformRule.class,
                                     NotebookConnector.class, ZeppelinConnector.class, JupyterConnector.class,
                                     User.class, Role.class, RoleSet.class,
                                     Metadata.class, Catalog.class,
@@ -417,13 +421,13 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
     }
 
     @Bean(autowire = Autowire.BY_TYPE)
-    public PrepDataflowEventHandler prepDataflowEventHandler() {
-        return new PrepDataflowEventHandler();
+    public PrDataflowEventHandler prepDataflowEventHandler() {
+        return new PrDataflowEventHandler();
     }
 
     @Bean(autowire = Autowire.BY_TYPE)
-    public PrepDatasetEventHandler prepDatasetEventHandler() {
-        return new PrepDatasetEventHandler();
+    public PrDatasetEventHandler prDatasetEventHandler() {
+        return new PrDatasetEventHandler();
     }
 
 //    @Override

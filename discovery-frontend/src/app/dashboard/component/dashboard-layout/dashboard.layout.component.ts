@@ -27,10 +27,10 @@ import {
   ViewChild
 } from '@angular/core';
 
-import { Widget } from '../../../domain/dashboard/widget/widget';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { DashboardWidgetComponent } from './dashboard.widget.component';
-import { DashboardWidgetHeaderComponent } from './dashboard.widget.header.component';
+import {Widget} from '../../../domain/dashboard/widget/widget';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {DashboardWidgetComponent} from './dashboard.widget.component';
+import {DashboardWidgetHeaderComponent} from './dashboard.widget.header.component';
 import {
   BoardConfiguration,
   BoardDataSource,
@@ -50,12 +50,12 @@ import {
   FieldValueAlias,
   LogicalType
 } from '../../../domain/datasource/datasource';
-import { PageWidget, PageWidgetConfiguration } from '../../../domain/dashboard/widget/page-widget';
-import { Filter } from '../../../domain/workbook/configurations/filter/filter';
-import { FilterWidget, FilterWidgetConfiguration } from '../../../domain/dashboard/widget/filter-widget';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { PopupService } from '../../../common/service/popup.service';
-import { FilterUtil } from '../../util/filter.util';
+import {PageWidget, PageWidgetConfiguration} from '../../../domain/dashboard/widget/page-widget';
+import {Filter} from '../../../domain/workbook/configurations/filter/filter';
+import {FilterWidget, FilterWidgetConfiguration} from '../../../domain/dashboard/widget/filter-widget';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {PopupService} from '../../../common/service/popup.service';
+import {FilterUtil} from '../../util/filter.util';
 import {
   BoardGlobalOptions,
   BoardLayoutOptions,
@@ -63,14 +63,15 @@ import {
   BoardWidgetOptions,
   WidgetShowType
 } from 'app/domain/dashboard/dashboard.globalOptions';
-import { WidgetService } from '../../service/widget.service';
-import { CustomField } from '../../../domain/workbook/configurations/field/custom-field';
-import { isNullOrUndefined, isUndefined } from 'util';
-import { DashboardUtil } from '../../util/dashboard.util';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import { TimeFilter } from '../../../domain/workbook/configurations/filter/time-filter';
-import { IntervalFilter } from '../../../domain/workbook/configurations/filter/interval-filter';
-import { TimeUnit } from '../../../domain/workbook/configurations/field/timestamp-field';
+import {WidgetService} from '../../service/widget.service';
+import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
+import {isNullOrUndefined, isUndefined} from 'util';
+import {DashboardUtil} from '../../util/dashboard.util';
+import {EventBroadcaster} from '../../../common/event/event.broadcaster';
+import {TimeFilter} from '../../../domain/workbook/configurations/filter/time-filter';
+import {IntervalFilter} from '../../../domain/workbook/configurations/filter/interval-filter';
+import {TimeUnit} from '../../../domain/workbook/configurations/field/timestamp-field';
+import {CommonConstant} from "../../../common/constant/common.constant";
 
 declare let GoldenLayout: any;
 
@@ -253,8 +254,10 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
     this.dashboard = DashboardUtil.setUseWidgetInLayout(this.dashboard, widgetId, false);
 
     const widgetComponent = this._getWidgetComponentRef(widgetId);
+    const widgetHeaderComp = this._getWidgetHeaderComp(widgetId);
     if (widgetComponent) {
       widgetComponent.destroy();
+      (widgetHeaderComp) && (widgetHeaderComp.ngOnDestroy());
       this._getLayoutCompContainerByWidgetId(widgetId).remove();
     }
     this._widgetComps = this._widgetComps.filter(item => item.instance.getWidgetId() !== widgetId);
@@ -308,7 +311,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
       const nameAliasList: FieldNameAlias[] = boardInfo.aliases.filter(alias => alias['nameAlias']).map(item => <FieldNameAlias>item);
       const valueAliasList: FieldValueAlias[] = boardInfo.aliases.filter(alias => alias['valueAlias']).map(item => <FieldValueAlias>item);
 
-      let summary: { reorderDsList: Datasource[], totalFields: Field[] } = { reorderDsList: [], totalFields: [] };
+      let summary: { reorderDsList: Datasource[], totalFields: Field[] } = {reorderDsList: [], totalFields: []};
       if ('multi' === boardDs.type) {
         summary = boardDs.dataSources.reduce((acc, currVal) => {
           const singleSummary: { reorderDsList: Datasource[], totalFields: Field[] }
@@ -316,7 +319,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
           acc.reorderDsList = acc.reorderDsList.concat(singleSummary.reorderDsList);
           acc.totalFields = acc.totalFields.concat(singleSummary.totalFields);
           return acc;
-        }, { reorderDsList: [], totalFields: [] });
+        }, {reorderDsList: [], totalFields: []});
       } else {
         summary = this._setSingleDataSource(boardDs, boardInfo, nameAliasList, valueAliasList);
       }
@@ -348,7 +351,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
     let masterDsInfo: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(boardInfo, dataSource);
 
     if (isNullOrUndefined(masterDsInfo)) {
-      return { reorderDsList: [], totalFields: [] };
+      return {reorderDsList: [], totalFields: []};
     }
 
     // 설정에 있는 Datasource Mapping 정보에 connType, engineName 추가해줌 - MasterDatasource
@@ -386,7 +389,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         {
           const oneDepthDsInfo: Datasource = boardInfo.dataSources.find(dsItem => dsItem.id === joinItem.id);
           // 설정에 있는 Datasource Mapping 정보에 engineName 추가해줌 - OneDepthDatasource
-          joinItem = _.merge(joinItem, { engineName: oneDepthDsInfo.engineName });
+          joinItem = _.merge(joinItem, {engineName: oneDepthDsInfo.engineName});
           // 데이터소스 정렬
           reorderDsList.push(oneDepthDsInfo);
           // 제외 필드 선정
@@ -409,7 +412,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         if (joinItem.join) {
           const twoDepthDsInfo: Datasource = boardInfo.dataSources.find(dsItem => dsItem.id === joinItem.join.id);
           // 설정에 있는 Datasource Mapping 정보에 engineName 추가해줌 - TwoDepthDatasource
-          joinItem.join = _.merge(joinItem.join, { engineName: twoDepthDsInfo.engineName });
+          joinItem.join = _.merge(joinItem.join, {engineName: twoDepthDsInfo.engineName});
           // 데이터소스 정렬
           reorderDsList.push(twoDepthDsInfo);
           // 제외 필드 선정
@@ -626,7 +629,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
     if (widgetInfo) {
 
-      let $componentContainer = $('<div/>').css({ width: '100%', height: '100%' });
+      let $componentContainer = $('<div/>').css({width: '100%', height: '100%'});
       container.getElement().prepend($componentContainer);
       let widgetCompFactory = this.componentFactoryResolver.resolveComponentFactory(DashboardWidgetComponent);
       let widgetComp = this.appRef.bootstrap(widgetCompFactory, $componentContainer.get(0));
@@ -693,12 +696,12 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         } else if (0 < colItems.length) {
           colItems[0].addChild(newItemConfig);
         } else if (0 < stackItems.length) {
-          let newRowItem = rootItem.layoutManager.createContentItem({ type: 'row' }, rootItem);
+          let newRowItem = rootItem.layoutManager.createContentItem({type: 'row'}, rootItem);
           rootItem.replaceChild(stackItems[0], newRowItem);
           newRowItem.addChild(stackItems[0]);
           newRowItem.addChild(newItemConfig);
         } else {
-          rootItem.addChild({ type: 'row', content: [newItemConfig] });
+          rootItem.addChild({type: 'row', content: [newItemConfig]});
         }
       });
       this.updateLayoutSize();
@@ -770,7 +773,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
       // 신규 위젯 인스턴스 추가
       let $widgetContainer = this._getLayoutCompContainerByWidgetId(widgetInfo.id);
-      let $componentContainer = $('<div/>').css({ width: '100%', height: '100%' });
+      let $componentContainer = $('<div/>').css({width: '100%', height: '100%'});
       $widgetContainer.container.getElement().append($componentContainer);
       let widgetCompFactory = this.componentFactoryResolver.resolveComponentFactory(DashboardWidgetComponent);
       let widgetComp = this.appRef.bootstrap(widgetCompFactory, $componentContainer.get(0));
@@ -812,18 +815,18 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         // 레이아웃을 생성하는 경우
         this.changeDetect.detectChanges();
         if (!this.layoutContainer) {
-          this.hideBoardLoading();
+          this._updateLayoutFinished();
           return;
         }
         this._widgetComps = [];
         this._$layoutContainer = $(this.layoutContainer.nativeElement);
-        this._$layoutContainer.parent().css({ 'height': '', 'overflow': '' });    // remove height
+        this._$layoutContainer.parent().css({'height': '', 'overflow': ''});    // remove height
 
         if (BoardLayoutType.FIT_TO_HEIGHT === globalOptsLayout.layoutType) {
           if (this._$layoutContainer.parent().height() > globalOptsLayout.layoutHeight) {
-            this._$layoutContainer.parent().css({ 'height': globalOptsLayout.layoutHeight });
+            this._$layoutContainer.parent().css({'height': globalOptsLayout.layoutHeight});
           }
-          this._$layoutContainer.css({ 'height': globalOptsLayout.layoutHeight });
+          this._$layoutContainer.css({'height': globalOptsLayout.layoutHeight});
         } else {
           this._$layoutContainer.parent().css('overflow', 'hidden');
           objLayout.dimensions.height = '100%';
@@ -912,14 +915,10 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         let recommendFilters: Filter[] = [];
         // 추천필터 설정
         fields.forEach((field: Field) => {
-          if (field.filtering || FieldRole.TIMESTAMP === field.role) {
+          if (field.filtering) {
             let rcmdFilter: Filter = undefined;
             if (field.logicalType === LogicalType.TIMESTAMP) {
-              if (FieldRole.TIMESTAMP === field.role) {
-                rcmdFilter = FilterUtil.getTimeAllFilter(field, 'timestamp');
-              } else {
-                rcmdFilter = FilterUtil.getTimeAllFilter(field, 'recommended');
-              }
+              rcmdFilter = FilterUtil.getTimeAllFilter(field, 'recommended');
             } else {
               rcmdFilter = FilterUtil.getBasicInclusionFilter(field, 'recommended');
             }
@@ -928,7 +927,9 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
               // 대시보드 필터 설정 ( 기본 데이터와 저장된 정보와의 병합 ) - Start
               if (savedFilters && 0 < savedFilters.length) {
-                let savedIdx: number = savedFilters.findIndex((item: Filter) => item.field === field.name);
+                let savedIdx: number = savedFilters.findIndex((item: Filter) => {
+                  return item.field === field.name && item.dataSource === dsInfo.engineName;
+                });
                 if (-1 < savedIdx) {
                   const savedItem: Filter = savedFilters[savedIdx];
                   savedFilters.splice(savedIdx, 1);
@@ -942,15 +943,13 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
           }
         });
 
-        recommendFilters = _.orderBy(recommendFilters, 'filteringSeq', 'asc');
+        recommendFilters = _.orderBy(recommendFilters, (item) => (item.ui) ? item.ui.filteringSeq : '', 'asc');
         genFilters = genFilters.concat(recommendFilters);
       });
     }
     // 기본 필수/추천 필터 정보 설정 - End
 
-
     // 대시보드 필터 설정 ( 기본 데이터와 저장된 정보와의 병합 ) - Start
-
     if (savedFilters && 0 < savedFilters.length) {
 
       let totalFields: (Field | CustomField)[] = _.cloneDeep(boardConf.fields);
@@ -1119,7 +1118,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    * 저장을 위해 스크린에 맞는 형태로 사이즈를 조절한다
    */
   public resizeToFitScreenForSave() {
-    this._$layoutContainer.parent().css({ 'height': '', 'overflow': 'hidden' });    // remove height
+    this._$layoutContainer.parent().css({'height': '', 'overflow': 'hidden'});    // remove height
     this._$layoutContainer.width('100%').height('100%');
     this.updateLayoutSize();
   } // function - resizeToFitScreenForSave
@@ -1206,6 +1205,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    */
   public destroyDashboard() {
     if (this._widgetComps && 0 < this._widgetComps.length) {
+      this._widgetHeaderComps.forEach(item => item.destroy());
       this._widgetComps.forEach(item => item.destroy());
     }
     (this._layoutObj) && (this._layoutObj.destroy());
@@ -1220,7 +1220,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    */
   public initializeDashboard(boardInfo: Dashboard, mode: LayoutMode): Promise<Dashboard> {
 
-    return new Promise<any>((resolve, reject) => {
+    return new Promise<any>((resolve) => {
 
       // 대시보드에 데이터소스 설정
       let result: [Dashboard, Datasource] = this._setDatasourceForDashboard(boardInfo);
@@ -1228,6 +1228,18 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
       // Data migration
       {
+        // remove duplicate filters
+        let filters: Filter[] = boardInfo.configuration.filters;
+        if (filters) {
+          boardInfo.configuration.filters
+            = filters.reduce((acc: Filter[], curr: Filter) => {
+            if (!acc.some(item => item.dataSource === curr.dataSource && item.field === curr.field)) {
+              acc.push(curr);
+            }
+            return acc;
+          }, []);
+        }
+
         // Updating information about deleted dataSources
         const boardDataSource: BoardDataSource = boardInfo.configuration.dataSource;
         const dataSource: Datasource[] = boardInfo.dataSources;
@@ -1272,9 +1284,45 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
         const promises = [];
         if (boardInfo.configuration.filters) {
+          // remove current_time timestamp filter - S
+          boardInfo.configuration.filters
+            = boardInfo.configuration.filters.filter( (filter:Filter) => {
+            if( FilterUtil.isTimeFilter(filter) && (<TimeFilter>filter).clzField ) {
+              const filterField:Field = (<TimeFilter>filter).clzField;
+              if( FieldRole.TIMESTAMP === filterField.role && CommonConstant.COL_NAME_CURRENT_DATETIME === filterField.name ) {
+                const filterId: string = filter.dataSource + '_' + filter.field;
+                const filterWidgets: Widget[] = boardInfo.widgets.filter(widget => {
+                  if ('filter' === widget.type) {
+                    const filterInWidget: Filter = (<FilterWidgetConfiguration>widget.configuration).filter;
+                    return (filterInWidget.dataSource + '_' + filterInWidget.field === filterId);
+                  }
+                });
 
-          // Adjust filter widget information error
+                filterWidgets.forEach((item) => {
+                  promises.push(new Promise((res) => {
+                    this.widgetService.deleteWidget(item.id)
+                      .then(() => {
+                        console.info( '+=+=+=+=+=+=+=+=+=+=+=+=+=+=+= remove current_time filter' );
+                        boardInfo.widgets = boardInfo.widgets.filter(widgetItem => widgetItem.id !== item.id);
+                        res();
+                      });
+                  }));
+                });
+
+                return false;
+              } else {
+                return true;
+              }
+            } else {
+              return true;
+            }
+          });
+          // remove current_time timestamp filter - E
+
+          // Adjust filter widget information error - S
           boardInfo.configuration.filters.forEach((filter: Filter) => {
+
+            // add missing widget or remove duplicate widget
             const filterId: string = filter.dataSource + '_' + filter.field;
             const filterWidgets: Widget[] = boardInfo.widgets.filter(widget => {
               if ('filter' === widget.type) {
@@ -1293,10 +1341,10 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
                   });
               }));
             } else {
+              // 동일한 필드에 대해서 필터가 1개 이상일 경우에 삭제 등록
               filterWidgets.forEach((item, index) => {
                 if (0 < index) {
                   promises.push(new Promise((res) => {
-                    console.info('>>>>> remove widget', item.id);
                     this.widgetService.deleteWidget(item.id)
                       .then(() => {
                         boardInfo.widgets = boardInfo.widgets.filter(widgetItem => widgetItem.id !== item.id);
@@ -1307,6 +1355,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
               });
             }
           });
+          // Adjust filter widget information error - E
         } // end if - filters
 
         Promise.all(promises).then(() => {
@@ -1314,9 +1363,17 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
           boardInfo = this._convertSpecToUI(boardInfo);
           boardInfo = this._initWidgetsAndLayout(boardInfo, mode);
           resolve(boardInfo);
-        }).catch((error) => reject(error));
+        }).catch(() => {
+          boardInfo = this._convertSpecToUI(boardInfo);
+          boardInfo = this._initWidgetsAndLayout(boardInfo, mode);
+          resolve(boardInfo);
+        });
 
-      }).catch((error) => reject(error));
+      }).catch(() => {
+        boardInfo = this._convertSpecToUI(boardInfo);
+        boardInfo = this._initWidgetsAndLayout(boardInfo, mode);
+        resolve(boardInfo);
+      });
 
     });
 

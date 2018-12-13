@@ -82,7 +82,7 @@
       </div>
       <!-- right -->
       <div class=" ddp-fright">
-        <a href="javascript:" class="ddp-btn-bg" (click)="onClickConfigureSchema()"><em class="ddp-icon-option"></em>Configure schema</a>
+        <a href="javascript:" class="ddp-btn-bg" (click)="onClickConfigureSchema()"><em class="ddp-icon-option"></em>{{'msg.storage.ui.configure.schema' | translate}}</a>
       </div>
       <!-- //right -->
     </div>
@@ -99,10 +99,10 @@
             <thead>
             <tr>
               <th>{{'msg.metadata.th.physical.name' | translate}}
-                <a href="javascript:" class="ddp-link-filter" *ngIf="!isExistMetaData()" (click)="onClickEditFilters()">{{'msg.storage.ui.edit.filters' | translate}} ></a>
+                <a href="javascript:" class="ddp-link-filter" *ngIf="!isExistMetaData() && !isDisableEditFilter()" (click)="onClickEditFilters()">{{'msg.storage.ui.edit.filters' | translate}} ></a>
               </th>
               <th *ngIf="isExistMetaData()">{{'msg.metadata.th.name' | translate}}
-                <a href="javascript:" class="ddp-link-filter" (click)="onClickEditFilters()">{{'msg.storage.ui.edit.filters' | translate}} ></a>
+                <a href="javascript:" class="ddp-link-filter" (click)="onClickEditFilters()" *ngIf="!isDisableEditFilter()">{{'msg.storage.ui.edit.filters' | translate}} ></a>
               </th>
             </tr>
             </thead>
@@ -212,15 +212,15 @@
                   {{'msg.metadata.th.physical.type' | translate}}
                 </th>
                 <td>
-                  <span class="ddp-icon-type-txt" *ngIf="selectedField.role === 'TIMESTAMP'"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em> {{getColumnTypeLabel(selectedField.logicalType, physicalTypeList)}}</span>
+                  <span class="ddp-icon-type-txt" *ngIf="selectedField.role === 'TIMESTAMP' || isDerivedColumn(selectedField)"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em>{{getColumnTypeLabel(selectedField.logicalType, physicalTypeList)}}</span>
                   <!-- 클릭시 ddp-selected 추가 -->
                   <div class="ddp-hover-selectbox" [class.ddp-selected]="isShowPhysicalTypeFl"
-                       *ngIf="selectedField.role !== 'TIMESTAMP'"
+                       *ngIf="selectedField.role !== 'TIMESTAMP' && !isDerivedColumn(selectedField)"
                        (click)="isShowPhysicalTypeFl = !isShowPhysicalTypeFl" (clickOutside)="isShowPhysicalTypeFl = false">
                     <a href="javascript:" class="ddp-icon-type"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em> {{getColumnTypeLabel(selectedField.logicalType, physicalTypeList)}}</a>
                     <div class="ddp-wrap-popup2 ddp-types">
                       <ul class="ddp-list-popup">
-                        <li [class.ddp-selected]="" *ngFor="let physicalType of physicalTypeList">
+                        <li [class.ddp-selected]="" *ngFor="let physicalType of getEnableChangePhysicalTypeList()">
                           <a href="javascript:" (click)="onChangeFieldPhysicalType(selectedField, physicalType)">
                             <em class="{{getFieldTypeIconClass(physicalType.value)}}"></em>
                             {{physicalType.label}}
@@ -256,7 +256,7 @@
                   {{'msg.storage.ui.th.display.format' | translate}}
                 </th>
                 <td>
-                  {{selectedField.format}}
+                  {{selectedField.format ? selectedField.format.format : selectedField.format}}
                 </td>
               </tr>
               <tr>
@@ -348,170 +348,174 @@
           <!-- //col -->
         </div>
         <!-- //Metadata -->
-        <!-- statistic -->
-        <div class="ddp-ui-detail ddp-clear" *ngIf="!isLinkedTypeSource(datasource)">
-          <div class="ddp-ui-title2">
-            {{'msg.storage.ui.dsource.preview.statistic' | translate}}
-          </div>
-          <!-- col -->
-          <div class="ddp-col-6 ddp-border-none">
-            <table class="ddp-table-detail2">
-              <colgroup>
-                <col width="140px">
-                <col width="*">
-              </colgroup>
-              <tbody>
-              <tr>
-                <th>
-                  {{'msg.storage.ui.th.row.count' | translate}}
-                </th>
-                <td>
-                  {{getLabel('count')}}
-                </td>
-              </tr>
-              <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-                <th class="ddp-th-valid" >
-                  {{'msg.storage.ui.dsource.preview.valid' | translate}}
-                </th>
-                <td>
-                  {{getLabel('valid')}}
-                </td>
-              </tr>
-              <tr class="ddp-tr-sub" *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-                <th>
-                  {{'msg.storage.ui.dsource.preview.unique' | translate}}
-                </th>
-                <td>
-                  {{getLabel('unique')}}
-                </td>
-              </tr>
-              <tr class="ddp-tr-sub" *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-                <th>
-                  {{'msg.storage.ui.dsource.preview.outliers' | translate}} <em class="ddp-icon-error-s"></em>
-                </th>
-                <td>
-                  {{getLabel('outliers')}}
-                </td>
-              </tr>
-              <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-                <th class="ddp-th-missing">
-                  {{'msg.storage.ui.dsource.preview.missing' | translate}}
-                </th>
-                <td>
-                  {{getLabel('missing')}}
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-          <!-- //col -->
-          <!-- col -->
-          <div class="ddp-col-6" *ngIf="selectedField.role.toString() === 'MEASURE' || selectedField.logicalType.toString() === 'TIMESTAMP'">
-            <table class="ddp-table-detail2">
-              <colgroup>
-                <col width="140px">
-                <col width="*">
-              </colgroup>
-              <tbody>
-              <tr>
-                <th>
-                  {{'msg.storage.ui.dsource.preview.min' | translate}}
-                </th>
-                <td>
-                  {{getLabel('min')}}
-                </td>
-              </tr>
-              <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-                <th>
-                  {{'msg.storage.ui.dsource.preview.quartile.lower' | translate}}
-                </th>
-                <td>
-                  {{getLabel('lower')}}
-                </td>
-              </tr>
-              <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-                <th>
-                  {{'msg.storage.ui.dsource.preview.median' | translate}}
-                </th>
-                <td>
-                  {{getLabel('median')}}
-                </td>
-              </tr>
-              <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-                <th>
-                  {{'msg.storage.ui.dsource.preview.quartile.upper' | translate}}
-                </th>
-                <td>
-                  {{getLabel('upper')}}
-                </td>
-              </tr>
-              <tr>
-                <th>
-                  {{'msg.storage.ui.dsource.preview.max' | translate}}
-                </th>
-                <td>
-                  {{getLabel('max')}}
-                </td>
-              </tr>
-              <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-                <th>
-                  {{'msg.storage.ui.dsource.preview.avr' | translate}}
-                </th>
-                <td>
-                  {{getLabel('average')}}
-                </td>
-              </tr>
-              <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-                <th>
-                  {{'msg.storage.ui.dsource.preview.deviation' | translate}}
-                </th>
-                <td>
-                  {{getLabel('standard')}}
-                </td>
-              </tr>
-              <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-                <th>
-                  {{'msg.storage.ui.dsource.preview.skewness' | translate}}
-                </th>
-                <td>
-                  {{getLabel('skewness')}}
-                </td>
-              </tr>
-
-              </tbody>
-
-            </table>
-          </div>
-          <!-- //col -->
-        </div>
-        <!-- //statistic -->
-        <!-- value list -->
-        <div class="ddp-ui-detail ddp-clear " *ngIf="!isLinkedTypeSource(datasource) && selectedField.role === 'DIMENSION' && selectedField.logicalType.toString() !== 'TIMESTAMP'">
-          <!-- col -->
-          <div class="ddp-col-12">
-            <div class="ddp-ui-title">
-              {{'msg.storage.ui.dsource.preview.value.li' | translate}}
+        <!-- not LINKED source -->
+        <ng-container *ngIf="!isLinkedTypeSource(datasource) && !isGeoType(selectedField)">
+          <!-- statistic -->
+          <div class="ddp-ui-detail ddp-clear">
+            <div class="ddp-ui-title2">
+              {{'msg.storage.ui.dsource.preview.statistic' | translate}}
             </div>
-            <table class="ddp-table-detail2">
-              <colgroup>
-                <col width="175px">
-                <col width="*">
-              </colgroup>
-              <tbody>
-              <tr *ngFor="let item of getValueList()">
-                <th>
-                  {{item.value}}
-                </th>
-                <td>
-                  {{item.count}}
-                </td>
-              </tr>
-              </tbody>
-            </table>
+            <!-- col -->
+            <div class="ddp-col-6 ddp-border-none">
+              <table class="ddp-table-detail2">
+                <colgroup>
+                  <col width="140px">
+                  <col width="*">
+                </colgroup>
+                <tbody>
+                <tr>
+                  <th>
+                    {{'msg.storage.ui.th.row.count' | translate}}
+                  </th>
+                  <td>
+                    {{getLabel('count')}}
+                  </td>
+                </tr>
+                <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                  <th class="ddp-th-valid" >
+                    {{'msg.storage.ui.dsource.preview.valid' | translate}}
+                  </th>
+                  <td>
+                    {{getLabel('valid')}}
+                  </td>
+                </tr>
+                <tr class="ddp-tr-sub" *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                  <th>
+                    {{'msg.storage.ui.dsource.preview.unique' | translate}}
+                  </th>
+                  <td>
+                    {{getLabel('unique')}}
+                  </td>
+                </tr>
+                <tr class="ddp-tr-sub" *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                  <th>
+                    {{'msg.storage.ui.dsource.preview.outliers' | translate}} <em class="ddp-icon-error-s"></em>
+                  </th>
+                  <td>
+                    {{getLabel('outliers')}}
+                  </td>
+                </tr>
+                <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                  <th class="ddp-th-missing">
+                    {{'msg.storage.ui.dsource.preview.missing' | translate}}
+                  </th>
+                  <td>
+                    {{getLabel('missing')}}
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- //col -->
+            <!-- col -->
+            <div class="ddp-col-6" *ngIf="selectedField.role.toString() === 'MEASURE' || selectedField.logicalType.toString() === 'TIMESTAMP'">
+              <table class="ddp-table-detail2">
+                <colgroup>
+                  <col width="140px">
+                  <col width="*">
+                </colgroup>
+                <tbody>
+                <tr>
+                  <th>
+                    {{'msg.storage.ui.dsource.preview.min' | translate}}
+                  </th>
+                  <td>
+                    {{getLabel('min')}}
+                  </td>
+                </tr>
+                <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                  <th>
+                    {{'msg.storage.ui.dsource.preview.quartile.lower' | translate}}
+                  </th>
+                  <td>
+                    {{getLabel('lower')}}
+                  </td>
+                </tr>
+                <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                  <th>
+                    {{'msg.storage.ui.dsource.preview.median' | translate}}
+                  </th>
+                  <td>
+                    {{getLabel('median')}}
+                  </td>
+                </tr>
+                <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                  <th>
+                    {{'msg.storage.ui.dsource.preview.quartile.upper' | translate}}
+                  </th>
+                  <td>
+                    {{getLabel('upper')}}
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    {{'msg.storage.ui.dsource.preview.max' | translate}}
+                  </th>
+                  <td>
+                    {{getLabel('max')}}
+                  </td>
+                </tr>
+                <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                  <th>
+                    {{'msg.storage.ui.dsource.preview.avr' | translate}}
+                  </th>
+                  <td>
+                    {{getLabel('average')}}
+                  </td>
+                </tr>
+                <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                  <th>
+                    {{'msg.storage.ui.dsource.preview.deviation' | translate}}
+                  </th>
+                  <td>
+                    {{getLabel('standard')}}
+                  </td>
+                </tr>
+                <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                  <th>
+                    {{'msg.storage.ui.dsource.preview.skewness' | translate}}
+                  </th>
+                  <td>
+                    {{getLabel('skewness')}}
+                  </td>
+                </tr>
+
+                </tbody>
+
+              </table>
+            </div>
+            <!-- //col -->
           </div>
-          <!-- //col -->
-        </div>
-        <!-- //value list -->
+          <!-- //statistic -->
+          <!-- value list -->
+          <div class="ddp-ui-detail ddp-clear " *ngIf="selectedField.role === 'DIMENSION' && selectedField.logicalType.toString() !== 'TIMESTAMP'">
+            <!-- col -->
+            <div class="ddp-col-12">
+              <div class="ddp-ui-title">
+                {{'msg.storage.ui.dsource.preview.value.li' | translate}}
+              </div>
+              <table class="ddp-table-detail2">
+                <colgroup>
+                  <col width="175px">
+                  <col width="*">
+                </colgroup>
+                <tbody>
+                <tr *ngFor="let item of getValueList()">
+                  <th>
+                    {{item.value}}
+                  </th>
+                  <td>
+                    {{item.count}}
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- //col -->
+          </div>
+          <!-- //value list -->
+        </ng-container>
+        <!-- //not LINKED source -->
         <!-- table detail -->
         <div class="ddp-wrap-table-detail" [style.display]="!isLinkedTypeSource(datasource) && (selectedField.role === 'MEASURE' || selectedField.logicalType.toString() === 'TIMESTAMP') ? 'block' : 'none'">
           <!-- histogram -->

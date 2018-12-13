@@ -14,7 +14,8 @@
 
 import { AfterViewInit, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractComponent } from '../../../../../../common/component/abstract.component';
-import { Field, Rule } from '../../../../../../domain/data-preparation/dataset';
+//import { Field, Rule } from '../../../../../../domain/data-preparation/dataset';
+import { Field, Rule } from '../../../../../../domain/data-preparation/pr-dataset';
 import { isNullOrUndefined } from 'util';
 
 export abstract class EditRuleComponent extends AbstractComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -37,7 +38,10 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
 
   public fields : Field[];
   public selectedFields: Field[] = [];
-  public forceCondition : string = '';
+  public forceFormula : string = '';
+
+  public forceCondition: string = '';
+
   @Output()
   public onEvent:EventEmitter<any> = new EventEmitter();
 
@@ -80,17 +84,18 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public init(fields : Field[], selectedFields:Field[], ruleString?:string) {
+  public init(fields : Field[], selectedFields:Field[], data? : {ruleString:string, jsonRuleString : any}) {
     this.fields = fields;
     this.selectedFields = selectedFields;
-    if( !isNullOrUndefined( ruleString ) ) {
-      ruleString = ruleString.replace( /,\s*/g, ',' );  // 각 속성별 값을 얻기 위해서 미리 Comma 사이의 공백을 제거함
-      this.parsingRuleString(ruleString);
+    if( !isNullOrUndefined( data ) ) {
+      this.parsingRuleString(data);
     }
 
     this.beforeShowComp();
 
     this.isShow = true;
+
+    this.safelyDetectChanges();
 
     this.afterShowComp();
 
@@ -156,7 +161,7 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
    * @param ruleString
    * @protected
    */
-  protected abstract parsingRuleString(ruleString:string);
+  protected abstract parsingRuleString(ruleString:any);
 
   /**
    * rule String 내 특정 속성에 대한 값을 얻는다.

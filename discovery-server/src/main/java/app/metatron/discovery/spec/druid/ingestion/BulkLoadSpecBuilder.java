@@ -30,6 +30,8 @@ public class BulkLoadSpecBuilder extends AbstractSpecBuilder {
 
   Map<String, Object> tuningConfig;
 
+  Map<String, Object> properties;
+
   public BulkLoadSpecBuilder(DataSource dataSource) {
     setDataSchema(dataSource);
   }
@@ -55,12 +57,18 @@ public class BulkLoadSpecBuilder extends AbstractSpecBuilder {
     return this;
   }
 
+  public BulkLoadSpecBuilder properties(Map<String, Object> properties) {
+    this.properties = properties;
+    return this;
+  }
+
   public BulkLoadSpec build() {
     BulkLoadSpec spec = new BulkLoadSpec();
     spec.setSchema(dataSchema);
     spec.setBasePath(basePath);
     spec.setPaths(paths);
     spec.setTuningConfig(tuningConfig);
+    spec.setProperties(properties);
 
     return spec;
   }

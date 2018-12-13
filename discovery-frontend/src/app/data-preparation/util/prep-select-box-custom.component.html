@@ -1,0 +1,39 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-selectbox"
+     [ngClass]="{'ddp-selected' : isShowSelectList, 'ddp-full' : isFull }"
+     (click)="toggleSelectList()"
+     (keydown)="comboKeyEvent($event)">
+  <input #inputSearchText
+         [(ngModel)]="searchText"
+         placeholder="Search"
+         class="ddp-input-selectbox" *ngIf="isSearchAllowed" (keyup)="changeSearchText($event)">
+  <span class="ddp-txt-selectbox" *ngIf="searchText == null || searchText == ''">{{unselectedMessage}}</span>
+  <span class="ddp-txt-selectbox" *ngIf="searchText !== null && searchText !== ''">{{searchText}}</span>
+  <ul id="selecterUl"
+      class="ddp-list-selectbox" style="display: none"
+      #sourceFieldCombo>
+    <li *ngFor="let item of filteredList"
+        (mouseover)="hoverSourceItem($event)"
+        (mouseout)="houtSourceItem($event)"
+        (click)="$event.stopImmediatePropagation(); onSelect(item);">
+      <a href="javascript:">{{isStringArray ? item : item[viewKey]}}</a>
+    </li>
+    <li *ngIf="filteredList === undefined || filteredList === null || filteredList.length === 0">
+      <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
+    </li>
+  </ul>
+</div>
+<!-- //Drop down -->

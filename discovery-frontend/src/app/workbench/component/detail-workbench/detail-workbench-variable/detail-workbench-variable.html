@@ -12,80 +12,188 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-ui-rnb-contents ddp-type" >
+<div class="ddp-ui-rnb-contents ddp-type">
   <div class="ddp-ui-title">
-    {{'msg.bench.ui.global.variable'|translate}}<span class="ddp-data-num" *ngIf="variableList.length > 0">{{variableList.length}}</span>
-  </div>
-  <div class="ddp-ui-var-plus">
-    <!-- selec box -->
-    <!-- 클릭시 ddp-selected 추가 -->
-    <div class="ddp-type-selectbox" [ngClass]="{'ddp-selected' : isShowSelectList}" (click)="toggleSelectedFilter()" (clickOutside)="isShowSelectList = false">
-      <span class="ddp-txt-selectbox ddp-type">
-          <em class="{{getGlobalVariabledIcon(selectedType.key)}}"></em> {{selectedType.name}}
-      </span>
-      <div class="ddp-wrap-popup2 ddp-types">
-        <ul class="ddp-list-popup">
-          <li (click)="onSelectedFilter(selectedData[0])">
-            <a href="javascript:">
-              <em class="ddp-icon-type-calen3"></em>
-              {{selectedData[0].name}}
-            </a>
-          </li>
-          <li (click)="onSelectedFilter(selectedData[1])">
-            <a href="javascript:">
-              <em class="ddp-icon-type-text"></em>
-              {{selectedData[1].name}}
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-    <!-- //select box -->
-    <a href="javascript:" class="ddp-link-var-add"
-       [ngClass]="{'ddp-disabled' : !isGlobalVariableAddEnable}"
-       (click)="addVariable()">
-      <em class="ddp-box-plus"></em>
-      {{'msg.bench.ui.add.variable'|translate}}
-    </a>
+    {{'msg.bench.ui.global.variable'|translate}}<span class="ddp-data-num">({{variableList.length}})</span>
   </div>
 
   <div class="ddp-ui-form-list">
-    <!-- form -->
-    <div class="ddp-form-multy2 ddp-type ddp-clear" *ngFor="let item of variableList; let idx = index">
-      <em class="ddp-icon-type-calen3" *ngIf="item.globalType === 'c'"></em>
-      <em class="ddp-icon-type-text" *ngIf="item.globalType === 't'"></em>
-      <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.bench.ui.input.variable.name'|translate}}"  [(ngModel)]="item.globalNm">
-      <input type="text" class="ddp-input-typebasic ddp-value" placeholder="{{'msg.bench.ui.input.val'|translate}}" [(ngModel)]="item.globalVar" maxlength="20" *ngIf="item.globalType === 't'">
-      <component-date *ngIf="item.globalType === 'c'"
-        [date]="item.globalVar"
-        [placeholder]="'msg.bench.ui.input.date'|translate"
-        (onDateChange)="item.globalVar = $event">
-      </component-date>
-      <div class="ddp-ui-buttons">
-        <!-- button -->
-        <div class="ddp-btn-control" (click)="addVariableEditor(item)">
-          <em class="ddp-icon-control-edit"></em>
-          <!-- 툴팁 -->
-          <div class="ddp-ui-tooltip-info">
-            <em class="ddp-icon-view-top"></em>
-            {{'msg.bench.btn.insert.variable'|translate}}
+    <div class="ddp-ui-var-plus">
+      <!-- add panel -->
+      <div class="ddp-wrap-addview" [class.ddp-selected]="addVariableObject.editMode">
+        <a href="javascript:" class="ddp-btn-add" (click)="onClickShowHideAddGlobalVariable()"></a>
+        <div class="ddp-ui-addview" *ngIf="addVariableObject.editMode">
+          <div class="ddp-box-addview">
+            <table class="ddp-list-addview">
+              <colgroup>
+                <col width="46px">
+                <col width="*">
+              </colgroup>
+              <tbody>
+              <tr>
+                <th>{{'msg.bench.ui.type' | translate}}</th>
+                <td>
+                  <!-- select box -->
+                  <!-- 클릭시 ddp-selected 추가 -->
+                  <div class="ddp-type-selectbox ddp-type ddp-txt-type" [class.ddp-selected]="isShowSelectList"
+                       (click)="isShowSelectList = !isShowSelectList" (clickOutside)="isShowSelectList = false">
+                  <span class="ddp-txt-selectbox ">
+                      <em class="{{getGlobalVariableIcon(selectedType.key)}}"></em> {{selectedType.value}}
+                  </span>
+                    <div class="ddp-wrap-popup2 ddp-types">
+                      <ul class="ddp-list-popup">
+                        <li *ngFor="let type of typeList">
+                          <a href="javascript:" (click)="onChangeVariableType(type)">
+                            <em class="{{getGlobalVariableIcon(type.key)}}"></em>
+                            {{type.value}}
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <!-- //select box -->
+                </td>
+              </tr>
+              <tr>
+                <th>{{'msg.bench.ui.name' | translate}}</th>
+                <td>
+                  <input type="text" class="ddp-input-typebasic ddp-value" placeholder="{{'msg.bench.ui.input.variable.name' | translate}}"
+                         [(ngModel)]="addVariableObject.globalNm" (ngModelChange)="initErrorInVariable(addVariableObject, 'name')">
+                  <span class="ddp-data-error" *ngIf="addVariableObject.isNameError"> {{addVariableObject.nameErrorMessage}}</span>
+                </td>
+              </tr>
+              <tr>
+                <th>{{'msg.bench.ui.value' | translate}}</th>
+                <td>
+                  <input type="text" class="ddp-input-typebasic ddp-value" placeholder="{{'msg.bench.ui.input.val' | translate}}" *ngIf="selectedType.key === 't'" maxlength="20"
+                         [(ngModel)]="addVariableObject.globalVar" (ngModelChange)="initErrorInVariable(addVariableObject, 'value')">
+                  <component-date *ngIf="selectedType.key === 'c'"
+                                  [date]="addVariableObject.globalVar"
+                                  [isReadOnly]="true"
+                                  [placeholder]="'msg.bench.ui.input.date'|translate"
+                                  (onDateChange)="onChangedDateValue($event, addVariableObject)">
+                  </component-date>
+                  <span class="ddp-data-error" *ngIf="addVariableObject.isValueError"> {{addVariableObject.valueErrorMessage}}</span>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            <div class="ddp-box-buttons">
+              <a href="javascript:" class="ddp-btn-pop" (click)="onClickCloseEditSelectedVariable(addVariableObject)">{{'msg.comm.btn.cancl' | translate}}</a>
+              <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="onClickAddVariable()">{{'msg.comm.btn.add' | translate}}</a>
+            </div>
           </div>
-          <!-- //툴팁 -->
         </div>
-        <!-- //button -->
-
-        <!-- button -->
-        <div class="ddp-btn-control" (click)="deleteVariableRow(item)">
-          <em class="ddp-icon-control-close"></em>
-          <!-- 툴팁 -->
-          <div class="ddp-ui-tooltip-info">
-            <em class="ddp-icon-view-top"></em>
-            {{'msg.bench.btn.del.variable'|translate}}
-          </div>
-          <!-- //툴팁 -->
-        </div>
-        <!-- //button -->
       </div>
+      <!-- //add panel -->
+      <!-- variable list -->
+      <div class="ddp-list-form-plus">
+        <div class="ddp-wrap-link-list" *ngFor="let variable of variableList" [class.ddp-edit]="variable.editMode">
+          <!-- form -->
+          <div class="ddp-form-multy2 ddp-type ddp-clear" [class.ddp-padr0]="variable.editMode">
+            <em class="{{getGlobalVariableIcon(variable.globalType)}}"></em>
+            <!-- name -->
+            <div class="ddp-box-typebasic">
+              <input type="text" class="ddp-input-typebasic" [class.ddp-readonly]="!variable.editMode" value="{{variable.globalNm}}" placeholder="{{'msg.bench.ui.input.variable.name' | translate}}" title="{{variable.globalNm}}"
+                     [readOnly]="!variable.editMode" [(ngModel)]="variable.globalNm" (ngModelChange)="initErrorInVariable(variable, 'name')">
+              <span class="ddp-data-error" *ngIf="variable.isNameError"> {{variable.nameErrorMessage}}</span>
+            </div>
+            <!-- //name -->
+            <!-- value -->
+            <div class="ddp-box-typebasic ddp-value">
+              <input type="text" class="ddp-input-typebasic ddp-value" [class.ddp-readonly]="!variable.editMode" value="{{variable.globalVar}}" placeholder="{{'msg.bench.ui.input.val' | translate}}" maxlength="20" title="{{variable.globalVar}}"
+                     *ngIf="variable.globalType === 't' || (!variable.editMode && variable.globalType === 'c')" [readOnly]="!variable.editMode" [(ngModel)]="variable.globalVar" (ngModelChange)="initErrorInVariable(variable, 'value')" >
+              <component-date *ngIf="variable.editMode && variable.globalType === 'c'"
+                              [date]="variable.globalVar"
+                              [isReadOnly]="true"
+                              [placeholder]="'msg.bench.ui.input.date'|translate"
+                              (onDateChange)="onChangedDateValue($event, variable)">
+              </component-date>
+              <span class="ddp-data-error" *ngIf="variable.isValueError"> {{variable.valueErrorMessage}}</span>
+            </div>
+            <!-- //value -->
+            <div class="ddp-ui-buttons" *ngIf="!variable.editMode">
+              <!-- button -->
+              <div class="ddp-btn-control">
+                <em class="ddp-icon-control-insert" (click)="onClickInsertSelectedVariableInEditor(variable)"></em>
+                <!-- 툴팁 -->
+                <div class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-top"></em>
+                  {{'msg.bench.btn.insert.variable' | translate}}
+                </div>
+                <!-- //툴팁 -->
+              </div>
+              <!-- //button -->
+              <!-- button -->
+              <!-- 클릭시 ddp-selected 추가 -->
+              <div class="ddp-btn-control" [class.ddp-selected]="variable.isShowMore" (clickOutside)="variable.isShowMore = false">
+                <em class="ddp-icon-control-more2" (click)="variable.isShowMore = !variable.isShowMore"></em>
+                <!-- 툴팁 -->
+                <div class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-top"></em>
+                  {{'msg.comm.ui.more' | translate}}
+                </div>
+                <!-- //툴팁 -->
+                <!-- popup -->
+                <div class="ddp-wrap-popup2 ddp-types">
+                  <ul class="ddp-list-popup">
+                    <li>
+                      <a href="javascript:" (click)="onClickShowEditSelectedVariable(variable)">
+                        <em class="ddp-icon-drop-editmodify"></em>
+                        {{'msg.comm.btn.edit' | translate}}
+                      </a>
+                    </li>
+                    <li>
+                      <a href="javascript:" (click)="onClickRemoveSelectedVariable(variable)">
+                        <em class="ddp-icon-drop-editdel3"></em>
+                        {{'msg.comm.ui.del' | translate}}
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <!-- //popup -->
+              </div>
+              <!-- //button -->
+            </div>
+          </div>
+          <!-- //form -->
+          <!-- button -->
+          <div class="ddp-link-buttons" *ngIf="variable.editMode">
+            <a href="javascript:" class="ddp-btn-pop" (click)="onClickCloseEditSelectedVariable(variable)">{{'msg.comm.btn.cancl' | translate}}</a>
+            <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="onClickSaveSelectedVariable(variable)">{{'msg.comm.btn.done2' | translate}}</a>
+          </div>
+          <!-- //button -->
+        </div>
+      </div>
+      <!-- if empty list and hide add panel -->
+      <div class="ddp-list-blank" *ngIf="variableList.length === 0 && !addVariableObject.editMode">
+        <em class="ddp-icon-blank-plus"></em>{{'msg.bench.ui.global.variable.add.desc' | translate}}<em class="ddp-icon-blank-point"></em>
+      </div>
+      <!-- //if empty list and hide add panel -->
+      <!-- //variable list -->
+    </div>
+
+  </div>
+</div>
+
+<!-- modal -->
+<div class="ddp-wrap-layout-popup type-small" *ngIf="isConfirmPopup">
+  <div class="ddp-table-cell">
+
+    <div class="ddp-box-popup ">
+      <div class="ddp-popup-text">
+        <!-- title -->
+        <div class="ddp-pop-title">{{'msg.bench.alert.global.variable.delete' | translate}}</div>
+        <!-- //title -->
+      </div>
+      <!-- button -->
+      <div class="ddp-ui-buttons">
+        <a href="javascript:" class="ddp-btn-type-popup" (click)="isConfirmPopup = false">{{'msg.comm.btn.cancl' | translate}}</a>
+        <!-- disabled 시 ddp-disabled 추가 -->
+        <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " (click)="removeSelectedVariable()">{{'msg.comm.btn.del' | translate}}</a>
+      </div>
+      <!-- //button -->
     </div>
   </div>
 </div>
+<!-- // modal -->

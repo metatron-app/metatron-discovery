@@ -14,16 +14,16 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.domain.workspace.Workspace;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
-import app.metatron.discovery.domain.workspace.Workspace;
+import java.util.List;
 
 public class DataSourcePredicate {
 
@@ -107,7 +107,7 @@ public class DataSourcePredicate {
     BooleanExpression published = dataSource.id
         .in(JPAExpressions.select(dataSource.id)
                           .from(dataSource)
-                          .where(dataSource.published.eq(true)));
+                          .where(dataSource.published.eq(true), dataSource.status.eq(DataSource.Status.ENABLED)));
 
     BooleanBuilder builder = new BooleanBuilder();
 
@@ -118,7 +118,7 @@ public class DataSourcePredicate {
           .in(JPAExpressions.select(dataSource.id)
                             .from(dataSource)
                             .innerJoin(dataSource.workspaces)
-                            .where(dataSource.workspaces.any().eq(workspace)));
+                            .where(dataSource.workspaces.any().eq(workspace), dataSource.status.eq(DataSource.Status.ENABLED)));
       builder.andAnyOf(workspaceContains, published);
     }
 
@@ -135,6 +135,121 @@ public class DataSourcePredicate {
     // Datasource 명 검색
     if (StringUtils.isNotEmpty(nameContains)) {
       builder.and(dataSource.name.containsIgnoreCase(nameContains));
+    }
+
+    return builder;
+  }
+
+  public static Predicate searchList(List<DataSource.Status> statuses,
+                                     List<String> workspaces,
+                                     List<String> createdBys,
+                                     DateTime createdTimeFrom,
+                                     DateTime createdTimeTo,
+                                     DateTime modifiedTimeFrom,
+                                     DateTime modifiedTimeTo,
+                                     String containsText,
+                                     List<DataSource.DataSourceType> dataSourceTypes,
+                                     List<DataSource.SourceType> sourceTypes,
+                                     List<DataSource.ConnectionType> connectionTypes,
+                                     List<Boolean> published){
+    BooleanBuilder builder = new BooleanBuilder();
+    QDataSource dataSource = QDataSource.dataSource;
+
+    //Status
+    if(statuses != null && !statuses.isEmpty()){
+      BooleanBuilder subBuilder = new BooleanBuilder();
+      for(DataSource.Status status : statuses){
+        subBuilder = subBuilder.or(dataSource.status.eq(status));
+      }
+      builder = builder.and(subBuilder);
+    }
+
+    //DataSourceType
+    if(dataSourceTypes != null && !dataSourceTypes.isEmpty()){
+      BooleanBuilder subBuilder = new BooleanBuilder();
+      for(DataSource.DataSourceType dataSourceType : dataSourceTypes){
+        subBuilder = subBuilder.or(dataSource.dsType.eq(dataSourceType));
+      }
+      builder = builder.and(subBuilder);
+    } else {
+      builder = builder.and(dataSource.dsType.ne(DataSource.DataSourceType.VOLATILITY));
+    }
+
+    //SourceType
+    if(sourceTypes != null && !sourceTypes.isEmpty()){
+      BooleanBuilder subBuilder = new BooleanBuilder();
+      for(DataSource.SourceType sourceType : sourceTypes){
+        subBuilder = subBuilder.or(dataSource.srcType.eq(sourceType));
+      }
+      builder = builder.and(subBuilder);
+    }
+
+    //ConnectionType
+    if(connectionTypes != null && !connectionTypes.isEmpty()){
+      BooleanBuilder subBuilder = new BooleanBuilder();
+      for(DataSource.ConnectionType connectionType : connectionTypes){
+        subBuilder = subBuilder.or(dataSource.connType.eq(connectionType));
+      }
+      builder = builder.and(subBuilder);
+    }
+
+    //CreatedBy
+    if(createdBys != null && !createdBys.isEmpty()){
+      BooleanBuilder subBuilder = new BooleanBuilder();
+      for(String createdBy : createdBys){
+        subBuilder = subBuilder.or(dataSource.createdBy.eq(createdBy));
+      }
+      builder = builder.and(subBuilder);
+    }
+
+    //containsText
+    if(StringUtils.isNotEmpty(containsText)){
+      builder = builder.andAnyOf(dataSource.name.containsIgnoreCase(containsText),
+              dataSource.description.containsIgnoreCase(containsText));
+    }
+
+    //createdTime
+    if(createdTimeFrom != null && createdTimeTo != null) {
+      builder = builder.and(dataSource.createdTime.between(createdTimeFrom, createdTimeTo));
+    } else if(createdTimeFrom != null){
+      builder = builder.and(dataSource.createdTime.goe(createdTimeFrom));
+    } else if(createdTimeTo != null){
+      builder = builder.and(dataSource.createdTime.loe(createdTimeTo));
+    }
+
+    //modifiedTime
+    if(modifiedTimeFrom != null && modifiedTimeTo != null) {
+      builder = builder.and(dataSource.modifiedTime.between(modifiedTimeFrom, modifiedTimeTo));
+    } else if(modifiedTimeFrom != null){
+      builder = builder.and(dataSource.modifiedTime.goe(modifiedTimeFrom));
+    } else if(modifiedTimeTo != null){
+      builder = builder.and(dataSource.modifiedTime.loe(modifiedTimeTo));
+    }
+
+    //published
+    if(published != null && !published.isEmpty() && workspaces != null && !workspaces.isEmpty()){
+      BooleanBuilder subBuilder = new BooleanBuilder();
+      for(Boolean publishedBoolean : published){
+        subBuilder = subBuilder.or(dataSource.published.eq(publishedBoolean));
+      }
+      subBuilder = subBuilder.or(dataSource.id.in(JPAExpressions.select(dataSource.id)
+                      .from(dataSource)
+                      .innerJoin(dataSource.workspaces)
+                      .where(dataSource.workspaces.any().id.in(workspaces))));
+      builder.and(subBuilder);
+    } else if(published != null && !published.isEmpty()){
+      BooleanBuilder subBuilder = new BooleanBuilder();
+      for(Boolean publishedBoolean : published){
+        subBuilder = subBuilder.or(dataSource.published.eq(publishedBoolean));
+      }
+      builder.and(subBuilder);
+    } else if(workspaces != null && !workspaces.isEmpty()){
+      BooleanExpression workspaceContains = dataSource.id
+              .in(JPAExpressions.select(dataSource.id)
+                      .from(dataSource)
+                      .innerJoin(dataSource.workspaces)
+                      .where(dataSource.workspaces.any().id.in(workspaces)));
+      builder.and(workspaceContains);
     }
 
     return builder;

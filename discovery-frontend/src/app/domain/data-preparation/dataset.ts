@@ -12,8 +12,10 @@
  * limitations under the License.
  */
 
+/*
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
 import { Dataflow } from './dataflow';
+import {header} from "../../common/component/grid/grid.header";
 
 export class Dataset extends AbstractHistoryEntity {
 
@@ -68,6 +70,8 @@ export class Dataset extends AbstractHistoryEntity {
   public joinButtonText: string;
   public ruleNo: string;
 
+  // add api modify
+  public connectionInfo: any;
 }
 
 export class Datasets {
@@ -95,9 +99,15 @@ export enum ImportType {
   HIVE = <any>'HIVE'
 }
 
+export enum FileType {
+  LOCAL = <any>'LOCAL',
+  HDFS = <any>'HDFS'
+}
+
 export class Field {
   public name: string;
   public type: string;
+  public uuid? : string;
   public logicalType? : string;
   public isHover? : boolean;
   public seq? : number;
@@ -106,6 +116,7 @@ export class Field {
 
 // add KJ
 export class DatasetFile extends Dataset {
+  public fileType: FileType;
   public filename: string;
   public filepath: string;
   public filekey: string;
@@ -121,23 +132,34 @@ export class DatasetFile extends Dataset {
 }
 
 export class DatasetHive extends Dataset {
-  public queryStmt: string;
-  public tableName: string;
-  public databaseName: string;
   public rsType: RsType;
   public dsName: string;
   public dsDesc: string;
+
+  public sqlInfo? : QueryInfo;
+  public tableInfo? : TableInfo;
+
+  public tableName? : string;
+  public databaseName? : string;
+  public queryStmt?: string;
+
+  public dataconnection?: any;
 }
 
 export class DatasetJdbc extends Dataset {
-  public dcId: string;
-  public queryStmt: string;
-  public tableName: string;
-  public databaseName: string;
+
   public rsType: RsType;
   public dsName: string;
   public dsDesc: string;
 
+  public queryStmt?: string;
+  public tableName?: string;
+  public databaseName?: string;
+
+  public sqlInfo? : QueryInfo;
+  public tableInfo? : TableInfo;
+
+  public dcId?: string;
   public dataconnection: any;
 }
 
@@ -168,13 +190,34 @@ export class Rule {
   // ui에서만 사용
   public cols: string[] = [];
   public groups: string[] = [];
-  public patternType: string = 'string';
-  public quoteType: string = 'none';
-  public beforeOrAfter: string = 'before';
-  public colForMove: string = '';
   public where : string;
   public pattern : string = '';
 
   public isEditMode: boolean;
   public isInsertStep: boolean;
 }
+
+export class QueryInfo {
+  public headers: header[];
+  public rows: any[];
+  public queryStmt: string;
+  public valid?: boolean;
+}
+
+export class TableInfo {
+  public headers: header[];
+  public rows: any[];
+  public databaseName: string;
+  public tableName: string;
+
+}
+
+export class SelectedInfo {
+  public headers : header[];
+  public rows : any[];
+  public database? : string;
+  public table? : string;
+  public query? : string;
+}
+
+*/

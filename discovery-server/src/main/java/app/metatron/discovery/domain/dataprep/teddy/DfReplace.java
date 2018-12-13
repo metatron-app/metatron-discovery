@@ -163,54 +163,68 @@ public class DfReplace extends DataFrame {
     if(quoteStr == null) {
       for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
         Row row = prevDf.rows.get(rowno);
-        for (String targetColName : targetColNames) {
-          String targetStr = (String) row.get(targetColName);
-          if (targetStr == null || !checkCondition(replacedConditionExprs.get(targetColName), row)) {
-            continue;
-          }
-          Matcher matcher = pattern.matcher(targetStr);
-          if (matcher.find()) {
-            if (globalReplace) {
-              row.set(targetColName, matcher.replaceAll(((Expr) withExpr).eval(row).stringValue()));
+        Row newRow = new Row();
+        for (int colno = 0; colno < getColCnt(); colno++) {
+          String columnName = getColName(colno);
+          if (targetColNames.contains(columnName) && row.get(colno)!=null && checkCondition(replacedConditionExprs.get(columnName), row)) {
+            String targetStr = (String) row.get(colno);
+            Matcher matcher = pattern.matcher(targetStr);
+            if (matcher.find()) {
+              if (globalReplace) {
+                newRow.add(columnName, matcher.replaceAll(((Expr) withExpr).eval(row).stringValue()));
+              } else {
+                newRow.add(columnName, matcher.replaceFirst(((Expr) withExpr).eval(row).stringValue()));
+              }
             } else {
-              row.set(targetColName, matcher.replaceFirst(((Expr) withExpr).eval(row).stringValue()));
+              newRow.add(columnName, row.get(colno));
             }
+          } else {
+            newRow.add(columnName, row.get(colno));
           }
         }
-        rows.add(row);
+        rows.add(newRow);
       }
     } else { //quote 문자가 있을 경우의 처리(정규식으로 quote를 처리해야 해서 Pattern.compile 사용 불가)
       for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {
         Row row = prevDf.rows.get(rowno);
-        for (String targetColName : targetColNames) {
-          String targetStr = (String) row.get(targetColName);
-          if (targetStr == null || !checkCondition(replacedConditionExprs.get(targetColName), row)) {
-            continue;
-          }
-          if(StringUtils.countMatches(targetStr, originalQuoteStr)%2 == 0){
-            Matcher matcher = pattern.matcher(targetStr);
-            if (matcher.find()) {
-              if (globalReplace) {
-                row.set(targetColName, matcher.replaceAll(((Expr) withExpr).eval(row).stringValue()));
+        Row newRow = new Row();
+        for (int colno = 0; colno < getColCnt(); colno++) {
+          String columnName = getColName(colno);
+          if (targetColNames.contains(columnName) && row.get(colno)!=null && checkCondition(replacedConditionExprs.get(columnName), row)) {
+            String targetStr = (String) row.get(colno);
+            if (StringUtils.countMatches(targetStr, originalQuoteStr) % 2 == 0) {
+              Matcher matcher = pattern.matcher(targetStr);
+              if (matcher.find()) {
+                if (globalReplace) {
+                  newRow.add(columnName, matcher.replaceAll(((Expr) withExpr).eval(row).stringValue()));
+                } else {
+                  newRow.set(columnName, matcher.replaceFirst(((Expr) withExpr).eval(row).stringValue()));
+                }
               } else {
-                row.set(targetColName, matcher.replaceFirst(((Expr) withExpr).eval(row).stringValue()));
+                newRow.add(columnName, row.get(colno));
               }
-            }
-          } else {//quote가 홀수개일 때는 마지막 quote 이후의 문자열은 처리 하지 않는다.
-            String targetStr2 = targetStr.substring(targetStr.lastIndexOf(originalQuoteStr));
-            targetStr = targetStr.substring(0, targetStr.lastIndexOf(originalQuoteStr));
+            } else {//quote가 홀수개일 때는 마지막 quote 이후의 문자열은 처리 하지 않는다.
+              String targetStr2 = targetStr.substring(targetStr.lastIndexOf(originalQuoteStr));
+              targetStr = targetStr.substring(0, targetStr.lastIndexOf(originalQuoteStr));
 
-            Matcher matcher = pattern.matcher(targetStr);
-            if (matcher.find()) {
-              if (globalReplace) {
-                row.set(targetColName, matcher.replaceAll(((Expr) withExpr).eval(row).stringValue()) + targetStr2);
-              } else {
-                row.set(targetColName, matcher.replaceFirst(((Expr) withExpr).eval(row).stringValue()) + targetStr2);
+              Matcher matcher = pattern.matcher(targetStr);
+              if (matcher.find()) {
+                if (globalReplace) {
+                  newRow.add(columnName, matcher.replaceAll(((Expr) withExpr).eval(row).stringValue()) + targetStr2);
+                } else {
+                  newRow.add(columnName, matcher.replaceFirst(((Expr) withExpr).eval(row).stringValue()) + targetStr2);
+                }
+              }
+              else {
+                newRow.add(columnName, row.get(colno));
               }
             }
+          } else {
+            newRow.add(columnName, row.get(colno));
           }
         }
-        rows.add(row);
+
+        rows.add(newRow);
       }
     }
 

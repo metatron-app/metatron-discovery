@@ -14,7 +14,10 @@
 
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { Field, FieldRole, LogicalType } from '../../../../../domain/datasource/datasource';
+import {
+  Field, FieldFormat, FieldFormatType, FieldRole,
+  LogicalType
+} from '../../../../../domain/datasource/datasource';
 
 import * as _ from 'lodash';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
@@ -97,6 +100,13 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
     this._sourceId = datasourceId;
     // 필드 리스트 복사
     this.fields = _.cloneDeep(fields);
+    this.fields.forEach((column) => {
+      // 타임스탬프인데 format이 없는경우 init
+      if (column.logicalType === LogicalType.TIMESTAMP && !column.format) {
+        column.format = new FieldFormat();
+        column.format.type = FieldFormatType.DATE_TIME;
+      }
+    });
     // flag
     this.isShowFl = true;
   }
@@ -132,9 +142,9 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
    * @returns {any[]}
    */
   public getLogicalTypeList(field: Field) {
-    return field.role === FieldRole.MEASURE ? this.logicalTypes.filter((type) => {
-      return type.measure;
-    }) : this.logicalTypes;
+    return field.role === FieldRole.MEASURE
+      ? this.logicalTypes.filter(type => !type.derived && type.measure)
+      : this.logicalTypes.filter(type => !type.derived);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -149,6 +159,11 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
   public onChangeLogicalType(field: Field, logicalType: any): void {
     // 변경이벤트 체크
     this.onChangeValue(field);
+    // 만약 변경될 타입이 logicalType이라면 format init
+    if (logicalType.value === 'TIMESTAMP' && !field.format) {
+      field.format = new FieldFormat();
+      field.format.type = FieldFormatType.DATE_TIME;
+    }
     // logical type 변경
     field.logicalType = logicalType.value;
     // Role 이 측정값인데 logicalType이 float과 integer가 아니라면 role을 차원값으로 변경
@@ -174,6 +189,23 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
     field['typeListFl'] = !field['typeListFl'];
   }
 
+  /**
+   * Is GEO type column
+   * @param column
+   * @returns {boolean}
+   */
+  public isGeoType(column: any): boolean {
+    return column.logicalType.indexOf('GEO_') !== -1;
+  }
+
+  /**
+   * Is derived column
+   * @param {Field} column
+   * @returns {boolean}
+   */
+  public isDerivedColumn(column: Field): boolean {
+    return column.derived;
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -200,9 +232,12 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
       { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
       { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER', measure: true },
       { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', measure: true  },
-      { label: this.translateService.instant('msg.storage.ui.list.timestamp'), value: 'TIMESTAMP' },
+      { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
       { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
-      { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
+      { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' },
+      { label: this.translateService.instant('msg.storage.ui.list.geo.point'), value: 'GEO_POINT', derived: true },
+      { label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), value: 'GEO_POLYGON', derived: true },
+      { label: this.translateService.instant('msg.storage.ui.list.geo.line'), value: 'GEO_LINE', derived: true },
     ];
   }
 

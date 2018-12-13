@@ -39,29 +39,13 @@ public class PrepHdfsService {
 
     private Configuration hadoopConf = null;
 
-    private String getUploadPath() {
+    public String getUploadPath() {
         if(null==uploadHdfsPath && null!=prepProperties.getStagingBaseDir(true)) {
             String stagingBaseDir = prepProperties.getStagingBaseDir(true);
             uploadHdfsPath = stagingBaseDir + File.separator + PrepProperties.dirUpload;
         }
         return uploadHdfsPath;
     }
-
-    /*
-    private String getSnapshotPath() {
-        if(null==snapshotHdfsPath && null!=prepProperties.getStagingBaseDir()) {
-            snapshotHdfsPath = prepProperties.getStagingBaseDir() + File.separator + PrepProperties.dirSnapshot;
-        }
-        return snapshotHdfsPath;
-    }
-
-    private String getPreviewPath() {
-        if(null==previewHdfsPath && null!=prepProperties.getStagingBaseDir()) {
-            previewHdfsPath = prepProperties.getStagingBaseDir() + File.separator + PrepProperties.dirPreview ;
-        }
-        return previewHdfsPath;
-    }
-    */
 
     public Configuration getConf() {
         if(null==hadoopConf) {

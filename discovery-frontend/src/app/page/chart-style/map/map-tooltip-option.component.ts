@@ -13,39 +13,118 @@
  */
 
 import { Component, ElementRef, Injector, Input } from '@angular/core';
-import {TooltipOptionComponent} from "../tooltip-option.component";
+import { Pivot } from '../../../domain/workbook/configurations/pivot';
+import { ShelfType, UIChartDataLabelDisplayType } from '../../../common/component/chart/option/define/common';
+import * as _ from 'lodash';
+import { FormatOptionConverter } from '../../../common/component/chart/option/converter/format-option-converter';
+import { ChartUtil } from '../../../common/component/chart/option/util/chart-util';
+import { Field } from '../../../domain/workbook/configurations/field/field';
+import { TooltipOptionComponent } from '../tooltip-option.component';
+import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
+import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
+import { TooltipOptionConverter } from '../../../common/component/chart/option/converter/tooltip-option-converter';
+
 @Component({
   selector: 'map-tooltip-option',
   templateUrl: './map-tooltip-option.component.html'
 })
 export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // selected layer item list
+  public selectedLayerItems: Field[] = [];
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // unselected layer item list
+  public unselectedLayerItems: Field[] = [];
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // origin unselected layer item list
+  public originUnselectedLayerItems: Field[] = [];
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Constructor
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // search input
+  public searchText: string;
 
-  // 생성자
+  // add column show / hide
+  public addColumnShowFl: boolean = false;
+
+  public uiOption: UIMapOption;
+
+  @Input('uiOption')
+  public set setUiOption(uiOption: UIMapOption) {
+
+    if( !uiOption.toolTip ) {
+      uiOption.toolTip = {};
+    }
+
+    // Set
+    this.uiOption = uiOption;
+  }
+
+  public shelf : Shelf;
+
+  @Input('shelf')
+  public set setShelf(shelf: Shelf) {
+
+    if (!shelf || !shelf.layers || !shelf.layers[this.uiOption.layerNum]) return;
+
+    const layerItems = _.cloneDeep(shelf.layers[this.uiOption.layerNum]);
+
+    // set alias
+    for (const item of layerItems) {
+      item['alias'] = ChartUtil.getAlias(item);
+    }
+
+    // return shelf list except geo dimension
+    let uniqList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
+
+    // set displayColumns
+    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(uniqList);
+
+    this.selectedLayerItems = [];
+    this.unselectedLayerItems = [];
+
+    // 선반에는 있지만 displayColumns에 없으면 => unselected list에 설정
+    _.each(uniqList, (field) => {
+
+      let alias = ChartUtil.getAlias(field);
+
+      // selected list
+      if (-1 !== this.uiOption.toolTip.displayColumns.indexOf(alias)) {
+
+        this.selectedLayerItems.push(field);
+      // unselected list
+      } else {
+        this.unselectedLayerItems.push(field);
+      }
+    });
+  }
+
+  /**
+   * return columns matching with string array
+   * @param {string[]} columns
+   * @returns {Field[]}
+   */
+  private setColumns(columns: string[]): Field[] {
+
+    let fields: Field[] = [];
+
+    let field: Field;
+    columns.forEach((alias) => {
+
+      field = <any> _.find(this.selectedLayerItems, (field) => {
+        return _.eq(alias, ChartUtil.getAggregationAlias(field));
+      });
+
+      if (field) fields.push(field);
+    });
+
+    return fields;
+  }
+
+  // constructor
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
 
     super(elementRef, injector);
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Override Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // Init
   public ngOnInit() {
@@ -61,16 +140,155 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     super.ngOnDestroy();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * toogle tooltip
+   * @param displayType
+   * @param typeIndex
+   */
+  public toggleDisplayType(displayType: string, typeIndex: number): void {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+    // initialize
+    if( !this.uiOption.toolTip.displayTypes ) {
+      this.uiOption.toolTip.displayTypes = [];
+    }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+    // if they are checked, remove them
+    let isFind = false;
+    _.each(this.uiOption.toolTip.displayTypes, (type, index) => {
+      if( _.eq(type, displayType) ) {
+        isFind = true;
+        this.uiOption.toolTip.displayTypes[index] = null;
+      }
+    });
 
+    // if they are not checked, add them
+    if( !isFind ) {
+      this.uiOption.toolTip.displayTypes[typeIndex] = UIChartDataLabelDisplayType[displayType];
+    }
+
+    // set uiOption
+    this.apply();
+  }
+
+  /**
+   * search column
+   */
+  public returnSearchFields(): Field[] {
+
+    if (_.isEmpty(_.trim(this.searchText))) {
+
+      this.unselectedLayerItems = _.cloneDeep(this.originUnselectedLayerItems);
+
+      return this.unselectedLayerItems
+    }
+
+    this.unselectedLayerItems = this.unselectedLayerItems.filter((item) => {
+
+      if (-1 !== item.name.indexOf(_.trim(this.searchText))) {
+        return item;
+      }
+    });
+
+    return this.unselectedLayerItems
+  }
+
+  /**
+   * init search column
+   */
+  public initSearchFields(): void {
+
+    event.stopPropagation();
+
+    this.searchText = '';
+
+    this.unselectedLayerItems = _.cloneDeep(this.originUnselectedLayerItems);
+  }
+
+  /**
+   * delete selected field
+   */
+  public deleteSelectedField(index: number): void {
+
+    // delete field
+    const deleteField = this.selectedLayerItems.splice(index, 1);
+
+    // set unselected field
+    if (deleteField && deleteField.length > 0) {
+
+      this.unselectedLayerItems.push(deleteField[0]);
+      this.originUnselectedLayerItems = _.cloneDeep(this.unselectedLayerItems);
+    }
+
+    // set name list in displaycolumn
+    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(this.selectedLayerItems);
+
+    // set uiOption
+    this.apply();
+  }
+
+  /**
+   * toggle add column
+   */
+  public toggleAddColumn(): void {
+
+    event.stopPropagation();
+
+    this.addColumnShowFl = !this.addColumnShowFl;
+  }
+
+  /**
+   * set selected columns
+   */
+  public addColumn(item: Field): void {
+
+    event.stopPropagation();
+
+    let alias = ChartUtil.getAggregationAlias(item);
+    const index = _.findIndex(this.selectedLayerItems, (field) => {
+      return _.eq(alias, ChartUtil.getAggregationAlias(field));
+    });
+
+    // if it's duplicate value
+    if (-1 !== index) return;
+
+    this.selectedLayerItems.push(item);
+
+    // remove in unselectedLayerItems
+    const removeIndex = _.findIndex(this.unselectedLayerItems, (field) => {
+      return _.eq(alias, ChartUtil.getAggregationAlias(field));
+    });
+    this.unselectedLayerItems.splice(removeIndex, 1);
+    this.originUnselectedLayerItems = _.cloneDeep(this.unselectedLayerItems);
+
+
+    // set name list in displaycolumn
+    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(this.selectedLayerItems);
+
+    // set uiOption
+    this.apply();
+  }
+
+  /**
+   * return tooltip type boolean value
+   * @returns {boolean}
+   */
+  public returnMapTooltip(tooltipType: string): boolean {
+
+    if (this.uiOption.toolTip.displayTypes &&
+      -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType[tooltipType])) {
+
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * return data value name
+   * @param item
+   * @returns {string}
+   */
+  public returnDataValueName(item) {
+    return ChartUtil.getAlias(item);
+  }
 }

@@ -15,6 +15,8 @@
 package app.metatron.discovery.domain.dataprep;
 
 import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.datasource.Field;
@@ -59,7 +61,7 @@ public class PrepDatasetJdbcService {
     private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetJdbcService.class);
 
     @Autowired
-    PrepDatasetRepository datasetRepository;
+    PrDatasetRepository datasetRepository;
 
     @Value("${server.port:8180}")
     private String restAPIserverPort;
@@ -85,15 +87,15 @@ public class PrepDatasetJdbcService {
         String connectUrl;
         String username;
         String password;
-        String databaseName;
-        public PrepDatasetTotalLinesCallable(PrepDatasetJdbcService datasetJdbcService, String dsId, String sql, String connectUrl, String username, String password, String databaseName) {
+        String dbName;
+        public PrepDatasetTotalLinesCallable(PrepDatasetJdbcService datasetJdbcService, String dsId, String sql, String connectUrl, String username, String password, String dbName) {
             this.datasetJdbcService = datasetJdbcService;
             this.dsId = dsId;
             this.sql = sql;
             this.connectUrl = connectUrl;
             this.username = username;
             this.password = password;
-            this.databaseName = databaseName;
+            this.dbName = dbName;
         }
 
         @Transactional
@@ -102,8 +104,8 @@ public class PrepDatasetJdbcService {
             try {
                 Connection conn = DriverManager.getConnection(connectUrl, username, password);
                 if (conn != null) {
-                    if (databaseName != null && false == databaseName.isEmpty()) {
-                        conn.setCatalog(databaseName);
+                    if (dbName != null && false == dbName.isEmpty()) {
+                        conn.setCatalog(dbName);
                     }
 
                     Statement statement = conn.createStatement();
@@ -209,7 +211,7 @@ public class PrepDatasetJdbcService {
         return new Field(fieldKey, fieldType, fieldBIType, new Long(idx + 1));
     }
 
-    DataFrame getPreviewLinesFromJdbcForDataFrame(PrepDataset dataset, String size) throws SQLException {
+    public DataFrame getPreviewLinesFromJdbcForDataFrame(PrDataset dataset, String size) throws SQLException {
 
         DataFrame dataFrame = new DataFrame();
 
@@ -223,8 +225,8 @@ public class PrepDatasetJdbcService {
             String username = connection.getUsername();
             String password = connection.getPassword();
             String queryStmt = dataset.getQueryStmt();
-            String tableName = dataset.getTableName();
-            String databaseName = dataset.getCustomValue("databaseName");
+            String tblName = dataset.getTblName();
+            String dbName = dataset.getDbName();
             String sql = null;
             if(queryStmt!=null && false==queryStmt.isEmpty()) {
                 String pattern0 = ".*\\s*;\\s*$";
@@ -241,13 +243,13 @@ public class PrepDatasetJdbcService {
                     sql = queryStmt + " LIMIT " + size;
                 }
             } else {
-                sql = "SELECT * FROM " + tableName + " LIMIT " + size;
+                sql = "SELECT * FROM " + tblName + " LIMIT " + size;
             }
 
             Connection conn = DriverManager.getConnection(connectUrl, username, password);
             if (conn != null) {
-                if(databaseName!=null && false==databaseName.isEmpty()) {
-                    conn.setCatalog(databaseName);
+                if(dbName!=null && false==dbName.isEmpty()) {
+                    conn.setCatalog(dbName);
                 }
 
                 Statement statement = conn.createStatement();
@@ -289,7 +291,7 @@ public class PrepDatasetJdbcService {
                 JdbcUtils.closeStatement(statement);
                 JdbcUtils.closeConnection(conn);
 
-                Callable<Integer> callable = new PrepDatasetTotalLinesCallable(this, dataset.getDsId(), queryStmt, connectUrl, username, password, databaseName);
+                Callable<Integer> callable = new PrepDatasetTotalLinesCallable(this, dataset.getDsId(), queryStmt, connectUrl, username, password, dbName);
                 this.futures.add( poolExecutorService.submit(callable) );
             }
         } catch (Exception e) {
@@ -300,7 +302,7 @@ public class PrepDatasetJdbcService {
         return dataFrame;
     }
 
-    Map<String, Object> getPreviewJdbc(String dcId, String queryStmt, String dbName, String tableName, String size) throws SQLException {
+    public Map<String, Object> getPreviewJdbc(String dcId, String queryStmt, String dbName, String tblName, String size) throws SQLException {
 
         Map<String, Object> responseMap = Maps.newHashMap();
 
@@ -332,7 +334,7 @@ public class PrepDatasetJdbcService {
                     sql = queryStmt + " LIMIT " + size;
                 }
             } else {
-                sql = "SELECT * FROM " + dbName +"."+ tableName + " LIMIT " + size;
+                sql = "SELECT * FROM " + dbName +"."+ tblName + " LIMIT " + size;
             }
 
             Connection conn = DriverManager.getConnection(connectUrl, username, password);

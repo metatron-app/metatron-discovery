@@ -16,15 +16,14 @@ package app.metatron.discovery.domain.workbench;
 
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.util.WebSocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.stereotype.Controller;
 
 import java.io.Serializable;
@@ -37,7 +36,7 @@ public class WorkbenchWebSocketController {
   private static Logger LOGGER = LoggerFactory.getLogger(WorkbenchWebSocketController.class);
 
   enum WorkbenchWebSocketCommand{
-    CONNECT, DISCONNECT, LOG, DONE
+    CONNECT, DISCONNECT, LOG, GET_CONNECTION, CREATE_STATEMENT, EXECUTE_QUERY, GET_RESULTSET, DONE
   }
 
   @Autowired
@@ -75,7 +74,7 @@ public class WorkbenchWebSocketController {
       message.put("message", e.getMessage());
     }
 
-    messagingTemplate.convertAndSendToUser(sessionId, "/queue/workbench/" + workbenchId, message, createHeaders(sessionId));
+    WebSocketUtils.sendMessage(messagingTemplate, sessionId, "/queue/workbench/" + workbenchId, message);
   }
 
   /**
@@ -98,14 +97,7 @@ public class WorkbenchWebSocketController {
     message.put("command", WorkbenchWebSocketCommand.DISCONNECT);
     message.put("disconnected", true);
 
-    messagingTemplate.convertAndSendToUser(sessionId, "/queue/workbench/" + workbenchId, message, createHeaders(sessionId));
-  }
-
-  private MessageHeaders createHeaders(String sessionId) {
-    SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
-    headerAccessor.setSessionId(sessionId);
-    headerAccessor.setLeaveMutable(true);
-    return headerAccessor.getMessageHeaders();
+    WebSocketUtils.sendMessage(messagingTemplate, sessionId, "/queue/workbench/" + workbenchId, message);
   }
 
   /**

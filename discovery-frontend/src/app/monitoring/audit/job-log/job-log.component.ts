@@ -23,7 +23,9 @@ import { CookieConstant } from '../../../common/constant/cookie.constant';
 import { CommonConstant } from '../../../common/constant/common.constant';
 import { CookieService } from 'ng2-cookies';
 import { CommonUtil } from '../../../common/util/common.util';
-import { ElapsedTime } from '../../../domain/data-preparation/data-snapshot';
+// 클래스 교체중
+//import { ElapsedTime } from '../../../domain/data-preparation/data-snapshot';
+import { ElapsedTime } from '../../../domain/data-preparation/pr-snapshot';
 declare let moment: any;
 
 @Component({
@@ -108,6 +110,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
 
   /**
    * 더 조회할 리스트가 있는지 여부
@@ -246,26 +249,6 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
     this.getAuditList();
   }
 
-
-  /**
-   * ms를 min과 sec로 변환
-   * @param {number} ms
-   * @returns {string}
-   */
-  public convertMilliseconds(ms: number) {
-    if (ms === undefined) {
-      return 0 + 'ms';
-    }
-
-    if (ms < 1000) {
-      return ms + 'ms'
-    }
-
-    const min = Math.floor((ms / 1000 / 60) << 0);
-    const sec = Math.floor((ms / 1000) % 60);
-    return min !== 0 ? (min + ' min ' + sec + ' sec') : (sec + ' sec');
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -291,6 +274,8 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
     this.statusTypes = [
       { label: 'All', value: 'all' },
       { label: 'Success', value: 'SUCCESS' },
+      { label: 'Running', value: 'RUNNING' },
+      { label: 'Cancelled', value: 'CANCELLED' },
       { label: 'Fail', value: 'FAIL' }
     ];
     this.selectedStatus = this.statusTypes[0];
@@ -322,9 +307,9 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
     // date
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       if (this.selectedDate.startDateStr) {
-        params['from'] = moment(this.selectedDate.startDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+        params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      params['to'] = moment(this.selectedDate.endDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+      params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
     }
     // sort
     if (this.selectedContentSort.sort !== 'default') {
@@ -425,9 +410,9 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
     // date
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       if (this.selectedDate.startDateStr) {
-        params['from'] = moment(this.selectedDate.startDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+        params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      params['to'] = moment(this.selectedDate.endDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+      params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
     }
 
     if (params) {

@@ -44,15 +44,15 @@
         <div class="ddp-wrap-summary">
           <div class="ddp-data-summary">
             <span class="ddp-txt-label">{{'msg.dp.th.ss.valid' | translate}}</span>
-            <span class="ddp-data-per">100%</span>
+            <span class="ddp-data-per">{{ valid }}</span>
           </div>
           <div class="ddp-data-summary ddp-mismatch">
             <span class="ddp-txt-label">{{'msg.dp.th.ss.mismatched' | translate}}</span>
-            <span class="ddp-data-per">0%</span>
+            <span class="ddp-data-per">{{ mismatched }}</span>
           </div>
           <div class="ddp-data-summary ddp-missing">
             <span class="ddp-txt-label">{{'msg.dp.th.ss.missing' | translate}}</span>
-            <span class="ddp-data-per">0%</span>
+            <span class="ddp-data-per">{{ missing }}</span>
           </div>
         </div>
 
@@ -66,6 +66,9 @@
         <!-- //요약 -->
         <!-- grid -->
         <div class="ddp-wrap-grid">
+          <div class="ddp-ui-empty" *ngIf="!selectedDataSnapshot.gridData">
+            {{'msg.dp.ui.no.preview' | translate}}
+          </div>
           <div *ngIf="selectedDataSnapshot.displayStatus==='SUCCESS'" class="ddp-box-gridarea" grid-component style="width:100%; height: 100%;"> suc </div>
           <!--<div *ngIf="selectedDataSnapshot.status==='FAIL'" class="ddp-box-gridarea" style="width:100%; height: 100%;">-->
           <!--<p [innerHTML]="selectedDataSnapshot.custom.fail_msg">-->
@@ -154,13 +157,13 @@
       <!-- //title -->
       <div class="ddp-ui-rule-flow">
         <ul class="ddp-list-rule2">
-          <li *ngFor="let rule of ruleList">
+          <li *ngFor="let rule of ruleList; let idx = index">
             <span class="ddp-data-type">
               <em class="ddp-ui-round">{{rule.alias}}</em>
               {{rule.name}}
             </span>
-            <div class="ddp-ui-code">
-              {{rule.ruleString}}
+            <div class="ddp-ui-code"  title="{{idx !== 0 ? rule.ruleString : null}}">
+              {{rule['simplifiedRule']}}
             </div>
         </ul>
       </div>
@@ -174,6 +177,14 @@
           </dt>
           <dd>
             {{selectedDataSnapshot.tblName}}
+          </dd>
+        </dl>
+        <dl class="ddp-dl-detail">
+          <dt>
+            {{'msg.dp.th.ss-type' | translate}}
+          </dt>
+          <dd>
+            {{prepCommonUtil.getSnapshotType(selectedDataSnapshot.ssType)}}
           </dd>
         </dl>
         <dl class="ddp-dl-detail">
@@ -217,7 +228,7 @@
             {{ 'msg.comm.menu.manage.prep.set' | translate }}
           </dt>
           <dd>
-            <a href="javascript:" (click)="navigateDataflow(dfId)" class="ddp-link-data"><strong>{{ selectedDataSnapshot.dsName }}</strong> in {{ selectedDataSnapshot.creatorDfName }} </a>
+            <a href="javascript:" (click)="navigateDataflow(dfId)" class="ddp-link-data"><strong>{{ selectedDataSnapshot.dsName }}</strong> in {{ selectedDataSnapshot.dfName }} </a>
             <div class="ddp-ui-sub">
               <span class="ddp-data-sub">{{'msg.comm.ui.list.created' | translate}} <em class="ddp-data-result">{{selectedDataSnapshot.createdTime | mdate:'YYYY-MM-DD HH:mm:ss'}}</em></span>
               <span class="ddp-data-sub">{{'msg.comm.ui.list.updated' | translate}} <em class="ddp-data-result">{{selectedDataSnapshot.modifiedTime | mdate:'YYYY-MM-DD HH:mm:ss'}}</em></span>

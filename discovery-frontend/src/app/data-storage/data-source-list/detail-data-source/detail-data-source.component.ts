@@ -12,23 +12,22 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnInit, Output,
-  ViewChild
-} from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Datasource, Status } from '../../../domain/datasource/datasource';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { Alert } from '../../../common/util/alert.util';
-import { DeleteModalComponent } from '../../../common/component/modal/delete/delete.component';
-import { Log, Modal } from '../../../common/domain/modal';
-import { CommonUtil } from '../../../common/util/common.util';
-import { MomentDatePipe } from '../../../common/pipe/moment.date.pipe';
-import { ActivatedRoute } from '@angular/router';
-import { ConfirmModalComponent } from '../../../common/component/modal/confirm/confirm.component';
-import { LogComponent } from '../../../common/component/modal/log/log.component';
-import { MetadataService } from '../../../meta-data-management/metadata/service/metadata.service';
-import { Metadata } from '../../../domain/meta-data-management/metadata';
+import {Component, ElementRef, Injector, OnChanges, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Datasource, FieldFormatType, FieldRole, SourceType, Status} from '../../../domain/datasource/datasource';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {Alert} from '../../../common/util/alert.util';
+import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
+import {Log, Modal} from '../../../common/domain/modal';
+import {CommonUtil} from '../../../common/util/common.util';
+import {MomentDatePipe} from '../../../common/pipe/moment.date.pipe';
+import {ActivatedRoute} from '@angular/router';
+import {ConfirmModalComponent} from '../../../common/component/modal/confirm/confirm.component';
+import {LogComponent} from '../../../common/component/modal/log/log.component';
+import {MetadataService} from '../../../meta-data-management/metadata/service/metadata.service';
+import {Metadata} from '../../../domain/meta-data-management/metadata';
+import {CookieConstant} from '../../../common/constant/cookie.constant';
+import {CommonConstant} from '../../../common/constant/common.constant';
 
 @Component({
   selector: 'app-detail-datasource',
@@ -58,6 +57,9 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   // log 출력용 컴포넌트
   @ViewChild(LogComponent)
   private _logComponent: LogComponent;
+
+  // websocket subscribe
+  private _subscribe: any;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -92,6 +94,17 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   // more flag
   public moreFl: boolean = false;
 
+  // ingestion process
+  public ingestionProcess: any;
+  // is not show progress flag
+  public isNotShowProgress: boolean;
+
+  // history id
+  public historyId: string;
+
+  // timestamp column
+  public timestampColumn: any;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -119,20 +132,83 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
       this.datasourceId = params['sourceId'];
       // initView
       this._initView();
+      // loading show
+      this.loadingShow();
       // 현재 데이터소스 상세조회
-      this.getDatasourceDetail(this.datasourceId);
+      this._getDatasourceDetail(this.datasourceId)
+        .then((datasource: Datasource) => {
+          // create q
+          const q = [];
+          // get meta data
+          q.push(this._getDatasourceMetadata(this.datasourceId));
+          // if datasource status not DISABLED
+          if (datasource.status !== Status.DISABLED) {
+            // history params
+            let params;
+            // if status ENABLED, not create params
+            if (datasource.status !== Status.ENABLED) {
+              params = {status: datasource.status === Status.PREPARING ? 'running' : 'failed'};
+            }
+            // get history
+            q.push(this._getDatasourceHistory(this.datasourceId, params)
+              .then((history) => {
+                // only status PREPARING, FAILED
+                if (datasource.status !== Status.ENABLED) {
+                  // init progress UI
+                  if (history['_embedded'] && history['_embedded'].ingestionHistories[0].progress) {
+                    this.ingestionProcess = {
+                      progress: 1,
+                      message: history['_embedded'].ingestionHistories[0].progress,
+                      failResults: {
+                        errorCode: history['_embedded'].ingestionHistories[0].errorCode,
+                        cause: history['_embedded'].ingestionHistories[0].cause
+                      }};
+                  } else if (history['_embedded'] && !history['_embedded'].ingestionHistories[0].progress) {
+                    this.isNotShowProgress = true;
+                  } else if (datasource.srcType === SourceType.FILE || datasource.srcType === SourceType.JDBC) {
+                    this.ingestionProcess = {progress: 1, message: 'START_INGESTION_JOB'};
+                  } else if (datasource.srcType === SourceType.HIVE) {
+                    this.ingestionProcess = {progress: 1, message: 'ENGINE_INIT_TASK'};
+                  }
+
+                  // link webSocket
+                  this.checkAndConnectWebSocket(true)
+                    .then(() => {
+                      // set process
+                      this._setProcessIngestion(this.datasourceId);
+                    })
+                    .catch(error => this.commonExceptionHandler(error));
+                }
+              }));
+          }
+          // run q
+          Promise.all(q)
+            .then(() => {
+              // loading hide
+              this.loadingHide();
+            })
+            .catch(() => {
+              // loading hide
+              this.loadingHide();
+            })
+        })
+        .catch(error => this.commonExceptionHandler(error));
     });
   }
 
   // Change
   public ngOnChanges() {
+
   }
 
   // Destory
   public ngOnDestroy() {
-
     // Destory
     super.ngOnDestroy();
+    // if exist _subscribe
+    if (this._subscribe) {
+      CommonConstant.stomp.unsubscribe(this._subscribe);
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -151,8 +227,17 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     this.reDesc = this.datasource.description;
   }
 
-  public changedDatasourceData(mode: string) {
-    this.getDatasourceDetail(this.datasourceId, mode);
+  /**
+   * Change datasource data event
+   * @param {string} mode
+   */
+  public changedDatasourceData(mode: string): void {
+    // loading show
+    this.loadingShow();
+    // get datasource detail data
+    this._getDatasourceDetail(this.datasourceId, mode)
+      .then(result => this.loadingHide())
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -222,7 +307,9 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
         // alert
         Alert.success(this.translateService.instant('msg.storage.alert.dsource.update.success'));
         // 데이터소스 갱신
-        this.getDatasourceDetail(this.datasourceId, this.mode);
+        this._getDatasourceDetail(this.datasourceId, this.mode)
+          .then(result => this.loadingHide())
+          .catch(error => this.commonExceptionHandler(error));
       })
       .catch((error) => {
         // alert
@@ -238,7 +325,6 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   public deleteDatasource(): void {
     // 로딩 show
     this.loadingShow();
-
     this.datasourceService.deleteDatasource(this.datasourceId)
       .then((result) => {
         // alert
@@ -362,44 +448,124 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     this.moreFl = false;
   }
 
-
   /**
-   * 데이터소스 상세 조회
-   * @param {string} sourceId
-   * @param {string} mode
-   */
-  private getDatasourceDetail(sourceId: string, mode: string = 'information'): void {
-    // 로딩 시작
-    this.loadingShow();
-
-    this.datasourceService.getDatasourceDetail(sourceId)
-      .then((datasource) => {
-        // 데이터소스
-        this.datasource = datasource;
-        this.mode = mode;
-        // 메타데이터 정보 조회
-        this._getMetaData(datasource);
-      })
-      .catch((error) => this.commonExceptionHandler(error));
-  }
-
-  /**
-   * 데이터소스로 메타데이터 정보 조회
-   * @param {Datasource} source
+   * Get datasource history
+   * @param {string} datasourceId
+   * @param {any} params
+   * @returns {Promise<any>}
    * @private
    */
-  private _getMetaData(source: Datasource): void {
-    // 로딩 show
-    this.loadingShow();
-    this._metaDataService.getMetadataForDataSource(source.id)
-      .then((result) => {
-        // 메타데이터가 있다면
-        result.length > 0 && (this.metaData = result[0]);
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+  private _getDatasourceHistory(datasourceId: string, params: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.datasourceService.getBatchHistories(datasourceId, params)
+        .then((result) => {
+          // if exist ingestionHistories
+          if (result['_embedded'] && result['_embedded'].ingestionHistories) {
+            // set history id
+            this.historyId = result['_embedded'].ingestionHistories[0].id;
+          }
+          resolve(result);
+        })
+        .catch(error => reject(error));
+    });
   }
 
+  /**
+   * Get datasource detail data
+   * @param {string} datasourceId
+   * @param {string} mode
+   * @returns {Promise<any>}
+   * @private
+   */
+  private _getDatasourceDetail(datasourceId: string, mode: string = 'information'): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.datasourceService.getDatasourceDetail(datasourceId)
+        .then((datasource) => {
+          // set datasource
+          this.datasource = datasource;
+          // fields loop
+          this.datasource.fields.forEach((field, index, list) => {
+            // if field TIMESTAMP
+            if (field.role === FieldRole.TIMESTAMP) {
+              // set timestamp column
+              this.timestampColumn = field;
+              // if column is current time, hide
+              if (field.format &&  field.format.type === FieldFormatType.TEMPORARY_TIME) {
+                list.splice(index, 1);
+              }
+            }
+          });
+          // set view mode
+          this.mode = mode;
+          resolve(datasource);
+        })
+        .catch(error => reject(error));
+    });
+  }
+
+  /**
+   * Get datasource meta data
+   * @param {string} datasourceId
+   * @returns {Promise<any>}
+   * @private
+   */
+  private _getDatasourceMetadata(datasourceId: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this._metaDataService.getMetadataForDataSource(datasourceId)
+        .then((result) => {
+          // set meta data
+          result.length > 0 && (this.metaData = result[0]);
+          resolve(result);
+        })
+        .catch(error => reject(error));
+    });
+  }
+
+  /**
+   * Set process ingestion
+   * @param {string} datasourceId
+   * @private
+   */
+  private _setProcessIngestion(datasourceId: string): void {
+    try {
+      const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
+      // 메세지 수신
+      this._subscribe = CommonConstant.stomp.subscribe(
+        `/topic/datasources/${datasourceId}/progress`, (data: { progress: number, message: string, results: any }) => {
+          console.log('process socket', data);
+          // if has history
+          if (data.results && data.results.history) {
+            // set history id
+            this.historyId = data.results.history.id;
+          }
+          // 데이터 변경
+          this.ingestionProcess = data;
+          // 실패시
+          if (-1 === data.progress) {
+            // set status
+            this.datasource.status = Status.FAILED;
+            // if has history
+            if (data.results && data.results.history) {
+              // set ingestionProcess
+              this.ingestionProcess['message'] = data.results.history.progress;
+              // set cause and message
+              this.ingestionProcess['failResults'] = {
+                errorCode: data.results.history.errorCode,
+                cause: data.results.history.cause
+              };
+            }
+            // disconnect websocket
+            CommonConstant.stomp.unsubscribe(this._subscribe);
+          } else if (100 === data.progress) { // 성공시
+            // set status
+            this.datasource.status = Status.ENABLED;
+            // disconnect websocket
+            CommonConstant.stomp.unsubscribe(this._subscribe);
+          }
+        }, headers);
+    } catch (e) {
+      console.info(e);
+    }
+  }
 
 }

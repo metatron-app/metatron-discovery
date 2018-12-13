@@ -13,7 +13,7 @@
  */
 
 import { AbstractComponent } from '../../common/component/abstract.component';
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { isUndefined } from 'util';
 import { Modal } from '../../common/domain/modal';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
@@ -21,8 +21,9 @@ import { CodeTableService } from './service/code-table.service';
 import { CodeTable } from '../../domain/meta-data-management/code-table';
 import { PeriodComponent } from '../../common/component/period/period.component';
 import { Alert } from '../../common/util/alert.util';
-import * as _ from 'lodash';
 import { CreateCodeTableComponent } from './create-code-table/create-code-table.component';
+
+declare let moment: any;
 
 @Component({
   selector: 'app-code-table',
@@ -353,9 +354,11 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     if (this._selectedDate && this._selectedDate.type !== 'ALL') {
       params['searchDateBy'] = 'CREATED';
       if (this._selectedDate.startDateStr) {
-        params['from'] = this._selectedDate.startDateStr + '.000Z';
+        params['from'] = moment(this._selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      params['to'] = this._selectedDate.endDateStr + '.000Z';
+      if (this._selectedDate.endDateStr) {
+        params['to'] = moment(this._selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+      }
     }
     return params;
   }

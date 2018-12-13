@@ -256,7 +256,7 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
         partitionColumns.add( "abc" );
         ans_windowingSpecs.add( new WindowingSpec( partitionColumns, null, Arrays.asList( "ac_sum_recu = 1.01*if($prev(ac_sum_recu)==null,1,$prev(ac_sum_recu))")));
 
-        ComputationalField.makeAggregationFunctions3(fieldName, input, aggregations, postAggregations, windowingSpecs);
+        ComputationalField.makeAggregationFunctions3(fieldName, input, aggregations, postAggregations, windowingSpecs, Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
 
@@ -273,7 +273,7 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
         ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_000", null, "count"));
         ans_windowingSpecs.add( new WindowingSpec( null, null, Arrays.asList( "ac_sum_recu = aggregationfunc_000+if($prev(ac_sum_recu)==null,0,$prev(ac_sum_recu))")));
 
-        ComputationalField.makeAggregationFunctions3(fieldName, input, aggregations, postAggregations, windowingSpecs);
+        ComputationalField.makeAggregationFunctions3(fieldName, input, aggregations, postAggregations, windowingSpecs, Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
 
@@ -289,7 +289,7 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
         ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_000", null, "profit+1"));
         ans_postAggregations.add( new MathPostAggregator("fieldname", "(aggregationfunc_000/count)", null ));
 
-        ComputationalField.makeAggregationFunctions3(fieldName, input, aggregations, postAggregations, windowingSpecs);
+        ComputationalField.makeAggregationFunctions3(fieldName, input, aggregations, postAggregations, windowingSpecs, Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
 
@@ -304,7 +304,7 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
         ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_000", null, "z"));
         ans_postAggregations.add( new MathPostAggregator("fieldName01", "x+y+aggregationfunc_000", null ));
 
-        ComputationalField.makeAggregationFunctions3( fieldName, input, aggregations, postAggregations, windowingSpecs);
+        ComputationalField.makeAggregationFunctions3( fieldName, input, aggregations, postAggregations, windowingSpecs, Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
 
@@ -320,7 +320,7 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
         ans_aggregations.add(new DoubleSumAggregation( "aggregationfunc_000", null, "log(z)"));
         ans_postAggregations.add( new MathPostAggregator("fieldName01", "x+y+(aggregationfunc_000/count)", null ));
 
-        ComputationalField.makeAggregationFunctions3( fieldName, input, aggregations, postAggregations, windowingSpecs);
+        ComputationalField.makeAggregationFunctions3( fieldName, input, aggregations, postAggregations, windowingSpecs, Maps.newHashMap());
 
         Assert.assertTrue( compareAggregations( ans_aggregations, ans_postAggregations, ans_windowingSpecs, aggregations, postAggregations, windowingSpecs ) );
 
@@ -386,7 +386,7 @@ public class ComputationalFieldTest extends AbstractIntegrationTest {
         fieldName = "avg_per_city";
         input = "$mean( sumof(Profit), {City,Category})";
         ComputationalField.checkComputationalFieldIn( input, mapFieldNames );
-        ComputationalField.makeAggregationFunctionsIn( fieldName, input, aggregations, postAggregations, windowingSpecs, mapFieldNames );
+        ComputationalField.makeAggregationFunctionsIn( fieldName, input, aggregations, postAggregations, windowingSpecs, Maps.newHashMap(), mapFieldNames );
 
         return;
     }

@@ -20,6 +20,7 @@ import { PermissionService } from '../../../user/service/permission.service';
 import * as _ from 'lodash';
 import { CommonUtil } from 'app/common/util/common.util';
 import { WORKSPACE_PERMISSION } from 'app/common/permission/permission';
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'app-permission-schema',
@@ -117,6 +118,7 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
   public addRole() {
     const role: Role = new Role();
     role.name = 'new role';
+    role['isNewRole'] = true;
     role['editName'] = 'new role';
     role.defaultRole = (0 === this.editRoleSet.roles.length); // 무조건 하나의 Role 을 Default로 선정해준다.
     this.editRoleSet.roles.push(role);
@@ -127,8 +129,10 @@ export class PermissionSchemaComponent extends AbstractComponent implements OnIn
    * @param {number} removeIdx
    */
   public removeRole(removeIdx: number) {
-    // 삭제 RoleSet 이름 저장
-    this.editRoleSet.removeRoleNames.push( this.editRoleSet.roles[removeIdx].name );
+    if( isNullOrUndefined( this.editRoleSet.roles[removeIdx]['isNewRole'] ) ) {
+      // 삭제 RoleSet 이름 저장
+      this.editRoleSet.removeRoleNames.push( this.editRoleSet.roles[removeIdx].name );
+    }
     // Role 삭제
     (-1 < removeIdx) && (this.editRoleSet.roles.splice(removeIdx, 1));
     // 무조건 하나의 Role 을 Default 로 선정해준다.

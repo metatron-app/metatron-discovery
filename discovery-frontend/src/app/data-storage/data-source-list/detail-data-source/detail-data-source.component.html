@@ -131,7 +131,12 @@
     <div class="ddp-wrap-tab-contents">
       <!-- Information -->
       <information-data-source *ngIf="mode === 'information'"
+                               (changeDatasource)="changedDatasourceData($event)"
+                               [ingestionProcess]="ingestionProcess"
+                               [isNotShowProgress]="isNotShowProgress"
+                               [historyId]="historyId"
                                [datasource]="datasource"
+                               [timestampColumn]="timestampColumn"
                                [(mode)]="mode"
                                (confirm)="confirmModalOpen($event)"
       ></information-data-source>

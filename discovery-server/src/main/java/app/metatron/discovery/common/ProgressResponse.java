@@ -29,9 +29,14 @@ public class ProgressResponse implements Serializable {
     this.message = message;
   }
 
-  public ProgressResponse(Integer progress, String message, Object results) {
+  public ProgressResponse(Integer progress, Enum<?> enumMessage) {
     this.progress = progress;
-    this.message = message;
+    this.message = enumMessage.toString();
+  }
+
+  public ProgressResponse(Integer progress, Enum<?> enumMessage, Object results) {
+    this.progress = progress;
+    this.message = enumMessage.toString();
     this.results = results;
   }
 
@@ -64,6 +69,7 @@ public class ProgressResponse implements Serializable {
     return "ProgressResponse{" +
         "progress=" + progress +
         ", message='" + message + '\'' +
+        ", results=" + results +
         '}';
   }
 }

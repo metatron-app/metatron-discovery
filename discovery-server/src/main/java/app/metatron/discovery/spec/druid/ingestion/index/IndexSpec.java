@@ -14,8 +14,12 @@
 
 package app.metatron.discovery.spec.druid.ingestion.index;
 
+import com.google.common.collect.Maps;
+
+import java.util.Map;
+
 /**
- * Created by kyungtaak on 2017. 5. 2..
+ * Index Configuration in tuning configuration
  */
 public class IndexSpec {
 
@@ -25,11 +29,20 @@ public class IndexSpec {
 
   String metricCompression;
 
+  Map<String, SecondaryIndexing> secondaryIndexing;
+
   public IndexSpec() {
   }
 
   public IndexSpec(Bitmap bitmap) {
     this.bitmap = bitmap;
+  }
+
+  public void addSecondaryIndexing(String columnName, SecondaryIndexing secondaryIndexing) {
+    if (secondaryIndexing == null) {
+      this.secondaryIndexing = Maps.newLinkedHashMap();
+    }
+    this.secondaryIndexing.put(columnName, secondaryIndexing);
   }
 
   public Bitmap getBitmap() {
@@ -54,6 +67,14 @@ public class IndexSpec {
 
   public void setMetricCompression(String metricCompression) {
     this.metricCompression = metricCompression;
+  }
+
+  public Map<String, SecondaryIndexing> getSecondaryIndexing() {
+    return secondaryIndexing;
+  }
+
+  public void setSecondaryIndexing(Map<String, SecondaryIndexing> secondaryIndexing) {
+    this.secondaryIndexing = secondaryIndexing;
   }
 
   public static class Bitmap {

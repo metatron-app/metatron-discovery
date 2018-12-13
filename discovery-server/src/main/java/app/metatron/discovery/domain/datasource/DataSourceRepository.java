@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.domain.context.ContextDomainRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,34 +26,29 @@ import org.springframework.data.rest.core.annotation.RestResource;
 
 import java.util.List;
 
-import app.metatron.discovery.domain.context.ContextDomainRepository;
-
 /**
  * DataSourceRepository
  */
 @RepositoryRestResource(path = "datasources", itemResourceRel = "datasource"
-        , collectionResourceRel = "datasources", excerptProjection = DataSourceProjections.DefaultProjection.class)
+    , collectionResourceRel = "datasources", excerptProjection = DataSourceProjections.DefaultProjection.class)
 public interface DataSourceRepository extends JpaRepository<DataSource, String>,
-                                              QueryDslPredicateExecutor<DataSource>,
-                                              ContextDomainRepository<DataSource>,
-                                              DataSourceRepositoryExtends,
-                                              DataSourceSearchRepository {
+    QueryDslPredicateExecutor<DataSource>,
+    ContextDomainRepository<DataSource>,
+    DataSourceRepositoryExtends,
+    DataSourceSearchRepository {
 
   /**
    * fake!! http://stackoverflow.com/questions/25201306/implementing-custom-methods-of-spring-data-repository-and-exposing-them-through
    *
    * for search
-   *
-   * @param keywords
-   * @param pageable
-   * @return
    */
   @RestResource(path = "keyword")
   @Query("select ds from DataSource ds where ds.id= :q")
   Page<DataSource> searchByKeyword(@Param("q") String keywords, Pageable pageable);
 
   @RestResource(path = "query")
-  @Query("select ds from DataSource ds where ds.id= :q")  // fake!!
+  @Query("select ds from DataSource ds where ds.id= :q")
+    // fake!!
   Page<DataSource> searchByQuery(@Param("q") String query, Pageable pageable);
 
   @RestResource(exported = false)
@@ -76,12 +72,6 @@ public interface DataSourceRepository extends JpaRepository<DataSource, String>,
 
   /**
    * Size History 배치잡에서 활용 용도
-   *
-   * @param dsType
-   * @param connType
-   * @param status
-   * @param page
-   * @return
    */
   @RestResource(exported = false)
   Page<DataSource> findByDsTypeAndConnTypeAndStatus(DataSource.DataSourceType dsType,
@@ -93,7 +83,7 @@ public interface DataSourceRepository extends JpaRepository<DataSource, String>,
   @Query("SELECT ds FROM DataSource ds " +
       "WHERE ds.dsType <> 'JOIN' " +
       "AND ds.connType <> 'LINK' " +
-      "AND ds.status <> 'FAILED' " +
+      "AND ds.status <> 'PREPARING' " +
       "AND ds.srcType IS NOT NULL")
   Page<DataSource> findByDataSourceForCheck(Pageable page);
 
@@ -135,4 +125,7 @@ public interface DataSourceRepository extends JpaRepository<DataSource, String>,
   @RestResource(exported = false)
   List<DataSource> findByIdIn(List<String> ids);
 
+  @RestResource(exported = false)
+  @Query("SELECT DISTINCT ds.createdBy FROM DataSource ds where ds.createdBy IS NOT NULL")
+  List<String> findDistinctCreatedBy();
 }

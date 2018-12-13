@@ -14,11 +14,12 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
-import app.metatron.discovery.prep.parser.preparation.rule.*;
+import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
@@ -61,6 +62,24 @@ public class DataFrame implements Serializable, Transformable {
   @JsonIgnore
   public List<String> ruleColumns;
 
+  public boolean valid;
+
+  // copy the references to all members (to avoid deep copy, but make a non-identical object)
+  public DataFrame(DataFrame df) {
+    colCnt             = df.colCnt;
+    colNames           = df.colNames;
+    colDescs           = df.colDescs;
+    colHists           = df.colHists;
+    rows               = df.rows;
+    mapColno           = df.mapColno;
+    newColNames        = df.newColNames;
+    interestedColNames = df.interestedColNames;
+    dsName             = df.dsName;
+    slaveDsNameMap     = df.slaveDsNameMap;
+    ruleString         = df.ruleString;
+    ruleColumns        = df.ruleColumns;
+    valid              = df.valid;
+  }
 
   // Constructor
   public DataFrame() {
@@ -80,6 +99,7 @@ public class DataFrame implements Serializable, Transformable {
     ruleString = "ORIGINAL";
 
     ruleColumns = new ArrayList<>();
+    valid = true;
   }
 
   public DataFrame(String dsName) {
@@ -98,6 +118,14 @@ public class DataFrame implements Serializable, Transformable {
 
   public String getRuleString() {
     return ruleString;
+  }
+
+  public boolean isValid() {
+    return valid;
+  }
+
+  public void setValid(boolean valid) {
+    this.valid = valid;
   }
 
   public static DataFrame getNewDf(Rule rule, String dsName, String ruleString) {
@@ -317,7 +345,7 @@ public class DataFrame implements Serializable, Transformable {
     return colCnt;
   }
 
-  public void setByGrid(List<String[]> strGrid, List<String> colNames) {
+  public void setByGrid(List<String[]> strGrid, List<String> colNames, int maxColCnt) {
     if (strGrid == null) {
       LOGGER.warn("setByGrid(): null grid");
       return;
@@ -335,7 +363,9 @@ public class DataFrame implements Serializable, Transformable {
         addColumn(colName, ColumnType.STRING);
       }
     } else {
-      int maxColCnt = getMaxColCnt(strGrid);
+      if (maxColCnt == -1) {
+        maxColCnt = getMaxColCnt(strGrid);
+      }
       for (int colno = 1; colno <= maxColCnt; colno++) {
         addColumn("column" + colno, ColumnType.STRING);
       }
@@ -348,6 +378,14 @@ public class DataFrame implements Serializable, Transformable {
       }
       rows.add(row);
     }
+  }
+
+  public void setByGrid(List<String[]> strGrid, List<String> colNames) {
+    setByGrid(strGrid, colNames, -1);
+  }
+
+  public void setByGrid(PrepCsvParseResult result) {
+    setByGrid(result.grid, result.colNames, result.maxColCnt);
   }
 
   // column 순서가 중요해서 JdbcConnectionService를 그대로 쓰기가 어려움. customize가 필요.
@@ -449,29 +487,30 @@ public class DataFrame implements Serializable, Transformable {
     Util.showSep(widths);
   }
 
-  public DataFrame drop(List<String> targetColNames) {
-    DataFrame newDf = new DataFrame();
+  public void dropColumn(String targetColName) throws TeddyException{
+    if(colNames.contains(targetColName)) {
+      colDescs.remove(getColnoByColName(targetColName));
+      colNames.remove(targetColName);
+      mapColno.clear();
 
-    List<Integer> survivedColNos = new ArrayList<>();
-    for (int i = 0; i < getColCnt(); i++) {
-      if (targetColNames.contains(getColName(i))) {
-        continue;   // drop 대상 컬럼들은 새 df에서 누락
+      int i = 0;
+      for (String colName : colNames) {
+        mapColno.put(colName, i);
+        i++;
       }
-      survivedColNos.add(i);
+
+      colCnt = colCnt -1;
     }
 
-    for (int colno : survivedColNos) {
-      newDf.addColumnWithDf(this, colno);
-    }
-
+    List<Row> newRows = new ArrayList<>();
     for (Row row : this.rows) {
       Row newRow = new Row();
-      for (int colno : survivedColNos) {
-        newRow.add(getColName(colno), row.get(colno));
+      for (String column : colNames) {
+        newRow.add(column, row.get(column));
       }
-      newDf.rows.add(newRow);
+      newRows.add(newRow);
     }
-    return newDf;
+    rows = newRows;
   }
 
   //check if Args size are exactly matched with desirable size.
@@ -664,6 +703,18 @@ public class DataFrame implements Serializable, Transformable {
         case "substring":
           resultType = ColumnType.STRING;
           assertArgsBw(2, 3, args, func);
+          break;
+        case "contains":
+          resultType = ColumnType.BOOLEAN;
+          assertArgsEq(2, args, func);
+          break;
+        case "startswith":
+          resultType = ColumnType.BOOLEAN;
+          assertArgsEq(2, args, func);
+          break;
+        case "endswith":
+          resultType = ColumnType.BOOLEAN;
+          assertArgsEq(2, args, func);
           break;
         case "timestamptostring":
           resultType = ColumnType.STRING;
@@ -1286,19 +1337,20 @@ public class DataFrame implements Serializable, Transformable {
     });
   }
 
-  protected List<Row> filter2(DataFrame prevDf, Expression condExpr, boolean keep, int offset, int length) throws TeddyException {
+  protected List<Row> filter2(DataFrame prevDf, Expression condExpr, boolean keep, int offset, int length) throws NoAssignmentStatementIsAllowedException, ColumnNotFoundException {
     List<Row> rows = new ArrayList<>();
 
-    if(condExpr instanceof Expr.BinAsExpr)
-      throw PrepException.fromTeddyException(new NoAssignmentStatementIsAllowedException(condExpr.toString()));
+    if(condExpr instanceof Expr.BinAsExpr) {
+      throw new NoAssignmentStatementIsAllowedException(condExpr.toString());
+    }
 
     for (int rowno = offset; rowno < offset + length; rowno++) {
       try {
-        if (((Expr) condExpr).eval(prevDf.rows.get(rowno)).longValue() == ((keep) ? 1 : 0)) {
+        if (((Expr) condExpr).eval(prevDf.rows.get(rowno)).asLong() == ((keep) ? 1 : 0)) {
           rows.add(prevDf.rows.get(rowno));
         }
       } catch (Exception e) {
-        throw PrepException.fromTeddyException(new ColumnNotFoundException(e.getMessage()));
+        throw new ColumnNotFoundException(e.getMessage());    // FIXME: throw a better exception based on e
       }
     }
 
@@ -1329,11 +1381,23 @@ public class DataFrame implements Serializable, Transformable {
     }
   }
 
+  public void lowerColNames() throws IllegalColumnNameForHiveException {
+    List<String> lowerColNames = new ArrayList();
+    for (String colName : colNames) {
+      String lowerColName = colName.toLowerCase();
+      if (lowerColNames.contains(lowerColName)) {
+        throw new IllegalColumnNameForHiveException("Column names become duplicated while saving into a Hive table: " + colName);
+      }
+      lowerColNames.add(lowerColName);
+    }
+    colNames = lowerColNames;
+  }
+
   protected String makeParsable(String colName) {
     if(colName.matches("^\'.+\'"))
         colName = colName.substring(1, colName.length()-1);
 
-    return colName.replaceAll("[\\p{Punct}\\p{IsPunctuation} ]", "_");
+    return colName.replaceAll("[\\p{Punct}\\p{IsPunctuation}]", "_");
   }
 
   private void assertParsable(String colName) {

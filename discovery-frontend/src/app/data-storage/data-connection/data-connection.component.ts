@@ -14,16 +14,18 @@
 
 import { Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
-import { Dataconnection } from '../../domain/dataconnection/dataconnection';
+import { ConnectionType, Dataconnection } from '../../domain/dataconnection/dataconnection';
 import { DataconnectionService } from '../../dataconnection/service/dataconnection.service';
 import { SubscribeArg } from '../../common/domain/subscribe-arg';
 import { PopupService } from '../../common/service/popup.service';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
 import { Modal } from '../../common/domain/modal';
 import { Alert } from '../../common/util/alert.util';
-import { PeriodComponent } from '../../common/component/period/period.component';
 import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
 import { StringUtil } from '../../common/util/string.util';
+import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
+import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
+import { ListFilter } from '../../domain/datasource/listFilter';
 
 @Component({
   selector: 'app-data-connection',
@@ -33,226 +35,134 @@ import { StringUtil } from '../../common/util/string.util';
 })
 export class DataConnectionComponent extends AbstractComponent implements OnInit {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // criterion data object
+  private _criterionDataObject: any = {};
 
-  // DB타입 필터링
-  private searchDb: string = 'all';
+  // origin criterion filter list
+  private _originCriterionList: ListCriterion[] = [];
 
-  // 삭제할 커넥션 데이터
-  private deleteConnectionId : string;
+  // origin more criterion filter more list
+  private _originMoreCriterionList: ListCriterion[] = [];
 
   // 공통 삭제 팝업 모달
   @ViewChild(DeleteModalComponent)
   private deleteModalComponent: DeleteModalComponent;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // DB 타입
-  public dbTypes: any[];
-
-  // date
-  private selectedDate : Date;
-
-  // 데이터 커넥션
-  public dataconnections: Dataconnection[];
-
-  // 검색어
-  public searchText: string = '';
-
-  // 정렬
-  public selectedContentSort: Order = new Order();
-
   // 커넥션 생성 step
   public connectionStep: string;
 
-  // 선택한 데이터 커넥션
+  // connection list
+  public connectionList: Dataconnection[] = [];
+
+  // selected connection
   public selectedConnection: Dataconnection = new Dataconnection();
 
-  // period component
-  @ViewChild(PeriodComponent)
-  public periodComponent: PeriodComponent;
+  // search
+  public searchKeyword: string = '';
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Constructor
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // connection filter list (for UI)
+  public connectionFilterList: ListCriterion[] = [];
 
-  // 생성자
+  // removed criterion key
+  public removedCriterionKey: CriterionKey;
+
+  // init selected filter list
+  public defaultSelectedFilterList: any = {};
+
+  // selected sort
+  public selectedContentSort: Order = new Order();
+
+  // Constructor
   constructor(private dataconnectionService: DataconnectionService,
               private popupService: PopupService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
-
     super(elementRef, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Override Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   // Init
   public ngOnInit() {
-
     // Init
     super.ngOnInit();
-
-    this.initView();
-
-    // 커넥션 조회
-    this.getDataconnection();
-
+    // init UI
+    this._initView();
+    // loading show
+    this.loadingShow();
+    // get criterion list
+    this.dataconnectionService.getCriterionListInConnection()
+      .then((result: CriteriaFilter) => {
+        // set origin criterion list
+        this._originCriterionList = result.criteria;
+        // set connection filter list
+        this.connectionFilterList = result.criteria;
+        // set origin more criterion list
+        this._originMoreCriterionList = result.criteria.find(criterion => criterion.criterionKey === CriterionKey.MORE).subCriteria;
+        // if exist default filter in result
+        if (result.defaultFilters) {
+          // set default selected filter list
+          this._setDefaultSelectedFilterList(result.defaultFilters);
+        }
+        // set connection list
+        this._setConnectionList();
+      }).catch(reason => this.commonExceptionHandler(reason));
     // 커넥션 생성 step 구독
     const popupSubscription = this.popupService.view$.subscribe((data: SubscribeArg) => {
       this.connectionStep = data.name;
-
-      // 커넥션 생성완료
+      // created connection
       if (data.name === 'reload-connection') {
         // 페이지 초기화
         this.page.page = 0;
-        // 조회
-        this.getDataconnection();
+        // set connection list
+        this._setConnectionList();
       }
     });
     this.subscriptions.push(popupSubscription);
   }
 
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 필터 모두 초기화
+   * Remove connection
+   * @param {Modal} modalData
    */
-  public initFilters(): void {
-    // type list
-    this.dbTypes = this.getEnabledConnectionTypes();
-    // 정렬
-    this.selectedContentSort = new Order();
-    // db type
-    this.searchDb = 'all';
-    // create date 초기화
-    this.selectedDate = null;
-    // date 필터 created update 설정 default created로 설정
-    this.periodComponent.selectedDate = 'CREATED';
-    // 검색조건 초기화
-    this.searchText = '';
-    // 페이지 초기화
-    this.page.page = 0;
-    // date 필터 init
-    this.periodComponent.setAll();
-  }
-
-  /**
-   * 데이터 커넥션 삭제
-   */
-  public deleteConnection(): void {
-    // 로딩 show
+  public removeConnection(modalData: Modal): void {
+    // loading show
     this.loadingShow();
-    // 커넥션 삭제
-    this.dataconnectionService.deleteConnection(this.deleteConnectionId)
+    // remove connection
+    this.dataconnectionService.deleteConnection(modalData.data)
       .then((result) => {
-        Alert.success(this.translateService.instant('msg.storage.alert.dconn.delete'));
-        // 초기화
-        this.deleteConnectionId = '';
-        // 재조회
-        this.getDataconnection();
+        Alert.success(this.translateService.instant('msg.storage.alert.dsource.del.success'));
+        // set connection list
+        this._setConnectionList();
       })
-      .catch((error) => {
-        this.commonExceptionHandler(error);
-      });
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
-   * 데이터 커넥션 삭제 모달 오픈
-   * @param connection
+   * Remove criterion filter in connection criterion filter list
+   * @param {ListCriterion} criterion
    */
-  public deleteModalOpen(connection): void {
-
-    const modal = new Modal();
-    modal.name = this.translateService.instant('msg.storage.ui.dconn.delete.title');
-    modal.description = this.translateService.instant('msg.storage.ui.delete.title');
-    modal.btnName = this.translateService.instant('msg.storage.ui.dconn.delete.btn');
-
-    // 삭제할 커넥션 아이디 저장
-    this.deleteConnectionId = connection.id;
-
-    // 팝업 창 오픈
-    this.deleteModalComponent.init(modal);
+  public removeCriterionFilterInConnectionFilterList(criterion: ListCriterion): void {
+    // remove criterion in criterion object data
+    delete this._criterionDataObject[criterion.criterionKey];
+    // set removed key
+    this.removedCriterionKey = criterion.criterionKey;
   }
 
   /**
-   * 데이터 커넥션 생성 페이지 오픈
+   * Search connection
    */
-  public createDataconnection(): void {
-    this.connectionStep = 'create-connection';
-    this.selectedConnection = new Dataconnection();
-  }
-
-  /**
-   * 데이터 커넥션 수정 페이지 오픈
-   * @param {Dataconnection} connection
-   */
-  public updateDataconnection(connection: Dataconnection): void {
-    this.connectionStep = 'update-connection';
-    this.selectedConnection = connection;
-  }
-
-  /**
-   * 더보기 버튼
-   */
-  public getMoreList(): void {
-    // 더 보여줄 데이터가 있다면
-    if (this.isMoreContents()) {
-      // 페이지 증가
-      this.page.page += 1;
-      // 데이터소스 조회
-      this.getDataconnection();
-    }
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method - event
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 필터링 DB 타입 변경
-   * @param type
-   */
-  public onChangeDbType(type): void {
-    this.searchDb = type.value;
+  public searchConnection(): void {
     // 페이지 초기화
     this.page.page = 0;
-    // 재조회
-    this.getDataconnection();
+    // set connection list
+    this._setConnectionList();
   }
 
   /**
-   * 필터링 켈린더 선택
-   * @param event
-   */
-  public onChangeData(event): void {
-    // 페이지 초기화
-    this.page.page = 0;
-    // 선택한 날짜
-    this.selectedDate = event;
-    // 재조회
-    this.getDataconnection();
-  }
-
-  /**
-   * 필터링 커넥션 정렬
+   * Sort connection list
    * @param {string} key
    */
-  public sort(key: string): void {
-    // 정렬 정보 저장
+  public sortConnectionList(key: string): void {
+    // set selected sort
     this.selectedContentSort.key = key;
 
     if (this.selectedContentSort.key === key) {
@@ -266,49 +176,148 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
           break;
       }
     }
-    // 페이지 초기화
-    this.page.page = 0;
-    // 재조회
-    this.getDataconnection();
+    // search connection
+    this.searchConnection();
   }
 
   /**
-   * 데이터커넥션 검색 이벤트
-   * @param {boolean} initFl
+   * Remove connection click event
+   * @param {Dataconnection} connection
    */
-  public searchEvent(initFl: boolean): void {
-    // esc
-    if (!initFl) {
-      this.searchText = '';
-    }
-    // 페이지 초기화
-    this.page.page = 0;
-    // 데이터 커넥션 리스트 조회
-    this.getDataconnection();
+  public onClickRemoveConnection(connection: Dataconnection): void {
+    const modal = new Modal();
+    modal.name = this.translateService.instant('msg.storage.ui.dconn.delete.title');
+    modal.description = this.translateService.instant('msg.storage.ui.delete.title');
+    modal.btnName = this.translateService.instant('msg.storage.ui.dconn.delete.btn');
+    // set connection id
+    modal.data = connection.id;
+    // 팝업 창 오픈
+    this.deleteModalComponent.init(modal);
   }
 
   /**
-   * 데이터커넥션 텍스트 검색
+   * create connection click event
+   */
+  public onClickCreateConnection(): void {
+    // open create connection
+    this.connectionStep = 'create-connection';
+    this.selectedConnection = new Dataconnection();
+  }
+
+  /**
+   * connection click event
+   * @param {Dataconnection} connection
+   */
+  public onClickConnection(connection: Dataconnection): void {
+    // open connection detail
+    this.connectionStep = 'update-connection';
+    this.selectedConnection = connection;
+  }
+
+  /**
+   * More connection click event
+   */
+  public onClickMoreConnectionList(): void {
+    // if more connection list
+    if (this.isMoreContents()) {
+      // add page number
+      this.page.page += 1;
+      // set connection list
+      this._setConnectionList();
+    }
+  }
+
+  /**
+   * Criteria filter change event
+   * @param {{label: CriterionKey; value: any}} criteriaObject
+   */
+  public onChangedCriteriaFilter(criteriaObject: {label: CriterionKey, value: any}): void {
+    // if changed criteria filter key is MORE
+    if (criteriaObject.label === CriterionKey.MORE) {
+      // selected criterion filters
+      Object.keys(criteriaObject.value).forEach((key) => {
+        // if not exist criterion in selected criterion filters
+        if (criteriaObject.value[key].length === 0) {
+          // loop
+          this.connectionFilterList.forEach((criterion, index, array) => {
+            // if exist criterion in filter list
+            if (criterion.criterionKey.toString() === key) {
+              // remove criterion in criterion object data
+              delete this._criterionDataObject[key];
+              // remove filter
+              array.splice(index, 1);
+              // search connection
+              this.searchConnection();
+            }
+          });
+        } else if (this.connectionFilterList.every(criterion => criterion.criterionKey.toString() !== key)){ // if not exist criterion in filter list
+          // add filter
+          this.connectionFilterList.push(this._originMoreCriterionList.find(originCriterion => originCriterion.criterionKey.toString() === key));
+          // init removed key
+          this.removedCriterionKey && (this.removedCriterionKey = null);
+        }
+      });
+    } else {
+      this._criterionDataObject[criteriaObject.label] = criteriaObject.value;
+      // search connection
+      this.searchConnection();
+    }
+  }
+
+  /**
+   * Search connection keypress event
    * @param {KeyboardEvent} event
    */
-  public searchDataconnnectionEvent(event: KeyboardEvent): void {
-    ( 13 === event.keyCode ) && (this.searchEvent(true));
+  public onSearchConnection(event: KeyboardEvent): void {
+    // enter event
+    if (13 === event.keyCode) {
+      // search connection
+      this.searchConnection();
+    }
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method - getter
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 더 조회할 컨텐츠가 있는지 여부
-   * @returns {boolean}
+   * Reset search connection keyup event
    */
-  public isMoreContents(): boolean {
-    return (this.page.page < this.pageResult.totalPages -1);
+  public resetSearchConnection(): void {
+    // init search keyword
+    this.searchKeyword = '';
+    // search connection
+    this.searchConnection();
   }
 
   /**
-   * 커넥션이 Default 타입이라면
+   * Get connection implementor label
+   * @param {ConnectionType} implementor
+   * @returns {string}
+   */
+  public getConnectionImplementorLabel(implementor: ConnectionType): string {
+    switch (implementor) {
+      case ConnectionType.MYSQL:
+        return 'MySQL';
+      case ConnectionType.ORACLE:
+        return 'Oracle';
+      case ConnectionType.TIBERO:
+        return 'Tibero';
+      case ConnectionType.HIVE:
+        return 'Hive';
+      case ConnectionType.POSTGRESQL:
+        return 'PostgreSQL';
+      case ConnectionType.PRESTO:
+        return 'Presto';
+      case ConnectionType.MSSQL:
+        return 'MsSQL';
+      case ConnectionType.STAGE:
+        return 'StagingDB';
+      case ConnectionType.FILE:
+        return 'File';
+      default:
+        return implementor.toString();
+    }
+  }
+
+  /**
+   * Is default type connection
    * @param {Dataconnection} connection
    * @returns {boolean}
    */
@@ -317,114 +326,151 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
   }
 
   /**
-   * 컨텐츠 총 갯수
-   * @returns {number}
+   * Is more connection list
+   * @returns {boolean}
    */
-  public get getTotalContentsCount(): number {
-    return this.pageResult.totalElements;
+  public isMoreContents(): boolean {
+    return (this.page.page < this.pageResult.totalPages - 1);
   }
 
   /**
-   * Get connection type
-   * @param {string} implementor
-   * @returns {string}
+   * Is criterion in origin more criterion list
+   * @param {ListCriterion} criterion
+   * @returns {boolean}
    */
-  public getConnectionType(implementor: string): string {
-    return (this.dbTypes.find((type) => type.value === implementor) || {label: implementor}).label;
+  public isAdvancedCriterion(criterion: ListCriterion): boolean {
+    return -1 !== this._findCriterionIndexInCriterionList(this._originMoreCriterionList, criterion);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * criterion api function
+   * @param criterionKey
+   * @returns {Promise<ListCriterion>}
+   */
+  public criterionApiFunc(criterionKey: any): Promise<ListCriterion> {
+    // require injector in constructor
+    return this.injector.get(DataconnectionService).getCriterionInConnection(criterionKey);
+  }
 
   /**
-   * 데이터 커넥션 목록조회
+   * Set datasource list
+   * @private
    */
-  private getDataconnection(): void {
-    // 로딩 show
+  private _setConnectionList(): void {
+    // loading show
     this.loadingShow();
-    // 데이터커넥션 목록 조회
-    this.dataconnectionService.getAllDataconnections(this.getDataConnectionParams())
-      .then((dataconnections) => {
-        // 페이지 객체 저장
-        this.pageResult = dataconnections['page'];
-        // 페이지가 첫번째면
+    // get connection list
+    this.dataconnectionService.getConnectionList(this.page.page, this.page.size, this.selectedContentSort.key + ',' + this.selectedContentSort.sort, this._getConnectionParams())
+      .then((result) => {
+        // set page result
+        this.pageResult = result['page'];
+        // if page number is 0
         if (this.page.page === 0) {
-          this.dataconnections = [];
+          // init connection list
+          this.connectionList = [];
         }
-        // 데이터가 있다면
-        this.dataconnections = dataconnections['_embedded'] ? this.dataconnections.concat(dataconnections['_embedded'].connections) : [];
-        // 로딩 hide
+        // set connection list
+        this.connectionList = result['_embedded'] ? this.connectionList.concat(result['_embedded'].connections) : [];
+        // loading hide
         this.loadingHide();
       })
-      .catch((error) => {
-        console.error(error);
-        // 로딩 hide
-        this.loadingHide();
-      });
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
-   * ui 초기화
+   * Init UI
+   * @private
    */
-  private initView(): void {
-    // 페이지 초기화
+  private _initView(): void {
+    // init page
     this.page.page = 0;
     this.page.size = 20;
-    // db 타입
-    this.dbTypes = this.getEnabledConnectionTypes();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method - getter
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Get connection params
+   * @returns {Object}
+   * @private
+   */
+  private _getConnectionParams(): object {
+    // params
+    const params = {};
+    // criterion filter list
+    Object.keys(this._criterionDataObject).forEach((key: any) => {
+      // key loop
+      Object.keys(this._criterionDataObject[key]).forEach((criterionKey) => {
+        if (this._criterionDataObject[key][criterionKey].length !== 0) {
+          // if CREATED_TIME, MODIFIED_TIME
+          if ((key === CriterionKey.CREATED_TIME || key === CriterionKey.MODIFIED_TIME)) {
+            // if not ALL, set value
+            criterionKey !== 'ALL' && this._criterionDataObject[key][criterionKey].forEach(item => params[item.filterKey] = item.filterValue);
+          } else {
+            // set key
+            params[criterionKey] = [];
+            // set value
+            this._criterionDataObject[key][criterionKey].forEach(item => params[criterionKey].push(item.filterValue));
+          }
+        }
+      });
+    });
+    // if search keyword not empty
+    if (StringUtil.isNotEmpty(this.searchKeyword)) {
+      params['containsText'] = this.searchKeyword.trim();
+    }
+    return params;
+  }
 
   /**
-   * 데이터 커넥션 조회 파라메터
-   * @returns {{size: number; page: number}}
+   * Find criterion index in criterion list
+   * @param {ListCriterion[]} criterionList
+   * @param {ListCriterion} criterion
+   * @returns {number}
+   * @private
    */
-  private getDataConnectionParams() {
-    const params = {
-      size: this.page.size,
-      page: this.page.page
-    };
-    // DB 타입
-    if (this.searchDb !== 'all') {
-      params['implementor'] = this.searchDb;
-    }
-    // 이름 검색
-    if (this.searchText.trim() !== '') {
-      params['name'] = this.searchText.trim();
-    }
-    // 정렬
-    if (this.selectedContentSort.sort !== 'default') {
-      params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort;
-    }
-    // date 타입
-    if (this.selectedDate && this.selectedDate.type !== 'ALL') {
-      params['searchDateBy'] = this.selectedDate.dateType;
-      if (this.selectedDate.startDateStr) {
-        params['from'] = this.selectedDate.startDateStr + '.000Z';
-      }
-      params['to'] = this.selectedDate.endDateStr + '.000Z';
-    }
+  private _findCriterionIndexInCriterionList(criterionList: ListCriterion[], criterion: ListCriterion): number {
+    return criterionList.findIndex(item => item.criterionKey === criterion.criterionKey);
+  }
 
-    return params;
+  /**
+   * Set default selected filter list
+   * @param {ListFilter[]} defaultFilters
+   * @private
+   */
+  private _setDefaultSelectedFilterList(defaultFilters: ListFilter[]): void {
+    // set criterion data object
+    defaultFilters.forEach(filter => this._setCriterionDataObjectProperty(filter));
+    // set default selected filter list
+    this.defaultSelectedFilterList = this._criterionDataObject;
+  }
+
+  /**
+   * Set criterion data object property
+   * @param {ListFilter} filter
+   * @private
+   */
+  private _setCriterionDataObjectProperty(filter: ListFilter): void {
+    // if exist criterion in criterion data object
+    if (this._criterionDataObject[filter.criterionKey]) {
+      // if exist filterKey in criterion
+      if (this._criterionDataObject[filter.criterionKey][filter.filterKey]) {
+        // set criterion data object
+        this._criterionDataObject[filter.criterionKey][filter.filterKey].push(filter);
+      } else { // if not exist filterKey in criterion
+        // set criterion data object
+        this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
+      }
+      // set criterion data object
+      this._criterionDataObject[filter.criterionKey][filter.filterKey].push(filter);
+    } else {  // if not exist criterion in criterion data object
+      // create object
+      this._criterionDataObject[filter.criterionKey] = {};
+      // set criterion data object
+      this._criterionDataObject[filter.criterionKey][filter.filterKey] = [filter];
+    }
   }
 }
 
 class Order {
   key: string = 'createdTime';
   sort: string = 'desc';
-}
-
-class Date {
-  dateType : string;
-  endDateStr : string;
-  startDateStr : string;
-  type: string;
 }

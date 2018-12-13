@@ -27,15 +27,15 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Map;
 
 import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS;
 import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_SINGLE_QUOTES;
 
 /**
  * Spring Context 에 영향을 받지 않는 클래스 내애서 활용할 ObjectMapper 싱글톤 클래스 생성 <br/>
- *  - 전체 어플리케이션에서 사용하는 공통 ObjectMapper 활용시 getDefaultMapper() 메소드 활용 <br/>
- *  - 추가적으로 설정이 필요한 부분은 클래스 속성을 추가하여 Builder 클래스에 추가 설정을 구성하여 활용 <br/>
- *
+ *   - 전체 어플리케이션에서 사용하는 공통 ObjectMapper 활용시 getDefaultMapper() 메소드 활용 <br/>
+ *   - 추가적으로 설정이 필요한 부분은 클래스 속성을 추가하여 Builder 클래스에 추가 설정을 구성하여 활용 <br/>
  */
 @Component
 public final class GlobalObjectMapper {
@@ -49,11 +49,11 @@ public final class GlobalObjectMapper {
   private GlobalObjectMapper() {
     defaultMapper = getDefaultBuilder().build();
     resultSetMapper = getDefaultBuilder()
-                    .serializers(new ResultSetSerializer())
-                    .build();
+        .serializers(new ResultSetSerializer())
+        .build();
     quoteNonNumericMapper = getDefaultBuilder()
-            .featuresToDisable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS)
-            .build();
+        .featuresToDisable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS)
+        .build();
   }
 
   private static Jackson2ObjectMapperBuilder getDefaultBuilder() {
@@ -70,7 +70,7 @@ public final class GlobalObjectMapper {
   }
 
   public static ObjectMapper getDefaultMapper() {
-    if(defaultMapper == null) {
+    if (defaultMapper == null) {
       defaultMapper = getDefaultBuilder().build();
     }
 
@@ -79,16 +79,13 @@ public final class GlobalObjectMapper {
 
   /**
    * For Logging or Debugging
-   *
-   * @param object
-   * @return
    */
   public static String writeValueAsString(Object object) {
-    if(defaultMapper == null) {
+    if (defaultMapper == null) {
       defaultMapper = getDefaultBuilder().build();
     }
 
-    if(object == null) {
+    if (object == null) {
       return null;
     }
 
@@ -101,11 +98,11 @@ public final class GlobalObjectMapper {
   }
 
   public static String writeListValueAsString(Object object, Class<?> clazz) {
-    if(defaultMapper == null) {
+    if (defaultMapper == null) {
       defaultMapper = getDefaultBuilder().build();
     }
 
-    if(object == null) {
+    if (object == null) {
       return null;
     }
 
@@ -121,51 +118,58 @@ public final class GlobalObjectMapper {
 
   /**
    * For Logging or Debugging
-   *
-   * @param content
-   * @param valueType
-   * @return
    */
   public static <T> T readValue(String content, Class<T> valueType) {
-    if(defaultMapper == null) {
+
+    if (content == null) {
+      return null;
+    }
+
+    if (defaultMapper == null) {
       defaultMapper = getDefaultBuilder().build();
     }
 
     try {
       return defaultMapper.readValue(content, valueType);
-    } catch (IOException e) {}
+    } catch (IOException e) {
+    }
 
     return null;
   }
 
   public static <T> List<T> readListValue(String content, Class<T> valueType) {
-    if(defaultMapper == null) {
+    if (defaultMapper == null) {
       defaultMapper = getDefaultBuilder().build();
     }
 
     try {
       return defaultMapper.readValue(content, defaultMapper.getTypeFactory()
                                                            .constructCollectionType(List.class, valueType));
-    } catch (IOException e) {}
+    } catch (IOException e) {
+    }
 
     return null;
   }
 
   public static <T> T readValue(String content, TypeReference<T> typeReference) {
-    if(defaultMapper == null) {
+    if (defaultMapper == null) {
       defaultMapper = getDefaultBuilder().build();
     }
 
     try {
       return defaultMapper.readValue(content, typeReference);
-    } catch (IOException e) {}
+    } catch (IOException e) {
+    }
 
     return null;
   }
 
+  public static Map readValue(String content) {
+    return readValue(content, Map.class);
+  }
 
   public static ObjectMapper getResultSetMapper() {
-    if(resultSetMapper == null) {
+    if (resultSetMapper == null) {
       resultSetMapper = getDefaultBuilder()
           .serializers(new ResultSetSerializer())
           .build();
@@ -175,7 +179,7 @@ public final class GlobalObjectMapper {
   }
 
   public static ObjectMapper getQuoteNonNumericMapper() {
-    if(quoteNonNumericMapper == null) {
+    if (quoteNonNumericMapper == null) {
       quoteNonNumericMapper = getDefaultBuilder()
           .featuresToDisable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS)
           .build();

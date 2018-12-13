@@ -26,11 +26,11 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { TimeUnit } from '../../../domain/workbook/configurations/field/timestamp-field';
-import { PickerSettings } from '../../../domain/common/datepicker.settings';
-import { isNullOrUndefined } from 'util';
-import { TimeRangeFilter } from '../../../domain/workbook/configurations/filter/time-range-filter';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {TimeUnit} from '../../../domain/workbook/configurations/field/timestamp-field';
+import {PickerSettings} from '../../../domain/common/datepicker.settings';
+import {isNullOrUndefined} from 'util';
+import {TimeRangeFilter} from '../../../domain/workbook/configurations/filter/time-range-filter';
 
 declare let moment: any;
 declare let $: any;
@@ -207,25 +207,29 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
         this.selectedFromComboItem = this.comboList[this.fromComboIdx];
       }
 
-      if ( [TimeUnit.NONE, TimeUnit.HOUR, TimeUnit.MINUTE ].some( unit => unit === this.compData.timeUnit ) ) {
+      if ([TimeUnit.NONE, TimeUnit.HOUR, TimeUnit.MINUTE].some(unit => unit === this.compData.timeUnit)) {
         this._fromDate = fromMoment.subtract(9, 'hours').toDate();
       } else {
         this._fromDate = fromMoment.toDate();
       }
 
-      // 시작일 DatePicker 생성
-      const startPickerSettings: TimeRangePickerSettings
-        = new TimeRangePickerSettings(
-        'ddp-text-calen',
-        (fdate: string, date: Date) => {
-          this._fromDate = date;
-        },
-        () => {
-          this.onDateChange.emit(this._getTimeRange(true));
-        },
-        this.compData.timeUnit
-      );
-      this._fromPicker = $(this._fromPickerInput.nativeElement).datepicker(startPickerSettings).data('datepicker');
+      if (isNullOrUndefined(this._fromPicker)) {
+        // 시작일 DatePicker 생성
+        const startPickerSettings: TimeRangePickerSettings
+          = new TimeRangePickerSettings(
+          'ddp-text-calen',
+          (fdate: string, date: Date) => {
+            this._fromDate = date;
+          },
+          () => {
+            this.onDateChange.emit(this._getTimeRange(true));
+          },
+          this.compData.timeUnit
+        );
+        this._fromPicker = $(this._fromPickerInput.nativeElement).datepicker(startPickerSettings).data('datepicker');
+      }
+
+      this._fromPicker.date = this._fromDate;
       this._fromPicker.selectDate(this._fromDate);
     }
 
@@ -253,14 +257,14 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
         this.selectedToComboItem = this.comboList[this.toComboIdx];
       }
 
-      if ( [TimeUnit.NONE, TimeUnit.HOUR, TimeUnit.MINUTE ].some( unit => unit === this.compData.timeUnit ) ) {
+      if ([TimeUnit.NONE, TimeUnit.HOUR, TimeUnit.MINUTE].some(unit => unit === this.compData.timeUnit)) {
         this._toDate = toMoment.subtract(9, 'hours').toDate();
       } else {
         this._toDate = toMoment.toDate();
       }
 
       // 종료일 DatePicker 생성
-      if (interval.endDate !== TimeRangeFilter.LATEST_DATETIME) {
+      if (isNullOrUndefined(this._toPicker)) {
         const endPickerSettings: TimeRangePickerSettings
           = new TimeRangePickerSettings(
           'ddp-text-calen',
@@ -273,8 +277,10 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
           this.compData.timeUnit
         );
         this._toPicker = $(this._toPickerInput.nativeElement).datepicker(endPickerSettings).data('datepicker');
-        this._toPicker.selectDate(this._toDate);
       }
+
+      this._toPicker.date = this._toDate;
+      this._toPicker.selectDate(this._toDate);
     }
 
   } // function - _setPicker
@@ -290,7 +296,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
    */
   private _getTimeRange(isStart: boolean): TimeRange {
 
-    if( this._fromDate && this._toDate && 0 < (this._fromDate.getTime() - this._toDate.getTime()) ) {
+    if (this._fromDate && this._toDate && 0 < (this._fromDate.getTime() - this._toDate.getTime())) {
       // 선택한 시작날짜가 종료날짜보다 크면 시작날짜로 셋팅
       if (isStart) {
         this._toDate = this._fromDate;

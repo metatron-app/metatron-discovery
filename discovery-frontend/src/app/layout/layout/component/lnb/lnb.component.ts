@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { NavigationEnd } from '@angular/router';
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { WorkspaceService } from '../../../../workspace/service/workspace.service';
@@ -27,6 +27,8 @@ import { CommonUtil } from '../../../../common/util/common.util';
 import { Modal } from '../../../../common/domain/modal';
 import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
 import { BuildInfo } from "../../../../../environments/build.env";
+import {CommonService} from "../../../../common/service/common.service";
+import {Extension} from "../../../../common/domain/extension";
 
 @Component({
   selector: 'app-lnb',
@@ -97,7 +99,6 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       fold: true,
       metadata: { fold:true },
       dataStorage: { fold: true },
-      integrator: { fold: true },
       dataPreparation: { fold: true },
       dataMonitoring: { fold: true },
       modelManager: { fold: true }
@@ -114,6 +115,10 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public  buildInfo = {
     appVersion: BuildInfo.METATRON_APP_VERSION
   };
+
+  public get getManagementExtensions():Extension[] {
+    return CommonService.extensions.filter( item => 'management' === item.parent );
+  } // get - getManagementExtensions
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Component
@@ -136,6 +141,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
 
   constructor(private broadCaster: EventBroadcaster,
               private workspaceService: WorkspaceService,
+              private commonService: CommonService,
               protected elementRef: ElementRef,
               protected  injector: Injector) {
     super(elementRef, injector);
@@ -208,6 +214,24 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     }
     const cookieWs = this.cookieService.get(CookieConstant.KEY.CURRENT_WORKSPACE);
     (cookieWs) && ( this.cookieInfo = JSON.parse(cookieWs) );
+
+    // 선택 필터 설정
+    this.subscriptions.push(
+      this.broadCaster.on<any>('CM_CLOSE_LNB').subscribe(data => {
+        this._closeLNB();
+      })
+    );
+
+    // extensions 설정
+    this.commonService.getExtensions('lnb' ).then( items => {
+      if( items && 0 < items.length ) {
+        const exts:Extension[] = items;
+        exts.forEach( ext => {
+          ( this.lnbManager[ext.parent] ) || ( this.lnbManager[ext.parent] = {} );
+          this.lnbManager[ext.parent][ext.name] = { fold : true };
+        });
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -217,6 +241,19 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  ObjectKeys = Object.keys;
+
+  /**
+   * Document Click Handler ( input class 제거 )
+   * @param target
+   */
+  @HostListener('document:click', ['$event.target'])
+  documentClickHandler(target) {
+    const $target = $(target);
+    if (!$target.hasClass('ddp-layout-lnb') && 0 === $target.closest('.ddp-layout-lnb').length) {
+      this._closeLNB();
+    }
+  } // function - documentClickHandler
 
   /**
    * 메인 화면으로 이동
@@ -228,6 +265,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     } else {
       this.router.navigate(['/workspace']).then(); // 이동
     }
+    this._closeLNB();
   } // function - goMain
 
   /**
@@ -266,12 +304,13 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     this.lnbManager.management.dataPreparation.fold = true;
     this.lnbManager.management.dataMonitoring.fold = true;
     this.lnbManager.management.modelManager.fold = true;
+    this.getManagementExtensions.forEach( item => {
+      this.lnbManager.management[item.name]['fold']  = true;
+    });
+
     switch (menuName) {
       case 'METADATA' :
         this.lnbManager.management.metadata.fold = false;
-        break;
-      case 'INTEGRATOR' :
-        this.lnbManager.management.integrator.fold = false;
         break;
       case 'DATASTORAGE' :
         this.lnbManager.management.dataStorage.fold = false;
@@ -285,6 +324,10 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       case 'MODELMANAGER' :
         this.lnbManager.management.modelManager.fold = false;
         break;
+      default :
+        if( this.lnbManager.management[menuName] ) {
+          this.lnbManager.management[menuName]['fold'] = false;
+        }
     }
   } // function - mgmtMenuClickListener
 
@@ -309,7 +352,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
    * 워크스페이스 리스트 페이지 오픈
    */
   public workspaceList() {
-    this.isShow = false;
+    this._closeLNB();
     this.workspaceListComponent.init();
   } // function - workspaceList
 
@@ -318,7 +361,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
    * @param {string} workspaceId
    */
   public moveWorkspace(workspaceId: string) {
-    this.isShow = false;
+    this._closeLNB();
     this.router.navigate(['/workspace', workspaceId]).then();
   } // function - moveWorkspace
 
@@ -341,11 +384,11 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public moveToWorkspace(workspace?: Workspace, isRemoveCookie: boolean = true) {
     if (workspace && !workspace.active) {
       const modal = new Modal();
-      modal.name = '비활성 워크스페이스';
-      modal.description = '비활성화된 워크스페이스 입니다';
-      modal.subDescription = '다시 활성시키려면 관리자에게 문의해 주세요';
+      modal.name = this.translateService.instant('msg.space.alert.workspace.disabled');
+      modal.description = this.translateService.instant('msg.space.alert.workspace.disabled.desc');
+      modal.subDescription = this.translateService.instant('msg.space.alert.workspace.disabled.desc.sub');
       modal.isShowCancel = false;
-      modal.btnName = '확인';
+      modal.btnName = this.translateService.instant('msg.comm.ui.ok');
       modal.data = {
         type: 'INACTIVE',
         afterConfirm: function () {
@@ -363,8 +406,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       if (isRemoveCookie) {
         this.cookieService.delete(CookieConstant.KEY.CURRENT_WORKSPACE, '/');  // 쿠키 삭제
       }
-      this.isShow = false;                  // 메뉴 닫음
-      this.isShowFolderNavi = false;        // 네비게이션 닫음
+      this._closeLNB();
       if (navigateInfo.includes('/workspace') && this.router.url === navigateInfo.join('/')) {
         this.broadCaster.broadcast('moveFromLnb', workspaceId);
       } else {
@@ -382,8 +424,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     if (isRemoveCookie) {
       this.cookieService.delete(CookieConstant.KEY.CURRENT_WORKSPACE, '/');  // 쿠키 삭제
     }
-    this.isShow = false;                // 메뉴 닫음
-    this.isShowFolderNavi = false;      // 네비게이션 닫음
+    this._closeLNB();
     this.router.navigate(navigateInfo).then(); // 이동
   } // function - moveByRouteNavigate
 
@@ -502,7 +543,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       // window.location.href = environment.baseHref + menu;
       this.loadingShow();
       this.router.navigate([menu]).then();
-      this.isShow = false;
+      this._closeLNB();
     }
   } // function - move
 
@@ -512,7 +553,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
   public downloadManual() {
     const browserLang:string = this.translateService.getBrowserLang();
     const lang:string = browserLang.match(/en/) ? 'en' : 'ko';
-    this.workspaceService.downloadManual(lang);
+    this.commonService.downloadManual(lang);
   } // function - downloadManual
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -596,4 +637,13 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       this.sharedWorkspace = Object.assign([], this.list);
     }
   } // function - _getFavoriteList
+
+  /**
+   * LNB를 닫는다.
+   * @private
+   */
+  private _closeLNB() {
+    this.isShow=false;
+    this.isShowFolderNavi=false;
+  } // function - _closeLNB
 }

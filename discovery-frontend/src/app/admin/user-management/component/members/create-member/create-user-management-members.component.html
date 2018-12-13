@@ -22,10 +22,10 @@
       <!-- detail -->
       <div class="ddp-box-detail">
         <!-- 필수 일때 ddp-error 추가 -->
-        <div class="ddp-ui-input-form" [class.ddp-type-error]="resultName === false">
-          <label class="ddp-label-type">{{'msg.mem.ui.create.name' | translate}}</label>
+        <div class="ddp-ui-input-form" [ngClass]="{ 'ddp-type-ok' : resultName === true, 'ddp-type-error' : resultName === false }">
+          <label class="ddp-label-type">{{'msg.mem.ui.create.fullname' | translate}}</label>
           <div class="ddp-input-check">
-            <input type="text" class="ddp-input-type" placeholder="{{'msg.mem.ph.create.name' | translate}}"
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.mem.ph.create.fullname' | translate}}"
                    [(ngModel)]="userName"
                    maxlength="50"
                    (keyup)="initNameValidation()"
@@ -38,10 +38,10 @@
           <!-- error -->
         </div>
         <!-- 필수 일때 ddp-error 추가 -->
-        <div class="ddp-ui-input-form" [class.ddp-type-error]="resultId === false">
-          <label class="ddp-label-type">{{'msg.mem.ui.create.id' | translate}}</label>
+        <div class="ddp-ui-input-form" [ngClass]="{'ddp-type-ok' : resultId === true, 'ddp-type-error' : resultId === false }">
+          <label class="ddp-label-type">{{'msg.mem.ui.create.name' | translate}}</label>
           <div class="ddp-input-check">
-            <input type="text" class="ddp-input-type" placeholder="{{'msg.mem.ph.create.id' | translate}}"
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.mem.ph.create.name' | translate}}"
                    [(ngModel)]="userId"
                    (keyup)="initIdValidation()"
                    (blur)="idValidation()">
@@ -53,7 +53,7 @@
           <!-- error -->
         </div>
         <!-- 필수 일때 ddp-error 추가 -->
-        <div class="ddp-ui-input-form" [class.ddp-type-error]="resultEmail === false">
+        <div class="ddp-ui-input-form" [ngClass]="{'ddp-type-ok' : resultEmail === true, 'ddp-type-error' : resultEmail === false}">
           <label class="ddp-label-type">{{'msg.mem.ui.create.email' | translate}}</label>
           <div class="ddp-input-check">
             <input type="text" class="ddp-input-type" placeholder="{{'msg.mem.ph.create.email' | translate}}"

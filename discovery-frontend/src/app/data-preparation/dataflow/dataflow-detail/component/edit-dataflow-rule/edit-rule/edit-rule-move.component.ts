@@ -16,11 +16,13 @@ import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
 import { isNullOrUndefined } from 'util';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'edit-rule-move',
@@ -101,9 +103,11 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
       return undefined
     }
 
-    const columnsStr: string = this.selectedFields.map( item => item.name ).join(', ');
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
+      return '`' + item.name + '`';
+    }).join(', ');
 
-    if (isNullOrUndefined(this.beforeOrAfter)) {
+    if (isNullOrUndefined(this.beforeOrAfter) || this.beforeOrAfter === '') {
       Alert.warning(this.translateService.instant('msg.dp.alert.before.after'));
       return undefined
     }
@@ -121,7 +125,7 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
     return {
       command: 'move',
       col: columnsStr,
-      ruleString: `move col: ${columnsStr} ${this.beforeOrAfter}: ${this.selectedStandardField}`
+      ruleString: `move col: ${columnsStr} ${this.beforeOrAfter}: ${'`' + this.selectedStandardField + '`'}`
     };
 
   } // function - getRuleData
@@ -168,24 +172,25 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
 
   /**
    * rule string 을 분석한다.
-   * @param ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
-    }
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    let str = ruleString.split('before');
-    if (isNullOrUndefined(str[1])) {
-      this.beforeOrAfter = 'after';
-      this.defaultIndex = 1;
-    } else {
+    // COLUMN
+    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+
+    // BEFORE OR AFTER
+    if (data.jsonRuleString.hasOwnProperty('before')) {
       this.beforeOrAfter = 'before';
       this.defaultIndex = 0;
+    } else {
+      this.beforeOrAfter = 'after';
+      this.defaultIndex = 1;
     }
-    this.selectedStandardField = this.getAttrValueInRuleString( this.beforeOrAfter, ruleString );
+
+    // REFERENCE COLUMN
+    this.selectedStandardField = data.jsonRuleString[this.beforeOrAfter];
     this.defaultColIndex = this.fields.findIndex((item) => {
       return item.name === this.selectedStandardField
     });

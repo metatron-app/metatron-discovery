@@ -18,23 +18,46 @@
   </div>
   <ul class="ddp-list-snapshot" *ngIf="snapshotList && snapshotList.length > 0 ">
     <li *ngFor="let snapshot of snapshotList">
-      <div class="ddp-txt-snapshot" (click)="snapshotDetail(snapshot)" [ngClass]="{'ddp-disabled':snapshot.isCancel || snapshot.status === 'NOT_AVAILABLE'}">
-        <em class="ddp-icon-snap-{{getSnapshotStatus(snapshot.status)[1]}}">
-          <a href="javascript:" class="ddp-icon-cancel" *ngIf="!snapshot.elapsedTime" (click)="$event.stopImmediatePropagation(); cancelSnapshot(snapshot)"></a>
-        </em>
+
+      <div class="ddp-txt-snapshot"
+           (click)="snapshotDetail(snapshot)"
+           [ngClass]="{'ddp-disabled':snapshot.isCancel || snapshot.status === 'NOT_AVAILABLE'}">
+
+        <em class="ddp-icon-snap-{{getSnapshotStatus(snapshot.status)[1]}}"></em>
+
+        <!--Information-->
         <div class="ddp-data-det">
-          <div class="ddp-data-title">{{getSnapshotStatus(snapshot.status)[0]}}</div>
-          <div class="ddp-data-date">{{snapshot.ssName}}, {{snapshot.createdTime | mdate : 'YYYY-MM-DD HH:mm:ss'}}</div>
+          <div class="ddp-data-status type-{{getSnapshotStatus(snapshot.status)[1]}}">{{getSnapshotStatus(snapshot.status)[0]}}</div>
+          <div class="ddp-data-name">
+            <!--
+            <span class="ddp-tag-type">{{getSnapshotType(snapshot.ssType)}}</span>
+            -->
+            <span class="ddp-tag-type">{{prepCommonUtil.getSnapshotType(snapshot.ssType)}}</span>
+              {{snapshot.ssName}}
+          </div>
+          <div class="ddp-data-date">{{snapshot.createdTime | mdate : 'YYYY-MM-DD HH:mm:ss'}}</div>
         </div>
+        <!--Information-->
+
+        <!--Progress bar-->
+        <div class="ddp-wrap-progress" *ngIf="getSnapshotStatus(snapshot.status)[0] === 'Preparing'">
+          <div class="ddp-ui-progress ddp-play">
+            <span class="ddp-bar" [ngStyle]="{'width': (snapshot.ruleCntDone * 100 / (snapshot.ruleCntTotal + 1)) + '%'}"></span>
+          </div>
+          <a href="javascript:" class="ddp-btn-cancel" *ngIf="!snapshot.elapsedTime" (click)="$event.stopImmediatePropagation(); cancelSnapshot(snapshot)"></a>
+        </div>
+        <!-- //Progress bar-->
+
       </div>
-      <div class="ddp-ui-progress ddp-play" *ngIf="getSnapshotStatus(snapshot.status)[0] === 'Preparing' && !snapshot.isCancel">
-        <span class="ddp-bar" [ngStyle]="{'width': (snapshot.ruleCntDone * 100 / (snapshot.ruleCntTotal + 1)) + '%'}"></span>
-      </div>
+
+      <!--Cancel popup-->
       <div class="ddp-txt-cancel" *ngIf="snapshot.isCancel">
         <span class="ddp-txt-det">{{'msg.dp.ui.snapshot.cancel.confirm' | translate }}</span>
-        <a href="javascript:" class="ddp-btn-line" (click)="refreshSnapshotList(snapshot)">{{'msg.dp.ui.no' | translate }}</a>
-        <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="cancelSnapshotConfirm(snapshot)">{{'msg.dp.ui.yes' | translate }}</a>
+        <a href="javascript:" class="ddp-btn-line" (click)="refreshSnapshotList(snapshot)">{{'msg.dp.ui.no' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="cancelSnapshotConfirm(snapshot)">{{'msg.dp.ui.yes' | translate}}</a>
       </div>
+      <!--Cancel popup-->
+
     </li>
   </ul>
   <div class="ddp-ui-link" (click)="goToSnapshotList()">

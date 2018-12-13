@@ -15,38 +15,72 @@
 <!--  테이블 리스트 -->
 <div class="ddp-wrap-tablelist">
   <!-- search -->
-  <div class="ddp-form-search">
-    <em class="ddp-icon-search"></em>
-    <input type="text" placeholder="{{'msg.bench.ui.search'|translate}}" [(ngModel)]="searchText"
-           (keyup.esc)="searchTableTextInit()"
-           (keypress)="searchTableText($event)">
-    <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchTableTextInit()"></em>
+  <div class="ddp-wrap-list-search">
+    <a href="javascript:" class="ddp-btn-refresh" (click)="searchTableTextInit()"></a>
+    <div class="ddp-ui-list-search">
+      <input type="text" placeholder="{{'msg.bench.ui.search'|translate}}" [(ngModel)]="searchText"
+             (keyup.esc)="searchTableTextInit()"
+             (keypress)="searchTableText($event)">
+      <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchTableTextInit()"></em>
+    </div>
   </div>
   <!-- //search -->
+
+  <!-- head -->
+  <div class="ddp-tablelist-header" *ngIf="totalTableElements > 0">
+    <!-- ;num -->
+    <div class="ddp-table-num">
+      <span class="ddp-number">{{totalTableElements}}</span>
+      {{'msg.bench.ui.tables' | translate}}
+    </div>
+    <!-- //num -->
+    <!-- table sort -->
+    <span class="ddp-table-title" [ngStyle]="{'display': tableSortType == 'DEFAULT' ? '':'none'}"  (click)="tableListSorting('DESC')">
+      Physical Table Name
+      <a href="javascript:" class="ddp-icon-sort-default"></a>
+    </span>
+    <span class="ddp-table-title" [ngStyle]="{'display': tableSortType == 'ASC' ? '':'none'}" (click)="tableListSorting('ASC')">
+      Physical Table Name
+      <a href="javascript:"  class="ddp-icon-sort-asc"></a>
+    </span>
+    <span class="ddp-table-title" [ngStyle]="{'display': tableSortType == 'DESC' ? '':'none'}"  (click)="tableListSorting('DESC')">
+      Physical Table Name
+      <a href="javascript:" class="ddp-icon-sort-des"></a>
+    </span>
+    <!-- //table sort -->
+  </div>
+  <!-- ///head -->
+
   <div class="ddp-ui-tablelist">
     <ul class="ddp-list-table">
-      <li *ngFor="let item of tables; let index = index" (click)="setTableSql(item.name)" [class.ddp-info-selected]="selectedTableInfoLayer && index == selectedNum" >
+      <li *ngFor="let item of tables; let index = index" (click)="setTableSql(item)" [class.ddp-info-selected]="selectedTableInfoLayer && index == selectedNum" >
         <em class="ddp-icon-table"></em>
-        <span class="ddp-data-tablename">{{item.name}}</span>
+        <span class="ddp-data-tablename" title="{{item}}">{{item}}</span>
         <!-- 버튼 -->
         <div class="ddp-ui-buttons">
           <!-- 클릭시 ddp-selected 추가 -->
-          <em class="ddp-icon-info" id="info{{index}}" (click)="showTableInfo(item.name, index)"></em>
+          <!--<em class="ddp-icon-info" [ngClass]="{'ddp-disabled':disable}" id="info{{index}}" (click)="showTableInfo(item, index)"></em>-->
           <!-- 클릭시 ddp-selected 추가 -->
-          <em class="ddp-icon-tableinfo" id="tableInfo{{index}}" (click)="showTableSchemaInfo(item.name, index)"></em>
+          <em class="ddp-icon-tableinfo" [ngClass]="{'ddp-disabled':disable}" id="tableInfo{{index}}" (click)="showTableSchemaInfo(item, index)"></em>
         </div>
         <!-- //버튼 -->
       </li>
     </ul>
     <!-- page -->
+    <!-- class 추가 ddp-disabled -->
     <div class="ddp-ui-pageing">
-      <a href="javascript:" class="ddp-btn-prev" [ngClass]="{'ddp-disabled': isDisabledPrev}"
+      <a href="javascript:" class="ddp-btn-prev" [ngStyle]="{'display': isDisabledPrev ? 'none':''}"
          *ngIf="pageMode === 'PAGE'" (click)="setPage('prev')">&lt; {{'msg.comm.btn.previous'|translate}}</a>
-      <a href="javascript:" class="ddp-btn-prev" [ngClass]="{'ddp-disabled': isDisabledPrev}"
+      <a href="javascript:" class="ddp-btn-prev" [ngStyle]="{'display': isDisabledPrev ? 'none':''}"
          *ngIf="pageMode === 'MEMORY'" (click)="setPageMemory('prev')">&lt; {{'msg.comm.btn.previous'|translate}}</a>
-      <a href="javascript:" class="ddp-btn-next" [ngClass]="{'ddp-disabled': isDisabledNext}"
+
+      <div class="ddp-data-page" [ngStyle]="{'display': getTotalPage == 0 ? 'none':''}">
+        <span>{{getCurrentPage}}</span>/{{getTotalPage}}
+      </div>
+
+      <a href="javascript:" class="ddp-btn-next" [ngStyle]="{'display': isDisabledNext ? 'none':''}"
          *ngIf="pageMode === 'PAGE'" (click)="setPage('next')"> {{'msg.comm.btn.next'|translate}} &gt;</a>
-      <a href="javascript:" class="ddp-btn-next" [ngClass]="{'ddp-disabled': isDisabledNext}"
+      <a href="javascript:" class="ddp-btn-next" [ngStyle]="{'display': isDisabledNext ? 'none':''}"
          *ngIf="pageMode === 'MEMORY'" (click)="setPageMemory('next')"> {{'msg.comm.btn.next'|translate}} &gt;</a>
     </div>
     <!-- //page -->
@@ -63,16 +97,4 @@
   [excludeBeforeClick]="true"
   [exclude]="'.ddp-icon-info'">
 </detail-workbench-table-info-desc>
-<detail-workbench-table-info-schema *ngIf="selectedTableSchemaLayer === true"
-                                    [schemaParams]="schemaParams"
-                                    (insertName)="tableSchemaInsert($event)"
-                                    (showLayer)="tableSchemaClose()">
-</detail-workbench-table-info-schema>
-
-<!--<detail-workbench-table-info-schema *ngIf="selectedTableSchemaLayer === true" [dataconnection]="workbench.dataConnection"  [selectedTable]="selectedTable"  [top]="detailWorkbenchTableInfoSchemaTop" (showLayer)="setTableSchemaClose()" ></detail-workbench-table-info-schema>-->
-<!--[dataconnection]="workbench.dataConnection"-->
-<!--[selectedTable]="selectedTable"-->
-<!--[top]="detailWorkbenchTableInfoDescTop"-->
-<!--(clickOutside)="selectedTableSchemaLayer=false" [excludeBeforeClick]="true" [exclude]="'.ddp-icon-info'"-->
-<!--(showLayer)="setTableInfoClose()">-->
 

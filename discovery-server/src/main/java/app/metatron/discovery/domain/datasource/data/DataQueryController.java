@@ -19,6 +19,7 @@ import com.google.common.collect.Maps;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -46,11 +47,14 @@ import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 
+import app.metatron.discovery.common.MatrixResponse;
 import app.metatron.discovery.common.RawJsonString;
 import app.metatron.discovery.domain.datasource.SimilarityQueryRequest;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.datasource.data.result.ChartResultFormat;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineQueryService;
+import app.metatron.discovery.domain.geo.GeoService;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
@@ -80,6 +84,9 @@ public class DataQueryController {
   EngineQueryService engineQueryService;
 
   @Autowired
+  GeoService geoService;
+
+  @Autowired
   DruidEngineMetaRepository engineMetaRepository;
 
   @Autowired
@@ -105,7 +112,38 @@ public class DataQueryController {
     //TODO: need to validation check about datasource granularity and query granularity
     dataSourceValidator.validateQuery(queryRequest);
 
-    return ResponseEntity.ok(engineQueryService.search(queryRequest));
+    if (queryRequest.getResultFormat() instanceof ChartResultFormat
+        && "map".equals(((ChartResultFormat) queryRequest.getResultFormat()).getMode())) {
+
+      String result = geoService.search(queryRequest);
+
+      return ResponseEntity.ok(new RawJsonString(result));
+    }
+
+    Object result = engineQueryService.search(queryRequest);
+    if (result instanceof MatrixResponse && queryRequest.getResultFormat() instanceof ChartResultFormat) {
+      MatrixResponse response = (MatrixResponse) result;
+      if (queryRequest.getLimits() != null &&
+          response.getCategoryCount() >= queryRequest.getLimits().getLimit()) {
+        queryRequest.setMetaQuery(true);
+        ArrayNode totalResult = (ArrayNode) engineQueryService.search(queryRequest);
+        if (totalResult != null
+            && totalResult.isArray()
+            && totalResult.size() == 1
+            && totalResult.get(0).has("cardinality")) {
+          response.addInfo("totalCategory",
+                           totalResult.get(0).get("cardinality").asInt());
+        } else {
+          response.addInfo("totalCategory", response.getCategoryCount());
+        }
+      } else {
+        response.addInfo("totalCategory", response.getCategoryCount());
+      }
+
+      result = response;
+    }
+
+    return ResponseEntity.ok(result);
   }
 
   @RequestMapping(value = "/datasources/query/{queryId}/cancel", method = RequestMethod.POST)
@@ -122,8 +160,8 @@ public class DataQueryController {
     Map<String, Object> resultMap = Maps.newLinkedHashMap();
 
     DateTime baseTime = null;
-    if(timeCompareRequest.getBasePoint() == BasePoint.LAST) {
-      if(StringUtils.isEmpty(timeCompareRequest.getBaseTime())) {
+    if (timeCompareRequest.getBasePoint() == BasePoint.LAST) {
+      if (StringUtils.isEmpty(timeCompareRequest.getBaseTime())) {
         CandidateQueryRequest candidateQueryRequest = new CandidateQueryRequest();
         candidateQueryRequest.setDataSource(timeCompareRequest.getDataSource());
         candidateQueryRequest.setTargetField(timeCompareRequest.getTimeField());
@@ -264,7 +302,7 @@ public class DataQueryController {
                                                             timeUnit.name(),
                                                             null, false,
                                                             Lists.newArrayList(
-                                                                timeUnit.parsedDateTime(dateTime, timeUnit.sortFormat(), null)
+                                                                timeUnit.parsedDateTime(dateTime, timeUnit.format(), null)
                                                             ),
                                                             null);
 

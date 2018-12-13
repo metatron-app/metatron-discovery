@@ -14,12 +14,13 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
-import { isUndefined } from "util";
+import {isNullOrUndefined, isUndefined} from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
+import * as _ from 'lodash';
 
 @Component({
   selector : 'edit-rule-extract',
@@ -96,32 +97,37 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
    */
   public getRuleData(): { command: string, ruleString: string } {
 
-    // 컬럼
+    // Column (must select more than one)
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined;
     }
 
-    // 패턴
-    if (isUndefined(this.pattern) || '' === this.pattern || this.pattern === '//' || this.pattern === '\'\'') {
+    // pattern
+    let clonedPattern = this.pattern;
+    if (isUndefined(clonedPattern) || '' === clonedPattern || clonedPattern === '//' || clonedPattern === '\'\'') {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
       return undefined;
     }
-    const patternResult:[boolean, string] = StringUtil.checkSingleQuote(this.pattern, { isWrapQuote: !StringUtil.checkRegExp(this.pattern) });
+    const patternResult:[boolean, string] = StringUtil.checkSingleQuote(clonedPattern, { isWrapQuote: !StringUtil.checkRegExp(clonedPattern) });
     if (!patternResult[0]) {
       Alert.warning(this.translateService.instant('msg.dp.alert.pattern.error'));
       return undefined;
     }
-    this.pattern = patternResult[1];
+    clonedPattern = patternResult[1];
 
-    // 횟수
+    // limit
     if (isUndefined(this.limit) ) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.times'));
       return undefined;
     }
 
-    let ruleString = 'extract col: ' + this.selectedFields.map( item => item.name ).join(', ')
-      + ' on: ' + this.pattern + ' limit : ' + this.limit + ' ignoreCase: ' + this.isIgnoreCase;
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
+      return '`' + item.name + '`';
+    }).join(', ');
+
+    let ruleString = 'extract col: ' + columnsStr
+      + ' on: ' + clonedPattern + ' limit : ' + this.limit + ' ignoreCase: ' + this.isIgnoreCase;
 
     // 다음 문자 사이 무시
     if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {
@@ -145,7 +151,7 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 필드 변경
+   * Change fields
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
   public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
@@ -180,24 +186,32 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
   } // function - _afterShowComp
 
   /**
-   * rule string 을 분석한다.
-   * @param ruleString
+   * Parse rule string
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+    // COLUMN
+    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+
+    // NUMBER OF MATCHES
+    this.limit = data.jsonRuleString.limit;
+
+    // PATTERN
+    if (data.jsonRuleString.on.value.startsWith('/') && data.jsonRuleString.on.value.endsWith('/')) {
+      this.pattern = data.jsonRuleString.on.value;
+    }  else {
+      this.pattern = data.jsonRuleString.on.escapedValue;
     }
 
-    this.limit = Number(this.getAttrValueInRuleString( 'limit', ruleString ));
+    // IGNORE CASE
+    this.isIgnoreCase = Boolean(data.jsonRuleString.ignoreCase);
 
-    this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
-
-    this.isIgnoreCase = Boolean( this.getAttrValueInRuleString( 'ignoreCase', ruleString ) );
-
-    this.ignore = this.getAttrValueInRuleString( 'quote', ruleString );
+    // IGNORE BETWEEN CHARACTERS
+    if (!isNullOrUndefined(data.jsonRuleString.quote)) {
+      this.ignore = data.jsonRuleString.quote.escapedValue;
+    }
 
   } // function - _parsingRuleString
 

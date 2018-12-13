@@ -3,6 +3,34 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -17,6 +45,7 @@ package app.metatron.discovery.domain.datasource.data;
 import com.google.common.collect.Lists;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -43,26 +72,30 @@ import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
 
 /**
- * "Search" 쿼리용 Request 객체
+ * Request model for search query
  *
- * @author Kyungtaak Noh
- * @since 1.0
  */
 public class SearchQueryRequest extends AbstractQueryRequest implements QueryRequest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchQueryRequest.class);
 
   /**
-   * Filter 정보
+   * Filters
    */
   List<Filter> filters;
 
   /**
-   * Column/Row 관련 정보
+   * Shelf for pivot, need to move shelf property
    */
   Pivot pivot;
+
+  /**
+   * Shelf info.
+   */
+  Shelf shelf;
 
   /**
    * projection 에 넣는 MeasureField 에 aggregationType 이 null 인 경우 Select 구문 수행, 아닌 경우 GroupBy 구문 수행
@@ -71,27 +104,27 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
   List<Field> projections;
 
   /**
-   * 기존 정의되어 있는 Field 외 가상 필드 정의
+   * User-Defined Field
    */
   List<UserDefinedField> userFields;
 
   /**
-   * Fetch 최대 Row Count 지정 및 Sorting 관련 정보
+   * Limit info. (Count limitation, Sort)
    */
   Limit limits;
 
   /**
-   * Optional, 필요한 경우 resultFormat 지정
+   * Optional, Specify result format, if necessary
    */
   SearchResultFormat resultFormat;
 
   /**
-   * Optional, 내부적으로 결과 값을 Forwarding 하도록 지정
+   * Optional, Specify where to send the result value, if necessary
    */
   ResultForward resultForward;
 
   /**
-   * Optional, 고급 분석 수행을 위한 옵션 지정
+   * Optional, Specify options for advanced analysis
    */
   Analysis analysis;
 
@@ -101,14 +134,20 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
   List<List<String>> groupingSets;
 
   /**
-   * Optional, SelectQuery의 경우 결과에 대한 Meta정보 처리 수행위한 플래그
+   * Optional, In the case of SelectQuery, the flags for performing Meta information processing on the result
    */
   Boolean metaQuery = false;
 
   /**
-   * Optional, Preview 모드일때 필수필터의 영향을 받지 않도록 구성
+   * Optional, Configure to not be affected by recommendation filters, if true
    */
   Boolean preview = false;
+
+  /**
+   *
+   */
+  @JsonIgnore
+  Boolean includeTotalCount;
 
   public SearchQueryRequest() {
     // Empty Constructor
@@ -118,6 +157,7 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
   public SearchQueryRequest(@JsonProperty("dataSource") DataSource dataSource,
                             @JsonProperty("filters") List<Filter> filters,
                             @JsonProperty("pivot") Pivot pivot,
+                            @JsonProperty("shelf") Shelf shelf,
                             @JsonProperty("projections") List<Field> projections,
                             @JsonProperty("userFields") List<UserDefinedField> userFields,
                             @JsonProperty("limits") Limit limits,
@@ -132,6 +172,7 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
 
     this.filters = filters;
     this.pivot = pivot;
+    this.shelf = shelf;
     this.projections = projections;
     this.userFields = userFields;
     this.limits = limits;
@@ -146,7 +187,11 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
   }
 
   public SearchQueryRequest(DataSource dataSource, List<Filter> filters, Pivot pivot, Limit limits) {
-    this(dataSource, filters, pivot, null, null, limits, null, null, null, null, null, null, null);
+    this(dataSource, filters, pivot, null, null, null, limits, null, null, null, null, null, null, null);
+  }
+
+  public SearchQueryRequest(DataSource dataSource, List<Filter> filters, Shelf shelf, Limit limits) {
+    this(dataSource, filters, null, shelf, null, null, limits, null, null, null, null, null, null, null);
   }
 
   public SearchQueryRequest(DataSource dataSource, List<Filter> filters, List<Field> projections, Limit limits) {
@@ -154,11 +199,11 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
   }
 
   public SearchQueryRequest(DataSource dataSource, List<UserDefinedField> userDefinedFields, List<Filter> filters, List<Field> projections, Limit limits) {
-    this(dataSource, filters, null, projections, userDefinedFields, limits, null, null, null, null, null, null, null);
+    this(dataSource, filters, null, null, projections, userDefinedFields, limits, null, null, null, null, null, null, null);
   }
 
   public SearchQueryRequest copyOf() {
-    return new SearchQueryRequest(dataSource, filters, pivot, projections, userFields, limits,
+    return new SearchQueryRequest(dataSource, filters, pivot, shelf, projections, userFields, limits,
                                   resultFormat, resultForward,
                                   analysis, groupingSets, metaQuery, preview, context);
   }
@@ -180,7 +225,7 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
   }
 
   /**
-   * Aggregated 된 Expression Field 가 measure 필드에 선언되었는지 여부 확인
+   * Check whether the aggregated Expression Field is declared in the measure field
    *
    * @return
    */
@@ -198,7 +243,7 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
       return false;
     }
 
-    // measure 필드로 선언된 컬럼 중 사용자 정의 컬럼이고 Aggregated 된 필드가 있는 경우 true
+    // if there are user-defined columns and aggregated fields declared in the measure field
     for (UserDefinedField userDefinedField : this.getUserFields()) {
       if(measureFieldNames.contains(userDefinedField.getName()) &&
           userDefinedField instanceof ExpressionField &&
@@ -229,6 +274,10 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
     this.filters = filters;
   }
 
+  public Shelf getShelf() {
+    return shelf;
+  }
+
   public Pivot getPivot() {
     return pivot;
   }
@@ -238,14 +287,21 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
   }
 
   public List<Field> getProjections() {
-    if (pivot != null) {
-      List<Field> pivotFields = pivot.getAllFields();
-      if (CollectionUtils.isNotEmpty(pivotFields) && CollectionUtils.isEmpty(projections)) {
-        return pivotFields;
-      }
+
+    if(CollectionUtils.isNotEmpty(projections)) {
+      return projections;
     }
 
-    return projections == null ? Lists.newArrayList() : projections;
+    if (shelf != null) {
+      return shelf.getFields();
+    }
+
+    // For backward compatibility
+    if (pivot != null) {
+      return pivot.getAllFields();
+    }
+
+    return projections;
   }
 
   public void setProjections(List<Field> projections) {
@@ -258,19 +314,22 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
       projections = Lists.newArrayList();
     }
 
-    List<Field> fields = pivot.getAllFields();
+    if(original && checkAggregatedExpressionField()) {
+      throw new QueryTimeExcetpion("original data do not allow aggregated user-defined field.");
+    }
 
-    for(Field field : fields) {
+    for(Field field : pivot.getAllFields()) {
       if(original && field instanceof MeasureField) {
         // 측정값 필드는 집계를 포함하지 않도록 처리
         MeasureField measureField = (MeasureField) field;
         measureField.setAggregationType(MeasureField.AggregationType.NONE);
         measureField.setAlias(measureField.getName());
         this.projections.add(field);
-      } else if(original &&
-          (field instanceof ExpressionField) && ((ExpressionField) field).isAggregated()) {
-        // 원본 데이터일 경우 표현식중 집계가 있는 표현식은 제외
-        continue;
+      } else if(field instanceof MeasureField
+          && UserDefinedField.REF_NAME.equals(field.getRef())) {
+        // follow ui rule
+        field.setAlias(((MeasureField) field).getUserDefinedAlias());
+        this.projections.add(field);
       } else {
         this.projections.add(field);
       }
@@ -346,6 +405,14 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
 
   public void setGroupingSets(List<List<String>> groupingSets) {
     this.groupingSets = groupingSets;
+  }
+
+  public Boolean getIncludeTotalCount() {
+    return includeTotalCount;
+  }
+
+  public void setIncludeTotalCount(Boolean includeTotalCount) {
+    this.includeTotalCount = includeTotalCount;
   }
 
   @Override

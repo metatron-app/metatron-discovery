@@ -1,4 +1,3 @@
-
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +16,8 @@ import { FormatOptionConverter } from './format-option-converter';
 import { UIChartFormat } from '../ui-option/ui-format';
 import { UIOption } from '../ui-option';
 import * as _ from 'lodash';
-import { ChartType, UIChartDataLabelDisplayType } from '../define/common';
+import { UIChartDataLabelDisplayType } from '../define/common';
+import { GeoField } from '../../../../../domain/workbook/configurations/field/geo-field';
 
 /**
  * 수자 포맷 옵션 컨버터
@@ -125,6 +125,28 @@ export class TooltipOptionConverter {
     }
 
     return uiOption.toolTip.previewList;
+  }
+
+  /**
+   * return data value list (geo)
+   * @param {GeoField[]} layerItems
+   * @returns {GeoField[]}
+   */
+  public static returnTooltipDataValue(layerItems: GeoField[]): GeoField[] {
+
+    // if it's not custom field, exclude geo data
+    layerItems = layerItems.filter((item) => {
+      return ('user_expr' == item.field.type || (item.field.logicalType && -1 == item.field.logicalType.toString().indexOf('GEO')));
+    });
+
+    let groupList = _.groupBy(layerItems, {'type' : 'measure'});
+
+    // remove the columns having same name in dimension
+    groupList['false'] = _.uniqBy(groupList['false'], 'name');
+
+    layerItems = _.union(groupList['true'], groupList['false']);
+
+    return layerItems;
   }
 
   // /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

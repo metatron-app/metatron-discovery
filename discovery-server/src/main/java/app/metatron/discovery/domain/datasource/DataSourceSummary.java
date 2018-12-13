@@ -14,18 +14,30 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.KeepAsJsonDeserialzier;
 import app.metatron.discovery.domain.MetatronDomain;
+import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
 
 /**
  * Created by kyungtaak on 2017. 7. 23..
@@ -59,7 +71,39 @@ public class DataSourceSummary implements MetatronDomain<Long> {
   @Column(name = "smy_data_count")
   Long count;
 
+  @Column(name = "smy_data_ingested_count")
+  Long ingestedCount;
+
+  @Column(name = "smy_data_column", length = 65535, columnDefinition = "TEXT")
+  @Basic(fetch = FetchType.LAZY)
+  @JsonRawValue
+  @JsonDeserialize(using = KeepAsJsonDeserialzier.class)
+  String columns;
+
   public DataSourceSummary() {
+  }
+
+  public DataSourceSummary(SegmentMetaDataResponse segmentMetaData) {
+    updateSummary(segmentMetaData);
+  }
+
+  public void updateSummary(SegmentMetaDataResponse segmentMetaData) {
+
+    this.size = segmentMetaData.getSerializedSize();
+    this.count = segmentMetaData.getNumRows();
+    this.ingestedCount = segmentMetaData.getIngestedNumRows();
+
+    List<DateTime> minMaxDateTimes = segmentMetaData.extractMinMaxTime();
+    this.ingestionMinTime = minMaxDateTimes.get(0);
+    this.ingestionMaxTime = minMaxDateTimes.get(1);
+
+    this.columns = GlobalObjectMapper.writeValueAsString(segmentMetaData.getColumns());
+
+  }
+
+  @JsonIgnore
+  public Map<String, SegmentMetaDataResponse.ColumnInfo> getColumnInfo() {
+    return GlobalObjectMapper.readValue(this.columns, Map.class);
   }
 
   public Long getId() {
@@ -108,6 +152,22 @@ public class DataSourceSummary implements MetatronDomain<Long> {
 
   public void setCount(Long count) {
     this.count = count;
+  }
+
+  public Long getIngestedCount() {
+    return ingestedCount;
+  }
+
+  public void setIngestedCount(Long ingestedCount) {
+    this.ingestedCount = ingestedCount;
+  }
+
+  public String getColumns() {
+    return columns;
+  }
+
+  public void setColumns(String columns) {
+    this.columns = columns;
   }
 
   @Override

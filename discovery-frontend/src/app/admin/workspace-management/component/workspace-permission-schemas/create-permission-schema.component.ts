@@ -81,6 +81,7 @@ export class CreatePermissionSchemaComponent extends AbstractPopupComponent impl
    * 컴포넌트 실행
    */
   public init() {
+    this.addBodyScrollHidden();
     const roleSet: RoleSet = new RoleSet();
     roleSet.scope = RoleSetScope.PUBLIC;
     this.roleSet = roleSet;
@@ -91,6 +92,7 @@ export class CreatePermissionSchemaComponent extends AbstractPopupComponent impl
    * 화면 종료
    */
   public close() {
+    this.removeBodyScrollHidden();
     this.isShow = false;
   } // function - close
 

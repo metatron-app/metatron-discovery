@@ -14,13 +14,12 @@
 
 package app.metatron.discovery.domain.workbench;
 
+import app.metatron.discovery.domain.datasource.Field;
 import org.joda.time.DateTime;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-
-import app.metatron.discovery.domain.datasource.Field;
 
 /**
  * Created by kyungtaak on 2016. 6. 16..
@@ -34,6 +33,10 @@ public class QueryResult implements Serializable {
   String runQuery;
   
   Long numRows;
+
+  Long maxNumRows;
+
+  Long defaultNumRows;
 
   QueryResultStatus queryResultStatus;
 
@@ -49,8 +52,12 @@ public class QueryResult implements Serializable {
 
   long queryHistoryId;
 
+  String queryEditorId;
+
+  String csvFilePath;
+
   public enum QueryResultStatus {
-    SUCCESS, FAIL, ALL
+    SUCCESS, FAIL, CANCELLED, RUNNING, ALL
   }
 
   public List<Field> getFields() {
@@ -141,6 +148,38 @@ public class QueryResult implements Serializable {
     this.queryHistoryId = queryHistoryId;
   }
 
+  public String getQueryEditorId() {
+    return queryEditorId;
+  }
+
+  public void setQueryEditorId(String queryEditorId) {
+    this.queryEditorId = queryEditorId;
+  }
+
+  public String getCsvFilePath() {
+    return csvFilePath;
+  }
+
+  public void setCsvFilePath(String csvFilePath) {
+    this.csvFilePath = csvFilePath;
+  }
+
+  public Long getMaxNumRows() {
+    return maxNumRows;
+  }
+
+  public void setMaxNumRows(Long maxNumRows) {
+    this.maxNumRows = maxNumRows;
+  }
+
+  public Long getDefaultNumRows() {
+    return defaultNumRows;
+  }
+
+  public void setDefaultNumRows(Long defaultNumRows) {
+    this.defaultNumRows = defaultNumRows;
+  }
+
   @Override
   public String toString() {
     return "QueryResult{" +
@@ -155,8 +194,9 @@ public class QueryResult implements Serializable {
             ", tempTable='" + tempTable + '\'' +
             ", auditId='" + auditId + '\'' +
             ", queryHistoryId=" + queryHistoryId +
+            ", queryEditorId='" + queryEditorId + '\'' +
+            ", csvFilePath='" + csvFilePath + '\'' +
             '}';
   }
-
 }
 

@@ -12,20 +12,17 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../common/component/abstract-popup.component';
+import {AbstractPopupComponent} from '../../common/component/abstract-popup.component';
 import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { DashboardService } from 'app/dashboard/service/dashboard.service';
-import { WorkbookService } from '../../workbook/service/workbook.service';
-import { ActivatedRoute } from '@angular/router';
-import {
-  BoardConfiguration, Dashboard, DashboardLayout,
-  PresentationDashboard
-} from '../../domain/dashboard/dashboard';
-import { WorkbookDetailProjections } from 'app/domain/workbook/workbook';
-import { PopupService } from '../../common/service/popup.service';
-import { BoardLayoutType } from '../../domain/dashboard/dashboard.globalOptions';
-import { EventBroadcaster } from '../../common/event/event.broadcaster';
-import { CookieConstant } from '../../common/constant/cookie.constant';
+import {DashboardService} from 'app/dashboard/service/dashboard.service';
+import {WorkbookService} from '../../workbook/service/workbook.service';
+import {ActivatedRoute} from '@angular/router';
+import {BoardConfiguration, Dashboard, PresentationDashboard} from '../../domain/dashboard/dashboard';
+import {WorkbookDetailProjections} from 'app/domain/workbook/workbook';
+import {PopupService} from '../../common/service/popup.service';
+import {BoardLayoutType} from '../../domain/dashboard/dashboard.globalOptions';
+import {EventBroadcaster} from '../../common/event/event.broadcaster';
+import {CookieConstant} from '../../common/constant/cookie.constant';
 import {DashboardComponent} from '../../dashboard/dashboard.component';
 
 @Component({
@@ -43,7 +40,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
 
   // 대시보드 컴포넌트
   @ViewChild(DashboardComponent)
-  private dashboardComponent: DashboardComponent;
+  private _boardComp: DashboardComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -126,16 +123,22 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
         (params['loginType']) && (this.cookieService.set(CookieConstant.KEY.LOGIN_TOKEN_TYPE, params['loginType'], 0, '/'));
         (params['refreshToken']) && (this.cookieService.set(CookieConstant.KEY.REFRESH_LOGIN_TOKEN, params['refreshToken'], 0, '/'));
 
+        ( this._boardComp ) && ( this._boardComp.hideError() );
+
         let workbookId: string = params['workbookId'];
         let dashboardId: string = params['dashboardId'];
-        this._getWorkbook(workbookId, { key: 'seq', type: 'asc' }).then(dashboards => {
+        this._getWorkbook(workbookId, {key: 'seq', type: 'asc'}).then(dashboards => {
           if (dashboards && 0 < dashboards.length) {
-            this._loadDashboardInfo(dashboardId ? dashboardId : dashboards[0].id).then((item: Dashboard) => {
-              const initialResult: any[] = this.initializeData(dashboards, <PresentationDashboard>item);
-              this.dashboards = initialResult[0];
-              this.selectedDashboard = initialResult[1];
-              this.selectedIdx = initialResult[2];
-            });
+            this._dashboardService.getDashboard(dashboardId ? dashboardId : dashboards[0].id)
+              .then((item: Dashboard) => {
+                const initialResult: any[] = this.initializeData(dashboards, <PresentationDashboard>item);
+                this.dashboards = initialResult[0];
+                this.selectedDashboard = initialResult[1];
+                this.selectedIdx = initialResult[2];
+              })
+              .catch(() => {
+                this._boardComp.showError();
+              });
           }
         });
       });
@@ -161,7 +164,11 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
   public onDashboardEvent(event: { name: string, data?: any }) {
     if ('LAYOUT_INITIALISED' === event.name) {
       this._setTimer();
-      this.dashboardComponent.hideBoardLoading();
+      this._boardComp.hideBoardLoading();
+    } else if ('RELOAD_BOARD' === event.name) {
+      (this._timer) && (clearTimeout(this._timer));
+      this._timer = null;
+      this.moveToDashboard(this.selectedIdx);
     }
   } // function - onDashboardEvent
 
@@ -185,20 +192,6 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
   } // function - initializeData
 
   /**
-   * 대시보드 정보 조회
-   * @param {string} dashboardId
-   * @returns {Promise<any>}
-   * @private
-   */
-  private _loadDashboardInfo(dashboardId: string): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
-      this._dashboardService.getDashboard(dashboardId)
-        .then((result: Dashboard) => resolve(result))
-        .catch((err) => reject(err));
-    });
-  } // function - loadDashboardInfo
-
-  /**
    * 대쉬보드 목록 조회
    * @param {string} workbookId
    * @param {any} order
@@ -216,7 +209,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
           } else {
             sort = (prev[order.key] < curr[order.key]) ? -1 : 1;
           }
-          ( 'desc' === order.type) && ( sort = sort * -1 );
+          ('desc' === order.type) && (sort = sort * -1);
           return sort;
         });
         resolve(tempList);
@@ -229,7 +222,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
    * @private
    */
   private _setTimer() {
-    ( this._timer ) && ( clearTimeout(this._timer) );
+    (this._timer) && (clearTimeout(this._timer));
     this._timer = null;
     if (this.isPlayShow) {
       this._timer = setTimeout(() => this.nextDashboard(), this.selectedInterval * 1000);
@@ -267,7 +260,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
       if ('HEIGHT' === type) {
         dashboardConfInArray.options.layout.layoutType = BoardLayoutType.FIT_TO_HEIGHT;
         let height: number = 900;
-        if (-1 === ( dashboardConfInArray.layout.dimensions.confHeight + '' ).indexOf('%')) {
+        if (-1 === (dashboardConfInArray.layout.dimensions.confHeight + '').indexOf('%')) {
           height = <number>dashboardConfInArray.layout.dimensions.confHeight;
         }
         dashboardConfInArray.layout.dimensions.height = height;
@@ -311,7 +304,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
    * @param {boolean} isPlay
    */
   public toggleShow(isPlay?: boolean) {
-    this.isPlayShow = ( 'boolean' === typeof isPlay ) ? isPlay : !this.isPlayShow;
+    this.isPlayShow = ('boolean' === typeof isPlay) ? isPlay : !this.isPlayShow;
     this._setTimer();
   } // function - toggleShow
 
@@ -324,14 +317,17 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
     this.selectedIdx = idx;
     this.selectedDashboard = null;
     const item: PresentationDashboard = this.dashboards[idx];
+    this._boardComp.hideError();
     if (item.configuration) {
       setTimeout(() => {
         this.selectedDashboard = item;
       }, 200);
     } else {
-      this._loadDashboardInfo(this.dashboards[idx].id).then((item: PresentationDashboard) => {
+      this._dashboardService.getDashboard(this.dashboards[idx].id).then((item: PresentationDashboard) => {
         this.dashboards[idx] = item;
         this.selectedDashboard = item;
+      }).catch(() => {
+        this._boardComp.showError();
       });
     }
   } // function - moveToDashboard

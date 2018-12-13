@@ -15,7 +15,8 @@
 import { Component, ElementRef, OnInit, Injector, ViewChild, OnDestroy, HostListener } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { DataflowService } from './service/dataflow.service';
-import { Dataflow } from '../../domain/data-preparation/dataflow';
+//import { Dataflow } from '../../domain/data-preparation/dataflow';
+import { PrDataflow } from '../../domain/data-preparation/pr-dataflow';
 import { Subscription } from 'rxjs/Subscription';
 import { Modal } from '../../common/domain/modal';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
@@ -49,7 +50,8 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
   public createDataflowComponent : CreateDataflowNameDescComponent;
 
   // 데이터플로우 리스트
-  public dataflows : Dataflow[] = [];
+  //public dataflows : Dataflow[] = [];
+  public dataflows : PrDataflow[] = [];
 
   // 상세 조회 할 데이터 플로우 아이디
   public dfId: string;
@@ -160,7 +162,7 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
 
     this.loadingShow();
 
-    this.dataflowService.getDataflows(this.searchText, this.page,'listing')
+    this.dataflowService.getDataflows(this.searchText, this.page, 'forListView')
       .then((data) => {
 
         this.loadingHide();
@@ -179,9 +181,9 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
       })
       .catch((error) => {
         if(error.status && error.status===500) {
-            Alert.error(error.message);
+          Alert.error(error.message);
         } else {
-            Alert.warning(error.message);
+          Alert.warning(error.message);
         }
         this.loadingHide();
       });

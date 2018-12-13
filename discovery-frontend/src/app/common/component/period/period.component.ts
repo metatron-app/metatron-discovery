@@ -55,6 +55,9 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
   // 선택 타입
   public selectedType = PeriodType.ALL;
 
+  @Input()
+  public containerClass:string = '';
+
   // title (default값은 time)
   @Input()
   public title: string = 'Time';
@@ -69,6 +72,9 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
   // 버튼 유무(버튼이 없을 경우 달력을 선택할 때마다 이벤트가 발생함)
   @Input()
   public isShowButtons: boolean = true;
+
+  @Input()
+  public useDefaultAllRange:boolean = false; // default 값을 All Range 로 사용함
 
   // 우선순위 1
   @Input()
@@ -106,7 +112,6 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
 
   // 변경 이벤트
   @Output() public changeDate = new EventEmitter();
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -148,7 +153,7 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
     }
 
     if (this.returnFormat == null) {
-      this.returnFormat = 'YYYY-MM-DDTHH:mm:ss';
+      this.returnFormat = 'YYYY-MM-DDTHH:mm';
     }
 
     // 시작일 DatePicker 생성
@@ -206,15 +211,23 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
    * 모든 날짜 선택 버튼
    */
   public setAll() {
-    this._startPickerInput.nativeElement.value = '';
-    this._endPickerInput.nativeElement.value = '';
+    if( this.useDefaultAllRange ) {
+      const startDate = moment(this.startDateDefault);
+      const endDate = moment(this.endDateDefault);
 
-    this._startDate = null;
-    this._endDate = null;
+      this._startPicker.selectDate(startDate.toDate());
+      this._endPicker.selectDate(endDate.toDate());
+    } else {
+      this._startPickerInput.nativeElement.value = '';
+      this._endPickerInput.nativeElement.value = '';
 
-    // 전체 기간을 선택할 수 있도록 데이터 갱신
-    this._startPicker.selectDate(null);
-    this._endPicker.selectDate(null);
+      this._startDate = null;
+      this._endDate = null;
+
+      // 전체 기간을 선택할 수 있도록 데이터 갱신
+      this._startPicker.selectDate(null);
+      this._endPicker.selectDate(null);
+    }
 
     this.selectedType = PeriodType.ALL;
 
@@ -308,6 +321,12 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
         // 선택한 종료날짜가 시간날짜보다 크면 종료 날짜로 셋팅
         this._startPicker.selectDate(this._endDate);
       }
+    }
+
+    if( this.useDefaultAllRange
+      && moment(this.startDateDefault).isSame( this._startDate )
+      && moment(this.endDateDefault).isSame( this._endDate ) ) {
+      this.selectedType = PeriodType.ALL;
     }
 
     // 버튼이 없는 경우 날짜 변경되면 이벤트 발생

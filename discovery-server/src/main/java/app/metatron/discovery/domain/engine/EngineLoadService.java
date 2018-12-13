@@ -40,7 +40,7 @@ import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.common.fileloader.FileLoaderFactory;
 import app.metatron.discovery.common.fileloader.FileLoaderProperties;
 import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.DataSourceIngetionException;
+import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.datasource.DataSourceTemporary;
 import app.metatron.discovery.domain.datasource.DataSourceTemporaryRepository;
@@ -48,8 +48,11 @@ import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.domain.workbook.configurations.format.TemporaryTimeFormat;
 import app.metatron.discovery.spec.druid.ingestion.BulkLoadSpec;
 import app.metatron.discovery.spec.druid.ingestion.BulkLoadSpecBuilder;
 import app.metatron.discovery.util.PolarisUtils;
@@ -155,59 +158,51 @@ public class EngineLoadService {
 
     LOGGER.debug("Start to load temporary datasource.");
 
+    String tempFile = "";
     sendTopic(sendTopicUri, new ProgressResponse(0, "START_LOAD_TEMP_DATASOURCE"));
 
-    // JDBC 로 부터 File 을 Import 함
-    LinkIngestionInfo info = (LinkIngestionInfo) Preconditions.checkNotNull(dataSource.getIngestionInfo());
-    DataConnection connection = Preconditions.checkNotNull(dataSource.getJdbcConnectionForIngestion(), "Connection info. required");
+    // Validate timestamp role of fields
+    validateTimestampRole(dataSource);
 
-    List<String> tempResultFile;
-    sendTopic(sendTopicUri, new ProgressResponse(5, "PROGRESS_GET_DATA_FROM_LINK_DATASOURCE"));
-    try {
-      tempResultFile = jdbcConnectionService
-          .selectQueryToCsv((JdbcDataConnection) connection,
-                            info,
-                            engineProperties.getQuery().getLocalBaseDir(),
-                            engineName,
-                            dataSource.getFields(), filters, maxRow);
-    } catch (Exception e) {
-      sendTopic(sendTopicUri, new ProgressResponse(-1, "FAIL_TO_LOAD_LINK_DATASOURCE"));
-      throw new DataSourceIngetionException("Fail to create temporary file : " + e.getMessage());
-    }
+    IngestionInfo info = dataSource.getIngestionInfo();
+    Integer expired = null;
+    if(info instanceof LocalFileIngestionInfo){
+      LocalFileIngestionInfo localFileIngestionInfo = (LocalFileIngestionInfo) info;
+      //set expired 600 sec
+      expired = 600;
 
-    if (CollectionUtils.isEmpty(tempResultFile)) {
-      sendTopic(sendTopicUri, new ProgressResponse(-1, "FAIL_TO_LOAD_LINK_DATASOURCE"));
-      throw new DataSourceIngetionException("Fail to create temporary file ");
-    }
+      tempFile = localFileIngestionInfo.getPath();
+      LOGGER.debug("load file : {}", tempFile);
 
-    String tempFile = tempResultFile.get(0);
+    } else if(info instanceof LinkIngestionInfo){
 
-    // Check Timestamp Field
-    if (!dataSource.existTimestampField()) {
-      // find timestamp field in datasource
-      List<Field> timeFields = dataSource.getFields().stream()
-                                         .filter(field -> field.getLogicalType() == LogicalType.TIMESTAMP)
-                                         .collect(Collectors.toList());
+      // JDBC 로 부터 File 을 Import 함
+      Preconditions.checkNotNull(info);
+      expired = ((LinkIngestionInfo) info).getExpired();
+      DataConnection connection = Preconditions.checkNotNull(dataSource.getJdbcConnectionForIngestion(), "Connection info. required");
 
-      // Time Field 처리
-      // timestamp 타입의 필드가 없다면 current timestamp 를 전달하고,
-      // 있다면 맨 처음 timestamp 타입의 필드를 선택
-      if (timeFields == null || timeFields.size() == 0) {
-        Field field = new Field(FIELD_NAME_CURRENT_TIMESTAMP, DataType.TIMESTAMP, Field.FieldRole.TIMESTAMP, 0L);
-        dataSource.addField(field);
-
-        String dateStr = DateTime.now().toString();
-        tempFile = PolarisUtils.addTimestampColumnFromCsv(dateStr, tempFile, tempFile + "_ts");
-      } else {
-        for (int i = 0; i < timeFields.size(); i++) {
-          if (i == 0) {
-            timeFields.get(i).setRole(Field.FieldRole.TIMESTAMP);
-          } else {
-            timeFields.get(i).setRole(Field.FieldRole.DIMENSION);
-          }
-        }
+      List<String> tempResultFile;
+      sendTopic(sendTopicUri, new ProgressResponse(5, "PROGRESS_GET_DATA_FROM_LINK_DATASOURCE"));
+      try {
+        tempResultFile = jdbcConnectionService
+                .selectQueryToCsv((JdbcDataConnection) connection,
+                        (LinkIngestionInfo) info,
+                        engineProperties.getQuery().getLocalBaseDir(),
+                        engineName,
+                        dataSource.getFields(), filters, maxRow);
+      } catch (Exception e) {
+        sendTopic(sendTopicUri, new ProgressResponse(-1, "FAIL_TO_LOAD_LINK_DATASOURCE"));
+        throw new DataSourceIngestionException("Fail to create temporary file : " + e.getMessage());
       }
+
+      if (CollectionUtils.isEmpty(tempResultFile)) {
+        sendTopic(sendTopicUri, new ProgressResponse(-1, "FAIL_TO_LOAD_LINK_DATASOURCE"));
+        throw new DataSourceIngestionException("Fail to create temporary file ");
+      }
+
+      tempFile = tempResultFile.get(0);
     }
+
 
     LOGGER.debug("Created result file from source : {}", tempFile);
 
@@ -222,24 +217,29 @@ public class EngineLoadService {
     paramMap.put("async", async);
     paramMap.put("temporary", false);
 
+    Map<String, Object> properties = Maps.newHashMap();
+    properties.put("assertLoaded", true);
+    properties.put("waitTimeout", 10000);
+
     BulkLoadSpec spec = new BulkLoadSpecBuilder(dataSource)
         .name(engineName)
         .path(Lists.newArrayList(remoteFile))
         .tuningConfig(info.getTuningOptions())
+        .properties(properties)
         .build();
 
     String specStr = GlobalObjectMapper.writeValueAsString(spec);
 
     LOGGER.info("Start to load to druid, async: {}, Spec: {}", async, specStr);
     Map<String, Object> result = engineRepository.load(specStr, paramMap, Map.class)
-                                                 .orElseThrow(() -> new DataSourceIngetionException("Result empty"));
+                                                 .orElseThrow(() -> new DataSourceIngestionException("Result empty"));
 
     LOGGER.info("Successfully load. Result is ", result);
 
     if (temporary == null) {
       temporary =
           new DataSourceTemporary(temporaryId, engineName, dataSource.getId(),
-                                  (String) result.get("queryId"), info.getExpired(),
+                                  (String) result.get("queryId"), expired,
                                   GlobalObjectMapper.writeListValueAsString(filters, Filter.class),
                                   isVoatile, async);
     }
@@ -290,6 +290,30 @@ public class EngineLoadService {
 
     return temporaryRepository.saveAndFlush(temporary);
 
+  }
+
+  public void validateTimestampRole(DataSource dataSource) {
+    // Check Timestamp Field
+    if (!dataSource.existTimestampField()) {
+      // find timestamp field in datasource
+      List<Field> timeFields = dataSource.getFields().stream()
+                                         .filter(field -> field.getLogicalType() == LogicalType.TIMESTAMP)
+                                         .collect(Collectors.toList());
+
+      // Time Field 처리
+      // timestamp 타입의 필드가 없다면 current timestamp 를 전달하고,
+      // 있다면 맨 처음 timestamp 타입의 필드를 선택
+      Field timeField;
+      if (timeFields == null || timeFields.size() == 0) {
+        timeField = new Field(FIELD_NAME_CURRENT_TIMESTAMP, DataType.TIMESTAMP, Field.FieldRole.TIMESTAMP, 0L);
+        timeField.setFormat(GlobalObjectMapper.writeValueAsString(new TemporaryTimeFormat()));
+        dataSource.addField(timeField);
+      } else {
+        timeField = timeFields.get(0);
+        timeField.setRole(Field.FieldRole.TIMESTAMP);
+        timeField.setSeq(0L);
+      }
+    }
   }
 
   public void deleteLoadDataSource(String datasourceName) {

@@ -55,7 +55,7 @@
     <div class="ddp-ui-option ddp-clear">
       <!-- edit -->
       <component-period
-        [title]="'Request date'"
+        [title]="'msg.mem.th.request.date' | translate"
         [dateType]="false"
         (changeDate)="onChangeDate($event)"
       ></component-period>
@@ -90,10 +90,10 @@
     <thead>
       <tr>
         <th>
-          {{'msg.comm.usr.id.title' | translate}}
+          {{'msg.comm.usr.name.title' | translate}}
         </th>
         <th>
-          {{'msg.comm.ui.name' | translate}}
+          {{'msg.comm.usr.fullname.title' | translate}}
         </th>
         <th>
           {{'msg.login.join.email' | translate}}
@@ -173,7 +173,7 @@
 <!-- rejectModal -->
 <div class="ddp-wrap-layout-popup" *ngIf="isRejectModalOpen">
   <div class="ddp-box-popup ddp-box-popup-type3">
-    <a href="javascript:" class="ddp-btn-close" (click)="isRejectModalOpen = false; selectedUser = ''; rejectReason = ''"></a>
+    <a href="javascript:" class="ddp-btn-close" (click)="closeRejectModal()"></a>
     <div class="ddp-pop-title">{{ 'msg.approval.alert.user-reject.description'| translate : {value : selectedUser} }}</div>
     <div class="ddp-box-detail">
       <div class="ddp-box-detail-in">
@@ -190,7 +190,7 @@
     </div>
     <!-- button -->
     <div class="ddp-ui-buttons">
-      <a href="javascript:" class="ddp-btn-type-popup" (click)="isRejectModalOpen = false; selectedUser = ''; rejectReason = ''">{{'msg.comm.btn.cancl' | translate}}</a>
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="closeRejectModal()">{{'msg.comm.btn.cancl' | translate}}</a>
       <!-- disabled 시 ddp-disabled 추가 -->
       <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="rejectUser()">{{'msg.approval.btn.reject' | translate}}</a>
     </div>

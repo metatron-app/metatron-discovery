@@ -136,7 +136,7 @@ public class DfMove extends DataFrame {
       Row newRow = new Row();
       for (int i = 0; i < targetOrder.size(); i++) {
         int colno = targetOrder.get(i);
-        newRow.add(getColName(colno), row.get(colno));
+        newRow.add(prevDf.getColName(colno), row.get(colno));
       }
       rows.add(newRow);
     }

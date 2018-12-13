@@ -14,12 +14,13 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
-import { isUndefined } from "util";
+import { isNullOrUndefined, isUndefined} from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
+import * as _ from 'lodash';
 
 @Component({
   selector : 'edit-rule-split',
@@ -96,13 +97,13 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
    */
   public getRuleData(): { command: string, ruleString: string } {
 
-    // 컬럼
+    // Column (must select more than one)
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined;
     }
 
-    // 패턴
+    // pattern
     let clonedPattern = this.pattern;
     if (isUndefined(clonedPattern) || '' === clonedPattern || clonedPattern === '//' || clonedPattern === '\'\'') {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
@@ -115,14 +116,17 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
     }
     clonedPattern = patternResult[1];
 
-    // 횟수
-    if (isUndefined(this.limit) ) {
+    // limit
+    if (isNullOrUndefined(this.limit) || this.limit.toString() === '') {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.times'));
       return undefined;
     }
 
-    let ruleString = 'split col: ' + this.selectedFields[0].name
-      + ' on: ' + clonedPattern + ' limit : ' + this.limit + ' ignoreCase: ' + this.isIgnoreCase;
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
+      return '`' + item.name + '`';
+    }).join(', ');
+
+    let ruleString = `split col: ${columnsStr} on: ${clonedPattern} limit: ${this.limit} ignoreCase: ${this.isIgnoreCase}`;
 
     // 다음 문자 사이 무시
     if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {
@@ -181,24 +185,28 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
   } // function - _afterShowComp
 
   /**
-   * rule string 을 분석한다.
-   * @param ruleString
+   * parse rulestring
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+    // COLUMN
+    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+
+    if (data.jsonRuleString.on.value.startsWith('/') && data.jsonRuleString.on.value.endsWith('/')) {
+      this.pattern = data.jsonRuleString.on.value;
+    }  else {
+      this.pattern = data.jsonRuleString.on.escapedValue;
     }
 
-    this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
+    this.limit = Number(data.jsonRuleString.limit);
 
-    this.limit = Number( this.getAttrValueInRuleString( 'limit', ruleString ) );
+    this.isIgnoreCase = Boolean(data.jsonRuleString.ignoreCase);
 
-    this.isIgnoreCase = Boolean( this.getAttrValueInRuleString( 'ignoreCase', ruleString ) );
-
-    this.ignore = this.getAttrValueInRuleString( 'quote', ruleString );
+    if (data.jsonRuleString.quote) {
+      this.ignore = data.jsonRuleString.quote.escapedValue;
+    }
 
   } // function - _parsingRuleString
 

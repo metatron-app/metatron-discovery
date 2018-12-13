@@ -16,24 +16,32 @@ package app.metatron.discovery.domain.dataprep;
 
 
 import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.Util;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.util.PolarisUtils;
+import app.metatron.discovery.util.ExcelProcessor;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.input.BOMInputStream;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.ContentSummary;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -44,6 +52,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Future;
@@ -53,13 +63,16 @@ public class PrepDatasetFileService {
     private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetFileService.class);
 
     @Autowired
-    PrepDatasetRepository datasetRepository;
+    PrDatasetRepository datasetRepository;
 
     @Autowired(required = false)
     PrepProperties prepProperties;
 
     @Autowired
     PrepDatasetFileUploadService fileUploadService;
+
+    @Autowired
+    PrepHdfsService hdfsService;
 
     Map<String, Future<Map<String,Object>>> futures = null;
 
@@ -222,11 +235,11 @@ public class PrepDatasetFileService {
         return ColumnType.STRING;
     }
 
-    private Field makeFieldFromCSV(int idx, String fieldKey, String str){
+    private Field makeFieldFromCSV(int idx, String fieldKey, ColumnType columnType){
         DataType fieldType;
         Field.FieldRole fieldBIType;
 
-        switch (getTypeFormString(str)) {
+        switch (columnType) {
             case BOOLEAN:
                 fieldType = DataType.BOOLEAN;
                 fieldBIType = Field.FieldRole.DIMENSION;
@@ -247,6 +260,7 @@ public class PrepDatasetFileService {
         }
     }
 
+    /*
     Map<String, Object> fileCheckSheet2(String fileKey, String sheetname, String sheetindex, String size, String delimiterRow, String delimiterCol, String hasFieldsFlag) {
 
         Map<String, Object> responseMap = Maps.newHashMap();
@@ -274,79 +288,135 @@ public class PrepDatasetFileService {
 
                 Sheet sheet = null;
                 if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
-                    Workbook wb = null;
-
-                    if ("xlsx".equals(extensionType)) {
-                        wb = new XSSFWorkbook(theFile);
-                    } else if("xls".equals(extensionType)) {
-                        wb = new HSSFWorkbook(new FileInputStream(theFile));
+                    Workbook workbook;
+                    if ("xls".equals(extensionType)) {       // 97~2003
+                        workbook = new HSSFWorkbook(new FileInputStream(theFile));
+                    } else {   // 2007 ~
+                        InputStream is = new FileInputStream(theFile);
+                        workbook = StreamingReader.builder()
+                                .rowCacheSize(100)
+                                .bufferSize(4096)
+                                .open(is);
                     }
 
-                    if (sheetname != null)
-                        findSheetIndex = wb.getSheetIndex(sheetname);
+                    sheet = workbook.getSheet(sheetname);
+                    totalRows = sheet.getLastRowNum()+1;
 
-                    sheet = wb.getSheetAt(findSheetIndex);
-                    createHeaderRow(sheet);
-                    totalRows = sheet.getPhysicalNumberOfRows()-1;
+                    for (Row r : sheet) {
+                        if(r==null) {
+                            resultSet.add(Maps.newHashMap());
+                            continue;
+                        }
+                        if(limitSize<=r.getRowNum()) { break; }
 
-                    Row headerRow = sheet.getRow(0);
-                    Row dataRow = sheet.getRow(1);
-                    int fieldSize = dataRow.getLastCellNum();
-                    for (int i = 0; i < fieldSize; i++) {
-                        fields.add(makeField(i, getCellValue(headerRow.getCell(i)), dataRow.getCell(i)));
-                    }
+                        Map<String,String> result = Maps.newHashMap();
+                        for (Cell c : r) {
+                            int cellIdx = c.getColumnIndex();
+                            Field f = null;
+                            if(cellIdx<fields.size()) {
+                                f = fields.get(cellIdx);
+                            }
+                            if(f==null) {
+                                f = makeFieldFromCSV(cellIdx, prefixColumnName + String.valueOf(cellIdx+1), ColumnType.STRING);
+                                fields.add(cellIdx, f);
+                            }
 
-                    resultSet = PolarisUtils.getResultSetFromSheet(sheet);
-
-                    for(Map<String,String> result : resultSet) {
-                        if(result.size()<fieldSize) {
-                            for(int i=0;i<fieldSize;i++) {
-                                String fieldKey = fields.get(i).getName();
-                                if(null==result.get(fieldKey)) {
-                                    result.put(fieldKey,"");
-                                }
+                            if(c==null) {
+                                result.put(f.getName(), null);
+                            } else {
+                                Object cellValue = ExcelProcessor.getCellValue(c);
+                                String strCellValue = String.valueOf(cellValue);
+                                result.put(f.getName(), strCellValue);
                             }
                         }
+                        resultSet.add( result );
                     }
                 } else if ( "csv".equals(extensionType) ) {
                     BufferedReader br = null;
                     String line;
-                    String[] csv_fields;
+                    String[] csvFields;
+                    List<ColumnType> fieldsTypes = new ArrayList<>();
+                    List<List<ColumnType>> gussedTypesByRows = Lists.newArrayList();
                     int maxColLength = 0;
+
                     try {
                         br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
 
-                        //0번 라인의 Type 검사. String이 아닌 컬럼이 1개라도 있으면 header로 인정하지 않음.
+                        //Check types of row number 0. If all column types are string, it might be filed name.
                         hasFields=true;
                         line = br.readLine();
-                        csv_fields = Util.csvLineSplitter(line, delimiterCol, "\"");
-                        for(String str : csv_fields) {
+                        csvFields = Util.csvLineSplitter(line, delimiterCol, "\"");
+                        for(String str : csvFields) {
                             if(!getTypeFormString(str).equals(ColumnType.STRING)) {
                                 hasFields = false;
                                 break;
                             }
                         }
+                        //Check type of row number 1 to 100.
+                        int rowNo = 0;
+                        while((line = br.readLine())!=null && rowNo <100) {
+                            List<ColumnType> guessedTypes = new ArrayList<>();
+                            String[] csvColumns = Util.csvLineSplitter(line, delimiterCol, "\"");
+                            maxColLength = maxColLength < csvColumns.length ? csvColumns.length : maxColLength;
 
+                            for (String str : csvColumns) {
+                                guessedTypes.add(getTypeFormString(str));
+                            }
+
+                            gussedTypesByRows.add(guessedTypes);
+                            rowNo++;
+                        }
+
+                        ColumnType[] columnTypes = {ColumnType.BOOLEAN, ColumnType.LONG, ColumnType.DOUBLE, ColumnType.TIMESTAMP, ColumnType.STRING};
+
+                        for(int i = 0; i < maxColLength; i++) {
+                            int[] typeCount = new int[5];
+
+                            for(List<ColumnType> types : gussedTypesByRows) {
+                                ColumnType type = types.get(i) != null ? types.get(i) : ColumnType.STRING;
+                                switch (type) {
+                                    case BOOLEAN:
+                                        typeCount[0]++;
+                                        break;
+                                    case LONG:
+                                        typeCount[1]++;
+                                        break;
+                                    case DOUBLE:
+                                        typeCount[2]++;
+                                        break;
+                                    case TIMESTAMP:
+                                        typeCount[3]++;
+                                        break;
+                                    default:
+                                        typeCount[4]++;
+                                }
+                            }
+
+                            int j = 1;
+                            int index=0;
+                            while(j < 5) {
+                                index = typeCount[index] > typeCount[j] ? index : j;
+                                j++;
+                            }
+
+                            fieldsTypes.add(columnTypes[index]);
+                        }
+
+                        maxColLength =0;
                         if(hasFields) {
-                            //1번 라인의 type검사. String이 아닌 컬럼이 1개라도 있어야 0번 라인은 header로 인정.
-                            hasFields =false;
-                            line = br.readLine();
-                            String[] csv_fields2 = Util.csvLineSplitter(line, delimiterCol, "\"");
-                            for(String str : csv_fields2) {
-                                if(!getTypeFormString(str).equals(ColumnType.STRING)) {
-                                    hasFields = true;
+                            //포인터를 1번 라인에 맞춰줌.
+                            br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+
+                            hasFields = false;
+                            for(ColumnType columnType : fieldsTypes) {
+                                if(columnType != ColumnType.STRING) {
+                                    br.readLine();
+                                    maxColLength = csvFields.length;
+                                    hasFields=true;
                                     break;
                                 }
                             }
 
-                            if(hasFields) {
-                                //포인터를 1번 라인에 맞춰줌.
-                                br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-                                br.readLine();
-                                maxColLength = csv_fields.length;
-                            } else {
-                                br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-                            }
                         } else {
                             br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
                         }
@@ -359,14 +429,14 @@ public class PrepDatasetFileService {
 
                             if(!hasFields && maxColLength<cols.length) {
                                 maxColLength = cols.length;
-                                csv_fields = new String[cols.length];
+                                csvFields = new String[cols.length];
                                 for(int i=0; i<cols.length; i++){
-                                    csv_fields[i]=prefixColumnName+String.valueOf(i+1);
+                                    csvFields[i]=prefixColumnName+String.valueOf(i+1);
                                 }
                             }
                             Map<String,String> result = Maps.newTreeMap();
                             for(int colIdx=0;colIdx<cols.length;colIdx++) {
-                                result.put(csv_fields[colIdx],cols[colIdx]);
+                                result.put(csvFields[colIdx],cols[colIdx]);
                             }
                             resultSet.add(result);
 
@@ -374,8 +444,7 @@ public class PrepDatasetFileService {
                         }
 
                         for (int colIdx = 0; colIdx < maxColLength; colIdx++) {
-                            String field = csv_fields[colIdx];
-                            fields.add(makeFieldFromCSV(colIdx, field, resultSet.get(0).get(field)));
+                            fields.add(makeFieldFromCSV(colIdx, csvFields[colIdx], fieldsTypes.get(colIdx)));
                         }
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -408,41 +477,387 @@ public class PrepDatasetFileService {
         } catch (Exception e) {
             LOGGER.error("Failed to upload file : {}", e.getMessage());
             responseMap.put("success", false);
-            responseMap.put("message", e.getMessage());
+            responseMap.put("message", e.getClass().getName());
+            //responseMap.put("message", e.getMessage());
+        }
+
+        return responseMap;
+    }
+    */
+
+    public Map<String, Object> fileCheckSheet3(String storedUri, String size, String delimiterRow, String delimiterCol) {
+
+        Map<String, Object> responseMap = Maps.newHashMap();
+        List<Object> grids = Lists.newArrayList();
+        try {
+            String extensionType = FilenameUtils.getExtension(storedUri);
+            int limitSize = Integer.parseInt(size);
+            long totalBytes = 0L;
+
+            File theFile = new File(new URI(storedUri));
+            if(false==theFile.exists()) {
+                responseMap.put("success", false);
+                responseMap.put("message", "Invalid filekey.");
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, "No file : " + storedUri);
+            } else {
+                totalBytes = theFile.length();
+
+
+                if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
+                    Workbook workbook;
+                    if ("xls".equals(extensionType)) {       // 97~2003
+                        workbook = new HSSFWorkbook(new FileInputStream(theFile));
+                    } else {   // 2007 ~
+                        InputStream is = new FileInputStream(theFile);
+                        workbook = StreamingReader.builder()
+                                .rowCacheSize(100)
+                                .bufferSize(4096)
+                                .open(is);
+                    }
+
+                    if (null != workbook) {
+                        int sheetsCount = workbook.getNumberOfSheets();
+                        for (Sheet sheet : workbook) {
+                            boolean hasFields;
+                            int totalRows = 0;
+
+                            List<Map<String, String>> resultSet = Lists.newArrayList();
+                            List<Field> fields = Lists.newArrayList();
+                            List<Map<String, String>> headers = Lists.newArrayList();
+
+                            String sheetName = sheet.getSheetName();
+                            totalRows = sheet.getLastRowNum()+1;
+
+                            for (Row r : sheet) {
+                                if(r==null) {
+                                    resultSet.add(Maps.newHashMap());
+                                    continue;
+                                }
+                                if(limitSize<=r.getRowNum()) { break; }
+
+                                Map<String,String> result = Maps.newHashMap();
+                                for (Cell c : r) {
+                                    int cellIdx = c.getColumnIndex();
+                                    Field f = null;
+                                    if(cellIdx<fields.size()) {
+                                        f = fields.get(cellIdx);
+                                    }
+                                    if(f==null) {
+                                        f = makeFieldFromCSV(cellIdx, prefixColumnName + String.valueOf(cellIdx+1), ColumnType.STRING);
+                                        fields.add(cellIdx, f);
+                                    }
+
+                                    if(c==null) {
+                                        result.put(f.getName(), null);
+                                    } else {
+                                        Object cellValue = ExcelProcessor.getCellValue(c);
+                                        String strCellValue = String.valueOf(cellValue);
+                                        result.put(f.getName(), strCellValue);
+                                    }
+                                }
+                                resultSet.add( result );
+                            }
+
+                            Map<String, Object> grid = Maps.newHashMap();
+
+                            grid.put("sheetName", sheetName);
+                            grid.put("headers", headers);
+                            grid.put("fields", fields);
+
+                            int resultSetSize = resultSet.size();
+                            int endIndex = resultSetSize - limitSize < 0 ? resultSetSize : limitSize;
+
+                            grid.put("data", resultSet.subList(0, endIndex));
+                            grid.put("totalRows", totalRows);
+
+                            grids.add(grid);
+                        }
+                    }
+
+                } else if ("json".equals(extensionType)) {
+                    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+                    List<Map<String, String>> resultSet = Lists.newArrayList();
+                    List<Field> fields = Lists.newArrayList();
+                    List<String> keys = new ArrayList<>();
+                    ObjectMapper mapper = new ObjectMapper();
+                    String line = "";
+                    int rowNo = 0;
+
+                    while((line = br.readLine())!=null && rowNo <1000) {
+                        Map<String, String> row = mapper.readValue(line, new TypeReference<Map<String, String>>(){});
+                        resultSet.add(row);
+
+                        for(int i = 0; i < row.keySet().size(); i++){
+                            String key = (String) row.keySet().toArray()[i];
+                            if(!keys.contains(key)) {
+                                keys.add(i, key);
+                            }
+                        }
+
+                        rowNo++;
+                    }
+
+                    for(int i = 0; i < keys.size(); i++) {
+                        Field f = makeFieldFromCSV(i, keys.get(i), ColumnType.STRING);
+                        fields.add(f);
+                    }
+
+                    Map<String, Object> grid = Maps.newHashMap();
+
+                    grid.put("headers", null);
+                    grid.put("fields", fields);
+
+                    int resultSetSize = resultSet.size();
+                    int endIndex = resultSetSize - limitSize < 0 ? resultSetSize : limitSize;
+
+                    grid.put("data", resultSet.subList(0, endIndex));
+                    grid.put("totalRows", rowNo);
+
+                    grids.add(grid);
+
+            } else if ( "csv".equals(extensionType) ||
+                        "txt".equals(extensionType) ||
+                        true // 기타 확장자는 csv로 간주
+                    ) {
+                    boolean hasFields;
+                    int totalRows = 0;
+
+                    List<Map<String, String>> resultSet = Lists.newArrayList();
+                    List<Field> fields = Lists.newArrayList();
+                    List<Map<String, String>> headers = Lists.newArrayList();
+
+                    BufferedReader br = null;
+                    String line;
+                    String[] csvFields;
+                    List<ColumnType> fieldsTypes = new ArrayList<>();
+                    List<List<ColumnType>> gussedTypesByRows = Lists.newArrayList();
+                    int maxColLength = 0;
+
+                    try {
+                        br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+
+                        //Check types of row number 0. If all column types are string, it might be filed name.
+                        hasFields=true;
+                        line = br.readLine();
+                        csvFields = Util.csvLineSplitter(line, delimiterCol, "\"");
+                        for(String str : csvFields) {
+                            if(!getTypeFormString(str).equals(ColumnType.STRING)) {
+                                hasFields = false;
+                                break;
+                            }
+                        }
+                        //Check type of row number 1 to 100.
+                        int rowNo = 0;
+                        while((line = br.readLine())!=null && rowNo <100) {
+                            List<ColumnType> guessedTypes = new ArrayList<>();
+                            String[] csvColumns = Util.csvLineSplitter(line, delimiterCol, "\"");
+                            maxColLength = maxColLength < csvColumns.length ? csvColumns.length : maxColLength;
+
+                            for (String str : csvColumns) {
+                                guessedTypes.add(getTypeFormString(str));
+                            }
+
+                            gussedTypesByRows.add(guessedTypes);
+                            rowNo++;
+                        }
+
+                        ColumnType[] columnTypes = {ColumnType.BOOLEAN, ColumnType.LONG, ColumnType.DOUBLE, ColumnType.TIMESTAMP, ColumnType.STRING};
+
+                        for(int i = 0; i < maxColLength; i++) {
+                            int[] typeCount = new int[5];
+
+                            for(List<ColumnType> types : gussedTypesByRows) {
+
+                                if (i <types.size() && types.get(i) != null) {
+                                    ColumnType type = types.get(i) != null ? types.get(i) : ColumnType.STRING;
+                                    switch (type) {
+                                        case BOOLEAN:
+                                            typeCount[0]++;
+                                            break;
+                                        case LONG:
+                                            typeCount[1]++;
+                                            break;
+                                        case DOUBLE:
+                                            typeCount[2]++;
+                                            break;
+                                        case TIMESTAMP:
+                                            typeCount[3]++;
+                                            break;
+                                        default:
+                                            typeCount[4]++;
+                                    }
+                                }
+                            }
+
+                            int j = 1;
+                            int index=0;
+                            while(j < 5) {
+                                index = typeCount[index] > typeCount[j] ? index : j;
+                                j++;
+                            }
+
+                            fieldsTypes.add(columnTypes[index]);
+                        }
+
+                        maxColLength =0;
+                        if(hasFields) {
+                            //포인터를 1번 라인에 맞춰줌.
+                            br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+
+                            hasFields = false;
+                            for(ColumnType columnType : fieldsTypes) {
+                                if(columnType != ColumnType.STRING) {
+                                    br.readLine();
+                                    maxColLength = csvFields.length;
+                                    hasFields=true;
+                                    break;
+                                }
+                            }
+
+                        } else {
+                            br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+                        }
+
+                        while ((line = br.readLine()) != null) {
+                            if(limitSize <= totalRows) {
+                                break;
+                            }
+                            String[] cols = Util.csvLineSplitter(line, delimiterCol, "\"");
+
+                            if(!hasFields && maxColLength<cols.length) {
+                                maxColLength = cols.length;
+                                csvFields = new String[cols.length];
+                                for(int i=0; i<cols.length; i++){
+                                    csvFields[i]=prefixColumnName+String.valueOf(i+1);
+                                }
+                            }
+                            Map<String,String> result = Maps.newTreeMap();
+                            for(int colIdx=0;colIdx<cols.length;colIdx++) {
+                                result.put(csvFields[colIdx],cols[colIdx]);
+                            }
+                            resultSet.add(result);
+
+                            totalRows++;
+                        }
+
+                        for (int colIdx = 0; colIdx < maxColLength; colIdx++) {
+                            fields.add(makeFieldFromCSV(colIdx, csvFields[colIdx], fieldsTypes.get(colIdx)));
+                        }
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        if (br != null) {
+                            try {
+                                br.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    Map<String, Object> grid = Maps.newHashMap();
+
+                    grid.put("headers", headers);
+                    grid.put("fields", fields);
+
+                    int resultSetSize = resultSet.size();
+                    int endIndex = resultSetSize - limitSize < 0 ? resultSetSize : limitSize;
+
+                    grid.put("data", resultSet.subList(0, endIndex));
+                    grid.put("totalRows", totalRows);
+
+                    grids.add(grid);
+                }
+
+                responseMap.put("grids", grids);
+                responseMap.put("totalBytes", totalBytes);
+                responseMap.put("success", true);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Failed to upload file : {}", e.getMessage());
+            responseMap.put("success", false);
+            responseMap.put("message", e.getClass().getName());
+            //responseMap.put("message", e.getMessage());
         }
 
         return responseMap;
     }
 
-    DataFrame getPreviewLinesFromFileForDataFrame( PrepDataset dataset, String fileKey, String sheetindex, String size) {
+    public DataFrame getPreviewLinesFromFileForDataFrame(PrDataset dataset, String sheetindex, String size) throws IOException {
         DataFrame dataFrame = new DataFrame();
+        String strUri = null;
 
         try {
             if(dataset==null) {
                 throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
             }
 
-            String filePath = fileKey;
-            PrepDataset.FILE_TYPE fileType = dataset.getFileTypeEnum();
-            if(fileType == PrepDataset.FILE_TYPE.LOCAL || fileType==PrepDataset.FILE_TYPE.HDFS) {
-                filePath = getPathLocal_new( fileKey );
+            assert dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD || dataset.getImportType() == PrDataset.IMPORT_TYPE.URI;
+
+            long totalBytes = 0L;
+            InputStreamReader inputStreamReader = null;
+//            String filePath = dataset.getCustomValue("filePath");
+            String storedUri = dataset.getStoredUri();
+//            PrDataset.FILE_TYPE fileType = dataset.getFileTypeEnum();
+//            PrDataset.STORAGE_TYPE storageType = dataset.getStorageType();
+
+            URI uri = new URI(storedUri);
+
+            if(uri.getScheme().equalsIgnoreCase("file")) {
+                assert storedUri != null;
+
+                File theFile = new File(uri);
+                if(false==theFile.exists()) {
+                    throw new IllegalArgumentException("Invalid filekey.");
+                }
+                totalBytes = theFile.length();
+                inputStreamReader = new InputStreamReader(new FileInputStream(theFile));
+            } else if(uri.getScheme().equals("hdfs")) {
+                Configuration conf = this.hdfsService.getConf();
+                FileSystem fs = FileSystem.get(conf);
+                Path thePath = new Path(uri);
+
+                assert fs.exists(thePath);
+//                if( false==fs.exists(thePath) ) {
+//                    strUri = prepProperties.getStagingBaseDir() + "/uploads/" + fileKey;
+//                    thePath = new Path(new URI(strUri));
+//                    if( false==fs.exists(thePath) ) {
+//                        throw new IllegalArgumentException("Invalid filekey.");
+//                    }
+//                    // TODO: amend the dataset entity with the new path
+//                }
+                ContentSummary cSummary = fs.getContentSummary(thePath);
+                totalBytes = cSummary.getLength();
+                inputStreamReader = new InputStreamReader(fs.open(thePath));
+            } else {
+                assert false : uri.getScheme();
             }
-            String extensionType = FilenameUtils.getExtension(fileKey);
+
+//            String extensionType = FilenameUtils.getExtension(fileKey);
+//            String extensionType = FilenameUtils.getExtension(dataset.getFilenameBeforeUpload());
+            String extensionType = FilenameUtils.getExtension(storedUri);
             int findSheetIndex = Integer.parseInt(sheetindex);
             int limitSize = Integer.parseInt(size);
-            long totalBytes = 0L;
-            int totalRows = 0;
             int dataFrameRows = 0;
+            long totalRows = 0;
 
-            File theFile = new File(filePath);
-            if(false==theFile.exists()) {
-                throw new IllegalArgumentException("Invalid filekey.");
+            if(null==inputStreamReader) {
+                throw new IllegalArgumentException("failed to open file stream: ["+storedUri+"]");
             } else {
-                totalBytes = theFile.length();
 
                 List<Map<String, String>> resultSet = Lists.newArrayList();
 
-                if ("csv".equals(extensionType)) {
+                if("json".equals(extensionType)) {
+                    // 현재 FILE이면 무조건 csv로 치환됨
+                } else if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
+                    // 현재 FILE이면 무조건 csv로 치환됨
+                } else if ("csv".equals(extensionType)
+                        || true // 기타 확장자는 모두 csv로 간주
+                        ) {
                     BufferedReader br = null;
                     String line;
                     String[] csv_fields = null;
@@ -450,8 +865,11 @@ public class PrepDatasetFileService {
                     int maxColLength=0;
                     String delimiterCol = dataset.getDelimiter();
                     try {
-                        br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+                        //br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+                        br = new BufferedReader(inputStreamReader);
 
+                        /*
+                        // hasFields 사용안함
                         hasFields=true;
                         line = br.readLine();
                         csv_fields = Util.csvLineSplitter(line, delimiterCol, "\"");
@@ -485,6 +903,7 @@ public class PrepDatasetFileService {
                         } else {
                             br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
                         }
+                        */
 
                         while ((line = br.readLine()) != null) {
                             if(limitSize <= totalRows) {
@@ -493,7 +912,8 @@ public class PrepDatasetFileService {
                             }
                             String[] cols = Util.csvLineSplitter(line, delimiterCol, "\"");
 
-                            if(!hasFields && maxColLength<cols.length) {
+                            //if(!hasFields && maxColLength<cols.length) {
+                            if(maxColLength<cols.length) {
                                 maxColLength = cols.length;
                                 csv_fields = new String[cols.length];
                                 for(int i=0; i<cols.length; i++){
@@ -538,15 +958,13 @@ public class PrepDatasetFileService {
                         }
                         dataFrame.rows.add(row);
                     }
-                } else if("json".equals(extensionType)) {
-                    // 현재 FILE이면 무조건 csv로 치환됨
-                } else if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
-                    // 현재 FILE이면 무조건 csv로 치환됨
                 }
 
                 dataset.setTotalBytes(totalBytes);
                 dataset.setTotalLines(totalRows);
             }
+        } catch (URISyntaxException e1) {
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strUri);
         } catch (Exception e) {
             LOGGER.error("Failed to read file : {}", e.getMessage());
             throw e;
@@ -560,9 +978,6 @@ public class PrepDatasetFileService {
 
         String fileName = file.getOriginalFilename();
         String extensionType = FilenameUtils.getExtension(fileName).toLowerCase();
-        if(extensionType!=null && extensionType.isEmpty()) {
-            extensionType = "none";
-        }
 
         FileOutputStream fos=null;
         try {
@@ -571,7 +986,8 @@ public class PrepDatasetFileService {
 
             int i=0;
             while(i<5) {
-                tempFileName = UUID.randomUUID().toString() + "." + extensionType;
+                tempFileName = UUID.randomUUID().toString();
+                if(0<extensionType.length()) { tempFileName = tempFileName + "." + extensionType; }
                 tempFilePath = this.getPathLocal_new(tempFileName);
 
                 File newFile = new File(tempFilePath);
@@ -586,13 +1002,18 @@ public class PrepDatasetFileService {
                 responseMap.put("message", "making UUID was failed. try again");
             } else {
                 responseMap.put("success", true);
+                /*
                 responseMap.put("filekey", tempFileName);
                 responseMap.put("filepath", tempFilePath);
                 responseMap.put("filename", fileName);
+                */
+                String storedUri = "file://"+tempFilePath;
+                responseMap.put("storedUri", storedUri);
+                responseMap.put("filenameBeforeUpload", fileName);
                 responseMap.put("createTime", DateTime.now());
 
                 Future<Map<String,Object>> future = this.fileUploadService.postUpload(extensionType, responseMap);
-                futures.put(tempFileName, future);
+                futures.put(storedUri, future);
             }
         } catch (Exception e) {
             LOGGER.error("Failed to upload file : {}", e.getMessage());
@@ -610,12 +1031,12 @@ public class PrepDatasetFileService {
         return  responseMap;
     }
 
-    public Map<String, Object> pollUploadFile(String fileKey) throws Exception {
+    public Map<String, Object> pollUploadFile(String storedUri) throws Exception {
         Map<String,Object> responseMap = null;
         try {
-            Future<Map<String, Object>> future = this.futures.get(fileKey);
+            Future<Map<String, Object>> future = this.futures.get(storedUri);
             if (null == future) {
-                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_MAP_KEY, "No key : " + fileKey);
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, "No key : " + storedUri);
             } else {
                 if (true == future.isDone()) {
                     responseMap = future.get();
@@ -661,7 +1082,8 @@ public class PrepDatasetFileService {
                 responseMap.put("success", false);
                 responseMap.put("message", "making UUID was failed. try again");
             } else {
-                if(extensionType.equals("csv")) {
+                // BOM 처리는 CSV 유틸로 넘어갈 것임
+                if(extensionType.equals("csv") || extensionType.equals("txt")) {
                     ByteOrderMark byteOrderMark = ByteOrderMark.UTF_8;
                     Charset charSet = Charset.defaultCharset();
                     BOMInputStream bomInputStream = new BOMInputStream(file.getInputStream(),
@@ -710,6 +1132,7 @@ public class PrepDatasetFileService {
                 responseMap.put("sheets", sheets);
 
                 if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
+                    /*
                     Workbook wb = null;
                     wb = WorkbookFactory.create(new File(tempFilePath));
                     if (null != wb) {
@@ -718,11 +1141,34 @@ public class PrepDatasetFileService {
                             sheets.add(wb.getSheetAt(j).getSheetName());
                         }
                     }
+                    */
+
+                    Workbook workbook;
+                    if ("xls".equals(extensionType)) {       // 97~2003
+                        workbook = new HSSFWorkbook(new FileInputStream(new File(tempFilePath)));
+                    } else {   // 2007 ~
+                        InputStream is = new FileInputStream(new File(tempFilePath));
+                        workbook = StreamingReader.builder()
+                                .rowCacheSize(100)
+                                .bufferSize(4096)
+                                .open(is);
+                    }
+
+                    if (null != workbook) {
+                        int sheetsCount = workbook.getNumberOfSheets();
+                        for (Sheet sheet : workbook) {
+                            sheets.add(sheet.getSheetName());
+                        }
+                    }
                 }
                 responseMap.put("success", true);
+                /*
                 responseMap.put("filekey", tempFileName);
                 responseMap.put("filepath", tempFilePath);
                 responseMap.put("filename", fileName);
+                */
+                responseMap.put("storedUri", "file://"+tempFilePath);
+                responseMap.put("filenameBeforeUpload", fileName);
             }
         } catch (Exception e) {
             LOGGER.error("Failed to upload file : {}", e.getMessage());
@@ -741,99 +1187,170 @@ public class PrepDatasetFileService {
         return responseMap;
     }
 
-    public String moveExcelToCsv(String fileKey, String sheetName, String delimiter) {
-        String csvFileName = null;
+    public String moveExcelToCsv(String excelStrUri, String sheetName, String delimiter) {
+        String csvStrUri = null;
         try {
-            int idx = fileKey.lastIndexOf(".");
-            String extensionType = fileKey.substring(idx+1);
-            String newFileKey = fileKey.substring(0, idx) + ".csv";
+            int idx = excelStrUri.lastIndexOf(".");
+            csvStrUri = excelStrUri.substring(0, idx) + ".csv";
 
-            String excelFileName = this.getPathLocal_new(fileKey);
-            csvFileName = this.getPathLocal_new(newFileKey);
+            URI excelUri = new URI(excelStrUri);
+            String extensionType = FilenameUtils.getExtension(excelStrUri);
 
-            File theFile = new File(excelFileName);
-            Workbook wb = null;
-            if ("xlsx".equals(extensionType)) {
-                wb = new XSSFWorkbook(theFile);
-            } else if ("xls".equals(extensionType)) {
-                wb = new HSSFWorkbook(new FileInputStream(theFile));
+            Workbook wb;
+            InputStream is=null;
+            if ("xls".equals(extensionType)) {       // 97~2003
+                wb = new HSSFWorkbook(new FileInputStream(new File(excelUri)));
+            } else {   // 2007 ~
+                is = new FileInputStream(new File(excelUri));
+                wb = StreamingReader.builder()
+                        .rowCacheSize(100)
+                        .bufferSize(4096)
+                        .open(is);
             }
 
-            int findSheetIndex = wb.getSheetIndex(sheetName);
-            Sheet sheet = wb.getSheetAt(findSheetIndex);
-            List<Map<String, String>> resultSet = Lists.newArrayList();
-            if(createHeaderRow(sheet)){
-                //getResultSetFromSheet()에서 0번째 row가 제거되기 때문에  원본에 Header가 있던 sheet의 경우 0번 row를 더미로 채운다.
-                sheet.shiftRows(0, sheet.getLastRowNum(), 1);
+            Sheet sheet = wb.getSheet(sheetName);
 
-                Row row = sheet.createRow(0);
-                for (int i = 0; i < sheet.getRow(1).getPhysicalNumberOfCells(); i++) {
-                    Cell cell = row.createCell(i);
-                    cell.setCellValue(prefixColumnName + String.valueOf(i + 1));
+            int maxIdx = 0;
+            for (Row r : sheet) {
+                int colIdx = 0;
+                for (Cell c : r) {
+                    colIdx++;
+                }
+                if(maxIdx<colIdx) {
+                    maxIdx = colIdx;
                 }
             }
-            int totalRows = sheet.getPhysicalNumberOfRows();
-
-            List<Field> fields = Lists.newArrayList();
-            Row headerRow = sheet.getRow(0);
-            Row dataRow = sheet.getRow(1);
-            int fieldSize = headerRow.getLastCellNum();
-            for (int i = 0; i < fieldSize; i++) {
-                fields.add(makeField(i, getCellValue(headerRow.getCell(i)), dataRow.getCell(i)));
+            if(is!=null) {
+                is.close();
             }
 
-            resultSet = PolarisUtils.getResultSetFromSheet(sheet);
-
-            List<String> keySet = Lists.newArrayList();
-            for(Map<String,String> result : resultSet) {
-                if(result.size()<fieldSize) {
-                    for(int i=0;i<fieldSize;i++) {
-                        String fieldKey = fields.get(i).getName();
-                        if(null==result.get(fieldKey)) {
-                            result.put(fieldKey,"");
-                        }
-                    }
-                } else if (0 == keySet.size()) {
-                    keySet.addAll(result.keySet());
-                    Collections.sort(keySet, new Comparator<String>() {
-                        public int compare(String k1,String k2) {
-                            int len1 = k1.length();
-                            int len2 = k2.length();
-                            if(len1<len2) { return -1; }
-                            else if(len1>len2) { return 1; }
-                            else { return k1.compareTo(k2); }
-                        }
-                    });
-                }
+            if ("xls".equals(extensionType)) {       // 97~2003
+                wb = new HSSFWorkbook(new FileInputStream(new File(excelUri)));
+            } else {   // 2007 ~
+                is = new FileInputStream(new File(excelUri));
+                wb = StreamingReader.builder()
+                        .rowCacheSize(100)
+                        .bufferSize(4096)
+                        .open(is);
             }
 
+            sheet = wb.getSheet(sheetName);
             String separator = delimiter;
-            FileWriter writer = new FileWriter(csvFileName);
-            for (Map<String, String> result : resultSet) {
+
+            URI csvUri = new URI(csvStrUri);
+            FileWriter writer = new FileWriter(new File(csvUri));
+            for (Row r : sheet) {
                 StringBuilder sb = new StringBuilder();
                 boolean first = true;
-                for (String key : keySet) {
-                    if (false==first) { sb.append(separator); }
+                for (int i = 0; i < maxIdx; i++) {
+                    if (i!=0) {
+                        sb.append(separator);
+                    }
 
-                    String value = result.get(key);
+                    Cell c = r.getCell(i);
+                    if(c==null) {
+                        continue;
+                    }
+
+                    Object cellValue = ExcelProcessor.getCellValue(c);
+                    String value = String.valueOf(cellValue);
                     if (value.contains("\"")) {
                         value = value.replace("\"", "\"\"");
                     }
-                    if (value.contains(",") ) {
+                    if (value.contains(",")) {
                         value = "\"" + value + "\"";
                     }
                     sb.append(value);
-                    first = false;
                 }
                 sb.append("\n");
                 writer.append(sb.toString());
             }
             writer.flush();
             writer.close();
+
         } catch (Exception e) {
             LOGGER.error("Failed to copy localFile : {}", e.getMessage());
         }
 
-        return csvFileName;
+        return csvStrUri;
+    }
+
+    public String moveJsonToCsv(String jsonStrUri, String mainKey, String delimiter) {
+        String csvStrUri = null;
+        try {
+            int idx = jsonStrUri.lastIndexOf(".");
+            csvStrUri = jsonStrUri.substring(0, idx) + ".csv";
+
+            URI jsonUri = new URI(jsonStrUri);
+            File theFile = new File(jsonUri);
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+            List<Map<String, String>> resultSet = Lists.newArrayList();
+            List<String> keys = new ArrayList<>();
+            ObjectMapper mapper = new ObjectMapper();
+            String line = "";
+            int rowNo = 0;
+
+            while((line = br.readLine())!=null) {
+                Map<String, String> row = mapper.readValue(line, new TypeReference<Map<String, String>>(){});
+                resultSet.add(row);
+
+                for(int i = 0; i < row.keySet().size(); i++){
+                    String key = (String) row.keySet().toArray()[i];
+                    if(!keys.contains(key)) {
+                        keys.add(i, key);
+                    }
+                }
+
+                rowNo++;
+            }
+
+            String separator = delimiter;
+            URI csvUri = new URI(csvStrUri);
+            FileWriter writer = new FileWriter(new File(csvUri));
+            StringBuilder stringBuilder = new StringBuilder();
+
+            for(int i=0; i<keys.size(); i++) {
+                if(i!=0) {
+                    stringBuilder.append(separator);
+                }
+                stringBuilder.append(keys.get(i));
+            }
+            stringBuilder.append("\n");
+            writer.append(stringBuilder.toString());
+
+            for(int i=0; i<resultSet.size(); i++) {
+                StringBuilder sb = new StringBuilder();
+                Map<String, String> row = resultSet.get(i);
+                Boolean isFirst = true;
+
+                for (String key : keys) {
+                    if (isFirst) {
+                        isFirst = false;
+                    } else {
+                        sb.append(separator);
+                    }
+
+                    String value = row.get(key) == null ? "" : row.get(key);
+
+                    if (value.contains("\"")) {
+                        value = value.replace("\"", "\"\"");
+                    }
+                    if (value.contains(",")) {
+                        value = "\"" + value + "\"";
+                    }
+                    sb.append(value);
+                }
+                sb.append("\n");
+                writer.append(sb.toString());
+            }
+            writer.flush();
+            writer.close();
+
+        } catch (Exception e) {
+            LOGGER.error("Failed to copy localFile : {}", e.getMessage());
+        }
+
+        return csvStrUri;
     }
 }

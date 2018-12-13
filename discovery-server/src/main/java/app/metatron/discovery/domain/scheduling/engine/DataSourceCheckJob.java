@@ -14,9 +14,8 @@
 
 package app.metatron.discovery.domain.scheduling.engine;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -38,14 +37,21 @@ import org.springframework.web.client.ResponseErrorHandler;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.datasource.DataSourceSummary;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
+import app.metatron.discovery.domain.engine.DruidEngineRepository;
+import app.metatron.discovery.domain.engine.EngineQueryService;
+import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
+import app.metatron.discovery.query.druid.meta.AnalysisType;
 
 import static app.metatron.discovery.domain.datasource.DataSource.Status.DISABLED;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.ENABLED;
+import static app.metatron.discovery.domain.datasource.DataSource.Status.FAILED;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.PREPARING;
 
 
@@ -63,7 +69,16 @@ public class DataSourceCheckJob extends QuartzJobBean {
   DataSourceRepository dataSourceRepository;
 
   @Autowired
+  IngestionHistoryRepository ingestionHistoryRepository;
+
+  @Autowired
+  EngineQueryService queryService;
+
+  @Autowired
   DruidEngineMetaRepository metaRepository;
+
+  @Autowired
+  DruidEngineRepository engineRepository;
 
   public DataSourceCheckJob() {
   }
@@ -83,8 +98,12 @@ public class DataSourceCheckJob extends QuartzJobBean {
       page = dataSourceRepository.findByDataSourceForCheck(pageRequest);
 
       for (DataSource ds : page) {
-        // 파티션된 데이터 소스인 경우 PASS.
+        // Skip partitioned data sources.
         if(StringUtils.isNotEmpty(ds.getPartitionKeys())) {
+          continue;
+        }
+
+        if(ds.getStatus() == FAILED && BooleanUtils.isNotTrue(ds.getFailOnEngine())) {
           continue;
         }
 
@@ -108,12 +127,12 @@ public class DataSourceCheckJob extends QuartzJobBean {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void setSizeAndStatus(DataSource dataSource) {
 
-    Map<String, Object> result;
+    SegmentMetaDataResponse segmentMetaData = null;
     try {
-      result = metaRepository.getSegmentMetaData(dataSource.getEngineName(),"SERIALIZED_SIZE",
-                                                 "INTERVAL",
-                                                 "INGESTED_NUMROW",
-                                                 "LAST_ACCESS_TIME");
+      segmentMetaData = queryService.segmentMetadata(dataSource.getEngineName(),
+                                   AnalysisType.CARDINALITY, AnalysisType.SERIALIZED_SIZE,
+                                   AnalysisType.INTERVAL, AnalysisType.INGESTED_NUMROW,
+                                   AnalysisType.LAST_ACCESS_TIME, AnalysisType.ROLLUP);
     } catch (Exception e) {
       LOGGER.warn("Fail to check datasource({}) : {}", dataSource.getEngineName(), e.getMessage());
       if(dataSource.getStatus() != PREPARING) {
@@ -124,18 +143,14 @@ public class DataSourceCheckJob extends QuartzJobBean {
       return;
     }
 
-    if(result.isEmpty()) {
-      LOGGER.warn("Datasource({}) not found yet.", dataSource.getEngineName());
-      if(dataSource.getStatus() != PREPARING) {
-        LOGGER.debug("Mark datasource({}) status : {} -> {}", dataSource.getEngineName(), dataSource.getStatus(), DISABLED);
-        dataSource.setStatus(DISABLED);
-        dataSourceRepository.save(dataSource);
-      }
-      return;
+    if(dataSource.getStatus() != ENABLED) {
+      LOGGER.debug("Mark datasource({}) status : {} -> {}", dataSource.getEngineName(), dataSource.getStatus(), ENABLED);
+      dataSource.setStatus(ENABLED);
     }
 
-    LOGGER.debug("Mark datasource({}) status : {} -> {}", dataSource.getEngineName(), dataSource.getStatus(), ENABLED);
-    dataSource.setStatus(ENABLED);
+    List<String> matchingFields = filterMatchingFields(segmentMetaData.getColumns());
+    boolean matched = dataSource.isFieldMatchedByNames(matchingFields);
+    dataSource.setFieldsMatched(matched);
 
     DataSourceSummary summary = dataSource.getSummary();
     if(summary == null) {
@@ -143,32 +158,17 @@ public class DataSourceCheckJob extends QuartzJobBean {
       dataSource.setSummary(summary);
     }
 
-    if(result.containsKey("serializedSize")) {
-      summary.setSize(
-          result.get("serializedSize") == null ? 0L : ((Number) result.get("serializedSize")).longValue()
-      );
-    }
-
-    if(result.containsKey("numRows")) {
-      summary.setCount(
-          result.get("numRows") == null ? 0L : ((Number) result.get("numRows")).longValue()
-      );
-    }
-
-    if(result.containsKey("lastAccessTime")) {
-      long lastAccessMils = result.get("lastAccessTime") == null ? 0L : ((Number) result.get("lastAccessTime")).longValue();
-      summary.setLastAccessTime(new DateTime(lastAccessMils));
-    }
-
-    try {
-      Interval interval = Interval.parse((String) ((List) result.get("intervals")).get(0));
-      summary.setIngestionMinTime(interval.getStart());
-      summary.setIngestionMaxTime(interval.getEnd());
-    } catch (Exception e) {
-      LOGGER.warn("Fail to check interval : {}", e.getMessage());
-    }
+    summary.updateSummary(segmentMetaData);
 
     dataSourceRepository.save(dataSource);
+  }
+
+  private List<String> filterMatchingFields(Map<String, SegmentMetaDataResponse.ColumnInfo> columns) {
+
+    return columns.entrySet().stream()
+        .filter(entry -> ((entry.getKey().equals("__time") || entry.getKey().equals("count")) == false))
+        .map(entry -> entry.getKey())
+        .collect(Collectors.toList());
   }
 
   private class EngineResponseErrorHandler implements ResponseErrorHandler {
