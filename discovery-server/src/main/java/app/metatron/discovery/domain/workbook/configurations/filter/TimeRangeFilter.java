@@ -42,9 +42,9 @@ import static app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP
 @JsonTypeName("time_range")
 public class TimeRangeFilter extends TimeFilter {
 
-  private static final DateTime MIN_DATETIME = DateTime.parse("1970-01-01T00:00:00.0Z");
+  private static final DateTime MIN_DATETIME = DateTime.parse("1970-01-01T00:00:00.000Z");
 
-  private static final DateTime MAX_DATETIME = DateTime.parse("2051-01-01T00:00:00.0Z");
+  private static final DateTime MAX_DATETIME = DateTime.parse("2051-01-01T00:00:00.000Z");
 
   private static final String LATEST_DATETIME = "LATEST_DATETIME";
 

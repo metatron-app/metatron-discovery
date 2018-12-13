@@ -4,7 +4,7 @@
 # --polaris.analyze.pivot=false --polaris.analyze.forward=JSON
 spring:
   profiles:
-    active: local,mysql-default-db,logging-console-debug,spark-local-yarn #,scheduling # cloud-local #, initial #, bcrypt-encoder, encode-password-initial, datasource-filter-sample
+    active: local,h2-default-db,logging-console-debug,spark-local-yarn #,scheduling # cloud-local #, initial #, bcrypt-encoder, encode-password-initial, datasource-filter-sample
   application:
     name: ${METATRON_NAME:metatron}
   datasource:
