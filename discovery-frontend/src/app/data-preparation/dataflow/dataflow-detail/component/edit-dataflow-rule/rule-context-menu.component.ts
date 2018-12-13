@@ -297,7 +297,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
             } else if (this.contextInfo.columnType === 'TIMESTAMP') {
               this.histogramData.forEach((item,index) => {
                 let idx = this.labelsForNumbers.indexOf(item);
-                result += this.histogramData.length-1 !== index ? `time_diff(timestamp('${item}','${this.contextInfo.timestampStyle}'),${selCol}) >= 0 && time_diff(timestamp('${this.labelsForNumbers[idx+1]}','${this.contextInfo.timestampStyle}'), ${selCol}) < 0 || ` : `time_diff(timestamp('${item}','${this.contextInfo.timestampStyle}'),${selCol}) >= 0 && time_diff(timestamp('${this.labelsForNumbers[idx+1]}','${this.contextInfo.timestampStyle}'), ${selCol}) < 0`;
+                result += this.histogramData.length-1 !== index ? `time_between(${this.contextInfo.columnName},'${this.contextInfo.timestampStyle[idx]}','${this.contextInfo.timestampStyle[idx+1]}') || ` : `time_between(${this.contextInfo.columnName},'${this.contextInfo.timestampStyle[idx]}','${this.contextInfo.timestampStyle[idx+1]}')`;
               });
             } else {
               this.histogramData.forEach((item,index) => {
