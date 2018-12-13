@@ -17,15 +17,12 @@ package app.metatron.discovery.domain.dataprep.service;
 import app.metatron.discovery.domain.dataprep.PrepDatasetSparkHiveService;
 import app.metatron.discovery.domain.dataprep.PrepHdfsService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
 import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -99,8 +96,9 @@ public class PrSnapshotService {
         return ssDir;
     }
 
-    public void downloadSnapshotFile( String ssId, HttpServletResponse response ) throws PrepException {
+    public String downloadSnapshotFile( String ssId, HttpServletResponse response ) throws PrepException {
         PrSnapshot snapshot = this.snapshotRepository.findOne(ssId);
+        String fileName = "";
         if(snapshot!=null) {
             try {
                 PrSnapshot.SS_TYPE ss_type = snapshot.getSsType();
@@ -128,6 +126,7 @@ public class PrSnapshotService {
                     //                        }
 
                     String storedUri = snapshot.getStoredUri();
+                    fileName = ssId + storedUri.substring(storedUri.lastIndexOf('.'));
                     URI uri = new URI(storedUri);
 
                     switch (uri.getScheme()) {
@@ -185,6 +184,8 @@ public class PrSnapshotService {
         } else {
             throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_SNAPSHOT, "snapshot["+ssId+"] does not exist");
         }
+
+        return  fileName;
     }
 
     private void deleteFile(File deleteFolder) {
@@ -375,101 +376,5 @@ public class PrSnapshotService {
         }
 
         return null;
-    }
-
-    /**
-     * @param strUri      URI as String (to be java.net.URI)
-     * @param strDelim    Delimiter as String (to be Char)
-     * @param limitRows   Read not more than this
-     * @param conf        Hadoop configuration which is mandatory when the url's protocol is hdfs
-     * @param header      If true, fill PrepCsvParseResult.colNames with the header line, then skip it
-     *
-     * @return PrepCsvParseResult: grid, header, maxColCnt
-     *
-     *  Sorry for so many try-catches. Sacrificed readability for end-users' usability.
-     */
-    public PrepCsvParseResult parseJSON(String strUri, String strDelim, int limitRows, Configuration conf, boolean header) {
-        PrepCsvParseResult result = new PrepCsvParseResult();
-        BufferedReader reader;
-        URI uri;
-
-        LOGGER.debug("PrepSnapshotService.parseJSON(): strUri={} strDelim={} conf={}", strUri, strDelim, conf);
-
-        try {
-            uri = new URI(strUri);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strUri);
-        }
-
-        switch (uri.getScheme()) {
-            case "hdfs":
-                if (conf == null) {
-                    throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
-                }
-                Path path = new Path(uri);
-
-                FileSystem hdfsFs;
-                try {
-                    hdfsFs = FileSystem.get(conf);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, strUri);
-                }
-
-                FSDataInputStream his;
-                try {
-                    his = hdfsFs.open(path);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, strUri);
-                }
-
-                reader = new BufferedReader(new InputStreamReader(his));
-                break;
-
-            case "file":
-                File file = new File(uri);
-
-                FileInputStream fis;
-                try {
-                    fis = new FileInputStream(file);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strUri);
-                }
-
-                reader = new BufferedReader(new InputStreamReader(fis));
-                break;
-
-            default:
-                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, strUri);
-        }
-
-        ObjectMapper mapper = new ObjectMapper();
-        String line = "";
-        int rowNo = 0;
-
-        try {
-            while((line = reader.readLine())!=null && rowNo <limitRows) {
-                Map<String, String> jsonRow = mapper.readValue(line, new TypeReference<Map<String, String>>(){});
-                if(rowNo==0) {
-                    result.colNames = new ArrayList<>(jsonRow.keySet());
-                    result.maxColCnt = jsonRow.size();
-                }
-
-                String[] row = jsonRow.values().toArray(new String[0]);
-                result.grid.add(row);
-                rowNo++;
-            }
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_CSV,
-                    String.format("%s (delimiter: %s)", strUri, strDelim));
-        }
-
-        return result;
     }
 }
