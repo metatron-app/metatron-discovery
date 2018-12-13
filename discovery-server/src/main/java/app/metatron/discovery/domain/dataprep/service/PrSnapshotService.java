@@ -126,7 +126,7 @@ public class PrSnapshotService {
                     //                        }
 
                     String storedUri = snapshot.getStoredUri();
-                    fileName = ssId + storedUri.substring(storedUri.lastIndexOf('.'));
+                    fileName = snapshot.getDsName() + storedUri.substring(storedUri.lastIndexOf('.'));
                     URI uri = new URI(storedUri);
 
                     switch (uri.getScheme()) {
