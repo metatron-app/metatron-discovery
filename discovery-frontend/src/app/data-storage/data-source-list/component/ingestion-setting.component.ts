@@ -675,6 +675,8 @@ export class IngestionSettingComponent extends AbstractComponent {
     ];
     // init second list
     this.selectedWeeklyTime = this.selectedDailyTime = this._getCurrentTime();
+    // init segment granularity list
+    this.segmentGranularityList = _.filter(this._granularityList, item => item.value !== 'NONE');
   }
 
   /**
@@ -682,8 +684,6 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @private
    */
   private _initGranularity(): void {
-    // init segment granularity list
-    this.segmentGranularityList = _.filter(this._granularityList, item => item.value !== 'NONE');
     // if not exist format
     if (!this._format) {
       // set segment granularity HOUR
@@ -925,10 +925,10 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @private
    */
   private _loadIngestionData(ingestionData:any): void {
+    // query granularity list
+    this.queryGranularityList = ingestionData.queryGranularityList;
     // load selected segment granularity
     this.selectedSegmentGranularity = ingestionData.selectedSegmentGranularity;
-    // update query granularity list
-    this._updateQueryGranularityList(this.selectedSegmentGranularity);
     // load selected query granularity
     this.selectedQueryGranularity = ingestionData.selectedQueryGranularity;
     // load selected rollup type
@@ -1003,6 +1003,8 @@ export class IngestionSettingComponent extends AbstractComponent {
    */
   private _saveIngestionData(sourceData: DatasourceInfo): void {
     sourceData['ingestionData'] = {
+      // query granularity list
+      queryGranularityList : this.queryGranularityList,
       // save selected segment granularity
       selectedSegmentGranularity : this.selectedSegmentGranularity,
       // save query granularity

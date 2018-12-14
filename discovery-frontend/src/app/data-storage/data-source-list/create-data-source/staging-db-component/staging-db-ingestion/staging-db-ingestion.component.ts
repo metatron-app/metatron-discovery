@@ -86,6 +86,8 @@ export class StagingDbIngestionComponent extends AbstractPopupComponent implemen
         this._sourceData.schemaData.selectedTimestampType === 'CURRENT' ? null :  this._sourceData.schemaData.selectedTimestampColumn,
         this._sourceData.schemaData.isChangedTimestampField
       );
+      // remove changed flag
+      delete this._sourceData.schemaData.isChangedTimestampField;
     }
   }
 
