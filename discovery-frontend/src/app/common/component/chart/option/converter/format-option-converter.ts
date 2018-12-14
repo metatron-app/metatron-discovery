@@ -668,26 +668,17 @@ export class FormatOptionConverter {
     // 해당 value값으로 찾을 수 없는경우 seriesName으로 찾기
     if (!aggValue && seriesName) aggValue = _.find(aggregations, {alias : seriesName});
 
-    // priority of fiedAlias is higher, set fieldAlias
-    let aggValueName = aggValue.fieldAlias ? aggValue.fieldAlias : aggValue.name;
-
-    let defaultAlias = aggValue.aggregationType + '(' + aggValueName + ')';
-    // when alias is not changed
-    if (defaultAlias === aggValue.alias) {
-      let aggregationType = "";
-      if( aggValue.aggregationType ) {
-        aggregationType = aggValue.aggregationType.toString().slice(0, 1).toUpperCase();
-        aggregationType += aggValue.aggregationType.toString().slice(1, aggValue.aggregationType.toString().length).toLowerCase();
-        // Avg인 경우 Average로 치환
-        if ('Avg' == aggregationType) aggregationType = 'Average';
-        aggregationType += ' of ';
-      }
-
-      seriesValue = aggregationType + aggValueName + ' : ' + this.getFormatValue(value, format);
-
-    // when alias is changed, set tooltip name as alias
+    let aggregationType = "";
+    if( aggValue.aggregationType && -1 < aggValue.alias.indexOf( aggValue.aggregationType + "(" ) ) {
+      aggregationType = aggValue.aggregationType.toString().slice(0, 1).toUpperCase();
+      aggregationType += aggValue.aggregationType.toString().slice(1, aggValue.aggregationType.toString().length).toLowerCase();
+      // Avg인 경우 Average로 치환
+      if ('Avg' == aggregationType) aggregationType = 'Average';
+      aggregationType += ' of ';
+      seriesValue = aggregationType +
+        aggValue.alias.replace( new RegExp( aggValue.aggregationType + '\\(([a-zA-Z]+)\\)', 'gi' ), '$1' ) + ' : ' +
+        this.getFormatValue(value, format);
     } else {
-
       seriesValue = aggValue.alias + ' : ' + this.getFormatValue(value, format);
     }
 

@@ -13,12 +13,14 @@
  */
 
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren} from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import * as _ from 'lodash';
 import {RuleConditionInputComponent} from "./rule-condition-input.component";
+import {isUndefined} from "util";
 
 @Component({
   selector: 'edit-rule-pivot',
@@ -41,6 +43,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
   public selectedGroupFields: Field[] = [];
 
   public formulaList:string[] = [''];
+  public formulas: formula[];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -61,6 +64,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    */
   public ngOnInit() {
     super.ngOnInit();
+    this.formulas = [ {id:0, value:''} ];
   } // function - ngOnInit
 
   /**
@@ -75,7 +79,6 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-
   } // function - ngOnDestroy
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -93,19 +96,17 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
       return undefined;
     }
 
-    let selFields = _.cloneDeep(this.selectedFields);
-    const columnsStr: string = selFields.map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
-    }).join(', ');
-
-    // Formula
+    this.formulaList = [];
+    this.formulas.forEach((item:formula)=>{ if(!isUndefined(item.value) && item.value.length > 0) this.formulaList.push(item.value)});
     if (this.formulaList.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
+      Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
       return undefined;
     }
+
+    let selFields = _.cloneDeep(this.selectedFields);
+    const columnsStr: string = selFields.map((item) => {
+      return '`' + item.name + '`';
+    }).join(', ');
 
     const validFormulaList:string[] = [];
     const invalidFormula:boolean = this.formulaList.some( (formula, index) => {
@@ -122,7 +123,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
       }
     });
     if( invalidFormula ) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.check.formula'));
+      Alert.warning(this.translateService.instant('msg.dp.alert.check.expression'));
       return undefined;
     }
 
@@ -133,10 +134,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
     }
     let selGroupFields = _.cloneDeep(this.selectedGroupFields);
     const groupStr: string = selGroupFields.map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+      return '`' + item.name + '`';
     }).join(', ');
 
     return {
@@ -169,7 +167,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    * 신규 수식 추가
    */
   public addFormula() {
-    this.formulaList.push('');
+    this.formulas.push({id: this.getFormulaId(), value: ''});
   } // function - addFormula
 
   /**
@@ -177,20 +175,19 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    * @param {number} idx
    */
   public deleteFormula(idx:number) {
-    if (this.formulaList.length === 1) {
-      return;
+    if(!isUndefined(this.formulas) && this.formulas.length > 1) {
+      this.formulas = this.formulas.filter(({id}) => id !== idx);
     }
-    this.formulaList.splice( idx, 1 );
   } // function - deleteFormula
 
   /**
    * 리스트의 개별성 체크 함수
-   * @param index
+   * @param {number} index
    * @param {string} formula
    * @return {number}
    */
-  public trackByFn(index, formula: string) {
-    return index;
+  public trackByFn(index: number, formula: formula) {
+    return formula.id;
   } // function - trackByFn
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -219,16 +216,18 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
     let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-
     // GROUP FIELDS
     let groupFields:string[] = typeof data.jsonRuleString.group.value === 'string' ? [data.jsonRuleString.group.value] : data.jsonRuleString.group.value;
     this.selectedGroupFields = groupFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-
     // EXPRESSION
+    this.formulas = [];
     let strFormulaList:string = this.getAttrValueInRuleString( 'value', data.ruleString );
     if( '' !== strFormulaList) {
       this.formulaList = strFormulaList.split( ',' ).map( item => item.replace( /'/g, '' ) );
+      this.formulaList.forEach((item,idx)=>{
+        this.formulas.push({id:idx, value: item});
+      })
     }
 
 
@@ -238,5 +237,13 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  private getFormulaId(): number {
+    return this.formulas.length ? Math.max.apply(Math,this.formulas.map(({ id }) => id)) + 1 : 1;
+  }
 
+}
+
+interface formula {
+  id: number;
+  value: string
 }

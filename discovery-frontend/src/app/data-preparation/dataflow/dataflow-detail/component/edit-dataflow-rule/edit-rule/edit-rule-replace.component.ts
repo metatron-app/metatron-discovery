@@ -17,13 +17,13 @@ import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import * as _ from 'lodash';
-import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 import {RuleConditionInputComponent} from "./rule-condition-input.component";
 
 @Component({
@@ -129,10 +129,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
     }
 
     const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+      return '`' + item.name + '`'
     }).join(', ');
 
     let ruleString = `replace col: ${columnsStr} with: ${clonedNewValue} on: ${clonedPattern} global: ${this.isGlobal} ignoreCase: ${this.isIgnoreCase}`;

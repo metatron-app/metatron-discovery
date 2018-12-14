@@ -37,12 +37,12 @@
           <!-- edit option -->
           <div class="ddp-ui-edit-option">
             <label class="ddp-label-radio ddp-inline">
-              <input type="radio" checked (change)="changeSsType('FILE')" name="snapshotFormatRadio">
+              <input type="radio" checked (change)="changeSsType(SsType.URI)" name="snapshotFormatRadio">
               <i class="ddp-icon-radio"></i>
               <span class="ddp-txt-radio">{{'msg.dp.ui.file-system' | translate }}</span>
             </label>
             <label class="ddp-label-radio ddp-inline">
-              <input type="radio" name="snapshotFormatRadio" (change)="changeSsType('HIVE')" [attr.disabled]="isHiveDisable ? true : null">
+              <input type="radio" name="snapshotFormatRadio" (change)="changeSsType(SsType.STAGING_DB)" [attr.disabled]="isHiveDisable ? true : null">
               <i class="ddp-icon-radio"></i>
               <span class="ddp-txt-radio">{{ 'msg.dp.th.hive' | translate }}</span> <span style="color:#d0d1d8 ; cursor: no-drop" *ngIf="isHiveDisable" [innerHTML]="'<i>(No hive connections)</i>'"></span>
             </label>
@@ -50,7 +50,7 @@
           <!-- //edit option -->
         </div>
         <!-- //edit -->
-        <div *ngIf="snapshot.ssType && snapshot.ssType === SsType.FILE ">
+        <div *ngIf="snapshot.ssType && snapshot.ssType === SsType.URI">
           <div class="ddp-wrap-edit3 ddp-type">
             <label class="ddp-label-type">{{'msg.dp.ui.location' | translate }}</label>
             <!-- selectbox -->
@@ -90,14 +90,14 @@
                 <label class="ddp-label-type">{{ 'msg.dp.ui.file-url' | translate }}</label>
                 <!-- edit option -->
                 <div class="ddp-ui-edit-option">
-                  <input type="text" class="ddp-input-typebasic" [(ngModel)]="snapshot.uri">
+                  <input type="text" class="ddp-input-typebasic" [(ngModel)]="snapshot.storedUri">
                 </div>
                 <!-- //edit option -->
               </div>
             </div>
           </div>
         </div>
-        <div *ngIf="snapshot.ssType && snapshot.ssType === SsType.HIVE">
+        <div *ngIf="snapshot.ssType && snapshot.ssType === SsType.STAGING_DB">
           <div class="ddp-wrap-edit3 ddp-type">
             <label class="ddp-label-type">{{'msg.dp.th.db-name' | translate}}</label>
             <!-- edit option -->

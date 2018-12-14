@@ -14,13 +14,11 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
-import app.metatron.discovery.domain.dataprep.PrepDataset;
-
 import java.io.Serializable;
 
 public class PrepTransformRequest implements Serializable {
   private String dfId;
-  private PrepDataset.OP_TYPE op;
+  private PrepTransformService.OP_TYPE op;
   private Integer ruleIdx;
   private String ruleString;
 
@@ -30,7 +28,7 @@ public class PrepTransformRequest implements Serializable {
     return dfId;
   }
 
-  public PrepDataset.OP_TYPE getOp() {
+  public PrepTransformService.OP_TYPE getOp() {
     return op;
   }
 

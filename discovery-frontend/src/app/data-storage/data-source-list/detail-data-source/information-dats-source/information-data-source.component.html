@@ -468,8 +468,8 @@
                   <span *ngIf="getIngestionPeriod.frequency === 'EXPR'">{{getIngestionPeriod.value}}</span>
                   <a href="javascript:" class="ddp-link-detail" (click)="batchHistoryOpen()"> {{'msg.storage.ui.batch-history'| translate }} &gt;</a>
                 </li>
-                <li *ngIf="getIngestionSize">
-                  {{'msg.storage.th.max-query-row' | translate}} : {{getIngestionSize}}
+                <li *ngIf="getIngestion.maxLimit">
+                  {{'msg.storage.th.max-query-row' | translate}} : {{getIngestion.maxLimit}}
                 </li>
               </ul>
               <!-- //Engine 형 -->
@@ -511,7 +511,7 @@
             <!-- //partition keys -->
             <!-- data range -->
             <div class="ddp-wrap-edit3 ddp-type">
-              <label class="ddp-label-type">{{'msg.storage.th.data-range' | translate}}
+              <label class="ddp-label-type">{{'msg.storage.ui.dsource.create.data.range' | translate}}
               </label>
               <!-- edit option -->
               <div class="ddp-ui-edit-option">

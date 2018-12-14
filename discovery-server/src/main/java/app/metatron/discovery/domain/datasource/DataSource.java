@@ -273,6 +273,13 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   Boolean fieldsMatched;
 
   /**
+   * Whether to check data source that failed during ingestion process
+   */
+  @Column(name = "ds_fail_on_engine")
+  @FieldBridge(impl = BooleanBridge.class)
+  Boolean failOnEngine;
+
+  /**
    * Spring data rest 제약으로 인한 Dummy Property. - Transient 어노테이션 구성시 HandleBeforeSave 에서 인식 못하는 문제
    * 발생
    */
@@ -856,6 +863,14 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
 
   public void setFieldsMatched(Boolean fieldsMatched) {
     this.fieldsMatched = fieldsMatched;
+  }
+
+  public Boolean getFailOnEngine() {
+    return failOnEngine;
+  }
+
+  public void setFailOnEngine(Boolean failOnEngine) {
+    this.failOnEngine = failOnEngine;
   }
 
   public boolean isFieldMatchedByNames(final List<String> matchingFieldNames) {

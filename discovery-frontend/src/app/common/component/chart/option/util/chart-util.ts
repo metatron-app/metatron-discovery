@@ -13,6 +13,8 @@
  */
 
 import * as _ from 'lodash';
+import { Field } from '../../../../../domain/workbook/configurations/field/field';
+import { GeoField } from '../../../../../domain/workbook/configurations/field/geo-field';
 
 export class ChartUtil {
 
@@ -31,5 +33,62 @@ export class ChartUtil {
       fieldName = field.aggregationType ? field.aggregationType + `(${alias})` : `${alias}`;
     }
     return fieldName;
+  }
+
+  /**
+   * return name from fields
+   * @param {Field[]} fields
+   * @returns {string[]}
+   */
+  public static returnNameFromField(fields: Field[]): string[] {
+
+    if (!fields || 0 == fields.length) return [];
+
+    let returnList: string[] = [];
+
+    fields.forEach((item) => {
+
+      returnList.push( ChartUtil.getAggregationAlias(item) );
+    });
+
+    return returnList;
+  }
+
+  /**
+   * Get field alias
+   * @param field
+   */
+  public static getAlias(field): string {
+
+    let alias1: string = field['name'];
+    let alias2: string = field['fieldAlias'] ? field['fieldAlias'] : "";
+    let alias3: string = field['pivotAlias'] ? field['pivotAlias'] : "";
+    if( field.aggregationType && field.aggregationType != "" ) {
+      alias1 = field.aggregationType +"("+ alias1 +")";
+      alias2 = alias2 ? field.aggregationType +"("+ alias2 +")" : "";
+    }
+    else if( field.format && field.format.unit && field.format.unit != "" ) {
+      alias1 = field.format.unit +"("+ alias1 +")";
+      alias2 = alias2 ? field.format.unit +"("+ alias2 +")" : "";
+    }
+    let alias: string = alias3 ? alias3 : alias2 ? alias2: alias1;
+    return alias;
+  }
+
+  /**
+   * get field name to alias
+   * @param {string} name
+   * @returns {string}
+   */
+  public static getFieldAlias(name: string, layers: GeoField[], aggregationType?: string): string {
+
+    let alias: string = name;
+    _.each(layers, (field) => {
+      if( _.eq(name, field['name']) && (!aggregationType || (aggregationType && _.eq(aggregationType, field['aggregationType']))) ) {
+        alias = ChartUtil.getAlias(field);
+        return false;
+      }
+    });
+    return alias;
   }
 }

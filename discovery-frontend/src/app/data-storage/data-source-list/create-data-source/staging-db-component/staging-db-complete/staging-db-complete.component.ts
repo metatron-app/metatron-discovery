@@ -17,7 +17,6 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { CommonUtil } from '../../../../../common/util/common.util';
 import { Alert } from '../../../../../common/util/alert.util';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
@@ -27,6 +26,8 @@ import { StringUtil } from '../../../../../common/util/string.util';
 import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
 import { Modal } from '../../../../../common/domain/modal';
 import { CookieConstant } from '../../../../../common/constant/cookie.constant';
+import {CommonConstant} from "../../../../../common/constant/common.constant";
+declare let moment: any;
 
 /**
  * Creating datasource with StagingDB - complete step
@@ -175,9 +176,8 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
    * @returns {string}
    */
   public getDataRangeTimeLabel(): string {
-    const datePipe = new DatePipe('en-EN');
-    return datePipe.transform(this.getIngestionData.startDateTime, 'yyyy-MM-dd HH:mm')
-      + ' ~ ' + datePipe.transform(this.getIngestionData.endDateTime, 'yyyy-MM-dd HH:mm');
+    return moment(this.getIngestionData.startDateTime).format('YYYY-MM-DD HH:mm')
+      + ' ~ ' + moment(this.getIngestionData.endDateTime).format('YYYY-MM-DD HH:mm');
   }
 
   /**
@@ -277,12 +277,12 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
   private _createCurrentColumn(seq: number): object {
     return {
       seq: seq,
-      name: 'current_datetime',
+      name: CommonConstant.COL_NAME_CURRENT_DATETIME,
       type: 'TIMESTAMP',
       role: 'TIMESTAMP',
       derived: true,
       format: {
-        type: FieldFormatType.DATE_TIME,
+        type: FieldFormatType.TEMPORARY_TIME,
         format: 'yyyy-MM-dd HH:mm:ss'
       }
     };

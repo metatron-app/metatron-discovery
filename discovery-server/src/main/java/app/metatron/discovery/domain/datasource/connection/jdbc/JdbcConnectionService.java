@@ -17,6 +17,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -64,7 +78,6 @@ import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.Between;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
@@ -103,14 +116,12 @@ import static app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataC
 import static java.util.stream.Collectors.toList;
 
 /**
- * Created by kyungtaak on 2016. 6. 16..
+ *
  */
 @Component
 public class JdbcConnectionService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(JdbcConnectionService.class);
-
-  private static final int MAX_FETCH_SIZE = 100000;
 
   private static final String RESULTSET_COLUMN_PREFIX = SelectQueryBuilder.TEMP_TABLE_NAME + ".";
 
@@ -130,7 +141,6 @@ public class JdbcConnectionService {
    * Check JDBC connection.
    */
   public Map<String, Object> checkConnection(JdbcDataConnection connection) {
-    DriverManager.setLoginTimeout(30);
     return checkConnection(connection, getDataSource(connection, true));
   }
 
@@ -671,7 +681,7 @@ public class JdbcConnectionService {
       return searchTablesWithQueryPageable(connection, dataSource, schema, tableNamePattern, pageable);
     } else if (connection instanceof HiveMetastoreConnection && ((HiveMetastoreConnection) connection).includeMetastoreInfo()) {
       return searchTablesWithHiveMetastore(connection, dataSource, schema, tableNamePattern, pageable);
-    } else if (connection instanceof HiveConnection || connection instanceof PrestoConnection){
+    } else if (connection instanceof HiveConnection || connection instanceof PrestoConnection) {
       return searchTablesWithQuery(connection, dataSource, schema, tableNamePattern);
     } else {
       return searchTablesWithMetadata(connection, dataSource, schema, tableNamePattern);
@@ -712,7 +722,7 @@ public class JdbcConnectionService {
   }
 
   public Map<String, Object> searchTablesWithQuery(JdbcDataConnection connection, DataSource dataSource,
-                                                           String schema, String tableNamePattern) {
+                                                   String schema, String tableNamePattern) {
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
     String tableListQuery = connection.getShowTableQuery(schema);
@@ -725,23 +735,31 @@ public class JdbcConnectionService {
     } catch (Exception e) {
       LOGGER.error("Fail to get list of table : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
-              "Fail to get list of database : " + e.getMessage());
+                                            "Fail to get list of database : " + e.getMessage());
     }
 
     tableNames.stream()
-            .forEach(tableMap -> {
-              tableMap.put("name", tableMap.get(connection.getTableNameColumn()));
-              tableMap.remove(connection.getTableNameColumn());
-            });
+              .forEach(tableMap -> {
+                tableMap.put("name", tableMap.get(connection.getTableNameColumn()));
+                tableMap.remove(connection.getTableNameColumn());
+              });
+
+    //exclude table
+    List<String> excludeTables = connection.getExcludeTables();
+    if (excludeTables != null) {
+      tableNames = tableNames.stream()
+                             .filter(tableInfoMap -> excludeTables.indexOf(tableInfoMap.get("name").toString()) < 0)
+                             .collect(toList());
+    }
 
     Map<String, Object> databaseMap = new LinkedHashMap<>();
-    if(StringUtils.isEmpty(tableNamePattern)){
+    if (StringUtils.isEmpty(tableNamePattern)) {
       databaseMap.put("tables", tableNames);
       databaseMap.put("page", createPageInfoMap(tableNames.size(), tableNames.size(), 0));
     } else {
       List filteredList = tableNames.stream()
-              .filter(tableMap -> tableMap.get("name").toString().contains(tableNamePattern))
-              .collect(Collectors.toList());
+                                    .filter(tableMap -> tableMap.get("name").toString().contains(tableNamePattern))
+                                    .collect(Collectors.toList());
       databaseMap.put("tables", filteredList);
       databaseMap.put("page", createPageInfoMap(filteredList.size(), filteredList.size(), 0));
     }
@@ -848,13 +866,15 @@ public class JdbcConnectionService {
     }
 
     Map<String, Object> tableMap = new LinkedHashMap<>();
-    int tableCount = tableInfos.size();
 
-    //    tableMap.put("tables", tableInfos
-    //        .stream()
-    //        .map(info -> info.get("name"))
-    //        .sorted()
-    //        .collect(toList()));
+    List<String> excludeTables = connection.getExcludeTables();
+    if (excludeTables != null) {
+      tableInfos = tableInfos.stream()
+                             .filter(tableInfoMap -> excludeTables.indexOf(tableInfoMap.get("name")) >= 0)
+                             .collect(toList());
+    }
+
+    int tableCount = tableInfos.size();
     tableMap.put("tables", tableInfos);
     tableMap.put("page", createPageInfoMap(tableCount, tableCount, 0));
     return tableMap;
@@ -870,7 +890,7 @@ public class JdbcConnectionService {
     // int totalRows = countOfSelectQuery(connection, ingestion);
     JdbcQueryResultResponse queryResultSet = null;
 
-    LOGGER.debug("Query : {} ", query);
+    LOGGER.debug("selectQuery : {} ", query);
 
     Connection conn = null;
     Statement stmt = null;
@@ -888,9 +908,9 @@ public class JdbcConnectionService {
       // queryResultSet.setTotalRows(totalRows);
     } catch (SQLException e) {
       LOGGER.error("Fail to query for select : SQLState({}), ErrorCode({}), Message : {}"
-              , e.getSQLState(), e.getErrorCode(), e.getMessage());
+          , e.getSQLState(), e.getErrorCode(), e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.PREVIEW_TABLE_SQL_ERROR,
-              "Fail to query : " + e.getSQLState() + ", "  + e.getErrorCode() + ", " + e.getMessage());
+                                            "Fail to query : " + e.getSQLState() + ", " + e.getErrorCode() + ", " + e.getMessage());
     } catch (Exception e) {
       LOGGER.error("Fail to query for select :  {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
@@ -903,7 +923,6 @@ public class JdbcConnectionService {
   }
 
   public JdbcQueryResultResponse selectQueryForIngestion(JdbcDataConnection connection,
-                                                         DataSource dataSource,
                                                          String schema,
                                                          JdbcIngestionInfo.DataType type,
                                                          String query,
@@ -918,6 +937,8 @@ public class JdbcConnectionService {
       }
     }
 
+    DataSource dataSource = getDataSource(connection, true);
+
     JdbcQueryResultResponse queryResultSet = null;
 
     if (type == JdbcIngestionInfo.DataType.TABLE) {
@@ -928,10 +949,10 @@ public class JdbcConnectionService {
       nativeCriteria.addTable(tableName, table);
 
       //add projection for partition
-      if(partitionList != null && !partitionList.isEmpty()){
+      if (partitionList != null && !partitionList.isEmpty()) {
 
-        for(Map<String, Object> partitionMap : partitionList){
-          for(String keyStr : partitionMap.keySet()){
+        for (Map<String, Object> partitionMap : partitionList) {
+          for (String keyStr : partitionMap.keySet()) {
             nativeCriteria.add(new NativeEqExp(keyStr, partitionMap.get(keyStr)));
           }
         }
@@ -953,31 +974,10 @@ public class JdbcConnectionService {
                                                          String schema,
                                                          JdbcIngestionInfo.DataType type,
                                                          String query,
-                                                         List<Map<String, Object>> partitionList,
                                                          int limit,
                                                          boolean extractColumnName) {
-    return selectQueryForIngestion(connection, getDataSource(connection, true),
-            schema, type, query, partitionList, limit, extractColumnName);
+    return selectQueryForIngestion(connection, schema, type, query, null, limit, extractColumnName);
   }
-
-  public JdbcQueryResultResponse selectQueryForIngestion(JdbcDataConnection connection,
-                                                         String schema,
-                                                         JdbcIngestionInfo.DataType type,
-                                                         String query,
-                                                         int limit,
-                                                         boolean extractColumnName) {
-    return selectQueryForIngestion(connection, getDataSource(connection, true),
-                                   schema, type, query, null, limit, extractColumnName);
-  }
-
-//  public JdbcQueryResultResponse selectQueryForIngestion(JdbcDataConnection connection,
-//                                                         String schema,
-//                                                         JdbcIngestionInfo.DataType type,
-//                                                         String query,
-//                                                         int limit) {
-//    return selectQueryForIngestion(connection, getDataSource(connection, true),
-//                                   schema, type, query, null, limit, false);
-//  }
 
   public JdbcQueryResultResponse ddlQuery(JdbcDataConnection connection,
                                           DataSource dataSource,
@@ -985,7 +985,7 @@ public class JdbcConnectionService {
 
     JdbcQueryResultResponse queryResultSet = null;
 
-    LOGGER.debug("Query : {} ", query);
+    LOGGER.debug("ddlQuery : {} ", query);
 
     Connection conn = null;
     Statement stmt = null;
@@ -1029,17 +1029,7 @@ public class JdbcConnectionService {
                                        JdbcIngestionInfo ingestionInfo,
                                        String dataSourceName,
                                        List<Field> fields, Integer limit) {
-    return selectQueryToCsv(connection, ingestionInfo, dataSourceName, fields, null, limit);
-  }
-
-  public List<String> selectQueryToCsv(JdbcDataConnection connection,
-                                       JdbcIngestionInfo ingestionInfo,
-                                       String dataSourceName,
-                                       List<Field> fields,
-                                       List<Filter> filters,
-                                       Integer limit) {
-    return selectQueryToCsv(connection, ingestionInfo, null, dataSourceName, fields, filters, limit);
-
+    return selectQueryToCsvWithoutFilter(connection, ingestionInfo, null, dataSourceName, fields, limit);
   }
 
   public List<String> selectQueryToCsv(JdbcDataConnection connection,
@@ -1056,36 +1046,122 @@ public class JdbcConnectionService {
     // Get JDBC Connection and set database
     JdbcDataConnection realConnection = connection == null ? ingestionInfo.getConnection() : connection;
     if (connection instanceof MySQLConnection
-            || connection instanceof HiveConnection
-            || connection instanceof PrestoConnection) {
+        || connection instanceof HiveConnection
+        || connection instanceof PrestoConnection) {
       if (ingestionInfo.getDatabase() != null) {
         realConnection.setDatabase(ingestionInfo.getDatabase());
       }
     }
 
     DataSource dataSource = getDataSource(Preconditions.checkNotNull(realConnection, "connection info. required."),
-            true);
+                                          true);
 
     List<String> tempCsvFiles = Lists.newArrayList();
 
     String queryString;
-    Select select = null;
-    PlainSelect selectBody;
-    try{
-      select = createSelect(ingestionInfo);
-      selectBody = (PlainSelect) select.getSelectBody();
-      addFields(selectBody, fields, realConnection);
-      addFilter(selectBody, filters);
-      if(limit != null)
-        addLimit(selectBody, maxLimit);
-    } catch (JSQLParserException e){
-      e.printStackTrace();
+
+    NativeCriteria nativeCriteria = new NativeCriteria(DataConnection.Implementor.getImplementor(realConnection));
+    if (ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.TABLE) {
+      String database = ingestionInfo.getDatabase();
+      String table = ingestionInfo.getQuery();
+      String tableName = (!table.contains(".") && database != null) ? database + "." + table : table;
+      nativeCriteria.addTable(tableName, table);
+    } else {
+      nativeCriteria.addSubQuery(StringUtils.replaceAll(ingestionInfo.getQuery(), ";", ""));
     }
 
+    if (fields != null && !fields.isEmpty()) {
+      NativeProjection nativeProjection = new NativeProjection();
 
-    queryString = select.toString();
+      for (Field field : fields) {
+        if (field.isNotPhysicalField()) {
+          continue;
+        }
+        String fieldAlias = field.getAlias();
+        String fieldName;
+        if (StringUtils.contains(fieldAlias, ".")) {
+          String[] splicedFieldAlias = StringUtils.split(fieldAlias, ".");
+          fieldName = splicedFieldAlias[splicedFieldAlias.length - 1];
+        } else {
+          fieldName = fieldAlias;
+        }
 
-    LOGGER.info("Generated SQL Query2: {}", queryString);
+        if (Field.COLUMN_NAME_CURRENT_DATETIME.equals(field.getName()) && field.getRole() == Field.FieldRole.TIMESTAMP) {
+          nativeProjection.addProjection(new NativeCurrentDatetimeExp(fieldName));
+        } else if (StringUtils.isEmpty(field.getTimeFormat()) &&
+            (field.getRole() == Field.FieldRole.TIMESTAMP ||
+                (field.getRole() == Field.FieldRole.DIMENSION && field.getType() == DataType.TIMESTAMP))) {
+          nativeProjection.addProjection(new NativeDateFormatExp(fieldName, null));
+          field.setFormat(NativeDateFormatExp.COMMON_DEFAULT_DATEFORMAT);
+        } else {
+          nativeProjection.addProjection(fieldName, fieldName);
+        }
+      }
+
+      nativeCriteria.setProjection(nativeProjection);
+    }
+
+    if (filters != null && !filters.isEmpty()) {
+      for (Filter filter : filters) {
+        //Inclusion Filter
+        if (filter instanceof InclusionFilter) {
+          List<String> valueList = ((InclusionFilter) filter).getValueList();
+          if (valueList != null) {
+            NativeDisjunctionExp disjunctionExp = new NativeDisjunctionExp();
+            for (String value : valueList) {
+              disjunctionExp.add(new NativeEqExp(filter.getColumn(), value));
+            }
+            nativeCriteria.add(disjunctionExp);
+          }
+
+          // Interval Filter
+        } else if (filter instanceof IntervalFilter) {
+          IntervalFilter.SelectorType selectorType = ((IntervalFilter) filter).getSelector();
+
+          //최신 유형일 경우
+          if (selectorType == IntervalFilter.SelectorType.RELATIVE) {
+            DateTime startDateTime = ((IntervalFilter) filter).getRelativeStartDate();
+            DateTime endDateTime = ((IntervalFilter) filter).utcFakeNow();
+            nativeCriteria.add(new NativeBetweenExp(filter.getColumn(), startDateTime, endDateTime));
+            //기간 지정일 경우
+          } else if (selectorType == IntervalFilter.SelectorType.RANGE) {
+            List<String> intervals = ((IntervalFilter) filter).getEngineIntervals();
+            if (intervals != null && !intervals.isEmpty()) {
+              NativeDisjunctionExp disjunctionExp = new NativeDisjunctionExp();
+              for (String interval : intervals) {
+                DateTime startDateTime = new DateTime(interval.split("/")[0]);
+                DateTime endDateTime = new DateTime(interval.split("/")[1]);
+                disjunctionExp.add(new NativeBetweenExp(filter.getColumn(), startDateTime, endDateTime));
+              }
+              nativeCriteria.add(disjunctionExp);
+            }
+          }
+        }
+      }
+    }
+
+    if (limit != null) {
+      nativeCriteria.setLimit(maxLimit);
+    }
+
+    queryString = nativeCriteria.toSQL();
+
+    //    if(limit == null) {
+    //      // 질의 쿼리 작성
+    //      queryString = new SelectQueryBuilder(realConnection)
+    //              .projection(fields)
+    //              .query(ingestionInfo)
+    //              .build();
+    //    } else {
+    //      // 질의 쿼리 작성
+    //      queryString = new SelectQueryBuilder(realConnection)
+    //              .projection(fields)
+    //              .query(ingestionInfo)
+    //              .limit(0, limit)
+    //              .build();
+    //    }
+
+    LOGGER.info("Generated SQL Query: {}", queryString);
 
     // 쿼리 결과 저장
     String tempFileName = getTempFileName(baseDir, EngineProperties.TEMP_CSV_PREFIX + "_"
@@ -1118,7 +1194,79 @@ public class JdbcConnectionService {
 
   }
 
-  public Select createSelect(JdbcIngestionInfo ingestionInfo) throws JSQLParserException{
+  public List<String> selectQueryToCsvWithoutFilter(JdbcDataConnection connection,
+                                       JdbcIngestionInfo ingestionInfo,
+                                       String baseDir,
+                                       String dataSourceName,
+                                       List<Field> fields,
+                                       Integer limit) {
+
+    int fetchSize = ingestionInfo.getFetchSize();
+    int maxLimit = limit == null ? ingestionInfo.getMaxLimit() : limit;
+
+    // Get JDBC Connection and set database
+    JdbcDataConnection realConnection = connection == null ? ingestionInfo.getConnection() : connection;
+    if (connection instanceof MySQLConnection
+            || connection instanceof HiveConnection
+            || connection instanceof PrestoConnection) {
+      if (ingestionInfo.getDatabase() != null) {
+        realConnection.setDatabase(ingestionInfo.getDatabase());
+      }
+    }
+
+    DataSource dataSource = getDataSource(Preconditions.checkNotNull(realConnection, "connection info. required."),
+            true);
+
+    List<String> tempCsvFiles = Lists.newArrayList();
+
+    String queryString;
+
+    NativeCriteria nativeCriteria = new NativeCriteria(DataConnection.Implementor.getImplementor(realConnection));
+    if (ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.TABLE) {
+      String database = ingestionInfo.getDatabase();
+      String table = ingestionInfo.getQuery();
+      String tableName = (!table.contains(".") && database != null) ? database + "." + table : table;
+      nativeCriteria.addTable(tableName, table);
+      queryString = nativeCriteria.toSQL();
+    } else {
+      queryString = ingestionInfo.getQuery();
+    }
+
+    LOGGER.info("Generated selectQueryToCsvWithoutFilter: {}", queryString);
+
+    // 쿼리 결과 저장
+    String tempFileName = getTempFileName(baseDir, EngineProperties.TEMP_CSV_PREFIX + "_"
+            + dataSourceName + "_" + System.currentTimeMillis());
+    JdbcCSVWriter jdbcCSVWriter = null;
+    try {
+      jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(tempFileName), CsvPreference.STANDARD_PREFERENCE);
+      jdbcCSVWriter.setConnection(realConnection);
+      jdbcCSVWriter.setDataSource(dataSource);
+      jdbcCSVWriter.setQuery(queryString);
+      jdbcCSVWriter.setFileName(tempFileName);
+      jdbcCSVWriter.setFetchSize(fetchSize);
+      jdbcCSVWriter.setMaxRow(maxLimit);
+      jdbcCSVWriter.setWithHeader(false);
+    } catch (IOException e) {
+    }
+
+    String resultFileName = jdbcCSVWriter.write();
+
+    // 결과 셋이 없는 경우 처리
+    File file = new File(resultFileName);
+    if (!file.exists() && file.length() == 0) {
+      return null;
+    }
+
+    LOGGER.debug("Created result file : {} ", resultFileName);
+
+    tempCsvFiles.add(tempFileName);
+
+    return tempCsvFiles;
+
+  }
+
+  public Select createSelect(JdbcIngestionInfo ingestionInfo) throws JSQLParserException {
     Select select;
     if (ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.TABLE) {
       String database = ingestionInfo.getDatabase();
@@ -1127,7 +1275,7 @@ public class JdbcConnectionService {
       select = SelectUtils.buildSelectFromTable(new Table(tableName));
     } else {
       net.sf.jsqlparser.statement.Statement parsedStmt = CCJSqlParserUtil.parse(ingestionInfo.getQuery());
-      if(!(parsedStmt instanceof Select)){
+      if (!(parsedStmt instanceof Select)) {
         throw new JSQLParserException("query is not select");
       }
 
@@ -1136,13 +1284,13 @@ public class JdbcConnectionService {
     return select;
   }
 
-  public PlainSelect addFields(PlainSelect selectBody, List<Field> fields, DataConnection realConnection){
+  public PlainSelect addFields(PlainSelect selectBody, List<Field> fields, DataConnection realConnection) {
     if (CollectionUtils.isNotEmpty(fields)) {
       //change projection
       List<SelectItem> newSelectItems = Lists.newArrayList();
-      for(Field field : fields){
+      for (Field field : fields) {
         //
-        if(field.isNotPhysicalField()) {
+        if (field.isNotPhysicalField()) {
           continue;
         }
 
@@ -1152,8 +1300,8 @@ public class JdbcConnectionService {
           NativeCurrentDatetimeExp nativeCurrentDatetimeExp = new NativeCurrentDatetimeExp(field.getName());
           columnName = nativeCurrentDatetimeExp.toSQL(implementor);
         } else if (StringUtils.isEmpty(field.getTimeFormat()) &&
-                (field.getRole() == Field.FieldRole.TIMESTAMP ||
-                        (field.getRole() == Field.FieldRole.DIMENSION && field.getType() == DataType.TIMESTAMP))) {
+            (field.getRole() == Field.FieldRole.TIMESTAMP ||
+                (field.getRole() == Field.FieldRole.DIMENSION && field.getType() == DataType.TIMESTAMP))) {
           NativeDateFormatExp nativeDateFormatExp = new NativeDateFormatExp(field.getName(), null);
           columnName = nativeDateFormatExp.toSQL(implementor);
           field.setFormat(NativeDateFormatExp.COMMON_DEFAULT_DATEFORMAT);
@@ -1162,7 +1310,7 @@ public class JdbcConnectionService {
         }
 
         SelectExpressionItem selectExpressionItem = new SelectExpressionItem(new Column(columnName));
-//          selectExpressionItem.setAlias(new Alias(field.getAlias()));
+        //          selectExpressionItem.setAlias(new Alias(field.getAlias()));
         newSelectItems.add(selectExpressionItem);
       }
       selectBody.setSelectItems(newSelectItems);
@@ -1171,7 +1319,7 @@ public class JdbcConnectionService {
     return selectBody;
   }
 
-  public PlainSelect addFilter(PlainSelect selectBody, List<Filter> filters){
+  public PlainSelect addFilter(PlainSelect selectBody, List<Filter> filters) {
     if (filters != null && !filters.isEmpty()) {
       List<Expression> andExprList = new ArrayList<>();
       for (Filter filter : filters) {
@@ -1237,7 +1385,7 @@ public class JdbcConnectionService {
         }
       }
 
-      if(selectBody.getWhere() != null){
+      if (selectBody.getWhere() != null) {
         selectBody.setWhere(new AndExpression(selectBody.getWhere(), new MultiAndExpression(andExprList)));
       } else {
         selectBody.setWhere(new MultiAndExpression(andExprList));
@@ -1246,7 +1394,7 @@ public class JdbcConnectionService {
     return selectBody;
   }
 
-  public PlainSelect addLimit(PlainSelect selectBody, int maxLimit){
+  public PlainSelect addLimit(PlainSelect selectBody, int maxLimit) {
     Limit limitExpression = new Limit();
     limitExpression.setRowCount(new LongValue(maxLimit));
     selectBody.setLimit(limitExpression);
@@ -1286,7 +1434,7 @@ public class JdbcConnectionService {
     NativeProjection nativeProjection = new NativeProjection();
 
     String targetFieldName = targetField.getName();
-    if(StringUtils.contains(targetFieldName, ".")){
+    if (StringUtils.contains(targetFieldName, ".")) {
       targetFieldName = StringUtils.split(targetFieldName, ".")[1];
     }
 
@@ -1362,55 +1510,55 @@ public class JdbcConnectionService {
     List<String> tempCsvFiles = Lists.newArrayList();
 
     // 증분 Query 작성
-//    String queryString = new SelectQueryBuilder(realConnection)
-//        .projection(fields)
-//        .query(batchIngestionInfo)
-//        .incremental(timestampField, incrementalTime.toString(CURRENT_DATE_FORMAT))
-//        .limit(0, maxLimit)
-//        .build();
+    String queryString = new SelectQueryBuilder(realConnection)
+        .projection(fields)
+        .query(batchIngestionInfo)
+        .incremental(timestampField, incrementalTime.toString(CURRENT_DATE_FORMAT))
+        .limit(0, maxLimit)
+        .build();
+
+    LOGGER.debug("Generated incremental query : {} ", queryString);
+
+//    Select select = null;
+//    PlainSelect selectBody;
+//    try {
 //
-//    LOGGER.debug("Generated incremental query : {} ", queryString);
-
-    Select select = null;
-    PlainSelect selectBody;
-    try{
-
-      select = createSelect(ingestionInfo);
-      selectBody = (PlainSelect) select.getSelectBody();
-      addFields(selectBody, fields, realConnection);
-
-      if (timestampField.getLogicalType() == LogicalType.TIMESTAMP) {
-        GreaterThanEquals greaterThanEquals = new GreaterThanEquals();
-        if (realConnection instanceof HiveConnection) {
-          greaterThanEquals.setLeftExpression(new Column("unix_timestamp(" + timestampField.getName() + ", '" + timestampField.getTimeFormat() + "')"));
-        } else {
-          greaterThanEquals.setLeftExpression(new Column(timestampField.getName()));
-        }
-        String rightExprStr = realConnection.getCharToDateStmt(incrementalTime.toString(CURRENT_DATE_FORMAT), JdbcDataConnection.DEFAULT_FORMAT);
-        greaterThanEquals.setRightExpression(new Column(rightExprStr));
-
-        if(selectBody.getWhere() != null){
-          AndExpression andExpression = new AndExpression(selectBody.getWhere(), greaterThanEquals);
-          selectBody.setWhere(andExpression);
-        } else {
-          selectBody.setWhere(greaterThanEquals);
-        }
-      } else {
-        throw new RuntimeException("Invalid timestamp type.");
-      }
-
-      if (maxLimit > 0) {
-        Limit limitExpression = new Limit();
-        limitExpression.setRowCount(new LongValue(maxLimit));
-        selectBody.setLimit(limitExpression);
-      }
-    } catch (JSQLParserException e){
-      throw new RuntimeException(e.getMessage());
-    }
-
-    String queryString = select.toString();
-
-    LOGGER.debug("Generated incremental query from JPQL : {} ", queryString);
+//      select = createSelect(ingestionInfo);
+//      selectBody = (PlainSelect) select.getSelectBody();
+//      addFields(selectBody, fields, realConnection);
+//
+//      if (timestampField.getLogicalType() == LogicalType.TIMESTAMP) {
+//        GreaterThanEquals greaterThanEquals = new GreaterThanEquals();
+//        if (realConnection instanceof HiveConnection) {
+//          greaterThanEquals.setLeftExpression(new Column("unix_timestamp(" + timestampField.getName() + ", '" + timestampField.getTimeFormat() + "')"));
+//        } else {
+//          greaterThanEquals.setLeftExpression(new Column(timestampField.getName()));
+//        }
+//        String rightExprStr = realConnection.getCharToDateStmt(incrementalTime.toString(CURRENT_DATE_FORMAT), JdbcDataConnection.DEFAULT_FORMAT);
+//        greaterThanEquals.setRightExpression(new Column(rightExprStr));
+//
+//        if (selectBody.getWhere() != null) {
+//          AndExpression andExpression = new AndExpression(selectBody.getWhere(), greaterThanEquals);
+//          selectBody.setWhere(andExpression);
+//        } else {
+//          selectBody.setWhere(greaterThanEquals);
+//        }
+//      } else {
+//        throw new RuntimeException("Invalid timestamp type.");
+//      }
+//
+//      if (maxLimit > 0) {
+//        Limit limitExpression = new Limit();
+//        limitExpression.setRowCount(new LongValue(maxLimit));
+//        selectBody.setLimit(limitExpression);
+//      }
+//    } catch (JSQLParserException e) {
+//      throw new RuntimeException(e.getMessage());
+//    }
+//
+//    String queryString = select.toString();
+//
+//    LOGGER.debug("Generated incremental query from JPQL : {} ", queryString);
 
     // 쿼리 결과 저장
     String tempFileName = getTempFileName(dataSourceName + "_" + incrementalTime.toString());
@@ -1499,8 +1647,8 @@ public class JdbcConnectionService {
     long duplicated = fieldList.stream()
                                .filter(field -> field.getName().equals(fieldName))
                                .count();
-    if(duplicated > 0){
-      if(StringUtils.contains(fieldName, ".")){
+    if (duplicated > 0) {
+      if (StringUtils.contains(fieldName, ".")) {
         return StringUtils.split(fieldName, ".")[0] + "." + VarGenerator.gen(fieldName);
       } else {
         return VarGenerator.gen(fieldName);
@@ -1578,12 +1726,21 @@ public class JdbcConnectionService {
     List<String> databaseNames = null;
     try {
       databaseNames = jdbcTemplate.query(schemaListQuery, (resultSet, i) -> resultSet.getString(1));
-      databaseCount = databaseNames.size();
     } catch (Exception e) {
       LOGGER.error("Fail to get list of database : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get list of database : " + e.getMessage());
     }
+
+    List<String> excludeSchemas = connection.getExcludeSchemas();
+    if (excludeSchemas != null) {
+      //filter after query execute for hive
+      databaseNames = databaseNames.stream()
+                                   .filter(databaseName -> excludeSchemas.indexOf(databaseName) < 0)
+                                   .collect(toList());
+    }
+
+    databaseCount = databaseNames.size();
 
     databaseMap.put("databases", databaseNames);
     databaseMap.put("page", createPageInfoMap(databaseCount, databaseCount, 0));
@@ -1605,6 +1762,13 @@ public class JdbcConnectionService {
                                 .collect(toList());
     }
 
+    List<String> excludeSchemas = connection.getExcludeSchemas();
+    if (excludeSchemas != null) {
+      filteredList = filteredList.stream()
+                                 .filter(schema -> excludeSchemas.indexOf(schema) < 0)
+                                 .collect(toList());
+    }
+
     schemaMap.put("databases", filteredList);
     schemaMap.put("page", createPageInfoMap(filteredList.size(), filteredList.size(), 0));
     return schemaMap;
@@ -1618,7 +1782,7 @@ public class JdbcConnectionService {
   public Map<String, Object> searchDatabases(JdbcDataConnection connection, DataSource dataSource,
                                              String databaseNamePattern, Pageable pageable) {
     if (
-            connection instanceof MySQLConnection ||
+        connection instanceof MySQLConnection ||
             connection instanceof MssqlConnection) {
       return searchDatabasesWithQueryPageable(connection, dataSource, databaseNamePattern, pageable);
     } else if (connection instanceof PostgresqlConnection) {
@@ -1815,10 +1979,10 @@ public class JdbcConnectionService {
     properties.setProperty("password", password);
 
     //add native properties
-    if(connection.getPropertiesMap() != null){
-      for(String propertyKey : connection.getPropertiesMap().keySet()){
-        if(StringUtils.startsWith(propertyKey, JdbcDataConnection.JDBC_PROPERTY_PREFIX)){
-          String nativePropertyKey = StringUtils.replaceFirst(propertyKey, JdbcDataConnection.JDBC_PROPERTY_PREFIX + ".'", "");
+    if (connection.getPropertiesMap() != null) {
+      for (String propertyKey : connection.getPropertiesMap().keySet()) {
+        if (StringUtils.startsWith(propertyKey, JdbcDataConnection.JDBC_PROPERTY_PREFIX)) {
+          String nativePropertyKey = StringUtils.replaceFirst(propertyKey, JdbcDataConnection.JDBC_PROPERTY_PREFIX, "");
           properties.setProperty(nativePropertyKey, connection.getPropertiesMap().get(propertyKey));
         }
       }
@@ -1838,14 +2002,14 @@ public class JdbcConnectionService {
     JdbcUtils.closeConnection(connection);
   }
 
-  public int writeResultSetToCSV(ResultSet resultSet, String tempCsvFilePath, List<String> headers) throws SQLException{
+  public int writeResultSetToCSV(ResultSet resultSet, String tempCsvFilePath, List<String> headers) throws SQLException {
     JdbcCSVWriter jdbcCSVWriter = null;
     int rowNumber = 0;
     try {
       jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(tempCsvFilePath), CsvPreference.STANDARD_PREFERENCE);
 
       //write header from list if exist
-      if(headers != null && !headers.isEmpty()){
+      if (headers != null && !headers.isEmpty()) {
         jdbcCSVWriter.setWithHeader(false);
         jdbcCSVWriter.writeHeaders(headers);
       }
@@ -1854,10 +2018,11 @@ public class JdbcConnectionService {
     } catch (IOException e) {
       LOGGER.error("writeResultSetToCSV error", e);
     } finally {
-      try{
-        if(jdbcCSVWriter != null)
+      try {
+        if (jdbcCSVWriter != null)
           jdbcCSVWriter.close();
-      }catch (IOException e){}
+      } catch (IOException e) {
+      }
     }
     return rowNumber;
   }
@@ -1875,21 +2040,17 @@ public class JdbcConnectionService {
       String fieldName;
       String tableName;
 
-      if(extractColumnName){
+      if (extractColumnName) {
         fieldName = extractColumnName(columnLabel);
       } else {
         fieldName = removeDummyPrefixColumnName(columnLabel);
-        //useOldAliasMetadataBehavior=true
-        if(metaData instanceof com.mysql.jdbc.ResultSetMetaData){
-          tableName = metaData.getTableName(i);
-          fieldName = tableName + "." + fieldName;
-        }
       }
 
       String uniqueFieldName = generateUniqueColumnName(fieldName, fields);
 
       Field field = new Field();
       field.setName(uniqueFieldName);
+      field.setAlias(fieldName);
       field.setType(DataType.jdbcToFieldType((metaData.getColumnType(i))));
       field.setRole(field.getType().toRole());
       fields.add(field);
@@ -1907,10 +2068,10 @@ public class JdbcConnectionService {
       for (int i = 1; i <= colNum; i++) {
         String fieldName = fields.get(i - 1).getName();
         //@TODO require Oracle JDBC configuartion
-//        if (rs.getObject(i) instanceof TIMESTAMP) { // Oracle Timestamp Case
-//          TIMESTAMP timestamp = (TIMESTAMP) rs.getObject(i);
-//          rowMap.put(fieldName, timestamp.timestampValue().toString());
-//        } else
+        //        if (rs.getObject(i) instanceof TIMESTAMP) { // Oracle Timestamp Case
+        //          TIMESTAMP timestamp = (TIMESTAMP) rs.getObject(i);
+        //          rowMap.put(fieldName, timestamp.timestampValue().toString());
+        //        } else
         if (rs.getObject(i) instanceof Timestamp) {
           rowMap.put(fieldName, rs.getObject(i).toString());
         } else if (rs.getObject(i) instanceof PgArray || rs.getObject(i) instanceof PGobject) {
@@ -1926,60 +2087,60 @@ public class JdbcConnectionService {
     return dataList;
   }
 
-  public List<Map<String, Object>> getPartitionList(HiveMetastoreConnection connection, ConnectionRequest connectionRequest){
+  public List<Map<String, Object>> getPartitionList(HiveMetastoreConnection connection, ConnectionRequest connectionRequest) {
     HiveMetaStoreJdbcClient hiveMetaStoreJdbcClient = new HiveMetaStoreJdbcClient(
-            connection.getMetastoreURL(),
-            connection.getMetastoreUserName(),
-            connection.getMetastorePassword(),
-            connection.getMetastoreDriverName());
+        connection.getMetastoreURL(),
+        connection.getMetastoreUserName(),
+        connection.getMetastorePassword(),
+        connection.getMetastoreDriverName());
 
     List partitionInfoList = hiveMetaStoreJdbcClient.getPartitionList(connectionRequest.getDatabase(), connectionRequest.getQuery(), null);
     return partitionInfoList;
   }
 
-  public List<Map<String, Object>> validatePartition(HiveMetastoreConnection connection, ConnectionRequest connectionRequest){
+  public List<Map<String, Object>> validatePartition(HiveMetastoreConnection connection, ConnectionRequest connectionRequest) {
     HiveMetaStoreJdbcClient hiveMetaStoreJdbcClient = new HiveMetaStoreJdbcClient(
-            connection.getMetastoreURL(),
-            connection.getMetastoreUserName(),
-            connection.getMetastorePassword(),
-            connection.getMetastoreDriverName());
+        connection.getMetastoreURL(),
+        connection.getMetastoreUserName(),
+        connection.getMetastorePassword(),
+        connection.getMetastoreDriverName());
 
     List<String> partitionNameList = new ArrayList<>();
-    for(Map<String, Object> partitionNameMap : connectionRequest.getPartitions()){
+    for (Map<String, Object> partitionNameMap : connectionRequest.getPartitions()) {
       partitionNameList.addAll(PolarisUtils.mapWithRangeExpressionToList(partitionNameMap));
     }
     //1. partition info 가져오기
     List<Map<String, Object>> partitionInfoList = new ArrayList<>();
-    try{
+    try {
       partitionInfoList = hiveMetaStoreJdbcClient.getPartitionList(connectionRequest.getDatabase(), connectionRequest.getQuery(), partitionNameList);
-    } catch (Exception e){
+    } catch (Exception e) {
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.PARTITION_NOT_EXISTED, e.getCause().getMessage());
     }
 
     //2. partition parameter가 모두 존재하는지 여부
-    for(String partitionNameParam : partitionNameList){
+    for (String partitionNameParam : partitionNameList) {
       //must exist partition exclude asterisk
       boolean isPartitionExist = false;
-      if(partitionNameParam.contains("{*}")){
+      if (partitionNameParam.contains("{*}")) {
         isPartitionExist = true;
       } else {
-        for(Map<String, Object> existPartition : partitionInfoList){
+        for (Map<String, Object> existPartition : partitionInfoList) {
           String existPartName = existPartition.get("PART_NAME").toString();
-          if(partitionNameParam.equals(existPartName)){
+          if (partitionNameParam.equals(existPartName)) {
             isPartitionExist = true;
             break;
           }
         }
       }
 
-      if(!isPartitionExist)
+      if (!isPartitionExist)
         throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.PARTITION_NOT_EXISTED,
-                "partition (" + partitionNameParam + ") is not exists in " + connectionRequest.getQuery() + ".");
+                                              "partition (" + partitionNameParam + ") is not exists in " + connectionRequest.getQuery() + ".");
     }
 
-    if(partitionInfoList == null || partitionInfoList.isEmpty())
+    if (partitionInfoList == null || partitionInfoList.isEmpty())
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.PARTITION_NOT_EXISTED,
-              "partition is not exists in " + connectionRequest.getQuery() + ".");
+                                            "partition is not exists in " + connectionRequest.getQuery() + ".");
 
     return partitionInfoList;
   }

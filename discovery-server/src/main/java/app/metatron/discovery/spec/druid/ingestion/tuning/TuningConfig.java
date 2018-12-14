@@ -26,8 +26,7 @@ import app.metatron.discovery.spec.druid.ingestion.index.IndexSpec;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = BatchTuningConfig.class, name = "index"),
         @JsonSubTypes.Type(value = HadoopTuningConfig.class, name = "hadoop"),
-        @JsonSubTypes.Type(value = KafkaTuningConfig.class, name = "kafka"),
-        @JsonSubTypes.Type(value = RealTimeTuningConfig.class, name = "realtime")
+        @JsonSubTypes.Type(value = KafkaTuningConfig.class, name = "kafka")
 })
 public interface TuningConfig {
   IndexSpec getIndexSpec();

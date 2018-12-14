@@ -1,40 +1,35 @@
-import { UIOption } from '../../ui-option';
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { MapBy, MapLayerType } from '../../define/map/map-common';
+import { ColorRange } from '../ui-color';
+
 /**
- * 맵차트 화면 UI에 필요한 옵션
- * Version 2.0
+ * map chart layer
  */
 export interface UILayers {
 
   // layer type
-  type?: string;
+  type?: MapLayerType;
 
   name?: string;
 
-  symbol?: string;
-
   color?: SymbolColor;
 
-  size?: SymbolSize;
-
-  outline?: SymbolOutline;
-
-  clustering?: boolean;
-
-  datasource?: string;
-
-  viewRawData?: boolean;
-
-  blur?: number;
-
-  radius?: number;
-
-  thickness?: Thickness;
-
-  pathType?: string;
-
-  shape?: string;
-
-  coverage?: number;
+  ////////////////////////
+  ///// UI Spec
+  ////////////////////////
 }
 
 /**
@@ -42,51 +37,40 @@ export interface UILayers {
  */
 interface SymbolColor {
 
-  by?: string;
+  // Color specification criteria
+  by?: MapBy;
 
+  // Column Name
   column?: string;
 
+  // Color code or schema code
   schema?: string;
 
+  // Transparency (0~100)
   transparency?: number;
 
-  resolution?: number;
+  // Source color, if line layer case
+  source?: string;
 
-}
+  // Target color, if line layer case
+  target?: string;
 
-/**
- * Symbol Size
- */
-interface SymbolSize {
+  ////////////////////////
+  ///// UI Spec
+  ////////////////////////
 
-  by?: string;
+  // color by dimension custom color setting
+  mapping?: Object
 
-  column?: string;
+  // color by measure custom color setting
+  ranges?: ColorRange[];
 
-}
+  // Column Aggregation type (measure)
+  aggregationType?: string;
 
-/**
- * Thickness
- */
-interface Thickness {
+  // Column granularity (timestamp)
+  granularity?: string;
 
-  by?: string;
-
-  column?: string;
-
-  maxValue?: number;
-
-}
-
-/**
- * Symbol Outline
- */
-interface SymbolOutline {
-
-  color?: string;
-
-  thickness?: string;
-
-  lineDash?: string;
-
+  // custom color on / off
+  settingUseFl: boolean;
 }

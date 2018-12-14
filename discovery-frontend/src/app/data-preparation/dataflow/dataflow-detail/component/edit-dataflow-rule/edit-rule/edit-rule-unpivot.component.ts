@@ -16,11 +16,13 @@ import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
 import * as _ from 'lodash';
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'edit-rule-unpivot',
@@ -98,11 +100,16 @@ export class EditRuleUnpivotComponent extends EditRuleComponent implements OnIni
 
     // TODO : condition validation
     const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+      return '`' + item.name + '`';
     }).join(', ');
+
+
+    // limit
+    if (isNullOrUndefined(this.inputValue) || this.inputValue.toString() === '') {
+      Alert.warning(this.translateService.instant('msg.dp.alert.enter.group.every'));
+      return undefined;
+    }
+
 
     return {
       command: 'unpivot',

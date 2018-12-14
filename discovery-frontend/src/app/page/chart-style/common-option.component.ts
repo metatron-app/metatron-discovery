@@ -1268,12 +1268,36 @@ export class CommonOptionComponent extends BaseOptionComponent {
   }
 
   /**
+   * KPI - 설명 전체선택 여부
+   * @returns {boolean}
+   */
+  public kpiTextIndex(): number {
+    const option: UILabelChart = <UILabelChart>this.uiOption;
+    let text: string;
+    let index: number = 0;
+    _.each(option.annotations, (series, index) => {
+      const labelSeries: UILabelAnnotation = (<UILabelAnnotation>series);
+      if (!_.isUndefined(labelSeries.show)) {
+        let seriesText: string = labelSeries.description;
+        if (_.isUndefined(text)) {
+          text = seriesText;
+        }
+        else if (!_.isUndefined(seriesText) && !_.eq(text, seriesText)) {
+          index = index;
+        }
+      }
+    });
+    return index;
+  }
+
+  /**
    * KPI - 설명 대상 Index
    */
   public kpiGetTextTargetIndex(): number {
 
-    let isAll: boolean = this.kpiIsTextAll();
-    return isAll ? 0 : 1;
+    // let isAll: boolean = this.kpiIsTextAll();
+    // return isAll ? 0 : 1;
+    return this.kpiTextIndex();
   }
 
   /**

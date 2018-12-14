@@ -14,62 +14,51 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.List;
 
 public class PrepSnapshotRequestPost {
-    PrepSnapshot.SS_TYPE ssType;
+    PrSnapshot.SS_TYPE ssType;              // URI, DATABASE, STAGING_DB
+    PrSnapshot.STORAGE_TYPE storageType;    // LOCAL, HDFS
+
     String ssName;
-    String uri;
+    String storedUri;
     String dbName;
     String tblName;
-    PrepSnapshot.FORMAT format;
-    PrepSnapshot.COMPRESSION compression;
-    PrepSnapshot.MODE mode;
-    PrepSnapshot.ENGINE engine;
-    boolean profile;
-    String extHdfsDir;      // TODO: remove with related UI code
-    List<String> partKeys;
+    PrSnapshot.URI_FILE_FORMAT uriFileFormat;
+    PrSnapshot.HIVE_FILE_FORMAT hiveFileFormat;
+    PrSnapshot.HIVE_FILE_COMPRESSION hiveFileCompression;
+    PrSnapshot.APPEND_MODE appendMode;
+    PrSnapshot.ENGINE engine;
+    List<String> partitionColNames;
 
-    @JsonIgnore
-    public PrepSnapshot.FORMAT getFormatEnum() {
-        return format;
+
+    public PrSnapshot.URI_FILE_FORMAT getUriFileFormat() {
+        return uriFileFormat;
     }
 
-    public String getFormat() {
-        if(format==null) {
-            return null;
-        }
-        return format.name();
+    public void setUriFileFormat(PrSnapshot.URI_FILE_FORMAT uriFileFormat) {
+        this.uriFileFormat = uriFileFormat;
     }
 
-    public void setFormat(PrepSnapshot.FORMAT format) {
-        this.format = format;
+    public PrSnapshot.HIVE_FILE_FORMAT getHiveFileFormat() {
+        return hiveFileFormat;
     }
 
-    @JsonIgnore
-    public PrepSnapshot.COMPRESSION getCompressionEnum() {
-        return compression;
+    public void setHiveFileFormat(PrSnapshot.HIVE_FILE_FORMAT hiveFileFormat) {
+        this.hiveFileFormat = hiveFileFormat;
     }
 
-    public String getCompression() {
-        if(compression==null) {
-            return null;
-        }
-        return compression.name();
+    public PrSnapshot.HIVE_FILE_COMPRESSION getHiveFileCompression() {
+        return hiveFileCompression;
     }
 
-    public void setCompression(PrepSnapshot.COMPRESSION compression) {
-        this.compression = compression;
-    }
-
-    public boolean isProfile() {
-        return profile;
-    }
-
-    public void setProfile(boolean profile) {
-        this.profile = profile;
+    public void setHiveFileCompression(PrSnapshot.HIVE_FILE_COMPRESSION hiveFileCompression) {
+        this.hiveFileCompression = hiveFileCompression;
     }
 
     public String getSsName() {
@@ -80,35 +69,44 @@ public class PrepSnapshotRequestPost {
         this.ssName = ssName;
     }
 
-    public PrepSnapshot.SS_TYPE getSsTypeEnum() {
+    public PrSnapshot.SS_TYPE getSsType() {
         return ssType;
     }
 
-    public String getSsType() {
-        if(ssType==null) {
-            return null;
-        }
-        return ssType.name();
+    public PrSnapshot.STORAGE_TYPE getStorageType() {
+        return storageType;
     }
 
-    public void setSsType(PrepSnapshot.SS_TYPE ssType) {
+    public void setStorageType(PrSnapshot.STORAGE_TYPE storageType) {
+        this.storageType = storageType;
+    }
+
+    public void setSsType(PrSnapshot.SS_TYPE ssType) {
         this.ssType = ssType;
     }
 
-    public List<String> getPartKeys() {
-        return partKeys;
+    @JsonIgnore
+    public String getJsonPartitionColNames() throws JsonProcessingException {
+        if (partitionColNames == null) {
+            return null;
+        }
+        return GlobalObjectMapper.getDefaultMapper().writeValueAsString(partitionColNames);
     }
 
-    public void setPartKeys(List<String> partKeys) {
-        this.partKeys = partKeys;
+    public List<String> getPartitionColNames() {
+        return partitionColNames;
     }
 
-    public String getUri() {
-        return uri;
+    public void setPartitionColNames(List<String> partitionColNames) {
+        this.partitionColNames = partitionColNames;
     }
 
-    public void setUri(String uri) {
-        this.uri = uri;
+    public String getStoredUri() {
+        return storedUri;
+    }
+
+    public void setStoredUri(String storedUri) {
+        this.storedUri = storedUri;
     }
 
     public String getDbName() {
@@ -127,41 +125,19 @@ public class PrepSnapshotRequestPost {
         this.tblName = tblName;
     }
 
-    public PrepSnapshot.MODE getModeEnum() {
-        return mode;
+    public PrSnapshot.APPEND_MODE getAppendMode() {
+        return appendMode;
     }
 
-    public String getMode() {
-        if(mode==null) {
-            return null;
-        }
-        return mode.name();
+    public void setAppendMode(PrSnapshot.APPEND_MODE appendMode) {
+        this.appendMode = appendMode;
     }
 
-    public void setMode(PrepSnapshot.MODE mode) {
-        this.mode = mode;
-    }
-
-    public String getExtHdfsDir() {
-        return extHdfsDir;
-    }
-
-    public void setExtHdfsDir(String extHdfsDir) {
-        this.extHdfsDir = extHdfsDir;
-    }
-
-    public PrepSnapshot.ENGINE getEngineEnum() {
+    public PrSnapshot.ENGINE getEngine() {
         return engine;
     }
 
-    public String getEngine() {
-        if(engine==null) {
-            return null;
-        }
-        return engine.name();
-    }
-
-    public void setEngine(PrepSnapshot.ENGINE engine) {
+    public void setEngine(PrSnapshot.ENGINE engine) {
         this.engine = engine;
     }
 }

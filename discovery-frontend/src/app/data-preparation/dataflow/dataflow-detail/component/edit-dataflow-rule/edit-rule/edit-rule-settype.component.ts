@@ -14,7 +14,8 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import { DataflowService } from '../../../../service/dataflow.service';
@@ -127,9 +128,11 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    */
   public setSelectedTimestamp(selectedTimestamp : string) {
     let tempnum: number = -1;
-    if(selectedTimestamp !==null && selectedTimestamp !== '' && -1 !== this._timestampValueArray().indexOf(selectedTimestamp)) {
-      tempnum = this._timestampValueArray().indexOf(selectedTimestamp);
-    }
+    try{
+      if(selectedTimestamp !==null && selectedTimestamp !== '' && -1 !== this._timestampValueArray().indexOf(selectedTimestamp)) {
+        tempnum = this._timestampValueArray().indexOf(selectedTimestamp);
+      }
+    }catch (error){};
     this._custom.setSelectedItem(this.timestampFormats, selectedTimestamp, tempnum);
   }
 
@@ -139,13 +142,14 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * @param result
    */
   public makeTimestampList(result:any) {
+
     let keyList = [];
     this.timestampFormats = [];
 
     for (let key in result) {
-      if (result.hasOwnProperty(key)) {
+      // if (result.hasOwnProperty(key)) {
         keyList.push(key);
-      }
+      // }
     }
 
     for (let i in result[keyList[0]]) {
@@ -153,7 +157,6 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
         this.timestampFormats.push({ value: i, isHover: false, matchValue: result[keyList[0]][i] })
       }
     }
-    // this.timestampFormats.push({ value: 'Custom format', isHover: false, matchValue: -1 });
   }
 
   /**
@@ -169,30 +172,25 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
     this.dataflowService.getTimestampFormatSuggestions(this.dsId, {colNames : cols} ).then((result) => {
 
       if (!isNullOrUndefined(result)) {
-
         this.makeTimestampList(result);
         // timestamp --> string (max x)
         // string --> timestamp (max o)
         // timestamp --> timestamp (max x)
         if (!isNullOrUndefined(this.selectedTimestamp) && '' !== this.selectedTimestamp) {
-          this.setSelectedTimestamp(this.selectedTimestamp);
+          //
         } else if (cols.length > 0) { // 선택된 컬럼이 있다면
+          this.selectedTimestamp = '';
           if ('string' === this.selectedType.toLowerCase()) {
             // timestamp ->  string  (set current column timestamp type)
             if ('timestamp' === this.selectedFields[0].type.toLowerCase()) {
               let idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
               this.selectedTimestamp = this.colTypes[idx].timestampStyle;
-              this.setSelectedTimestamp(this.selectedTimestamp);
-            } else {
-              this.selectedTimestamp = '';
-              this.setSelectedTimestamp(this.selectedTimestamp);
             }
           } else if ('timestamp' === this.selectedType.toLowerCase()) {
             if ('timestamp' === this.selectedFields[0].type.toLowerCase()) {
               // timestamp ->  timestamp  (set current column timestamp type)
               let idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
               this.selectedTimestamp = this.colTypes[idx].timestampStyle;
-              this.setSelectedTimestamp(this.selectedTimestamp);
             } else if ('string' === this.selectedFields[0].type.toLowerCase()) {
               // string -> timestamp (suggestion)
               let max = this.timestampFormats.reduce((max, b) => Math.max(max, b.matchValue), this.timestampFormats[0].matchValue);
@@ -202,13 +200,12 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
                 return data === max
               });
               this.selectedTimestamp = this.timestampFormats[idx].value;
-              this.setSelectedTimestamp(this.selectedTimestamp);
             }
           }
         } else { // 선택된 컬럼이 없다면 선택된 타임스탬프는 없다
           this.selectedTimestamp = '';
-          this.setSelectedTimestamp(this.selectedTimestamp);
         }
+        this.setSelectedTimestamp(this.selectedTimestamp);
       }
     });
   }
@@ -232,10 +229,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
     }
 
     const columnsStr: string = this.selectedFields.map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+      return '`' + item.name + '`';
     }).join(', ');
 
     let ruleString = 'settype col: ' + columnsStr + ` type: ${this.selectedType}`;
@@ -324,7 +318,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
       this.isTimestamp = false;
     }
   }
-
+ 
   /**
    * Show/hide pattern tooltip
    * @param {boolean} isShow

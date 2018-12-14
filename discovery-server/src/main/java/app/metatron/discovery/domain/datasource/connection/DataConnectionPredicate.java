@@ -16,8 +16,12 @@ package app.metatron.discovery.domain.datasource.connection;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+
+import java.util.List;
 
 public class DataConnectionPredicate {
 
@@ -64,6 +68,106 @@ public class DataConnectionPredicate {
       } else {
         builder = builder.and(dataConnection.modifiedTime.between(from, to));
       }
+    }
+
+    return builder;
+  }
+
+  public static Predicate searchList(List<String> workspaces,
+                                     List<String> createdBys,
+                                     List<DataConnection.Implementor> implementors,
+                                     List<DataConnection.AuthenticationType> authenticationTypes,
+                                     DateTime createdTimeFrom,
+                                     DateTime createdTimeTo,
+                                     DateTime modifiedTimeFrom,
+                                     DateTime modifiedTimeTo,
+                                     String containsText,
+                                     List<Boolean> published) {
+
+    QDataConnection dataConnection = QDataConnection.dataConnection;
+
+    BooleanBuilder builder = new BooleanBuilder();
+
+    //implementors
+    if(implementors != null && !implementors.isEmpty()){
+      BooleanBuilder subBuilder = new BooleanBuilder();
+      for(DataConnection.Implementor implementor : implementors){
+        subBuilder = subBuilder.or(dataConnection.implementor.eq(implementor.toString()));
+      }
+      builder = builder.and(subBuilder);
+    }
+
+    //authenticationTypes
+    if(authenticationTypes != null && !authenticationTypes.isEmpty()){
+      BooleanBuilder subBuilder = new BooleanBuilder();
+      for(DataConnection.AuthenticationType authenticationType : authenticationTypes){
+        if(authenticationType == DataConnection.AuthenticationType.MANUAL){
+          subBuilder = subBuilder.or(dataConnection.authenticationType.eq(authenticationType))
+                  .or(dataConnection.authenticationType.isNull());
+        } else {
+          subBuilder = subBuilder.or(dataConnection.authenticationType.eq(authenticationType));
+        }
+      }
+      builder = builder.and(subBuilder);
+    }
+
+    //CreatedBy
+    if(createdBys != null && !createdBys.isEmpty()){
+      BooleanBuilder subBuilder = new BooleanBuilder();
+      for(String createdBy : createdBys){
+        subBuilder = subBuilder.or(dataConnection.createdBy.eq(createdBy));
+      }
+      builder = builder.and(subBuilder);
+    }
+
+    //containsText
+    if(StringUtils.isNotEmpty(containsText)){
+      builder = builder.andAnyOf(dataConnection.name.containsIgnoreCase(containsText),
+              dataConnection.description.containsIgnoreCase(containsText));
+    }
+
+    //createdTime
+    if(createdTimeFrom != null && createdTimeTo != null) {
+      builder = builder.and(dataConnection.createdTime.between(createdTimeFrom, createdTimeTo));
+    } else if(createdTimeFrom != null){
+      builder = builder.and(dataConnection.createdTime.goe(createdTimeFrom));
+    } else if(createdTimeTo != null){
+      builder = builder.and(dataConnection.createdTime.loe(createdTimeTo));
+    }
+
+    //modifiedTime
+    if(modifiedTimeFrom != null && modifiedTimeTo != null) {
+      builder = builder.and(dataConnection.modifiedTime.between(modifiedTimeFrom, modifiedTimeTo));
+    } else if(modifiedTimeFrom != null){
+      builder = builder.and(dataConnection.modifiedTime.goe(modifiedTimeFrom));
+    } else if(modifiedTimeTo != null){
+      builder = builder.and(dataConnection.modifiedTime.loe(modifiedTimeTo));
+    }
+
+    //published
+    if(published != null && !published.isEmpty() && workspaces != null && !workspaces.isEmpty()){
+      BooleanBuilder subBuilder = new BooleanBuilder();
+      for(Boolean publishedBoolean : published){
+        subBuilder = subBuilder.or(dataConnection.published.eq(publishedBoolean));
+      }
+      subBuilder = subBuilder.or(dataConnection.id.in(JPAExpressions.select(dataConnection.id)
+              .from(dataConnection)
+              .innerJoin(dataConnection.workspaces)
+              .where(dataConnection.workspaces.any().id.in(workspaces))));
+      builder.and(subBuilder);
+    } else if(published != null && !published.isEmpty()){
+      BooleanBuilder subBuilder = new BooleanBuilder();
+      for(Boolean publishedBoolean : published){
+        subBuilder = subBuilder.or(dataConnection.published.eq(publishedBoolean));
+      }
+      builder.and(subBuilder);
+    } else if(workspaces != null && !workspaces.isEmpty()){
+      BooleanExpression workspaceContains = dataConnection.id
+              .in(JPAExpressions.select(dataConnection.id)
+                      .from(dataConnection)
+                      .innerJoin(dataConnection.workspaces)
+                      .where(dataConnection.workspaces.any().id.in(workspaces)));
+      builder.and(workspaceContains);
     }
 
     return builder;

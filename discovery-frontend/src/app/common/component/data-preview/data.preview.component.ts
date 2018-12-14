@@ -132,9 +132,9 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   public roles: any = {};
 
   // Datasource
+  public datasources: Datasource[] = [];
   public mainDatasource: Datasource;
   public joinMappings: JoinMapping[] = [];
-  public datasources: Datasource[] = [];
   public joinDataSources: Datasource[] = [];
 
   // 메인 그리드 rows 개수
@@ -164,7 +164,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
   public timestampField: Field;
 
-  public downloadPreview:PreviewResult;
+  public downloadPreview: PreviewResult;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -200,15 +200,20 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     if (this.source['configuration']) {
       this.isDashboard = true;
       const dashboardInfo: Dashboard = (<Dashboard>this.source);
-      this.datasources = DashboardUtil.getMainDataSources(dashboardInfo);
+      this.datasources = _.cloneDeep(DashboardUtil.getMainDataSources(dashboardInfo));
     } else {
       this.isDashboard = false;
-      this.datasources.push(<Datasource>this.source);
+      this.datasources.push(<Datasource>_.cloneDeep(this.source));
     }
     // 데이터소스 array에 메타데이터가 존재하는경우 merge
     this.datasources.forEach((source) => {
-      source.fields.forEach((field) => {
+      source.fields.forEach((field, index, object) => {
+        // set meta data information
         this._setMetaDataField(field, source);
+        //  if current time in fields, hide
+        if (DashboardUtil.isCurrentDateTime(field)) {
+          object.splice(index, 1);
+        }
       });
     });
     this.selectDataSource(this.datasources[0]);
@@ -357,12 +362,12 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
         // 쿼리 조건 저장
         params.limits.limit = 10000000;
-        this._queryParams = _.cloneDeep( params );
+        this._queryParams = _.cloneDeep(params);
 
         params.metaQuery = true;
-        this.datasourceService.getDatasourceQuery(params).then( metaData => {
-          this.downloadPreview = new PreviewResult( metaData.estimatedSize, metaData.totalCount );
-          ( this.rowNum > this.downloadPreview.count ) && ( this.rowNum = this.downloadPreview.count );
+        this.datasourceService.getDatasourceQuery(params).then(metaData => {
+          this.downloadPreview = new PreviewResult(metaData.estimatedSize, metaData.totalCount);
+          (this.rowNum > this.downloadPreview.count) && (this.rowNum = this.downloadPreview.count);
           res(gridData);
           this.loadingHide();
         });
@@ -1039,6 +1044,13 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     // seletedfield init
     this.selectedField = null;
     this.timestampField = null;
+    this.columns = [];
+    this.colTypes = [];
+    this.roles = {};
+
+    this.joinMappings = [];
+    this.joinDataSources = [];
+
     this.safelyDetectChanges();
 
     // set columns info
@@ -1046,9 +1058,9 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
       this.mainDsSummary = (this.mainDatasource && this.mainDatasource.summary) ? this.mainDatasource.summary : undefined;
       this.columns = this.mainDatasource.fields;
-      if( this.mainDsSummary ) {
-        this.downloadPreview = new PreviewResult( this.mainDsSummary.size, this.mainDsSummary.count );
-        if( this.rowNum > this.mainDsSummary.count ) {
+      if (this.mainDsSummary) {
+        this.downloadPreview = new PreviewResult(this.mainDsSummary.size, this.mainDsSummary.count);
+        if (this.rowNum > this.mainDsSummary.count) {
           this.rowNum = this.mainDsSummary.count;
         }
       }
@@ -1385,7 +1397,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
     this.loadingShow();
     this.datasourceService.getDatasourceQuery(this._queryParams).then(downData => {
-      this._dataDownComp.openDataDown(event, this.columns, downData, this.downloadPreview );
+      this._dataDownComp.openDataDown(event, this.columns, downData, this.downloadPreview);
       this.loadingHide();
     }).catch((err) => {
 

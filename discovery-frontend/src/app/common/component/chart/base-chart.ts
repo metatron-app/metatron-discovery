@@ -67,6 +67,7 @@ import { UIScatterChart } from './option/ui-option/ui-scatter-chart';
 import UI = OptionGenerator.UI;
 import {UIChartAxisGrid} from "./option/ui-option/ui-axis";
 import { TooltipOptionConverter } from './option/converter/tooltip-option-converter';
+import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
 
 declare let echarts: any;
 
@@ -89,8 +90,14 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   // 선반 정보
   protected pivot: Pivot;
 
+  // map shelf
+  protected shelf: Shelf;
+
   // 기존 선반 정보 (병렬 / 중첩에따라서 변경되지않는 선반값)
   protected originPivot: Pivot;
+
+  // used in selection filter
+  protected originShelf: Shelf;
 
   // 저장 정보
   protected saveInfo: UIOption;
@@ -232,6 +239,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       this.originalData = _.cloneDeep(result.data);
       this.data = result.data;
       this.pivot = result.config.pivot;
+      this.shelf = result.config.shelf;
 
       // 데이터레이블에서 사용되는 uiData에 설정된 columns 데이터 설정
       this.data.columns = this.setUIData();
@@ -291,7 +299,9 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
     // Set
     this.pivot = result.config.pivot;
+    this.shelf = result.config.shelf;
     this.originPivot = _.cloneDeep(this.pivot);
+    if (!this.originShelf) this.originShelf = _.cloneDeep(this.shelf);
     this.originalData = _.cloneDeep(result.data);
     this.widgetDrawParam = _.cloneDeep(result.params);
 
@@ -1233,7 +1243,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // 숫자 포맷 옵션 적용
     ////////////////////////////////////////////////////////
 
-    this.chartOption = FormatOptionConverter.convertFormatTooltip(this.chartOption, this.uiOption, this.fieldInfo, this.pivot);
+    this.chartOption = FormatOptionConverter.convertFormatTooltip(this.chartOption, this.uiOption, this.fieldOriginInfo, this.pivot);
 
     ////////////////////////////////////////////////////////
     // 차트별 추가사항
@@ -1363,6 +1373,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // Apply!
     // chart.setOption(option, notMerge, lazyUpdate);
     this.chart.setOption(this.chartOption, false, false);
+    console.info(this.chartOption);
   }
 
   ////////////////////////////////////////////////////////
@@ -1478,7 +1489,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         let pivotType: ChartPivotType;
 
         // 열/행/교차 여부 및 몇번째 필드인지 확인
-        _.forEach(this.fieldInfo, (value, key) => {
+        _.forEach(this.fieldOriginInfo, (value, key) => {
           if (_.indexOf(value, this.uiOption.color['targetField']) > -1) {
             fieldIdx = _.indexOf(value, this.uiOption.color['targetField']);
             pivotType = _.eq(key, ChartPivotType.COLS) ? ChartPivotType.COLS : _.eq(key, ChartPivotType.ROWS) ? ChartPivotType.ROWS : ChartPivotType.AGGS;
@@ -1695,35 +1706,37 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
     let shelve: any = this.pivot;
 
-    // 선반값에서 해당 타입에 해당하는값만 name string값으로 리턴
-    const getShelveReturnString = ((shelve: any, typeList: ShelveFieldType[]): string[] => {
-      const resultList: string[] = [];
-      _.forEach(shelve, (value, key) => {
-        shelve[key].map((item) => {
-          if (_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) {
-            resultList.push(item.alias);
-          }
+    if( shelve ) {
+      // 선반값에서 해당 타입에 해당하는값만 name string값으로 리턴
+      const getShelveReturnString = ((shelve: any, typeList: ShelveFieldType[]): string[] => {
+        const resultList: string[] = [];
+        _.forEach(shelve, (value, key) => {
+          shelve[key].map((item) => {
+            if (_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) {
+              resultList.push(item.name);
+            }
+          });
         });
+        return resultList;
       });
-      return resultList;
-    });
 
-    // 색상지정 기준 필드리스트 설정, 기본 필드 설정
-    this.uiOption.fieldList = getShelveReturnString(shelve, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+      // 색상지정 기준 필드리스트 설정, 기본 필드 설정
+      this.uiOption.fieldList = getShelveReturnString(shelve, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
 
-    if (this.uiOption.color) {
-      // targetField 설정
-      const targetField = (<UIChartColorByDimension>this.uiOption.color).targetField;
+      if (this.uiOption.color) {
+        // targetField 설정
+        const targetField = (<UIChartColorByDimension>this.uiOption.color).targetField;
 
-      // targetField가 있을때
-      if (!_.isEmpty(targetField)) {
-        if (this.uiOption.fieldList.indexOf(targetField) < 0) (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
+        // targetField가 있을때
+        if (!_.isEmpty(targetField)) {
+          if (this.uiOption.fieldList.indexOf(targetField) < 0) (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
 
-      // targetField가 없을때
-      } else {
+          // targetField가 없을때
+        } else {
 
-        // 마지막 필드를 타겟필드로 잡기
-        (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
+          // 마지막 필드를 타겟필드로 잡기
+          (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
+        }
       }
     }
 
@@ -1744,7 +1757,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       const resultList: AbstractField[] = [];
       _.forEach(shelve, (value, key) => {
         shelve[key].map((item) => {
-          if (_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) {
+          if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
             resultList.push(item);
           }
         });
@@ -2242,7 +2255,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    * 선반정보를 기반으로 차트를 그릴수 있는지 여부를 체크
    * - 반드시 각 차트에서 Override
    */
-  public isValid(pivot: Pivot): boolean {
+  public isValid(pivot: Pivot, shelf?: Shelf): boolean {
     throw new Error("isValid is not Override");
   }
 

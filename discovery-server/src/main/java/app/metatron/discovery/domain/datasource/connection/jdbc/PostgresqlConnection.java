@@ -15,12 +15,12 @@
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import java.util.List;
 
 /**
  * 제약 사항 : DATABASE 설정이 없을시, 사용자명으로 접속 (Database 설정을 필수로 넣어야할 듯)
@@ -99,6 +99,14 @@ public class PostgresqlConnection extends JdbcDataConnection {
     builder.append(" SELECT SCHEMA_NAME ");
     builder.append(" FROM INFORMATION_SCHEMA.SCHEMATA ");
     builder.append(" WHERE SCHEMA_NAME NOT IN ('pg_catalog', 'information_schema') ");
+
+    List<String> excludeSchemas = this.getExcludeSchemas();
+    if(excludeSchemas != null){
+      builder.append(" AND SCHEMA_NAME NOT IN ( ");
+      builder.append("'" + StringUtils.join(excludeSchemas, "','") + "'");
+      builder.append(" ) ");
+    }
+
     if(StringUtils.isNotEmpty(schemaNamePattern)){
       builder.append(" AND SCHEMA_NAME LIKE '%" + schemaNamePattern.toLowerCase() + "%' ");
     }
@@ -115,6 +123,14 @@ public class PostgresqlConnection extends JdbcDataConnection {
     builder.append(" SELECT COUNT(SCHEMA_NAME) ");
     builder.append(" FROM INFORMATION_SCHEMA.SCHEMATA ");
     builder.append(" WHERE SCHEMA_NAME NOT IN ('pg_catalog', 'information_schema') ");
+
+    List<String> excludeSchemas = this.getExcludeSchemas();
+    if(excludeSchemas != null){
+      builder.append(" AND SCHEMA_NAME NOT IN ( ");
+      builder.append("'" + StringUtils.join(excludeSchemas, "','") + "'");
+      builder.append(" ) ");
+    }
+
     if(StringUtils.isNotEmpty(schemaNamePattern)){
       builder.append(" AND SCHEMA_NAME LIKE '%" + schemaNamePattern.toLowerCase() + "%' ");
     }
@@ -131,6 +147,14 @@ public class PostgresqlConnection extends JdbcDataConnection {
     if(StringUtils.isNotEmpty(schema)){
       builder.append(" AND TABLE_SCHEMA = '" + schema.toLowerCase() + "' ");
     }
+
+    List<String> excludeTables = this.getExcludeTables();
+    if(excludeTables != null){
+      builder.append(" AND TABLE_NAME NOT IN ( ");
+      builder.append("'" + StringUtils.join(excludeTables, "','") + "'");
+      builder.append(" ) ");
+    }
+
     if(StringUtils.isNotEmpty(tableNamePattern)){
       builder.append(" AND TABLE_NAME LIKE '%" + tableNamePattern.toLowerCase() + "%' ");
     }
@@ -151,6 +175,14 @@ public class PostgresqlConnection extends JdbcDataConnection {
     if(StringUtils.isNotEmpty(schema)){
       builder.append(" AND TABLE_SCHEMA = '" + schema.toLowerCase() + "' ");
     }
+
+    List<String> excludeTables = this.getExcludeTables();
+    if(excludeTables != null){
+      builder.append(" AND TABLE_NAME NOT IN ( ");
+      builder.append("'" + StringUtils.join(excludeTables, "','") + "'");
+      builder.append(" ) ");
+    }
+
     if(StringUtils.isNotEmpty(tableNamePattern)){
       builder.append(" AND TABLE_NAME LIKE '%" + tableNamePattern.toLowerCase() + "%' ");
     }

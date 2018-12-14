@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-layout-popuptype">
+<div class="ddp-layout-popuptype" [ngClass]="{'popup-prep-join' : !isShowPreview }">
   <em class="ddp-bg-popup"></em>
   <div class="ddp-ui-popup ddp-ui-popup-join">
 
@@ -29,328 +29,6 @@
     </div>
     <!-- //title -->
     <!-- contents -->
-    <!-- default : ddp-default 추가 -->
-    <div class="ddp-box-pop-contents ddp-type" [style.display]="isShowPreview ? 'none':'block'"
-         [ngClass]="{'ddp-default':!rightDataset.gridData}">
-
-      <div class="ddp-ui-part">
-        <!-- top -->
-        <div class="ddp-ui-pop-top">
-          <span class="ddp-txt-title">{{'msg.dp.ui.master.ds' | translate}}</span>
-        </div>
-        <!-- //top -->
-        <!-- set -->
-        <div class="ddp-ui-set">
-          <span class="ddp-data-name"><em class="ddp-icon-wrangled-m"></em>{{leftDataset.dsName}}</span>
-          <ul class="ddp-list-tab-button">
-            <li [class.ddp-selected]="viewModeforLeft === 'grid'" (click)="toggleViewModeforLeft('grid')">
-              <a href="javascript:"><em class="ddp-icon-grid"></em></a>
-
-              <div class="ddp-ui-tooltip-info">
-                <em class="ddp-icon-view-top"></em>
-                {{'msg.dp.ui.grid.view' | translate}}
-              </div>
-
-            </li>
-            <li [class.ddp-selected]="viewModeforLeft === 'table'" (click)="toggleViewModeforLeft('table')">
-              <a href="javascript:"><em class="ddp-icon-listgrid"></em></a>
-              <div class="ddp-ui-tooltip-info">
-                <em class="ddp-icon-view-top"></em>
-                {{'msg.dp.ui.list.view' | translate}}
-              </div>
-
-            </li>
-          </ul>
-        </div>
-        <!-- //set -->
-        <div class="ddp-checkall">
-          <!-- checkbox -->
-          <label class="ddp-label-checkbox ddp-type2">
-            <input type="checkbox" [checked]="leftCheckAll" (click)="setLeftCheckAll()">
-            <i class="ddp-icon-checkbox"></i>
-            <span class="ddp-txt-checkbox">{{'msg.comm.ui.list.sel.all' | translate}}</span>
-          </label>
-          <!-- //checkbox -->
-        </div>
-        <!-- 코멘트 -->
-        <div class="ddp-comment" *ngIf="leftSelCols.length === 0">
-          <em>*</em> {{'msg.dp.ui.one.col.required' | translate }}
-        </div>
-        <!-- //코멘트 -->
-        <!-- 그리드 -->
-        <div grid-component #leftGrid
-             [hidden]="viewModeforLeft === 'table'"
-             (selectedHeaderEvent)="leftGridHeaderClickHandler($event)"
-             class="ddp-ui-grid-form"></div>
-        <div class="ddp-ui-grid-form" *ngIf="viewModeforLeft === 'table'">
-          <div class="ddp-wrap-scroll">
-            <!-- 선택시 tr class="ddp-selected" 추가 -->
-            <table class="ddp-table-grid-list">
-              <colgroup>
-                <col width="60px">
-                <col width="*">
-              </colgroup>
-              <tbody>
-              <tr *ngFor="let data of leftDataset.gridData.fields"
-                  [ngClass]="{'ddp-selected':leftSelCols.indexOf(data.name) > -1}">
-                <td class="ddp-txt-center">
-                  <span *ngIf="data.type === 'STRING'">
-                    <em class="ddp-icon-type-ab"></em>
-                  </span>
-                </td>
-                <td (click)="leftTableClickHandler(data.name)"> {{data.name}}</td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <!-- // 그리드 -->
-      </div>
-      <div class="ddp-ui-part">
-        <!-- top -->
-        <div class="ddp-ui-pop-top">
-          <span class="ddp-txt-title">{{'msg.dp.ui.ds.join' | translate}}</span>
-        </div>
-        <!-- //top -->
-        <!-- set -->
-        <div class="ddp-ui-set">
-          <!-- selectbox -->
-          <!-- 클릭시 ddp-selected 추가 -->
-          <div class="ddp-wrap-drop-search"
-               [ngClass]="{'ddp-selected' : isDatasetListShow}"
-               tabindex="1" style="outline:none" (click)="showDatasetList($event)"
-               [class.ddp-result]="rightDataset.dsName"
-               (keydown)="navigateWithKeyboardShortList($event,filteredDatasetsForJoin,'right')">
-            <div class="ddp-type-selectbox2" >
-              <span class="ddp-txt-selectbox ddp-result">{{ !rightDataset.dsName ? ('msg.dp.ui.search-by.dataset'  | translate ): rightDataset.dsName}}</span>
-            </div>
-            <!-- drop search -->
-            <div class="ddp-ui-drop-search" (clickOutside)="isDatasetListShow = false; initSelectedCommand(filteredDatasetsForJoin)">
-              <input type="text" class="ddp-input-search" [(ngModel)]="searchText">
-              <ul class="ddp-list-selectbox2" *ngIf="isDatasetListShow">
-                <li *ngFor="let dataset of filteredDatasetsForJoin; let index=index"
-                    (click)="selectDataset($event, dataset)"
-                    [ngStyle]="dataset.selected ? {'background-color': '#f6f6f7' }:{}"
-                    (mouseout)="listMouseOverAndOut($event,filteredDatasetsForJoin,index)"
-                    (mouseover)="listMouseOverAndOut($event,filteredDatasetsForJoin,index)"
-                    (mousemove)="flag === true ? flag = false : flag = true">
-                  <span *ngIf="dataset">{{dataset.dsType}} <span class="ddp-txt-search">{{dataset.dsName}}</span> {{dataset.nameCnt}}</span>
-                  <span *ngIf="dataset.isCurrentDataflow === true"> ({{'msg.dp.ui.this.flow' | translate}})</span>
-                </li>
-                <li *ngIf="filteredDatasetsForJoin.length === 0">
-                  <span class="ddp-txt-search">{{'msg.dp.ui.ds.none' | translate}}</span>
-                  <span *ngIf="rightDataset.isCurrentDataflow === true"> ({{'msg.dp.ui.this.flow' | translate}})</span>
-                </li>
-              </ul>
-              <!--<div class="ddp-data-message">-->
-              <!--<label class="ddp-label-checkbox">-->
-              <!--<input type="checkbox" [(ngModel)]="isChecked" [attr.disabled]="true">-->
-              <!--<i class="ddp-icon-checkbox"></i>{{'msg.dp.ui.only.show.ds' | translate}}-->
-              <!--</label>-->
-              <!--</div>-->
-            </div>
-            <!-- drop search -->
-          </div>
-          <!-- //selectbox -->
-          <ul class="ddp-list-tab-button" [ngClass]="{'ddp-disabled': !rightDataset.gridData}">
-            <li [class.ddp-selected]="viewModeforRight === 'grid'" (click)="toggleViewModeforRight('grid')">
-              <a href="javascript:"><em class="ddp-icon-grid"></em></a>
-              <div class="ddp-ui-tooltip-info">
-                <em class="ddp-icon-view-top"></em>
-                {{'msg.dp.ui.grid.view' | translate}}
-              </div>
-            </li>
-            <li [class.ddp-selected]="viewModeforRight === 'table'" (click)="toggleViewModeforRight('table')">
-              <a href="javascript:"><em class="ddp-icon-listgrid"></em></a>
-              <div class="ddp-ui-tooltip-info">
-                <em class="ddp-icon-view-top"></em>
-                {{'msg.dp.ui.list.view' | translate}}
-              </div>
-            </li>
-          </ul>
-        </div>
-        <!-- //set -->
-
-        <!-- data none -->
-        <div class="ddp-data-none" *ngIf="!rightDataset.gridData">
-          <span class="ddp-data-contents">{{'msg.dp.ui.create-df.sub.title' | translate}}</span>
-        </div>
-        <!-- //data none -->
-        <div class="ddp-checkall" *ngIf="rightDataset.gridData">
-          <!-- checkbox -->
-          <label class="ddp-label-checkbox ddp-type2">
-            <input type="checkbox" [checked]="rightCheckAll" (click)="setRightCheckAll()">
-            <i class="ddp-icon-checkbox"></i>
-            <span class="ddp-txt-checkbox">{{'msg.comm.ui.list.sel.all' | translate}}</span>
-          </label>
-          <!-- //checkbox -->
-        </div>
-        <!-- 코멘트 -->
-        <div class="ddp-comment" *ngIf="rightSelCols.length === 0">
-          <em>*</em> {{'msg.dp.ui.one.col.required' | translate }}
-        </div>
-        <!-- //코멘트 -->
-        <div grid-component #rightGrid
-             [hidden]="viewModeforRight === 'table'"
-             (selectedHeaderEvent)="rightGridHeaderClickHandler($event)"
-             class="ddp-ui-grid-form"></div>
-        <div class="ddp-ui-grid-form" *ngIf="viewModeforRight === 'table'">
-          <table class="ddp-table-grid-list" *ngIf="rightDataset.gridData">
-            <colgroup>
-              <col width="60px"/>
-              <col width="*"/>
-            </colgroup>
-            <tbody>
-            <tr *ngFor="let data of rightDataset.gridData.fields"
-                [ngClass]="{'ddp-selected':rightSelCols.indexOf(data.name) > -1}">
-              <td class="ddp-txt-center">
-                  <span>
-                    <em class="{{getFieldTypeIconClass(data.type)}}"></em>
-                  </span>
-              </td>
-              <td (click)="rightTableClickHandler(data.name)">{{data.name}}</td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-        <!-- // 그리드 -->
-      </div>
-
-    </div>
-    <!-- //contents -->
-    <div class="ddp-ui-join-type ddp-type" [style.display]="isShowPreview ? 'none':'block'">
-      <div class="ddp-ui-data-join">
-
-
-        <!-- data join -->
-        <div class="ddp-data-join ddp-jointype">
-          <span class="ddp-ui-label">{{'msg.dp.th.join.type' | translate}}</span>
-          <ul class="ddp-list-join">
-            <li
-              [ngClass]="{ 'ddp-selected' : selectedJoinType == 'INNER'  }">
-              <a (click)="selectJoinType( 'INNER' )" href="javascript:">
-                <em class="ddp-icon-joininner"></em> {{'msg.dp.ui.join.type.inner' | translate}}
-              </a>
-
-            </li>
-            <li
-              [ngClass]="{ 'ddp-selected' : selectedJoinType == 'LEFT'  }">
-              <a (click)="selectJoinType( 'LEFT' )" href="javascript:">
-                <em class="ddp-icon-joinleft"></em> {{'msg.dp.ui.join.type.left' | translate}}
-              </a>
-
-            </li>
-            <li
-              [ngClass]="{ 'ddp-selected' : selectedJoinType == 'RIGHT'  }">
-              <a (click)="selectJoinType( 'RIGHT' )" href="javascript:">
-                <em class="ddp-icon-joinright"></em> {{'msg.dp.ui.join.type.right' | translate}}
-              </a>
-
-            </li>
-            <li
-              [ngClass]="{ 'ddp-selected' : selectedJoinType == 'OUTER'  }">
-              <a (click)="selectJoinType( 'OUTER' )" href="javascript:">
-                <em class="ddp-icon-joinouter"></em> {{'msg.dp.ui.join.type.fullouter' | translate}}
-              </a>
-
-            </li>
-          </ul>
-        </div>
-        <!-- //data join -->
-        <!-- data join -->
-        <div class="ddp-data-join">
-          <span class="ddp-ui-label">
-              <span class="ddp-title">{{'msg.dp.th.join.keys' | translate}}</span>
-          </span>
-          <!-- 코멘트 -->
-          <div class="ddp-comment" *ngIf="0 == joinList.length">
-            <em>*</em> At least one join key is required
-          </div>
-          <!-- //코멘트 -->
-          <div class="ddp-view-joinkeys">
-            <!-- join form -->
-            <div class="ddp-form-join">
-              <!-- selectbox -->
-              <!-- 클릭시 ddp-selected 추가 -->
-              <div class="ddp-wrap-drop-search"
-                   [ngClass]="{'ddp-selected' : isLeftDatasetShow}"
-                   [class.ddp-result]="leftJoinKey"
-                   (click)="showLeftDataset($event)">
-                <div class="ddp-type-selectbox2" >
-                  <span class="ddp-txt-selectbox ddp-result">{{ leftJoinKey === '' ? ('msg.dp.ui.empty' | translate) : leftJoinKey}}</span>
-                </div>
-                <!-- drop search -->
-                <div class="ddp-ui-drop-search"
-                     (clickOutside)="isLeftDatasetShow=false;">
-                  <input type="text" class="ddp-input-search" placeholder="{{'msg.dp.ui.ds.search.description' | translate}}" [(ngModel)]="leftJoinKeySearchText">
-                  <ul class="ddp-list-selectbox2" *ngIf="isLeftDatasetShow">
-                    <li *ngFor="let keyName of filteredLeftKeyList; let index=index;"
-                        (click)="onLeftJoinKeySelected($event,keyName)">
-                      <a href="javascript:"> {{keyName}} </a>
-                    </li>
-                    <li *ngIf="filteredLeftKeyList.length === 0">
-                      <span class="ddp-txt-search">{{'msg.dp.ui.join.key.description' | translate}}</span>
-                    </li>
-                  </ul>
-                </div>
-                <!-- drop search -->
-              </div>
-              <!-- //selectbox -->
-              <span class="ddp-data-default">=</span>
-              <!-- selectbox -->
-              <!-- 클릭시 ddp-selected 추가 -->
-              <div class="ddp-wrap-drop-search" *ngIf="rightDataset.gridData" [ngClass]="{'ddp-selected' : isRightDatasetShow}" [class.ddp-result]="rightJoinKey">
-                <div class="ddp-type-selectbox2" (click)="showRightDataset($event)" >
-                  <span class="ddp-txt-selectbox ddp-result">{{ rightJoinKey === '' ? ('msg.dp.ui.empty' | translate) : rightJoinKey }}</span>
-                </div>
-
-                <!-- drop search -->
-                <div class="ddp-ui-drop-search" *ngIf="isRightDatasetShow" (clickOutside)="isRightDatasetShow=false;" >
-                  <input type="text" class="ddp-input-search" placeholder="{{'msg.dp.ui.ds.search.description' | translate}}" [(ngModel)]="rightJoinKeySearchText">
-
-                  <ul class="ddp-list-selectbox2" >
-                    <li *ngFor="let keyName of filteredRightKeyList" (click)="onRightJoinKeySelected($event,keyName)">
-                      <a href="javascript:" > {{keyName}} </a>
-                    </li>
-                    <li *ngIf="filteredRightKeyList.length === 0">
-                      <span class="ddp-txt-search">{{'msg.dp.ui.join.key.description' | translate}}</span>
-                    </li>
-                  </ul>
-                </div>
-                <!-- drop search -->
-              </div>
-              <!-- //selectbox -->
-
-              <!--     <span class="ddp-data-column">Column</span>-->
-            </div>
-            <!-- //join form -->
-            <a href="javascript:" class="ddp-btn-solid" (click)="addJoinKeys()"
-               [ngClass]="{'ddp-disabled':selectedJoinType === '' || leftJoinKey === '' || rightJoinKey === ''}">
-              + {{'msg.dp.btn.add' | translate}}
-            </a>
-          </div>
-          <div class="ddp-data-key">
-            <span class="ddp-data-num" *ngIf="0 < joinList.length">{{'msg.dp.ui.join.keys' | translate : {value : joinList.length} }}</span>
-            <span class="ddp-data-num" *ngIf="0 == joinList.length">{{'msg.dp.ui.join.key.none' | translate}}</span>
-          </div>
-
-          <ul class="ddp-list-form-join" *ngIf="0 < joinList.length">
-            <li *ngFor="let joinInfo of joinList; let idx = index">
-              <div class="ddp-form-join">
-                <span class="ddp-data-column">{{joinInfo.leftJoinKey}}</span>
-                <span class="ddp-data-default">=</span>
-                <span class="ddp-data-column">{{joinInfo.rightJoinKey}}</span>
-              </div>
-              <em class="ddp-icon-control-cut" (click)="removeJoinInfo(idx)"></em>
-            </li>
-          </ul>
-
-        </div>
-        <!-- //data join -->
-      </div>
-
-    </div>
-
     <!-- Preview Content -->
     <div class="ddp-ui-popup-contents" [style.display]="isShowPreview ? 'block':'none'">
       <div class="ddp-ui-dataset-new">
@@ -364,34 +42,24 @@
             <div class="ddp-wrap-grid-option">
 
               <div class="ddp-part-right">
-                <!--
-                <div class="ddp-data-form">
-                  <strong>{{getSize()[0]}}</strong>
-                  {{getSize()[1]}}
-                </div>
-                -->
                 <div class="ddp-data-form">
                   <strong>{{getColumns()}}</strong>
                   {{'msg.comm.detail.columns' | translate}}
                 </div>
                 <div class="ddp-data-form">
-                  <!--
-                  <input type="text" class="ddp-data-input" [(ngModel)]="defaultNumberOfRows">
-                  -->
                   <strong>{{getRows()}}</strong>
                   {{'msg.comm.detail.rows' | translate}}
                 </div>
-                <div class="ddp-data-form">
-                  <strong class="ddp-cursor" (click)="isDatatypesShow=!isDatatypesShow"
-                          (clickOutside)="isDatatypesShow=false">{{dataTypesList.length}}</strong>
+                <div class="ddp-data-form ddp-cursor" (click)="showTypeList($event)" (clickOutside)="isDatatypesShow=false">
+                  <strong>{{dataTypesList.length}}</strong>
                   {{'msg.comm.detail.types' | translate}}
                   <!-- 팝업 -->
                   <div class="ddp-wrap-popup2 ddp-types" *ngIf="isDatatypesShow">
                     <ul class="ddp-list-popup">
                       <li *ngFor="let data of dataTypesList">
                         <a href="javascript:">
-                          <em class="{{getFieldTypeIconClass(data)}}"></em>
-                          {{dataTypeObject[data]}} {{'msg.comm.detail.rows' | translate}}
+                          <em class="{{getFieldTypeIconClass(data.label)}}"></em>
+                          {{data.value}}
                         </a>
                       </li>
                     </ul>
@@ -409,21 +77,358 @@
       </div>
 
     </div>
-    <!-- // Preview Content -->
-    <div class="ddp-btn-bottom">
-      <a href="javascript:" class="ddp-btn-solid2" (click)="previewJoinResult()"
-         [style.display]="isShowPreview ? 'none':'inline-block'"
-         [ngClass]="{'ddp-disabled':leftSelCols.length === 0 || rightSelCols.length === 0 || selectedJoinType === '' || joinList.length === 0}">
-        {{'msg.dp.btn.show.rslt' | translate}}
-        <div class="ddp-ui-tooltip-info">
-          <em class="ddp-icon-view-right"></em>
-          You can check the results after selecting required items
-        </div>
-      </a>
+
+    <div class="ddp-btn-bottom" *ngIf="isShowPreview">
       <a href="javascript:" class="ddp-btn-solid2"  (click)="isShowPreview = false;"
          [style.display]="isShowPreview ? 'inline-block':'none'">
         {{'msg.dp.btn.close.rslt' | translate}}
       </a>
+    </div>
+    <!-- // Preview Content -->
+    <!-- default : ddp-default 추가 -->
+    <div class="ddp-wrap-prep-join">
+      <!-- default : ddp-default 추가 -->
+      <div class="ddp-ui-prep-join ">
+        <div class="ddp-prep-box-contents ">
+
+          <div class="ddp-box-pop-contents ddp-type" [style.display]="isShowPreview ? 'none':'block'"
+               [ngClass]="{'ddp-default':!rightDataset.gridData}">
+
+            <div class="ddp-ui-part">
+              <!-- top -->
+              <div class="ddp-ui-pop-top">
+                <span class="ddp-txt-title">{{'msg.dp.ui.master.ds' | translate}}</span>
+              </div>
+              <!-- //top -->
+              <!-- set -->
+              <div class="ddp-ui-set">
+                <span class="ddp-data-name"><em class="ddp-icon-wrangled-m"></em>{{leftDataset.dsName}}</span>
+                <ul class="ddp-list-tab-button">
+                  <li [class.ddp-selected]="viewModeforLeft === 'grid'" (click)="toggleViewModeforLeft('grid')">
+                    <a href="javascript:"><em class="ddp-icon-grid"></em></a>
+
+                    <div class="ddp-ui-tooltip-info">
+                      <em class="ddp-icon-view-top"></em>
+                      {{'msg.dp.ui.grid.view' | translate}}
+                    </div>
+
+                  </li>
+                  <li [class.ddp-selected]="viewModeforLeft === 'table'" (click)="toggleViewModeforLeft('table')">
+                    <a href="javascript:"><em class="ddp-icon-listgrid"></em></a>
+                    <div class="ddp-ui-tooltip-info">
+                      <em class="ddp-icon-view-top"></em>
+                      {{'msg.dp.ui.list.view' | translate}}
+                    </div>
+
+                  </li>
+                </ul>
+              </div>
+              <!-- //set -->
+              <div class="ddp-checkall">
+                <!-- checkbox -->
+                <label class="ddp-label-checkbox ddp-type2">
+                  <input type="checkbox" [checked]="leftCheckAll" (click)="setLeftCheckAll()">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.comm.ui.list.sel.all' | translate}}</span>
+                </label>
+                <!-- //checkbox -->
+              </div>
+              <!-- 코멘트 -->
+              <div class="ddp-comment" *ngIf="leftSelCols.length === 0">
+                <em>*</em> {{'msg.dp.ui.one.col.required' | translate }}
+              </div>
+              <!-- //코멘트 -->
+              <!-- 그리드 -->
+              <div grid-component #leftGrid
+                   [hidden]="viewModeforLeft === 'table'"
+                   (selectedHeaderEvent)="leftGridHeaderClickHandler($event)"
+                   class="ddp-ui-grid-form"></div>
+              <div class="ddp-ui-grid-form" *ngIf="viewModeforLeft === 'table'">
+                <div class="ddp-wrap-scroll">
+                  <!-- 선택시 tr class="ddp-selected" 추가 -->
+                  <table class="ddp-table-grid-list">
+                    <colgroup>
+                      <col width="60px">
+                      <col width="*">
+                    </colgroup>
+                    <tbody>
+                    <tr *ngFor="let data of leftDataset.gridData.fields"
+                        [ngClass]="{'ddp-selected':leftSelCols.indexOf(data.name) > -1}">
+                      <td class="ddp-txt-center">
+                  <span>
+                    <em class="{{getFieldTypeIconClass(data.type)}}"></em>
+                  </span>
+                      </td>
+                      <td (click)="leftTableClickHandler(data.name)"> {{data.name}}</td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <!-- // 그리드 -->
+            </div>
+            <div class="ddp-ui-part">
+              <!-- top -->
+              <div class="ddp-ui-pop-top">
+                <span class="ddp-txt-title">{{'msg.dp.ui.ds.join' | translate}}</span>
+              </div>
+              <!-- //top -->
+              <!-- set -->
+              <div class="ddp-ui-set">
+                <!-- selectbox -->
+                <!-- 클릭시 ddp-selected 추가 -->
+                <div class="ddp-wrap-drop-search"
+                     [ngClass]="{'ddp-selected' : isDatasetListShow}"
+                     tabindex="1" style="outline:none" (click)="showDatasetList($event)"
+                     [class.ddp-result]="rightDataset.dsName"
+                     (keydown)="navigateWithKeyboardShortList($event,filteredDatasetsForJoin,'right')">
+                  <div class="ddp-type-selectbox2" >
+                    <span class="ddp-txt-selectbox ddp-result">{{ !rightDataset.dsName ? ('msg.dp.ui.search-by.dataset'  | translate ): rightDataset.dsName}}</span>
+                  </div>
+                  <!-- drop search -->
+                  <div class="ddp-ui-drop-search" (clickOutside)="isDatasetListShow = false; initSelectedCommand(filteredDatasetsForJoin)">
+                    <input type="text" class="ddp-input-search" [(ngModel)]="searchText">
+                    <ul class="ddp-list-selectbox2" *ngIf="isDatasetListShow">
+                      <li *ngFor="let dataset of filteredDatasetsForJoin; let index=index"
+                          (click)="selectDataset($event, dataset)"
+                          [ngStyle]="dataset.selected ? {'background-color': '#f6f6f7' }:{}"
+                          (mouseout)="listMouseOverAndOut($event,filteredDatasetsForJoin,index)"
+                          (mouseover)="listMouseOverAndOut($event,filteredDatasetsForJoin,index)"
+                          (mousemove)="flag === true ? flag = false : flag = true">
+                        <span *ngIf="dataset">{{dataset.dsType}} <span class="ddp-txt-search">{{dataset.dsName}}</span> {{dataset.nameCnt}}</span>
+                        <span *ngIf="dataset.isCurrentDataflow === true"> ({{'msg.dp.ui.this.flow' | translate}})</span>
+                      </li>
+                      <li *ngIf="filteredDatasetsForJoin.length === 0">
+                        <span class="ddp-txt-search">{{'msg.dp.ui.ds.none' | translate}}</span>
+                        <span *ngIf="rightDataset.isCurrentDataflow === true"> ({{'msg.dp.ui.this.flow' | translate}})</span>
+                      </li>
+                    </ul>
+                    <!--<div class="ddp-data-message">-->
+                    <!--<label class="ddp-label-checkbox">-->
+                    <!--<input type="checkbox" [(ngModel)]="isChecked" [attr.disabled]="true">-->
+                    <!--<i class="ddp-icon-checkbox"></i>{{'msg.dp.ui.only.show.ds' | translate}}-->
+                    <!--</label>-->
+                    <!--</div>-->
+                  </div>
+                  <!-- drop search -->
+                </div>
+                <!-- //selectbox -->
+                <ul class="ddp-list-tab-button" [ngClass]="{'ddp-disabled': !rightDataset.gridData}">
+                  <li [class.ddp-selected]="viewModeforRight === 'grid'" (click)="toggleViewModeforRight('grid')">
+                    <a href="javascript:"><em class="ddp-icon-grid"></em></a>
+                    <div class="ddp-ui-tooltip-info">
+                      <em class="ddp-icon-view-top"></em>
+                      {{'msg.dp.ui.grid.view' | translate}}
+                    </div>
+                  </li>
+                  <li [class.ddp-selected]="viewModeforRight === 'table'" (click)="toggleViewModeforRight('table')">
+                    <a href="javascript:"><em class="ddp-icon-listgrid"></em></a>
+                    <div class="ddp-ui-tooltip-info">
+                      <em class="ddp-icon-view-top"></em>
+                      {{'msg.dp.ui.list.view' | translate}}
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <!-- //set -->
+
+              <!-- data none -->
+              <div class="ddp-data-none" *ngIf="!rightDataset.gridData">
+                <span class="ddp-data-contents">{{'msg.dp.ui.create-df.sub.title' | translate}}</span>
+              </div>
+              <!-- //data none -->
+              <div class="ddp-checkall" *ngIf="rightDataset.gridData">
+                <!-- checkbox -->
+                <label class="ddp-label-checkbox ddp-type2">
+                  <input type="checkbox" [checked]="rightCheckAll" (click)="setRightCheckAll()">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.comm.ui.list.sel.all' | translate}}</span>
+                </label>
+                <!-- //checkbox -->
+              </div>
+              <!-- 코멘트 -->
+              <div class="ddp-comment" *ngIf="rightSelCols.length === 0">
+                <em>*</em> {{'msg.dp.ui.one.col.required' | translate }}
+              </div>
+              <!-- //코멘트 -->
+              <div grid-component #rightGrid
+                   [hidden]="viewModeforRight === 'table'"
+                   (selectedHeaderEvent)="rightGridHeaderClickHandler($event)"
+                   class="ddp-ui-grid-form"></div>
+              <div class="ddp-ui-grid-form" *ngIf="viewModeforRight === 'table'">
+                <div class="ddp-wrap-scroll">
+                  <table class="ddp-table-grid-list" *ngIf="rightDataset.gridData">
+                  <colgroup>
+                    <col width="60px"/>
+                    <col width="*"/>
+                  </colgroup>
+                  <tbody>
+                  <tr *ngFor="let data of rightDataset.gridData.fields"
+                      [ngClass]="{'ddp-selected':rightSelCols.indexOf(data.name) > -1}">
+                    <td class="ddp-txt-center">
+                  <span>
+                    <em class="{{getFieldTypeIconClass(data.type)}}"></em>
+                  </span>
+                    </td>
+                    <td (click)="rightTableClickHandler(data.name)">{{data.name}}</td>
+                  </tr>
+                  </tbody>
+                </table>
+                </div>
+              </div>
+              <!-- // 그리드 -->
+            </div>
+
+          </div>
+
+        </div>
+        <!-- //contents -->
+        <div class="ddp-ui-join-type ddp-type" [style.display]="isShowPreview ? 'none':'block'">
+          <div class="ddp-ui-data-join">
+
+
+            <!-- data join -->
+            <div class="ddp-data-join ddp-jointype">
+              <span class="ddp-ui-label">{{'msg.dp.th.join.type' | translate}}</span>
+              <ul class="ddp-list-join">
+                <li
+                  [ngClass]="{ 'ddp-selected' : selectedJoinType == 'INNER'  }">
+                  <a (click)="selectJoinType( 'INNER' )" href="javascript:">
+                    <em class="ddp-icon-joininner"></em> {{'msg.dp.ui.join.type.inner' | translate}}
+                  </a>
+
+                </li>
+                <li
+                  [ngClass]="{ 'ddp-selected' : selectedJoinType == 'LEFT'  }">
+                  <a (click)="selectJoinType( 'LEFT' )" href="javascript:">
+                    <em class="ddp-icon-joinleft"></em> {{'msg.dp.ui.join.type.left' | translate}}
+                  </a>
+
+                </li>
+                <li
+                  [ngClass]="{ 'ddp-selected' : selectedJoinType == 'RIGHT'  }">
+                  <a (click)="selectJoinType( 'RIGHT' )" href="javascript:">
+                    <em class="ddp-icon-joinright"></em> {{'msg.dp.ui.join.type.right' | translate}}
+                  </a>
+
+                </li>
+                <li
+                  [ngClass]="{ 'ddp-selected' : selectedJoinType == 'OUTER'  }">
+                  <a (click)="selectJoinType( 'OUTER' )" href="javascript:">
+                    <em class="ddp-icon-joinouter"></em> {{'msg.dp.ui.join.type.fullouter' | translate}}
+                  </a>
+
+                </li>
+              </ul>
+            </div>
+            <!-- //data join -->
+            <!-- data join -->
+            <div class="ddp-data-join">
+          <span class="ddp-ui-label">
+              <span class="ddp-title">{{'msg.dp.th.join.keys' | translate}}</span>
+          </span>
+              <!-- 코멘트 -->
+              <div class="ddp-comment" *ngIf="0 == joinList.length">
+                <em>*</em> {{'msg.dp.ui.join.key.required' | translate }}
+              </div>
+              <!-- //코멘트 -->
+              <div class="ddp-view-joinkeys">
+                <!-- join form -->
+                <div class="ddp-form-join">
+                  <!-- selectbox -->
+                  <!-- 클릭시 ddp-selected 추가 -->
+                  <div class="ddp-wrap-drop-search"
+                       [ngClass]="{'ddp-selected' : isLeftDatasetShow}"
+                       [class.ddp-result]="leftJoinKey"
+                       (click)="showLeftDataset($event)">
+                    <div class="ddp-type-selectbox2" >
+                      <span class="ddp-txt-selectbox ddp-result">{{ leftJoinKey === '' ? ('msg.dp.ui.empty' | translate) : leftJoinKey}}</span>
+                    </div>
+                    <!-- drop search -->
+                    <div class="ddp-ui-drop-search"
+                         (clickOutside)="isLeftDatasetShow=false;">
+                      <input type="text" class="ddp-input-search" placeholder="{{'msg.dp.ui.ds.search.description' | translate}}" [(ngModel)]="leftJoinKeySearchText">
+                      <ul class="ddp-list-selectbox2" *ngIf="isLeftDatasetShow">
+                        <li *ngFor="let keyName of filteredLeftKeyList; let index=index;"
+                            (click)="onLeftJoinKeySelected($event,keyName)">
+                          <a href="javascript:"> {{keyName}} </a>
+                        </li>
+                        <li *ngIf="filteredLeftKeyList.length === 0">
+                          <span class="ddp-txt-search">{{'msg.dp.ui.join.key.description' | translate}}</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <!-- drop search -->
+                  </div>
+                  <!-- //selectbox -->
+                  <span class="ddp-data-default">=</span>
+                  <!-- selectbox -->
+                  <!-- 클릭시 ddp-selected 추가 -->
+                  <div class="ddp-wrap-drop-search" *ngIf="rightDataset.gridData" [ngClass]="{'ddp-selected' : isRightDatasetShow}" [class.ddp-result]="rightJoinKey">
+                    <div class="ddp-type-selectbox2" (click)="showRightDataset($event)" >
+                      <span class="ddp-txt-selectbox ddp-result">{{ rightJoinKey === '' ? ('msg.dp.ui.empty' | translate) : rightJoinKey }}</span>
+                    </div>
+
+                    <!-- drop search -->
+                    <div class="ddp-ui-drop-search" *ngIf="isRightDatasetShow" (clickOutside)="isRightDatasetShow=false;" >
+                      <input type="text" class="ddp-input-search" placeholder="{{'msg.dp.ui.ds.search.description' | translate}}" [(ngModel)]="rightJoinKeySearchText">
+
+                      <ul class="ddp-list-selectbox2" >
+                        <li *ngFor="let keyName of filteredRightKeyList" (click)="onRightJoinKeySelected($event,keyName)">
+                          <a href="javascript:" > {{keyName}} </a>
+                        </li>
+                        <li *ngIf="filteredRightKeyList.length === 0">
+                          <span class="ddp-txt-search">{{'msg.dp.ui.join.key.description' | translate}}</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <!-- drop search -->
+                  </div>
+                  <!-- //selectbox -->
+
+                  <!--     <span class="ddp-data-column">Column</span>-->
+                </div>
+                <!-- //join form -->
+                <a href="javascript:" class="ddp-btn-solid" (click)="addJoinKeys()"
+                   [ngClass]="{'ddp-disabled':selectedJoinType === '' || leftJoinKey === '' || rightJoinKey === ''}">
+                  + {{'msg.dp.btn.add' | translate}}
+                </a>
+              </div>
+              <div class="ddp-data-key">
+                <span class="ddp-data-num" *ngIf="0 < joinList.length">{{'msg.dp.ui.join.keys' | translate : {value : joinList.length} }}</span>
+                <span class="ddp-data-num" *ngIf="0 == joinList.length">{{'msg.dp.ui.join.key.none' | translate}}</span>
+              </div>
+
+              <ul class="ddp-list-form-join" *ngIf="0 < joinList.length">
+                <li *ngFor="let joinInfo of joinList; let idx = index">
+                  <div class="ddp-form-join">
+                    <span class="ddp-data-column">{{joinInfo.leftJoinKey}}</span>
+                    <span class="ddp-data-default">=</span>
+                    <span class="ddp-data-column">{{joinInfo.rightJoinKey}}</span>
+                  </div>
+                  <em class="ddp-icon-control-cut" (click)="removeJoinInfo(idx)"></em>
+                </li>
+              </ul>
+
+            </div>
+            <!-- //data join -->
+          </div>
+
+        </div>
+
+
+        <div class="ddp-btn-bottom">
+          <a href="javascript:" class="ddp-btn-solid2" (click)="previewJoinResult()"
+             [style.display]="isShowPreview ? 'none':'inline-block'"
+             [ngClass]="{'ddp-disabled':leftSelCols.length === 0 || rightSelCols.length === 0 || selectedJoinType === '' || joinList.length === 0}">
+            {{'msg.dp.btn.show.rslt' | translate}}
+            <div class="ddp-ui-tooltip-info">
+              <em class="ddp-icon-view-right"></em>
+              {{'msg.dp.ui.join.prev.msg' | translate }}
+            </div>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </div>

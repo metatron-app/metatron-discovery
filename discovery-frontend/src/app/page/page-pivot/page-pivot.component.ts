@@ -13,7 +13,14 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
   ViewChild
 } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
@@ -23,27 +30,35 @@ import { BIType, Field, FieldPivot, FieldRole, LogicalType } from '../../domain/
 import { DimensionField } from '../../domain/workbook/configurations/field/dimension-field';
 import { AggregationType, MeasureField } from '../../domain/workbook/configurations/field/measure-field';
 import {
-  GranularityType, TimestampField, TimeUnit,
-  ByTimeUnit
+  ByTimeUnit,
+  GranularityType,
+  TimestampField,
+  TimeUnit
 } from '../../domain/workbook/configurations/field/timestamp-field';
 import * as $ from 'jquery';
-import { DIRECTION } from '../../domain/workbook/configurations/sort';
 import { Observable } from 'rxjs/Rx';
 
 import * as _ from 'lodash';
 import { ClickOutsideDirective } from 'ng-click-outside';
-import {PageWidgetConfiguration, PageWidget} from '../../domain/dashboard/widget/page-widget';
+import { PageWidget, PageWidgetConfiguration } from '../../domain/dashboard/widget/page-widget';
 import {
-  ChartType, SeriesType, ShelveFieldType,
-  UIFormatType, ShelveType, EventType, BarMarkType, UIFormatCurrencyType, UIFormatNumericAliasType
+  BarMarkType,
+  ChartType,
+  EventType, SeriesType,
+  ShelveFieldType,
+  ShelveType,
+  UIFormatCurrencyType,
+  UIFormatNumericAliasType,
+  UIFormatType
 } from '../../common/component/chart/option/define/common';
-import { StringUtil } from '../../common/util/string.util';
 import { Format } from '../../domain/workbook/configurations/format';
 import { Filter } from '../../domain/workbook/configurations/filter/filter';
-import { Alert } from '../../common/util/alert.util';
-import { UIOption, UIChartColorByValue } from '../../common/component/chart/option/ui-option';
+import { UIChartAxis, UIChartColorByValue, UIOption } from '../../common/component/chart/option/ui-option';
 import { Modal } from '../../common/domain/modal';
-import {UIChartAxis} from "../../common/component/chart/option/ui-option/ui-axis";
+import { Shelf } from '../../domain/workbook/configurations/shelf/shelf';
+import { Alert } from '../../common/util/alert.util';
+import { StringUtil } from '../../common/util/string.util';
+import { DIRECTION } from '../../domain/workbook/configurations/sort';
 
 @Component({
   selector: 'page-pivot',
@@ -55,16 +70,16 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private $editFieldLayer: JQuery;
 
-  @ViewChild('editFieldLayer')
-  private editFieldLayerDirective: ClickOutsideDirective;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   protected aggregationType = AggregationType;
 
   // aggregation
-  protected aggTypeList: any[];
+  public aggTypeList: any[];
+
+  @ViewChild('editFieldLayer')
+  protected editFieldLayerDirective: ClickOutsideDirective;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
@@ -115,9 +130,6 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
   // page layout animation 종료여부
   public finishAnimation: boolean;
-
-  // map chart layer 갯수
-  public layerNum: number = 1;
 
   // 확인팝업 띄우기
   @Output()
@@ -173,6 +185,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     console.info(this.filterFiledList);
   }
+
+  @Input('shelf')
+  public shelf: Shelf;
 
   @Input('pivot')
   set setPivot(pivot: Pivot) {
@@ -244,6 +259,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     const resizeEvent$ = Observable
       .fromEvent(window, 'resize', () => {
+        this.onShelveAnimation(this.$element.find('.ddp-wrap-default'));
         return document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight;
       })
       .debounceTime(500);
@@ -490,6 +506,13 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       return field.name === targetField.name && targetField.biType === field.biType;
     });
 
+    // GEO data is only usable in map chart
+    if (targetField.logicalType && -1 !== targetField.logicalType.toString().indexOf('GEO')) {
+      shelf.splice(idx, 1);
+      Alert.warning(this.translateService.instant('msg.storage.ui.list.geo.block.other.charts'));
+      return;
+    }
+
     if (idx > -1) {
       let field;
 
@@ -516,10 +539,6 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       field.expr = targetField.expr;
       field.field = targetField;
 
-      if(this.chartType === 'map') {
-        field.layerNum = this.layerNum;
-      }
-
       if (targetField.name !== targetField.alias
         && ( !targetField.nameAlias || targetField.nameAlias.nameAlias !== targetField.alias )) {
         field.alias = targetField.alias;
@@ -538,8 +557,12 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       this.dragField = field;
 
       shelf[idx] = field;
+
+      // 모든선반설정
+      const shelves = this.pivot.rows.concat(this.pivot.columns.concat(this.pivot.aggregations));
+
       // 선반의 dimension / measure값의 중복된값 제거, measure aggtype 설정
-      if (!this.distinctPivotItems(field, idx, shelf, targetContainer)) {
+      if (!this.distinctPivotItems(shelves, field, idx, shelf, targetContainer)) {
 
         // distinctPivotItem에서 설정된 타입 targetField에 설정
         targetField.format = shelf[idx].format;
@@ -717,7 +740,6 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    * @param formatType
    */
   public onChangeFormat(formatType: string): void {
-
     if (formatType != '') {
       // Dispatch Event
       const field: AbstractField = _.cloneDeep(this.editingField);
@@ -725,10 +747,11 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         field.format = {};
       }
       field.format.type = formatType;
-
       this.changeFormatEvent.emit(field);
     }
     else {
+      this.fix2DepthContext = false;
+      this.editingField = null;
       this.changeFormatEvent.emit(null);
     }
   }
@@ -949,29 +972,29 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         || _.eq(this.chartType, ChartType.COMBINE)
         || _.eq(this.chartType, ChartType.GRID)) {
 
-        return isText ? '1 or more dimension' : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.over.desc',{value:'1'}) : 'ddp-box-dimension';
       }
       // 1 measure
       else if (_.eq(this.chartType, ChartType.SCATTER)) {
 
-        return isText ? '1 measure' : 'ddp-box-measure';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc',{value:'1'}) : 'ddp-box-measure';
       }
       // 1 time dimension
       else if (_.eq(this.chartType, ChartType.CONTROL)
         || _.eq(this.chartType, ChartType.WATERFALL)) {
 
-        return isText ? '1 time dimension' : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.desc',{value:'1'}) : 'ddp-box-dimension';
       }
       // 1 dimension
       // TODO 태호: 차후 네트워크 차트 수치값 적용시 1-2 dimension
       else if (_.eq(this.chartType, ChartType.NETWORK)
         || _.eq(this.chartType, ChartType.TREEMAP)) {
 
-        return isText ? '1 dimension' : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.desc',{value:'1'}) : 'ddp-box-dimension';
       }
       // 3 or more dimension
       else if (_.eq(this.chartType, ChartType.SANKEY)) {
-        return isText ? '2 or more dimension' : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.over.desc',{value:'2'}) : 'ddp-box-dimension';
       }
     }
     // 열
@@ -982,19 +1005,19 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         || _.eq(this.chartType, ChartType.TREEMAP)
         || _.eq(this.chartType, ChartType.GAUGE)) {
 
-        return isText ? '1 or more dimension' : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.over.desc',{value:'1'}) : 'ddp-box-dimension';
       }
       // 1 measure
       else if (_.eq(this.chartType, ChartType.SCATTER)) {
 
-        return isText ? '1 measure' : 'ddp-box-measure';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc',{value:'1'}) : 'ddp-box-measure';
       }
       // 1 dimension
       // TODO 태호: 차후 네트워크 차트 수치값 적용시 1-2 dimension
       else if (_.eq(this.chartType, ChartType.NETWORK)
         || _.eq(this.chartType, ChartType.BOXPLOT)) {
 
-        return isText ? '1 dimension' : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.desc',{value:'1'}) : 'ddp-box-dimension';
       }
     }
     // 교차
@@ -1006,27 +1029,35 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         || _.eq(this.chartType, ChartType.CONTROL)
         || _.eq(this.chartType, ChartType.GRID)) {
 
-        return isText ? '1 or more measure' : 'ddp-box-measure';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.over.desc',{value:'1'}) : 'ddp-box-measure';
       }
       // 1 measure & 1 or more dimension
       else if (_.eq(this.chartType, ChartType.WORDCLOUD)) {
 
-        return isText ? '1 measure & 1 or more dimension' : 'ddp-box-measure';
+        return isText
+          ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc',{value:'1'}) + this.translateService.instant('msg.page.pivot.layout.condition.dimension.and.over.desc',{value:'1'})
+          : 'ddp-box-measure';
       }
       // 1 or more measure & 1 or more dimension
       else if (_.eq(this.chartType, ChartType.PIE)) {
 
-        return isText ? '1 measure & 1 dimension' : 'ddp-box-measure';
+        return isText
+          ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc',{value:'1'}) + this.translateService.instant('msg.page.pivot.layout.condition.dimension.and.desc',{value:'1'})
+          : 'ddp-box-measure';
       }
       // 1 or more measure & 1 dimension
       else if (_.eq(this.chartType, ChartType.RADAR)) {
 
-        return isText ? '1 or more measure & 1 dimension' : 'ddp-box-measure';
+        return isText
+          ? this.translateService.instant('msg.page.pivot.layout.condition.measure.over.desc',{value:'1'}) + this.translateService.instant('msg.page.pivot.layout.condition.dimension.and.desc',{value:'1'})
+          : 'ddp-box-measure';
       }
       // 2~4 measure
       else if (_.eq(this.chartType, ChartType.COMBINE)) {
 
-        return isText ? '2~4 measure' : 'ddp-box-measure';
+        return isText
+          ? this.translateService.instant('msg.page.pivot.layout.condition.measure.range',{valueFirst:'2',valueSecond:'4'})
+          : 'ddp-box-measure';
       }
       // 1 measure
       else if (_.eq(this.chartType, ChartType.HEATMAP)
@@ -1037,12 +1068,12 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         || _.eq(this.chartType, ChartType.GAUGE)
         || _.eq(this.chartType, ChartType.TREEMAP)) {
 
-        return isText ? '1 measure' : 'ddp-box-measure';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc',{value:'1'}) : 'ddp-box-measure';
       }
       // 1 or more dimension
       else if (_.eq(this.chartType, ChartType.SCATTER)) {
 
-        return isText ? '1 or more dimension' : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.over.desc',{value:'1'}) : 'ddp-box-dimension';
       }
     }
 
@@ -1061,6 +1092,43 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       return ( field.fieldAlias ) ? field.fieldAlias : field.name;
     }
   } // function - getDisplayPivotName
+
+  /**
+   * call method from pivot context
+   * @param data
+   */
+  public subscribeFromPivotContext(data: any) {
+
+    let type = data['type'];
+
+    switch (type) {
+      case 'toggleFilter':
+        this.toggleFilterEvent.emit(data.value);
+        break;
+      case 'format':
+        this.changeFormatEvent.emit(data.value);
+        break;
+      case 'pivotFilter':
+        this.changePivotFilter();
+        break;
+      case 'customField':
+        this.customFieldEvent.emit(data.value);
+        break;
+      case 'changePivot':
+        this.changePivot(data['value']);
+        break;
+      case 'showPopup':
+        this.showPopup.emit(data.value);
+        break;
+      case 'onSetGranularity':
+        let value = data.value;
+        this.onSetGranularity(value.discontinuous, value.unit, value.byUnit);
+        break;
+      case 'outside':
+        this.editingField = data.value;
+        break;
+    }
+  }
 
   /**
    * 별칭에 대한 placeholder 문구 조회
@@ -1377,6 +1445,78 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   }
 
   /**
+   * field setting
+   */
+  protected fieldSetting(shelves: AbstractField[]) {
+
+    // type이 measure일떄
+    if ('measure' == this.editingField.type) {
+
+      let aggregationTypeList = [];
+
+      // 선반에서 같은 필드값을 찾기
+      for (const item of shelves) {
+
+        // percentile의 경우 option에 값을 넣어줌
+        if (this.editingField.type == item.type && this.editingField.alias == item.alias && this.editingField.name == item.name) {
+
+          aggregationTypeList.push(item.aggregationType);
+        }
+      }
+
+      // 현재 aggregationType을 리스트에서 제거
+      const index = aggregationTypeList.indexOf(this.editingField.aggregationType);
+      if (-1 !== index) aggregationTypeList.splice(index, 1);
+
+      this.editingField.aggregationTypeList = aggregationTypeList;
+
+      // type이 timestamp일때
+    } else if ('timestamp' == this.editingField.type) {
+
+      let granularityList = [];
+
+      // 선반에서 같은 필드값을 찾기
+      for (const item of shelves) {
+
+        // percentile의 경우 option에 값을 넣어줌
+        if (this.editingField.type == item.type && this.editingField.alias == item.alias && this.editingField.name == this.editingField.name) {
+
+          granularityList.push(item.format.unit);
+        }
+      }
+
+      // 현재 editingField의 granularity 제거
+      const index = granularityList.indexOf(this.editingField.format.unit);
+      if (-1 !== index) granularityList.splice(index, 1);
+
+      // continuous type일때 continuous granularity list 설정
+      this.editingField.granularityList = granularityList;
+    }
+
+    // combine차트일때 교차선반의 index 찾기
+    if (this.pivot && this.pivot.aggregations) this.combineAggIndex = this.pivot.aggregations.indexOf(this.editingField);
+
+    const $this = $(event.currentTarget);
+    // this.$editFieldLayer.show();
+    console.info('openFieldSetting', this.$editFieldLayer.width(), $this.offset());
+
+    if ($this.offset().left > $(window).width() / 2) {
+      this.$editFieldLayer.css(
+        {
+          top: $this.offset().top + 17,
+          // left: $this.offset().left - 252 + 30
+          left: $this.offset().left - this.$editFieldLayer.width() + 30 - this.$window.scrollLeft()
+        });
+    } else {
+      this.$editFieldLayer.css(
+        {
+          top: $this.offset().top + 17,
+          left: $this.offset().left - 30 - this.$window.scrollLeft()
+        });
+    }
+  }
+
+  /**
    * 선반 내 더보기
    * @param event
    * @param field
@@ -1438,7 +1578,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     }
 
     // combine차트일때 교차선반의 index 찾기
-    this.combineAggIndex = this.pivot.aggregations.indexOf(this.editingField);
+    if (this.pivot && this.pivot.aggregations) this.combineAggIndex = this.pivot.aggregations.indexOf(this.editingField);
 
     const $this = $(event.currentTarget);
     // this.$editFieldLayer.show();
@@ -1628,11 +1768,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     console.info('onSortSuccess', event);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  private checkAlias(field: AbstractField) {
+  protected checkAlias(field: AbstractField) {
 
     if (['measure', 'calculated'].indexOf(field.type) > -1) {
       // TODO 계산식인경우 field.aggregated 여부에 따라 기본값 세팅
@@ -1646,6 +1782,28 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     // TODO 사용자 정의 alias가 있는 경우 처리
     return field;
   }
+
+  /**
+   * 각 선반에서 같은 아이템이 있는지 체크
+   */
+  protected checkDuplicatedField(pivotList: AbstractField[], field: any): any {
+
+    const duplicateList = [];
+
+    // 해당 필드가 속한 중복리스트 설정
+    pivotList.forEach((item) => {
+
+      if (item.name === field.name) {
+
+        duplicateList.push(item);
+      }
+    });
+
+    return duplicateList;
+  }
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * 차트타입별 불가능한 선반 설정
@@ -1710,13 +1868,10 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   /**
    * 선반의 dimension / measure값의 중복된값 제거
    */
-  private distinctPivotItems(field: any, idx: number, shelf: AbstractField[], targetContainer: string): boolean {
+  public distinctPivotItems(shelves: AbstractField[], field: any, idx: number, shelf: AbstractField[], targetContainer: string): boolean {
 
     // pivot item들이 제거됐는지 여부 (default: 제거 안됨)
     let removedPivotItemFl: boolean = false;
-
-    // 모든선반설정
-    const shelves = this.pivot.rows.concat(this.pivot.columns.concat(this.pivot.aggregations));
 
     // 중복리스트
     const duplicateList = [];
@@ -1794,11 +1949,13 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         // granularity함수값을 deep copy
         let copiedTimestampList = _.cloneDeep(this.timestampTypeList);
 
-        copiedTimestampList = copiedTimestampList.filter((item) => {
+        if (this.dragField) {
+          copiedTimestampList = copiedTimestampList.filter((item) => {
 
-          // none인 경우 무조건 통과
-          return item['id'] == GranularityType.NONE ? true : this.useGranularity(false, item['id'], this.dragField.granularity);
-        });
+            // none인 경우 무조건 통과
+            return item['id'] == GranularityType.NONE ? true : this.useGranularity(false, item['id'], this.dragField.granularity);
+          });
+        }
 
         // 중복된경우
         if (duplicateList.length > 1) {
@@ -1892,7 +2049,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    * @param idx   필드 index
    * @param targetContainer 현재 선택된 선반
    */
-  private deleteDuplicatedField(field: any, idx: number, targetContainer: string): boolean {
+  protected deleteDuplicatedField(field: any, idx: number, targetContainer: string): boolean {
 
     // 선반의 종류에 따라서설정
     switch (targetContainer) {
@@ -1927,25 +2084,6 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     }
 
     return false;
-  }
-
-  /**
-   * 각 선반에서 같은 아이템이 있는지 체크
-   */
-  private checkDuplicatedField(pivotList: AbstractField[], field: any): any {
-
-    const duplicateList = [];
-
-    // 해당 필드가 속한 중복리스트 설정
-    pivotList.forEach((item) => {
-
-      if (item.name === field.name) {
-
-        duplicateList.push(item);
-      }
-    });
-
-    return duplicateList;
   }
 
   /**
@@ -2422,7 +2560,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    * @param $currentShelve
    * @returns {number}
    */
-  private getShelveTotalWidth($currentShelve: JQuery): number {
+  protected getShelveTotalWidth($currentShelve: JQuery): number {
 
     // 아이템들의 width 구해서 총 total width 구하기
     let totalExWidth = 0;
@@ -2621,9 +2759,11 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       }
     });
 
-    getTimeStampList(this.pivot.columns, FieldPivot.COLUMNS);
-    getTimeStampList(this.pivot.rows, FieldPivot.ROWS);
-    getTimeStampList(this.pivot.aggregations, FieldPivot.AGGREGATIONS);
+    if (this.pivot) {
+      getTimeStampList(this.pivot.columns, FieldPivot.COLUMNS);
+      getTimeStampList(this.pivot.rows, FieldPivot.ROWS);
+      getTimeStampList(this.pivot.aggregations, FieldPivot.AGGREGATIONS);
+    }
   }
 
 }

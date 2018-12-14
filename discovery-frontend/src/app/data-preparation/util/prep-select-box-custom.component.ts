@@ -115,11 +115,14 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
   get filteredList() {
 
     let arrayList = this.array;
+
+    let isSearchTextEmpty: boolean = false;
+
     // 검색어가 있는지 체크
-    const isSearchTextEmpty = StringUtil.isNotEmpty(this.searchText);
+    isSearchTextEmpty = StringUtil.isNotEmpty(this.searchText);
 
     // 검색어가 있다면
-    if (isSearchTextEmpty) {
+    if (isSearchTextEmpty && arrayList !== undefined) {
       arrayList = arrayList.filter((item) => {
         if (!isNullOrUndefined(this.viewKey)) {
           return item[this.viewKey].toLowerCase().indexOf(this.searchText.toLowerCase()) == 0;
@@ -234,7 +237,7 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
    */
   private setFocusTimer(): void {
     let textlength: number = 0;
-    if(this.searchText !== null && this.searchText !=='') {
+    if(this.searchText !== null && this.searchText !== undefined && this.searchText !=='') {
       textlength = this.searchText.length;
     }
     setTimeout(() => {this._searchTextElement.nativeElement.focus(); this._searchTextElement.nativeElement.setSelectionRange(textlength,textlength)}, 100);
@@ -356,12 +359,11 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
    */
   public setSelectedItem(arr: any[], customTimestamp: string, defaultIndex: number) {
 
-    // console.info('setSelectedItem', customTimestamp);
     this.array = arr;
     this.customTimestamp = customTimestamp;
     this.defaultIndex = defaultIndex;
 
-    if (this.array && this.array.hasOwnProperty('length')
+    if (this.array !== undefined && this.array !== null && this.array.hasOwnProperty('length')
       && this.array.length > 0) {
       if (this.defaultIndex > -1) {
         this.selectedItem = this.array[this.defaultIndex];
@@ -370,7 +372,7 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
       }
     }
 
-    if(this.selectedItem == null || this.selectedItem == undefined) {
+    if(this.selectedItem == undefined || this.selectedItem == null) {
       this.searchText = this.customTimestamp;
       this.selectedItem = {};
       this.selectedItem.value = this.customTimestamp;

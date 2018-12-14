@@ -69,8 +69,8 @@
       </colgroup>
       <thead>
       <tr>
-        <th (click)="changeOrder('dfName')">
-          {{'msg.comm.menu.manage.prep.flow' | translate}}
+        <th (click)="changeOrder('dfName')" class="ddp-cursor">
+          {{'msg.comm.ui.name' | translate}}
           <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'dfName' || selectedContentSort.sort === 'default'"></em>
           <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'dfName' && selectedContentSort.sort === 'asc'"></em>
           <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'dfName' && selectedContentSort.sort === 'desc'"></em>
@@ -78,7 +78,7 @@
         <th>
           {{'msg.comm.menu.manage.prep.set' | translate}}
         </th>
-        <th (click)="changeOrder('createdTime')">
+        <th (click)="changeOrder('createdTime')" class="ddp-cursor">
           {{'msg.comm.th.created' | translate}}
           <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
           <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>

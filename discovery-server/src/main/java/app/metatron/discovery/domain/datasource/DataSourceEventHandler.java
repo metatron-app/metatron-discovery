@@ -60,6 +60,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -88,6 +89,8 @@ import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.IMPORT;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.NONE;
+import static app.metatron.discovery.domain.datasource.DataSource.Status.ENABLED;
+import static app.metatron.discovery.domain.datasource.DataSource.Status.FAILED;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.PREPARING;
 
 /**
@@ -124,6 +127,12 @@ public class DataSourceEventHandler {
 
   @Autowired
   ContextService contextService;
+
+  @Autowired
+  DataSourceSizeHistoryRepository dataSourceSizeHistoryRepository;
+
+  @Autowired
+  DataSourceQueryHistoryRepository dataSourceQueryHistoryRepository;
 
   @Autowired(required = false)
   Scheduler scheduler;
@@ -195,7 +204,23 @@ public class DataSourceEventHandler {
         dataSourceRepository.saveAndFlush(dataSource);
 
         if (dataSource.getIngestionInfo() instanceof RealtimeIngestionInfo) {
-          engineIngestionService.realtimeIngestion(dataSource);
+          Optional<IngestionHistory> ingestionHistory = engineIngestionService.realtimeIngestion(dataSource);
+
+          IngestionHistory resultHistory = null;
+          if (ingestionHistory.isPresent()) {
+            resultHistory = ingestionHistory.get();
+            if (resultHistory.getStatus() != IngestionHistory.IngestionStatus.FAILED) {
+              dataSource.setStatus(ENABLED);
+            } else {
+              dataSource.setStatus(FAILED);
+            }
+          } else {
+            resultHistory = new IngestionHistory(dataSource.getId(),
+                                                 IngestionHistory.IngestionMethod.SUPERVISOR,
+                                                 IngestionHistory.IngestionStatus.FAILED,
+                                                 "Ingestion History not fond");
+          }
+          ingestionHistoryRepository.saveAndFlush(resultHistory);
         } else {
           ThreadFactory factory = new ThreadFactoryBuilder()
               .setNameFormat("ingestion-" + dataSource.getId() + "-%s")
@@ -305,7 +330,7 @@ public class DataSourceEventHandler {
 
         if (CollectionUtils.isNotEmpty(ingestionHistories)) {
           for (IngestionHistory ingestionHistory : ingestionHistories) {
-            engineIngestionService.shutDownIngestionTask(dataSource.getName(), ingestionHistory.getIngestionId());
+            engineIngestionService.shutDownIngestionTask(ingestionHistory);
           }
         }
 
@@ -411,7 +436,9 @@ public class DataSourceEventHandler {
       LOGGER.debug("Successfully shutdown ingestion tasks in datasource ({})", dataSource.getId());
 
       // Delete datastore on geoserver if datasource include geo column
-      if (dataSource.getIncludeGeo()) {
+      if (dataSource.getIncludeGeo() == null) {
+        LOGGER.debug("Datasource with previous schema, skip removing geo service");
+      } else if (dataSource.getIncludeGeo()) {
         geoService.deleteDataStore(dataSource.getEngineName());
         LOGGER.debug("Successfully delete datastore on geoserver ({})", dataSource.getId());
       }
@@ -424,8 +451,17 @@ public class DataSourceEventHandler {
         LOGGER.warn("Fail to disable datasource({}) : {} ", dataSource.getId(), e.getMessage());
       }
 
-      // Delete Ingestion History
-      ingestionHistoryRepository.deteleHistoryByDataSourceId(dataSource.getId());
+      // Delete Related Histories
+      try {
+        // Delete Ingestion History
+        ingestionHistoryRepository.deteleHistoryByDataSourceId(dataSource.getId());
+
+        // Delete Size history and Query history
+        dataSourceSizeHistoryRepository.deleteHistoryById(dataSource.getId());
+        dataSourceQueryHistoryRepository.deleteQueryHistoryById(dataSource.getId());
+      } catch (Exception e) {
+        LOGGER.warn("Fail to remove history related datasource({}) : {} ", dataSource.getId(), e.getMessage());
+      }
     }
 
   }

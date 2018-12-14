@@ -120,10 +120,10 @@
             </div>
             <!-- //데이터 베이스 수 -->
             <!-- show -->
-            <label class="ddp-label-checkbox ddp-type-show">
+            <label *ngIf="isChangeAuthUser && publicType.SHARED === workspace?.publicType" class="ddp-label-checkbox ddp-type-show">
               <input type="checkbox" [checked]="onlyShowingFlag" (change)="onlyShowingFlag = !onlyShowingFlag;">
               <i class="ddp-icon-checkbox"></i>
-              <span class="ddp-txt-checkbox">Shown only</span>
+              <span class="ddp-txt-checkbox">{{ 'msg.board.ui.show.only' | translate }}</span>
             </label>
             <!-- //show -->
           </div>
@@ -155,11 +155,13 @@
                       [class.ddp-selected]="selectedDashboard && dashboard.id === selectedDashboard.id">
                     <a href="javascript:">
                       <span class="ddp-ui-number">{{x + 1}}</span>
-                      <em *ngIf="isChangeAuthUser"
+                      <em *ngIf="isChangeAuthUser && publicType.SHARED === workspace?.publicType"
                           [ngClass]="{'ddp-icon-eyes2' : !dashboard.hiding, 'ddp-icon-eyes2-none' : dashboard.hiding}"
                           (click)="changeFavorite(dashboard, $event);"></em>
                       <div class="ddp-ui-name">
-                        <span class="ddp-data-name" [class.ddp-data-new]="dashboard.createdTime | moment: 'isNew'">
+                        <span class="ddp-data-name"
+                              [ngStyle]="isChangeAuthUser && publicType.SHARED === workspace?.publicType ? {}:{'padding-left': '0px' }"
+                              [class.ddp-data-new]="dashboard.createdTime | moment: 'isNew'">
                           <div class="ddp-ui-name">
                                {{dashboard.name}}
                               <em class="ddp-icon-new" *ngIf="dashboard.createdTime | moment: 'isNew'">
@@ -206,8 +208,9 @@
                       [class.ddp-selected]="selectedDashboard && dashboard.id === selectedDashboard.id" >
                     <a href="javascript:">
                       <span class="ddp-icon-number">{{x + 1}}</span>
-                      <span class="ddp-data-name">
-                        <em *ngIf="isChangeAuthUser"
+                      <span class="ddp-data-name"
+                            [ngStyle]="isChangeAuthUser && publicType.SHARED === workspace?.publicType ? {}:{'padding-left': '0px' }" >
+                        <em *ngIf="isChangeAuthUser && publicType.SHARED === workspace?.publicType"
                             [ngClass]="{'ddp-icon-eyes2' : !dashboard.hiding, 'ddp-icon-eyes2-none' : dashboard.hiding}"
                             (click)="changeFavorite(dashboard, $event);"></em>
                         {{dashboard.name}}
@@ -264,7 +267,7 @@
                   </div>
                   <!-- chat 사용자 -->
                   <div class="ddp-data-chatuser">
-                    <img src="{{comment.createdBy.imageUrl ? comment.createdBy.imageUrl : '/assets/images/img_photo.png'}}" class="ddp-data-photo" *ngIf="username != comment.createdBy.username"/>
+                    <img [src]="getProfileImage(comment.createdBy)" class="ddp-data-photo" *ngIf="username != comment.createdBy.username"/>
                     <div class="ddp-data-name">
                       {{username == comment.createdBy.username ? '나' : comment.createdBy.fullName}}
                       <span class="ddp-data-time"> {{dateFormatTodayTimeElseDate(comment.createdTime)}}</span>

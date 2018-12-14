@@ -16,7 +16,8 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild
 } from '@angular/core';
 import {AbstractComponent} from "../../common/component/abstract.component";
-import {Dataset, DsType} from "../../domain/data-preparation/dataset";
+//import {Dataset, DsType} from "../../domain/data-preparation/dataset";
+import {PrDataset, DsType} from "../../domain/data-preparation/pr-dataset";
 import {DataflowService} from "../dataflow/service/dataflow.service";
 import {DatasetService} from "../dataset/service/dataset.service";
 import {DataflowModelService} from "../dataflow/service/dataflow.model.service";
@@ -52,7 +53,8 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   public title : string;
 
   @Input()
-  public originalDatasetList: Dataset[] = []; // 현재 데이터플로우에 추가되어 있는 모든 데이터셋 정보
+  //public originalDatasetList: Dataset[] = []; // 현재 데이터플로우에 추가되어 있는 모든 데이터셋 정보
+  public originalDatasetList: PrDataset[] = []; // 현재 데이터플로우에 추가되어 있는 모든 데이터셋 정보
 
 
   @Input()
@@ -61,7 +63,8 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   public originalDatasetId : string;
 
 
-  public datasets: Dataset[] = []; // 화면에 보여지는 데이터셋 리스트 imported 만 빼서 저장하자
+  //public datasets: Dataset[] = []; // 화면에 보여지는 데이터셋 리스트 imported 만 빼서 저장하자
+  public datasets: PrDataset[] = []; // 화면에 보여지는 데이터셋 리스트 imported 만 빼서 저장하자
 
   @ViewChild(RadioSelectDatasetComponent)
   public radioSelectDatasetComponent : RadioSelectDatasetComponent;

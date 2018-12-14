@@ -24,9 +24,11 @@ import {
 } from '@angular/core';
 import { Location } from '@angular/common';
 import { Observable } from 'rxjs/Observable';
-import { Dataflow } from '../../../domain/data-preparation/dataflow';
+//import { Dataflow } from '../../../domain/data-preparation/dataflow';
+import { PrDataflow } from '../../../domain/data-preparation/pr-dataflow';
 import { DeleteModalComponent } from '../../../common/component/modal/delete/delete.component';
-import { Dataset, DsType, ImportType, Rule } from '../../../domain/data-preparation/dataset';
+//import { Dataset, DsType, ImportType, Rule } from '../../../domain/data-preparation/dataset';
+import { PrDataset, DsType, ImportType, Rule } from '../../../domain/data-preparation/pr-dataset';
 import { DataflowService } from '../service/dataflow.service';
 import { StringUtil } from '../../../common/util/string.util';
 import { PreparationAlert   } from '../../util/preparation-alert.util';
@@ -98,13 +100,15 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   public locationSubscription: any;
 
   @Input()
-  public dataflow: Dataflow;
+  //public dataflow: Dataflow;
+  public dataflow: PrDataflow;
 
   @ViewChild(DeleteModalComponent)
   public deleteModalComponent: DeleteModalComponent;
 
   @Input()
-  public selectedDataSet: Dataset;
+  //public selectedDataSet: Dataset;
+  public selectedDataSet: PrDataset;
 
   // 사용된 dataflow layer show/hide
   public isDataflowsShow: boolean = false;
@@ -139,7 +143,8 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   // delete selected dataflow
   public selectedDataflowId: string;
 
-  public dataflows: Dataflow[] = [];
+  //public dataflows: Dataflow[] = [];
+  public dataflows: PrDataflow[] = [];
 
   // 룰 리스트 (룰 미리보기)
   public ruleList: any[];
@@ -358,8 +363,10 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
   // 팝업끼리 관리하는 모델들 초기화
   public init() {
-    this.dataflow = new Dataflow();
-    this.selectedDataSet = new Dataset();
+    //this.dataflow = new Dataflow();
+    this.dataflow = new PrDataflow();
+    //this.selectedDataSet = new Dataset();
+    this.selectedDataSet = new PrDataset();
 
     // Get param from url
     this.activatedRoute.params.subscribe((params) => {
@@ -478,7 +485,8 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     for (const key in this.selectedDataSet) {
       delete this.selectedDataSet[key];
     }
-    $.extend(this.selectedDataSet, new Dataset());
+    //$.extend(this.selectedDataSet, new Dataset());
+    $.extend(this.selectedDataSet, new PrDataset());
 
     // 밖에 누르면 edit을 할 수 없다
     this.isDatasetNameEditMode = false;
@@ -677,18 +685,18 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
     this.symbolInfo = {
       IMPORTED: {
-        FILE: {
+        UPLOAD: {
           DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png',
         },
-        DB: {
+        DATABASE: {
           DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png',
         },
-        HIVE: {
+        STAGING_DB: {
           DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png'
         }
       },
       WRANGLED: {
-        DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_dataset.png',
+        DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_wrangled.png',
       },
       SELECTED: {
         IMPORTED: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db_focus.png',
@@ -961,7 +969,8 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     for (const key in this.selectedDataSet) {
       delete this.selectedDataSet[key];
     }
-    $.extend(this.selectedDataSet, new Dataset());
+    //$.extend(this.selectedDataSet, new Dataset());
+    $.extend(this.selectedDataSet, new PrDataset());
 
     // 밖에 누르면 edit을 할 수 없다
     this.isDatasetNameEditMode = false;
@@ -1206,7 +1215,8 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    * @param {Dataset[]} nodeList
    * @returns {Dataset}
    */
-  private findRootDataset(node: Dataset, nodeList: Dataset[]) {
+  //private findRootDataset(node: Dataset, nodeList: Dataset[]) {
+  private findRootDataset(node: PrDataset, nodeList: PrDataset[]) {
     if (0 === node.upstreamDsIds.length && node.dsType === DsType.IMPORTED) {
       return node;
     } else {
@@ -1247,7 +1257,8 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    * @param {Dataset} rootNode
    * @returns {{dsId: (string | any); dsName: (string | any); name: (string | any); dsType; importType: any; detailType: any; flowName: any; upstream: any; children: Array; value: any[]; symbol: any; originSymbol: any; label: any}}
    */
-  private createNode(dataset: Dataset, depth: number, position: number, rootNode?: any) {
+  //private createNode(dataset: Dataset, depth: number, position: number, rootNode?: any) {
+  private createNode(dataset: PrDataset, depth: number, position: number, rootNode?: any) {
     let importType: ImportType = null;
     let detailType = null;
     let flowName = null;

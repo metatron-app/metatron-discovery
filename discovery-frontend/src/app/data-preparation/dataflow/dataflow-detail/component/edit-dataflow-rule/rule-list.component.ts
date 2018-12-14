@@ -19,9 +19,11 @@ import {
 import { AbstractComponent } from '../../../../../common/component/abstract.component';
 import { DataflowService } from '../../../service/dataflow.service';
 import { RuleSnapshotListComponent } from './rule-snapshot-list.component';
-import { DataSnapshot } from '../../../../../domain/data-preparation/data-snapshot';
+//import { DataSnapshot } from '../../../../../domain/data-preparation/data-snapshot';
+import { PrDataSnapshot, Status } from '../../../../../domain/data-preparation/pr-snapshot';
 import {isNull, isNullOrUndefined, isUndefined} from 'util';
-import { Rule } from '../../../../../domain/data-preparation/dataset';
+//import { Rule } from '../../../../../domain/data-preparation/dataset';
+import { Rule } from '../../../../../domain/data-preparation/pr-dataset';
 
 @Component({
   selector: 'app-rule-list',
@@ -72,7 +74,8 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
 
   public dsId : string;
 
-  public snapshotList : DataSnapshot[];
+  //public snapshotList : DataSnapshot[];
+  public snapshotList : PrDataSnapshot[];
 
   public interval : any;
 
@@ -209,7 +212,8 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
   public setCanceledStatus(ssId) {
     this.snapshotList.forEach((item) => {
       if (item.ssId === ssId) {
-          item.status = 'Canceled';
+          //item.status = 'Canceled';
+          item.status = Status.CANCELED;
       }
     })
   }

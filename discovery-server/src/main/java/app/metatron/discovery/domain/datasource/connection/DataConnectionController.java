@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.datasource.connection;
 
+import app.metatron.discovery.common.criteria.ListCriterion;
+import app.metatron.discovery.common.criteria.ListFilter;
 import app.metatron.discovery.common.entity.SearchParamValidator;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.datasource.DataSourceProperties;
@@ -49,10 +51,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.sql.DataSource;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -65,6 +64,9 @@ public class DataConnectionController {
 
   @Autowired
   JdbcConnectionService connectionService;
+
+  @Autowired
+  DataConnectionFilterService connectionFilterService;
 
   @Autowired
   DataConnectionRepository connectionRepository;
@@ -297,7 +299,8 @@ public class DataConnectionController {
         //getting recent partition
         List<Map<String, Object>> partitionList = connectionService.getPartitionList(hiveConnection, checkRequest);
         if(partitionList == null || partitionList.isEmpty()){
-          throw new ResourceNotFoundException("There is no partitions in table(" + checkRequest.getQuery() + ").");
+          throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.STAGEDB_PREVIEW_TABLE_SQL_ERROR,
+                  "There is no partitions in table(" + checkRequest.getQuery() + ").");
         }
 
         Map<String, Object> recentPartition
@@ -694,6 +697,88 @@ public class DataConnectionController {
       throw new DataConnectionException(DataConnectionErrorCodes.NOT_SUPPORTED_API,
               "/connections/query/hive/partitions/validate API required strict mode.");
     }
+  }
+
+  @RequestMapping(value = "/connections/criteria", method = RequestMethod.GET)
+  public ResponseEntity<?> getCriteria() {
+    List<ListCriterion> listCriteria = connectionFilterService.getListCriterion();
+    List<ListFilter> defaultFilter = connectionFilterService.getDefaultFilter();
+
+    HashMap<String, Object> response = new HashMap<>();
+    response.put("criteria", listCriteria);
+    response.put("defaultFilters", defaultFilter);
+
+    return ResponseEntity.ok(response);
+  }
+
+  @RequestMapping(value = "/connections/criteria/{criterionKey}", method = RequestMethod.GET)
+  public ResponseEntity<?> getCriterionDetail(@PathVariable(value = "criterionKey") String criterionKey) {
+
+    DataConnectionListCriterionKey criterionKeyEnum = DataConnectionListCriterionKey.valueOf(criterionKey);
+
+    if(criterionKeyEnum == null){
+      throw new ResourceNotFoundException("Criterion(" + criterionKey + ") is not founded.");
+    }
+
+    ListCriterion criterion = connectionFilterService.getListCriterionByKey(criterionKeyEnum);
+    return ResponseEntity.ok(criterion);
+  }
+
+  @RequestMapping(value = "/connections/filter", method = RequestMethod.POST)
+  public @ResponseBody ResponseEntity<?> filterDataConnection(@RequestBody DataConnectionFilterRequest request,
+                                                           Pageable pageable,
+                                                           PersistentEntityResourceAssembler resourceAssembler) {
+
+    List<String> workspaces = request == null ? null : request.getWorkspace();
+    List<String> createdBys = request == null ? null : request.getCreatedBy();
+    List<String> userGroups = request == null ? null : request.getUserGroup();
+    List<String> implementors = request == null ? null : request.getImplementor();
+    List<String> authenticationTypes = request == null ? null : request.getAuthenticationType();
+    DateTime createdTimeFrom = request == null ? null : request.getCreatedTimeFrom();
+    DateTime createdTimeTo = request == null ? null : request.getCreatedTimeTo();
+    DateTime modifiedTimeFrom = request == null ? null : request.getModifiedTimeFrom();
+    DateTime modifiedTimeTo = request == null ? null : request.getModifiedTimeTo();
+    String containsText = request == null ? null : request.getContainsText();
+    List<Boolean> published = request == null ? null : request.getPublished();
+
+    LOGGER.debug("Parameter (workspace) : {}", workspaces);
+    LOGGER.debug("Parameter (createdBy) : {}", createdBys);
+    LOGGER.debug("Parameter (userGroup) : {}", userGroups);
+    LOGGER.debug("Parameter (implementors) : {}", implementors);
+    LOGGER.debug("Parameter (authenticationTypes) : {}", authenticationTypes);
+    LOGGER.debug("Parameter (createdTimeFrom) : {}", createdTimeFrom);
+    LOGGER.debug("Parameter (createdTimeTo) : {}", createdTimeTo);
+    LOGGER.debug("Parameter (modifiedTimeFrom) : {}", modifiedTimeFrom);
+    LOGGER.debug("Parameter (modifiedTimeTo) : {}", modifiedTimeTo);
+    LOGGER.debug("Parameter (containsText) : {}", containsText);
+    LOGGER.debug("Parameter (published) : {}", published);
+
+    // Validate Implements
+    List<DataConnection.Implementor> implementorEnumList
+            = request.getEnumList(implementors, DataConnection.Implementor.class, "implementor");
+
+    // Validate authenticationTypes
+    List<DataConnection.AuthenticationType> authenticationTypeEnumList
+            = request.getEnumList(authenticationTypes, DataConnection.AuthenticationType.class, "authenticationType");
+
+    // Validate createdTimeFrom, createdTimeTo
+    SearchParamValidator.range(null, createdTimeFrom, createdTimeTo);
+
+    // Validate modifiedTimeFrom, modifiedTimeTo
+    SearchParamValidator.range(null, modifiedTimeFrom, modifiedTimeTo);
+
+    // 기본 정렬 조건 셋팅
+    if (pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {
+      pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(),
+              new Sort(Sort.Direction.DESC, "createdTime", "name"));
+    }
+
+    Page<DataConnection> dataConnections = connectionFilterService.findDataConnectionByFilter(
+            workspaces, createdBys, userGroups, implementorEnumList, authenticationTypeEnumList,
+            createdTimeFrom, createdTimeTo, modifiedTimeFrom, modifiedTimeTo, containsText, published, pageable
+    );
+
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(dataConnections, resourceAssembler));
   }
 }
 

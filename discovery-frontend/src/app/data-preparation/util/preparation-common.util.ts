@@ -12,6 +12,9 @@
  * limitations under the License.
  */
 
+import { ImportType } from '../../domain/data-preparation/pr-dataset';
+import { SsType } from '../../domain/data-preparation/pr-snapshot';
+
 declare const moment: any;
 
 export class PreparationCommonUtil {
@@ -337,6 +340,7 @@ export class PreparationCommonUtil {
    * @param {string} sstype
    * @returns {string}
    */
+   /*
   public static getSnapshotType(sstype: string) : string {
 
     let result = sstype;
@@ -348,6 +352,52 @@ export class PreparationCommonUtil {
       result = 'Database';
     }
     return result
+  }
+  */
+  public static getSnapshotType(ssType: SsType) : string {
+    let result = null;
+    if (ssType === SsType.URI) {
+      result = 'FILE';
+    } else if (ssType === SsType.STAGING_DB) {
+      result = 'Staging DB';
+    } else if (ssType === SsType.DATABASE) {
+      result = 'Database';
+    } else if (ssType === SsType.DRUID) {
+      result = 'Druid';
+    }
+    return result
+  } // user friendly snapshot type name
+
+  public static getImportType(importType: ImportType) : string {
+    let result = null;
+    if (importType === ImportType.UPLOAD) {
+      result = 'FILE';
+    } else if (importType === ImportType.URI) {
+      result = 'URI';
+    } else if (importType === ImportType.STAGING_DB) {
+      result = 'Staging DB';
+    } else if (importType === ImportType.DATABASE) {
+      result = 'Database';
+    } else if (importType === ImportType.DRUID) {
+      result = 'Druid';
+    }
+    return result
+  } // user friendly import type name
+
+
+
+  /**
+   * returns file extension and file name
+   * @param {string} fileName
+   * @returns {string[]} [filename, extension]
+   * @private
+   */
+  public static getFileNameAndExtension(fileName: string) : string[] {
+
+    const val = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName);
+
+    return [val[0].split('.' + val[1])[0],val[1]]
+
   }
 
 }

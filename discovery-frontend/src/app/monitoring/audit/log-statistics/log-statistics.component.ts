@@ -455,9 +455,9 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
     // date
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       if (this.selectedDate.startDateStr) {
-        params['from'] = moment(this.selectedDate.startDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+        params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      params['to'] = moment(this.selectedDate.endDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+      params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
     }
 
     // type

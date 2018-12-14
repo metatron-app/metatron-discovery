@@ -121,7 +121,7 @@
                   </td>
                   <td>
                     <span *ngIf="item.dsType.toString() === 'WRANGLED'">{{'msg.dp.ui.wrangled' | translate}}</span>
-                    <span *ngIf="item.dsType.toString() === 'IMPORTED'">{{'msg.dp.ui.imported' | translate}}({{item.importType}})</span>
+                    <span *ngIf="item.dsType.toString() === 'IMPORTED'">{{'msg.dp.ui.imported' | translate}}({{prepCommonUtil.getImportType(item.importType)}})</span>
                   </td>
                   <td>
                     {{item.modifiedTime | mdate:'YYYY-MM-DD HH:mm'}}

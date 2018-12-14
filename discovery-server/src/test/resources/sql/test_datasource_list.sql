@@ -14,6 +14,7 @@ INSERT INTO datasource_workspace(ws_id, ds_id) VALUES
 
 INSERT INTO ingestion_history (ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, INGEST_CAUSE, INGEST_DS_ID, INGEST_DURATION, INGEST_ENGINE_ID, INGEST_CONF, INGEST_METHOD, INGEST_STATUS) VALUES
 (100001, 'admin', NOW(), 'admin', NOW(), 1, null, 'ds-test-01', 7729, 'index_hadoop_hive_ingestion_csv_none_partition_ikteb_2018-11-06T07:37:39.248Z', '{"type":"local"}', 'DEFAULT', 'RUNNING'),
+(100011, 'admin', NOW(), 'admin', NOW(), 1, null, 'ds-test-01', 7729, 'test-kafka_8cd4ba9775724d6193ac17271866e946', '{"type":"local"}', 'SUPERVISOR', 'RUNNING'),
 (100002, 'polaris', NOW(), 'polaris', NOW(), 1, 'Fail....', 'ds-test-01', 5902, 'index_test_xfsrz_2018-10-08T12:27:23.492Z', '{"type":"local"}', 'DEFAULT', 'FAILED'),
 (100003, 'polaris', NOW(), 'polaris', NOW(), 1, null, 'ds-test-02', 5689, 'index_testfalse_2018-10-08T12:30:43.013Z', '{"type":"single"}', 'DEFAULT', 'SUCCESS'),
 (100004, 'polaris', NOW(), 'polaris', NOW(), 1, null, 'ds-test-03', 28441, 'index_abctest_2018-10-08T12:35:25.569Z', '{"type":"single"}', 'DEFAULT', 'SUCCESS'),

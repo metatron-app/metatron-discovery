@@ -104,7 +104,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
       const prevFilter:TimeRangeFilter = filterChanges.previousValue;
       const currFilter:TimeRangeFilter = filterChanges.currentValue;
       if( !prevFilter || prevFilter.field !== currFilter.field ) {
-        this.setData(filterChanges.currentValue);
+        this.setData(filterChanges.currentValue, true);
       }
     }
   } // function - ngOnChanges
@@ -122,13 +122,18 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
   /**
    * 강제 데이터 설정
    * @param {TimeRangeFilter} filter
+   * @param {boolean} isBroadcast
    */
-  public setData(filter: TimeRangeFilter) {
+  public setData(filter: TimeRangeFilter, isBroadcast:boolean = false ) {
     this.loadingShow();
     const cloneFilter:TimeRangeFilter = _.cloneDeep(filter);
     this.datasourceService.getCandidateForFilter(cloneFilter, this.dashboard).then((result) => {
       this.targetFilter = this._setRangeFilter(result, cloneFilter);
       this.safelyDetectChanges();
+
+      // 변경사항 전파
+      ( isBroadcast ) && ( this._broadcastChange() );
+
       this.loadingHide();
     }).catch(err => this.commonExceptionHandler(err));
 

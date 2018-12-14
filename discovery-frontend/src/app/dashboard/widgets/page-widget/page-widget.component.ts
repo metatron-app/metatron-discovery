@@ -71,6 +71,7 @@ import {GridComponent} from "../../../common/component/grid/grid.component";
 import {header, SlickGridHeader} from "../../../common/component/grid/grid.header";
 import {GridOption} from "../../../common/component/grid/grid.option";
 import {Pivot} from "../../../domain/workbook/configurations/pivot";
+import {MapChartComponent} from '../../../common/component/chart/type/map-chart/map-chart.component';
 
 declare let $;
 
@@ -139,6 +140,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isMaximize = false;                // 최대 여부
   public mouseMode: string = 'SINGLE';     // 차트 마우스 모드
 
+  public isSetChartData:boolean = false;          // 차트 데이터 설정 여부
   public isUpdateRedraw: boolean = true;          // 다시그리는 새로고침
   public isShowHierarchyView: boolean = false;    // 차트 계층 표시 여부
   public isInvalidPivot: boolean = false;          // 선반정보를 확인해야 하는 경우
@@ -429,10 +431,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             const lineChart: LineChartComponent = this.chart['lineChart'];
             barChart.chart.resize();
             lineChart.chart.resize();
-          } else if (this.chart.uiOption.type === ChartType.LABEL || this.chart.uiOption.type === ChartType.MAP) {
+          } else if (this.chart.uiOption.type === ChartType.LABEL) {
 
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
-            (<NetworkChartComponent>this.chart).draw();
+            ( this.isSetChartData ) && ( (<NetworkChartComponent>this.chart).draw() );
+          } else if (this.chart.uiOption.type === ChartType.MAP) {
+            (<MapChartComponent>this.chart).resize();
           } else {
             try {
               if (this.chart && this.chart.chart) this.chart.chart.resize();
@@ -1136,6 +1140,18 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
                 abstractField.field = field;
               }
             });
+
+          // map - set shelf layers
+          if (undefined !== this.widgetConfiguration.chart['layerNum'] && this.widgetConfiguration.chart['layerNum'] >= 0) {
+
+            this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']]
+              .forEach((abstractField) => {
+                if (isNullOrUndefined(abstractField.field)
+                  && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                  abstractField.field = field;
+                }
+              });
+          }
         });
 
         // Hierarchy 설정
@@ -1181,7 +1197,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     } // end if - dashboard.configuration
 
     this.safelyDetectChanges();
-    this.isInvalidPivot = !this.chart.isValid(this.widgetConfiguration.pivot);
+    this.isInvalidPivot = !this.chart.isValid(this.widgetConfiguration.pivot, this.widgetConfiguration.shelf);
 
   } // function - _setWidget
 
@@ -1200,6 +1216,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     // 프로세스 실행 등록
     this.processStart();
     this._isDuringProcess = true;
+    this.isSetChartData = false;
 
     if (!this.chart) {
       this.updateComplete();
@@ -1259,7 +1276,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     );
 
     // 선반 정보가 없을 경우 반환
-    if (query.pivot.columns.length + query.pivot.rows.length + query.pivot.aggregations.length === 0) {
+    if (ChartType.MAP !== this.widgetConfiguration.chart.type && query.pivot.columns.length + query.pivot.rows.length + query.pivot.aggregations.length === 0) {
       this.updateComplete();
       return;
     }
@@ -1295,28 +1312,28 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     const cloneQuery = this._makeSearchQueryParam(_.cloneDeep(uiCloneQuery));
 
     // Map Chart 의 Multi Datasource 를 적용하기 위한 코드 - S
-    if (ChartType.MAP === this.widget.configuration.chart.type) {
-
-      let geoFieldCnt = 0;
-      for (let column of this.widget.configuration.pivot.columns) {
-        if (column.field.logicalType.toString().substring(0, 3) === 'GEO' && column['layerNum'] === 1) {
-          geoFieldCnt = geoFieldCnt + 1;
-        }
-      }
-
-      if (geoFieldCnt > 1) { // < ==== multi datasource 가 되어야 하는 조건을 넣어주세요...
-        cloneQuery.dataSource = _.cloneDeep(this.widget.dashBoard.configuration.dataSource);
-
-        for (let layer of cloneQuery.shelf.layers[0]) {
-          layer.ref = layer.dataSource;
-        }
-
-      }
-
-      // for(let layer of cloneQuery.shelf.layers[0]) {
-      //   layer.ref = layer.dataSource;
-      // }
-    }
+    // if (ChartType.MAP === this.widget.configuration.chart.type) {
+    //
+    //   let geoFieldCnt = 0;
+    //   for (let column of this.widget.configuration.pivot.columns) {
+    //     if (column.field.logicalType.toString().substring(0, 3) === 'GEO' && column['layerNum'] === 1) {
+    //       geoFieldCnt = geoFieldCnt + 1;
+    //     }
+    //   }
+    //
+    //   if (geoFieldCnt > 1) { // < ==== multi datasource 가 되어야 하는 조건을 넣어주세요...
+    //     cloneQuery.dataSource = _.cloneDeep(this.widget.dashBoard.configuration.dataSource);
+    //
+    //     for (let layer of cloneQuery.shelf.layers[0]) {
+    //       layer.ref = layer.dataSource;
+    //     }
+    //
+    //   }
+    //
+    //   // for(let layer of cloneQuery.shelf.layers[0]) {
+    //   //   layer.ref = layer.dataSource;
+    //   // }
+    // }
     // Map Chart 의 Multi Datasource 를 적용하기 위한 코드 - E
 
     this.query = cloneQuery;
@@ -1360,6 +1377,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           this.getAnalysis();
         } else {
           this.chart.resultData = this.resultData;
+          this.isSetChartData = true;
         }
 
         // Set Limit Info
@@ -1394,6 +1412,16 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       delete field['currentPivot'];
       delete field['granularity'];
       delete field['segGranularity'];
+    }
+
+    // map - set shelf layers
+    if (cloneQuery.shelf && cloneQuery.shelf.layers && cloneQuery.shelf.layers.length > 0) {
+      for (let layer of cloneQuery.shelf.layers[0]) {
+        delete layer['field'];
+        delete layer['currentPivot'];
+        delete layer['granularity'];
+        delete layer['segGranularity'];
+      }
     }
 
     // 필터 설정

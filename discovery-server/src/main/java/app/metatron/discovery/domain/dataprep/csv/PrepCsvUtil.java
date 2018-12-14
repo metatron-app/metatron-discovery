@@ -256,6 +256,15 @@ public class PrepCsvUtil {
 
       case "file":
         File file = new File(uri);
+        File dirParent = file.getParentFile();
+        if(dirParent==null) {
+          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH, strUri);
+        }
+        if(false==dirParent.exists()) {
+          if(false==dirParent.mkdirs()) {
+            throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH, strUri);
+          }
+        }
 
         FileOutputStream fos;
         try {

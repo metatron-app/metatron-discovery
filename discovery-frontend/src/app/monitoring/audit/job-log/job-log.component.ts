@@ -23,7 +23,9 @@ import { CookieConstant } from '../../../common/constant/cookie.constant';
 import { CommonConstant } from '../../../common/constant/common.constant';
 import { CookieService } from 'ng2-cookies';
 import { CommonUtil } from '../../../common/util/common.util';
-import { ElapsedTime } from '../../../domain/data-preparation/data-snapshot';
+// 클래스 교체중
+//import { ElapsedTime } from '../../../domain/data-preparation/data-snapshot';
+import { ElapsedTime } from '../../../domain/data-preparation/pr-snapshot';
 declare let moment: any;
 
 @Component({
@@ -305,9 +307,9 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
     // date
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       if (this.selectedDate.startDateStr) {
-        params['from'] = moment(this.selectedDate.startDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+        params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      params['to'] = moment(this.selectedDate.endDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+      params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
     }
     // sort
     if (this.selectedContentSort.sort !== 'default') {
@@ -408,9 +410,9 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
     // date
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       if (this.selectedDate.startDateStr) {
-        params['from'] = moment(this.selectedDate.startDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+        params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      params['to'] = moment(this.selectedDate.endDateStr).subtract(9,'hours').format('YYYY-MM-DDTHH:mm:ss.sss')+'Z';
+      params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
     }
 
     if (params) {

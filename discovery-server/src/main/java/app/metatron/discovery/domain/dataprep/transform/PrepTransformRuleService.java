@@ -15,8 +15,8 @@
 package app.metatron.discovery.domain.dataprep.transform;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.dataprep.PrepDataset;
-import app.metatron.discovery.domain.dataprep.PrepDatasetRepository;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
@@ -38,7 +38,7 @@ public class PrepTransformRuleService {
   private static Logger LOGGER = LoggerFactory.getLogger(PrepTransformRuleService.class);
 
   @Autowired
-  private PrepDatasetRepository datasetRepository;
+  private PrDatasetRepository datasetRepository;
 
   public PrepTransformRuleService() { }
 
@@ -167,7 +167,7 @@ public class PrepTransformRuleService {
 
     if (map.containsKey("escapedValue")) {
       String dsId = (String) ((Map) node).get("escapedValue");
-      PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+      PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
       return dataset.getDsName();
     }
 
@@ -179,7 +179,7 @@ public class PrepTransformRuleService {
     }
 
     for (String dsId : dsIds) {
-      PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId.replace("'", "")));  // Currently, map contains '
+      PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId.replace("'", "")));  // Currently, map contains '
       dsNames.add(dataset.getDsName());
     }
 
@@ -289,15 +289,18 @@ public class PrepTransformRuleService {
         break;
       case "split":
         on = ((Map) mapRule.get("on")).get("value");
+        col = ((Map) mapRule.get("col")).get("value");
         limit = ((Integer) (mapRule.get("limit"))).intValue();
         strCount = combineCountAndUnit(limit + 1, "column");      // split N times, produces N + 1 columns
-        shortRuleString = String.format(FMTSTR_SPLIT, mapRule.get("col"), strCount, nodeToString(on));
+
+        shortRuleString = String.format(FMTSTR_SPLIT, shortenColumnList(col), strCount, nodeToString(on));
         break;
       case "extract":
         on = ((Map) mapRule.get("on")).get("value");
+        col = ((Map) mapRule.get("col")).get("value");
         limit = ((Integer) (mapRule.get("limit"))).intValue();
         strCount = combineCountAndUnit(limit, "time");            // extract N times, produces just N columns
-        shortRuleString = String.format(FMTSTR_EXTRACT, nodeToString(on), strCount, mapRule.get("col"));
+        shortRuleString = String.format(FMTSTR_EXTRACT, nodeToString(on), strCount, shortenColumnList(col));
         break;
       case "flatten":
         shortRuleString = String.format(FMTSTR_FLATTEN, mapRule.get("col"));

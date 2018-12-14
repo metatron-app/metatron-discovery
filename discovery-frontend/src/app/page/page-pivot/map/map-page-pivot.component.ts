@@ -12,65 +12,74 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
-import {PagePivotComponent} from "../page-pivot.component";
-import {Pivot} from "../../../domain/workbook/configurations/pivot";
-import { Field as AbstractField } from '../../../domain/workbook/configurations/field/field';
-import { BIType, Field, FieldPivot, FieldRole, LogicalType } from '../../../domain/datasource/datasource';
-import { DimensionField } from '../../../domain/workbook/configurations/field/dimension-field';
-import { AggregationType, MeasureField } from '../../../domain/workbook/configurations/field/measure-field';
+import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
+import { Pivot } from '../../../domain/workbook/configurations/pivot';
+import { BIType, Field, FieldPivot, LogicalType } from '../../../domain/datasource/datasource';
 import {
-  GranularityType, TimestampField, TimeUnit,
-  ByTimeUnit
-} from '../../../domain/workbook/configurations/field/timestamp-field';
-import {
-  ChartType, SeriesType, ShelveFieldType,
-  UIFormatType, ShelveType, EventType, BarMarkType, UIFormatCurrencyType, UIFormatNumericAliasType
+  ChartType,
+  EventType, ShelveFieldType,
+  UIFormatCurrencyType,
+  UIFormatNumericAliasType,
+  UIFormatType
 } from '../../../common/component/chart/option/define/common';
 
 import * as _ from 'lodash';
+import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
+import { TimestampField } from '../../../domain/workbook/configurations/field/timestamp-field';
+import { DimensionField } from '../../../domain/workbook/configurations/field/dimension-field';
+import { MeasureField } from '../../../domain/workbook/configurations/field/measure-field';
+import { PagePivotComponent } from '../page-pivot.component';
+import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
+import { Field as AbstractField } from '../../../domain/workbook/configurations/field/field';
+import * as $ from "jquery";
+import { MapLayerType } from '../../../common/component/chart/option/define/map/map-common';
+import { UIOption } from '../../../common/component/chart/option/ui-option';
+import { Alert } from '../../../common/util/alert.util';
+import { ChartUtil } from '../../../common/component/chart/option/util/chart-util';
 
 @Component({
   selector: 'map-page-pivot',
   templateUrl: './map-page-pivot.component.html'
 })
-export class MapPagePivotComponent extends PagePivotComponent implements OnInit, OnDestroy {
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+export class MapPagePivotComponent extends PagePivotComponent {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public shelf: Shelf;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public uiOption: UIMapOption;
 
-  public aggregationsCnt: number = 0;
-  public columnsCnt: number = 0;
+  @Input('pageDimensions')
+  public pageDimensions: Field[];
+
+  // geo type from datasource fields
+  @Input('geoType')
+  public geoType: LogicalType;
+
+  @Input('uiOption')
+  public set setUIOption(uiOption: UIMapOption) {
+
+    if (!uiOption.layerNum) uiOption.layerNum = 0;
+
+    this.uiOption = uiOption;
+  }
 
   @Input('pivot')
   set setPivot(pivot: Pivot) {
 
-    if (pivot === undefined) {
-      this.pivot = new Pivot();
-      this.pivot.columns = [];
-      this.pivot.rows = [];
-      this.pivot.aggregations = [];
-    } else {
-      this.pivot = pivot;
-
-      for(let column of this.pivot.columns) {
-        if(column["layerNum"] > this.layerNum) {
-          this.layerNum = column["layerNum"];
-          this.changeLayer(this.layerNum);
-        }
-      }
-    }
-
-    this.changePivot(EventType.CHANGE_PIVOT);
+    this.pivot = pivot;
   }
+
+  // layer에 따라서 해당 index에 설정하기
+  @Input('shelf')
+  set setShelf(shelf: Shelf) {
+
+    this.shelf = shelf;
+
+    this.changeShelf();
+  }
+
+  // Pivot 정보가 바뀐 경우
+  @Output('changeShelf')
+  public changeShelfEvent: EventEmitter<any> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -105,240 +114,580 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  /**
+   * map pivot validation check
+   * @param targetField
+   * @param currentMapLayer
+   * @param pageDimensions
+   * @returns {boolean}
+   */
+  public mapPivotValidationPass(targetField, currentMapLayer, pageDimensions): boolean {
+
+    // validation pass
+    let returnValue: boolean = true;
+
+    let diffDataSourceFl: boolean = false;
+    // prevent another datasource is set in same shelf
+    currentMapLayer.forEach((item) => {
+
+      if ('user_expr' !== targetField.subType && 'user_expr' !== item.field.type &&
+        item.field.dataSource != targetField.field.dataSource) {
+        diffDataSourceFl = true;
+        return;
+      }
+    });
+
+    // find geo type from custom fields
+    let geoFields = [];
+    for (const item of _.cloneDeep(pageDimensions)) {
+      if (item.logicalType && -1 !== item.logicalType.toString().indexOf('GEO')) {
+        geoFields.push(ChartUtil.getAlias(item));
+      }
+    }
+
+    // if custom field is geo type
+    for (const alias of geoFields) {
+      if (targetField.expr && -1 !== targetField.expr.indexOf(alias)) {
+        Alert.warning(this.translateService.instant('msg.storage.ui.list.geo.block.custom.field.geo'));
+        returnValue = false;
+        return;
+      }
+    }
+
+    // if another datasource is in a same shelf
+    if (diffDataSourceFl) {
+      Alert.warning(this.translateService.instant('msg.page.layer.multi.datasource.same.shelf'));
+      returnValue = false;
+      return;
+    }
+
+    // if custom field is aggregated true
+    if ('user_expr' === targetField.subType && true === targetField.aggregated) {
+      Alert.warning(this.translateService.instant('msg.storage.ui.list.geo.block.custom.field.agg.function'));
+      returnValue = false;
+      return;
+    }
+
+    return returnValue;
+  }
+
+  /**
+   * 선반에 있는 필드 중 선반용 필드가 아닌 것들을 변환
+   * @param targetField
+   * @param targetContainer
+   * @param addPivotFl pivot 리스트 추가 여부 (false pivot 리스트 추가하지 않음, true pivot 리스트 추가)
+   */
+  public convertField(targetField: Field, targetContainer: string, addPivotFl: boolean = true) {
+
+    // 선반에 올린것 표시
+    let shelf;
+    // animation에 사용할 선반 element 설정
+    let shelfElement: JQuery;
+
+    let fieldPivot: FieldPivot;
+
+    if (targetContainer === 'layer0') {
+      shelf = this.shelf.layers[0];
+      shelfElement = this.$element.find('#layer0');
+      fieldPivot = FieldPivot.MAP_LAYER0;
+
+    } else if (targetContainer === 'layer1') {
+      shelf = this.shelf.layers[1];
+      shelfElement = this.$element.find('#layer1');
+      fieldPivot = FieldPivot.MAP_LAYER1;
+
+    } else if (targetContainer === 'layer2') {
+      shelf = this.shelf.layers[2];
+      shelfElement = this.$element.find('#layer2');
+      fieldPivot = FieldPivot.MAP_LAYER2;
+    }
+
+    const idx = shelf.findIndex((field) => {
+      return field.name === targetField.name && targetField.biType === field.biType;
+    });
+
+    if (idx > -1) {
+      let field;
+
+      // timestamp biType이거나, biType이 dimension이면서 logicalType이 timestamp인 경우
+      if (targetField.biType === BIType.TIMESTAMP ||
+        (targetField.biType === BIType.DIMENSION && targetField.logicalType === LogicalType.TIMESTAMP)) {
+
+        // 타입필드로 설정
+        const timeField = new TimestampField();
+        field = timeField;
+      }
+      else if (targetField.biType === BIType.DIMENSION) {
+        field = new DimensionField();
+      } else if (targetField.biType === BIType.MEASURE) {
+
+        // default로 aggregationType은 SUM으로 설정
+        field = new MeasureField();
+        field.aggregated = targetField.aggregated;
+      }
+      field.name = targetField.name;
+      field.subType = targetField.type;
+      field.subRole = targetField.role;
+      field.expr = targetField.expr;
+      field.field = targetField;
+
+      if (targetField.name !== targetField.alias
+        && ( !targetField.nameAlias || targetField.nameAlias.nameAlias !== targetField.alias )) {
+        field.alias = targetField.alias;
+      }
+      ( targetField.nameAlias ) && ( field.fieldAlias = targetField.nameAlias.nameAlias );
+      field.granularity = targetField.granularity;
+      field.segGranularity = targetField.segGranularity;
+      if (!_.isUndefined(targetField.ref)) {
+        field.ref = targetField.ref;
+      }
+      else if (targetField.type == 'user_expr') {
+        field.ref = 'user_defined';
+      }
+
+      shelf[idx] = field;
+
+      // map pivot validation check
+      if (!this.mapPivotValidationPass(field, shelf, _.cloneDeep(this.pageDimensions))) {
+        shelf.splice(idx, 1);
+        return;
+      }
+
+      // 현재 드래그된 필드
+      this.dragField = field;
+
+      let shelves = this.shelf.layers[this.uiOption.layerNum];
+
+      // remove duplicate list
+      let duplicateFl = this.distinctPivotItems(shelves, field, idx, shelf, targetContainer);
+
+      // if map layer type is point or heatmap, remove duplicate list
+      duplicateFl = this.distinctMeasure(shelves, field, idx);
+
+      // 선반의 dimension / measure값의 중복된값 제거, measure aggtype 설정
+      if (!duplicateFl) {
+
+        // distinctPivotItem에서 설정된 타입 targetField에 설정
+        targetField.format = shelf[idx].format;
+
+        targetField.pivot = targetField.pivot ? targetField.pivot : [];
+
+        if (addPivotFl) targetField.pivot.push(fieldPivot);
+        field.currentPivot = fieldPivot;
+
+        // Measure일 경우
+        if (field instanceof MeasureField) {
+          // Format 적용
+          field.format = {
+            type: _.isUndefined(this.uiOption.valueFormat) || _.isUndefined(this.uiOption.valueFormat.type) ? String(UIFormatType.NUMBER) : this.uiOption.valueFormat.type,
+            sign: _.isUndefined(this.uiOption.valueFormat) || _.isUndefined(this.uiOption.valueFormat.sign) ? String(UIFormatCurrencyType.KRW) : this.uiOption.valueFormat.sign,
+            decimal: _.isUndefined(this.uiOption.valueFormat) || _.isUndefined(this.uiOption.valueFormat.decimal) ? 2 : this.uiOption.valueFormat.decimal,
+            useThousandsSep: _.isUndefined(this.uiOption.valueFormat) || _.isUndefined(this.uiOption.valueFormat.useThousandsSep) ? true : this.uiOption.valueFormat.useThousandsSep,
+            abbr: _.isUndefined(this.uiOption.valueFormat) || _.isUndefined(this.uiOption.valueFormat.abbr) ? String(UIFormatNumericAliasType.NONE) : this.uiOption.valueFormat.abbr,
+            customSymbol: _.isUndefined(this.uiOption.valueFormat) || _.isUndefined(this.uiOption.valueFormat.customSymbol)
+              ? null
+              : this.uiOption.valueFormat.customSymbol
+          }
+        }
+
+        // point, heatmap, line, polygon => no aggregation / hexagon => set aggregation
+        if (MapLayerType.TILE !== this.uiOption.layers[this.uiOption.layerNum].type) {
+          delete field.aggregationType;
+        }
+      }
+
+      // 선반 정보 변경시 (선반피봇팅 조건 이미 설정하였으므로 true)
+      this.changePivot(EventType.CHANGE_PIVOT);
+
+      // 선반 total width 설정, 애니메이션 여부 설정
+      if (shelfElement) this.onShelveAnimation();
+    }
+
+    // template 에서 생성한 경우 추가된 선반필드는 적용이 되지 않음 그래서 처리
+    this.editFieldLayerDirective.exclude = '.ddp-icon-layer';
+  }
+
+  /**
+   * Datasource Field의 선반 위치정보 수정
+   * @param targetField
+   * @param targetContainer
+   */
+  public changeFieldPivot(targetField: Field, targetContainer: string, pivotField: AbstractField): void {
+
+    targetField.pivot = targetField.pivot ? targetField.pivot : [];
+
+    let shelf;
+    let fieldPivot: FieldPivot;
+
+    // animation에 사용할 선반 element 설정
+    let shelfElement: JQuery;
+
+    if (targetContainer === 'layer0') {
+      shelf = this.shelf.layers[0];
+      shelfElement = this.$element.find('#layer0');
+      fieldPivot = FieldPivot.MAP_LAYER0;
+
+    } else if (targetContainer === 'layer1') {
+      shelf = this.shelf.layers[1];
+      shelfElement = this.$element.find('#layer1');
+      fieldPivot = FieldPivot.MAP_LAYER1;
+
+    } else if (targetContainer === 'layer2') {
+      shelf = this.shelf.layers[2];
+      shelfElement = this.$element.find('#layer2');
+      fieldPivot = FieldPivot.MAP_LAYER2;
+    }
+
+    // 선반의 위치가 다른선반으로 이동시에만 설정
+    if (pivotField.currentPivot !== fieldPivot) {
+
+      // 타임스탬프일때
+      if (targetField.biType === BIType.TIMESTAMP ||
+        (targetField.biType === BIType.DIMENSION && targetField.logicalType === LogicalType.TIMESTAMP)) {
+
+        const timestampIndex = shelf.findIndex((field) => {
+          return field.name === targetField.name && targetField.role === field.field.role && targetField.granularity === field.granularity && -1 !== targetField.format['type'].indexOf('time');
+        });
+
+        // 같은 timestamp의 다른타입이 한선반에 들어간경우
+        if (-1 !== timestampIndex) {
+
+          // 그리드를 제외한 같은선반에 timestamp가 2개이상 들어가지 못하게 설정
+          let duplicateFieldFl = this.deleteDuplicatedField(targetField, timestampIndex, targetContainer);
+
+          // 중복이 아닐때에만 해당 선반에 추가
+          if (!duplicateFieldFl) {
+            // 기존의 피봇값 제거
+            targetField.pivot.splice(targetField.pivot.indexOf(pivotField.currentPivot), 1);
+            // 이동된 피봇의값을 추가
+            targetField.pivot.push(fieldPivot);
+            // 현재피봇값 변경
+            pivotField.currentPivot = fieldPivot;
+          }
+        }
+      // 타임스탬프가 아닐때
+      } else {
+
+        // 기존의 피봇값 제거
+        targetField.pivot.splice(targetField.pivot.indexOf(pivotField.currentPivot), 1);
+        // 이동된 피봇의값을 추가
+        targetField.pivot.push(fieldPivot);
+        // 현재피봇값 변경
+        pivotField.currentPivot = fieldPivot;
+      }
+    }
+
+    // 선반 정보 변경시 (선반피봇팅 조건 이미 설정하였으므로 true)
+    this.changePivot(EventType.CHANGE_PIVOT);
+
+    // 선반 total width 설정, 애니메이션 여부 설정
+    if (shelfElement) this.onShelveAnimation();
+  }
+
    /**
     * 선반정보 변경시
     */
    public changePivot(eventType?: EventType) {
 
-     this.pivot.columns = this.pivot.columns.map(this.checkAliasMap);
-     this.pivot.rows = this.pivot.rows.map(this.checkAliasMap);
-     this.pivot.aggregations = this.pivot.aggregations.map(this.checkAliasMap);
+     // set layer alias
+     this.shelf.layers[this.uiOption.layerNum] = this.shelf.layers[this.uiOption.layerNum].map(this.checkAlias);
 
-     //색상,크기 기준이 measuer일때 필드리스트
-     let measureList = new Array(new Array(), new Array(), new Array());
-
-     for(let aggregation of this.pivot.aggregations) {
-       let fieldAlias = aggregation.field["alias"];
-       if(!fieldAlias) fieldAlias = aggregation.name;
-       if(aggregation.fieldAlias) fieldAlias = aggregation.fieldAlias;
-
-       if(!aggregation["layerNum"] || aggregation["layerNum"] === 1) {
-         measureList[0].push(aggregation.aggregationType + '(' + fieldAlias + ')');
-       } else if(aggregation["layerNum"] === 2) {
-         measureList[1].push(aggregation.aggregationType + '(' + fieldAlias + ')');
-       } else if(aggregation["layerNum"] === 3) {
-         measureList[2].push(aggregation.aggregationType + '(' + fieldAlias + ')');
-       }
-     }
-
-     this.uiOption["measureList"] = measureList;
-
-     //선반에 dimension 추가되면 option panel 색상에 자동으로 dimension 선택, 해당 필드 선택
-     if(this.pivot.columns.length > this.columnsCnt) {
-       let column = this.pivot.columns[this.pivot.columns.length-1];
-       let layerNum = column["layerNum"];
-       if(!layerNum) layerNum = 1;
-       if(this.uiOption.layers[layerNum-1].color.by === 'NONE' && column.field.logicalType && column.field.logicalType.toString().indexOf('GEO') !== 0) {
-         this.uiOption.layers[layerNum-1].color.by = 'DIMENSION';
-         this.uiOption.layers[layerNum-1].color.column = column.name;
-         this.uiOption.layers[layerNum-1].color.schema = 'SC1';
-       }
-       // this.uiOption.toolTip["displayColumns"].push(column.name);
-     }
-
-     //선반에 measure 추가되면 option panel 색상에 자동으로 measure 선택, 해당 필드 선택
-
-     if(this.pivot.aggregations.length > this.aggregationsCnt) {
-       let aggregation = this.pivot.aggregations[this.pivot.aggregations.length-1];
-       let layerNum = aggregation["layerNum"];
-       if(!layerNum) layerNum = 1;
-       let fieldAlias = aggregation.field["alias"];
-       if(!fieldAlias) fieldAlias = aggregation.name;
-       if(aggregation.fieldAlias) fieldAlias = aggregation.fieldAlias;
-
-       // only event type is changePivot, set color as measure color
-       if (EventType.CHANGE_PIVOT == eventType) {
-
-         if(this.uiOption.layers[layerNum-1].color.by === 'NONE' || this.uiOption.layers[layerNum-1].color.by === 'DIMENSION') {
-           this.uiOption.layers[layerNum-1].color.by = 'MEASURE';
-           this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + fieldAlias + ')';
-           this.uiOption.layers[layerNum-1].color.schema = 'VC1';
-
-         } else if(this.pivot.aggregations.length > 1){
-           this.uiOption.layers[layerNum-1].size.by = 'MEASURE';
-           this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
-
-           this.uiOption.layers[layerNum-1].thickness.by = 'MEASURE';
-           this.uiOption.layers[layerNum-1].thickness.column = aggregation.aggregationType + '(' + fieldAlias + ')';
-         }
-
-       }
-
-     }
-
-     // Aggregation type change
-     if( _.eq(eventType, EventType.AGGREGATION) ) {
-       let aggregation = this.pivot.aggregations[this.pivot.aggregations.length-1];
-       let layerNum = aggregation["layerNum"];
-       let fieldAlias = aggregation.field["alias"];
-       if(!fieldAlias) fieldAlias = aggregation.name;
-       if(aggregation.fieldAlias) fieldAlias = aggregation.fieldAlias;
-       this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + fieldAlias + ')';
-       this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
-       this.uiOption.layers[layerNum-1].thickness.column = aggregation.aggregationType + '(' + fieldAlias + ')';
-     }
-
-     this.aggregationsCnt = this.pivot.aggregations.length;
-     this.columnsCnt = this.pivot.columns.length;
-
-     this.changePivotEvent.emit({ pivot: this.pivot, eventType: eventType });
+     // emit
+     this.changeShelfEvent.emit({ shelf: this.shelf, eventType: eventType });
    }
 
-   public changeLayer(layerNum: number): void {
-     let pivotChanged: boolean = false;
+  /**
+   * map chart - add layer
+   */
+  public addLayer(): void {
 
-     if(layerNum < this.layerNum) {
-       for(let column of this.pivot.columns) {
-         if(column["layerNum"] === this.layerNum) {
-           this.removeField("event", FieldPivot.COLUMNS, this.pivot.columns, this.pivot.columns.indexOf(column));
-           pivotChanged = true;
-         }
-       }
+     // add empty layer
+     this.shelf.layers.push([]);
 
-       for(let aggregation of this.pivot.aggregations) {
-         if(aggregation["layerNum"] === this.layerNum) {
-           this.removeField("event", FieldPivot.AGGREGATIONS, this.pivot.aggregations, this.pivot.aggregations.indexOf(aggregation));
-           pivotChanged = true;
-         }
-       }
+     // set current layer number
+     this.uiOption.layerNum = this.shelf.layers.length - 1;
 
-       this.layerNum = layerNum;
-     } else {
-      for(let column of this.pivot.columns) {
-        if(!column["layerNum"]) column["layerNum"] = 1;
-        if(column.field["logicalType"].toString().indexOf('GEO') > -1 && column["layerNum"] === this.layerNum) {
-          this.layerNum = layerNum;
-        }
-      }
-     }
-
-     this.uiOption["layerCnt"] = this.layerNum;
-
-     // pivot이 변경될때만 실행되도록
-     if(pivotChanged) this.changePivot();
+     this.changePivot();
    }
 
-   /**
-    * 선반 삭제
-    * @param shelf
-    * @param {number} idx
-    */
-   public removeField(event: any, fieldPivot: FieldPivot, shelf, idx: number) {
+  /**
+   * map chart - remove layer
+   */
+  public removeLayer(): void {
 
-     // 선반에서 필드제거
-     let field: AbstractField = shelf.splice(idx, 1)[0];
+  }
 
-     // 필드의 선반정보 제거
-     field.field.pivot.splice(field.field.pivot.indexOf(fieldPivot), 1);
+  /**
+   * show guide or not
+   * @returns {boolean}
+   */
+  public isGuide(): boolean {
 
-     let layerNum = field["layerNum"]-1;
-
-     if(!field["layerNum"]) {
-       layerNum = 0;
-     }
-
-     if(field.field.pivot.length === 0) {
-       this.uiOption.layers[layerNum]["color"].by = "NONE";
-       if(layerNum === 0) {
-         this.uiOption.layers[layerNum]["color"].schema = "#602663";
-       } else if(layerNum === 1) {
-         this.uiOption.layers[layerNum]["color"].schema = "#888fb4";
-       } else if(layerNum === 2) {
-         this.uiOption.layers[layerNum]["color"].schema = "#bccada";
-       }
-       this.uiOption.layers[layerNum]["size"].by = "NONE";
-       this.uiOption.layers[layerNum]["thickness"].by = "NONE";
-       this.uiOption.layers[layerNum]["color"]["customMode"] = undefined;
-     } else {
-
-     }
-
-     // 이벤트
-     this.changePivot(EventType.CHANGE_PIVOT);
-   }
-
-   /**
-    * 타입(행, 열, 교차)에 따른 가이드 문구 반환
-    * @param type
-    */
-   public getGuideText(type: string, isText: boolean = true): string {
-
-     // 차트 타입 선택전이라면 공백 반환
-     if (this.chartType == '') {
-       return '';
-     }
-
-     // 행
-     if (_.eq(type, ShelveType.COLUMNS)) {
-
-         return isText ? '1+ Dimension (GEO type)' : 'ddp-box-dimension';
-
-     }
-
-     return '';
-   }
-
-   /**
-    * 타입(행, 열, 교차)에 따른 가이드 표시여부 반환
-    * @param type
-    */
-   public isGuide(type: string): boolean {
-
-     // 차트 타입 선택전이라면 false 반환
+     // before selecting chart, return false
      if (this.chartType == '') {
        return false;
      }
 
-     // 개수체크
-     let count: number = 0;
-     for (let field of this.pivot.columns) {
-       if (field && field.field && field.field.logicalType &&
-           field.field.logicalType.toString().indexOf("GEO") > -1 && (_.eq(field.type, ShelveFieldType.DIMENSION) || _.eq(field.type, ShelveFieldType.TIMESTAMP))) {
-         count++;
+     // when geo dimension on shelf, hide guide
+     for (let field of this.shelf.layers[this.uiOption.layerNum]) {
+       if (field && field.field && field.field.logicalType && -1 !== field.field.logicalType.toString().indexOf("GEO")) {
+         return false;
        }
      }
-     return count < 1;
+
+     return true;
    }
 
-    /**
-    * TODO need to update css
-    * set animation in map
-    * @param {JQuery} element
-    */
-    public onShelveAnimation(element: JQuery) {
+  /**
+   * toggle shelf context menu
+   * @param event
+   * @param field
+   */
+  public openFieldSetting(event, field) {
 
-      let shelfElement: JQuery;
-
-      shelfElement = this.$element.find('#shelfColumn' + this.layerNum);
-
-      super.onShelveAnimation(shelfElement.find('.ddp-wrap-default'));
+    // toggle editing Field
+    if (this.editingField === field) {
+      this.editingField = null;
+      return;
     }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-   private checkAliasMap(field: AbstractField) {
+    this.editingField = field;
 
-     if (['measure', 'calculated'].indexOf(field.type) > -1) {
-       // TODO 계산식인경우 field.aggregated 여부에 따라 기본값 세팅
-       if (field.type === 'calculated') {
-         console.info('TODO 계산식인경우 field.aggregated 여부에 따라 기본값 세팅');
-       }
-       const aggType = _.isUndefined(field.aggregationType) ? 'SUM' : field.aggregationType;
-       // field.alias = `${aggType}(${field.name})`;
-     }
+    // 모든선반에서 같은 field aggregation Type 설정
+    let shelves = this.shelf.layers[this.uiOption.layerNum];
 
-     // TODO 사용자 정의 alias가 있는 경우 처리
-     return field;
-   }
+    // set field setting
+    this.fieldSetting(shelves);
+  }
+
+  /**
+   * emit change shelf
+   */
+  public changeShelf(eventType?: EventType) {
+    this.changeShelfEvent.emit({ shelf: this.shelf, eventType: eventType });
+  }
+
+  /**
+   * set shelf guide
+   * @param {string} type
+   * @returns {boolean}
+   */
+  public getMapGuideText(type?: string): boolean {
+
+    if (!this.shelf.layers) return;
+
+    let layers = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum];
+
+    let returnValue: boolean;
+
+    if ('geo' === type) {
+      returnValue = true;
+
+      // hide when there is geo dimension
+      layers.forEach((item) => {
+        if (item.field && item.field.logicalType && -1 !== item.field.logicalType.toString().indexOf('GEO')) {
+          return returnValue = false;
+        }
+      });
+    } else {
+      returnValue = false;
+
+      // show when there is geo dimension
+      layers.forEach((item) => {
+        if (item.field && item.field.logicalType && -1 !== item.field.logicalType.toString().indexOf('GEO')) {
+          return returnValue = true;
+        }
+      });
+    }
+
+    return returnValue;
+  }
+
+  /**
+   * 아이템의 길이가 선반 길이보다 긴경우 prev / next 버튼 show설정
+   */
+  public onShelveAnimation() {
+
+    if (!this.changeDetect['destroyed']) {
+      // 선반의 아이템들이 나오게 설정
+      this.changeDetect.detectChanges();
+    }
+
+    let element = this.$element.find('#layer' + this.uiOption.layerNum).find('.ddp-wrap-default');
+
+    let scope = this;
+
+    // 선반의 길이에따라 animation 설정
+    element.each(function () {
+
+      // animation total width 설정
+      let totalWidth = scope.getShelveTotalWidth($(this));
+
+      // total width 설정 (드래그시 아래로 떨어지는걸 방지하기위해서 drag item width인 150을 더해주기)
+      $(this).css('width', totalWidth + 150);
+
+      // prev / next 버튼 show / hide 설정
+      if (totalWidth > $(this).parent('.ddp-ui-drag-slide-in').width()) {
+
+        $(this).parent().parent().addClass('ddp-slide');
+        $(this).parent().parent().css('padding-right', '10px');
+      }
+      if (totalWidth <= $(this).parent('.ddp-ui-drag-slide-in').width()) {
+
+        $(this).parent().parent().removeClass('ddp-slide');
+        $(this).parent().parent().removeAttr('padding-right');
+
+        // ddp-wrap-default margin-left 제거
+        $(this).css('margin-left', '0px');
+      }
+    })
+  }
+
+  /**
+   * animation 이전버튼에 마우스 오버시
+   */
+  public mouseOverPrev(event: any) {
+
+    // 애니메이션 동작설정 true
+    this.animationPause = false;
+
+    let scope = this;
+
+    const $wrapDefault = $(event.currentTarget.parentElement.parentElement).find('.ddp-wrap-default');
+
+    // 선반에 animation 설정
+    $wrapDefault.animate({ marginLeft: 0 }, {
+      duration: 1500, step: function () {
+
+        if (scope.animationPause) {
+          $(this).stop();
+        }
+      }
+    });
+  }
+
+  /**
+   * animation 다음버튼에 마우스 오버시
+   */
+  public mouseOverNext(event: any) {
+
+    // 애니메이션 동작설정 true
+    this.animationPause = false;
+
+    let scope = this;
+
+    const $currentShelve = $(event.currentTarget.parentElement.parentElement);
+
+    const $wrapDefault = $(event.currentTarget.parentElement.parentElement).find('.ddp-wrap-default');
+
+    let totalWidth = this.getShelveTotalWidth($currentShelve);
+
+    // animation width 설정
+    let moveWidth = totalWidth - $currentShelve.find('.ddp-ui-drag-slide-in').width();
+
+    // 선반에 animation 설정
+    $wrapDefault.animate({ marginLeft: -moveWidth - 40}, {
+    // $wrapDefault.animate({ marginLeft: -moveWidth - 80 }, {
+      duration: 1500, step: function () {
+
+        if (scope.animationPause) {
+          $(this).stop();
+        }
+      }
+    });
+
+  }
+
+  /**
+   * 페이지에서 필드 추가 할때
+   * @param {Field} targetField
+   * @param {string} targetContainer
+   */
+  public addField(targetField: Field, targetContainer: string, pivotField: AbstractField) {
+    let shelf;
+
+    if (targetContainer === 'layer') {
+      shelf = this.shelf.layers[this.uiOption.layerNum];
+    } else {
+      console.info('정의되지 않은 drop', targetContainer);
+      return;
+    }
+
+    targetContainer = 'layer' + this.uiOption.layerNum;
+
+    if (targetField) {
+      shelf.push(targetField);
+      this.convertField(targetField, targetContainer);
+    }
+  }
+
+  /**
+   * block custom field => true (block), false(not block) - temporary code
+   * @param {Field} targetField
+   * @returns {boolean}
+   */
+  public blockCustomField(targetField: Field, uiOption : UIOption) {
+
+    // when chart is map, target field is custom field
+    if (ChartType.MAP === uiOption.type && 'user_expr' === targetField.type) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * 해당 선반에서 중복데이터일때
+   * @param field 필드값
+   * @param idx   필드 index
+   * @param targetContainer 현재 선택된 선반
+   */
+  protected deleteDuplicatedField(field: any, idx: number, targetContainer: string): boolean {
+
+    // 열선반에서 해당 선반 중복시 제거
+    if (this.checkDuplicatedField(this.shelf.layers[this.uiOption.layerNum], field).length > 1) {
+
+      // 선반에서 해당 아이템 제거
+      this.shelf.layers[this.uiOption.layerNum].splice(idx, 1);
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * remove the measure having same name
+   * @param {Field[]} shelves
+   * @param field
+   * @param {number} idx
+   * @param {Field[]} shelf
+   * @param {string} targetContainer
+   * @returns {boolean}
+   */
+  private distinctMeasure(shelf: AbstractField[], field: any, idx: number): boolean {
+
+    const duplicateList = [];
+
+    shelf.forEach((item) => {
+
+      if (item.name === field.name) {
+
+        duplicateList.push(item);
+      }
+    });
+
+    // duplicate list exists
+    if (String(ShelveFieldType.MEASURE) === field.type && duplicateList.length > 1) {
+
+      // symbol, heatmap => no aggregation type
+      if (MapLayerType.SYMBOL === this.uiOption.layers[this.uiOption.layerNum].type ||
+        MapLayerType.HEATMAP === this.uiOption.layers[this.uiOption.layerNum].type) {
+
+        shelf.splice(idx, 1);
+        return true;
+      }
+    }
+
+    return false;
+  }
 }

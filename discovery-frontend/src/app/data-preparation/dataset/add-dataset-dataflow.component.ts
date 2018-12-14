@@ -16,7 +16,8 @@ import {MomentDatePipe} from "app/common/pipe/moment.date.pipe";
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from "@angular/core";
 import {AbstractComponent} from "../../common/component/abstract.component";
 import {DataflowService} from "../dataflow/service/dataflow.service";
-import {Dataflow, Dataflows} from "../../domain/data-preparation/dataflow";
+//import {Dataflow, Dataflows} from "../../domain/data-preparation/dataflow";
+import {PrDataflow, Dataflows} from "../../domain/data-preparation/pr-dataflow";
 import {isNullOrUndefined} from "util";
 
 @Component({
@@ -59,7 +60,8 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
 
   public dataflowIds : string[];
 
-  public dataflows : Dataflow[];
+  //public dataflows : Dataflow[];
+  public dataflows : PrDataflow[];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -183,7 +185,8 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
     return result;
   }
 
-  public selectDataflow(dataflow:Dataflow) {
+  //public selectDataflow(dataflow:Dataflow) {
+  public selectDataflow(dataflow:PrDataflow) {
     this.selectedDataflowId = dataflow.dfId;
   }
 

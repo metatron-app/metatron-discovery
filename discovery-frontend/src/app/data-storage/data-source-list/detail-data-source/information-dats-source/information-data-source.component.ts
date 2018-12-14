@@ -127,6 +127,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   @Output()
   public confirm = new EventEmitter;
 
+  @Input()
+  public timestampColumn: any;
+
   // 리스트 flag
   public detailFl: boolean = false;
   // advanced setting show flag
@@ -157,7 +160,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     // ui init
     this.initView();
     // Linked 소스가 아니고 enabled 일때 timestamp 필드가 있는 경우에만 stats 조회하기
-    !this.isLinkedSource() && this.isEnabled() && this._getFindIndexTimestampField() !== -1 && this._getFieldStats(this.getFields[this._getFindIndexTimestampField()].name, this.datasource.engineName);
+    if (!this.isLinkedSource() && this.isEnabled() && this.timestampColumn) {
+      this._getFieldStats(this.timestampColumn.name, this.datasource.engineName);
+    }
   }
 
   // Destory
@@ -179,7 +184,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
         this._setProcessStatus(changes.ingestionProcess.currentValue);
         // if success ingestion
         if (changes.ingestionProcess.currentValue['message'] === 'END_INGESTION_JOB') {
-          this._getFieldStats(this.getFields[this._getFindIndexTimestampField()].name, this.datasource.engineName)
+          this._getFieldStats(this.timestampColumn.name, this.datasource.engineName);
         }
       }
     }
@@ -390,14 +395,6 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    */
   public get getIngestionType(): string {
     return this.getIngestion.type;
-  }
-
-  /**
-   * ingestion size
-   * @returns {number}
-   */
-  public get getIngestionSize(): number {
-    return this.getIngestion.size;
   }
 
   /**
@@ -673,17 +670,6 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
         this.loadingHide();
       })
       .catch((error) => this.commonExceptionHandler(error));
-  }
-
-  /**
-   * time stamp 필드인 index 얻기
-   * @returns {number}
-   * @private
-   */
-  private _getFindIndexTimestampField(): number {
-    return _.findIndex(this.getFields, (field) => {
-      return field.role === FieldRole.TIMESTAMP;
-    });
   }
 
   /**

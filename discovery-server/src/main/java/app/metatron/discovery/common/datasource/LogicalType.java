@@ -51,4 +51,17 @@ public enum LogicalType {
   public List<String> getGeoPointKeys() {
     return Lists.newArrayList("lat", "lon", "coord");
   }
+
+  public String toEngineMetricType() {
+    switch (this) {
+      case STRING:
+        return "string";
+      case INTEGER:
+        return "long";
+      case DOUBLE:
+        return "double";
+      default:
+        return "double";
+    }
+  }
 }

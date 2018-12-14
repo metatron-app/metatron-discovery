@@ -1,45 +1,51 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
+import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
 import {
-  Component,
-  ElementRef,
-  Injector,
-  Input,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-  NgZone,
-  SimpleChanges
-} from '@angular/core';
+  MapBy,
+  MapLayerType,
+  MapLineStyle,
+  MapSymbolType,
+  MapThickness
+} from '../../../common/component/chart/option/define/map/map-common';
 import * as _ from 'lodash';
 import {
-  UIOption,
-  ColorRange,
-  UIChartColorByDimension,
-  UIChartColorBySeries,
-  UIChartColorByValue
-} from '../../../common/component/chart/option/ui-option';
-import {
-  CellColorTarget,
   ChartColorList,
-  ChartColorType,
-  ColorCustomMode,
-  ColorRangeType
-} from '../../../common/component/chart/option/define/common';
-
-import { GradationGeneratorComponent } from '../../../common/component/gradation/gradation-generator.component';
-
-import { ColorOptionConverter } from '../../../common/component/chart/option/converter/color-option-converter';
-
-import {
-  ChartType,
+  ColorRangeType,
   EventType,
-  FontSize,
-  UIFontStyle,
+  ShelveFieldType,
+  SymbolType
 } from '../../../common/component/chart/option/define/common';
-import { Pivot } from '../../../domain/workbook/configurations/pivot';
-import { BaseOptionComponent } from "../base-option.component";
-import { DatasourceService } from '../../../datasource/service/datasource.service';
+import { UISymbolLayer } from '../../../common/component/chart/option/ui-option/map/ui-symbol-layer';
+import { MapOutline } from '../../../common/component/chart/option/ui-option/map/ui-outline';
+import { UIPolygonLayer } from '../../../common/component/chart/option/ui-option/map/ui-polygon-layer';
+import { UILineLayer } from '../../../common/component/chart/option/ui-option/map/ui-line-layer';
+import { UIHeatmapLayer } from '../../../common/component/chart/option/ui-option/map/ui-heatmap-layer';
+import { UITileLayer } from '../../../common/component/chart/option/ui-option/map/ui-tile-layer';
+import { BaseOptionComponent } from '../base-option.component';
+import { ColorTemplateComponent } from '../../../common/component/color-picker/color-template.component';
+import { Field as AbstractField, Field } from '../../../domain/workbook/configurations/field/field';
+import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
+import { isNullOrUndefined } from 'util';
+import { AggregationType } from '../../../domain/workbook/configurations/field/measure-field';
+import { ChartUtil } from '../../../common/component/chart/option/util/chart-util';
+import { UILayers } from '../../../common/component/chart/option/ui-option/map/ui-layers';
+import { GeoField } from '../../../domain/workbook/configurations/field/geo-field';
+import { ColorRange } from '../../../common/component/chart/option/ui-option/ui-color';
 import { FormatOptionConverter } from '../../../common/component/chart/option/converter/format-option-converter';
-
+import { ColorOptionConverter } from '../../../common/component/chart/option/converter/color-option-converter';
 import { OptionGenerator } from '../../../common/component/chart/option/util/option-generator';
 import UI = OptionGenerator.UI;
 
@@ -47,1378 +53,828 @@ import UI = OptionGenerator.UI;
   selector: 'map-layer-option',
   templateUrl: './map-layer-option.component.html'
 })
+export class MapLayerOptionComponent extends BaseOptionComponent {
 
-export class MapLayerOptionComponent extends BaseOptionComponent implements OnInit, OnDestroy {
+  // current layer index (0-2)
+  @Input('index')
+  public index: number;
 
-  private gradationIndex: number;
+  @Input('data')
+  public data: Object[];
 
-  // series, dimension 색상 리스트
-  public defaultColorList: Object[] = [
-    { index: 1, colorNum: 'SC1' },
-    { index: 2, colorNum: 'SC2' },
-    { index: 3, colorNum: 'SC3' },
-    { index: 4, colorNum: 'SC4' },
-    { index: 5, colorNum: 'SC5' },
-    { index: 6, colorNum: 'SC6' },
-    { index: 7, colorNum: 'SC7' },
-    { index: 8, colorNum: 'SC8' },
-    { index: 9, colorNum: 'SC9' }
-  ];
+  @Input('uiOption')
+  public set setUiOption(uiOption: UIMapOption) {
 
-  public measureColorList: Object[] = [
-    { index: 1, colorNum: 'VC1' },
-    { index: 2, colorNum: 'VC2' },
-    { index: 3, colorNum: 'VC3' },
-    { index: 4, colorNum: 'VC4' },
-    { index: 5, colorNum: 'VC5' },
-    { index: 6, colorNum: 'VC6' },
-    { index: 7, colorNum: 'VC7' }
-  ];
+    this.uiOption = uiOption;
 
-  // measure 반전(value) 색상 리스트
-  public measureReverseColorList: Object[] = [
-    { index: 8, colorNum: 'VC8' },
-    { index: 9, colorNum: 'VC9' },
-    { index: 10, colorNum: 'VC10' },
-    { index: 11, colorNum: 'VC11' },
-    { index: 12, colorNum: 'VC12' },
-    { index: 13, colorNum: 'VC13' },
-    { index: 14, colorNum: 'VC14' },
-    { index: 15, colorNum: 'VC15' },
-    { index: 16, colorNum: 'VC16' },
-    { index: 17, colorNum: 'VC17' },
-    { index: 18, colorNum: 'VC18' },
-    { index: 19, colorNum: 'VC19' }
-  ];
+    // set ranges for view
+    this.rangesViewList = this.setRangeViewByDecimal(this.uiOption.layers[this.index].color['ranges']);
 
-  // 선택된 default 색상
-  public selectedDefaultColor: Object = this.defaultColorList[0];
+    // set min / max by decimal format
+    if (this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal) {
+      this.minValue = FormatOptionConverter.getDecimalValue(this.uiOption.minValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
+      this.maxValue = FormatOptionConverter.getDecimalValue(this.uiOption.maxValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
+    }
+  }
 
-  // 선택된 measure 색상
-  public selectedMeasureColor: Object = this.measureColorList[0];
+  @Input('shelf')
+  public set setShelf(shelf: Shelf) {
 
-  // 팔레트 show hide 설정
+    // set by type list by dimension, measure count
+    this.setByType(shelf);
+
+    this.shelf = shelf;
+  }
+
+  // color template popup
+  @ViewChild('colorTemplate')
+  public colorTemplate: ColorTemplateComponent;
+
+  // set z index
+  @Output()
+  public setZIndex: EventEmitter<boolean> = new EventEmitter();
+
+  public shelf: Shelf;
+
+  public uiOption: UIMapOption;
+
+  // symbol layer - type list
+  public symbolLayerTypes = [{name : this.translateService.instant('msg.page.layer.map.type.point'), value: MapLayerType.SYMBOL},
+                             {name : this.translateService.instant('msg.page.layer.map.type.heatmap'), value: MapLayerType.HEATMAP},
+                             {name : this.translateService.instant('msg.page.layer.map.type.tile'), value: MapLayerType.TILE}];
+
+  // symbol layer - symbol list
+  public symbolLayerSymbols = [{name : this.translateService.instant('msg.page.layer.map.point.circle'), value : MapSymbolType.CIRCLE},
+                               {name : this.translateService.instant('msg.page.layer.map.point.square'), value : MapSymbolType.SQUARE},
+                               {name : this.translateService.instant('msg.page.layer.map.point.triangle'), value : MapSymbolType.TRIANGLE}];
+
+  // outline - thickness
+  public thicknessList = [{value : MapThickness.THIN}, {value : MapThickness.NORMAL}, {value : MapThickness.THICK}];
+
+
+  // line - storke by, symbol - size by
+  public byList = [];
+
+  // all layers - color by
+  public colorByList = [];
+
+  // line layer - thickness
+  public lineStyleList = [{name : this.translateService.instant('msg.page.layer.map.line.type.solid'), value: MapLineStyle.SOLID},
+                          {name : this.translateService.instant('msg.page.layer.map.line.type.dotted'), value: MapLineStyle.DOTTED},
+                          {name : this.translateService.instant('msg.page.layer.map.line.type.dashed'), value: MapLineStyle.DASHED}];
+
+  // show / hide setting for color picker
   public colorListFlag: boolean = false;
 
-  // 선반 레이어 번호
-  public layerNum: number = 0;
+  public measureList: Field[];
 
-  // 레이어 타입 : symbol, line, polygon, tile, heatmap
-  public type: string = 'symbol';
-
-  // 레이어명
-  public name: string = 'Layer1';
-
-  // 심볼 타입
-  public symbol: string = 'CIRCLE';
-
-  // 타일맵 타입 현재는 HEXAGON만 있음
-  public tile: string = 'HEXAGON';
-
-  //heatmap 흐림
-  public blur: number = 10;
-
-  //heatmap 반경
-  public radius:number = 10;
-
-  //tilemap type
-  public shape: string = "HEXAGON";
-
-  //tilemap coverage
-  public coverage: number = 8;
-
-  //linemap type
-  public pathType: string = "SOLID";
-
-  // 심볼, 폴리곤, 라인등 feature의 색상
-  public color: Object = {
-    by: 'NONE',
-    column: '',
-    schema: this.selectedDefaultColor,
-    transparency: 100
-  };
-
-  // feature의 크기
-  public size: Object = {
-    by: 'NONE',
-    column: ''
-  };
-
-  // 외곽선 스타일
-  public outline: Object = {
-    color: this.selectedDefaultColor,
-    thickness: 'NONE'
-  };
-
-  //라인 스타일
-  public thickness: Object = {
-    by: "NONE",
-    column: "NONE",
-    maxValue: 10
-  };
+  public dimensionList: Field[];
 
   // range list for view
   public rangesViewList = [];
 
-  // gradation seperate value
-  public separateValue: number = 10;
-
-  // gradation component
-  @ViewChild(GradationGeneratorComponent)
-  public gradationComp: GradationGeneratorComponent;
-
-  // currently seleted color range
-  public currentRange: ColorRange;
-
-  // color type list
-  public colorRangeTypeList = [{name : this.translateService.instant('msg.page.chart.color.measure.new.range.type.default'), value: ColorCustomMode.SECTION},
-                              {name : this.translateService.instant('msg.page.chart.color.measure.new.range.type.gradient'), value: ColorCustomMode.GRADIENT}];
+  public availableRangeValue: string;
 
   // min / max
   public minValue: string;
   public maxValue: string;
 
-  public availableRangeValue: string;
-
-  public clustering: boolean = false;
-  public viewRawData: boolean = false;
-  public layerOptions: Object;
-  public measureList = new Array(new Array(), new Array(), new Array());
-
-  // 색상의 기준이 되는 행/열 필드 리스트
-  public fieldList: string[] = [];
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-   // Pivot
-   public pivot: Pivot;
-   @Input('pivot')
-   set setPivot(pivot: Pivot) {
-     this.pivot = pivot;
-     this.measureList = new Array(new Array(), new Array(), new Array());
-
-     for(let aggregation of this.pivot.aggregations) {
-       let fieldAlias = aggregation.field["alias"];
-       if(!fieldAlias) fieldAlias = aggregation.name;
-       if(aggregation.fieldAlias) fieldAlias = aggregation.fieldAlias;
-
-       if(!aggregation["layerNum"] || aggregation["layerNum"] === 1) {
-         this.measureList[0].push(aggregation.aggregationType + '(' + fieldAlias + ')');
-       } else if(aggregation["layerNum"] === 2) {
-         this.measureList[1].push(aggregation.aggregationType + '(' + fieldAlias + ')');
-       } else if(aggregation["layerNum"] === 3) {
-         this.measureList[2].push(aggregation.aggregationType + '(' + fieldAlias + ')');
-       }
-     }
-
-     // this.changeLayerOption();
-     // pivot change here!
-   }
-
-   @Input('resultData')
-   public resultData: Object;
-
-   @ViewChild('blurRangeSlider')
-   private _blurRangeSlider: ElementRef;
-   private _$blurRangeSlider: any;
-
-   @ViewChild('radiusRangeSlider')
-   private _radiusRangeSlider: ElementRef;
-   private _$radiusRangeSlider: any;
-
-   @ViewChild('resolutionRangeSlider')
-   private _resolutionRangeSlider: ElementRef;
-   private _$resolutionRangeSlider: any;
-
-   @Input('uiOption')
-   public set setUiOption(uiOption: UIOption) {
-
-     //Set
-     if(this.resultData['data'][0].valueRange[uiOption.layers[0].color.column]) {
-       const minValue = this.checkMinZero(this.resultData['data'][0].valueRange[uiOption.layers[0].color.column].minValue, this.resultData['data'][0].valueRange[uiOption.layers[0].color.column].minValue);
-
-       this.minValue = FormatOptionConverter.getDecimalValue(minValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
-       this.maxValue = FormatOptionConverter.getDecimalValue(this.resultData['data'][0].valueRange[uiOption.layers[0].color.column].maxValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
-     }
-
-     this.uiOption = uiOption;
-
-     // Set field list
-     this.fieldList = _.filter(this.uiOption.fieldList, (field) => {
-       let isNotGeoField: boolean = true;
-       _.each(this.pivot.columns, (dimension) => {
-         if( _.eq(field, dimension.name)
-            && (_.eq(dimension.field.logicalType, "GEO_POINT") || _.eq(dimension.field.logicalType, "GEO_LINE") || _.eq(dimension.field.logicalType, "GEO_POLYGON")) ) {
-           isNotGeoField = false;
-         }
-       });
-       return isNotGeoField;
-     });
-
-   }
-
-
-   /**
-    * Chart - 맵차트 레이어 타입
-    * @param type
-    */
-   public mapLayerType(type: string): void {
-     let geomType = "GEO_POINT";
-
-     for(let dimension of this.uiOption.fielDimensionList) {
-       if(dimension.field.logicalType.toString().indexOf('GEO') > -1 && dimension["layerNum"] && dimension["layerNum"] === 1) {
-         geomType = dimension.field.logicalType.toString();
-         break;
-       }
-     }
-
-     if(geomType === "GEO_POINT") {
-       if(type === "symbol" || type === "heatmap" || type === "tile") {
-         console.log("point");
-       } else {
-         return;
-       }
-     } else if(geomType === "GEO_LINE") {
-       if(type === "line") {
-         console.log("line");
-       } else {
-         return;
-       }
-     } else if(geomType === "GEO_POLYGON") {
-       if(type === "polygon") {
-         console.log("polygon");
-       } else {
-         return;
-       }
-     }
-
-     if(type === "heatmap" && this.color["by"] === "DIMENSION") {
-       this.color["by"] = "NONE";
-       this.color["schema"] = "#602663";
-     }
-
-     this.type = type;
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   /**
-    * Chart - 레이어 심볼 타입
-    * @param SymbolType
-    */
-   public symbolType(symbolType: string): void {
-
-     this.symbol = symbolType;
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   /**
-    * Chart - 레이어 타일 타입
-    * @param tileType
-    */
-   public tileType(tileType: string): void {
-
-     this.tile = tileType;
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   // color type show hide 설정
-   public colorTypeFlag: boolean = false;
-
-   // color column show hide 설정
-   public colorColumnFlag: boolean = false;
-
-   // size type show hide 설정
-   public sizeTypeFlag: boolean = false;
-
-   // thickness type show hide 설정
-   public thicknessTypeFlag: boolean = false;
-
-   // size column show hide 설정
-   public sizeColumnFlag: boolean = false;
-
-   // 투명도 설정
-   public transparencyFlag: boolean = false;
-
-   // 흐림 설정
-   public blurFlag: boolean = false;
-
-   // 반경 설정
-   public radiusFlag: boolean = false;
-
-   // Tile Resolution 설정
-   public resolutionFlag: boolean = false;
-
-   // Line Dashtype 설정
-   public lineDashTypeFlag: boolean = false;
-
-   /**
-    * 컬러타입 변경시
-    * @param type 컬러타입 (series(default), dimension)
-    */
-   public changeColorType(colorType: string) {
-
-     this.color['by'] = colorType;
-
-     // default schema
-     if(colorType === 'NONE') {
-       this.color['schema'] = '#602663';
-     } else if(colorType === 'DIMENSION') {
-       this.color['schema'] = 'SC1';
-       this.color['ranges'] = this.setDimensionColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.color['schema']]);
-       // init column
-       if (this.uiOption.layers[0]) {
-         if (!this.uiOption.layers[0].color) this.uiOption.layers[0].color = {};
-         this.uiOption.layers[0].color['column'] = "NONE";
-       }
-     } else if(colorType === 'MEASURE') {
-       this.color['schema'] = 'VC1';
-       this.color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.color['schema']]);
-       // init column
-       if (this.uiOption.layers[0]) {
-         if (!this.uiOption.layers[0].color) this.uiOption.layers[0].color = {};
-         this.uiOption.layers[0].color['column'] = "NONE";
-       }
-     }
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   /**
-    * 팔레트 색상을 변경한다
-    */
-   public changeColor(color: Object, gridColor?: Object) {
-
-     // 차트 타입이 MEASURE인경우
-     if (this.uiOption.layers[0].color.by === 'MEASURE') {
-
-       this.uiOption.layers[0].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[color['colorNum']]);
-
-       // // 선택된 컬러를 변수에 설정
-       // if( _.eq(this.uiOption.type, ChartType.GRID) ) {
-       //   this.selectedMeasureColor = color;
-       //   color = gridColor;
-       // }
-     }
-     // 차트 타입이 DIMENSION인경우
-     else if (this.uiOption.layers[0].color.by === 'DIMENSION') {
-       this.uiOption.layers[0].color['ranges'] = this.setDimensionColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[color['colorNum']]);
-     } else {
-       // 선택된 컬러를 변수에 설정
-       this.selectedDefaultColor = color;
-     }
-
-     // color by series일때 사용자 색상지정(mapping) 설정
-     this.setUserCodes(color);
-
-     this.color['schema'] = color['colorNum'];
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     // update
-     this.update();
-   }
-
-   /**
-    * 투명도 변경시
-    * @param transparency 투명도
-    */
-   public changeTransparency(transparency: number) {
-
-     this.color['transparency'] = transparency;
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   /**
-    * 흐림 변경시
-    * @param blur 흐림
-    */
-   public changeBlur(blur: number) {
-
-     this.blur = blur;
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-
-
-   /**
-    * 반경 변경시
-    * @param radius 반경
-    */
-   public changeRadius(radius: number) {
-
-     this.radius = radius;
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   /**
-    * Tile Resolution 변경시
-    * @param resolution
-    */
-   public changeResolution(resolution: number) {
-
-     let precision = 5;
-     switch (resolution) {
-      case 10:
-        precision = 5;
-        break;
-      case 9:
-        precision = 6;
-        break;
-      case 8:
-        precision = 7;
-        break;
-      case 7:
-        precision = 8;
-        break;
-      case 6:
-        precision = 9;
-        break;
-      case 5:
-        precision = 10;
-        break;
-      default:
-        precision = 5;
-     }
-
-     this.coverage = resolution;
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     //query할때 precision 값 전달하기 위해..
-     this.pivot.columns[0]["precision"] = precision;
-
-     this.update({});
-   }
-
-   /**
-    * 사이즈 타입 변경시
-    * @param type 사이즈타입 (series(default), dimension)
-    */
-   public changeSizeType(sizeType: string) {
-
-     this.size['by'] = sizeType;
-
-     // default schema
-     if(sizeType === 'NONE') {
-
-     } else if(sizeType === 'MEASURE') {
-
-       // init column
-       if (this.uiOption.layers[0]) {
-         if (!this.uiOption.layers[0].size) this.uiOption.layers[0].size = {};
-         this.uiOption.layers[0].size['column'] = "NONE";
-         this.clustering = false;
-       }
-     }
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   /**
-    * 선형 타입 변경시
-    * @param type 사이즈타입 (series(default), dimension)
-    */
-   public changeThicknessType(sizeType: string) {
-
-     this.thickness['by'] = sizeType;
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   /**
-    * 선형 컬럼 변경시
-    * @param sizeCol 사이즈컬럼 (series(default), dimension)
-    */
-   public changeThicknessColumn(sizeCol: string) {
-
-     this.thickness['column'] = sizeCol;
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   /**
-    * 사이즈 컬럼 변경시
-    * @param sizeCol 사이즈컬럼 (series(default), dimension)
-    */
-   public changeSizeColumn(sizeCol: string) {
-
-     this.size['column'] = sizeCol;
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   /**
-    * 컬러 컬럼 변경시
-    * @param colorCol 컬러컬럼 (series(default), dimension)
-    */
-   public changeColorColumn(colorCol: string) {
-
-     this.color['column'] = colorCol;
-
-     if(this.color['by'] === "MEASURE") {
-       this.color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.uiOption.layers[0].color['schema']]);
-     } else if(this.color['by'] === "DIMENSION") {
-       this.color['ranges'] = this.setDimensionColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.uiOption.layers[0].color['schema']]);
-     }
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   /**
-    * Chart - 아웃라인 타입
-    * @param outlineType
-    */
-   public outlineType(outlineType: string): void {
-
-     this.outline['thickness'] = outlineType;
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   /**
-    * Chart - 라인 유형
-    * @param lineDashType
-    */
-   public lineDashType(lineDashType: string): void {
-
-     this.pathType = lineDashType;
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   /**
-    * outline on/off
-    */
-   public changeOutlineFlag() {
-     if(this.outline['thickness'] !== 'NONE') {
-       this.outline['thickness'] = 'NONE';
-     } else {
-       this.outline['thickness'] = 'THIN';
-     }
-
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   /**
-    * cluster on/off
-    */
-   public changeClusteringFlag() {
-
-     this.clustering = !this.clustering;
-
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   /**
-    * view raw data on/off
-    */
-   public changeViewRawDataFlag() {
-
-     this.viewRawData = !this.viewRawData;
-
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     //query할때 원본보기 선택하기 위해..
-     this.pivot.columns[0]["viewRawData"] = this.viewRawData;
-
-     this.update({});
-   }
-
-   /**
-    * feature single color
-    */
-   public selectSingleColor(event: any) {
-     this.color['schema'] = event;
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   /**
-    * feature outline color
-    */
-   public selectOutlineColor(event: any) {
-     this.outline['color'] = event;
-
-     // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     this.update();
-   }
-
-   /**
-    * 레이어명을 변경한다.
-    */
-   public changeLayerName() {
-     this.name = this.uiOption.layers[0].name;
-
-     // 해당 레이어명으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     // update
-     this.update();
-   }
-
-   /**
-    * line max width
-    */
-   public changeStrokeMaxWidth() {
-     this.thickness = this.uiOption.layers[0].thickness;
-
-     // 해당 레이어명으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-     // update
-     this.update();
-   }
-
-   public changeLayerOption() {
-     this.layerOptions = [{
-       type: this.type,
-       name: this.name,
-       symbol: this.symbol,
-       color: this.color,
-       size: this.size,
-       outline: this.outline,
-       clustering: this.clustering,
-       viewRawData: this.viewRawData,
-       blur: this.blur,
-       radius: this.radius,
-       coverage: this.coverage,
-       thickness: this.thickness,
-       pathType: this.pathType
-     },this.uiOption.layers[1],this.uiOption.layers[2]];
-
-     // when color column is none or empty, set default column
-     if (this.uiOption.layers && this.uiOption.layers.length > 0 &&
-         'NONE' == this.uiOption.layers[0].color['column'] || !this.uiOption.layers[0].color['column']) {
-
-       if (!this.uiOption.layers[0].color) this.uiOption.layers[0].color = {};
-
-       const colorType = this.uiOption.layers[0].color.by;
-
-       // when it's dimension, set default column
-       if ('DIMENSION' === colorType) {
-
-         this.uiOption.layers[0].color['column'] = this.uiOption.fieldList[0];
-
-         // when it's measure, set default column
-       } else if ('MEASURE' === colorType && this.uiOption["measureList"] && this.uiOption["measureList"][0].length > 0) {
-
-         this.uiOption.layers[0].color['column'] = this.uiOption["measureList"][0][0];
-       }
-     }
-
-     // when size column is none or empty, set default column
-     if (this.uiOption.layers && this.uiOption.layers.length > 0 &&
-         'NONE' == this.uiOption.layers[0].size['column'] || !this.uiOption.layers[0].size['column']) {
-
-       if (!this.uiOption.layers[0].size) this.uiOption.layers[0].size = {};
-
-       const sizeType = this.uiOption.layers[0].size.by;
-
-         // when it's measure, set default column
-       if ('MEASURE' === sizeType && this.uiOption["measureList"] && this.uiOption["measureList"][0].length > 0) {
-
-         this.uiOption.layers[0].size['column'] = this.uiOption["measureList"][0][0];
-       }
-     }
-
-     if(this.color['customMode']) {
-       this.rangesViewList = this.color['ranges'];
-     }
-
-     return this.layerOptions;
-   }
-
-   /**
-    * 옵션관련 숫자값 문자형으로 변환
-    * @param type, val
-    * @return string
-    */
-   public translateNumber(type: string, val: number) {
-     let resultVal = '';
-
-     if(type === 'heatmapBlur') {
-       if(val === 5) {
-         resultVal = '0%';
-       } else if(val === 10) {
-         resultVal = '20%';
-       } else if(val === 15) {
-         resultVal = '40%';
-       } else if(val === 20) {
-         resultVal = '60%';
-       } else if(val === 25) {
-         resultVal = '80%';
-       } else if(val === 30) {
-         resultVal = '100%';
-       }
-     }
-
-     if(type === 'heatmapRadius') {
-       if(val === 4) {
-         resultVal = '0%';
-       } else if(val === 10) {
-         resultVal = '20%';
-       } else if(val === 16) {
-         resultVal = '40%';
-       } else if(val === 22) {
-         resultVal = '60%';
-       } else if(val === 28) {
-         resultVal = '80%';
-       } else if(val === 34) {
-         resultVal = '100%';
-       }
-     }
-
-     if(type === 'hexagonRadius') {
-       if(val === 10) {
-         resultVal = '100%';
-       } else if(val === 9) {
-         resultVal = '80%';
-       } else if(val === 8) {
-         resultVal = '60%';
-       } else if(val === 7) {
-         resultVal = '40%';
-       } else if(val === 6) {
-         resultVal = '20%';
-       } else if(val === 5) {
-         resultVal = '0%';
-       }
-     }
-
-     if(type === 'transparency') {
-       if(val === 80) {
-         resultVal = '20%';
-       } else if(val === 60) {
-         resultVal = '40%';
-       } else if(val === 40) {
-         resultVal = '60%';
-       } else if(val === 20) {
-         resultVal = '80%';
-       } else if(val === 0) {
-         resultVal = '100%';
-       }
-     }
-
-     return resultVal;
-   }
-
-   /**
-    * mapping, mappingArray값 설정
-    * @param color
-    * @returns {string[]}
-    */
-   private setUserCodes(color: Object): Object {
-
-     // // color by series가 아닐거나 mapping값이 없을때 return
-     // if ((!_.eq(ChartColorType.SERIES, this.uiOption.layers[0].color.type) && !_.eq(ChartType.GAUGE, this.uiOption.type)) || (_.eq(ChartType.GAUGE, this.uiOption.type) && !_.eq(ChartColorType.DIMENSION, this.uiOption.layers[0].color.type))  || !(<UIChartColorBySeries>this.uiOption.layers[0].color).mapping) return;
-     //
-     // // 기존 색상 리스트
-     // const colorList = ChartColorList[(<UIChartColorBySeries>this.uiOption.layers[0].color).schema];
-     // (<UIChartColorBySeries>this.uiOption.layers[0].color).mappingArray.forEach((item, index) => {
-     //
-     //   // 다른코드값이 아닌경우
-     //   if (_.eq(colorList[index], item['color'])) {
-     //     const changedColorList = ChartColorList[color['colorNum']];
-     //
-     //     (<UIChartColorBySeries>this.uiOption.layers[0].color).mapping[item['alias']] = changedColorList[index];
-     //     (<UIChartColorBySeries>this.uiOption.layers[0].color).mappingArray[index]['color'] = changedColorList[index];
-     //   }
-     // });
-     //
-
-     return (<UIChartColorBySeries>this.uiOption.layers[0].color);
-   }
-
-   /**
-    * 타입이 series, diemnsion일때 코드값이 같은경우 해당 코드 리스트에서 index를 가져온다
-    * @returns {any}
-    */
-   public checkDefaultSelectedColor(): number {
-     // 컬러리스트에서 같은 코드값을 가지는경우
-     for (const item of this.defaultColorList) {
-
-       // 코드값이 같은경우
-       if (JSON.stringify(this.uiOption.layers[0].color['schema']) === JSON.stringify(item['colorNum'])) {
-
-         return item['index'];
-       }
-     }
-   }
-
-   /**
-    * 타입이 measure일때 코드값이 같은경우 해당 코드 리스트에서 index를 가져온다
-    * @returns {any}
-    */
-   public checkMeasureSelectedColor(): void {
-
-     let colorList: Object[] = [];
-
-     // measure color list 합치기
-     colorList = colorList.concat(this.measureColorList);
-     colorList = colorList.concat(this.measureReverseColorList);
-
-     // 컬러리스트에서 같은 코드값을 가지는경우
-     for (const item of colorList) {
-
-       // 코드값이 같은경우
-       if (JSON.stringify(this.uiOption.layers[0].color['schema']) === JSON.stringify(item['colorNum'])) {
-
-         return item['index'];
-       }
-     }
-
-     // colorList = [];
-     //
-     // // Grid용: measure color list 합치기
-     // colorList = colorList.concat(this.measureColorList);
-     // colorList = colorList.concat(this.measureReverseColorList);
-     //
-     // // 컬러리스트에서 같은 코드값을 가지는경우
-     // for (const item of colorList) {
-     //
-     //   // 코드값이 같은경우
-     //   if (JSON.stringify(this.uiOption.layers[0].color['schema']) === JSON.stringify(item['colorNum'])) {
-     //
-     //     return item['index'];
-     //   }
-     // }
-   }
-
-   /**
-    * 컬러리스트버튼 toggle시
-    */
-   public toggleColorList() {
-
-     // colostListFlag 반대값 설정
-     this.colorListFlag = !this.colorListFlag;
-   }
-
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Constructor
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
-  constructor(private datasourceService: DatasourceService,
-              protected elementRef: ElementRef,
-              protected injector: Injector,
-              private zone: NgZone) {
+  constructor(protected elementRef: ElementRef,
+              protected injector: Injector) {
 
     super(elementRef, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Override Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * all layers - change layer name
+   */
+  public changeLayerName(name : string) {
 
-  // Init
-  public ngOnInit() {
+    this.uiOption.layers[this.index].name = name;
 
-    this.type = this.uiOption.layers[0].type;
-    this.name = this.uiOption.layers[0].name;
-    this.symbol = this.uiOption.layers[0].symbol;
-    this.color = this.uiOption.layers[0].color;
-    this.size = this.uiOption.layers[0].size;
-    this.outline = this.uiOption.layers[0].outline;
-    this.clustering = this.uiOption.layers[0].clustering;
-
-    if(this.color['customMode']) {
-      this.rangesViewList = this.uiOption.layers[0].color['ranges'];
-    }
-
-    this.changeLayerOption();
-
-    //timeout 없으면 가끔 slider가 textbox로 생성됨
-    if(this.type === "heatmap") {
-      setTimeout(
-        () => {
-          this.setBlurSlider();
-          this.setRadiusSlider();
-        }
-      );
-    } else if(this.type === "tile") {
-      setTimeout(
-        () => {
-          this.setResolutionSlider();
-        }
-      );
-    }
-
-    // Init
-    super.ngOnInit();
+    // apply layer ui option
+    this.applyLayers();
   }
-
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
-  }
-
-
-  // Color Option
 
   /**
-   * color range on / off 버튼 변경시
+   * symbol layer - change layer type
+   * @param {MapLayerType} layerType
    */
-  public changeColorRange() {
+  public changeSymbolLayerType(layerType : MapLayerType) {
 
-    let colorOption = <any>this.uiOption.layers[0].color;
+    if (this.uiOption.layers[this.index].type === layerType) return;
 
-    // custom color setting이 없을때
-    if (!this.uiOption.layers[0].color['customMode']) {
+    // deep copy layer type
+    let cloneLayerType = _.cloneDeep(this.uiOption.layers[this.index].type);
 
-      colorOption['customMode'] = ColorCustomMode.SECTION;
+    // change layer type
+    this.uiOption.layers[this.index].type = layerType;
 
-      // ranges 값이 없는경우 uiOption update
-      if (!(<UIChartColorByValue>this.uiOption.layers[0].color).ranges) {
+    // init color ranges
+    this.uiOption.layers[this.index].color.ranges = undefined;
+    // hide custom color
+    this.uiOption.layers[this.index].color['settingUseFl'] = false;
 
-        const ranges = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.uiOption.layers[0].color['schema']]);
-
-        this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).schema;
-        this.color['customMode'] = (<UIChartColorByValue>this.uiOption.layers[0].color).customMode;
-        this.color['ranges'] = ranges;
-        this.rangesViewList = ranges;
-
+    // change color type by layer type
+    if (MapLayerType.HEATMAP === layerType) {
+      this.uiOption.layers[this.index].color.schema = 'HC1';
+      if( isNullOrUndefined(this.uiOption.layers[this.index]['blur']) ) {
+        this.uiOption.layers[this.index]['blur'] = 20;
       }
-    // color range hide일때
-    } else {
+      this.uiOption.layers[this.index]['radius'] = 20;
 
-    let ranges = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], <any>ChartColorList[(<UIChartColorBySeries>this.uiOption.layers[0].color).schema]);
-      // color by measure기본 ranges값으로 초기화
+      // remove measure aggregation type in shelf
+      this.removeAggregationType();
 
-      this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).schema;
-      this.color['ranges'] = ranges;
-      this.color['customMode'] = null;
+    } else if (MapLayerType.SYMBOL === layerType) {
+      // set color by shelf
+      this.uiOption.layers[this.index] = this.setColorByShelf(false);
 
-    }
+      // add color by dimension list
+      if (this.dimensionList.length > 0 && -1 === _.findIndex(this.colorByList, {'value' : MapBy.DIMENSION})) {
+        this.colorByList.splice(1, 0, {name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION});
+      }
 
-    // this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-    //   color: colorOption
-    // });
+      // remove measure aggregation type in shelf
+      this.removeAggregationType();
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-     layers: this.changeLayerOption()
-   });
+    } else if (MapLayerType.TILE === layerType) {
+      // set color by shelf
+      this.uiOption.layers[this.index] = this.setColorByShelf(true);
+      this.uiOption.layers[this.index]['radius'] = 20;
 
-    this.update();
-  }
+      // remove color by dimension list
+      _.remove(this.colorByList, {'value' : MapBy.DIMENSION});
 
-
-  /**
-   * 사용자 색상설정 타입 선택시
-   */
-  public selectColorRangeType(customMode: Object): void {
-
-    if (this.uiOption.layers[0].color['customMode'] == customMode['value']) return;
-
-    // 선택된 customMode 설정
-    this.uiOption.layers[0].color['customMode'] = customMode['value'];
-
-    // case gradation
-    if (ColorCustomMode.GRADIENT == customMode['value']) {
-      delete this.uiOption.layers[0].color['ranges'];
-      delete this.uiOption.layers[0].color['visualGradations'];
-      // gradation range initialize
-      const obj = this.gradationInit(this.uiOption.layers[0].color['ranges'], true);
-
-      this.uiOption.layers[0].color['ranges'] = obj['ranges'];
-      this.rangesViewList = this.uiOption.layers[0].color['ranges'];
-      this.uiOption.layers[0].color['visualGradations'] = obj['visualGradations'];
-    // section일때
-    } else if (ColorCustomMode.SECTION == customMode['value']) {
-      delete this.uiOption.layers[0].color['ranges'];
-      delete this.uiOption.layers[0].color['visualGradations'];
-      // range initialize
-      this.uiOption.layers[0].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], <any>ChartColorList[this.uiOption.layers[0].color['schema']]);
-      this.rangesViewList = this.uiOption.layers[0].color['ranges'];
-    }
-
-    this.minValue = this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue;
-    this.maxValue = this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].maxValue;
-
-    // this.uiOption = <UIOption>_.extend({}, this.uiOption, {color : this.uiOption.layers[0].color});
-
-    this.color = this.uiOption.layers[0].color;
-
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-    this.update();
-  }
-
-  /**
-   * 그라데이션 초기화설정
-   */
-  private gradationInit(gradations: Object[], initFl?: boolean): Object {
-
-    let colorList = ChartColorList[this.uiOption.layers[0].color['schema']];
-
-    const minValue = parseInt(this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue.toFixed(0));
-    const maxValue = parseInt(this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].maxValue.toFixed(0));
-
-    if (!gradations || gradations.length == 0) {
-      gradations = [
-        {
-          color: colorList[0],
-          position: -4,
-          value: minValue
-        },
-        {
-          color: colorList[colorList.length - 1],
-          position: 193,
-          value: maxValue
-        }
-      ];
-    }
-
-    let data : Object= {min: minValue, max: maxValue, separateValue: this.separateValue, positionMin: -4, positionMax : 193};
-
-    this.changeDetect.detectChanges();
-
-    // gradation initialize
-    const obj = this.gradationComp.init(gradations, data, initFl);
-
-    // change emit이 안타는경우 type이 없을때 type값 설정
-    if (initFl) obj['ranges'].forEach((item) => {if (!item['type']) {item['type'] = ColorRangeType.GRADIENT; return item} else { return item}});
-
-    return obj;
-  }
-
-  /**
-   * set minvalue zero by chart types
-   * @param {number} minValue
-   * @param {number} elseValue
-   */
-  private checkMinZero(minValue: number, elseValue: number) {
-
-    let returnValue: number = elseValue;
-
-    // switch(this.uiOption.type) {
-    //
-    //   // charts minvalue is zero
-    //   case ChartType.BAR:
-    //   case ChartType.LINE:
-    //   case ChartType.SCATTER:
-    //   case ChartType.BOXPLOT:
-    //   case ChartType.COMBINE:
-    //     if (minValue >= 0) returnValue = 0;
-    // }
-
-    return returnValue;
-  }
-
-  /**
-   * color by measure)데이터에 맞게 색상 범위 균등분할
-   */
-  public equalColorRange(): void {
-
-    // 색상 범위리스트
-    const rangeList = (<UIChartColorByValue>this.uiOption.layers[0].color).ranges;
-
-    let colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[0].color['schema']]);
-
-    // rangeList에서의 색상을 색상리스트에 설정
-    rangeList.reverse().forEach((item, index) => {
-
-      colorList[index] = item.color;
-    });
-
-    // set color ranges
-    this.uiOption.layers[0].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], colorList, rangeList);
-
-    // this.uiOption = <UIOption>_.extend({}, this.uiOption, { color : this.uiOption.layers[0].color });
-
-    this.color = this.uiOption.layers[0].color;
-
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-    this.update();
-  }
-
-  /**
-   * return ranges of color by measure
-   * @returns {any}
-   */
-  public setMeasureColorRange(uiOption, data, colorList: any, colorAlterList = []): ColorRange[] {
-
-    // return value
-    let rangeList = [];
-
-    let rowsListLength = data.features.length;
-
-    let gridRowsListLength = data.features.length;
-
-    // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
-    let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
-
-    // less than 0, set minValue
-    const minValue = data.valueRange[uiOption.layers[0].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].minValue);
-
-    // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-    const addValue = (data.valueRange[uiOption.layers[0].color.column].maxValue - minValue) / (colorListLength + 1);
-
-    let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].maxValue);
-
-    let shape;
-    // if ((<UIScatterChart>uiOption).pointShape) {
-    //   shape = (<UIScatterChart>uiOption).pointShape.toString().toLowerCase();
-    // }
-
-    // set decimal value
-    const formatValue = ((value) => {
-      return parseFloat((Number(value) * (Math.pow(10, uiOption.valueFormat.decimal)) / Math.pow(10, uiOption.valueFormat.decimal)).toFixed(uiOption.valueFormat.decimal));
-    });
-
-    // decimal min value
-    let formatMinValue = formatValue(data.valueRange[uiOption.layers[0].color.column].minValue);
-    // decimal max value
-    let formatMaxValue = formatValue(data.valueRange[uiOption.layers[0].color.column].maxValue);
-
-    // set ranges
-    for (let index = colorListLength; index >= 0; index--) {
-
-      let color = colorList[index];
-
-      // set the biggest value in min(gt)
-      // if (colorListLength == index) {
-      //
-      //   rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, formatMaxValue, null, formatMaxValue, null, shape));
-      //
-      // } else {
-        // if it's the last value, set null in min(gt)
-        let min = 0 == index ? null : formatValue(maxValue - addValue);
-
-        // if value if lower than minValue, set it as minValue
-        if (min < data.valueRange.minValue && min < 0) min = _.cloneDeep(formatMinValue);
-
-          rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, formatValue(maxValue), min, formatValue(maxValue), shape));
-
-        maxValue = min;
+      // if( isNullOrUndefined(this.uiOption.layers[this.index]['coverage']) ) {
+      //   this.uiOption.layers[this.index]['coverage'] = 0.9;
       // }
+
+      // add measure aggregation type in shelf
+      this.addAggregationType();
     }
 
-    return rangeList;
+    // set measure list
+    this.setMeasureDimensions(this.shelf, true);
+
+    if ((MapLayerType.TILE === cloneLayerType || MapLayerType.TILE === layerType) && cloneLayerType !== layerType) {
+
+      // call search api (for precision setting)
+      this.applyLayers({type : EventType.CHANGE_PIVOT});
+      return;
+    }
+
+    // apply layer ui option
+    this.applyLayers();
   }
 
   /**
-   * return ranges of color by dimension
-   * @returns {any}
+   * symbol layer - change symbol type
+   * @param {SymbolType} symbolType
    */
-  public setDimensionColorRange(uiOption, data, colorList: any, colorAlterList = []): ColorRange[] {
+  public changeSymbolType(symbolType: MapSymbolType) {
 
-    // return value
-    let rangeList = [];
+    (<UISymbolLayer>this.uiOption.layers[this.index]).symbol = symbolType;
 
-    let featureList = [];
-
-    for(var i=0;i<this.resultData[0].features.length;i++) {
-      featureList.push(this.resultData[0].features[i].properties)
-    }
-
-    let featuresGroup = _.groupBy(featureList, uiOption.layers[0].color.column);
-
-    for(var i=0;i<Object.keys(featuresGroup).length;i++) {
-
-      let col = Object.keys(featuresGroup)[i];
-      let color = colorList[featuresGroup[Object.keys(featuresGroup)[i]].length % colorList.length];
-
-      rangeList.push({column:col, color:color});
-    }
-
-    return rangeList;
+    // apply layer ui option
+    this.applyLayers();
   }
 
   /**
-   * 그라데이션 색상을 클릭시 input박스에 값설정
-   * @param item
-   * @param index
-   */
-  public showGradationColor(item, index) {
-
-    // 선택된 값이 있는경우 => input박스 height값만큼 color picker top위치 내려줌
-    if (undefined == this.gradationIndex && undefined !== item.value) {
-      let top = $('.sp-container').not('.sp-hidden').offset().top;
-      top += 30;
-      $('.sp-container').not('.sp-hidden').css({top : top});
-    }
-
-    // 현재 그라데이션 리스트에서 선택된 index
-    this.gradationIndex = index;
-
-    // 리스트에서의 선택클래스 해제
-    this.$element.find('.ddp-box-color').not('#ddp-box-color-' + index).find('.sp-replacer').removeClass('sp-active');
-
-    // gradation바의 선택클래스 해제
-    this.gradationComp.unselectSlider(item.index);
-
-  }
-
-  /**
-   * 그라데이션 색상팝업이 닫힐때 그라데이션슬라이더도 클릭해제
+   * all layers - change transparency
+   * @param obj
+   * @param slider
    * @param {number} index
    */
-  public hideGradationColor(index?: number) {
+  public changeTransparency(obj: any, slider: any, index: number) {
+    this.uiOption.layers[index].color.transparency = slider.from;
+    this.applyLayers();
+  }
 
-    if (!$(event.target).attr('class')) return;
+  /**
+   * all layers - change transparency
+   * @param $event
+   * @param {number} index
+   */
+  public changeTransparencyText($event: any, index: number) {
 
-    // 그라데이션 슬라이더 선택시
-    if (-1 !== $(event.target).attr('class').indexOf('gradx_slider')) {
+    let inputValue = parseFloat($event.target.value);
 
-      // 현재 그라데이션 리스트에서 선택된 index
-      this.gradationIndex = undefined;
-
-    // 인풋박스, 리스트, 추가버튼 선택이 아닐때
-    } else if (-1 == $(event.target).attr('class').indexOf('ddp-input-txt') &&
-        -1 == $(event.target).attr('class').indexOf('sp-preview-inner') &&
-        -1 == $(event.target).attr('class').indexOf('ddp-icon-apply') &&
-        -1 == $(event.target).attr('class').indexOf('ddp-list-blank')) {
-
-      // 다른 선택된 클래스 제거
-      this.$element.find('.ddp-box-color').find('.sp-replacer').removeClass('sp-active');
-
-      // currentValue 화면에 반영
-      this.changeDetect.detectChanges();
-
-      this.gradationComp.unselectSlider();
-
-      // 현재 그라데이션 리스트에서 선택된 index
-      this.gradationIndex = undefined;
-
-    // 인풋박스일때
-    } else if (null !== index && -1 !== $(event.target).attr('class').indexOf('ddp-input-txt')) {
-      // 선택해제된 클래스 재설정
-      this.$element.find('#ddp-box-color-' + index + ' .sp-replacer').addClass('sp-active');
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
+      $event.target.value = this.uiOption.layers[index].color.transparency;
+      return;
+    } else {
+      this.uiOption.layers[index].color.transparency = inputValue;
+      this.applyLayers();
     }
   }
 
   /**
-   * 새로운 색상범위 추가버튼클릭시
+   * symbol, polygon layer - toggle outline
+   * @param {MapOutline} outline
+   */
+  public toggleOutline(outline: MapOutline) {
+
+    if (outline) {
+      outline = null;
+    } else outline = <any>{color : '#4f4f4f', thickness : MapThickness.NORMAL};
+
+    if (MapLayerType.SYMBOL === this.uiOption.layers[this.index].type) {
+      (<UISymbolLayer>this.uiOption.layers[this.index]).outline = outline;
+
+    } else if (MapLayerType.POLYGON === this.uiOption.layers[this.index].type) {
+      (<UIPolygonLayer>this.uiOption.layers[this.index]).outline = outline;
+    }
+
+    this.applyLayers();
+  }
+
+  /**
+   * symbol, polygon layer - change thickness
+   * @param {MapThickness} thickness
+   */
+  public changeThick(thickness: MapThickness) {
+
+    if (MapLayerType.SYMBOL === this.uiOption.layers[this.index].type) {
+      (<UISymbolLayer>this.uiOption.layers[this.index]).outline.thickness = thickness;
+
+    } else if (MapLayerType.POLYGON === this.uiOption.layers[this.index].type) {
+      (<UIPolygonLayer>this.uiOption.layers[this.index]).outline.thickness = thickness;
+    }
+
+    this.applyLayers();
+  }
+
+  /**
+   * symbol, polygon layer - clustering
+   */
+  public isEnableClustering() {
+    (<UISymbolLayer>this.uiOption.layers[this.index]).clustering = !(<UISymbolLayer>this.uiOption.layers[this.index]).clustering;
+    this.applyLayers();
+  }
+
+  public changeClustering(obj: any, $event: any, index: number) {
+    this.uiOption.layers[index]['coverage']= $event.from;
+    this.applyLayers();
+  }
+
+  public changeClusteringText($event: any, index: number) {
+    let inputValue = parseFloat($event.target.value);
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
+      $event.target.value = (<UISymbolLayer>this.uiOption.layers[index])['coverage'];
+      return;
+    } else {
+      (<UISymbolLayer>this.uiOption.layers[index])['coverage'] = inputValue;
+      this.applyLayers();
+    }
+  }
+
+  /**
+   * return default index in list
+   * @param {Object[]} list
+   * @param {string} key
+   * @param value
+   * @returns {number}
+   */
+  public findIndex(list: Object[], key: string, value: any, optionalKey?: string, optionalValue?: any) {
+
+    if (optionalKey && optionalValue) {
+      return _.findIndex(list, {[key] : value, [optionalKey]: optionalValue});
+    }
+    return _.findIndex(list, {[key] : value});
+  }
+
+  /**
+   * all layers - set color by
+   * @param {Object} data
+   */
+  public changeColorBy(data: Object) {
+
+    if (this.uiOption.layers[this.index].color.by === data['value']) return;
+
+    // init color ranges
+    this.uiOption.layers[this.index].color.ranges = undefined;
+    // hide custom color
+    this.uiOption.layers[this.index].color['settingUseFl'] = false;
+
+    this.uiOption.layers[this.index].color.by = data['value'];
+
+    this.uiOption.layers[this.index].color.aggregationType = undefined;
+
+    // set schema by color type
+    if (MapBy.DIMENSION === data['value']) {
+      this.uiOption.layers[this.index].color.schema = 'SC1';
+
+      // only set column when dimension column exsists
+      if (this.dimensionList && this.dimensionList.length > 0) {
+        this.uiOption.layers[this.index].color.column = this.dimensionList[0]['name'];
+      } else {
+        this.uiOption.layers[this.index].color.column = '';
+      }
+
+    } else if (MapBy.MEASURE === data['value']) {
+      this.uiOption.layers[this.index].color.schema = 'VC1';
+
+      // only set column when measure column exsists
+      if (this.measureList && this.measureList.length > 0) {
+        this.uiOption.layers[this.index].color.column = this.measureList[0]['name'];
+        this.uiOption.layers[this.index].color.aggregationType = this.measureList[0]['aggregationType'];
+
+      } else {
+        this.uiOption.layers[this.index].color.column = '';
+      }
+
+      const colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[this.index].color['schema']]);
+
+      // not heatmap => set ranges
+      if (MapLayerType.HEATMAP !== this.uiOption.layers[this.index].type && MapBy.MEASURE === this.uiOption.layers[this.index].color.by) {
+        this.uiOption.layers[this.index].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[0], colorList, this.index, this.shelf.layers[this.index], []);
+      }
+
+    } else if (MapBy.NONE === data['value']) {
+      this.uiOption.layers[this.index].color.schema = '#6344ad';
+      this.uiOption.layers[this.index].color.column = '';
+    }
+
+    this.applyLayers();
+  }
+
+  /**
+   * all layers - change color column (color by dimension, measure)
+   * @param {Object} data
+   */
+  public changeColorColumn(data: Field) {
+
+    if (this.uiOption.layers[this.index].color.column === data.name && (!data.aggregationType || (data.aggregationType && this.uiOption.layers[this.index].color.aggregationType === data.aggregationType))) return;
+
+    this.uiOption.layers[this.index].color.column = data.name;
+
+    // measure
+    if ('measure' === data.type) {
+      this.uiOption.layers[this.index].color.aggregationType = data.aggregationType;
+      this.uiOption.layers[this.index].color.granularity = null;
+      // init ranges
+      const colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[this.index].color['schema']]);
+      this.uiOption.layers[this.index].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[0], colorList, this.index, this.shelf.layers[this.index], []);
+    // granularity
+    } else {
+      if (data.format) this.uiOption.layers[this.index].color.granularity = data.format.unit.toString();
+      this.uiOption.layers[this.index].color.aggregationType = null;
+    }
+
+    this.applyLayers();
+  }
+
+  /**
+   * line layer - stroke by
+   * @param {Object} data
+   */
+  public changeStrokeBy(data: Object) {
+
+    (<UILineLayer>this.uiOption.layers[this.index]).thickness.by = data['value'];
+
+    (<UILineLayer>this.uiOption.layers[this.index]).thickness.aggregationType = undefined;
+
+    if (MapBy.MEASURE === data['value']) {
+
+      // only set column when measure column exsists
+      if (this.measureList && this.measureList.length > 0) {
+        (<UILineLayer>this.uiOption.layers[this.index]).thickness.column = this.measureList[0]['name'];
+        (<UILineLayer>this.uiOption.layers[this.index]).thickness.aggregationType = this.measureList[0]['aggregationType'];
+      } else {
+        (<UILineLayer>this.uiOption.layers[this.index]).thickness.column = '';
+      }
+    } else if (MapBy.NONE === data['value']) {
+      (<UILineLayer>this.uiOption.layers[this.index]).thickness.column = '';
+    }
+
+    this.applyLayers();
+  }
+
+  /**
+   * line layer - stroke column
+   * @param {Object} data
+   */
+  public changeStrokeColumn(data: Object) {
+
+    (<UILineLayer>this.uiOption.layers[this.index]).thickness.column = data['name'];
+    (<UILineLayer>this.uiOption.layers[this.index]).thickness.aggregationType = data['aggregationType'];
+
+    this.applyLayers();
+  }
+
+  /**
+   * line layer - stroke maxValue
+   * @param {number} maxValue
+   */
+  public changeThickMaxValue(event: any) {
+
+    const inputValue = parseFloat(event.target.value);
+
+    if (_.isEmpty(inputValue.toString()) || isNaN(inputValue)) {
+
+      event.target.value = (<UILineLayer>this.uiOption.layers[this.index]).thickness.maxValue;
+      return;
+    } else {
+
+      (<UILineLayer>this.uiOption.layers[this.index]).thickness.maxValue = inputValue;
+      this.applyLayers();
+    }
+  }
+
+  /**
+   * symbol layer - change size by
+   * @param {Object} data
+   */
+  public changeSizeBy(data: Object) {
+
+    (<UISymbolLayer>this.uiOption.layers[this.index]).size.by = data['value'];
+
+    // set column when size by is measure
+    if (MapBy.MEASURE === data['value']) {
+
+      if (this.measureList && this.measureList.length > 0) {
+        (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = this.measureList[0]['name'];
+      } else {
+        (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = '';
+      }
+    } else {
+      (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = '';
+    }
+
+    this.applyLayers();
+  }
+
+  /**
+   * symbol layer - change size column
+   * @param {Object} data
+   */
+  public changeSizeColumn(data: Field) {
+
+    (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = data.name;
+
+    this.applyLayers();
+  }
+
+  /**
+   * color by none - change color
+   * @param {string} colorCode
+   */
+  public changeByNoneColor(colorCode: string) {
+
+    this.uiOption.layers[this.index].color.schema = colorCode;
+
+    this.applyLayers();
+  }
+
+  /**
+   * heatmap layer - change blurs
+   * @param obj
+   * @param slider
+   * @param {number} index
+   */
+  public changeBlur(obj: any, slider: any, index: number) {
+    (<UIHeatmapLayer>this.uiOption.layers[index]).blur = slider.from;
+    this.applyLayers();
+  }
+  public changeBlurText($event: any, index: number) {
+
+    let inputValue = parseFloat($event.target.value);
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
+      $event.target.value = this.uiOption.layers[index]['blur'];
+      return;
+    } else {
+      (<UIHeatmapLayer>this.uiOption.layers[index]).blur = inputValue;
+      this.applyLayers();
+    }
+  }
+
+  /**
+   * heatmap layer - change radius
+   * @param obj
+   * @param slider
+   */
+  public changeRadius(obj: any, slider: any, index: number) {
+    (<UIHeatmapLayer>this.uiOption.layers[index]).radius = slider.from;
+    this.applyLayers();
+  }
+  public changeRadiusText($event: any, index: number) {
+    let inputValue = parseFloat($event.target.value);
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
+      $event.target.value = this.uiOption.layers[index]['radius'];
+      return;
+    } else {
+      (<UIHeatmapLayer>this.uiOption.layers[index]).radius = inputValue;
+      this.applyLayers();
+    }
+  }
+
+  /**
+   * hexagon layer - change radius
+   * @param obj
+   * @param slider
+   */
+  public changeHexagonRadius(obj: any, slider: any) {
+
+    (<UITileLayer>this.uiOption.layers[this.index]).radius = slider.from;
+    this.applyLayers({});
+  }
+
+  /**
+   * hexgon layer - change radius text
+   * @param event
+   */
+  public changeHexagonRadiusText(event: any) {
+
+    let inputValue = parseFloat(event.target.value);
+
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
+      event.target.value = (<UITileLayer>this.uiOption.layers[this.index]).radius;
+      return;
+    } else {
+      // when they are not same
+      if ((<UITileLayer>this.uiOption.layers[this.index]).radius !== inputValue) {
+        (<UITileLayer>this.uiOption.layers[this.index]).radius = inputValue;
+        this.applyLayers({});
+      }
+    }
+  }
+
+  /**
+   * tile(hexagon) layer - change coverage
+   * @param obj
+   * @param slider
+   */
+  public changeCoverage(obj: any, slider: any, index: number) {
+    (<UITileLayer>this.uiOption.layers[index]).coverage = slider.from;
+    // this.uiOption.layers[index]['coverage'] = slider.from;
+    this.applyLayers();
+  }
+  public changeCoverageText($event: any, index: number) {
+    let inputValue = parseFloat($event.target.value);
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 1 || inputValue < 0) {
+      $event.target.value = this.uiOption.layers[index]['coverage'];
+      return;
+    } else {
+      (<UITileLayer>this.uiOption.layers[index]).coverage = inputValue;
+      this.applyLayers();
+    }
+  }
+
+  /**
+   * change color
+   * @param data
+   */
+  public changeColor(data: any) {
+
+    this.uiOption.layers[this.index].color.schema = data.colorNum;
+
+    const colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[this.index].color['schema']]);
+
+    // not heatmap => set ranges
+    if (MapLayerType.HEATMAP !== this.uiOption.layers[this.index].type && MapBy.MEASURE === this.uiOption.layers[this.index].color.by) {
+      this.uiOption.layers[this.index].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[0], colorList, this.index, this.shelf.layers[this.index], []);
+    }
+
+    this.applyLayers();
+  }
+
+  /**
+   * find same color index in color list (heatmap, dimension)
+   * @param {Object[]} colorList
+   * @returns {any}
+   */
+  public findColorIndex(colorList: Object[]) {
+    if (this.colorTemplate) {
+      let obj = _.find(colorList, {colorNum : this.uiOption.layers[this.index].color.schema});
+      if (obj) return obj['index'];
+      return 1;
+    }
+    return 1;
+  }
+
+  /**
+   * find same color index in color list (measure)
+   * @returns {any}
+   */
+  public findMeasureColorIndex() {
+    if (this.colorTemplate) {
+      let obj = _.find(this.colorTemplate.measureColorList, {colorNum : this.uiOption.layers[this.index].color.schema});
+
+      if (obj) {
+        return obj['index'];
+      } else {
+        return _.find(this.colorTemplate.measureReverseColorList, {colorNum : this.uiOption.layers[this.index].color.schema})['index'];
+      }
+    }
+    return 1;
+  }
+
+  /**
+   * line layer - change line style
+   */
+  public changeLineStyle(lineStyle: MapLineStyle) {
+
+    (<UILineLayer>this.uiOption.layers[this.index]).lineStyle = lineStyle;
+
+    this.applyLayers();
+  }
+
+  /**
+   * symbol, polygon layer - change outline
+   * @param {string} colorCode
+   */
+  public changeOutlineColor(colorCode: string) {
+
+    (<UISymbolLayer>this.uiOption.layers[this.index]).outline.color = colorCode;
+
+    this.applyLayers();
+  }
+
+  /**
+   * symbol layer - change radius range (by none)
+   */
+  public changeNoneRadiusRange(obj: any, slider: any) {
+
+    (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[0] = slider.from;
+
+    this.applyLayers();
+  }
+
+  /**
+   * symbol layer - change radius range text (by none)
+   * @param event
+   * @param {number} index
+   */
+  public changeNoneRadiusRangeText(event: any) {
+
+    let inputValue = parseFloat(event.target.value);
+
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
+      event.target.value = (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[0];
+      return;
+    } else {
+      (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[0] = inputValue;
+      this.applyLayers();
+    }
+  }
+
+  /**
+   * symbol layer - change radius range (by measure)
+   */
+  public changeMeasureRadiusRange(obj: any, slider: any) {
+
+    (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[0] = slider.from;
+
+    this.applyLayers();
+  }
+
+  /**
+   * symbol layer - change radius range text (by measure)
+   */
+  public changeMeasureRadiusRangeText(event: any, index: number) {
+
+    let inputValue = parseFloat(event.target.value);
+
+    if( _.isEmpty(inputValue.toString()) || isNaN(inputValue) || inputValue > 100 || inputValue < 0) {
+      event.target.value = (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[index];
+      return;
+    } else {
+
+      // from
+      if (0 === index) {
+        (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[index] = inputValue;
+
+        // to
+      } else if (1 === index) {
+        (<UISymbolLayer>this.uiOption.layers[this.index]).size.radiusRange[index] = inputValue;
+      }
+
+      this.applyLayers();
+    }
+  }
+
+  /**
+   * 사용자 색상설정 show
+   */
+  public changeColorRange() {
+    // color setting show / hide 값 반대로 설정
+    this.uiOption.layers[this.index].color.settingUseFl = !this.uiOption.layers[this.index].color.settingUseFl;
+
+    let colorOption = this.uiOption.layers[this.uiOption.layerNum].color;
+
+    // custom user color is show, set ranges
+    const ranges = this.uiOption.layers[this.index].color.settingUseFl ? colorOption.ranges : [];
+
+    this.uiOption.layers[this.index].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[0], <any>ChartColorList[colorOption.schema], this.index, this.shelf.layers[this.index], ranges);
+
+    this.applyLayers();
+  }
+
+  /**
+   * change range min input
+   * @param range
+   * @param {number} index
+   */
+  public changeRangeMinInput(range: any, index: number): void {
+
+    // 색상 범위리스트
+    let rangeList = this.uiOption.layers[this.index].color.ranges;
+
+    if (!range.gt || isNaN(FormatOptionConverter.getNumberValue(range.gt))) {
+      // set original value
+      range.gt = _.cloneDeep(FormatOptionConverter.getDecimalValue(rangeList[index].fixMin, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep));
+      return;
+    }
+
+    // parse string to value
+    range = this.parseStrFloat(range);
+
+    let decimalValue = this.uiOption.minValue;
+
+    // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
+    const uiMinValue = this.minValue;
+
+    // 입력가능 최소 / 최대범위 구하기
+    let minValue = rangeList[index + 1] ? rangeList[index + 1].gt ? rangeList[index + 1].gt : uiMinValue :
+      rangeList[index].gt ? rangeList[index].gt : rangeList[index].lte;
+    let maxValue = range.lte;
+
+    // 최대값인경우 (변경불가)
+    if (!rangeList[index - 1]) {
+
+      // 최대값보다 큰거나 하위의 최대값보다 값이 작은경우
+      if (this.maxValue < range.gt || rangeList[index + 1].fixMax > range.gt) {
+        range.gt = range.fixMin;
+      } else {
+        range.fixMin = range.gt;
+      }
+    }
+    // 최소값이 입력가능범위를 벗어나는경우
+    else if (minValue > range.gt || maxValue < range.gt) {
+
+      // 기존값으로 리턴
+      range.gt = range.fixMin;
+    } else {
+      range.fixMin = range.gt;
+    }
+
+    // 하위의 최대값에 같은값 입력
+    if (rangeList[index + 1]) {
+
+      rangeList[index + 1].lte = range.gt;
+      rangeList[index + 1].fixMax = range.gt;
+    }
+
+    // set changed range in list
+    rangeList[index] = range;
+
+    this.applyLayers();
+  }
+
+  /**
+   * return available value range
+   */
+  public availableRange(currentRnage: any, index: number): void {
+
+    // color range list
+    const rangeList = this.rangesViewList;
+
+    let returnString: string = '';
+
+    // case max value
+    if (0 == index) {
+
+      returnString += ': ' + currentRnage.fixMin;
+
+      // case min value
+    } else if (rangeList.length - 1 == index) {
+
+      returnString += ': ' + currentRnage.fixMax;
+    }
+    else {
+
+      // 하위값이 있는경우 하위값의 min값이 있는경우 min값으로 설정 없는경우 최소값 설정
+      let availableMin = !rangeList[index + 1] ? null : rangeList[index + 1].fixMin ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax;
+      let availableMax = currentRnage.fixMax;
+
+      if (null !== availableMin) returnString += ': ' + availableMin.toString() + ' ~ ';
+      if (null !== availableMax) returnString += availableMax.toString();
+    }
+
+    this.availableRangeValue = returnString;
+  }
+
+  /**
+   * click new color range
    */
   public addNewRange(index: number) {
 
     // 색상 범위리스트
-    const rangeList = (<UIChartColorByValue>this.uiOption.layers[0].color).ranges;
+    const rangeList = this.uiOption.layers[this.index].color.ranges;
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue >= 0 ? 0 : Math.floor(Number(this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
+    const uiMinValue = Number(this.minValue) >= 0 ? 0 : Math.floor(Number(this.minValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
 
     // 최대값
     let maxValue = rangeList[index - 1].gt;
@@ -1439,27 +895,31 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     // 새로운 범위값 추가
     rangeList.splice(index, 0, UI.Range.colorRange(ColorRangeType.SECTION, currentColor, formatMinValue, formatMaxValue, formatMinValue, formatMaxValue));
 
-    // this.color['type'] = this.uiOption.layers[0].color.type;
-    this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).schema;
-    this.color['customMode'] = (<UIChartColorByValue>this.uiOption.layers[0].color).customMode;
-    this.color['ranges'] = rangeList;
-    this.color['colorTarget'] = this.uiOption.layers[0].color['colorTarget']
-
-    // 해당 레이어 타입으로 설정
-     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-     });
-
-    this.update();
+    this.applyLayers();
   }
 
   /**
-   * 선택된 컬러범위를 제거
+   * when color palette color is changed
+   */
+  public colorPaletteSelected(colorCode: string, item?: any) {
+
+    if (this.uiOption.layers[this.index].color.by == MapBy.MEASURE) {
+
+      const index = this.rangesViewList.indexOf(item);
+      // 선택된 색상으로 설정
+      this.uiOption.layers[this.index].color.ranges[index].color = colorCode;
+    }
+
+    this.applyLayers();
+  }
+
+  /**
+   * remove selected color range
    */
   public removeColorRange(range: ColorRange, index: number) {
 
     // 색상 범위리스트
-    const rangeList = (<UIChartColorByValue>this.uiOption.layers[0].color).ranges;
+    const rangeList = this.uiOption.layers[this.index].color.ranges;
 
     // rangeList가 1개 남은경우 삭제불가
     if (1 == rangeList.length) return;
@@ -1489,90 +949,18 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     // 리스트에서 선택된 컬러범위 제거
     rangeList.splice(index, 1);
 
-    this.color['ranges'] = rangeList;
-
-    // 해당 레이어 타입으로 설정
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-     layers: this.changeLayerOption()
-    });
-
-    this.update();
-
+    this.applyLayers();
   }
 
   /**
-   * 컬러팔렛트의 색상을 선택시
-   */
-  public colorPaletteSelected(colorCode: string, item?: any) {
-
-    // color by series일때
-    // if (this.uiOption.layers[0].color['by'].toString() == ChartColorType.SERIES) {
-    //   // 선택된 필드의 index 가져오기
-    //   const index = _.findIndex(this.uiOption.fieldMeasureList, {alias: item.alias});
-    //
-    //   const color = ChartColorList[(<UIChartColorBySeries>this.uiOption.layers[0].color).schema];
-    //
-    //   // 해당 선택된 아이템이 있는경우
-    //   if (-1 !== index) {
-    //
-    //     // userCodes값이 없는경우 color codes값을 deep copy
-    //     if (!(<UIChartColorBySeries>this.uiOption.layers[0].color).mapping) {
-    //       (<UIChartColorBySeries>this.uiOption.layers[0].color).mapping = _.cloneDeep(color);
-    //     }
-    //
-    //     // mapping list에 변경된값 설정
-    //     (<UIChartColorBySeries>this.uiOption.layers[0].color).mappingArray[index]['color'] = colorCode;
-    //
-    //     // uiOption userCodes에 세팅
-    //     (<UIChartColorBySeries>this.uiOption.layers[0].color).mapping[(<UIChartColorBySeries>this.uiOption.layers[0].color).mappingArray[index]['alias']] = colorCode;
-    //
-    //
-    //     this.color['by'] = this.uiOption.layers[0].color.by;
-    //     this.color['mapping'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).mapping;
-    //     this.color['mappingArray'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).mappingArray;
-    //     this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).schema;
-    //     this.color['settingUseFl'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).settingUseFl;
-    //
-    //     // 해당 레이어 타입으로 설정
-    //     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-    //      layers: this.changeLayerOption()
-    //     });
-    //
-    //     this.update();
-    //   }
-    //   // color by measure일때
-    // } else if (this.uiOption.layers[0].color['by'].toString() == ChartColorType.MEASURE) {
-
-      const index = this.rangesViewList.indexOf(item);
-      // 선택된 색상으로 설정
-      (<UIChartColorByValue>this.uiOption.layers[0].color).ranges[index].color = colorCode;
-
-      this.color['by'] = this.uiOption.layers[0].color.by;
-      this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).schema;
-      this.color['ranges'] = (<UIChartColorByValue>this.uiOption.layers[0].color).ranges;
-      this.color['customMode'] = (<UIChartColorByValue>this.uiOption.layers[0].color).customMode;
-
-      // 해당 레이어 타입으로 설정
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-      });
-
-      // 선택된 필드 제거
-      this.currentRange = null;
-
-      this.update();
-    // }
-  }
-
-  /**
-   * range max 입력값 수정시
+   * TOOD range max 입력값 수정시
    * @param range
    * @param index
    */
   public changeRangeMaxInput(range: any, index: number): void {
 
     // 색상 범위리스트
-    let rangeList = (<UIChartColorByValue>this.uiOption.layers[0].color).ranges;
+    let rangeList = this.uiOption.layers[this.index].color.ranges;
 
     if (!range.lte || isNaN(FormatOptionConverter.getNumberValue(range.lte))) {
 
@@ -1585,7 +973,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     range = this.parseStrFloat(range);
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.checkMinZero(this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue, this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue);
+    const uiMinValue = this.minValue;
 
     // 하위 fixMin값
     const lowerfixMin = rangeList[index + 1] ?(rangeList[index + 1].fixMin) ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax : null;
@@ -1630,117 +1018,250 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     // set changed range in list
     rangeList[index] = range;
 
-    this.color = this.uiOption.layers[0].color;
-    this.color['ranges'] = rangeList;
-
-    // 해당 레이어 타입으로 설정
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-     layers: this.changeLayerOption()
-    });
-
-    this.update();
+    this.applyLayers();
   }
 
   /**
-   * range min 입력값 수정시
-   * @param range
-   * @param index
+   * equalize custom color range
    */
-  public changeRangeMinInput(range: any, index: number): void {
+  public equalColorRange(): void {
 
     // 색상 범위리스트
-    let rangeList = (<UIChartColorByValue>this.uiOption.layers[0].color).ranges;
+    const rangeList = this.uiOption.layers[this.index].color.ranges;
 
-    if (!range.gt || isNaN(FormatOptionConverter.getNumberValue(range.gt))) {
-      // set original value
-      range.gt = _.cloneDeep(FormatOptionConverter.getDecimalValue(rangeList[index].fixMin, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep));
+    let colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[this.index].color['schema']]);
+
+    // rangeList에서의 색상을 색상리스트에 설정
+    rangeList.reverse().forEach((item, index) => {
+
+      colorList[index] = item.color;
+    });
+
+    // set color ranges
+    this.uiOption.layers[this.index].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[0], colorList, this.index, this.shelf.layers[this.index], rangeList);
+
+    this.applyLayers();
+  }
+
+  /**
+   * toggle color palette
+   * @param {boolean} colorListFlag
+   */
+  public toggleColorPalette(colorListFlag: boolean) {
+
+    this.colorListFlag = colorListFlag;
+
+    // emit
+    this.setZIndex.emit(this.colorListFlag);
+  }
+
+  /**
+   * apply layer ui option
+   * @param {Object} drawChartParam - call api or not
+   */
+  private applyLayers(drawChartParam?: Object) {
+
+    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
+      layers: this.uiOption.layers
+    });
+
+    this.update(drawChartParam);
+  }
+
+  /**
+   * set by type list by dimension, measure count
+   * @param {Shelf} shelf
+   */
+  private setByType(shelf: Shelf) {
+
+    // set dimension, measure list
+    this.setMeasureDimensions(shelf);
+
+    // init list
+    this.byList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE}];
+    this.colorByList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE}];
+
+    // when dimension exists, not hexagon layer, set dimension type
+    if (this.dimensionList.length > 0 && MapLayerType.TILE !== this.uiOption.layers[this.index].type) {
+      this.colorByList.push({name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION});
+    }
+
+    // when measure exists, set measure type
+    if (this.measureList.length > 0) {
+      this.byList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
+      this.colorByList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
+    }
+  }
+
+  /**
+   * set dimension, measure list
+   * @param {GeoField[]} layers
+   */
+  private setMeasureDimensions(shelf: Shelf, measureFl?: boolean) {
+
+    let layers = _.cloneDeep(shelf.layers[this.index]);
+
+    const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
+      const resultList: AbstractField[] = [];
+      shelve.map((item) => {
+        if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
+          item['alias'] = ChartUtil.getAlias(item);
+          resultList.push(item);
+        }
+      });
+      return resultList;
+    });
+
+    if (measureFl) {
+      this.measureList = getShelveReturnField(layers, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
       return;
     }
 
-    // parse string to value
-    range = this.parseStrFloat(range);
-
-    let decimalValue = this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue;
-
-    // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.checkMinZero(this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue, decimalValue);
-
-    // 입력가능 최소 / 최대범위 구하기
-    let minValue = rangeList[index + 1] ? rangeList[index + 1].gt ? rangeList[index + 1].gt : uiMinValue :
-                   rangeList[index].gt ? rangeList[index].gt : rangeList[index].lte;
-    let maxValue = range.lte;
-
-    // 최대값인경우 (변경불가)
-    if (!rangeList[index - 1]) {
-
-      // 최대값보다 큰거나 하위의 최대값보다 값이 작은경우
-      if (this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].maxValue < range.gt || rangeList[index + 1].fixMax > range.gt) {
-        range.gt = range.fixMin;
-      } else {
-        range.fixMin = range.gt;
-      }
-    }
-    // 최소값이 입력가능범위를 벗어나는경우
-    else if (minValue > range.gt || maxValue < range.gt) {
-
-      // 기존값으로 리턴
-      range.gt = range.fixMin;
-    } else {
-      range.fixMin = range.gt;
-    }
-
-    // 하위의 최대값에 같은값 입력
-    if (rangeList[index + 1]) {
-
-      rangeList[index + 1].lte = range.gt;
-      rangeList[index + 1].fixMax = range.gt;
-    }
-
-    // set changed range in list
-    rangeList[index] = range;
-
-    this.color = this.uiOption.layers[0].color;
-    this.color['ranges'] = rangeList;
-
-    // 해당 레이어 타입으로 설정
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-     layers: this.changeLayerOption()
-    });
-
-    this.update();
+    this.measureList = getShelveReturnField(layers, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
+    this.dimensionList = getShelveReturnField(layers, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
   }
 
   /**
-   * 입력 가능범위값 리턴
+   * remove aggregation type (hexagon, line, polygon)
    */
-  public availableRange(currentRnage: any, index: number): void {
+  private removeAggregationType() {
+    // add aggregation type in current layer
+    let layer = this.shelf.layers[this.uiOption.layerNum];
 
-    // color range list
-    const rangeList = this.rangesViewList;
+    // remove duplicate measure list
+    let uniMeasureList = _.uniqBy(layer, 'name');
 
-    let returnString: string = '';
+    for (const item of uniMeasureList) {
 
-    // case max value
-    if (0 == index) {
-
-      returnString += ': ' + currentRnage.fixMin + ' ~ ' + this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].maxValue;
-
-    // case min value
-    } else if (rangeList.length - 1 == index) {
-
-      returnString += ': ' + this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue + ' ~ ' + currentRnage.fixMax;
-    }
-    else {
-
-      // 하위값이 있는경우 하위값의 min값이 있는경우 min값으로 설정 없는경우 최소값 설정
-      let availableMin = !rangeList[index + 1] ? null : rangeList[index + 1].fixMin ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax;
-      let availableMax = currentRnage.fixMax;
-
-      if (null !== availableMin) returnString += ': ' + availableMin.toString() + ' ~ ';
-      if (null !== availableMax) returnString += availableMax.toString();
+      if (item.type === 'measure') {
+        delete item.aggregationType;
+        item.field.pivot = _.uniq(item.field.pivot);
+      }
     }
 
-    this.availableRangeValue = returnString;
+    this.shelf.layers[this.uiOption.layerNum] = uniMeasureList;
+  }
+
+  /**
+   * add aggregation type (point, heatmap)
+   */
+  private addAggregationType() {
+    // add aggregation type in current layer
+    let layer = this.shelf.layers[this.uiOption.layerNum];
+
+    for (const item of layer) {
+      if (item.type === 'measure') {
+        item.aggregationType = AggregationType.SUM;
+      }
+    }
+  }
+
+  /**
+   * set color by shelf
+   * @param {boolean} aggregationFl use aggregation type
+   * @returns {UILayers}
+   */
+  private setColorByShelf(aggregationFl: boolean): UILayers {
+
+    let shelf: GeoField[] = this.shelf.layers[this.index];
+
+    let preference = this.checkFieldPreference(shelf);
+
+    const isNone = preference['isNone'];
+    const isMeasure = preference['isMeasure'];
+    const isDimension = preference['isDimension'];
+
+    let layer: UILayers = this.uiOption.layers[this.index];
+
+    ///////////////////////////
+    // Color by None
+    ///////////////////////////
+    if( isNone ) {
+      layer.color.by = MapBy.NONE;
+      layer.color.schema = '#6344ad';
+      layer.color.column = null;
+      layer.color.aggregationType = null;
+    }
+    ///////////////////////////
+    // Color by Measure
+    ///////////////////////////
+    else if( !_.eq(layer.color.by, MapBy.DIMENSION) && isMeasure ) {
+      layer.color.by = MapBy.MEASURE;
+      layer.color.schema = 'VC1';
+      layer.color.column = this.measureList[0]['name'];
+      if (aggregationFl) layer.color.aggregationType = this.measureList[0]['aggregationType'];
+      else layer.color.aggregationType = null;
+    }
+    ///////////////////////////
+    // Color by Dimension
+    ///////////////////////////
+    // hexagon && isDimension => init as none
+    else if ( MapLayerType.TILE === layer.type && isDimension ) {
+      layer.color.by = MapBy.NONE;
+      layer.color.schema = '#6344ad';
+      layer.color.column = null;
+      layer.color.aggregationType = null;
+    }
+    else if( isDimension ) {
+      layer.color.by = MapBy.DIMENSION;
+      layer.color.schema = 'SC1';
+      layer.color.column = this.dimensionList[0]['name'];
+      layer.color.aggregationType = null;
+      if (this.dimensionList[0]['format']) layer.color.granularity = this.dimensionList[0]['format']['unit'].toString();
+    }
+
+    return layer;
+  }
+
+  /**
+   * find preference by shelf
+   * @param {UILayers[]} layers
+   * @returns {Object}
+   */
+  private checkFieldPreference(layers: GeoField[]): Object {
+
+    // Find field
+    let isNone: boolean = true;
+    let isDimension: boolean = false;
+    let isMeasure: boolean = false;
+    _.each(layers, (field) => {
+      if( field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1 ) {
+        isNone = false;
+      }
+      if( _.eq(field.type, ShelveFieldType.DIMENSION) ) {
+        isDimension = true;
+      }
+      if( _.eq(field.type, ShelveFieldType.MEASURE) ) {
+        isMeasure = true;
+      }
+    });
+
+    return {isNone: isNone, isDimension: isDimension, isMeasure: isMeasure};
+  }
+
+  /**
+   * set ranges for view
+   * @param {ColorRange[]} ranges
+   * @returns {any}
+   */
+  private setRangeViewByDecimal(ranges: ColorRange[]) {
+
+    if (!ranges || 0 == ranges.length) return;
+    // decimal null check
+    const decimal = this.uiOption.valueFormat!=null?this.uiOption.valueFormat.decimal:0;
+    // decimal null check
+    const commaUseFl = this.uiOption.valueFormat!=null?this.uiOption.valueFormat.useThousandsSep:false;
+
+    let returnList: any = _.cloneDeep(ranges);
+
+    for (const item of returnList) {
+      item['fixMax'] = null == item.fixMax ? null : <any>FormatOptionConverter.getDecimalValue(item.fixMax, decimal, commaUseFl);
+      item['fixMin'] = null == item.fixMin ? null : <any>FormatOptionConverter.getDecimalValue(item.fixMin, decimal, commaUseFl);
+      item['gt']     = null == item.gt ? null :<any>FormatOptionConverter.getDecimalValue(item.gt, decimal, commaUseFl);
+      item['lte']    = null == item.lte ? null : <any>FormatOptionConverter.getDecimalValue(item.lte, decimal, commaUseFl);
+    }
+
+    return returnList;
   }
 
   /**
@@ -1756,209 +1277,4 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     range.lte    = null == range.lte ? null : FormatOptionConverter.getNumberValue(range.lte);
     return range;
   }
-
-  /**
-   * 변경된 gradation 리스트값 설정
-   * @param {Object} data
-   */
-  public changeGradations(data: Object) {
-
-    this.uiOption.layers[0].color['visualGradations'] = data['visualGradations'];
-
-    data['ranges'].forEach((item) => {if (!item.type) {item.type = ColorRangeType.GRADIENT; return item} else { return item}});
-
-    if (JSON.stringify(data['ranges']) != JSON.stringify(this.uiOption.layers[0].color['ranges'])) {
-      this.uiOption.layers[0].color['ranges'] = data['ranges'];
-
-      this.rangesViewList = this.uiOption.layers[0].color['ranges'];
-    }
-
-    // binding된 데이터에 반영이 안되므로 zone run으로 실행
-    this.zone.run(() => {
-      // this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-      //   color: this.uiOption.color
-      // });
-
-      this.color = this.uiOption.layers[0].color;
-
-      // 해당 레이어 타입으로 설정
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
-       layers: this.changeLayerOption()
-      });
-    });
-
-    // 화면에 추가된 리스트 반영
-    this.changeDetect.detectChanges();
-
-    this.$element.find('.ddp-box-color').find('.sp-replacer').removeClass('sp-active');
-    // 같은 index번째의 리스트값에서 선택 클래스 설정
-    this.$element.find('.ddp-box-color#ddp-box-color-' + data['currentSliderIndex']).find('.sp-replacer').addClass('sp-active');
-
-    // update
-    this.update();
-  }
-
-  /**
-   * 그라데이션 색상 범위 삭제
-   */
-  public deleteGradientRange(currentIndex: number) {
-
-    // 리스트에서 선택된클래스 해제
-    this.$element.find('.ddp-box-color').find('.sp-replacer').removeClass('sp-active');
-
-    this.gradationComp.unselectSlider();
-
-    this.gradationComp.deleteRange(currentIndex);
-  }
-
-  /**
-   * 그라데이션의 리스트의 색상 변경시
-   * @param colorStr
-   * @param item
-   */
-  public gradationColorSelected(colorStr: string, item: any) {
-
-    const rgbColor = this.setHextoRgb(colorStr);
-
-    this.gradationComp.changeGradationColor(item.index, rgbColor);
-  }
-
-  /**
-   * 그라데이션 색상의 범위를 추가
-   */
-  public addGradientRange(currentIndex: number) {
-
-    // 첫번째 아이템이 아닌경우에만 현재 index의 앞의 index 설정
-    currentIndex = 0 !== currentIndex ? currentIndex - 1 : 0;
-
-    // 새로운 범위 추가
-    this.gradationComp.addNewRangeIndex(currentIndex);
-  }
-
-  /**
-   * Input 값 변경 체크
-   * @param {SimpleChanges} changes
-   */
-  public ngOnChanges(changes: SimpleChanges) {
-    if(this.type === "heatmap") {
-      setTimeout(
-        () => {
-          this.setBlurSlider();
-          this.setRadiusSlider();
-        }
-      );
-    } else if(this.type === "tile") {
-      setTimeout(
-        () => {
-          this.setResolutionSlider();
-        }
-      );
-    }
-  } // function - ngOnChanges
-
-  public setRadiusSlider() {
-    const scope = this;
-    this._$radiusRangeSlider = $(this._radiusRangeSlider.nativeElement);
-    this._$radiusRangeSlider.ionRangeSlider(
-      {
-        hide_from_to: false,
-        hide_min_max: true,
-        keyboard: false,
-        min: 4,
-        max: 34,
-        from: scope.uiOption.layers[0].radius,
-        type: 'single',
-        step: 6,
-        onChange(data) {
-          scope.changeResolution(data.from);
-        }
-        // onFinish(data) {
-          // scope._updateBoundValue(data);
-          // scope.change.emit(scope.getData());
-        // }
-      })
-  }
-
-  public setResolutionSlider() {
-    const scope = this;
-    this._$resolutionRangeSlider = $(this._resolutionRangeSlider.nativeElement);
-    this._$resolutionRangeSlider.ionRangeSlider(
-      {
-        hide_from_to: false,
-        hide_min_max: true,
-        keyboard: false,
-        min: 5,
-        max: 10,
-        from: scope.uiOption.layers[0].coverage,
-        type: 'single',
-        step: 1,
-        onChange(data) {
-          scope.changeResolution(data.from);
-        }
-        // onFinish(data) {
-          // scope._updateBoundValue(data);
-          // scope.change.emit(scope.getData());
-        // }
-      })
-  }
-
-  public setBlurSlider() {
-    const scope = this;
-    this._$blurRangeSlider = $(this._blurRangeSlider.nativeElement);
-    this._$blurRangeSlider.ionRangeSlider(
-      {
-        hide_from_to: false,
-        hide_min_max: true,
-        keyboard: false,
-        min: 5,
-        max: 30,
-        from: scope.uiOption.layers[0].blur,
-        type: 'single',
-        step: 5,
-        onChange(data) {
-          scope.changeBlur(data.from);
-        }
-        // onFinish(data) {
-          // scope._updateBoundValue(data);
-          // scope.change.emit(scope.getData());
-        // }
-      })
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-
-  /**
-   * hex에서 rgb값으로 변경
-   * @param color
-   * @returns {string}
-   */
-  private setHextoRgb(color: string): string {
-
-    color = _.cloneDeep(color.replace('#', ''));
-
-    const rColor = parseInt(color.substring(0,2),16);
-    const gColor = parseInt(color.substring(2,4),16);
-    const bColor = parseInt(color.substring(4),16);
-
-    return 'rgb(' + rColor + ',' + gColor + ',' + bColor + ')';
-  }
-
-
-   /**
-    * 위에 uiOption 을 다시 재정의 하는 경우 레퍼런스가 변경되기 때문에
-    * update를 호출해서 싱크를 맞추어야 함
-    * uiOption 그대로 속성만 변경하면 자동으로 uiOptionChange 호출 됨
-    */
-   // public update(drawChartParam?: any) {
-   //   this.uiOptionChange.emit(this.uiOption);
-   //   if (drawChartParam) {
-   //     this.setDrawChartParam.emit(drawChartParam);
-   //   }
-   //   // debugger
-   //   console.log('map update');
-   // }
-
 }

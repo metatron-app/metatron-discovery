@@ -23,11 +23,11 @@ import { DatasourceQueryHistory } from '../../../../domain/datasource/datasource
 import { Alert } from '../../../../common/util/alert.util';
 import * as _ from 'lodash';
 import { Log } from '../../../../common/domain/modal';
-import { DatePipe } from '@angular/common';
 import { MomentDatePipe } from '../../../../common/pipe/moment.date.pipe';
 import { CommonUtil } from '../../../../common/util/common.util';
 
 declare let echarts;
+declare let moment;
 
 @Component({
   selector: 'monitoring-data-source',
@@ -244,11 +244,10 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
    */
   public openLogModal(history: DatasourceQueryHistory) {
     const log: Log = new Log;
-    const datePipe = new DatePipe('en-EN');
 
     log.title = 'Query log';
     log.subTitle = [];
-    log.subTitle.push(datePipe.transform(history.createdTime, 'yyyy-MM-dd HH:mm'));
+    log.subTitle.push(moment(history.createdTime).format('YYYY-MM-DD HH:mm'));
     log.subTitle.push(history.queryType.toString());
     log.subTitle.push(this.convertMilliseconds(history.elapsedTime));
     log.subTitle.push(history.succeed ? this.translateService.instant('msg.storage.ui.success') : this.translateService.instant('msg.storage.ui.fail'));
@@ -491,9 +490,9 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       params['searchDateBy'] = 'CREATED';
       if (this.selectedDate.startDateStr) {
-        params['from'] = this.selectedDate.startDateStr + '.000Z';
+        params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      params['to'] = this.selectedDate.endDateStr + '.000Z';
+      params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
     }
     return params;
   }

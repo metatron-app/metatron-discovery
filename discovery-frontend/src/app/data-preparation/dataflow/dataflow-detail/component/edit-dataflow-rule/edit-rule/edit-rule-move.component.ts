@@ -16,7 +16,8 @@ import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
+//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
@@ -103,13 +104,10 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
     }
 
     const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      if (-1 !== item.name.indexOf(' ')) {
-        item.name = '`' + item.name + '`';
-      }
-      return item.name
+      return '`' + item.name + '`';
     }).join(', ');
 
-    if (isNullOrUndefined(this.beforeOrAfter)) {
+    if (isNullOrUndefined(this.beforeOrAfter) || this.beforeOrAfter === '') {
       Alert.warning(this.translateService.instant('msg.dp.alert.before.after'));
       return undefined
     }
@@ -127,7 +125,7 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
     return {
       command: 'move',
       col: columnsStr,
-      ruleString: `move col: ${columnsStr} ${this.beforeOrAfter}: ${this.selectedStandardField.indexOf(' ') === -1 ? this.selectedStandardField : '`' + this.selectedStandardField + '`'}`
+      ruleString: `move col: ${columnsStr} ${this.beforeOrAfter}: ${'`' + this.selectedStandardField + '`'}`
     };
 
   } // function - getRuleData

@@ -87,10 +87,12 @@
                  (clickOutside)="statusShowFl = false"
                  (click)="statusShowFl = !statusShowFl">
               <span class="ddp-txt-selectbox">{{getWorkspaceStatus()}}</span>
-              <ul class="ddp-list-selectbox ddp-selectdown">
-                <li *ngFor="let status of statusList" (click)="onOpenChangeStatus(status.value)">
+              <ul class="ddp-list-selectbox ddp-selectdown ddp-list-popup">
+                <li *ngFor="let status of statusList"
+                    [class.ddp-selected]="status.value === ( workspace.active ? 'active' : 'inactive' )"
+                    (click)="onOpenChangeStatus(status.value)">
                   <a href="javascript:">
-                    {{status.label}}
+                    {{status.label}} <em class="ddp-icon-check"></em>
                   </a>
                 </li>
               </ul>

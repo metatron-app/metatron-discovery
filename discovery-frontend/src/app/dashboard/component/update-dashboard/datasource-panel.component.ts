@@ -19,8 +19,7 @@ import {
   Injector,
   Input, KeyValueDiffers, OnDestroy,
   OnInit,
-  Output, SimpleChange,
-  SimpleChanges,
+  Output,
   ViewChild
 } from '@angular/core';
 import { AbstractComponent } from '../../../common/component/abstract.component';
@@ -549,7 +548,21 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     if (this.widgets && this.widgets.length > 0) {
 
       this.widgets.forEach((widget: Widget) => {
-        if (widget.type === 'page' && widget.configuration && widget.configuration['pivot']) {
+
+      // map - set shelf layers
+      if (undefined !== widget.configuration['chart']['layerNum'] && widget.type === 'page' && widget.configuration && widget.configuration['shelf']) {
+
+        const pivotConf = widget.configuration['shelf'];
+        const layerNum = widget.configuration['chart']['layerNum'];
+        if (undefined !== layerNum && pivotConf.layers && 0 < pivotConf.layers[layerNum].length) {
+          pivotConf.layers[layerNum].forEach(layer => {
+            let idx: number = totalFields.findIndex(field => field.name === layer.name);
+            if (-1 < idx) {
+              totalFields[idx].useChart = true;
+            }
+          });
+        }
+      } else if (widget.type === 'page' && widget.configuration && widget.configuration['pivot']) {
           const pivotConf = widget.configuration['pivot'];
           if (pivotConf.columns && 0 < pivotConf.columns.length) {
             pivotConf.columns.forEach(column => {

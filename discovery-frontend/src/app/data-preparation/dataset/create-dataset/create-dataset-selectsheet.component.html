@@ -31,7 +31,7 @@
       <div class="ddp-box-upload" ng2FileDrop [uploader]="uploader">
         <!-- name -->
         <div class="ddp-data-load-name">
-          <em class="ddp-icon-file2"></em>{{datasetFile.filename}}
+          <em class="ddp-icon-file2"></em>{{datasetFile.filenameBeforeUpload}}
         </div>
         <!-- //name -->
         <div class="ddp-txt-file-info">
@@ -51,7 +51,7 @@
           <!-- sheet list -->
           <div class="ddp-ui-sheet-list">
             <ul class="ddp-list-sheet"  *ngFor="let item of datasetFile.selectedSheets; let idx = index">
-              <li [ngClass]="{'ddp-selected' : item.name === datasetFile.sheetname}" (click)="setDataSetSheetIndex($event,item.name, idx)">
+              <li [ngClass]="{'ddp-selected' : item.name === datasetFile.sheetName}" (click)="setDataSetSheetIndex($event,item.name, idx)">
                 <span class="ddp-txt-checkbox">{{item.name}}</span>
               </li>
             </ul>
@@ -60,7 +60,7 @@
           <!-- //sheet list -->
           <!-- sheet view -->
           <div class="ddp-view-sheet">
-            <div class="ddp-data-name" *ngIf="datasetFile.sheetname && ''!==datasetFile.sheetname">
+            <div class="ddp-data-name" *ngIf="datasetFile.sheetName && ''!==datasetFile.sheetName">
               {{datasetFile.sheetname}}
             </div>
             <!-- 그리드 영역 -->
@@ -78,7 +78,8 @@
       </div>
       <div class="ddp-wrap-edit-form" >
         <div class="ddp-clear">
-          <div class="ddp-col-6" *ngIf="!datasetFile.sheets || 0 == datasetFile.sheets.length">
+          <!--<div class="ddp-col-6" *ngIf="!datasetFile.sheets || 0 == datasetFile.sheets.length">  this.isCSV = true-->
+          <div class="ddp-col-6" *ngIf="isCSV">
             <div class="ddp-wrap-edit3 ddp-type">
               <label class="ddp-label-type">{{'msg.dp.th.col.delimiter' | translate}}</label>
               <!-- edit option -->

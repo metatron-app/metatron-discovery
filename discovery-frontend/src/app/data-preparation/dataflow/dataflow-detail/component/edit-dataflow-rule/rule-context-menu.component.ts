@@ -214,13 +214,10 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
       // change coluuid list to col name list
       let columnNames = this.changeUUIDtoNames(this.originalSelectedColIds);
       const columnsStr: string = columnNames.map((item) => {
-        if (-1 !== item.indexOf(' ')) {
-          item = '`' + item + '`';
-        }
-        return item
+        return '`' + item + '`';
       }).join(', ');
 
-      const selCol = -1 !== this.contextInfo.columnName.indexOf(' ') ?  '`' + this.contextInfo.columnName + '`' : this.contextInfo.columnName;
+      const selCol = '`' + this.contextInfo.columnName + '`';
 
       let rule = {};
       switch(command.command) {
@@ -265,11 +262,10 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
           break;
         case 'move':
           if (command.value === 'first') {
-            let first = -1 !== this.contextInfo.gridResponse.colNames[0].indexOf(' ') ?  '`' + this.contextInfo.gridResponse.colNames[0] + '`' : this.contextInfo.gridResponse.colNames[0];
+            const first = '`' + this.contextInfo.gridResponse.colNames[0] + '`' ;
             rule['ruleString'] = `move col: ${columnsStr} before: ${first}`;
           } else if (command.value === 'last') {
-            let last = this.contextInfo.gridResponse.colNames[this.contextInfo.gridResponse.colNames.length-1];
-            last = -1 !== last.indexOf(' ') ? '`' + last + '`' : last;
+            const last = '`' +this.contextInfo.gridResponse.colNames[this.contextInfo.gridResponse.colNames.length-1] + '`';
             rule['ruleString'] = `move col: ${columnsStr} after: ${last}`;
           } else if (command.value === 'before' || command.value === 'after') {
             rule['more'] = {command : 'move', col : {value : columnNames}};
@@ -298,6 +294,11 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
                 let idx = this.labelsForNumbers.indexOf(item);
                 result += this.histogramData.length-1 !== index ? `${selCol} >= ${item} && ${this.contextInfo.columnName} < ${this.labelsForNumbers[idx+1]} || ` : `${selCol} >= ${item} && ${selCol} < ${this.labelsForNumbers[idx+1]}`;
               })
+            } else if (this.contextInfo.columnType === 'TIMESTAMP') {
+              this.histogramData.forEach((item,index) => {
+                let idx = this.labelsForNumbers.indexOf(item);
+                result += this.histogramData.length-1 !== index ? `time_diff(timestamp('${item}','${this.contextInfo.timestampStyle}'),${selCol}) >= 0 && time_diff(timestamp('${this.labelsForNumbers[idx+1]}','${this.contextInfo.timestampStyle}'), ${selCol}) < 0 || ` : `time_diff(timestamp('${item}','${this.contextInfo.timestampStyle}'),${selCol}) >= 0 && time_diff(timestamp('${this.labelsForNumbers[idx+1]}','${this.contextInfo.timestampStyle}'), ${selCol}) < 0`;
+              });
             } else {
               this.histogramData.forEach((item,index) => {
                 result += this.histogramData.length-1 !== index ? selCol + ' == ' +'\''+ item +'\''+ ' || ' : selCol + ' == ' +'\''+ item +'\'';
@@ -313,9 +314,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               break;
             case 'duplicate':
               let newCol = `${this.contextInfo.columnName}_1`;
-              if (this.contextInfo.columnName.indexOf(' ') !== -1) {
-                newCol = '`'+ newCol + '`';
-              }
+              newCol = '`'+ newCol + '`';
               rule['ruleString'] = `derive value: ${selCol} as: ${newCol}`;
               break;
             case 'split':
@@ -337,14 +336,8 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
           switch(command.value) {
 
             case 'direct-mismatch':
-              //  ismismatched(columnName,'column type with single quote surrounded')
               columnNames.forEach((item) => {
-                if (item.indexOf(' ') > -1) {
-                  res.push('ismismatched(' + '`' + item + '`' + `,'${this.contextInfo.columnType}')`);
-                } else {
-                  res.push(`ismismatched(${item},'${this.contextInfo.columnType}')`)
-                }
-
+                res.push('ismismatched(' + '`' + item + '`' + `,'${this.contextInfo.columnType}')`);
               });
 
               rule['ruleString'] += res.join(' || ');
@@ -353,13 +346,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
             case 'direct-missing':
               // delete row: isnull(c) || isnull(`space col`)
               columnNames.forEach((item) => {
-
-                if (item.indexOf(' ') > -1) {
-                  res.push('isnull(' + '`' + item + '`' + ')');
-                } else {
-                  res.push(`isnull(${item})`)
-                }
-
+                res.push('isnull(' + '`' + item + '`' + ')');
               });
 
               rule['ruleString'] += res.join(' || ');

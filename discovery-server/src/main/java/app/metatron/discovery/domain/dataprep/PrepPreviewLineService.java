@@ -15,6 +15,9 @@
 package app.metatron.discovery.domain.dataprep;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
+import app.metatron.discovery.domain.dataprep.service.PrDatasetService;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
@@ -38,6 +41,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
+
 @Service
 public class PrepPreviewLineService {
     private static Logger LOGGER = LoggerFactory.getLogger(PrepPreviewLineService.class);
@@ -46,10 +52,10 @@ public class PrepPreviewLineService {
     PrepProperties prepProperties;
 
     @Autowired
-    PrepDatasetRepository datasetRepository;
+    PrDatasetRepository datasetRepository;
 
     @Autowired
-    PrepDatasetService datasetService;
+    PrDatasetService datasetService;
 
     @Autowired
     PrepTransformService transformService;
@@ -82,7 +88,7 @@ public class PrepPreviewLineService {
         int size = 0;
 
         LOGGER.trace("putPreviewLines(): start");
-        PrepDataset dataset = this.datasetRepository.findRealOne(this.datasetRepository.findOne(dsId));
+        PrDataset dataset = this.datasetRepository.findRealOne(this.datasetRepository.findOne(dsId));
         assert(dataset!=null);
 
         DataFrame previewGrid = new DataFrame();
@@ -113,7 +119,6 @@ public class PrepPreviewLineService {
             LOGGER.debug(e.getMessage());
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
         }
-        dataset.putCustomValue("previewPath", getPreviewPath());
 
         LOGGER.trace("putPreviewLines(): end");
         return size;
@@ -123,19 +128,11 @@ public class PrepPreviewLineService {
         DataFrame dataFrame = null;
 
         try {
-            PrepDataset dataset = this.datasetRepository.findRealOne(this.datasetRepository.findOne(dsId));
+            PrDataset dataset = this.datasetRepository.findRealOne(this.datasetRepository.findOne(dsId));
             assert(dataset!=null);
 
-            String previewPathKey = "previewPath";
-            String previewPath = dataset.getCustomValue(previewPathKey);
-            if (null == previewPath) {
-                this.remakePreviewLines(dsId);
-                previewPath = dataset.getCustomValue(previewPathKey);
-                assert previewPath != null;
-            }
-
             ObjectMapper mapper = GlobalObjectMapper.getDefaultMapper();
-            String filepath = previewPath + File.separator + dataset.getDsId() + ".df";
+            String filepath = getPreviewPath() + File.separator + dataset.getDsId() + ".df";
             File theFile = new File(filepath);
             if (true == theFile.exists()) {
                 dataFrame = mapper.readValue(theFile, DataFrame.class);
@@ -222,22 +219,22 @@ public class PrepPreviewLineService {
         DataFrame dataFrame = null;
 
         try {
-            PrepDataset dataset = this.datasetRepository.findRealOne(this.datasetRepository.findOne(dsId));
+            PrDataset dataset = this.datasetRepository.findRealOne(this.datasetRepository.findOne(dsId));
             assert(dataset!=null);
 
-            if(dataset.getDsTypeForEnum()== PrepDataset.DS_TYPE.IMPORTED) {
+            if(dataset.getDsType()== IMPORTED) {
                 dataFrame = this.datasetService.getImportedPreview(dataset);
                 if(null==dataFrame) {
                     throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREVIEWLINES_CRASHED, "get Imported preview==(null)");
                 }
-            } else if(dataset.getDsTypeForEnum()== PrepDataset.DS_TYPE.WRANGLED) {
+            } else if(dataset.getDsType() == WRANGLED) {
                 PrepTransformResponse transformResponse = this.transformService.fetch(dsId, null);
                 dataFrame = transformResponse.getGridResponse();
                 if(null==dataFrame) {
                     throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREVIEWLINES_CRASHED, "get Wrangled preview==(null)");
                 }
             } else {
-                // not reachable
+                assert false;
             }
 
             if(dataFrame!=null) {

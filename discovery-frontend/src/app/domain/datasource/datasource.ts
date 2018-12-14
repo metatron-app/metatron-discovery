@@ -333,7 +333,8 @@ export enum IngestionStatus {
 
 export enum DataSourceType {
   MASTER = <any>'MASTER',
-  JOIN = <any>'JOIN'
+  JOIN = <any>'JOIN',
+  VOLATILITY = <any>'VOLATILITY'
 }
 
 export enum ConnectionType {
@@ -400,7 +401,11 @@ export enum FieldRole {
 export enum FieldPivot {
   ROWS = <any>'ROWS',
   COLUMNS = <any>'COLUMNS',
-  AGGREGATIONS = <any>'AGGREGATIONS'
+  AGGREGATIONS = <any>'AGGREGATIONS',
+  // temp, for map chart
+  MAP_LAYER0 = <any>'MAP_LAYER0',
+  MAP_LAYER1 = <any>'MAP_LAYER1',
+  MAP_LAYER2 = <any>'MAP_LAYER2'
 }
 
 /**
@@ -451,6 +456,7 @@ export class FieldFormat {
 export enum FieldFormatType {
   DATE_TIME = <any>'time_format',
   UNIX_TIME = <any>'time_unix',
+  TEMPORARY_TIME = <any>'time_temporary',
 }
 
 export enum FieldFormatUnit {

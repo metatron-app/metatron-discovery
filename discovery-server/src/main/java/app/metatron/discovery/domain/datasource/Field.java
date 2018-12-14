@@ -320,7 +320,7 @@ public class Field implements MetatronDomain<Long> {
   public Aggregation getAggregation(boolean isRelay) {
 
     if(isRelay) {
-      return new RelayAggregation(name,type.toEngineType());
+      return new RelayAggregation(name,logicalType.toEngineMetricType());
     }
 
     if (aggrType == null) {

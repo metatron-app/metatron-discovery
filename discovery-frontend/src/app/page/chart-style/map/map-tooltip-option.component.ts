@@ -1,13 +1,28 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { Component, ElementRef, Injector, Input } from '@angular/core';
-import { TooltipOptionComponent } from '../tooltip-option.component';
-import { UIOption } from '../../../common/component/chart/option/ui-option';
-import { FormatOptionConverter } from '../../../common/component/chart/option/converter/format-option-converter';
-import { UIChartDataLabelDisplayType } from '../../../common/component/chart/option/define/common';
-import * as _ from 'lodash';
 import { Pivot } from '../../../domain/workbook/configurations/pivot';
+import { ShelfType, UIChartDataLabelDisplayType } from '../../../common/component/chart/option/define/common';
+import * as _ from 'lodash';
+import { FormatOptionConverter } from '../../../common/component/chart/option/converter/format-option-converter';
+import { ChartUtil } from '../../../common/component/chart/option/util/chart-util';
 import { Field } from '../../../domain/workbook/configurations/field/field';
-import { Field as AbstractField } from '../../../domain/datasource/datasource';
-import {ChartUtil} from '../../../common/component/chart/option/util/chart-util';
+import { TooltipOptionComponent } from '../tooltip-option.component';
+import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
+import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
+import { TooltipOptionConverter } from '../../../common/component/chart/option/converter/tooltip-option-converter';
 
 @Component({
   selector: 'map-tooltip-option',
@@ -15,14 +30,14 @@ import {ChartUtil} from '../../../common/component/chart/option/util/chart-util'
 })
 export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
-  // selected column list
-  public selectedColumns: Field[] = [];
+  // selected layer item list
+  public selectedLayerItems: Field[] = [];
 
-  // unselected column list
-  public unselectedColumns: Field[] = [];
+  // unselected layer item list
+  public unselectedLayerItems: Field[] = [];
 
-  // origin unselected column list
-  public originUnselectedColumns: Field[] = [];
+  // origin unselected layer item list
+  public originUnselectedLayerItems: Field[] = [];
 
   // search input
   public searchText: string;
@@ -30,83 +45,56 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
   // add column show / hide
   public addColumnShowFl: boolean = false;
 
+  public uiOption: UIMapOption;
+
   @Input('uiOption')
-  public set setUiOption(uiOption: UIOption) {
+  public set setUiOption(uiOption: UIMapOption) {
 
     if( !uiOption.toolTip ) {
       uiOption.toolTip = {};
-    }
-
-    // init displayTypes
-    if (!uiOption.toolTip.displayTypes) {
-      uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(uiOption.type);
     }
 
     // Set
     this.uiOption = uiOption;
   }
 
-  @Input('pivot')
-  public set setPivot(pivot: Pivot) {
+  public shelf : Shelf;
 
-    if (!pivot || !pivot.columns) return;
+  @Input('shelf')
+  public set setShelf(shelf: Shelf) {
 
-    this.selectedColumns = _.cloneDeep(pivot.columns.concat(pivot.aggregations));
+    if (!shelf || !shelf.layers || !shelf.layers[this.uiOption.layerNum]) return;
 
-    // sync columns, fields data
-    this.selectedColumns.map((item) => {
+    const layerItems = _.cloneDeep(shelf.layers[this.uiOption.layerNum]);
 
-      if(item.field && item.field.logicalType) {
-        item['logicalType'] = item.field.logicalType;
-        item['type'] = item.field.type;
+    // set alias
+    for (const item of layerItems) {
+      item['alias'] = ChartUtil.getAlias(item);
+    }
+
+    // return shelf list except geo dimension
+    let uniqList = TooltipOptionConverter.returnTooltipDataValue(layerItems);
+
+    // set displayColumns
+    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(uniqList);
+
+    this.selectedLayerItems = [];
+    this.unselectedLayerItems = [];
+
+    // 선반에는 있지만 displayColumns에 없으면 => unselected list에 설정
+    _.each(uniqList, (field) => {
+
+      let alias = ChartUtil.getAlias(field);
+
+      // selected list
+      if (-1 !== this.uiOption.toolTip.displayColumns.indexOf(alias)) {
+
+        this.selectedLayerItems.push(field);
+      // unselected list
+      } else {
+        this.unselectedLayerItems.push(field);
       }
     });
-
-    // if it's not custom field, exclude geo data
-    this.selectedColumns = this.selectedColumns.filter((item) => {
-      return item['logicalType'] && ('user_expr' == item.type || -1 == item['logicalType'].toString().indexOf('GEO'));
-    });
-
-    // remove the columns having same name
-    this.selectedColumns = _.uniqBy(this.selectedColumns, 'name');
-
-    if (!this.uiOption.toolTip.displayColumns) this.uiOption.toolTip.displayColumns = [];
-
-    // when displayColumns are empty, set displayColumns
-    if (!this.uiOption.toolTip.displayColumns || 0 == this.uiOption.toolTip.displayColumns.length) {
-
-      this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.selectedColumns);
-    // when displayColumns are not empty, set columns by displayColumns
-    } else {
-
-      let originSelectedColumns = _.cloneDeep(this.selectedColumns);
-
-      this.selectedColumns = this.setColumns(this.uiOption.toolTip.displayColumns);
-
-      // set removed columns to unselectedColumns
-      this.unselectedColumns = <any>_.filter(originSelectedColumns, (item) => {
-        if (-1 == _.findIndex(this.selectedColumns, item)) return item;
-      });
-    }
-  }
-
-  /**
-   * return pivot name as string array
-   * @param {Field[]} mapPivot
-   * @returns {string[]}
-   */
-  private setDisplayColumns(mapPivot: Field[]): string[] {
-
-    if (!mapPivot || 0 == mapPivot.length) return [];
-
-    let returnList: string[] = [];
-
-    mapPivot.forEach((item) => {
-
-      returnList.push( ChartUtil.getAggregationAlias(item) );
-    });
-
-    return returnList;
   }
 
   /**
@@ -121,7 +109,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     let field: Field;
     columns.forEach((alias) => {
 
-      field = <any> _.find(this.selectedColumns, (field) => {
+      field = <any> _.find(this.selectedLayerItems, (field) => {
         return _.eq(alias, ChartUtil.getAggregationAlias(field));
       });
 
@@ -189,19 +177,19 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     if (_.isEmpty(_.trim(this.searchText))) {
 
-      this.unselectedColumns = _.cloneDeep(this.originUnselectedColumns);
+      this.unselectedLayerItems = _.cloneDeep(this.originUnselectedLayerItems);
 
-      return this.unselectedColumns;
+      return this.unselectedLayerItems
     }
 
-    this.unselectedColumns = this.unselectedColumns.filter((item) => {
+    this.unselectedLayerItems = this.unselectedLayerItems.filter((item) => {
 
       if (-1 !== item.name.indexOf(_.trim(this.searchText))) {
         return item;
       }
     });
 
-    return this.unselectedColumns;
+    return this.unselectedLayerItems
   }
 
   /**
@@ -213,7 +201,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     this.searchText = '';
 
-    this.unselectedColumns = _.cloneDeep(this.originUnselectedColumns);
+    this.unselectedLayerItems = _.cloneDeep(this.originUnselectedLayerItems);
   }
 
   /**
@@ -222,17 +210,17 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
   public deleteSelectedField(index: number): void {
 
     // delete field
-    const deleteField = this.selectedColumns.splice(index, 1);
+    const deleteField = this.selectedLayerItems.splice(index, 1);
 
     // set unselected field
     if (deleteField && deleteField.length > 0) {
 
-      this.unselectedColumns.push(deleteField[0]);
-      this.originUnselectedColumns = _.cloneDeep(this.unselectedColumns);
+      this.unselectedLayerItems.push(deleteField[0]);
+      this.originUnselectedLayerItems = _.cloneDeep(this.unselectedLayerItems);
     }
 
     // set name list in displaycolumn
-    this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.selectedColumns);
+    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(this.selectedLayerItems);
 
     // set uiOption
     this.apply();
@@ -256,25 +244,25 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     event.stopPropagation();
 
     let alias = ChartUtil.getAggregationAlias(item);
-    const index = _.findIndex(this.selectedColumns, (field) => {
+    const index = _.findIndex(this.selectedLayerItems, (field) => {
       return _.eq(alias, ChartUtil.getAggregationAlias(field));
     });
 
     // if it's duplicate value
     if (-1 !== index) return;
 
-    this.selectedColumns.push(item);
+    this.selectedLayerItems.push(item);
 
-    // remove in unselectedColumns
-    const removeIndex = _.findIndex(this.unselectedColumns, (field) => {
+    // remove in unselectedLayerItems
+    const removeIndex = _.findIndex(this.unselectedLayerItems, (field) => {
       return _.eq(alias, ChartUtil.getAggregationAlias(field));
     });
-    this.unselectedColumns.splice(removeIndex, 1);
-    this.originUnselectedColumns = _.cloneDeep(this.unselectedColumns);
+    this.unselectedLayerItems.splice(removeIndex, 1);
+    this.originUnselectedLayerItems = _.cloneDeep(this.unselectedLayerItems);
 
 
     // set name list in displaycolumn
-    this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.selectedColumns);
+    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(this.selectedLayerItems);
 
     // set uiOption
     this.apply();
@@ -287,11 +275,20 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
   public returnMapTooltip(tooltipType: string): boolean {
 
     if (this.uiOption.toolTip.displayTypes &&
-        -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType[tooltipType])) {
+      -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType[tooltipType])) {
 
       return true;
     }
 
     return false;
+  }
+
+  /**
+   * return data value name
+   * @param item
+   * @returns {string}
+   */
+  public returnDataValueName(item) {
+    return ChartUtil.getAlias(item);
   }
 }

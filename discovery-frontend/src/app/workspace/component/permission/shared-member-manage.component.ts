@@ -82,6 +82,12 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
   public memberUserListPageNum: number = 0;
   public memberGroupListPageNum: number = 0;
 
+  // 더보기 표시 여부
+  public showMoreAllUser:boolean = false;
+  public showMoreAllGroup:boolean = false;
+  public showMoreWsUser:boolean = false;
+  public showMoreWsGroup:boolean = false;
+
   // 검색어
   public searchText: string = '';
 
@@ -151,6 +157,10 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
     // 초기화
     this._reset();
 
+    this.isShow = true;
+
+    this.safelyDetectChanges();
+
     // 워크스페이스 정보 설정
     this._workspace = workspace;
 
@@ -164,15 +174,16 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
       this.permissionService.getRolesetDetail(workspace.roleSets[0].id).then((result: RoleSet) => {
         this.roleSet = result;
         this.defaultRole = result.roles.find(item => item.defaultRole);
+        this.safelyDetectChanges();
         resolve();
       }).catch(err => reject(err));
     }));
     Promise.all(promise).then(() => {
-      this.isShow = true;
       this.loadingHide();
+      this.safelyDetectChanges();
     }).catch(() => {
-      this.isShow = true;
       this.loadingHide();
+      this.safelyDetectChanges();
     });
   } // function - init
 
@@ -518,7 +529,9 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
         if (data['_embedded']) {
           this.workspaceUsers = this.workspaceUsers.concat(data['_embedded']['members']);
         }
+        this.showMoreWsUser = this._checkShowMore( data.page );
         this._orgWsUsers = _.cloneDeep(this.workspaceUsers);
+        this.safelyDetectChanges();
         resolve();
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
@@ -547,7 +560,9 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
         if (data['_embedded']) {
           this.workspaceGroups = this.workspaceGroups.concat(data['_embedded']['members']);
         }
+        this.showMoreWsGroup = this._checkShowMore( data.page );
         this._orgWsGroups = _.cloneDeep(this.workspaceGroups);
+        this.safelyDetectChanges();
         resolve();
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
@@ -583,6 +598,8 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
           this.users = this.users.concat(users['_embedded']['users']);
           this.totalUsers = users.page.totalElements;
         }
+        this.showMoreAllUser = this._checkShowMore( users.page );
+        this.safelyDetectChanges();
         resolve();
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.member.retrieve.fail'));
@@ -617,6 +634,8 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
           this.groups = this.groups.concat(groups['_embedded']['groups']);
           this.totalGroups = groups.page.totalElements;
         }
+        this.showMoreAllGroup = this._checkShowMore( groups.page );
+        this.safelyDetectChanges();
         resolve();
       }).catch(() => {
         Alert.error(this.translateService.instant('msg.space.alert.group.retrieve.fail'));
@@ -641,11 +660,24 @@ export class SharedMemberManageComponent extends AbstractComponent implements On
     this.memberGroupListPageNum = 0;
   } // function - _reset
 
+  /**
+   * 더보기 버튼 표시 여부 확인
+   * @param pageResult
+   * @private
+   */
+  private _checkShowMore( pageResult ):boolean {
+    if( 0 === pageResult.totalPages ) {
+      return false;
+    } else {
+      return pageResult.number < pageResult.totalPages - 1;
+    }
+  } // function - _checkShowMore
+
 }
 
 class SearchParam {
   public page: number = 0;
-  public size: number = 20;
+  public size: number = 30;
   public sort: string;
   public nameContains: string;
 }

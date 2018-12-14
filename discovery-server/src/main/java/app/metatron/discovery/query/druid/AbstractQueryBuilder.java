@@ -3,6 +3,34 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -82,6 +110,7 @@ import app.metatron.discovery.query.druid.filters.SelectorFilter;
 import app.metatron.discovery.query.druid.funtions.DateTimeMillisFunc;
 import app.metatron.discovery.query.druid.funtions.InFunc;
 import app.metatron.discovery.query.druid.funtions.TimeFormatFunc;
+import app.metatron.discovery.query.druid.limits.WindowingSpec;
 import app.metatron.discovery.query.druid.lookup.MapLookupExtractor;
 import app.metatron.discovery.query.druid.postaggregations.ArithmeticPostAggregation;
 import app.metatron.discovery.query.druid.postaggregations.FieldAccessorPostAggregator;
@@ -91,6 +120,7 @@ import app.metatron.discovery.query.druid.queries.JoinQuery;
 import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
 import app.metatron.discovery.query.druid.virtualcolumns.IndexVirtualColumn;
 import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
+import app.metatron.discovery.query.polaris.ComputationalField;
 import app.metatron.discovery.util.PolarisUtils;
 
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.CONFUSING_FIELD_CODE;
@@ -189,9 +219,14 @@ public abstract class AbstractQueryBuilder {
   protected List<PostAggregation> postAggregations = Lists.newArrayList();
 
   /**
+   * need to process user defined field
+   */
+  protected List<WindowingSpec> windowingSpecs = Lists.newArrayList();
+
+  /**
    * 엔진에 질의할 때 필요한 추가 정보
    */
-  protected Map<String, Object> context;
+  protected Map<String, Object> context = Maps.newHashMap();
 
   /**
    * 질의할 queryId, 캔슬시 활용
@@ -631,6 +666,61 @@ public abstract class AbstractQueryBuilder {
     }
 
     return;
+  }
+
+  protected void addUserDefinedAggregationFunction(MeasureField field) {
+
+    ExpressionField expressionField = (ExpressionField) userFieldsMap.get(field.getName());
+
+    String curExpr = expressionField.getExpr();
+
+    switch (field.getAggregationType()) {
+
+      case NONE:
+        break;
+      case MIN:
+        curExpr = "minof(" + curExpr + ")";
+        break;
+      case MAX:
+        curExpr = "maxof(" + curExpr + ")";
+        break;
+      case COUNT:
+        curExpr = "countof(" + curExpr + ")";
+        break;
+      case SUM:
+        curExpr = "sumof(" + curExpr + ")";
+        break;
+      case AVG:
+        curExpr = "avgof(" + curExpr + ")";
+        break;
+      case STDDEV:
+        curExpr = "stddevof(" + curExpr + ")";
+        break;
+      case MEDIAN:
+        break;
+      case AREA:
+        break;
+      case RANGE:
+        break;
+      case PERCENTILE:
+        break;
+      case VARIATION:
+        curExpr = "varianceof(" + curExpr + ")";
+        break;
+      case APPROX:
+        break;
+      case COMPLEX:
+        break;
+    }
+
+    // TODO: 파라미터도 추가해야함, 일단 기존 로직 유지
+    Map<String, String> exprMap = userFieldsMap.values().stream()
+        .filter(userDefinedField -> userDefinedField instanceof ExpressionField)
+        .collect(Collectors.toMap(UserDefinedField::getName, f -> ((ExpressionField) f).getExpr()));
+
+    ComputationalField.makeAggregationFunctionsIn(field.getAlias(), curExpr, aggregations
+        , postAggregations, windowingSpecs, context, exprMap);
+
   }
 
   /**

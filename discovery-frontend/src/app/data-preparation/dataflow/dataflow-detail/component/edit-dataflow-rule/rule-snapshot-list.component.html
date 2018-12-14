@@ -29,7 +29,10 @@
         <div class="ddp-data-det">
           <div class="ddp-data-status type-{{getSnapshotStatus(snapshot.status)[1]}}">{{getSnapshotStatus(snapshot.status)[0]}}</div>
           <div class="ddp-data-name">
+            <!--
             <span class="ddp-tag-type">{{getSnapshotType(snapshot.ssType)}}</span>
+            -->
+            <span class="ddp-tag-type">{{prepCommonUtil.getSnapshotType(snapshot.ssType)}}</span>
               {{snapshot.ssName}}
           </div>
           <div class="ddp-data-date">{{snapshot.createdTime | mdate : 'YYYY-MM-DD HH:mm:ss'}}</div>
@@ -49,9 +52,9 @@
 
       <!--Cancel popup-->
       <div class="ddp-txt-cancel" *ngIf="snapshot.isCancel">
-        <span class="ddp-txt-det">Sure to cancel snapshot creation?</span>
-        <a href="javascript:" class="ddp-btn-line" (click)="refreshSnapshotList(snapshot)">No</a>
-        <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="cancelSnapshotConfirm(snapshot)">Yes</a>
+        <span class="ddp-txt-det">{{'msg.dp.ui.snapshot.cancel.confirm' | translate }}</span>
+        <a href="javascript:" class="ddp-btn-line" (click)="refreshSnapshotList(snapshot)">{{'msg.dp.ui.no' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="cancelSnapshotConfirm(snapshot)">{{'msg.dp.ui.yes' | translate}}</a>
       </div>
       <!--Cancel popup-->
 

@@ -247,7 +247,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
    */
   public onChangeShortNameMode(): void {
     this.shortNameEditFl = true;
-    this.reShortName = this.columnDictionary.shortName;
+    this.reShortName = this.columnDictionary.suggestionShortName;
   }
 
   /**
@@ -386,7 +386,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // blur
     this.shortNameElement.nativeElement.blur();
     // 컬럼 사전 업데이트
-    this._updateColumnDictionary({shortName: this.reShortName.trim()});
+    this._updateColumnDictionary({suggestionShortName: this.reShortName.trim()});
   }
 
   /**

@@ -15,13 +15,12 @@
 import { Component, ElementRef, Injector, OnInit, Input } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
-import { DatasetJdbc, DsType, RsType, ImportType } from '../../../domain/data-preparation/dataset';
+import { PrDatasetJdbc, DsType, ImportType } from '../../../domain/data-preparation/pr-dataset';
 import { ConnectionType, Dataconnection } from '../../../domain/dataconnection/dataconnection';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
-import { Alert } from '../../../common/util/alert.util';
 import { ConnectionRequest } from '../../../domain/dataconnection/connectionrequest';
-import { isUndefined } from 'util';
-import {DatasetService} from "../service/dataset.service";
+import { isNullOrUndefined, isUndefined } from 'util';
+import { DatasetService } from "../service/dataset.service";
 
 @Component({
   selector: 'app-create-dataset-db-select',
@@ -49,19 +48,17 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   public isUrl : boolean = false;
 
   @Input()
-  public datasetJdbc: DatasetJdbc;
+  //public datasetJdbc: DatasetJdbc;
+  public datasetJdbc: PrDatasetJdbc;
 
   // 데이터 커넥션 리스트
   public databaseTypeList: any[] = [
-    { label: 'Oracle', value: 'ORACLE' },
+    // { label: 'Oracle', value: 'ORACLE' },
     { label: 'MySQL', value: 'MYSQL' },
     { label: 'Hive', value: 'HIVE' },
     { label: 'Presto', value: 'PRESTO' },
     { label: 'Tibero', value: 'TIBERO' }
   ];
-
-  // 선택한 프리셋 정보
-  private selectedConnectionPreset: any;
 
   // 선택한 URL 타입
   public selectedUrlType: string;
@@ -83,10 +80,28 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   public connectionErrorDescription: string = '';
 
   // select box 선택값
-  public defaultSelectedIndex = -1;
+  public defaultSelectedIndex = 0;
 
   // connection request 객체
   public connectionRequest: ConnectionRequest = new ConnectionRequest();
+
+  // security type list
+  public securityTypeList: any[];
+
+  public selectedSecurityType: any;
+
+  // input validation
+  public isShowHostRequired: boolean;
+  public isShowPortRequired: boolean;
+  public isShowSidRequired: boolean;
+  public isShowDatabaseRequired: boolean;
+  public isShowCatalogRequired: boolean;
+  public isShowUrlRequired: boolean;
+  public isShowUsernameRequired: boolean;
+  public isShowPasswordRequired: boolean;
+
+
+  public isNextBtnClicked: boolean;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -129,12 +144,8 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public initView() {
 
-    this.datasetJdbc.tableName = '';
-    this.datasetJdbc.databaseName = '';
-    this.datasetJdbc.queryStmt = '';
     this.datasetJdbc.dsType = DsType.IMPORTED;
-    this.datasetJdbc.rsType = RsType.TABLE;
-    this.datasetJdbc.importType = ImportType.DB;
+    this.datasetJdbc.importType = ImportType.DATABASE;
 
     this.selectedDatabase = this.databaseTypeList[0];
 
@@ -144,21 +155,35 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
       { label: this.translateService.instant('msg.storage.ui.conn.url.only'), value: 'URL' }
     ];
     this.selectedUrlType = this.urlTypes[0].value;
+
+    this.securityTypeList = [
+      { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
+      { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
+      { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
+    ];
+    this.selectedSecurityType = this.securityTypeList[0];
+
   }
 
 
   public next() {
-    if (this.connectionResult !== 'valid') {
-      return;
-    } else {
-      this.datasetJdbc.dcId = this.dataconnection.id;
-      this.datasetJdbc.dataconnection = this.dataconnection;
-      this.popupService.notiPopup({
-        name: 'create-db-query',
-        data: null
-      });
-    }
 
+    this.isNextBtnClicked = true;
+
+    if (this.isEnableNext()) {
+      if (this.connectionResult !== 'valid') {
+        this.connectionResultFl = false;
+        this.connectionResult = 'Required';
+        return;
+      } else {
+        this.datasetJdbc.dcId = this.dataconnection.id;
+        this.datasetJdbc.dataconnection = this.dataconnection;
+        this.popupService.notiPopup({
+          name: 'create-db-query',
+          data: null
+        });
+      }
+    }
   }
 
   public close() {
@@ -175,11 +200,14 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
     });
   }
 
-  // select box  변경시
-  public onChangeType($event: any) {
-    this.initConnectionPresetData();
-    for (let key in this.dataconnection) { if (this.dataconnection.hasOwnProperty(key)) delete this.dataconnection[key]; }
-    const keyList = ['id','name','implementor','hostname','port','username','password','sid','database','catalog','url'];
+  public selectConnection($event: any) {
+
+    for (let key in this.dataconnection) {
+      if (this.dataconnection.hasOwnProperty(key)) {
+        delete this.dataconnection[key];
+      }
+    }
+    const keyList = ['id','name','implementor','hostname','port','username','password','sid','database','catalog','url', 'authenticationType'];
     for(let key of keyList) {
       if($event.hasOwnProperty(key)) {
 
@@ -187,9 +215,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
       }
     }
 
-    if (this.dataconnection.url) {
-      this.isUrl = true;
-    }
+    this.isUrl = !isNullOrUndefined(this.dataconnection.url) && this.dataconnection.url !== '';
 
     for(let datadaseType of this.databaseTypeList) {
       if(datadaseType.value === this.dataconnection.implementor) {
@@ -197,6 +223,13 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
         break;
       }
     }
+
+    this.selectedSecurityType = this.securityTypeList.find(type => type.value === this.dataconnection.authenticationType) || this.securityTypeList[0];
+
+
+    this.initConnectionFlag();
+    this.initConnectionResultFlag();
+
   }
 
   public isEqualTypeValue(targetType, selectedType): boolean {
@@ -232,128 +265,78 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   /**
    * 프리셋 데이터 초기화
    */
-  public initConnectionPresetData() {
-    // 프리셋 데이터 초기화
-    this.selectedConnectionPreset = null;
-    // connection init flag
+  public initConnectionResultFlag() {
 
-    this.isUrl = false;
-
-    this.initConnectionFlag();
-  }
-
-  /**
-   * connection flag init
-   */
-  public initConnectionFlag() {
-    // 최초 접근 flag
-    this.firstFl = false;
-    // 커넥션 통과
+    this.isNextBtnClicked = false;
     this.connectionResultFl = null;
+
   }
 
   /**
    * connection validation message
    * @returns {string}
    */
-  public get getValidationMessage(): string {
+  public getValidationMessage(): boolean {
+    let result: boolean = true;
     if(!this.isUrl) {
       // hostname
       if (!this.dataconnection.hostname || this.dataconnection.hostname.trim() === '') {
-        return this.translateService.instant('msg.storage.alert.host.required');
+        this.isShowHostRequired = true;
+        result = false;
       }
       // port
       if (!this.dataconnection.port) {
-        return this.translateService.instant('msg.storage.alert.port.required');
+        this.isShowPortRequired = true;
+        result = false;
       }
       // sid
       if (this.isSIDRequired() && (!this.dataconnection.sid || this.dataconnection.sid.trim() === '')) {
-        return this.translateService.instant('msg.storage.alert.sid.required');
+        this.isShowSidRequired = true;
+        result = false;
       }
       // database
       if (this.isDbNameRequired() && (!this.dataconnection.database || this.dataconnection.database.trim() === '')) {
-        return this.translateService.instant('msg.storage.alert.db.required');
+        this.isShowDatabaseRequired = true;
+        result = false;
       }
       // catalog
       if (this.isCatalogRequired() && (!this.dataconnection.catalog || this.dataconnection.catalog.trim() === '')) {
-        return this.translateService.instant('msg.storage.alert.catalogue.required');
+        this.isShowCatalogRequired = true;
+        result = false;
       }
     } else {
       // url
       if (!this.dataconnection.url || this.dataconnection.url.trim() === '') {
-        return this.translateService.instant('msg.storage.alert.url.required');
+        this.isShowUrlRequired = true;
+        result = false;
       }
     }
-    // username
-    if (!this.dataconnection.username || this.dataconnection.username.trim() === '') {
-      return this.translateService.instant('msg.storage.alert.user-name.required');
+
+    if (!this.isConnectUserAccount()) {
+
+      // username
+      if (!this.dataconnection.username || this.dataconnection.username.trim() === '') {
+        this.isShowUsernameRequired = true;
+        result = false;
+      }
+
+      // password
+      if (!this.dataconnection.password || this.dataconnection.password.trim() === '') {
+        this.isShowPasswordRequired = true;
+        result = false;
+      }
+
     }
-    // password
-    if (!this.dataconnection.password || this.dataconnection.password.trim() === '') {
-      return this.translateService.instant('msg.storage.alert.pw.required');
-    }
-    return '';
+
+    return result;
   }
 
   /**
-   * connection validation message 를 보여주는지 여부
-   * @returns {boolean}
+   * Check connection - API
    */
-  public get isShowValidationMessage() : boolean {
-    // 최초 접근 또는 connection check 가 완료된 상태라면 return
-    return !(this.firstFl || this.connectionResultFl !== null);
-
-  }
-
-  /**
-   * 커넥션 테스트가 사용가능한지 확인
-   * @returns {boolean}
-   */
-  /*
- public get isEnabledConnectionTest() : boolean {
-   // hostname
-   if (this.hostname.trim() === '') {
-     return false;
-   }
-   // port
-   if (!this.port) {
-     return false;
-   }
-   // username
-   if (this.username.trim() === '') {
-     return false;
-   }
-   // password
-   if (this.password.trim() === '') {
-     return false;
-   }
-   // sid
-   if (this.isSIDRequired && this.sid.trim() === '') {
-     return false;
-   }
-   // database
-   if (this.isDbNameRequired && this.database.trim() === '') {
-     return false;
-   }
-   // catalog
-   if (this.isCatalogRequired && this.catalog.trim() === '') {
-     return false;
-   }
-   return true;
- }
- */
-
-  // connection check
   public checkConnection() {
 
-    if( ''!== this.getValidationMessage ) {
-      this.connectionErrorDescription = this.getValidationMessage;
-      this.connectionResult = 'Invalid';
-      this.connectionResultFl = false;
-      return;
-    }
-
-    this.dataconnection.implementor = this.getImplemntor(this.selectedDatabase.value);
+    this.dataconnection.implementor = this.getImplementor(this.selectedDatabase.value);
     this.connectionRequest.connection = this.dataconnection;
 
     this.loadingShow();
@@ -380,7 +363,6 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   }
 
   // 선택한 db type
-  // protected -> public
   public setDatabase(db) {
 
     if (this.dataconnection.id || this.connectionList.length === 0) {
@@ -391,6 +373,56 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
     this.selectedDatabase = db;
     this.defaultSelectedIndex = -1;
     this.connectionInit(db);
+  }
+
+
+  /**
+   * init connection input flag
+   */
+  public initConnectionFlag(): void {
+    this.isShowHostRequired = null;
+    this.isShowPortRequired = null;
+    this.isShowSidRequired = null;
+    this.isShowDatabaseRequired = null;
+    this.isShowCatalogRequired = null;
+    this.isShowUrlRequired = null;
+    this.isShowUsernameRequired = null;
+    this.isShowPasswordRequired = null;
+  }
+
+
+  /**
+   * When TEST button is clicked
+   */
+  public clickValidationBtn() {
+    this.getValidationMessage() && this.checkConnection();
+  }
+
+
+  /**
+   * Security : is DIALOG
+   * @returns {boolean}
+   */
+  public isConnectWithIdAndPassword(): boolean {
+    return this.selectedSecurityType.value === 'DIALOG';
+  }
+
+
+  /**
+   * Security : is USERINFO
+   * @returns {boolean}
+   */
+  public isConnectUserAccount(): boolean {
+    return this.selectedSecurityType.value === 'USERINFO';
+  }
+
+
+  /**
+   * Check if user can proceed to next step
+   * @returns {boolean}
+   */
+  public isEnableNext(): boolean {
+    return this.connectionResultFl;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -405,19 +437,38 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
     this.connectionService.getDataconnections({'projection':'default'})
       .then((data) => {
         if (data.hasOwnProperty('_embedded') && data['_embedded'].hasOwnProperty('connections')) {
-          this.connectionList = data['_embedded']['connections'];
 
-          let idx = this.connectionList.findIndex((item) =>{
-            return item.name === 'Direct input';
+          // FIXME : only MANUAL type can be used to make dataset (No server side API)
+          this.connectionList = data['_embedded']['connections'].filter((item) => {
+            return item.authenticationType === 'MANUAL'
           });
 
-          if (idx !== -1) {
-            this.connectionList.splice(idx,1);
+          if (this.connectionList.length !== 0 && isNullOrUndefined(this.datasetJdbc.dataconnection)) {
+
+            this.selectConnection(this.connectionList[0]);
+
+          } else if (!isNullOrUndefined(this.datasetJdbc.dataconnection.connection)) {
+
+            const connArr = this.connectionList.map((item) => {return item.id});
+
+            if (connArr.indexOf(this.datasetJdbc.dcId) !== -1) {
+              this.defaultSelectedIndex = connArr.indexOf(this.datasetJdbc.dcId);
+
+              if (this.datasetJdbc.dataconnection.connection.username && this.datasetJdbc.dataconnection.connection.password) {
+                if (isNullOrUndefined(this.connectionList[this.defaultSelectedIndex].username)) {
+                  this.connectionList[this.defaultSelectedIndex].username = this.datasetJdbc.dataconnection.connection.username;
+                  this.connectionList[this.defaultSelectedIndex].password = this.datasetJdbc.dataconnection.connection.password;
+                }
+              }
+
+              this.selectConnection(this.connectionList[this.defaultSelectedIndex]);
+            }
+
+            this.connectionResult = 'valid';
+            this.connectionResultFl = true;
+
           }
 
-          if (this.connectionList.length !== 0) {
-            this.onChangeType(this.connectionList[0]);
-          }
         }
       })
       .catch((err) => {
@@ -429,11 +480,11 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
 
   private connectionInit(db) {
     for (let key in this.dataconnection) { if (this.dataconnection.hasOwnProperty(key)) delete this.dataconnection[key]; }
-    this.dataconnection.implementor = this.getImplemntor(db.value);
+    this.dataconnection.implementor = this.getImplementor(db.value);
   }
 
   // protected -> private
-  private getImplemntor(param: string): ConnectionType {
+  private getImplementor(param: string): ConnectionType {
     if (param === 'H2') {
       return ConnectionType.H2;
     } else if (param === 'MYSQL') {
