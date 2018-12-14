@@ -170,18 +170,25 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // change layer type
     this.uiOption.layers[this.index].type = layerType;
 
-    // init color ranges
-    this.uiOption.layers[this.index].color.ranges = undefined;
-    // hide custom color
-    this.uiOption.layers[this.index].color['settingUseFl'] = false;
+    // init color, legend
+    this.initOptionSymbolLayer();
 
     // change color type by layer type
     if (MapLayerType.HEATMAP === layerType) {
+      this.uiOption.layers[this.index].color.by = MapBy.MEASURE;
       this.uiOption.layers[this.index].color.schema = 'HC1';
       if( isNullOrUndefined(this.uiOption.layers[this.index]['blur']) ) {
         this.uiOption.layers[this.index]['blur'] = 20;
       }
       this.uiOption.layers[this.index]['radius'] = 20;
+
+      // when measure doesn't exist, hide/disable legend
+      if (!this.measureList || 0 === this.measureList.length) {
+        // this.uiOption.legend.showName = false;
+        this.uiOption.legend.auto = false;
+      } else {
+        this.uiOption.layers[this.index].color.column = this.measureList[0]['name'];
+      }
 
       // remove measure aggregation type in shelf
       this.removeAggregationType();
@@ -214,7 +221,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       this.addAggregationType();
     }
 
-    // set measure list
+    // set measure, dimension list by layer type
     this.setMeasureDimensions(this.shelf, true);
 
     if ((MapLayerType.TILE === cloneLayerType || MapLayerType.TILE === layerType) && cloneLayerType !== layerType) {
@@ -634,6 +641,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // not heatmap => set ranges
     if (MapLayerType.HEATMAP !== this.uiOption.layers[this.index].type && MapBy.MEASURE === this.uiOption.layers[this.index].color.by) {
       this.uiOption.layers[this.index].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[0], colorList, this.index, this.shelf.layers[this.index], []);
+    // heatmap => init ranges
+    } else {
+      this.uiOption.layers[this.index].color.ranges = undefined;
     }
 
     this.applyLayers();
@@ -1178,16 +1188,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     ///////////////////////////
     if( isNone ) {
       layer.color.by = MapBy.NONE;
-      layer.color.schema = '#6344ad';
+      layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : '#6344ad';
       layer.color.column = null;
       layer.color.aggregationType = null;
     }
     ///////////////////////////
     // Color by Measure
     ///////////////////////////
-    else if( !_.eq(layer.color.by, MapBy.DIMENSION) && isMeasure ) {
+    // remove not isDimension => exceptional case select dimension and remove dimension
+    else if( isMeasure ) {
       layer.color.by = MapBy.MEASURE;
-      layer.color.schema = 'VC1';
+      layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : 'VC1';
       layer.color.column = this.measureList[0]['name'];
       if (aggregationFl) layer.color.aggregationType = this.measureList[0]['aggregationType'];
       else layer.color.aggregationType = null;
@@ -1225,10 +1236,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     let isDimension: boolean = false;
     let isMeasure: boolean = false;
     _.each(layers, (field) => {
-      if( field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1 ) {
+      if( 'user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1) ) {
         isNone = false;
       }
-      if( _.eq(field.type, ShelveFieldType.DIMENSION) ) {
+      // when logical type is not geo, type is dimension
+      if( ('user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1)) && _.eq(field.type, ShelveFieldType.DIMENSION) ) {
         isDimension = true;
       }
       if( _.eq(field.type, ShelveFieldType.MEASURE) ) {
@@ -1276,5 +1288,19 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     range.gt     = null == range.gt ? null : FormatOptionConverter.getNumberValue(range.gt);
     range.lte    = null == range.lte ? null : FormatOptionConverter.getNumberValue(range.lte);
     return range;
+  }
+
+  /**
+   * symbol layer - init ui options when change symbol layer type
+   */
+  private initOptionSymbolLayer() {
+
+    // init color ranges
+    this.uiOption.layers[this.index].color.ranges = undefined;
+    // hide custom color
+    this.uiOption.layers[this.index].color['settingUseFl'] = false;
+
+    // init disable legend
+    this.uiOption.legend.auto = true;
   }
 }

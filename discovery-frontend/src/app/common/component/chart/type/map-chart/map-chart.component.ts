@@ -159,12 +159,15 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         // {
         //   name: 'Layer 1',
         //   type: MapLayerType.SYMBOL,
+        //   pointType: MapSymbolType.CIRCLE,
         //   color: [{
         //     color: '#FFFFFF',
         //     column: 'gis'
         //   }]
         // }
-    ]
+    ],
+    // click legend (show / hide)
+    showFl: true
   };
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -2145,13 +2148,21 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       // Layer name
       legendInfo.name = layer.name;
 
+      // when layer type is symbol, layer symbol exists, set point type by symbols
+      if (MapLayerType.SYMBOL === layer.type && (<UISymbolLayer>layer).symbol) {
+        legendInfo.pointType = (<UISymbolLayer>layer).symbol.toString();
+      // set circle by default
+      } else {
+        legendInfo.pointType = MapSymbolType.CIRCLE.toString();
+      }
+
       // Color data
       legendInfo.color = [];
 
       // convert symbol, tile to point, hexagon
       let layerType = MapLayerType.SYMBOL === layer.type ? 'Point' : MapLayerType.TILE === layer.type ? 'Hexagon' : layer.type.toString();
 
-      // Layer type
+      // Layer color type
       legendInfo.type = _.startCase(layerType) + ' Color';
 
       ////////////////////////////////////////////////////////
@@ -2303,7 +2314,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
           colorInfo.color = HeatmapColorList[layer.color.schema][(HeatmapColorList[layer.color.schema].length-1)];
         }
         _.each(this.shelf.layers[this.getUiMapOption().layerNum], (field) => {
-          if( field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') != -1 ) {
+          if( 'user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') != -1) ) {
             colorInfo.column = field.alias;
             return false;
           }
@@ -2468,10 +2479,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     let isDimension: boolean = false;
     let isMeasure: boolean = false;
     _.each(shelf, (field) => {
-      if( field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1 ) {
+      if( 'user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1) ) {
         isNone = false;
       }
-      if( _.eq(field.type, ShelveFieldType.DIMENSION) ) {
+      // when logical type is not geo, type is dimension
+      if( ('user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1)) && _.eq(field.type, ShelveFieldType.DIMENSION) ) {
         isDimension = true;
       }
       if( _.eq(field.type, ShelveFieldType.MEASURE) ) {
@@ -2492,14 +2504,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     ///////////////////////////
     if( isNone ) {
       layer.color.by = MapBy.NONE;
-      layer.color.schema = '#6344ad';
+      layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : '#6344ad';
       layer.color.column = null;
       layer.color.aggregationType = null;
     }
     ///////////////////////////
     // Color by Measure
     ///////////////////////////
-    // TODO remove !_.eq(layer.color.by, MapBy.DIMENSION) => exceptional case (select color by dimension, remove dimension in shelf) by juhee
+    // remove not isDimension => exceptional case select dimension and remove dimension
     else if( isMeasure ) {
       layer.color.by = MapBy.MEASURE;
       layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : 'VC1';
@@ -2556,6 +2568,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     ////////////////////////////////////////////////////////
     else if( _.eq(layer.type, MapLayerType.HEATMAP) ) {
 
+      ///////////////////////////
+      // Legend
+      ///////////////////////////
+      // when measure doesn't exist, hide/disable legend
+      if ( !this.uiOption.fieldMeasureList || this.uiOption.fieldMeasureList.length === 0 ) {
+        this.uiOption.legend.auto = false;
+        this.uiOption.legend.showName = false;
+      } else {
+        this.uiOption.legend.auto = true;
+      }
     }
     ////////////////////////////////////////////////////////
     // Hexagon

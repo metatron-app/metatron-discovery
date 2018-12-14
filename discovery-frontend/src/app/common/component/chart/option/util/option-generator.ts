@@ -2050,7 +2050,7 @@ export namespace OptionGenerator {
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true),
         legend: {
           pos: UIPosition.RIGHT_BOTTOM,
-          showName: true,
+          showName: false,
           auto: true
         },
         toolTip: {
