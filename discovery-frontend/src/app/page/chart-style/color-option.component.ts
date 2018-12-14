@@ -1222,6 +1222,19 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   }
 
   /**
+   * return color by dimension column index
+   * @returns {number}
+   */
+  public getDimensionIndex() {
+
+    if (!this.uiOption.fielDimensionList) return;
+
+    const index = _.findIndex(this.uiOption.fielDimensionList, {'name' : this.uiOption.color['targetField']});
+
+    return index;
+  }
+
+  /**
    * hex에서 rgb값으로 변경
    * @param color
    * @returns {string}

@@ -96,7 +96,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
     this.fieldInfo.aggs = this.pivot.aggregations.filter((agg) => {
       return _.eq(agg.type, ShelveFieldType.DIMENSION) || _.eq(agg.type, ShelveFieldType.TIMESTAMP);
     }).map((agg) => {
-      return !_.isEmpty(agg.alias) ? agg.alias : agg.name;
+      return agg.name;
     });
 
     // set pivot info

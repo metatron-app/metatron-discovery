@@ -26,6 +26,7 @@ import { UIChartDataLabel } from '../ui-option/ui-datalabel';
 import { UIChartAxis, UIChartAxisLabelValue } from '../ui-option/ui-axis';
 import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
 import { Field } from '../../../../../domain/workbook/configurations/field/field';
+import { ChartUtil } from '../util/chart-util';
 
 /**
  * 수자 포맷 옵션 컨버터
@@ -581,61 +582,42 @@ export class FormatOptionConverter {
 
       if ('timestamp' == targetPivot.type) {
 
-        let resultData: string = '';
+        let granularity = targetPivot.format.unit.toString().slice(0, 1).toUpperCase();
+        granularity += targetPivot.format.unit.toString().slice(1, targetPivot.format.unit.toString().length).toLowerCase();
 
-        if (titleUseFl) {
+        const name = targetPivot['fieldAlias'] ? targetPivot['fieldAlias'] : targetPivot.name;
 
-          let defaultAlias = targetPivot.format.unit + '(' + targetPivot.name + ')';
+        let defaultAlias = targetPivot.granularity + '(' + name + ')';
 
-          // when alias is not changed
-          if (defaultAlias === targetPivot.alias) {
-            let granularity = targetPivot.format.unit.toString().slice(0, 1).toUpperCase();
-            granularity += targetPivot.format.unit.toString().slice(1, targetPivot.format.unit.toString().length).toLowerCase();
-
-            resultData = granularity + ' of ' + targetPivot.name + ' : ';
-
-          // when alias is changed, set tooltip name as alias
-          } else {
-            resultData = targetPivot.alias + ' : ';
-          }
+        if (defaultAlias === targetPivot.alias) {
+          result.push(granularity + ' of ' + name + ' : ' + item);
+        } else {
+          result.push(targetPivot['alias']);
         }
-
-        resultData += item;
-
-        result.push(resultData);
       }
       else if ('measure' == targetPivot.type) {
 
         // measure인 경우 aggregation length가 2개이상인경우
         if (pivot && pivot.aggregations.length > 1) {
 
-          let seriesValue = '';
+          let aggregationType: string;
+          if (targetPivot.aggregationType) {
+            aggregationType = targetPivot.aggregationType.toString().slice(0, 1).toUpperCase();
+            aggregationType += targetPivot.aggregationType.toString().slice(1, targetPivot.aggregationType.toString().length).toLowerCase();
 
-          // priority of fiedAlias is higher, set fieldAlias
-          let targetPivotName = targetPivot.fieldAlias ? targetPivot.fieldAlias : targetPivot.name;
-
-          let defaultAlias = targetPivot.aggregationType + '(' + targetPivotName + ')';
-
-          // when alias is not changed
-          if (defaultAlias === targetPivot.alias) {
-
-            let aggregationType: string;
-            if (targetPivot.aggregationType) {
-              aggregationType = targetPivot.aggregationType.toString().slice(0, 1).toUpperCase();
-              aggregationType += targetPivot.aggregationType.toString().slice(1, targetPivot.aggregationType.toString().length).toLowerCase();
-
-              // Avg인 경우 Average로 치환
-              if ('Avg' == aggregationType) aggregationType = 'Average';
-            }
-
-            seriesValue = (aggregationType ? aggregationType+ ' of ' : '') + targetPivotName;
-            // when alias is changed, set tooltip name as alias
-          } else {
-
-            seriesValue = targetPivot.alias;
+            // Avg인 경우 Average로 치환
+            if ('Avg' == aggregationType) aggregationType = 'Average';
           }
 
-          result.push(seriesValue);
+          const name = targetPivot['fieldAlias'] ? targetPivot['fieldAlias'] : targetPivot.name;
+
+          let defaultAlias = targetPivot.aggregationType + '(' + name + ')';
+
+          if (defaultAlias === targetPivot.alias) {
+            result.push((aggregationType ? aggregationType+ ' of ' : '') + name);
+          } else {
+            result.push(targetPivot['alias']);
+          }
         }
       } else {
 
@@ -668,17 +650,26 @@ export class FormatOptionConverter {
     // 해당 value값으로 찾을 수 없는경우 seriesName으로 찾기
     if (!aggValue && seriesName) aggValue = _.find(aggregations, {alias : seriesName});
 
-    let aggregationType = "";
-    if( aggValue.aggregationType && -1 < aggValue.alias.indexOf( aggValue.aggregationType + "(" ) ) {
-      aggregationType = aggValue.aggregationType.toString().slice(0, 1).toUpperCase();
-      aggregationType += aggValue.aggregationType.toString().slice(1, aggValue.aggregationType.toString().length).toLowerCase();
-      // Avg인 경우 Average로 치환
-      if ('Avg' == aggregationType) aggregationType = 'Average';
-      aggregationType += ' of ';
-      seriesValue = aggregationType +
-        aggValue.alias.replace( new RegExp( aggValue.aggregationType + '\\(([a-zA-Z]+)\\)', 'gi' ), '$1' ) + ' : ' +
-        this.getFormatValue(value, format);
+    // priority of fiedAlias is higher, set fieldAlias
+    let aggValueName = aggValue.fieldAlias ? aggValue.fieldAlias : aggValue.name;
+
+    let defaultAlias = aggValue.aggregationType + '(' + aggValueName + ')';
+    // when alias is not changed
+    if (defaultAlias === aggValue.alias) {
+      let aggregationType = "";
+      if( aggValue.aggregationType ) {
+        aggregationType = aggValue.aggregationType.toString().slice(0, 1).toUpperCase();
+        aggregationType += aggValue.aggregationType.toString().slice(1, aggValue.aggregationType.toString().length).toLowerCase();
+        // Avg인 경우 Average로 치환
+        if ('Avg' == aggregationType) aggregationType = 'Average';
+        aggregationType += ' of ';
+      }
+
+      seriesValue = aggregationType + aggValueName + ' : ' + this.getFormatValue(value, format);
+
+      // when alias is changed, set tooltip name as alias
     } else {
+
       seriesValue = aggValue.alias + ' : ' + this.getFormatValue(value, format);
     }
 
