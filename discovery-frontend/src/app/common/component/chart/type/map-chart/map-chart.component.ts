@@ -323,6 +323,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     let geomType = field.field.logicalType.toString();
 
     ////////////////////////////////////////////////////////
+    // set min / max
+    ////////////////////////////////////////////////////////
+    this.setMinMax();
+
+    ////////////////////////////////////////////////////////
     // Check option (spec)
     ////////////////////////////////////////////////////////
 
@@ -2633,21 +2638,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
     let fields = TooltipOptionConverter.returnTooltipDataValue(shelf);
     this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(fields);
-
-    ////////////////////////////////////////////////////////
-    // min, max value
-    ////////////////////////////////////////////////////////
-    // set min / max by decimal format
-    if (!_.isEmpty(layer.color.column) && this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal && this.data && this.data.length > 0) {
-
-      let alias = ChartUtil.getFieldAlias(layer.color.column, shelf, layer.color.aggregationType);
-
-      let valueRange = _.cloneDeep(this.data[0]['valueRange'][alias]);
-      if (valueRange) {
-        this.uiOption.minValue = valueRange.minValue;
-        this.uiOption.maxValue = valueRange.maxValue;
-      }
-    }
   }
 
   /**
@@ -2902,5 +2892,25 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     }
 
     return filterFl;
+  }
+
+  /**
+   * set uiOption min / max value
+   */
+  private setMinMax() {
+
+    let layer: UILayers = this.getUiMapOption().layers[this.getUiMapOption().layerNum];
+    let shelf :GeoField[] = _.cloneDeep(this.shelf.layers[this.getUiMapOption().layerNum]);
+
+    if (!_.isEmpty(layer.color.column) && this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal && this.data && this.data.length > 0) {
+
+      let alias = ChartUtil.getFieldAlias(layer.color.column, shelf, layer.color.aggregationType);
+
+      let valueRange = _.cloneDeep(this.data[0]['valueRange'][alias]);
+      if (valueRange) {
+        this.uiOption.minValue = valueRange.minValue;
+        this.uiOption.maxValue = valueRange.maxValue;
+      }
+    }
   }
 }
