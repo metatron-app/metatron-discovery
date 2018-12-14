@@ -55,14 +55,19 @@ Installation
 ### Requirements
 - MacOS / Linux (Redhat, CentOS)
 - JDK 1.8
-- [Druid customized version for Metatron](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/latest/metatron-discovery-latest-bin.tar.gz)
+- [Druid customized version for Metatron](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/latest/druid-0.9.1-latest-hadoop-2.7.3-bin.tar.gz)
 - Apache Maven 3.3+ for building the project
 
 ### Install the Customized Druid
-[Here is the link for downloading the archive.](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/latest/metatron-discovery-latest-bin.tar.gz)
+[Here is the link for downloading the archive.](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/latest/druid-0.9.1-latest-hadoop-2.7.3-bin.tar.gz)
 
 To install the Metatron distributed Druid, simply untar the downloaded archive. And start | stop the druid with the following commands.
 <pre><code> $ start-single.sh | stop-single.sh </code></pre>
+
+### (Optional) Install the GEO server
+We introduced map view since 3.1.0.
+If you want to using this feature, download [this archive](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/latest/geoserver-metatron-latest.tar.gz) and run the geo server with the following commands.
+<pre><code> $ bin/startup.sh | bin/shutdown.sh </code></pre>
 
 ### Build from source
 Git clone this project.
@@ -78,9 +83,13 @@ Untar the archive binary file of Metatron Discovery.
 <pre><code>$ tar zxf metatron-discovery-{VERSION}-{TIMESTAMP}-bin.tar.gz</code></pre>
 Initialize and run with the following command.
 <pre><code>$ bin/metatron.sh --init start</code></pre>
+> :warning: Cautions! `--init` option initialize whole data.  
+> Add this argument only the first time or when you want to reset your development environment.
+
 Running options are provided as well.
 <pre><code>$ bin/metatron.sh [--config=directory] [--init] [--management] [--debug=port] {start|stop|restart|status}</code></pre>
-To access Metatron Discovery, go to [http://localhost:8180](http://localhost:8180). (The default admin user account is provided as ID: admin, PW: admin.)
+To access Metatron Discovery, go to [http://localhost:8180](http://localhost:8180). (The default admin user account is provided as Username: admin, PW: admin.)
+
 
 Problems & Suggestions
 ----------------------------

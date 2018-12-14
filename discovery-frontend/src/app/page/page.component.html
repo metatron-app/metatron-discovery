@@ -1465,7 +1465,7 @@
       <!-- //contents -->
 
       <!-- side -->
-      <div class="ddp-wrap-chart-side" [ngClass]="{'ddp-selected': rnbMenu === 'filter' || (isChartShow && rnbMenu!='' && possibleChartCheck(rnbMenu,selectChart))}"
+      <div class="ddp-wrap-chart-side" [ngClass]="{'ddp-selected': rnbMenu === 'filter' || (isChartShow && rnbMenu!='' && possibleChartCheck(rnbMenu,selectChart)), 'type-popup' : panelZIndex}"
            *ngIf="rnbMenu == 'filter' || ('' !== rnbMenu && isChartShow && possibleChartCheck(rnbMenu,selectChart))">
         <div class="ddp-chart-side-in">
             <common-option #commonOption *ngIf="isChartShow && 'common' === rnbMenu" [(uiOption)]="uiOption" [(pivot)]="pivot" [isChartTest]="isChartTest"
@@ -1495,9 +1495,9 @@
             <calrow-option #calculateOption *ngIf="isChartShow && possibleChartCheck('calculatedRow', selectChart) && 'calculatedRow' === rnbMenu" [(uiOption)]="uiOption"></calrow-option>
             <!-- MapView -->
             <map-common-option #mapCommonOption *ngIf="isChartShow && 'mapCommon' === rnbMenu" [(uiOption)]="uiOption"></map-common-option>
-            <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer1' === rnbMenu && !setDisableShelf(0)" [index]="0" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(shelf)]="shelf"></map-layer-option>
-            <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer2' === rnbMenu && uiOption.layers.length > 1 && !setDisableShelf(1)" [index]="1" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(shelf)]="shelf"></map-layer-option>
-            <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer3' === rnbMenu && uiOption.layers.length > 2 && !setDisableShelf(2)" [index]="2" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(shelf)]="shelf"></map-layer-option>
+            <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer1' === rnbMenu && !setDisableShelf(0)" [index]="0" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(shelf)]="shelf" [data]="resultData?.data" (setZIndex)="onSetZIndex($event)"></map-layer-option>
+            <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer2' === rnbMenu && uiOption.layers.length > 1 && !setDisableShelf(1)" [index]="1" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(shelf)]="shelf" [data]="resultData?.data" (setZIndex)="onSetZIndex($event)"></map-layer-option>
+            <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer3' === rnbMenu && uiOption.layers.length > 2 && !setDisableShelf(2)" [index]="2" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(shelf)]="shelf" [data]="resultData?.data" (setZIndex)="onSetZIndex($event)"></map-layer-option>
             <map-legend-option #mapLegendOption *ngIf="isChartShow && 'mapLegend' === rnbMenu" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)"></map-legend-option>
             <map-format-option #mapFormatOption *ngIf="isChartShow && 'mapFormat' === rnbMenu" (changeCommon)="onFormatCommonChange($event)" (changeEach)="onFormatEachChange($event)" (drawChartParam)="onSetDrawChartParam($event)"
                                [(shelf)]="shelf" [(uiOption)]="uiOption">

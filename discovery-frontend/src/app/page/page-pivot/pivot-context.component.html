@@ -47,7 +47,7 @@
       <li *ngIf="editingField.subType == 'user_expr'">
         <a href="javascript:">
           {{'msg.page.th.edit-cond' | translate}}
-          <div class="ddp-data-result">
+          <div class="ddp-data-result ddp-padr0">
             <span class="ddp-txt-result">{{unescapeCustomColumnExpr(editingField.field.expr)}}</span>
             <em (click)="changePivotContext.emit({type: 'customField', value: editingField.field})" class="ddp-btn-option"></em>
           </div>
@@ -86,7 +86,8 @@
         </div>
         <!-- //2depth -->
       </li>
-      <li *ngIf="editingField.type == 'measure' && !editingField.aggregated" (mouseover)="fix2DepthContext = false;">
+      <!--<li *ngIf="editingField.type == 'measure' && !editingField.aggregated" (mouseover)="fix2DepthContext = false;">-->
+      <li *ngIf="showAggregate()" (mouseover)="fix2DepthContext = false;">
         <a href="javascript:">
           {{'msg.page.th.aggregate' | translate}}
           <div class="ddp-data-result ddp-type">

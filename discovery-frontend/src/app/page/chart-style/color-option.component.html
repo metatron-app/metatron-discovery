@@ -293,15 +293,15 @@
             </div>
           </div>
 
-            <div *ngIf="uiOption.color['customMode']" class="ddp-data-sum">
-              {{'msg.page.chart.color.measure.new.range.min' | translate}} : {{minValue}} ~ {{'msg.page.chart.color.measure.new.range.max' | translate}} : {{maxValue}}
-            </div>
-            <a *ngIf="'SECTION' == uiOption.color['customMode']" (click)="equalColorRange()" href="javascript:" class="ddp-btn-set">
-              {{'msg.page.chart.color.measure.new.range.split.equal' | translate}}
-            </a>
-            <!--<a *ngIf="'GRADIENT' == uiOption.color['customMode']" (click)="equalColorGradation()" href="javascript:" class="ddp-btn-set">-->
-              <!--{{'msg.page.chart.color.measure.new.range.split.equal' | translate}}-->
-            <!--</a>-->
+          <div *ngIf="uiOption.color['customMode']" class="ddp-data-sum">
+            {{'msg.page.chart.color.measure.new.range.min' | translate}} : {{minValue}} ~ {{'msg.page.chart.color.measure.new.range.max' | translate}} : {{maxValue}}
+          </div>
+          <a *ngIf="'SECTION' == uiOption.color['customMode']" (click)="equalColorRange()" href="javascript:" class="ddp-btn-set">
+            {{'msg.page.chart.color.measure.new.range.split.equal' | translate}}
+          </a>
+          <!--<a *ngIf="'GRADIENT' == uiOption.color['customMode']" (click)="equalColorGradation()" href="javascript:" class="ddp-btn-set">-->
+            <!--{{'msg.page.chart.color.measure.new.range.split.equal' | translate}}-->
+          <!--</a>-->
         </div>
         <!-- //color by measure part -->
       </div>

@@ -30,6 +30,7 @@ import { Pivot } from '../../domain/workbook/configurations/pivot';
 import { PageWidget } from '../../domain/dashboard/widget/page-widget';
 import { Shelf } from '../../domain/workbook/configurations/shelf/shelf';
 import { UIMapOption } from '../../common/component/chart/option/ui-option/map/ui-map-chart';
+import { MapLayerType } from '../../common/component/chart/option/define/map/map-common';
 
 @Component({
   selector: 'pivot-context',
@@ -493,6 +494,37 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
 
     // when it's null, two way binding doesn't work
     this.changePivotContext.emit({type: 'outside', value: this.editingField});
+  }
+
+  /**
+   * show / hide aggregate context menu
+   * @returns {boolean}
+   */
+  public showAggregate(): boolean {
+
+    let returnValue: boolean = false;
+
+    // type is measure, custom field aggregated is false => show
+    if (this.editingField.type == 'measure' && !this.editingField.aggregated) {
+
+      // map chart => point, heatmap
+      if (ChartType.MAP === this.uiOption.type) {
+
+        let mapUIOption = (<UIMapOption>this.uiOption);
+        let layerType = mapUIOption.layers[mapUIOption.layerNum].type;
+
+        // point, heatmap, line, polygon => no aggregation / hexagon => set aggregation
+        if (MapLayerType.TILE === layerType) {
+          returnValue = true;
+        }
+      }
+      // not map chart
+      else {
+        returnValue = true;
+      }
+    }
+
+    return returnValue;
   }
 
   /**
