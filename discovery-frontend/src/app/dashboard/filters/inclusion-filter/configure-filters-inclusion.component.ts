@@ -104,8 +104,10 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public isShow: boolean = false;   // 컴포넌트 표시 여부
-  public isOnlyShowCandidateValues: boolean = false;   // 표시할 후보값만 표시 여부
+  public isShow: boolean = false; // 컴포넌트 표시 여부
+  public isOnlyShowCandidateValues: boolean = false;  // 표시할 후보값만 표시 여부
+  public useAll:boolean = false;  // 전체 선택 표시 여부
+  public isNoData:boolean = false;  // 데이터 없음 표시 여부
 
   // 수정 대상
   public targetFilter: InclusionFilter;
@@ -129,8 +131,6 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
 
   @Output()
   public goToSelectField: EventEmitter<any> = new EventEmitter();
-
-  public useAll:boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -771,6 +771,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     result.forEach((item) => this._candidateList.push(this._objToCandidate(item, targetField)));
     this.totalItemCnt = this._candidateList.length;
     (targetFilter.candidateValues) || (targetFilter.candidateValues = []);
+    this.isNoData = ( 0 === this.totalItemCnt );
 
     // 정렬
     this.sortCandidateValues(targetFilter);
