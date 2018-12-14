@@ -1,6 +1,4 @@
 @charset "utf-8";
-
-
 /**************************************************************
   popup : 05_매니지먼트_00데이터저장소_01생성_03StringDb_03
 **************************************************************/
@@ -74,10 +72,14 @@
 .popup-datastore-schema .ddp-wrap-add-column .ddp-box-column .ddp-option-form.ddp-clear [class*="ddp-col-"]{padding:0 2px;}
 .popup-datastore-schema .ddp-wrap-value-setting .ddp-info {margin:3px 0 0 0; color:#b7b9c2; font-size:12px; font-style:italic;}
 .popup-datastore-schema .ddp-wrap-value-setting .ddp-info:before {display:inline-block; width:13px; height:13px; margin-right:3px; background:url(../../../images/icon_info.png) no-repeat; background-position:-42px -16px; content:''; vertical-align:middle;}
-
-
-
 .popup-datastore-schema .ddp-ui-setting .ddp-ui-option-in .ddp-sub-option {padding:6px 0 0 0;}
+
+.popup-datastore-schema .ddp-box-action .ddp-info {clear:both; color:#b7b9c2; margin-top:3px; font-size:12px; font-style:italic;}
+.popup-datastore-schema .ddp-box-action.ddp-type .ddp-change-type .ddp-box-layout4.ddp-change .ddp-change-select .ddp-info:before{display:inline-block; width:13px; height:13px; margin-right:3px; background:url(../../../images/icon_info.png) no-repeat; background-position:-42px -16px; content:''; vertical-align:middle;}
+.popup-datastore-schema .ddp-ui-checkaction .ddp-wrap-action .ddp-info {clear:both; color:#b7b9c2; margin-top:3px; font-size:12px; font-style:italic;}
+.popup-datastore-schema .ddp-ui-checkaction .ddp-wrap-action .ddp-info:before {display:inline-block; width:13px; height:13px; margin-right:3px; background:url(../../../images/icon_info.png) no-repeat; background-position:-42px -16px; content:''; vertical-align:middle;}
+
+
 
 
 

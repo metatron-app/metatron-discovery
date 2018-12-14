@@ -66,6 +66,9 @@ import { ColumnSelectBoxComponent } from './data-source-list/component/column-se
 import { CriterionFilterBoxComponent } from './component/criterion/criterion-filter-box.component';
 import { CriterionCheckboxComponent } from './component/criterion/criterion-checkbox.component';
 import { CriterionTimeRadioboxComponent } from './component/criterion/criterion-time-radiobox.component';
+import { SchemaConfigComponent } from './component/schema-config/schema-config.component';
+import { SchemaConfigDetailComponent } from './component/schema-config/schema-config-detail.component';
+import { SchemaConfigActionBarComponent } from './component/schema-config/schema-config-action-bar.component';
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -88,6 +91,12 @@ const storageRoutes: Routes = [
     TimeComponent,
     SchemaDetailComponent,
     SchemaChangeActionComponent,
+    // schema config component
+    SchemaConfigComponent,
+    // schema config detail component
+    SchemaConfigDetailComponent,
+    // schema config action bar component
+    SchemaConfigActionBarComponent,
     // data source
     DataSourceListComponent,
     // data source - create

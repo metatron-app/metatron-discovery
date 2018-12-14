@@ -385,6 +385,9 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
     }
     // 현재 페이지의 데이터소스 생성정보 저장
     this.saveDatabaseData(this.sourceData);
+    // set field list, field data
+    this.sourceData.fieldList = this.selectedTableDetail.fields;
+    this.sourceData.fieldData = this.selectedTableDetail.data;
   }
 
   /**
