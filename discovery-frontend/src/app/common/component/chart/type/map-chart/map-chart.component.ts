@@ -399,6 +399,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     this.onResize(null);
   }
 
+  /**
+   * fold / unfold legend (dashboard)
+   */
+  public changeFoldLegend() {
+
+    if (!this.isPage) {
+      this.legendInfo.showFl = !this.legendInfo.showFl;
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

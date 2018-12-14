@@ -20,7 +20,7 @@
        [class.ddp-left-top]="legendInfo.position === 'LEFT_TOP'"
        [class.ddp-right-bottom]="legendInfo.position === 'RIGHT_BOTTOM'">
     <div class="ddp-layout-remark" [ngClass]="{'ddp-small' : !legendInfo.showFl}"
-         (click)="legendInfo.showFl = !legendInfo.showFl">
+         (click)="changeFoldLegend()">
       <!-- size 축소 -->
       <div class="ddp-remark-size-s">
         <a href="javascript:" class="ddp-btn-size-s"></a>
