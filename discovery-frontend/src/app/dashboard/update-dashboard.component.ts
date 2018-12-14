@@ -621,20 +621,28 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * 대시보드를 변경한다.
    */
   public moveOrNewDashboard(dashboardItem: Dashboard) {
-    const modal = new Modal();
-    modal.name = this.translateService.instant('msg.board.alert.title.change');
-    modal.description = this.translateService.instant('msg.board.alert.desc.move');
-    modal.btnName = this.translateService.instant('msg.comm.btn.mov');
-    modal.data = {type: 'changeDashboard'};
-    modal.afterConfirm = () => {
+    this.execBeforeUnload();
+    if( this.useUnloadConfirm ) {
+      const modal = new Modal();
+      modal.name = this.translateService.instant('msg.board.alert.title.change');
+      modal.description = this.translateService.instant('msg.board.alert.desc.move');
+      modal.btnName = this.translateService.instant('msg.comm.btn.mov');
+      modal.data = {type: 'changeDashboard'};
+      modal.afterConfirm = () => {
+        if (dashboardItem) {
+          this.selectedDashboard.emit(dashboardItem);
+        } else {
+          this.createDashboard.emit();
+        }
+      };
+      CommonUtil.confirm(modal);
+    } else {
       if (dashboardItem) {
         this.selectedDashboard.emit(dashboardItem);
-        this._initViewPage(dashboardItem.id);
       } else {
         this.createDashboard.emit();
       }
-    };
-    CommonUtil.confirm(modal);
+    }
   } // function - moveOrNewDashboard
 
   /**
@@ -1637,6 +1645,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       // 필터 셋팅
       this._organizeAllFilters().then(() => {
         (setInitialBoard) && (this.orgBoardInfo = _.cloneDeep(dashboard));
+        this.hideBoardLoading();
         this.changeDetect.detectChanges();
       });
 

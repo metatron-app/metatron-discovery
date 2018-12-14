@@ -115,7 +115,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public dashboards: Dashboard[];
 
   public workspace: Workspace;            // 워크스페이스 정보
-  public tempLoadBoard:Dashboard;         // 조회용 임시 보드 정보 ( reload를 위한 )
+  public tempLoadBoard: Dashboard;         // 조회용 임시 보드 정보 ( reload를 위한 )
   public selectedDashboard: Dashboard;    // 선택된 대시보드
 
   // 대시보드 편집 시 시작 커맨드 정보
@@ -969,8 +969,10 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
     this.tempLoadBoard = dashboard;
     if (!this.selectedDashboard || this.selectedDashboard.id !== dashboard.id) {
-      this._boardComp.showBoardLoading();
-      this._boardComp.hideError();
+      if(this._boardComp) {
+        this._boardComp.showBoardLoading();
+        this._boardComp.hideError();
+      }
       this.dashboardService.getDashboard(dashboard.id).then((board: Dashboard) => {
         // save data for selected dashboard
         board.workBook = this.workbook;
@@ -979,11 +981,13 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
         this.scrollToDashboard(board.id); // scroll to item
 
-        this._boardComp.hideBoardLoading();
+        (this._boardComp) && (this._boardComp.hideBoardLoading());
         this.safelyDetectChanges();
       }).catch(() => {
-        this._boardComp.showError();
-        this._boardComp.hideBoardLoading();
+        if(this._boardComp) {
+          this._boardComp.showError();
+          this._boardComp.hideBoardLoading();
+        }
         this.safelyDetectChanges();
       });
     } else {
@@ -998,7 +1002,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   public onDashboardEvent(event: { name: string, data?: any }) {
     if ('RELOAD_BOARD' === event.name) {
-      this.loadAndSelectDashboard( this.tempLoadBoard );
+      this.loadAndSelectDashboard(this.tempLoadBoard);
     }
   } // function - onDashboardEvent
 
