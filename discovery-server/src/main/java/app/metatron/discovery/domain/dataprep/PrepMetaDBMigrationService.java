@@ -16,7 +16,6 @@ package app.metatron.discovery.domain.dataprep;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import org.apache.commons.io.IOUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +37,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
-public class PrepMonitorService implements ApplicationListener<ApplicationReadyEvent> {
-  private static Logger LOGGER = LoggerFactory.getLogger(PrepMonitorService.class);
+public class PrepMetaDBMigrationService implements ApplicationListener<ApplicationReadyEvent> {
+  private static Logger LOGGER = LoggerFactory.getLogger(PrepMetaDBMigrationService.class);
 
   @Autowired
   PrepProperties prepProperties;
@@ -56,72 +55,31 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
   @Value("${spring.datasource.password:MISSING_DATASOURCE_PASSWORD}")
   String datasourcePassword;
 
-  private final String TBL_NEW_DATASET               = "pr_dataset";
-  private final String TBL_NEW_DATAFLOW              = "pr_dataflow";
-  private final String TBL_NEW_DATAFLOW_DATASET      = "pr_dataflow_dataset";
-  private final String TBL_NEW_TRANSFORM_RULE        = "pr_transform_rule";
-  private final String TBL_NEW_SNAPSHOT              = "pr_snapshot";
+  private final String TBL_NEW_DATASET               = "PR_DATASET";
+  private final String TBL_NEW_DATAFLOW              = "PR_DATAFLOW";
+  private final String TBL_NEW_DATAFLOW_DATASET      = "PR_DATAFLOW_DATASET";
+  private final String TBL_NEW_TRANSFORM_RULE        = "PR_TRANSFORM_RULE";
+  private final String TBL_NEW_SNAPSHOT              = "PR_SNAPSHOT";
 
-  private final String TBL_OLD_DATASET               = "prep_dataset";
-  private final String TBL_OLD_IMPORTED_DATASET_INFO = "prep_imported_dataset_info";
-  private final String TBL_OLD_DATAFLOW              = "prep_dataflow";
-  private final String TBL_OLD_DATAFLOW_DATASET      = "prep_dataflow_dataset";
-  private final String TBL_OLD_TRANSFORM_RULE        = "prep_transform_rule";
-  private final String TBL_OLD_SNAPSHOT              = "prep_snapshot";
-
-  private boolean dbMigratedAll = false;
-  private boolean dbMigratedDataset = false;
-  private boolean dbMigratedDataflow = false;
-  private boolean dbMigratedDataflowDataset = false;
-  private boolean dbMigratedTransformRule = false;
-  private boolean dbMigratedSnapshot = false;
-
-  private long lastLogTime;
-  private int retry = 3;
+  private final String TBL_OLD_DATASET               = "PREP_DATASET";
+  private final String TBL_OLD_IMPORTED_DATASET_INFO = "PREP_IMPORTED_DATASET_INFO";
+  private final String TBL_OLD_DATAFLOW              = "PREP_DATAFLOW";
+  private final String TBL_OLD_DATAFLOW_DATASET      = "PREP_DATAFLOW_DATASET";
+  private final String TBL_OLD_TRANSFORM_RULE        = "PREP_TRANSFORM_RULE";
+  private final String TBL_OLD_SNAPSHOT              = "PREP_SNAPSHOT";
 
   @Override
   public void onApplicationEvent(ApplicationReadyEvent event) {
-    if (prepProperties.getPmonInterval() == 0) {                // set polaris.dataprep.pmonInterval to 0 to inactivate
-      LOGGER.debug("PrepMonitorService inactivated: pmonInterval={}s",
-              prepProperties.getPmonInterval(), prepProperties.getPmonLoggingInterval());
-      return;
-    }
-
-    LOGGER.debug("PrepMonitorService started: pmonInterval={}s pmonLoggingInterval={}s",
-            prepProperties.getPmonInterval(), prepProperties.getPmonLoggingInterval());
-
-
-    dbMigratedAll = migratePrepEntities();
-    lastLogTime = DateTime.now().getMillis();
-
-    while (true) {
-      try {
-        Thread.sleep(prepProperties.getPmonInterval() * 1000);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-
-      if (DateTime.now().getMillis() - lastLogTime > prepProperties.getPmonLoggingInterval() * 1000) {
-        LOGGER.debug("PrepMonitorService running: pmonInterval={}s pmonLoggingInterval={}s",
-                prepProperties.getPmonInterval(), prepProperties.getPmonLoggingInterval());
-        lastLogTime = DateTime.now().getMillis();
-      }
-
-      if (!dbMigratedAll && --retry >= 0) {     // do not retry too much
-        dbMigratedAll = migratePrepEntities();
-      }
-    }
-  }
-
-  private boolean migratePrepEntities() {
     Connection conn;
+
+    LOGGER.info("PrepMetaDBMigrationService: started");
 
     try {
       Class.forName(datasourceDriverClassName);
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
-      LOGGER.error("migratePrepEntities(): cannot find driver class", e);
-      return true;    // because it's not gonna work anyway
+      LOGGER.error("onApplicationEvent(): cannot find driver class", e);
+      return;
     }
 
     try {
@@ -129,88 +87,24 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
       conn.setAutoCommit(true);
     } catch (SQLException e) {
       e.printStackTrace();
-      LOGGER.error("migratePrepEntities(): connectionUrl={} username={} password={}", datasourceUrl, datasourceUsername, datasourcePassword);
-      LOGGER.error("migratePrepEntities(): failed to connect to DB", e);
-      LOGGER.error("migratePrepEntities(): we ill retry after {} seconds", prepProperties.getPmonInterval());
-      return false;   // retry
+      LOGGER.error("onApplicationEvent(): connectionUrl={} username={} password={}", datasourceUrl, datasourceUsername, datasourcePassword);
+      LOGGER.error("onApplicationEvent(): failed to connect to DB", e);
+      return;
     }
 
-    if (!dbMigratedDataset) {
-      try {
-        int skipCount = migrateDataset(conn);
-        if (skipCount >= 0) {
-          dbMigratedDataset = true;
-          LOGGER.info("migratePrepEntities(): migrating dataset table finished with {} rows skipped", skipCount);
-        }
-      } catch (SQLException e) {
-        e.printStackTrace();
-      }
-      if (!dbMigratedDataset) {
-        LOGGER.error("migratePrepEntities(): migrating dataset table failed. we will retry after {} seconds", prepProperties.getPmonInterval());
-      }
+    try {
+      migrateDataset(conn);
+      migrateDataflow(conn);
+      migrateDataflowDataset(conn);
+      migrateTransformRule(conn);
+      migrateSnapshot(conn);
+    } catch (SQLException e) {
+      e.printStackTrace();
     }
 
-    if (!dbMigratedDataflow) {
-      try {
-        migrateDataflow(conn);
-        dbMigratedDataflow = true;
-        LOGGER.info("migratePrepEntities(): migrating dataflow table finished successfully");
-      } catch (SQLException e) {
-        e.printStackTrace();
-      }
-      if (!dbMigratedDataset) {
-        LOGGER.error("migratePrepEntities(): migrating dataflow table failed. we will retry after {} seconds", prepProperties.getPmonInterval());
-      }
-    }
+    // TODO: drop old tables
 
-    if (!dbMigratedDataflowDataset) {
-      try {
-        migrateDataflowDataset(conn);
-        dbMigratedDataflowDataset = true;
-        LOGGER.info("migratePrepEntities(): migrating dataflow-dataset table finished successfully");
-      } catch (SQLException e) {
-        e.printStackTrace();
-      }
-      if (!dbMigratedDataflowDataset) {
-        LOGGER.error("migratePrepEntities(): migrating dataflow-dataset table failed. we will retry after {} seconds", prepProperties.getPmonInterval());
-      }
-    }
-
-    if (!dbMigratedTransformRule) {
-      try {
-        migrateTransformRule(conn);
-        dbMigratedTransformRule = true;
-        LOGGER.info("migratePrepEntities(): migrating transform rule table finished successfully");
-      } catch (SQLException e) {
-        e.printStackTrace();
-      }
-      if (!dbMigratedTransformRule) {
-        LOGGER.error("migratePrepEntities(): migrating transform rule table failed. we will retry after {} seconds", prepProperties.getPmonInterval());
-      }
-    }
-
-    if (!dbMigratedSnapshot) {
-      try {
-        int skipCount = migrateSnapshot(conn);
-        if (skipCount >= 0) {
-          dbMigratedSnapshot = true;
-          LOGGER.info("migratePrepEntities(): migrating snapshot table finished with {} rows skipped", skipCount);
-        }
-      } catch (SQLException e) {
-        e.printStackTrace();
-      }
-      if (!dbMigratedSnapshot) {
-        LOGGER.error("migratePrepEntities(): migrating snapshot table failed. we will retry after {} seconds", prepProperties.getPmonInterval());
-      }
-    }
-
-    if (dbMigratedDataset && dbMigratedDataflow && dbMigratedDataflowDataset && dbMigratedTransformRule && dbMigratedSnapshot) {
-      // TODO: drop old tables
-      LOGGER.info("migratePrepEntities(): migrating all old table finished successfully");
-      return true;
-    }
-
-    return false;
+    LOGGER.info("PrepMetaDBMigrationService: ended");
   }
 
   /**
@@ -218,22 +112,25 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
    * @return skipped row count. -1 if we need to retry.
    * @throws SQLException
    */
-  private int migrateDataset(Connection conn) throws SQLException {
+  private void migrateDataset(Connection conn) throws SQLException {
     if (!checkOldTableExists(conn, TBL_OLD_DATASET)) {
-      LOGGER.info("migrateDataset(): no old dataset table found");
-      return 0;
+      return;
     }
 
     // Unless it fails, we don't skip any wrangled dataset.
     migrateWrangledDataset(conn);
 
     // Imported datasets can be skipped without blocking migration.
-    return migrateDatasetImported(conn);
+    int skipCount = migrateDatasetImported(conn);
+    if (skipCount > 0) {
+      LOGGER.info("PrepMetaDBMigrationService: {}, {} migrated with {} rows skipped", TBL_OLD_DATASET, TBL_OLD_IMPORTED_DATASET_INFO, skipCount);
+    } else {
+      LOGGER.info("PrepMetaDBMigrationService: {}, {} migrated successfully", TBL_OLD_DATASET, TBL_OLD_IMPORTED_DATASET_INFO);
+    }
   }
 
   private void migrateDataflow(Connection conn) throws SQLException {
     if (!checkOldTableExists(conn, TBL_OLD_DATAFLOW)) {
-      LOGGER.info("migrateDataflow(): no old dataflow table found");
       return;
     }
 
@@ -253,11 +150,12 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
       String insertDml = String.format("INSERT INTO %s SELECT * FROM %s WHERE df_id = '%s'", TBL_NEW_DATAFLOW, TBL_OLD_DATAFLOW, rs.getString("df_id"));
       stmtForInsert.execute(insertDml);
     }
+
+    LOGGER.info("PrepMetaDBMigrationService: {} migrated successfully", TBL_OLD_DATAFLOW);
   }
 
   private void migrateDataflowDataset(Connection conn) throws SQLException {
     if (!checkOldTableExists(conn, TBL_OLD_DATAFLOW_DATASET)) {
-      LOGGER.info("migrateDataflowDataset(): no old dataflow-dataset table found");
       return;
     }
 
@@ -293,11 +191,13 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
       String insertDml = String.format(insertDmlFmt, TBL_NEW_DATAFLOW_DATASET, TBL_OLD_DATAFLOW_DATASET, rs.getString("df_id"), rs.getString("ds_id"));
       stmtForInsert.execute(insertDml);
     }
+
+    LOGGER.info("PrepMetaDBMigrationService: {} migrated successfully", TBL_OLD_DATAFLOW_DATASET);
   }
 
   private void migrateTransformRule(Connection conn) throws SQLException {
     if (!checkOldTableExists(conn, TBL_OLD_TRANSFORM_RULE)) {
-      LOGGER.info("migrateTransformRule(): no old transform rule table found");
+      LOGGER.info("PrepMetaDBMigrationService: migrateTransformRule(): no old transform rule table found");
       return;
     }
 
@@ -319,12 +219,13 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
       String insertDml = String.format(insertDmlFmt, TBL_NEW_TRANSFORM_RULE, TBL_OLD_TRANSFORM_RULE, rs.getString("ds_id"));
       stmtForInsert.execute(insertDml);
     }
+
+    LOGGER.info("PrepMetaDBMigrationService: {} migrated successfully", TBL_OLD_TRANSFORM_RULE);
   }
 
-  private int migrateSnapshot(Connection conn) throws SQLException {
+  private void migrateSnapshot(Connection conn) throws SQLException {
     if (!checkOldTableExists(conn, TBL_OLD_SNAPSHOT)) {
-      LOGGER.info("migrateSnapshot(): no old snapshot table found");
-      return 0;
+      return;
     }
 
     Statement stmt = conn.createStatement();
@@ -360,7 +261,11 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
       }
     }
 
-    return skipCount;
+    if (skipCount > 0) {
+      LOGGER.info("PrepMetaDBMigrationService: {} migrated with {} rows skipped", TBL_OLD_SNAPSHOT, skipCount);
+    } else {
+      LOGGER.info("PrepMetaDBMigrationService: {} migrated successfully", TBL_OLD_SNAPSHOT);
+    }
   }
 
   private void migrateWrangledDataset(Connection conn) throws SQLException {
@@ -794,6 +699,5 @@ public class PrepMonitorService implements ApplicationListener<ApplicationReadyE
 
     return writer.toString();
   }
-
 }
 

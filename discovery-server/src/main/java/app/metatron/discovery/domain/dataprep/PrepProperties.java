@@ -62,9 +62,6 @@ public class PrepProperties {
   public SamplingInfo sampling;
   public EtlInfo etl;
 
-  private Integer pmonInterval;
-  private Integer pmonLoggingInterval;
-
   // Commonly, only below getters will be used
 
   public String getLocalBaseDir() {
@@ -435,28 +432,6 @@ public class PrepProperties {
 
   public void setEtl(EtlInfo etl) {
     this.etl = etl;
-  }
-
-  public Integer getPmonInterval() {
-    if (pmonInterval == null) {
-      pmonInterval = 30;
-    }
-    return pmonInterval;
-  }
-
-  public void setPmonInterval(Integer pmonInterval) {
-    this.pmonInterval = pmonInterval;
-  }
-
-  public Integer getPmonLoggingInterval() {
-    if (pmonLoggingInterval == null) {
-      pmonLoggingInterval = 3600;
-    }
-    return pmonLoggingInterval;
-  }
-
-  public void setPmonLoggingInterval(Integer pmonLoggingInterval) {
-    this.pmonLoggingInterval = pmonLoggingInterval;
   }
 
   @Override
