@@ -117,8 +117,12 @@ public class PrDataset extends AbstractHistoryEntity {
     private String dsDesc;
 
     @JsonBackReference
-    @ManyToMany(mappedBy = "datasets", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE,CascadeType.REFRESH,CascadeType.DETACH})
+    @ManyToMany(mappedBy = "datasets", fetch = FetchType.LAZY)
     private List<PrDataflow> dataflows;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy="dataset", fetch=FetchType.LAZY)
+    private List<PrTransformRule> transformRules;
 
     @Column(name = "ds_type")
     @Enumerated(EnumType.STRING)
@@ -204,10 +208,6 @@ public class PrDataset extends AbstractHistoryEntity {
     @Lob
     @Column(name = "query_stmt")
     String queryStmt;
-
-    @JsonIgnore
-    @OneToMany(mappedBy="dataset", fetch=FetchType.LAZY, cascade = {CascadeType.REMOVE})
-    private List<PrTransformRule> transformRules;
 
     @Size(max = 255)
     @Column(name = "creator_df_id")

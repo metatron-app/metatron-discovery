@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.dataprep.service;
 import app.metatron.discovery.domain.dataprep.*;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrDatasetProjections;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
@@ -168,7 +169,10 @@ public class PrDatasetController {
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
         }
 
-        return ResponseEntity.status(HttpStatus.SC_OK).body(persistentEntityResourceAssembler.toFullResource(dataset));
+        PrDatasetProjections.DefaultProjection projection = projectionFactory.createProjection(PrDatasetProjections.DefaultProjection.class, dataset);
+        Resource<PrDatasetProjections.DefaultProjection> projectedDataset = new Resource<>(projection);
+        return ResponseEntity.status(HttpStatus.SC_OK).body(projectedDataset);
+        //return ResponseEntity.status(HttpStatus.SC_OK).body(persistentEntityResourceAssembler.toFullResource(dataset));
     }
 
     @RequestMapping(value = "/{dsId}", method = RequestMethod.DELETE)

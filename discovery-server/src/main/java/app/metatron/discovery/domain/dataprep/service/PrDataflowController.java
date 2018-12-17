@@ -18,6 +18,7 @@ import app.metatron.discovery.domain.dataprep.PrepParamDatasetIdList;
 import app.metatron.discovery.domain.dataprep.PrepSwapRequest;
 import app.metatron.discovery.domain.dataprep.PrepUpstream;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
+import app.metatron.discovery.domain.dataprep.entity.PrDataflowProjections;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -31,8 +32,10 @@ import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +47,9 @@ import java.util.List;
 public class PrDataflowController {
 
     private static Logger LOGGER = LoggerFactory.getLogger(PrDataflowController.class);
+
+    @Autowired
+    ProjectionFactory projectionFactory;
 
     @Autowired
     private PrDataflowRepository dataflowRepository;
@@ -72,7 +78,11 @@ public class PrDataflowController {
             throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, e);
         }
 
-        return ResponseEntity.status(HttpStatus.SC_OK).body(persistentEntityResourceAssembler.toFullResource(dataflow));
+
+        PrDataflowProjections.DefaultProjection projection = projectionFactory.createProjection(PrDataflowProjections.DefaultProjection.class, dataflow);
+        Resource<PrDataflowProjections.DefaultProjection> projectedDataflow = new Resource<>(projection);
+        return ResponseEntity.status(HttpStatus.SC_OK).body(projectedDataflow);
+        //return ResponseEntity.status(HttpStatus.SC_OK).body(persistentEntityResourceAssembler.toFullResource(dataflow));
     }
 
     @RequestMapping(value = "/{dfId}", method = RequestMethod.DELETE)
