@@ -1680,44 +1680,47 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         return sort;
       });
 
-    if (sortFields.length > 0) {
+    if(this.chart instanceof GridChartComponent) {
+      this.sorts = sortFields;
+    } else {
+      if (sortFields.length > 0) {
 
-      // Sort 목록 (이전에 추가된 sort가 나중에 들어가도록 처리하기 위함)
-      let sortList: Sort[] = [];
+        // Sort 목록 (이전에 추가된 sort가 나중에 들어가도록 처리하기 위함)
+        let sortList: Sort[] = [];
 
-      // 원래 있던 필드들 추가
-      if (this.sorts) {
-        for (let beforeField of this.sorts) {
-          let isUse: boolean = false;
-          for (let afterField of sortFields) {
-            if (afterField.field == beforeField.field && !afterField.lastDirection) {
-              isUse = true;
-              break;
+        // 원래 있던 필드들 추가
+        if (this.sorts) {
+          for (let beforeField of this.sorts) {
+            let isUse: boolean = false;
+            for (let afterField of sortFields) {
+              if (afterField.field == beforeField.field && !afterField.lastDirection) {
+                isUse = true;
+                break;
+              }
+            }
+            if (isUse) {
+              sortList.push(beforeField);
             }
           }
-          if (isUse) {
-            sortList.push(beforeField);
+        }
+
+        // 마지막에 추가한 Sort를 제일앞에 추가한다.
+        for (let afterField of sortFields) {
+          if (afterField.lastDirection) {
+            delete afterField.lastDirection;
+            sortList.unshift(afterField);
+            break;
           }
         }
+
+        this.sorts = sortList;
+        console.info(this.sorts);
+        console.info('==========');
       }
-
-      // 마지막에 추가한 Sort를 제일앞에 추가한다.
-      for (let afterField of sortFields) {
-        if (afterField.lastDirection) {
-          delete afterField.lastDirection;
-          sortList.unshift(afterField);
-          break;
-        }
+      else {
+        this.sorts = [];
       }
-
-      this.sorts = sortList;
-      console.info(this.sorts);
-      console.info('==========');
     }
-    else {
-      this.sorts = [];
-    }
-
     // 추천가능차트 설정
     this.recommendChart();
     // 선반변경시 drawChart 발생
