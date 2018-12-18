@@ -16,6 +16,7 @@ package app.metatron.discovery.util;
 
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.FileValidationResponse;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionDataResultResponse;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -29,8 +30,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ExcelProcessor {
 
@@ -39,6 +42,8 @@ public class ExcelProcessor {
   Workbook workbook;
 
   String extensionType;
+
+  private static int MAX_HEADER_NAME = 50;
 
   public ExcelProcessor(File targetFile) throws IOException {
 
@@ -110,6 +115,8 @@ public class ExcelProcessor {
     // 병합의 이슈로 컬럼 정보는 Column Index
     Map<Integer, String> columnMap = Maps.newTreeMap();
 
+    FileValidationResponse isParsable = null;
+
     long rowCnt = 0;
     for (Row row : sheet) {
 
@@ -127,6 +134,7 @@ public class ExcelProcessor {
             value = PolarisUtils.objectToString(getCellValue(cell), "col" + columnIndex);
             columnMap.put(columnIndex, value);
             fields.add(makeField(columnIndex, value, cell));
+            isParsable = validateHeaders(fields, cell);
           } else {
             value = "field_" + (columnIndex+1);
             columnMap.put(columnIndex, value);
@@ -153,7 +161,50 @@ public class ExcelProcessor {
       rowCnt = rowCnt - 1;
     }
 
-    return new IngestionDataResultResponse(fields, resultSet, rowCnt);
+    return new IngestionDataResultResponse(fields, resultSet, rowCnt, isParsable);
+  }
+
+  private FileValidationResponse validateHeaders(List<Field> fields, Cell cell) {
+
+    Set<Field> bounder = new HashSet<>();
+
+    for (Field field : fields){
+
+      // Check column name's length. default to 50.
+      if (field.getName().length() > MAX_HEADER_NAME) {
+        return new FileValidationResponse(false,
+            FileValidationResponse.WarningType.DUPLICATED_HEADER.getCode());
+      }
+
+      // Check Null column name.
+      if (field.getName() == null || field.getName().isEmpty()) {
+        return new FileValidationResponse(false,
+            FileValidationResponse.WarningType.NULL_HEADER.getCode());
+      }
+
+      if (getCellValue(cell) == null) {
+        return new FileValidationResponse(false,
+            FileValidationResponse.WarningType.HEADER_MERGED.getCode());
+      }
+
+      /* Disable because of StreamingSheet libs.
+      // Check has merged columns.
+      if (sheet.getNumMergedRegions() > 0) {
+        return new FileValidationResponse(false,
+            FileValidationResponse.WarningType.HEADER_MERGED.getCode());
+      }*/
+
+      // Check duplicated name.
+      if(bounder.contains(field)) {
+        return new FileValidationResponse(false,
+            FileValidationResponse.WarningType.DUPLICATED_HEADER.getCode());
+      }
+
+      bounder.add(field);
+
+    }
+
+    return new FileValidationResponse(true);
   }
 
   private Field makeField(int idx, String fieldName, Cell dataCell) {
