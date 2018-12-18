@@ -254,23 +254,18 @@ export class DatasetService extends AbstractService {
   } // function - getStagingTables
 
   public getStagingTableData(schema:string, table:string) {
-    const params:any = {};
-    params.connection = this.connInfo;
-    params.schema = schema;
-    // params.type = 'TABLE';
-    params.type = 'QUERY';
-    params.query = 'select * from ' + schema + '.' + table;
 
-    const path = '/preparationdatasets/staging?sql=' + encodeURIComponent(params.query) + '&dbname='+schema+'&tblname =' + table + '&size=50';
+    const query = 'select * from '+ table;
+
+    const path = '/preparationdatasets/staging?sql=' + encodeURIComponent(query) + '&dbname='+schema+'&tblname =' + table + '&size=50';
 
     return this.get(this.API_URL + path);
-    // return this.post(this.API_URL + 'connections/query/data', params);
   } // function - getStagingTableData
 
 
-  public getResultWithStagingDBQuery(query: string) {
+  public getResultWithStagingDBQuery(query: string, dbName: string) {
 
-    const path = '/preparationdatasets/staging?sql=' + encodeURIComponent(query) + '&size=50';
+    const path = '/preparationdatasets/staging?sql=' + encodeURIComponent(query) + '&size=50&dbname=' + dbName;
 
     return this.get(this.API_URL + path);
   } // function - getResultWithStagingDBQuery

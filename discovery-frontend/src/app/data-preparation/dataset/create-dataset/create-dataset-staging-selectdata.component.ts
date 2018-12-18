@@ -394,7 +394,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     this.queryErrorMsg = '';
 
 
-    this.datasetService.getResultWithStagingDBQuery(this.datasetHive.sqlInfo.queryStmt).then((result) => {
+    this.datasetService.getResultWithStagingDBQuery(this.datasetHive.sqlInfo.queryStmt, this.datasetHive.sqlInfo.databaseName).then((result) => {
       this.loadingHide();
       if (result.hasOwnProperty('errorMsg')) {
         this.showQueryStatus = true;
