@@ -134,8 +134,14 @@
         <label class="ddp-label-detail">
           {{'msg.comm.th.used' | translate}}
           <div class="ddp-fright">
-            <a href="javascript:" class="ddp-btn-line" (click)="addToExistingFlow()" *ngIf="dataset.importType" ><em class="ddp-icon-add"></em>{{'msg.dp.ui.add.existing.dataflow' | translate}}</a>
-            <a href="javascript:" class="ddp-btn-selection ddp-gray" (click)="createNewFlow()" *ngIf="dataset.importType"><em class="ddp-icon-view"></em>{{'msg.dp.btn.create.dataflow.dataset' | translate}}</a>
+            <a href="javascript:" class="ddp-btn-line" (click)="addToExistingFlow()" *ngIf="dataset.importType">
+              <em class="ddp-icon-add"></em>
+              {{'msg.dp.ui.add.existing.dataflow' | translate}}
+            </a>
+            <a href="javascript:" class="ddp-btn-selection ddp-gray" (click)="createNewFlow()" *ngIf="dataset.importType">
+              <em class="ddp-icon-view"></em>
+              {{'msg.dp.btn.create.dataflow.dataset' | translate}}
+            </a>
           </div>
         </label>
         <div class="ddp-data-none" *ngIf="dataset.dataflows && dataset.dataflows.length === 0">{{'msg.dp.ui.no-use' | translate }}</div>

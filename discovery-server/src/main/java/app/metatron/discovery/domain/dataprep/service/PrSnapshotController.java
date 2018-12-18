@@ -22,6 +22,8 @@ import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.json.PrepJsonParseResult;
+import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
 import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
@@ -99,48 +101,24 @@ public class PrSnapshotController {
                 if( PrSnapshot.SS_TYPE.URI==ss_type ) {
                     String storedUri = snapshot.getStoredUri();
 
+                    String snapshotDisplayUri = snapshot.getStoredUri();
+                    if(null==snapshotDisplayUri) {
+                        String errorMsg = "["+ ssId + "] isn't a saved snapshot.";
+                        throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_NOT_SAVED, errorMsg);
+                    }
+
                     // We generated JSON snapshots to have ".json" at the end of the URI.
                     if (storedUri.endsWith(".json")) {
-                        String errorMsg = "getContents(): file not supported: JSON";
-                        throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREP_FILE_TYPE_NOT_SUPPORTED, errorMsg);
+                        PrepJsonParseResult result = PrepJsonUtil.parseJSON(snapshot.getStoredUri(), ",", 10000, this.hdfsService.getConf(), true);
+                        gridResponse.setByGridwithJson(result);
                     } else {
-                        String snapshotDisplayUri = snapshot.getStoredUri();
-                        if(null==snapshotDisplayUri) {
-                            String errorMsg = "["+ ssId + "] isn't a saved snapshot.";
-                            throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_NOT_SAVED, errorMsg);
-                        }
-//                        String snapshotUri = this.snapshotService.escapeSsNameOfUri(snapshotDisplayUri);
-//                        String filePath = null;
-//                        String realUri = null;
-
-//                        if( PrSnapshot.SS_TYPE.HDFS==ss_type ) {
-//                            filePath = snapshotUri;
-//                            realUri = snapshotUri;
-//                        } else if( PrSnapshot.SS_TYPE.FILE==ss_type ) {
-//                            File dir = new File(snapshotUri);
-//                            File[] files = dir.listFiles();
-//                            for (int i = 0; i < files.length; i++) {
-//                                File file = files[i];
-//                                if (file.isFile() == false) {
-//                                    continue;
-//                                }
-//                                if(file.getName().startsWith("part-00000-")) {
-//                                    filePath = file.getAbsolutePath();
-//                                    break;
-//                                }
-//                            }
-//                            realUri = "file://" + filePath;
-//                        }
-
-//                        List<String[]> grid = Util.loadGridLocalCsv(filePath, ",", target, this.hdfsService.getConf(), colNames);
-                        //List<String[]> grid = Util.loadCsvFileLocal(dirPath, ",", target, colNames);
-//                        gridResponse.setByGrid(grid, colNames);
                         PrepCsvParseResult result = PrepCsvUtil.parse(snapshot.getStoredUri(), ",", 10000, this.hdfsService.getConf(), true);
                         gridResponse.setByGrid(result);
-                        responseMap.put("offset", gridResponse.rows.size());
-                        responseMap.put("size", gridResponse.rows.size());
-                        responseMap.put("gridResponse", gridResponse);
                     }
+
+                    responseMap.put("offset", gridResponse.rows.size());
+                    responseMap.put("size", gridResponse.rows.size());
+                    responseMap.put("gridResponse", gridResponse);
                 } else if( PrSnapshot.SS_TYPE.STAGING_DB==ss_type ) {
                     String dbName = snapshot.getDbName();
                     String tblName = snapshot.getTblName();
@@ -198,9 +176,8 @@ public class PrSnapshotController {
             @PathVariable("ssId") String ssId
     ) {
         try {
-            String downloadFileName = ssId + ".csv";
+            String downloadFileName = this.snapshotService.downloadSnapshotFile(ssId, response);
             response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", downloadFileName));
-            this.snapshotService.downloadSnapshotFile(ssId, response);
         } catch (Exception e) {
             LOGGER.error("getDownload(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);

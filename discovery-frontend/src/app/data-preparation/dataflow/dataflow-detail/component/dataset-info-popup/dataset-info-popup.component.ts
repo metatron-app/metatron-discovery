@@ -24,10 +24,8 @@ import {
   ViewChild
 } from '@angular/core';
 import { AbstractComponent } from '../../../../../common/component/abstract.component';
-//import { Dataset, DsType, ImportType, RsType, Rule } from '../../../../../domain/data-preparation/dataset';
 import { PrDataset, DsType, ImportType, RsType, Rule } from '../../../../../domain/data-preparation/pr-dataset';
 import { DeleteModalComponent } from '../../../../../common/component/modal/delete/delete.component';
-//import { Dataflow } from '../../../../../domain/data-preparation/dataflow';
 import { PrDataflow } from '../../../../../domain/data-preparation/pr-dataflow';
 import { Alert } from '../../../../../common/util/alert.util';
 import { Modal } from '../../../../../common/domain/modal';
@@ -137,6 +135,9 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   public DsType = DsType;
   public ImportType = ImportType;
 
+  public prepCommonUtil = PreparationCommonUtil;
+
+  public datasetInformationList : DatasetInformation[] ;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -186,6 +187,8 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     ];
     if (!isNullOrUndefined(this.selectedDataSet)) {
       this.setDataset(this.selectedDataSet);
+    } else {
+      this.getDatasetInformationList(this.selectedDataSet);
     }
 
   }
@@ -224,59 +227,6 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     this.isBtnOptionOpen = false;
   }
 
-  /**
-   * 데이터셋 타입 아이콘
-   * @param datasetType
-   */
-  public getIconClass(datasetType): string {
-    let result = '';
-    switch (datasetType.toLowerCase()) {
-      case 'dataset':
-        result = 'ddp-icon-flow-dataset';
-        break;
-      case 'wrangled':
-        result = 'ddp-icon-flow-wrangled';
-        break;
-      case 'db':
-        result = 'ddp-icon-flow-db';
-        break;
-      case 'mysql':
-        result = 'ddp-icon-flow-mysql';
-        break;
-      case 'post':
-        result = 'ddp-icon-flow-post';
-        break;
-      case 'hive':
-        result = 'ddp-icon-flow-db';
-        break;
-      case 'presto':
-        result = 'ddp-icon-flow-presto';
-        break;
-      case 'phoenix':
-        result = 'ddp-icon-flow-phoenix';
-        break;
-      case 'tibero':
-        result = 'ddp-icon-flow-tibero';
-        break;
-      case 'file':
-        result = 'ddp-icon-flow-file';
-        break;
-      case 'xls':
-        result = 'ddp-icon-flow-xls';
-        break;
-      case 'xlsx':
-        result = 'ddp-icon-flow-xlsx';
-        break;
-      case 'csv':
-        result = 'ddp-icon-flow-csv';
-        break;
-      default:
-        Alert.error(this.translateService.instant('msg.common.ui.no.icon.type'));
-        break;
-    }
-    return result;
-  }
-
   /** delete */
   public confirmDelete(event, id) {
     event.stopPropagation();
@@ -312,7 +262,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    */
   public get getTotalBytes() {
     if( this.selectedDataSet.importType===ImportType.STAGING_DB && this.selectedDataSet.rsType!==RsType.TABLE ) {
-      return this.translateService.instant('msg.dp.alert.rstype.no.table');
+      return null;
     } else {
       let size = 0;
       if(true==Number.isInteger(this.selectedDataSet.totalBytes)) {
@@ -378,38 +328,19 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   }
 
   public get getDatabase() {
-    /*
-    if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']!==ImportType.FILE ) {
-      let custom = JSON.parse( this.selectedDataSet.custom );
-      if( custom['databaseName'] ) {
-        return custom['databaseName'];
-      }
-    }
-    return null;
-    */
-    return this.selectedDataSet.dbName;
+    return !isNullOrUndefined(this.selectedDataSet.dbName) ? this.selectedDataSet.dbName : this.selectedDataSet['database'];
   }
 
-  public get getTableOrSql() {
-  /*
-    if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.FILE ) {
-      return null;
-    }
+  public get getUrl() {
+    return this.selectedDataSet.connectionInfo['url'];
+  }
 
-    if(this.getHost === null && this.getPort === null) {
-      return this.selectedDataSet['queryStmt'];
-    } else {
-      return this.selectedDataSet['tableName'];
-    }
-    */
-    if( this.selectedDataSet.importType===ImportType.DATABASE || this.selectedDataSet.importType===ImportType.STAGING_DB ) {
-      if(this.getPort !== null && this.getHost !== null) {
-        return this.selectedDataSet.tblName;
-      } else {
-        return this.selectedDataSet.queryStmt;
-      }
-    }
-    return null;
+  public get getTable() {
+    return this.selectedDataSet.tblName;
+  }
+
+  public get getQueryStmt() {
+    return this.selectedDataSet.queryStmt;
   }
 
   /**
@@ -456,7 +387,6 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    * Fetch dataset info from server
    * @param {Dataset} selectedDatset
    */
-  //public getDatasetInfo(selectedDatset : Dataset) {
   public getDatasetInfo(selectedDatset : PrDataset) {
     this.dataflowService.getDataset(selectedDatset.dsId).then((dataset: any) => {
       this.loadingHide();
@@ -467,25 +397,26 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       this.setDatasetName();
       this.setDatasetDescription();
 
-      setTimeout(()=>{
-      /*
-        if(this.selectedDataSet.ruleStringInfos) {
-          this.setRuleList(this.selectedDataSet.ruleStringInfos);
-        }
-        */
+      setTimeout(() => {
+
         if(this.selectedDataSet.transformRules) {
           this.setRuleList(this.selectedDataSet.transformRules);
         }
+
         if(this.selectedDataSet.gridResponse) {
           this.clearGrid = false;
           this.setGridData(this.selectedDataSet.gridResponse);
         } else {
           this.clearGrid = true;
         }
+
+        this.getDatasetInformationList(this.selectedDataSet);
+
       },0);
 
     }).catch((error) => {
       this.clearGrid = true;
+      this.clearExistingInterval();
       let prep_error = this.dataprepExceptionHandler(error);
       PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     });
@@ -537,7 +468,6 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     });
 
     // ruleStringInfos
-    //rules.forEach((rule) => {
     rules.forEach((rule) => {
 
       let tempString = rule.ruleString.split('type: ');
@@ -591,12 +521,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   public getSheetName() : string {
 
     let result = "N/A";
-    /*
-    if (this.selectedDataSet.custom) {
-      let customJson = JSON.parse(this.selectedDataSet.custom);
-      result = customJson.sheet ? customJson.sheet : "N/A";
-    }
-    */
+
     if (this.selectedDataSet.sheetName) {
       result = this.selectedDataSet.sheetName;
     }
@@ -734,40 +659,97 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     this.interval = undefined;
   }
 
+  /**
+   * Returns type
+   * @param {ImportType} type
+   * @param {string} fileName
+   * @returns {string}
+   */
   public getDatasetType(type: ImportType, fileName : string) : string {
 
     let result = '';
-    //if (type === ImportType.FILE) {
     if (type === ImportType.UPLOAD) {
       let extension = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName)[1];
       if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
         result =  'EXCEL'
-      } else if (extension.toUpperCase() === 'JSON') {
-        result =  'JSON'
       } else if (extension.toUpperCase() === 'CSV' || extension.toUpperCase() === 'TXT' ) {
         result =  'CSV'
       } else {
         result = extension.toUpperCase()
       }
     }
-
     return result;
   }
 
-  public getFileType(dsType:DsType, importType: ImportType, fileName : string) : string {
 
-    if (dsType === DsType.WRANGLED) {
-      return 'WRANGLED';
-    } else {
-      //if (importType === ImportType.FILE) {
-      if (importType === ImportType.UPLOAD) {
-        return `${PreparationCommonUtil.getImportType(importType)} (${this.getDatasetType(importType,fileName)})`;
-      } else {
-        //return `${importType === ImportType.HIVE ? 'Staging DB' : importType}`;
-        return `${importType === ImportType.STAGING_DB ? 'Staging DB' : importType}`;
+
+  /**
+   * 데이터셋 information을 타입별로 정리
+   * @param dataset
+   */
+  public getDatasetInformationList(dataset) {
+    this.datasetInformationList = [];
+    let cols = this.selectedDataSet.gridData.fields && this.selectedDataSet.gridData.fields.length;
+
+    // WRANGLED
+    if (dataset.dsType === DsType.WRANGLED) {
+      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : dataset.dsType },
+        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${cols } ${ cols === '1' || cols === '0' ? 'column': 'columns'}` }
+      ];
+
+      // FILE
+    }  else if (dataset.importType === ImportType.UPLOAD || dataset.importType === ImportType.URI) {
+      let filepath : string = dataset.importType === ImportType.UPLOAD? dataset.filenameBeforeUpload : dataset.storedUri;
+
+      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${this.prepCommonUtil.getImportType(dataset.importType)} (${this.getDatasetType(dataset.importType, filepath)})`},
+        {name : this.translateService.instant('msg.dp.th.file'), value : `${filepath}` },
+      ];
+
+      // EXCEL
+      if (this.getDatasetType(dataset.importType, filepath) === 'EXCEL') {
+        this.datasetInformationList.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetName() })
       }
-    }
 
+      if (!isNullOrUndefined(this.getTotalBytes)) {
+        this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes });
+      }
+
+      this.datasetInformationList.push({name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${ cols } ${ cols === '1' || cols === '0' ? 'column': 'columns'}`})
+
+
+      // STAGING OR DB
+    } else if (dataset.importType === 'STAGING_DB' || dataset.importType === 'DATABASE') {
+
+      this.datasetInformationList = [
+        { name : this.translateService.instant('msg.comm.th.type') , value : dataset.importType === 'STAGING_DB' ? 'STAGING_DB' : 'DB' }];
+
+      if (!isNullOrUndefined(this.getDatabase)) {
+        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${this.getDatabase}` });
+      }
+
+      if (dataset.rsType === 'TABLE') {
+        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.table')}`, value : `${this.getTable}` })
+      } else {
+        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.sql')}`, value : `${this.getQueryStmt}` })
+      }
+
+      if (dataset.importType === 'STAGING_DB') {
+        if (!isNullOrUndefined(this.getTotalBytes)) {
+          this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes });
+        }
+      } else {
+        if (this.getPort && this.getHost) {
+          this.datasetInformationList.push({ name : `${this.translateService.instant('Host')}`, value : `${this.getHost}` },
+            { name : `${this.translateService.instant('Port')}`, value : `${this.getPort}` })
+        } else {
+          this.datasetInformationList.push({ name : `${this.translateService.instant('Url')}`, value : `${this.getUrl}` });
+        }
+      }
+
+      this.datasetInformationList.push(
+        { name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${ cols } ${ cols === '1' || cols === '0' ? 'column': 'columns'}` })
+
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -907,4 +889,10 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   }
 
 
+}
+
+
+class DatasetInformation {
+  name: string;
+  value: any;
 }

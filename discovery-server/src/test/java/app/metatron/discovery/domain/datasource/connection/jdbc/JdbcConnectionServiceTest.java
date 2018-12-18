@@ -157,7 +157,7 @@ public class JdbcConnectionServiceTest {
     InclusionFilter inclusionFilter = new InclusionFilter("City", valueList);
     filterList.add(inclusionFilter);
 
-    System.out.println(new JdbcConnectionService().selectQueryToCsv(connection, ingestionInfo, dataSourceName,
+    System.out.println(new JdbcConnectionService().selectQueryToCsv(connection, ingestionInfo, null, dataSourceName,
             fieldList, filterList, 120));
   }
 
