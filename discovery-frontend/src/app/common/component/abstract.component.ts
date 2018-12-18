@@ -158,7 +158,13 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   public canDeactivate(): Observable<boolean> | boolean {
     this.execBeforeUnload();
     if (this.useUnloadConfirm) {
-      return this.unloadConfirmSvc.confirm();
+      const obConfirm:Observable<boolean>  = this.unloadConfirmSvc.confirm();
+      obConfirm.subscribe( data => {
+        if( !data ) {
+          history.pushState(null, null, this.router.url);
+        }
+      });
+      return obConfirm;
     }
     return true;
   } // function - canDeactivate

@@ -77,7 +77,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
   // 대시보드 편집 컴포넌트
   @ViewChild(UpdateDashboardComponent)
-  private updateDashboardComponent: UpdateDashboardComponent;
+  private _updateBoardComp: UpdateDashboardComponent;
 
   @ViewChild('srchDashboard')
   private inputSrchDashboard: ElementRef;
@@ -316,6 +316,15 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.cookieService.set(userId + this.workbookId, this.comments.comments[0].id + '', 0, '/');
     }
   }
+
+  /**
+   * unload 전 실행
+   */
+  public execBeforeUnload() {
+    if (this.mode === 'UPDATE' && this._updateBoardComp ) {
+      this.useUnloadConfirm = this._updateBoardComp.execBeforeUnload();
+    }
+  } // function - execBeforeUnload
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Common

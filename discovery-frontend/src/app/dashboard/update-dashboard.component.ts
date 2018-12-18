@@ -416,7 +416,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   /**
    * unload 전 실행
    */
-  public execBeforeUnload() {
+  public execBeforeUnload():boolean {
     let orgInfo:Dashboard = _.cloneDeep(this.orgBoardInfo);
     let currInfo:Dashboard = _.cloneDeep(this.dashboard);
 
@@ -445,6 +445,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     currInfo = this.dashboardService.convertSpecToServer( currInfo );
 
     this.useUnloadConfirm = (JSON.stringify(orgInfo) !== JSON.stringify(currInfo));
+
+    return this.useUnloadConfirm;
   } // function - execBeforeUnload
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
