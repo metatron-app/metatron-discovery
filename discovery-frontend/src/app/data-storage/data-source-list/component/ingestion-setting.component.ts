@@ -691,48 +691,8 @@ export class IngestionSettingComponent extends AbstractComponent {
       // set query granularity SECOND
       this.selectedQueryGranularity = this.segmentGranularityList[0];
     } else if (this._format.type === FieldFormatType.DATE_TIME) { // if exist format, DATE_TIME type
-      switch (this._format.format.slice(-1)) {
-        case 'Y':
-        case 'y':
-          // set segment granularity YEAR
-          this.selectedSegmentGranularity = this.segmentGranularityList[5];
-          // set query granularity YEAR
-          this.selectedQueryGranularity = this.segmentGranularityList[5];
-          break;
-        case 'M':
-          // set segment granularity YEAR
-          this.selectedSegmentGranularity = this.segmentGranularityList[5];
-          // set query granularity MONTH
-          this.selectedQueryGranularity = this.segmentGranularityList[4];
-          break;
-        case 'D':
-        case 'd':
-          // set segment granularity YEAR
-          this.selectedSegmentGranularity = this.segmentGranularityList[5];
-          // set query granularity DAY
-          this.selectedQueryGranularity = this.segmentGranularityList[3];
-          break;
-        case 'H':
-        case 'h':
-          // set segment granularity MONTH
-          this.selectedSegmentGranularity = this.segmentGranularityList[4];
-          // set query granularity HOUR
-          this.selectedQueryGranularity = this.segmentGranularityList[2];
-          break;
-        case 'm':
-          // set segment granularity DAY
-          this.selectedSegmentGranularity = this.segmentGranularityList[3];
-          // set query granularity MINUTE
-          this.selectedQueryGranularity = this.segmentGranularityList[1];
-          break;
-        case 'S':
-        case 's':
-          // set segment granularity HOUR
-          this.selectedSegmentGranularity = this.segmentGranularityList[2];
-          // set query granularity SECOND
-          this.selectedQueryGranularity = this.segmentGranularityList[0];
-          break;
-      }
+      // _automationGranularity
+      this._automationGranularity(this._format.format, this._format.format.length -1);
     } else if (this._format.type === FieldFormatType.UNIX_TIME) { // if exist format, UNIX_TIME type
       // set segment granularity HOUR
       this.selectedSegmentGranularity = this.segmentGranularityList[2];
@@ -746,6 +706,61 @@ export class IngestionSettingComponent extends AbstractComponent {
     }
     // init query granularity list
     this._updateQueryGranularityList(this.selectedSegmentGranularity);
+  }
+
+  /**
+   * automation granularity
+   * @param {string} format
+   * @param {number} startNum
+   * @private
+   */
+  private _automationGranularity(format: string, startNum: number) {
+    switch (format.slice(startNum, startNum - 1)) {
+      case 'Y':
+      case 'y':
+        // set segment granularity YEAR
+        this.selectedSegmentGranularity = this.segmentGranularityList[5];
+        // set query granularity YEAR
+        this.selectedQueryGranularity = this.segmentGranularityList[5];
+        break;
+      case 'M':
+        // set segment granularity YEAR
+        this.selectedSegmentGranularity = this.segmentGranularityList[5];
+        // set query granularity MONTH
+        this.selectedQueryGranularity = this.segmentGranularityList[4];
+        break;
+      case 'D':
+      case 'd':
+        // set segment granularity YEAR
+        this.selectedSegmentGranularity = this.segmentGranularityList[5];
+        // set query granularity DAY
+        this.selectedQueryGranularity = this.segmentGranularityList[3];
+        break;
+      case 'H':
+      case 'h':
+        // set segment granularity MONTH
+        this.selectedSegmentGranularity = this.segmentGranularityList[4];
+        // set query granularity HOUR
+        this.selectedQueryGranularity = this.segmentGranularityList[2];
+        break;
+      case 'm':
+        // set segment granularity DAY
+        this.selectedSegmentGranularity = this.segmentGranularityList[3];
+        // set query granularity MINUTE
+        this.selectedQueryGranularity = this.segmentGranularityList[1];
+        break;
+      case 'S':
+      case 's':
+        // set segment granularity HOUR
+        this.selectedSegmentGranularity = this.segmentGranularityList[2];
+        // set query granularity SECOND
+        this.selectedQueryGranularity = this.segmentGranularityList[0];
+        break;
+      default:
+        // if not startNum first index, call _automationGranularity method
+        startNum !== 0 && this._automationGranularity(this._format.format, startNum - 1);
+        break;
+    }
   }
 
   /**
