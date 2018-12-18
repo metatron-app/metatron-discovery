@@ -922,6 +922,8 @@
   "msg.dp.alert.teddy.parse.failed.by.join.jointype": "Join rule parsing failed. Check the join type value.",
   "msg.dp.alert.teddy.parse.failed.by.window.value": "Check expression value of window rule",
 
+  "msg.dp.alert.unsupported.number.format": "Unsupported number format.",
+
   "msg.dp.ui.no.snapshot.history" : "No snapshot create history",
   "msg.dp.ui.snapshot.cancel.confirm" : "Sure to cancel snapshot creation?",
   "msg.dp.ui.creating.snapshot" : "Creating a snapshot",

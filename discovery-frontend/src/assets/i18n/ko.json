@@ -920,6 +920,8 @@
   "msg.dp.alert.teddy.parse.failed.by.join.jointype": "Join rule 해석에 실패하였습니다. Join 타입을 확인하세요.",
   "msg.dp.alert.teddy.parse.failed.by.window.value": "Window Rule의 Expression 문법을 확인하세요",
 
+ "msg.dp.alert.unsupported.number.format": "지원하지 않는 형식의 숫자입니다.",
+
   "msg.dp.ui.no.snapshot.history" : "스냅 샷 생성 기록 없음",
   "msg.dp.ui.snapshot.cancel.confirm" : "스냅 샷 생성을 취소 하시겠습니까?",
   "msg.dp.ui.creating.snapshot" : "스냅샷을 생성하고있습니다",
