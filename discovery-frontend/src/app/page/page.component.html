@@ -1430,6 +1430,7 @@
                     </sankey-chart>
                     <gauge-chart #chart
                                  [isPage]="true"
+                                 [sorts]="sorts"
                                  *ngIf="selectChart == 'gauge'"
                                  [uiOption]="uiOption"
                                  (uiOptionUpdated)="updateUIOption($event)"

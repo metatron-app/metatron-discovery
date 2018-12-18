@@ -323,7 +323,6 @@ export class DatasourceService extends AbstractService {
     if( 0 < pageConf.chart.limit ) {
       pageConf.limit.limit = pageConf.chart.limit;
     } else {
-      pageConf.limit = new Limit();
       pageConf.limit.limit = 100000;
     }
     query.limits = _.cloneDeep(pageConf.limit);
