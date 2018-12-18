@@ -377,6 +377,11 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
       } else {
 
+        this.datasetInfo.push({
+          name : this.translateService.instant('msg.dp.th.database'),
+          value : ds.sqlInfo.databaseName
+        });
+
         // QUERY STATEMENT
         this.datasetInfo.push({
           name : this.translateService.instant('msg.dp.btn.query'),
@@ -426,6 +431,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     if (hive.rsType === RsType.QUERY) {
       hive.queryStmt = hive.sqlInfo.queryStmt;
+      hive.dbName = hive.sqlInfo.databaseName;
     } else {
       hive.tblName = hive.tableInfo.tableName;
       hive.dbName = hive.tableInfo.databaseName;
@@ -443,6 +449,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   private _getJdbcParams(jdbc) : object {
 
     if (jdbc.rsType === RsType.QUERY) {
+      jdbc.dbName = jdbc.sqlInfo.databaseName;
       jdbc.queryStmt = jdbc.sqlInfo.queryStmt;
     } else {
       jdbc.tblName = jdbc.tableInfo.tableName;
@@ -482,8 +489,8 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     }).catch((error) => {
 
-      this.datasetHive.tableInfo = tableInfo;
-      this.datasetHive.sqlInfo = sqlInfo;
+      type.tableInfo = tableInfo;
+      type.sqlInfo = sqlInfo;
 
       // Error when creating dataflow with dataset with no querystmt
       if (this.type !== 'FILE' && type.rsType === RsType.TABLE) {

@@ -49,23 +49,31 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   //public datasetHive: DatasetHive;
   public datasetHive: PrDatasetHive;
 
+
+  public databaseList: any[] = [];              // Database list (first selectBox)
   public isDatabaseListShow : boolean = false;  // Database list show/hide
-  public isSchemaListShow: boolean = false;     // tables list show/hide
+  public isQueryDatabaseListShow: boolean = false;
+
 
   public isQuerySuccess: boolean;               // 쿼리 성공 실패 여부
   public showQueryStatus: boolean = false;
   public queryErrorMsg: string = '';
 
-  public databaseList: any[] = [];              // Database list (first selectBox)
+
   public schemaList: any[] = [];                // schema list (next selectBox)
+  public isSchemaListShow: boolean = false;     // tables list show/hide
+
 
   public clickable: boolean = false;            // is next btn clickable
 
-  // 선택된 데이터베이스 (query)
-  public selectedDatabaseQuery: string = '';
 
   public dbSearchText: string = '';
   public schemaSearchText: string = '';
+  public queryDbSearchText: string = '';
+
+
+  // 선택된 데이터베이스 (query)
+  public selectedDatabaseQuery: string = '';
 
   public flag: boolean = false;
 
@@ -115,6 +123,21 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       });
     }
     return schemaList;
+
+  }
+
+  get filteredQueryDbList() {
+    let databaseList = this.databaseList;
+
+    const isDbSearchTextEmpty = StringUtil.isNotEmpty(this.queryDbSearchText);
+
+    // 검색어가 있다면
+    if (isDbSearchTextEmpty) {
+      databaseList = databaseList.filter((item) => {
+        return item.name.toLowerCase().indexOf(this.queryDbSearchText.toLowerCase()) > -1;
+      });
+    }
+    return databaseList;
 
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -216,20 +239,15 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    * @param event
    * @param database
    */
-  public onChangeDatabase(event,database) {
-    this.isDatabaseListShow = false;
-    event.stopPropagation();
+  public selectDatabase(database) {
 
+    this.isDatabaseListShow = false;
     this.datasetHive.tableInfo.databaseName = database.name;
     this.datasetHive.tableInfo.tableName = undefined;
-
     this._deleteGridInfo(this.datasetHive.rsType);
-
     this.getTables(database.name);
-
-    $('[tabindex=1]').trigger('focus');
     this.initSelectedCommand(this.filteredDbList);
-  } // function - onChangeDatabase
+  } // function - selectDatabase
 
   /**
    * change selected table
@@ -283,10 +301,16 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    */
   public showDatabaseList(event?) {
     event ? event.stopImmediatePropagation() : null;
-    this.isDatabaseListShow = true;
-    this.isSchemaListShow = false;
+
     this.dbSearchText = ''; //검색어 초기화
-    setTimeout(() => $('.db-search').trigger('focus')); // focus on input
+
+    // Open select box and focus on input
+    setTimeout(() => {
+      this.isDatabaseListShow = true;
+      $('#table-db-input').trigger('focus');
+    });
+
+    this.isSchemaListShow = false;
 
   } // function - showDatabaseList
 
@@ -295,8 +319,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    * Open / close schemalist select box
    * @param event
    */
-  public showSchemaList(event) {
-    event.stopImmediatePropagation();
+  public showSchemaList() {
     this.isSchemaListShow = true;
     this.isDatabaseListShow = false;
     this.schemaSearchText = ''; //검색어 초기화
@@ -328,14 +351,22 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       this.clickable = true;
     }
 
-    // If grid data exists, draw grid.
-    //let data = this.datasetHive[method.toLowerCase()+'Info'];
     let data = null;
-    if(method===RsType.TABLE) {
-      data = this.datasetHive.sqlInfo;
-    } else if(method===RsType.QUERY) {
+    if (this.datasetHive.rsType === RsType.TABLE) {
       data = this.datasetHive.tableInfo;
+
+      if (this.datasetHive.tableInfo.databaseName === undefined) {
+        this.showDatabaseList();
+      } else if (this.datasetHive.tableInfo.tableName === undefined) {
+        this.showSchemaList();
+      }
+    } else {
+      data = this.datasetHive.sqlInfo;
+      if (this.datasetHive.sqlInfo.databaseName === undefined) {
+        this.showQueryDatabaseList();
+      }
     }
+
     if (data.headers && data.headers.length > 0) {
       this.clearGrid = false;
       this._drawGrid(data.headers,data.rows)
@@ -351,7 +382,11 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    */
   public runStagingDBQuery() {
 
-    if (this.datasetHive.sqlInfo.queryStmt == '' ) {
+    if (this.datasetHive.sqlInfo.databaseName === undefined) {
+      this.queryErrorMsg = this.translateService.instant('msg.storage.ui.dsource.create.choose-db');
+      this.isQuerySuccess = false;
+      this.showQueryStatus = true;
+      this.clickable = false;
       return;
     }
 
@@ -359,11 +394,11 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     this.queryErrorMsg = '';
 
 
-    this.datasetService.getResultWithStagingDBQuery(this.datasetHive.sqlInfo.queryStmt).then((result) => {
+    this.datasetService.getResultWithStagingDBQuery(this.datasetHive.sqlInfo.queryStmt, this.datasetHive.sqlInfo.databaseName).then((result) => {
       this.loadingHide();
       if (result.hasOwnProperty('errorMsg')) {
         this.showQueryStatus = true;
-        this.queryErrorMsg = this.translateService.instant('msg.dp.ui.invalid.conn');
+        this.queryErrorMsg = this.translateService.instant('msg.storage.ui.invalid.query');
         this.clickable = false;
         this.datasetHive.sqlInfo.valid = false;
         this._deleteGridInfo(this.datasetHive.rsType);
@@ -389,7 +424,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
 
       this.loadingHide();
       this.showQueryStatus = true;
-      this.queryErrorMsg = this.translateService.instant('msg.dp.ui.invalid.conn');
+      this.queryErrorMsg = this.translateService.instant('msg.storage.ui.invalid.query');
       this.clickable = false;
       this.datasetHive.sqlInfo.valid = false;
       this.gridComponent.destroy();
@@ -435,6 +470,9 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
           break;
         case 'schema' :
           !this.isSchemaListShow ? this.isSchemaListShow = true: null;
+          break;
+        case 'query' :
+          !this.isQueryDatabaseListShow ? this.isQueryDatabaseListShow = true: null;
           break;
       }
     }
@@ -520,10 +558,13 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       } else {
         switch(method) {
           case 'db' :
-            this.onChangeDatabase(event,currentList[idx]);
+            this.selectDatabase(currentList[idx]);
             break;
           case 'schema' :
             this.onChangeTable(event, currentList[idx]);
+            break;
+          case 'query' :
+            this.selectQueryDatabase(currentList[idx]);
             break;
         }
       }
@@ -549,6 +590,9 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
         break;
       case 'schema':
         tempList = this.filteredSchemaList;
+        break;
+      case 'query':
+        tempList = this.filteredQueryDbList;
         break;
     }
 
@@ -580,6 +624,51 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
         this.next();
       }
     }
+  }
+
+
+  /**
+   * Query Tab : open/close database select box
+   * @param event
+   */
+  public showQueryDatabaseList(event?) {
+
+    event ? event.stopImmediatePropagation() : null;
+
+    // Reset search text
+    this.queryDbSearchText = '';
+
+    // open select box and focus on input
+    setTimeout(() => {
+      this.isQueryDatabaseListShow = true;
+    });
+
+    setTimeout(() => {
+      $('#query-db-input').trigger('focus');
+    });
+
+    // Query tab - X schema list
+    this.isSchemaListShow = false;
+
+  }
+
+
+  /**
+   * Query tab : Select database from select box
+   * @param database
+   */
+  public selectQueryDatabase(database) {
+    this.isQueryDatabaseListShow = false;
+    this.datasetHive.sqlInfo.databaseName = database.name;
+    this._deleteGridInfo(this.datasetHive.rsType);
+    this.initSelectedCommand(this.filteredDbList);
+
+    this.datasetHive.sqlInfo.valid = false;
+    this.isQuerySuccess = false;
+    if (StringUtil.isNotEmpty(this.datasetHive.sqlInfo.queryStmt)) {
+      this.clickable = true;
+    }
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -666,26 +755,30 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    */
   private getTables(database:string) {
     this.loadingShow();
-    this.datasetService.getStagingTables(database)
-      .then((data) => {
-        this.loadingHide();
-        this.schemaList = [];
-        if (data) {
-          for (let idx = 0, nMax = data.length; idx < nMax; idx = idx + 1) {
-            this.schemaList.push({ idx : idx, name : data[idx], selected : false });
-          }
-          this.isTableEmpty = false;
 
-        } else {
-          this.schemaList = [];
-          this.datasetHive.tableInfo.tableName = undefined;
-          this.isTableEmpty = true;
+    this.datasetService.getStagingTables(database).then((data) => {
 
-          if (this.gridComponent) {
-            this.gridComponent.destroy();
-          }
+      this.loadingHide();
+      this.schemaList = [];
+
+      if (data) {
+        for (let idx = 0, nMax = data.length; idx < nMax; idx = idx + 1) {
+          this.schemaList.push({ idx : idx, name : data[idx], selected : false });
         }
-      })
+        this.isTableEmpty = false;
+
+      } else {
+        this.schemaList = [];
+        this.datasetHive.tableInfo.tableName = undefined;
+        this.isTableEmpty = true;
+
+        setTimeout(() => this.isSchemaListShow = true );
+
+        if (this.gridComponent) {
+          this.gridComponent.destroy();
+        }
+      }
+    })
       .catch((error) => {
 
         this.schemaList = [];

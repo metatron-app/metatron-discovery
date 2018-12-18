@@ -234,6 +234,7 @@ export class QueryInfo {
   public rows: any[];
   public queryStmt: string;
   public valid?: boolean;
+  public databaseName?: string;
 }
 
 export class TableInfo {

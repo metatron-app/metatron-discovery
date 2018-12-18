@@ -15,7 +15,7 @@
 import { Component, ElementRef, Injector, OnInit, Input } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
-import { PrDatasetJdbc, DsType, ImportType } from '../../../domain/data-preparation/pr-dataset';
+import { PrDatasetJdbc, DsType, ImportType, QueryInfo, TableInfo } from '../../../domain/data-preparation/pr-dataset';
 import { ConnectionType, Dataconnection } from '../../../domain/dataconnection/dataconnection';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
 import { ConnectionRequest } from '../../../domain/dataconnection/connectionrequest';
@@ -200,7 +200,15 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
     });
   }
 
-  public selectConnection($event: any) {
+  public selectConnection($event: any, isChanged : boolean = false) {
+
+
+    if (isChanged) { // Refresh when user changes data connnection
+      this.datasetJdbc.sqlInfo = new QueryInfo();
+      this.datasetJdbc.tableInfo = new TableInfo();
+      this.datasetJdbc.rsType = undefined;
+
+    }
 
     for (let key in this.dataconnection) {
       if (this.dataconnection.hasOwnProperty(key)) {
