@@ -692,7 +692,7 @@ export class IngestionSettingComponent extends AbstractComponent {
       this.selectedQueryGranularity = this.segmentGranularityList[0];
     } else if (this._format.type === FieldFormatType.DATE_TIME) { // if exist format, DATE_TIME type
       // _automationGranularity
-      this._automationGranularity(this._format.format, this._format.format.length -1);
+      this._automationGranularity(this._format.format, this._format.format.length - 1);
     } else if (this._format.type === FieldFormatType.UNIX_TIME) { // if exist format, UNIX_TIME type
       // set segment granularity HOUR
       this.selectedSegmentGranularity = this.segmentGranularityList[2];
