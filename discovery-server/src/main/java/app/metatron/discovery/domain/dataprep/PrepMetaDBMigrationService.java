@@ -72,6 +72,10 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
   public void onApplicationEvent(ApplicationReadyEvent event) {
     Connection conn;
 
+    if (prepProperties.isMigrateMetaDB() == false) {
+      return;
+    }
+
     LOGGER.info("PrepMetaDBMigrationService: started");
 
     try {
