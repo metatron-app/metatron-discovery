@@ -8578,6 +8578,20 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .icon-db-tibero .st0{fill:#01448D;}
 .icon-db-tibero .st1{fill:#EA1B22;}
 
+.icon-db-hive-b {display:inline-block; width:24px; height:22px; vertical-align:middel;}
+.icon-db-hive-b .st0{fill:#D8D8D8;}
+.icon-db-hive-b .st1{fill:#B5B5B5;}
+.icon-db-hive-b .st2{fill:#F7F7F7;}
+.icon-db-hive-b .st3{fill:#333333;}
+icon-db-hive-b .st4{fill:#FFFFFF;}
+
+.icon-db-hdfs-b {display:inline-block; width:24px; height:22px; vertical-align:middel;}
+.icon-db-hdfs-b .st0{fill:#D8D8D8;}
+.icon-db-hdfs-b .st1{fill:#B5B5B5;}
+.icon-db-hdfs-b .st2{fill:#FFFFFF;}
+.icon-db-hdfs-b .st3{fill:#333333;}
+
+.icon-db-local {display:inline-block; width:16px; height:15px; background:url(../images/icon_flow.png) no-repeat; background-position:left -320px;vertical-align: middle;}
 
 /**************************************************************
   Page : 대시보드

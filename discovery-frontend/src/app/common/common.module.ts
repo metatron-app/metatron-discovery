@@ -58,6 +58,7 @@ import { ColorPickerComponent } from './component/color-picker/color.picker.comp
 import { GradationGeneratorComponent } from './component/gradation/gradation-generator.component';
 import { DashboardDatasourceComboComponent } from '../dashboard/component/dashboard-datasource-combo.component';
 import { ColorTemplateComponent } from './component/color-picker/color-template.component';
+import {DatabaseIconComponent} from "./component/icon/database-icon.component";
 
 
 @NgModule({
@@ -103,7 +104,8 @@ import { ColorTemplateComponent } from './component/color-picker/color-template.
     ColorPickerComponent,
     GradationGeneratorComponent,
     DashboardDatasourceComboComponent,
-    ColorTemplateComponent
+    ColorTemplateComponent,
+    DatabaseIconComponent
   ],
   exports: [
     AngularCommonModule,
@@ -146,7 +148,8 @@ import { ColorTemplateComponent } from './component/color-picker/color-template.
     ColorPickerComponent,
     GradationGeneratorComponent,
     DashboardDatasourceComboComponent,
-    ColorTemplateComponent
+    ColorTemplateComponent,
+    DatabaseIconComponent
   ],
   providers: [
     {

@@ -7,6 +7,7 @@
 .page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot .ddp-data-status.type-success {color:#65c394;}
 .page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot .ddp-data-status.type-failed{color:#df5b60;}
 .page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot .ddp-data-name {color:#4b515b; font-size:13px;}
+
 .page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot .ddp-data-name .ddp-tag-type {display:inline-block; float:left;padding:1px 4px; margin-right:5px;  background-color:#b7b9c1; border-radius:3px; color:#fff; font-size:11px; font-weight:bold; vertical-align:middle;}
 .page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot .ddp-data-date {padding-top:5px; color:#b7b9c2; font-size:12px;}
 .page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot .ddp-data-det .ddp-data-title {padding-bottom:3px; font-size:14px;}
@@ -21,7 +22,6 @@
 .page-prep-dataflow .ddp-input-selectbox.ddp-selected .ddp-wrap-popup2 {display:block;}
 
 
-
 .page-prep-dataflow .ddp-box-contents .ddp-box-part .ddp-box-title span.ddp-box-title-in {padding-right:19px;}
 .page-prep-dataflow .ddp-box-contents .ddp-box-part .ddp-box-title a.ddp-btn-plus {display:inline-block; width:13px; height:13px; top:0; background:url(../../../images/icon_add.png) no-repeat; background-position:-84px -22px; border:none;}
 .page-prep-dataflow .ddp-box-contents .ddp-box-part .ddp-box-title a.ddp-btn-plus:before {display:none;}
@@ -29,6 +29,19 @@
 .page-prep-dataflow .ddp-wrap-boxadd .ddp-ui-buttons a.ddp-btn-minus {border:none; background:none;}
 .page-prep-dataflow .ddp-wrap-boxadd .ddp-ui-buttons a.ddp-btn-minus:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-8px 0 0 -8px; width:15px; height:15px; background:url(../../../images/icon_delete.png) no-repeat; background-position:left -14px;}
 .page-prep-dataflow .ddp-wrap-boxadd .ddp-ui-buttons a.ddp-btn-minus.ddp-disabled {opacity:0.5; cursor:no-drop;}
+
+.page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot .ddp-data-name svg{margin-right:5px;vertical-align:middle;}
+
+.page-prep-dataflow .icon-db-local {display:inline-block; width:16px; height:15px; margin-right:5px; background:url(../../../images/icon_flow.png) no-repeat; background-position:left -320px; vertical-align:middle;}
+/*.page-prep-dataflow .icon-db-hive .st0{fill:#D8D8D8;}*/
+/*.st1{fill:#B5B5B5;}*/
+/*.st2{fill:#F7F7F7;}*/
+/*.st3{fill:#333333;}*/
+/*.st4{fill:#FFFFFF;}*/
+
+
+
+
 
 
 

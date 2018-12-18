@@ -108,6 +108,7 @@
 
     <table class="ddp-table-form ddp-table-type3" *ngIf="datasnapshots.length > 0">
       <colgroup>
+        <col width="45px">
         <col width="*">
         <col width="20%">
         <col width="10%">
@@ -116,7 +117,7 @@
       </colgroup>
       <thead>
       <tr>
-        <th (click)="changeOrder('ssName')" class="ddp-cursor">
+        <th (click)="changeOrder('ssName')" class="ddp-cursor" colspan="2">
           {{'msg.dp.th.ss' | translate}}
           <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'ssName' || selectedContentSort.sort === 'default'"></em>
           <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'ssName' && selectedContentSort.sort === 'asc'"></em>
@@ -145,6 +146,9 @@
       </thead>
       <tbody>
       <tr *ngFor="let item of datasnapshots; let i = index" [attr.data-index]="i" (click)="snapshotDetail(item)" >
+        <td>
+          <database-icon-component [databaseName]="item.ssType === 'URI' ? 'LOCAL' : item.ssType === 'URI'" [isBlackAndWhite]="true"></database-icon-component>
+        </td>
         <td >
           <div class="ddp-wrap-long">
             <div class="ddp-txt-long">
