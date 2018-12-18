@@ -15,7 +15,9 @@
 package app.metatron.discovery.domain.dataprep;
 
 import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -668,7 +670,7 @@ public class PrepDatasetSparkHiveService {
         return Long.parseLong((line.split("\\s+"))[0]);
     }
 
-    public void writeSnapshot(ServletOutputStream outputStream, String dbName, String sql ) throws PrepException {
+    public void writeSnapshot(ServletOutputStream outputStream, String dbName, String sql, String fileType) throws PrepException {
         try {
             StageDataConnection stageDataConnection = new StageDataConnection();
             stageDataConnection.setHostname(    prepProperties.getHiveHostname(true));
@@ -693,33 +695,14 @@ public class PrepDatasetSparkHiveService {
                 HiveConnection conn = (HiveConnection) connection;
                 Statement statement = conn.createStatement();
                 ResultSet rs = statement.executeQuery(sql);
-                ResultSetMetaData rsmd = rs.getMetaData();
-                int columnCount = rsmd.getColumnCount();
-                StringBuffer sb = new StringBuffer();
-                for(int columnIdx=1;columnIdx<=columnCount;columnIdx++) {
-                    String colName = rsmd.getColumnName(columnIdx);
-                    if(colName.startsWith(dbName+".")) {
-                        colName = colName.substring(dbName.length()+1);
-                    }
-                    //int colType = rsmd.getColumnType(columnIdx);
-                    if(1<columnIdx) {
-                        sb.append(",");
-                    }
-                    sb.append(escapeCsvField(colName));
+
+                if(fileType.equalsIgnoreCase("JSON")) {
+                    PrepJsonUtil.writeHiveTableAsJSON(rs, outputStream, dbName);
+
+                } else {
+                    PrepCsvUtil.writeHiveTableAsCSV(rs, outputStream, dbName);
                 }
-                outputStream.write(sb.toString().getBytes());
-                while(rs.next()) {
-                    sb = new StringBuffer();
-                    sb.append("\n");
-                    for(int columnIdx=1;columnIdx<=columnCount;columnIdx++) {
-                        String columnValue = rs.getString(columnIdx);
-                        if(1<columnIdx) {
-                            sb.append(",");
-                        }
-                        sb.append(escapeCsvField(columnValue));
-                    }
-                    outputStream.write(sb.toString().getBytes());
-                }
+
                 JdbcUtils.closeResultSet(rs);
                 JdbcUtils.closeStatement(statement);
                 JdbcUtils.closeConnection(conn);
@@ -765,14 +748,5 @@ public class PrepDatasetSparkHiveService {
             throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
         }
     }
-
-    public String escapeCsvField(String value) {
-        if( value.contains("\"") || value.contains(",") ) {
-            value.replaceAll("\"","\\\"");
-            return "\"" + value + "\"";
-        }
-        return value;
-    }
-
 }
 
