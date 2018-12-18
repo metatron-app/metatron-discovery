@@ -190,7 +190,9 @@ export class DashboardService extends AbstractService {
           delete boardConf.dataSource.connType;
           delete boardConf.dataSource.engineName;
           delete boardConf.dataSource.uiFields;
+          delete boardConf.dataSource.uiFilters;
           delete boardConf.dataSource.metaDataSource;
+          delete boardConf.dataSource['orgDataSource'];
           if (boardConf.dataSource.dataSources) {
             boardConf.dataSource.dataSources.forEach(item => {
               delete item.uiFields;
@@ -208,7 +210,14 @@ export class DashboardService extends AbstractService {
           });
         }
         if (boardConf.filters) {
-          boardConf.filters = boardConf.filters.map(item => FilterUtil.convertToServerSpecForDashboard(item));
+          boardConf.filters
+            = boardConf.filters.filter( item => {
+              if( boardConf.dataSource.temporary ) {
+                return 'recommended' !== item.ui.importanceType;
+              } else {
+                return true;
+              }
+            }).map(item => FilterUtil.convertToServerSpecForDashboard(item));
         }
         delete boardConf.layout;
         delete boardConf.fields;

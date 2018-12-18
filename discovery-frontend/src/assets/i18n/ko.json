@@ -1462,6 +1462,7 @@
   "msg.board.filter.sel.data" : "데이터를 선택해 주세요",
   "msg.board.filter.placeholder.search-field" : "필드 이름 검색",
   "msg.board.filter.ui.select-measure" : "측정값 선택",
+  "msg.board.filter.ui.no-data" : "선택할 수 있는 값이 없습니다",
   "msg.custom.filter.popup.change.aggregation.title" : "조건식 변경을 계속 진행하시겠습니까?",
   "msg.custom.filter.popup.change.aggregation.description" : "집계 함수가 포함된 조건식 변경 시, 해당 컬럼이 사용된 차트에 영향을 줄 수 있습니다",
   "msg.board.ordering,tooltip" : "순서지정",

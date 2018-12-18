@@ -93,6 +93,8 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   // 로그인 아이디
   public loginUserId: string;
 
+  public compUUID:string;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -123,6 +125,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
 
     // 웹소켓 연결
     // this.checkAndConnectWebSocket().then();
+    this.compUUID = CommonUtil.getUUID();
   }
 
   ngAfterViewInit() {

@@ -18,37 +18,37 @@ import {
   InclusionSelectorType,
   InclusionSortBy
 } from '../../domain/workbook/configurations/filter/inclusion-filter';
-import { BoundFilter } from '../../domain/workbook/configurations/filter/bound-filter';
+import {BoundFilter} from '../../domain/workbook/configurations/filter/bound-filter';
 import {
   InequalityType,
   MeasureInequalityFilter
 } from '../../domain/workbook/configurations/filter/measure-inequality-filter';
-import { AggregationType } from '../../domain/workbook/configurations/field/measure-field';
+import {AggregationType} from '../../domain/workbook/configurations/field/measure-field';
 import {
   MeasurePositionFilter,
   PositionType
 } from '../../domain/workbook/configurations/filter/measure-position-filter';
-import { ContainsType, WildCardFilter } from '../../domain/workbook/configurations/filter/wild-card-filter';
-import { Datasource, Field } from '../../domain/datasource/datasource';
-import { BoardDataSource, Dashboard } from '../../domain/dashboard/dashboard';
-import { Filter } from '../../domain/workbook/configurations/filter/filter';
-import { ByTimeUnit, TimeUnit } from '../../domain/workbook/configurations/field/timestamp-field';
-import { TimeFilter } from '../../domain/workbook/configurations/filter/time-filter';
-import { isNullOrUndefined } from 'util';
-import { TimeListFilter } from '../../domain/workbook/configurations/filter/time-list-filter';
-import { TimeAllFilter } from '../../domain/workbook/configurations/filter/time-all-filter';
-import { TimeRangeFilter } from '../../domain/workbook/configurations/filter/time-range-filter';
+import {ContainsType, WildCardFilter} from '../../domain/workbook/configurations/filter/wild-card-filter';
+import {Datasource, Field} from '../../domain/datasource/datasource';
+import {BoardDataSource, Dashboard} from '../../domain/dashboard/dashboard';
+import {Filter} from '../../domain/workbook/configurations/filter/filter';
+import {ByTimeUnit, TimeUnit} from '../../domain/workbook/configurations/field/timestamp-field';
+import {TimeFilter} from '../../domain/workbook/configurations/filter/time-filter';
+import {isNullOrUndefined} from 'util';
+import {TimeListFilter} from '../../domain/workbook/configurations/filter/time-list-filter';
+import {TimeAllFilter} from '../../domain/workbook/configurations/filter/time-all-filter';
+import {TimeRangeFilter} from '../../domain/workbook/configurations/filter/time-range-filter';
 import {
   TimeRelativeFilter,
   TimeRelativeTense
 } from '../../domain/workbook/configurations/filter/time-relative-filter';
-import { DashboardUtil } from './dashboard.util';
+import {DashboardUtil} from './dashboard.util';
 import {
   IntervalFilter,
   IntervalRelativeTimeType,
   IntervalSelectorType
 } from '../../domain/workbook/configurations/filter/interval-filter';
-import { DIRECTION } from '../../domain/workbook/configurations/sort';
+import {DIRECTION} from '../../domain/workbook/configurations/sort';
 
 declare let moment;
 
@@ -120,6 +120,26 @@ export class FilterUtil {
   } // function - getBoardDataSourceForFilter
 
   /**
+   * 필수 필터 목록 조회
+   * @param {Dashboard} board
+   * @param {Filter} filter
+   */
+  public static getEssentialFilters(board: Dashboard, filter?:Filter): Filter[] {
+    let essentialFilters: Filter[] = [];
+    if (board.configuration.dataSource.temporary) {
+      essentialFilters = board.configuration.filters.filter(item => {
+        const filterField = DashboardUtil.getFieldByName(board, item.dataSource, item.field);
+        if( filter && filter.ui && filter.ui.filteringSeq) {
+          return filter.ui.filteringSeq < filterField.filteringSeq;
+        } else {
+          return -1 < filterField.filteringSeq;
+        }
+      });
+    }
+    return essentialFilters;
+  } // function - getEssentialFilters
+
+  /**
    * 필터에 대한 데이터소스 반환
    * @param {Filter} filter
    * @param {Dashboard} board
@@ -148,7 +168,7 @@ export class FilterUtil {
     inclusionFilter.preFilters.push(this.getBasicPositionFilter(preFilterData));
     inclusionFilter.preFilters.push(this.getBasicWildCardFilter(field.name, preFilterData));
 
-    inclusionFilter.sort = new InclusionItemSort( InclusionSortBy.TEXT, DIRECTION.ASC );
+    inclusionFilter.sort = new InclusionItemSort(InclusionSortBy.TEXT, DIRECTION.ASC);
 
     (importanceType) && (inclusionFilter.ui.importanceType = importanceType);
     (-1 < field.filteringSeq) && (inclusionFilter.ui.filteringSeq = field.filteringSeq + 1);
@@ -257,7 +277,7 @@ export class FilterUtil {
           'locale', 'format', 'rrule', 'relValue', 'timeUnit'];
         break;
       case 'include' :
-        keyMap = ['valueList', 'candidateValues','sort'];
+        keyMap = ['selector', 'valueList', 'candidateValues', 'sort'];
         break;
       case 'timestamp' :
         keyMap = ['selectedTimestamps', 'timeFormat'];
@@ -335,7 +355,7 @@ export class FilterUtil {
           'minTime', 'maxTime', 'valueList', 'candidateValues', 'discontinuous', 'granularity'];
         break;
       case 'include' :
-        keyMap = ['selector', 'preFilters', 'valueList', 'candidateValues', 'definedValues','sort'];
+        keyMap = ['selector', 'preFilters', 'valueList', 'candidateValues', 'definedValues', 'sort'];
         break;
       case 'timestamp' :
         keyMap = ['selectedTimestamps', 'timeFormat'];

@@ -1515,7 +1515,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     this.showBoardLoading();
 
     // 대시보드 설정
-    this.dashboardService.getDashboard(dashboardId).then((boardInfo) => {
+    this.dashboardService.getDashboard(dashboardId).then((boardInfo:Dashboard) => {
 
       boardInfo.workBook = this.workbook;
       // Linked Datasource 인지 그리고 데이터소스가 적재되었는지 여부를 판단함
@@ -1535,6 +1535,12 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
               const boardDsInfo: BoardDataSource = DashboardUtil.getBoardDataSourceFromDataSource(boardInfo, dsInfo);
               this.datasourceService.getDatasourceDetail(boardDsInfo['temporaryId']).then((ds: Datasource) => {
                 boardDsInfo.metaDataSource = ds;
+                if( boardInfo.configuration.filters ) {
+                  boardInfo.configuration.filters = ds.temporary.filters.concat( boardInfo.configuration.filters);
+                } else {
+                  boardInfo.configuration.filters = ds.temporary.filters;
+                }
+
                 res();
               }).catch(err => rej(err));
             }));

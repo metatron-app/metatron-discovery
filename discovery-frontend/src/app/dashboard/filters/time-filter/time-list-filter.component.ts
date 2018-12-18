@@ -57,6 +57,7 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public useAll:boolean = false;
 
   public isOnlyShowCandidateValues: boolean = false;   // 표시할 후보값만 표시 여부
 
@@ -372,6 +373,16 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
       this._setCandidateResult(result, filter, sortBy);
       this.targetFilter = filter;
       this.safelyDetectChanges();
+
+      // 전체 선택 기능 체크 및 전체 선택 기능이 비활성 일떄, 초기값 기본 선택 - for Essential Filter
+      if( this.targetField ) {
+        this.useAll = !( -1 < this.targetField.filteringSeq );
+      } else {
+        this.useAll = true;
+      }
+      if( false === this.useAll && 0 === this._selectedValues.length ) {
+        this._selectedValues.push( this._candidateList[0] );
+      }
 
       // 변경사항 전파
       ( isBroadcast ) && ( this.changeEvent.emit(this.getData()) );
