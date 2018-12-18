@@ -28,6 +28,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.parquet.Strings;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -96,7 +97,7 @@ public class PrSnapshotService {
         return ssDir;
     }
 
-    public String downloadSnapshotFile( String ssId, HttpServletResponse response ) throws PrepException {
+    public String downloadSnapshotFile( String ssId, HttpServletResponse response, String fileType ) throws PrepException {
         PrSnapshot snapshot = this.snapshotRepository.findOne(ssId);
         String fileName = "";
         if(snapshot!=null) {
@@ -176,7 +177,12 @@ public class PrSnapshotService {
                     String dbName = snapshot.getDbName();
                     String tblName = snapshot.getTblName();
                     String sql = "SELECT * FROM "+dbName+"."+tblName;
-                    this.datasetSparkHiveService.writeSnapshot(response.getOutputStream(), dbName, sql);
+                    if(Strings.isNullOrEmpty(fileType)) {
+                        fileType = "csv";
+                    }
+                    this.datasetSparkHiveService.writeSnapshot(response.getOutputStream(), dbName, sql, fileType);
+
+                    fileName = snapshot.getDsName() + "." + fileType;
                 }
             } catch (Exception e) {
                 throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
