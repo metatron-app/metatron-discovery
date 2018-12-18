@@ -99,10 +99,10 @@
             <thead>
             <tr>
               <th>{{'msg.metadata.th.physical.name' | translate}}
-                <a href="javascript:" class="ddp-link-filter" *ngIf="!isExistMetaData() && !isDisableEditFilter()" (click)="onClickEditFilters()">{{'msg.storage.ui.edit.filters' | translate}} ></a>
+                <a href="javascript:" class="ddp-link-filter" *ngIf="!isExistMetaData()" (click)="onClickEditFilters()">{{'msg.storage.ui.edit.filters' | translate}} ></a>
               </th>
               <th *ngIf="isExistMetaData()">{{'msg.metadata.th.name' | translate}}
-                <a href="javascript:" class="ddp-link-filter" (click)="onClickEditFilters()" *ngIf="!isDisableEditFilter()">{{'msg.storage.ui.edit.filters' | translate}} ></a>
+                <a href="javascript:" class="ddp-link-filter" (click)="onClickEditFilters()">{{'msg.storage.ui.edit.filters' | translate}} ></a>
               </th>
             </tr>
             </thead>
