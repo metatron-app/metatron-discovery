@@ -758,7 +758,14 @@ export class IngestionSettingComponent extends AbstractComponent {
         break;
       default:
         // if not startNum first index, call _automationGranularity method
-        startNum !== 0 && this._automationGranularity(this._format.format, startNum - 1);
+        if (startNum !== 0) {
+          this._automationGranularity(this._format.format, startNum - 1);
+        } else { // set default
+          // set segment granularity HOUR
+          this.selectedSegmentGranularity = this.segmentGranularityList[2];
+          // set query granularity SECOND
+          this.selectedQueryGranularity = this.segmentGranularityList[0];
+        }
         break;
     }
   }
