@@ -317,7 +317,7 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
         name: column.name,
         data: column.value,
         originData: _.cloneDeep(column.value),
-        yAxisIndex: _.eq(idx % 2, 0) ? 0 : 1,
+        yAxisIndex: _.isUndefined(this.uiOption.secondaryAxis.disabled) || !this.uiOption.secondaryAxis.disabled ? _.eq(idx % 2, 0) ? 0 : 1 : 0,
         itemStyle: OptionGenerator.ItemStyle.auto(),
         label: OptionGenerator.LabelStyle.defaultLabelStyle(false, Position.TOP),
         uiData: column

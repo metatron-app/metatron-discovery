@@ -100,7 +100,7 @@
 <!-- //축 범위 설정 -->
 
 <!-- 기준선 / 단위 설정 -->
-<div *ngIf="possibleChartCheck('yAxisBaseline', uiOption.type)" class="ddp-wrap-divide">
+<div *ngIf="possibleChartCheck('yAxisBaseline', uiOption.type) && axis.mode.toString() != 'sub_column'" class="ddp-wrap-divide">
   <div class="ddp-wrap-option-slider">
     <span class="ddp-label-slider">{{'msg.page.yaxis.baseline' | translate}}</span>
     <!-- Slide THREE -->

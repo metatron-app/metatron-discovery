@@ -28,7 +28,19 @@
             <span class="ddp-label-slider">{{'msg.page.chart.axis.show.axis.title' | translate}}</span>
             <!-- Slide THREE -->
             <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-              <input type="checkbox" (click)="showAxisName('column', !uiOption.secondaryAxis.showName)" [ngModel]="uiOption.secondaryAxis.showName">
+              <input type="checkbox" (click)="showSecondaryAxis()" [ngModel]="(uiOption.secondaryAxis.disabled == undefined || !uiOption.secondaryAxis.disabled)">
+              <label><span class="ddp-slide"></span></label>
+            </div>
+            <!-- //Slide THREE -->
+          </div>
+          <!-- //slider -->
+
+          <!-- slider -->
+          <div class="ddp-wrap-option-slider">
+            <span class="ddp-label-slider">{{'msg.page.chart.axis.show.axis.title' | translate}}</span>
+            <!-- Slide THREE -->
+            <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+              <input type="checkbox" (click)="showAxisName('sub_column', !uiOption.secondaryAxis.showName)" [ngModel]="uiOption.secondaryAxis.showName">
               <label><span class="ddp-slide"></span></label>
             </div>
             <!-- //Slide THREE -->

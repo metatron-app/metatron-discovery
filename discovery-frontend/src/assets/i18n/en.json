@@ -2784,6 +2784,7 @@
   "msg.page.chart.axis.show.axis.label": "Show Axis Label",
   "msg.page.chart.axis.label.rotation": "Rotation",
   "msg.page.chart.axis.label.max.length": "Max. Length",
+  "msg.page.chart.axis.show.subaxis": "Show Sub-Axis",
   "msg.page.chart.datalabel.display.label": "Display Label",
   "msg.page.chart.datalabel.category.name": "Category Name",
   "msg.page.chart.datalabel.category.value": "Category Value",

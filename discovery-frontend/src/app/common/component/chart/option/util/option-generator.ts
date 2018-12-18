@@ -1871,7 +1871,7 @@ export namespace OptionGenerator {
         color: UI.Color.measureUIChartColor('SC1'),
         xAxis: UI.Axis.xAxis(AxisLabelType.ROW, true, true, UI.AxisLabel.axisLabelForCategory(ChartAxisLabelType.CATEGORY)),
         yAxis: UI.Axis.yAxis(AxisLabelType.COLUMN, true, true, UI.AxisLabel.axisLabelForValue(ChartAxisLabelType.VALUE)),
-        secondaryAxis: UI.Axis.yAxis(AxisLabelType.SUBCOLUMN, true, true),
+        secondaryAxis: UI.Axis.yAxis(AxisLabelType.SUBCOLUMN, true, true, UI.AxisLabel.axisLabelForValue(ChartAxisLabelType.VALUE)),
         //label: UI.Label.axisLabel(false, false, [UI.Label.labelMode(AxisLabelType.ROW, true, true, AxisLabelMark.HORIZONTAL), UI.Label.labelMode(AxisLabelType.COLUMN, true, true, AxisLabelMark.HORIZONTAL), UI.Label.labelMode(AxisLabelType.SUBCOLUMN, true, true, AxisLabelMark.HORIZONTAL)]),
         dataLabel: UI.DataLabel.label(false),
         legend: UI.Legend.pagingLegend(true, 5),

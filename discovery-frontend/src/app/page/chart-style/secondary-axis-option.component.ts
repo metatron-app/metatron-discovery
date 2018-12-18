@@ -167,6 +167,28 @@ export class SecondaryAxisOptionComponent extends YAxisOptionComponent {
     this.update({});
   }
 
+  /**
+   * Show Secondary Axis
+   * @param axisType
+   * @param index
+   * @param show
+   * @param event
+   */
+  public showSecondaryAxis(): void {
+
+    this.uiOption.secondaryAxis.disabled = _.isUndefined(this.uiOption.secondaryAxis.disabled) ? true : !this.uiOption.secondaryAxis.disabled;
+    if( this.uiOption.secondaryAxis.disabled ) {
+      this.uiOption.secondaryAxis.showName = false;
+      this.uiOption.secondaryAxis.showLabel = false;
+    }
+    else {
+      this.uiOption.secondaryAxis.showName = true;
+      this.uiOption.secondaryAxis.showLabel = true;
+    }
+    this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryAxis: this.uiOption.secondaryAxis });
+    this.update();
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

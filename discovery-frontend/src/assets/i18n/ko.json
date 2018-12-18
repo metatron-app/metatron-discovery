@@ -2783,6 +2783,7 @@
   "msg.page.chart.axis.show.axis.label": "레이블 표시",
   "msg.page.chart.axis.label.rotation": "레이블 회전",
   "msg.page.chart.axis.label.max.length": "최대 길이 설정",
+  "msg.page.chart.axis.show.subaxis": "보조축 표시",
   "msg.page.chart.datalabel.display.label": "표시 레이블 선택",
   "msg.page.chart.datalabel.category.name": "카테고리 이름",
   "msg.page.chart.datalabel.category.value": "카테고리 값",
