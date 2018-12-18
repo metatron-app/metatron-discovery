@@ -374,7 +374,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.queryErrorMsg = '';
 
     // Get grid info using query
-    this.datasetService.getTableDetailWitoutId(param)
+    this.connectionService.getTableDetailWitoutId(param)
       .then((result) => {
 
         this.loadingHide();

@@ -172,9 +172,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
 
   get filteredWrangledDatasets() {
-    if (this.dataflow['_embedded'].datasets.length === 0) return [];
+    if (this.dataflow.datasets.length === 0) return [];
 
-    let list = this.dataflow['_embedded'].datasets;
+    let list = this.dataflow.datasets;
 
     list = list.filter((dataset) => {
       return dataset.dsType.toString() === 'WRANGLED';
