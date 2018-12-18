@@ -169,6 +169,8 @@ public enum PrepMessageKey {
     MSG_DP_ALERT_SNAPSHOT_NOT_SAVED(                             "msg.dp.alert.snapshot.not.saved"),
     MSG_DP_ALERT_TEDDY_WRONG_WINDOW_FUNCTION_EXPRESSION(         "msg.dp.alert.teddy.wrong.window.function.expression"),
 
+    MSG_DP_ALERT_UNSUPPORTED_NUMBER_FORMAT(                      "msg.dp.alert.unsupported.number.format"),
+
     MSG_DP_ALERT_UNKOWN_ERROR(                                   "msg.dp.alert.unknown.error");
 
     String message_key;
