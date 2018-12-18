@@ -715,7 +715,7 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @private
    */
   private _automationGranularity(format: string, startNum: number) {
-    switch (format.slice(startNum, startNum - 1)) {
+    switch (format.slice(startNum, startNum + 1)) {
       case 'Y':
       case 'y':
         // set segment granularity YEAR
