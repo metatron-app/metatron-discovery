@@ -17,7 +17,6 @@ package app.metatron.discovery.domain.dataprep.entity;
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -38,7 +37,6 @@ public class PrDataflow extends AbstractHistoryEntity {
     @Column(name = "df_id")
     private String dfId;
 
-    @JsonManagedReference
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "pr_dataflow_dataset",
             joinColumns = @JoinColumn(name = "df_id", referencedColumnName="df_id"),

@@ -147,6 +147,7 @@ public class PrDatasetController {
             PersistentEntityResourceAssembler persistentEntityResourceAssembler
     ) {
         PrDataset dataset = null;
+        Resource<PrDatasetProjections.DefaultProjection> projectedDataset = null;
         try {
             dataset = this.datasetRepository.findOne(dsId);
             if(dataset!=null) {
@@ -164,13 +165,14 @@ public class PrDatasetController {
             } else {
                 throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET, dsId);
             }
+
+            PrDatasetProjections.DefaultProjection projection = projectionFactory.createProjection(PrDatasetProjections.DefaultProjection.class, dataset);
+            projectedDataset = new Resource<>(projection);
         } catch (Exception e) {
             LOGGER.error("getDataset(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
         }
 
-        PrDatasetProjections.DefaultProjection projection = projectionFactory.createProjection(PrDatasetProjections.DefaultProjection.class, dataset);
-        Resource<PrDatasetProjections.DefaultProjection> projectedDataset = new Resource<>(projection);
         return ResponseEntity.status(HttpStatus.SC_OK).body(projectedDataset);
         //return ResponseEntity.status(HttpStatus.SC_OK).body(persistentEntityResourceAssembler.toFullResource(dataset));
     }
