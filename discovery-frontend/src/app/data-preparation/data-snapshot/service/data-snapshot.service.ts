@@ -90,9 +90,16 @@ export class DataSnapshotService extends AbstractService {
     return this.get(this.API_URL + `preparationsnapshots/${ssId}/contents?offset=${offset}&target=${target}`);
   }
 
-  public downloadSnapshot(ssId: string): Observable<any> {
+  public downloadSnapshot(ssId: string, fileFormat: string): Observable<any> {
+    let mineType: string;
+    if (fileFormat === 'csv') {
+      mineType = 'application/csv';
+    } else if (fileFormat === 'json'){
+      mineType = 'application/json';
+    }
+
     let headers = new Headers({
-      'Accept': 'application/csv',
+      'Accept': mineType,
       'Content-Type': 'application/octet-binary',
       'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
     });
@@ -101,8 +108,7 @@ export class DataSnapshotService extends AbstractService {
       headers: headers,
       responseType: ResponseContentType.Blob
     };
-
-    return this.http.get(this.API_URL + `preparationsnapshots/${ssId}/download`, option)
+    return this.http.get(this.API_URL + `preparationsnapshots/${ssId}/download?fileType=`+fileFormat, option)
       .map((res) => {
         return new Blob([res.blob()], { type: 'application/csv' })
       });
