@@ -30,7 +30,7 @@
           {{dataset.createdTime | mdate:'YYYY-MM-DD'}}
         </td>
       </tr>
-      <tr>
+      <tr *ngIf="dataset.dcType !== 'JDBC'">
         <th>{{'msg.comm.detail.size' | translate}}</th>
         <td>
           <div class="ddp-data-det">
@@ -41,7 +41,7 @@
       <tr>
         <th>{{'msg.comm.detail.rows' | translate}}</th>
         <td>
-          {{dataset.totalLines}}
+          {{getRows}}
         </td>
       </tr>
       </tbody>
