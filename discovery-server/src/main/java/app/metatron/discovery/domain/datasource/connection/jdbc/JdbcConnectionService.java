@@ -890,7 +890,12 @@ public class JdbcConnectionService {
     // int totalRows = countOfSelectQuery(connection, ingestion);
     JdbcQueryResultResponse queryResultSet = null;
 
-    LOGGER.debug("selectQuery : {} ", query);
+    String queryString = query;
+    while(StringUtils.endsWith(queryString.trim(), ";")){
+      queryString = StringUtils.substring(queryString, 0, StringUtils.lastIndexOf(queryString, ";"));
+    }
+
+    LOGGER.debug("selectQuery : {} ", queryString);
 
     Connection conn = null;
     Statement stmt = null;
@@ -902,7 +907,7 @@ public class JdbcConnectionService {
       if (limit > 0)
         stmt.setMaxRows(limit);
 
-      rs = stmt.executeQuery(query);
+      rs = stmt.executeQuery(queryString);
 
       queryResultSet = getJdbcQueryResult(rs, extractColumnName);
       // queryResultSet.setTotalRows(totalRows);
