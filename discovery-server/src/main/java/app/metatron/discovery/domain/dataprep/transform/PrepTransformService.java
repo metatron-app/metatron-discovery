@@ -1362,7 +1362,7 @@ public class PrepTransformService {
 
     //wrangledDataset.setDsName(importedDataset.getDsName() + " [W]");
     String dsName = importedDataset.getDsName();
-    String newDsName = dsName.replaceFirst(" \\((EXCEL|CSV|STAGING|MYSQL|ORACLE|TIBERO|HIVE|POSTGRESQL|MSSQL|PRESTO)\\)$","");
+    String newDsName = dsName.replaceFirst(" \\((EXCEL|CSV|JSON|STAGING|MYSQL|ORACLE|TIBERO|HIVE|POSTGRESQL|MSSQL|PRESTO)\\)$","");
     wrangledDataset.setDsName(newDsName);
     wrangledDataset.setDsType(WRANGLED);
     wrangledDataset.setCreatorDfId(dfId);
