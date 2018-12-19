@@ -17,7 +17,13 @@ import {
   Component, ElementRef, EventEmitter, Injector, Output, Renderer2,
   ViewChild
 } from '@angular/core';
-import { DatasourceInfo } from '../../../domain/datasource/datasource';
+import {
+  DatasourceInfo,
+  Field,
+  FieldFormat,
+  FieldFormatType,
+  FieldFormatUnit
+} from '../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
 import { StringUtil } from '../../../common/util/string.util';
@@ -41,7 +47,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   // granularity list
   private _granularityList: any[] = [
     { label: this.translateService.instant('msg.storage.li.dsource.granularity-none'), value: 'NONE' },
-    // { label: this.translateService.instant('msg.storage.li.dsource.granularity-second'), value: 'SECOND' },
+    { label: this.translateService.instant('msg.storage.li.dsource.granularity-second'), value: 'SECOND' },
     { label: this.translateService.instant('msg.storage.li.dsource.granularity-minute'), value: 'MINUTE' },
     { label: this.translateService.instant('msg.storage.li.dsource.granularity-hour'), value: 'HOUR' },
     { label: this.translateService.instant('msg.storage.li.dsource.granularity-day'), value: 'DAY' },
@@ -54,6 +60,9 @@ export class IngestionSettingComponent extends AbstractComponent {
     { label: this.translateService.instant('msg.storage.th.dsource.scope-all'), value: 'ALL' },
     { label: this.translateService.instant('msg.storage.th.dsource.scope-row'), value: 'ROW' }
   ];
+
+  // format
+  private _format: FieldFormat;
 
   // element
   @ViewChild('resultElement')
@@ -144,7 +153,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   public dateList: any[];
   // day list show flag (only engine source type)
   public isShowDateList: boolean = false;
-  // seleted time in week (only engine source type)
+  // selected time in week (only engine source type)
   public selectedWeeklyTime: string;
 
   // cron text (only engine source type)
@@ -211,18 +220,24 @@ export class IngestionSettingComponent extends AbstractComponent {
    * Init
    * @param {DatasourceInfo} sourceData
    */
-  public init(sourceData: DatasourceInfo, createType: string): void {
-    // ui init
-    this._initView();
+  public init(sourceData: DatasourceInfo, createType: string, selectedTimestampColumn: Field, isChangedTimestampField: boolean = false): void {
     // datasource data
     this._sourceData = sourceData;
     // create datasource type
     this.createType = createType;
+    // set format
+    this._format = selectedTimestampColumn ? selectedTimestampColumn.format : null;
+    // ui init
+    this._initView();
     // if exist ingestionData
     if (this._sourceData.hasOwnProperty("ingestionData")) {
       this._loadIngestionData(this._sourceData.ingestionData);
+      // if changed timestamp field, init granularity
+      isChangedTimestampField && this._initGranularity();
     } else { // init
       this._setDefaultIngestionOption();
+      // init granularity
+      this._initGranularity();
       // if staging type, set partition key list
       if (this.createType === 'STAGING' && this._sourceData.databaseData.selectedTableDetail.partitionFields.length > 0) {
         // set key list
@@ -598,12 +613,6 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @private
    */
   private _initView(): void {
-    // init Segment Granularity list
-    this.segmentGranularityList = _.filter(this._granularityList, item => item.value !== 'NONE');
-    this.selectedSegmentGranularity = this.segmentGranularityList[3];
-    // init Query Granularity list
-    this.queryGranularityList = this._granularityList;
-    this.selectedQueryGranularity = this.queryGranularityList[4];
     // init roll up type list
     this.rollUpTypeList = [
       { label: this.translateService.instant('msg.storage.ui.set.true'), value: true },
@@ -666,6 +675,99 @@ export class IngestionSettingComponent extends AbstractComponent {
     ];
     // init second list
     this.selectedWeeklyTime = this.selectedDailyTime = this._getCurrentTime();
+    // init segment granularity list
+    this.segmentGranularityList = _.filter(this._granularityList, item => item.value !== 'NONE');
+  }
+
+  /**
+   * Init granularity
+   * @private
+   */
+  private _initGranularity(): void {
+    // if not exist format
+    if (!this._format) {
+      // set segment granularity HOUR
+      this.selectedSegmentGranularity = this.segmentGranularityList[2];
+      // set query granularity SECOND
+      this.selectedQueryGranularity = this.segmentGranularityList[0];
+    } else if (this._format.type === FieldFormatType.DATE_TIME) { // if exist format, DATE_TIME type
+      // _automationGranularity
+      this._automationGranularity(this._format.format, this._format.format.length - 1);
+    } else if (this._format.type === FieldFormatType.UNIX_TIME) { // if exist format, UNIX_TIME type
+      // set segment granularity HOUR
+      this.selectedSegmentGranularity = this.segmentGranularityList[2];
+      // set query granularity SECOND
+      this.selectedQueryGranularity = this.segmentGranularityList[0];
+    } else { // default
+      // set segment granularity HOUR
+      this.selectedSegmentGranularity = this.segmentGranularityList[2];
+      // set query granularity SECOND
+      this.selectedQueryGranularity = this.segmentGranularityList[0];
+    }
+    // init query granularity list
+    this._updateQueryGranularityList(this.selectedSegmentGranularity);
+  }
+
+  /**
+   * automation granularity
+   * @param {string} format
+   * @param {number} startNum
+   * @private
+   */
+  private _automationGranularity(format: string, startNum: number) {
+    switch (format.slice(startNum, startNum + 1)) {
+      case 'Y':
+      case 'y':
+        // set segment granularity YEAR
+        this.selectedSegmentGranularity = this.segmentGranularityList[5];
+        // set query granularity YEAR
+        this.selectedQueryGranularity = this.segmentGranularityList[5];
+        break;
+      case 'M':
+        // set segment granularity YEAR
+        this.selectedSegmentGranularity = this.segmentGranularityList[5];
+        // set query granularity MONTH
+        this.selectedQueryGranularity = this.segmentGranularityList[4];
+        break;
+      case 'D':
+      case 'd':
+        // set segment granularity YEAR
+        this.selectedSegmentGranularity = this.segmentGranularityList[5];
+        // set query granularity DAY
+        this.selectedQueryGranularity = this.segmentGranularityList[3];
+        break;
+      case 'H':
+      case 'h':
+        // set segment granularity MONTH
+        this.selectedSegmentGranularity = this.segmentGranularityList[4];
+        // set query granularity HOUR
+        this.selectedQueryGranularity = this.segmentGranularityList[2];
+        break;
+      case 'm':
+        // set segment granularity DAY
+        this.selectedSegmentGranularity = this.segmentGranularityList[3];
+        // set query granularity MINUTE
+        this.selectedQueryGranularity = this.segmentGranularityList[1];
+        break;
+      case 'S':
+      case 's':
+        // set segment granularity HOUR
+        this.selectedSegmentGranularity = this.segmentGranularityList[2];
+        // set query granularity SECOND
+        this.selectedQueryGranularity = this.segmentGranularityList[0];
+        break;
+      default:
+        // if not startNum first index, call _automationGranularity method
+        if (startNum !== 0) {
+          this._automationGranularity(this._format.format, startNum - 1);
+        } else { // set default
+          // set segment granularity HOUR
+          this.selectedSegmentGranularity = this.segmentGranularityList[2];
+          // set query granularity SECOND
+          this.selectedQueryGranularity = this.segmentGranularityList[0];
+        }
+        break;
+    }
   }
 
   /**
@@ -845,10 +947,10 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @private
    */
   private _loadIngestionData(ingestionData:any): void {
+    // query granularity list
+    this.queryGranularityList = ingestionData.queryGranularityList;
     // load selected segment granularity
     this.selectedSegmentGranularity = ingestionData.selectedSegmentGranularity;
-    // update query granularity list
-    this._updateQueryGranularityList(this.selectedSegmentGranularity);
     // load selected query granularity
     this.selectedQueryGranularity = ingestionData.selectedQueryGranularity;
     // load selected rollup type
@@ -923,6 +1025,8 @@ export class IngestionSettingComponent extends AbstractComponent {
    */
   private _saveIngestionData(sourceData: DatasourceInfo): void {
     sourceData['ingestionData'] = {
+      // query granularity list
+      queryGranularityList : this.queryGranularityList,
       // save selected segment granularity
       selectedSegmentGranularity : this.selectedSegmentGranularity,
       // save query granularity
