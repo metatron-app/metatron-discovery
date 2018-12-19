@@ -15,21 +15,39 @@
       [style.background-color]="getUiMapOption().style == 'Colored' ? '#AAD3DF' : getUiMapOption().style == 'Dark' ? '#262626' : '#D4DADC'">
   <!-- Legend -->
   <div *ngIf="legendInfo.enable" #legend class="ddp-wrap-remark"
-       style="position:absolute; z-index:3; right: 20px;">
-    <div class="ddp-layout-remark"style="position:absolute; right:0px;"
-         [style.top]="legendInfo.position == 'RIGHT_TOP' ? '0px' : ''"
-         [style.bottom]="legendInfo.position == 'RIGHT_BOTTOM' ? '0px' : ''">
-      <div *ngFor="let layer of legendInfo.layer; let index = index" class="ddp-ui-layer">
+       style="position:absolute; z-index:3;"
+       [class.ddp-left-bottom]="legendInfo.position === 'LEFT_BOTTOM'"
+       [class.ddp-left-top]="legendInfo.position === 'LEFT_TOP'"
+       [class.ddp-right-bottom]="legendInfo.position === 'RIGHT_BOTTOM'">
+    <div class="ddp-layout-remark" [ngClass]="{'ddp-small' : !legendInfo.showFl}"
+         (click)="changeFoldLegend()">
+      <!-- size 축소 -->
+      <div class="ddp-remark-size-s">
+        <a href="javascript:" class="ddp-btn-size-s"></a>
+      </div>
+      <!-- //size 축소 -->
+      <!-- size 확대 -->
+      <div class="ddp-remark-size-b">
+        <a href="javascript:" class="ddp-btn-size"></a>
+        <!-- layer -->
+        <div *ngFor="let layer of legendInfo.layer; let index = index" class="ddp-ui-layer">
           <span class="ddp-label">{{layer.name}}</span>
           <span class="ddp-data">{{layer.type}} {{layer.column}}</span>
           <ul class="ddp-list-remark">
-              <li *ngFor="let field of layer.color">
-                  <em class="ddp-bg-remark-r" [style.background-color]="field.color"></em>
-                  {{field.column}}
-              </li>
+            <li *ngFor="let field of layer.color">
+              <em [class.ddp-bg-remark-r]="'CIRCLE' === layer.pointType?.toString()"
+                  [class.ddp-bg-remark]="'SQUARE' === layer.pointType?.toString()"
+                  [class.ddp-bg-remark-triangle]="'TRIANGLE' === layer.pointType?.toString()"
+                  [style.border-bottom-color]="'TRIANGLE' === layer.pointType?.toString() ? field.color : ''"
+                  [style.background-color]="'TRIANGLE' !== layer.pointType?.toString() ? field.color: ''"></em>
+              {{field.column}}
+            </li>
           </ul>
           <span *ngIf="layer.radiusColumn" class="ddp-data"> Radius Range {{layer.radiusColumn}}</span>
+        </div>
+        <!-- //layer -->
       </div>
+      <!-- //size 확대 -->
     </div>
   </div>
   <!-- //Legend -->
