@@ -1366,6 +1366,7 @@ public class PrepTransformService {
     wrangledDataset.setDsName(newDsName);
     wrangledDataset.setDsType(WRANGLED);
     wrangledDataset.setCreatorDfId(dfId);
+    wrangledDataset.setCreatorDfName(dataflow.getDfName());
     wrangledDataset.setCreatedTime(DateTime.now());
     wrangledDataset.setModifiedTime(DateTime.now());
     wrangledDataset.setCreatedBy(dataflow.getCreatedBy());
@@ -1849,7 +1850,9 @@ public class PrepTransformService {
       throw e;
     } catch (RuleException e) {
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, TeddyException.fromRuleException(e));
-    } catch (Exception e) {
+    } catch (NumberFormatException e) {
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_NUMBER_FORMAT, e.getMessage());
+    }catch (Exception e) {
       LOGGER.error("confirmRuleStringForException(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED, e.getMessage());
     }

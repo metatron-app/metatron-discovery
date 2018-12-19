@@ -207,8 +207,11 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
   public next() {
     // validation
     if (this.getNextValidation()) {
-      // 데이터 변경이 일어난경우 스키마 삭제
-      this.deleteSchemaData();
+      // 데이터 변경이 일어난경우 스키마 데이터와 적재데이터 제거
+      if (this.isChangeData()) {
+        this.sourceData.hasOwnProperty('schemaData') && (delete this.sourceData.schemaData);
+        this.sourceData.hasOwnProperty('ingestionData') && (delete this.sourceData.ingestionData);
+      }
       // 기존 파일 데이터 삭제후 생성
       this.deleteAndSaveFileData();
       // 다음페이지로 이동
@@ -437,17 +440,6 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 데이터가 변경이 일어나고 스키마데이터가 있다면 스키마데이터 삭제
-   */
-  private deleteSchemaData() {
-    // 데이터 변경이 일어난경우 스키마 삭제
-    if (this.sourceData.hasOwnProperty('schemaData')
-      && this.isChangeData()) {
-      delete this.sourceData.schemaData;
-    }
-  }
-
-  /**
    * 기존 파일 삭제후 새로 생성
    */
   private deleteAndSaveFileData() {
@@ -565,28 +557,21 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
    * @returns {boolean}
    */
   private isChangeData(): boolean {
-    // 파일 key 가 변경된 경우
-    if (this.sourceData.fileData.datasourceFile.filekey !== this.datasourceFile.filekey) {
-      return true;
-    }
-    // 파일 시트가 변경된 경우
-    if (!this.isCsvFile() && (this.sourceData.fileData.datasourceFile.selectedSheetName !== this.datasourceFile.selectedSheetName)) {
-      return true;
-    }
-    // 파일 헤더 생성여부가 변경된경우
-    if (this.sourceData.fileData.createHeadColumnFl !== this.createHeadColumnFl){
-      return true;
+    if (this.sourceData.fileData) {
+      // 파일 key 가 변경된 경우
+      if (this.sourceData.fileData.datasourceFile.filekey !== this.datasourceFile.filekey) {
+        return true;
+      }
+      // 파일 시트가 변경된 경우
+      if (!this.isCsvFile() && (this.sourceData.fileData.datasourceFile.selectedSheetName !== this.datasourceFile.selectedSheetName)) {
+        return true;
+      }
+      // 파일 헤더 생성여부가 변경된경우
+      if (this.sourceData.fileData.createHeadColumnFl !== this.createHeadColumnFl){
+        return true;
+      }
     }
     return false;
-  }
-
-  /**
-   * 파일 데이터 조회
-   * @param datasourceFile
-   * @param isCsvFile
-   */
-  private getFile(datasourceFile, isCsvFile) {
-
   }
 
   /**

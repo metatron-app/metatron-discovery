@@ -50,7 +50,7 @@ export class DataflowService extends AbstractService {
   // 데이터 플로우 상세조회
   //public getDataflow(dfId: string): Promise<Dataflow> {
   public getDataflow(dfId: string): Promise<PrDataflow> {
-    const url = this.API_URL + 'preparationdataflows/' + dfId;
+    const url = this.API_URL + 'preparationdataflows/' + dfId + '?projection=detail';
     return this.get(url);
   }
 
@@ -76,7 +76,7 @@ export class DataflowService extends AbstractService {
     }
 
     url += `&dsName=${encodeURIComponent(searchText)}`;
-    url += `&projection=${projection}`;
+    //url += `&projection=${projection}`;
     url += '&' + CommonUtil.objectToUrlString(page);
     return this.get(url);
   }
@@ -84,7 +84,8 @@ export class DataflowService extends AbstractService {
   // 데이터셋 상세 조회
   //public getDataset(dsId: string): Promise<Dataset> {
   public getDataset(dsId: string): Promise<PrDataset> {
-    const url = this.API_URL + 'preparationdatasets/' + dsId + '?projection=detail';
+    //const url = this.API_URL + 'preparationdatasets/' + dsId + '?projection=detail';
+    const url = this.API_URL + 'preparationdatasets/' + dsId + '?preview=true';
     return this.get(url);
   }
 

@@ -58,8 +58,9 @@ export interface UIOption {
   xAxis?: UIChartAxis;
 
   yAxis?: UIChartAxis;
-
-  subAxis?: UIChartAxis;
+  
+  // Secondary Axis
+  secondaryAxis?: UIChartAxis;
 
   // 폰트 사이즈
   fontSize?: FontSize;

@@ -128,4 +128,8 @@ public interface DataSourceRepository extends JpaRepository<DataSource, String>,
   @RestResource(exported = false)
   @Query("SELECT DISTINCT ds.createdBy FROM DataSource ds where ds.createdBy IS NOT NULL")
   List<String> findDistinctCreatedBy();
+
+  @RestResource(exported = false)
+  @Query("SELECT DISTINCT ds.createdBy FROM DataSource ds where ds.dsType in (:dsTypes) and ds.createdBy IS NOT NULL")
+  List<String> findDistinctCreatedBy(@Param("dsTypes") DataSource.DataSourceType... dsTypes);
 }

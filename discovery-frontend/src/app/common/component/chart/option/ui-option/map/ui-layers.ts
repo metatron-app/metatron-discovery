@@ -70,4 +70,7 @@ interface SymbolColor {
 
   // Column granularity (timestamp)
   granularity?: string;
+
+  // custom color on / off
+  settingUseFl: boolean;
 }

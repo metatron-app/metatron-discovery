@@ -1858,7 +1858,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
     // if timestamp type -> include timestamp style
     if (field.type === 'TIMESTAMP') {
-      headerMenu.buttons[0]['timestampStyle'] = this._getHistogramInfo(field.seq).timestampFormat;
+      headerMenu.buttons[0]['timestampStyle'] = this._getHistogramInfo(field.seq).timestampLabels;
     }
     return headerMenu;
   } // function - _getHeaderMenu

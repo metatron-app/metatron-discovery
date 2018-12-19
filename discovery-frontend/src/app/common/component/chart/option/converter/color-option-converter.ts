@@ -43,6 +43,9 @@ import { ColorRange } from '../ui-option/ui-color';
 import { FormatOptionConverter } from './format-option-converter';
 import UI = OptionGenerator.UI;
 import {isNullOrUndefined} from "util";
+import { UIMapOption } from '../ui-option/map/ui-map-chart';
+import { ChartUtil } from '../util/chart-util';
+import { GeoField } from '../../../../../domain/workbook/configurations/field/geo-field';
 
 /**
  * 색상 패널 converter
@@ -457,6 +460,65 @@ export class ColorOptionConverter {
         if (min < uiOption.minValue && min < 0) min = _.cloneDeep(formatMinValue);
 
           rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, formatValue(maxValue), min, formatValue(maxValue), shape));
+
+        maxValue = min;
+      }
+    }
+
+    return rangeList;
+  }
+
+  /**
+   * return ranges of color by measure
+   * @returns {any}
+   */
+  public static setMapMeasureColorRange(uiOption: UIMapOption, data: any, colorList: any, layerIndex: number, layers: GeoField[], colorAlterList = []): ColorRange[] {
+    // return value
+    let rangeList = [];
+
+    // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
+    let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
+
+    let alias = ChartUtil.getFieldAlias(uiOption.layers[layerIndex].color.column, layers, uiOption.layers[layerIndex].color.aggregationType);
+
+    // less than 0, set minValue
+    const minValue = _.cloneDeep(data.valueRange[alias].minValue);
+
+    // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
+    const addValue = (data.valueRange[alias].maxValue - minValue) / (colorListLength + 1);
+
+    let maxValue = _.cloneDeep(data.valueRange[alias].maxValue);
+
+    let shape;
+
+    // set decimal value
+    const formatValue = ((value) => {
+      return parseFloat((Number(value) * (Math.pow(10, uiOption.valueFormat.decimal)) / Math.pow(10, uiOption.valueFormat.decimal)).toFixed(uiOption.valueFormat.decimal));
+    });
+
+    // decimal min value
+    let formatMinValue = formatValue(data.valueRange[alias].minValue);
+    // decimal max value
+    let formatMaxValue = formatValue(data.valueRange[alias].maxValue);
+
+    // set ranges
+    for (let index = colorListLength; index >= 0; index--) {
+
+      let color = colorList[index];
+
+      // set the biggest value in min(gt)
+      if (colorListLength === index) {
+
+        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, formatMaxValue, null, formatMaxValue, null, shape));
+      } else {
+
+        // if it's the last value, set null in min(gt)
+        let min = 0 == index ? null : formatValue(maxValue - addValue);
+
+        // if value if lower than minValue, set it as minValue
+        if (min < data.valueRange.minValue && min < 0) min = _.cloneDeep(formatMinValue);
+
+        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, formatValue(maxValue), min, formatValue(maxValue), shape));
 
         maxValue = min;
       }

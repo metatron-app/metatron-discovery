@@ -28,6 +28,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.parquet.Strings;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -43,8 +44,11 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 
 @Service
 public class PrSnapshotService {
@@ -93,8 +97,9 @@ public class PrSnapshotService {
         return ssDir;
     }
 
-    public void downloadSnapshotFile( String ssId, HttpServletResponse response ) throws PrepException {
+    public String downloadSnapshotFile( String ssId, HttpServletResponse response, String fileType ) throws PrepException {
         PrSnapshot snapshot = this.snapshotRepository.findOne(ssId);
+        String fileName = "";
         if(snapshot!=null) {
             try {
                 PrSnapshot.SS_TYPE ss_type = snapshot.getSsType();
@@ -122,6 +127,7 @@ public class PrSnapshotService {
                     //                        }
 
                     String storedUri = snapshot.getStoredUri();
+                    fileName = snapshot.getDsName() + storedUri.substring(storedUri.lastIndexOf('.'));
                     URI uri = new URI(storedUri);
 
                     switch (uri.getScheme()) {
@@ -171,7 +177,12 @@ public class PrSnapshotService {
                     String dbName = snapshot.getDbName();
                     String tblName = snapshot.getTblName();
                     String sql = "SELECT * FROM "+dbName+"."+tblName;
-                    this.datasetSparkHiveService.writeSnapshot(response.getOutputStream(), dbName, sql);
+                    if(Strings.isNullOrEmpty(fileType)) {
+                        fileType = "csv";
+                    }
+                    this.datasetSparkHiveService.writeSnapshot(response.getOutputStream(), dbName, sql, fileType);
+
+                    fileName = snapshot.getDsName() + "." + fileType;
                 }
             } catch (Exception e) {
                 throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
@@ -179,6 +190,8 @@ public class PrSnapshotService {
         } else {
             throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_SNAPSHOT, "snapshot["+ssId+"] does not exist");
         }
+
+        return  fileName;
     }
 
     private void deleteFile(File deleteFolder) {

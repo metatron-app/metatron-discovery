@@ -34,9 +34,7 @@ import { PopupService } from '../../../common/service/popup.service';
 import { AbstractFilterPanelComponent } from '../abstract-filter-panel.component';
 import { Field } from '../../../domain/datasource/datasource';
 import { StringUtil } from '../../../common/util/string.util';
-import { FilterUtil } from '../../util/filter.util';
 import { DIRECTION } from '../../../domain/workbook/configurations/sort';
-import { DashboardUtil } from '../../util/dashboard.util';
 import { EventBroadcaster } from '../../../common/event/event.broadcaster';
 import { FilterWidget } from '../../../domain/dashboard/widget/filter-widget';
 
@@ -351,7 +349,11 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
     const currFilter: InclusionFilter = _.cloneDeep(filter);
 
     // Selector 설정
-    this.isMultiSelector = (currFilter.selector === InclusionSelectorType.MULTI_COMBO || currFilter.selector === InclusionSelectorType.MULTI_LIST);
+    if( currFilter.valueList && 1 < currFilter.valueList.length ) {
+      this.isMultiSelector = true;
+    } else {
+      this.isMultiSelector = (currFilter.selector === InclusionSelectorType.MULTI_COMBO || currFilter.selector === InclusionSelectorType.MULTI_LIST);
+    }
 
     this.filter = currFilter;
 
