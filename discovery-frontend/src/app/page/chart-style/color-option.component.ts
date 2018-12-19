@@ -230,8 +230,10 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       }
     }
 
-    // set ranges for view
-    this.rangesViewList = this.setRangeViewByDecimal(this.uiOption.color['ranges']);
+    setTimeout(() => {
+      // set ranges for view
+      this.rangesViewList = this.setRangeViewByDecimal(this.uiOption.color['ranges']);
+    }, 100);
 
     // set min / max by decimal format
     if (this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal) {
@@ -1236,10 +1238,10 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
     item.minInputShow = inputShow;
 
-    // show input box
-    this.changeDetect.detectChanges();
-
     if (undefined !== index) {
+
+      // show input box
+      this.changeDetect.detectChanges();
       this.availableRange(item, index);
       $(minElement).trigger('focus');
     }
@@ -1260,10 +1262,10 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
     item.maxInputShow = inputShow;
 
-    // show input box
-    this.changeDetect.detectChanges();
-
     if (undefined !== index) {
+
+      // show input box
+      this.changeDetect.detectChanges();
       this.availableRange(item, index);
       $(maxElement).trigger('focus');
     }

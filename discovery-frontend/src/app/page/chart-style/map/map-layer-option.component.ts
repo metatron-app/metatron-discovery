@@ -1081,10 +1081,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     item.minInputShow = inputShow;
 
-    // show input box
-    this.changeDetect.detectChanges();
-
     if (undefined !== index) {
+      // show input box
+      this.changeDetect.detectChanges();
       this.availableRange(item, index);
       $(minElement).trigger('focus');
     }
@@ -1105,10 +1104,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     item.maxInputShow = inputShow;
 
-    // show input box
-    this.changeDetect.detectChanges();
-
     if (undefined !== index) {
+
+      // show input box
+      this.changeDetect.detectChanges();
       this.availableRange(item, index);
       $(maxElement).trigger('focus');
     }

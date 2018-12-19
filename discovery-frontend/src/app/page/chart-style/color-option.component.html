@@ -234,7 +234,7 @@
                       <span [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}" class="ddp-data-ellipsis ddp-txt-right" (click)="showMinInputColorRange(item, true, minInput, index)"> {{item.gt}}</span>
                       <input #minInput [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.gt"
                              (keyup.enter)="changeRangeMinInput(item, index)"
-                             (focusout)="showMinInputColorRange(item, false, minInput, index)">
+                             (focusout)="showMinInputColorRange(item, false, minInput)">
                       <!-- tooltip -->
                       <div class="ddp-ui-tooltip-info">
                         <em class="ddp-icon-view-down"></em>
@@ -254,7 +254,7 @@
                       <span *ngIf="item.fixMax" [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}" class="ddp-data-ellipsis ddp-txt-right" (click)="showMaxInputColorRange(item, true, maxInput, index)">{{item.lte}}</span>
                       <input #maxInput [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.lte"
                              (keyup.enter)="changeRangeMaxInput(item, index)"
-                             (focusout)="showMaxInputColorRange(item, false, maxInput, index)">
+                             (focusout)="showMaxInputColorRange(item, false, maxInput)">
                       <!-- tooltip -->
                       <div class="ddp-ui-tooltip-info">
                         <em class="ddp-icon-view-down"></em>
