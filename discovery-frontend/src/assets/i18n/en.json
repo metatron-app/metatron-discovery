@@ -1313,7 +1313,7 @@
   "msg.board.create.guide-msg2" : "to another datasource to connect them",
   "msg.board.download.title-org" : "Download original data",
   "msg.board.download.title-aggr" : "Download aggregated data",
-  "msg.board.download.desc" : "Able to download up to 1 million data, <br>Please contact your administrator for above 1 million.",
+  "msg.board.download.desc" : "Able to download up to 100,000 rows.<br>Please contact your administrator for above 100,000 rows.",
   "msg.board.download.calc-size" : "Calculating data size ...",
   "msg.board.ui.no.widget": "No widgets",
   "msg.board.ui.show.only": "Visible only",
