@@ -228,27 +228,40 @@
                 </div>
                 <div class="ddp-data-range ddp-clear">
                   <div class="ddp-input-range">
-                    <input [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.gt"
-                           (keyup.enter)="changeRangeMinInput(item, index)" (focus)="availableRange(item, index)">
-                    <!-- tooltip -->
-                    <div class="ddp-ui-tooltip-info">
-                      <em class="ddp-icon-view-down"></em>
-                      {{'msg.page.chart.color.measure.new.range.add.available.range' | translate}} {{availableRangeValue}}
+                    <!-- 말줄임 -->
+                    <!-- 클릭시 is-selected 추가 -->
+                    <div class="ddp-ng-ellipsis" [ngClass]="{'ddp-selected' : item['minInputShow']}">
+                      <span [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}" class="ddp-data-ellipsis ddp-txt-right" (click)="showMinInputColorRange(item, true, null, index)"> {{item.gt}}</span>
+                      <input #minInput [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.gt"
+                             (keyup.enter)="changeRangeMinInput(item, index)"
+                             (focusout)="showMinInputColorRange(item, false, minInput, index)">
+                      <!-- tooltip -->
+                      <div class="ddp-ui-tooltip-info">
+                        <em class="ddp-icon-view-down"></em>
+                        {{'msg.page.chart.color.measure.new.range.add.available.range' | translate}} {{availableRangeValue}}
+                      </div>
+                      <!-- //tooltip -->
                     </div>
-                    <!-- //tooltip -->
+                    <!-- //말줄임 -->
                   </div>
                   <div class="ddp-bar ">
                     ~
                   </div>
                   <div class="ddp-input-range">
-                    <input [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.lte"
-                           (keyup.enter)="changeRangeMaxInput(item, index)" (focus)="availableRange(item, index)">
-                    <!-- tooltip -->
-                    <div class="ddp-ui-tooltip-info">
-                      <em class="ddp-icon-view-down"></em>
-                      {{'msg.page.chart.color.measure.new.range.add.available.range' | translate}} {{availableRangeValue}}
+                    <!-- 말줄임 -->
+                    <!-- 클릭시 is-selected 추가 -->
+                    <div class="ddp-ng-ellipsis" [ngClass]="{'ddp-selected' : item['maxInputShow']}">
+                      <span [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}" class="ddp-data-ellipsis ddp-txt-right" (click)="showMaxInputColorRange(item, true, index)">{{item.lte}}</span>
+                      <input #maxInput [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.lte"
+                             (keyup.enter)="changeRangeMaxInput(item, index)"
+                             (focusout)="showMinInputColorRange(item, false, maxInput, index)">
+                      <!-- tooltip -->
+                      <div class="ddp-ui-tooltip-info">
+                        <em class="ddp-icon-view-down"></em>
+                        {{'msg.page.chart.color.measure.new.range.add.available.range' | translate}} {{availableRangeValue}}
+                      </div>
+                      <!-- //tooltip -->
                     </div>
-                    <!-- //tooltip -->
                   </div>
                 </div>
 

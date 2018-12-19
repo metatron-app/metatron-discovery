@@ -1222,6 +1222,54 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   }
 
   /**
+   * show / hide color min range span
+   */
+  public showMinInputColorRange(item, inputShow: boolean, minElement, index?: number) {
+
+    event.stopPropagation();
+
+    // hide other range preview
+    _.each(this.rangesViewList, (item) => {
+      if (item['minInputShow']) delete item['minInputShow'];
+      if (item['maxInputShow']) delete item['maxInputShow'];
+    });
+
+    item.minInputShow = inputShow;
+
+    // show input box
+    this.changeDetect.detectChanges();
+
+    if (undefined !== index) {
+      this.availableRange(item, index);
+      $(minElement).trigger('focus');
+    }
+  }
+
+  /**
+   * show / hide color max range span
+   */
+  public showMaxInputColorRange(item, inputShow: boolean, maxElement, index?: number) {
+
+    event.stopPropagation();
+
+    // hide other range preview
+    _.each(this.rangesViewList, (item) => {
+      if (item['minInputShow']) delete item['minInputShow'];
+      if (item['maxInputShow']) delete item['maxInputShow'];
+    });
+
+    item.maxInputShow = inputShow;
+
+    // show input box
+    this.changeDetect.detectChanges();
+
+    if (undefined !== index) {
+      this.availableRange(item, index);
+      $(maxElement).trigger('focus');
+    }
+  }
+
+  /**
    * hex에서 rgb값으로 변경
    * @param color
    * @returns {string}
