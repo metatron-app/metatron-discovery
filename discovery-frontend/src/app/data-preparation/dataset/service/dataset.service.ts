@@ -14,10 +14,8 @@
 
 import { Injectable, Injector } from '@angular/core';
 import { AbstractService } from '../../../common/service/abstract.service';
-//import { DatasetHive, DatasetJdbc, DatasetFile, Datasets } from '../../../domain/data-preparation/dataset';
-import { PrDatasetHive, PrDatasetJdbc, PrDatasetFile, Datasets } from '../../../domain/data-preparation/pr-dataset';
+import { Datasets } from '../../../domain/data-preparation/pr-dataset';
 import { CommonUtil } from '../../../common/util/common.util';
-import { Dataconnection } from '../../../domain/dataconnection/dataconnection';
 import { ConnectionRequest } from '../../../domain/dataconnection/connectionrequest';
 
 @Injectable()
@@ -33,7 +31,7 @@ export class DatasetService extends AbstractService {
   }
 
   /**
-   * 데이터셋 목록 조회
+   * Get dataset list
    * @param {any} param {searchText, dsType, sort, refDfCountSort}
    * @returns {Promise<any>}
    */
@@ -69,7 +67,7 @@ export class DatasetService extends AbstractService {
       }
     }
 
-    url += `dsName=${encodeURIComponent(param.searchText)}&projection=listing&${CommonUtil.objectToUrlString(param.page)}`;
+    url += `dsName=${encodeURIComponent(param.searchText)}&${CommonUtil.objectToUrlString(param.page)}`;
 
     return this.get(url);
 
@@ -77,29 +75,13 @@ export class DatasetService extends AbstractService {
 
   /**
    * Fetch grid data according to file type (csv, excel)
-   * @param param
+   * @param param {storedUri :string, fileType : string, delimiter? : string}
    * @returns {Promise<any>}
    */
-  public getFileGridInfo(param) {
+  public getFileGridInfo(param : {storedUri :string, fileType : string, delimiter? : string}) {
 
-
-    //let url = this.API_URL + 'preparationdatasets/file/' + param.fileKey;
     let url = this.API_URL + 'preparationdatasets/file_grid?storedUri=' + encodeURI(param.storedUri);
 
-/*
-    if (param.fileType === 'csv' || param.fileType === 'txt') {
-
-      url += '?hasFields=N';
-
-      if (param.delimiter) {
-        url += `&delimiterCol=${encodeURI(param.delimiter)}`;
-      }
-
-    } else {
-
-      url += '?sheetname=' + encodeURI(param.sheetname) + '&hasFields=N'
-    }
-*/
     if (param.fileType === 'csv' || param.fileType === 'txt') {
       if (param.delimiter) {
         url += `&delimiterCol=${encodeURI(param.delimiter)}`;
@@ -110,124 +92,46 @@ export class DatasetService extends AbstractService {
 
   }
 
-  // 파일 조회
-  public getImportedPreviewReload(dsId: string) {
-      return this.get(this.API_URL + 'preparationdatasets/reload_preview/' + dsId );
+
+  /**
+   * Fetch dataset information (preview=true gets grid)
+   * @param {string} dsId
+   * @returns {Promise<any>}
+   */
+  public getDatasetDetail(dsId: string) {
+    return this.get(`${this.API_URL}preparationdatasets/${dsId}?preview=true`);
   }
 
-  public getDataPreview(dsId: string) {
-    return this.get(this.API_URL + 'preparationdatasets/' + dsId +'?projection=detail');
-  }
 
-
-  // Wrangled 데이터셋 조회
-  public getDatasetWrangledData(datasetId: string): Promise<any> {
-    let url = this.API_URL + `preparationdatasets/${datasetId}/transform`;
-    let params = ['ruleIdx=','count=1000', 'offset=0'];
-    url = url + '?' + params.join('&');
-    return this.get(url);
-  }
-
-  // 데이터셋  저장 HIVE
-  public createDatasetJdbc(datasetJdbc: PrDatasetJdbc) {
-    /*
-    if(datasetJdbc.databaseName && 0<datasetJdbc.databaseName.length) {
-      datasetJdbc.custom = JSON.stringify({"databaseName":datasetJdbc.databaseName});
-    }
-    */
-    console.info('datasetJdbc', datasetJdbc);
-
-    let params = {};
-    for (var i in datasetJdbc) {
-      if(i==='dataconnection') { continue; }
-      params[i] = datasetJdbc[i];
-    }
-
-    //return this.post(this.API_URL + 'preparationdatasets', datasetJdbc);
-    return this.post(this.API_URL + 'preparationdatasets', params);
-  }
-
-  // 데이터셋  저장
-  //public createDataset(datasetFile: DatasetFile, delimiter) {
-  public createDataset(datasetFile: PrDatasetFile, delimiter) {
-    const params: any = {};
-    /*
-    params.filename = datasetFile.filename;
-    params.filekey = datasetFile.filekey;
-    params.dsName = datasetFile.name;
-    params.dsDesc = datasetFile.desc;
-    params.dsType = 'IMPORTED';
-    params.importType = 'FILE';
-    params.fileType = datasetFile.fileType;
-    */
-    params.delimiter = datasetFile.delimiter;
-    params.dsName = datasetFile.dsName;
-    params.dsDesc = datasetFile.dsDesc;
-    params.dsType = 'IMPORTED';
-    params.importType = 'UPLOAD';
-    params.filenameBeforeUpload = datasetFile.filenameBeforeUpload;
-    params.storageType = datasetFile.storageType;
-    params.sheetName = datasetFile.sheetName;
-    //params.storageType = datasetFile.storageType;
-    params.storedUri = datasetFile.storedUri;
-
-    console.info('datasetFile', datasetFile);
-    /*
-    var filename = datasetFile.filename.toLowerCase();
-    if( true==filename.endsWith("xls") || true==filename.endsWith("xlsx") ) {
-      params.custom = `{"filePath":"`+datasetFile.filepath+`", "fileType":"EXCEL", "sheet":"` + datasetFile.sheetname + `", "delimiter":"`+delimiter +`"}`;
-    } else if ( true==filename.endsWith("json") ) {
-      params.custom = `{"filePath":"`+datasetFile.filepath+`", "fileType":"JSON"}`;
-    } else {
-      params.custom = `{"filePath":"`+datasetFile.filepath+`", "fileType":"DSV", "delimiter":"`+delimiter +`"}`;
-    }
-    */
-
-    var filenameBeforeUpload = datasetFile.filenameBeforeUpload.toLowerCase();
-    if( true==filenameBeforeUpload.endsWith("xls") || true==filenameBeforeUpload.endsWith("xlsx") ) {
-      params.fileFormat = "EXCEL";
-    } else if( true==filenameBeforeUpload.endsWith("csv") || true==filenameBeforeUpload.endsWith("txt") ) {
-      params.fileFormat = "CSV";
-    } else if( true==filenameBeforeUpload.endsWith("json") ) {
-      params.fileFormat = "JSON";
-    }
-    /*
-    if (isUndefined(datasetFile.sheets)) {
-      params.custom = `{"fileType":"CSV", "delimiter":"`+delimiter +`"}`;
-    } else if (datasetFile.sheets.length === 0) {
-      params.custom = `{"fileType":"CSV", "delimiter":"`+delimiter+`"}`;
-    } else { //TODO : sheet가 여러개 있는데 하나만 보내고 있었음
-      params.custom = '{"fileType":"EXCEL", "sheet":"' + datasetFile.sheetname + '"}';
-    }
-    */
-    //return this.post(this.API_URL + 'preparationdatasets', params);
-    return this.post(this.API_URL + 'preparationdatasets?storageType='+datasetFile.storageType, params);
-  }
-
-  // 데이터셋  수정
-  public updateDataset(dataset: any) {
+  /**
+   * Update dataset information
+   * @param dataset
+   * @returns {Promise<any>}
+   */
+  public updateDataset(dataset: {dsId: string, dsName: string, dsDesc : string}) {
     return this.patch(this.API_URL + 'preparationdatasets/' + dataset.dsId, dataset);
   }
 
-  // 데이터셋 연쇄 삭제
+
+  /**
+   * Delete dataset (chain)
+   * @param {string} dsId
+   * @returns {Promise<any>}
+   */
   public deleteChainDataset(dsId: string) {
     return this.delete(this.API_URL + 'preparationdatasets/delete_chain/' + dsId);
   }
 
-  // 데이터셋 삭제
+
+  /**
+   * Delete dataset
+   * @param {string} dsId
+   * @returns {Promise<any>}
+   */
   public deleteDataset(dsId: string) {
     return this.delete(this.API_URL + 'preparationdatasets/' + dsId);
   }
 
-  // database connection check connection
-  public checkConnection(connectionRequest: ConnectionRequest) {
-    return this.post(this.API_URL + 'connections/query/check', connectionRequest);
-  }
-
-  // data connection 저장.
-  public saveConnection(dataconnection: Dataconnection) {
-    return this.post(this.API_URL + 'connections', dataconnection);
-  }
 
   // staging connection info 가져오기
   public getStagingConnectionInfo() {
@@ -238,6 +142,10 @@ export class DatasetService extends AbstractService {
     this.connInfo = info;
   }
 
+  /**
+   * Staging : Get database list
+   * @returns {Promise<any>}
+   */
   public getStagingSchemas() {
     const params:any = {};
     params.connection = this.connInfo;
@@ -245,6 +153,12 @@ export class DatasetService extends AbstractService {
     return this.post(this.API_URL + 'preparationdatasets/query/schemas', params);
   } // function - getStagingSchemas
 
+
+  /**
+   * Staging : Get tables from selected database
+   * @param {string} schema
+   * @returns {Promise<any>}
+   */
   public getStagingTables(schema:string) {
     const params:any = {};
     params.connection = this.connInfo;
@@ -252,6 +166,8 @@ export class DatasetService extends AbstractService {
 
     return this.post(this.API_URL + 'preparationdatasets/query/tables', params);
   } // function - getStagingTables
+
+
 
   public getStagingTableData(schema:string, table:string) {
 
@@ -271,26 +187,11 @@ export class DatasetService extends AbstractService {
   } // function - getResultWithStagingDBQuery
 
 
-  // 테이블 상세조회
-  public getTableDetailWitoutId(param: any, extractColumnName: boolean = false): Promise<any>  {
-    return this.post(this.API_URL + 'connections/query/data?extractColumnName=' + extractColumnName, param);
-  }
-
-
-  public checkHdfs() {
-    const path = '/preparationdatasets/check_hdfs';
-    return this.get(this.API_URL + path);
-  } // function - checkHdfs
 
   /**
    * Check asynchronously if file is uploaded
-   * @param {string} fileKey
+   * @param {string} storedUri
    */
-  /*
-  public checkFileUploadStatus(fileKey: string) {
-    return this.post(this.API_URL + 'preparationdatasets/upload_async_poll', fileKey);
-  }
-  */
   public checkFileUploadStatus(storedUri: string) {
     return this.post(this.API_URL + 'preparationdatasets/upload_async_poll', storedUri);
   }

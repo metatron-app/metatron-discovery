@@ -23,8 +23,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-@RepositoryRestResource(path = "preparationdatasets", itemResourceRel = "preparationdataset" , collectionResourceRel = "preparationdatasets",
-        excerptProjection = PrDatasetProjections.DefaultProjection.class)
+@RepositoryRestResource(path = "preparationdatasets", itemResourceRel = "preparationdataset" , collectionResourceRel = "preparationdatasets"
+                          , excerptProjection = PrDatasetProjections.DefaultProjection.class)
 public interface PrDatasetRepository extends JpaRepository<PrDataset, String>,PrDatasetRepositoryCustom {
 
     /*

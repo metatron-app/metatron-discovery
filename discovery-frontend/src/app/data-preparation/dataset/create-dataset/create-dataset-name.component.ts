@@ -188,15 +188,9 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
       } else if (this.type === 'FILE') {
 
-        // TODO : change file type to use this._createDataset(params);
-        this.datasetService.createDataset(this.datasetFile,this.datasetFile.delimiter).then((result) => {
-          this.loadingHide();
-          this.successAction(result);
+        params = this._getFileParams(this.datasetFile);
+        this._createDataset(params);
 
-        }).catch((error) => {
-          this.loadingHide();
-          this.errorAction(error);
-        });
       } else if(this.type === 'DB') {
 
         params = this._getJdbcParams(this.datasetJdbc);
@@ -456,6 +450,44 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       jdbc.dbName = jdbc.tableInfo.databaseName;
     }
     return jdbc
+  }
+
+
+  /**
+   * Returns parameter needed for creating staging dataset
+   * @returns {Object}
+   * @private
+   */
+  private _getFileParams(file): object {
+    const params: any = {};
+    params.delimiter = file.delimiter;
+    params.dsName = file.dsName;
+    params.dsDesc = file.dsDesc;
+    params.dsType = 'IMPORTED';
+    params.importType = 'UPLOAD';
+    params.filenameBeforeUpload = file.filenameBeforeUpload;
+    params.storageType = file.storageType;
+    params.sheetName = file.sheetName;
+    //params.storageType = file.storageType;
+    params.storedUri = file.storedUri;
+
+    const filenameBeforeUpload = file.filenameBeforeUpload.toLowerCase();
+    if( filenameBeforeUpload.endsWith("xls") || filenameBeforeUpload.endsWith("xlsx") ) {
+
+      params.fileFormat = "EXCEL";
+
+    } else if(filenameBeforeUpload.endsWith("csv") || filenameBeforeUpload.endsWith("txt") ) {
+
+      params.fileFormat = "CSV";
+
+    } else if(filenameBeforeUpload.endsWith("json") ) {
+
+      params.fileFormat = "JSON";
+
+    }
+
+
+    return params
   }
 
 

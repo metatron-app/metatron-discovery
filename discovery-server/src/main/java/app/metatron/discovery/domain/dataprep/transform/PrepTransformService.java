@@ -1366,6 +1366,7 @@ public class PrepTransformService {
     wrangledDataset.setDsName(newDsName);
     wrangledDataset.setDsType(WRANGLED);
     wrangledDataset.setCreatorDfId(dfId);
+    wrangledDataset.setCreatorDfName(dataflow.getDfName());
     wrangledDataset.setCreatedTime(DateTime.now());
     wrangledDataset.setModifiedTime(DateTime.now());
     wrangledDataset.setCreatedBy(dataflow.getCreatedBy());

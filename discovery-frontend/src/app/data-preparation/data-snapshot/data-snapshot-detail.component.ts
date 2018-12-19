@@ -324,7 +324,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         this.dsId = sourceInfo.dsId;
         this.dfId = sourceInfo.dfId;
 
-        let connectionInfo = this.selectedDataSnapshot.connectionInfo;
+        //let connectionInfo = this.selectedDataSnapshot.connectionInfo;
         let ruleStringInfo = this.selectedDataSnapshot.ruleStringInfo;
         this._setRuleList(ruleStringInfo);
 

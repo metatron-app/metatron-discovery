@@ -1291,6 +1291,7 @@
   "msg.dp.ui.join.prev.msg" : "필수 항목을 선택하면 결과를 확인할 수 있습니다",
   "msg.dp.ui.join.key.required" : "하나 이상의 조인 키가 필요합니다",
   "msg.dp.alert.format.error" : "타임스탬프 패턴을 입력하세요",
+  "msg.dp.alert.clone.failed" : "복제 실패했습니다",
 
   "msg.board.create.add-ds" : "데이터소스 추가",
   "msg.board.create.add-ds.desc" : "시각화 할 데이터소스를 추가하고 관계를 설정해 주세요",

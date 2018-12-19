@@ -14,7 +14,14 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
+import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
+import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
+import app.metatron.discovery.domain.dataprep.transform.PrepTransformResponse;
+import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.List;
 
 @Service
 @Transactional
@@ -32,7 +40,28 @@ public class PrDataflowService {
     @Autowired
     PrDataflowRepository dataflowRepository;
 
+    @Autowired
+    private PrepTransformService transformService;
+
     @PersistenceContext
     EntityManager em;
 
+    public void afterCreate(PrDataflow dataflow) throws PrepException {
+        try {
+            List<PrDataset> datasets = dataflow.getDatasets();
+            List<PrDataset> importedDatasets = Lists.newArrayList();
+            for(PrDataset dataset : datasets) {
+                if(PrDataset.DS_TYPE.IMPORTED == dataset.getDsType()) {
+                    importedDatasets.add(dataset);
+                }
+            }
+            for(PrDataset dataset : importedDatasets) {
+                PrepTransformResponse response = this.transformService.create(dataset.getDsId(), dataflow.getDfId(), true);
+            }
+        } catch (Exception e) {
+            LOGGER.error("afterCreate(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
+        }
+
+    }
 }

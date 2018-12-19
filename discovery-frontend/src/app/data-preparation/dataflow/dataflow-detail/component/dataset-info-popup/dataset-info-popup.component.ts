@@ -310,16 +310,18 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   }
 
   public get getHost() {
-    if( this.selectedDataSet.importType===ImportType.DATABASE && !isNullOrUndefined(this.selectedDataSet.connectionInfo['hostname'])) {
-      return this.selectedDataSet.connectionInfo['hostname'];
+    //if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB && !isNullOrUndefined(this.selectedDataSet.dcHostname)) {
+    if( this.selectedDataSet.importType===ImportType.DATABASE && !isNullOrUndefined(this.selectedDataSet.dcHostname)) {
+      return this.selectedDataSet.dcHostname;
     } else {
       return null;
     }
   }
 
   public get getPort() {
-    if( this.selectedDataSet.importType===ImportType.DATABASE && !isNullOrUndefined(this.selectedDataSet.connectionInfo['port'])) {
-      return this.selectedDataSet.connectionInfo['port'];
+    //if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB && !isNullOrUndefined(this.selectedDataSet.dcPort)) {
+    if( this.selectedDataSet.importType===ImportType.DATABASE && !isNullOrUndefined(this.selectedDataSet.dcPort)) {
+      return this.selectedDataSet.dcPort;
     } else {
       return null;
     }
@@ -330,7 +332,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   }
 
   public get getUrl() {
-    return this.selectedDataSet.connectionInfo['url'];
+    return this.selectedDataSet.dcUrl;
   }
 
   public get getTable() {

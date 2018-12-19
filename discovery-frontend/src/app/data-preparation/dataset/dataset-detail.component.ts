@@ -14,7 +14,6 @@
 
 import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
-//import { Dataset, DsType, Field, ImportType, RsType } from '../../domain/data-preparation/dataset';
 import { PrDataset, DsType, Field, ImportType, RsType } from '../../domain/data-preparation/pr-dataset';
 import { GridComponent } from '../../common/component/grid/grid.component';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
@@ -27,13 +26,12 @@ import { DatasetService } from './service/dataset.service';
 import { DataflowService } from '../dataflow/service/dataflow.service';
 import { StringUtil } from '../../common/util/string.util';
 import { ActivatedRoute } from '@angular/router';
-//import { Dataflow } from '../../domain/data-preparation/dataflow';
 import { PrDataflow } from '../../domain/data-preparation/pr-dataflow';
 import { CreateSnapshotPopup } from '../component/create-snapshot-popup.component';
 import { SnapshotLoadingComponent } from '../component/snapshot-loading.component';
 import { PreparationCommonUtil } from "../util/preparation-common.util";
 
-import { isNull, isNullOrUndefined, isUndefined } from "util";
+import { isNull, isNullOrUndefined } from "util";
 import * as pixelWidth from 'string-pixel-width';
 
 declare let moment: any;
@@ -59,7 +57,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
-  public dataset: any;
+  public dataset: PrDataset;
 
   public fields : Field[];
 
@@ -78,12 +76,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   // delete selected dataset
   public selectedDatasetId: string;
 
-  // number of columns in wrangled dataSet
-  public wrangledDatasetColumn: number;
-
-  // number of columns in imported dataSet
-  public importedDatasetColumn: any;
-
   // container for dataset name & description - edit
   public datasetName: string = '';
   public datasetDesc: string = '';
@@ -91,11 +83,12 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   public datasetId : string ='';
 
   public datasetInformationList : DatasetInformation[] ;
-  // public datasetInformationList : object[] ;
+
   public interval : any;
 
   public isSelectDataflowOpen: boolean = false;
 
+  // dataflow id str
   public dfStr : string;
 
   @ViewChild('dsName')
@@ -132,14 +125,15 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     this.activatedRoute.params.subscribe((params) => {
       if (params['id']) {
         this.datasetId = params['id'];
-        this._getPreviewData();
-        this.interval = setInterval(()=> {this._getPreviewData();},3000);
+        this._getDsDetail();
+        this.interval = setInterval(()=> {this._getDsDetail();},3000);
       }
     });
   }
 
   public ngOnDestroy() {
     clearInterval(this.interval);
+    this.interval = undefined;
     super.ngOnDestroy();
   }
 
@@ -154,6 +148,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   /** 데이터셋 리스트로 돌아간다 */
   public close() {
     clearInterval(this.interval);
+    this.interval = undefined;
     this.router.navigate(['/management/datapreparation/dataset']);
   } // function - close
 
@@ -234,7 +229,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     };
     this.loadingShow();
     this.datasetService.updateDataset(newDataset)
-      //.then((dataset: Dataset) => {
       .then((dataset: PrDataset) => {
         this.isDatasetNameEditMode = false;
         this.isDatasetDescEditMode = false;
@@ -244,7 +238,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         this.dsName.nativeElement.blur();
         this.dsDesc.nativeElement.blur();
         this.loadingHide();
-        this._getPreviewData();
+        this._getDsDetail();
       })
       .catch((error) => {
         this.loadingHide();
@@ -328,7 +322,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
 
   /** get row count */
-  public getRows() {
+  public get getRows() {
     let rows = '0';
     if(true==Number.isInteger(this.dataset.totalLines)) {
       if (this.dataset.totalLines === -1) {
@@ -341,11 +335,41 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
           rows = rows + ' rows';
         }
         clearInterval(this.interval);
+        this.interval = undefined;
       }
     }
     return rows;
   }
 
+  public get getHost() {
+    if( this.dataset.importType===ImportType.DATABASE && !isNullOrUndefined(this.dataset.dcHostname)) {
+      return this.dataset.dcHostname;
+    }
+    return null;
+  }
+
+  public get getPort() {
+    if( this.dataset.importType===ImportType.DATABASE && !isNullOrUndefined(this.dataset.dcPort)) {
+      return this.dataset.dcPort;
+    }
+    return null;
+  }
+
+  public get getDatabase() {
+    return this.dataset.dbName;
+  }
+
+  public get getUrl() {
+    return this.dataset.dcUrl;
+  }
+
+  public get getTable() {
+    return this.dataset.tblName;
+  }
+
+  public get getQueryStmt() {
+    return this.dataset.queryStmt;
+  }
 
   /**
    * 해당 데이터 플로우로 이동
@@ -415,28 +439,25 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     // WRANGLED
     if (dataset.dsType === DsType.WRANGLED) {
       this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : dataset.dsType },
-        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}` }
-      ];
+        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${this.dataset.gridResponse.colCnt } ${this.dataset.gridResponse.colCnt === '1' || this.dataset.gridResponse.colCnt === '0' ? 'column': 'columns'}` }
+      ]
 
       // FILE
     }  else if (dataset.importType === ImportType.UPLOAD || dataset.importType === ImportType.URI) {
       let filepath : string = dataset.importType === ImportType.UPLOAD? dataset.filenameBeforeUpload : dataset.storedUri;
 
-      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${this.prepCommonUtil.getImportType(dataset.importType)} (${this.getDatasetType(dataset.importType, filepath)})`},
+      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${this.prepCommonUtil.getImportType(dataset.importType)} (${this._getFileType(dataset.importType, filepath)})`},
+        //{name : this.translateService.instant('msg.dp.th.file'), value : `${filepath}` },
         {name : this.translateService.instant('msg.dp.th.file'), value : `${filepath}` },
       ];
 
       // EXCEL
-      if (this.getDatasetType(dataset.importType, filepath) === 'EXCEL') {
+      if (this._getFileType(dataset.importType, filepath) === 'EXCEL') {
         this.datasetInformationList.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetName() })
       }
 
-      if (!isNullOrUndefined(this.getTotalBytes)) {
-        this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes });
-      }
-
-      this.datasetInformationList.push(
-        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}`})
+      this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes },
+        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${this.dataset.gridResponse.colCnt} ${this.dataset.gridResponse.colCnt === '1' || this.dataset.gridResponse.colCnt === '0' ? 'column': 'columns'}`})
 
 
       // STAGING OR DB
@@ -445,54 +466,51 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       this.datasetInformationList = [
         { name : this.translateService.instant('msg.comm.th.type') , value : dataset.importType === 'STAGING_DB' ? 'STAGING_DB' : 'DB' }];
 
-      if (this.dataset.dbName || this.dataset.connectionInfo) {
-        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${ !isNullOrUndefined(this.dataset.dbName) ? this.dataset.dbName : this.dataset.connectionInfo['database']}` });
+      if (!isNullOrUndefined(this.getDatabase)) {
+        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${this.getDatabase}` });
       }
 
-
       if (dataset.rsType === 'TABLE') {
-        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.table')}`, value : `${dataset.tblName}` })
+        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.table')}`, value : `${this.getTable}` })
       } else {
-        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.sql')}`, value : `${dataset.queryStmt}` })
+        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.sql')}`, value : `${this.getQueryStmt}` })
       }
 
       if (dataset.importType === 'STAGING_DB') {
-
         if (!isNullOrUndefined(this.getTotalBytes)) {
           this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes });
         }
-
       } else {
-
-        if (this.dataset.connectionInfo['port'] && this.dataset.connectionInfo['hostname']) {
-          this.datasetInformationList.push({ name : `${this.translateService.instant('Host')}`, value : `${this.dataset.connectionInfo['hostname']}` },
-            { name : `${this.translateService.instant('Port')}`, value : `${this.dataset.connectionInfo['port']}` })
+        if (this.getPort && this.getHost) {
+          this.datasetInformationList.push({ name : `${this.translateService.instant('Host')}`, value : `${this.getHost}` },
+            { name : `${this.translateService.instant('Port')}`, value : `${this.getPort}` })
         } else {
-          this.datasetInformationList.push({ name : `${this.translateService.instant('Url')}`, value : `${this.dataset.connectionInfo['url']}` });
+          this.datasetInformationList.push({ name : `${this.translateService.instant('Url')}`, value : `${this.getUrl}` });
         }
-
       }
 
       this.datasetInformationList.push(
-        { name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}` })
+        { name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${ this.dataset.gridResponse.colCnt } ${ this.dataset.gridResponse.colCnt === '1' || this.dataset.gridResponse.colCnt === '0' ? 'column': 'columns'}` })
 
     }
   }
 
-  public getDatasetType(type: ImportType, fileName : string) : string {
 
-    let result = '';
-    //if (type === ImportType.FILE) {
+  /**
+   * Returns file type (csv, json, excel etc)
+   * @param {ImportType} type
+   * @param {string} fileName
+   * @returns {string}
+   */
+  private _getFileType(type: ImportType, fileName : string) : string {
+
+    let result = 'CSV';
     if (type === ImportType.UPLOAD) {
       let extension = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName)[1];
       if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
         result =  'EXCEL'
-      } else if (extension.toUpperCase() === 'CSV' || extension.toUpperCase() === 'TXT') {
-        result =  'CSV'
-      } else if (extension.toUpperCase() === 'JSON') {
+      }  else if (extension.toUpperCase() === 'JSON') {
         result =  'JSON'
-      } else  {
-        result = extension.toUpperCase()
       }
     }
     return result;
@@ -504,12 +522,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   public getSheetName() : string {
 
     let result = "N/A";
-    /*
-    if (this.dataset.custom) {
-      let customJson = JSON.parse(this.dataset.custom);
-      result = customJson.sheet ? customJson.sheet : "N/A";
-    }
-    */
     if(this.dataset.sheetName) {
       result = this.dataset.sheetName;
     }
@@ -532,7 +544,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    */
   private _savePrevRouterUrl(): void {
     this.cookieService.set('SELECTED_DATASET_ID', this.dataset.dsId);
-    this.cookieService.set('SELECTED_DATASET_TYPE', this.dataset.dsType);
+    this.cookieService.set('SELECTED_DATASET_TYPE', this.dataset.dsType.toString());
   }
 
   private _formatBytes(a,b) { // a=크기 , b=소숫점자릿
@@ -541,77 +553,43 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]
   }
 
+
   /**
-   * 데이터셋 미리보기 정리
+   * Returns dataset detail information including grid
    */
-  private _getPreviewData() {
-    this.datasetService.getDataPreview(this.datasetId).then((result) => {
+  private _getDsDetail() {
+    this.loadingShow();
+    this.datasetService.getDatasetDetail(this.datasetId).then((result) => {
+
       this.dataset = result;
       this.setDatasetName();
       this.setDatasetDescription();
 
-      if (this.dataset['dataflows'] && this.dataset['dataflows']) {
+      // Set dataflow information for `used in`
+      if (this.dataset['dataflows']) {
         this.dataset.dataflows = this.dataset['dataflows'];
       } else {
         this.dataset.dataflows = [];
       }
 
-      if (result.dsType === DsType.WRANGLED) { // always show grid when wrangled
-        this.datasetService.getDatasetWrangledData(result.dsId).then((wrangledDataset) => {
-          if (wrangledDataset.errorMsg) {
-            Alert.error(wrangledDataset.errorMsg);
-          } else {
-            if (wrangledDataset.gridResponse) {
-              this.dataset.gridResponse = wrangledDataset.gridResponse;
-              this.importedDatasetColumn = wrangledDataset.gridResponse.colCnt; // number of columns in wrangled dataSet
-              const gridData = this._getGridDataFromGridResponse(wrangledDataset.gridResponse);
-              this.fields = gridData.fields;
-              this.getDatasetInformationList(this.dataset);
-              this._updateGrid(gridData);
-              this.loadingHide();
-            }
-          }
+      this.dataset.gridResponse = result.gridResponse;
+      this.fields = this._getGridDataFromGridResponse(result.gridResponse).fields;
+      this.getDatasetInformationList(this.dataset);
+      this._updateGrid(this._getGridDataFromGridResponse(result.gridResponse));
+      this.loadingHide();
 
-        })
-          .catch((error) => {
-
-            clearInterval(this.interval);
-            let prep_error = this.dataprepExceptionHandler(error);
-            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-          });
-      } else {
-        if (result.gridResponse) {
-          this.importedDatasetColumn = result.gridResponse.colCnt;
-          const gridData = this._getGridDataFromGridResponse(result.gridResponse);
-          this.getDatasetInformationList(this.dataset);
-          this._updateGrid(gridData);
-        } else {
-          this.datasetService.getImportedPreviewReload(this.dataset.dsId).then((preview: any) => {
-            if(!isUndefined(preview['gridResponse'])) {
-              result.gridResponse = preview['gridResponse'];
-              this.importedDatasetColumn = result.gridResponse.colCnt;
-              const gridData = this._getGridDataFromGridResponse(result.gridResponse);
-              this.getDatasetInformationList(this.dataset);
-              this._updateGrid(gridData);
-            }
-          }).catch((error) => {
-            clearInterval(this.interval);
-            let prep_error = this.dataprepExceptionHandler(error);
-            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-          });
-        }
-      }
-    })
-      .catch((error) => {
-        clearInterval(this.interval);
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-      });
+    }).catch((error) => {
+      this.loadingHide();
+      clearInterval(this.interval);
+      this.interval = undefined;
+      let prep_error = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+    });
 
   } // function - getPreviewData
 
   /**
-   * API의 gridResponse 를 통해서 UI 상의 그리드데이터를 얻는다
+   * Change grid data to grid response
    * @param gridResponse 매트릭스 정보
    * @returns 그리드 데이터
    */

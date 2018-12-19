@@ -291,7 +291,7 @@ public class PrDatasetService {
             dataset.setDcUsername(dataConnection.getUsername());
             dataset.setDcPassword(dataConnection.getPassword());
             dataset.setDcUrl(dataConnection.getUrl());
-            dataset.setDcConnectUrl(dataConnection.getConnectUrl());
+            //dataset.setDcConnectUrl(dataConnection.getConnectUrl());
             dataset.setDcPublished(dataConnection.getPublished());
         }
     }

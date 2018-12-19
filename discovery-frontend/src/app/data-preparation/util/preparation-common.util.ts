@@ -340,20 +340,6 @@ export class PreparationCommonUtil {
    * @param {string} sstype
    * @returns {string}
    */
-   /*
-  public static getSnapshotType(sstype: string) : string {
-
-    let result = sstype;
-    if (sstype === 'FILE') {
-      result = 'Local';
-    } else if (sstype === 'HIVE') {
-      result = 'Staging DB';
-    } else if (sstype === 'JDBC') {
-      result = 'Database';
-    }
-    return result
-  }
-  */
   public static getSnapshotType(ssType: SsType) : string {
     let result = null;
     if (ssType === SsType.URI) {
