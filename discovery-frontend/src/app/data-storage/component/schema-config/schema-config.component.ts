@@ -30,6 +30,7 @@ import * as _ from 'lodash';
 import { Alert } from '../../../common/util/alert.util';
 import { isUndefined } from "util";
 import { SchemaConfigActionBarComponent } from './schema-config-action-bar.component';
+import { SchemaConfigDetailComponent } from './schema-config-detail.component';
 
 @Component({
   selector: 'schema-config-component',
@@ -49,6 +50,9 @@ export class SchemaConfigComponent extends AbstractComponent {
   // action bar component
   @ViewChild(SchemaConfigActionBarComponent)
   private _actionBarComponent: SchemaConfigActionBarComponent;
+  // field detail component
+  @ViewChild(SchemaConfigDetailComponent)
+  private _configDetailComponent: SchemaConfigDetailComponent;
 
   // filtered field list
   public filteredFieldList: Field[];
@@ -207,6 +211,16 @@ export class SchemaConfigComponent extends AbstractComponent {
   }
 
   /**
+   * Change logical type list in selected field
+   * @param field
+   */
+  public changeLogicalTypeListInSelectedField(field: Field): void {
+    if (field === this.selectedField) {
+      this._configDetailComponent.setLogicalTypeList(field);
+    }
+  }
+
+  /**
    * Add field in origin field list
    * @param field
    */
@@ -325,7 +339,7 @@ export class SchemaConfigComponent extends AbstractComponent {
       this.selectedTimestampType = type;
       // if action bar open
       if (this.getCheckedFieldList().length !== 0) {
-        this._actionBarComponent.init(this.getCheckedFieldList());
+        this._actionBarComponent.init(this.getCheckedFieldList(), this.selectedTimestampField, this.selectedTimestampType);
       }
     }
   }
@@ -341,7 +355,7 @@ export class SchemaConfigComponent extends AbstractComponent {
       this.selectedTimestampField = field;
       // if action bar open
       if (this.getCheckedFieldList().length !== 0) {
-        this._actionBarComponent.init(this.getCheckedFieldList());
+        this._actionBarComponent.init(this.getCheckedFieldList(), this.selectedTimestampField, this.selectedTimestampType);
       }
     }
   }
@@ -406,7 +420,7 @@ export class SchemaConfigComponent extends AbstractComponent {
   public onClickCheckInField(field: Field): void {
     field.checked = !field.checked;
     // action bar init
-    this._actionBarComponent.init(this.getCheckedFieldList());
+    this._actionBarComponent.init(this.getCheckedFieldList(), this.selectedTimestampField, this.selectedTimestampType);
   }
 
   /**
@@ -535,14 +549,14 @@ export class SchemaConfigComponent extends AbstractComponent {
   private _isEnableNext(): boolean {
     // if select timestamp type is FIELD, not selected timestamp field
     if (this.selectedTimestampType === 'FIELD' && !this.selectedTimestampField) {
-      Alert.warning('타임스탬프 컬럼이 지정되어 있지 않습니다.');
+      Alert.warning(this.translateService.instant('msg.storage.ui.configure.schema.require.timestamp.column'));
       return false;
     }
     // enable field list
     const enableFieldList = this._originFieldList.filter(field => !field.unloaded);
     // if all field unloaded
     if (enableFieldList.length === 0) {
-      Alert.warning('적어도 한개 이상의 컬럼이 존재 해야합니다.');
+      Alert.warning(this.translateService.instant('msg.storage.ui.configure.schema.require.column'));
       return false;
     }
     // if exist error in field
@@ -562,13 +576,13 @@ export class SchemaConfigComponent extends AbstractComponent {
     // loop
     return fieldList.reduce((acc, field) => {
       // if field is TIMESTAMP, format type is DATE_TIME, not check time format
-      if (field.logicalType === LogicalType.TIMESTAMP && field.format.type === FieldFormatType.DATE_TIME && isUndefined(field.isValidTimeFormat)) {
+      if (field.logicalType === LogicalType.TIMESTAMP && field.format.type === FieldFormatType.DATE_TIME && !field.isValidTimeFormat) {
         field.isValidTimeFormat = false;
         field.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
         acc = true;
       }
       // if exist ingestion rule, ingestion rule type is REPLACE, not check replace value
-      if (field.ingestionRule && field.ingestionRule.type === IngestionRuleType.REPLACE && isUndefined(field.isValidReplaceValue)) {
+      if (field.ingestionRule && field.ingestionRule.type === IngestionRuleType.REPLACE && !field.isValidReplaceValue) {
         field.isValidReplaceValue = false;
         field.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
         acc = true;

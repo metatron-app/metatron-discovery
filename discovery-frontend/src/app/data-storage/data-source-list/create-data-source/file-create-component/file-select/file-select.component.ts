@@ -441,9 +441,9 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
    */
   private deleteSchemaData() {
     // 데이터 변경이 일어난경우 스키마 삭제
-    if (this.sourceData.hasOwnProperty('schemaData')
-      && this.isChangeData()) {
+    if (this.sourceData.hasOwnProperty('schemaData') && this.isChangeData()) {
       delete this.sourceData.schemaData;
+      delete this.sourceData.ingestionData;
     }
   }
 
@@ -457,6 +457,9 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     }
     // 현재 페이지의 데이터소스 생성정보 저장
     this.saveFileData(this.sourceData);
+    // set field list, field data
+    this.sourceData.fieldList = this.datasourceFile.selectedFile.fields;
+    this.sourceData.fieldData = this.datasourceFile.selectedFile.data;
   }
 
   /**

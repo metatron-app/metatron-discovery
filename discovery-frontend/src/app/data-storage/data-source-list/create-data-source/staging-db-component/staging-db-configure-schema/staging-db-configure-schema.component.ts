@@ -16,16 +16,7 @@ import { AbstractPopupComponent } from '../../../../../common/component/abstract
 import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild
 } from '@angular/core';
-import { DatasourceService } from '../../../../../datasource/service/datasource.service';
-import { isUndefined } from 'util';
-import {
-  DatasourceInfo, Field, FieldFormat, FieldFormatType, IngestionRuleType,
-  LogicalType
-} from '../../../../../domain/datasource/datasource';
-import * as _ from 'lodash';
-import { StringUtil } from '../../../../../common/util/string.util';
-import { Alert } from '../../../../../common/util/alert.util';
-import { AddColumnComponent } from '../../../component/add-column.component';
+import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
 import { SchemaConfigComponent } from '../../../../component/schema-config/schema-config.component';
 
 @Component({

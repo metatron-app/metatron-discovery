@@ -154,8 +154,7 @@
           <!-- box action -->
           <schema-config-action-bar (changedTimestamp)="checkAndInitTimestampField()"
                                     (changedTimestampList)="onChangedLogicalTypeToTimestamp($event)"
-                                    [timestampField]="selectedTimestampField"
-                                    [timestampType]="selectedTimestampType"></schema-config-action-bar>
+                                    (changedRoleType)="changeLogicalTypeListInSelectedField($event)"></schema-config-action-bar>
           <!-- //box action -->
         </div>
 

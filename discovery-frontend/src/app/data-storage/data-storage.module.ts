@@ -31,7 +31,6 @@ import { MonitoringDataSourceComponent } from './data-source-list/detail-data-so
 import { InformationDataSourceComponent } from './data-source-list/detail-data-source/information-dats-source/information-data-source.component';
 import { DetailDataSourceComponent } from './data-source-list/detail-data-source/detail-data-source.component';
 import { DataPreviewModule } from '../common/data.preview.module';
-import { SchemaDetailComponent } from './component/schema-detail/schema-detail.component';
 import { TimeComponent } from './component/time-compoent/time.component';
 import { DndModule } from 'ng2-dnd';
 import { DbCompleteComponent } from './data-source-list/create-data-source/db-create-component/db-complete/db-complete.component';
@@ -50,7 +49,6 @@ import { FileCompleteComponent } from './data-source-list/create-data-source/fil
 import { FileConfigureSchemaComponent } from './data-source-list/create-data-source/file-create-component/file-configure-schema/file-configure-schema.component';
 import { FileIngestionComponent } from './data-source-list/create-data-source/file-create-component/file-ingestion/file-ingestion.component';
 import { FileSelectComponent } from './data-source-list/create-data-source/file-create-component/file-select/file-select.component';
-import { SchemaChangeActionComponent } from './component/schema-change-action/schema-change-action.component';
 import { CanDeactivateGuard } from '../common/gaurd/can.deactivate.guard';
 import { DruidSelectComponent } from './data-source-list/create-data-source/druid-create-component/druid-select/druid-select.component';
 import { DataGridDataSourceComponent } from './data-source-list/detail-data-source/data-grid-data-source/data-grid-data-source.component';
@@ -89,8 +87,6 @@ const storageRoutes: Routes = [
   declarations: [
     // common
     TimeComponent,
-    SchemaDetailComponent,
-    SchemaChangeActionComponent,
     // schema config component
     SchemaConfigComponent,
     // schema config detail component

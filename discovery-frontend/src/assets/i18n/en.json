@@ -2103,7 +2103,9 @@
   "msg.storage.ui.rows": "rows",
   "msg.storage.ui.configure.schema": "Configure schema",
   "msg.storage.ui.configure.schema.logical.change.timestamp": "Time stamp cannot be changed",
-  "msg.storage.ui.configure.schema.logical.change.geo": "GEO types cannot be changed",
+  "msg.storage.ui.configure.schema.logical.change.derived": "Created column cannot be changed",
+  "msg.storage.ui.configure.schema.require.timestamp.column": "Not selected timestamp column",
+  "msg.storage.ui.configure.schema.require.column": "At least one column must exist",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job name, application ID, and User",

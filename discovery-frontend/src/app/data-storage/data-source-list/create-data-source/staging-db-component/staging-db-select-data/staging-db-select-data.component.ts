@@ -395,7 +395,7 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
    */
   private deleteSchemaData() {
     // 데이터 변경이 일어난경우 스키마 데이터와 적재데이터 제거
-    if (this.sourceData.hasOwnProperty('databaseData') && this.isChangeData()) {
+    if (this.sourceData.hasOwnProperty('schemaData') && this.isChangeData()) {
       delete this.sourceData.schemaData;
       delete this.sourceData.ingestionData;
     }

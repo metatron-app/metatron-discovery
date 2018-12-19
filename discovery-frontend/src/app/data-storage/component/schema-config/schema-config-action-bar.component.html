@@ -69,8 +69,8 @@
         </div>
       </div>
       <!-- //change logical type -->
-      <!-- TODO require message bundle -->
-      <div class="ddp-info">Geo type cannot be changed to other type</div>
+      <div class="ddp-info" *ngIf="isExistDerivedField">{{'msg.storage.ui.configure.schema.logical.change.derived' | translate}}</div>
+      <div class="ddp-info" *ngIf="!isExistDerivedField && isExistTimestampField">{{'msg.storage.ui.configure.schema.logical.change.timestamp' | translate}}</div>
     </div>
   </div>
   <!-- //check action -->

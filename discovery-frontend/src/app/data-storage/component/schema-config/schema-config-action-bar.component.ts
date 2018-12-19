@@ -23,10 +23,8 @@ import { Field, FieldRole, LogicalType } from '../../../domain/datasource/dataso
 export class SchemaConfigActionBarComponent extends AbstractComponent {
 
   // timestamp field
-  @Input('timestampField')
   private _timestampField: Field;
   // timestamp type
-  @Input('timestampType')
   private _timestampType: string;
   // origin logical type list
   private _originLogicalTypeList: any[] = [
@@ -146,12 +144,21 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
   // show flag
   public showFlag: boolean;
 
+  // is exist derived field
+  public isExistDerivedField: boolean;
+  // is exist timestamp field
+  public isExistTimestampField: boolean;
+
+
   // changed timestamp
   @Output()
   public changedTimestamp: EventEmitter<any> = new EventEmitter();
   // changed timestamp list
   @Output()
   public changedTimestampList: EventEmitter<any> = new EventEmitter();
+  // changed role type
+  @Output()
+  public changedRoleType: EventEmitter<Field> = new EventEmitter();
 
   // 생성자
   constructor(protected element: ElementRef,
@@ -169,13 +176,21 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
    * Init
    * @param {Field[]} fieldList
    */
-  public init(fieldList: Field[]): void {
+  public init(fieldList: Field[], timestampField: Field, timestampType: string): void {
     // set field list
     this.checkedFieldList = fieldList;
+    // set time stamp field
+    this._timestampField = timestampField;
+    // set time stamp type
+    this._timestampType = timestampType;
     // set show flag
     this.showFlag = this.checkedFieldList.length !== 0;
     // if show
     if (this.showFlag) {
+      // set derived field flag
+      this.isExistDerivedField = this.checkedFieldList.some(field => field.derived);
+      // set timestamp field flag
+      this.isExistTimestampField = this.checkedFieldList.some(field => this._timestampType === 'FIELD' && field === this._timestampField);
       // set action type list
       this._setActionTypeList();
       // init selected action type
@@ -225,6 +240,8 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
         if (this.selectedRoleType.value !== field.role) {
           // change role in field
           field.role = this.selectedRoleType.value;
+          // changed role type notice
+          this.changedRoleType.emit(field);
         }
         // if different logical type
         if (this.selectedLogicalType.value !== field.logicalType) {
@@ -237,6 +254,14 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
             changedTimestamp = true;
             // push timestamp field
             acc.push(field);
+          }
+          // if field logical type change to GEO
+          if (this.selectedLogicalType.value.indexOf('GEO_') !== -1 && !field.format || (field.format && !field.format.type)) {
+            // set default
+            field.format = {type: this.selectedLogicalType.value.toLowerCase(), originalSrsName: 'EPSG:4326'};
+          } else if (field.toString().indexOf('GEO_') !== -1 && this.selectedLogicalType.value.indexOf('GEO_') === -1) { // if field logical type is GEO
+            // remove format
+            delete field.format;
           }
           // change logical type in field
           field.logicalType = this.selectedLogicalType.value;
@@ -320,7 +345,7 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
    */
   private _setActionTypeList(): void {
     // if exist derived field
-    if (this.checkedFieldList.some(field => field.derived)) {
+    if (this.isExistDerivedField) {
       // only action type delete
       this.actionTypeList = this._originActionTypeList.filter(type => type.value === 'DELETE');
     } else {
@@ -334,7 +359,7 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
    */
   private _setRoleTypeList(): void {
     // if exist selected TIMESTAMP field
-    if (this.checkedFieldList.some(field => this._timestampType === 'FIELD' && field === this._timestampField)) {
+    if (this.isExistTimestampField) {
       this.roleTypeList = this._originRoleTypeList.filter(type => FieldRole.DIMENSION === type.value);
     } else {
       this.roleTypeList = this._originRoleTypeList;
@@ -349,7 +374,7 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
   private _setLogicalTypeList(type: FieldRole): void {
     if (FieldRole.DIMENSION === type) {
       // if exist selected TIMESTAMP field
-      if (this.checkedFieldList.some(field => this._timestampType === 'FIELD' && field === this._timestampField)) {
+      if (this.isExistTimestampField) {
         this.logicalTypeList = this._originLogicalTypeList.filter(type => LogicalType.TIMESTAMP === type.value);
       } else if (this.checkedFieldList.every(field => field.type === LogicalType.STRING.toString())) { // if all checked field list type are STRING
         this.logicalTypeList = this._originLogicalTypeList.filter(type => FieldRole.DIMENSION === type.role && LogicalType.USER_DEFINED !== type.value);

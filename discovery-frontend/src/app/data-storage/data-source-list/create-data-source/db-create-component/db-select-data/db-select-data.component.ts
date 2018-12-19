@@ -460,9 +460,9 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
    */
   private deleteSchemaData() {
     // 데이터 변경이 일어난경우 스키마 삭제
-    if (this._sourceData.hasOwnProperty('schemaData')
-      && this.isChangeData()) {
+    if (this._sourceData.hasOwnProperty('schemaData') && this.isChangeData()) {
       delete this._sourceData.schemaData;
+      delete this._sourceData.ingestionData;
     }
   }
 
@@ -476,6 +476,9 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
     }
     // 현재 페이지의 데이터소스 생성정보 저장
     this.saveDatabaseData(this._sourceData);
+    // set field list, field data
+    this._sourceData.fieldList = this.selectedType === 'TABLE' ? this.tableDetailData.fields : this.queryDetailData.fields;
+    this._sourceData.fieldData = this.selectedType === 'TABLE' ? this.tableDetailData.data : this.queryDetailData.data;
   }
 
 

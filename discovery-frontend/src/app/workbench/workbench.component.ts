@@ -43,7 +43,7 @@ import { DatasourceService } from '../datasource/service/datasource.service';
 import { PageWidget } from '../domain/dashboard/widget/page-widget';
 import { Dashboard, BoardDataSource, BoardConfiguration } from '../domain/dashboard/dashboard';
 import {
-  BIType, ConnectionType, Datasource, Field, IngestionRuleType,
+  BIType, ConnectionType, Datasource, DatasourceInfo, Field, IngestionRuleType,
   LogicalType
 } from '../domain/datasource/datasource';
 import { Workbook } from '../domain/workbook/workbook';
@@ -2672,7 +2672,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               data: currentResultTab.result.data
             }
           },
-          workbenchFl: true
+          workbenchFl: true,
+          fieldList: currentResultTab.result.fields,
+          fieldData: currentResultTab.result.data
         };
 
         // 로딩 hide

@@ -185,7 +185,7 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.selectedField) {
       // set logical type list
-      this._setLogicalTypeList(this.selectedField);
+      this.setLogicalTypeList(this.selectedField);
       // if not exist ingestion rule in field
       if (!this.selectedField.ingestionRule) {
         this.selectedField.ingestionRule = new IngestionRule();
@@ -366,6 +366,23 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   }
 
   /**
+   * Set logical type list
+   * @param {Field} field
+   */
+  public setLogicalTypeList(field: Field): void {
+    // if field is derived
+    if (this.isDerivedField(field)) {
+      this.logicalTypeList = this._originLogicalTypeList.filter(type => type.derived);
+    } else if (FieldRole.DIMENSION === field.role) { // if selected field is not derived, is DIMENSION role
+      this.logicalTypeList = field.type === 'STRING'
+        ? this._originLogicalTypeList.filter(type => FieldRole.DIMENSION === type.role && LogicalType.USER_DEFINED !== type.value)
+        : this._originLogicalTypeList.filter(type => FieldRole.DIMENSION === type.role && !type.derived);
+    } else if (FieldRole.MEASURE === field.role) { // if selected field is not derived, is MEASURE role
+      this.logicalTypeList = this._originLogicalTypeList.filter(type => type.role === FieldRole.MEASURE);
+    }
+  }
+
+  /**
    * Is removed field
    * @param {Field} field
    * @returns {boolean}
@@ -425,7 +442,7 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
       // change role type
       field.role = type.value;
       // set logical type list
-      this._setLogicalTypeList(field);
+      this.setLogicalTypeList(field);
       // field logical type
       const fieldLogicalType: LogicalType = field.logicalType;
       // init field logical type
@@ -455,11 +472,8 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
       // if field logical type change to GEO
       if (type.value.indexOf('GEO_') !== -1 && !field.format || (field.format && !field.format.type)) {
         // set default
-        field.format = {
-          type: type.value.toLowerCase(),
-          originalSrsName: 'EPSG:4326'
-        };
-      } else if (fieldLogicalType.toString().indexOf('GEO_') !== -1) { // if field logical type is GEO
+        field.format = {type: type.value.toLowerCase(), originalSrsName: 'EPSG:4326'};
+      } else if (fieldLogicalType.toString().indexOf('GEO_') !== -1 && type.value.indexOf('GEO_') === -1) { // if field logical type is GEO
         // remove format
         delete field.format;
       }
@@ -638,24 +652,6 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
         // set time format valid message
         field.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.format.null');
     });
-  }
-
-  /**
-   * Set logical type list
-   * @param {Field} field
-   * @private
-   */
-  private _setLogicalTypeList(field: Field): void {
-    // if field is derived
-    if (this.isDerivedField(field)) {
-      this.logicalTypeList = this._originLogicalTypeList.filter(type => type.derived);
-    } else if (FieldRole.DIMENSION === field.role) { // if selected field is not derived, is DIMENSION role
-      this.logicalTypeList = field.type === 'STRING'
-        ? this._originLogicalTypeList.filter(type => FieldRole.DIMENSION === type.role && LogicalType.USER_DEFINED !== type.value)
-        : this._originLogicalTypeList.filter(type => FieldRole.DIMENSION === type.role && !type.derived);
-    } else if (FieldRole.MEASURE === field.role) { // if selected field is not derived, is MEASURE role
-      this.logicalTypeList = this._originLogicalTypeList.filter(type => type.role === FieldRole.MEASURE);
-    }
   }
 
   /**
