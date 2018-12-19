@@ -490,16 +490,16 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
     align = type;
 
-    const row = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.subAxis)).filter((axis) => {
+    const row = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axis) => {
       return _.eq(axis.mode, AxisLabelType.ROW);
     })[0];
-    const subRow = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.subAxis)).filter((axis) => {
+    const subRow = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axis) => {
       return _.eq(axis.mode, AxisLabelType.SUBROW);
     })[0];
-    const column = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.subAxis)).filter((axis) => {
+    const column = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axis) => {
       return _.eq(axis.mode, AxisLabelType.COLUMN);
     })[0];
-    const subColumn = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.subAxis)).filter((axis) => {
+    const subColumn = _.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((axis) => {
       return _.eq(axis.mode, AxisLabelType.SUBCOLUMN);
     })[0];
 
@@ -580,8 +580,8 @@ export class CommonOptionComponent extends BaseOptionComponent {
     });
 
     // subAxis
-    if (this.uiOption.subAxis) {
-      axis = _.cloneDeep(this.uiOption.subAxis);
+    if( this.uiOption.secondaryAxis ) {
+      axis = _.cloneDeep(this.uiOption.secondaryAxis);
       switch (axis.mode) {
         case AxisLabelType.ROW :
           axis.name = column.name;
@@ -604,7 +604,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
           axis.customName = subRow.customName;
           break;
       }
-      this.uiOption = <UIOption>_.extend({}, this.uiOption, {subAxis: axis});
+      this.uiOption = <UIOption>_.extend({}, this.uiOption, { secondaryAxis: axis });
     }
 
     this.update();

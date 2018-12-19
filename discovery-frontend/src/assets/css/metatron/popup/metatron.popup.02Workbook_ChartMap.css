@@ -31,15 +31,34 @@
 /**************************************************************
    맵 차트 remark
 **************************************************************/
-.ddp-page-mapview .ddp-wrap-remark {position:absolute; top:20px; right:0; bottom:20px; box-sizing:border-box;}
-.ddp-page-mapview .ddp-layout-remark {position:relative; min-width:200px;  max-height:100%; background-color:#fff; border:1px solid #e7e7ea; border-radius:2px; overflow:auto; box-sizing:border-box; z-index:10; }
-.ddp-page-mapview .ddp-layout-remark .ddp-ui-layer {padding:24px 20px;}
+.ddp-page-mapview .ddp-wrap-chart-layout {position:relative;}
+.ddp-page-mapview .ddp-wrap-remark {position:absolute; top:7px; right:7px; bottom:7px; box-sizing:border-box;}
+.ddp-page-mapview .ddp-layout-remark {position:absolute; top:0; right:0; max-height:100%;z-index:10; cursor:pointer; background-color:rgba(255,255,255,0.9); border:1px solid #e7e7ea; border-radius:2px; overflow:auto;}
+.ddp-page-mapview .ddp-layout-remark:hover {border:1px solid #9a9fa7;}
+.ddp-page-mapview .ddp-layout-remark.ddp-small {border:none !important;}
+
+.ddp-page-mapview .ddp-wrap-remark.ddp-right-bottom .ddp-layout-remark {top:initial; bottom:0;}
+.ddp-page-mapview .ddp-wrap-remark.ddp-left-bottom,
+.ddp-page-mapview .ddp-wrap-remark.ddp-left-top{right:initial; left:37px;}
+.ddp-page-mapview .ddp-wrap-remark.ddp-left-bottom .ddp-layout-remark {top:initial; bottom:0; left:0px; right:initial;}
+.ddp-page-mapview .ddp-wrap-remark.ddp-left-top .ddp-layout-remark {top:0; bottom:initial; right:initial;}
+
+.ddp-page-mapview .ddp-layout-remark .ddp-remark-size-b {display:block; position:relative; width:150px;   overflow:auto; box-sizing:border-box;}
+
+.ddp-page-mapview .ddp-layout-remark.ddp-small .ddp-remark-size-s {display:block;}
+.ddp-page-mapview .ddp-layout-remark.ddp-small .ddp-remark-size-b {display:none;}
+
+.ddp-page-mapview .ddp-layout-remark .ddp-remark-size-s {display:none; position:relative; width:25px; height:25px; border-radius:3px; border:1px solid #626770; background-color:rgba(255,255,255,0.9);}
+.ddp-page-mapview .ddp-layout-remark .ddp-remark-size-s:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-6px 0 0 -6px; width:12px; height:11px; background:url(../../../images/icon_size_remark.png) no-repeat; content:'';}
+.ddp-page-mapview .ddp-layout-remark .ddp-btn-size {display:inline-block; position:absolute; top:10px; right:10px; width:11px; height:11px; background:url(../../../images/btn_size_remark.png) no-repeat;}
+.ddp-page-mapview .ddp-layout-remark .ddp-ui-layer {position:relative; padding:9px 9px;}
+
 .ddp-page-mapview .ddp-layout-remark .ddp-ui-layer + .ddp-ui-layer {border-top:1px solid #ededee;}
-.ddp-page-mapview .ddp-layout-remark .ddp-ui-layer .ddp-label {display:block; padding-bottom:16px; color:#4a515c; font-size:14px; font-weight:bold;}
+.ddp-page-mapview .ddp-layout-remark .ddp-ui-layer .ddp-label {display:block; padding-bottom:2px; color:#4a515c; font-size:12px; font-weight:bold;}
 .ddp-page-mapview .ddp-layout-remark .ddp-ui-layer .ddp-label + .ddp-data {padding-top:0;}
-.ddp-page-mapview .ddp-layout-remark .ddp-ui-layer .ddp-data {display:block; padding:12px 0 0 0; color:#90969f; font-size:12px;}
-.ddp-page-mapview .ddp-layout-remark .ddp-ui-layer .ddp-list-remark {padding:12px 0 0 0;}
-.ddp-page-mapview .ddp-layout-remark .ddp-ui-layer .ddp-list-remark li {position:relative; max-width:240px; padding-left:20px; color:#4a515c; font-size:12px; vertical-align:middle;
+.ddp-page-mapview .ddp-layout-remark .ddp-ui-layer .ddp-data {display:block; padding:6px 0 0 0; color:#90969f; font-size:11px;}
+.ddp-page-mapview .ddp-layout-remark .ddp-ui-layer .ddp-list-remark {padding:6px 0 0 0;}
+.ddp-page-mapview .ddp-layout-remark .ddp-ui-layer .ddp-list-remark li {position:relative; padding-left:20px; color:#4a515c; font-size:11px; vertical-align:middle;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -47,9 +66,12 @@
   -webkit-box-orient: vertical;
   word-wrap:break-word;}
 .ddp-page-mapview .ddp-layout-remark .ddp-ui-layer .ddp-list-remark li em.ddp-bg-remark-r,
-.ddp-page-mapview .ddp-layout-remark .ddp-ui-layer .ddp-list-remark li em.ddp-bg-remark {display:inline-block; position:absolute; top:1px; left:0; width:14px; height:14px; margin-right:6px;  vertical-align:middle;}
+.ddp-page-mapview .ddp-layout-remark .ddp-ui-layer .ddp-list-remark li em.ddp-bg-remark {display:inline-block; position:absolute; top:50%; left:0; margin-top:-7px; width:14px; height:14px; margin-right:6px;  vertical-align:middle;}
 .ddp-page-mapview .ddp-layout-remark .ddp-ui-layer .ddp-list-remark li em.ddp-bg-remark-r {border-radius:50%;}
-.ddp-page-mapview .ddp-layout-remark .ddp-ui-layer .ddp-list-remark li + li {margin-top:14px;}
+.ddp-page-mapview .ddp-layout-remark .ddp-ui-layer .ddp-list-remark li + li {margin-top:6px;}
+
+.ddp-page-mapview .ddp-layout-remark .ddp-ui-layer
+.ddp-list-remark li em.ddp-bg-remark-triangle {display:inline-block;position:absolute; top:50%; left:0; margin-top:-6px; width:0; height:0; border-right: 7px solid transparent; border-left: 7px solid transparent; border-bottom:12px solid;}
 
 /**************************************************************
    맵 차트 slider form

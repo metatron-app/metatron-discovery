@@ -15,6 +15,7 @@
 import * as _ from 'lodash';
 
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
@@ -23,7 +24,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import { AbstractPopupComponent } from '../common/component/abstract-popup.component';
 import { PageWidget, PageWidgetConfiguration } from '../domain/dashboard/widget/page-widget';
@@ -127,6 +128,7 @@ const possibleChartObj: any = {
   tooltip: ['bar', 'line', 'scatter', 'heatmap', 'pie', 'control', 'boxplot', 'waterfall', 'combine', 'treemap', 'radar', 'network', 'sankey', 'gauge'],
   calculatedRow: ['grid'],
   secondaryIndicator: ['label'],
+  secondaryAxis: ['combine'],
   mapCommon: ['map'],
   mapLayer: ['map'],
   mapLayer1: ['map'],

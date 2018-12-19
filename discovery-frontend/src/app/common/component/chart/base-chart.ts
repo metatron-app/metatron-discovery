@@ -1778,10 +1778,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    */
   protected setAxisNameInfo(setNameFl: boolean = true): void {
 
-    const xAxis = _.cloneDeep(_.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.subAxis)).filter((item) => {
+    const xAxis = _.cloneDeep(_.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((item) => {
       return _.eq(item.mode, AxisLabelType.ROW) || _.eq(item.mode, AxisLabelType.SUBROW);
     }));
-    const yAxis = _.cloneDeep(_.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.subAxis)).filter((item) => {
+    const yAxis = _.cloneDeep(_.compact(_.concat(this.uiOption.xAxis, this.uiOption.yAxis, this.uiOption.secondaryAxis)).filter((item) => {
       return _.eq(item.mode, AxisLabelType.COLUMN) || _.eq(item.mode, AxisLabelType.SUBCOLUMN);
     }));
 

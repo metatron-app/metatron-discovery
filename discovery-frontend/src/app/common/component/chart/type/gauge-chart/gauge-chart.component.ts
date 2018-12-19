@@ -17,7 +17,7 @@
  * Created by juheeko on 2017. 11. 14..
  */
 
-import { Component, ElementRef, Injector } from '@angular/core';
+import { Component, ElementRef, Injector, Input } from '@angular/core';
 import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../../base-chart';
 import {
   CHART_STRING_DELIMITER,
@@ -45,6 +45,7 @@ import { ColorRange, UIChartColor, UIChartColorBySeries } from '../../option/ui-
 import { UIScatterChart } from '../../option/ui-option/ui-scatter-chart';
 import optGen = OptionGenerator;
 import UI = OptionGenerator.UI;
+import { DIRECTION, Sort } from '../../../../../domain/workbook/configurations/sort';
 
 
 @Component({
@@ -56,6 +57,9 @@ export class GaugeChartComponent extends BaseChart {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  @Input('sorts')
+  private sorts: Sort[];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -406,7 +410,7 @@ export class GaugeChartComponent extends BaseChart {
 
           // originData에 설정
           item.originData = _.cloneDeep(item.data);
-          this.chartOption.series.unshift(item);
+          this.chartOption.series.push(item);
         }
 
         this.chartOption.series[index].data.forEach((item, dataIndex) => {
@@ -891,6 +895,33 @@ export class GaugeChartComponent extends BaseChart {
         return {name: rowData + CHART_STRING_DELIMITER + uniqRow + CHART_STRING_DELIMITER + data.columns[0].name, value: sumData, percentage: sumPercent};
       });
 
+      // set sort by first sort
+      if (this.sorts && this.sorts.length > 0) {
+
+        let sort = new Sort();
+        let sortFl: boolean = false;
+        for (const sort of this.sorts) {
+          _.sortBy(column, (item)=> {
+
+            // sort by dimension
+            if (item.name.split(CHART_STRING_DELIMITER)[0] === sort.field) {
+              column = _.sortBy(column, 'name');
+              sortFl = true;
+            // sort by measure
+            } else if (item.name.split(CHART_STRING_DELIMITER)[2] === sort.field) {
+              column = _.sortBy(column, 'value');
+              sortFl = true;
+            }
+          });
+
+          // when array is sorted, skip next sorts
+          if (sortFl) {
+            // asc, desc
+            if (DIRECTION.DESC === sort.direction) column = column.sort().reverse();
+            break;
+          }
+        }
+      }
       return column;
     });
 

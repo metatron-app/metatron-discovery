@@ -60,6 +60,9 @@ export class YAxisOptionComponent extends FormatOptionComponent {
   @Output('changeAxisName')
   public changeAxisNameEvent: EventEmitter<any> = new EventEmitter();
 
+  // 보조축 여부
+  public isSecondaryAxis: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -116,6 +119,14 @@ export class YAxisOptionComponent extends FormatOptionComponent {
         // label값 생성
         this.uiOption.yAxis.label = this.uiOption['align'] && UIOrient.HORIZONTAL == this.uiOption['align'] ? UI.AxisLabel.axisLabelForCategory(ChartAxisLabelType.CATEGORY) : UI.AxisLabel.axisLabelForValue(ChartAxisLabelType.VALUE);
       }
+    }
+
+    // Secondary Axis
+    if( this.isSecondaryAxis && !this.uiOption.secondaryAxis ) {
+
+      // label값 생성
+      this.uiOption.secondaryAxis = _.cloneDeep(this.uiOption.yAxis);
+      this.uiOption.secondaryAxis.label = UI.AxisLabel.axisLabelForValue(ChartAxisLabelType.VALUE);
     }
 
     // Clone
