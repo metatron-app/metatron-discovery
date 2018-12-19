@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -214,6 +215,7 @@ public class PrepJsonUtil {
       ResultSetMetaData rsmd = rs.getMetaData();
       int columnCount = rsmd.getColumnCount();
       String[] columnNames = new String[columnCount+1];
+      int[] columnTypes = new int[columnCount+1];
       StringBuffer sb;
       for (int columnIdx = 1; columnIdx <= columnCount; columnIdx++) {
         String colName = rsmd.getColumnName(columnIdx);
@@ -221,8 +223,10 @@ public class PrepJsonUtil {
           colName = colName.substring(dbName.length() + 1);
         }
         colName = "\""+colName.replaceAll("\"","\\\"")+"\"";
-
         columnNames[columnIdx] = colName;
+
+        int colType = rsmd.getColumnType(columnIdx);
+        columnTypes[columnIdx] = colType;
       }
 
       while (rs.next()) {
@@ -235,7 +239,7 @@ public class PrepJsonUtil {
           }
           sb.append(columnNames[columnIdx]);
           sb.append(":");
-          sb.append(escapeForJSON(columnValue));
+          sb.append(escapeForJSON(columnValue, columnTypes[columnIdx]));
         }
         sb.append("}\n");
         outputStream.write(sb.toString().getBytes());
@@ -246,14 +250,11 @@ public class PrepJsonUtil {
     }
   }
 
-  private static String escapeForJSON(String value) {
+  private static String escapeForJSON(String value, int colType) {
     if(value.contains("\"")) {
       value = value.replaceAll("\"","\\\\\"");
     }
-    if(value.equalsIgnoreCase("null") || value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
-      return value;
-    }
-    if(value.matches("-?\\d+(\\.\\d+)?")) {
+    if(colType == Types.DOUBLE || colType == Types.BIGINT || colType == Types.BOOLEAN) {
       return value;
     }
 
