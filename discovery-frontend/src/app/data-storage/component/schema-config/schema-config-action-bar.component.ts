@@ -255,8 +255,8 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
             // push timestamp field
             acc.push(field);
           }
-          // if field logical type change to GEO
-          if (this.selectedLogicalType.value.indexOf('GEO_') !== -1 && !field.format || (field.format && !field.format.type)) {
+          // if field logical type change to GEO, not exist originalSrsName
+          if (this.selectedLogicalType.value.indexOf('GEO_') !== -1 && !field.format || (field.format && !field.format.originalSrsName)) {
             // set default
             field.format = {type: this.selectedLogicalType.value.toLowerCase(), originalSrsName: 'EPSG:4326'};
           } else if (field.toString().indexOf('GEO_') !== -1 && this.selectedLogicalType.value.indexOf('GEO_') === -1) { // if field logical type is GEO

@@ -469,8 +469,8 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
       const fieldLogicalType: LogicalType = field.logicalType;
       // change logical type
       field.logicalType = type.value;
-      // if field logical type change to GEO
-      if (type.value.indexOf('GEO_') !== -1 && !field.format || (field.format && !field.format.type)) {
+      // if field logical type change to GEO, not exist originalSrsName
+      if (type.value.indexOf('GEO_') !== -1 && !field.format || (field.format && !field.format.originalSrsName)) {
         // set default
         field.format = {type: type.value.toLowerCase(), originalSrsName: 'EPSG:4326'};
       } else if (fieldLogicalType.toString().indexOf('GEO_') !== -1 && type.value.indexOf('GEO_') === -1) { // if field logical type is GEO
