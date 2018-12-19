@@ -83,7 +83,7 @@ export class StagingDbIngestionComponent extends AbstractPopupComponent implemen
       this._ingestionSettingComponent.init(
         this._sourceData,
         'STAGING',
-        this._sourceData.schemaData.selectedTimestampType === 'CURRENT' ? null :  this._sourceData.schemaData.selectedTimestampColumn,
+        this._sourceData.schemaData.selectedTimestampType === 'CURRENT' ? null :  this._sourceData.schemaData.selectedTimestampField,
         this._sourceData.schemaData.isChangedTimestampField
       );
       // remove changed flag

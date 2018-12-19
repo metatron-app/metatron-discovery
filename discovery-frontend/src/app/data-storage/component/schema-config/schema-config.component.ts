@@ -28,7 +28,6 @@ import { StringUtil } from '../../../common/util/string.util';
 import { AddColumnComponent } from '../../data-source-list/component/add-column.component';
 import * as _ from 'lodash';
 import { Alert } from '../../../common/util/alert.util';
-import { isUndefined } from "util";
 import { SchemaConfigActionBarComponent } from './schema-config-action-bar.component';
 import { SchemaConfigDetailComponent } from './schema-config-detail.component';
 
@@ -166,7 +165,7 @@ export class SchemaConfigComponent extends AbstractComponent {
     super.ngOnInit();
     // if exist prev schema data, load schema data
     // if not exist prev schema data, init view
-    this._sourceData.schemaData ? this._loadSchemaData(this._sourceData.schemaData) : this._initView();
+    this._sourceData.schemaData ? this._loadSchemaData(_.cloneDeep(this._sourceData.schemaData)) : this._initView();
   }
 
   /**
@@ -281,10 +280,14 @@ export class SchemaConfigComponent extends AbstractComponent {
   public onClickNext(): void {
     // if enable next
     if (this._isEnableNext()) {
+      // is changed timestamp field
+      const isChangedTimestampField: boolean = this._isChangedTimestampField();
       // if exist schemaData, remove schemaData
       this._sourceData.schemaData && (delete this._sourceData.schemaData);
       // save schemaData
       this._saveSchemaData(this._sourceData);
+      // if changed timestamp field
+      this._sourceData.schemaData['isChangedTimestampField'] = isChangedTimestampField;
       // move to next step
       this.changedStep.emit('next');
     }
@@ -589,6 +592,24 @@ export class SchemaConfigComponent extends AbstractComponent {
       }
       return acc;
     }, false);
+  }
+
+
+  /**
+   * Is changed TIMESTAMP field
+   * @returns {boolean}
+   * @private
+   */
+  private _isChangedTimestampField(): boolean {
+    // if exist schema data in source data
+    if (this._sourceData.schemaData) {
+      // if changed timestamp field
+      return (this.selectedTimestampType !== this._sourceData.schemaData.selectedTimestampType) ||
+        this.selectedTimestampField &&
+        (this.selectedTimestampField.name !== this._sourceData.schemaData.selectedTimestampField.name || this.selectedTimestampField.format.type !== this._sourceData.schemaData.selectedTimestampField.format.type);
+    } else { // if not exist schema data
+      return false;
+    }
   }
 
   /**
