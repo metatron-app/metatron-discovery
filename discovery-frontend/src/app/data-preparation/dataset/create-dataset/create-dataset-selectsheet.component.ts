@@ -97,13 +97,6 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
   public gridInfo : any;
 
-  public chunk_uploader: any;
-  private isUploadCancel :boolean = false;
-
-  public progressbarWidth: string = '100%';
-  public progressPercent : number = 0;
-  public isUploading : boolean = false;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -128,8 +121,6 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     super.ngOnInit();
 
-    this.initPlupload();
-
     //let fileType : string = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec( this.datasetFile.filename )[1];
     let fileType : string = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec( this.datasetFile.filenameBeforeUpload )[1];
 
@@ -141,6 +132,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     } else {
       this.datasetFile.sheetIndex = 0;
+      if( isUndefined(this.datasetFile.sheets) ) {
+        this.datasetFile.sheets = [];
+      }
 
       if(this.datasetFile.delimiter) { // delimiter 를 바꾼게 있다면 그걸 사용한다
         this.columnDelimiter = this.datasetFile.delimiter;
@@ -159,162 +153,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   public ngOnDestroy() {
     super.ngOnDestroy();
 
-    this.chunk_uploader = null;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  public cancelClick(param:boolean){
-    let elm = $('.ddp-wrap-progress');
-    if (param) {
-      if(this.progressPercent === 100) {
-        Alert.info('Generating completed');
-        this.isUploadCancel = false;
-        this.chunk_uploader.start();
-        this.isUploading = false;
-
-      } else {
-        this.isUploadCancel = true;
-        this.chunk_uploader.stop();
-        elm[0].style.display = "none";
-        elm[1].style.display = "";
-      }
-    } else {
-      this.isUploadCancel = false;
-      this.chunk_uploader.start();
-      elm[0].style.display = "";
-      elm[1].style.display = "none";
-    }
-  }
-
-  public cancelUpload(){
-    this.isUploadCancel = true;
-    this.chunk_uploader.stop();
-    this.chunk_uploader.start();
-    this.isUploadCancel = false;
-    this.isUploading = false;
-  }
-  public startUpload(){
-    this.isUploading = true;
-    this.isUploadCancel = false;
-    this.chunk_uploader.start();
-  }
-
-  public initPlupload() {
-    this.chunk_uploader = new plupload.Uploader({
-      runtimes : 'html5,html4',
-      chunk_size: '0',
-      browse_button : this.pickfiles.nativeElement,
-      drop_element : this.drop_container.nativeElement,
-      url : CommonConstant.API_CONSTANT.API_URL + 'preparationdatasets/upload_async',
-      headers:{
-        'Accept': 'application/json, text/plain, */*',
-        'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
-      },
-      filters : {
-        max_file_size : '10gb',
-        prevent_duplicate: true,
-        mime_types: [
-          {title: "Datapreparation files", extensions: "csv,txt,xls,xlsx,json"}
-        ],
-
-      },
-      multipart_params: {
-        file_key : '',
-        upload_target: '',
-        total_size : ''
-      },
-      init: {
-        PostInit: () => {
-          for ( let idx in this.chunk_uploader.settings.multipart_params){
-            this.chunk_uploader.settings.multipart_params[idx] = '';
-          };
-        },
-
-        FilesAdded: (up, files) => {
-          if (files && files.length > 1){
-            plupload.each(files, (file) => {
-              up.removeFile(file);
-            });
-            Alert.error('Only one file can be uploaded.');
-          } else {
-            plupload.each(files, (file) => {
-              this.chunk_uploader.settings.multipart_params.total_size = file.size;
-
-              // get and set file_key, chunk_size, upload_target
-
-              this.chunk_uploader.setOption('chunk_size','0');
-              //this.chunk_uploader.settings.multipart_params.file_key = '';
-              //this.chunk_uploader.settings.multipart_params.upload_target = '';
-
-            });
-            this.startUpload();
-
-          }
-        },
-
-        UploadProgress: (up, file) => {
-          this.progressPercent = file.percent;
-          this.progressbarWidth = file.percent + "%";
-          this.drop_container.nativeElement.click();
-        },
-
-        // BeforeUpload: (up, file)=>{
-        // },
-
-        UploadFile: (up,file)=>{
-          if (this.isUploadCancel) {
-            up.removeFile(file);
-            for ( let idx in this.chunk_uploader.settings.multipart_params){
-              this.chunk_uploader.settings.multipart_params[idx] = ''
-            };
-          }
-        },
-
-        FileUploaded: (up, file, info)=>{
-          this.isUploading = false;
-
-          const success = true;
-          let res = info.response;
-          this.uploadResult = { success, res };
-          this.checkIfUploaded(res);
-        },
-
-        // BeforeChunkUpload: (up, file, args, blob, offset)=>{
-        // },
-        // ChunkUploaded: (up, file, info)=>{
-        // },
-
-        /* error define
-        -100 GENERIC_ERROR
-        -200 HTTP_ERROR
-        -300 IO_ERROR
-        -400 SECURITY_ERROR
-        -500 INIT_ERROR
-        -600 FILE_SIZE_ERROR
-        -601 FILE_EXTENSION_ERROR
-        -602 FILE_DUPLICATE_ERROR
-        -701 MEMORY_ERROR
-         */
-        Error: (up, err) => {
-          this.cancelUpload();
-          this.drop_container.nativeElement.click();
-          switch (err.code){
-            case -601:
-              Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
-              break;
-            default:
-              Alert.error(err.message);
-          }
-        }
-      }
-    });
-
-    this.chunk_uploader.init();
-  }
-
 
   // Convert array to object
   public convertSheet() {
@@ -435,19 +278,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     if(this.isChanged) { // when uploaded file is changed
       this.defaultSheetIndex = 0;
       const response: any = this.uploadResult.response;
-      /*
-      this.datasetFile.filename = response.filename;
-      this.datasetFile.filepath = response.filepath;
-      this.datasetFile.sheets = response.sheets;
-      if (response.sheets && response.sheets.length > 0) {
-        this.datasetFile.sheetname = response.sheets[0];
-        this.convertSheet();
-      } else {
-        this.datasetFile.sheetname = '';
-      }
-      this.datasetFile.filekey = response.filekey;
-      */
+
       this.datasetFile.storedUri = response.storedUri;
+      /* sheets are on file_grid
       this.datasetFile.sheets = response.sheets;
       if (response.sheets && response.sheets.length > 0) {
         this.datasetFile.sheetName = response.sheets[0];
@@ -455,6 +288,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       } else {
         this.datasetFile.sheetName = '';
       }
+      */
       this.datasetFile.filenameBeforeUpload = response.filenameBeforeUpload;
     }
 
@@ -630,6 +464,15 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   private getGridInformation(param) {
 
     this.datasetService.getFileGridInfo(param).then((result) => {
+      if (result.sheets && result.sheets.length > 0) {
+        this.datasetFile.sheets = result.sheets;
+        this.datasetFile.sheetName = result.sheets[0];
+        this.convertSheet();
+      } else {
+        this.datasetFile.sheetName = '';
+        this.datasetFile.sheets = [];
+      }
+
       if (result.grids.length > 0) {
         this.clearGrid = false;
         this.gridInfo = result.grids;

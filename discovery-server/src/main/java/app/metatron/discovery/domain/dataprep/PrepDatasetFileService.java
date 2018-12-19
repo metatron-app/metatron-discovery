@@ -519,6 +519,8 @@ public class PrepDatasetFileService {
                     }
 
                     if (null != workbook) {
+                        List<String> sheets = Lists.newArrayList();
+
                         int sheetsCount = workbook.getNumberOfSheets();
                         for (Sheet sheet : workbook) {
                             boolean hasFields;
@@ -529,6 +531,7 @@ public class PrepDatasetFileService {
                             List<Map<String, String>> headers = Lists.newArrayList();
 
                             String sheetName = sheet.getSheetName();
+                            sheets.add(sheetName);
                             totalRows = sheet.getLastRowNum()+1;
 
                             for (Row r : sheet) {
@@ -575,6 +578,8 @@ public class PrepDatasetFileService {
 
                             grids.add(grid);
                         }
+
+                        responseMap.put("sheets", sheets);
                     }
 
                 } else if ("json".equals(extensionType)) {

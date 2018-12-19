@@ -358,7 +358,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     */
     this.datasetFile.filenameBeforeUpload = response.filenameBeforeUpload;
     this.datasetFile.storedUri = response.storedUri;
-    this.datasetFile.sheets = []; // response.sheets;
+    // this.datasetFile.sheets = response.sheets;
 
     //if (!isUndefined(this.datasetFile.filename)) {
     if (!isUndefined(this.datasetFile.storedUri)) {
