@@ -25,6 +25,20 @@ import { DatasetService } from "../service/dataset.service";
 
 declare let plupload: any;
 
+export class UploadNegotitationParameters {
+  public limit_size:number = 0;
+  public storage_types: string[] = [];
+  public timestamp: number = 0 ;
+  public upload_id: string = '';
+}
+
+export class UploadChunkStatus {
+  public total_chunks:number = 0;
+  public uploading_chunks:number = 0;
+  public succeeded_chunks:number = 0;
+  public failed_chunks:number = 0;
+}
+
 @Component({
   selector: 'app-create-dataset-selectfile',
   templateUrl: './create-dataset-selectfile.component.html',
@@ -54,11 +68,13 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   public datasetFile: PrDatasetFile;
 
   // file uploade result
-  public uploadResult;
+  //public uploadResult;
 
   // file uploader
   public chunk_uploader: any;
 
+  public uploadNegoParams: UploadNegotitationParameters;
+  public chunkStatus : UploadChunkStatus;
   private isUploadCancel :boolean = false;
   public progressbarWidth: string = '100%';
   public progressPercent : number = 0;
@@ -85,7 +101,16 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   public ngOnInit() {
     super.ngOnInit();
 
-    this.initPlupload();
+    this.datasetService.getFileUploadNegotiation().then((params) => {
+      this.loadingHide();
+
+      this.uploadNegoParams = JSON.parse(JSON.stringify(params)); // deep copy for negotiation parameters
+
+      this.initPlupload();
+    }).catch((reason) => {
+      console.log(reason);
+    });
+
   }
 
 
@@ -138,12 +163,14 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   }
 
   public initPlupload() {
+    //let uploadNegoParams = this.uploadNegoParams;
+
     this.chunk_uploader = new plupload.Uploader({
       runtimes : 'html5,html4',
       chunk_size: '0',
       browse_button : this.pickfiles.nativeElement,
       drop_element : this.drop_container.nativeElement,
-      url : CommonConstant.API_CONSTANT.API_URL + 'preparationdatasets/upload_async',
+      url : CommonConstant.API_CONSTANT.API_URL + 'preparationdatasets/file_upload',
       headers:{
         'Accept': 'application/json, text/plain, */*',
         'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
@@ -157,8 +184,9 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
 
       },
       multipart_params: {
-        file_key : '',
-        upload_target: '',
+        storage_type: '',
+        upload_id: '',
+        chunk_size: '',
         total_size : ''
       },
       init: {
@@ -169,6 +197,8 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
         },
 
         FilesAdded: (up, files) => {
+          this.chunkStatus = new UploadChunkStatus();
+
           if (files && files.length > 1){
             plupload.each(files, (file) => {
               up.removeFile(file);
@@ -178,11 +208,14 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
             plupload.each(files, (file) => {
               this.chunk_uploader.settings.multipart_params.total_size = file.size;
 
-              // get and set file_key, chunk_size, upload_target
+              // get and set upload_id, chunk_size, storage_type
+              let chunk_size = this.uploadNegoParams.limit_size;
+              this.chunk_uploader.setOption('chunk_size', chunk_size );
+              this.chunk_uploader.settings.multipart_params.chunk_size = chunk_size;
+              this.chunk_uploader.settings.multipart_params.upload_id = this.uploadNegoParams.upload_id;
 
-              this.chunk_uploader.setOption('chunk_size','0');
-              //this.chunk_uploader.settings.multipart_params.file_key = '';
-              //this.chunk_uploader.settings.multipart_params.upload_target = '';
+              // FIXME: storage type is always LOCAL now
+              this.chunk_uploader.settings.multipart_params.storage_type = this.uploadNegoParams.storage_types[0];
 
             });
             this.startUpload();
@@ -209,18 +242,36 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
         },
 
         FileUploaded: (up, file, info)=>{
+          let response = JSON.parse(info.response);
+          if( response.chunkIdx == 0 ) {
+            this.chunkStatus.uploading_chunks--;
+            if( response.success==true ) {
+              this.chunkStatus.succeeded_chunks++;
+            } else {
+              this.chunkStatus.failed_chunks++;
+            }
+          }
+
           this.isUploading = false;
 
-          const success = true;
-          let res = info.response;
-          this.uploadResult = { success, res };
-          this.checkIfUploaded(res);
+          //const success = true;
+          //this.uploadResult = { success, res };
+          this.checkIfUploaded(response);
         },
 
-        // BeforeChunkUpload: (up, file, args, blob, offset)=>{
-        // },
-        // ChunkUploaded: (up, file, info)=>{
-        // },
+        BeforeChunkUpload: (up, file, args, blob, offset)=>{
+          this.chunkStatus.total_chunks++;
+          this.chunkStatus.uploading_chunks++;
+        },
+        ChunkUploaded: (up, file, info)=>{
+          let response = JSON.parse(info.response);
+          this.chunkStatus.uploading_chunks--;
+          if( response.success==true ) {
+            this.chunkStatus.succeeded_chunks++;
+          } else {
+            this.chunkStatus.failed_chunks++;
+          }
+        },
 
         /* error define
         -100 GENERIC_ERROR
@@ -291,12 +342,12 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   /**
    * Get grid information of file
    */
-  public getDataFile() {
+  public getDataFile(response: any) {
     if (isUndefined(this.datasetFile)) {
       return;
     }
 
-    const response: any = this.uploadResult.response;
+    //const response: any = this.uploadResult.response;
     /*
     this.datasetFile.filename = response.filename;
     this.datasetFile.filepath = response.filepath;
@@ -307,7 +358,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     */
     this.datasetFile.filenameBeforeUpload = response.filenameBeforeUpload;
     this.datasetFile.storedUri = response.storedUri;
-    this.datasetFile.sheets = response.sheets;
+    this.datasetFile.sheets = []; // response.sheets;
 
     //if (!isUndefined(this.datasetFile.filename)) {
     if (!isUndefined(this.datasetFile.storedUri)) {
@@ -325,22 +376,30 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
    * @param response
    */
   public checkIfUploaded(response: any) {
-    let res = JSON.parse(response);
-    //this.fetchUploadStatus(res.filekey);
+    if( false==this.isUploading && 0==this.chunkStatus.uploading_chunks && 0<this.chunkStatus.total_chunks ) {
+      if( this.chunkStatus.succeeded_chunks == this.chunkStatus.total_chunks ) {
+        //this.uploadResult.response = response;
+        this.getDataFile(response);
+      } else {
+        console.log( 'failed chunks : ' + this.chunkStatus.failed_chunks );
+      }
+    }
+
+    // doesn't need pollings
+    /*
     this.fetchUploadStatus(res.storedUri);
     this.interval = setInterval(() => {
-      //this.fetchUploadStatus(res.filekey);
       this.fetchUploadStatus(res.storedUri);
     }, 1000)
+    */
   }
 
   /**
    * Polling
    * @param {string} fileKey
    */
-  //public fetchUploadStatus(fileKey: string) {
+  /*
   public fetchUploadStatus(storedUri: string) {
-    //this.datasetService.checkFileUploadStatus(fileKey).then((result) => {
     this.datasetService.checkFileUploadStatus(storedUri).then((result) => {
       this.loadingHide();
 
@@ -357,6 +416,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
       }
     });
   }
+  */
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method

@@ -308,4 +308,12 @@ export class DatasetService extends AbstractService {
   public createDataSet(param : any) : Promise<any>  {
     return this.post(this.API_URL + 'preparationdatasets', param);
   }
+
+  /**
+   * 1st step of 3-way negotiation for file uploading
+   */
+  public getFileUploadNegotiation() {
+    let url = this.API_URL + 'preparationdatasets/file_upload';
+    return this.get(url);
+  }
 }

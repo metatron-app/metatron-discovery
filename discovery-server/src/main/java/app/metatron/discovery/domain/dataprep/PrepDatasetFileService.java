@@ -54,6 +54,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Future;
@@ -971,6 +974,87 @@ public class PrepDatasetFileService {
         }
 
         return dataFrame;
+    }
+
+    public Map<String, Object> uploadFileChunk( String originalFilename, String uploadId,
+                  Integer chunkIdx, Integer chunkTotal, Integer chunkSize, Integer totalSize,
+                  PrDataset.STORAGE_TYPE storageType,
+                  MultipartFile file) {
+
+        Map<String, Object> responseMap = Maps.newHashMap();
+
+        String extensionType = FilenameUtils.getExtension(originalFilename).toLowerCase();
+
+        // now, this is for only PrDataset.STORAGE_TYPE.LOCAL;
+        if(false==PrDataset.STORAGE_TYPE.LOCAL.equals(storageType)) {
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_KEY_MISSING, "LOCAL storage type is only support");
+        }
+
+        FileOutputStream fos=null;
+        FileChannel och = null;
+        FileLock lock = null;
+        try {
+            String tempFileName = null;
+            String tempFilePath = null;
+
+            if(0<extensionType.length()) { tempFileName = uploadId + "." + extensionType; }
+            String storedUri = "file://" + this.getPathLocal_new(tempFileName);
+
+            URI uri = new URI(storedUri);
+            File theFile = new File(uri);
+
+            InputStream is = file.getInputStream();
+
+            fos = new FileOutputStream(theFile, true);
+            och = fos.getChannel();
+
+            byte[] buffer = new byte[8192];
+
+            lock = och.lock();
+
+            int offset = chunkIdx*chunkSize;
+            int byteCnt = 0;
+            int totalWrote = 0;
+            while(true)
+            {
+                byteCnt = is.read(buffer,0,buffer.length);
+                if(byteCnt == -1) break;
+
+                if( offset<0 || totalSize<offset+byteCnt ) {
+                    // index error
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH, "out of bound");
+                }
+                och.write( ByteBuffer.wrap(buffer,0,byteCnt), offset );
+                offset = offset + byteCnt;
+                totalWrote = totalWrote + byteCnt;
+            }
+
+            responseMap.put("success", true);
+            responseMap.put("storedUri", storedUri);
+            responseMap.put("chunkIdx", chunkIdx);
+            responseMap.put("chunkWrote", totalWrote);
+            responseMap.put("filenameBeforeUpload", originalFilename);
+            responseMap.put("createTime", DateTime.now());
+        } catch (Exception e) {
+            LOGGER.error("Failed to upload file : {}", e.getMessage());
+            responseMap.put("success", false);
+            responseMap.put("message", e.getMessage());
+        } finally {
+            try {
+                if (null != lock) {
+                    lock.release();
+                }
+                if (null != och) {
+                    och.close();
+                }
+                if(null!=fos) {
+                    fos.close();
+                }
+            } catch (Exception e) {
+                LOGGER.error("finally: {}", e.getMessage());
+            }
+        }
+        return  responseMap;
     }
 
     public Map<String, Object> uploadFile(MultipartFile file) {
