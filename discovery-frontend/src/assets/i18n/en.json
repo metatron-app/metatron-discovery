@@ -922,6 +922,8 @@
   "msg.dp.alert.teddy.parse.failed.by.join.jointype": "Join rule parsing failed. Check the join type value.",
   "msg.dp.alert.teddy.parse.failed.by.window.value": "Check expression value of window rule",
 
+  "msg.dp.alert.unsupported.number.format": "Unsupported number format.",
+
   "msg.dp.ui.no.snapshot.history" : "No snapshot create history",
   "msg.dp.ui.snapshot.cancel.confirm" : "Sure to cancel snapshot creation?",
   "msg.dp.ui.creating.snapshot" : "Creating a snapshot",
@@ -1139,7 +1141,7 @@
   "msg.dp.ui.replace.explain.title" : "Select String or Regular Expression to replace values of selected column",
   "msg.dp.ui.replace.explain.two" : "Replaces any value with aeiou to @",
   "msg.dp.ui.rule.list": "Rule list",
-  "msg.dp.ui.rules": "Rules",
+  "msg.dp.ui.rules": "{{value}} rule(s)",
   "msg.dp.ui.search.no.rslt": "No results were found for your search",
   "msg.dp.ui.sel.col.num" : "Please enter group every",
   "msg.dp.ui.sel.count": "{{value}} selections",
@@ -1274,7 +1276,7 @@
   "msg.dp.ui.add.expression" : "Add expression",
   "msg.dp.ui.add.expression.ph" : "Search expression",
   "msg.dp.btn.advanced.editor" : "Advanced editor",
-  "msg.dp.btn.make.copy" : "Make a copy",
+  "msg.dp.btn.make.copy" : "Clone dataset",
   "msg.dp.ui.no.preview" : "No preview",
   "msg.dp.ui.sel.dataflow.dataset" : "Select dataflow to add dataset",
   "msg.dp.ui.add.existing.dataflow" : "Add to existing dataflow",
@@ -1291,6 +1293,7 @@
   "msg.dp.ui.join.prev.msg" : "You can check the results after selecting required items",
   "msg.dp.ui.join.key.required" : "At least one join key is required",
   "msg.dp.alert.format.error" : "Please enter timestamp pattern",
+  "msg.dp.alert.clone.failed" : "Clone failed",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",
@@ -1464,6 +1467,7 @@
   "msg.board.filter.sel.data" : "Please select data.",
   "msg.board.filter.placeholder.search-field" : "Search by field name",
   "msg.board.filter.ui.select-measure" : "Select Measure",
+  "msg.board.filter.ui.no-data" : "No Data",
   "msg.custom.filter.popup.change.aggregation.title" : "Do you want to continue to change?",
   "msg.custom.filter.popup.change.aggregation.description" : "If you change the condition including aggregations, it can affect all of charts using these columns.",
   "msg.board.ordering,tooltip" : "Ordering",

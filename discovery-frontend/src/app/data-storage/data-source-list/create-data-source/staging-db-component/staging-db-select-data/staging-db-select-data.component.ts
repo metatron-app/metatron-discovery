@@ -593,13 +593,15 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
    * @returns {boolean}
    */
   private isChangeData(): boolean {
-    // 데이터베이스 이름이 변경된 경우
-    if (this.sourceData.databaseData.selectedDatabase !== this.selectedDatabase) {
-      return true;
-    }
-    // 테이블 이름이 변경된 경우
-    if (this.sourceData.databaseData.selectedTable !== this.selectedTable) {
-      return true;
+    if (this.sourceData.databaseData) {
+      // 데이터베이스 이름이 변경된 경우
+      if (this.sourceData.databaseData.selectedDatabase !== this.selectedDatabase) {
+        return true;
+      }
+      // 테이블 이름이 변경된 경우
+      if (this.sourceData.databaseData.selectedTable !== this.selectedTable) {
+        return true;
+      }
     }
     return false;
   }

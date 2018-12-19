@@ -188,15 +188,9 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
       } else if (this.type === 'FILE') {
 
-        // TODO : change file type to use this._createDataset(params);
-        this.datasetService.createDataset(this.datasetFile,this.datasetFile.delimiter).then((result) => {
-          this.loadingHide();
-          this.successAction(result);
+        params = this._getFileParams(this.datasetFile);
+        this._createDataset(params);
 
-        }).catch((error) => {
-          this.loadingHide();
-          this.errorAction(error);
-        });
       } else if(this.type === 'DB') {
 
         params = this._getJdbcParams(this.datasetJdbc);
@@ -377,6 +371,11 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
       } else {
 
+        this.datasetInfo.push({
+          name : this.translateService.instant('msg.dp.th.database'),
+          value : ds.sqlInfo.databaseName
+        });
+
         // QUERY STATEMENT
         this.datasetInfo.push({
           name : this.translateService.instant('msg.dp.btn.query'),
@@ -426,6 +425,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     if (hive.rsType === RsType.QUERY) {
       hive.queryStmt = hive.sqlInfo.queryStmt;
+      hive.dbName = hive.sqlInfo.databaseName;
     } else {
       hive.tblName = hive.tableInfo.tableName;
       hive.dbName = hive.tableInfo.databaseName;
@@ -443,12 +443,51 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   private _getJdbcParams(jdbc) : object {
 
     if (jdbc.rsType === RsType.QUERY) {
+      jdbc.dbName = jdbc.sqlInfo.databaseName;
       jdbc.queryStmt = jdbc.sqlInfo.queryStmt;
     } else {
       jdbc.tblName = jdbc.tableInfo.tableName;
       jdbc.dbName = jdbc.tableInfo.databaseName;
     }
     return jdbc
+  }
+
+
+  /**
+   * Returns parameter needed for creating staging dataset
+   * @returns {Object}
+   * @private
+   */
+  private _getFileParams(file): object {
+    const params: any = {};
+    params.delimiter = file.delimiter;
+    params.dsName = file.dsName;
+    params.dsDesc = file.dsDesc;
+    params.dsType = 'IMPORTED';
+    params.importType = 'UPLOAD';
+    params.filenameBeforeUpload = file.filenameBeforeUpload;
+    params.storageType = file.storageType;
+    params.sheetName = file.sheetName;
+    //params.storageType = file.storageType;
+    params.storedUri = file.storedUri;
+
+    const filenameBeforeUpload = file.filenameBeforeUpload.toLowerCase();
+    if( filenameBeforeUpload.endsWith("xls") || filenameBeforeUpload.endsWith("xlsx") ) {
+
+      params.fileFormat = "EXCEL";
+
+    } else if(filenameBeforeUpload.endsWith("csv") || filenameBeforeUpload.endsWith("txt") ) {
+
+      params.fileFormat = "CSV";
+
+    } else if(filenameBeforeUpload.endsWith("json") ) {
+
+      params.fileFormat = "JSON";
+
+    }
+
+
+    return params
   }
 
 
@@ -482,8 +521,8 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     }).catch((error) => {
 
-      this.datasetHive.tableInfo = tableInfo;
-      this.datasetHive.sqlInfo = sqlInfo;
+      type.tableInfo = tableInfo;
+      type.sqlInfo = sqlInfo;
 
       // Error when creating dataflow with dataset with no querystmt
       if (this.type !== 'FILE' && type.rsType === RsType.TABLE) {

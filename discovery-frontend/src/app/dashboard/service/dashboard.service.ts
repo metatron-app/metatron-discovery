@@ -71,7 +71,7 @@ export class DashboardService extends AbstractService {
     (dashboard.temporaryId) && (params['temporaryId'] = dashboard.temporaryId);
 
     // for UI 속성 제거
-    params = this._convertSpecToServer(_.cloneDeep(params));
+    params = this.convertSpecToServer(_.cloneDeep(params));
     return this.post(url, params).then((board: Dashboard) => {
       return new Promise((resolve) => {
         ( callback ) && ( callback( board ) );
@@ -124,7 +124,7 @@ export class DashboardService extends AbstractService {
    */
   public updateDashboard(dashboardId: string, options: any) {
     // for UI 속성 제거
-    const apiParams: any = this._convertSpecToServer(_.cloneDeep(options));
+    const apiParams: any = this.convertSpecToServer(_.cloneDeep(options));
     return this.patch(this.API_URL + 'dashboards/' + dashboardId, apiParams);
   } // function - updateDashboard
 
@@ -170,17 +170,13 @@ export class DashboardService extends AbstractService {
     return this.post(this.API_URL + 'datasources/validate/expr', param);
   }
 
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
    * UI 스펙을 서버 스펙으로 변경
    * @param param
    * @return {any}
    * @private
    */
-  private _convertSpecToServer(param: any) {
+  public convertSpecToServer(param: any) {
     if (param) {
       delete param['selectDatasource'];
       delete param['update'];
@@ -190,7 +186,9 @@ export class DashboardService extends AbstractService {
           delete boardConf.dataSource.connType;
           delete boardConf.dataSource.engineName;
           delete boardConf.dataSource.uiFields;
+          delete boardConf.dataSource.uiFilters;
           delete boardConf.dataSource.metaDataSource;
+          delete boardConf.dataSource['orgDataSource'];
           if (boardConf.dataSource.dataSources) {
             boardConf.dataSource.dataSources.forEach(item => {
               delete item.uiFields;
@@ -208,7 +206,14 @@ export class DashboardService extends AbstractService {
           });
         }
         if (boardConf.filters) {
-          boardConf.filters = boardConf.filters.map(item => FilterUtil.convertToServerSpecForDashboard(item));
+          boardConf.filters
+            = boardConf.filters.filter( item => {
+              if( boardConf.dataSource.temporary ) {
+                return 'recommended' !== item.ui.importanceType;
+              } else {
+                return true;
+              }
+            }).map(item => FilterUtil.convertToServerSpecForDashboard(item));
         }
         delete boardConf.layout;
         delete boardConf.fields;
@@ -222,7 +227,11 @@ export class DashboardService extends AbstractService {
       }
     }
     return param;
-  } // function - _convertSpecToServer
+  } // function - convertSpecToServer
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * 대시보드와 데이터소스 연결에 대한 파라메터 생성

@@ -37,7 +37,7 @@ public class PrDataflow extends AbstractHistoryEntity {
     @Column(name = "df_id")
     private String dfId;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "pr_dataflow_dataset",
             joinColumns = @JoinColumn(name = "df_id", referencedColumnName="df_id"),
             inverseJoinColumns = @JoinColumn(name = "ds_id", referencedColumnName="ds_id"))

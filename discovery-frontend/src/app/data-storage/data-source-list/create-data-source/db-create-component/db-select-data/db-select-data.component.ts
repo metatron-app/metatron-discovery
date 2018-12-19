@@ -521,16 +521,18 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
    * @returns {boolean}
    */
   private isChangeData(): boolean {
-    // 데이터 타입이 변경된경우
-    if (this._sourceData.databaseData.selectedType !== this.selectedType) {
-      return true;
-    // 현재 데이터 타입이 TABLE 이고 데이터베이스 이름이나 테이블 이름이 변경된 경우
-    // 현재 데이터 타입이 QUERY 이고 데이터베이스 이름이나 테이블 이름이 변경된 경우
-    } else if ((this.selectedType === 'TABLE'
+    if (this._sourceData.databaseData) {
+      // 데이터 타입이 변경된경우
+      if (this._sourceData.databaseData.selectedType !== this.selectedType) {
+        return true;
+        // 현재 데이터 타입이 TABLE 이고 데이터베이스 이름이나 테이블 이름이 변경된 경우
+        // 현재 데이터 타입이 QUERY 이고 데이터베이스 이름이나 테이블 이름이 변경된 경우
+      } else if ((this.selectedType === 'TABLE'
         && (this._sourceData.databaseData.selectedDatabase !== this.selectedDatabase || this._sourceData.databaseData.selectedTable !== this.selectedTable))
-      || (this.selectedType === 'QUERY'
-        && (this._sourceData.databaseData.selectedDatabaseQuery !== this.selectedDatabaseQuery || this._sourceData.databaseData.queryText !== this.queryText))) {
-      return true;
+        || (this.selectedType === 'QUERY'
+          && (this._sourceData.databaseData.selectedDatabaseQuery !== this.selectedDatabaseQuery || this._sourceData.databaseData.queryText !== this.queryText))) {
+        return true;
+      }
     }
     return false;
   }

@@ -19,51 +19,62 @@ import org.joda.time.DateTime;
 import org.springframework.data.rest.core.config.Projection;
 
 import java.util.List;
-import java.util.Map;
 
 public class PrDatasetProjections {
 
     @Projection(name = "default", types = { PrDataset.class })
     public interface DefaultProjection {
 
+        Integer getRefDfCount();
         String getDsId();
         String getSerializedPreview();
         String getDsName();
         String getDsDesc();
         PrDataset.DS_TYPE getDsType();
         PrDataset.IMPORT_TYPE getImportType();
-        //PrDataset.STORAGE_TYPE getStorageType();
         String getStoredUri();
         String getFilenameBeforeUpload();
         Long getTotalLines();
         Long getTotalBytes();
         String getDcId();
+        String getDcImplementor();
+        String getDcName();
+        String getDcDesc();
+        String getDcType();
+        String getDcHostname();
+        Integer getDcPort();
+        String getDcOptions();
+        String getDcUsername();
+        String getDcPassword();
+        String getDcUrl();
+        String getDcConnectUrl();
+        String getDcAuthenticationType();
+        Boolean getDcPublished();
         PrDataset.RS_TYPE getRsType();
         String getDbName();
         String getTblName();
         String getQueryStmt();
+        String getCreatorDfId();
+        String getCreatorDfName();
+        Integer getRuleCurIdx();
         String getSheetName();
         PrDataset.FILE_FORMAT getFileFormat();
         String getDelimiter();
         String getCustom();
+        //PrDataset.STORAGE_TYPE getStorageType();
 
-        Integer getRefDfCount();
+        List<PrDataflow> getDataflows();
+        List<PrTransformRule> getTransformRules();
+        DataFrame getGridResponse();
+        // Map<String, Object> getConnectionInfo();
+
         DateTime getCreatedTime();
         String getCreatedBy();
         DateTime getModifiedTime();
         String getModifiedBy();
-
-        String getCreatorDfId();
-        String getCreatorDfName();
-        Integer getRuleCurIdx();
-
-        List<PrDataflow> getDataflows();
-        List<PrTransformRule> getTransformRules();
-
-        DataFrame getGridResponse();
-        Map<String,Object> getConnectionInfo();
     }
 
+  /*
     @Projection(name = "detail", types = { PrDataset.class })
     public interface DetailProjection {
         String getDsId();
@@ -143,6 +154,7 @@ public class PrDatasetProjections {
         DataFrame getGridResponse();
         Map<String,Object> getConnectionInfo();
     }
+  */
 
 }
 
