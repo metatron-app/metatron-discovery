@@ -76,6 +76,7 @@ import {ColorPicker} from '../../common/component/color-picker/colorpicker';
 import {BarColor, UIWaterfallChart} from '../../common/component/chart/option/ui-option/ui-waterfall-chart';
 import {isNullOrUndefined} from "util";
 import {OptionGenerator} from "../../common/component/chart/option/util/option-generator";
+import {ChartUtil} from "../../common/component/chart/option/util/chart-util";
 
 @Component({
   selector: 'common-option',
@@ -119,6 +120,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public chartUtil = ChartUtil;
 
   @Input()
   public isChartTest: boolean;
