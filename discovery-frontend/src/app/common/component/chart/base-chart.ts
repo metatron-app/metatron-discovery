@@ -1727,13 +1727,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         // targetField 설정
         const targetField = (<UIChartColorByDimension>this.uiOption.color).targetField;
 
-        // targetField가 있을때
-        if (!_.isEmpty(targetField)) {
-          if (this.uiOption.fieldList.indexOf(targetField) < 0) (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
-
-          // targetField가 없을때
-        } else {
-
+        // when targetField doesn't exist, set last field name
+        if (_.isEmpty(targetField)) {
           // 마지막 필드를 타겟필드로 잡기
           (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
         }

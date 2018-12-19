@@ -582,18 +582,25 @@ export class FormatOptionConverter {
 
       if ('timestamp' == targetPivot.type) {
 
-        let granularity = targetPivot.format.unit.toString().slice(0, 1).toUpperCase();
-        granularity += targetPivot.format.unit.toString().slice(1, targetPivot.format.unit.toString().length).toLowerCase();
+        let resultData: string = '';
 
-        const name = targetPivot['fieldAlias'] ? targetPivot['fieldAlias'] : targetPivot.name;
+        if (titleUseFl) {
+          let granularity = targetPivot.format.unit.toString().slice(0, 1).toUpperCase();
+          granularity += targetPivot.format.unit.toString().slice(1, targetPivot.format.unit.toString().length).toLowerCase();
 
-        let defaultAlias = targetPivot.granularity + '(' + name + ')';
+          const name = targetPivot['fieldAlias'] ? targetPivot['fieldAlias'] : targetPivot.name;
 
-        if (defaultAlias === targetPivot.alias) {
-          result.push(granularity + ' of ' + name + ' : ' + item);
-        } else {
-          result.push(targetPivot['alias']);
+          let defaultAlias = targetPivot.granularity + '(' + name + ')';
+
+          if (defaultAlias === targetPivot.alias) {
+            resultData = granularity + ' of ' + name + ' : ';
+          } else {
+            resultData = targetPivot['alias'] + ' : ';
+          }
         }
+
+        resultData += item;
+        result.push(resultData);
       }
       else if ('measure' == targetPivot.type) {
 

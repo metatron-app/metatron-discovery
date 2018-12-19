@@ -52,6 +52,7 @@ import { GradationGeneratorComponent } from '../../common/component/gradation/gr
 import { ColorOptionConverter } from '../../common/component/chart/option/converter/color-option-converter';
 import { FormatOptionConverter } from '../../common/component/chart/option/converter/format-option-converter';
 import UI = OptionGenerator.UI;
+import { Field } from '../../domain/workbook/configurations/field/field';
 
 // 색상 타입 리스트
 const colorTypeList: Object[] = [
@@ -349,14 +350,14 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
   /**
    * Color By Dimension - 기분 필드 변경
    */
-  public colorByDimension(targetField: string): void {
+  public colorByDimension(field: Field): void {
 
     // type이 dimension일때 선택된 dimension으로 컬러설정 변경
     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
       color: {
         type: ChartColorType.DIMENSION,
         schema: (<UIChartColorByDimension>this.uiOption.color).schema,
-        targetField: !targetField ? _.last(this.uiOption.fieldList) : targetField,
+        targetField: !field ? _.last(this.uiOption.fieldList) : field.name,
         showFl: this.uiOption.color['showFl'] // 라인차트일때 dimension show / hide 설정
       }
     });

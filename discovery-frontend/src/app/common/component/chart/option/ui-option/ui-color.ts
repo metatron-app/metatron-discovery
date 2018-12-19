@@ -12,10 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  ChartColorType, ChartColorList, ChartGradientType, CellColorTarget, GridCellColorList,
-  SymbolType, PointShape, ColorCustomMode, ColorRangeType
-} from '../define/common';
+import { CellColorTarget, ChartColorType, ChartGradientType, ColorCustomMode, ColorRangeType } from '../define/common';
 
 /**
  * color

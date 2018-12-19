@@ -2,19 +2,15 @@
  * Created by Dolkkok on 2017. 7. 20..
  */
 
-import {
-  ChartType, FontSize
-} from './define/common';
+import { ChartType, FontSize } from './define/common';
 import { Field } from '../../../../domain/workbook/configurations/field/field';
-import {UIChartColor} from "./ui-option/ui-color";
-import {UIChartZoom} from "./ui-option/ui-zoom";
-import {UIChartLegend} from "./ui-option/ui-legend";
-import {UIChartAxis} from "./ui-option/ui-axis";
-import {UIChartFormat} from "./ui-option/ui-format";
-import {UIChartDataLabel} from "./ui-option/ui-datalabel";
+import { UIChartColor } from './ui-option/ui-color';
+import { UIChartZoom } from './ui-option/ui-zoom';
+import { UIChartLegend } from './ui-option/ui-legend';
+import { UIChartAxis } from './ui-option/ui-axis';
+import { UIChartFormat } from './ui-option/ui-format';
+import { UIChartDataLabel } from './ui-option/ui-datalabel';
 import { UIChartTooltip } from './ui-option/ui-tooltip';
-import { UILayers } from './ui-option/map/ui-layers';
-import { MapType } from './define/map/map-common';
 
 /**
  * Export
