@@ -14,27 +14,6 @@
 
 package app.metatron.discovery.domain.datasource;
 
-import com.google.common.collect.Lists;
-
-import com.querydsl.core.types.Predicate;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import app.metatron.discovery.common.criteria.ListCriterion;
 import app.metatron.discovery.common.criteria.ListCriterionType;
 import app.metatron.discovery.common.criteria.ListFilter;
@@ -56,6 +35,24 @@ import app.metatron.discovery.domain.workspace.WorkspaceRepository;
 import app.metatron.discovery.domain.workspace.WorkspaceService;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.PolarisUtils;
+import com.google.common.collect.Lists;
+import com.querydsl.core.types.Predicate;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static app.metatron.discovery.domain.datasource.DataSourceTemporary.ID_PREFIX;
 
@@ -418,7 +415,8 @@ public class DataSourceService {
                                                user.getFullName() + " (me)"));
 
         //datasource created users
-        List<String> creatorIdList = dataSourceRepository.findDistinctCreatedBy();
+        List<String> creatorIdList
+                = dataSourceRepository.findDistinctCreatedBy(DataSource.DataSourceType.MASTER, DataSource.DataSourceType.JOIN);
         List<User> creatorUserList = userRepository.findByUsernames(creatorIdList);
         for (User creator : creatorUserList) {
           if (!creator.getUsername().equals(userName)) {
