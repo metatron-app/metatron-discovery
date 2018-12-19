@@ -1649,9 +1649,9 @@ public class JdbcConnectionService {
                                .count();
     if (duplicated > 0) {
       if (StringUtils.contains(fieldName, ".")) {
-        return StringUtils.split(fieldName, ".")[0] + "." + VarGenerator.gen(fieldName);
+        return StringUtils.split(fieldName, ".")[0] + "." + VarGenerator.gen(fieldName + "_");
       } else {
-        return VarGenerator.gen(fieldName);
+        return VarGenerator.gen(fieldName + "_");
       }
     }
     return fieldName;
