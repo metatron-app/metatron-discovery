@@ -915,11 +915,12 @@ export class GaugeChartComponent extends BaseChart {
           });
 
           // when array is sorted, skip next sorts
-          if (sortFl) break;
+          if (sortFl) {
+            // asc, desc
+            if (DIRECTION.DESC === sort.direction) column = column.sort().reverse();
+            break;
+          }
         }
-
-        // asc, desc
-        if (DIRECTION.DESC === sort.direction) column = column.sort().reverse();
       }
       return column;
     });
