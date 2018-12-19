@@ -57,7 +57,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
-  public dataset: any;
+  public dataset: PrDataset;
 
   public fields : Field[];
 
@@ -322,7 +322,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
 
   /** get row count */
-  public getRows() {
+  public get getRows() {
     let rows = '0';
     if(true==Number.isInteger(this.dataset.totalLines)) {
       if (this.dataset.totalLines === -1) {
@@ -359,15 +359,16 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     return this.dataset.dbName;
   }
 
-  public get getTableOrSql() {
-    if( this.dataset.importType===ImportType.DATABASE || this.dataset.importType===ImportType.STAGING_DB ) {
-      if(this.getPort !== null && this.getHost !== null) {
-        return this.dataset.tblName;
-      } else {
-        return this.dataset.queryStmt;
-      }
-    }
-    return null;
+  public get getUrl() {
+    return this.dataset.dcUrl;
+  }
+
+  public get getTable() {
+    return this.dataset.tblName;
+  }
+
+  public get getQueryStmt() {
+    return this.dataset.queryStmt;
   }
 
   /**
@@ -438,7 +439,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     // WRANGLED
     if (dataset.dsType === DsType.WRANGLED) {
       this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : dataset.dsType },
-        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.dataset.gridResponse.colCnt } ${this.dataset.gridResponse.colCnt === '1' || this.dataset.gridResponse.colCnt === '0' ? 'column': 'columns'}` }
+        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${this.dataset.gridResponse.colCnt } ${this.dataset.gridResponse.colCnt === '1' || this.dataset.gridResponse.colCnt === '0' ? 'column': 'columns'}` }
       ]
 
       // FILE
@@ -456,7 +457,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       }
 
       this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes },
-        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.dataset.gridResponse.colCnt} ${this.dataset.gridResponse.colCnt === '1' || this.dataset.gridResponse.colCnt === '0' ? 'column': 'columns'}`})
+        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${this.dataset.gridResponse.colCnt} ${this.dataset.gridResponse.colCnt === '1' || this.dataset.gridResponse.colCnt === '0' ? 'column': 'columns'}`})
 
 
       // STAGING OR DB
@@ -465,35 +466,32 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       this.datasetInformationList = [
         { name : this.translateService.instant('msg.comm.th.type') , value : dataset.importType === 'STAGING_DB' ? 'STAGING_DB' : 'DB' }];
 
-      if (this.dataset.dbName || this.dataset.connectionInfo) {
-        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${ !isNullOrUndefined(this.dataset.dbName) ? this.dataset.dbName : this.dataset.connectionInfo['database']}` });
+      if (!isNullOrUndefined(this.getDatabase)) {
+        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${this.getDatabase}` });
       }
 
-
       if (dataset.rsType === 'TABLE') {
-        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.table')}`, value : `${dataset.tblName}` })
+        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.table')}`, value : `${this.getTable}` })
       } else {
-        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.sql')}`, value : `${dataset.queryStmt}` })
+        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.sql')}`, value : `${this.getQueryStmt}` })
       }
 
       if (dataset.importType === 'STAGING_DB') {
-
         if (!isNullOrUndefined(this.getTotalBytes)) {
           this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes });
         }
-
       } else {
-
-        if (this.dataset.connectionInfo['port'] && this.dataset.connectionInfo['hostname']) {
-          this.datasetInformationList.push({ name : `${this.translateService.instant('Host')}`, value : this.getHost },
-            { name : `${this.translateService.instant('Port')}`, value : this.getPort })
+        if (this.getPort && this.getHost) {
+          this.datasetInformationList.push({ name : `${this.translateService.instant('Host')}`, value : `${this.getHost}` },
+            { name : `${this.translateService.instant('Port')}`, value : `${this.getPort}` })
         } else {
-          this.datasetInformationList.push({ name : `${this.translateService.instant('Url')}`, value : `${this.dataset.connectionInfo['url']}` });
+          this.datasetInformationList.push({ name : `${this.translateService.instant('Url')}`, value : `${this.getUrl}` });
         }
-
       }
 
-      this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.dataset.gridResponse.colCnt } ${this.dataset.gridResponse.colCnt === '1' || this.dataset.gridResponse.colCnt === '0' ? 'column': 'columns'}` });
+      this.datasetInformationList.push(
+        { name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${ this.dataset.gridResponse.colCnt } ${ this.dataset.gridResponse.colCnt === '1' || this.dataset.gridResponse.colCnt === '0' ? 'column': 'columns'}` })
+
     }
   }
 
@@ -546,7 +544,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    */
   private _savePrevRouterUrl(): void {
     this.cookieService.set('SELECTED_DATASET_ID', this.dataset.dsId);
-    this.cookieService.set('SELECTED_DATASET_TYPE', this.dataset.dsType);
+    this.cookieService.set('SELECTED_DATASET_TYPE', this.dataset.dsType.toString());
   }
 
   private _formatBytes(a,b) { // a=크기 , b=소숫점자릿

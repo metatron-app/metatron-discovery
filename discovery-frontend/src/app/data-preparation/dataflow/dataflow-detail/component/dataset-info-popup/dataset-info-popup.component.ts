@@ -332,7 +332,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   }
 
   public get getUrl() {
-    return this.selectedDataSet.connectionInfo['url'];
+    return this.selectedDataSet.dcUrl;
   }
 
   public get getTable() {
