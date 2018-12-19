@@ -800,10 +800,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // parse string to value
     range = this.parseStrFloat(range);
 
-    let decimalValue = this.uiOption.minValue;
-
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.minValue;
+    const uiMinValue = _.cloneDeep(this.uiOption.minValue);
+    const uiMaxValue = _.cloneDeep(this.uiOption.maxValue);
 
     // 입력가능 최소 / 최대범위 구하기
     let minValue = rangeList[index + 1] ? rangeList[index + 1].gt ? rangeList[index + 1].gt : uiMinValue :
@@ -814,7 +813,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     if (!rangeList[index - 1]) {
 
       // 최대값보다 큰거나 하위의 최대값보다 값이 작은경우
-      if (this.maxValue < range.gt || rangeList[index + 1].fixMax > range.gt) {
+      if (uiMaxValue < range.gt || rangeList[index + 1].fixMax > range.gt) {
         range.gt = range.fixMin;
       } else {
         range.fixMin = range.gt;
@@ -857,7 +856,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
       returnString += ': ' + currentRnage.fixMin;
 
-      // case min value
+    // case min value
     } else if (rangeList.length - 1 == index) {
 
       returnString += ': ' + currentRnage.fixMax;
@@ -880,11 +879,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public addNewRange(index: number) {
 
+    const optionMinValue = _.cloneDeep(this.uiOption.minValue);
+
     // 색상 범위리스트
     const rangeList = this.uiOption.layers[this.index].color.ranges;
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = Number(this.minValue) >= 0 ? 0 : Math.floor(Number(this.minValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
+    const uiMinValue = Number(optionMinValue) >= 0 ? 0 : Math.floor(Number(optionMinValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
 
     // 최대값
     let maxValue = rangeList[index - 1].gt;
@@ -983,7 +984,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     range = this.parseStrFloat(range);
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.minValue;
+    const uiMinValue = _.cloneDeep(this.uiOption.minValue);
 
     // 하위 fixMin값
     const lowerfixMin = rangeList[index + 1] ?(rangeList[index + 1].fixMin) ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax : null;
@@ -1063,6 +1064,54 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     // emit
     this.setZIndex.emit(this.colorListFlag);
+  }
+
+  /**
+   * show / hide color min range span
+   */
+  public showMinInputColorRange(item, inputShow: boolean, minElement, index?: number) {
+
+    event.stopPropagation();
+
+    // hide other range preview
+    _.each(this.rangesViewList, (item) => {
+      if (item['minInputShow']) delete item['minInputShow'];
+      if (item['maxInputShow']) delete item['maxInputShow'];
+    });
+
+    item.minInputShow = inputShow;
+
+    // show input box
+    this.changeDetect.detectChanges();
+
+    if (undefined !== index) {
+      this.availableRange(item, index);
+      $(minElement).trigger('focus');
+    }
+  }
+
+  /**
+   * show / hide color max range span
+   */
+  public showMaxInputColorRange(item, inputShow: boolean, maxElement, index?: number) {
+
+    event.stopPropagation();
+
+    // hide other range preview
+    _.each(this.rangesViewList, (item) => {
+      if (item['minInputShow']) delete item['minInputShow'];
+      if (item['maxInputShow']) delete item['maxInputShow'];
+    });
+
+    item.maxInputShow = inputShow;
+
+    // show input box
+    this.changeDetect.detectChanges();
+
+    if (undefined !== index) {
+      this.availableRange(item, index);
+      $(maxElement).trigger('focus');
+    }
   }
 
   /**
