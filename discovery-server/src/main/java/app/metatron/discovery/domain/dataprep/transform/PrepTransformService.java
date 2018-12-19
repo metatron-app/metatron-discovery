@@ -797,7 +797,7 @@ public class PrepTransformService {
     assert dataset != null : dsId;
 
     // dataset이 loading되지 않았으면 loading
-    load_internal(dsId, true);    // do compaction if necessary
+    load_internal(dsId);      // TODO: do compaction (only when UI requested explicitly)
 
     PrepTransformResponse response = null;
     int origStageIdx = teddyImpl.getCurStageIdx(dsId);
