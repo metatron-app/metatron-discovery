@@ -25,7 +25,7 @@
         <div class="ddp-divide2">
           <!-- slider -->
           <div class="ddp-wrap-option-slider">
-            <span class="ddp-label-slider">{{'msg.page.chart.axis.show.axis.title' | translate}}</span>
+            <span class="ddp-label-slider">{{'msg.page.chart.axis.show.subaxis' | translate}}</span>
             <!-- Slide THREE -->
             <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
               <input type="checkbox" (click)="showSecondaryAxis()" [ngModel]="(uiOption.secondaryAxis.disabled == undefined || !uiOption.secondaryAxis.disabled)">
@@ -36,7 +36,7 @@
           <!-- //slider -->
 
           <!-- slider -->
-          <div class="ddp-wrap-option-slider">
+          <div class="ddp-wrap-option-slider" *ngIf="(uiOption.secondaryAxis.disabled == undefined || !uiOption.secondaryAxis.disabled)">
             <span class="ddp-label-slider">{{'msg.page.chart.axis.show.axis.title' | translate}}</span>
             <!-- Slide THREE -->
             <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
@@ -48,12 +48,13 @@
           <!-- //slider -->
 
           <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.page.ui.y-axis.title.ph' | translate}}"
-                 [(ngModel)]="nameUiOption.secondaryAxis.customName" (keyup.enter)="axisName('column', 1, $event)" [disabled]="!uiOption.secondaryAxis.showName">
+                 [(ngModel)]="nameUiOption.secondaryAxis.customName" (keyup.enter)="axisName('column', 1, $event)" [disabled]="!uiOption.secondaryAxis.showName"
+                 *ngIf="(uiOption.secondaryAxis.disabled == undefined || !uiOption.secondaryAxis.disabled)">
         </div>
       </div>
 
       <!-- Secondary Axis show -->
-      <axis-value-option *ngIf="isSecondaryAxis" [axis]="uiOption.secondaryAxis" [uiOption]="uiOption" (changeValueAxis)="changeSecondaryAxisValue($event)" (changeBaseline)="changeSecondaryAxisBaseline($event)"></axis-value-option>
+      <axis-value-option *ngIf="isSecondaryAxis && (uiOption.secondaryAxis.disabled == undefined || !uiOption.secondaryAxis.disabled)" [axis]="uiOption.secondaryAxis" [uiOption]="uiOption" (changeValueAxis)="changeSecondaryAxisValue($event)" (changeBaseline)="changeSecondaryAxisBaseline($event)"></axis-value-option>
       <!-- //Secondary Axis show -->
     </div>
     <!-- //box down -->

@@ -18,7 +18,7 @@
   <div class="ddp-wrap-option-slider">
     <span class="ddp-label-slider">{{'msg.page.chart.axis.show.axis.label' | translate}}</span>
     <!-- Slide THREE -->
-    <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+    <div *ngIf="axis.mode.toString() != 'sub_column'" class="ddp-checkbox-slide ddp-checkbox-automatic2">
       <input type="checkbox" (click)="showAxisLabel(axis.mode, !axis.showLabel)" [checked]="axis.showLabel">
       <label><span class="ddp-slide"></span></label>
     </div>
