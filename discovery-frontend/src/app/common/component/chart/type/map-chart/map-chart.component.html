@@ -23,12 +23,12 @@
          (click)="changeFoldLegend()">
       <!-- size 축소 -->
       <div class="ddp-remark-size-s">
-        <a href="javascript:" class="ddp-btn-size-s"></a>
+        <a *ngIf="!isPage" href="javascript:" class="ddp-btn-size-s"></a>
       </div>
       <!-- //size 축소 -->
       <!-- size 확대 -->
       <div class="ddp-remark-size-b">
-        <a href="javascript:" class="ddp-btn-size"></a>
+        <a *ngIf="!isPage" href="javascript:" class="ddp-btn-size"></a>
         <!-- layer -->
         <div *ngFor="let layer of legendInfo.layer; let index = index" class="ddp-ui-layer">
           <span class="ddp-label">{{layer.name}}</span>
