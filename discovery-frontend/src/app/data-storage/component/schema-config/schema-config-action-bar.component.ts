@@ -159,6 +159,9 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
   // changed role type
   @Output()
   public changedRoleType: EventEmitter<Field> = new EventEmitter();
+  // changed action
+  @Output()
+  public changedAction: EventEmitter<any> = new EventEmitter();
 
   // 생성자
   constructor(protected element: ElementRef,
@@ -168,15 +171,20 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
 
   ngOnInit() {
     super.ngOnInit();
-    // UI init
-    this._initView();
+  }
+
+  ngOnDestroy() {
+    super.ngOnDestroy();
   }
 
   /**
    * Init
    * @param {Field[]} fieldList
+   * @param {Field} timestampField
+   * @param {string} timestampType
+   * @param {object} selectedAction
    */
-  public init(fieldList: Field[], timestampField: Field, timestampType: string): void {
+  public init(fieldList: Field[], timestampField: Field, timestampType: string, selectedAction?: object): void {
     // set field list
     this.checkedFieldList = fieldList;
     // set time stamp field
@@ -191,25 +199,42 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
       this.isExistDerivedField = this.checkedFieldList.some(field => field.derived);
       // set timestamp field flag
       this.isExistTimestampField = this.checkedFieldList.some(field => this._timestampType === 'FIELD' && field === this._timestampField);
-      // set action type list
-      this._setActionTypeList();
-      // init selected action type
-      this._initSelectedActionType();
-      // set role type list
-      this._setRoleTypeList();
-      // init selected role type
-      this._initSelectedRoleType();
-      // set logical type list
-      this._setLogicalTypeList(this.selectedRoleType.value);
-      // init selected logical type
-      this._initSelectedLogicalType();
+      // if exist prev selected action
+      if (selectedAction) {
+        // set selected type
+        for (const key in selectedAction) {
+          selectedAction[key] && (this[key] = selectedAction[key]);
+        }
+      } else {
+        // set action type list
+        this._setActionTypeList();
+        // init selected action type
+        this._initSelectedActionType();
+        // set role type list
+        this._setRoleTypeList();
+        // init selected role type
+        this._initSelectedRoleType();
+        // set logical type list
+        this._setLogicalTypeList(this.selectedRoleType.value);
+        // init selected logical type
+        this._initSelectedLogicalType();
+      }
+      // action emit to config component
+      this.changedAction.emit({
+        actionTypeList: this.actionTypeList,
+        roleTypeList: this.roleTypeList,
+        logicalTypeList: this.logicalTypeList,
+        selectedActionType: this.selectedActionType,
+        selectedRoleType: this.selectedRoleType,
+        selectedLogicalType: this.selectedLogicalType
+      });
     } else {
       this._initView();
     }
   }
 
   /**
-   * 체크 해제
+   * un selected in action click event
    */
   public onClickUnSelected(): void {
     this.checkedFieldList.forEach(field => field.checked = false);
@@ -219,6 +244,9 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
     this._initView();
   }
 
+  /**
+   * apply in action click event
+   */
   public onClickAction(): void {
     let changedTimestamp: boolean;
     // if DELETE action
@@ -289,11 +317,22 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
       this.selectedActionType = type;
       // is CHANGE action type
       if (type.value === 'CHANGE') {
-        // set logical type list
-        this._setLogicalTypeList(type.value);
+        // init selected role type
+        this.selectedRoleType = this.roleTypeList[0];
+        // init logical type list
+        this._setLogicalTypeList(this.selectedRoleType.value);
         // init selected logical type
-        this._initSelectedLogicalType();
+        this.selectedLogicalType = this.logicalTypeList[0];
       }
+      // action emit to config component
+      this.changedAction.emit({
+        actionTypeList: this.actionTypeList,
+        roleTypeList: this.roleTypeList,
+        logicalTypeList: this.logicalTypeList,
+        selectedActionType: this.selectedActionType,
+        selectedRoleType: this.selectedRoleType,
+        selectedLogicalType: this.selectedLogicalType
+      });
     }
   }
 
@@ -309,6 +348,15 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
       this._setLogicalTypeList(type.value);
       // init selected logical type
       this._initSelectedLogicalType();
+      // action emit to config component
+      this.changedAction.emit({
+        actionTypeList: this.actionTypeList,
+        roleTypeList: this.roleTypeList,
+        logicalTypeList: this.logicalTypeList,
+        selectedActionType: this.selectedActionType,
+        selectedRoleType: this.selectedRoleType,
+        selectedLogicalType: this.selectedLogicalType
+      });
     }
   }
 
@@ -319,6 +367,15 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
   public onChangeLogicalType(type: any): void {
     if (type.value !== this.selectedLogicalType.value) {
       this.selectedLogicalType = type;
+      // action emit to config component
+      this.changedAction.emit({
+        actionTypeList: this.actionTypeList,
+        roleTypeList: this.roleTypeList,
+        logicalTypeList: this.logicalTypeList,
+        selectedActionType: this.selectedActionType,
+        selectedRoleType: this.selectedRoleType,
+        selectedLogicalType: this.selectedLogicalType
+      });
     }
   }
 
@@ -337,6 +394,8 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
     this.selectedRoleType = null;
     // init selected logical type
     this.selectedLogicalType = null;
+    // action emit
+    this.changedAction.emit(null);
   }
 
   /**
@@ -392,7 +451,7 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
    */
   private _initSelectedActionType(): void {
     // if not exist selected action type OR not exist selected action type in action type list
-    if (!this.selectedActionType || this.actionTypeList.every(type => type !== this.selectedActionType)) {
+    if (!this.selectedActionType || this.actionTypeList.every(type => type.value !== this.selectedActionType.value)) {
       // set action type
       this.selectedActionType =  this.actionTypeList[0];
     }
@@ -404,7 +463,7 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
    */
   private _initSelectedRoleType(): void {
     // if not exist selected role type OR not exist selected role type in role type list
-    if (!this.selectedRoleType || this.roleTypeList.every(type => type !== this.selectedRoleType)) {
+    if (!this.selectedRoleType || this.roleTypeList.every(type => type.value !== this.selectedRoleType.value)) {
       // set role type
       this.selectedRoleType = this.roleTypeList[0];
     }
@@ -416,7 +475,7 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
    */
   private _initSelectedLogicalType(): void {
     // if not exist selected logical type OR not exist selected logical type in logical type list
-    if (!this.selectedLogicalType || this.logicalTypeList.every(type => type !== this.selectedLogicalType)) {
+    if (!this.selectedLogicalType || this.logicalTypeList.every(type => type.value !== this.selectedLogicalType.value)) {
       // set logical type
       this.selectedLogicalType = this.logicalTypeList[0];
     }

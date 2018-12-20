@@ -147,6 +147,9 @@ export class SchemaConfigComponent extends AbstractComponent {
   // add field modal show / hide flag
   public addFieldShowFlag: boolean;
 
+  // selected action object
+  public selectedAction: any;
+
   // step changed
   @Output()
   public changedStep: EventEmitter<string> = new EventEmitter();
@@ -166,6 +169,10 @@ export class SchemaConfigComponent extends AbstractComponent {
     // if exist prev schema data, load schema data
     // if not exist prev schema data, init view
     this._sourceData.schemaData ? this._loadSchemaData(_.cloneDeep(this._sourceData.schemaData)) : this._initView();
+    // if action bar open
+    if (this.getCheckedFieldList().length !== 0) {
+      this._actionBarComponent.init(this.getCheckedFieldList(), this.selectedTimestampField, this.selectedTimestampType, this.selectedAction);
+    }
   }
 
   /**
@@ -207,6 +214,14 @@ export class SchemaConfigComponent extends AbstractComponent {
    */
   public getCheckedFieldList(): Field[] {
     return this._originFieldList.filter(field => field.checked);
+  }
+
+  /**
+   * Set selected action
+   * @param {object} param
+   */
+  public setSelectedAction(param: object): void {
+    this.selectedAction = param;
   }
 
   /**
@@ -430,7 +445,10 @@ export class SchemaConfigComponent extends AbstractComponent {
    * Filtered field list all check event
    */
   public onClickAllCheckFilteredFieldList(): void {
+    // if all checked filtered field list
     this.isAllCheckedFilteredFieldList() ? this.filteredFieldList.forEach(field => field.checked = false) : this.filteredFieldList.forEach(field => field.checked = true);
+    // init action bar
+    this._actionBarComponent.init(this.getCheckedFieldList(), this.selectedTimestampField, this.selectedTimestampType);
   }
 
   /**
@@ -641,6 +659,8 @@ export class SchemaConfigComponent extends AbstractComponent {
     this.selectedLogicalTypeFilter = schemaData.selectedLogicalTypeFilter;
     // selected role type filter
     this.selectedRoleTypeFilter = schemaData.selectedRoleTypeFilter;
+    // selected action
+    this.selectedAction = schemaData.selectedAction;
   }
 
   /**
@@ -672,6 +692,8 @@ export class SchemaConfigComponent extends AbstractComponent {
       selectedLogicalTypeFilter : this.selectedLogicalTypeFilter,
       // selected role type filter
       selectedRoleTypeFilter : this.selectedRoleTypeFilter,
+      // selected action
+      selectedAction: this.selectedAction,
     };
     sourceData.schemaData = schemaData;
   }
