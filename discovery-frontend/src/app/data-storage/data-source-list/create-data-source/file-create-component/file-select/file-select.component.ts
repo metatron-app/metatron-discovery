@@ -621,7 +621,7 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
       params['sheet'] = this.datasourceFile.selectedSheetName;
     } else {
       params['lineSep'] = this.separator;
-      params['columnSeq'] = this.delimiter;
+      params['delimiter'] = this.delimiter;
     }
     return params;
   }
