@@ -21,30 +21,28 @@ import java.io.IOException;
 import app.metatron.discovery.common.GlobalObjectMapper;
 
 /**
- * Combine chart spec. Test
+ * Combine Chart Specification Test
  */
 public class CombineChartTest extends ChartTest {
 
   @Test
   public void de_serialize() throws IOException {
 
-    // 범례
-    //
     ChartLegend legend = new ChartLegend();
 
     ChartAxis xAxis = new ChartAxis(true, "test", true, null, null, null);
     ChartAxis yAxis = new ChartAxis(true, null, true, null, null, null);
+    ChartAxis secondaryAxis = new ChartAxis(false, null, true, null, null, null);
 
     CombineChart chart = new CombineChart(colorByMeasureForSection(), valueNumberFormat(), legend, null, fontLargerSize(), combineDataLabel(), null,
-                                          500,
-                                          CombineChart.BarMarkType.STACKED.name(), CombineChart.LineMarkType.AREA.name(),
-                                          xAxis, yAxis);
+                                              500,
+                                              CombineChart.BarMarkType.STACKED.name(), CombineChart.LineMarkType.AREA.name(),
+                                              xAxis, yAxis, secondaryAxis);
 
     String combineChartStr = GlobalObjectMapper.getDefaultMapper().writeValueAsString(chart);
-
     System.out.println(combineChartStr);
 
-    Chart deSerialized = GlobalObjectMapper.getDefaultMapper().readValue(combineChartStr, Chart.class);
+    Chart deSerialized = GlobalObjectMapper.readValue(combineChartStr, Chart.class);
 
     System.out.println("Result : " + deSerialized.toString());
 

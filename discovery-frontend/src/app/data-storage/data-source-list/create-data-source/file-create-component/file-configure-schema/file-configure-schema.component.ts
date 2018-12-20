@@ -24,7 +24,6 @@ import {
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { isUndefined } from 'util';
 import * as _ from 'lodash';
-import { StringUtil } from '../../../../../common/util/string.util';
 import { Alert } from '../../../../../common/util/alert.util';
 import { AddColumnComponent } from '../../../component/add-column.component';
 
@@ -125,7 +124,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
     // 현재 페이지 schema 정보가 있다면
     if (this.sourceData.hasOwnProperty('schemaData')) {
       // init data
-      this.initData(this.sourceData.schemaData);
+      this.initData(_.cloneDeep(this.sourceData.schemaData));
     } else {
       // 파일 데이터 상세데이터
       this.initColumnData(this.sourceData.fileData);
@@ -164,8 +163,11 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
   public next() {
     // validation
     if (this.getNextValidation()) {
+      const isChangedTimestampField: boolean = this._isChangedTimestampField();
       // 기존 스키마정보 삭제후 생성
       this.deleteAndSaveSchemaData();
+      // if changed timestamp field
+      this.sourceData.schemaData['isChangedTimestampField'] = isChangedTimestampField;
       // 다음 step 으로 이동
       this.step = 'file-ingestion';
       this.stepChange.emit(this.step);
@@ -1046,5 +1048,20 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
     // 초기화
     this.fields = [];
     this.data = [];
+  }
+
+  /**
+   * Is changed TIMESTAMP field
+   * @returns {boolean}
+   * @private
+   */
+  private _isChangedTimestampField(): boolean {
+    if (this.sourceData.schemaData) {
+      return (this.selectedTimestampType !== this.sourceData.schemaData.selectedTimestampType) ||
+        this.selectedTimestampColumn &&
+        (this.selectedTimestampColumn.name !== this.sourceData.schemaData.selectedTimestampColumn.name || this.selectedTimestampColumn.format.type !== this.sourceData.schemaData.selectedTimestampColumn.format.type);
+    } else {
+      return false;
+    }
   }
 }

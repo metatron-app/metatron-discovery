@@ -751,7 +751,7 @@ ul.ddp-list-board-thumbview li.ddp-selected a span.ddp-data-name {color:#4b515b;
 .ddp-wrap-widget.ddp-box-full {position:fixed; left:290px; top:165px; bottom:0; right:0; height:auto; background-color:#fff; z-index:130}
 .ddp-wrap-widget.ddp-box-full .ddp-loading-part {z-index:130;}
 
-.ddp-box-widget {position:relative; background-color:#fff; cursor:pointer; border:1px solid #fff; box-sizing:border-box;}
+.ddp-box-widget {position:relative; background-color:#fff; border:1px solid #fff; box-sizing:border-box;}
 .ddp-box-widget .ddp-ui-graph-name {position:relative; padding:4px 5px 4px 10px; color:#4b515b; font-size:14px; box-sizing:border-box;z-index:30;}
 .ddp-box-widget .ddp-ui-graph-name .ddp-data-name {display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .ddp-box-widget .ddp-ui-graph-name .ddp-ui-tooltip-info {display:none; position:absolute; top:35px; left:10px;}
@@ -1583,6 +1583,7 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 
 .ddp-type-setup .ddp-ui-top .ddp-ui-tags {float:right; }
 .ddp-setup-contents {position:relative; padding:17px 0;}
+.ddp-setup-contents .ddp-ui-empty {margin:-18px 0; padding:20px 16px; font-size:13px;}
 .ddp-setup-contents .ddp-box-item-search {position:relative;}
 .ddp-setup-contents .ddp-box-item-search .ddp-list-checktype {position:relative; top:0; padding-bottom:10px;max-height:225px;}
 .ddp-setup-contents .ddp-box-item-search .ddp-data-result,
@@ -2721,7 +2722,9 @@ ul.ddp-ui-tab li.ddp-selected a em.ddp-icon-zepplin {background-position:left -1
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-ui-chart-contents.ddp-map-chart.ddp-shelf3 {top:194px;}
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-ui-chart-contents.ddp-map-chart .ddp-ui-chart-main .ddp-ui-chart-area {padding:0px;}
 .ddp-wrap-chart .ddp-wrap-chart-side {float:left; width:265px; height:100%; background-color:#f7f7f8; vertical-align: top; z-index:60;}
+.ddp-wrap-chart .ddp-wrap-chart-side.type-popup .ddp-chart-side-in {z-index:70;}
 .ddp-wrap-chart .ddp-wrap-chart-side .ddp-chart-side-in {position:relative; width:100%; height:100%; z-index:61;}
+
 .ddp-wrap-chart .ddp-ui-chart-side {display:none; position:absolute; top:0; left:0; right:0; bottom:0;border-left:2px solid #e7e7ea; overflow-y:auto; overflow-x:hidden;}
 .ddp-wrap-chart .ddp-ui-chart-side .ddp-area-boardside {bottom:0;}
 .ddp-wrap-chart .ddp-ui-chart-side::-webkit-scrollbar-track {background:#f7f7f8;}
@@ -2730,7 +2733,7 @@ ul.ddp-ui-tab li.ddp-selected a em.ddp-icon-zepplin {background-position:left -1
 .ddp-wrap-chart .ddp-ui-chart-side .ddp-wrap-page .ddp-ui-page {display:inline-block;}
 .ddp-wrap-chart .ddp-ui-chart-side .ddp-ui-scroll {position:absolute; top:0; left:0; right:0; bottom:51px; overflow:auto; overflow-x:hidden;}
 .ddp-wrap-chart .ddp-ui-chart-side .ddp-ui-option-down .ddp-ui-down-title em.ddp-icon-menumove {position:relative; }
-.ddp-wrap-chart-menu {float:left; width:52px; height:100%; border-left:2px solid #e7e7ea; background-color:#f7f6f8; vertical-align: top; box-sizing:border-box; overflow:auto;}
+.ddp-wrap-chart-menu {float:left; position:relative; width:52px; height:100%; border-left:2px solid #e7e7ea; background-color:#f7f6f8; vertical-align: top; box-sizing:border-box; overflow:auto; z-index:71}
 
 .ddp-wrap-chart-menu a {display:block; position:relative; height:52px; text-align:center; z-index:62}
 .ddp-wrap-chart-menu a em[class*="ddp-icon-menu"] {position:absolute; top:50%; left:50%;}
@@ -4166,11 +4169,13 @@ span.ddp-bg8-color4 {background-color:#afafaf;}
 .ddp-list-usercolor .ddp-data-range {display:block; width:100%; padding-top:0px;}
 .ddp-list-usercolor .ddp-data-range .ddp-input-range {position:relative; float:left; width:47%;}
 .ddp-list-usercolor .ddp-data-range .ddp-input-range:last-of-type {float:right;}
-.ddp-list-usercolor .ddp-data-range .ddp-input-range:last-of-type .ddp-ui-tooltip-info {left:inherit; right:-30px;}
+.ddp-list-usercolor .ddp-data-range .ddp-input-range:last-of-type .ddp-ui-tooltip-info {left:initial; right:-30px;}
 .ddp-list-usercolor .ddp-data-range .ddp-input-range .ddp-ui-tooltip-info em.ddp-icon-view-down {left:60px}
 .ddp-list-usercolor .ddp-data-range .ddp-input-range:last-of-type .ddp-ui-tooltip-info em.ddp-icon-view-down {left:inherit; right:80px;}
-.ddp-list-usercolor .ddp-data-range .ddp-input-typebasic {}
-.ddp-list-usercolor .ddp-data-range .ddp-ui-tooltip-info {bottom:100%; top:inherit;left:-30px; margin-bottom:5px;}
+.ddp-list-usercolor .ddp-data-range .ddp-ng-ellipsis .ddp-data-ellipsis,
+.ddp-list-usercolor .ddp-data-range .ddp-ng-ellipsis .ddp-input-typebasic {padding:6px 6px; font-family:'SpoqaHanSans',sans-serif;}
+
+.ddp-list-usercolor .ddp-data-range .ddp-ui-tooltip-info {bottom:100%; top:inherit;left:-30px;max-width:200px; margin-bottom:5px; white-space:normal;}
 .ddp-list-usercolor .ddp-data-range .ddp-input-typebasic:focus + .ddp-ui-tooltip-info {display:block;}
 .ddp-list-usercolor .ddp-data-range .ddp-bar {float:left; width:6%; padding:7px 0px 8px 0px; text-align:center; box-sizing:border-box;}
 .ddp-list-usercolor .ddp-icon-listdelete {display:inline-block; position:absolute; top:50%; right:15px; margin-top:-6px; width:13px; height:13px; background:url(../images/icon_delete.png) no-repeat; cursor:pointer;}

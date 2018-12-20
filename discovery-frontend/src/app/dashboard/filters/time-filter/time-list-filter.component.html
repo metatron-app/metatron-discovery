@@ -75,7 +75,7 @@
   <!-- 후보값 목록 표시 -->
   <ul class="ddp-list-checktype"
       [ngClass]="{'ddp-type-list' : 'CHANGE' === mode, 'ddp-list-padd' : 'CHANGE' !== mode }">
-    <li class="ddp-list-all">
+    <li *ngIf="useAll" class="ddp-list-all">
       <label class="ddp-label-checkbox">
         <input (click)="candidateSelectAll($event)" [checked]="isCheckedAllItem()" type="checkbox">
         <i class="ddp-icon-checkbox"></i>

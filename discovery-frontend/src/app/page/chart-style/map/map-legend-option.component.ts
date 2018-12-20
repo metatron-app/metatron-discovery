@@ -28,7 +28,9 @@ export class MapLegendOptionComponent extends BaseOptionComponent {
   // legend position list
   public legendPositionList: Object[] = [
     {name: this.translateService.instant('msg.page.ui.legend.legend.position.right.bottom'), value: UIPosition.RIGHT_BOTTOM},
-    {name: this.translateService.instant('msg.page.ui.legend.legend.position.right.top'), value: UIPosition.RIGHT_TOP}
+    {name: this.translateService.instant('msg.page.ui.legend.legend.position.right.top'), value: UIPosition.RIGHT_TOP},
+    {name: this.translateService.instant('msg.page.ui.legend.legend.position.left.bottom'), value: UIPosition.LEFT_BOTTOM},
+    {name: this.translateService.instant('msg.page.ui.legend.legend.position.left.top'), value: UIPosition.LEFT_TOP}
   ];
 
   constructor(protected elementRef: ElementRef,

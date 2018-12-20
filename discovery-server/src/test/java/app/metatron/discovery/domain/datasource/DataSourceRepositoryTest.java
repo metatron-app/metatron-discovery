@@ -14,20 +14,19 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.AbstractIntegrationTest;
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.domain.workspace.WorkspaceRepository;
 import com.google.common.collect.Lists;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import app.metatron.discovery.AbstractIntegrationTest;
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.domain.workspace.WorkspaceRepository;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -139,6 +138,33 @@ public class DataSourceRepositoryTest extends AbstractIntegrationTest {
     System.out.println(resultFields.size());
 //    System.out.println(resultFields);
 
+  }
+
+  @Test
+  @Sql({"/sql/test_datasource_filter.sql"})
+  public void findDistinctCreatedByExcludeVolatility(){
+
+    List<DataSource> dataSources = dataSourceRepository.findAll();
+    List<String> volatilityCreatorList = new ArrayList<>();
+    for(DataSource ds : dataSources){
+      if(ds.getDsType() == DataSource.DataSourceType.VOLATILITY){
+        if(!volatilityCreatorList.contains(ds.getCreatedBy())){
+          volatilityCreatorList.add(ds.getCreatedBy());
+        }
+      } else {
+        if(volatilityCreatorList.contains(ds.getCreatedBy())){
+          volatilityCreatorList.remove(ds.getCreatedBy());
+        }
+      }
+    }
+
+    System.out.println("volatilityCreatorList = " + volatilityCreatorList);
+
+    List<String> creatorList = dataSourceRepository.findDistinctCreatedBy(DataSource.DataSourceType.MASTER, DataSource.DataSourceType.JOIN);
+    for(String createdBy : creatorList){
+      System.out.println("createdBy = " + createdBy);
+      Assert.assertTrue(!volatilityCreatorList.contains(createdBy));
+    }
   }
 
 }

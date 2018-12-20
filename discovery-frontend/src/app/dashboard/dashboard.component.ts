@@ -385,6 +385,11 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
 
               if (ds.temporary && TempDsStatus.ENABLE === ds.temporary.status) {
                 boardDsInfo.metaDataSource = ds;
+                if( dashboard.configuration.filters ) {
+                  dashboard.configuration.filters = ds.temporary.filters.concat( dashboard.configuration.filters);
+                } else {
+                  dashboard.configuration.filters = ds.temporary.filters;
+                }
                 // if( 'multi' === dashboard.configuration.dataSource.type ) {
                 //   dashboard.configuration.dataSource.dataSources.some( item => {
                 //     if( DashboardUtil.isSameDataSource( item, ds ) ) {

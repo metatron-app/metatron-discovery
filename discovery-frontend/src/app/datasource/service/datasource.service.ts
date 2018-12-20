@@ -160,7 +160,7 @@ export class DatasourceService extends AbstractService {
     param.dataSource = DashboardUtil.getDataSourceForApi(
       _.cloneDeep(FilterUtil.getBoardDataSourceForFilter(filter, board))
     );
-    param.filters = (filters) ? _.cloneDeep(filters) : [];
+    param.filters = (filters && 0 < filters.length) ? _.cloneDeep(filters) : FilterUtil.getEssentialFilters(board, filter);
     param.filters = param.filters
       .map(item => FilterUtil.convertToServerSpec(item))
       .filter(item => !(item.type === 'bound' && item['min'] == null));
@@ -244,7 +244,6 @@ export class DatasourceService extends AbstractService {
           param.targetField.aggregationType = 'NONE';
           param.targetField.type = 'measure';
         }
-        param.filters = [];
       }
 
     }
@@ -323,7 +322,6 @@ export class DatasourceService extends AbstractService {
     if( 0 < pageConf.chart.limit ) {
       pageConf.limit.limit = pageConf.chart.limit;
     } else {
-      pageConf.limit = new Limit();
       pageConf.limit.limit = 100000;
     }
     query.limits = _.cloneDeep(pageConf.limit);

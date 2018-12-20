@@ -65,9 +65,9 @@ import {ConfigureFiltersComponent} from './filters/configure-filters.component';
 import {DashboardUtil} from './util/dashboard.util';
 import {WidgetShowType} from '../domain/dashboard/dashboard.globalOptions';
 import {FilterUtil} from './util/filter.util';
-import { ChartType } from '../common/component/chart/option/define/common';
-import { UIMapOption } from '../common/component/chart/option/ui-option/map/ui-map-chart';
-import { Shelf } from '../domain/workbook/configurations/shelf/shelf';
+import {ChartType} from '../common/component/chart/option/define/common';
+import {UIMapOption} from '../common/component/chart/option/ui-option/map/ui-map-chart';
+import {Shelf} from '../domain/workbook/configurations/shelf/shelf';
 
 @Component({
   selector: 'app-update-dashboard',
@@ -132,6 +132,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   public isShowPage: boolean = false;         // 페이지 상세 show/hide
   public isShowChartPanelTooltip: boolean = false;
   public isChangeDataSource: boolean = false;
+
+  public orgBoardInfo: Dashboard;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Input Variables
@@ -361,6 +363,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     if (boardChanges && boardChanges.currentValue) {
       // 초기 설정
       this.dashboard = boardChanges.currentValue;
+
       this._initViewPage(this.dashboard.id);
     }
   } // function - ngOnChanges
@@ -409,6 +412,42 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   public onLayoutInitialised() {
     this.changeDetect.detectChanges();
   } // function - onLayoutInitialised
+
+  /**
+   * unload 전 실행
+   */
+  public execBeforeUnload():boolean {
+    let orgInfo:Dashboard = _.cloneDeep(this.orgBoardInfo);
+    let currInfo:Dashboard = _.cloneDeep(this.dashboard);
+
+    const removeKeys:string[] = ['createdBy', 'createdTime', 'dataSources', 'modifiedBy', 'modifiedTime', '_links', 'workBook' ];
+    removeKeys.forEach( key => {
+      delete orgInfo[key];
+      delete currInfo[key];
+    });
+    const convertSpec = item => {
+      if ('page' === item.type) {
+        // 스펙 변경
+        item.configuration = DashboardUtil.convertPageWidgetSpecToServer(item.configuration);
+        // 필터 설정
+        for (let filter of item.configuration['filters']) {
+          filter = FilterUtil.convertToServerSpecForDashboard(filter);
+        }
+      } else if ('filter' === item.type) {
+        item.configuration['filter'] = FilterUtil.convertToServerSpecForDashboard(item.configuration['filter']);
+      }
+      delete item['dashBoard'];
+      return item;
+    };
+    orgInfo.widgets = orgInfo.widgets.map( convertSpec );
+    currInfo.widgets = currInfo.widgets.map( convertSpec );
+    orgInfo = this.dashboardService.convertSpecToServer( orgInfo );
+    currInfo = this.dashboardService.convertSpecToServer( currInfo );
+
+    this.useUnloadConfirm = (JSON.stringify(orgInfo) !== JSON.stringify(currInfo));
+
+    return this.useUnloadConfirm;
+  } // function - execBeforeUnload
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Common
@@ -584,20 +623,28 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * 대시보드를 변경한다.
    */
   public moveOrNewDashboard(dashboardItem: Dashboard) {
-    const modal = new Modal();
-    modal.name = this.translateService.instant('msg.board.alert.title.change');
-    modal.description = this.translateService.instant('msg.board.alert.desc.move');
-    modal.btnName = this.translateService.instant('msg.comm.btn.mov');
-    modal.data = {type: 'changeDashboard'};
-    modal.afterConfirm = () => {
+    this.execBeforeUnload();
+    if( this.useUnloadConfirm ) {
+      const modal = new Modal();
+      modal.name = this.translateService.instant('msg.board.alert.title.change');
+      modal.description = this.translateService.instant('msg.board.alert.desc.move');
+      modal.btnName = this.translateService.instant('msg.comm.btn.mov');
+      modal.data = {type: 'changeDashboard'};
+      modal.afterConfirm = () => {
+        if (dashboardItem) {
+          this.selectedDashboard.emit(dashboardItem);
+        } else {
+          this.createDashboard.emit();
+        }
+      };
+      CommonUtil.confirm(modal);
+    } else {
       if (dashboardItem) {
         this.selectedDashboard.emit(dashboardItem);
-        this._initViewPage(dashboardItem.id);
       } else {
         this.createDashboard.emit();
       }
-    };
-    CommonUtil.confirm(modal);
+    }
   } // function - moveOrNewDashboard
 
   /**
@@ -701,16 +748,20 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * 대시보드 변경취소
    */
   public openDismissConfirm() {
-    const modal = new Modal();
-    modal.name = this.translateService.instant('msg.board.alert.title.change');
-    modal.description = this.translateService.instant('msg.board.alert.desc.exit');
-    modal.btnName = this.translateService.instant('msg.comm.btn.exit');
-    modal.data = {type: 'dismiss'};
-    modal.afterConfirm = () => {
-      // 대시보드 변경취소
-      this.changeMode.emit('VIEW');
-    };
-    CommonUtil.confirm(modal);
+    this.execBeforeUnload();
+    if( this.useUnloadConfirm ) {
+      const modal = new Modal();
+      modal.name = this.translateService.instant('msg.board.alert.title.change');
+      modal.description = this.translateService.instant('msg.board.alert.desc.exit');
+      modal.btnName = this.translateService.instant('msg.comm.btn.exit');
+      modal.data = {type: 'dismiss'};
+      modal.afterConfirm = () => {
+        this.changeMode.emit('VIEW');   // 대시보드 변경취소
+      };
+      CommonUtil.confirm(modal);
+    } else {
+      this.changeMode.emit('VIEW');    // 대시보드 변경취소
+    }
   } // function - openDismissConfirm
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1381,7 +1432,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     let widgetConfig = (<PageWidgetConfiguration>widget.configuration);
 
     // map chart - add shelf config
-    let mapFl = ChartType.MAP === widgetConfig.chart.type ? true : false;
+    let mapFl = (ChartType.MAP === widgetConfig.chart.type);
 
     if (fields) {
       fields.filter(field => field.nameAlias).forEach((field: Field) => {
@@ -1514,8 +1565,10 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
     this.showBoardLoading();
 
+    this.useUnloadConfirm = false;
+
     // 대시보드 설정
-    this.dashboardService.getDashboard(dashboardId).then((boardInfo) => {
+    this.dashboardService.getDashboard(dashboardId).then((boardInfo:Dashboard) => {
 
       boardInfo.workBook = this.workbook;
       // Linked Datasource 인지 그리고 데이터소스가 적재되었는지 여부를 판단함
@@ -1535,13 +1588,19 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
               const boardDsInfo: BoardDataSource = DashboardUtil.getBoardDataSourceFromDataSource(boardInfo, dsInfo);
               this.datasourceService.getDatasourceDetail(boardDsInfo['temporaryId']).then((ds: Datasource) => {
                 boardDsInfo.metaDataSource = ds;
+                if( boardInfo.configuration.filters ) {
+                  boardInfo.configuration.filters = ds.temporary.filters.concat( boardInfo.configuration.filters);
+                } else {
+                  boardInfo.configuration.filters = ds.temporary.filters;
+                }
+
                 res();
               }).catch(err => rej(err));
             }));
           });
 
           Promise.all(promises).then(() => {
-            this._runDashboard(boardInfo);
+            this._runDashboard(boardInfo, true);
             this.safelyDetectChanges();
           }).catch((error) => {
             this.commonExceptionHandler(error);
@@ -1550,7 +1609,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
         } else {
           this.showBoardLoading();
-          this._runDashboard(boardInfo);
+          this._runDashboard(boardInfo, true);
         }
 
       } else {
@@ -1563,9 +1622,10 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   /**
    * 대시보드 실행 ( 초기설정 시작 )
    * @param {Dashboard} boardInfo
+   * @param {boolean} setInitialBoard
    * @private
    */
-  private _runDashboard(boardInfo: Dashboard) {
+  private _runDashboard(boardInfo: Dashboard, setInitialBoard: boolean = false) {
 
     this.initializeDashboard(boardInfo, LayoutMode.EDIT).then((dashboard) => {
 
@@ -1592,6 +1652,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
       // 필터 셋팅
       this._organizeAllFilters().then(() => {
+        (setInitialBoard) && (this.orgBoardInfo = _.cloneDeep(dashboard));
+        this.hideBoardLoading();
         this.changeDetect.detectChanges();
       });
 

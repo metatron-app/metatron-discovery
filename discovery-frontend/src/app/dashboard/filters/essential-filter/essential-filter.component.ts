@@ -123,7 +123,8 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
     this._dataSource = new BoardDataSource();
     const mainDs: BoardDataSource = this.inputDatasource;
 
-    // console.info('>>>>>>> mainDs : ', mainDs);
+    // 필드 나눔
+    this._setFields(mainDs.uiFields);
 
     if (mainDs.temporary) {
       // 재설정인 경우
@@ -133,6 +134,10 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
       this._dataSource.name = mainDs.metaDataSource.name;
       this._dataSource.engineName = mainDs.metaDataSource.engineName;
       this._dataSourceId = mainDs.id;
+
+      if( mainDs.metaDataSource['filters'] ) {
+        this.essentialFilters = mainDs.metaDataSource['filters'];   // 필수 필터 설정
+      }
     } else {
       // 초기 설정인 경우
       this._dataSource.type = 'default';
@@ -140,13 +145,12 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
       this._dataSource.name = mainDs.name;
       this._dataSource.engineName = mainDs.engineName;
       this._dataSourceId = mainDs.id;
+      if( mainDs.uiFilters && 0 < mainDs.uiFilters.length ) {
+        this.essentialFilters = mainDs.uiFilters;
+      } else {
+        this.essentialFilters = this._setEssentialFilters(mainDs.uiFields);   // 필수 필터 설정
+      }
     }
-
-    // 필드 나눔
-    this._setFields(mainDs.uiFields);
-
-    // 필수 필터 설정
-    this.essentialFilters = this._setEssentialFilters(mainDs.uiFields);
 
     // UI에서 표현할 수 있는 데이터로 Convert
     if (0 < this.essentialFilters.length) {
@@ -155,7 +159,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
 
       this._convertServerSpecToUISpec(this.essentialFilters);
       // this._originalFilters = _.cloneDeep(this.essentialFilters);
-
+/*
       this.loadingShow();
       this._setEssentialFilter([], 0).then(() => {
         // console.info(this.essentialFilters);
@@ -165,6 +169,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
         this.commonExceptionHandler(error, this.translateService.instant('msg.board.alert.fail.load.essential'));
         this.loadingHide();
       });
+*/
     }
 
     this._pseudoDashboard = new Dashboard();
@@ -473,8 +478,10 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
         tempDsInfo.progressTopic, (data: { progress: number, message: string }) => {
           if (-1 === data.progress) {
             this.ingestionStatus = data;
+            this.ingestionStatus.step = -1;
             Alert.error(data.message);
             this.safelyDetectChanges();
+            CommonConstant.stomp.unsubscribe(subscription);     // Socket 응답 해제
           } else if (100 === data.progress) {
             this.ingestionStatus = data;
             this.safelyDetectChanges();
@@ -527,7 +534,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
     this.fields = [];
     this.fields = this.fields
       .concat(fieldList.filter(item => item.role !== FieldRole.MEASURE))
-      .concat(fieldList.filter(item => item.role === FieldRole.MEASURE))
+      .concat(fieldList.filter(item => item.role === FieldRole.MEASURE));
   } // function - _setFields
 
   /**
