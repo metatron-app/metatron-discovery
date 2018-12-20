@@ -111,8 +111,8 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
     this.dataflowService.getDataflow(this.selectedDataflowId).then((result) => {
 
       console.info('result ==> ', result );
-      if (result['_embedded'] && result['_embedded'].datasets.length > 0) {
-        dsIds = result['_embedded'].datasets.map((item) => {
+      if (result.datasets && result.datasets.length > 0) {
+        dsIds = result.datasets.map((item) => {
           return item.dsId;
         });
 
