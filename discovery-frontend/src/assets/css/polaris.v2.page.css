@@ -751,7 +751,7 @@ ul.ddp-list-board-thumbview li.ddp-selected a span.ddp-data-name {color:#4b515b;
 .ddp-wrap-widget.ddp-box-full {position:fixed; left:290px; top:165px; bottom:0; right:0; height:auto; background-color:#fff; z-index:130}
 .ddp-wrap-widget.ddp-box-full .ddp-loading-part {z-index:130;}
 
-.ddp-box-widget {position:relative; background-color:#fff; cursor:pointer; border:1px solid #fff; box-sizing:border-box;}
+.ddp-box-widget {position:relative; background-color:#fff; border:1px solid #fff; box-sizing:border-box;}
 .ddp-box-widget .ddp-ui-graph-name {position:relative; padding:4px 5px 4px 10px; color:#4b515b; font-size:14px; box-sizing:border-box;z-index:30;}
 .ddp-box-widget .ddp-ui-graph-name .ddp-data-name {display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .ddp-box-widget .ddp-ui-graph-name .ddp-ui-tooltip-info {display:none; position:absolute; top:35px; left:10px;}
