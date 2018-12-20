@@ -109,7 +109,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   public isShowQueryGranularityList: boolean = false;
 
   // expiration list (only linked source type)
-  public expirationTimeList: any[];
+  public expirationTimeList: any[] = [];
   // selected expiration (only linked source type)
   public selectedExpirationTime: any;
   // expiration list show flag (only linked source type)
@@ -632,7 +632,7 @@ export class IngestionSettingComponent extends AbstractComponent {
     ];
     this.selectedPartitionType = this.partitionTypeList[0];
     // init expiration time list
-    this.expirationTimeList = this._getExpirationTimeList();
+    this._setExpirationTimeList(this.expirationTimeList);
     this.selectedExpirationTime = this.expirationTimeList[0];
     // init ingestion type list
     this.ingestionTypeList = [
@@ -869,23 +869,21 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * Get expiration time list
-   * @returns {Array}
+   * Set expiration time list
+   * @param {Array} expirationTimeList
    * @private
    */
-  private _getExpirationTimeList() {
-    const result = [];
+  private _setExpirationTimeList(expirationTimeList: any[]): void {
     const TIME = 1800;
     for (let i = 1; i < 49; i++) {
       if (i === 1) {
-        result.push({label: this.translateService.instant('msg.storage.li.dsource.expire-minutes',{minute:30}), value: TIME});
+        expirationTimeList.push({label: this.translateService.instant('msg.storage.li.dsource.expire-minutes',{minute:30}), value: TIME});
       } else{
-        result.push (i % 2 === 0
+        expirationTimeList.push (i % 2 === 0
           ? {label: this.translateService.instant('msg.storage.li.dsource.expire-hour',{hour: i / 2}), value: TIME * i}
           : {label: this.translateService.instant('msg.storage.li.dsource.expire-hour-minutes',{hour: Math.floor(i / 2), minute:30}), value: TIME * i});
       }
     }
-    return result;
   }
 
   /**
