@@ -41,7 +41,8 @@ export class AxisOptionConverter {
 
   public static axisMinMax: Object = {
     xAxis: {min: 0, max: 0},
-    yAxis: {min: 0, max: 0}
+    yAxis: {min: 0, max: 0},
+    subAxis: {min: 0, max: 0}
   };
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
