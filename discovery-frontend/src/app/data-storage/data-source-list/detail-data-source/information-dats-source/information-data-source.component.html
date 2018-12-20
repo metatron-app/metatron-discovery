@@ -476,7 +476,7 @@
               <!-- Link 형 -->
               <ul class="ddp-list-sub" *ngIf="getConnType.toString() === 'LINK'">
                 <li>
-                  {{'msg.storage.th.time-interval' | translate}} : {{getIngestionExpired}}
+                  {{'msg.storage.th.time-interval' | translate}} : {{getIngestionExpired()}}
                 </li>
               </ul>
               <!-- //Link 형 -->
