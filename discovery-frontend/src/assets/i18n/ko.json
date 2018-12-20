@@ -1311,7 +1311,7 @@
   "msg.board.create.guide-msg2" : "다른 데이터소스로 연결합니다.",
   "msg.board.download.title-org" : "원본데이터 다운로드",
   "msg.board.download.title-aggr" : "집계데이터 다운로드",
-  "msg.board.download.desc" : "최대 100,000 건(rows)까지 다운로드됩니다.<br>100,000 건(rows) 이상의 데이터는 관리자에게 문의해 주세요.",
+  "msg.board.download.desc" : "최대 1,000,000 건(rows)까지 다운로드됩니다.<br>1,000,000 건(rows) 이상의 데이터는 관리자에게 문의해 주세요.",
   "msg.board.download.calc-size" : "데이터 용량 계산중...",
   "msg.board.ui.no.widget": "위젯이 없습니다",
   "msg.board.ui.show.only": "보임 보드만",

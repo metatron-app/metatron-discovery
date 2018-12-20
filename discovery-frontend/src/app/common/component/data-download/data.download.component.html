@@ -26,6 +26,6 @@
   <div class="ddp-wrap-data-detail">
     <a (click)="downloadCSV()" href="javascript:" class="ddp-btn-down"><em class="ddp-icon-csv"></em>CSV</a>
     <a (click)="downloadExcel()" href="javascript:" class="ddp-btn-down"><em class="ddp-icon-xlsx"></em>Excel</a>
-    <div *ngIf="preview && 100000 <= preview.count" class="ddp-txt-det" [innerHTML]="'msg.board.download.desc' | translate" ></div>
+    <div *ngIf="preview && 1000000 <= preview.count" class="ddp-txt-det" [innerHTML]="'msg.board.download.desc' | translate" ></div>
   </div>
 </div>
