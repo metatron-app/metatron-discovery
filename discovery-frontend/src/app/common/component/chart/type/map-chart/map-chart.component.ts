@@ -733,6 +733,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         }
     }
 
+    // Tango GIS
+    else if( _.eq(this.getUiMapOption().style, MapLayerStyle.TANGO_GIS) ) {
+      layer = this. tangoGisLayer;
+    }
     ////////////////////////////////////////////////////////
     // Map creation
     ////////////////////////////////////////////////////////

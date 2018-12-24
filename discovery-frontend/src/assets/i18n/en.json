@@ -3591,6 +3591,7 @@
   "msg.page.common.map.layer.map.style.light": "Light",
   "msg.page.common.map.layer.map.style.dark": "Dark",
   "msg.page.common.map.layer.map.style.colored": "Colored",
+  "msg.page.common.map.layer.map.style.tango": "Tango GIS",
   "msg.page.common.map.layer.service.none": "None",
   "msg.page.common.map.layer.license": "Service License",
   "msg.page.layer.map": "Layer Setting",

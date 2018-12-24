@@ -32,7 +32,8 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
   public mapServiceList = [{name : this.translateService.instant('msg.page.common.map.layer.service.openstreet'), value : MapType.OSM}];
 
   // map style list
-  public mapStyleList = [{name : this.translateService.instant('msg.page.common.map.layer.map.style.light'), value : 'Light'},
+  public mapStyleList = [{name : this.translateService.instant('msg.page.common.map.layer.map.style.tango'), value : 'TangoGis'},
+                         {name : this.translateService.instant('msg.page.common.map.layer.map.style.light'), value : 'Light'},
                          {name : this.translateService.instant('msg.page.common.map.layer.map.style.dark'), value : 'Dark'},
                          {name : this.translateService.instant('msg.page.common.map.layer.map.style.colored'), value : 'Colored'}];
 

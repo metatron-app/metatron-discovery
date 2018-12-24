@@ -3592,6 +3592,7 @@
   "msg.page.common.map.layer.map.style.light": "Light",
   "msg.page.common.map.layer.map.style.dark": "Dark",
   "msg.page.common.map.layer.map.style.colored": "Colored",
+  "msg.page.common.map.layer.map.style.tango": "Tango GIS",
   "msg.page.common.map.layer.service.none": "없음",
   "msg.page.common.map.layer.license": "라이선스 표기",
   "msg.page.layer.map": "레이어 설정",
