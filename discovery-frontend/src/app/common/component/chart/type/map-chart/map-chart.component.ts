@@ -64,6 +64,7 @@ import {UIPolygonLayer} from '../../option/ui-option/map/ui-polygon-layer';
 import {UITileLayer} from '../../option/ui-option/map/ui-tile-layer';
 import {ColorOptionConverter} from '../../option/converter/color-option-converter';
 import {CommonConstant} from "../../../../constant/common.constant";
+import proj4 from 'proj4';
 
 declare let ol;
 
@@ -150,6 +151,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   });
 
   public layerMap: any = [];
+
+  // Tango GIS layer
+  // EPSG:5179 좌표계 적용을 위해 맵을 생성하면서 생성
+  public tangoGisLayer = undefined;
 
   // Tooltip layer
   public tooltipLayer = undefined;
@@ -684,6 +689,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   private createMap(): boolean {
 
+    this.addEpsg5179();
+
     ////////////////////////////////////////////////////////
     // Set attribution
     ////////////////////////////////////////////////////////
@@ -691,11 +698,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.cartoPositronLayer.getSource().setAttributions(this.attribution());
     this.cartoDarkLayer.getSource().setAttributions(this.attribution());
 
+    if( !this.olmap ) {
+      this.tangoGisLayer = this.createTangoGisLayer();
+      this.tangoGisLayer.getSource().setAttributions(this.attribution());
+    }
+
     ////////////////////////////////////////////////////////
     // Map style
     ////////////////////////////////////////////////////////
     // Light (Default)
-    let layer;
+    let layer = this.tangoGisLayer;
     if (0 < this._customMapLayers.length) {
       layer = this._customMapLayers.find(item => item.isDefault);
     }
@@ -740,6 +752,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       this.olmap.removeLayer(this.osmLayer);
       this.olmap.removeLayer(this.cartoDarkLayer);
       this.olmap.removeLayer(this.cartoPositronLayer);
+      this.olmap.removeLayer(this.tangoGisLayer);
 
       this._customMapLayers.forEach(item => this.olmap.removeLayer(item.layer));
       this.olmap.addLayer(layer);
@@ -781,6 +794,42 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     // Is map creation
     return true;
+  }
+
+  private addEpsg5179(): void {
+    // Tango GIS 사용을 위해 EPSG:5179 좌표계 등록
+    proj4.defs('EPSG:5179', '+proj=tmerc +lat_0=38 +lon_0=127.5 +k=0.9996 +x_0=1000000 +y_0=2000000 +ellps=GRS80 +units=m +no_defs');
+    ol.proj.setProj4(proj4);
+    ol.proj.get('EPSG:5179').setExtent([254440, 2871137 - (2048 * 800), 254430 + (2048 * 800), 2871137]);
+  }
+
+  private createTangoGisLayer(): void {
+    // Tango GIS 레이어 생성
+    return new ol.layer.Tile({
+      source: new ol.source.XYZ({
+        projection: 'EPSG:5179',
+        crossOrigin: 'anonymous',
+        tileGrid: new ol.tilegrid.TileGrid({
+          resolutions: [2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1, 0.5, 0.25],
+          tileSize: [400, 400],
+          origin: [254440, 2871137]
+        }),
+        tileUrlFunction: function (coordinate) {
+          if (coordinate === null) { return ""; }
+
+          var z = Math.abs(coordinate[0]).toString();
+          while (z.length < 2) { z = '0' + z; }
+
+          var y = (Math.abs(coordinate[2])-1).toString(16);
+          while (y.length < 8) { y = '0' + y; }
+
+          var x = Math.abs(coordinate[1]).toString(16);
+          while (x.length < 8) { x = '0' + x; }
+
+          return 'https://gis.tango.sktelecom.com/resource/tiles/dawulmap/L' + z + '/R' + y + '/C' + x + '.png';
+        }
+      })
+    });
   }
 
   /**
