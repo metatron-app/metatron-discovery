@@ -120,6 +120,10 @@ public class BoardConfiguration implements Serializable {
     return filters;
   }
 
+  public void setFilters(List<Filter> filters) {
+    this.filters = filters;
+  }
+
   @Override
   public String toString() {
     return "BoardConfiguration{" +
