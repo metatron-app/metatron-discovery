@@ -2024,7 +2024,7 @@ export namespace OptionGenerator {
      */
     export function defaultMapViewChartUIOption(): UIMapOption {
 
-      let defaultStyle:string = 'Light';
+      let defaultStyle:string = 'TangoGis';
       const propMapConf = sessionStorage.getItem( CommonConstant.PROP_MAP_CONFIG );
       if ( propMapConf ) {
         const objConf = JSON.parse( propMapConf );
