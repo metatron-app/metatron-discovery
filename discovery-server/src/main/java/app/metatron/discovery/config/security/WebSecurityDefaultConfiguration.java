@@ -87,6 +87,7 @@ public class WebSecurityDefaultConfiguration extends WebSecurityConfigurerAdapte
                     , "/app/v2/**"
                     , "/console/**"
                     , "/api/browser/**"
+                    , "/resource/**"
                     , "/admin/**");
     // @formatter:on
   }
