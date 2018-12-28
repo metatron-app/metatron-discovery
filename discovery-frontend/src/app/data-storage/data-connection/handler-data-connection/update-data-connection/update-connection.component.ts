@@ -599,7 +599,7 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
         // check key empty
         this.propertyKeyValidation(property);
         // check value empty
-        this.propertyValueValidation(property);
+        // this.propertyValueValidation(property);
       });
       // if exist connection properties
       return !_.some(this.properties, property => property.keyError || property.valueError);
