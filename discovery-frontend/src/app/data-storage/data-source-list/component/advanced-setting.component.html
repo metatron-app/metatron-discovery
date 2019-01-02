@@ -50,7 +50,7 @@
           <!-- value -->
           <div class="ddp-col-7">
             <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{option.ph || ('msg.storage.ph.config.value' | translate)}}"
-                   [(ngModel)]="option.value" (ngModelChange)="option.valueError = false" (focusout)="configValueValidation(option)">
+                   [(ngModel)]="option.value" (ngModelChange)="option.valueError = false">
             <span class="ddp-data-error" *ngIf="option.valueError"> {{option.valueValidMessage}}</span>
           </div>
           <!-- value -->
@@ -99,7 +99,7 @@
           <!-- value -->
           <div class="ddp-col-7">
             <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{option.ph || ('msg.storage.ph.config.value' | translate)}}"
-                   [(ngModel)]="option.value" (ngModelChange)="option.valueError = false" (focusout)="configValueValidation(option)">
+                   [(ngModel)]="option.value" (ngModelChange)="option.valueError = false">
             <span class="ddp-data-error" *ngIf="option.valueError"> {{option.valueValidMessage}}</span>
           </div>
           <!-- value -->
