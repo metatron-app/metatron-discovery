@@ -70,12 +70,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.env.Environment;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
@@ -140,8 +140,8 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
     @Autowired
     MetatronProperties metatronProperties;
 
-    @Autowired
-    private Environment environment;
+    @Value("${polaris.resources.cache.cacheControl.max-age: 604800}")
+    private Integer cacheControlMaxAge;
 
     /**
      * Maps all AngularJS routes to index so that they work with direct linking.
@@ -178,12 +178,11 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
         registry.addResourceHandler("/resource/**")
             .addResourceLocations("classpath:resource/");
 
-        Optional<String> resourceCacheControlMaxAge = ofNullable(environment.getProperty("polaris.resources.cache.cacheControl.max-age"));
-        resourceCacheControlMaxAge.ifPresent(cacheControlMaxAge -> {
+        ofNullable(cacheControlMaxAge).ifPresent(value -> {
             try {
                 registry.addResourceHandler(CHUNK_JS, BUNDLE_JS, BUNDLE_CSS, PNG, JPG, WOFF, EOF, TTF)
                     .addResourceLocations("classpath:resource/")
-                    .setCacheControl(CacheControl.maxAge(Long.valueOf(cacheControlMaxAge), TimeUnit.SECONDS).cachePublic());
+                    .setCacheControl(CacheControl.maxAge(value, TimeUnit.SECONDS).cachePublic());
             } catch (Exception e) {
                 LOGGER.debug("Please check the value of \"polaris.resources.cache.cachecontrol.max-age\" in application.yaml. Resource caching is not enabled.");
             }
