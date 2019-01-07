@@ -1961,6 +1961,7 @@
   "msg.storage.btn.re.ingestion": "再次运载",
   "msg.storage.ui.job.properties.description.title": "何为Job properties?",
   "msg.storage.ui.job.properties.description": "运载性能设定在收集时为效果性选项。在JSON形式的这个文本框中录入。",
+  "msg.storage.ui.job.properties.description.link": "请参考以下链接。",
   "msg.storage.ph.config.key": "请录入构成KEY",
   "msg.storage.ph.config.value": "请录入构成值",
   "msg.storage.ui.max.row.error": "最多可录入至{{value}}",
