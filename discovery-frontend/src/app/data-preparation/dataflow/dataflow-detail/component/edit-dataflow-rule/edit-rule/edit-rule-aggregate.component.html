@@ -28,7 +28,7 @@
 </div>
 <!--//part-->
 <!--part-->
-<div class="ddp-box-part" *ngIf="isShow">
+<div class="ddp-box-part ddp-error-part" *ngIf="isShow">
   <div class="ddp-box-title">
     {{'msg.dp.th.group.by' | translate}}<em class="ddp-icon-essential"></em>
   </div>
@@ -37,5 +37,7 @@
   <edit-rule-field-combo [isMulti]="true" [fields]="fields" [selected]="selectedFields" [tabIndex]="3"
                          (onChange)="changeFields($event)" ></edit-rule-field-combo>
   <!-- //select box -->
+  <span class="ddp-txt-error ddp-size"><em class="ddp-icon-error-s"></em>This rule will execute for the sampled data. The exact results for the original data can be found in the snapshot.</span>
+
 </div>
 <!--//part-->

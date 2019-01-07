@@ -18,7 +18,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef, EventEmitter,
-  Injector,
+  Injector, Input,
   OnDestroy,
   OnInit,
   Output,
@@ -129,6 +129,9 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   // 공백 치환 관련
   public spaceSymbol = '&middot;';
 
+  @Input()
+  public isAggregationIncluded: boolean;
+
   @Output('selectHeader')
   public selectHeaderEvent: EventEmitter<any> = new EventEmitter();
 
@@ -170,6 +173,8 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
           this.isComboEvent = false;
         })
     );
+
+
 
   } // function - ngOnInit
 
