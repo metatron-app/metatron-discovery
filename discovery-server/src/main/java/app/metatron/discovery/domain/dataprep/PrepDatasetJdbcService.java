@@ -297,7 +297,7 @@ public class PrepDatasetJdbcService {
                 dataFrame.rows.add(readRows++,row);
                 if( limitSize < readRows ) { break; }
             }
-//                dataset.setTotalLines(-1);    // FIXME: 이것을 설정하면 callable에서 하는 일과 lock이 겹침. 추후, callback으로 REST API를 쓰도록 수정하면 해결될 듯.
+            dataset.setTotalLines(-1L);
             dataset.setTotalBytes(-1L);
 
             JdbcUtils.closeResultSet(rs);
