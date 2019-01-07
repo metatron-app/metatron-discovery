@@ -115,6 +115,29 @@
           </tr>
           </tbody>
         </table>
+        <div class="ddp-wrap-rules-flow ddp-snapshot" *ngIf="dataset.dsType === dsType.WRANGLED">
+
+          <!-- title -->
+          <div class="ddp-box-title">
+            <em class="ddp-data-num">{{dataset.transformRules.length}}</em>
+            {{'msg.dp.ui.rule.list' | translate}}
+          </div>
+          <!-- //title -->
+          <div class="ddp-ui-rule-flow">
+            <ul class="ddp-list-rule2">
+              <li *ngFor="let rule of ruleList; let idx = index">
+                  <span class="ddp-data-type">
+                      <em class="ddp-ui-round">{{rule.alias}}</em>
+                      {{rule.command}}
+                  </span>
+                  <div class="ddp-ui-code" title="{{idx !== 0 ? rule.ruleString : null}}">
+                    {{rule.shortRuleString}}
+                  </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- //rule -->
       </div>
       <!-- //datadetail -->
     </div>
