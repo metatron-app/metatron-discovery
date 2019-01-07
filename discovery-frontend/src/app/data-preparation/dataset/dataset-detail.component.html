@@ -128,7 +128,6 @@
               <li *ngFor="let rule of ruleList; let idx = index">
                   <span class="ddp-data-type">
                       <em class="ddp-ui-round">{{rule.alias}}</em>
-                      {{rule.command}}
                   </span>
                   <div class="ddp-ui-code" title="{{idx !== 0 ? rule.ruleString : null}}">
                     {{rule.shortRuleString}}
