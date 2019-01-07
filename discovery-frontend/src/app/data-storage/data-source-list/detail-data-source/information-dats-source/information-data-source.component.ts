@@ -460,7 +460,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    * @returns {string}
    */
   public getPartitionKeys(): string {
-    // data range 가 있다면
+    // if exist partition keys in ingestion data
     if (this.getIngestion.partitions && this.getIngestion.partitions.length !== 0) {
       return this.getIngestion.partitions.reduce((acc, partition) => {
         acc += acc === ''
@@ -474,7 +474,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
         }, '');
         return acc;
       }, '');
-    } else {
+    } else { // if not exist partition keys
       return this.translateService.instant('msg.storage.ui.set.false');
     }
   }
