@@ -187,6 +187,15 @@ export class IngestionSettingComponent extends AbstractComponent {
   // clicked next button flag
   public isClickedNext: boolean;
 
+  // interval input text
+  public prevIntervalText: string;
+  public nextIntervalText: string;
+  // interval valid message
+  public intervalValidMessage: string;
+  // interval valid
+  public intervalValid: number = 2;
+
+
   // step change
   @Output()
   public prevStep: EventEmitter<any> = new EventEmitter();
@@ -539,6 +548,59 @@ export class IngestionSettingComponent extends AbstractComponent {
   public onKeyPressCronText(event: KeyboardEvent): void {
     // only enter
     event.keyCode === 13 && this.cronValidation();
+  }
+
+
+  public checkValidPrevIntervalText(): void {
+    if (StringUtil.isEmpty(this.prevIntervalText)) {
+      this.intervalValid = 1;
+      this.intervalValidMessage = '첫번째 interval 값이 비어있습니다';
+      return;
+    } else if (!this._getDateTimeRegexp(this.selectedSegmentGranularity.value).test(this.prevIntervalText)) {
+      this.intervalValid = 1;
+      this.intervalValidMessage = '첫번째 interval이 올바른 형식이 아닙니다';
+      return;
+    } else if (StringUtil.isEmpty(this.nextIntervalText)) {
+      console.log(moment(this.prevIntervalText).valueOf());
+      this.intervalValid = 1;
+      this.intervalValidMessage = '두번째 interval 값이 비어있습니다';
+      return;
+    } else if (!this._getDateTimeRegexp(this.selectedSegmentGranularity.value).test(this.nextIntervalText)) {
+      this.intervalValid = 1;
+      this.intervalValidMessage = '두번째 interval이 올바른 형식이 아닙니다';
+      return;
+    } else if (moment(this.prevIntervalText).milliseconds() - moment(this.nextIntervalText).milliseconds() > 10000) {
+      this.intervalValid = 1;
+      this.intervalValidMessage = 'granulartiy unit은 10000을 넘길수 없습니다';
+      return;
+    }
+    this.intervalValid = 0;
+  }
+
+  /**
+   * Get datetime regexp
+   * @param {string} value
+   * @returns {RegExp}
+   * @private
+   */
+  private _getDateTimeRegexp(value: string): RegExp {
+
+    switch (value) {
+      case 'SECOND':  // YYYY-MM-dd hh:mm:ss
+        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
+      case 'MINUTE':  // YYYY-MM-dd hh:mm
+        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]$/;
+      case 'HOUR':  // YYYY-MM-dd hh
+        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9])$/;
+      case 'DAY':  // YYYY-MM-dd
+        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
+      case 'MONTH':  // YYYY-MM
+        return /^\d{4}-(0[1-9]|1[0-2])$/;
+      case 'YEAR':  // YYYY
+        return /^\d{4}$/;
+      default:  // YYYY-MM-dd hh:mm:ss
+        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
+    }
   }
 
   /**
