@@ -2046,6 +2046,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.changeDetect.detectChanges();
   }
 
+  /**
+   * Check if rule list contains aggregate rule
+   * returns true is rule list contains aggregate rule
+   * @returns {boolean}
+   */
   private hasAggregation() {
 
     // clone ruleList
@@ -2054,7 +2059,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // Only use up to serverSyncIndex
     rules = rules.splice(0,this.serverSyncIndex+1);
 
-    let idx: number = rules.findIndex((item) => {
+    const idx: number = rules.findIndex((item) => {
       return item.valid && item.command === 'aggregate';
     });
     return !(idx === -1);

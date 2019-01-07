@@ -37,7 +37,7 @@
   <edit-rule-field-combo [isMulti]="true" [fields]="fields" [selected]="selectedFields" [tabIndex]="3"
                          (onChange)="changeFields($event)" ></edit-rule-field-combo>
   <!-- //select box -->
-  <span class="ddp-txt-error ddp-size"><em class="ddp-icon-error-s"></em>This rule will execute for the sampled data. The exact results for the original data can be found in the snapshot.</span>
+  <span class="ddp-txt-error ddp-size"><em class="ddp-icon-error-s"></em>{{'msg.dp.ui.aggregate.warning' | translate }}</span>
 
 </div>
 <!--//part-->

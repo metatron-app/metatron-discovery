@@ -32,7 +32,7 @@
   <!-- //left -->
   <!-- right -->
   <div class="ddp-part-right">
-    <span class="ddp-txt-error ddp-size" *ngIf="isAggregationIncluded"><em class="ddp-icon-error-s"></em>This is the result of the sampled data. Results for all data may vary. (aggregate) </span>
+    <span class="ddp-txt-error ddp-size" *ngIf="isAggregationIncluded"><em class="ddp-icon-error-s"></em>{{'msg.dp.ui.aggregate.warning.grid-top' | translate }} </span>
     <div class="ddp-data-form">
       <strong >{{totalColumnCnt | numberCommas}}</strong>
       {{'msg.comm.detail.columns' | translate}}
