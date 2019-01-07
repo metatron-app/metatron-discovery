@@ -2906,7 +2906,7 @@
   "msg.spaces.shared.detail.list.none" : "No list",
   "msg.spaces.shared.detail.connection.open" : "Open connection",
   "msg.spaces.shared.detail.nbook.linked" : "Linked",
-  "msg.spaces.shared.detail.statistics.dashboard.average" : "Average of dashboards in the workbook",
+  "msg.spaces.shared.detail.statistics.dashboard.average" : "Average number of dashboards per workbook",
   "msg.spaces.shared.detail.statistics.favorite.count" : "Set as the favorite",
   "msg.spaces.shared.detail.statistics.item.distribution" : "Item distribution",
   "msg.spaces.shared.detail.statistics.user.access.Cumulative" : "Cumulative number of the user access",
