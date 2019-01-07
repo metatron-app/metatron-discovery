@@ -184,7 +184,7 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
                     .addResourceLocations("classpath:resource/")
                     .setCacheControl(CacheControl.maxAge(value, TimeUnit.SECONDS).cachePublic());
             } catch (Exception e) {
-                LOGGER.debug("Please check the value of \"polaris.resources.cache.cachecontrol.max-age\" in application.yaml. Resource caching is not enabled.");
+                LOGGER.debug("Please check the value of \"polaris.resources.cache.cacheControl.max-age\" in application.yaml. Resource caching is not enabled.");
             }
         });
 
