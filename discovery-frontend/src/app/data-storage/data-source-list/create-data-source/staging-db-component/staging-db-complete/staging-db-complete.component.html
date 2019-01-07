@@ -47,8 +47,7 @@
             <th>
               {{'msg.storage.ui.dsource.create.partition.keys' | translate}}
             </th>
-            <td>
-              {{getIngestionData.selectedPartitionType.value === 'ENABLE' ? getPartitionsEnabledLabel() :('msg.storage.ui.set.disable' | translate)}}
+            <td [innerHTML]="getPartitionKeys()">
             </td>
           </tr>
           <!-- //partition -->

@@ -465,12 +465,12 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
       return this.getIngestion.partitions.reduce((acc, partition) => {
         acc += acc === ''
           ? Object.keys(partition).reduce((line, key) => {
-            line += line === '' ? `${key}=${partition[key]}` : `/${key}=${partition[key]}`;
+            StringUtil.isNotEmpty(partition[key]) && (line += line === '' ? `${key}=${partition[key]}` : `/${key}=${partition[key]}`);
             return line;
           }, '')
           : '<br>' + Object.keys(partition).reduce((line, key) => {
-          line += line === '' ? `${key}=${partition[key]}` : `/${key}=${partition[key]}`;
-          return line;
+            StringUtil.isNotEmpty(partition[key]) && (line += line === '' ? `${key}=${partition[key]}` : `/${key}=${partition[key]}`);
+            return line;
         }, '');
         return acc;
       }, '');
