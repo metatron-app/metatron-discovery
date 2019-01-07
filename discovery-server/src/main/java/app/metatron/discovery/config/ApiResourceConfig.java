@@ -64,7 +64,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -72,6 +75,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
@@ -109,11 +113,14 @@ import java.util.List;
 
 import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS;
 import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_SINGLE_QUOTES;
+import static java.util.Optional.ofNullable;
 
 @Configuration
 @Import(RepositoryRestMvcConfiguration.class)
 @EnableWebMvc
 public class ApiResourceConfig extends WebMvcConfigurerAdapter {
+
+    private static Logger LOGGER = LoggerFactory.getLogger(ApiResourceConfig.class);
 
     private static final String RESOURCE_PATH = "/resource/";
     private static final String CHUNK_JS = RESOURCE_PATH + "*.*.chunk.js";
@@ -132,6 +139,9 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
 
     @Autowired
     MetatronProperties metatronProperties;
+
+    @Autowired
+    private Environment environment;
 
     /**
      * Maps all AngularJS routes to index so that they work with direct linking.
@@ -164,11 +174,21 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
         registry.addResourceHandler("/resource/**")
             .addResourceLocations("classpath:resource/");
-        registry.addResourceHandler(CHUNK_JS, BUNDLE_JS, BUNDLE_CSS, PNG, JPG, WOFF, EOF, TTF)
-            .addResourceLocations("classpath:resource/")
-            .setCacheControl(CacheControl.maxAge(7, TimeUnit.DAYS).cachePublic());
+
+        Optional<String> resourceCacheControlMaxAge = ofNullable(environment.getProperty("polaris.resources.cache.cacheControl.max-age"));
+        resourceCacheControlMaxAge.ifPresent(cacheControlMaxAge -> {
+            try {
+                registry.addResourceHandler(CHUNK_JS, BUNDLE_JS, BUNDLE_CSS, PNG, JPG, WOFF, EOF, TTF)
+                    .addResourceLocations("classpath:resource/")
+                    .setCacheControl(CacheControl.maxAge(Long.valueOf(cacheControlMaxAge), TimeUnit.SECONDS).cachePublic());
+            } catch (Exception e) {
+                LOGGER.debug("Please check the value of \"polaris.resources.cache.cachecontrol.max-age\" in application.yaml. Resource caching is not enabled.");
+            }
+        });
+
         registry.addResourceHandler("/assets/**")
             .addResourceLocations("classpath:resource/assets/");
         registry.addResourceHandler("/webjars/**")

@@ -179,6 +179,7 @@ polaris:
         uri: /druid/coordinator/v1/datasources/{datasourceId}/purge
   cache:
     configFile: default-configs/default-jgroups-tcp.xml
+  resources.cache.cacheControl.max-age: 604800 # 7 day seconds
 
 #  cors:
 #    -
