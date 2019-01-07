@@ -99,7 +99,7 @@
         </td>
         <td>
           <span *ngIf="isDefaultType(connection)">{{connection.hostname}} / {{connection.port}}</span>
-          <a href="javascript:" class="ddp-link" *ngIf="!isDefaultType(connection)">{{connection.url}}</a>
+          <a href="javascript:" *ngIf="!isDefaultType(connection)">{{connection.url}}</a>
         </td>
         <td class="ddp-data-last">
           {{connection.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}  <em class="ddp-icon-by">{{'msg.storage.ui.by' | translate}}</em>{{connection.createdBy.fullName}}
