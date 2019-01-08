@@ -188,12 +188,14 @@ export class IngestionSettingComponent extends AbstractComponent {
   public isClickedNext: boolean;
 
   // interval input text
-  public prevIntervalText: string;
-  public nextIntervalText: string;
+  public startIntervalText: string;
+  public endIntervalText: string;
   // interval valid message
   public intervalValidMessage: string;
   // interval valid
   public intervalValid: number = 2;
+  // granularity unit
+  public granularityUnit: number = 0;
 
 
   // step change
@@ -550,56 +552,37 @@ export class IngestionSettingComponent extends AbstractComponent {
     event.keyCode === 13 && this.cronValidation();
   }
 
-
-  public checkValidPrevIntervalText(): void {
-    if (StringUtil.isEmpty(this.prevIntervalText)) {
-      this.intervalValid = 1;
-      this.intervalValidMessage = '첫번째 interval 값이 비어있습니다';
-      return;
-    } else if (!this._getDateTimeRegexp(this.selectedSegmentGranularity.value).test(this.prevIntervalText)) {
-      this.intervalValid = 1;
-      this.intervalValidMessage = '첫번째 interval이 올바른 형식이 아닙니다';
-      return;
-    } else if (StringUtil.isEmpty(this.nextIntervalText)) {
-      console.log(moment(this.prevIntervalText).valueOf());
-      this.intervalValid = 1;
-      this.intervalValidMessage = '두번째 interval 값이 비어있습니다';
-      return;
-    } else if (!this._getDateTimeRegexp(this.selectedSegmentGranularity.value).test(this.nextIntervalText)) {
-      this.intervalValid = 1;
-      this.intervalValidMessage = '두번째 interval이 올바른 형식이 아닙니다';
-      return;
-    } else if (moment(this.prevIntervalText).milliseconds() - moment(this.nextIntervalText).milliseconds() > 10000) {
-      this.intervalValid = 1;
-      this.intervalValidMessage = 'granulartiy unit은 10000을 넘길수 없습니다';
-      return;
-    }
-    this.intervalValid = 0;
-  }
-
   /**
-   * Get datetime regexp
-   * @param {string} value
-   * @returns {RegExp}
-   * @private
+   * Check valid interval text and set granularity unit
    */
-  private _getDateTimeRegexp(value: string): RegExp {
-
-    switch (value) {
-      case 'SECOND':  // YYYY-MM-dd hh:mm:ss
-        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
-      case 'MINUTE':  // YYYY-MM-dd hh:mm
-        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]$/;
-      case 'HOUR':  // YYYY-MM-dd hh
-        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9])$/;
-      case 'DAY':  // YYYY-MM-dd
-        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
-      case 'MONTH':  // YYYY-MM
-        return /^\d{4}-(0[1-9]|1[0-2])$/;
-      case 'YEAR':  // YYYY
-        return /^\d{4}$/;
-      default:  // YYYY-MM-dd hh:mm:ss
-        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
+  public checkValidIntervalTextAndSetGranularityUnit(): void {
+    if (StringUtil.isEmpty(this.startIntervalText)) {
+      this.intervalValid = 1;
+      this.intervalValidMessage = '시작 interval 값이 비어있습니다';
+      this.granularityUnit = 0;
+    } else if (!this._getDateTimeRegexp(this.selectedSegmentGranularity.value).test(this.startIntervalText)) {
+      this.intervalValid = 1;
+      this.intervalValidMessage = '시작 interval이 올바른 형식이 아닙니다';
+      this.granularityUnit = 0;
+    } else if (StringUtil.isEmpty(this.endIntervalText)) {
+      this.intervalValid = 1;
+      this.intervalValidMessage = '끝나는 interval 값이 비어있습니다';
+      this.granularityUnit = 0;
+    } else if (!this._getDateTimeRegexp(this.selectedSegmentGranularity.value).test(this.endIntervalText)) {
+      this.intervalValid = 1;
+      this.intervalValidMessage = '끝나는 interval이 올바른 형식이 아닙니다';
+      this.granularityUnit = 0;
+    } else if (moment(this.endIntervalText).diff(moment(this.startIntervalText)) < 0) {
+      this.intervalValid = 1;
+      this.intervalValidMessage = 'interval 범위를 올바르게 입력하여 주십시오';
+      this.granularityUnit = 0;
+    } else if (this._getGranularityUnit() < 10000) {
+      this.intervalValid = 1;
+      this.intervalValidMessage = 'interval 범위는 10000미만';
+      this.granularityUnit = this._getGranularityUnit();
+    } else {
+      this.intervalValid = 0;
+      this.granularityUnit = this._getGranularityUnit();
     }
   }
 
@@ -989,6 +972,65 @@ export class IngestionSettingComponent extends AbstractComponent {
       }
     }
     return result;
+  }
+
+  /**
+   * Get datetime regexp
+   * @param {string} granularityValue
+   * @returns {RegExp}
+   * @private
+   */
+  private _getDateTimeRegexp(granularityValue: string): RegExp {
+    switch (granularityValue) {
+      case 'SECOND':  // YYYY-MM-dd hh:mm:ss
+        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
+      case 'MINUTE':  // YYYY-MM-dd hh:mm
+        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]$/;
+      case 'HOUR':  // YYYY-MM-dd hh
+        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9])$/;
+      case 'DAY':  // YYYY-MM-dd
+        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
+      case 'MONTH':  // YYYY-MM
+        return /^\d{4}-(0[1-9]|1[0-2])$/;
+      case 'YEAR':  // YYYY
+        return /^\d{4}$/;
+      default:  // YYYY-MM-dd hh:mm:ss
+        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
+    }
+  }
+
+  /**
+   * Get granularity unit
+   * @returns {number}
+   * @private
+   */
+  private _getGranularityUnit(): number {
+    return Math.ceil(moment(this.endIntervalText).diff(moment(this.startIntervalText)) / this._getSelectedGranularityUnitMillis(this.selectedSegmentGranularity.value));
+  }
+
+  /**
+   * Get selected granularity unit milliseconds
+   * @param {string} granularityValue
+   * @returns {number}
+   * @private
+   */
+  private _getSelectedGranularityUnitMillis(granularityValue: string): number {
+    switch (granularityValue) {
+      case 'SECOND':
+        return 1000;
+      case 'MINUTE':
+        return 60000;
+      case 'HOUR':
+        return 3600000;
+      case 'DAY':
+        return 86400000;
+      case 'MONTH':
+        return 2629800000;
+      case 'YEAR':
+        return 31557600000;
+      default:
+        return 1000;
+    }
   }
 
   /**
