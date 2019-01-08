@@ -161,10 +161,12 @@
 
 <long-update-popup
   *ngIf="isSelectDatasetPopupOpen"
-  [title]="datasetPopupTitle"
+  [popType]="longUpdatePopupType"
   [selectedDatasetId]="swapDatasetId"
+  [originalDatasetList]="dataSetList"
   (closeEvent)="isSelectDatasetPopupOpen = false"
   (doneEvent)="datasetPopupFinishEvent($event)"
+  (addEvent)="datasetPopupAddEvent($event)"
   [isRadio]="isRadio">
 </long-update-popup>
 

@@ -162,8 +162,9 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   public isDatasetAddPopupOpen: boolean = false;
 
   public step: string;
+  public longUpdatePopupType: string = '';
 
-  public datasetPopupTitle : string = 'Add datasets';   // Swap dataset popup title
+  // public datasetPopupTitle : string = 'Add datasets';   // Swap dataset popup title
   public isSelectDatasetPopupOpen : boolean = false;    // Swap dataset popup open/close
   public isRadio : boolean = false;                     // If swapping -> true / if Adding -> false
   public swapDatasetId : string;                        // Swapping 대상 imported 면 dataset id wrangled 면 upstreamId
@@ -261,10 +262,11 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   }
 
   public addDatasets() {
-    this.isDatasetAddPopupOpen = true;
-    if (this.datasetInfoPopup) {
-      this.datasetInfoPopup.clearExistingInterval();
-    }
+    // this.isDatasetAddPopupOpen = true;
+    // if (this.datasetInfoPopup) {
+    //   this.datasetInfoPopup.clearExistingInterval();
+    // }
+    this.openAddDatasetPopup(null);
   }
 
   public closeAddDatasetPopup() {
@@ -1081,6 +1083,35 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   }
 
 
+
+  /**
+   * Add datasets (event listener)
+   * @param data
+   */
+  public datasetPopupAddEvent(data): void {
+
+    if (data == undefined || data == null || data.length === 0 ) {
+      return
+    }
+    this.loadingShow();
+    this.dataSetList.forEach((ds) => {
+      data.push(ds.dsId);
+    });
+
+    this.dataflowService.updateDataSets(this.dataflow.dfId, { dsIds : data }).then((result) => {
+      this.loadingHide();
+      this.selectedDataSet.dsId = '';
+      this.isSelectDatasetPopupOpen = false;
+      Alert.success(this.translateService.instant('msg.dp.alert.add.ds.success'));
+      this.getDataflow();
+    }).catch((error) => {
+      this.loadingHide();
+      Alert.error(this.translateService.instant(error.message));
+      console.info('error -> ', error);
+    });
+  }
+
+
   private _addDatasetToDataflow(dfId, datasetLists) {
     return new Promise(((resolve, reject) => {
       this.dataflowService.updateDataSets(dfId, { dsIds : datasetLists, forSwap: true })
@@ -1125,15 +1156,23 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    */
   public openAddDatasetPopup(data :any) {
 
-    this.swapDatasetId = data.dsId;
-    if (data.type === 'imported') {
-      this.datasetPopupTitle = 'Replace dataset';
-      this.isRadio = true;
-    } else if (data.type === 'wrangled') {
-      this.datasetPopupTitle = 'Change input dataset';
-      this.isRadio = true;
-    } else {
-      this.datasetPopupTitle = 'Add datasets';
+    // console.info('openAddDatasetPopup', data);
+    if(data === null) {
+      this.swapDatasetId = null;
+      this.longUpdatePopupType = 'add';
+      // this.datasetPopupTitle = 'Add datasets';
+      this.isRadio = false;
+    }else{
+      this.swapDatasetId = data.dsId;
+      if (data.type === 'imported') {
+        // this.datasetPopupTitle = 'Replace dataset';
+        this.isRadio = true;
+        this.longUpdatePopupType = 'imported';
+      } else if (data.type === 'wrangled') {
+        // this.datasetPopupTitle = 'Change input dataset';
+        this.isRadio = true;
+        this.longUpdatePopupType = 'wrangled';
+      }
     }
     this.isSelectDatasetPopupOpen = true;
   }
