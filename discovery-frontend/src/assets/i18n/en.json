@@ -1969,7 +1969,7 @@
   "msg.storage.th.rollup.description.selection" : "(Selection description)",
   "msg.storage.th.rollup.description.true" : "True: When you load, do you want to add the count?",
   "msg.storage.th.rollup.description.false" : "False: Do you want to keep the original?",
-  "msg.storage.ui.ph.timestamp.column" : "No time-type column",
+  "msg.storage.ui.ph.timestamp.column" : "No selected time-type column",
   "msg.storage.ui.invalid.json": "Invalid JSON",
   "msg.storage.ui.valid.json": "Valid JSON",
   "msg.storage.ui.tuning.settings": "Ingestion tuning configuration(Opt.)",

@@ -777,6 +777,6 @@ export class SchemaConfigComponent extends AbstractComponent {
    * @private
    */
   private _setTimestampFieldList(): void {
-    this.timestampFieldList = this._originFieldList.filter(field => LogicalType.TIMESTAMP === field.logicalType);
+    this.timestampFieldList = this._originFieldList.filter(field => !field.unloaded && LogicalType.TIMESTAMP === field.logicalType);
   }
 }

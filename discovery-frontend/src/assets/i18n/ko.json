@@ -1967,7 +1967,7 @@
   "msg.storage.th.rollup.description.selection" : "(선택 설명)",
   "msg.storage.th.rollup.description.true" : "설정함: 불러오기 할 때 카운트를 추가 하시겠습니까?",
   "msg.storage.th.rollup.description.false" : "설정안함: 원본을 그대로 유지 하시겠습니까?",
-  "msg.storage.ui.ph.timestamp.column" : "타임타입 컬럼이 없습니다",
+  "msg.storage.ui.ph.timestamp.column" : "선택된 타임타입 컬럼이 없습니다",
   "msg.storage.ui.invalid.json": "잘못된 JSON 형식입니다",
   "msg.storage.ui.valid.json": "유효한 JSON 형식입니다",
   "msg.storage.ui.tuning.settings": "적재 성능 설정(옵션)",
