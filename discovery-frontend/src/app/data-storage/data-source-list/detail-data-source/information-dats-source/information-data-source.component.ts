@@ -448,25 +448,35 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    * @returns {string}
    */
   public getDataRangeLabel(): string {
-    const range = this.getIngestion.intervals;
     // data range 가 있다면
-    if (range) {
-      return range[0].split('/').join(' ~ ').replace(/T/g, ' ');
+    if (this.getIngestion.intervals) {
+      return this.getIngestion.intervals[0].split('/').join(' ~ ').replace(/T/g, ' ');
     }
-    return 'None';
+    return this.translateService.instant('msg.storage.ui.set.false');
   }
 
   /**
-   * TODO partition keys label
+   * partition keys label
    * @returns {string}
    */
   public getPartitionKeys(): string {
-    const partitions = this.getIngestion.partitions;
-    // data range 가 있다면
-    if (partitions.length !== 0) {
-      return '';
+    // if exist partition keys in ingestion data
+    if (this.getIngestion.partitions && this.getIngestion.partitions.length !== 0) {
+      return this.getIngestion.partitions.reduce((acc, partition) => {
+        acc += acc === ''
+          ? Object.keys(partition).reduce((line, key) => {
+            StringUtil.isNotEmpty(partition[key]) && (line += line === '' ? `${key}=${partition[key]}` : `/${key}=${partition[key]}`);
+            return line;
+          }, '')
+          : '<br>' + Object.keys(partition).reduce((line, key) => {
+            StringUtil.isNotEmpty(partition[key]) && (line += line === '' ? `${key}=${partition[key]}` : `/${key}=${partition[key]}`);
+            return line;
+        }, '');
+        return acc;
+      }, '');
+    } else { // if not exist partition keys
+      return this.translateService.instant('msg.storage.ui.set.false');
     }
-    return 'None';
   }
 
   /**
