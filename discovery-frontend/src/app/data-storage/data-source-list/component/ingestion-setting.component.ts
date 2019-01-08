@@ -64,6 +64,9 @@ export class IngestionSettingComponent extends AbstractComponent {
   // format
   private _format: FieldFormat;
 
+  // sorted timestamp column data list
+  private _sortedTimestampColumnDataList: string[];
+
   // element
   @ViewChild('resultElement')
   private _resultElement: ElementRef;
@@ -193,9 +196,9 @@ export class IngestionSettingComponent extends AbstractComponent {
   // interval valid message
   public intervalValidMessage: string;
   // interval valid
-  public intervalValid: number = 2;
+  public intervalValid: number;
   // granularity unit
-  public granularityUnit: number = 0;
+  public granularityUnit: number;
 
 
   // step change
@@ -240,15 +243,90 @@ export class IngestionSettingComponent extends AbstractComponent {
     this._format = selectedTimestampColumn ? selectedTimestampColumn.format : null;
     // ui init
     this._initView();
+    // TODO test
+    const test = [
+      '2022-01-05 00:00:00.0',
+      '2022-01-06 00:00:00.0',
+      '2022-01-07 00:00:00.0',
+      '2022-01-07 00:00:00.0',
+      '2022-01-07 00:00:00.0',
+      '2011-01-04 00:00:00.0',
+      '2011-01-05 00:00:00.0',
+      '2011-01-05 00:00:00.0',
+      '2011-01-05 00:00:00.0',
+      '2011-01-06 00:00:00.0',
+      '2011-01-07 00:00:00.0',
+      '2011-01-07 00:00:00.0',
+      '2011-01-07 00:00:00.0',
+      '2011-01-07 00:00:00.0',
+      '2011-01-07 00:00:00.0',
+      '2011-01-07 00:00:00.0',
+      '2011-01-07 00:00:00.0',
+      '2011-01-07 00:00:00.0',
+      '2011-01-07 00:00:00.0',
+      '2011-01-08 00:00:00.0',
+      '2011-01-08 00:00:00.0',
+      '2011-01-10 00:00:00.0',
+      '2011-01-10 00:00:00.0',
+      '2011-01-11 00:00:00.0',
+      '2011-01-11 00:00:00.0',
+      '2011-01-12 00:00:00.0',
+      '2011-01-14 00:00:00.0',
+      '2011-01-14 00:00:00.0',
+      '2011-01-14 00:00:00.0',
+      '2011-01-14 00:00:00.0',
+      '2011-01-14 00:00:00.0',
+      '2011-01-14 00:00:00.0',
+      '2011-01-14 00:00:00.0',
+      '2011-01-14 00:00:00.0',
+      '2011-01-14 00:00:00.0',
+      '2011-01-14 00:00:00.0',
+      '2011-01-14 00:00:00.0',
+      '2011-01-15 00:00:00.0',
+      '2011-01-16 00:00:00.0',
+      '2011-01-17 00:00:00.0',
+      '2011-01-17 00:00:00.0',
+      '2011-01-17 00:00:00.0',
+      '2011-01-17 00:00:00.0',
+      '2011-01-19 00:00:00.0',
+      '2011-01-20 00:00:00.0',
+      '2011-01-20 00:00:00.0',
+      '2011-01-20 00:00:00.0',
+      '2011-01-20 00:00:00.0',
+      '2011-01-21 00:00:00.0',
+      '2011-01-21 00:00:00.0',
+      '2011-01-21 00:00:00.0',
+      '2011-01-21 00:00:00.0',
+      '2011-01-21 00:00:00.0',
+      '2011-01-21 00:00:00.0',
+      '2011-01-21 00:00:00.0'];
+
     // if exist ingestionData
     if (this._sourceData.hasOwnProperty("ingestionData")) {
       this._loadIngestionData(this._sourceData.ingestionData);
-      // if changed timestamp field, init granularity
-      isChangedTimestampField && this._initGranularity();
+      // if changed timestamp field
+      if (isChangedTimestampField) {
+        // init granularity
+        this._initGranularity();
+        // if used TIMESTAMP column
+        if (!this.isUsedCurrentTimestampColumn()) {
+          // set timestamp column data list
+          this._sortedTimestampColumnDataList = test.sort();
+          // granularity unit initial
+          this.checkValidIntervalTextAndSetGranularityUnit();
+        }
+      }
     } else { // init
       this._setDefaultIngestionOption();
       // init granularity
       this._initGranularity();
+      // if used TIMESTAMP column
+      if (!this.isUsedCurrentTimestampColumn()) {
+        // set timestamp column data list
+        this._sortedTimestampColumnDataList = test.sort();
+        // granularity unit initial
+        this.checkValidIntervalTextAndSetGranularityUnit();
+      }
       // if staging type, set partition key list
       if (this.createType === 'STAGING' && this._sourceData.databaseData.selectedTableDetail.partitionFields.length > 0) {
         // set key list
@@ -432,6 +510,8 @@ export class IngestionSettingComponent extends AbstractComponent {
     if (_.every(this.queryGranularityList, item => item.value !== this.selectedQueryGranularity.value)) {
       this.selectedQueryGranularity = this.queryGranularityList[0];
     }
+    // if used TIMESTAMP column
+    !this.isUsedCurrentTimestampColumn() && this.checkValidIntervalTextAndSetGranularityUnit();
   }
 
   /**
@@ -556,19 +636,15 @@ export class IngestionSettingComponent extends AbstractComponent {
    * Check valid interval text and set granularity unit
    */
   public checkValidIntervalTextAndSetGranularityUnit(): void {
-    if (StringUtil.isEmpty(this.startIntervalText)) {
-      this.intervalValid = 1;
-      this.intervalValidMessage = '시작 interval 값이 비어있습니다';
-      this.granularityUnit = 0;
-    } else if (!this._getDateTimeRegexp(this.selectedSegmentGranularity.value).test(this.startIntervalText)) {
+    // if null interval text, set interval text init timestamp data
+    StringUtil.isEmpty(this.startIntervalText) && (this.startIntervalText = this._getGranularityUnitInitialData(this._sortedTimestampColumnDataList[0], this.selectedSegmentGranularity.value));
+    StringUtil.isEmpty(this.endIntervalText) && (this.endIntervalText = this._getGranularityUnitInitialData(this._sortedTimestampColumnDataList[this._sortedTimestampColumnDataList.length-1], this.selectedSegmentGranularity.value));
+    // check interval text
+    if (!this._getDateTimeRegexp(this.selectedSegmentGranularity.value).test(this.startIntervalText)) {
       this.intervalValid = 1;
       this.intervalValidMessage = '시작 interval이 올바른 형식이 아닙니다';
       this.granularityUnit = 0;
-    } else if (StringUtil.isEmpty(this.endIntervalText)) {
-      this.intervalValid = 1;
-      this.intervalValidMessage = '끝나는 interval 값이 비어있습니다';
-      this.granularityUnit = 0;
-    } else if (!this._getDateTimeRegexp(this.selectedSegmentGranularity.value).test(this.endIntervalText)) {
+    }  else if (!this._getDateTimeRegexp(this.selectedSegmentGranularity.value).test(this.endIntervalText)) {
       this.intervalValid = 1;
       this.intervalValidMessage = '끝나는 interval이 올바른 형식이 아닙니다';
       this.granularityUnit = 0;
@@ -576,9 +652,9 @@ export class IngestionSettingComponent extends AbstractComponent {
       this.intervalValid = 1;
       this.intervalValidMessage = 'interval 범위를 올바르게 입력하여 주십시오';
       this.granularityUnit = 0;
-    } else if (this._getGranularityUnit() < 10000) {
+    } else if (this._getGranularityUnit() >= 10000) {
       this.intervalValid = 1;
-      this.intervalValidMessage = 'interval 범위는 10000미만';
+      this.intervalValidMessage = 'interval 범위는 10000까지만 가능';
       this.granularityUnit = this._getGranularityUnit();
     } else {
       this.intervalValid = 0;
@@ -856,15 +932,17 @@ export class IngestionSettingComponent extends AbstractComponent {
     if (this.createType === 'STAGING' && this.isStrictMode && this.partitionKeyList.length !== 0 && !this.partitionValidationResult) {
       return false;
     }
-    // valid tuning config
-    if (this.tuningConfig.length !== 0) {
-      // if exist tuningConfig error
-      return !_.some(this.tuningConfig, config => config.keyError || config.valueError);
+    // valid interval granularity (only column TIMESTAMP)
+    if (!this.isUsedCurrentTimestampColumn() && this.intervalValid !== 0) {
+      return false;
     }
-    // valid job properties
-    if (this.jobProperties.length !== 0) {
-      // if exist jobProperties error
-      return !_.some(this.jobProperties, config => config.keyError || config.valueError);
+    // valid tuning config (if exist tuningConfig error)
+    if (this.tuningConfig.length !== 0 && _.some(this.tuningConfig, config => config.keyError || config.valueError)) {
+      return false;
+    }
+    // valid job properties (if exist jobProperties error)
+    if (this.jobProperties.length !== 0 && _.some(this.jobProperties, config => config.keyError || config.valueError)) {
+      return false;
     }
     return true;
   }
@@ -982,19 +1060,19 @@ export class IngestionSettingComponent extends AbstractComponent {
    */
   private _getDateTimeRegexp(granularityValue: string): RegExp {
     switch (granularityValue) {
-      case 'SECOND':  // YYYY-MM-dd hh:mm:ss
+      case 'SECOND':  // YYYY-MM-DD HH:mm:ss
         return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
-      case 'MINUTE':  // YYYY-MM-dd hh:mm
+      case 'MINUTE':  // YYYY-MM-DD HH:mm
         return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]$/;
-      case 'HOUR':  // YYYY-MM-dd hh
+      case 'HOUR':  // YYYY-MM-DD HH
         return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9])$/;
-      case 'DAY':  // YYYY-MM-dd
+      case 'DAY':  // YYYY-MM-DD
         return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
       case 'MONTH':  // YYYY-MM
         return /^\d{4}-(0[1-9]|1[0-2])$/;
       case 'YEAR':  // YYYY
         return /^\d{4}$/;
-      default:  // YYYY-MM-dd hh:mm:ss
+      default:  // YYYY-MM-DD HH:mm:ss
         return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
     }
   }
@@ -1034,6 +1112,42 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
+   * Get time format
+   * @param {string} granularityValue
+   * @returns {string}
+   * @private
+   */
+  private _getTimeFormat(granularityValue: string): string {
+    switch (granularityValue) {
+      case 'SECOND':
+        return 'YYYY-MM-DD HH:mm:ss';
+      case 'MINUTE':
+        return 'YYYY-MM-DD HH:mm';
+      case 'HOUR':
+        return 'YYYY-MM-DD HH';
+      case 'DAY':
+        return 'YYYY-MM-DD';
+      case 'MONTH':
+        return 'YYYY-MM';
+      case 'YEAR':
+        return 'YYYY';
+      default:
+        return 'YYYY-MM-DD HH:mm:ss';
+    }
+  }
+
+  /**
+   * Get granularity unit initial data
+   * @param {string} timestampColumnData
+   * @param {string} granularityValue
+   * @returns {string}
+   * @private
+   */
+  private _getGranularityUnitInitialData(timestampColumnData: string, granularityValue: string): string {
+    return moment(timestampColumnData).format(this._getTimeFormat(granularityValue));
+  }
+
+  /**
    * Check enable partition keys
    * @param partitionList
    * @returns {boolean}
@@ -1065,6 +1179,15 @@ export class IngestionSettingComponent extends AbstractComponent {
     this.tuningConfig = ingestionData.tuningConfig;
     // isShowAdvancedSetting
     this.isShowAdvancedSetting = ingestionData.isShowAdvancedSetting;
+    // interval text
+    this.startIntervalText = ingestionData.startIntervalText;
+    this.endIntervalText = ingestionData.endIntervalText;
+    // interval valid message
+    this.intervalValidMessage = ingestionData.intervalValidMessage;
+    // interval valid
+    this.intervalValid = ingestionData.intervalValid;
+    // granularity unit
+    this.granularityUnit = ingestionData.granularityUnit;
     // if create type is DB
     if (this.createType === 'DB') {
       // load selected expiration time
@@ -1142,7 +1265,16 @@ export class IngestionSettingComponent extends AbstractComponent {
       // save tuning configuration
       tuningConfig : this.tuningConfig,
       // isShowAdvancedSetting
-      isShowAdvancedSetting: this.isShowAdvancedSetting
+      isShowAdvancedSetting: this.isShowAdvancedSetting,
+      // interval text
+      startIntervalText: this.startIntervalText,
+      endIntervalText: this.endIntervalText,
+      // interval valid message
+      intervalValidMessage: this.intervalValidMessage,
+      // interval valid
+      intervalValid: this.intervalValid,
+      // granularity unit
+      granularityUnit: this.granularityUnit
     };
     // if create type DB
     if (this.createType === 'DB') {
