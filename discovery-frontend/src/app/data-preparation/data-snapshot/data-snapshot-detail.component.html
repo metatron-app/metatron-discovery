@@ -61,7 +61,8 @@
           <!--
               loading 시 ddp-load 추가
           -->
-          <a href="javascript:" class="ddp-btn-bg " (click)="downloadSnapshot()" ><em class="ddp-icon-link-down"></em><em class="ddp-icon-spin-loading"></em>Download CSV</a>
+          <a href="javascript:" class="ddp-btn-bg " (click)="downloadSnapshot('csv')" *ngIf="snapshotUriFileFormat === 'csv' || selectedDataSnapshot.ssType === 'STAGING_DB' " ><em class="ddp-icon-link-down"></em><em class="ddp-icon-spin-loading"></em>Download CSV</a>
+          <a href="javascript:" class="ddp-btn-bg " (click)="downloadSnapshot('json')" *ngIf="snapshotUriFileFormat === 'json' || selectedDataSnapshot.ssType === 'STAGING_DB' "><em class="ddp-icon-link-down"></em><em class="ddp-icon-spin-loading"></em>Download JSON</a>
         </div>
         <!-- //요약 -->
         <!-- grid -->
@@ -152,7 +153,7 @@
       <!-- title -->
       <div class="ddp-box-title">
         <em class="ddp-data-num">{{ruleList?.length}}</em>
-        {{'msg.dp.ui.rules' | translate}}
+        {{'msg.dp.ui.rule.list' | translate}}
       </div>
       <!-- //title -->
       <div class="ddp-ui-rule-flow">

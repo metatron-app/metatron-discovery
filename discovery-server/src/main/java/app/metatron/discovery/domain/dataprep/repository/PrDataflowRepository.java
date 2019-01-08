@@ -22,8 +22,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-@RepositoryRestResource(path = "preparationdataflows", itemResourceRel = "preparationdataflow" , collectionResourceRel = "preparationdataflows",
-    excerptProjection = PrDataflowProjections.DefaultProjection.class)
+@RepositoryRestResource(path = "preparationdataflows", itemResourceRel = "preparationdataflow" , collectionResourceRel = "preparationdataflows"
+              ,excerptProjection = PrDataflowProjections.DefaultProjection.class)
 public interface PrDataflowRepository extends JpaRepository<PrDataflow,String> {
 
     Page<PrDataflow> findByDfNameContaining(@Param("dfName") String dfName, Pageable pageable);

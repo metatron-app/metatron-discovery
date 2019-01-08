@@ -245,7 +245,8 @@ public class Field implements MetatronDomain<Long> {
   private Field mapper;
 
   /**
-   * Related field information, When you configure a new field by mapping an existing physical field
+   * Related field information, When you configure a new field by mapping an existing physical
+   * field
    */
   @OneToMany(mappedBy = "mapper")
   @JsonBackReference
@@ -280,7 +281,6 @@ public class Field implements MetatronDomain<Long> {
     this.role = SearchParamValidator.enumUpperValue(FieldRole.class, patch.getValue("role"), "role");
     this.logicalType = SearchParamValidator.enumUpperValue(LogicalType.class, patch.getValue("logicalType"), "logicalType");
     this.aggrType = SearchParamValidator.enumUpperValue(MeasureField.AggregationType.class, patch.getValue("aggrType"), "aggrType");
-    this.format = patch.getValue("format");
     this.seq = patch.getLongValue("seq");
 
     this.filtering = patch.getValue("filtering");
@@ -289,15 +289,21 @@ public class Field implements MetatronDomain<Long> {
       this.filteringSeq = patch.getLongValue("filteringSeq");
       setFilteringOptions(patch.getObjectValue("filteringOptions"));
     }
+
+    setFormat(patch.getObjectValue("format"));
   }
 
   public void updateField(CollectionPatch patch) {
     // if(patch.hasProperty("name")) this.name = patch.getValue("name");
     if (patch.hasProperty("alias")) this.alias = patch.getValue("alias");
+
     if (patch.hasProperty("description")) this.description = patch.getValue("description");
+
     if (patch.hasProperty("logicalType"))
       this.logicalType = SearchParamValidator.enumUpperValue(LogicalType.class, patch.getValue("logicalType"), "logicalType");
-    if (patch.hasProperty("format")) this.format = patch.getValue("format");
+
+    if (patch.hasProperty("format")) setFormat(patch.getObjectValue("format"));
+
     if (patch.hasProperty("seq")) this.seq = patch.getLongValue("seq");
 
     if (patch.hasProperty("filtering")) this.filtering = patch.getValue("filtering");
@@ -319,8 +325,8 @@ public class Field implements MetatronDomain<Long> {
   @JsonIgnore
   public Aggregation getAggregation(boolean isRelay) {
 
-    if(isRelay) {
-      return new RelayAggregation(name,logicalType.toEngineMetricType());
+    if (isRelay) {
+      return new RelayAggregation(name, logicalType.toEngineMetricType());
     }
 
     if (aggrType == null) {
@@ -596,6 +602,15 @@ public class Field implements MetatronDomain<Long> {
     }
 
     return format;
+  }
+
+  public void setFormat(Object object) {
+    if (object == null) {
+      this.format = null;
+    } else {
+      FieldFormat format = GlobalObjectMapper.getDefaultMapper().convertValue(object, FieldFormat.class);
+      this.format = GlobalObjectMapper.writeValueAsString(format);
+    }
   }
 
   public void setFormat(String format) {

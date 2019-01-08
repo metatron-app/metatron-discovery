@@ -60,6 +60,10 @@ export interface UIChartAxis {
 
   // 축의 numeric dimension 설정값
   axisOption?: AxisOption;
+
+  // 비활성여부 (보조축 표시여부에서 사용)
+  disabled?: boolean;
+
 }
 
 export interface Background {

@@ -41,11 +41,11 @@
       </div>
 
       <!-- 축이 category타입일때에만 show -->
-      <axis-category-option *ngIf="'category' == uiOption.yAxis?.label?.type.toString()" [axis]="uiOption.yAxis" [firstFl]="!possibleChartCheck('yAxisTitle', uiOption.type)" (changeCategoryAxis)="changeYAxisValue($event)"></axis-category-option>
+      <axis-category-option *ngIf="!isSecondaryAxis && 'category' == uiOption.yAxis?.label?.type.toString()" [axis]="uiOption.yAxis" [firstFl]="!possibleChartCheck('yAxisTitle', uiOption.type)" (changeCategoryAxis)="changeYAxisValue($event)"></axis-category-option>
       <!-- //축이 category타입일때에만 show -->
 
       <!-- 축이 value타입일때에만 show -->
-      <axis-value-option *ngIf="'value' == uiOption.yAxis?.label?.type.toString()" [axis]="uiOption.yAxis" [uiOption]="uiOption" (changeValueAxis)="changeYAxisValue($event)" (changeBaseline)="changeBaseline($event)"></axis-value-option>
+      <axis-value-option *ngIf="!isSecondaryAxis && 'value' == uiOption.yAxis?.label?.type.toString()" [axis]="uiOption.yAxis" [uiOption]="uiOption" (changeValueAxis)="changeYAxisValue($event)" (changeBaseline)="changeBaseline($event)"></axis-value-option>
       <!-- //축이 value타입일때에만 show -->
     </div>
     <!-- //box down -->

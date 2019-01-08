@@ -231,8 +231,10 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       }
     }
 
-    // set ranges for view
-    this.rangesViewList = this.setRangeViewByDecimal(this.uiOption.color['ranges']);
+    setTimeout(() => {
+      // set ranges for view
+      this.rangesViewList = this.setRangeViewByDecimal(this.uiOption.color['ranges']);
+    }, 100);
 
     // set min / max by decimal format
     if (this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal) {
@@ -1233,6 +1235,54 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     const index = _.findIndex(this.uiOption.fielDimensionList, {'name' : this.uiOption.color['targetField']});
 
     return index;
+  }
+
+  /**
+   * show / hide color min range span
+   */
+  public showMinInputColorRange(item, inputShow: boolean, minElement, index?: number) {
+
+    event.stopPropagation();
+
+    // hide other range preview
+    _.each(this.rangesViewList, (item) => {
+      if (item['minInputShow']) delete item['minInputShow'];
+      if (item['maxInputShow']) delete item['maxInputShow'];
+    });
+
+    item.minInputShow = inputShow;
+
+    if (undefined !== index) {
+
+      // show input box
+      this.changeDetect.detectChanges();
+      this.availableRange(item, index);
+      $(minElement).trigger('focus');
+    }
+  }
+
+  /**
+   * show / hide color max range span
+   */
+  public showMaxInputColorRange(item, inputShow: boolean, maxElement, index?: number) {
+
+    event.stopPropagation();
+
+    // hide other range preview
+    _.each(this.rangesViewList, (item) => {
+      if (item['minInputShow']) delete item['minInputShow'];
+      if (item['maxInputShow']) delete item['maxInputShow'];
+    });
+
+    item.maxInputShow = inputShow;
+
+    if (undefined !== index) {
+
+      // show input box
+      this.changeDetect.detectChanges();
+      this.availableRange(item, index);
+      $(maxElement).trigger('focus');
+    }
   }
 
   /**

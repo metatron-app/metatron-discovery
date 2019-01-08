@@ -27,7 +27,8 @@
           <span class="ddp-label-slider">{{'msg.page.ui.legend.show.legend' | translate}}</span>
           <!-- Slide THREE -->
           <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-            <input type="checkbox" id="check2" [ngModel]="uiOption.legend.showName"
+            <input type="checkbox" id="check2" [ngModel]="uiOption.legend.auto && uiOption.legend.showName"
+                   [disabled]="false === uiOption.legend.auto"
                    (click)="toggleLegend()">
             <label for="check2"><span class="ddp-slide"></span></label>
           </div>
@@ -35,7 +36,7 @@
         </div>
         <!-- //slider -->
 
-        <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.legend.showName">
+        <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.legend.auto && uiOption.legend.showName">
           <div class="ddp-col-5">
             <span class="ddp-label-txt">{{'msg.page.ui.legend.legend.position' | translate}}</span>
           </div>

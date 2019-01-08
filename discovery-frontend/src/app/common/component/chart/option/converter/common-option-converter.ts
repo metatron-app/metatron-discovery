@@ -90,7 +90,7 @@ export class CommonOptionConverter {
     // type이 없는경우 return
     if (!uiOption || _.isUndefined(uiOption['align'])) return chartOption;
 
-    const axisList = _.compact(_.concat(uiOption.xAxis, uiOption.yAxis, uiOption.subAxis));
+    const axisList = _.compact(_.concat(uiOption.xAxis, uiOption.yAxis, uiOption.secondaryAxis));
     const type = uiOption['align'];
 
     const yAxis = axisList.filter((item) => {
@@ -147,7 +147,7 @@ export class CommonOptionConverter {
    */
   public static convertYAxisRotateName(chartOption: BaseOption, uiOption: UIOption, fieldInfo: PivotTableInfo): BaseOption {
 
-    const axisList = _.compact(_.concat(uiOption.xAxis, uiOption.yAxis, uiOption.subAxis));
+    const axisList = _.compact(_.concat(uiOption.xAxis, uiOption.yAxis, uiOption.secondaryAxis));
     const type = uiOption['align'];
 
     // type이 없는경우 return

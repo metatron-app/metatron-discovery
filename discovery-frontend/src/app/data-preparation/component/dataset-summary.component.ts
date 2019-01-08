@@ -101,7 +101,7 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
         //this.dataset = new Dataset();
         this.dataset = new PrDataset();
         this.loadingShow();
-        this.datasetService.getDataPreview(this.selectedDatasetId).then((data) => {
+        this.datasetService.getDatasetDetail(this.selectedDatasetId).then((data) => {
           this.dataset = data;
           this._setGridData(data.gridResponse);
           this.loadingHide();

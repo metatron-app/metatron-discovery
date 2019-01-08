@@ -540,7 +540,10 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
         this.cloneFlag = true;
         this.selectedDataSet.dsId = '';
         this.getDataflow();
-      });
+      }).catch((error) => {
+        this.loadingHide();
+        Alert.warning('msg.dp.alert.clone.failed');
+      })
     }
   }
 

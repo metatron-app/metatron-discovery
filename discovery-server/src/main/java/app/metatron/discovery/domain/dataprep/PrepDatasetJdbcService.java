@@ -16,12 +16,14 @@ package app.metatron.discovery.domain.dataprep;
 
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.jdbc.PrepJdbcService;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -43,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.sql.DataSource;
 import java.net.URI;
 import java.sql.*;
 import java.util.HashMap;
@@ -246,54 +249,62 @@ public class PrepDatasetJdbcService {
                 sql = "SELECT * FROM " + tblName + " LIMIT " + size;
             }
 
-            Connection conn = DriverManager.getConnection(connectUrl, username, password);
-            if (conn != null) {
-                if(dbName!=null && false==dbName.isEmpty()) {
-                    conn.setCatalog(dbName);
-                }
-
-                Statement statement = conn.createStatement();
-                ResultSet rs = statement.executeQuery(sql);
-                ResultSetMetaData resultSetMetaData = rs.getMetaData();
-                int numberOfColumns = resultSetMetaData.getColumnCount();
-
-                for (int i=0;i<numberOfColumns;i++) {
-                    String columnName = resultSetMetaData.getColumnName(i+1);
-                    if( true==columnName.contains(".") ) {
-                        columnName = columnName.substring(columnName.lastIndexOf(".")+1);
-                    }
-
-                    ColumnType columnType = ColumnType.fromJdbcType( resultSetMetaData.getColumnType(i+1) );
-                    dataFrame.addColumn(columnName, columnType);
-                }
-
-                int readRows = 0;
-                while (rs.next()) {
-                    app.metatron.discovery.domain.dataprep.teddy.Row row = new app.metatron.discovery.domain.dataprep.teddy.Row();
-                    for (int i=0;i<numberOfColumns;i++) {
-                        Object value = rs.getObject(i+1);
-
-                        if(dataFrame.getColType(i)==ColumnType.TIMESTAMP) {
-                            DateTime jodaTime = new DateTime(value);
-                            row.add(dataFrame.getColName(i), jodaTime);
-                        } else {
-                            // 모두 Object 그대로 들어감
-                            row.add(dataFrame.getColName(i), value);
-                        }
-                    }
-                    dataFrame.rows.add(readRows++,row);
-                    if( limitSize < readRows ) { break; }
-                }
-//                dataset.setTotalLines(-1);    // FIXME: 이것을 설정하면 callable에서 하는 일과 lock이 겹침. 추후, callback으로 REST API를 쓰도록 수정하면 해결될 듯.
-                dataset.setTotalBytes(-1L);
-
-                JdbcUtils.closeResultSet(rs);
-                JdbcUtils.closeStatement(statement);
-                JdbcUtils.closeConnection(conn);
-
-                Callable<Integer> callable = new PrepDatasetTotalLinesCallable(this, dataset.getDsId(), queryStmt, connectUrl, username, password, dbName);
-                this.futures.add( poolExecutorService.submit(callable) );
+            PrepJdbcService jdbcConnectionService = new PrepJdbcService();
+            JdbcDataConnection jdbcDataConnection;
+            if( connection instanceof JdbcDataConnection ) {
+                jdbcDataConnection = (JdbcDataConnection) connection;
+            } else {
+                jdbcDataConnection = jdbcConnectionService.makeJdbcDataConnection(connection);
             }
+            jdbcDataConnection.setDatabase(dbName);
+            DataSource dataSource = jdbcConnectionService.getDataSource(jdbcDataConnection, true);
+            Statement stmt = null;
+
+            try {
+                stmt = dataSource.getConnection().createStatement();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            ResultSet rs = stmt.executeQuery(sql);
+            ResultSetMetaData resultSetMetaData = rs.getMetaData();
+            int numberOfColumns = resultSetMetaData.getColumnCount();
+
+            for (int i=0;i<numberOfColumns;i++) {
+                String columnName = resultSetMetaData.getColumnName(i+1);
+                if( true==columnName.contains(".") ) {
+                    columnName = columnName.substring(columnName.lastIndexOf(".")+1);
+                }
+
+                ColumnType columnType = ColumnType.fromJdbcType( resultSetMetaData.getColumnType(i+1) );
+                dataFrame.addColumn(columnName, columnType);
+            }
+
+            int readRows = 0;
+            while (rs.next()) {
+                app.metatron.discovery.domain.dataprep.teddy.Row row = new app.metatron.discovery.domain.dataprep.teddy.Row();
+                for (int i=0;i<numberOfColumns;i++) {
+                    Object value = rs.getObject(i+1);
+
+                    if(dataFrame.getColType(i)==ColumnType.TIMESTAMP) {
+                        DateTime jodaTime = new DateTime(value);
+                        row.add(dataFrame.getColName(i), jodaTime);
+                    } else {
+                        // 모두 Object 그대로 들어감
+                        row.add(dataFrame.getColName(i), value);
+                    }
+                }
+                dataFrame.rows.add(readRows++,row);
+                if( limitSize < readRows ) { break; }
+            }
+            dataset.setTotalLines(-1L);
+            dataset.setTotalBytes(-1L);
+
+            JdbcUtils.closeResultSet(rs);
+            JdbcUtils.closeStatement(stmt);
+
+            Callable<Integer> callable = new PrepDatasetTotalLinesCallable(this, dataset.getDsId(), queryStmt, connectUrl, username, password, dbName);
+            this.futures.add( poolExecutorService.submit(callable) );
         } catch (Exception e) {
             LOGGER.error("Failed to read JDBC : {}", e.getMessage());
             throw e;

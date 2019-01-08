@@ -104,8 +104,10 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public isShow: boolean = false;   // 컴포넌트 표시 여부
-  public isOnlyShowCandidateValues: boolean = false;   // 표시할 후보값만 표시 여부
+  public isShow: boolean = false; // 컴포넌트 표시 여부
+  public isOnlyShowCandidateValues: boolean = false;  // 표시할 후보값만 표시 여부
+  public useAll:boolean = false;  // 전체 선택 표시 여부
+  public isNoData:boolean = false;  // 데이터 없음 표시 여부
 
   // 수정 대상
   public targetFilter: InclusionFilter;
@@ -224,6 +226,13 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
       this.targetFilter = targetFilter;
       this._targetField = targetField;
       this._board = board;
+
+      // 전체 선택 기능 체크 및 전체 선택 기능이 비활성 일떄, 초기값 기본 선택 - for Essential Filter
+      this.useAll = !( -1 < targetField.filteringSeq );
+      if( false === this.useAll && 0 === this._selectedValues.length ) {
+        this._selectedValues.push( this._candidateList[0] );
+      }
+
       this.isShow = true;
       this.safelyDetectChanges();
       this.loadingHide();
@@ -592,7 +601,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    * @return {boolean}
    */
   public isCheckedAllItem(): boolean {
-    if (this.isSingleSelect(this.targetFilter)) {
+    if (this.useAll && this.isSingleSelect(this.targetFilter)) {
       return 0 === this._selectedValues.length
     } else {
       return this._candidateList.length === this._selectedValues.length;
@@ -762,6 +771,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     result.forEach((item) => this._candidateList.push(this._objToCandidate(item, targetField)));
     this.totalItemCnt = this._candidateList.length;
     (targetFilter.candidateValues) || (targetFilter.candidateValues = []);
+    this.isNoData = ( 0 === this.totalItemCnt );
 
     // 정렬
     this.sortCandidateValues(targetFilter);

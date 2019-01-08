@@ -1025,7 +1025,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           .CannotTriggerInsert(true)
           .Resizable(true)
           .Unselectable(true)
-          .Sortable(true)
+          .Sortable(false)
           .build();
       });
 

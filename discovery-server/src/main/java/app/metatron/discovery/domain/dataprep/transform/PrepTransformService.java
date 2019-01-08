@@ -797,7 +797,7 @@ public class PrepTransformService {
     assert dataset != null : dsId;
 
     // dataset이 loading되지 않았으면 loading
-    load_internal(dsId, true);    // do compaction if necessary
+    load_internal(dsId);      // TODO: do compaction (only when UI requested explicitly)
 
     PrepTransformResponse response = null;
     int origStageIdx = teddyImpl.getCurStageIdx(dsId);
@@ -1362,10 +1362,11 @@ public class PrepTransformService {
 
     //wrangledDataset.setDsName(importedDataset.getDsName() + " [W]");
     String dsName = importedDataset.getDsName();
-    String newDsName = dsName.replaceFirst(" \\((EXCEL|CSV|STAGING|MYSQL|ORACLE|TIBERO|HIVE|POSTGRESQL|MSSQL|PRESTO)\\)$","");
+    String newDsName = dsName.replaceFirst(" \\((EXCEL|CSV|JSON|STAGING|MYSQL|ORACLE|TIBERO|HIVE|POSTGRESQL|MSSQL|PRESTO)\\)$","");
     wrangledDataset.setDsName(newDsName);
     wrangledDataset.setDsType(WRANGLED);
     wrangledDataset.setCreatorDfId(dfId);
+    wrangledDataset.setCreatorDfName(dataflow.getDfName());
     wrangledDataset.setCreatedTime(DateTime.now());
     wrangledDataset.setModifiedTime(DateTime.now());
     wrangledDataset.setCreatedBy(dataflow.getCreatedBy());
@@ -1849,7 +1850,9 @@ public class PrepTransformService {
       throw e;
     } catch (RuleException e) {
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, TeddyException.fromRuleException(e));
-    } catch (Exception e) {
+    } catch (NumberFormatException e) {
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_NUMBER_FORMAT, e.getMessage());
+    }catch (Exception e) {
       LOGGER.error("confirmRuleStringForException(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED, e.getMessage());
     }

@@ -170,18 +170,25 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // change layer type
     this.uiOption.layers[this.index].type = layerType;
 
-    // init color ranges
-    this.uiOption.layers[this.index].color.ranges = undefined;
-    // hide custom color
-    this.uiOption.layers[this.index].color['settingUseFl'] = false;
+    // init color, legend
+    this.initOptionSymbolLayer();
 
     // change color type by layer type
     if (MapLayerType.HEATMAP === layerType) {
+      this.uiOption.layers[this.index].color.by = MapBy.MEASURE;
       this.uiOption.layers[this.index].color.schema = 'HC1';
       if( isNullOrUndefined(this.uiOption.layers[this.index]['blur']) ) {
         this.uiOption.layers[this.index]['blur'] = 20;
       }
       this.uiOption.layers[this.index]['radius'] = 20;
+
+      // when measure doesn't exist, hide/disable legend
+      if (!this.measureList || 0 === this.measureList.length) {
+        // this.uiOption.legend.showName = false;
+        this.uiOption.legend.auto = false;
+      } else {
+        this.uiOption.layers[this.index].color.column = this.measureList[0]['name'];
+      }
 
       // remove measure aggregation type in shelf
       this.removeAggregationType();
@@ -214,7 +221,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       this.addAggregationType();
     }
 
-    // set measure list
+    // set measure, dimension list by layer type
     this.setMeasureDimensions(this.shelf, true);
 
     if ((MapLayerType.TILE === cloneLayerType || MapLayerType.TILE === layerType) && cloneLayerType !== layerType) {
@@ -634,6 +641,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // not heatmap => set ranges
     if (MapLayerType.HEATMAP !== this.uiOption.layers[this.index].type && MapBy.MEASURE === this.uiOption.layers[this.index].color.by) {
       this.uiOption.layers[this.index].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[0], colorList, this.index, this.shelf.layers[this.index], []);
+    // heatmap => init ranges
+    } else {
+      this.uiOption.layers[this.index].color.ranges = undefined;
     }
 
     this.applyLayers();
@@ -790,10 +800,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // parse string to value
     range = this.parseStrFloat(range);
 
-    let decimalValue = this.uiOption.minValue;
-
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.minValue;
+    const uiMinValue = _.cloneDeep(this.uiOption.minValue);
+    const uiMaxValue = _.cloneDeep(this.uiOption.maxValue);
 
     // 입력가능 최소 / 최대범위 구하기
     let minValue = rangeList[index + 1] ? rangeList[index + 1].gt ? rangeList[index + 1].gt : uiMinValue :
@@ -804,7 +813,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     if (!rangeList[index - 1]) {
 
       // 최대값보다 큰거나 하위의 최대값보다 값이 작은경우
-      if (this.maxValue < range.gt || rangeList[index + 1].fixMax > range.gt) {
+      if (uiMaxValue < range.gt || rangeList[index + 1].fixMax > range.gt) {
         range.gt = range.fixMin;
       } else {
         range.fixMin = range.gt;
@@ -847,7 +856,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
       returnString += ': ' + currentRnage.fixMin;
 
-      // case min value
+    // case min value
     } else if (rangeList.length - 1 == index) {
 
       returnString += ': ' + currentRnage.fixMax;
@@ -870,11 +879,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public addNewRange(index: number) {
 
+    const optionMinValue = _.cloneDeep(this.uiOption.minValue);
+
     // 색상 범위리스트
     const rangeList = this.uiOption.layers[this.index].color.ranges;
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = Number(this.minValue) >= 0 ? 0 : Math.floor(Number(this.minValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
+    const uiMinValue = Number(optionMinValue) >= 0 ? 0 : Math.floor(Number(optionMinValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
 
     // 최대값
     let maxValue = rangeList[index - 1].gt;
@@ -973,7 +984,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     range = this.parseStrFloat(range);
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.minValue;
+    const uiMinValue = _.cloneDeep(this.uiOption.minValue);
 
     // 하위 fixMin값
     const lowerfixMin = rangeList[index + 1] ?(rangeList[index + 1].fixMin) ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax : null;
@@ -1053,6 +1064,53 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     // emit
     this.setZIndex.emit(this.colorListFlag);
+  }
+
+  /**
+   * show / hide color min range span
+   */
+  public showMinInputColorRange(item, inputShow: boolean, minElement, index?: number) {
+
+    event.stopPropagation();
+
+    // hide other range preview
+    _.each(this.rangesViewList, (item) => {
+      if (item['minInputShow']) delete item['minInputShow'];
+      if (item['maxInputShow']) delete item['maxInputShow'];
+    });
+
+    item.minInputShow = inputShow;
+
+    if (undefined !== index) {
+      // show input box
+      this.changeDetect.detectChanges();
+      this.availableRange(item, index);
+      $(minElement).trigger('focus');
+    }
+  }
+
+  /**
+   * show / hide color max range span
+   */
+  public showMaxInputColorRange(item, inputShow: boolean, maxElement, index?: number) {
+
+    event.stopPropagation();
+
+    // hide other range preview
+    _.each(this.rangesViewList, (item) => {
+      if (item['minInputShow']) delete item['minInputShow'];
+      if (item['maxInputShow']) delete item['maxInputShow'];
+    });
+
+    item.maxInputShow = inputShow;
+
+    if (undefined !== index) {
+
+      // show input box
+      this.changeDetect.detectChanges();
+      this.availableRange(item, index);
+      $(maxElement).trigger('focus');
+    }
   }
 
   /**
@@ -1178,16 +1236,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     ///////////////////////////
     if( isNone ) {
       layer.color.by = MapBy.NONE;
-      layer.color.schema = '#6344ad';
+      layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : '#6344ad';
       layer.color.column = null;
       layer.color.aggregationType = null;
     }
     ///////////////////////////
     // Color by Measure
     ///////////////////////////
-    else if( !_.eq(layer.color.by, MapBy.DIMENSION) && isMeasure ) {
+    // remove not isDimension => exceptional case select dimension and remove dimension
+    else if( isMeasure ) {
       layer.color.by = MapBy.MEASURE;
-      layer.color.schema = 'VC1';
+      layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : 'VC1';
       layer.color.column = this.measureList[0]['name'];
       if (aggregationFl) layer.color.aggregationType = this.measureList[0]['aggregationType'];
       else layer.color.aggregationType = null;
@@ -1225,10 +1284,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     let isDimension: boolean = false;
     let isMeasure: boolean = false;
     _.each(layers, (field) => {
-      if( field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1 ) {
+      if( 'user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1) ) {
         isNone = false;
       }
-      if( _.eq(field.type, ShelveFieldType.DIMENSION) ) {
+      // when logical type is not geo, type is dimension
+      if( ('user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1)) && _.eq(field.type, ShelveFieldType.DIMENSION) ) {
         isDimension = true;
       }
       if( _.eq(field.type, ShelveFieldType.MEASURE) ) {
@@ -1276,5 +1336,19 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     range.gt     = null == range.gt ? null : FormatOptionConverter.getNumberValue(range.gt);
     range.lte    = null == range.lte ? null : FormatOptionConverter.getNumberValue(range.lte);
     return range;
+  }
+
+  /**
+   * symbol layer - init ui options when change symbol layer type
+   */
+  private initOptionSymbolLayer() {
+
+    // init color ranges
+    this.uiOption.layers[this.index].color.ranges = undefined;
+    // hide custom color
+    this.uiOption.layers[this.index].color['settingUseFl'] = false;
+
+    // init disable legend
+    this.uiOption.legend.auto = true;
   }
 }

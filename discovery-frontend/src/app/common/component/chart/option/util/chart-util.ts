@@ -15,6 +15,7 @@
 import * as _ from 'lodash';
 import { Field } from '../../../../../domain/workbook/configurations/field/field';
 import { GeoField } from '../../../../../domain/workbook/configurations/field/geo-field';
+import {ChartType} from "../define/common";
 
 export class ChartUtil {
 
@@ -91,4 +92,12 @@ export class ChartUtil {
     });
     return alias;
   }
+
+  /**
+   * check using limit option
+   * @param type
+   */
+  public static isUsingLimitOption( type:ChartType ) {
+    return ChartType.NETWORK !== type && ChartType.SANKEY !== type && ChartType.GAUGE !== type && ChartType.TREEMAP !== type;
+  } // function - isUsingLimitOption
 }

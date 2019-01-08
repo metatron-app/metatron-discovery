@@ -14,7 +14,6 @@
 
 import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
-//import { Dataset, DsType, Field, ImportType, RsType } from '../../domain/data-preparation/dataset';
 import { PrDataset, DsType, Field, ImportType, RsType } from '../../domain/data-preparation/pr-dataset';
 import { GridComponent } from '../../common/component/grid/grid.component';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
@@ -27,13 +26,12 @@ import { DatasetService } from './service/dataset.service';
 import { DataflowService } from '../dataflow/service/dataflow.service';
 import { StringUtil } from '../../common/util/string.util';
 import { ActivatedRoute } from '@angular/router';
-//import { Dataflow } from '../../domain/data-preparation/dataflow';
 import { PrDataflow } from '../../domain/data-preparation/pr-dataflow';
 import { CreateSnapshotPopup } from '../component/create-snapshot-popup.component';
 import { SnapshotLoadingComponent } from '../component/snapshot-loading.component';
 import { PreparationCommonUtil } from "../util/preparation-common.util";
 
-import { isNull, isNullOrUndefined, isUndefined } from "util";
+import { isNull, isNullOrUndefined } from "util";
 import * as pixelWidth from 'string-pixel-width';
 
 declare let moment: any;
@@ -59,7 +57,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
-  public dataset: any;
+  public dataset: PrDataset;
 
   public fields : Field[];
 
@@ -78,12 +76,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   // delete selected dataset
   public selectedDatasetId: string;
 
-  // number of columns in wrangled dataSet
-  public wrangledDatasetColumn: number;
-
-  // number of columns in imported dataSet
-  public importedDatasetColumn: any;
-
   // container for dataset name & description - edit
   public datasetName: string = '';
   public datasetDesc: string = '';
@@ -91,11 +83,12 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   public datasetId : string ='';
 
   public datasetInformationList : DatasetInformation[] ;
-  // public datasetInformationList : object[] ;
+
   public interval : any;
 
   public isSelectDataflowOpen: boolean = false;
 
+  // dataflow id str
   public dfStr : string;
 
   @ViewChild('dsName')
@@ -108,11 +101,14 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
   public prepCommonUtil = PreparationCommonUtil;
 
+  public dsType = DsType;
+
+  public ruleList: Command[];
+  public commandList: Command[];
+  public isRequested: boolean = false;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(private datasetService: DatasetService,
               private dataflowService: DataflowService,
               private activatedRoute: ActivatedRoute,
@@ -128,18 +124,49 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   public ngOnInit() {
     super.ngOnInit();
 
+    this.commandList = [
+      { command: 'header', alias: 'He'},
+      { command: 'keep', alias: 'Ke'},
+      { command: 'replace', alias: 'Rp'},
+      { command: 'rename', alias: 'Rn'},
+      { command: 'set', alias: 'Se'},
+      { command: 'settype', alias: 'St'},
+      { command: 'countpattern', alias: 'Co'},
+      { command: 'split', alias: 'Sp'},
+      { command: 'derive', alias: 'Dr'},
+      { command: 'delete', alias: 'De'},
+      { command: 'drop', alias: 'Dp'},
+      { command: 'pivot', alias: 'Pv'},
+      { command: 'unpivot', alias: 'Up'},
+      { command: 'Join', alias: 'Jo'},
+      { command: 'extract', alias: 'Ex'},
+      { command: 'flatten', alias: 'Fl'},
+      { command: 'merge', alias: 'Me'},
+      { command: 'nest', alias: 'Ne'},
+      { command: 'unnest', alias: 'Un'},
+      { command: 'aggregate', alias: 'Ag'},
+      { command: 'sort', alias: 'So'},
+      { command: 'move', alias: 'Mv'},
+      { command: 'Union', alias: 'Ui'},
+      { command: 'window', alias: 'Wn'},
+      { command: 'setformat', alias: 'Sf'}
+    ];
+
+
+
     // Router에서 파라미터 전달 받기
     this.activatedRoute.params.subscribe((params) => {
       if (params['id']) {
         this.datasetId = params['id'];
-        this._getPreviewData();
-        this.interval = setInterval(()=> {this._getPreviewData();},3000);
+        this._getDsDetail(true);
+        this.interval = setInterval(()=> {this._getDsDetail();},10000);
       }
     });
   }
 
   public ngOnDestroy() {
     clearInterval(this.interval);
+    this.interval = undefined;
     super.ngOnDestroy();
   }
 
@@ -154,6 +181,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   /** 데이터셋 리스트로 돌아간다 */
   public close() {
     clearInterval(this.interval);
+    this.interval = undefined;
     this.router.navigate(['/management/datapreparation/dataset']);
   } // function - close
 
@@ -234,7 +262,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     };
     this.loadingShow();
     this.datasetService.updateDataset(newDataset)
-      //.then((dataset: Dataset) => {
       .then((dataset: PrDataset) => {
         this.isDatasetNameEditMode = false;
         this.isDatasetDescEditMode = false;
@@ -244,7 +271,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         this.dsName.nativeElement.blur();
         this.dsDesc.nativeElement.blur();
         this.loadingHide();
-        this._getPreviewData();
+        this._getDsDetail();
       })
       .catch((error) => {
         this.loadingHide();
@@ -314,11 +341,9 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
   /** get total bytes */
   public get getTotalBytes() {
-    if( this.dataset.importType===ImportType.STAGING_DB &&
-      this.dataset.rsType!==RsType.TABLE ) {
-      return this.translateService.instant('msg.dp.alert.rstype.no.table');
-    } else if( this.dataset.importType===ImportType.DATABASE ) {
-      return this.translateService.instant('msg.dp.alert.importtype.db');
+    if( (this.dataset.importType===ImportType.STAGING_DB &&
+      this.dataset.rsType!==RsType.TABLE)  || this.dataset.importType===ImportType.DATABASE) {
+      return null
     } else {
       let size = 0;
       if(true==Number.isInteger(this.dataset.totalBytes)) {
@@ -328,22 +353,9 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     }
   }
 
-  // /** 엑섹인지 여 */
-  // public isExcel(ds:any) {
-  //   if( ds.importType && ds.importType === 'FILE' ) {
-  //     if( ds.custom ) {
-  //       let customJson = JSON.parse(ds.custom);
-  //       //if( customJson.fileType && customJson.fileType==='EXCEL') {
-  //       if( customJson.sheet ) {
-  //         return true;
-  //       }
-  //     }
-  //   }
-  //   return false;
-  // }
 
   /** get row count */
-  public getRows() {
+  public get getRows() {
     let rows = '0';
     if(true==Number.isInteger(this.dataset.totalLines)) {
       if (this.dataset.totalLines === -1) {
@@ -356,62 +368,40 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
           rows = rows + ' rows';
         }
         clearInterval(this.interval);
+        this.interval = undefined;
       }
     }
     return rows;
   }
 
   public get getHost() {
-    //if( this.dataset['importType'] && this.dataset['importType']===ImportType.DB && !isNullOrUndefined(this.dataset.connectionInfo['hostname'])) {
-    if( this.dataset.importType===ImportType.DATABASE && !isNullOrUndefined(this.dataset.connectionInfo['hostname'])) {
-      //return 'host from '+this.dataset['dcId'];
-      return this.dataset.connectionInfo['hostname'];
+    if( this.dataset.importType===ImportType.DATABASE && !isNullOrUndefined(this.dataset.dcHostname)) {
+      return this.dataset.dcHostname;
     }
     return null;
   }
 
   public get getPort() {
-    //if( this.dataset['importType'] && this.dataset['importType']===ImportType.DB && !isNullOrUndefined(this.dataset.connectionInfo['port'])) {
-    if( this.dataset.importType===ImportType.DATABASE && !isNullOrUndefined(this.dataset.connectionInfo['port'])) {
-      //return 'port from '+this.dataset['dcId'];
-      return this.dataset.connectionInfo['port'];
+    if( this.dataset.importType===ImportType.DATABASE && !isNullOrUndefined(this.dataset.dcPort)) {
+      return this.dataset.dcPort;
     }
     return null;
   }
 
   public get getDatabase() {
     return this.dataset.dbName;
-  /*
-    if( this.dataset['importType'] && this.dataset['importType']!==ImportType.FILE ) {
-      let custom = JSON.parse( this.dataset.custom );
-      if( custom['databaseName'] ) {
-        return custom['databaseName'];
-      }
-    }
-    return null;
-    */
   }
 
-  public get getTableOrSql() {
-  /*
-    if( this.dataset['importType'] && this.dataset['importType']===ImportType.FILE ) {
-      return null;
-    }
+  public get getUrl() {
+    return this.dataset.dcUrl;
+  }
 
-    if(this.getPort !== null && this.getHost !== null) {
-      return this.dataset['tableName'];
-    } else {
-      return this.dataset['queryStmt'];
-    }
-    */
-    if( this.dataset.importType===ImportType.DATABASE || this.dataset.importType===ImportType.STAGING_DB ) {
-      if(this.getPort !== null && this.getHost !== null) {
-        return this.dataset.tblName;
-      } else {
-        return this.dataset.queryStmt;
-      }
-    }
-    return null;
+  public get getTable() {
+    return this.dataset.tblName;
+  }
+
+  public get getQueryStmt() {
+    return this.dataset.queryStmt;
   }
 
   /**
@@ -478,61 +468,82 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    */
   public getDatasetInformationList(dataset) {
     this.datasetInformationList = [];
+
+    // WRANGLED
     if (dataset.dsType === DsType.WRANGLED) {
       this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : dataset.dsType },
-        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}` }
+        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${this.dataset.gridResponse.colCnt } ${this.dataset.gridResponse.colCnt === '1' || this.dataset.gridResponse.colCnt === '0' ? 'column': 'columns'}` }
       ]
-    //}  else if (dataset.importType === ImportType.FILE) {
+
+      // FILE
     }  else if (dataset.importType === ImportType.UPLOAD || dataset.importType === ImportType.URI) {
       let filepath : string = dataset.importType === ImportType.UPLOAD? dataset.filenameBeforeUpload : dataset.storedUri;
 
-      //this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType} (${this.getDatasetType(dataset.importType, dataset.filename)})`},
-      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${this.prepCommonUtil.getImportType(dataset.importType)} (${this.getDatasetType(dataset.importType, filepath)})`},
+      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${this.prepCommonUtil.getImportType(dataset.importType)} (${this._getFileType(dataset.importType, filepath)})`},
         //{name : this.translateService.instant('msg.dp.th.file'), value : `${filepath}` },
         {name : this.translateService.instant('msg.dp.th.file'), value : `${filepath}` },
       ];
 
-      //if (this.getDatasetType(dataset.importType, dataset.filename) === 'EXCEL') {
-      if (this.getDatasetType(dataset.importType, filepath) === 'EXCEL') {
+      // EXCEL
+      if (this._getFileType(dataset.importType, filepath) === 'EXCEL') {
         this.datasetInformationList.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetName() })
       }
 
       this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes },
-        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}`})
+        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${this.dataset.gridResponse.colCnt} ${this.dataset.gridResponse.colCnt === '1' || this.dataset.gridResponse.colCnt === '0' ? 'column': 'columns'}`})
 
-    //} else if (dataset.importType === 'HIVE') {
-    } else if (dataset.importType === 'DATABASE' || dataset.importType === 'STAGING_DB') {
+
+      // STAGING OR DB
+    } else if (dataset.importType === 'STAGING_DB' || dataset.importType === 'DATABASE') {
+
       this.datasetInformationList = [
-        { name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'STAGING_DB' ? 'Staging DB' : 'DB'}` },
-        { name : `${this.translateService.instant('msg.lineage.ui.list.search.table')}/${this.translateService.instant('msg.lineage.ui.list.search.sql')}`, value : `${this.getTableOrSql}` },
-        { name : this.translateService.instant('msg.comm.detail.size') , value : this.getTotalBytes },
-        { name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}` }
-      ];
-    } else {
-      //this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'HIVE' ? 'Staging DB' : 'DB'}` });
-      this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'STAGING_DB' ? 'Staging DB' : 'DB'}` });
-      if(this.getHost) this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.host'), value : this.getHost });
-      if(this.getPort) this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.port'), value : this.getPort });
-      if(this.getDatabase) this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.database'), value : this.getDatabase });
-      this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.table')+'/'+this.translateService.instant('msg.lineage.ui.list.search.sql'), value : `${this.getPort !== null && this.getHost !== null ? dataset.tableName : dataset.queryStmt}` });
-      this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}` });
+        { name : this.translateService.instant('msg.comm.th.type') , value : dataset.importType === 'STAGING_DB' ? 'STAGING_DB' : 'DB' }];
+
+      if (!isNullOrUndefined(this.getDatabase)) {
+        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.dp.th.database')}`, value : `${this.getDatabase}` });
+      }
+
+      if (dataset.rsType === 'TABLE') {
+        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.table')}`, value : `${this.getTable}` })
+      } else {
+        this.datasetInformationList.push({ name : `${this.translateService.instant('msg.lineage.ui.list.search.sql')}`, value : `${this.getQueryStmt}` })
+      }
+
+      if (dataset.importType === 'STAGING_DB') {
+        if (!isNullOrUndefined(this.getTotalBytes)) {
+          this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes });
+        }
+      } else {
+        if (this.getPort && this.getHost) {
+          this.datasetInformationList.push({ name : `${this.translateService.instant('Host')}`, value : `${this.getHost}` },
+            { name : `${this.translateService.instant('Port')}`, value : `${this.getPort}` })
+        } else {
+          this.datasetInformationList.push({ name : `${this.translateService.instant('Url')}`, value : `${this.getUrl}` });
+        }
+      }
+
+      this.datasetInformationList.push(
+        { name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${ this.dataset.gridResponse.colCnt } ${ this.dataset.gridResponse.colCnt === '1' || this.dataset.gridResponse.colCnt === '0' ? 'column': 'columns'}` })
+
     }
   }
 
-  public getDatasetType(type: ImportType, fileName : string) : string {
 
-    let result = '';
-    //if (type === ImportType.FILE) {
+  /**
+   * Returns file type (csv, json, excel etc)
+   * @param {ImportType} type
+   * @param {string} fileName
+   * @returns {string}
+   */
+  private _getFileType(type: ImportType, fileName : string) : string {
+
+    let result = 'CSV';
     if (type === ImportType.UPLOAD) {
       let extension = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName)[1];
       if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
         result =  'EXCEL'
-      } else if (extension.toUpperCase() === 'CSV' || extension.toUpperCase() === 'TXT') {
-        result =  'CSV'
-      } else if (extension.toUpperCase() === 'JSON') {
+      }  else if (extension.toUpperCase() === 'JSON') {
         result =  'JSON'
-      } else  {
-        result = extension.toUpperCase()
       }
     }
     return result;
@@ -544,12 +555,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   public getSheetName() : string {
 
     let result = "N/A";
-    /*
-    if (this.dataset.custom) {
-      let customJson = JSON.parse(this.dataset.custom);
-      result = customJson.sheet ? customJson.sheet : "N/A";
-    }
-    */
     if(this.dataset.sheetName) {
       result = this.dataset.sheetName;
     }
@@ -572,7 +577,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    */
   private _savePrevRouterUrl(): void {
     this.cookieService.set('SELECTED_DATASET_ID', this.dataset.dsId);
-    this.cookieService.set('SELECTED_DATASET_TYPE', this.dataset.dsType);
+    this.cookieService.set('SELECTED_DATASET_TYPE', this.dataset.dsType.toString());
   }
 
   private _formatBytes(a,b) { // a=크기 , b=소숫점자릿
@@ -581,77 +586,65 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]
   }
 
+
   /**
-   * 데이터셋 미리보기 정리
+   * Returns dataset detail information including grid
    */
-  private _getPreviewData() {
-    this.datasetService.getDataPreview(this.datasetId).then((result) => {
-      this.dataset = result;
-      this.setDatasetName();
-      this.setDatasetDescription();
+  private _getDsDetail(isInitial?: boolean) {
 
-      if (this.dataset['dataflows'] && this.dataset['dataflows']) {
-        this.dataset.dataflows = this.dataset['dataflows'];
-      } else {
-        this.dataset.dataflows = [];
-      }
 
-      if (result.dsType === DsType.WRANGLED) { // always show grid when wrangled
-        this.datasetService.getDatasetWrangledData(result.dsId).then((wrangledDataset) => {
-          if (wrangledDataset.errorMsg) {
-            Alert.error(wrangledDataset.errorMsg);
-          } else {
-            if (wrangledDataset.gridResponse) {
-              this.dataset.gridResponse = wrangledDataset.gridResponse;
-              this.importedDatasetColumn = wrangledDataset.gridResponse.colCnt; // number of columns in wrangled dataSet
-              const gridData = this._getGridDataFromGridResponse(wrangledDataset.gridResponse);
-              this.fields = gridData.fields;
-              this.getDatasetInformationList(this.dataset);
-              this._updateGrid(gridData);
-              this.loadingHide();
-            }
-          }
+    if (isInitial) {
+      this.isRequested = false;
+      this.loadingShow();
+    }
 
-        })
-          .catch((error) => {
+    if (!this.isRequested) {
+      this.isRequested  = true;
+      this.datasetService.getDatasetDetail(this.datasetId).then((result) => {
+        this.isRequested = false;
 
-            clearInterval(this.interval);
-            let prep_error = this.dataprepExceptionHandler(error);
-            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-          });
-      } else {
-        if (result.gridResponse) {
-          this.importedDatasetColumn = result.gridResponse.colCnt;
-          const gridData = this._getGridDataFromGridResponse(result.gridResponse);
-          this.getDatasetInformationList(this.dataset);
-          this._updateGrid(gridData);
+        this.dataset = result;
+        this.setDatasetName();
+        this.setDatasetDescription();
+
+        // Set dataflow information for `used in`
+        if (this.dataset['dataflows']) {
+          this.dataset.dataflows = this.dataset['dataflows'];
         } else {
-          this.datasetService.getImportedPreviewReload(this.dataset.dsId).then((preview: any) => {
-            if(!isUndefined(preview['gridResponse'])) {
-              result.gridResponse = preview['gridResponse'];
-              this.importedDatasetColumn = result.gridResponse.colCnt;
-              const gridData = this._getGridDataFromGridResponse(result.gridResponse);
-              this.getDatasetInformationList(this.dataset);
-              this._updateGrid(gridData);
-            }
-          }).catch((error) => {
-            clearInterval(this.interval);
-            let prep_error = this.dataprepExceptionHandler(error);
-            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-          });
+          this.dataset.dataflows = [];
         }
-      }
-    })
-      .catch((error) => {
+
+        // set grid information
+        this.dataset.gridResponse = result.gridResponse;
+        this.fields = this._getGridDataFromGridResponse(result.gridResponse).fields;
+        this._updateGrid(this._getGridDataFromGridResponse(result.gridResponse));
+
+        // set information
+        this.getDatasetInformationList(this.dataset);
+
+        // set rule list only when dataset is wrangled
+        if (this.dataset.dsType === DsType.WRANGLED) {
+          this._setRuleList(this.dataset.transformRules);
+        }
+
+        this.loadingHide();
+
+      }).catch((error) => {
+        this.loadingHide();
         clearInterval(this.interval);
+        this.interval = undefined;
         let prep_error = this.dataprepExceptionHandler(error);
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
+    }
+
+
+
 
   } // function - getPreviewData
 
   /**
-   * API의 gridResponse 를 통해서 UI 상의 그리드데이터를 얻는다
+   * Change grid data to grid response
    * @param gridResponse 매트릭스 정보
    * @returns 그리드 데이터
    */
@@ -765,6 +758,48 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     },400);
   } // function - updateGrid
 
+  /**
+   * Set rule list
+   * @param rules
+   * @private
+   */
+  private _setRuleList(rules: any) {
+    this.ruleList = [];
+    const commandNames = this.commandList.map((command) => {
+      return command.command;
+    });
+
+    // ruleStringInfos
+    rules.forEach((rule) => {
+
+      let ruleInfo: Command = new Command();
+      let ruleVO = JSON.parse(rule['jsonRuleString']);
+      ruleInfo.command = ruleVO['name'];
+
+      if (ruleInfo.command === 'join') {
+        ruleInfo.command = 'Join'
+      } else if (ruleInfo.command === 'union') {
+        ruleInfo.command = 'Union'
+      }
+
+      const idx = commandNames.indexOf(ruleInfo.command);
+
+      if (idx > -1) {
+        ruleInfo.alias = this.commandList[idx].alias;
+        ruleInfo.shortRuleString = rule.shortRuleString || rule.ruleString
+        ruleInfo.ruleString = rule.ruleString;
+
+      } else {
+        ruleInfo.shortRuleString = rule.shortRuleString ? rule.shortRuleString : rule.ruleString;
+        ruleInfo.command = 'Create';
+        ruleInfo.alias = 'Cr';
+      }
+
+      this.ruleList.push(ruleInfo);
+
+    });
+  }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -775,3 +810,12 @@ class DatasetInformation {
   name: string;
   value: any;
 }
+
+class Command {
+  command : string;
+  alias : string;
+  shortRuleString?: string;
+  ruleString?: string;
+}
+
+
