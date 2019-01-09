@@ -2111,6 +2111,8 @@
   "msg.storage.ui.intervals.invalid.format": "The interval unit must match the segment unit. Enter in the form of {{format}}.",
   "msg.storage.ui.intervals.invalid.unit": "The number of segment granularity units in the interval period must not exceed 10000.",
   "msg.storage.ui.intervals.invalid.period": "Please enter the past value and the latest value range correctly.",
+  "msg.storage.ui.intervals": "Intervals",
+  "msg.storage.ui.intervals.units": "segment granularity units",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job name, application ID, and User",

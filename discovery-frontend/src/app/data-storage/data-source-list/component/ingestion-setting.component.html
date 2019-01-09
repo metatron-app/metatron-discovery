@@ -511,9 +511,28 @@
             </li>
           </ul>
         </div>
-        <!-- sub setting -->
+      </div>
+      <!-- //Segment granularity -->
+      <!-- Intervals -->
+      <div class="ddp-ui-option-sub" *ngIf="!isUsedCurrentTimestampColumn()">
+        <label class="ddp-ui-label-name">
+          {{'msg.storage.ui.intervals' | translate}}
+          <!-- info -->
+          <div class="ddp-wrap-hover-info ddp-type">
+            <em class="ddp-icon-info3"></em>
+            <!-- popup -->
+            <div class="ddp-box-layout4">
+              <div class="ddp-data-title">
+                {{'msg.storage.ui.intervals.title' | translate}}
+              </div>
+              <div class="ddp-data-det" [innerHTML]="'msg.storage.ui.intervals.description' | translate">
+              </div>
+            </div>
+            <!-- //popup -->
+          </div>
+          <!-- //info -->
+        </label>
         <div class="ddp-ui-setting-table ddp-clear">
-          <span class="ddp-type-label">Interval period</span>
 
           <div class="ddp-wrap-units">
             <div class="ddp-ui-units">
@@ -522,7 +541,6 @@
                 <div class="ddp-box-calen ">
                   <input type="text" class="ddp-input-typebasic ddp-data-calen" input-mask="calendar" (focusout)="checkValidIntervalTextAndSetGranularityUnit()" [(ngModel)]="startIntervalText">
                 </div>
-
                 <span class="ddp-bar">~</span>
                 <div class="ddp-box-calen ">
                   <input type="text" class="ddp-input-typebasic ddp-data-calen" input-mask="calendar" (focusout)="checkValidIntervalTextAndSetGranularityUnit()" [(ngModel)]="endIntervalText">
@@ -531,7 +549,7 @@
               <!-- data -->
               <div class="ddp-data-units">
                 <!-- error 일때 ddp-error-num 추가 -->
-                <span class="ddp-data-num ddp-error-num">{{granularityUnit}}</span> segment granularity units
+                <span class="ddp-data-num ddp-error-num">{{granularityUnit | numberCommas}}</span> {{'msg.storage.ui.intervals.units' | translate}}
               </div>
               <!-- //data -->
             </div>
@@ -540,10 +558,8 @@
             </div>
           </div>
         </div>
-        <!-- //sub setting -->
       </div>
-      <!-- //Segment granularity -->
-
+      <!-- //Intervals -->
     </div>
     <!-- //Timestamp settings -->
     <!-- Roll up -->
