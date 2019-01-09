@@ -118,8 +118,8 @@ public class TeddyTest {
         ruleStrings.add("replace col: column3, column4, column5, column6, column7, column8, column9, column10, column11, column13, column12 with: '' on: /_$/ global: true");
         ruleStrings.add("replace col: column3, column4, column5, column7, column6, column8, column9, column10, column11, column12, column13 with: ' ' on: '_' global: true");
         ruleStrings.add("header rownum: 1");
-        ruleStrings.add("replace col: Population, Total_Crime, Violent_Crime, Property_Crime, Murder, Forcible_Rape, Robbery, Aggravated_Assault, Burglary, Larceny_Theft, Vehicle_Theft with: '' on: ',' global: true");
-        ruleStrings.add("replace col: Population, Violent_Crime, Total_Crime, Property_Crime, Murder, Forcible_Rape, Robbery, Aggravated_Assault, Burglary, Larceny_Theft, Vehicle_Theft with: '' on: ' ' global: true");
+        ruleStrings.add("replace col: Population, `Total Crime`, `Violent Crime`, `Property Crime`, Murder, `Forcible Rape`, Robbery, `Aggravated Assault`, Burglary, `Larceny Theft`, `Vehicle Theft` with: '' on: ',' global: true");
+        ruleStrings.add("replace col: Population, `Total Crime`, `Violent Crime`, `Property Crime`, Murder, `Forcible Rape`, Robbery, `Aggravated Assault`, Burglary, `Larceny Theft`, `Vehicle Theft` with: '' on: ' ' global: true");
         return apply_rules(crime, ruleStrings);
     }
 
