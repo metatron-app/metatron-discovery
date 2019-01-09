@@ -134,7 +134,6 @@ public class ExcelProcessor {
             value = PolarisUtils.objectToString(getCellValue(cell), "col" + columnIndex);
             columnMap.put(columnIndex, value);
             fields.add(makeField(columnIndex, value, cell));
-            isParsable = validateHeaders(fields, cell);
           } else {
             value = "field_" + (columnIndex+1);
             columnMap.put(columnIndex, value);
@@ -147,6 +146,10 @@ public class ExcelProcessor {
             rowMap.put(columnMap.get(columnIndex), getCellValue(cell));
           }
         }
+      }
+
+      if(firstHeaderRow && rowCnt == 0){
+        isParsable = validateHeaders(row);
       }
 
       if (rowCnt > 0 || false==firstHeaderRow) {
@@ -164,22 +167,25 @@ public class ExcelProcessor {
     return new IngestionDataResultResponse(fields, resultSet, rowCnt, isParsable);
   }
 
-  private FileValidationResponse validateHeaders(List<Field> fields, Cell cell) {
+  private FileValidationResponse validateHeaders(Row row) {
 
-    Set<Field> bounder = new HashSet<>();
+    Set<String> bounder = new HashSet<>();
 
-    for (Field field : fields){
+    if (row.getLastCellNum() != row.getPhysicalNumberOfCells()) {
+      return new FileValidationResponse(false,
+          FileValidationResponse.WarningType.NULL_HEADER.getCode());
+    }
 
-      // Check column name's length. default to 50.
-      if (field.getName().length() > MAX_HEADER_NAME) {
+    for ( Cell cell : row ) {
+
+      if (cell.getStringCellValue().length() > MAX_HEADER_NAME) {
         return new FileValidationResponse(false,
-            FileValidationResponse.WarningType.DUPLICATED_HEADER.getCode());
+            FileValidationResponse.WarningType.TOO_LONG_HEADER.getCode());
       }
 
-      // Check Null column name.
-      if (field.getName() == null || field.getName().isEmpty()) {
+      if (bounder.contains(cell.getStringCellValue())) {
         return new FileValidationResponse(false,
-            FileValidationResponse.WarningType.NULL_HEADER.getCode());
+            FileValidationResponse.WarningType.DUPLICATED_HEADER.getCode());
       }
 
       if (getCellValue(cell) == null) {
@@ -187,21 +193,7 @@ public class ExcelProcessor {
             FileValidationResponse.WarningType.HEADER_MERGED.getCode());
       }
 
-      /* Disable because of StreamingSheet libs.
-      // Check has merged columns.
-      if (sheet.getNumMergedRegions() > 0) {
-        return new FileValidationResponse(false,
-            FileValidationResponse.WarningType.HEADER_MERGED.getCode());
-      }*/
-
-      // Check duplicated name.
-      if(bounder.contains(field)) {
-        return new FileValidationResponse(false,
-            FileValidationResponse.WarningType.DUPLICATED_HEADER.getCode());
-      }
-
-      bounder.add(field);
-
+      bounder.add(cell.getStringCellValue());
     }
 
     return new FileValidationResponse(true);

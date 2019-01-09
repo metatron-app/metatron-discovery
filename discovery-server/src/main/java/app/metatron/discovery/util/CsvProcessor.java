@@ -79,21 +79,23 @@ public class CsvProcessor {
         break;
       }
 
-      // 헤더가 없는 경우
-      if(headers == null && i == 0) {
-        headers = makeHeader(row.length);
-        isParsable = validateHeaders(headers);
+      // If not set header, then make headers. Otherwise, validate parsed headers.
+      if ( i == 0 ) {
+        if ( headers == null ) {
+          headers = makeHeader(row.length);
+        } else {
+          isParsable = validateHeaders(headers);
+        }
       }
 
       Map<String, Object> resultRow = Maps.newLinkedHashMap();
-      for(int j = 0; j<headers.length; j++) {
-        if(row.length <= j){
+      for (int j = 0; j<headers.length; j++) {
+        if (row.length <= j) {
           resultRow.put(headers[j], null);
           isParsable = new FileValidationResponse(false,
               FileValidationResponse.WarningType.SEEMS_NOT_FORMAL.getCode());
-
           break;
-        }else{
+        } else {
           resultRow.put(headers[j], row[j]);
         }
       }
@@ -144,6 +146,9 @@ public class CsvProcessor {
     for (int j = 0; j < headers.length; j++) {
 
       if (headers[j] == null || headers[j].isEmpty()){
+
+        headers[j] = "col_" + j;
+
         return new FileValidationResponse(false,
             FileValidationResponse.WarningType.NULL_HEADER.getCode());
       }
