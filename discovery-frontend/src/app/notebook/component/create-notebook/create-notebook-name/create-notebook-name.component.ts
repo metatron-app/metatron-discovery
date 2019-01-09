@@ -211,7 +211,7 @@ export class CreateNotebookNameComponent extends AbstractPopupComponent implemen
 
 
     // 생성 api
-    this.notebookService.createNotebook(param).then((data) => {
+    this.notebookService.createNotebook(param).then((data:NoteBook) => {
 
       if (data) {
         // 로딩 hide
@@ -222,7 +222,7 @@ export class CreateNotebookNameComponent extends AbstractPopupComponent implemen
 
         this.popupService.notiPopup({
           name: 'complete-notebook-create',
-          data: null
+          data: data.id
         });
       }
 
