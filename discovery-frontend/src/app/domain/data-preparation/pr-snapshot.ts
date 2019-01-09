@@ -60,6 +60,8 @@ public jsonLineageInfo: any;
 public isCancel : boolean = false;
 
 public displayStatus: string;
+public dsName: string;
+public dfName: string;
 }
 
 export class OriginDsInfo {
