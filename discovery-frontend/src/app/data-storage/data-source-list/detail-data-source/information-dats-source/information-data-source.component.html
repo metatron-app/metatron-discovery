@@ -188,8 +188,33 @@
           {{'msg.storage.th.gran.settings' | translate}}
         </th>
         <td>
-          <span class="ddp-data-form">{{'msg.storage.th.segment.gran' | translate}} : {{getSegGranularity}}</span>
-          <span class="ddp-data-form">{{'msg.storage.th.query.gran' | translate}} : {{getGranularity}}</span>
+          <div class="ddp-wrap-edit3 ddp-type">
+            <label class="ddp-label-type">{{'msg.storage.th.query.gran' | translate}}
+            </label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option">
+              {{getGranularity}}
+            </div>
+            <!-- //edit option -->
+          </div>
+          <div class="ddp-wrap-edit3 ddp-type">
+            <label class="ddp-label-type">{{'msg.storage.th.segment.gran' | translate}}
+            </label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option">
+              {{getSegGranularity}}
+            </div>
+            <!-- //edit option -->
+          </div>
+          <div class="ddp-wrap-edit3 ddp-type" *ngIf="!timestampColumn.derived">
+            <label class="ddp-label-type">{{'msg.storage.ui.intervals' | translate}}
+            </label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option">
+
+            </div>
+            <!-- //edit option -->
+          </div>
         </td>
       </tr>
       <!-- //Granularity -->
@@ -500,10 +525,12 @@
           <td>
             <!-- partition keys -->
             <div class="ddp-wrap-edit3 ddp-type">
-              <label class="ddp-label-type">{{'msg.storage.th.partition-keys' | translate}}
-              </label>
+              <label class="ddp-label-type">{{'msg.storage.th.partition-keys' | translate}}</label>
               <!-- edit option -->
-              <div class="ddp-ui-edit-option" [innerHTML]="getPartitionKeys()">
+              <div class="ddp-ui-edit-option">
+                <div class="ddp-wrap-list-detail">
+                  <span class="ddp-list-detail" *ngFor="let key of partitionKeyList">{{key}}</span>
+                </div>
               </div>
               <!-- //edit option -->
             </div>
