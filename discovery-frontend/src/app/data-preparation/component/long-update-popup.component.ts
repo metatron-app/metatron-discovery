@@ -137,6 +137,7 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
       this.step = data.name;
       if (this.step === 'complete-dataset-create') {
         this.selectedDatasetId = '';
+        $('.ddp-ui-gridbody').scrollTop(0);
         this._initViewPage()
       }
     });
