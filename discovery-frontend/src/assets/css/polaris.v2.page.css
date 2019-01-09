@@ -4663,7 +4663,7 @@ a:hover em.ddp-icon-shot {background-position:-17px top;}
 .ddp-wrap-grid-option .ddp-list-tab-button {float:left;}
 .ddp-wrap-tab-dashboard .ddp-ui-setting ul.ddp-list-tab-button {margin:4px 0 0 20px;}
 
-.ddp-wrap-grid-option .ddp-part-left .ddp-form-search {float:left; margin-left:26px; margin-top:8px;}
+.ddp-wrap-grid-option .ddp-part-right .ddp-type-search {float:left; width:200px; margin-top:15px; box-sizing:border-box;}
 .ddp-wrap-grid-option .ddp-data-form {display:inline-block; position:relative; padding:19px 0 12px 0; margin-left:17px; color:#4b515b; font-size:12px; font-weight:300; }
 .ddp-wrap-grid-option .ddp-data-form strong {color:#4b515b; font-weight:bold;}
 .ddp-wrap-grid-option .ddp-data-form input.ddp-data-input {display:inline-block; width:80px; padding:4px 9px; box-sizing:border-box; border:none; border-bottom:1px solid #d7d8dc; background:none; color:#656eb2; font-size:12px;}

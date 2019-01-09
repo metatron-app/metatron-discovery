@@ -34,8 +34,10 @@
   </div>
 
   <!-- select box -->
-  <edit-rule-field-combo [isMulti]="true" [fields]="fields" [selected]="selectedFields" [tabIndex]="3"
-                         (onChange)="changeFields($event)" ></edit-rule-field-combo>
+  <div class="ddp-wrap-selectbox">
+    <edit-rule-field-combo [isMulti]="true" [fields]="fields" [selected]="selectedFields" [tabIndex]="3"
+                           (onChange)="changeFields($event)" ></edit-rule-field-combo>
+  </div>
   <!-- //select box -->
   <span class="ddp-txt-error ddp-size"><em class="ddp-icon-error-s"></em>{{'msg.dp.ui.aggregate.warning' | translate }}</span>
 

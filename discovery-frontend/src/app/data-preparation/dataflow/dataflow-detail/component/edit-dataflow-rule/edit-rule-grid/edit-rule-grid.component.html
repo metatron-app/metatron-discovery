@@ -17,22 +17,6 @@
 <div class="ddp-wrap-grid-option ddp-clear">
   <!-- left -->
   <div class="ddp-part-left">
-    <!-- search -->
-    <div class="ddp-form-search">
-      <em class="ddp-icon-search"></em>
-      <input placeholder="{{'msg.storage.ui.search.data' | translate}}"
-             id="gridSearch"
-             [(ngModel)]="searchText"
-             (keyup.enter)="searchGrid();"
-             (keyup.esc)="searchGrid(true);">
-      <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchGrid(true);"></em>
-    </div>
-    <!-- //search -->
-  </div>
-  <!-- //left -->
-  <!-- right -->
-  <div class="ddp-part-right">
-    <span class="ddp-txt-error ddp-size" *ngIf="isAggregationIncluded"><em class="ddp-icon-error-s"></em>{{'msg.dp.ui.aggregate.warning.grid-top' | translate }} </span>
     <div class="ddp-data-form">
       <strong >{{totalColumnCnt | numberCommas}}</strong>
       {{'msg.comm.detail.columns' | translate}}
@@ -60,6 +44,27 @@
       </div>
       <!-- //팝업 -->
     </div>
+  </div>
+  <!-- //left -->
+  <!-- right -->
+  <div class="ddp-part-right">
+    <div class="ddp-box-warning" *ngIf="isAggregationIncluded">
+      <div class="ddp-txt-warning">
+        <em class="ddp-icon-warning"></em>
+        {{'msg.dp.ui.aggregate.warning.grid-top' | translate }}
+      </div>
+    </div>
+    <!-- search -->
+    <div class="ddp-type-search">
+      <input placeholder="{{'msg.storage.ui.search.data' | translate}}"
+             id="gridSearch"
+             [(ngModel)]="searchText"
+             (keyup.enter)="searchGrid();"
+             (keyup.esc)="searchGrid(true);">
+      <a class="ddp-btn-delete" *ngIf="searchText" (click)="$event.stopPropagation(); searchGrid(true);"></a>
+    </div>
+    <!-- //search -->
+
   </div>
   <!-- //right -->
 </div>
