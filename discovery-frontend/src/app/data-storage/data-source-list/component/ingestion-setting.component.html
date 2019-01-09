@@ -446,42 +446,7 @@
         </div>
       </div>
       <!-- //Data range (staging) -->
-
-      <!-- sub -->
-      <div class="ddp-ui-option-sub">
-        <label class="ddp-ui-label-name">
-          {{'msg.storage.th.segment.gran' | translate}}
-          <!-- info -->
-          <div class="ddp-wrap-hover-info ddp-type">
-            <em class="ddp-icon-info3"></em>
-            <!-- popup -->
-            <div class="ddp-box-layout4">
-              <div class="ddp-data-title">
-                {{'msg.storage.ui.segment-gran.title' | translate}}
-              </div>
-              <div class="ddp-data-det">
-                {{'msg.storage.ui.segment-gran.description' | translate}}
-              </div>
-            </div>
-            <!-- //popup -->
-          </div>
-          <!-- //info -->
-        </label>
-        <div class="ddp-type-selectbox ddp-setting" [class.ddp-selected]="isShowSegmentGranularityList"
-             (click)="isShowSegmentGranularityList = !isShowSegmentGranularityList"
-             (clickOutside)="isShowSegmentGranularityList=false">
-          <span class="ddp-txt-selectbox">{{selectedSegmentGranularity.label}}</span>
-          <ul class="ddp-list-selectbox ddp-selectdown">
-            <li *ngFor="let granularity of segmentGranularityList">
-              <a href="javascript:" (click)="onChangeSegmentGranularity(granularity)">
-                {{granularity.label}}
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <!-- //sub -->
-      <!-- sub -->
+      <!-- Query granularity -->
       <div class="ddp-ui-option-sub">
         <label class="ddp-ui-label-name">
           {{'msg.storage.th.query.gran' | translate}}
@@ -514,7 +479,71 @@
           </ul>
         </div>
       </div>
-      <!-- //sub -->
+      <!-- //Query granularity -->
+      <!-- Segment granularity -->
+      <div class="ddp-ui-option-sub">
+        <label class="ddp-ui-label-name">
+          {{'msg.storage.th.segment.gran' | translate}}
+          <!-- info -->
+          <div class="ddp-wrap-hover-info ddp-type">
+            <em class="ddp-icon-info3"></em>
+            <!-- popup -->
+            <div class="ddp-box-layout4">
+              <div class="ddp-data-title">
+                {{'msg.storage.ui.segment-gran.title' | translate}}
+              </div>
+              <div class="ddp-data-det" [innerHTML]="'msg.storage.ui.segment-gran.description' | translate">
+              </div>
+            </div>
+            <!-- //popup -->
+          </div>
+          <!-- //info -->
+        </label>
+        <div class="ddp-type-selectbox ddp-setting" [class.ddp-selected]="isShowSegmentGranularityList"
+             (click)="isShowSegmentGranularityList = !isShowSegmentGranularityList"
+             (clickOutside)="isShowSegmentGranularityList=false">
+          <span class="ddp-txt-selectbox">{{selectedSegmentGranularity.label}}</span>
+          <ul class="ddp-list-selectbox ddp-selectdown">
+            <li *ngFor="let granularity of segmentGranularityList">
+              <a href="javascript:" (click)="onChangeSegmentGranularity(granularity)">
+                {{granularity.label}}
+              </a>
+            </li>
+          </ul>
+        </div>
+        <!-- sub setting -->
+        <div class="ddp-ui-setting-table ddp-clear">
+          <span class="ddp-type-label">Interval period</span>
+
+          <div class="ddp-wrap-units">
+            <div class="ddp-ui-units">
+              <div class="ddp-ui-calen">
+                <!-- disabled 시 ddp-disabled 추가 -->
+                <div class="ddp-box-calen ">
+                  <input type="text" class="ddp-input-typebasic ddp-data-calen" input-mask="calendar" (focusout)="checkValidIntervalTextAndSetGranularityUnit()" [(ngModel)]="startIntervalText">
+                </div>
+
+                <span class="ddp-bar">~</span>
+                <div class="ddp-box-calen ">
+                  <input type="text" class="ddp-input-typebasic ddp-data-calen" input-mask="calendar" (focusout)="checkValidIntervalTextAndSetGranularityUnit()" [(ngModel)]="endIntervalText">
+                </div>
+              </div>
+              <!-- data -->
+              <div class="ddp-data-units">
+                <!-- error 일때 ddp-error-num 추가 -->
+                <span class="ddp-data-num ddp-error-num">{{granularityUnit}}</span> segment granularity units
+              </div>
+              <!-- //data -->
+            </div>
+            <div class="ddp-txt-error ddp-clear" *ngIf="intervalValid === 1">
+              <em class="ddp-icon-error-s"></em>{{intervalValidMessage}}
+            </div>
+          </div>
+        </div>
+        <!-- //sub setting -->
+      </div>
+      <!-- //Segment granularity -->
+
     </div>
     <!-- //Timestamp settings -->
     <!-- Roll up -->

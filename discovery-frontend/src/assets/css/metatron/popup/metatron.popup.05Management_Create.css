@@ -1,9 +1,28 @@
 @charset "utf-8";
 
-
+/**************************************************************
+  popup : 05_매니지먼트_00데이터저장소_01생성_00myfile_01시트선택_popup
+**************************************************************/
+.popup-datasource .ddp-view-sheet .ddp-data-name .ddp-icon-error2 {position:relative; top:-1px; vertical-align:middle;}
+.popup-datasource .ddp-wrap-sheet .ddp-ui-sheet-list ul.ddp-list-sheet li span.ddp-txt-radio .ddp-icon-error2 {position:relative; top:-1px; margin-left:4px; vertical-align:middle;}
+.popup-datasource .ddp-wrap-edit-form .ddp-wrap-edit3 .ddp-data-error {margin-top:20px;}
 /**************************************************************
   popup : 05_매니지먼트_00데이터저장소_01생성_03StringDb_03
 **************************************************************/
+.popup-datasource .ddp-wrap-edit2 .ddp-ui-setting-table {display:table; margin-top:4px;}
+
+.popup-datasource .ddp-wrap-edit2 .ddp-ui-setting-table .ddp-type-label {display:table-cell; position:relative; top:7px; padding-right:10px; color:#90969f; vertical-align:top;}
+
+
+.popup-datasource .ddp-wrap-edit2 .ddp-ui-setting-table .ddp-wrap-units {display:table-cell;}
+
+.popup-datasource .ddp-wrap-edit2 .ddp-ui-setting-table .ddp-ui-units {white-space:nowrap;}
+.popup-datasource .ddp-wrap-edit2 .ddp-ui-setting-table .ddp-ui-calen {display:inline-block; margin-right:7px;}
+.popup-datasource .ddp-wrap-edit2 .ddp-ui-setting-table .ddp-ui-calen .ddp-box-calen {width:160px;}
+.popup-datasource .ddp-wrap-edit2 .ddp-ui-setting-table .ddp-ui-sub-setting .ddp-txt-error {position:relative; top:0; margin-top:5px;}
+.popup-datasource .ddp-wrap-edit2 .ddp-ui-setting-table .ddp-wrap-units .ddp-data-units {position:relative; top:7px; display:inline-block; color:#90969f; vertical-align:top;}
+.popup-datasource .ddp-wrap-edit2 .ddp-ui-setting-table .ddp-wrap-units .ddp-data-units .ddp-data-num {color:#4b515b;}
+.popup-datasource .ddp-wrap-edit2 .ddp-ui-setting-table .ddp-wrap-units .ddp-data-units .ddp-data-num.ddp-error-num {color:#e70000;}
 .popup-datasource .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-label-radio.ddp-mgr0 {margin-right:0;}
 .popup-datasource .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-wrap-hover-info .ddp-icon-info3 {display:inline-block; position:relative; top:-2px; width:11px; height:11px; background:url(../../../images/icon_que.png) no-repeat; background-position:left -12px; cursor:pointer;}
 .popup-datasource .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-wrap-hover-info .ddp-pop-setting {width:350px;}
@@ -74,10 +93,14 @@
 .popup-datastore-schema .ddp-wrap-add-column .ddp-box-column .ddp-option-form.ddp-clear [class*="ddp-col-"]{padding:0 2px;}
 .popup-datastore-schema .ddp-wrap-value-setting .ddp-info {margin:3px 0 0 0; color:#b7b9c2; font-size:12px; font-style:italic;}
 .popup-datastore-schema .ddp-wrap-value-setting .ddp-info:before {display:inline-block; width:13px; height:13px; margin-right:3px; background:url(../../../images/icon_info.png) no-repeat; background-position:-42px -16px; content:''; vertical-align:middle;}
-
-
-
 .popup-datastore-schema .ddp-ui-setting .ddp-ui-option-in .ddp-sub-option {padding:6px 0 0 0;}
+
+.popup-datastore-schema .ddp-box-action .ddp-info {clear:both; color:#b7b9c2; margin-top:3px; font-size:12px; font-style:italic;}
+.popup-datastore-schema .ddp-box-action.ddp-type .ddp-change-type .ddp-box-layout4.ddp-change .ddp-change-select .ddp-info:before{display:inline-block; width:13px; height:13px; margin-right:3px; background:url(../../../images/icon_info.png) no-repeat; background-position:-42px -16px; content:''; vertical-align:middle;}
+.popup-datastore-schema .ddp-ui-checkaction .ddp-wrap-action .ddp-info {clear:both; color:#b7b9c2; margin-top:3px; font-size:12px; font-style:italic;}
+.popup-datastore-schema .ddp-ui-checkaction .ddp-wrap-action .ddp-info:before {display:inline-block; width:13px; height:13px; margin-right:3px; background:url(../../../images/icon_info.png) no-repeat; background-position:-42px -16px; content:''; vertical-align:middle;}
+
+
 
 
 

@@ -300,6 +300,7 @@ export class IngestionSettingComponent extends AbstractComponent {
       '2011-01-21 00:00:00.0',
       '2011-01-21 00:00:00.0',
       '2011-01-21 00:00:00.0'];
+    this._sortedTimestampColumnDataList = test.sort();
 
     // if exist ingestionData
     if (this._sourceData.hasOwnProperty("ingestionData")) {
@@ -639,24 +640,20 @@ export class IngestionSettingComponent extends AbstractComponent {
     // if null interval text, set interval text init timestamp data
     StringUtil.isEmpty(this.startIntervalText) && (this.startIntervalText = this._getGranularityUnitInitialData(this._sortedTimestampColumnDataList[0], this.selectedSegmentGranularity.value));
     StringUtil.isEmpty(this.endIntervalText) && (this.endIntervalText = this._getGranularityUnitInitialData(this._sortedTimestampColumnDataList[this._sortedTimestampColumnDataList.length-1], this.selectedSegmentGranularity.value));
-    // check interval text
-    if (!this._getDateTimeRegexp(this.selectedSegmentGranularity.value).test(this.startIntervalText)) {
+    // if invalid interval format
+    if (!this._getDateTimeRegexp(this.selectedSegmentGranularity.value).test(this.startIntervalText) || !this._getDateTimeRegexp(this.selectedSegmentGranularity.value).test(this.endIntervalText)) {
       this.intervalValid = 1;
-      this.intervalValidMessage = '시작 interval이 올바른 형식이 아닙니다';
+      this.intervalValidMessage = this.translateService.instant('msg.storage.ui.intervals.invalid.format', {format: this._getTimeFormat(this.selectedSegmentGranularity.value)});
       this.granularityUnit = 0;
-    }  else if (!this._getDateTimeRegexp(this.selectedSegmentGranularity.value).test(this.endIntervalText)) {
+    } else if (moment(this.endIntervalText).diff(moment(this.startIntervalText)) < 0) { // if difference first, end value
       this.intervalValid = 1;
-      this.intervalValidMessage = '끝나는 interval이 올바른 형식이 아닙니다';
+      this.intervalValidMessage = this.translateService.instant('msg.storage.ui.intervals.invalid.period');
       this.granularityUnit = 0;
-    } else if (moment(this.endIntervalText).diff(moment(this.startIntervalText)) < 0) {
+    } else if (this._getGranularityUnit() >= 10000) { // units number exceed 10000
       this.intervalValid = 1;
-      this.intervalValidMessage = 'interval 범위를 올바르게 입력하여 주십시오';
-      this.granularityUnit = 0;
-    } else if (this._getGranularityUnit() >= 10000) {
-      this.intervalValid = 1;
-      this.intervalValidMessage = 'interval 범위는 10000까지만 가능';
+      this.intervalValidMessage = this.translateService.instant('msg.storage.ui.intervals.invalid.unit');
       this.granularityUnit = this._getGranularityUnit();
-    } else {
+    } else {  // success
       this.intervalValid = 0;
       this.granularityUnit = this._getGranularityUnit();
     }
