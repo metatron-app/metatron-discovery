@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
@@ -21,6 +22,7 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformResponse;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -63,5 +66,30 @@ public class PrDataflowService {
             throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
         }
 
+    }
+
+    public void patchAllowedOnly(PrDataflow dataflow, PrDataflow patchDataflow) {
+        // Only a few fields are allowed to be changed.
+        // It can be changed.
+
+        List<String> allowKeys = Lists.newArrayList();
+        allowKeys.add("dfName");
+        allowKeys.add("dfDesc");
+
+        List<String> ignoreKeys = Lists.newArrayList();
+        ignoreKeys.add("dfId");
+
+        if(patchDataflow.getDfName()!=null) { dataflow.setDfName(patchDataflow.getDfName()); }
+        if(patchDataflow.getDfDesc()!=null) { dataflow.setDfDesc(patchDataflow.getDfDesc()); }
+
+        ObjectMapper objectMapper = GlobalObjectMapper.getDefaultMapper();
+        Map<String, Object> mapDataset = objectMapper.convertValue(patchDataflow, Map.class);
+        for(String key : mapDataset.keySet()) {
+            if( false==ignoreKeys.contains(key) ) { continue; }
+
+            if( false==allowKeys.contains(key) ) {
+                LOGGER.debug("'" + key + "' of pr-dataflow is an attribute to which patch is not applied");
+            }
+        }
     }
 }

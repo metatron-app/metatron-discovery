@@ -129,8 +129,7 @@ export class CreateWorkbenchCompleteComponent extends AbstractPopupComponent imp
         params['description'] = this.description.trim();
       }
 
-
-      this.workbenchService.createWorkbench(params).then(() => {
+      this.workbenchService.createWorkbench(params).then(( data:Workbench ) => {
 
         // 로딩 hide
         this.loadingHide();
@@ -139,8 +138,8 @@ export class CreateWorkbenchCompleteComponent extends AbstractPopupComponent imp
 
         // 완료 알림
         this.popupService.notiPopup({
-          name: 'reload-workbench',
-          data: null
+          name: 'create-workbench',
+          data: data.id
         });
 
         // 닫기

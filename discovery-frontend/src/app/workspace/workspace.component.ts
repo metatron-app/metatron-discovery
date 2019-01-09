@@ -250,9 +250,9 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
       this.workbenchStep = data.name;
 
       // 워크벤치 생성 완료
-      if (data.name === 'reload-workbench') {
+      if (data.name === 'create-workbench') {
         // 재조회
-        this.getWorkspace();
+        this.detailPage( data.data, 'workbench' );
       }
     });
     this.subscriptions.push(popupSubscription);

@@ -101,11 +101,14 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
   public prepCommonUtil = PreparationCommonUtil;
 
+  public dsType = DsType;
+
+  public ruleList: Command[];
+  public commandList: Command[];
+  public isRequested: boolean = false;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(private datasetService: DatasetService,
               private dataflowService: DataflowService,
               private activatedRoute: ActivatedRoute,
@@ -121,12 +124,42 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   public ngOnInit() {
     super.ngOnInit();
 
+    this.commandList = [
+      { command: 'header', alias: 'He'},
+      { command: 'keep', alias: 'Ke'},
+      { command: 'replace', alias: 'Rp'},
+      { command: 'rename', alias: 'Rn'},
+      { command: 'set', alias: 'Se'},
+      { command: 'settype', alias: 'St'},
+      { command: 'countpattern', alias: 'Co'},
+      { command: 'split', alias: 'Sp'},
+      { command: 'derive', alias: 'Dr'},
+      { command: 'delete', alias: 'De'},
+      { command: 'drop', alias: 'Dp'},
+      { command: 'pivot', alias: 'Pv'},
+      { command: 'unpivot', alias: 'Up'},
+      { command: 'Join', alias: 'Jo'},
+      { command: 'extract', alias: 'Ex'},
+      { command: 'flatten', alias: 'Fl'},
+      { command: 'merge', alias: 'Me'},
+      { command: 'nest', alias: 'Ne'},
+      { command: 'unnest', alias: 'Un'},
+      { command: 'aggregate', alias: 'Ag'},
+      { command: 'sort', alias: 'So'},
+      { command: 'move', alias: 'Mv'},
+      { command: 'Union', alias: 'Ui'},
+      { command: 'window', alias: 'Wn'},
+      { command: 'setformat', alias: 'Sf'}
+    ];
+
+
+
     // Router에서 파라미터 전달 받기
     this.activatedRoute.params.subscribe((params) => {
       if (params['id']) {
         this.datasetId = params['id'];
-        this._getDsDetail();
-        this.interval = setInterval(()=> {this._getDsDetail();},3000);
+        this._getDsDetail(true);
+        this.interval = setInterval(()=> {this._getDsDetail();},10000);
       }
     });
   }
@@ -557,34 +590,56 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   /**
    * Returns dataset detail information including grid
    */
-  private _getDsDetail() {
-    this.loadingShow();
-    this.datasetService.getDatasetDetail(this.datasetId).then((result) => {
+  private _getDsDetail(isInitial?: boolean) {
 
-      this.dataset = result;
-      this.setDatasetName();
-      this.setDatasetDescription();
 
-      // Set dataflow information for `used in`
-      if (this.dataset['dataflows']) {
-        this.dataset.dataflows = this.dataset['dataflows'];
-      } else {
-        this.dataset.dataflows = [];
-      }
+    if (isInitial) {
+      this.isRequested = false;
+      this.loadingShow();
+    }
 
-      this.dataset.gridResponse = result.gridResponse;
-      this.fields = this._getGridDataFromGridResponse(result.gridResponse).fields;
-      this.getDatasetInformationList(this.dataset);
-      this._updateGrid(this._getGridDataFromGridResponse(result.gridResponse));
-      this.loadingHide();
+    if (!this.isRequested) {
+      this.isRequested  = true;
+      this.datasetService.getDatasetDetail(this.datasetId).then((result) => {
+        this.isRequested = false;
 
-    }).catch((error) => {
-      this.loadingHide();
-      clearInterval(this.interval);
-      this.interval = undefined;
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-    });
+        this.dataset = result;
+        this.setDatasetName();
+        this.setDatasetDescription();
+
+        // Set dataflow information for `used in`
+        if (this.dataset['dataflows']) {
+          this.dataset.dataflows = this.dataset['dataflows'];
+        } else {
+          this.dataset.dataflows = [];
+        }
+
+        // set grid information
+        this.dataset.gridResponse = result.gridResponse;
+        this.fields = this._getGridDataFromGridResponse(result.gridResponse).fields;
+        this._updateGrid(this._getGridDataFromGridResponse(result.gridResponse));
+
+        // set information
+        this.getDatasetInformationList(this.dataset);
+
+        // set rule list only when dataset is wrangled
+        if (this.dataset.dsType === DsType.WRANGLED) {
+          this._setRuleList(this.dataset.transformRules);
+        }
+
+        this.loadingHide();
+
+      }).catch((error) => {
+        this.loadingHide();
+        clearInterval(this.interval);
+        this.interval = undefined;
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      });
+    }
+
+
+
 
   } // function - getPreviewData
 
@@ -703,6 +758,48 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     },400);
   } // function - updateGrid
 
+  /**
+   * Set rule list
+   * @param rules
+   * @private
+   */
+  private _setRuleList(rules: any) {
+    this.ruleList = [];
+    const commandNames = this.commandList.map((command) => {
+      return command.command;
+    });
+
+    // ruleStringInfos
+    rules.forEach((rule) => {
+
+      let ruleInfo: Command = new Command();
+      let ruleVO = JSON.parse(rule['jsonRuleString']);
+      ruleInfo.command = ruleVO['name'];
+
+      if (ruleInfo.command === 'join') {
+        ruleInfo.command = 'Join'
+      } else if (ruleInfo.command === 'union') {
+        ruleInfo.command = 'Union'
+      }
+
+      const idx = commandNames.indexOf(ruleInfo.command);
+
+      if (idx > -1) {
+        ruleInfo.alias = this.commandList[idx].alias;
+        ruleInfo.shortRuleString = rule.shortRuleString || rule.ruleString
+        ruleInfo.ruleString = rule.ruleString;
+
+      } else {
+        ruleInfo.shortRuleString = rule.shortRuleString ? rule.shortRuleString : rule.ruleString;
+        ruleInfo.command = 'Create';
+        ruleInfo.alias = 'Cr';
+      }
+
+      this.ruleList.push(ruleInfo);
+
+    });
+  }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -713,3 +810,12 @@ class DatasetInformation {
   name: string;
   value: any;
 }
+
+class Command {
+  command : string;
+  alias : string;
+  shortRuleString?: string;
+  ruleString?: string;
+}
+
+
