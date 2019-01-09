@@ -136,7 +136,13 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
     this.popupSubscription = this.popupService.view$.subscribe((data: SubscribeArg) => {
       this.step = data.name;
       if (this.step === 'complete-dataset-create') {
-        this.selectedDatasetId = '';
+
+        if(data.hasOwnProperty('data') && data.data !== null) {
+          this.selectedDatasetId = data.data;
+          if(this.layoutType == 'SWAP') {
+            this.swappingDatasetId = data.data;
+          }
+        }
         $('.ddp-ui-gridbody').scrollTop(0);
         this._initViewPage()
       }
@@ -149,7 +155,6 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
     }else {
       // 새로운 데이터셋 추가 ADD
       this.layoutType = 'ADD';
-      this.selectedDatasets = [];
     }
     this.selectedDatasetId = '';
 
@@ -248,7 +253,7 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
 
     // 선택된 radio 항목 초기화
     this.swappingDatasetId = '';
-    this.firstLoadCompleted = false;
+    // this.firstLoadCompleted = false;
 
     // 데이터소스 리스트 조회
     this.getDatasets();
@@ -430,6 +435,12 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   private _initViewPage() {
     // 검색어 초기화
     this.searchText  = '';
+
+    // 선택된 checkbox  항목 초기화
+    this.selectedDatasets = [];
+
+    // radio all check false
+    this.isCheckAll = false;
 
     // 정렬
     this.selectedContentSort = new Order();
