@@ -1299,6 +1299,91 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  public void createDataSourceWithLocalCsvFileInvalidIngestionByAsync() throws JsonProcessingException {
+
+    StompHeaders stompHeaders = new StompHeaders();
+    stompHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    StompSession session = null;
+    try {
+      session = stompClient
+          .connect("ws://localhost:{port}/stomp", webSocketHttpHeaders, stompHeaders, new StompSessionHandlerAdapter() {}, serverPort)
+          .get(3, SECONDS);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_invalid_row.csv").getPath();
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName("localFileIngestion_invalid_enforce_true" + PolarisUtils.randomString(5));
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(DAY);
+    dataSource.setSegGranularity(MONTH);
+    dataSource.setSrcType(FILE);
+
+    List<Field> fields = Lists.newArrayList();
+
+    Field timestampField = new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L);
+    timestampField.setFormat("yyyy-MM-dd");
+    fields.add(timestampField);
+    fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
+    Field field1 = new Field("sd", DataType.STRING, DIMENSION, 2L);
+    fields.add(field1);
+    fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
+    Field field2 = new Field("m2", DataType.DOUBLE, MEASURE, 4L);
+    fields.add(field2);
+
+    dataSource.setFields(fields);
+
+    LocalFileIngestionInfo localFileIngestionInfo = new LocalFileIngestionInfo();
+    localFileIngestionInfo.setPath(targetFile);
+    localFileIngestionInfo.setRemoveFirstRow(true);
+    localFileIngestionInfo.setFormat(new CsvFileFormat(",", "\n"));
+    localFileIngestionInfo.setTuningOptions(TestUtils.makeMap("ignoreInvalidRows", "true"));
+
+    dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(localFileIngestionInfo));
+
+    String reqBody = GlobalObjectMapper.writeValueAsString(dataSource);
+
+    System.out.println(reqBody);
+
+    // @formatter:off
+    Response dsRes =
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(reqBody)
+      .log().all()
+    .when()
+      .post("/api/datasources");
+
+    dsRes.then()
+      .statusCode(HttpStatus.SC_CREATED)
+    .log().all();
+    // @formatter:on
+
+    String id = from(dsRes.asString()).get("id");
+
+    StompHeaders stompSubscribeHeaders = new StompHeaders();
+    stompSubscribeHeaders.setDestination("/topic/datasources/" + id + "/progress");
+    stompSubscribeHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    session.subscribe(stompSubscribeHeaders, new DefaultStompFrameHandler());
+
+    try {
+      System.out.println("Sleep!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      Thread.sleep(1000000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+  }
+
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithGeoCsvFileIngestionByAsync() throws JsonProcessingException {
 
     StompHeaders stompHeaders = new StompHeaders();
