@@ -1294,7 +1294,8 @@
   "msg.dp.ui.join.key.required" : "At least one join key is required",
   "msg.dp.alert.format.error" : "Please enter timestamp pattern",
   "msg.dp.alert.clone.failed" : "Clone failed",
-  "msg.dp.alert.fail.change.ssName" : "Failed to change snapshot name",
+  "msg.dp.alert.fail.change.ssName" : "Failed to modify snapshot name",
+  "msg.dp.alert.modify.sSname" : "Snapshot name modified",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",

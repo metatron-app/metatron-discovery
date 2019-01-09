@@ -280,6 +280,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         this.loadingHide();
         if (result) {
           this.selectedDataSnapshot.ssName = result.ssName;
+          Alert.success(this.translateService.instant('msg.dp.alert.modify.sSname'));
         }
       }).catch(() => {
         this.loadingHide();
