@@ -162,8 +162,8 @@
                   {{'msg.storage.th.query.gran' | translate}} : {{getIngestionData.selectedQueryGranularity.label}}
                 </li>
                 <!-- if not used current TIMESTAMP-->
-                <li>
-                  {{'msg.storage.ui.intervals' | translate}} :
+                <li *ngIf="getSchemaData.selectedTimestampType !== 'CURRENT'">
+                  {{'msg.storage.ui.intervals' | translate}} : {{getIngestionData.startIntervalText}} ~ {{getIngestionData.endIntervalText}}
                 </li>
                 <!-- //if not used current TIMESTAMP-->
               </ul>
