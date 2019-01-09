@@ -12,16 +12,16 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-pop-preview ddp-type" *ngIf="isShow">
+<div class="ddp-pop-preview ddp-type popup-prep-snapshot" *ngIf="isShow">
   <!-- top -->
   <div class="ddp-ui-top">
     <div class="ddp-data-name">
-      {{ selectedDataSnapshot.dsName }}
+      {{ selectedDataSnapshot.ssName }}
     </div>
     <em class="ddp-btn-popup-close" (click)="close()"></em>
   </div>
   <!-- //top -->
-  <!-- cpmtemts -->
+  <!-- contents -->
   <div class="ddp-ui-preview-contents ddp-type-preview">
 
     <!-- tab SUCCESS, PREPARING-->
@@ -119,7 +119,7 @@
           </div>
           <!-- //loading box -->
 
-          <div class="ddp-box-loading ddp-pop ddp-cancel" style="">
+          <div class="ddp-box-loading ddp-pop ddp-cancel">
 
             <!-- buttons -->
             <div class="ddp-pop-buttons">
@@ -148,7 +148,6 @@
     </div>
 
     <!-- right -->
-
     <div *ngIf="ruleList" class="ddp-wrap-rules-flow ddp-snapshot">
       <!-- title -->
       <div class="ddp-box-title">
@@ -169,100 +168,78 @@
         </ul>
       </div>
     </div>
-    <div class="ddp-layout-pop-right">
-      <!-- 상세 -->
-      <div class="ddp-view-detail">
-        <dl class="ddp-dl-detail" *ngIf="selectedDataSnapshot.tblName">
-          <dt>
-            {{'msg.dp.th.ss.table' | translate}}
-          </dt>
-          <dd>
-            {{selectedDataSnapshot.tblName}}
-          </dd>
-        </dl>
-        <dl class="ddp-dl-detail">
-          <dt>
-            {{'msg.dp.th.ss-type' | translate}}
-          </dt>
-          <dd>
-            {{prepCommonUtil.getSnapshotType(selectedDataSnapshot.ssType)}}
-          </dd>
-        </dl>
-        <dl class="ddp-dl-detail">
-          <dt>
-            {{'msg.dp.th.summary' | translate}}
-          </dt>
-          <dd>
-            {{getRows()}} / {{getCols()}} {{'msg.dp.th.ss.cols' | translate}}
-          </dd>
-        </dl>
-        <dl *ngIf="selectedDataSnapshot.totalBytes" class="ddp-dl-detail">
-          <dt>
-            {{'msg.comm.detail.size' | translate}}
-          </dt>
-          <dd>
-            {{getSize()}}
-          </dd>
-        </dl>
-        <dl class="ddp-dl-detail">
-          <dt>
-            {{'msg.dp.th.et' | translate}}
-          </dt>
-          <dd>
-            {{getElapsedTime(selectedDataSnapshot)}}
-          </dd>
-        </dl>
-        <dl class="ddp-dl-detail">
-          <dt>
-            {{'msg.comm.th.created' | translate}}
-          </dt>
-          <dd>
-            {{selectedDataSnapshot.launchTime | mdate:'YYYY-MM-DD HH:mm'}}
-          </dd>
-        </dl>
+
+    <div class="ddp-layout-pop-right ddp-detail">
+
+      <!--이름-->
+       <div class="ddp-view-title type-edit" [ngClass]="{'ddp-selected':isSsNameEditing}" (clickOutside)="changeSsNameEditingState(false)">
+        <div class="ddp-ui-input">
+          <textarea #ssName maxlength="50" (keyup.enter)="editSnapshotName()"></textarea>
+          <span class="ddp-btn-check" (click)="editSnapshotName()"></span>
+        </div>
+        <span class="ddp-txt-title">
+          {{selectedDataSnapshot.ssName}}
+          <a href="javascript:" class="ddp-link-edit" (click)="changeSsNameEditingState(true)"><em class="ddp-icon-edit2"></em></a>
+        </span>
       </div>
-      <!-- //상세 -->
-      <!-- info -->
-      <div class="ddp-box-info">
-        <dl class="ddp-dl-detail2">
-          <dt>
-            {{ 'msg.comm.menu.manage.prep.set' | translate }}
-          </dt>
-          <dd>
-            <a href="javascript:" (click)="navigateDataflow(dfId)" class="ddp-link-data"><strong>{{ selectedDataSnapshot.dsName }}</strong> in {{ selectedDataSnapshot.dfName }} </a>
-            <div class="ddp-ui-sub">
-              <span class="ddp-data-sub">{{'msg.comm.ui.list.created' | translate}} <em class="ddp-data-result">{{selectedDataSnapshot.createdTime | mdate:'YYYY-MM-DD HH:mm:ss'}}</em></span>
-              <span class="ddp-data-sub">{{'msg.comm.ui.list.updated' | translate}} <em class="ddp-data-result">{{selectedDataSnapshot.modifiedTime | mdate:'YYYY-MM-DD HH:mm:ss'}}</em></span>
-            </div>
-          </dd>
-          <dt>
-            {{'msg.dp.th.origin.imported.ds' | translate}}
-          </dt>
-          <dd>
+      <!--이름-->
 
-            <div class="ddp-ui-sub">
-              <span class="ddp-data-sub">{{'msg.board.th.datasource' | translate}} <em class="ddp-data-result">{{ originDsInfo.dsName }}</em></span>
-            </div>
-            <div class="ddp-ui-sub" *ngIf="originDsInfo.qryStmt">
-              <span class="ddp-data-sub">{{'msg.dp.th.query.stmt' | translate}} <em class="ddp-data-result">{{ originDsInfo.qryStmt }}</em></span>
-            </div>
-            <div class="ddp-ui-sub" *ngIf="originDsInfo.filePath">
-              <span class="ddp-data-sub">{{'msg.dp.th.file.path' | translate}} <em class="ddp-data-result">{{ originDsInfo.filePath }}</em></span>
-            </div>
-            <div class="ddp-ui-sub">
-              <span class="ddp-data-sub">{{'msg.comm.ui.list.created' | translate}} <em class="ddp-data-result">{{originDsInfo.createdTime | mdate:'YYYY-MM-DD HH:mm'}}</em></span>
-            </div>
+      <div class="ddp-view-contents-scroll">
 
-          </dd>
+        <!-- 상세 -->
+        <div class="ddp-view-detail">
+          <dl class="ddp-dl-detail" *ngFor="let item of sSInformationList">
+            <dt>
+              {{item.label}}
+            </dt>
+            <dd>
+              {{item.value}}
+            </dd>
+          </dl>
+        </div>
+        <!-- //상세 -->
 
-        </dl>
+        <!-- info -->
+        <div class="ddp-box-info">
+          <dl class="ddp-dl-detail2">
+            <dt>
+              {{ 'msg.comm.menu.manage.prep.set' | translate }}
+            </dt>
+            <dd>
+              <a href="javascript:" (click)="navigateDataflow(dfId)" class="ddp-link-data"><strong>{{ selectedDataSnapshot.dsName }}</strong> in {{ selectedDataSnapshot.dfName }} </a>
+              <div class="ddp-ui-sub">
+                <span class="ddp-data-sub">{{'msg.comm.ui.list.created' | translate}} <em class="ddp-data-result">{{selectedDataSnapshot.createdTime | mdate:'YYYY-MM-DD HH:mm:ss'}}</em></span>
+                <span class="ddp-data-sub">{{'msg.comm.ui.list.updated' | translate}} <em class="ddp-data-result">{{selectedDataSnapshot.modifiedTime | mdate:'YYYY-MM-DD HH:mm:ss'}}</em></span>
+              </div>
+            </dd>
+            <dt>
+              {{'msg.dp.th.origin.imported.ds' | translate}}
+            </dt>
+            <dd>
+
+              <div class="ddp-ui-sub">
+                <span class="ddp-data-sub">{{'msg.board.th.datasource' | translate}} <em class="ddp-data-result">{{ originDsInfo.dsName }}</em></span>
+              </div>
+              <div class="ddp-ui-sub" *ngIf="originDsInfo.qryStmt">
+                <span class="ddp-data-sub">{{'msg.dp.th.query.stmt' | translate}} <em class="ddp-data-result">{{ originDsInfo.qryStmt }}</em></span>
+              </div>
+              <div class="ddp-ui-sub" *ngIf="originDsInfo.filePath">
+                <span class="ddp-data-sub">{{'msg.dp.th.file.path' | translate}} <em class="ddp-data-result">{{ originDsInfo.filePath }}</em></span>
+              </div>
+              <div class="ddp-ui-sub">
+                <span class="ddp-data-sub">{{'msg.comm.ui.list.created' | translate}} <em class="ddp-data-result">{{originDsInfo.createdTime | mdate:'YYYY-MM-DD HH:mm'}}</em></span>
+              </div>
+
+            </dd>
+
+          </dl>
+        </div>
+        <!-- //info -->
       </div>
-      <!-- //info -->
-
 
     </div>
     <!-- //right -->
 
   </div>
-  <!-- //cpmtemts -->
+  <!-- //contents -->
 </div>

@@ -1292,6 +1292,8 @@
   "msg.dp.ui.join.key.required" : "하나 이상의 조인 키가 필요합니다",
   "msg.dp.alert.format.error" : "타임스탬프 패턴을 입력하세요",
   "msg.dp.alert.clone.failed" : "복제 실패했습니다",
+  "msg.dp.alert.fail.change.ssName" : "스냅샷 이름 수정 실패",
+  "msg.dp.alert.modify.sSname" : "스냅샷 이름이 수정되었습니다",
 
   "msg.board.create.add-ds" : "데이터소스 추가",
   "msg.board.create.add-ds.desc" : "시각화 할 데이터소스를 추가하고 관계를 설정해 주세요",
