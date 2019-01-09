@@ -42,6 +42,7 @@
 
 package app.metatron.discovery.domain.datasource.data;
 
+import app.metatron.discovery.fixture.SalesGeoDataSourceTestFixture;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -52,6 +53,7 @@ import com.jayway.restassured.response.Response;
 
 import org.apache.http.HttpStatus;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.test.context.TestExecutionListeners;
@@ -100,6 +102,7 @@ import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
 
 import static app.metatron.discovery.domain.datasource.Field.FieldRole.MEASURE;
 import static com.jayway.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 
 /**
@@ -107,6 +110,12 @@ import static org.hamcrest.Matchers.is;
  */
 @TestExecutionListeners(value = OAuthTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
+  final static String datasourceEngineName = "test_sales_geo";
+
+  @BeforeClass
+  public static void beforeClass() throws Exception {
+    SalesGeoDataSourceTestFixture.setUp(datasourceEngineName);
+  }
 
   @Before
   public void setUp() {
@@ -2775,6 +2784,121 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
       .statusCode(HttpStatus.SC_NO_CONTENT)
       .log().all();
     // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void searchQuery_when_pivot_columns_order_by_desc() {
+    // given
+    final String requestBody = "{\n" +
+        "  \"dataSource\": {\n" +
+        "    \"connType\": \"ENGINE\",\n" +
+        "    \"engineName\": \"" + datasourceEngineName + "\",\n" +
+        "    \"id\": \"ds-gis-37\",\n" +
+        "    \"joins\": [],\n" +
+        "    \"name\": \"sales_geo\",\n" +
+        "    \"temporary\": false,\n" +
+        "    \"type\": \"default\",\n" +
+        "    \"uiDescription\": \"Sales data (2011~2014)\"\n" +
+        "  },\n" +
+        "  \"filters\": [],\n" +
+        "  \"limits\": {\n" +
+        "    \"limit\": 10,\n" +
+        "    \"sort\": [\n" +
+        "      {\n" +
+        "        \"direction\": \"DESC\",\n" +
+        "        \"field\": \"ShipMode\"\n" +
+        "      },\n" +
+        "      {\n" +
+        "        \"direction\": \"DESC\",\n" +
+        "        \"field\": \"State\"\n" +
+        "      },\n" +
+        "      {\n" +
+        "        \"direction\": \"DESC\",\n" +
+        "        \"field\": \"City\"\n" +
+        "      }\n" +
+        "    ]\n" +
+        "  },\n" +
+        "  \"pivot\": {\n" +
+        "    \"aggregations\": [\n" +
+        "      {\n" +
+        "        \"aggregationType\": \"SUM\",\n" +
+        "        \"alias\": \"SUM(Sales)\",\n" +
+        "        \"format\": {\n" +
+        "          \"abbr\": \"NONE\",\n" +
+        "          \"customSymbol\": null,\n" +
+        "          \"decimal\": 2,\n" +
+        "          \"sign\": \"KRW\",\n" +
+        "          \"type\": \"number\",\n" +
+        "          \"useThousandsSep\": true\n" +
+        "        },\n" +
+        "        \"name\": \"Sales\",\n" +
+        "        \"subRole\": \"MEASURE\",\n" +
+        "        \"subType\": \"DOUBLE\",\n" +
+        "        \"type\": \"measure\"\n" +
+        "      }\n" +
+        "    ],\n" +
+        "    \"columns\": [\n" +
+        "      {\n" +
+        "        \"alias\": \"ShipMode\",\n" +
+        "        \"direction\": \"DESC\",\n" +
+        "        \"lastDirection\": true,\n" +
+        "        \"name\": \"ShipMode\",\n" +
+        "        \"subRole\": \"DIMENSION\",\n" +
+        "        \"subType\": \"STRING\",\n" +
+        "        \"type\": \"dimension\"\n" +
+        "      }\n" +
+        "    ],\n" +
+        "    \"rows\": [\n" +
+        "      {\n" +
+        "        \"alias\": \"City\",\n" +
+        "        \"direction\": \"DESC\",\n" +
+        "        \"name\": \"City\",\n" +
+        "        \"subRole\": \"DIMENSION\",\n" +
+        "        \"subType\": \"STRING\",\n" +
+        "        \"type\": \"dimension\"\n" +
+        "      },\n" +
+        "      {\n" +
+        "        \"alias\": \"State\",\n" +
+        "        \"direction\": \"DESC\",\n" +
+        "        \"name\": \"State\",\n" +
+        "        \"subRole\": \"DIMENSION\",\n" +
+        "        \"subType\": \"STRING\",\n" +
+        "        \"type\": \"dimension\"\n" +
+        "      }\n" +
+        "    ]\n" +
+        "  },\n" +
+        "  \"resultFormat\": {\n" +
+        "    \"columnDelimeter\": \"―\",\n" +
+        "    \"mode\": \"grid\",\n" +
+        "    \"options\": {\n" +
+        "      \"addMinMax\": true\n" +
+        "    },\n" +
+        "    \"type\": \"chart\"\n" +
+        "  },\n" +
+        "  \"userFields\": []\n" +
+        "}";
+
+    // when
+    Response response =
+        given()
+          .auth().oauth2(oauth_token)
+          .contentType(ContentType.JSON)
+          .body(requestBody)
+          .log().all()
+        .when()
+          .post("/api/datasources/query/search")
+        .then()
+          .statusCode(HttpStatus.SC_OK)
+          .log().all()
+          .extract().response();
+
+    // then
+    Map<String, Object> resMap = response.jsonPath().get();
+
+    List<Map<String, Object>> columns = (List<Map<String, Object>>)resMap.get("columns");
+    assertThat(columns).hasSize(4);
+    assertThat(columns).extracting("name").containsExactly("Standard Class―SUM(Sales)", "Second Class―SUM(Sales)", "Same Day―SUM(Sales)", "First Class―SUM(Sales)");
   }
 
 }

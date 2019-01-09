@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.json.PrepJsonParseResult;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
@@ -385,6 +386,10 @@ public class DataFrame implements Serializable, Transformable {
   }
 
   public void setByGrid(PrepCsvParseResult result) {
+    setByGrid(result.grid, result.colNames, result.maxColCnt);
+  }
+
+  public void setByGridwithJson(PrepJsonParseResult result) {
     setByGrid(result.grid, result.colNames, result.maxColCnt);
   }
 
@@ -761,6 +766,10 @@ public class DataFrame implements Serializable, Transformable {
         case "time_diff":
           resultType = ColumnType.LONG;
           assertArgsEq(2, args, func);
+          break;
+        case "time_between":
+          resultType = ColumnType.BOOLEAN;
+          assertArgsEq(3, args, func);
           break;
         case "timestamp":
           resultType = ColumnType.TIMESTAMP;

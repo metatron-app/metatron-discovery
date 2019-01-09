@@ -18,8 +18,6 @@ import * as _ from 'lodash';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
 import { Alert } from '../../../common/util/alert.util';
 import { FilteringOptions, FilteringOptionType } from '../../../domain/workbook/configurations/filter/filter';
-import { ConfirmModalComponent } from '../../../common/component/modal/confirm/confirm.component';
-import { Modal } from '../../../common/domain/modal';
 
 /**
  * Edit recommend and essential filter in datasource
@@ -36,9 +34,6 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
   private _columnList: any[];
   // origin recommend filtered column list
   private _originFilteringColumnList: any[];
-
-  @ViewChild(ConfirmModalComponent)
-  private _confirmModalComponent: ConfirmModalComponent;
 
   // filtered column list
   public filteredColumnList: any[];
@@ -195,14 +190,6 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
   }
 
   /**
-   * Click done button
-   */
-  public onClickDone(): void {
-    // If the datasource type is LINKED, show confirm popup
-    this.isLinkedType ? this._openConfirmModal() : this.updateColumnList();
-  }
-
-  /**
    * Click search keyword
    * @param {KeyboardEvent} event
    */
@@ -306,18 +293,6 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
     this.isShowOnlyFilterColumnList = false;
     // show flag
     this.isShowComponent = true;
-  }
-
-  /**
-   * Open confirm popup modal
-   * @private
-   */
-  private _openConfirmModal(): void {
-    const modal = new Modal();
-    modal.name = this.isLinkedType ? this.translateService.instant('msg.storage.ui.essential.filter.save.title') : this.translateService.instant('msg.storage.ui.recommendation.filter.save.title');
-    modal.description = this.translateService.instant('msg.storage.ui.ingestion.desc');
-    modal.btnName = this.translateService.instant('msg.storage.btn.re.ingestion');
-    this._confirmModalComponent.init(modal);
   }
 
   /**

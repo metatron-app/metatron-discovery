@@ -13,7 +13,7 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild
+  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
 import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
@@ -26,19 +26,14 @@ import { IngestionSettingComponent } from '../../../component/ingestion-setting.
   selector: 'db-ingestion-permission',
   templateUrl: './db-ingestion-permission.component.html'
 })
-export class DbIngestionPermissionComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+export class DbIngestionPermissionComponent extends AbstractPopupComponent implements OnInit, OnDestroy, OnChanges {
 
   // datasource data
+  @Input('sourceData')
   private _sourceData: DatasourceInfo;
 
   @ViewChild(IngestionSettingComponent)
   private _ingestionSettingComponent: IngestionSettingComponent;
-
-  @Input('sourceData')
-  public set setSourceData(sourceData: DatasourceInfo) {
-    this._sourceData = sourceData;
-    this._ingestionSettingComponent.init(this._sourceData, 'DB');
-  }
 
   @Input()
   public step: string;
@@ -64,6 +59,24 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
+  }
+
+  /**
+   * ngOnChanges
+   * @param changes
+   */
+  ngOnChanges(changes: SimpleChanges): void {
+    // if changed source Data
+    if (changes._sourceData) {
+      this._ingestionSettingComponent.init(
+        this._sourceData,
+        'DB',
+        this._sourceData.schemaData.selectedTimestampType === 'CURRENT' ? null :  this._sourceData.schemaData.selectedTimestampColumn,
+        this._sourceData.schemaData.isChangedTimestampField
+      );
+      // remove changed flag
+      delete this._sourceData.schemaData.isChangedTimestampField;
+    }
   }
 
   /**

@@ -27,22 +27,6 @@
   <div class="ddp-type-contents-in ddp-sheet-resize">
     <div class="ddp-box-popupcontents ddp-wrap-file-create">
 
-      <!-- upload box -->
-      <div class="ddp-box-upload" ng2FileDrop [uploader]="uploader">
-        <!-- name -->
-        <div class="ddp-data-load-name">
-          <em class="ddp-icon-file2"></em>{{datasetFile.filenameBeforeUpload}}
-        </div>
-        <!-- //name -->
-        <div class="ddp-txt-file-info">
-          <div class="ddp-link-file">
-            <input type="file" ng2FileSelect [uploader]="uploader" #fileUploadChange>
-            {{'msg.dp.ui.file.import' | translate}}
-          </div>
-          {{'msg.dp.ui.file.drop' | translate}}
-        </div>
-      </div>
-      <!-- //upload box -->
       <div class="ddp-wrap-variable">
         <!-- wrap sheet -->
         <!-- ddp-full 추가 -->
@@ -61,7 +45,7 @@
           <!-- sheet view -->
           <div class="ddp-view-sheet">
             <div class="ddp-data-name" *ngIf="datasetFile.sheetName && ''!==datasetFile.sheetName">
-              {{datasetFile.sheetname}}
+              {{datasetFile.sheetName}}
             </div>
             <!-- 그리드 영역 -->
             <div class="ddp-wrap-grid"  [ngStyle]="getGridStyle()">

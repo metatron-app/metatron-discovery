@@ -23,7 +23,6 @@ import { PopupService } from '../../../common/service/popup.service';
 import { PrDatasetFile, StorageType } from '../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../common/util/alert.util';
 import { DatasetService } from '../service/dataset.service';
-import { FileLikeObject, FileUploader } from 'ng2-file-upload';
 import { CookieConstant } from '../../../common/constant/cookie.constant';
 import { CommonConstant } from '../../../common/constant/common.constant';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -35,6 +34,8 @@ import { GridOption } from '../../../common/component/grid/grid.option';
 import { isNullOrUndefined, isUndefined } from 'util';
 import * as pixelWidth from 'string-pixel-width';
 
+declare let plupload: any;
+
 @Component({
   selector: 'app-create-dataset-selectsheet',
   templateUrl: './create-dataset-selectsheet.component.html',
@@ -45,11 +46,17 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  @ViewChild('pickfiles')
+  private pickfiles: ElementRef;
+
+  @ViewChild('drop_container')
+  private drop_container: ElementRef;
+
   @ViewChild(GridComponent)
   private gridComponent: GridComponent;
 
-  @ViewChild('fileUploadChange')
-  private fileUploadChange: ElementRef;
+  // @ViewChild('fileUploadChange')
+  // private fileUploadChange: ElementRef;
 
   private interval : any;
 
@@ -72,9 +79,6 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   // Column Delimiter - default value is comma
   public columnDelimiter : string = ',';
 
-  // 파일 업로드
-  public uploader: FileUploader;
-
   public uploadLocation: string = 'LOCAL';
   public uploadLocationList: any;
 
@@ -92,6 +96,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   public defaultSheetIndex : number = 0;
 
   public gridInfo : any;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -105,85 +110,6 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     super(elementRef, injector);
 
-    this.uploader = new FileUploader(
-      {
-        url: CommonConstant.API_CONSTANT.API_URL + 'preparationdatasets/upload_async',
-      }
-    );
-
-    // 옵션 설정
-    this.uploader.setOptions({
-      url: CommonConstant.API_CONSTANT.API_URL
-      + 'preparationdatasets/upload_async',
-      headers: [
-        { name: 'Accept', value: 'application/json, text/plain, */*' },
-        {
-          name: 'Authorization',
-          value: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
-        }
-      ],
-    });
-
-    // add 가 처음
-    this.uploader.onAfterAddingFile = (item) => {
-      this.loadingShow();
-      if(!new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).test( item.file.name )) { // check file extension
-        this.uploader.clearQueue();
-        this.fileUploadChange.nativeElement.value = ''; // 같은 파일은 연속으로 올리면 잡지 못해서 초기화
-        Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
-        this.loadingHide();
-      } else{
-        if( item.file.type === 'text/csv' || item.file.type === 'text/plain' ) {
-          this.isCSV = true;
-        } else {
-          this.isCSV = false;
-        }
-        this.uploader.setOptions({ additionalParameter: { dest: `${this.uploadLocation}`}});
-        this.uploader.uploadAll();
-      }
-    };
-
-    // add 할때 에러난다면
-    this.uploader.onWhenAddingFileFailed = (item: FileLikeObject, filter: any, options: any) => {
-      Alert.error(item.name + ' ' + this.translateService.instant('msg.dp.alert.file.format.wrong'));
-    };
-
-    // 업로드 전 ..
-    this.uploader.onBeforeUploadItem = (item) => {
-      item.method = 'POST';
-    };
-
-    // 업로드 성공
-    this.uploader.onSuccessItem = (item, response, status, headers) => {
-      const success = true;
-      this.isChanged = true;
-      this.columnDelimiter = ',';
-      this.uploadResult = { success, item, response, status, headers };
-      this.checkIfUploaded(response);
-    };
-
-    // 업로드 하고 에러났을때
-    this.uploader.onErrorItem = (item, response, status, headers) => {
-      Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
-      this.loadingHide();
-    };
-
-    // 마지막
-    // this.uploader.onCompleteAll = () => {
-    //   let res = JSON.parse(this.uploadResult.response);
-    //   if (res.success !== false) {
-    //     this.columnDelimiter = ',';
-    //     this.isChanged = true;
-    //     this.getDataFile();
-    //   } else {
-    //     Alert.error(this.translateService.instant('Failed to upload. Please select another file'));
-    //     this.loadingHide();
-    //     this.popupService.notiPopup({
-    //       name: 'select-file',
-    //       data: null
-    //     });
-    //   }
-    // };
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -206,6 +132,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     } else {
       this.datasetFile.sheetIndex = 0;
+      if( isUndefined(this.datasetFile.sheets) ) {
+        this.datasetFile.sheets = [];
+      }
 
       if(this.datasetFile.delimiter) { // delimiter 를 바꾼게 있다면 그걸 사용한다
         this.columnDelimiter = this.datasetFile.delimiter;
@@ -223,11 +152,13 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
   public ngOnDestroy() {
     super.ngOnDestroy();
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   // Convert array to object
   public convertSheet() {
     // 초기화
@@ -347,19 +278,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     if(this.isChanged) { // when uploaded file is changed
       this.defaultSheetIndex = 0;
       const response: any = this.uploadResult.response;
-      /*
-      this.datasetFile.filename = response.filename;
-      this.datasetFile.filepath = response.filepath;
-      this.datasetFile.sheets = response.sheets;
-      if (response.sheets && response.sheets.length > 0) {
-        this.datasetFile.sheetname = response.sheets[0];
-        this.convertSheet();
-      } else {
-        this.datasetFile.sheetname = '';
-      }
-      this.datasetFile.filekey = response.filekey;
-      */
+
       this.datasetFile.storedUri = response.storedUri;
+      /* sheets are on file_grid
       this.datasetFile.sheets = response.sheets;
       if (response.sheets && response.sheets.length > 0) {
         this.datasetFile.sheetName = response.sheets[0];
@@ -367,6 +288,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       } else {
         this.datasetFile.sheetName = '';
       }
+      */
       this.datasetFile.filenameBeforeUpload = response.filenameBeforeUpload;
     }
 
@@ -434,7 +356,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     if($event.hasOwnProperty('name') && $event.hasOwnProperty('value')) {
       this.uploadLocation = $event['value'];
 
-      this.uploader.setOptions({ additionalParameter: { dest: `${this.uploadLocation}`}});
+      //this.uploader.setOptions({ additionalParameter: { dest: `${this.uploadLocation}`}});
 
       switch(this.uploadLocation ) {
         case 'HDFS':
@@ -542,6 +464,15 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   private getGridInformation(param) {
 
     this.datasetService.getFileGridInfo(param).then((result) => {
+      if (result.sheets && result.sheets.length > 0) {
+        this.datasetFile.sheets = result.sheets;
+        this.datasetFile.sheetName = result.sheets[0];
+        this.convertSheet();
+      } else {
+        this.datasetFile.sheetName = '';
+        this.datasetFile.sheets = [];
+      }
+
       if (result.grids.length > 0) {
         this.clearGrid = false;
         this.gridInfo = result.grids;

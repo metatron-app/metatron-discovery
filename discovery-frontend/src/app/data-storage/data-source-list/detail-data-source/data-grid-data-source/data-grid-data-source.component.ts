@@ -412,6 +412,8 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
       .then((data) => {
         // grid data
         this._gridData = data['data'];
+        // set fields
+        this.fields = data['fields'];
         // grid update
         this._updateGrid(this._gridData, this.fields);
         // 로딩 hide

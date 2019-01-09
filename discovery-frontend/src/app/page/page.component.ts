@@ -15,6 +15,7 @@
 import * as _ from 'lodash';
 
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
@@ -23,7 +24,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import { AbstractPopupComponent } from '../common/component/abstract-popup.component';
 import { PageWidget, PageWidgetConfiguration } from '../domain/dashboard/widget/page-widget';
@@ -127,6 +128,7 @@ const possibleChartObj: any = {
   tooltip: ['bar', 'line', 'scatter', 'heatmap', 'pie', 'control', 'boxplot', 'waterfall', 'combine', 'treemap', 'radar', 'network', 'sankey', 'gauge'],
   calculatedRow: ['grid'],
   secondaryIndicator: ['label'],
+  secondaryAxis: ['combine'],
   mapCommon: ['map'],
   mapLayer: ['map'],
   mapLayer1: ['map'],
@@ -395,6 +397,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
   // dimension / measure / parameter 구분값
   public columnType: string;
+
+  // set z-index class in map
+  public panelZIndex: boolean = false;
 
   get widgetConfiguration(): PageWidgetConfiguration {
     return <PageWidgetConfiguration>this.widget.configuration;
@@ -1680,44 +1685,47 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         return sort;
       });
 
-    if (sortFields.length > 0) {
+    if(this.chart instanceof GridChartComponent) {
+      this.sorts = sortFields;
+    } else {
+      if (sortFields.length > 0) {
 
-      // Sort 목록 (이전에 추가된 sort가 나중에 들어가도록 처리하기 위함)
-      let sortList: Sort[] = [];
+        // Sort 목록 (이전에 추가된 sort가 나중에 들어가도록 처리하기 위함)
+        let sortList: Sort[] = [];
 
-      // 원래 있던 필드들 추가
-      if (this.sorts) {
-        for (let beforeField of this.sorts) {
-          let isUse: boolean = false;
-          for (let afterField of sortFields) {
-            if (afterField.field == beforeField.field && !afterField.lastDirection) {
-              isUse = true;
-              break;
+        // 원래 있던 필드들 추가
+        if (this.sorts) {
+          for (let beforeField of this.sorts) {
+            let isUse: boolean = false;
+            for (let afterField of sortFields) {
+              if (afterField.field == beforeField.field && !afterField.lastDirection) {
+                isUse = true;
+                break;
+              }
+            }
+            if (isUse) {
+              sortList.push(beforeField);
             }
           }
-          if (isUse) {
-            sortList.push(beforeField);
+        }
+
+        // 마지막에 추가한 Sort를 제일앞에 추가한다.
+        for (let afterField of sortFields) {
+          if (afterField.lastDirection) {
+            delete afterField.lastDirection;
+            sortList.unshift(afterField);
+            break;
           }
         }
+
+        this.sorts = sortList;
+        console.info(this.sorts);
+        console.info('==========');
       }
-
-      // 마지막에 추가한 Sort를 제일앞에 추가한다.
-      for (let afterField of sortFields) {
-        if (afterField.lastDirection) {
-          delete afterField.lastDirection;
-          sortList.unshift(afterField);
-          break;
-        }
+      else {
+        this.sorts = [];
       }
-
-      this.sorts = sortList;
-      console.info(this.sorts);
-      console.info('==========');
     }
-    else {
-      this.sorts = [];
-    }
-
     // 추천가능차트 설정
     this.recommendChart();
     // 선반변경시 drawChart 발생
@@ -3242,6 +3250,14 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // set disable class
     return true;
+  }
+
+  /**
+   * set z-index class in map
+   * @param event
+   */
+  public onSetZIndex(value: any) {
+    this.panelZIndex = value;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

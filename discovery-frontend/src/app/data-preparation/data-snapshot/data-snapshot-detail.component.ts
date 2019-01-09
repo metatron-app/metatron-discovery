@@ -17,7 +17,7 @@ import {
   HostListener, EventEmitter
 } from '@angular/core';
 //import { DataSnapshot, OriginDsInfo } from '../../domain/data-preparation/data-snapshot';
-import { PrDataSnapshot, Status, OriginDsInfo } from '../../domain/data-preparation/pr-snapshot';
+import { PrDataSnapshot, Status, OriginDsInfo, SsType } from '../../domain/data-preparation/pr-snapshot';
 import { DataSnapshotService } from './service/data-snapshot.service';
 import { PopupService } from '../../common/service/popup.service';
 import { GridComponent } from '../../common/component/grid/grid.component';
@@ -93,6 +93,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   public prepCommonUtil = PreparationCommonUtil;
 
   public flag: boolean = false; // Restrict api calling again and again
+
+  public snapshotUriFileFormat: string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -308,6 +310,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           this.interval = undefined;
         }
 
+        if (this.selectedDataSnapshot.ssType ===  SsType.URI){
+          this.snapshotUriFileFormat = this.selectedDataSnapshot.storedUri.slice((this.selectedDataSnapshot.storedUri.lastIndexOf(".") - 1 >>> 0) + 2).toLowerCase();
+        }
         //let linageInfo = JSON.parse( this.selectedDataSnapshot["lineageInfo"] );
         /*
         let linageInfo = this.selectedDataSnapshot["jsonLineageInfo"];
@@ -324,7 +329,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         this.dsId = sourceInfo.dsId;
         this.dfId = sourceInfo.dfId;
 
-        let connectionInfo = this.selectedDataSnapshot.connectionInfo;
+        //let connectionInfo = this.selectedDataSnapshot.connectionInfo;
         let ruleStringInfo = this.selectedDataSnapshot.ruleStringInfo;
         this._setRuleList(ruleStringInfo);
 
@@ -598,10 +603,10 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
   } // end of method updateGrid
 
-  public downloadSnapshot() {
-    let downloadFileName = this.selectedDataSnapshot.sourceInfo.dsName + ".csv";
+  public downloadSnapshot(fileFormat: string) {
+    let downloadFileName = this.selectedDataSnapshot.sourceInfo.dsName + "."+ fileFormat;
 
-    this.datasnapshotservice.downloadSnapshot(this.ssId).subscribe((snapshotFile) => {
+    this.datasnapshotservice.downloadSnapshot(this.ssId, fileFormat).subscribe((snapshotFile) => {
       saveAs(snapshotFile, downloadFileName);
     });
   }
