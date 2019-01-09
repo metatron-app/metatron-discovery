@@ -142,34 +142,27 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
     });
 
     if(this.isRadio) {
-      this.layoutType = 'SWAP';
-    }else {
-      this.layoutType = 'ADD';
-    }
-
-    if(this.popType == 'add') {
-
-      this.title = 'Add datasets';
-
-    } else if(this.popType == 'imported') {
-
-      this.title = 'Replace dataset';
-
-    } else if(this.popType == 'wrangled') {
-
-      this.title = 'Change input dataset';
-    }
-
-    if(this.layoutType == 'ADD') {
-      // 새로운 데이터셋 추가 ADD
-      this.selectedDatasets = [];
-    }else if(this.layoutType == 'SWAP'){
       // 기존 데이터셋 치환 SWAP
+      this.layoutType = 'SWAP';
       this.originalDatasetId = this.selectedDatasetId;
+    }else {
+      // 새로운 데이터셋 추가 ADD
+      this.layoutType = 'ADD';
+      this.selectedDatasets = [];
     }
     this.selectedDatasetId = '';
-    this.init();
 
+    if(this.popType == 'add') {
+      // this.title = 'Add datasets';
+      this.title = this.translateService.instant('msg.dp.btn.add.ds');
+    } else if(this.popType == 'imported') {
+      // this.title = 'Replace dataset';
+      this.title = this.translateService.instant('msg.dp.ui.swap.dataset');
+    } else if(this.popType == 'wrangled') {
+      // this.title = 'Change input dataset';
+      this.title = this.translateService.instant('msg.dp.ui.change.input.dataset');
+    }
+    this.init();
   }
 
   // Destroy
@@ -339,17 +332,17 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
             this.datasets.length === allTicked ? this.isCheckAll = true : this.isCheckAll = false;
           }
 
-          if (sessionStorage.getItem('DATASET_ID')) {
-            this.selectedDatasetId = sessionStorage.getItem('DATASET_ID');
-            this.datasets.filter((item) => {
-              if (item.dsId === this.selectedDatasetId) {
-                item.selected = true;
-                this.selectedDatasets.push(item);
-              }
-            });
-            sessionStorage.removeItem('DATASET_ID');
-            this.datasetService.dataflowId = undefined;
-          }
+          // if (sessionStorage.getItem('DATASET_ID')) {
+          //   this.selectedDatasetId = sessionStorage.getItem('DATASET_ID');
+          //   this.datasets.filter((item) => {
+          //     if (item.dsId === this.selectedDatasetId) {
+          //       item.selected = true;
+          //       this.selectedDatasets.push(item);
+          //     }
+          //   });
+          //   sessionStorage.removeItem('DATASET_ID');
+          //   this.datasetService.dataflowId = undefined;
+          // }
 
           // 총페이지 수
           this.page.page += 1;

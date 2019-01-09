@@ -159,7 +159,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
   public cloneFlag: boolean = false;
 
-  public isDatasetAddPopupOpen: boolean = false;
+  // public isDatasetAddPopupOpen: boolean = false;
 
   public step: string;
   public longUpdatePopupType: string = '';
@@ -270,7 +270,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   }
 
   public closeAddDatasetPopup() {
-    this.isDatasetAddPopupOpen = false;
+    // this.isDatasetAddPopupOpen = false;
   }
 
   /**
@@ -550,24 +550,24 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   }
 
   // 데이터셋 추가하기 show/hide 처리
-  public datasetComplete(data) {
-
-    this.isDatasetModalShow = false;
-    this.isDatasetAddPopupOpen = false;
-    if (!data.isCancel) { // dataflow를 새로 불러와야 하는 경우만 차트를 다시 그린다
-      this.getDataflow();
-
-      //선택된 데이터셋 초기화
-      this.initSelectedDataSet()
-
-    }
-  }
+  // public datasetComplete(data) {
+  //
+  //   this.isDatasetModalShow = false;
+  //   // this.isDatasetAddPopupOpen = false;
+  //   if (!data.isCancel) { // dataflow를 새로 불러와야 하는 경우만 차트를 다시 그린다
+  //     this.getDataflow();
+  //
+  //     //선택된 데이터셋 초기화
+  //     this.initSelectedDataSet()
+  //
+  //   }
+  // }
 
   // 데이터셋 교체 show/hide 처리
-  public datasetExchangeComplete() {
-    this.isDatasetExchangeModalShow = false;
-    this.getDataflow();
-  }
+  // public datasetExchangeComplete() {`
+  //   this.isDatasetExchangeModalShow = false;
+  //   this.getDataflow();
+  // }
 
   /**
    * 데이터셋 타입 아이콘
@@ -1134,7 +1134,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     this.loadingShow();
 
     this.dataflowService.swapDataset(param).then((result) => {
-      console.info('swapping >>>>>>>>>>>>', result);
+      // console.info('swapping >>>>>>>>>>>>', result);
       Alert.success('Swap successful');
 
       this.isSelectDatasetPopupOpen = false;
