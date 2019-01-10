@@ -61,7 +61,7 @@
              [(ngModel)]="searchText"
              (keyup.enter)="searchGrid();"
              (keyup.esc)="searchGrid(true);">
-      <a class="ddp-btn-delete" *ngIf="searchText" (click)="$event.stopPropagation(); searchGrid(true);"></a>
+      <a class="ddp-btn-delete" [ngStyle]="searchText ? {'display':'block'} : {'display':'none'}"  (click)="searchGrid(true);"></a>
     </div>
     <!-- //search -->
 
