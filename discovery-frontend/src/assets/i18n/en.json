@@ -124,6 +124,7 @@
   "msg.comm.detail.published": "Visibility",
   "msg.comm.ui.create.name": "Please enter a name",
   "msg.comm.ui.create.desc": "Please enter a description",
+  "msg.comm.ui.placeholder.label" : "Please enter a label",
   "msg.comm.ui.info": "Information",
   "msg.comm.ui.name": "Name",
   "msg.comm.ui.description": "Description",
