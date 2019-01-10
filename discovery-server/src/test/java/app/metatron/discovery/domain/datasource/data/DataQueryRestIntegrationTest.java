@@ -42,7 +42,6 @@
 
 package app.metatron.discovery.domain.datasource.data;
 
-import app.metatron.discovery.fixture.SalesGeoDataSourceTestFixture;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -114,7 +113,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    SalesGeoDataSourceTestFixture.setUp(datasourceEngineName);
+    //    SalesGeoDataSourceTestFixture.setUp(datasourceEngineName);
   }
 
   @Before
@@ -2053,7 +2052,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     GeoHashFormat hashFormat = new GeoHashFormat("geohex", 5);
 
     //    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()), new DimensionField("gu"), new MeasureField("py", null, MeasureField.AggregationType.NONE));
-//    List<Field> layer1 = Lists.newArrayList(new DimensionField("location", null, new GeoFormat()), new TimestampField("OrderDate", null), new MeasureField("Sales", null, MeasureField.AggregationType.NONE));
+    //    List<Field> layer1 = Lists.newArrayList(new DimensionField("location", null, new GeoFormat()), new TimestampField("OrderDate", null), new MeasureField("Sales", null, MeasureField.AggregationType.NONE));
     List<Field> layer1 = Lists.newArrayList(new DimensionField("location", null, hashFormat), new MeasureField("Profit", null, MeasureField.AggregationType.AVG), new MeasureField("Sales", null, MeasureField.AggregationType.AVG));
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
@@ -2473,6 +2472,42 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void candidateQueryForSaleWithSearchWord() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("sales");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(50000);
+
+    List<Filter> filters = Lists.newArrayList(
+        //        new InclusionFilter("State", Lists.newArrayList("Texas"))
+    );
+
+    DimensionField targetField = new DimensionField("Category");
+
+    CandidateQueryRequest request = new CandidateQueryRequest();
+    request.setDataSource(dataSource1);
+    request.setFilters(filters);
+    request.setTargetField(targetField);
+    request.setSearchWord("Off su");
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/candidate")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void candidateQueryForUserDefined() throws JsonProcessingException {
 
     DataSource dataSource1 = new DefaultDataSource("sales");
@@ -2882,21 +2917,21 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     // when
     Response response =
         given()
-          .auth().oauth2(oauth_token)
-          .contentType(ContentType.JSON)
-          .body(requestBody)
-          .log().all()
-        .when()
-          .post("/api/datasources/query/search")
-        .then()
-          .statusCode(HttpStatus.SC_OK)
-          .log().all()
-          .extract().response();
+            .auth().oauth2(oauth_token)
+            .contentType(ContentType.JSON)
+            .body(requestBody)
+            .log().all()
+            .when()
+            .post("/api/datasources/query/search")
+            .then()
+            .statusCode(HttpStatus.SC_OK)
+            .log().all()
+            .extract().response();
 
     // then
     Map<String, Object> resMap = response.jsonPath().get();
 
-    List<Map<String, Object>> columns = (List<Map<String, Object>>)resMap.get("columns");
+    List<Map<String, Object>> columns = (List<Map<String, Object>>) resMap.get("columns");
     assertThat(columns).hasSize(4);
     assertThat(columns).extracting("name").containsExactly("Standard Class―SUM(Sales)", "Second Class―SUM(Sales)", "Same Day―SUM(Sales)", "First Class―SUM(Sales)");
   }

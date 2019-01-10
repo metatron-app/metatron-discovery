@@ -14,13 +14,26 @@
 
 package app.metatron.discovery.query.druid.searches;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import app.metatron.discovery.query.druid.Search;
+import app.metatron.discovery.query.druid.SearchQuerySpec;
 
-/**
- * Created by hsp on 2016. 7. 18..
- */
-@JsonTypeName("all")
-public class AllSearch implements Search {
+@JsonTypeName("regex")
+public class RegexSearchQuerySpec implements SearchQuerySpec {
+
+  String pattern;
+
+  public RegexSearchQuerySpec() {
+  }
+
+  @JsonCreator
+  public RegexSearchQuerySpec(@JsonProperty("pattern") String pattern) {
+    this.pattern = pattern;
+  }
+
+  public String getPattern() {
+    return pattern;
+  }
 }
