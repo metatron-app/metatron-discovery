@@ -48,8 +48,8 @@ export class GranularityService {
    * @param {string} granularityValue
    * @returns {string}
    */
-  public getInterval(date: string, granularityValue: string): string {
-    return moment(moment(date, this._getDateTimeFormat(granularityValue))).format(this._getDateTimeFormat(granularityValue));
+  public getInterval(dateTime: string, granularityValue: string): string {
+    return moment(new Date(dateTime)).format(this._getDateTimeFormat(granularityValue));
   }
 
   /**
@@ -194,8 +194,7 @@ export class GranularityService {
    * @private
    */
   private _getIntervalAddedUnit(dateTime: string, value: number, granularityValue: string): string {
-    return moment(dateTime).add(value, this._getMomentKey(granularityValue)).format(this._getDateTimeFormat(granularityValue));
-    // return moment(dateTime, this._getDateTimeFormat(granularityValue)).add(value, this._getMomentKey(granularityValue)).format(this._getDateTimeFormat(granularityValue));
+    return moment(new Date(dateTime)).add(value, this._getMomentKey(granularityValue)).format(this._getDateTimeFormat(granularityValue));
   }
 
   /**
@@ -207,8 +206,7 @@ export class GranularityService {
    * @private
    */
   private _getIntervalReducedUnit(dateTime: string, value: number, granularityValue: string): string {
-    return moment(dateTime).subtract(value, this._getMomentKey(granularityValue)).format(this._getDateTimeFormat(granularityValue));
-    // return moment(dateTime, this._getDateTimeFormat(granularityValue)).subtract(value, this._getMomentKey(granularityValue)).format(this._getDateTimeFormat(granularityValue));
+    return moment(new Date(dateTime)).subtract(value, this._getMomentKey(granularityValue)).format(this._getDateTimeFormat(granularityValue));
   }
 
   /**
@@ -219,7 +217,7 @@ export class GranularityService {
    * @private
    */
   private _getDateTimeDiff(startDateTime: string, endDateTime: string): number {
-    return moment(endDateTime).diff(moment(startDateTime));
+    return moment(new Date(endDateTime)).diff(moment(new Date(startDateTime)));
   }
 
   /**
