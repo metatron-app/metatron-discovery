@@ -33,11 +33,11 @@
 .page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot .ddp-data-name svg{margin-right:5px;vertical-align:middle;}
 
 .page-prep-dataflow .icon-db-local-b {display:inline-block; margin-right:5px;}
-
-.page-prep-dataflow .ddp-box-contents .ddp-wrap-part .ddp-box-part.ddp-error-part {display:table-cell;width:auto; float:left;}
-.page-prep-dataflow .ddp-box-contents .ddp-wrap-part .ddp-box-part.ddp-error-part .ddp-wrap-selectbox {display:table-cell;}
-.page-prep-dataflow .ddp-box-contents .ddp-wrap-part .ddp-box-part.ddp-error-part .ddp-type-selectbox {display:inline-block; width:220px;}
-.page-prep-dataflow .ddp-box-contents .ddp-wrap-part .ddp-box-part.ddp-error-part .ddp-txt-error {position:relative;display:table-cell;padding-left:10px; width:375px;  white-space:normal; vertical-align:middle;}
+.page-prep-dataflow .ddp-box-contents .ddp-wrap-part .ddp-box-part.ddp-type-part {width:auto; }
+.page-prep-dataflow .ddp-box-contents .ddp-wrap-part .ddp-box-part .ddp-error-part {display:table-cell;}
+.page-prep-dataflow .ddp-box-contents .ddp-wrap-part .ddp-box-part .ddp-error-part .ddp-wrap-selectbox {display:table-cell;}
+.page-prep-dataflow .ddp-box-contents .ddp-wrap-part .ddp-box-part .ddp-error-part .ddp-type-selectbox {display:inline-block; width:220px;}
+.page-prep-dataflow .ddp-box-contents .ddp-wrap-part .ddp-box-part .ddp-error-part .ddp-txt-error {position:relative;display:table-cell;padding-left:10px; width:375px;  white-space:normal; vertical-align:middle;}
 .page-prep-dataflow .ddp-wrap-flow-grid .ddp-wrap-grid-option .ddp-list-tab-button {margin-left:10px;}
 .page-prep-dataflow .ddp-wrap-flow-grid .ddp-wrap-grid-option .ddp-box-warning {position:relative; float:left;width:266px; padding:5px 0 5px 30px; margin:7px 10px 0 0; border:1px solid #ffe39b; background-color:#fff6e1; border-radius:3px; color:#dc9600; font-size:12px;box-sizing:border-box;}
 .page-prep-dataflow .ddp-wrap-flow-grid .ddp-wrap-grid-option .ddp-box-warning .ddp-icon-warning {display:inline-block; position:absolute; top:50%; left:8px; margin-top:-7px; width:15px; height:14px; background:url(../../../images/icon_error.png) no-repeat; background-position:left -16px;}
