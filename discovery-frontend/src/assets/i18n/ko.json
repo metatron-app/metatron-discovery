@@ -1284,7 +1284,7 @@
   "msg.dp.btn.switch.builder" : "빌더로 전환",
   "msg.dp.btn.create.dataflow.dataset" : "이 데이터셋으로 새로운 데이터플로우 생성",
   "msg.dp.ui.swap.dataset" : "데이터셋 치환",
-  "msg.dp.ui.change.input.dataset" : "입력 데이터셋 변경",
+  "msg.dp.ui.change.input.dataset" : "입력 데이터셋 치환",
   "msg.dp.ui.search-by.dataset" :"데이터셋 이름으로 검색하세요",
   "msg.dp.ui.one.col.required" : "하나 이상의 컬럼이 필요합니다",
   "msg.dp.alert.enter.group.every" : "그룹 수를 입력하세요",
