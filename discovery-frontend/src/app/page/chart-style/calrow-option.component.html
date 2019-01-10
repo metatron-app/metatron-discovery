@@ -29,7 +29,9 @@
             <span class="ddp-label-slider">{{'msg.page.calrow.show.calculated.row' | translate}}</span>
             <!-- Slide THREE -->
             <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-              <input type="checkbox" [ngModel]="uiOption['totalValueStyle']" [disabled]="'MASTER' == uiOption['dataType']"
+              <input type="checkbox"
+                     placeholder="{{'msg.comm.ui.placeholder.label' | translate}}"
+                     [ngModel]="uiOption['totalValueStyle']" [disabled]="'MASTER' == uiOption['dataType']"
                      (click)="showCalculatedRow()">
               <label><span class="ddp-slide"></span></label>
             </div>
