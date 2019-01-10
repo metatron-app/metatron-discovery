@@ -85,11 +85,11 @@ export class GranularityService {
    * @param {string} startData
    * @param {string} endData
    * @param {GranularityObject} granularity
-   * @returns {{startInterval: string; endInterval: string; intervalValid: boolean; intervalValidMessage: string; granularityUnit: number}}
+   * @returns {GranularityIntervalInfo}
    */
-  public getInitializedInterval(startData: string, endData: string, granularity: GranularityObject): {startInterval: string, endInterval: string, intervalValid: boolean, intervalValidMessage: string, granularityUnit: number} {
+  public getInitializedInterval(startData: string, endData: string, granularity: GranularityObject): GranularityIntervalInfo {
     // init
-    const result = {
+    const result: GranularityIntervalInfo = {
       startInterval: this.getInterval(startData, granularity),
       endInterval: this.getInterval(endData, granularity),
       intervalValid: true,
@@ -119,10 +119,10 @@ export class GranularityService {
    * @param {string} startInterval
    * @param {string} endInterval
    * @param {GranularityObject} granularity
-   * @returns {{intervalValid: boolean; intervalValidMessage: string; granularityUnit: number}}
+   * @returns {GranularityIntervalInfo}
    */
-  public getIntervalValidationInfo(startInterval: string, endInterval: string, granularity: GranularityObject): {intervalValid: boolean, intervalValidMessage: string, granularityUnit: number} {
-    const result: {intervalValid: boolean, intervalValidMessage: string, granularityUnit: number} = {
+  public getIntervalValidationInfo(startInterval: string, endInterval: string, granularity: GranularityObject): GranularityIntervalInfo {
+    const result: GranularityIntervalInfo = {
       intervalValid: false,
       intervalValidMessage: '',
       granularityUnit: 0
@@ -237,11 +237,12 @@ export class GranularityService {
   private _getIntervalReducedUnit(dateTime: string, value: number, granularity: GranularityObject): string {
     return moment(granularity.value === Granularity.YEAR ? new Date(dateTime) : dateTime).subtract(value, this._getMomentKey(granularity)).format(this._getDateTimeFormat(granularity));
   }
-
+  
   /**
    * Get date time diff
    * @param {string} startDateTime
    * @param {string} endDateTime
+   * @param {GranularityObject} granularity
    * @returns {number}
    * @private
    */
@@ -402,4 +403,12 @@ enum Granularity {
 interface GranularityObject {
   label: string,
   value: Granularity
+}
+
+interface GranularityIntervalInfo {
+  startInterval?: string;
+  endInterval?: string;
+  intervalValid?: boolean;
+  intervalValidMessage?: string;
+  granularityUnit?: number;
 }
