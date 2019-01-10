@@ -30,6 +30,7 @@ import { StringUtil } from '../../../common/util/string.util';
 import { Alert } from '../../../common/util/alert.util';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
 import { CommonUtil } from '../../../common/util/common.util';
+import { GranularityService } from '../../service/granularity.service';
 
 declare let moment: any;
 /**
@@ -45,15 +46,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _sourceData: DatasourceInfo;
 
   // granularity list
-  private _granularityList: any[] = [
-    { label: this.translateService.instant('msg.storage.li.dsource.granularity-none'), value: 'NONE' },
-    { label: this.translateService.instant('msg.storage.li.dsource.granularity-second'), value: 'SECOND' },
-    { label: this.translateService.instant('msg.storage.li.dsource.granularity-minute'), value: 'MINUTE' },
-    { label: this.translateService.instant('msg.storage.li.dsource.granularity-hour'), value: 'HOUR' },
-    { label: this.translateService.instant('msg.storage.li.dsource.granularity-day'), value: 'DAY' },
-    { label: this.translateService.instant('msg.storage.li.dsource.granularity-month'), value: 'MONTH' },
-    { label: this.translateService.instant('msg.storage.li.dsource.granularity-year'), value: 'YEAR' }
-  ];
+  private _granularityList: any[] = this._granularityService.getGranularityList();
   // scope type list (only engine source type)
   private _scopeTypeList: any[] = [
     { label: this.translateService.instant('msg.storage.th.dsource.scope-incremental'), value: 'INCREMENTAL' },
@@ -196,7 +189,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   // interval valid message
   public intervalValidMessage: string;
   // interval valid
-  public intervalValid: number;
+  public intervalValid: boolean;
   // granularity unit
   public granularityUnit: number;
 
@@ -207,11 +200,10 @@ export class IngestionSettingComponent extends AbstractComponent {
   @Output()
   public nextStep: EventEmitter<any> = new EventEmitter();
 
-
-
   // constructor
   constructor(private _dataSourceService: DatasourceService,
               private _dataConnectionService: DataconnectionService,
+              private _granularityService: GranularityService,
               protected element: ElementRef,
               protected renderer: Renderer2,
               protected injector: Injector) {
@@ -313,8 +305,8 @@ export class IngestionSettingComponent extends AbstractComponent {
         if (!this.isUsedCurrentTimestampColumn()) {
           // set timestamp column data list
           this._sortedTimestampColumnDataList = test.sort();
-          // granularity unit initial
-          this.checkValidIntervalTextAndSetGranularityUnit();
+          // granularity interval initial
+          this._initGranularityIntervalInfo();
         }
       }
     } else { // init
@@ -325,8 +317,8 @@ export class IngestionSettingComponent extends AbstractComponent {
       if (!this.isUsedCurrentTimestampColumn()) {
         // set timestamp column data list
         this._sortedTimestampColumnDataList = test.sort();
-        // granularity unit initial
-        this.checkValidIntervalTextAndSetGranularityUnit();
+        // granularity interval initial
+        this._initGranularityIntervalInfo();
       }
       // if staging type, set partition key list
       if (this.createType === 'STAGING' && this._sourceData.databaseData.selectedTableDetail.partitionFields.length > 0) {
@@ -511,8 +503,8 @@ export class IngestionSettingComponent extends AbstractComponent {
     if (_.every(this.queryGranularityList, item => item.value !== this.selectedQueryGranularity.value)) {
       this.selectedQueryGranularity = this.queryGranularityList[0];
     }
-    // if used TIMESTAMP column
-    !this.isUsedCurrentTimestampColumn() && this.checkValidIntervalTextAndSetGranularityUnit();
+    // if used TIMESTAMP column, granularity interval initial
+    !this.isUsedCurrentTimestampColumn() && this._initGranularityIntervalInfo();
   }
 
   /**
@@ -633,31 +625,31 @@ export class IngestionSettingComponent extends AbstractComponent {
     event.keyCode === 13 && this.cronValidation();
   }
 
+
   /**
-   * Check valid interval text and set granularity unit
+   * Check start granularity interval
    */
-  public checkValidIntervalTextAndSetGranularityUnit(): void {
-    // if null interval text, set interval text init timestamp data
-    StringUtil.isEmpty(this.startIntervalText) && (this.startIntervalText = this._getGranularityUnitInitialData(this._sortedTimestampColumnDataList[0], this.selectedSegmentGranularity.value));
-    StringUtil.isEmpty(this.endIntervalText) && (this.endIntervalText = this._getGranularityUnitInitialData(this._sortedTimestampColumnDataList[this._sortedTimestampColumnDataList.length-1], this.selectedSegmentGranularity.value));
-    // if invalid interval format
-    if (!this._getDateTimeRegexp(this.selectedSegmentGranularity.value).test(this.startIntervalText) || !this._getDateTimeRegexp(this.selectedSegmentGranularity.value).test(this.endIntervalText)) {
-      this.intervalValid = 1;
-      this.intervalValidMessage = this.translateService.instant('msg.storage.ui.intervals.invalid.format', {format: this._getTimeFormat(this.selectedSegmentGranularity.value)});
-      this.granularityUnit = 0;
-    } else if (moment(this.endIntervalText).diff(moment(this.startIntervalText)) < 0) { // if difference first, end value
-      this.intervalValid = 1;
-      this.intervalValidMessage = this.translateService.instant('msg.storage.ui.intervals.invalid.period');
-      this.granularityUnit = 0;
-    } else if (this._getGranularityUnit() >= 10000) { // units number exceed 10000
-      this.intervalValid = 1;
-      this.intervalValidMessage = this.translateService.instant('msg.storage.ui.intervals.invalid.unit');
-      this.granularityUnit = this._getGranularityUnit();
-    } else {  // success
-      this.intervalValid = 0;
-      this.granularityUnit = this._getGranularityUnit();
-    }
+  public checkStatrInterval(): void {
+    StringUtil.isEmpty(this.startIntervalText) && (this.startIntervalText = this._granularityService.getInterval(this._sortedTimestampColumnDataList[0], this.selectedSegmentGranularity.value));
+    // get interval validation info
+    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity.value);
+    this.intervalValid = validInfo.intervalValid;
+    this.intervalValidMessage = validInfo.intervalValidMessage;
+    this.granularityUnit = validInfo.granularityUnit;
   }
+
+  /**
+   * Check end granularity interval
+   */
+  public checkEndInterval(): void {
+    StringUtil.isEmpty(this.endIntervalText) && (this.endIntervalText = this._granularityService.getInterval(this._sortedTimestampColumnDataList[this._sortedTimestampColumnDataList.length-1], this.selectedSegmentGranularity.value));
+    // get interval validation info
+    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity.value);
+    this.intervalValid = validInfo.intervalValid;
+    this.intervalValidMessage = validInfo.intervalValidMessage;
+    this.granularityUnit = validInfo.granularityUnit;
+  }
+
 
   /**
    * Is used current_time column in schema step
@@ -930,7 +922,7 @@ export class IngestionSettingComponent extends AbstractComponent {
       return false;
     }
     // valid interval granularity (only column TIMESTAMP)
-    if (!this.isUsedCurrentTimestampColumn() && this.intervalValid !== 0) {
+    if (!this.isUsedCurrentTimestampColumn() && !this.intervalValid) {
       return false;
     }
     // valid tuning config (if exist tuningConfig error)
@@ -1050,98 +1042,18 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * Get datetime regexp
-   * @param {string} granularityValue
-   * @returns {RegExp}
+   * Granularity interval initial
    * @private
    */
-  private _getDateTimeRegexp(granularityValue: string): RegExp {
-    switch (granularityValue) {
-      case 'SECOND':  // YYYY-MM-DD HH:mm:ss
-        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
-      case 'MINUTE':  // YYYY-MM-DD HH:mm
-        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]$/;
-      case 'HOUR':  // YYYY-MM-DD HH
-        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9])$/;
-      case 'DAY':  // YYYY-MM-DD
-        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
-      case 'MONTH':  // YYYY-MM
-        return /^\d{4}-(0[1-9]|1[0-2])$/;
-      case 'YEAR':  // YYYY
-        return /^\d{4}$/;
-      default:  // YYYY-MM-DD HH:mm:ss
-        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
-    }
-  }
-
-  /**
-   * Get granularity unit
-   * @returns {number}
-   * @private
-   */
-  private _getGranularityUnit(): number {
-    return Math.ceil(moment(this.endIntervalText).diff(moment(this.startIntervalText)) / this._getSelectedGranularityUnitMillis(this.selectedSegmentGranularity.value));
-  }
-
-  /**
-   * Get selected granularity unit milliseconds
-   * @param {string} granularityValue
-   * @returns {number}
-   * @private
-   */
-  private _getSelectedGranularityUnitMillis(granularityValue: string): number {
-    switch (granularityValue) {
-      case 'SECOND':
-        return 1000;
-      case 'MINUTE':
-        return 60000;
-      case 'HOUR':
-        return 3600000;
-      case 'DAY':
-        return 86400000;
-      case 'MONTH':
-        return 2629800000;
-      case 'YEAR':
-        return 31557600000;
-      default:
-        return 1000;
-    }
-  }
-
-  /**
-   * Get time format
-   * @param {string} granularityValue
-   * @returns {string}
-   * @private
-   */
-  private _getTimeFormat(granularityValue: string): string {
-    switch (granularityValue) {
-      case 'SECOND':
-        return 'YYYY-MM-DD HH:mm:ss';
-      case 'MINUTE':
-        return 'YYYY-MM-DD HH:mm';
-      case 'HOUR':
-        return 'YYYY-MM-DD HH';
-      case 'DAY':
-        return 'YYYY-MM-DD';
-      case 'MONTH':
-        return 'YYYY-MM';
-      case 'YEAR':
-        return 'YYYY';
-      default:
-        return 'YYYY-MM-DD HH:mm:ss';
-    }
-  }
-
-  /**
-   * Get granularity unit initial data
-   * @param {string} timestampColumnData
-   * @param {string} granularityValue
-   * @returns {string}
-   * @private
-   */
-  private _getGranularityUnitInitialData(timestampColumnData: string, granularityValue: string): string {
-    return moment(timestampColumnData).format(this._getTimeFormat(granularityValue));
+  private _initGranularityIntervalInfo(): void {
+    // granularity unit initial
+    const info = this._granularityService.getInitializedInterval(this._sortedTimestampColumnDataList[0], this._sortedTimestampColumnDataList[this._sortedTimestampColumnDataList.length-1], this.selectedSegmentGranularity.value);
+    // set interval text
+    this.startIntervalText = info.startInterval;
+    this.endIntervalText = info.endInterval;
+    this.intervalValid = info.intervalValid;
+    this.intervalValidMessage = info.intervalValidMessage;
+    this.granularityUnit = info.granularityUnit;
   }
 
   /**

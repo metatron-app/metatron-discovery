@@ -539,11 +539,11 @@
               <div class="ddp-ui-calen">
                 <!-- disabled 시 ddp-disabled 추가 -->
                 <div class="ddp-box-calen ">
-                  <input type="text" class="ddp-input-typebasic ddp-data-calen" input-mask="calendar" (focusout)="checkValidIntervalTextAndSetGranularityUnit()" [(ngModel)]="startIntervalText">
+                  <input type="text" class="ddp-input-typebasic ddp-data-calen" input-mask="calendar" (focusout)="checkStatrInterval()" [(ngModel)]="startIntervalText">
                 </div>
                 <span class="ddp-bar">~</span>
                 <div class="ddp-box-calen ">
-                  <input type="text" class="ddp-input-typebasic ddp-data-calen" input-mask="calendar" (focusout)="checkValidIntervalTextAndSetGranularityUnit()" [(ngModel)]="endIntervalText">
+                  <input type="text" class="ddp-input-typebasic ddp-data-calen" input-mask="calendar" (focusout)="checkEndInterval()" [(ngModel)]="endIntervalText">
                 </div>
               </div>
               <!-- data -->
@@ -553,7 +553,7 @@
               </div>
               <!-- //data -->
             </div>
-            <div class="ddp-txt-error ddp-clear" *ngIf="intervalValid === 1">
+            <div class="ddp-txt-error ddp-clear" *ngIf="!intervalValid">
               <em class="ddp-icon-error-s"></em>{{intervalValidMessage}}
             </div>
           </div>

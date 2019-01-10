@@ -66,6 +66,7 @@ import { ColumnSelectBoxComponent } from './data-source-list/component/column-se
 import { CriterionFilterBoxComponent } from './component/criterion/criterion-filter-box.component';
 import { CriterionCheckboxComponent } from './component/criterion/criterion-checkbox.component';
 import { CriterionTimeRadioboxComponent } from './component/criterion/criterion-time-radiobox.component';
+import { GranularityService } from './service/granularity.service';
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -154,7 +155,8 @@ const storageRoutes: Routes = [
     DatasourceManagementGuard,
     DatasourceService,
     DataconnectionService,
-    MetadataService
+    MetadataService,
+    GranularityService
   ]
 })
 export class DataStorageModule {
