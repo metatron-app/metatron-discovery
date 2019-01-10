@@ -172,7 +172,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
     }
 
     // If necessary, pre-handle the request object in case of ChartResultFormat
-    if(request.getResultFormat() instanceof ChartResultFormat) {
+    if (request.getResultFormat() instanceof ChartResultFormat) {
       ((ChartResultFormat) request.getResultFormat()).preHandling();
     }
 
@@ -290,7 +290,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
                           .format(request.getResultFormat())
                           .build();
 
-      if(request.getMetaQuery()) {
+      if (request.getMetaQuery()) {
         QueryHistoryTeller.setEngineQueryType(GROUPBYMETA);// for history
         query = new GroupByMetaQuery(query);
 
@@ -475,11 +475,14 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
         }
       } else {
         QueryHistoryTeller.setEngineQueryType(SEARCH); // for history
+
         query = SearchQuery.builder(request.getDataSource())
                            .initVirtualColumns(request.getUserFields())
                            .fields(Lists.newArrayList(request.getTargetField()))
                            .filters(request.getAvailableFilters())
+                           .query(request.getSearchWord())
                            .sort(request.getSortBy())
+                           .limit(request.getLimit())
                            .build();
       }
     }
