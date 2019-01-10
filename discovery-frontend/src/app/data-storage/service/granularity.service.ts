@@ -20,18 +20,14 @@ declare let moment: any;
 @Injectable()
 export class GranularityService {
 
+  public granularityList: GranularityObject[];
+
   private _translateService: TranslateService;
 
   constructor(private injector: Injector) {
     this._translateService = injector.get(TranslateService);
-  }
-
-  /**
-   * Get granularity list
-   * @returns {[{label: string; value: Granularity}]}
-   */
-  public getGranularityList(): [{label: string, value: Granularity}] {
-    return [
+    // set granularity list
+    this.granularityList = [
       { label: this._translateService.instant('msg.storage.li.dsource.granularity-none'), value: Granularity.NONE },
       { label: this._translateService.instant('msg.storage.li.dsource.granularity-second'), value: Granularity.SECOND },
       { label: this._translateService.instant('msg.storage.li.dsource.granularity-minute'), value: Granularity.MINUTE },
@@ -39,50 +35,82 @@ export class GranularityService {
       { label: this._translateService.instant('msg.storage.li.dsource.granularity-day'), value: Granularity.DAY },
       { label: this._translateService.instant('msg.storage.li.dsource.granularity-month'), value: Granularity.MONTH },
       { label: this._translateService.instant('msg.storage.li.dsource.granularity-year'), value: Granularity.YEAR }
-      ];
+    ];
+  }
+
+  /**
+   * Get segment granularity list
+   * @returns {GranularityObject[]}
+   */
+  public getSegmentGranularityList(): GranularityObject[] {
+    return this.granularityList.filter(item => item.value !== Granularity.NONE && item.value !== Granularity.SECOND && item.value !== Granularity.MINUTE);
+  }
+
+  /**
+   * Get query granularity list
+   * @param {GranularityObject} granularity
+   * @returns {GranularityObject[]}
+   */
+  public getQueryGranularityList(granularity: GranularityObject): GranularityObject[] {
+    return this.granularityList.slice(0, this.granularityList.findIndex(item => item.value === granularity.value) + 1);
+  }
+
+  /**
+   * Get initialized granularity
+   * @param {string} format
+   * @param {number} startNumber
+   * @returns {{segmentGranularity: GranularityObject; queryGranularity: GranularityObject}}
+   */
+  public getInitializedGranularity(format: string, startNumber: number): {segmentGranularity: GranularityObject, queryGranularity: GranularityObject} {
+    const result = {
+      segmentGranularity: undefined,
+      queryGranularity: undefined
+    };
+    this._automationGranularity(format, startNumber, result);
+    return result;
   }
 
   /**
    * Get interval
-   * @param {string} date
-   * @param {string} granularityValue
+   * @param {string} dateTime
+   * @param {GranularityObject} granularity
    * @returns {string}
    */
-  public getInterval(dateTime: string, granularityValue: string): string {
-    return moment(new Date(dateTime)).format(this._getDateTimeFormat(granularityValue));
+  public getInterval(dateTime: string, granularity: GranularityObject): string {
+    return moment(granularity.value === Granularity.YEAR ? new Date(dateTime) : dateTime).format(this._getDateTimeFormat(granularity));
   }
 
   /**
    * Get initialized interval
    * @param {string} startData
    * @param {string} endData
-   * @param {string} granularityValue
-   * @returns {{startInterval: string; endInterval: string}}
+   * @param {GranularityObject} granularity
+   * @returns {{startInterval: string; endInterval: string; intervalValid: boolean; intervalValidMessage: string; granularityUnit: number}}
    */
-  public getInitializedInterval(startData: string, endData: string, granularityValue: string): {startInterval: string, endInterval: string, intervalValid: boolean, intervalValidMessage: string, granularityUnit: number} {
+  public getInitializedInterval(startData: string, endData: string, granularity: GranularityObject): {startInterval: string, endInterval: string, intervalValid: boolean, intervalValidMessage: string, granularityUnit: number} {
     // init
     const result = {
-      startInterval: this.getInterval(startData, granularityValue),
-      endInterval: this.getInterval(endData, granularityValue),
+      startInterval: this.getInterval(startData, granularity),
+      endInterval: this.getInterval(endData, granularity),
       intervalValid: true,
       intervalValidMessage: '',
       granularityUnit: 0
     };
     // check interval
-    if (this._getGranularityUnit(result.startInterval, result.endInterval, granularityValue) < 9800) {
+    if (this._getGranularityUnit(result.startInterval, result.endInterval, granularity) < 9800) {
       // reduce 100 start interval
-      result.startInterval = this._getIntervalReducedUnit(result.startInterval, 100, granularityValue);
+      result.startInterval = this._getIntervalReducedUnit(result.startInterval, 100, granularity);
       // add 100 end interval
-      result.endInterval = this._getIntervalAddedUnit(result.endInterval, 100, granularityValue);
-    } else if (this._getGranularityUnit(result.startInterval, result.endInterval, granularityValue) < 9900) {
+      result.endInterval = this._getIntervalAddedUnit(result.endInterval, 100, granularity);
+    } else if (this._getGranularityUnit(result.startInterval, result.endInterval, granularity) < 9900) {
       // reduce 100 start interval
-      result.startInterval = this._getIntervalReducedUnit(result.startInterval, 100, granularityValue);
+      result.startInterval = this._getIntervalReducedUnit(result.startInterval, 100, granularity);
     } else {  // if invalid
       result.intervalValid = false;
       result.intervalValidMessage = this._translateService.instant('msg.storage.ui.intervals.invalid.unit');
     }
     // set granularity unit
-    result.granularityUnit = this._getGranularityUnit(result.startInterval, result.endInterval, granularityValue);
+    result.granularityUnit = this._getGranularityUnit(result.startInterval, result.endInterval, granularity);
     return result;
   }
 
@@ -90,123 +118,124 @@ export class GranularityService {
    * Get interval validation information
    * @param {string} startInterval
    * @param {string} endInterval
-   * @param {string} granularityValue
+   * @param {GranularityObject} granularity
    * @returns {{intervalValid: boolean; intervalValidMessage: string; granularityUnit: number}}
    */
-  public getIntervalValidationInfo(startInterval: string, endInterval: string, granularityValue: string): {intervalValid: boolean, intervalValidMessage: string, granularityUnit: number} {
+  public getIntervalValidationInfo(startInterval: string, endInterval: string, granularity: GranularityObject): {intervalValid: boolean, intervalValidMessage: string, granularityUnit: number} {
     const result: {intervalValid: boolean, intervalValidMessage: string, granularityUnit: number} = {
       intervalValid: false,
       intervalValidMessage: '',
       granularityUnit: 0
     };
     // if invalid interval format
-    if (!this._isValidInterval(startInterval, granularityValue) || !this._isValidInterval(endInterval, granularityValue)) {
-      result.intervalValidMessage = this._translateService.instant('msg.storage.ui.intervals.invalid.format', {format: this._getDateTimeFormat(granularityValue)});
-    } else if (!this._isValidIntervalPeriod(startInterval, endInterval)) { // if difference first, end value
+    if (!this._isValidInterval(startInterval, granularity) || !this._isValidInterval(endInterval, granularity)) {
+      result.intervalValidMessage = this._translateService.instant('msg.storage.ui.intervals.invalid.format', {format: this._getDateTimeFormat(granularity)});
+    } else if (!this._isValidIntervalPeriod(startInterval, endInterval, granularity)) { // if difference first, end value
       result.intervalValidMessage = this._translateService.instant('msg.storage.ui.intervals.invalid.period');
-    } else if (!this._isValidGranularityUnit(startInterval, endInterval, granularityValue)) { // units number exceed 10000
+    } else if (!this._isValidGranularityUnit(startInterval, endInterval, granularity)) { // units number exceed 10000
       result.intervalValidMessage = this._translateService.instant('msg.storage.ui.intervals.invalid.unit');
-      result.granularityUnit = this._getGranularityUnit(startInterval, endInterval, granularityValue);
+      result.granularityUnit = this._getGranularityUnit(startInterval, endInterval, granularity);
     } else {  // success
       result.intervalValid = true;
-      result.granularityUnit = this._getGranularityUnit(startInterval, endInterval, granularityValue);
+      result.granularityUnit = this._getGranularityUnit(startInterval, endInterval, granularity);
     }
     return result;
   }
 
   /**
+   * Is valid interval
    * @param {string} dateTime
-   * @param {string} granularityValue
+   * @param {GranularityObject} granularity
    * @returns {boolean}
    * @private
    */
-  private _isValidInterval(dateTime: string, granularityValue: string): boolean {
-    return this._getDateTimeRegexp(granularityValue).test(dateTime);
+  private _isValidInterval(dateTime: string, granularity: GranularityObject): boolean {
+    return this._getDateTimeRegexp(granularity).test(dateTime);
   }
 
   /**
    * Is valid interval period
    * @param {string} startInterval
    * @param {string} endInterval
+   * @param {GranularityObject} granularity
    * @returns {boolean}
    * @private
    */
-  private _isValidIntervalPeriod(startInterval: string, endInterval: string): boolean {
-    return this._getDateTimeDiff(startInterval, endInterval) > 0
+  private _isValidIntervalPeriod(startInterval: string, endInterval: string, granularity: GranularityObject): boolean {
+    return this._getDateTimeDiff(startInterval, endInterval, granularity) > 0
   }
 
   /**
    * Is valid granularity unit
    * @param {string} startInterval
    * @param {string} endInterval
-   * @param {string} granularityValue
+   * @param {GranularityObject} granularity
    * @returns {boolean}
    * @private
    */
-  private _isValidGranularityUnit(startInterval: string, endInterval: string, granularityValue: string): boolean {
-    return this._getGranularityUnit(startInterval, endInterval, granularityValue) <= 10000;
+  private _isValidGranularityUnit(startInterval: string, endInterval: string, granularity: GranularityObject): boolean {
+    return this._getGranularityUnit(startInterval, endInterval, granularity) <= 10000;
   }
 
   /**
    * Get date time format
-   * @param {string} granularityValue
+   * @param {GranularityObject} granularity
    * @returns {string}
    * @private
    */
-  private _getDateTimeFormat(granularityValue: string): string {
-    switch (granularityValue) {
-      case 'SECOND':
+  private _getDateTimeFormat(granularity: GranularityObject): string {
+    switch (granularity.value) {
+      case Granularity.SECOND:
         return 'YYYY-MM-DD HH:mm:ss';
-      case 'MINUTE':
+      case Granularity.MINUTE:
         return 'YYYY-MM-DD HH:mm';
-      case 'HOUR':
+      case Granularity.HOUR:
         return 'YYYY-MM-DD HH';
-      case 'DAY':
+      case Granularity.DAY:
         return 'YYYY-MM-DD';
-      case 'MONTH':
+      case Granularity.MONTH:
         return 'YYYY-MM';
-      case 'YEAR':
+      case Granularity.YEAR:
         return 'YYYY';
       default:
         return 'YYYY-MM-DD HH:mm:ss';
     }
   }
 
-
   /**
    * Get granularity unit
    * @param {string} startDateTime
    * @param {string} endDateTime
-   * @param {string} granularityValue
+   * @param {GranularityObject} granularity
    * @returns {number}
    * @private
    */
-  private _getGranularityUnit(startDateTime: string, endDateTime: string, granularityValue: string): number {
-    return Math.ceil(this._getDateTimeDiff(startDateTime, endDateTime) / this._getGranularityUnitMillis(granularityValue));
+  private _getGranularityUnit(startDateTime: string, endDateTime: string, granularity: GranularityObject): number {
+    return Math.ceil(this._getDateTimeDiff(startDateTime, endDateTime, granularity) / this._getGranularityUnitMillis(granularity));
   }
 
   /**
    * Get added interval
    * @param {string} dateTime
    * @param {number} value
-   * @param {string} granularityValue
+   * @param {GranularityObject} granularity
    * @returns {string}
    * @private
    */
-  private _getIntervalAddedUnit(dateTime: string, value: number, granularityValue: string): string {
-    return moment(new Date(dateTime)).add(value, this._getMomentKey(granularityValue)).format(this._getDateTimeFormat(granularityValue));
+  private _getIntervalAddedUnit(dateTime: string, value: number, granularity: GranularityObject): string {
+    return moment(granularity.value === Granularity.YEAR ? new Date(dateTime) : dateTime).add(value, this._getMomentKey(granularity)).format(this._getDateTimeFormat(granularity));
   }
 
   /**
-   * Get reduced interval
+   *  Get reduced interval
    * @param {string} dateTime
    * @param {number} value
-   * @param {string} granularityValue
+   * @param {GranularityObject} granularity
    * @returns {string}
    * @private
    */
-  private _getIntervalReducedUnit(dateTime: string, value: number, granularityValue: string): string {
-    return moment(new Date(dateTime)).subtract(value, this._getMomentKey(granularityValue)).format(this._getDateTimeFormat(granularityValue));
+  private _getIntervalReducedUnit(dateTime: string, value: number, granularity: GranularityObject): string {
+    return moment(granularity.value === Granularity.YEAR ? new Date(dateTime) : dateTime).subtract(value, this._getMomentKey(granularity)).format(this._getDateTimeFormat(granularity));
   }
 
   /**
@@ -216,29 +245,29 @@ export class GranularityService {
    * @returns {number}
    * @private
    */
-  private _getDateTimeDiff(startDateTime: string, endDateTime: string): number {
-    return moment(new Date(endDateTime)).diff(moment(new Date(startDateTime)));
+  private _getDateTimeDiff(startDateTime: string, endDateTime: string, granularity: GranularityObject): number {
+    return moment(granularity.value === Granularity.YEAR ? new Date(endDateTime) : endDateTime).diff(moment(granularity.value === Granularity.YEAR ? new Date(startDateTime) : startDateTime));
   }
 
   /**
    * Get date time regexp
-   * @param {string} granularityValue
+   * @param {GranularityObject} granularity
    * @returns {RegExp}
    * @private
    */
-  private _getDateTimeRegexp(granularityValue: string): RegExp {
-    switch (granularityValue) {
-      case 'SECOND':  // YYYY-MM-DD HH:mm:ss
+  private _getDateTimeRegexp(granularity: GranularityObject): RegExp {
+    switch (granularity.value) {
+      case Granularity.SECOND:  // YYYY-MM-DD HH:mm:ss
         return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
-      case 'MINUTE':  // YYYY-MM-DD HH:mm
+      case Granularity.MINUTE:  // YYYY-MM-DD HH:mm
         return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]$/;
-      case 'HOUR':  // YYYY-MM-DD HH
+      case Granularity.HOUR:  // YYYY-MM-DD HH
         return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9])$/;
-      case 'DAY':  // YYYY-MM-DD
+      case Granularity.DAY:  // YYYY-MM-DD
         return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
-      case 'MONTH':  // YYYY-MM
+      case Granularity.MONTH:  // YYYY-MM
         return /^\d{4}-(0[1-9]|1[0-2])$/;
-      case 'YEAR':  // YYYY
+      case Granularity.YEAR:  // YYYY
         return /^\d{4}$/;
       default:  // YYYY-MM-DD HH:mm:ss
         return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
@@ -247,23 +276,23 @@ export class GranularityService {
 
   /**
    * Get granularity unit milliseconds
-   * @param {string} granularityValue
+   * @param {GranularityObject} granularity
    * @returns {number}
    * @private
    */
-  private _getGranularityUnitMillis(granularityValue: string): number {
-    switch (granularityValue) {
-      case 'SECOND':
+  private _getGranularityUnitMillis(granularity: GranularityObject): number {
+    switch (granularity.value) {
+      case Granularity.SECOND:
         return 1000;
-      case 'MINUTE':
+      case Granularity.MINUTE:
         return 60000;
-      case 'HOUR':
+      case Granularity.HOUR:
         return 3600000;
-      case 'DAY':
+      case Granularity.DAY:
         return 86400000;
-      case 'MONTH':
+      case Granularity.MONTH:
         return 2629800000;
-      case 'YEAR':
+      case Granularity.YEAR:
         return 31557600000;
       default:
         return 1000;
@@ -272,28 +301,92 @@ export class GranularityService {
 
   /**
    * Get moment key
-   * @param {string} granularityValue
+   * @param {GranularityObject} granularity
    * @returns {string}
    * @private
    */
-  private _getMomentKey(granularityValue: string): string {
-    switch (granularityValue) {
-      case 'SECOND':
+  private _getMomentKey(granularity: GranularityObject): string {
+    switch (granularity.value) {
+      case Granularity.SECOND:
         return 's';
-      case 'MINUTE':
+      case Granularity.MINUTE:
         return 'm';
-      case 'HOUR':
+      case Granularity.HOUR:
         return 'h';
-      case 'DAY':
+      case Granularity.DAY:
         return 'd';
-      case 'MONTH':
+      case Granularity.MONTH:
         return 'M';
-      case 'YEAR':
+      case Granularity.YEAR:
         return 'y';
       default:
         return 's';
     }
   }
+
+  /**
+   * automation granularity
+   * @param {string} format
+   * @param {number} startNumber
+   * @param {{segmentGranularity: GranularityObject; queryGranularity: GranularityObject}} resultObject
+   * @private
+   */
+  private _automationGranularity(format: string, startNumber: number, resultObject: {segmentGranularity: GranularityObject, queryGranularity: GranularityObject}) {
+    switch (format.slice(startNumber, startNumber + 1)) {
+      case 'Y':
+      case 'y':
+        // set segment granularity YEAR
+        resultObject.segmentGranularity = this.granularityList[6];
+        // set query granularity YEAR
+        resultObject.queryGranularity = this.granularityList[6];
+        break;
+      case 'M':
+        // set segment granularity YEAR
+        resultObject.segmentGranularity = this.granularityList[6];
+        // set query granularity MONTH
+        resultObject.queryGranularity = this.granularityList[5];
+        break;
+      case 'D':
+      case 'd':
+        // set segment granularity YEAR
+        resultObject.segmentGranularity = this.granularityList[6];
+        // set query granularity DAY
+        resultObject.queryGranularity = this.granularityList[4];
+        break;
+      case 'H':
+      case 'h':
+        // set segment granularity MONTH
+        resultObject.segmentGranularity = this.granularityList[5];
+        // set query granularity HOUR
+        resultObject.queryGranularity = this.granularityList[3];
+        break;
+      case 'm':
+        // set segment granularity DAY
+        resultObject.segmentGranularity = this.granularityList[4];
+        // set query granularity MINUTE
+        resultObject.queryGranularity = this.granularityList[2];
+        break;
+      case 'S':
+      case 's':
+        // set segment granularity HOUR
+        resultObject.segmentGranularity = this.granularityList[3];
+        // set query granularity SECOND
+        resultObject.queryGranularity = this.granularityList[1];
+        break;
+      default:
+        // if not startNum first index, call _automationGranularity method
+        if (startNumber !== 0) {
+          this._automationGranularity(format, startNumber - 1, resultObject);
+        } else { // set default
+          // set segment granularity HOUR
+          resultObject.segmentGranularity = this.granularityList[3];
+          // set query granularity SECOND
+          resultObject.queryGranularity = this.granularityList[1];
+        }
+        break;
+    }
+  }
+
 }
 
 enum Granularity {
@@ -304,4 +397,9 @@ enum Granularity {
   DAY = <any>'DAY',
   MONTH = <any>'MONTH',
   YEAR = <any>'YEAR'
+}
+
+interface GranularityObject {
+  label: string,
+  value: Granularity
 }

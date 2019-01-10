@@ -46,7 +46,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _sourceData: DatasourceInfo;
 
   // granularity list
-  private _granularityList: any[] = this._granularityService.getGranularityList();
+  private _granularityList: any[] = this._granularityService.granularityList;
   // scope type list (only engine source type)
   private _scopeTypeList: any[] = [
     { label: this.translateService.instant('msg.storage.th.dsource.scope-incremental'), value: 'INCREMENTAL' },
@@ -629,10 +629,10 @@ export class IngestionSettingComponent extends AbstractComponent {
   /**
    * Check start granularity interval
    */
-  public checkStatrInterval(): void {
-    StringUtil.isEmpty(this.startIntervalText) && (this.startIntervalText = this._granularityService.getInterval(this._sortedTimestampColumnDataList[0], this.selectedSegmentGranularity.value));
+  public checkStartInterval(): void {
+    StringUtil.isEmpty(this.startIntervalText) && (this.startIntervalText = this._granularityService.getInterval(this._sortedTimestampColumnDataList[0], this.selectedSegmentGranularity));
     // get interval validation info
-    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity.value);
+    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity);
     this.intervalValid = validInfo.intervalValid;
     this.intervalValidMessage = validInfo.intervalValidMessage;
     this.granularityUnit = validInfo.granularityUnit;
@@ -642,9 +642,9 @@ export class IngestionSettingComponent extends AbstractComponent {
    * Check end granularity interval
    */
   public checkEndInterval(): void {
-    StringUtil.isEmpty(this.endIntervalText) && (this.endIntervalText = this._granularityService.getInterval(this._sortedTimestampColumnDataList[this._sortedTimestampColumnDataList.length-1], this.selectedSegmentGranularity.value));
+    StringUtil.isEmpty(this.endIntervalText) && (this.endIntervalText = this._granularityService.getInterval(this._sortedTimestampColumnDataList[this._sortedTimestampColumnDataList.length-1], this.selectedSegmentGranularity));
     // get interval validation info
-    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity.value);
+    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity);
     this.intervalValid = validInfo.intervalValid;
     this.intervalValidMessage = validInfo.intervalValidMessage;
     this.granularityUnit = validInfo.granularityUnit;
@@ -787,7 +787,7 @@ export class IngestionSettingComponent extends AbstractComponent {
     this.selectedWeeklyTime = this.selectedDailyTime = this._getCurrentTime();
     // init segment granularity list
     // #1058 remove MINUTE, SECOND in segment granularity
-    this.segmentGranularityList = _.filter(this._granularityList, item => item.value !== 'NONE' && item.value !== 'SECOND' && item.value !== 'MINUTE');
+    this.segmentGranularityList = this._granularityService.getSegmentGranularityList();
   }
 
   /**
@@ -805,8 +805,9 @@ export class IngestionSettingComponent extends AbstractComponent {
       // set query granularity SECOND
       // this.selectedQueryGranularity =this._granularityList[1];
     } else if (this._format.type === FieldFormatType.DATE_TIME) { // if exist format, DATE_TIME type
-      // _automationGranularity
-      this._automationGranularity(this._format.format, this._format.format.length - 1);
+      const initializedGranularity = this._granularityService.getInitializedGranularity(this._format.format, this._format.format.length - 1);
+      this.selectedSegmentGranularity = initializedGranularity.segmentGranularity;
+      this.selectedQueryGranularity = initializedGranularity.queryGranularity;
     } else if (this._format.type === FieldFormatType.UNIX_TIME) { // if exist format, UNIX_TIME type
       // set segment granularity HOUR
       this.selectedSegmentGranularity = this._granularityList[3];
@@ -823,74 +824,12 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * automation granularity
-   * @param {string} format
-   * @param {number} startNum
-   * @private
-   */
-  private _automationGranularity(format: string, startNum: number) {
-    switch (format.slice(startNum, startNum + 1)) {
-      case 'Y':
-      case 'y':
-        // set segment granularity YEAR
-        this.selectedSegmentGranularity = this._granularityList[6];
-        // set query granularity YEAR
-        this.selectedQueryGranularity = this._granularityList[6];
-        break;
-      case 'M':
-        // set segment granularity YEAR
-        this.selectedSegmentGranularity = this._granularityList[6];
-        // set query granularity MONTH
-        this.selectedQueryGranularity = this._granularityList[5];
-        break;
-      case 'D':
-      case 'd':
-        // set segment granularity YEAR
-        this.selectedSegmentGranularity = this._granularityList[6];
-        // set query granularity DAY
-        this.selectedQueryGranularity = this._granularityList[4];
-        break;
-      case 'H':
-      case 'h':
-        // set segment granularity MONTH
-        this.selectedSegmentGranularity = this._granularityList[5];
-        // set query granularity HOUR
-        this.selectedQueryGranularity = this._granularityList[3];
-        break;
-      case 'm':
-        // set segment granularity DAY
-        this.selectedSegmentGranularity = this._granularityList[4];
-        // set query granularity MINUTE
-        this.selectedQueryGranularity = this._granularityList[2];
-        break;
-      case 'S':
-      case 's':
-        // set segment granularity HOUR
-        this.selectedSegmentGranularity = this._granularityList[3];
-        // set query granularity SECOND
-        this.selectedQueryGranularity = this._granularityList[1];
-        break;
-      default:
-        // if not startNum first index, call _automationGranularity method
-        if (startNum !== 0) {
-          this._automationGranularity(this._format.format, startNum - 1);
-        } else { // set default
-          // set segment granularity HOUR
-          this.selectedSegmentGranularity = this._granularityList[3];
-          // set query granularity SECOND
-          this.selectedQueryGranularity = this._granularityList[1];
-        }
-        break;
-    }
-  }
-
-  /**
    * Update query granularity list
    * @param granularity
    * @private
    */
   private _updateQueryGranularityList(granularity: any): void {
-    this.queryGranularityList = this._granularityList.slice(0, _.findIndex(this._granularityList, item => item.value === granularity.value) + 1)
+    this.queryGranularityList = this._granularityService.getQueryGranularityList(granularity);
   }
 
   /**
@@ -1047,7 +986,7 @@ export class IngestionSettingComponent extends AbstractComponent {
    */
   private _initGranularityIntervalInfo(): void {
     // granularity unit initial
-    const info = this._granularityService.getInitializedInterval(this._sortedTimestampColumnDataList[0], this._sortedTimestampColumnDataList[this._sortedTimestampColumnDataList.length-1], this.selectedSegmentGranularity.value);
+    const info = this._granularityService.getInitializedInterval(this._sortedTimestampColumnDataList[0], this._sortedTimestampColumnDataList[this._sortedTimestampColumnDataList.length-1], this.selectedSegmentGranularity);
     // set interval text
     this.startIntervalText = info.startInterval;
     this.endIntervalText = info.endInterval;
