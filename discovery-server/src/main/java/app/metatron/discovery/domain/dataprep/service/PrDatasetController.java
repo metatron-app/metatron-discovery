@@ -178,6 +178,47 @@ public class PrDatasetController {
         //return ResponseEntity.status(HttpStatus.SC_OK).body(persistentEntityResourceAssembler.toFullResource(dataset));
     }
 
+    @RequestMapping(value = "/{dsId}", method = RequestMethod.PATCH)
+    @ResponseBody
+    public ResponseEntity<?> patchDataset(
+            @PathVariable("dsId") String dsId,
+            @RequestBody Resource<PrDataset> datasetResource,
+            PersistentEntityResourceAssembler persistentEntityResourceAssembler
+    ) {
+
+        PrDataset dataset = null;
+        PrDataset patchDataset = null;
+        PrDataset savedDataset = null;
+        Resource<PrDatasetProjections.DefaultProjection> projectedDataset = null;
+
+        try {
+            dataset = this.datasetRepository.findOne(dsId);
+            patchDataset = datasetResource.getContent();
+
+            this.datasetService.patchAllowedOnly(dataset, patchDataset);
+            /*
+            ObjectMapper objectMapper = GlobalObjectMapper.getDefaultMapper();
+            JsonPatchPatchConverter jsonPatchPatchConverter = new JsonPatchPatchConverter(objectMapper);
+            String json = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(patchDataset);
+            JsonNode jsonNode = objectMapper.valueToTree(patchDataset);
+            Patch patch = jsonPatchPatchConverter.convert(jsonNode);
+            patch.apply(dataset, PrDataset.class);
+            */
+
+            savedDataset = datasetRepository.save(dataset);
+            LOGGER.debug(savedDataset.toString());
+
+            this.datasetRepository.flush();
+        } catch (Exception e) {
+            LOGGER.error("postDataset(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
+        }
+
+        PrDatasetProjections.DefaultProjection projection = projectionFactory.createProjection(PrDatasetProjections.DefaultProjection.class, savedDataset);
+        projectedDataset = new Resource<>(projection);
+        return ResponseEntity.status(HttpStatus.SC_OK).body(projectedDataset);
+    }
+
     @RequestMapping(value = "/{dsId}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<?> deleteDataset(

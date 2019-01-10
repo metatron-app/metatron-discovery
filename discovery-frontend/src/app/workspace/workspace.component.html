@@ -619,7 +619,7 @@
 <!-- 워크스페이스 리스트 -->
 <app-workspace-list (updateComplete)="loadWorkspace($event)"></app-workspace-list>
 <!-- 노트북 생성 -->
-<app-create-notebook (createComplete)="loadWorkspace($event)" [step]="notebookStep"></app-create-notebook>
+<app-create-notebook (createComplete)="detailPage($event, 'notebook')" [step]="notebookStep"></app-create-notebook>
 <!-- 워크벤치 생성 -->
 <app-create-workbench *ngIf="workbenchStep" [workspaceId]="workspaceId" [folderId]="currentFolderId" [step]="workbenchStep"></app-create-workbench>
 <!-- 노트북 서버 설정 -->

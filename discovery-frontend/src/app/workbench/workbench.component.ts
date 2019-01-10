@@ -2606,6 +2606,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     // textAll = this.replaceAll(textAll, textSelected, text);
     // this.editor.setText(textAll);
+
+    // 쿼리 저장
+    this.textList[this.selectedTabNum]['query'] = this.getSelectedTabText();
+    // 로컬 스토리지에 쿼리에 저장
+    this.saveLocalStorage(this.getSelectedTabText(), this.textList[this.selectedTabNum]['editorId']);
   }
 
   public replaceAll(str, find, replace) {

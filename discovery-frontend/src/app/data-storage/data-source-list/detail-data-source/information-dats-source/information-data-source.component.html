@@ -503,8 +503,7 @@
               <label class="ddp-label-type">{{'msg.storage.th.partition-keys' | translate}}
               </label>
               <!-- edit option -->
-              <div class="ddp-ui-edit-option">
-                {{getPartitionKeys()}}
+              <div class="ddp-ui-edit-option" [innerHTML]="getPartitionKeys()">
               </div>
               <!-- //edit option -->
             </div>

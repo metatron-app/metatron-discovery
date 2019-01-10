@@ -119,4 +119,15 @@ export class DataSnapshotService extends AbstractService {
     let url = `/api/preparationsnapshots/${ssId}/cancel`;
     return this.post(url,{});
   }
+
+
+  /**
+   * Edit snapshotname
+   * @param {{ssId: string, ssName: string}} data
+   * @returns {Promise<any>}
+   */
+  public editSnapshot(data : {ssId: string, ssName: string}) {
+    let url = `/api/preparationsnapshots/${data.ssId}`;
+    return this.patch(url,{ssName : data.ssName});
+  }
 }

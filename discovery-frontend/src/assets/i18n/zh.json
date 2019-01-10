@@ -1218,8 +1218,8 @@
   "msg.dp.btn.switch.editor": "转换为编辑",
   "msg.dp.btn.switch.builder": "转换为builder",
   "msg.dp.btn.create.dataflow.dataset": "用该数据组生成新的数据流",
-  "msg.dp.ui.swap.dataset": "数据组置换",
-  "msg.dp.ui.change.input.dataset": "变更输入数据组",
+  "msg.dp.ui.swap.dataset": "数据组置換",
+  "msg.dp.ui.change.input.dataset": "置換输入数据组",
   "msg.dp.ui.search-by.dataset": "请用数据组名进行搜索",
   "msg.dp.ui.one.col.required": "需要一个以上的列",
 

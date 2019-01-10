@@ -6,9 +6,14 @@
       <span class="ddp-txt-title-name">
         {{title}}
       </span>
-      <div class="ddp-ui-pop-buttons">
+      <div class="ddp-ui-pop-buttons" *ngIf="layoutType == 'ADD'">
         <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
-        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="done()">{{'msg.comm.btn.done2' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" [class.ddp-disabled]="selectedDatasets === undefined || selectedDatasets === null || selectedDatasets.length === 0" (click)="done()">{{'msg.comm.btn.done2' | translate}}</a>
+      </div>
+
+      <div class="ddp-ui-pop-buttons" *ngIf="layoutType == 'SWAP'">
+        <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" [class.ddp-disabled]="swappingDatasetId === undefined || swappingDatasetId === null || swappingDatasetId === ''" (click)="done()">{{'msg.comm.btn.done2' | translate}}</a>
       </div>
       <!-- det -->
     </div>
@@ -33,37 +38,245 @@
         <!-- //옵션 -->
         <div class="ddp-wrap-variable">
           <!-- 그리드 영역 -->
-          <!-- 설명 나올때 ddp-selected 추가 -->
+          <!--ADD : heckbox-select-dataset-->
+          <div class="ddp-wrap-grid" *ngIf="layoutType == 'ADD'" [class.ddp-selected]="selectedDatasetId != ''">
+            <!-- 테이블 -->
+            <div class="ddp-wrap-viewtable ddp-add">
+              <div class="ddp-box-viewtable">
+                <!-- gridhead -->
+                <div class="ddp-ui-gridhead">
+                  <table class="ddp-table-form ddp-table-type2">
+                    <colgroup>
+                      <col width="51px">
+                      <col width="*">
+                      <col width="120px">
+                      <col width="180px">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                      <th class="ddp-txt-center" (click)="checkAll();">
+                        <div class="ddp-ui-checkbox">
+                          <!--<div class="ddp-ui-checkbox" [ngClass]="{'ddp-checkboxtype' : partialChecked()}" >-->
+                          <input type="checkbox" class="ddp-checkbox-form" [checked]="isCheckAll && !isCheckAllDisabled" [disabled]="isCheckAllDisabled">
+                          <i class="ddp-icon-checkbox"></i>
+                        </div>
+                      </th>
+                      <th class="ddp-cursor" (click)="changeOrder('dsName');">
+                        {{'msg.comm.menu.manage.prep.set' | translate}}
+                        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'dsName' || selectedContentSort.sort === 'default'"></em>
+                        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'dsName' && selectedContentSort.sort === 'asc'"></em>
+                        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'dsName' && selectedContentSort.sort === 'desc'"></em>
+                      </th>
+                      <th>
+                        {{'msg.comm.th.type' | translate}}
+                      </th>
+                      <th (click)="changeOrder('modifiedTime');">
+                        {{'msg.comm.ui.list.last' | translate}}
+                        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'modifiedTime' || selectedContentSort.sort === 'default'"></em>
+                        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'asc'"></em>
+                        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'desc'"></em>
+                      </th>
+                    </tr>
+                    </thead>
 
-          <checkbox-select-dataset *ngIf="!isRadio">
+                  </table>
+                </div>
+                <!--// gridhead -->
 
-          </checkbox-select-dataset>
+                <!-- gridbody -->
+                <div class="ddp-ui-gridbody">
+                  <table class="ddp-table-form ddp-table-type2 ddp-table-select">
+                    <colgroup>
+                      <col width="51px">
+                      <col width="*">
+                      <col width="120px">
+                      <col width="180px">
+                    </colgroup>
 
+                    <tbody>
+                    <tr *ngFor="let item of datasets"
+                        (click)="selectDataset(item);"
+                        [ngClass]="{'ddp-selected': selectedDatasetId == item.dsId}">
+                      <td class="ddp-txt-center"  (click)="check($event, item);">
+                        <div class="ddp-ui-checkbox">
+                          <input type="checkbox" class="ddp-checkbox-form" [disabled]="item.origin" [checked]="item.selected && !item.origin" >
+                          <i class="ddp-icon-checkbox"></i>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="ddp-txt-long">
+                          {{item.dsName}}
+                          <span class="ddp-txt-colortype" *ngIf="item.dsDesc">- {{item.dsDesc}}</span>
+                        </div>
+                      </td>
 
-          <radio-select-dataset *ngIf="isRadio"
-                                [selectedDatasetId]="selectedDatasetId"
-                                [importedDatasets]="datasets"
-                                [page]="page"
-                                [pageResult]="pageResult"
-                                (sortEvent)="sortEvent($event)"
-                                (getMoreDatasetEvent)="getDatasets()"
-                                (datasetSelectEvent)="selectedDatasetId = $event">
-          </radio-select-dataset>
+                      <!--<td>-->
+                      <!--<span *ngIf="item.dsType.toString() === 'WRANGLED'">{{'msg.dp.ui.wrangled.ds' | translate}}</span>-->
+                      <!--<span *ngIf="item.dsType.toString() === 'IMPORTED'">Imported ({{prepCommonUtil.getImportType(item.importType)}})</span>-->
+                      <!--</td>-->
+                      <td *ngIf="item.dsType.toString() === 'WRANGLED'">
+                        <span>{{'msg.dp.ui.wrangled.ds' | translate}}</span>
+                      </td>
+
+                      <td *ngIf="item.dsType !== null && item.dsType.toString() === 'IMPORTED'">
+                        <!--<span *ngIf="item.importType.toString() === 'IMPORTED'">Imported ({{prepCommonUtil.getImportType(item.importType)}})</span>-->
+                        <span calss="ddp-data-source" *ngIf="item.importType !== null && item.importType.toString() === 'UPLOAD'">
+                          <em class="ddp-icon-file"></em>
+                          File
+                        </span>
+                        <span calss="ddp-data-source" *ngIf="item.importType !== null && item.importType.toString() === 'DATABASE'">
+                          <em class="ddp-icon-db-s"></em>
+                          Database
+                        </span>
+                        <span calss="ddp-data-source" *ngIf="item.importType !== null && item.importType.toString() === 'STAGING_DB'">
+                          <em class="ddp-icon-staging"></em>
+                          Staging DB
+                        </span>
+                      </td>
+
+                      <td>
+                        {{item.modifiedTime | mdate:'YYYY-MM-DD HH:mm'}}
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <!--// gridbody -->
+              </div>
+              <div class="ddp-box-add-link3" [ngClass]="{'ddp-disabled' : !(page.page < pageResult.totalPages)}" (click)="getMoreList()">
+                <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+              </div>
+            </div>
+            <!-- //테이블 -->
+          </div>
           <!-- //그리드 영역 -->
+
+
+          <!--SWAP : radio-select-dataset-->
+          <div class="ddp-wrap-grid" *ngIf="layoutType == 'SWAP'" [ngClass]="{'ddp-selected': selectedDatasetId !== ''}">
+            <!-- 테이블 -->
+            <div class="ddp-wrap-viewtable ddp-add">
+              <div class="ddp-box-viewtable">
+                <!-- gridhead -->
+                <div class="ddp-ui-gridhead">
+                  <table class="ddp-table-form ddp-table-type2">
+                    <colgroup>
+                      <col width="51px">
+                      <col width="*">
+                      <col width="120px">
+                      <col width="180px">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                      <th class="ddp-txt-center">
+                        <!--<div class="ddp-ui-checkbox" [ngClass]="{'ddp-checkboxtype' : partialChecked()}" >-->
+                        <!--<input type="checkbox" class="ddp-checkbox-form" [checked]="isCheckAll && !isCheckAllDisabled" [disabled]="isCheckAllDisabled">-->
+                        <!--<i class="ddp-icon-checkbox"></i>-->
+                        <!--</div>-->
+                      </th>
+                      <th class="ddp-cursor" (click)="changeOrder('dsName');">
+                        {{'msg.comm.menu.manage.prep.set' | translate}}
+                        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'dsName' || selectedContentSort.sort === 'default'"></em>
+                        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'dsName' && selectedContentSort.sort === 'asc'"></em>
+                        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'dsName' && selectedContentSort.sort === 'desc'"></em>
+                      </th>
+                      <th>
+                        {{'msg.comm.th.type' | translate}}
+                      </th>
+                      <th (click)="changeOrder('modifiedTime');">
+                        {{'msg.comm.ui.list.last' | translate}}
+                        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'modifiedTime' || selectedContentSort.sort === 'default'"></em>
+                        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'asc'"></em>
+                        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'desc'"></em>
+                      </th>
+                    </tr>
+                    </thead>
+
+                  </table>
+                </div>
+                <!--// gridhead -->
+
+                <!-- gridbody -->
+                <div class="ddp-ui-gridbody">
+                  <table class="ddp-table-form ddp-table-type2 ddp-table-select">
+                    <colgroup>
+                      <col width="51px">
+                      <col width="*">
+                      <col width="120px">
+                      <col width="180px">
+                    </colgroup>
+
+                    <tbody>
+                    <tr *ngFor="let item of datasets"
+                        (click)="selectDataset(item);"
+                        [ngClass]="{'ddp-selected': selectedDatasetId == item.dsId}">
+                      <td class="ddp-txt-center"  (click)="radioCheck($event, item);">
+                        <div class="ddp-ui-radio">
+                          <input type="radio" class="ddp-checkbox-form" [checked]="swappingDatasetId === item.dsId" name="datasetRadio">
+                          <i class="ddp-icon-radio"></i>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="ddp-txt-long">
+                          {{item.dsName}}
+                          <span class="ddp-txt-colortype" *ngIf="item.dsDesc">- {{item.dsDesc}}</span>
+                        </div>
+                      </td>
+
+                      <td *ngIf="item.dsType !== null && item.dsType.toString() === 'WRANGLED'">
+                        <span>{{'msg.dp.ui.wrangled.ds' | translate}}</span>
+                      </td>
+
+                      <td *ngIf="item.dsType !== null && item.dsType.toString() === 'IMPORTED'">
+                        <!--<span *ngIf="item.importType.toString() === 'IMPORTED'">Imported ({{prepCommonUtil.getImportType(item.importType)}})</span>-->
+                        <span calss="ddp-data-source" *ngIf="item.importType !== null && item.importType.toString() === 'UPLOAD'">
+                          <em class="ddp-icon-file"></em>
+                          File
+                        </span>
+                        <span calss="ddp-data-source" *ngIf="item.importType !== null && item.importType.toString() === 'DATABASE'">
+                          <em class="ddp-icon-db-s"></em>
+                          Database
+                        </span>
+                        <span calss="ddp-data-source" *ngIf="item.importType !== null && item.importType.toString() === 'STAGING_DB'">
+                          <em class="ddp-icon-staging"></em>
+                          Staging DB
+                        </span>
+                      </td>
+
+                      <td>
+                        {{item.modifiedTime | mdate:'YYYY-MM-DD HH:mm'}}
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <!--// gridbody -->
+              </div>
+              <div class="ddp-box-add-link3" [ngClass]="{'ddp-disabled' : !(page.page < pageResult.totalPages)}" (click)="getMoreList()">
+                <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+              </div>
+            </div>
+            <!-- //테이블 -->
+
+          </div>
+          <!--SWAP : radio-select-dataset-->
+
+
+
         </div>
         <!-- 설명 -->
-        <app-dataset-summary *ngIf="selectedDatasetId !== ''" (close)="onCloseSummary()" [datasetId]="selectedDatasetId"></app-dataset-summary>
+        <app-dataset-summary *ngIf="selectedDatasetId != null && selectedDatasetId !=''" (close)="onCloseSummary()" [datasetId]="selectedDatasetId"></app-dataset-summary>
         <!-- //설명 -->
         <!-- bottom option -->
-        <!--<div class="ddp-ui-bottomoption ddp-clear" *ngIf="!isRadio">-->
-          <!--<span class="ddp-data-type ddp-fleft">{{'msg.dp.ui.sel.count' | translate: { value : countSelected } }}</span>-->
+        <div class="ddp-ui-bottomoption ddp-clear">
+          <span class="ddp-data-type ddp-fleft" *ngIf="layoutType == 'ADD'">{{'msg.dp.ui.sel.count' | translate: { value : countSelected } }}</span>
 
-          <!--<a href="javascript:"-->
-             <!--class="ddp-type-link3 ddp-fright"-->
-             <!--(click)="createDataset()">-->
-            <!--<em class="ddp-icon-linkplus"></em> {{'msg.dp.btn.create-ds' | translate }}-->
-          <!--</a>-->
-        <!--</div>-->
+          <a href="javascript:"
+             class="ddp-type-link3 ddp-fright"
+             (click)="createDataset()">
+            <em class="ddp-icon-linkplus"></em> {{'msg.dp.btn.create-ds' | translate }}
+          </a>
+        </div>
         <!-- //bottom option -->
       </div>
 
@@ -73,3 +286,5 @@
   </div>
 
 </div>
+
+<app-create-dataset [step]="step"></app-create-dataset>

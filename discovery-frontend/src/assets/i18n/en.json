@@ -1286,7 +1286,7 @@
   "msg.dp.btn.switch.builder" : "Switch to builder",
   "msg.dp.btn.create.dataflow.dataset" : "Create dataflow with this dataset",
   "msg.dp.ui.swap.dataset" : "Swap dataset",
-  "msg.dp.ui.change.input.dataset" : "Change input dataset",
+  "msg.dp.ui.change.input.dataset" : "Swap input dataset",
   "msg.dp.ui.search-by.dataset" :"Search by dataset name",
   "msg.dp.ui.one.col.required" : "At least one column is required",
   "msg.dp.alert.enter.group.every" : "Please enter group every",
@@ -1296,6 +1296,8 @@
   "msg.dp.alert.clone.failed" : "Clone failed",
   "msg.dp.ui.aggregate.warning" : "This rule will execute for the sampled data. The exact results for the original data can be found in the snapshot.",
   "msg.dp.ui.aggregate.warning.grid-top" : "This is the result of the sampled data. Results for all data may vary. (aggregate)",
+  "msg.dp.alert.fail.change.ssName" : "Failed to modify snapshot name",
+  "msg.dp.alert.modify.sSname" : "Snapshot name modified",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",
@@ -2140,6 +2142,7 @@
   "msg.log.ui.limit.elapsed.time" : "Elapsed time limit",
   "msg.log.btn.download.csv" : "Download CSV",
   "msg.log.btn.over.num.ms" : "Over {{value}} ms",
+  "msg.log.ui.use.record" : "Recent history of the same connection",
 
   "msg.statistics.ui.daily.query.success-fail" : "Daily query success / failure rate",
   "msg.statistics.ui.daily.query.frequency" : "Daily query frequency by user",
