@@ -556,8 +556,11 @@ public class PrepDatasetFileService {
                                     if(c==null) {
                                         result.put(f.getName(), null);
                                     } else {
+                                        String strCellValue = null;
                                         Object cellValue = ExcelProcessor.getCellValue(c);
-                                        String strCellValue = String.valueOf(cellValue);
+                                        if(cellValue!=null) {
+                                            strCellValue = String.valueOf(cellValue);
+                                        }
                                         result.put(f.getName(), strCellValue);
                                     }
                                 }
@@ -1342,14 +1345,16 @@ public class PrepDatasetFileService {
                     }
 
                     Object cellValue = ExcelProcessor.getCellValue(c);
-                    String value = String.valueOf(cellValue);
-                    if (value.contains("\"")) {
-                        value = value.replace("\"", "\"\"");
+                    if(cellValue!=null) {
+                        String value = String.valueOf(cellValue);
+                        if (value.contains("\"")) {
+                            value = value.replace("\"", "\"\"");
+                        }
+                        if (value.contains(",")) {
+                            value = "\"" + value + "\"";
+                        }
+                        sb.append(value);
                     }
-                    if (value.contains(",")) {
-                        value = "\"" + value + "\"";
-                    }
-                    sb.append(value);
                 }
                 sb.append("\n");
                 writer.append(sb.toString());
