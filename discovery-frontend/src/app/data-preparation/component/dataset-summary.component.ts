@@ -13,17 +13,16 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnInit, Output, SimpleChanges,
+  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges,
   ViewChild
 } from '@angular/core';
 import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { GridComponent } from '../../common/component/grid/grid.component';
 import { DatasetService } from '../dataset/service/dataset.service';
-//import { Dataset, Field } from '../../domain/data-preparation/dataset';
 import { PrDataset, Field } from '../../domain/data-preparation/pr-dataset';
 import { header, SlickGridHeader } from '../../common/component/grid/grid.header';
-import { isNull, isUndefined } from 'util';
+import { isNull, isUndefined, isNullOrUndefined } from 'util';
 import { GridOption } from '../../common/component/grid/grid.option';
 import * as pixelWidth from 'string-pixel-width';
 declare let moment : any;
@@ -33,7 +32,7 @@ declare let moment : any;
   templateUrl: './dataset-summary.component.html',
   providers: [MomentDatePipe]
 })
-export class DatasetSummaryComponent extends AbstractComponent implements OnInit, OnChanges {
+export class DatasetSummaryComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -61,11 +60,13 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
   public isRequested: boolean = false;
 
   public interval ;
+
+  public dsInformationList : DsInfo[];
+
+  public clearGrid: boolean = false;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(private datasetService : DatasetService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -82,8 +83,7 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
   }
 
   ngOnDestroy() {
-    clearInterval(this.interval);
-    this.interval = undefined;
+    this.clearExistingInterval();
     super.ngOnDestroy();
   }
 
@@ -103,31 +103,35 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
 
   /**
    * Get dataset information
-   * @param dsId
    */
   public getDatasetInfo() {
     this.loadingShow();
     if (!this.isRequested) {
       this.isRequested = true;
       this.datasetService.getDatasetDetail(this.selectedDatasetId).then((data: PrDataset) => {
-        this.isRequested = false;
-        this.dataset = data;
-        this._setGridData(data.gridResponse);
         this.loadingHide();
-        this.changeDetect.detectChanges();
+        this.isRequested = false;
 
-        clearInterval(this.interval);
-        this.interval = undefined;
+        this.dataset = data;
+
+        if (data.gridResponse) {
+          this._setGridData(data.gridResponse);
+        } else {
+          this.clearGrid = true;
+        }
+        this.changeDetect.detectChanges();
+        this._setDsInformationList(this.dataset);
+
+        this.clearExistingInterval();
+
         if (this.dataset.totalLines === -1) {
           this.interval = setInterval(() => {
             this.getDatasetInfo();
           }, 3000)
         }
-      }).catch((error) => {
+      }).catch(() => {
         this.loadingHide();
-        clearInterval(this.interval);
-        this.interval = undefined;
-        console.info(error)
+        this.clearExistingInterval();
       })
     }
   } // function - getDatasetInfo
@@ -158,8 +162,7 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
    * close popup
    */
   public closeBtn() {
-    clearInterval(this.interval);
-    this.interval = undefined;
+    this.clearExistingInterval();
     this.closeEvent.emit();
   } // function - closeBtn
 
@@ -310,4 +313,43 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
 
     return gridData;
   } // function - _getGridDataFromGridResponse
+
+
+  /**
+   * Clear interval
+   */
+  private clearExistingInterval() {
+    if (!isNullOrUndefined(this.interval)) {
+      clearInterval(this.interval);
+      this.interval = undefined;
+    }
+  }
+
+  /**
+   * Set dataset information into list
+   * @param dataset
+   * @private
+   */
+  private _setDsInformationList(dataset : PrDataset) {
+
+    this.dsInformationList = [];
+
+    this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.created')
+      , value : moment.utc(dataset.createdTime).format('YYYY-MM-DD HH:mm')});
+
+    if (dataset.dcType !== 'JDBC') {
+      this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.size')
+        , value : this.getTotalBytes(dataset.totalBytes)});
+    }
+
+    this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.rows')
+      , value : this.getRows });
+
+  }
+}
+
+
+class DsInfo {
+  label: string;
+  value: string;
 }

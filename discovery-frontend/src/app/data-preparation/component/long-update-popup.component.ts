@@ -16,17 +16,15 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild
 } from '@angular/core';
 import {AbstractComponent} from "../../common/component/abstract.component";
-//import {Dataset, DsType} from "../../domain/data-preparation/dataset";
-import {PrDataset, DsType} from "../../domain/data-preparation/pr-dataset";
+import {PrDataset} from "../../domain/data-preparation/pr-dataset";
 import {DataflowService} from "../dataflow/service/dataflow.service";
 import {DatasetService} from "../dataset/service/dataset.service";
-import {DataflowModelService} from "../dataflow/service/dataflow.model.service";
 import {PreparationAlert} from "../util/preparation-alert.util";
 import {RadioSelectDatasetComponent} from "./radio-select-dataset.component";
-import {PreparationCommonUtil} from "../util/preparation-common.util";
 import { PopupService } from '../../common/service/popup.service';
 import { SubscribeArg } from '../../common/domain/subscribe-arg';
 import { Subscription } from 'rxjs/Subscription';
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'long-update-popup',
@@ -114,14 +112,11 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
               private dataflowService: DataflowService,
               private datasetService : DatasetService,
-              private popupService: PopupService,
-              private dataflowModelService : DataflowModelService) {
+              private popupService: PopupService) {
     super(elementRef, injector);
   }
 
@@ -159,13 +154,10 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
     this.selectedDatasetId = '';
 
     if(this.popType == 'add') {
-      // this.title = 'Add datasets';
       this.title = this.translateService.instant('msg.dp.btn.add.ds');
     } else if(this.popType == 'imported') {
-      // this.title = 'Replace dataset';
       this.title = this.translateService.instant('msg.dp.ui.swap.dataset');
     } else if(this.popType == 'wrangled') {
-      // this.title = 'Change input dataset';
       this.title = this.translateService.instant('msg.dp.ui.change.input.dataset');
     }
     this.init();
@@ -180,7 +172,6 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
    * 화면 닫기
    */
@@ -204,7 +195,7 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   public done() {
     if(this.layoutType == 'ADD') {
       // 선택된 데이터셋이 없으면 X
-      if (this.selectedDatasets == undefined || this.selectedDatasets == null || this.selectedDatasets.length === 0 ) {
+      if (isNullOrUndefined(this.selectedDatasets) || this.selectedDatasets.length === 0 ) {
         return
       }
       let datasetLists: string[] =  [];
@@ -219,12 +210,6 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
     }
 
   } // function - next
-
-  public sortEvent(data) {
-    this.page = data;
-    this.getDatasets();
-
-  }
 
 
   /**
@@ -261,7 +246,8 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
 
 
   /**
-   * 검색어 리셋
+   * Clear search text
+   * @param isClear
    */
   public resetSearchText(isClear: boolean) {
     if (isClear) {
@@ -294,31 +280,31 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   } // function - createDataset
 
   /**
-   * 데이터셋 목록 불러오기
+   * Retrieve dataset list
    */
   private getDatasets() {
 
     this.loadingShow();
-    // const dslist = this.selectedDatasets.map((ds) => {return ds.dsId;});
-    if(this.layoutType == 'ADD') {
-      // 새로운 데이터셋 추가 ADD
-      const dslist = this.originalDatasetList.map((ds) => {return ds.dsId;});
 
-      this.dataflowService.getDatasets(this.searchText, this.page, 'listing', this.searchType, '')
-        .then((data) => {
-          this.loadingHide();
-          this.pageResult = data['page'];
-          const sorting = this.page.sort.split(',');
-          this.selectedContentSort.key = sorting[0];
-          this.selectedContentSort.sort = sorting[1];
+    this.dataflowService.getDatasets(this.searchText, this.page, 'listing', this.searchType, '')
+      .then((data) => {
 
-          if (this.page.page === 0) {
-            // 첫번째 페이지이면 초기화
-            this.datasets = [];
-          }
+        this.loadingHide();
+        this.pageResult = data['page'];
+        const sorting = this.page.sort.split(',');
+        this.selectedContentSort.key = sorting[0];
+        this.selectedContentSort.sort = sorting[1];
 
-          this.datasets = this.datasets.concat(data['_embedded'].preparationdatasets);
+        if (this.page.page === 0) {
+          // 첫번째 페이지이면 초기화
+          this.datasets = [];
+        }
 
+        this.datasets = this.datasets.concat(data['_embedded'].preparationdatasets);
+
+        if(this.layoutType == 'ADD') {
+
+          const dslist = this.originalDatasetList.map((ds) => {return ds.dsId;});
           // 데이터플로우에 이미 추가된 데이터셋이라면 selected, origin 을 true 로 준다.
           this.datasets.forEach((item) => {
             if (dslist.indexOf(item.dsId) > -1) {
@@ -337,46 +323,9 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
             }).length;
             this.datasets.length === allTicked ? this.isCheckAll = true : this.isCheckAll = false;
           }
+        }
 
-          // if (sessionStorage.getItem('DATASET_ID')) {
-          //   this.selectedDatasetId = sessionStorage.getItem('DATASET_ID');
-          //   this.datasets.filter((item) => {
-          //     if (item.dsId === this.selectedDatasetId) {
-          //       item.selected = true;
-          //       this.selectedDatasets.push(item);
-          //     }
-          //   });
-          //   sessionStorage.removeItem('DATASET_ID');
-          //   this.datasetService.dataflowId = undefined;
-          // }
-
-          // 총페이지 수
-          this.page.page += 1;
-        })
-        .catch((error) => {
-          this.loadingHide();
-          let prep_error = this.dataprepExceptionHandler(error);
-          PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        });
-
-    }else if(this.layoutType == 'SWAP'){
-      // 기존 데이터셋 치환 SWAP
-
-      this.dataflowService.getDatasets(this.searchText, this.page, 'listing', this.searchType, '')
-        .then((data) => {
-          this.loadingHide();
-          this.pageResult = data['page'];
-          const sorting = this.page.sort.split(',');
-          this.selectedContentSort.key = sorting[0];
-          this.selectedContentSort.sort = sorting[1];
-
-          if (this.page.page === 0) {
-            // 첫번째 페이지이면 초기화
-            this.datasets = [];
-          }
-
-          this.datasets = this.datasets.concat(data['_embedded'].preparationdatasets);
-
+        if (this.layoutType == 'SWAP') {
           // 데이터 플로우에 이미 추가된 데이터셋이라면 selected, origin 을 true 로 준다.
           this.datasets.forEach((item) => {
             if (item.dsId === this.selectedDatasetId ) {
@@ -399,27 +348,16 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
               }
             }
           }
+        }
 
-          // if (sessionStorage.getItem('DATASET_ID')) {
-          //   this.selectedDatasetId = sessionStorage.getItem('DATASET_ID');
-          //   this.datasets.filter((item) => {
-          //     if (item.dsId === this.selectedDatasetId) {
-          //       item.selected = true;
-          //     }
-          //   });
-          //   sessionStorage.removeItem('DATASET_ID');
-          //   this.datasetService.dataflowId = undefined;
-          // }
+        // 총페이지 수
+        this.page.page += 1;
 
-          // 총페이지 수
-          this.page.page += 1;
-        })
-        .catch((error) => {
-          this.loadingHide();
-          let prep_error = this.dataprepExceptionHandler(error);
-          PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        });
-    }
+      }).catch((error)=> {
+      this.loadingHide();
+      let prep_error = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+    });
   } // function - getDatasets
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
