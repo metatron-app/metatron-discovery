@@ -110,6 +110,9 @@ public class WidgetController {
   DataSourceValidator dataSourceValidator;
 
   @Autowired
+  WidgetProperties widgetProperties;
+
+  @Autowired
   WidgetService widgetService;
 
   @Autowired
@@ -153,6 +156,14 @@ public class WidgetController {
     ));
 
     return ResponseEntity.ok(result);
+  }
+
+  @RequestMapping(path = "/widgets/properties/mapview", method = RequestMethod.GET)
+  public @ResponseBody ResponseEntity<?> getBaseMapsInMapView() {
+
+    WidgetProperties.MapView mapView = widgetProperties.getMapView();
+
+    return ResponseEntity.ok(mapView);
   }
 
   @RequestMapping(path = "/widgets/{widgetId}/data", method = RequestMethod.POST)
@@ -478,6 +489,5 @@ public class WidgetController {
 
     return queryRequest;
   }
-
 
 }
