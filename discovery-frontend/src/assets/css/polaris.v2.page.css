@@ -8075,7 +8075,7 @@ table.ddp-table-form.ddp-table-details tr th:nth-child(3) .ddp-box-layout4,
 table.ddp-table-form.ddp-table-details tr th:nth-child(4) .ddp-box-layout4 {right:inherit; left:-30px;}
 .ddp-wrap-datadetail.ddp-wrap-datacolumn .ddp-data-details.ddp-ui-preview-contents {position:fixed; left:45px; right:45px; bottom:20px; top:250px; height:inherit;}
 
-.ddp-page-catalog {position:relative; height:100%; box-sizing:border-box; border-top:1px solid #e7e7ea;}
+.ddp-page-catalog {position:relative; padding-bottom:20px; box-sizing:border-box; border-top:1px solid #e7e7ea;}
 .ddp-page-catalog .ddp-ui-root {padding:8px 0;}
 .ddp-page-catalog .ddp-ui-root .ddp-btn-bg {float:right;margin-left:14px;}
 .ddp-page-catalog .ddp-ui-root .ddp-data-create {display:block; position:relative; padding:3px 0 3px 0;   overflow:hidden;}
