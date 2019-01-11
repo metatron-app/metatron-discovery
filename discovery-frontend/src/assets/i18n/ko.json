@@ -123,6 +123,7 @@
   "msg.comm.detail.published" : "공개설정",
   "msg.comm.ui.create.name" : "이름을 입력해 주세요",
   "msg.comm.ui.create.desc" : "설명을 입력해 주세요",
+  "msg.comm.ui.placeholder.label" : "라벨을 입력해 주세요",
   "msg.comm.ui.info": "정보",
   "msg.comm.ui.name" : "이름",
   "msg.comm.ui.description" : "설명",
