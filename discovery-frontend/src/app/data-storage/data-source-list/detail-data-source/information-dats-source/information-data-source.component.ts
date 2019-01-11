@@ -173,7 +173,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
       this._getFieldStats(this.timestampColumn.name, this.datasource.engineName);
     }
     // set ingestion show flag
-    this.isShowIngestionInterval = !this.timestampColumn.derived && this.getIngestion.intervals && this.getSummary && (this.getIngestion.intervals[0].split('/')[0] !== this.getSummary.ingestionMinTime && this.getIngestion.intervals[0].split('/')[1] !== this.getSummary.ingestionMaxTime);
+    this.isShowIngestionInterval = !this.timestampColumn.derived && this.getIngestion.intervals && (!this.getSummary || (this.getSummary && this.getIngestion.intervals[0].split('/')[0] !== this.getSummary.ingestionMinTime && this.getIngestion.intervals[0].split('/')[1] !== this.getSummary.ingestionMaxTime));
   }
 
   /**

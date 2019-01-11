@@ -226,65 +226,6 @@ export class IngestionSettingComponent extends AbstractComponent {
     this._format = selectedTimestampColumn ? selectedTimestampColumn.format : null;
     // ui init
     this._initView();
-    // TODO test
-    const test = [
-      '2022-01-05 00:00:00.0',
-      '2022-01-06 00:00:00.0',
-      '2022-01-07 00:00:00.0',
-      '2022-01-07 00:00:00.0',
-      '2022-01-07 00:00:00.0',
-      '2011-01-04 00:00:00.0',
-      '2011-01-05 00:00:00.0',
-      '2011-01-05 00:00:00.0',
-      '2011-01-05 00:00:00.0',
-      '2011-01-06 00:00:00.0',
-      '2011-01-07 00:00:00.0',
-      '2011-01-07 00:00:00.0',
-      '2011-01-07 00:00:00.0',
-      '2011-01-07 00:00:00.0',
-      '2011-01-07 00:00:00.0',
-      '2011-01-07 00:00:00.0',
-      '2011-01-07 00:00:00.0',
-      '2011-01-07 00:00:00.0',
-      '2011-01-07 00:00:00.0',
-      '2011-01-08 00:00:00.0',
-      '2011-01-08 00:00:00.0',
-      '2011-01-10 00:00:00.0',
-      '2011-01-10 00:00:00.0',
-      '2011-01-11 00:00:00.0',
-      '2011-01-11 00:00:00.0',
-      '2011-01-12 00:00:00.0',
-      '2011-01-14 00:00:00.0',
-      '2011-01-14 00:00:00.0',
-      '2011-01-14 00:00:00.0',
-      '2011-01-14 00:00:00.0',
-      '2011-01-14 00:00:00.0',
-      '2011-01-14 00:00:00.0',
-      '2011-01-14 00:00:00.0',
-      '2011-01-14 00:00:00.0',
-      '2011-01-14 00:00:00.0',
-      '2011-01-14 00:00:00.0',
-      '2011-01-14 00:00:00.0',
-      '2011-01-15 00:00:00.0',
-      '2011-01-16 00:00:00.0',
-      '2011-01-17 00:00:00.0',
-      '2011-01-17 00:00:00.0',
-      '2011-01-17 00:00:00.0',
-      '2011-01-17 00:00:00.0',
-      '2011-01-19 00:00:00.0',
-      '2011-01-20 00:00:00.0',
-      '2011-01-20 00:00:00.0',
-      '2011-01-20 00:00:00.0',
-      '2011-01-20 00:00:00.0',
-      '2011-01-21 00:00:00.0',
-      '2011-01-21 00:00:00.0',
-      '2011-01-21 00:00:00.0',
-      '2011-01-21 00:00:00.0',
-      '2011-01-21 00:00:00.0',
-      '2011-01-21 00:00:00.0',
-      '2011-01-21 00:00:00.0'];
-    this._sortedTimestampColumnDataList = test.sort();
-
     // if exist ingestionData
     if (this._sourceData.hasOwnProperty("ingestionData")) {
       this._loadIngestionData(this._sourceData.ingestionData);
@@ -295,7 +236,7 @@ export class IngestionSettingComponent extends AbstractComponent {
         // if used TIMESTAMP column
         if (!this.isUsedCurrentTimestampColumn()) {
           // set timestamp column data list
-          this._sortedTimestampColumnDataList = test.sort();
+          this._sortedTimestampColumnDataList = this._sourceData.schemaData.timestampFieldData.sort();
           // granularity interval initial
           this._initGranularityIntervalInfo();
         }
@@ -307,7 +248,7 @@ export class IngestionSettingComponent extends AbstractComponent {
       // if used TIMESTAMP column
       if (!this.isUsedCurrentTimestampColumn()) {
         // set timestamp column data list
-        this._sortedTimestampColumnDataList = test.sort();
+        this._sortedTimestampColumnDataList = this._sourceData.schemaData.timestampFieldData.sort();
         // granularity interval initial
         this._initGranularityIntervalInfo();
       }

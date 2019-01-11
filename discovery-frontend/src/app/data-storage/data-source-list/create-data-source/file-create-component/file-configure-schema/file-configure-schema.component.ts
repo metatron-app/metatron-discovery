@@ -168,6 +168,10 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
       this.deleteAndSaveSchemaData();
       // if changed timestamp field
       this.sourceData.schemaData['isChangedTimestampField'] = isChangedTimestampField;
+      // if used column TIMESTAMP
+      if (this.selectedTimestampType !== 'CURRENT') {
+        this.sourceData.schemaData.timestampFieldData = this.getColumnDetailData(this.selectedTimestampColumn);
+      }
       // 다음 step 으로 이동
       this.step = 'file-ingestion';
       this.stepChange.emit(this.step);
