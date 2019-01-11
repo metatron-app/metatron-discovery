@@ -115,6 +115,39 @@ public class PrDataflowController {
         return resourceAssembler.toResource(savedDataflow);
     }
 
+    @RequestMapping(value = "/{dsId}", method = RequestMethod.PATCH)
+    @ResponseBody
+    public ResponseEntity<?> patchDataflow(
+            @PathVariable("dsId") String dsId,
+            @RequestBody Resource<PrDataflow> dataflowResource,
+            PersistentEntityResourceAssembler persistentEntityResourceAssembler
+    ) {
+
+        PrDataflow dataflow = null;
+        PrDataflow patchDataflow = null;
+        PrDataflow savedDataflow = null;
+        Resource<PrDataflowProjections.DefaultProjection> projectedDataflow = null;
+
+        try {
+            dataflow = this.dataflowRepository.findOne(dsId);
+            patchDataflow = dataflowResource.getContent();
+
+            this.dataflowService.patchAllowedOnly(dataflow, patchDataflow);
+
+            savedDataflow = dataflowRepository.save(dataflow);
+            LOGGER.debug(savedDataflow.toString());
+
+            this.dataflowRepository.flush();
+        } catch (Exception e) {
+            LOGGER.error("postDataflow(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, e);
+        }
+
+        PrDataflowProjections.DefaultProjection projection = projectionFactory.createProjection(PrDataflowProjections.DefaultProjection.class, savedDataflow);
+        projectedDataflow = new Resource<>(projection);
+        return ResponseEntity.status(HttpStatus.SC_OK).body(projectedDataflow);
+    }
+
     @RequestMapping(value = "/{dfId}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<?> deleteDataflow(

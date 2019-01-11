@@ -422,10 +422,11 @@ public class PrepMetaDBMigrationService implements ApplicationListener<Applicati
     copySameCol("modified_by",            colVals, rs);
     copySameCol("modified_time",          colVals, rs);
     copySameCol("version",                colVals, rs);
+    colVals.put("delimiter",              ",");                       // add new column
     copySameCol("ds_desc",                colVals, rs);
     copySameCol("ds_name",                colVals, rs);
     copySameCol("ds_type",                colVals, rs);
-    colVals.put("file_format",            "CSV");                     // add new column
+    colVals.put("file_format",            "EXCEL");                   // add new column
     colVals.put("filename_before_upload", rs.getObject("filename"));  // change column name
     colVals.put("import_type",            "UPLOAD");                  // change enum
     colVals.put("sheet_name",             sheetName);                 // add new column

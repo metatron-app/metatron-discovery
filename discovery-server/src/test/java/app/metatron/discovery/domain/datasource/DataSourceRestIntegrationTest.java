@@ -748,7 +748,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
       .accept(ContentType.JSON)
 //      .param("sheet", sheets.get(0))
       .param("lineSep", "\n")
-      .param("columnSeq", ",")
+      .param("delimiter", ",")
       .param("limit", 5)
       .param("firstHeaderRow", true)
       .log().all()

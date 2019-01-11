@@ -127,6 +127,7 @@ export class AdvancedSettingComponent extends AbstractComponent {
 
   /**
    * Property value validation
+   * #1168 remove validation
    * @param property
    */
   public configValueValidation(option: any): void {

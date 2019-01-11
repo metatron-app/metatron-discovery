@@ -478,8 +478,10 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
         tempDsInfo.progressTopic, (data: { progress: number, message: string }) => {
           if (-1 === data.progress) {
             this.ingestionStatus = data;
+            this.ingestionStatus.step = -1;
             Alert.error(data.message);
             this.safelyDetectChanges();
+            CommonConstant.stomp.unsubscribe(subscription);     // Socket 응답 해제
           } else if (100 === data.progress) {
             this.ingestionStatus = data;
             this.safelyDetectChanges();
@@ -532,7 +534,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
     this.fields = [];
     this.fields = this.fields
       .concat(fieldList.filter(item => item.role !== FieldRole.MEASURE))
-      .concat(fieldList.filter(item => item.role === FieldRole.MEASURE))
+      .concat(fieldList.filter(item => item.role === FieldRole.MEASURE));
   } // function - _setFields
 
   /**

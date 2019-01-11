@@ -14,30 +14,6 @@
 
 package app.metatron.discovery.domain.datasource.data.result;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.net.URI;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.MatrixResponse;
 import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
@@ -45,6 +21,7 @@ import app.metatron.discovery.domain.datasource.data.forward.CsvResultForward;
 import app.metatron.discovery.domain.datasource.data.forward.JsonResultForward;
 import app.metatron.discovery.domain.datasource.data.forward.ParquetResultForward;
 import app.metatron.discovery.domain.datasource.data.forward.ResultForward;
+import app.metatron.discovery.domain.workbook.configurations.Sort;
 import app.metatron.discovery.domain.workbook.configurations.analysis.Analysis;
 import app.metatron.discovery.domain.workbook.configurations.analysis.ClusterAnalysis;
 import app.metatron.discovery.domain.workbook.configurations.analysis.PredictionAnalysis;
@@ -57,6 +34,28 @@ import app.metatron.discovery.query.druid.limits.PivotSpec;
 import app.metatron.discovery.query.druid.limits.PivotWindowingSpec;
 import app.metatron.discovery.query.druid.queries.GroupingSet;
 import app.metatron.discovery.util.EnumUtils;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.net.URI;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Created by kyungtaak on 2016. 8. 21..
@@ -148,9 +147,20 @@ public class PivotResultFormat extends SearchResultFormat {
     pivotSpec.setAppendValueColumn(true);
 
     pivotSpec.setPivotColumns(pivots.stream()
-                                    .map(pivot -> new PivotColumn(pivot.getField()))
-                                    .collect(Collectors.toList()));
+                                    .map(pivot -> {
+                                      PivotColumn pivotColumn = new PivotColumn(pivot.getField());
 
+                                      Optional<Sort> findSort = this.getRequest().getLimits().getSort()
+                                          .stream().filter(sort -> sort.getField().equalsIgnoreCase(pivot.getFieldName()))
+                                          .findFirst();
+                                      if(findSort.isPresent()) {
+                                        pivotColumn.setDirection(
+                                            findSort.get().getDirection() == Sort.Direction.DESC ?
+                                                PivotColumn.Direction.DESCENDING : PivotColumn.Direction.ASCENDING);
+                                      }
+
+                                      return pivotColumn;
+                                    }).collect(Collectors.toList()));
 
     pivotSpec.setValueColumns(aggregations.stream()
                                           .map(aggregation -> aggregation.getFieldName())
