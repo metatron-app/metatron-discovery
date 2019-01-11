@@ -142,9 +142,6 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   // partitionKeyList
   public partitionKeyList: string[];
 
-  // is show ingestion interval
-  public isShowIngestionInterval: boolean;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -172,8 +169,6 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     if (!this.isLinkedSource() && this.isEnabled() && this.timestampColumn) {
       this._getFieldStats(this.timestampColumn.name, this.datasource.engineName);
     }
-    // set ingestion show flag
-    this.isShowIngestionInterval = !this.timestampColumn.derived && this.getIngestion.intervals && (!this.getSummary || (this.getSummary && this.getIngestion.intervals[0].split('/')[0] !== this.getSummary.ingestionMinTime && this.getIngestion.intervals[0].split('/')[1] !== this.getSummary.ingestionMaxTime));
   }
 
   /**
