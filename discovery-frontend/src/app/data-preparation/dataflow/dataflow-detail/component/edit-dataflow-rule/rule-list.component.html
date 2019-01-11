@@ -71,12 +71,21 @@
           </div>
           <div class="ddp-wrap-line-add " [ngClass]="{'ddp-selected' : rule.isInsertStep}" *ngIf="!rule.isEditMode">
             <div class="ddp-line-add">
-              <span class="ddp-txt" (click)="$event.stopImmediatePropagation(); insertStep(rule)">{{ 'msg.dp.btn.insert.rule' | translate }}</span>
+              <span class="ddp-txt"
+                    (click)="$event.stopImmediatePropagation();
+                    insertStep(rule)">
+                {{ 'msg.dp.btn.insert.rule' | translate }}
+              </span>
             </div>
             <!-- info -->
             <div class="ddp-input-info">
               {{'msg.dp.ui.insert.rule.below' | translate }}
-              <a href="javascript:" class="ddp-link-cancel" (click)="$event.stopImmediatePropagation(); cancelInsertMode(rule, idx)">{{'msg.comm.btn.cancl' | translate }}</a>
+              <a href="javascript:"
+                 class="ddp-link-cancel"
+                 (click)="$event.stopImmediatePropagation();
+                 cancelInsertMode(rule, idx)">
+                {{'msg.comm.btn.cancl' | translate }}
+              </a>
             </div>
             <!-- //info -->
           </div>
@@ -97,11 +106,13 @@
                (click)="snapshotDetail(snapshot)"
                [ngClass]="{'ddp-disabled':snapshot.isCancel || snapshot.status === snapshotStatus.NOT_AVAILABLE}">
 
-            <em class="ddp-icon-snap-{{getSnapshotStatus(snapshot.status)[1]}}"></em>
+            <em class="ddp-icon-snap-{{getSnapshotStatus(snapshot.status.toString())[1]}}"></em>
 
             <!--Information-->
             <div class="ddp-data-det">
-              <div class="ddp-data-status type-{{getSnapshotStatus(snapshot.status)[1]}}">{{getSnapshotStatus(snapshot.status)[0]}}</div>
+              <div class="ddp-data-status type-{{getSnapshotStatus(snapshot.status.toString())[1]}}">
+                {{getSnapshotStatus(snapshot.status.toString())[0]}}
+              </div>
               <div class="ddp-data-name">
                 <!--
                 <span class="ddp-tag-type">{{getSnapshotType(snapshot.ssType)}}</span>
@@ -114,11 +125,18 @@
             <!--Information-->
 
             <!--Progress bar-->
-            <div class="ddp-wrap-progress" *ngIf="getSnapshotStatus(snapshot.status)[0] === 'Preparing'">
+            <div class="ddp-wrap-progress" *ngIf="getSnapshotStatus(snapshot.status.toString())[0] === 'Preparing'">
               <div class="ddp-ui-progress ddp-play">
-                <span class="ddp-bar" [ngStyle]="{'width': (snapshot.ruleCntDone * 100 / (snapshot.ruleCntTotal + 1)) + '%'}"></span>
+                <span class="ddp-bar"
+                      [ngStyle]="{'width': (snapshot.ruleCntDone * 100 / (snapshot.ruleCntTotal + 1)) + '%'}">
+                </span>
               </div>
-              <a href="javascript:" class="ddp-btn-cancel" *ngIf="!snapshot.elapsedTime" (click)="$event.stopImmediatePropagation(); onSsCancelClick(snapshot)"></a>
+              <a href="javascript:"
+                 class="ddp-btn-cancel"
+                 *ngIf="!snapshot.elapsedTime"
+                 (click)="$event.stopImmediatePropagation();
+                 onSsCancelClick(snapshot)">
+              </a>
             </div>
             <!-- //Progress bar-->
 
@@ -127,15 +145,25 @@
           <!--Cancel popup-->
           <div class="ddp-txt-cancel" *ngIf="snapshot.isCancel">
             <span class="ddp-txt-det">{{'msg.dp.ui.snapshot.cancel.confirm' | translate }}</span>
-            <a href="javascript:" class="ddp-btn-line" (click)="closeSsCancelPopup(snapshot)">{{'msg.dp.ui.no' | translate}}</a>
-            <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="cancelSnapshotConfirm(snapshot)">{{'msg.dp.ui.yes' | translate}}</a>
+            <a href="javascript:"
+               class="ddp-btn-line"
+               (click)="closeSsCancelPopup(snapshot)">
+              {{'msg.dp.ui.no' | translate}}
+            </a>
+            <a href="javascript:" class="ddp-btn-solid ddp-bg-black"
+               (click)="cancelSnapshotConfirm(snapshot)">
+              {{'msg.dp.ui.yes' | translate}}
+            </a>
           </div>
           <!--Cancel popup-->
 
         </li>
       </ul>
       <div class="ddp-ui-link" (click)="goToSnapshotList()">
-        <a href="javascript:" class="ddp-btn-line ddp-link-list"><em class="ddp-icon-go"></em>{{ 'msg.dp.btn.snapshot-list' | translate }}</a>
+        <a href="javascript:" class="ddp-btn-line ddp-link-list">
+          <em class="ddp-icon-go"></em>
+          {{ 'msg.dp.btn.snapshot-list' | translate }}
+        </a>
       </div>
 
     </div>

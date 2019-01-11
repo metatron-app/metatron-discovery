@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import { AbstractComponent } from '../../../../../common/component/abstract.component';
-import { DataflowService } from '../../../service/dataflow.service';
-import { PrDataSnapshot, Status } from '../../../../../domain/data-preparation/pr-snapshot';
-import { isNullOrUndefined } from 'util';
-import { Rule } from '../../../../../domain/data-preparation/pr-dataset';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '../../../../../common/component/abstract.component';
+import {DataflowService} from '../../../service/dataflow.service';
+import {PrDataSnapshot, Status} from '../../../../../domain/data-preparation/pr-snapshot';
+import {isNullOrUndefined} from 'util';
+import {Rule} from '../../../../../domain/data-preparation/pr-dataset';
 import {DataSnapshotService} from "../../../../data-snapshot/service/data-snapshot.service";
 import {Alert} from "../../../../../common/util/alert.util";
 import {PreparationCommonUtil} from "../../../../util/preparation-common.util";
@@ -120,7 +120,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
    * Clear interval
    */
   public clearExistingInterval() {
-    if (isNullOrUndefined(this.interval)) {
+    if (!isNullOrUndefined(this.interval)) {
       clearInterval(this.interval);
       this.interval = undefined;
     }
@@ -141,26 +141,36 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
 
 
   /**
-   * 스냅샷 리스트 호출
-   * @param {string} dsId
+   * Retrieve snapshot list
    */
   public getSnapshotList() {
 
+    // Return when snapshot cancel confirm popup is opened
+    if (this.isCancelPopupOpen) {
+      this.clearExistingInterval();
+      return;
+    }
+
+    // Check flag
     if (!this.isRequested) {
       this.isRequested = true;
 
       this.dataflowService.getWorkList({dsId : this.dsId}).then((result) => {
         this.isRequested = false;
-        this.clearExistingInterval();
 
-        if(result['snapshots'] && 0 < result['snapshots'].length ) {
+        this.snapshotList = [];
+        if(result['snapshots'] && 0 < result['snapshots'].length) {
           this.snapshotList = result['snapshots'];
-          if (1 === this.tabNumber) { // 현재 탭이 snapshot list 아닐 때 을 하면 에러..
-            if (-1 !== this.pollingContinue(this.snapshotList) && !this.isCancelPopupOpen) {
+
+          // When snapshot tab is selected
+          if (1 === this.tabNumber) {
+            this.clearExistingInterval();
+
+            // interval
+            if (-1 !== this.pollingContinue(this.snapshotList)) {
               this.interval = setInterval(() => {
                 this.getSnapshotList();
               }, 2000)
-
             }
           }
         }
@@ -173,7 +183,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
 
 
   /**
-   * Tab click 시
+   * Change tab
    * @param {number} tab
    */
   public changeTab( tab : number ) {
@@ -184,20 +194,9 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
     if (this.tabNumber === 1) {
       this.getSnapshotList();
     } else {
-      clearInterval(this.interval);
-      this.interval = undefined;
+      this.clearExistingInterval();
     }
   } // function - changeTab
-
-
-  public setCanceledStatus(ssId) {
-    this.snapshotList.forEach((item) => {
-      if (item.ssId === ssId) {
-          //item.status = 'Canceled';
-          item.status = Status.CANCELED;
-      }
-    })
-  }
 
 
   /**
@@ -349,10 +348,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
   public onSsCancelClick(snapshot: PrDataSnapshot) {
 
     // Clear all interval
-    if (isNullOrUndefined(this.interval)) {
-      clearInterval(this.interval);
-      this.interval = undefined;
-    }
+    this.clearExistingInterval();
 
     // cannot cancel already created snapshot
     if (snapshot.elapsedTime) {
@@ -362,7 +358,6 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
       // Open snapshot cancel confirm popup
       snapshot.isCancel = true;
       this.isCancelPopupOpen = true;
-      this.setCanceledStatus(snapshot.ssId);
     }
   }
 
@@ -372,20 +367,31 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
    * @param snapshot {PrDataSnapshot}
    */
   public cancelSnapshotConfirm(snapshot : PrDataSnapshot) {
-    snapshot.isCancel = false;
-    this.isCancelPopupOpen = false;
 
     const ok : string = 'OK';
 
     this.snapshotService.cancelSnapshot(snapshot.ssId).then((result) => {
       if (result.result === ok) {
+
+        // Show STATUS in the snapshot list - visible for 2 seconds
+        snapshot.status = Status.CANCELED;
+
+        // close snapshot cancel confirm popup
+        snapshot.isCancel = false;
+        this.isCancelPopupOpen = false;
+
+        // retrieve snapshot list after 2 seconds
+        setTimeout(()=> {
+          this.getSnapshotList();
+        }, 2000);
+
       } else {
         Alert.warning(this.translateService.instant('msg.dp.alert.snapshot.cancel.fail'));
         this.snapshotList.forEach((item) => {
           item.isCancel = false;
         });
       }
-      this.getSnapshotList();
+
 
     }).catch((error) => {
       console.info(error);
@@ -399,8 +405,13 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
    */
   public closeSsCancelPopup(snapshot? : PrDataSnapshot) {
     if (snapshot) {
+
+      // close snapshot cancel confirm popup
       snapshot.isCancel = false;
+      this.isCancelPopupOpen = false;
     }
+
+    // refresh snapshot list
     this.getSnapshotList();
   } // function - refreshSnapshotList
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
