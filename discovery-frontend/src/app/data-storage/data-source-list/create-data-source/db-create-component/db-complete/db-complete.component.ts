@@ -564,6 +564,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       dataType: this.getDatabaseData.selectedType,
       type: this.getIngestionData.selectedIngestionType.value,
       rollup: this.getIngestionData.selectedRollUpType.value,
+      intervals: [this.getIngestionData.startIntervalText + '/' + this.getIngestionData.endIntervalText]
     };
     // if database is TABLE
     if (this.getDatabaseData.selectedType === 'TABLE') {
