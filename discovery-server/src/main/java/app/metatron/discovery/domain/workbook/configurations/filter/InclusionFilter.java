@@ -65,6 +65,11 @@ public class InclusionFilter extends Filter {
   ItemSort sort;
 
   /**
+   * Only show selected item (Optional, for UI)
+   */
+  Boolean showSelectedItem;
+
+  /**
    * Value Pair (Optional, for Lookup)
    */
   Map<String, String> valuePair;
@@ -84,6 +89,7 @@ public class InclusionFilter extends Filter {
                          @JsonProperty("definedValues") List<String> definedValues,
                          @JsonProperty("preFilters") List<AdvancedFilter> preFilters,
                          @JsonProperty("sort") ItemSort sort,
+                         @JsonProperty("showSelectedItem") Boolean showSelectedItem,
                          @JsonProperty("valuePair") Map<String, String> valuePair) {
     super(dataSource, field, ref);
 
@@ -97,6 +103,7 @@ public class InclusionFilter extends Filter {
     this.definedValues = definedValues;
     this.preFilters = preFilters;
     this.sort = sort;
+    this.showSelectedItem = showSelectedItem;
     this.valuePair = valuePair;
   }
 
@@ -187,6 +194,10 @@ public class InclusionFilter extends Filter {
 
   public void setSort(ItemSort sort) {
     this.sort = sort;
+  }
+
+  public Boolean getShowSelectedItem() {
+    return showSelectedItem;
   }
 
   @Override
