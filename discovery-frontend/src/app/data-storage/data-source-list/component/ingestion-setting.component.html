@@ -412,40 +412,6 @@
         </div>
       </div>
       <!-- //Partition (staging) -->
-
-      <!-- Data range (staging) -->
-      <div class="ddp-ui-option-sub" *ngIf="createType === 'STAGING'">
-        <label class="ddp-ui-label-name">
-          {{'msg.storage.ui.dsource.create.data.range' | translate}}
-        </label>
-        <div class="ddp-ui-edit-option">
-          <div class="ddp-radio-set">
-            <label class="ddp-label-radio" (change)="onChangeDataRangeType(dataRangeTypeList[0])">
-              <input type="radio" [checked]="selectedDataRangeType.value === dataRangeTypeList[0].value">
-              <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{dataRangeTypeList[0].label}}</span>
-            </label>
-          </div>
-          <div class="ddp-radio-hidden">
-            <label class="ddp-label-radio" (change)="onChangeDataRangeType(dataRangeTypeList[1])">
-              <input type="radio" [checked]="selectedDataRangeType.value === dataRangeTypeList[1].value">
-              <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{dataRangeTypeList[1].label}}</span>
-            </label>
-            <!-- calen -->
-            <component-period
-              [isShowButtons]="false"
-              [defaultType]="'YEAR'"
-              [startDateDefault]="startDateTime"
-              [endDateDefault]="endDateTime"
-              (changeDate)="onChangeRangeTime($event)"
-              [disabled]="selectedDataRangeType.value === 'DISABLE'"
-            ></component-period>
-            <!-- calen -->
-          </div>
-        </div>
-      </div>
-      <!-- //Data range (staging) -->
       <!-- Query granularity -->
       <div class="ddp-ui-option-sub">
         <label class="ddp-ui-label-name">

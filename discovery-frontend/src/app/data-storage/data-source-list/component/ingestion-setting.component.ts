@@ -74,15 +74,6 @@ export class IngestionSettingComponent extends AbstractComponent {
   // selected rollup type
   public selectedRollUpType: any;
 
-  // data range type list (only stagingDB create type)
-  public dataRangeTypeList: any[];
-  // selected data range type (only stagingDB create type)
-  public selectedDataRangeType: any;
-  // start date time in data range (only stagingDB create type)
-  public startDateTime: string = moment().subtract(1, 'years').format('YYYY-MM-DDTHH:mm');
-  // end date time in data range (only stagingDB create type)
-  public endDateTime: string = moment().format('YYYY-MM-DDTHH:mm');
-
   // partition type list
   public partitionTypeList: any[];
   // selected partition type
@@ -516,23 +507,6 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * Data range change event
-   * @param dataRangeType
-   */
-  public onChangeDataRangeType(dataRangeType: any): void {
-    this.selectedDataRangeType = dataRangeType;
-  }
-
-  /**
-   * Data range time change vent
-   * @param time
-   */
-  public onChangeRangeTime(time: any): void {
-    this.startDateTime = time.startDateStr;
-    this.endDateTime = time.endDateStr;
-  }
-
-  /**
    * Partition type change click event
    * @param partitionType
    */
@@ -729,12 +703,6 @@ export class IngestionSettingComponent extends AbstractComponent {
       { label: this.translateService.instant('msg.storage.ui.set.false'), value: false },
     ];
     this.selectedRollUpType = this.rollUpTypeList[0];
-    // init data range type list
-    this.dataRangeTypeList = [
-      { label: this.translateService.instant('msg.storage.ui.set.disable'), value: 'DISABLE' },
-      { label: this.translateService.instant('msg.storage.ui.set.enable'), value: 'ENABLE' }
-    ];
-    this.selectedDataRangeType = this.dataRangeTypeList[0];
     // init partition type list
     this.partitionTypeList = [
       { label: this.translateService.instant('msg.storage.ui.set.disable'), value: 'DISABLE' },
@@ -1070,14 +1038,10 @@ export class IngestionSettingComponent extends AbstractComponent {
     // if create type is StagingDB
     if (this.createType === 'STAGING') {
       // load selected data range type
-      this.selectedDataRangeType = ingestionData.selectedDataRangeType;
       // load selected partition type
       this.selectedPartitionType = ingestionData.selectedPartitionType;
       // load job properties
       this.jobProperties = ingestionData.jobProperties;
-      // load date time used data range
-      this.startDateTime = ingestionData.startDateTime;
-      this.endDateTime = ingestionData.endDateTime;
       // partition key list
       this.partitionKeyList = ingestionData.partitionKeyList;
       // is show partition validation button (only stagingDB)
@@ -1151,15 +1115,10 @@ export class IngestionSettingComponent extends AbstractComponent {
     }
     // if create type Staging
     if (this.createType === 'STAGING') {
-      // save selected data range type
-      sourceData['ingestionData'].selectedDataRangeType = this.selectedDataRangeType;
       // save selected partition type
       sourceData['ingestionData'].selectedPartitionType = this.selectedPartitionType;
       // selected job properties
       sourceData['ingestionData'].jobProperties = this.jobProperties;
-      // selected time used data range
-      sourceData['ingestionData'].startDateTime = this.startDateTime;
-      sourceData['ingestionData'].endDateTime = this.endDateTime;
       // partition key list
       sourceData['ingestionData'].partitionKeyList = this.partitionKeyList;
       // is show partition validation button (only stagingDB)

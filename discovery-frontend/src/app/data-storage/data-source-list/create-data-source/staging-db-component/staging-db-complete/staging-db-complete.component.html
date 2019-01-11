@@ -56,14 +56,6 @@
                   </div>
                 </li>
                 <!-- //partition -->
-                <!-- range -->
-                <li>
-                  {{'msg.storage.ui.dsource.create.data.range' | translate}}
-                  <div class="ddp-sub">
-                    {{getIngestionData.selectedDataRangeType.value === 'ENABLE' ? getDataRangeTimeLabel() : ('msg.storage.ui.set.disable' | translate)}}
-                  </div>
-                </li>
-                <!-- //range -->
                 <!-- granularity -->
                 <li>
                   {{'msg.storage.th.segment.gran' | translate}} : {{getIngestionData.selectedSegmentGranularity.label}}
