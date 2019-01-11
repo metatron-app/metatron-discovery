@@ -28,7 +28,6 @@ import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
@@ -51,7 +50,15 @@ import app.metatron.discovery.spec.druid.ingestion.granularity.UniformGranularit
 import app.metatron.discovery.spec.druid.ingestion.index.LuceneIndexStrategy;
 import app.metatron.discovery.spec.druid.ingestion.index.LuceneIndexing;
 import app.metatron.discovery.spec.druid.ingestion.index.SecondaryIndexing;
-import app.metatron.discovery.spec.druid.ingestion.parser.*;
+import app.metatron.discovery.spec.druid.ingestion.parser.CsvStreamParser;
+import app.metatron.discovery.spec.druid.ingestion.parser.DimensionsSpec;
+import app.metatron.discovery.spec.druid.ingestion.parser.JsonParseSpec;
+import app.metatron.discovery.spec.druid.ingestion.parser.OrcParser;
+import app.metatron.discovery.spec.druid.ingestion.parser.ParquetParser;
+import app.metatron.discovery.spec.druid.ingestion.parser.Parser;
+import app.metatron.discovery.spec.druid.ingestion.parser.StringParser;
+import app.metatron.discovery.spec.druid.ingestion.parser.TimeAndDimsParseSpec;
+import app.metatron.discovery.spec.druid.ingestion.parser.TimestampSpec;
 
 public class AbstractSpecBuilder {
 
@@ -91,10 +98,7 @@ public class AbstractSpecBuilder {
     }
 
     // Set Interval Options
-    List<String> intervals = null;
-    if (dataSource.getIngestionInfo() instanceof HiveIngestionInfo) {
-      intervals = ((HiveIngestionInfo) dataSource.getIngestionInfo()).getIntervals();
-    }
+    List<String> intervals = dataSource.getIngestionInfo().getIntervals();
 
     // Set granularity, Default value (granularity : SECOND, segment granularity : DAY)
     UniformGranularitySpec granularitySpec = new UniformGranularitySpec(
@@ -220,12 +224,12 @@ public class AbstractSpecBuilder {
 
       CsvStreamParser csvStreamParser = new CsvStreamParser();
 
-      if ( ingestionInfo instanceof LocalFileIngestionInfo ) {
+      if (ingestionInfo instanceof LocalFileIngestionInfo) {
         boolean skipHeaderRow = ((LocalFileIngestionInfo) ingestionInfo).getRemoveFirstRow();
         csvStreamParser.setSkipHeaderRecord(skipHeaderRow);
       }
 
-      if (fileFormat instanceof CsvFileFormat){
+      if (fileFormat instanceof CsvFileFormat) {
 
         CsvFileFormat csvFormat = (CsvFileFormat) fileFormat;
 

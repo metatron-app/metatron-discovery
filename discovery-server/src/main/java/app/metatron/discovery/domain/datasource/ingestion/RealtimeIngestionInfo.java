@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import java.util.List;
 import java.util.Map;
 
 import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
@@ -54,6 +55,11 @@ public class RealtimeIngestionInfo implements IngestionInfo {
   Boolean rollup;
 
   /**
+   * Intervals
+   */
+  List<String> intervals;
+
+  /**
    * Specify task option
    */
   Map<String, Object> taskOptions;
@@ -71,12 +77,14 @@ public class RealtimeIngestionInfo implements IngestionInfo {
                                @JsonProperty("consumerProperties") Map<String, Object> consumerProperties,
                                @JsonProperty("format") FileFormat format,
                                @JsonProperty("rollup") Boolean rollup,
+                               @JsonProperty("intervals") List<String> intervals,
                                @JsonProperty("taskOptions") Map<String, Object> taskOptions,
                                @JsonProperty("tuningOptions") Map<String, Object> tuningOptions) {
     this.topic = topic;
     this.consumerProperties = consumerProperties;
     this.format = format;
     this.rollup = rollup == null ? false : rollup;
+    this.intervals = intervals;
     this.taskOptions = taskOptions;
     this.tuningOptions = tuningOptions;
   }
@@ -94,6 +102,11 @@ public class RealtimeIngestionInfo implements IngestionInfo {
   @Override
   public Boolean getRollup() {
     return rollup;
+  }
+
+  @Override
+  public List<String> getIntervals() {
+    return intervals;
   }
 
   public String getTopic() {
