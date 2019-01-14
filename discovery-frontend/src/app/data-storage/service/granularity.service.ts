@@ -77,7 +77,9 @@ export class GranularityService {
    * @returns {string}
    */
   public getInterval(dateTime: string, granularity: GranularityObject): string {
-    return moment(granularity.value === Granularity.YEAR ? new Date(dateTime) : dateTime).format(this._getDateTimeFormat(granularity));
+    // if dateTime is number, trans to string
+    typeof dateTime ===  'number' && (dateTime = dateTime + '');
+    return moment(this._getConvertedDateTime(dateTime, granularity)).format(this._getDateTimeFormat(granularity));
   }
 
   /**
@@ -177,6 +179,18 @@ export class GranularityService {
     return this._getGranularityUnit(startInterval, endInterval, granularity) <= 10000;
   }
 
+
+  /**
+   * Get converted date time
+   * @param dateTime
+   * @param granularity
+   * @private
+   */
+  private _getConvertedDateTime(dateTime: string, granularity: GranularityObject): any {
+    // if granularity type YEAR or YEAR type dateTime
+    return (granularity.value === Granularity.YEAR || (/^(\d{4}|\d{2})$/).test(dateTime)) ? new Date(dateTime) : dateTime;
+  }
+
   /**
    * Get date time format
    * @param {GranularityObject} granularity
@@ -223,7 +237,7 @@ export class GranularityService {
    * @private
    */
   private _getIntervalAddedUnit(dateTime: string, value: number, granularity: GranularityObject): string {
-    return moment(granularity.value === Granularity.YEAR ? new Date(dateTime) : dateTime).add(value, this._getMomentKey(granularity)).format(this._getDateTimeFormat(granularity));
+    return moment(this._getConvertedDateTime(dateTime, granularity)).add(value, this._getMomentKey(granularity)).format(this._getDateTimeFormat(granularity));
   }
 
   /**
@@ -235,7 +249,7 @@ export class GranularityService {
    * @private
    */
   private _getIntervalReducedUnit(dateTime: string, value: number, granularity: GranularityObject): string {
-    return moment(granularity.value === Granularity.YEAR ? new Date(dateTime) : dateTime).subtract(value, this._getMomentKey(granularity)).format(this._getDateTimeFormat(granularity));
+    return moment(this._getConvertedDateTime(dateTime, granularity)).subtract(value, this._getMomentKey(granularity)).format(this._getDateTimeFormat(granularity));
   }
   
   /**
@@ -247,7 +261,7 @@ export class GranularityService {
    * @private
    */
   private _getDateTimeDiff(startDateTime: string, endDateTime: string, granularity: GranularityObject): number {
-    return moment(granularity.value === Granularity.YEAR ? new Date(endDateTime) : endDateTime).diff(moment(granularity.value === Granularity.YEAR ? new Date(startDateTime) : startDateTime));
+    return moment(this._getConvertedDateTime(endDateTime, granularity)).diff(moment(this._getConvertedDateTime(startDateTime, granularity)));
   }
 
   /**
@@ -259,19 +273,19 @@ export class GranularityService {
   private _getDateTimeRegexp(granularity: GranularityObject): RegExp {
     switch (granularity.value) {
       case Granularity.SECOND:  // YYYY-MM-DD HH:mm:ss
-        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
+        return /^(\d{4}|\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
       case Granularity.MINUTE:  // YYYY-MM-DD HH:mm
-        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]$/;
+        return /^(\d{4}|\d{2})}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]$/;
       case Granularity.HOUR:  // YYYY-MM-DD HH
-        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9])$/;
+        return /^(\d{4}|\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9])$/;
       case Granularity.DAY:  // YYYY-MM-DD
-        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
+        return /^(\d{4}|\d{2})}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
       case Granularity.MONTH:  // YYYY-MM
-        return /^\d{4}-(0[1-9]|1[0-2])$/;
-      case Granularity.YEAR:  // YYYY
-        return /^\d{4}$/;
+        return /^(\d{4}|\d{2})-(0[1-9]|1[0-2])$/;
+      case Granularity.YEAR:  // YYYY YY
+        return /^(\d{4}|\d{2})$/;
       default:  // YYYY-MM-DD HH:mm:ss
-        return /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
+        return /^(\d{4}|\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
     }
   }
 
