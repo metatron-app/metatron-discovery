@@ -487,6 +487,7 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .slick-header-menuicon.type-st:before {content:'St';}
 .slick-header-menuicon.type-so:before {content:'So';}
 .slick-header-menuicon.type-mv:before {content:'Mv';}
+.slick-headerrow::-webkit-scrollbar {display: none;}
 
 /**************************************************************
     공통
