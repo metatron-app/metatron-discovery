@@ -27,20 +27,6 @@ public class PrSnapshotProjections {
         String getSsId();
         String getSsName();
         String getDfName();
-        String getDsName();
-        DateTime getLaunchTime();
-        DateTime getFinishTime();
-        String getCreatedBy();
-
-        String getCustom();
-        String getLineageInfo();
-        String getStatus();
-    }
-
-    @Projection(name = "detail", types = { PrSnapshot.class })
-    public interface DetailProjection {
-        String getSsName();
-        String getDfName();
         String getHiveFileCompression();
         String getHiveFileFormat();
         String getSsType();
@@ -67,33 +53,4 @@ public class PrSnapshotProjections {
         List<Object> getRuleStringInfo();
     }
 
-    @Projection(name = "listing", types = { PrSnapshot.class })
-    public interface ListingProjection {
-        String getSsId();
-        String getSsName();
-        String getSsType();
-        String getDfName();
-        String getDsName();
-        DateTime getLaunchTime();
-        DateTime getFinishTime();
-        String getCreatedBy();
-
-        Long getRuleCntTotal();
-        Long getRuleCntDone();
-
-        Map<String,Long> getElapsedTime();
-        Long getMismatchedLines();
-        Long getMissingLines();
-
-        String getCustom();
-        String getLineageInfo();
-        String getStatus();
-    }
-
-    @Projection(name = "post", types = { PrSnapshot.class })
-    public interface PostProjection {
-
-        String getSsId();
-        DateTime getLaunchTime();
-    }
 }

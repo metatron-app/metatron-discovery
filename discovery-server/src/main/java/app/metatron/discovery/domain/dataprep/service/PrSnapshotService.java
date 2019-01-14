@@ -14,15 +14,17 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.PrepDatasetSparkHiveService;
 import app.metatron.discovery.domain.dataprep.PrepHdfsService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
-import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
-import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -39,7 +41,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
@@ -369,5 +374,28 @@ public class PrSnapshotService {
         }
 
         return null;
+    }
+
+    public void patchAllowedOnly(PrSnapshot snapshot, PrSnapshot patchSnapshot) {
+        // Only a few fields are allowed to be changed.
+        // It can be changed.
+
+        List<String> allowKeys = Lists.newArrayList();
+        allowKeys.add("ssName");
+
+        List<String> ignoreKeys = Lists.newArrayList();
+        ignoreKeys.add("ssId");
+
+        if(patchSnapshot.getSsName()!=null) { snapshot.setSsName(patchSnapshot.getSsName()); }
+
+        ObjectMapper objectMapper = GlobalObjectMapper.getDefaultMapper();
+        Map<String, Object> mapSnapshot = objectMapper.convertValue(patchSnapshot, Map.class);
+        for(String key : mapSnapshot.keySet()) {
+            if( false==ignoreKeys.contains(key) ) { continue; }
+
+            if( false==allowKeys.contains(key) ) {
+                LOGGER.debug("'" + key + "' of pr-snapshot is an attribute to which patch is not applied");
+            }
+        }
     }
 }
