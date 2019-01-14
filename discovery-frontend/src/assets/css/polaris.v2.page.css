@@ -4919,7 +4919,7 @@ ul.ddp-list-rule2 li.ddp-disabled2 .ddp-wrap-line-add {display:block;}
 .ddp-box-contents .ddp-box-title ul.ddp-box-select-check li a:hover {background-color:#f6f6f7; color:#444;}
 
 .ddp-wrap-checkaction {position:absolute; bottom:0; left:0; right:0; height:214px; background-color:#fff; z-index:1;}
-.ddp-ui-checkaction {padding:20px 0 0 14px;}
+.ddp-ui-checkaction {padding:13px 0 0 14px; }
 .ddp-ui-checkaction .ddp-wrap-action {display:inline-block;}
 .ddp-ui-checkaction .ddp-type-selectbox {display:inline-block; width:275px; margin-right:5px; box-sizing:border-box;}
 .ddp-pop-bar {position:relative; padding:14px 0; background-color:#4b515b; text-align:center;}
