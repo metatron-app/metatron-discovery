@@ -446,7 +446,9 @@ export class SchemaConfigComponent extends AbstractComponent {
    */
   public onClickAllCheckFilteredFieldList(): void {
     // if all checked filtered field list
-    this.isAllCheckedFilteredFieldList() ? this.filteredFieldList.forEach(field => field.checked = false) : this.filteredFieldList.forEach(field => field.checked = true);
+    this.isAllCheckedFilteredFieldList()
+      ? this.filteredFieldList.forEach(field => !field.derived && (field.checked = false))
+      : this.filteredFieldList.forEach(field => !field.derived && (field.checked = true));
     // init action bar
     this._actionBarComponent.init(this.getCheckedFieldList(), this.selectedTimestampField, this.selectedTimestampType);
   }
@@ -456,7 +458,7 @@ export class SchemaConfigComponent extends AbstractComponent {
    * @returns {boolean}
    */
   public isAllCheckedFilteredFieldList(): boolean {
-    return this.filteredFieldList.length !== 0 && this.filteredFieldList.every(field => field.checked);
+    return this.filteredFieldList.filter(field => !field.derived).length !== 0 && this.filteredFieldList.filter(field => !field.derived).every(field => field.checked);
   }
 
   /**

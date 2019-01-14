@@ -116,7 +116,7 @@
                 <!-- check -->
                 <td class="ddp-txt-center">
                   <div class="ddp-ui-checkbox" (click)="onClickCheckInField(field)" *ngIf="!isRemovedField(field)">
-                    <input type="checkbox" [checked]="field.checked">
+                    <input type="checkbox" [checked]="field.checked" [disabled]="field.derived">
                     <i class="ddp-icon-checkbox"></i>
                   </div>
                 </td>
