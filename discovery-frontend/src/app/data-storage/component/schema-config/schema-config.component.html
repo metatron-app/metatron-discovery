@@ -118,6 +118,11 @@
                   <div class="ddp-ui-checkbox" (click)="onClickCheckInField(field)" *ngIf="!isRemovedField(field)">
                     <input type="checkbox" [checked]="field.checked" [disabled]="field.derived">
                     <i class="ddp-icon-checkbox"></i>
+                    <!-- only show derived -->
+                    <div class="ddp-ui-tooltip-info ddp-left2" style="display:;" *ngIf="field.derived">
+                      <em class="ddp-icon-view-top"></em>{{'msg.storage.ui.configure.schema.tooltip.derived' | translate}}
+                    </div>
+                    <!-- //only show derived -->
                   </div>
                 </td>
                 <!-- //check -->
