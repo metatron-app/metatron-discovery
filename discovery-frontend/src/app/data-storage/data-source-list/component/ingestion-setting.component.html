@@ -515,7 +515,7 @@
               <!-- data -->
               <div class="ddp-data-units">
                 <!-- error 일때 ddp-error-num 추가 -->
-                <span class="ddp-data-num ddp-error-num">{{granularityUnit | numberCommas}}</span> {{'msg.storage.ui.intervals.units' | translate}}
+                <span class="ddp-data-num" [class.ddp-error-num]="granularityUnit > 10000">{{granularityUnit | numberCommas}}</span> {{'msg.storage.ui.intervals.units' | translate}}
               </div>
               <!-- //data -->
             </div>
