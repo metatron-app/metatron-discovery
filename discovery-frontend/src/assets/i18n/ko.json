@@ -2111,7 +2111,7 @@
   "msg.storage.ui.configure.schema.logical.change.derived": "생성한 컬럼은 변경이 불가능합니다",
   "msg.storage.ui.configure.schema.require.timestamp.column": "타임스탬프 컬럼이 지정되어 있지 않습니다",
   "msg.storage.ui.configure.schema.require.column": "적어도 한개 이상의 컬럼이 존재 해야합니다",
-  "msg.storage.ui.configure.schema.tooltip.derived": "수정 및 제거 불가",
+  "msg.storage.ui.configure.schema.tooltip.derived": "수정, 삭제 불가",
 
   "msg.log.th.status": "상태",
   "msg.log.ui.search.description" : "잡 이름, 어플리케이션 ID 및 사용자별로 검색",
