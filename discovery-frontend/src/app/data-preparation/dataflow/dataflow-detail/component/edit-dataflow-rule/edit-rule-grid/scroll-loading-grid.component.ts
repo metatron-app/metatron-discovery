@@ -210,6 +210,18 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     // 그리드 생성
     this._grid = this._generateGrid(headers, gridModel);
 
+    // horizontal_scroll_in_histogram_area
+    const naviAgent: string = navigator.userAgent.toLowerCase();
+    let ieBrowser: boolean = false;
+
+    if(naviAgent.indexOf('msie') > 0 || naviAgent.indexOf('trident/') > 0 || naviAgent.indexOf('edge/') > 0) {
+      ieBrowser = true;
+    }
+    if(ieBrowser == false){
+      $('.slick-headerrow').css('overflow-x','auto');
+    }
+    // horizontal_scroll_in_histogram_area
+
     // 그리드 이벤트 연결
     this._bindEvent(this._grid, gridModel);
   } // function - grid
