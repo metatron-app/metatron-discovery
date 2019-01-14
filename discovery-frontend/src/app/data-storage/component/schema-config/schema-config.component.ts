@@ -696,6 +696,8 @@ export class SchemaConfigComponent extends AbstractComponent {
       selectedRoleTypeFilter : this.selectedRoleTypeFilter,
       // selected action
       selectedAction: this.selectedAction,
+      // timestampFieldData
+      timestampFieldData: this.selectedTimestampType === 'FIELD' ? this._getFieldDataList(this.selectedTimestampField) : []
     };
     sourceData.schemaData = schemaData;
   }

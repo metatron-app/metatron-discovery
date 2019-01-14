@@ -519,8 +519,8 @@
               </div>
               <!-- //data -->
             </div>
-            <div class="ddp-txt-error ddp-clear" *ngIf="!intervalValid">
-              <em class="ddp-icon-error-s"></em>{{intervalValidMessage}}
+            <div class="ddp-txt-error ddp-clear"[class.ddp-default]="intervalValid">
+              <em class="ddp-icon-error-s"></em>{{intervalValid ? ('msg.storage.ui.intervals.valid.unit' | translate) : intervalValidMessage}}
             </div>
           </div>
         </div>

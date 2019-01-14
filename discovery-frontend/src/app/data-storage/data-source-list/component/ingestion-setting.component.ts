@@ -235,8 +235,6 @@ export class IngestionSettingComponent extends AbstractComponent {
         this._initGranularity();
         // if used TIMESTAMP column
         if (!this.isUsedCurrentTimestampColumn()) {
-          // set timestamp column data list
-          this._sortedTimestampColumnDataList = this._sourceData.schemaData.timestampFieldData.sort();
           // granularity interval initial
           this._initGranularityIntervalInfo();
         }
@@ -247,8 +245,6 @@ export class IngestionSettingComponent extends AbstractComponent {
       this._initGranularity();
       // if used TIMESTAMP column
       if (!this.isUsedCurrentTimestampColumn()) {
-        // set timestamp column data list
-        this._sortedTimestampColumnDataList = this._sourceData.schemaData.timestampFieldData.sort();
         // granularity interval initial
         this._initGranularityIntervalInfo();
       }
@@ -697,6 +693,8 @@ export class IngestionSettingComponent extends AbstractComponent {
     // init segment granularity list
     // #1058 remove MINUTE, SECOND in segment granularity
     this.segmentGranularityList = this._granularityService.getSegmentGranularityList();
+    // set timestamp column data list
+    this._sortedTimestampColumnDataList = this._sourceData.schemaData.timestampFieldData.sort();
   }
 
   /**
