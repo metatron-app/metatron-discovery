@@ -4919,7 +4919,7 @@ ul.ddp-list-rule2 li.ddp-disabled2 .ddp-wrap-line-add {display:block;}
 .ddp-box-contents .ddp-box-title ul.ddp-box-select-check li a:hover {background-color:#f6f6f7; color:#444;}
 
 .ddp-wrap-checkaction {position:absolute; bottom:0; left:0; right:0; height:214px; background-color:#fff; z-index:1;}
-.ddp-ui-checkaction {padding:20px 0 0 14px;}
+.ddp-ui-checkaction {padding:13px 0 0 14px; }
 .ddp-ui-checkaction .ddp-wrap-action {display:inline-block;}
 .ddp-ui-checkaction .ddp-type-selectbox {display:inline-block; width:275px; margin-right:5px; box-sizing:border-box;}
 .ddp-pop-bar {position:relative; padding:14px 0; background-color:#4b515b; text-align:center;}
@@ -8075,7 +8075,7 @@ table.ddp-table-form.ddp-table-details tr th:nth-child(3) .ddp-box-layout4,
 table.ddp-table-form.ddp-table-details tr th:nth-child(4) .ddp-box-layout4 {right:inherit; left:-30px;}
 .ddp-wrap-datadetail.ddp-wrap-datacolumn .ddp-data-details.ddp-ui-preview-contents {position:fixed; left:45px; right:45px; bottom:20px; top:250px; height:inherit;}
 
-.ddp-page-catalog {position:relative; height:100%; box-sizing:border-box; border-top:1px solid #e7e7ea;}
+.ddp-page-catalog {position:relative; box-sizing:border-box; border-top:1px solid #e7e7ea;}
 .ddp-page-catalog .ddp-ui-root {padding:8px 0;}
 .ddp-page-catalog .ddp-ui-root .ddp-btn-bg {float:right;margin-left:14px;}
 .ddp-page-catalog .ddp-ui-root .ddp-data-create {display:block; position:relative; padding:3px 0 3px 0;   overflow:hidden;}
@@ -8085,7 +8085,7 @@ table.ddp-table-form.ddp-table-details tr th:nth-child(4) .ddp-box-layout4 {righ
 .ddp-page-catalog .ddp-ui-root .ddp-data-create .ddp-data-input {position:absolute; top:4px; left:37px; right:0;  background:#f6f6f7; }
 .ddp-page-catalog .ddp-ui-root .ddp-data-create .ddp-data-input input {display:block; width:100%; padding:3px 20px 3px 6px; border:none; box-sizing:border-box; background:none;color:#4b515b; font-size:14px;}
 .ddp-page-catalog .ddp-ui-root .ddp-data-create .ddp-data-input em.ddp-icon-control-check {position:absolute; top:50%; right:5px; margin-top:-7px;}
-.ddp-page-catalog .ddp-select-catalog {position:absolute; top:45px; left:0; right:0; bottom:50px;}
+.ddp-page-catalog .ddp-select-catalog.ddp-page-catalog {position:absolute; top:45px; left:0; right:0; bottom:50px;}
 .ddp-page-catalog .ddp-wrap-list-type {padding:0px;}
 .ddp-page-catalog ul.ddp-list-workspace li a {padding-left:89px}
 .ddp-page-catalog ul.ddp-list-workspace li a em.ddp-icon-folder {left:33px;}

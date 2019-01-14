@@ -226,6 +226,12 @@ public class AbstractSpecBuilder {
 
       if (ingestionInfo instanceof LocalFileIngestionInfo) {
         boolean skipHeaderRow = ((LocalFileIngestionInfo) ingestionInfo).getRemoveFirstRow();
+
+        // In case of Excel file, it is set to false because it is converted to headerless csv.
+        if(fileFormat instanceof ExcelFileFormat) {
+          skipHeaderRow = false;
+        }
+
         csvStreamParser.setSkipHeaderRecord(skipHeaderRow);
       }
 

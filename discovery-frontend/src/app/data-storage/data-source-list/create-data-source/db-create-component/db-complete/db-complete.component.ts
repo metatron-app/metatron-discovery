@@ -357,6 +357,9 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
     // delete used UI
     delete column.isValidTimeFormat;
     delete column.isValidReplaceValue;
+    delete column.replaceValidMessage;
+    delete column.timeFormatValidMessage;
+    delete column.checked;
     // if not GEO types
     if (column.logicalType.indexOf('GEO_') === -1) {
       if (column.logicalType !== 'TIMESTAMP' && column.format) {
@@ -501,7 +504,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
     // timestamp enable
     const isCreateTimestamp = this.getSchemaData.selectedTimestampType === 'CURRENT';
     // fields param
-    let fields = _.cloneDeep(this.getSchemaData.fields);
+    let fields = _.cloneDeep(this.getSchemaData._originFieldList);
     // seq number
     let seq = 0;
     // field 설정
@@ -513,9 +516,9 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       // if you don't want to create a timestamp column
       if (!isCreateTimestamp) {
         // if specified as a timestamp column
-        if (column.name === this.getSchemaData.selectedTimestampColumn.name) {
+        if (column.name === this.getSchemaData.selectedTimestampField.name) {
           column.role = 'TIMESTAMP';
-        } else if (column.name !== this.getSchemaData.selectedTimestampColumn.name
+        } else if (column.name !== this.getSchemaData.selectedTimestampField.name
           && column.role === 'TIMESTAMP') {
           // this column is not timestamp column, but column role is timestamp, specified as Dimension
           column.role = 'DIMENSION';

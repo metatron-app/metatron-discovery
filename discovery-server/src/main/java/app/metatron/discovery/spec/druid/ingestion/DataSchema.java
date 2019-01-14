@@ -42,6 +42,11 @@ public class DataSchema {
   GranularitySpec granularitySpec;
 
   /**
+   * Perform type casting at the time of parsing row, if true.
+   */
+  Boolean enforceType = true;
+
+  /**
    * 검증조건 기입
    */
   List<Validation> validations;
@@ -115,6 +120,14 @@ public class DataSchema {
 
   public void setGranularitySpec(GranularitySpec granularitySpec) {
     this.granularitySpec = granularitySpec;
+  }
+
+  public Boolean getEnforceType() {
+    return enforceType;
+  }
+
+  public void setEnforceType(Boolean enforceType) {
+    this.enforceType = enforceType;
   }
 
   public List<Validation> getValidations() {
