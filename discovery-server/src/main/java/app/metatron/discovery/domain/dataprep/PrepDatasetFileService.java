@@ -528,6 +528,7 @@ public class PrepDatasetFileService {
 
                             List<Map<String, String>> resultSet = Lists.newArrayList();
                             List<Field> fields = Lists.newArrayList();
+                            int lastFieldPos = 0;
                             List<Map<String, String>> headers = Lists.newArrayList();
 
                             String sheetName = sheet.getSheetName();
@@ -535,6 +536,8 @@ public class PrepDatasetFileService {
                             totalRows = sheet.getLastRowNum()+1;
 
                             for (Row r : sheet) {
+                                int not_emtpy=0;
+
                                 if(r==null) {
                                     resultSet.add(Maps.newHashMap());
                                     continue;
@@ -544,13 +547,16 @@ public class PrepDatasetFileService {
                                 Map<String,String> result = Maps.newHashMap();
                                 for (Cell c : r) {
                                     int cellIdx = c.getColumnIndex();
+
                                     Field f = null;
-                                    if(cellIdx<fields.size()) {
+                                    if(cellIdx<lastFieldPos) {
                                         f = fields.get(cellIdx);
-                                    }
-                                    if(f==null) {
-                                        f = makeFieldFromCSV(cellIdx, prefixColumnName + String.valueOf(cellIdx+1), ColumnType.STRING);
-                                        fields.add(cellIdx, f);
+                                    } else {
+                                        while( lastFieldPos <= cellIdx ) {
+                                            f = makeFieldFromCSV(lastFieldPos, prefixColumnName + String.valueOf(lastFieldPos + 1), ColumnType.STRING);
+                                            fields.add(lastFieldPos, f);
+                                            lastFieldPos++;
+                                        }
                                     }
 
                                     if(c==null) {
@@ -560,11 +566,16 @@ public class PrepDatasetFileService {
                                         Object cellValue = ExcelProcessor.getCellValue(c);
                                         if(cellValue!=null) {
                                             strCellValue = String.valueOf(cellValue);
+                                            if(false==strCellValue.isEmpty()) {
+                                                not_emtpy++;
+                                            }
                                         }
                                         result.put(f.getName(), strCellValue);
                                     }
                                 }
-                                resultSet.add( result );
+                                if(0<not_emtpy) {
+                                    resultSet.add(result);
+                                }
                             }
 
                             Map<String, Object> grid = Maps.newHashMap();
@@ -1304,12 +1315,11 @@ public class PrepDatasetFileService {
 
             int maxIdx = 0;
             for (Row r : sheet) {
-                int colIdx = 0;
                 for (Cell c : r) {
-                    colIdx++;
-                }
-                if(maxIdx<colIdx) {
-                    maxIdx = colIdx;
+                    int cellIdx = c.getColumnIndex();
+                    if(maxIdx<=cellIdx) {
+                        maxIdx = cellIdx+1;
+                    }
                 }
             }
             if(is!=null) {
@@ -1332,6 +1342,8 @@ public class PrepDatasetFileService {
             URI csvUri = new URI(csvStrUri);
             FileWriter writer = new FileWriter(new File(csvUri));
             for (Row r : sheet) {
+                int not_empty=0;
+
                 StringBuilder sb = new StringBuilder();
                 boolean first = true;
                 for (int i = 0; i < maxIdx; i++) {
@@ -1347,17 +1359,24 @@ public class PrepDatasetFileService {
                     Object cellValue = ExcelProcessor.getCellValue(c);
                     if(cellValue!=null) {
                         String value = String.valueOf(cellValue);
-                        if (value.contains("\"")) {
-                            value = value.replace("\"", "\"\"");
-                        }
-                        if (value.contains(",")) {
-                            value = "\"" + value + "\"";
+                        if(true==value.isEmpty()) {
+                            value = "\"\"";
+                        } else {
+                            if (value.contains("\"")) {
+                                value = value.replace("\"", "\"\"");
+                            }
+                            if (value.contains(",")) {
+                                value = "\"" + value + "\"";
+                            }
+                            not_empty++;
                         }
                         sb.append(value);
                     }
                 }
                 sb.append("\n");
-                writer.append(sb.toString());
+                if(0<not_empty) {
+                    writer.append(sb.toString());
+                }
             }
             writer.flush();
             writer.close();
