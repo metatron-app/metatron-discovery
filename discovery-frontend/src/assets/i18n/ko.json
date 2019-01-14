@@ -2112,8 +2112,6 @@
   "msg.storage.ui.configure.schema.require.timestamp.column": "타임스탬프 컬럼이 지정되어 있지 않습니다",
   "msg.storage.ui.configure.schema.require.column": "적어도 한개 이상의 컬럼이 존재 해야합니다",
   "msg.storage.ui.configure.schema.tooltip.derived": "수정, 삭제 불가",
-  "msg.storage.ui.intervals.title": "데이터 범위란 무슨 의미인가요?",
-  "msg.storage.ui.intervals.description": "쿼리를 실행할 시간 범위를 뜻합니다.<br>각 시간 간격마다 하나의 세그먼트 파일을 형성하게 됩니다.",
   "msg.storage.ui.intervals.invalid.format": "주기 단위가 설정된 저장 단위와 일치해야 합니다. {{format}}의 형태로 입력해 주세요.",
   "msg.storage.ui.intervals.invalid.unit": "세그먼트 단위 수는 10000까지만 가능합니다.",
   "msg.storage.ui.intervals.invalid.period": "과거값과 최신값 범위를 올바르게 입력해주세요.",

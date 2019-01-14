@@ -2114,8 +2114,6 @@
   "msg.storage.ui.configure.schema.require.timestamp.column": "Not selected timestamp column",
   "msg.storage.ui.configure.schema.require.column": "At least one column must exist",
   "msg.storage.ui.configure.schema.tooltip.derived": "Cannot edit or delete",
-  "msg.storage.ui.intervals.title": "What is Data range?",
-  "msg.storage.ui.intervals.description": "This defines the time ranges to run the query over.<br>One segment file is created for each time interval.",
   "msg.storage.ui.intervals.invalid.format": "The interval unit must match the segment unit. Enter in the form of {{format}}.",
   "msg.storage.ui.intervals.invalid.unit": "The number of segment granularity units in the interval period must not exceed 10000.",
   "msg.storage.ui.intervals.invalid.period": "Please enter the past value and the latest value range correctly.",
