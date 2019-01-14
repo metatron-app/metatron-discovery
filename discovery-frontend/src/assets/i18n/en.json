@@ -2354,6 +2354,24 @@
   "msg.storage.ui.timezone.country.aland": "Aland Islands",
   "msg.storage.ui.timezone.country.afghanistan": "Afghanistan",
 
+  "msg.storage.ui.timezone.continent.africa": "Africa",
+  "msg.storage.ui.timezone.continent.america": "America",
+  "msg.storage.ui.timezone.continent.antarctica": "Antarctica",
+  "msg.storage.ui.timezone.continent.arctic": "Arctic",
+  "msg.storage.ui.timezone.continent.asia": "Asia",
+  "msg.storage.ui.timezone.continent.atlantic": "Atlantic",
+  "msg.storage.ui.timezone.continent.australia": "Australia",
+  "msg.storage.ui.timezone.continent.brazil": "Brazil",
+  "msg.storage.ui.timezone.continent.canada": "Canada",
+  "msg.storage.ui.timezone.continent.chile": "Chile",
+  "msg.storage.ui.timezone.continent.cuba": "Cuba",
+  "msg.storage.ui.timezone.continent.etc": "Etc",
+  "msg.storage.ui.timezone.continent.europe": "Europe",
+  "msg.storage.ui.timezone.continent.indian": "Indian",
+  "msg.storage.ui.timezone.continent.mexico": "Mexico",
+  "msg.storage.ui.timezone.continent.pacific": "Pacific",
+  "msg.storage.ui.timezone.continent.us": "US",
+
 
 
   "msg.log.th.status": "Status",
