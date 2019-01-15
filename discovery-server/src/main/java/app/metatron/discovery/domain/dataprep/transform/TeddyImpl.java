@@ -350,7 +350,7 @@ public class TeddyImpl {
   }
 
   // Get header and settype rule strings via inspecting 100 rows.
-  public List<String> getAutoTypingRules(DataFrame df) throws Exception {
+  public List<String> getAutoTypingRules(DataFrame df) throws TeddyException {
     String[] ruleStrings = new String[3];
     List<String> setTypeRules = new ArrayList<>();
     List<String> columnNames = new ArrayList<>(df.colNames);

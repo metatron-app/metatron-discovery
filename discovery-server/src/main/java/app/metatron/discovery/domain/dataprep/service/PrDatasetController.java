@@ -501,7 +501,7 @@ public class PrDatasetController {
                                                           @RequestParam(value = "hasFields", required = false, defaultValue = "N") String hasFieldsFlag) {
         Map<String, Object> response;
         try {
-            response = this.datasetFileService.fileCheckSheet3( fileKey, size, delimiterCol );
+            response = this.datasetFileService.fileCheckSheet3( fileKey, size, delimiterCol, false );
         } catch (Exception e) {
             LOGGER.error("fileCheckSheet(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
@@ -514,10 +514,11 @@ public class PrDatasetController {
                                                           @RequestParam(value = "storedUri", required = false) String storedUri,
                                                           @RequestParam(value = "resultSize", required = false, defaultValue = "250") String size,
                                                           @RequestParam(value = "delimiterRow", required = false, defaultValue = "\n") String delimiterRow,
-                                                          @RequestParam(value = "delimiterCol", required = false, defaultValue = ",") String delimiterCol ) {
-        Map<String, Object> response = null;
+                                                          @RequestParam(value = "delimiterCol", required = false, defaultValue = ",") String delimiterCol,
+                                                          @RequestParam(value = "autoTyping", required = false, defaultValue = "true") String autoTyping) {
+        Map<String, Object> response;
         try {
-            response = this.datasetFileService.fileCheckSheet3( storedUri, size, delimiterCol );
+            response = this.datasetFileService.fileCheckSheet3( storedUri, size, delimiterCol, Boolean.parseBoolean(autoTyping) );
         } catch (Exception e) {
             LOGGER.error("fileCheckSheet(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
