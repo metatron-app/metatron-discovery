@@ -187,7 +187,7 @@ public class TeddyTest {
     static DataFrame apply_rule(DataFrame df, String ruleString) throws TeddyException {
         DataFrameService dataFrameService = new DataFrameService();
 
-        df = dataFrameService.applyRule_Test(df, ruleString, new ArrayList<>());
+        df = dataFrameService.applyRule(df, ruleString, null, 2, 60);
 
         return df;
     }
@@ -195,7 +195,7 @@ public class TeddyTest {
     static DataFrame apply_rule(DataFrame df, String ruleString, List<DataFrame> slaveDFs) throws TeddyException {
         DataFrameService dataFrameService = new DataFrameService();
 
-        df = dataFrameService.applyRule_Test(df, ruleString, slaveDFs);
+        df = dataFrameService.applyRule(df, ruleString, slaveDFs, 2, 60);
 
         return df;
     }
@@ -204,7 +204,7 @@ public class TeddyTest {
         DataFrameService dataFrameService = new DataFrameService();
 
         for (String ruleString : ruleStrings) {
-            df = dataFrameService.applyRule_Test(df, ruleString, new ArrayList<>());
+            df = dataFrameService.applyRule(df, ruleString, null, 2, 60);
         }
         return df;
     }
