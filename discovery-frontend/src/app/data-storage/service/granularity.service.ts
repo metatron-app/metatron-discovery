@@ -275,11 +275,11 @@ export class GranularityService {
       case Granularity.SECOND:  // YYYY-MM-DD HH:mm:ss
         return /^(\d{4}|\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
       case Granularity.MINUTE:  // YYYY-MM-DD HH:mm
-        return /^(\d{4}|\d{2})}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]$/;
+        return /^(\d{4}|\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]$/;
       case Granularity.HOUR:  // YYYY-MM-DD HH
         return /^(\d{4}|\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9])$/;
       case Granularity.DAY:  // YYYY-MM-DD
-        return /^(\d{4}|\d{2})}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
+        return /^(\d{4}|\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
       case Granularity.MONTH:  // YYYY-MM
         return /^(\d{4}|\d{2})-(0[1-9]|1[0-2])$/;
       case Granularity.YEAR:  // YYYY YY
