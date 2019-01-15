@@ -103,6 +103,9 @@ export class SelectComponent extends AbstractComponent implements OnInit {
   // 옵션이 왼쪽으로 길어지는 여부
   @Input() public isOptionToLeft:boolean = false;
 
+  // Select box width is longer when it's dataprep
+  @Input() public isDataprep: boolean = false;
+
   // 선택 아이템
   public selectedItem: any;
 

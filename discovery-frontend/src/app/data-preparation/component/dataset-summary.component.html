@@ -24,30 +24,22 @@
         <col width="120px">
         <col width="*">
       </colgroup>
-      <tbody><tr>
-        <th>{{'msg.comm.detail.created' | translate}}</th>
+      <tbody>
+      <tr *ngFor="let item of dsInformationList">
+        <th>{{item.label}}</th>
         <td>
-          {{dataset.createdTime | mdate:'YYYY-MM-DD'}}
-        </td>
-      </tr>
-      <tr>
-        <th>{{'msg.comm.detail.size' | translate}}</th>
-        <td>
-          <div class="ddp-data-det">
-            {{getTotalBytes(dataset.totalBytes)}}
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <th>{{'msg.comm.detail.rows' | translate}}</th>
-        <td>
-          {{dataset.totalLines}}
+          {{item.value}}
         </td>
       </tr>
       </tbody>
     </table>
     <div class="ddp-wrap-datapreview">
-      <div class="ddp-box-preview" grid-component></div>
+      <div class="ddp-box-preview" *ngIf="clearGrid">
+        <div class="ddp-ui-empty" >
+          {{'msg.dp.ui.no.preview' | translate}}
+        </div>
+      </div>
+      <div *ngIf="!clearGrid" class="ddp-box-preview" grid-component></div>
     </div>
   </div>
 </div>

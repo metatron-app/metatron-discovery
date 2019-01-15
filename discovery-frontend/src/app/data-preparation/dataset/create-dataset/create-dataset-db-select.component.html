@@ -24,25 +24,23 @@
     </div>
   </div>
   <!-- import -->
-  <div class="ddp-type-contents-in ddp-type">
+  <div class="ddp-type-contents-in">
     <!-- dp connection -->
     <div class="ddp-ui-dbconnect">
 
-      <div class="ddp-edit-setting ddp-type">
-        <div class="ddp-wrap-edit3 ddp-type ddp-mgt0">
-          <label class="ddp-label-type ddp-bold">{{'msg.storage.ui.db.connection' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option">
-            <!-- 선택시 ddp-selected 추가 -->
-            <component-select
-              [array]="connectionList"
-              [viewKey]="'name'"
-              [defaultIndex]="defaultSelectedIndex"
-              (onSelected)="selectConnection($event, true)">
-            </component-select>
-          </div>
-          <!-- //edit option -->
+      <div class="ddp-wrap-edit3 ddp-type">
+        <label class="ddp-label-type ddp-bold">{{'msg.storage.ui.db.connection' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <component-select
+            [array]="connectionList"
+            [viewKey]="'name'"
+            [defaultIndex]="defaultSelectedIndex"
+            (onSelected)="selectConnection($event, true)"
+            [isDataprep]="true">
+          </component-select>
         </div>
+        <!-- //edit option -->
       </div>
 
       <!-- edit -->
