@@ -166,322 +166,332 @@ public class PrepDatasetFileService {
         }
     }
 
-    public Map<String, Object> fileCheckSheet(String storedUri, String size, String delimiterRow, String delimiterCol) {
+    private Map<String, Object> getResponseMapFromExcel(File theFile, String extensionType, int limitRows) throws IOException {
+        Map<String, Object> responseMap = Maps.newHashMap();
+        List<String> sheetNames = Lists.newArrayList();
+        List<Object> grids = Lists.newArrayList();
+        Workbook workbook;
 
+        if ("xls".equals(extensionType)) {       // 97~2003
+            workbook = new HSSFWorkbook(new FileInputStream(theFile));
+        } else {   // 2007 ~
+            InputStream is = new FileInputStream(theFile);
+            workbook = StreamingReader.builder()
+                    .rowCacheSize(100)
+                    .bufferSize(4096)
+                    .open(is);
+        }
+
+        if (null == workbook) {
+            responseMap.put("sheetNames", sheetNames);
+            responseMap.put("grids", grids);
+            return responseMap;
+        }
+
+        for (Sheet sheet : workbook) {
+            int totalRows;
+
+            List<Map<String, String>> resultSet = Lists.newArrayList();
+            List<Field> fields = Lists.newArrayList();
+            int lastFieldPos = 0;
+            List<Map<String, String>> headers = Lists.newArrayList();
+
+            String sheetName = sheet.getSheetName();
+            sheetNames.add(sheetName);
+            totalRows = sheet.getLastRowNum()+1;
+
+            for (Row r : sheet) {
+                int not_emtpy=0;
+
+                if(r==null) {
+                    resultSet.add(Maps.newHashMap());
+                    continue;
+                }
+                if(limitRows<=r.getRowNum()) { break; }
+
+                Map<String,String> result = Maps.newHashMap();
+                for (Cell c : r) {
+                    int cellIdx = c.getColumnIndex();
+
+                    Field f = null;
+                    if(cellIdx<lastFieldPos) {
+                        f = fields.get(cellIdx);
+                    } else {
+                        while( lastFieldPos <= cellIdx ) {
+                            f = makeFieldFromCSV(lastFieldPos, prefixColumnName + String.valueOf(lastFieldPos + 1), ColumnType.STRING);
+                            fields.add(lastFieldPos, f);
+                            lastFieldPos++;
+                        }
+                    }
+
+                    if(c==null) {
+                        result.put(f.getName(), null);
+                    } else {
+                        String strCellValue = null;
+                        Object cellValue = ExcelProcessor.getCellValue(c);
+                        if(cellValue!=null) {
+                            strCellValue = String.valueOf(cellValue);
+                            if(false==strCellValue.isEmpty()) {
+                                not_emtpy++;
+                            }
+                        }
+                        result.put(f.getName(), strCellValue);
+                    }
+                }
+                if(0<not_emtpy) {
+                    resultSet.add(result);
+                }
+            }
+
+            Map<String, Object> grid = Maps.newHashMap();
+
+            int resultSetSize = resultSet.size();
+            int endIndex = resultSetSize - limitRows < 0 ? resultSetSize : limitRows;
+
+            grid.put("sheetName", sheetName);
+            grid.put("fields", fields);
+            grid.put("data", resultSet.subList(0, endIndex));
+            grid.put("totalRows", totalRows);
+            grids.add(grid);
+        }
+
+        responseMap.put("sheets", sheetNames);      // FIXME: Name? Index? Let's change into sheetNames for clearance.
+        responseMap.put("grids", grids);
+        return responseMap;
+    }
+
+    private Map<String, Object> getResponseMapFromJson(File file, int limitRows) throws IOException {
         Map<String, Object> responseMap = Maps.newHashMap();
         List<Object> grids = Lists.newArrayList();
-        try {
-            String extensionType = FilenameUtils.getExtension(storedUri);
-            int limitSize = Integer.parseInt(size);
-            long totalBytes = 0L;
 
+        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+        List<Map<String, String>> resultSet = Lists.newArrayList();
+        List<Field> fields = Lists.newArrayList();
+        List<String> keys = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        String line = "";
+        int rowNo = 0;
+
+        while((line = br.readLine())!=null && rowNo <1000) {
+            Map<String, String> row = mapper.readValue(line, new TypeReference<Map<String, String>>(){});
+            resultSet.add(row);
+
+            for(int i = 0; i < row.keySet().size(); i++){
+                String key = (String) row.keySet().toArray()[i];
+                if(!keys.contains(key)) {
+                    keys.add(i, key);
+                }
+            }
+            rowNo++;
+        }
+
+        for(int i = 0; i < keys.size(); i++) {
+            Field f = makeFieldFromCSV(i, keys.get(i), ColumnType.STRING);
+            fields.add(f);
+        }
+
+        Map<String, Object> grid = Maps.newHashMap();
+
+        int resultSetSize = resultSet.size();
+        int endIndex = resultSetSize - limitRows < 0 ? resultSetSize : limitRows;
+
+        grid.put("fields", fields);
+        grid.put("data", resultSet.subList(0, endIndex));
+        grid.put("totalRows", rowNo);
+        grids.add(grid);
+
+        responseMap.put("grids", grids);
+        return responseMap;
+    }
+
+    private Map<String, Object> getResponseMapFromCsv(File theFile, int limitRows, String delimiterCol) throws IOException {
+        Map<String, Object> responseMap = Maps.newHashMap();
+        List<Object> grids = Lists.newArrayList();
+
+        boolean hasFields;
+        int totalRows = 0;
+
+        List<Map<String, String>> resultSet = Lists.newArrayList();
+        List<Field> fields = Lists.newArrayList();
+        List<Map<String, String>> headers = Lists.newArrayList();
+
+        BufferedReader br = null;
+        String line;
+        String[] csvFields;
+        List<ColumnType> fieldsTypes = new ArrayList<>();
+        List<List<ColumnType>> gussedTypesByRows = Lists.newArrayList();
+        int maxColLength = 0;
+
+        br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+
+        //Check types of row number 0. If all column types are string, it might be filed name.
+        hasFields=true;
+        line = br.readLine();
+        csvFields = Util.csvLineSplitter(line, delimiterCol, "\"");
+        for(String str : csvFields) {
+            if(!getTypeFormString(str).equals(ColumnType.STRING)) {
+                hasFields = false;
+                break;
+            }
+        }
+        //Check type of row number 1 to 100.
+        int rowNo = 0;
+        while((line = br.readLine())!=null && rowNo <100) {
+            List<ColumnType> guessedTypes = new ArrayList<>();
+            String[] csvColumns = Util.csvLineSplitter(line, delimiterCol, "\"");
+            maxColLength = maxColLength < csvColumns.length ? csvColumns.length : maxColLength;
+
+            for (String str : csvColumns) {
+                guessedTypes.add(getTypeFormString(str));
+            }
+
+            gussedTypesByRows.add(guessedTypes);
+            rowNo++;
+        }
+
+        ColumnType[] columnTypes = {ColumnType.BOOLEAN, ColumnType.LONG, ColumnType.DOUBLE, ColumnType.TIMESTAMP, ColumnType.STRING};
+
+        for(int i = 0; i < maxColLength; i++) {
+            int[] typeCount = new int[5];
+
+            for(List<ColumnType> types : gussedTypesByRows) {
+
+                if (i <types.size() && types.get(i) != null) {
+                    ColumnType type = types.get(i) != null ? types.get(i) : ColumnType.STRING;
+                    switch (type) {
+                        case BOOLEAN:
+                            typeCount[0]++;
+                            break;
+                        case LONG:
+                            typeCount[1]++;
+                            break;
+                        case DOUBLE:
+                            typeCount[2]++;
+                            break;
+                        case TIMESTAMP:
+                            typeCount[3]++;
+                            break;
+                        default:
+                            typeCount[4]++;
+                    }
+                }
+            }
+
+            int j = 1;
+            int index=0;
+            while(j < 5) {
+                index = typeCount[index] > typeCount[j] ? index : j;
+                j++;
+            }
+
+            fieldsTypes.add(columnTypes[index]);
+        }
+
+        maxColLength =0;
+        if(hasFields) {
+            //포인터를 1번 라인에 맞춰줌.
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+
+            hasFields = false;
+            for(ColumnType columnType : fieldsTypes) {
+                if(columnType != ColumnType.STRING) {
+                    br.readLine();
+                    maxColLength = csvFields.length;
+                    hasFields=true;
+                    break;
+                }
+            }
+
+        } else {
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+        }
+
+        while ((line = br.readLine()) != null) {
+            if(limitRows <= totalRows) {
+                break;
+            }
+            String[] cols = Util.csvLineSplitter(line, delimiterCol, "\"");
+
+            if(!hasFields && maxColLength<cols.length) {
+                maxColLength = cols.length;
+                csvFields = new String[cols.length];
+                for(int i=0; i<cols.length; i++){
+                    csvFields[i]=prefixColumnName+String.valueOf(i+1);
+                }
+            }
+            Map<String,String> result = Maps.newTreeMap();
+            for(int colIdx=0;colIdx<cols.length;colIdx++) {
+                result.put(csvFields[colIdx],cols[colIdx]);
+            }
+            resultSet.add(result);
+
+            totalRows++;
+        }
+
+        for (int colIdx = 0; colIdx < maxColLength; colIdx++) {
+            fields.add(makeFieldFromCSV(colIdx, csvFields[colIdx], fieldsTypes.get(colIdx)));
+        }
+
+        Map<String, Object> grid = Maps.newHashMap();
+
+        int resultSetSize = resultSet.size();
+        int endIndex = resultSetSize - limitRows < 0 ? resultSetSize : limitRows;
+
+        grid.put("fields", fields);
+        grid.put("data", resultSet.subList(0, endIndex));
+        grid.put("totalRows", totalRows);
+        grids.add(grid);
+
+        responseMap.put("grids", grids);
+        return responseMap;
+    }
+
+    /*
+     * Response contains:
+     *   success    FIXME: do not use   -> 200 or 500
+     *   message    FIXME: do not use   -> error message in the exception
+     *   sheets     List<String> sheet names    (Excel only)
+     *   grid[]
+     *     headers  FIXME: do not use   -> empty[] (CSV, Excel) or null (JSON)
+     *     field[]  FIXME: only name & type is needed
+     *       column name
+     *       column type
+     *       is dimension?
+     *       column#
+     *     data     List<Map<String, String>
+     *     totalRows    FIXME: is this needed?
+     *     sheetName    (Excel only)
+     *   totalBytes     FIXME: is this needed?
+     */
+    public Map<String, Object> fileCheckSheet3(String storedUri, String size, String delimiterCol) {
+
+        Map<String, Object> responseMap = Maps.newHashMap();
+        String extensionType = FilenameUtils.getExtension(storedUri);
+        int limitRows = Integer.parseInt(size);
+
+        try {
             File theFile = new File(new URI(storedUri));
             if(false==theFile.exists()) {
-                responseMap.put("success", false);
-                responseMap.put("message", "Invalid filekey.");
                 throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, "No file : " + storedUri);
-            } else {
-                totalBytes = theFile.length();
-
-
-                if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
-                    Workbook workbook;
-                    if ("xls".equals(extensionType)) {       // 97~2003
-                        workbook = new HSSFWorkbook(new FileInputStream(theFile));
-                    } else {   // 2007 ~
-                        InputStream is = new FileInputStream(theFile);
-                        workbook = StreamingReader.builder()
-                                .rowCacheSize(100)
-                                .bufferSize(4096)
-                                .open(is);
-                    }
-
-                    if (null != workbook) {
-                        List<String> sheets = Lists.newArrayList();
-
-                        int sheetsCount = workbook.getNumberOfSheets();
-                        for (Sheet sheet : workbook) {
-                            boolean hasFields;
-                            int totalRows = 0;
-
-                            List<Map<String, String>> resultSet = Lists.newArrayList();
-                            List<Field> fields = Lists.newArrayList();
-                            int lastFieldPos = 0;
-                            List<Map<String, String>> headers = Lists.newArrayList();
-
-                            String sheetName = sheet.getSheetName();
-                            sheets.add(sheetName);
-                            totalRows = sheet.getLastRowNum()+1;
-
-                            for (Row r : sheet) {
-                                int not_emtpy=0;
-
-                                if(r==null) {
-                                    resultSet.add(Maps.newHashMap());
-                                    continue;
-                                }
-                                if(limitSize<=r.getRowNum()) { break; }
-
-                                int not_empty = 0;
-                                Map<String,String> result = Maps.newHashMap();
-                                for (Cell c : r) {
-                                    int cellIdx = c.getColumnIndex();
-
-                                    Field f = null;
-                                    if(cellIdx<lastFieldPos) {
-                                        f = fields.get(cellIdx);
-                                    } else {
-                                        while( lastFieldPos <= cellIdx ) {
-                                            f = makeFieldFromCSV(lastFieldPos, prefixColumnName + String.valueOf(lastFieldPos + 1), ColumnType.STRING);
-                                            fields.add(lastFieldPos, f);
-                                            lastFieldPos++;
-                                        }
-                                    }
-
-                                    if(c==null) {
-                                        result.put(f.getName(), null);
-                                    } else {
-                                        String strCellValue = null;
-                                        Object cellValue = ExcelProcessor.getCellValue(c);
-                                        if(cellValue!=null) {
-                                            strCellValue = String.valueOf(cellValue);
-                                            if(false==strCellValue.isEmpty()) {
-                                                not_emtpy++;
-                                            }
-                                        }
-                                        result.put(f.getName(), strCellValue);
-                                    }
-                                }
-                                if(0<not_emtpy) {
-                                    resultSet.add(result);
-                                }
-                            }
-
-                            Map<String, Object> grid = Maps.newHashMap();
-
-                            grid.put("sheetName", sheetName);
-                            grid.put("headers", headers);
-                            grid.put("fields", fields);
-
-                            int resultSetSize = resultSet.size();
-                            int endIndex = resultSetSize - limitSize < 0 ? resultSetSize : limitSize;
-
-                            grid.put("data", resultSet.subList(0, endIndex));
-                            grid.put("totalRows", totalRows);
-
-                            grids.add(grid);
-                        }
-
-                        responseMap.put("sheets", sheets);
-                    }
-
-                } else if ("json".equals(extensionType)) {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-                    List<Map<String, String>> resultSet = Lists.newArrayList();
-                    List<Field> fields = Lists.newArrayList();
-                    List<String> keys = new ArrayList<>();
-                    ObjectMapper mapper = new ObjectMapper();
-                    String line = "";
-                    int rowNo = 0;
-
-                    while((line = br.readLine())!=null && rowNo <1000) {
-                        Map<String, String> row = mapper.readValue(line, new TypeReference<Map<String, String>>(){});
-                        resultSet.add(row);
-
-                        for(int i = 0; i < row.keySet().size(); i++){
-                            String key = (String) row.keySet().toArray()[i];
-                            if(!keys.contains(key)) {
-                                keys.add(i, key);
-                            }
-                        }
-
-                        rowNo++;
-                    }
-
-                    for(int i = 0; i < keys.size(); i++) {
-                        Field f = makeFieldFromCSV(i, keys.get(i), ColumnType.STRING);
-                        fields.add(f);
-                    }
-
-                    Map<String, Object> grid = Maps.newHashMap();
-
-                    grid.put("headers", null);
-                    grid.put("fields", fields);
-
-                    int resultSetSize = resultSet.size();
-                    int endIndex = resultSetSize - limitSize < 0 ? resultSetSize : limitSize;
-
-                    grid.put("data", resultSet.subList(0, endIndex));
-                    grid.put("totalRows", rowNo);
-
-                    grids.add(grid);
-
-            } else if ( "csv".equals(extensionType) ||
-                        "txt".equals(extensionType) ||
-                        true // 기타 확장자는 csv로 간주
-                    ) {
-                    boolean hasFields;
-                    int totalRows = 0;
-
-                    List<Map<String, String>> resultSet = Lists.newArrayList();
-                    List<Field> fields = Lists.newArrayList();
-                    List<Map<String, String>> headers = Lists.newArrayList();
-
-                    BufferedReader br = null;
-                    String line;
-                    String[] csvFields;
-                    List<ColumnType> fieldsTypes = new ArrayList<>();
-                    List<List<ColumnType>> gussedTypesByRows = Lists.newArrayList();
-                    int maxColLength = 0;
-
-                    try {
-                        br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-
-                        //Check types of row number 0. If all column types are string, it might be filed name.
-                        hasFields=true;
-                        line = br.readLine();
-                        csvFields = Util.csvLineSplitter(line, delimiterCol, "\"");
-                        for(String str : csvFields) {
-                            if(!getTypeFormString(str).equals(ColumnType.STRING)) {
-                                hasFields = false;
-                                break;
-                            }
-                        }
-                        //Check type of row number 1 to 100.
-                        int rowNo = 0;
-                        while((line = br.readLine())!=null && rowNo <100) {
-                            List<ColumnType> guessedTypes = new ArrayList<>();
-                            String[] csvColumns = Util.csvLineSplitter(line, delimiterCol, "\"");
-                            maxColLength = maxColLength < csvColumns.length ? csvColumns.length : maxColLength;
-
-                            for (String str : csvColumns) {
-                                guessedTypes.add(getTypeFormString(str));
-                            }
-
-                            gussedTypesByRows.add(guessedTypes);
-                            rowNo++;
-                        }
-
-                        ColumnType[] columnTypes = {ColumnType.BOOLEAN, ColumnType.LONG, ColumnType.DOUBLE, ColumnType.TIMESTAMP, ColumnType.STRING};
-
-                        for(int i = 0; i < maxColLength; i++) {
-                            int[] typeCount = new int[5];
-
-                            for(List<ColumnType> types : gussedTypesByRows) {
-
-                                if (i <types.size() && types.get(i) != null) {
-                                    ColumnType type = types.get(i) != null ? types.get(i) : ColumnType.STRING;
-                                    switch (type) {
-                                        case BOOLEAN:
-                                            typeCount[0]++;
-                                            break;
-                                        case LONG:
-                                            typeCount[1]++;
-                                            break;
-                                        case DOUBLE:
-                                            typeCount[2]++;
-                                            break;
-                                        case TIMESTAMP:
-                                            typeCount[3]++;
-                                            break;
-                                        default:
-                                            typeCount[4]++;
-                                    }
-                                }
-                            }
-
-                            int j = 1;
-                            int index=0;
-                            while(j < 5) {
-                                index = typeCount[index] > typeCount[j] ? index : j;
-                                j++;
-                            }
-
-                            fieldsTypes.add(columnTypes[index]);
-                        }
-
-                        maxColLength =0;
-                        if(hasFields) {
-                            //포인터를 1번 라인에 맞춰줌.
-                            br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-
-                            hasFields = false;
-                            for(ColumnType columnType : fieldsTypes) {
-                                if(columnType != ColumnType.STRING) {
-                                    br.readLine();
-                                    maxColLength = csvFields.length;
-                                    hasFields=true;
-                                    break;
-                                }
-                            }
-
-                        } else {
-                            br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-                        }
-
-                        while ((line = br.readLine()) != null) {
-                            if(limitSize <= totalRows) {
-                                break;
-                            }
-                            String[] cols = Util.csvLineSplitter(line, delimiterCol, "\"");
-
-                            if(!hasFields && maxColLength<cols.length) {
-                                maxColLength = cols.length;
-                                csvFields = new String[cols.length];
-                                for(int i=0; i<cols.length; i++){
-                                    csvFields[i]=prefixColumnName+String.valueOf(i+1);
-                                }
-                            }
-                            Map<String,String> result = Maps.newTreeMap();
-                            for(int colIdx=0;colIdx<cols.length;colIdx++) {
-                                result.put(csvFields[colIdx],cols[colIdx]);
-                            }
-                            resultSet.add(result);
-
-                            totalRows++;
-                        }
-
-                        for (int colIdx = 0; colIdx < maxColLength; colIdx++) {
-                            fields.add(makeFieldFromCSV(colIdx, csvFields[colIdx], fieldsTypes.get(colIdx)));
-                        }
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        if (br != null) {
-                            try {
-                                br.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-
-                    Map<String, Object> grid = Maps.newHashMap();
-
-                    grid.put("headers", headers);
-                    grid.put("fields", fields);
-
-                    int resultSetSize = resultSet.size();
-                    int endIndex = resultSetSize - limitSize < 0 ? resultSetSize : limitSize;
-
-                    grid.put("data", resultSet.subList(0, endIndex));
-                    grid.put("totalRows", totalRows);
-
-                    grids.add(grid);
-                }
-
-                responseMap.put("grids", grids);
-                responseMap.put("totalBytes", totalBytes);
-                responseMap.put("success", true);
             }
-        } catch (Exception e) {
-            LOGGER.error("Failed to upload file : {}", e.getMessage());
-            responseMap.put("success", false);
-            responseMap.put("message", e.getClass().getName());
+
+            switch (extensionType) {
+                case "xlsx":
+                case "xls":
+                    responseMap = getResponseMapFromExcel(theFile, extensionType, limitRows);
+                    break;
+                case "json":
+                    responseMap = getResponseMapFromJson(theFile, limitRows);
+                    break;
+                default:
+                    responseMap = getResponseMapFromCsv(theFile, limitRows, delimiterCol);
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR, storedUri);
         }
 
         return responseMap;

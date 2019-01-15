@@ -441,7 +441,7 @@ public class PrDatasetController {
                                                           @RequestParam(value = "delimiterCol", required = false, defaultValue = ",") String delimiterCol ) {
         Map<String, Object> response = null;
         try {
-            response = this.datasetFileService.fileCheckSheet( storedUri, size, delimiterRow, delimiterCol );
+            response = this.datasetFileService.fileCheckSheet3( storedUri, size, delimiterCol );
         } catch (Exception e) {
             LOGGER.error("fileCheckSheet(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
