@@ -477,7 +477,7 @@ public class PrepTransformService {
       columnNames.clear();
 
       Header header = new Header(1L);
-      DataFrame newDf = dataFrameService.applyRule(df, ruleString, new ArrayList<>());
+      DataFrame newDf = dataFrameService.applyRule(df, ruleString);
 
       columnNames.addAll(newDf.colNames);
     }

@@ -152,7 +152,7 @@ public class PrepCsvUtil {
     // get colNames
     CSVParser parser;
     try {
-      parser = CSVParser.parse(reader, CSVFormat.DEFAULT.withDelimiter(delim));  // \", "" both become " by default
+      parser = CSVParser.parse(reader, CSVFormat.DEFAULT.withDelimiter(delim).withEscape('\\'));  // \", "" both become " by default
     } catch (IOException e) {
       e.printStackTrace();
       throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_CSV,

@@ -187,10 +187,12 @@ public class TeddyImpl {
   }
 
   private DataFrame apply(DataFrame df, String ruleString) throws TeddyException {
-    List<DataFrame> slaveDfs = new ArrayList<>();
+    List<DataFrame> slaveDfs = null;
 
     List<String> slaveDsIds = DataFrameService.getSlaveDsIds(ruleString);
     if (slaveDsIds != null) {
+      slaveDfs = new ArrayList<>();
+
       for (String slaveDsId : slaveDsIds) {
         Revision slaveRev = getCurRev(slaveDsId);
         slaveDfs.add(slaveRev.get(-1));

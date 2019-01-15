@@ -42,7 +42,7 @@ public class UnstructuredTest extends  TeddyTest{
   static private DataFrame prepare_unstructured(DataFrame unstructured) throws TeddyException {
     List<String> ruleStrings = new ArrayList<>();
     ruleStrings.add("header rownum: 1");
-    ruleStrings.add("settype col: GM_본사와_한국_정부 type: string");
+    ruleStrings.add("settype col: `GM 본사와 한국 정부` type: string");
     return apply_rules(unstructured, ruleStrings);
   }
 
