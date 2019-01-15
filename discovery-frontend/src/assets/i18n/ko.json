@@ -284,7 +284,7 @@
   "msg.comm.btn.search": "검색",
   "msg.comm.btn.new": "새로만들기",
 
-  "msg.lnb.btn.manual" : "매뉴",
+  "msg.lnb.btn.manual" : "매뉴얼",
   "msg.lnb.btn.manual.web" : "홈페이지",
   "msg.lnb.btn.workspace-list" : "워크스페이스 목록 >>",
   "msg.lnb.label.set-favorite-workspace" : "즐겨찾는 공용 워크스페이스 설정",
