@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -32,8 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
-
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 
 import static org.junit.Assert.assertEquals;
 
