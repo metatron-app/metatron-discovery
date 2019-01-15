@@ -388,7 +388,7 @@ public class DataFrame implements Serializable, Transformable {
     setByGrid(result.grid, result.colNames, result.maxColCnt);
   }
 
-  public void setByGridwithJson(PrepJsonParseResult result) {
+  public void setByGridWithJson(PrepJsonParseResult result) {
     setByGrid(result.grid, result.colNames, result.maxColCnt);
   }
 

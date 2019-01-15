@@ -21,8 +21,12 @@ import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
-import app.metatron.discovery.domain.dataprep.teddy.*;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
+import app.metatron.discovery.domain.dataprep.teddy.Util;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.transform.TeddyImpl;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
@@ -43,7 +47,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.usermodel.Row;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -590,44 +593,45 @@ public class PrepDatasetFileService {
         return responseMap;
     }
 
-    private Map<String, Object> getResponseMapFromJson(File file, int limitRows) throws IOException {
+    private Map<String, Object> getResponseMapFromJson(String storedUri, int limitRows, boolean autoTyping) throws TeddyException {
         Map<String, Object> responseMap = Maps.newHashMap();
         List<Object> grids = Lists.newArrayList();
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+        Map<String, Object> grid = Maps.newHashMap();
         List<Map<String, String>> resultSet = Lists.newArrayList();
         List<Field> fields = Lists.newArrayList();
-        List<String> keys = new ArrayList<>();
-        ObjectMapper mapper = new ObjectMapper();
-        String line = "";
-        int rowNo = 0;
 
-        while((line = br.readLine())!=null && rowNo <1000) {
-            Map<String, String> row = mapper.readValue(line, new TypeReference<Map<String, String>>(){});
-            resultSet.add(row);
+        DataFrame df = new DataFrame("df_for_preview");
+        df.setByGridWithJson(PrepJsonUtil.parseJSON(storedUri, ",", limitRows, hdfsService.getConf()));
 
-            for(int i = 0; i < row.keySet().size(); i++){
-                String key = (String) row.keySet().toArray()[i];
-                if(!keys.contains(key)) {
-                    keys.add(i, key);
-                }
+        if (autoTyping) {
+            List<String> ruleStrings = teddyImpl.getAutoTypingRules(df);
+            for (String ruleString : ruleStrings) {
+                df = dataFrameService.applyRule(df, ruleString);
             }
-            rowNo++;
         }
 
-        for(int i = 0; i < keys.size(); i++) {
-            Field f = makeFieldFromCSV(i, keys.get(i), ColumnType.STRING);
-            fields.add(f);
+        for (int colno = 0; colno < df.getColCnt(); colno++) {
+            fields.add(makeFieldFromCSV(colno, df.getColName(colno), df.getColType(colno)));
         }
 
-        Map<String, Object> grid = Maps.newHashMap();
+        limitRows = Math.min(limitRows, df.rows.size());
+        for (int rowno = 0; rowno < limitRows; rowno++) {
+            app.metatron.discovery.domain.dataprep.teddy.Row row = df.rows.get(rowno);
+            Map<String, String> resultRow = Maps.newHashMap();
 
-        int resultSetSize = resultSet.size();
-        int endIndex = resultSetSize - limitRows < 0 ? resultSetSize : limitRows;
+            for (int colno = 0; colno < df.getColCnt(); colno++) {
+                Object obj = df.rows.get(rowno).get(colno);
+                if (obj == null) {
+                    continue;
+                }
+                resultRow.put(df.getColName(colno), obj.toString());
+            }
+            resultSet.add(resultRow);
+        }
 
         grid.put("fields", fields);
-        grid.put("data", resultSet.subList(0, endIndex));
-        grid.put("totalRows", rowNo);
+        grid.put("data", resultSet);
+        grid.put("totalRows", df.rows.size());
         grids.add(grid);
 
         responseMap.put("grids", grids);
@@ -710,7 +714,7 @@ public class PrepDatasetFileService {
                     responseMap = getResponseMapFromExcel(theFile, extensionType, limitRows);
                     break;
                 case "json":
-                    responseMap = getResponseMapFromJson(theFile, limitRows);
+                    responseMap = getResponseMapFromJson(storedUri, limitRows, autoTyping);
                     break;
                 default:
                     responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, autoTyping);
