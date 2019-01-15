@@ -123,6 +123,19 @@
 <!-- 컨텐츠 영역 -->
 <div *ngIf="isShowFilter" class="ddp-contents-divide ddp-type" >
   <div class="ddp-ui-divide" >
+    <!-- 검색 영여 -->
+    <div class="ddp-search-value" [class.ddp-search]="isSearchFocus" (blur)="isSearchFocus = false;">
+      <a (click)="openUpdateFilterPopupForSearch()" href="javascript:" class="ddp-btn-line">Search all</a>
+      <div class="ddp-data-value">
+        <em class="icon-search"></em>
+        <input [(ngModel)]="searchText"
+               (focus)="isSearchFocus = true"
+               (keyup)="setCandidatePage(1, true)"
+               type="text" placeholder="Search for values" >
+        <!--<em class="icon-warning"></em>-->
+      </div>
+    </div>
+    <!-- // 검색 영여 -->
     <!-- 목록 영역 -->
     <ul class="ddp-list-checktype ddp-list-padd" *ngIf="isMultiSelector" >
       <li *ngIf="filter.ui.importanceType === 'general'">
@@ -166,17 +179,30 @@
       </li>
     </ul>
     <!-- // 목록 영역 -->
-    <!-- 페이징 영역 -->
-    <div class="ddp-ui-page ddp-center">
-      <a (click)="setCandidatePage(currentPage-1)"
-         [class.ddp-disabled]="1 === currentPage"
-         href="javascript:" class="ddp-btn-prev"></a>
-      <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
-      <a (click)="setCandidatePage(currentPage+1)"
-         [class.ddp-disabled]="lastPage === currentPage"
-         href="javascript:" class="ddp-btn-next"></a>
+    <!-- 목록 제한 및 페이징 영역 -->
+    <div class="ddp-ui-values">
+      <div class="ddp-data-values">
+        <label class="ddp-label-check-value">
+          <input (click)="filter.showSelectedItem = !filter.showSelectedItem;setCandidatePage(1, true);"
+                 [checked]="filter.showSelectedItem"
+                 type="checkbox" >
+          <i></i>
+        </label>
+        {{filter.valueList.length}} values selected
+      </div>
+      <!-- 페이징 영역 -->
+      <div class="ddp-ui-page">
+        <a (click)="setCandidatePage(currentPage-1)"
+           [class.ddp-disabled]="1 === currentPage"
+           href="javascript:" class="ddp-btn-prev"></a>
+        <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
+        <a (click)="setCandidatePage(currentPage+1)"
+           [class.ddp-disabled]="lastPage === currentPage"
+           href="javascript:" class="ddp-btn-next"></a>
+      </div>
+      <!-- // 페이징 영역 -->
     </div>
-    <!-- // 페이징 영역 -->
+    <!-- // 목록 제한 및 페이징 영역 -->
   </div>
 </div>
 <!-- // 컨텐츠 영역 -->

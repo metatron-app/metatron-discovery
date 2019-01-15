@@ -135,6 +135,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
   public orgBoardInfo: Dashboard;
 
+  public openIndexFilterPanel:number = 0;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Input Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

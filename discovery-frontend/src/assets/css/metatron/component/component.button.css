@@ -195,7 +195,7 @@ a.ddp-btn-popup-close:hover {background-position:left -17px;}
     box button
 **************************************************************/
 .ddp-list-buttons {display:inline-block; border-radius:2px; overflow:hidden;}
-.ddp-list-buttons li {position:relative; float:left; width:112px; padding:8px 0; color:#4c515a; font-size:12px; text-align:center; border-left:1px solid #fff; background-color:#e7e7ea; cursor:pointer; box-sizing:border-box;}
+.ddp-list-buttons li {position:relative; float:left; min-width:112px; padding:8px 10px; color:#4c515a; font-size:12px; text-align:center; border-left:1px solid #fff; background-color:#e7e7ea; cursor:pointer; box-sizing:border-box;}
 .ddp-list-buttons li.ddp-selected:before {position:relative; top:-2px; display:inline-block; margin-right:4px; width:14px; height:10px; background:url(../../../images/icon_select2.png) no-repeat; vertical-align: middle; content:'';}
 .ddp-list-buttons li:hover {display:inline-block; background-color:#dbdce1;}
 .ddp-list-buttons li.ddp-selected {color:#fff; background-color:#4c515a;}
