@@ -187,8 +187,7 @@ export class GranularityService {
    * @private
    */
   private _getConvertedDateTime(dateTime: string, granularity: GranularityObject): any {
-    // if granularity type YEAR or YEAR type dateTime
-    return (granularity.value === Granularity.YEAR || (/^(\d{4}|\d{2})$/).test(dateTime)) ? new Date(dateTime) : dateTime;
+    return ((/^(\d{4}|\d{2})$/).test(dateTime)) ? new Date(dateTime) : dateTime;
   }
 
   /**
