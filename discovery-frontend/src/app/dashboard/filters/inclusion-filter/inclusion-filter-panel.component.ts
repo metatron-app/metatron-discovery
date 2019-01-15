@@ -27,16 +27,16 @@ import {
   InclusionFilter,
   InclusionSelectorType, InclusionSortBy
 } from '../../../domain/workbook/configurations/filter/inclusion-filter';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { SubscribeArg } from '../../../common/domain/subscribe-arg';
-import { Filter } from '../../../domain/workbook/configurations/filter/filter';
-import { PopupService } from '../../../common/service/popup.service';
-import { AbstractFilterPanelComponent } from '../abstract-filter-panel.component';
-import { Field } from '../../../domain/datasource/datasource';
-import { StringUtil } from '../../../common/util/string.util';
-import { DIRECTION } from '../../../domain/workbook/configurations/sort';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import { FilterWidget } from '../../../domain/dashboard/widget/filter-widget';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {SubscribeArg} from '../../../common/domain/subscribe-arg';
+import {Filter} from '../../../domain/workbook/configurations/filter/filter';
+import {PopupService} from '../../../common/service/popup.service';
+import {AbstractFilterPanelComponent} from '../abstract-filter-panel.component';
+import {Field} from '../../../domain/datasource/datasource';
+import {StringUtil} from '../../../common/util/string.util';
+import {DIRECTION} from '../../../domain/workbook/configurations/sort';
+import {EventBroadcaster} from '../../../common/event/event.broadcaster';
+import {FilterWidget} from '../../../domain/dashboard/widget/filter-widget';
 
 @Component({
   selector: 'inclusion-filter-panel',
@@ -71,8 +71,8 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
   // 검색 관련
   public searchText = '';
 
-  // 복수 선택 여부
-  public isMultiSelector: boolean = false;
+  public isMultiSelector: boolean = false;    // 복수 선택 여부
+  public isSearchFocus: boolean = false;       // 검색바 포커스 여부
 
   @Input('filter')
   public originalFilter: InclusionFilter;
@@ -276,7 +276,6 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
     this.updateFilterEvent.emit(this.filter);
   } // function - sortCandidateValues
 
-
   /**
    * candidate list 페이징
    * @param {number} page
@@ -303,6 +302,10 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
     if (this._candidateList && 0 < this._candidateList.length) {
 
       let pagedList: Candidate[] = _.cloneDeep(this._candidateList);
+
+      if( this.filter.showSelectedItem ) {
+        pagedList = pagedList.filter(item => -1 < this.filter.valueList.findIndex( val => val === item.name ) );
+      }
 
       // 검색 적용
       if ('' !== this.searchText) {
@@ -333,6 +336,15 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
     this.deleteFilterEvent.emit(filter);
   } // function - deleteFilter
 
+  /**
+   * 검색을 위한 펄터 팝업 오픈
+   */
+  public openUpdateFilterPopupForSearch() {
+    this.isSearchFocus = false;
+    this.originalFilter['tempSearchText'] = this.searchText;
+    this.openUpdateFilterPopup(this.originalFilter);
+  } // function - openUpdateFilterPopupForSearch
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -340,6 +352,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /**
    * 컴포넌트 초기 설정
    * @param {InclusionFilter} filter
@@ -349,7 +362,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
     const currFilter: InclusionFilter = _.cloneDeep(filter);
 
     // Selector 설정
-    if( currFilter.valueList && 1 < currFilter.valueList.length ) {
+    if (currFilter.valueList && 1 < currFilter.valueList.length) {
       this.isMultiSelector = true;
     } else {
       this.isMultiSelector = (currFilter.selector === InclusionSelectorType.MULTI_COMBO || currFilter.selector === InclusionSelectorType.MULTI_LIST);
