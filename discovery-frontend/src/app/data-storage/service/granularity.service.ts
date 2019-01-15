@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { TranslateService } from 'ng2-translate';
+import {Injectable, Injector} from '@angular/core';
+import {TranslateService} from 'ng2-translate';
+import {FieldFormatType, FieldFormatUnit} from "../../domain/datasource/datasource";
+
 declare let moment: any;
 
 @Injectable()
@@ -76,10 +78,9 @@ export class GranularityService {
    * @param {GranularityObject} granularity
    * @returns {string}
    */
-  public getInterval(dateTime: string, granularity: GranularityObject): string {
+  public getInterval(dateTime: string, granularity: GranularityObject, type: FieldFormatType, unit: FieldFormatUnit): string {
     // if dateTime is number, trans to string
-    typeof dateTime ===  'number' && (dateTime = dateTime + '');
-    return moment(this._getConvertedDateTime(dateTime, granularity)).format(this._getDateTimeFormat(granularity));
+    return moment(this._getConvertedDateTime(dateTime, type, unit)).format(this._getDateTimeFormat(granularity));
   }
 
   /**
@@ -87,32 +88,34 @@ export class GranularityService {
    * @param {string} startData
    * @param {string} endData
    * @param {GranularityObject} granularity
+   * @param {FieldFormatType} type
+   * @param {FieldFormatUnit} unit
    * @returns {GranularityIntervalInfo}
    */
-  public getInitializedInterval(startData: string, endData: string, granularity: GranularityObject): GranularityIntervalInfo {
+  public getInitializedInterval(startData: string, endData: string, granularity: GranularityObject, type: FieldFormatType, unit: FieldFormatUnit): GranularityIntervalInfo {
     // init
     const result: GranularityIntervalInfo = {
-      startInterval: this.getInterval(startData, granularity),
-      endInterval: this.getInterval(endData, granularity),
+      startInterval: this.getInterval(startData, granularity, type, unit),
+      endInterval: this.getInterval(endData, granularity, type, unit),
       intervalValid: true,
       intervalValidMessage: '',
       granularityUnit: 0
     };
     // check interval
-    if (this._getGranularityUnit(result.startInterval, result.endInterval, granularity) < 9800) {
+    if (this._getGranularityUnit(result.startInterval, result.endInterval, granularity, type, unit) < 9800) {
       // reduce 100 start interval
-      result.startInterval = this._getIntervalReducedUnit(result.startInterval, 100, granularity);
+      result.startInterval = this._getIntervalReducedUnit(result.startInterval, 100, granularity, type, unit);
       // add 100 end interval
-      result.endInterval = this._getIntervalAddedUnit(result.endInterval, 100, granularity);
-    } else if (this._getGranularityUnit(result.startInterval, result.endInterval, granularity) < 9900) {
+      result.endInterval = this._getIntervalAddedUnit(result.endInterval, 100, granularity, type, unit);
+    } else if (this._getGranularityUnit(result.startInterval, result.endInterval, granularity, type, unit) < 9900) {
       // reduce 100 start interval
-      result.startInterval = this._getIntervalReducedUnit(result.startInterval, 100, granularity);
+      result.startInterval = this._getIntervalReducedUnit(result.startInterval, 100, granularity, type, unit);
     } else {  // if invalid
       result.intervalValid = false;
       result.intervalValidMessage = this._translateService.instant('msg.storage.ui.intervals.invalid.unit');
     }
     // set granularity unit
-    result.granularityUnit = this._getGranularityUnit(result.startInterval, result.endInterval, granularity);
+    result.granularityUnit = this._getGranularityUnit(result.startInterval, result.endInterval, granularity, type, unit);
     return result;
   }
 
@@ -121,9 +124,11 @@ export class GranularityService {
    * @param {string} startInterval
    * @param {string} endInterval
    * @param {GranularityObject} granularity
+   * @param {FieldFormatType} type
+   * @param {FieldFormatUnit} unit
    * @returns {GranularityIntervalInfo}
    */
-  public getIntervalValidationInfo(startInterval: string, endInterval: string, granularity: GranularityObject): GranularityIntervalInfo {
+  public getIntervalValidationInfo(startInterval: string, endInterval: string, granularity: GranularityObject, type: FieldFormatType, unit: FieldFormatUnit): GranularityIntervalInfo {
     const result: GranularityIntervalInfo = {
       intervalValid: false,
       intervalValidMessage: '',
@@ -132,14 +137,14 @@ export class GranularityService {
     // if invalid interval format
     if (!this._isValidInterval(startInterval, granularity) || !this._isValidInterval(endInterval, granularity)) {
       result.intervalValidMessage = this._translateService.instant('msg.storage.ui.intervals.invalid.format', {format: this._getDateTimeFormat(granularity)});
-    } else if (!this._isValidIntervalPeriod(startInterval, endInterval, granularity)) { // if difference first, end value
+    } else if (!this._isValidIntervalPeriod(startInterval, endInterval, type, unit)) { // if difference first, end value
       result.intervalValidMessage = this._translateService.instant('msg.storage.ui.intervals.invalid.period');
-    } else if (!this._isValidGranularityUnit(startInterval, endInterval, granularity)) { // units number exceed 10000
+    } else if (!this._isValidGranularityUnit(startInterval, endInterval, granularity, type, unit)) { // units number exceed 10000
       result.intervalValidMessage = this._translateService.instant('msg.storage.ui.intervals.invalid.unit');
-      result.granularityUnit = this._getGranularityUnit(startInterval, endInterval, granularity);
+      result.granularityUnit = this._getGranularityUnit(startInterval, endInterval, granularity, type, unit);
     } else {  // success
       result.intervalValid = true;
-      result.granularityUnit = this._getGranularityUnit(startInterval, endInterval, granularity);
+      result.granularityUnit = this._getGranularityUnit(startInterval, endInterval, granularity, type, unit);
     }
     return result;
   }
@@ -159,12 +164,13 @@ export class GranularityService {
    * Is valid interval period
    * @param {string} startInterval
    * @param {string} endInterval
-   * @param {GranularityObject} granularity
+   * @param {FieldFormatType} type
+   * @param {FieldFormatUnit} unit
    * @returns {boolean}
    * @private
    */
-  private _isValidIntervalPeriod(startInterval: string, endInterval: string, granularity: GranularityObject): boolean {
-    return this._getDateTimeDiff(startInterval, endInterval, granularity) > 0
+  private _isValidIntervalPeriod(startInterval: string, endInterval: string, type: FieldFormatType, unit: FieldFormatUnit): boolean {
+    return this._getDateTimeDiff(startInterval, endInterval, type, unit) > 0
   }
 
   /**
@@ -172,22 +178,33 @@ export class GranularityService {
    * @param {string} startInterval
    * @param {string} endInterval
    * @param {GranularityObject} granularity
+   * @param {FieldFormatType} type
+   * @param {FieldFormatUnit} unit
    * @returns {boolean}
    * @private
    */
-  private _isValidGranularityUnit(startInterval: string, endInterval: string, granularity: GranularityObject): boolean {
-    return this._getGranularityUnit(startInterval, endInterval, granularity) <= 10000;
+  private _isValidGranularityUnit(startInterval: string, endInterval: string, granularity: GranularityObject, type: FieldFormatType, unit: FieldFormatUnit): boolean {
+    return this._getGranularityUnit(startInterval, endInterval, granularity, type, unit) <= 10000;
   }
-
 
   /**
    * Get converted date time
    * @param dateTime
-   * @param granularity
+   * @param {FieldFormatType} type
+   * @param {FieldFormatUnit} unit
+   * @returns {any}
    * @private
    */
-  private _getConvertedDateTime(dateTime: string, granularity: GranularityObject): any {
-    return ((/^(\d{4}|\d{2})$/).test(dateTime)) ? new Date(dateTime) : dateTime;
+  private _getConvertedDateTime(dateTime: any, type: FieldFormatType, unit: FieldFormatUnit): any {
+    // if only year dateTime
+    if ((/^(\d{4}|\d{2})$/).test(dateTime)) {
+      // convert string
+      return new Date(dateTime + '');
+    } else if (typeof dateTime === 'number' && type === FieldFormatType.UNIX_TIME) { // if format UNIX
+      return unit === FieldFormatUnit.MILLISECOND ? dateTime * 1000 : dateTime;
+    } else {
+      return dateTime;
+    }
   }
 
   /**
@@ -220,11 +237,13 @@ export class GranularityService {
    * @param {string} startDateTime
    * @param {string} endDateTime
    * @param {GranularityObject} granularity
+   * @param {FieldFormatType} type
+   * @param {FieldFormatUnit} unit
    * @returns {number}
    * @private
    */
-  private _getGranularityUnit(startDateTime: string, endDateTime: string, granularity: GranularityObject): number {
-    return Math.ceil(this._getDateTimeDiff(startDateTime, endDateTime, granularity) / this._getGranularityUnitMillis(granularity));
+  private _getGranularityUnit(startDateTime: string, endDateTime: string, granularity: GranularityObject, type: FieldFormatType, unit: FieldFormatUnit): number {
+    return Math.ceil(this._getDateTimeDiff(startDateTime, endDateTime, type, unit) / this._getGranularityUnitMillis(granularity));
   }
 
   /**
@@ -232,11 +251,13 @@ export class GranularityService {
    * @param {string} dateTime
    * @param {number} value
    * @param {GranularityObject} granularity
+   * @param {FieldFormatType} type
+   * @param {FieldFormatUnit} unit
    * @returns {string}
    * @private
    */
-  private _getIntervalAddedUnit(dateTime: string, value: number, granularity: GranularityObject): string {
-    return moment(this._getConvertedDateTime(dateTime, granularity)).add(value, this._getMomentKey(granularity)).format(this._getDateTimeFormat(granularity));
+  private _getIntervalAddedUnit(dateTime: string, value: number, granularity: GranularityObject, type: FieldFormatType, unit: FieldFormatUnit): string {
+    return moment(this._getConvertedDateTime(dateTime, type, unit)).add(value, this._getMomentKey(granularity)).format(this._getDateTimeFormat(granularity));
   }
 
   /**
@@ -244,23 +265,26 @@ export class GranularityService {
    * @param {string} dateTime
    * @param {number} value
    * @param {GranularityObject} granularity
+   * @param {FieldFormatType} type
+   * @param {FieldFormatUnit} unit
    * @returns {string}
    * @private
    */
-  private _getIntervalReducedUnit(dateTime: string, value: number, granularity: GranularityObject): string {
-    return moment(this._getConvertedDateTime(dateTime, granularity)).subtract(value, this._getMomentKey(granularity)).format(this._getDateTimeFormat(granularity));
+  private _getIntervalReducedUnit(dateTime: string, value: number, granularity: GranularityObject, type: FieldFormatType, unit: FieldFormatUnit): string {
+    return moment(this._getConvertedDateTime(dateTime, type, unit)).subtract(value, this._getMomentKey(granularity)).format(this._getDateTimeFormat(granularity));
   }
   
   /**
    * Get date time diff
    * @param {string} startDateTime
    * @param {string} endDateTime
-   * @param {GranularityObject} granularity
+   * @param {FieldFormatType} type
+   * @param {FieldFormatUnit} unit
    * @returns {number}
    * @private
    */
-  private _getDateTimeDiff(startDateTime: string, endDateTime: string, granularity: GranularityObject): number {
-    return moment(this._getConvertedDateTime(endDateTime, granularity)).diff(moment(this._getConvertedDateTime(startDateTime, granularity)));
+  private _getDateTimeDiff(startDateTime: string, endDateTime: string, type: FieldFormatType, unit: FieldFormatUnit): number {
+    return moment(this._getConvertedDateTime(endDateTime, type, unit)).diff(moment(this._getConvertedDateTime(startDateTime, type, unit)));
   }
 
   /**

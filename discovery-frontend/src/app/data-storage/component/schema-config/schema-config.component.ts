@@ -626,7 +626,9 @@ export class SchemaConfigComponent extends AbstractComponent {
       // if changed timestamp field
       return (this.selectedTimestampType !== this._sourceData.schemaData.selectedTimestampType) ||
         this.selectedTimestampField &&
-        (this.selectedTimestampField.name !== this._sourceData.schemaData.selectedTimestampField.name || this.selectedTimestampField.format.type !== this._sourceData.schemaData.selectedTimestampField.format.type);
+        (this.selectedTimestampField.name !== this._sourceData.schemaData.selectedTimestampField.name
+          || this.selectedTimestampField.format.type !== this._sourceData.schemaData.selectedTimestampField.format.type
+          || this.selectedTimestampField.format.type === FieldFormatType.UNIX_TIME && this._sourceData.schemaData.selectedTimestampField.format.type === FieldFormatType.UNIX_TIME && this.selectedTimestampField.format.unit !== this._sourceData.schemaData.selectedTimestampField.format.unit);
     } else { // if not exist schema data
       return false;
     }

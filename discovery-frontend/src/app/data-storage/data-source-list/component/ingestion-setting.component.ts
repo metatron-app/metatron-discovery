@@ -541,9 +541,9 @@ export class IngestionSettingComponent extends AbstractComponent {
    * Check start granularity interval
    */
   public checkStartInterval(): void {
-    StringUtil.isEmpty(this.startIntervalText) && (this.startIntervalText = this._granularityService.getInterval(this._sortedTimestampColumnDataList[0], this.selectedSegmentGranularity));
+    StringUtil.isEmpty(this.startIntervalText) && (this.startIntervalText = this._granularityService.getInterval(this._sortedTimestampColumnDataList[0], this.selectedSegmentGranularity, this._format.type, this._format.unit));
     // get interval validation info
-    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity);
+    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity, this._format.type, this._format.unit);
     this.intervalValid = validInfo.intervalValid;
     this.intervalValidMessage = validInfo.intervalValidMessage;
     this.granularityUnit = validInfo.granularityUnit;
@@ -553,9 +553,9 @@ export class IngestionSettingComponent extends AbstractComponent {
    * Check end granularity interval
    */
   public checkEndInterval(): void {
-    StringUtil.isEmpty(this.endIntervalText) && (this.endIntervalText = this._granularityService.getInterval(this._sortedTimestampColumnDataList[this._sortedTimestampColumnDataList.length-1], this.selectedSegmentGranularity));
+    StringUtil.isEmpty(this.endIntervalText) && (this.endIntervalText = this._granularityService.getInterval(this._sortedTimestampColumnDataList[this._sortedTimestampColumnDataList.length-1], this.selectedSegmentGranularity, this._format.type, this._format.unit));
     // get interval validation info
-    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity);
+    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity, this._format.type, this._format.unit);
     this.intervalValid = validInfo.intervalValid;
     this.intervalValidMessage = validInfo.intervalValidMessage;
     this.granularityUnit = validInfo.granularityUnit;
@@ -893,7 +893,7 @@ export class IngestionSettingComponent extends AbstractComponent {
    */
   private _initGranularityIntervalInfo(): void {
     // granularity unit initial
-    const info = this._granularityService.getInitializedInterval(this._sortedTimestampColumnDataList[0], this._sortedTimestampColumnDataList[this._sortedTimestampColumnDataList.length-1], this.selectedSegmentGranularity);
+    const info = this._granularityService.getInitializedInterval(this._sortedTimestampColumnDataList[0], this._sortedTimestampColumnDataList[this._sortedTimestampColumnDataList.length-1], this.selectedSegmentGranularity, this._format.type, this._format.unit);
     // set interval text
     this.startIntervalText = info.startInterval;
     this.endIntervalText = info.endInterval;
