@@ -433,15 +433,83 @@ public class PrDatasetController {
         return ResponseEntity.ok(response);
     }
 
+    @RequestMapping(value = "/reload_preview/{dsId}", method = RequestMethod.GET)
+    public @ResponseBody ResponseEntity<?> previewFileCheckSheet(@PathVariable(value = "dsId") String dsId,
+            @RequestParam(value = "sheetindex", required = false, defaultValue = "0") String sheetindex,
+            @RequestParam(value = "resultSize", required = false, defaultValue = "2000") String size ) {
+        Map<String, Object> response = null;
+        /*
+        try {
+            PrDataset dataset = this.datasetRepository.findOne(dsId);
+            if(null==dataset) {
+                LOGGER.error("previewFileCheckSheet(): no dataset : "+ dsId);
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
+            }
+            if(dataset.getDsType() != PrDataset.DS_TYPE.IMPORTED) {
+                LOGGER.error("previewFileCheckSheet(): not imported type : "+ dsId);
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NOT_IMPORTED_DATASET);
+            }
+            if(dataset.getImport()==PrDataset.IMPORT_TYPE.FILE) {
+                String filekey = dataset.getFilekey();
+                if (null != filekey) {
+                    DataFrame dataFrame = this.datasetFileService.getPreviewLinesFromFileForDataFrame(dataset, filekey, sheetindex, size);
+                    if (null != dataFrame) {
+                        int previewSize = this.previewLineService.putPreviewLines(dsId, dataFrame);
+                        response = Maps.newHashMap();
+                        response.put("gridResponse", dataFrame);
+                    }
+                }
+            } else if(dataset.getImport()==PrDataset.IMPORT_TYPE.HIVE) {
+                DataFrame dataFrame = this.datasetSparkHiveService.getPreviewLinesFromStagedbForDataFrame(dataset,size);
+                if (null != dataFrame) {
+                    int previewSize = this.previewLineService.putPreviewLines(dsId, dataFrame);
+                    response = Maps.newHashMap();
+                    response.put("gridResponse", dataFrame);
+                }
+            } else if(dataset.getImport()==PrDataset.IMPORT_TYPE.DB) {
+                DataFrame dataFrame = this.datasetJdbcService.getPreviewLinesFromJdbcForDataFrame(dataset,size);
+                if (null != dataFrame) {
+                    int previewSize = this.previewLineService.putPreviewLines(dsId, dataFrame);
+                    response = Maps.newHashMap();
+                    response.put("gridResponse", dataFrame);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("previewFileCheckSheet(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
+        }
+        */
+        return ResponseEntity.ok(response);
+    }
+
+    @RequestMapping(value = "/file/{fileKey:.+}", method = RequestMethod.GET)
+    public @ResponseBody ResponseEntity<?> fileCheckSheet(@PathVariable(value = "fileKey") String fileKey,
+                                                          @RequestParam(value = "sheetname", required = false) String sheetname,
+                                                          @RequestParam(value = "sheetindex", required = false, defaultValue = "0") String sheetindex,
+                                                          @RequestParam(value = "resultSize", required = false, defaultValue = "250") String size,
+                                                          @RequestParam(value = "delimiterRow", required = false, defaultValue = "\n") String delimiterRow,
+                                                          @RequestParam(value = "delimiterCol", required = false, defaultValue = ",") String delimiterCol,
+                                                          @RequestParam(value = "hasFields", required = false, defaultValue = "N") String hasFieldsFlag) {
+        Map<String, Object> response;
+        try {
+            response = this.datasetFileService.fileCheckSheet3( fileKey, size, delimiterCol, false );
+        } catch (Exception e) {
+            LOGGER.error("fileCheckSheet(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
+        }
+        return ResponseEntity.ok(response);
+    }
+
     @RequestMapping(value = "/file_grid", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> fileGrid(
                                                           @RequestParam(value = "storedUri", required = false) String storedUri,
                                                           @RequestParam(value = "resultSize", required = false, defaultValue = "250") String size,
                                                           @RequestParam(value = "delimiterRow", required = false, defaultValue = "\n") String delimiterRow,
-                                                          @RequestParam(value = "delimiterCol", required = false, defaultValue = ",") String delimiterCol ) {
-        Map<String, Object> response = null;
+                                                          @RequestParam(value = "delimiterCol", required = false, defaultValue = ",") String delimiterCol,
+                                                          @RequestParam(value = "autoTyping", required = false, defaultValue = "true") String autoTyping) {
+        Map<String, Object> response;
         try {
-            response = this.datasetFileService.fileCheckSheet3( storedUri, size, delimiterCol );
+            response = this.datasetFileService.fileCheckSheet3( storedUri, size, delimiterCol, Boolean.parseBoolean(autoTyping) );
         } catch (Exception e) {
             LOGGER.error("fileCheckSheet(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);

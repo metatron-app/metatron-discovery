@@ -16,14 +16,15 @@ package app.metatron.discovery.domain.dataprep;
 
 
 import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.Util;
+import app.metatron.discovery.domain.dataprep.teddy.*;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.transform.TeddyImpl;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.util.ExcelProcessor;
@@ -42,6 +43,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Row;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -70,6 +72,14 @@ public class PrepDatasetFileService {
 
     @Autowired
     PrepHdfsService hdfsService;
+
+    @Autowired
+    TeddyImpl teddyImpl;
+
+    @Autowired
+    DataFrameService dataFrameService;
+
+    Map<String, Future<Map<String,Object>>> futures = null;
 
     public PrepDatasetFileService() {
     }
@@ -304,142 +314,41 @@ public class PrepDatasetFileService {
         return responseMap;
     }
 
-    private Map<String, Object> getResponseMapFromCsv(File theFile, int limitRows, String delimiterCol) throws IOException {
+    private Map<String, Object> getResponseMapFromCsv(String storedUri, int limitRows, String delimiterCol, boolean autoTyping) throws TeddyException {
         Map<String, Object> responseMap = Maps.newHashMap();
         List<Object> grids = Lists.newArrayList();
-
-        boolean hasFields;
-        int totalRows = 0;
-
+        Map<String, Object> grid = Maps.newHashMap();
         List<Map<String, String>> resultSet = Lists.newArrayList();
         List<Field> fields = Lists.newArrayList();
-        List<Map<String, String>> headers = Lists.newArrayList();
 
-        BufferedReader br = null;
-        String line;
-        String[] csvFields;
-        List<ColumnType> fieldsTypes = new ArrayList<>();
-        List<List<ColumnType>> gussedTypesByRows = Lists.newArrayList();
-        int maxColLength = 0;
+        DataFrame df = new DataFrame("df_for_preview");
+        df.setByGrid(PrepCsvUtil.parse(storedUri, delimiterCol, limitRows, hdfsService.getConf()));
 
-        br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-
-        //Check types of row number 0. If all column types are string, it might be filed name.
-        hasFields=true;
-        line = br.readLine();
-        csvFields = Util.csvLineSplitter(line, delimiterCol, "\"");
-        for(String str : csvFields) {
-            if(!getTypeFormString(str).equals(ColumnType.STRING)) {
-                hasFields = false;
-                break;
+        if (autoTyping) {
+            List<String> ruleStrings = teddyImpl.getAutoTypingRules(df);
+            for (String ruleString : ruleStrings) {
+                df = dataFrameService.applyRule(df, ruleString);
             }
         }
-        //Check type of row number 1 to 100.
-        int rowNo = 0;
-        while((line = br.readLine())!=null && rowNo <100) {
-            List<ColumnType> guessedTypes = new ArrayList<>();
-            String[] csvColumns = Util.csvLineSplitter(line, delimiterCol, "\"");
-            maxColLength = maxColLength < csvColumns.length ? csvColumns.length : maxColLength;
 
-            for (String str : csvColumns) {
-                guessedTypes.add(getTypeFormString(str));
-            }
-
-            gussedTypesByRows.add(guessedTypes);
-            rowNo++;
+        for (int colno = 0; colno < df.getColCnt(); colno++) {
+            fields.add(makeFieldFromCSV(colno, df.getColName(colno), df.getColType(colno)));
         }
 
-        ColumnType[] columnTypes = {ColumnType.BOOLEAN, ColumnType.LONG, ColumnType.DOUBLE, ColumnType.TIMESTAMP, ColumnType.STRING};
+        limitRows = Math.min(limitRows, df.rows.size());
+        for (int rowno = 0; rowno < limitRows; rowno++) {
+            app.metatron.discovery.domain.dataprep.teddy.Row row = df.rows.get(rowno);
+            Map<String, String> resultRow = Maps.newHashMap();
 
-        for(int i = 0; i < maxColLength; i++) {
-            int[] typeCount = new int[5];
-
-            for(List<ColumnType> types : gussedTypesByRows) {
-
-                if (i <types.size() && types.get(i) != null) {
-                    ColumnType type = types.get(i) != null ? types.get(i) : ColumnType.STRING;
-                    switch (type) {
-                        case BOOLEAN:
-                            typeCount[0]++;
-                            break;
-                        case LONG:
-                            typeCount[1]++;
-                            break;
-                        case DOUBLE:
-                            typeCount[2]++;
-                            break;
-                        case TIMESTAMP:
-                            typeCount[3]++;
-                            break;
-                        default:
-                            typeCount[4]++;
-                    }
-                }
+            for (int colno = 0; colno < df.getColCnt(); colno++) {
+                resultRow.put(df.getColName(colno), df.rows.get(rowno).get(colno).toString());
             }
-
-            int j = 1;
-            int index=0;
-            while(j < 5) {
-                index = typeCount[index] > typeCount[j] ? index : j;
-                j++;
-            }
-
-            fieldsTypes.add(columnTypes[index]);
+            resultSet.add(resultRow);
         }
-
-        maxColLength =0;
-        if(hasFields) {
-            //포인터를 1번 라인에 맞춰줌.
-            br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-
-            hasFields = false;
-            for(ColumnType columnType : fieldsTypes) {
-                if(columnType != ColumnType.STRING) {
-                    br.readLine();
-                    maxColLength = csvFields.length;
-                    hasFields=true;
-                    break;
-                }
-            }
-
-        } else {
-            br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-        }
-
-        while ((line = br.readLine()) != null) {
-            if(limitRows <= totalRows) {
-                break;
-            }
-            String[] cols = Util.csvLineSplitter(line, delimiterCol, "\"");
-
-            if(!hasFields && maxColLength<cols.length) {
-                maxColLength = cols.length;
-                csvFields = new String[cols.length];
-                for(int i=0; i<cols.length; i++){
-                    csvFields[i]=prefixColumnName+String.valueOf(i+1);
-                }
-            }
-            Map<String,String> result = Maps.newTreeMap();
-            for(int colIdx=0;colIdx<cols.length;colIdx++) {
-                result.put(csvFields[colIdx],cols[colIdx]);
-            }
-            resultSet.add(result);
-
-            totalRows++;
-        }
-
-        for (int colIdx = 0; colIdx < maxColLength; colIdx++) {
-            fields.add(makeFieldFromCSV(colIdx, csvFields[colIdx], fieldsTypes.get(colIdx)));
-        }
-
-        Map<String, Object> grid = Maps.newHashMap();
-
-        int resultSetSize = resultSet.size();
-        int endIndex = resultSetSize - limitRows < 0 ? resultSetSize : limitRows;
 
         grid.put("fields", fields);
-        grid.put("data", resultSet.subList(0, endIndex));
-        grid.put("totalRows", totalRows);
+        grid.put("data", resultSet);
+        grid.put("totalRows", df.rows.size());
         grids.add(grid);
 
         responseMap.put("grids", grids);
@@ -463,9 +372,9 @@ public class PrepDatasetFileService {
      *     sheetName    (Excel only)
      *   totalBytes     FIXME: is this needed?
      */
-    public Map<String, Object> fileCheckSheet3(String storedUri, String size, String delimiterCol) {
+    public Map<String, Object> fileCheckSheet3(String storedUri, String size, String delimiterCol, boolean autoTyping) {
 
-        Map<String, Object> responseMap = Maps.newHashMap();
+        Map<String, Object> responseMap;
         String extensionType = FilenameUtils.getExtension(storedUri);
         int limitRows = Integer.parseInt(size);
 
@@ -484,7 +393,7 @@ public class PrepDatasetFileService {
                     responseMap = getResponseMapFromJson(theFile, limitRows);
                     break;
                 default:
-                    responseMap = getResponseMapFromCsv(theFile, limitRows, delimiterCol);
+                    responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, autoTyping);
             }
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -492,6 +401,9 @@ public class PrepDatasetFileService {
         } catch (IOException e) {
             e.printStackTrace();
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR, storedUri);
+        } catch (TeddyException e) {
+            e.printStackTrace();
+            throw PrepException.fromTeddyException(e);
         }
 
         return responseMap;
