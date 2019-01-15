@@ -281,24 +281,19 @@ public class PrepTransformService {
 
   // create stage0 (POST)
   @Transactional(rollbackFor = Exception.class)
-  public PrepTransformResponse create(String importedDsId, String dfId, boolean doAutoTyping) throws Exception {
+  public PrepTransformResponse create(String importedDsId, String dfId, boolean needAutoTyping) throws Exception {
+    LOGGER.trace("create(): start");
+
     PrDataset importedDataset = datasetRepository.findRealOne(datasetRepository.findOne(importedDsId));
     PrDataflow dataflow = dataflowRepository.findOne(dfId);
-    List<String> setTypeRules;
-
     assert importedDataset.getDsType() == IMPORTED : importedDataset.getDsType();
-
-    LOGGER.trace("create(): start");
 
     PrDataset wrangledDataset = makeWrangledDataset(importedDataset, dataflow, dfId);
     datasetRepository.save(wrangledDataset);
 
-    // save를 해야 id가 나온다는 것에 유의
+    // We need to save into the repository to get an ID.
     String wrangledDsId = wrangledDataset.getDsId();
     DataFrame gridResponse = createStage0(wrangledDsId, importedDataset);
-
-    // Preview를 저장한다. Dataset 상세보기에서 이용한다.
-    previewLineService.putPreviewLines(wrangledDsId, gridResponse);
 
     wrangledDataset.addDataflow(dataflow);
     dataflow.addDataset(wrangledDataset);
@@ -308,197 +303,40 @@ public class PrepTransformService {
 
     // The 1st rule string is the master upstream dsId.
     // This could be either an imported dataset or another wrangled dataset.
-    String ruleString = transformRuleService.getCreateRuleString(importedDsId);
-    String jsonRuleString = transformRuleService.jsonizeRuleString(ruleString);
+    String createRuleString = transformRuleService.getCreateRuleString(importedDsId);
+    String jsonRuleString = transformRuleService.jsonizeRuleString(createRuleString);
     String shortRuleString = transformRuleService.shortenRuleString(jsonRuleString);
-    PrTransformRule rule = new PrTransformRule(wrangledDataset, 0, ruleString, jsonRuleString, shortRuleString);
+    PrTransformRule rule = new PrTransformRule(wrangledDataset, 0, createRuleString, jsonRuleString, shortRuleString);
     transformRuleRepository.saveAndFlush(rule);
 
     PrepTransformResponse response = new PrepTransformResponse(wrangledDsId);
     response.setWrangledDsId(wrangledDsId);
     this.putAddedInfo(response, wrangledDataset);
 
-    if (doAutoTyping) {
-      //Auto Heading 및 Auto Typing을 위한 로직.
-
-      // 이미 "지정된 타입이 있으면" 인 듯
-      Boolean isNotORC = true;
-      for (ColumnDescription cd : gridResponse.colDescs) {
-        if (cd.getType() != ColumnType.STRING)
-          isNotORC = false;
-      }
-
-      if (prepProperties.isAutoTyping() && isNotORC) {
-        setTypeRules = autoTypeDetection(gridResponse);
-        //반환 받은 setType Rule 들을 적용
-        for (int i = 0; i < setTypeRules.size(); i++) {
-          String setTypeRule = setTypeRules.get(i);
-          try {
-            // 주의: response를 갱신하면 안됨. 기존의 create()에 대한 response를 그대로 주어야 함.
-            transform(wrangledDsId, OP_TYPE.APPEND, i, setTypeRule, false);
-          } catch (Exception e) {
-            LOGGER.error("create(): caught an exception: this setType rule might be wrong [" + setTypeRule + "]", e);
+    // Auto type detection and conversion
+    if (needAutoTyping && prepProperties.isAutoTypingEnabled()) {
+      switch (importedDataset.getImportType()) {
+        case UPLOAD:
+        case URI:
+          List<String> ruleStrings = teddyImpl.getAutoTypingRules(teddyImpl.getCurDf(wrangledDsId));
+          for (int i = 0; i < ruleStrings.size(); i++) {
+            String ruleString = ruleStrings.get(i);
+            transform(wrangledDsId, OP_TYPE.APPEND, i, ruleString, true);
           }
-        }
+          break;
+        case DATABASE:
+        case STAGING_DB:
+        case DRUID:
+          /* NOP */
+          break;
       }
     }
+
+    // Save the preview as a file. To be used in dataset details page.
+    previewLineService.putPreviewLines(wrangledDsId, teddyImpl.getCurDf(wrangledDsId));
 
     LOGGER.trace("create(): end");
     return response;
-  }
-
-  //Dataframe과 Column number를 받아 해당 column의 Type을 판단하는 함수.
-  private void doTypeCheck_100(DataFrame df, int colNo, List<ColumnType> columnTypes, List<ColumnType> columnTypesrow0, List<String> timestampStyles) {
-      List<ColumnType> columnTypeGuess = new ArrayList<>();
-      List<TimestampTemplate> timestampStyleGuess = new ArrayList<>();
-      ColumnType columnType = ColumnType.STRING;
-      String timestampStyle = "";
-      int maxCount;
-      int maxRow = df.rows.size() < 100 ? df.rows.size() : 100;
-
-      //0번부터 99번까지 첫 100개의 row를 검사.
-      for(int i = 0; i<maxRow; i++) {
-        //null check
-          if(df.rows.get(i).objCols.get(colNo) == null) {
-            columnTypeGuess.add(ColumnType.UNKNOWN);
-            continue;
-          }
-
-          String str = df.rows.get(i).objCols.get(colNo).toString();
-
-          //Boolean Check
-          if (str.equalsIgnoreCase("true") || str.equalsIgnoreCase("false")) {
-              columnTypeGuess.add(ColumnType.BOOLEAN);
-              continue;
-          }
-
-          //Long Check
-          try {
-              Long.parseLong(str);
-              columnTypeGuess.add(ColumnType.LONG);
-              continue;
-          } catch (Exception e) {
-              //LOGGER.info("create(): Detecting Column Type...", e);
-          }
-
-          //Double Check
-          try {
-              Double.parseDouble(str);
-              columnTypeGuess.add(ColumnType.DOUBLE);
-              continue;
-          } catch (Exception e) {
-              //LOGGER.info("create(): Detecting Column Type...", e);
-          }
-
-          //Timestamp Check
-          for (TimestampTemplate tt : TimestampTemplate.values()) {
-              try {
-                  DateTimeFormatter dtf = DateTimeFormat.forPattern(tt.getFormat()).withLocale(Locale.ENGLISH);
-                  DateTime.parse(str, dtf);
-
-                  timestampStyleGuess.add(tt);
-                  columnTypeGuess.add(ColumnType.TIMESTAMP);
-                  break;
-              } catch (Exception e) {
-                  //LOGGER.info("create(): Detecting Column Type...", e);
-              }
-          }
-
-          //Else String
-          if(columnTypeGuess.size() == i)
-              columnTypeGuess.add(ColumnType.STRING);
-      }
-
-      //가장 많이 선택된 columnType을 확인.
-      maxCount = 0;
-      for(ColumnType ct: ColumnType.values()){
-          if(Collections.frequency(columnTypeGuess, ct) > maxCount) {
-              maxCount = Collections.frequency(columnTypeGuess, ct);
-              columnType = ct;
-          }
-      }
-
-      //columnType == TIMESTAMP인 경우엔 Style 확인 필요.
-      maxCount = 0;
-      if(columnType == ColumnType.TIMESTAMP) {
-          for(TimestampTemplate tt : TimestampTemplate.values()) {
-              if(Collections.frequency(timestampStyleGuess, tt) > maxCount) {
-                  maxCount = Collections.frequency(timestampStyleGuess, tt);
-                  timestampStyle = tt.getFormat();
-              }
-          }
-      } else {
-          timestampStyle = null;
-      }
-
-      //최다 득표 타입, 0번 row의 타입, timestampStyle을 넣어준다.
-      columnTypes.add(columnType);
-      columnTypesrow0.add(columnTypeGuess.get(0));
-      timestampStyles.add(timestampStyle);
-  }
-
-  //Dataframe를 받아서 해당 Dataset의 100개의 row를 검사하고, 적절한 Header/setType Rule String 들을 생성 해 주는 함수.
-  public List<String> autoTypeDetection(DataFrame df) throws Exception {
-    String[] ruleStrings = new String[3];
-    List<String> setTypeRules = new ArrayList<>();
-    List<String> columnNames = new ArrayList<>(df.colNames);
-    List<ColumnType> columnTypes = new ArrayList<>();
-    List<ColumnType> columnTypesRow0 = new ArrayList<>();
-    List<String> timestampStyles = new ArrayList<>();
-
-    if(df.colCnt == 0)
-      df.colCnt = df.rows.get(0).objCols.size();
-
-    for(int i=0; i<df.colCnt; i++) {
-      //각 컬럼마다 100개의 row를 검색하여 Type, 0번 row의 Type, TimestampStyle을 확인.
-      doTypeCheck_100(df, i, columnTypes, columnTypesRow0, timestampStyles);
-    }
-
-    //If all column types of row 0 elements is String and predicted column types is not all String.
-    //Then add Header rule and change column name.
-    if(Collections.frequency(columnTypesRow0, ColumnType.STRING) == df.colCnt &&
-            Collections.frequency(columnTypes, ColumnType.STRING) != df.colCnt) {
-      String ruleString = "header rownum: 1";
-
-      setTypeRules.add(ruleString);
-      columnNames.clear();
-
-      Header header = new Header(1L);
-      DataFrame newDf = dataFrameService.applyRule(df, ruleString);
-
-      columnNames.addAll(newDf.colNames);
-    }
-    //Boolean, Long, Double 룰스트링 만들기.(Timestamp는 format 문제로 개별 추가)
-    ruleStrings[0] = "settype col: ";
-    ruleStrings[1] = "settype col: ";
-    ruleStrings[2] = "settype col: ";
-
-    //각 컬럼의 type에 따라 rulestring에 추가.
-    for(int i = 0; i < df.colCnt; i++) {
-      if(columnTypes.get(i) == ColumnType.BOOLEAN)
-        ruleStrings[0] = ruleStrings[0] + "`" + columnNames.get(i) + "`, ";
-      else if(columnTypes.get(i) == ColumnType.LONG)
-        ruleStrings[1] = ruleStrings[1] + "`" + columnNames.get(i) + "`, ";
-      else if(columnTypes.get(i) == ColumnType.DOUBLE)
-        ruleStrings[2] = ruleStrings[2] + "`" + columnNames.get(i) + "`, ";
-      else if(columnTypes.get(i) == ColumnType.TIMESTAMP)
-        setTypeRules.add("settype col: `" + columnNames.get(i) + "` type: Timestamp format: '" + timestampStyles.get(i) + "'");
-    }
-
-    //생선된 rulestring을 settypeRules에 추가.
-    if(ruleStrings[0].length() > 13) {
-      ruleStrings[0] = ruleStrings[0].substring(0, ruleStrings[0].length() - 2) + " type: Boolean";
-      setTypeRules.add(ruleStrings[0]);
-    }
-    if(ruleStrings[1].length() > 13) {
-      ruleStrings[1] = ruleStrings[1].substring(0, ruleStrings[1].length() - 2) + " type: Long";
-      setTypeRules.add(ruleStrings[1]);
-    }
-    if(ruleStrings[2].length() > 13) {
-      ruleStrings[2] = ruleStrings[2].substring(0, ruleStrings[2].length() - 2) + " type: Double";
-      setTypeRules.add(ruleStrings[2]);
-    }
-      return setTypeRules;
   }
 
 
@@ -641,7 +479,6 @@ public class PrepTransformService {
     return affectedDsIds;
   }
 
-
   @Transactional(rollbackFor = Exception.class)
   public void after_swap(List<String> affectedDsIds) throws Exception {
     for(String affectedDsId : affectedDsIds) {
@@ -770,7 +607,7 @@ public class PrepTransformService {
 
   // transform (PUT)
   @Transactional(rollbackFor = Exception.class)
-  public PrepTransformResponse transform(String dsId, OP_TYPE op, Integer stageIdx, String ruleString, boolean forced) throws Exception {
+  public PrepTransformResponse transform(String dsId, OP_TYPE op, Integer stageIdx, String ruleString, boolean suppress) throws Exception {
     LOGGER.trace("transform(): start: dsId={} op={} stageIdx={} ruleString={}", dsId, op, stageIdx, ruleString);
 
     if(op==OP_TYPE.APPEND || op==OP_TYPE.UPDATE || op==OP_TYPE.PREVIEW) {
@@ -802,7 +639,7 @@ public class PrepTransformService {
     // rule list는 transform()을 마칠 때에 채움. 모든 op에 대해 동일하기 때문에.
     switch (op) {
       case APPEND:
-        teddyImpl.append(dsId, stageIdx, ruleString, forced);
+        teddyImpl.append(dsId, stageIdx, ruleString, suppress);
         if (stageIdx >= origStageIdx) {
           adjustStageIdx(dsId, stageIdx + 1, true);
         } else {
