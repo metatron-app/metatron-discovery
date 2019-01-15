@@ -17,11 +17,12 @@
     {{'msg.dp.th.expression' | translate}}<em class="ddp-icon-essential"></em>
   </div>
   <div class="ddp-wrap-datainput">
-    <rule-condition-input
-      [formula]="deriveVal" [command]="'derive'"
-      [forceFormula]="forceFormula" [fields]="fields"
+    <rule-suggest-input #derive_value_input
+      [formula]="deriveVal"
+      [command]="'derive'" [cmdArg]="'value'" 
       [tabIndex]="2" [placeholder]="'msg.dp.th.expression.ph' | translate"
-      (onChange)="deriveVal = $event"></rule-condition-input>
+      [fields]="fields"
+      (onChange)="deriveVal = $event" ></rule-suggest-input>
   </div>
   <a href="javascript:" class="ddp-btn-bg" (click)="openPopupFormulaInput()"><em class="ddp-icon-editor"></em>{{'msg.dp.btn.advanced.editor' | translate }}</a>
 </div>

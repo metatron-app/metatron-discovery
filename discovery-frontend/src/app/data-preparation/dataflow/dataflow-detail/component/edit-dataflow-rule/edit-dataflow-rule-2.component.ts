@@ -1148,7 +1148,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * Open advanced formula input popup (set, keep, derive, delete)
    * @param {string} command
    */
-  public openPopupFormulaInput(data: {command : string, val : string}) {
+  public openPopupFormulaInput(data: {command : string, val : string, needCol?:boolean}) {
     const fields: Field[] = this.selectedDataSet.gridData.fields;
 
     // variables vary according to the rule name
@@ -1164,7 +1164,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     //   val = 'keepRow';
     // }
 
-    this.extendInputFormulaComponent.open(fields, data.command, this._editRuleComp.getValue( data.val ));
+  
+    //this.extendInputFormulaComponent.open(fields, data.command, this._editRuleComp.getValue( data.val ));
+
+    data.val = this._editRuleComp.getValue( data.val );
+    this.extendInputFormulaComponent.open(fields, data);
   }
 
   /**
@@ -1172,13 +1176,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param {{command: string, formula: string}} data
    */
   public doneInputFormula(data: { command: string, formula: string }) {
-
-    if (data.command === 'setCondition') {
-      this._editRuleComp.setValue( 'forceCondition', data.formula );
-    } else {
-      this._editRuleComp.setValue( 'forceFormula', data.formula );
-    }
-
+    this._editRuleComp.doneInputFormula(data);
   }
 
   /**
