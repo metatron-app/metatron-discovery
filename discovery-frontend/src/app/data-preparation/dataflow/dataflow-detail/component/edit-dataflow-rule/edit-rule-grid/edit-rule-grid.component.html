@@ -48,12 +48,6 @@
   <!-- //left -->
   <!-- right -->
   <div class="ddp-part-right">
-    <div class="ddp-box-warning" *ngIf="isAggregationIncluded">
-      <div class="ddp-txt-warning">
-        <em class="ddp-icon-warning"></em>
-        {{'msg.dp.ui.aggregate.warning.grid-top' | translate }}
-      </div>
-    </div>
     <!-- search -->
     <div class="ddp-type-search">
       <input placeholder="{{'msg.storage.ui.search.data' | translate}}"
@@ -65,6 +59,34 @@
     </div>
     <!-- //search -->
 
+    <ul class="ddp-list-tab-button" style="display: none;">
+      <li>
+        <a href="javascript:"><em class="ddp-icon-grid"></em></a>
+
+        <div class="ddp-ui-tooltip-info">
+          <em class="ddp-icon-view-top"></em>
+          그리드 뷰
+        </div>
+
+      </li>
+      <li class="ddp-selected">
+        <a href="javascript:"><em class="ddp-icon-listgrid"></em></a>
+        <div class="ddp-ui-tooltip-info">
+          <em class="ddp-icon-view-top"></em>
+          리스트 뷰
+        </div>
+
+      </li>
+    </ul>
+
+    <div class="ddp-box-warning" *ngIf="isAggregationIncluded">
+      <em class="ddp-icon-warning"></em>
+
+      <div class="ddp-txt-warning">
+        {{'msg.dp.ui.aggregate.warning.grid-top1' | translate }}<br>
+        {{'msg.dp.ui.aggregate.warning.grid-top2' | translate }}
+      </div>
+    </div>
   </div>
   <!-- //right -->
 </div>

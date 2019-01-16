@@ -1292,8 +1292,10 @@
   "msg.dp.ui.join.key.required" : "하나 이상의 조인 키가 필요합니다",
   "msg.dp.alert.format.error" : "타임스탬프 패턴을 입력하세요",
   "msg.dp.alert.clone.failed" : "복제 실패했습니다",
-  "msg.dp.ui.aggregate.warning" : "이 룰은 샘플 데이터에 대해 실행됩니다. 원본 데이터의 정확한 결과는 스냅샷에서 찾을 수 있습니다.",
-  "msg.dp.ui.aggregate.warning.grid-top" : "샘플링 된 데이터의 결과입니다. 모든 데이터에 대한 결과는 다를 수 있습니다. (aggregate)",
+  "msg.dp.ui.aggregate.warning1" : "이 룰은 샘플 데이터에 대해 실행됩니다.",
+  "msg.dp.ui.aggregate.warning2" : "원본 데이터의 정확한 결과는 스냅샷에서 찾을 수 있습니다.",
+  "msg.dp.ui.aggregate.warning.grid-top1" : "샘플링 된 데이터의 결과입니다.",
+  "msg.dp.ui.aggregate.warning.grid-top2" : "모든 데이터에 대한 결과는 다를 수 있습니다. (aggregate)",
   "msg.dp.alert.fail.change.ssName" : "스냅샷 이름 수정 실패",
   "msg.dp.alert.modify.sSname" : "스냅샷 이름이 수정되었습니다",
 
