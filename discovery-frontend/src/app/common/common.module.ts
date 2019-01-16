@@ -58,7 +58,7 @@ import { ColorPickerComponent } from './component/color-picker/color.picker.comp
 import { GradationGeneratorComponent } from './component/gradation/gradation-generator.component';
 import { DashboardDatasourceComboComponent } from '../dashboard/component/dashboard-datasource-combo.component';
 import { ColorTemplateComponent } from './component/color-picker/color-template.component';
-import {DatabaseIconComponent} from "./component/icon/database-icon.component";
+import {SvgIconComponent} from "./component/icon/svg-icon.component";
 
 
 @NgModule({
@@ -105,7 +105,7 @@ import {DatabaseIconComponent} from "./component/icon/database-icon.component";
     GradationGeneratorComponent,
     DashboardDatasourceComboComponent,
     ColorTemplateComponent,
-    DatabaseIconComponent
+    SvgIconComponent
   ],
   exports: [
     AngularCommonModule,
@@ -149,7 +149,7 @@ import {DatabaseIconComponent} from "./component/icon/database-icon.component";
     GradationGeneratorComponent,
     DashboardDatasourceComboComponent,
     ColorTemplateComponent,
-    DatabaseIconComponent
+    SvgIconComponent
   ],
   providers: [
     {

@@ -12,17 +12,17 @@
  * limitations under the License.
  */
 
-import { Component, OnInit, Injector, ElementRef, ViewChild, OnDestroy } from '@angular/core';
-import { DataSnapshotService } from './service/data-snapshot.service';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { PrDataSnapshot, SsType, Status } from '../../domain/data-preparation/pr-snapshot';
-import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
-import { Modal } from '../../common/domain/modal';
-import { Alert } from '../../common/util/alert.util';
-import { PreparationAlert } from '../util/preparation-alert.util';
-import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
-import { isUndefined } from 'util';
-import { DataSnapshotDetailComponent } from './data-snapshot-detail.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {DataSnapshotService} from './service/data-snapshot.service';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {PrDataSnapshot, SsType, Status} from '../../domain/data-preparation/pr-snapshot';
+import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {Modal} from '../../common/domain/modal';
+import {Alert} from '../../common/util/alert.util';
+import {PreparationAlert} from '../util/preparation-alert.util';
+import {MomentDatePipe} from '../../common/pipe/moment.date.pipe';
+import {isUndefined} from 'util';
+import {DataSnapshotDetailComponent} from './data-snapshot-detail.component';
 import {PreparationCommonUtil} from "../util/preparation-common.util";
 
 @Component({
@@ -351,6 +351,24 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     this.pageNum += 1;
     this.page.size = this.pageNum * this.pageSize;
     this.initViewPage();
+  }
+
+  /**
+   * Returns name for svg component
+   * @param snapshot
+   */
+  public getSvgName(snapshot: PrDataSnapshot) {
+
+    const csv : string = 'CSV';
+    if (snapshot.ssType === SsType.STAGING_DB) {
+      return 'HIVE'
+    }
+
+    if (snapshot.storedUri.endsWith('.json')) {
+      return 'JSON';
+    }
+
+    return csv;
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

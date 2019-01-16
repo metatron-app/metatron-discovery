@@ -102,27 +102,47 @@
       <ul class="ddp-list-snapshot" *ngIf="snapshotList?.length > 0 ">
         <li *ngFor="let snapshot of snapshotList">
 
-          <div class="ddp-txt-snapshot"
-               (click)="snapshotDetail(snapshot)"
+
+          <div class="ddp-txt-snapshot" (click)="snapshotDetail(snapshot)"
                [ngClass]="{'ddp-disabled':snapshot.isCancel || snapshot.status === snapshotStatus.NOT_AVAILABLE}">
-
             <em class="ddp-icon-snap-{{getSnapshotStatus(snapshot.status.toString())[1]}}"></em>
-
-            <!--Information-->
             <div class="ddp-data-det">
               <div class="ddp-data-status type-{{getSnapshotStatus(snapshot.status.toString())[1]}}">
                 {{getSnapshotStatus(snapshot.status.toString())[0]}}
               </div>
               <div class="ddp-data-name">
-                <!--
-                <span class="ddp-tag-type">{{getSnapshotType(snapshot.ssType)}}</span>
-                -->
-                <span class="ddp-tag-type">{{prepCommonUtil.getSnapshotType(snapshot.ssType)}}</span>
-                {{snapshot.ssName}}
+                <svg-icon-component [name]="getSvgName(snapshot)" [isBlackAndWhite]="true"></svg-icon-component>
+
+                <span class="ddp-txt-name">{{snapshot.ssName}}</span>
               </div>
-              <div class="ddp-data-date">{{snapshot.createdTime | mdate : 'YYYY-MM-DD HH:mm:ss'}}</div>
+              <div class="ddp-data-date">
+                {{snapshot.createdTime | mdate : 'YYYY-MM-DD HH:mm:ss'}}
+              </div>
             </div>
-            <!--Information-->
+
+          <!--</div>-->
+
+          <!--<div class="ddp-txt-snapshot"-->
+               <!--(click)="snapshotDetail(snapshot)"-->
+               <!--[ngClass]="{'ddp-disabled':snapshot.isCancel || snapshot.status === snapshotStatus.NOT_AVAILABLE}">-->
+
+            <!--<em class="ddp-icon-snap-{{getSnapshotStatus(snapshot.status.toString())[1]}}"></em>-->
+
+            <!--&lt;!&ndash;Information&ndash;&gt;-->
+            <!--<div class="ddp-data-det">-->
+              <!--<div class="ddp-data-status type-{{getSnapshotStatus(snapshot.status.toString())[1]}}">-->
+                <!--{{getSnapshotStatus(snapshot.status.toString())[0]}}-->
+              <!--</div>-->
+              <!--<div class="ddp-data-name">-->
+                <!--&lt;!&ndash;-->
+                <!--<span class="ddp-tag-type">{{getSnapshotType(snapshot.ssType)}}</span>-->
+                <!--&ndash;&gt;-->
+                <!--<span class="ddp-tag-type">{{prepCommonUtil.getSnapshotType(snapshot.ssType)}}</span>-->
+                <!--{{snapshot.ssName}}-->
+              <!--</div>-->
+              <!--<div class="ddp-data-date">{{snapshot.createdTime | mdate : 'YYYY-MM-DD HH:mm:ss'}}</div>-->
+            <!--</div>-->
+            <!--&lt;!&ndash;Information&ndash;&gt;-->
 
             <!--Progress bar-->
             <div class="ddp-wrap-progress" *ngIf="getSnapshotStatus(snapshot.status.toString())[0] === 'Preparing'">

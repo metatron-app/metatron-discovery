@@ -8537,7 +8537,7 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .ddp-type-dataset .ddp-wrap-variable {position:absolute; top:43px; left:0; right:0; bottom:0;}
 .ddp-type-dataset  .ddp-wrap-grid {height:100%; padding-bottom:44px; box-sizing:border-box;}
 .ddp-type-dataset .ddp-wrap-viewtable {height:100%;}
-.icon-db-hive-w .st0{fill:#EAEAEA;}
+..icon-db-hive-w .st0{fill:#EAEAEA;}
 .icon-db-hive-w .st1{fill:#B5B5B5;}
 .icon-db-hive-w .st2{fill:#F7F7F7;}
 .icon-db-hive-w .st3{fill:#FFFFFF;}
@@ -8589,21 +8589,109 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .icon-db-tibero .st0{fill:#01448D;}
 .icon-db-tibero .st1{fill:#EA1B22;}
 
-.icon-db-hive-b {display:inline-block; width:24px; height:22px; vertical-align:middel;}
+.icon-db-hive-b {display:inline-block; width:24px; height:22px;}
 .icon-db-hive-b .st0{fill:#D8D8D8;}
 .icon-db-hive-b .st1{fill:#B5B5B5;}
 .icon-db-hive-b .st2{fill:#F7F7F7;}
 .icon-db-hive-b .st3{fill:#333333;}
 icon-db-hive-b .st4{fill:#FFFFFF;}
 
-.icon-db-hdfs-b {display:inline-block; width:24px; height:22px; vertical-align:middel;}
+.icon-db-hdfs-b {display:inline-block; width:24px; height:22px;}
 .icon-db-hdfs-b .st0{fill:#D8D8D8;}
 .icon-db-hdfs-b .st1{fill:#B5B5B5;}
 .icon-db-hdfs-b .st2{fill:#FFFFFF;}
 .icon-db-hdfs-b .st3{fill:#333333;}
+.icon-db-local-b{display:inline-block; width:24px; height:22px;}
+.icon-db-local-b .st0{fill:#E7EAEB;}
+.icon-db-local-b .st1{fill:none;stroke:#6E727B;}
+.icon-db-local-b .st2{fill:#6E727B;}
 
-.icon-db-local {display:inline-block; width:16px; height:15px; background:url(../images/icon_flow.png) no-repeat; background-position:left -320px;vertical-align: middle;}
+.icon-db-mysql-b {display:inline-block; width:24px; height:22px;}
+.icon-db-mysql-b .st0{display:none;}
+.icon-db-mysql-b .st1{display:inline;}
+.icon-db-mysql-b .st2{fill:#E7EAEB;}
+.icon-db-mysql-b .st3{fill:none;stroke:#6E727B;}
+.icon-db-mysql-b .st4{fill:#6E727B;}
+.icon-db-mysql-b .st5{display:inline;fill:#6E727B;}
+.icon-db-mysql-b .st6{display:inline;fill:#E7EAEB;}
+.icon-db-mysql-b .st7{display:inline;fill:#E7EAEB;stroke:#6E727B;}
+.icon-db-mysql-b .st8{display:inline;fill:#FFFFFF;}
+.icon-db-mysql-b .st9{display:inline;fill:none;}
+.icon-db-mysql-b .st10{display:inline;fill:#90969F;}
+.icon-db-mysql-b .st11{display:inline;fill:#4B515B;}
 
+.icon-db-oracle-b {display:inline-block; width:24px; height:22px;}
+.icon-db-oracle-b .st0{fill:#6E727B;}
+
+.icon-db-presto-b {display:inline-block; width:24px; height:22px;}
+.icon-db-presto-b .st0{display:none;}
+.icon-db-presto-b .st1{display:inline;}
+.icon-db-presto-b .st2{fill:#E7EAEB;}
+.icon-db-presto-b .st3{fill:none;stroke:#6E727B;}
+.icon-db-presto-b .st4{fill:#6E727B;}
+.icon-db-presto-b .st5{display:inline;fill:#6E727B;}
+.icon-db-presto-b .st6{display:inline;fill:#E7EAEB;}
+.icon-db-presto-b .st7{display:inline;fill:#E7EAEB;stroke:#6E727B;}
+.icon-db-presto-b .st8{display:inline;fill:#FFFFFF;}
+.icon-db-presto-b .st9{display:inline;fill:none;}
+.icon-db-presto-b .st10{fill:#90969F;}
+.icon-db-presto-b .st11{fill:#4B515B;}
+
+.icon-file-csv-b {display:inline-block; width:24px; height:22px;}
+.icon-file-csv-b .st0{display:none;}
+.icon-file-csv-b .st1{display:inline;}
+.icon-file-csv-b .st2{fill:#E7EAEB;}
+.icon-file-csv-b .st3{fill:none;stroke:#6E727B;}
+.icon-file-csv-b .st4{fill:#6E727B;}
+.icon-file-csv-b .st5{display:inline;fill:#6E727B;}
+.icon-file-csv-b .st6{fill:none;}
+.icon-file-csv-b .st7{display:inline;fill:none;}
+.icon-file-csv-b .st8{display:inline;fill:none;stroke:#6E727B;}
+.icon-file-csv-b .st9{display:inline;fill:#FFFFFF;}
+.icon-file-csv-b .st10{display:inline;fill:#E7EAEB;stroke:#6E727B;}
+.icon-file-csv-b .st11{display:inline;fill:#90969F;}
+.icon-file-csv-b .st12{display:inline;fill:#4B515B;}
+
+.icon-file-json-b {display:inline-block; width:24px; height:22px;}
+.icon-file-json-b .st0{display:none;}
+.icon-file-json-b .st1{display:inline;}
+.icon-file-json-b .st2{fill:#E7EAEB;}
+.icon-file-json-b .st3{fill:none;stroke:#6E727B;}
+.icon-file-json-b .st4{fill:#6E727B;}
+.icon-file-json-b .st5{display:inline;fill:#6E727B;}
+.icon-file-json-b .st6{display:inline;fill:#E7EAEB;}
+.icon-file-json-b .st7{display:inline;fill:#E7EAEB;stroke:#6E727B;}
+.icon-file-json-b .st8{display:inline;fill:#FFFFFF;}
+.icon-file-json-b .st9{fill:none;}
+.icon-file-json-b .st10{display:inline;fill:#90969F;}
+.icon-file-json-b .st11{display:inline;fill:#4B515B;}
+
+.icon-file-xml-b {display:inline-block; width:24px; height:22px;}
+.icon-file-xml-b .st0{display:none;}
+.icon-file-xml-b .st1{display:inline;}
+.icon-file-xml-b .st2{fill:#E7EAEB;}
+.icon-file-xml-b .st3{fill:none;stroke:#6E727B;}
+.icon-file-xml-b .st4{fill:#6E727B;}
+.icon-file-xml-b .st5{display:inline;fill:#6E727B;}
+.icon-file-xml-b .st6{fill:none;}
+.icon-file-xml-b .st7{display:inline;fill:none;}
+.icon-file-xml-b .st8{display:inline;fill:none;stroke:#6E727B;}
+.icon-file-xml-b .st9{display:inline;fill:#FFFFFF;}
+.icon-file-xml-b .st10{display:inline;fill:#E7EAEB;stroke:#6E727B;}
+.icon-file-xml-b .st11{display:inline;fill:#90969F;}
+.icon-file-xml-b .st12{display:inline;fill:#4B515B;}
+
+.icon-stringdb-b {display:inline-block; width:24px; height:22px;}
+.icon-stringdb-b .st0{display:none;}
+.icon-stringdb-b .st1{display:inline;}
+.icon-stringdb-b .st2{fill:#E7EAEB;}
+.icon-stringdb-b .st3{fill:none;stroke:#6E727B;}
+.icon-stringdb-b .st4{fill:#6E727B;}
+.icon-stringdb-b .st5{display:inline;fill:#6E727B;}
+.icon-stringdb-b .st6{fill:none;}
+.icon-stringdb-b .st7{display:inline;fill:none;}
+.icon-stringdb-b .st8{display:inline;fill:#90969F;}
+.icon-stringdb-b .st9{display:inline;fill:#4B515B;}
 /**************************************************************
   Page : 대시보드
 **************************************************************/

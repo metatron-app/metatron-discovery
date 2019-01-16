@@ -53,7 +53,7 @@
             <li *ngFor="let type of databaseTypeList" [class.ddp-selected]="selectedDatabase['value'] === type.value">
               <a href="javascript:" (click)="setDatabase(type)" class="ddp-label-dbtype type-{{type.label.toLowerCase()}}">
                 <em class="ddp-icon-db">
-                  <database-icon-component [databaseName]="type.value"></database-icon-component>
+                  <svg-icon-component [name]="type.value"></svg-icon-component>
                 </em>
                 {{type.label}}
               </a>

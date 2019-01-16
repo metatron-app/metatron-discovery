@@ -16,10 +16,10 @@ import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from "@angula
 import {AbstractComponent} from "../abstract.component";
 
 @Component({
-  selector: 'database-icon-component',
-  templateUrl: 'database-icon.component.html',
+  selector: 'svg-icon-component',
+  templateUrl: 'svg-icon.component.html',
 })
-export class DatabaseIconComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class SvgIconComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -34,7 +34,7 @@ export class DatabaseIconComponent extends AbstractComponent implements OnInit, 
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
-  public databaseName: string;
+  public name: string;
 
   @Input()
   public isBlackAndWhite?: boolean;
