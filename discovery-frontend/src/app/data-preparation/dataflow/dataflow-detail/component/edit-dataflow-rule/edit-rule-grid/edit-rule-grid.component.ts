@@ -18,7 +18,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef, EventEmitter,
-  Injector,
+  Injector, Input,
   OnDestroy,
   OnInit,
   Output,
@@ -26,7 +26,6 @@ import {
 } from '@angular/core';
 import { ScrollLoadingGridModel } from './scroll-loading-grid.model';
 import { isNull, isNullOrUndefined, isUndefined } from 'util';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { header, SlickGridHeader } from '../../../../../../common/component/grid/grid.header';
 import { DataflowService } from '../../../../service/dataflow.service';
@@ -129,6 +128,9 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   // 공백 치환 관련
   public spaceSymbol = '&middot;';
 
+  @Input()
+  public isAggregationIncluded: boolean;
+
   @Output('selectHeader')
   public selectHeaderEvent: EventEmitter<any> = new EventEmitter();
 
@@ -170,6 +172,8 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
           this.isComboEvent = false;
         })
     );
+
+
 
   } // function - ngOnInit
 

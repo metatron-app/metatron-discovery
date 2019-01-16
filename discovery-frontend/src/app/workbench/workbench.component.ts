@@ -2792,7 +2792,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       },
       removeFirstRow: true,
       path: currentResultTab.result.csvFilePath,
-      rollup: true
+      rollup: false
     };
 
     this.loadingShow();
