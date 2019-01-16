@@ -17,9 +17,12 @@
     {{'msg.dp.th.condition' | translate}}<em class="ddp-icon-essential"></em>
   </div>
   <div class="ddp-wrap-datainput">
-    <rule-condition-input
-      [formula]="keepRow" [forceFormula]="forceFormula" [command]="'keep'" [fields]="fields" [tabIndex]="2"
-      (onChange)="keepRow = $event"></rule-condition-input>
+    <rule-suggest-input #keep_row_input
+      [formula]="keepRow"
+      [command]="'keep'" [cmdArg]="'row'" 
+      [tabIndex]="2" 
+      [fields]="fields"
+      (onChange)="keepRow = $event" ></rule-suggest-input> 
   </div>
   <a href="javascript:" class="ddp-btn-bg" (click)="openPopupFormulaInput()"><em class="ddp-icon-editor"></em>{{'msg.dp.btn.advanced.editor' | translate }}</a>
 </div>

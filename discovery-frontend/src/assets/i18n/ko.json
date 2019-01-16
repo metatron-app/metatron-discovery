@@ -1197,7 +1197,7 @@
   "msg.dp.ui.cond.ph" : "조건을 입력해 주세요",
   "msg.dp.ui.timestamp.ph" : "패턴을 입력해 주세요",
   "msg.dp.ui.custom.format" : "사용자 지정 패턴",
-  "msg.dp.ui.set.pattern" : "패턴 지정",
+  "msg.dp.ui.set.format" : "포멧 지정",
   "msg.dp.ui.reg.ex" : "정규식",
   "msg.dp.ui.pattern.description" :"단일 문자열 또는 정규식을 사용할 수 있습니다",
   "msg.dp.ui.already.inuse" :"이미 사용 중입니다",

@@ -29,11 +29,19 @@
     {{'msg.dp.th.expression' | translate}}<em class="ddp-icon-essential"></em>
   </div>
   <div class="ddp-wrap-datainput">
+    <rule-suggest-input #set_value_input
+      [formula]="inputValue" 
+      [command]="'set'" [cmdArg]="'value'" 
+      [tabIndex]="3" [placeholder]="'msg.dp.th.expression.ph' | translate"
+      [fields]="fields"
+      (onChange)="inputValue = $event" ></rule-suggest-input>
+    <!--   
     <rule-condition-input
       [formula]="inputValue" [command]="'keep'"
       [forceFormula]="forceFormula" [fields]="fields"
       [tabIndex]="3" [placeholder]="'msg.dp.th.expression.ph' | translate"
       (onChange)="inputValue = $event"></rule-condition-input>
+    -->
   </div>
   <a href="javascript:" class="ddp-btn-bg" (click)="openPopupFormulaInput('inputValue')"><em class="ddp-icon-editor"></em>{{'msg.dp.btn.advanced.editor' | translate }}</a>
 </div>
@@ -44,12 +52,20 @@
     {{'msg.dp.ui.cond' | translate}}
   </div>
   <div class="ddp-wrap-datainput">
+    <rule-suggest-input #set_row_input
+      [formula]="condition"
+      [command]="'set'" [cmdArg]="'row'" 
+      [tabIndex]="4" [placeholder]="'msg.dp.th.expression.ph' | translate"
+      [fields]="fields"
+      (onChange)="condition = $event" ></rule-suggest-input>
+    <!--
     <rule-condition-input
       [forceCondition]="forceCondition"
       [formula]="condition" [command]="'keep'"
       [fields]="fields"
       [tabIndex]="4" [placeholder]="'msg.dp.ui.cond.ph' | translate"
       (onChange)="condition = $event"></rule-condition-input>
+    -->
   </div>
   <a href="javascript:" class="ddp-btn-bg" (click)="openPopupFormulaInput('condition')"><em class="ddp-icon-editor"></em>{{'msg.dp.btn.advanced.editor' | translate }}</a>
 </div>

@@ -1131,7 +1131,7 @@
   "msg.dp.ui.cond.ph": "请输入条件",
   "msg.dp.ui.timestamp.ph": "请输入制版",
   "msg.dp.ui.custom.format": "用户指定制版",
-  "msg.dp.ui.set.pattern": "指定制版",
+  "msg.dp.ui.set.format": "指定制版",
   "msg.dp.ui.reg.ex": "正则表达式语法",
   "msg.dp.ui.pattern.description": "可使用单一字符串或正则表达式语法",
   "msg.dp.ui.already.inuse": "已在使用中",

@@ -59,6 +59,7 @@ import { EditRuleDropComponent } from './dataflow/dataflow-detail/component/edit
 import { CreateSnapshotPopup } from './component/create-snapshot-popup.component';
 import { SnapshotLoadingComponent } from './component/snapshot-loading.component';
 import { RuleConditionInputComponent } from "./dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/rule-condition-input.component";
+import { RuleSuggestInputComponent } from "./dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/rule-suggest-input.component";
 import { EditRuleFieldComboComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-field-combo.component';
 import { EditRuleDeriveComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-derive.component';
 import { EditRuleSetComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-set.component';
@@ -162,6 +163,7 @@ const dataPreparationRoutes: Routes = [
     CreateSnapshotPopup,
     SnapshotLoadingComponent,
     RuleConditionInputComponent,
+    RuleSuggestInputComponent,
     PrepSelectBoxComponent,
     PrepSelectBoxCustomComponent,
     RadioSelectDatasetComponent,

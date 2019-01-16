@@ -56,6 +56,7 @@
     "sql-formatter": "^2.1.0",
     "stompjs": "^2.3.3",
     "string-pixel-width": "^1.4.0",
+    "antlr4": "^4.7.2",
     "zone.js": "^0.8.17"
   },
   "devDependencies": {

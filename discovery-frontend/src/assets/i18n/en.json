@@ -1199,7 +1199,7 @@
   "msg.dp.ui.cond.ph" : "Enter condition",
   "msg.dp.ui.timestamp.ph" : "Enter pattern",
   "msg.dp.ui.custom.format" : "Custom pattern",
-  "msg.dp.ui.set.pattern" : "Set pattern",
+  "msg.dp.ui.set.format" : "Set format",
   "msg.dp.ui.reg.ex" : "Regular expression",
   "msg.dp.ui.pattern.description" :"You can use a string or a regular expression",
   "msg.dp.ui.already.inuse" :"Already in use",

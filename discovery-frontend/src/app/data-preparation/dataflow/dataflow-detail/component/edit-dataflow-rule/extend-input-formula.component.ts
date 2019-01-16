@@ -111,15 +111,19 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
    * @param {string} command : command name
    * @param {string} condition : If the formula has already been entered, also show in the popup
    */
-  public open(fields: Field[], command: string, condition?: string) {
+  //public open(fields: Field[], command: string, condition?: string) {
+  public open(fields: Field[], data:{command : string, val : string, needCol?:boolean}) {
     this.isShow = true;
-    this._command = command;
+    this._command = data.command;
+
+    const condition = data.val;
+    const needCol = data.needCol; // need $col 
 
     // set fields (columns)
     this._fields = _.cloneDeep(fields);
 
     // add $col to field list when command is 'SET'
-    if ('set' === this._command || 'setCondition' === this._command) {
+    if ( needCol ) {
       this._fields.unshift({name :'$col', type : 'STRING'});
     }
 
