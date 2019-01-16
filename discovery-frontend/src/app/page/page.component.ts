@@ -1109,7 +1109,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.isPageNameEdit = !this.isPageNameEdit;
     this.editingPageName = this.widget.name;
     this.changeDetect.detectChanges();
-    this.pageName.nativeElement.focus();
+    // this.pageName.nativeElement.focus();
   }
 
   /**

@@ -109,11 +109,12 @@
 
               <!-- edit -->
               <div class="ddp-wrap-input">
-                <input #logicalNameElement type="text" class="ddp-input-edit"
-                       [(ngModel)]="reLogicalName"
-                       [focus]="logicalNameEditFl"
-                       (keyup.enter)="onClickUpdateLogicalName()"
-                       placeholder="{{'msg.metadata.ph.dictionary.create.column.name' | translate}}">
+                <component-input
+                  [compType]="'default'"
+                  [value]="reLogicalName"
+                  [placeHolder]="'msg.metadata.ph.dictionary.create.column.name' | translate"
+                  (changeValue)="reLogicalName = $event; onClickUpdateLogicalName();">
+                </component-input>
                 <span class="ddp-btn-check" (click)="onClickUpdateLogicalName()"></span>
               </div>
               <!-- //edit -->
@@ -135,11 +136,12 @@
               <!-- //data -->
               <!-- edit -->
               <div class="ddp-wrap-input">
-                <input #columnNameElement type="text" class="ddp-input-edit"
-                       [(ngModel)]="reColumnName"
-                       [focus]="columnNameEditFl"
-                       (keyup.enter)="onClickUpdateColumnName()"
-                       placeholder="{{'msg.metadata.ph.dictionary.create.recommendation.column.name' | translate}}">
+                <component-input
+                  [compType]="'default'"
+                  [value]="reColumnName"
+                  [placeHolder]="'msg.metadata.ph.dictionary.create.recommendation.column.name' | translate"
+                  (changeValue)="reColumnName = $event; onClickUpdateColumnName();">
+                </component-input>
                 <span class="ddp-btn-check" (click)="onClickUpdateColumnName()"></span>
               </div>
               <!-- //edit -->
@@ -161,11 +163,12 @@
               <!-- //data -->
               <!-- edit -->
               <div class="ddp-wrap-input">
-                <input #shortNameElement type="text" class="ddp-input-edit"
-                       [(ngModel)]="reShortName"
-                       [focus]="shortNameEditFl"
-                       (keyup.enter)="onClickUpdateShortName()"
-                       placeholder="{{'msg.metadata.ph.dictionary.create.recommendation.short.name' | translate}}">
+                <component-input
+                  [compType]="'default'"
+                  [value]="reShortName"
+                  [placeHolder]="'msg.metadata.ph.dictionary.create.recommendation.short.name' | translate"
+                  (changeValue)="reShortName = $event; onClickUpdateShortName();">
+                </component-input>
                 <span class="ddp-btn-check" (click)="onClickUpdateShortName()"></span>
               </div>
               <!-- //edit -->
@@ -187,12 +190,18 @@
               <!-- //data -->
               <!-- edit -->
               <div class="ddp-wrap-input">
-              <textarea #descElement type="text"
-                        rows="3"
-                        placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-                        [(ngModel)]="reDesc"
-                        [focus]="descEditFl">
-              </textarea>
+              <!--<textarea #descElement type="text"-->
+                        <!--rows="3"-->
+                        <!--placeholder="{{'msg.comm.ui.create.desc' | translate}}"-->
+                        <!--[(ngModel)]="reDesc"-->
+                        <!--[focus]="descEditFl">-->
+              <!--</textarea>-->
+                <component-input
+                  [compType]="'default'"
+                  [value]="reDesc"
+                  [placeHolder]="'msg.comm.ui.create.desc' | translate"
+                  (changeValue)="reDesc = $event; onClickUpdateDescription();">
+                </component-input>
                 <span class="ddp-btn-check" (click)="onClickUpdateDescription()"></span>
               </div>
               <!-- //edit -->

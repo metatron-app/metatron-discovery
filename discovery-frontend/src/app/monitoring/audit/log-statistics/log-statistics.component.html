@@ -72,8 +72,12 @@
       <!-- 검색 -->
       <div class="ddp-form-search ddp-fleft">
         <em class="ddp-icon-search"></em>
-        <input type="text" placeholder="{{'msg.statistics.ui.search.ph' | translate}}" [(ngModel)]="searchText" (keydown)="search($event)">
-        <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchText = ''; getStatisticData()"></em>
+        <component-input
+          [compType]="'search'"
+          [value]="searchText"
+          [placeHolder]="'msg.statistics.ui.search.ph' | translate"
+          (changeValue)="searchText = $event; search();">
+        </component-input>
       </div>
       <!-- //검색 -->
 

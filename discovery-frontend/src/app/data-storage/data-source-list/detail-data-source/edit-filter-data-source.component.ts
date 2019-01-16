@@ -190,14 +190,6 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
   }
 
   /**
-   * Click search keyword
-   * @param {KeyboardEvent} event
-   */
-  public onSearchText(event: KeyboardEvent): void {
-    event.keyCode === 13 &&  this.searchText(event.target['value']);
-  }
-
-  /**
    * Change role type filter
    * @param type
    */
