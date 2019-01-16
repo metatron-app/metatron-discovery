@@ -46,7 +46,8 @@ import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'app-config-filter-inclusion',
-  templateUrl: './configure-filters-inclusion.component.html'
+  templateUrl: './configure-filters-inclusion.component.html',
+  styles:[ '.sys-essential-result { position: relative !important; bottom: 0 !important; left: 0 !important; right: 0 !important; }']
 })
 export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupComponent implements OnInit, OnDestroy {
 
@@ -87,7 +88,6 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   private _board: Dashboard;
 
   // 선택 정보
-  private _selectedValues: Candidate[] = [];   // 기본 선택 값 목록
   private _candidateValues: Candidate[] = [];  // 기본 선택 값 목록
 
   // 대상 필드 정보
@@ -97,6 +97,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   private _condition: MeasureInequalityFilter;
   private _limitation: MeasurePositionFilter;
   private _wildcard: WildCardFilter;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -104,6 +105,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public selectedValues: Candidate[] = [];   // 기본 선택 값 목록
 
   public isShow: boolean = false; // 컴포넌트 표시 여부
   public isOnlyShowCandidateValues: boolean = false;  // 표시할 후보값만 표시 여부
@@ -129,6 +131,9 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   public limitation: MeasurePositionFilter;
   public wildcard: WildCardFilter;
   public measureFields: Field[] = [];
+
+  public useDefineValue:boolean = true;
+  public usePaging:boolean = false;
 
   @Output()
   public goToSelectField: EventEmitter<any> = new EventEmitter();
@@ -166,8 +171,12 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    * @param {Dashboard} board
    * @param {InclusionFilter} targetFilter
    * @param {Field | CustomField} targetField
+   * @param {boolean} useDefineValue
    */
-  public showComponent(board: Dashboard, targetFilter: InclusionFilter, targetField?: (Field | CustomField)) {
+  public showComponent(board: Dashboard, targetFilter: InclusionFilter, targetField: (Field | CustomField), useDefineValue:boolean = true) {
+
+    this.useDefineValue = useDefineValue;
+
     // 데이터 설정
     const preFilterData = {
       contains: this.wildCardTypeList[0].value,
@@ -211,8 +220,8 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
 
     // 값 정보 설정
     if (targetFilter.valueList && 0 < targetFilter.valueList.length) {
-      this._selectedValues = targetFilter.valueList.map(item => this._stringToCandidate(item));
-      (1 < this._selectedValues.length) && (targetFilter.selector = InclusionSelectorType.MULTI_LIST);
+      this.selectedValues = targetFilter.valueList.map(item => this._stringToCandidate(item));
+      (1 < this.selectedValues.length) && (targetFilter.selector = InclusionSelectorType.MULTI_LIST);
     }
     if (targetFilter.candidateValues && 0 < targetFilter.candidateValues.length) {
       this._candidateValues = targetFilter.candidateValues.map(item => this._stringToCandidate(item));
@@ -228,15 +237,15 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     this.loadingShow();
     this.datasourceService.getCandidateForFilter(targetFilter, board, [], targetField, 'COUNT', this.searchText)
       .then(result => {
-        this._setCandidateResult(result, targetFilter, targetField);
         this.targetFilter = targetFilter;
         this._targetField = targetField;
         this._board = board;
+        this._setCandidateResult(result, targetFilter, targetField);
 
         // 전체 선택 기능 체크 및 전체 선택 기능이 비활성 일떄, 초기값 기본 선택 - for Essential Filter
         this.useAll = !(-1 < targetField.filteringSeq);
-        if (false === this.useAll && 0 === this._selectedValues.length) {
-          this._selectedValues.push(this._candidateList[0]);
+        if (false === this.useAll && 0 === this.selectedValues.length) {
+          this.selectedValues.push(this._candidateList[0]);
         }
 
         this.isShow = true;
@@ -253,7 +262,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    */
   public getData(): InclusionFilter {
     const filter: InclusionFilter = this.targetFilter;
-    filter.valueList = this._selectedValues.map(item => item.name);
+    filter.valueList = this.selectedValues.map(item => item.name);
     filter.candidateValues = this._candidateValues.map(item => item.name);
     filter.definedValues = this._candidateList.filter(item => item.isDefinedValue).map(item => item.name);
     return filter;
@@ -281,8 +290,8 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
       } else {
         targetFilter.selector = InclusionSelectorType.SINGLE_COMBO;
       }
-      if (1 < this._selectedValues.length) {
-        this._selectedValues = [this._selectedValues[0]];
+      if (1 < this.selectedValues.length) {
+        this.selectedValues = [this.selectedValues[0]];
         this.safelyDetectChanges();
       }
     } else {
@@ -297,34 +306,19 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - 검색 관련
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 검색어 리셋
+   * 검색어를 이용한 목록 조회
    */
-  public resetSearchText(isClear: boolean) {
-    if (isClear) {
-      this._inputSearch.nativeElement.value = '';
-    } else {
-      // 검색어 설정
-      this._inputSearch.nativeElement.value = this.searchText;
-    }
-  } // function - resetSearchText
-
-  /**
-   * 검색 조회
-   */
-  public searchEvent() {
-    this.searchText = this._inputSearch.nativeElement.value;    // 검색어 설정
-    this.setCandidatePage(1, true);
-  } // function - searchEvent
-
-  /**
-   * 검색 조회 - 키보드 이벤트
-   * @param {KeyboardEvent} event
-   */
-  public searchEventPressKey(event: KeyboardEvent) {
-    (13 === event.keyCode) && (this.searchEvent());
-  } // function - searchEventPressKey
+  public candidateFromSearchText() {
+    this.loadingShow();
+    const sortBy:string = ( this.targetFilter.sort && this.targetFilter.sort.by ) ? this.targetFilter.sort.by.toString() : 'COUNT';
+    this.datasourceService.getCandidateForFilter(this.targetFilter, this._board, [], this._targetField, sortBy, this.searchText )
+      .then(result => {
+      this._setCandidateResult(result, this.targetFilter, this._targetField);
+      this.safelyDetectChanges();
+      this.loadingHide();
+    });
+  } // function - candidateFromSearchText
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - 필터링 관련
@@ -543,19 +537,13 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
       this.lastPage = 1;
       this.totalCount = 0;
     }
-
-    // 더이상 페이지가 없을 경우 리턴
-    if (page <= 0) return;
-    if (this.lastPage < page) return;
-
-    this.currentPage = page;
-    let start = 0;
-    let end = 0;
-
-    // 필드 페이징
     if (this._candidateList && 0 < this._candidateList.length) {
 
       let pagedList: Candidate[] = _.cloneDeep(this._candidateList);
+
+      if( this.targetFilter && this.targetFilter.showSelectedItem ) {
+        pagedList = pagedList.filter(item => -1 < this.selectedValues.findIndex( val => val.name === item.name ) );
+      }
 
       // 검색 적용
       if ('' !== this.searchText) {
@@ -567,20 +555,34 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
         pagedList = pagedList.filter(item => this.isShowItem(item));
       }
 
-      // 총사이즈
-      this.totalCount = pagedList.length;
+      if( this.usePaging ) {
+        // 더이상 페이지가 없을 경우 리턴
+        if (page <= 0) return;
+        if (this.lastPage < page) return;
 
-      // 마지막 페이지 계산
-      this.lastPage = (this.totalCount % this.pageSize === 0) ? (this.totalCount / this.pageSize) : Math.floor(this.totalCount / this.pageSize) + 1;
+        this.currentPage = page;
+        let start = 0;
+        let end = 0;
 
-      start = (page * this.pageSize) - this.pageSize;
-      end = page * this.pageSize;
-      if (end > this.totalCount) {
-        end = this.totalCount;
+        // 총사이즈
+        this.totalCount = pagedList.length;
+
+        // 마지막 페이지 계산
+        this.lastPage = (this.totalCount % this.pageSize === 0) ? (this.totalCount / this.pageSize) : Math.floor(this.totalCount / this.pageSize) + 1;
+
+        start = (page * this.pageSize) - this.pageSize;
+        end = page * this.pageSize;
+        if (end > this.totalCount) {
+          end = this.totalCount;
+        }
+        // 현재 페이지에 맞게 데이터 자르기
+        this.pageCandidateList = pagedList.slice(start, end);
+
+      } else {
+        this.pageCandidateList = pagedList;
       }
-      // 현재 페이지에 맞게 데이터 자르기
-      this.pageCandidateList = pagedList.slice(start, end);
     }
+
   } // function - setCandidatePage
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -593,12 +595,12 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   public candidateSelectAll(event: any) {
     const checked = event.target ? event.target.checked : event.currentTarget.checked;
     if (this.isSingleSelect(this.targetFilter)) {
-      this._selectedValues = [];
+      this.selectedValues = [];
     } else {
       if (checked) {
-        this._selectedValues = _.cloneDeep(this._candidateList);
+        this.selectedValues = _.cloneDeep(this._candidateList);
       } else {
-        this._selectedValues = [];
+        this.selectedValues = [];
       }
     }
   } // function - candidateSelectAll
@@ -609,9 +611,9 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    */
   public isCheckedAllItem(): boolean {
     if (this.useAll && this.isSingleSelect(this.targetFilter)) {
-      return 0 === this._selectedValues.length
+      return 0 === this.selectedValues.length
     } else {
-      return this._candidateList.length === this._selectedValues.length;
+      return this._candidateList.length === this.selectedValues.length;
     }
   } // function - isCheckedAllItem
 
@@ -621,7 +623,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    * @return {boolean}
    */
   public isCheckedItem(listItem: Candidate): boolean {
-    return -1 < this._selectedValues.findIndex(item => item.name === listItem.name);
+    return -1 < this.selectedValues.findIndex(item => item.name === listItem.name);
   } // function - isCheckedItem
 
   /**
@@ -642,14 +644,14 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     const filter: InclusionFilter = this.targetFilter;
     if (this.isSingleSelect(filter)) {
       // 싱글 리스트
-      this._selectedValues = [item];
+      this.selectedValues = [item];
     } else {
       // 멀티 리스트
       const checked = $event.target ? $event.target.checked : $event.currentTarget.checked;
       if (checked) {
-        this._selectedValues.push(item);
+        this.selectedValues.push(item);
       } else {
-        _.remove(this._selectedValues, {name: item.name});
+        _.remove(this.selectedValues, {name: item.name});
       }
     }
   } // function - candidateSelect
