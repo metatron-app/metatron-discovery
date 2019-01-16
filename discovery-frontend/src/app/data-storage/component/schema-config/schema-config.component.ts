@@ -268,8 +268,13 @@ export class SchemaConfigComponent extends AbstractComponent {
   public checkAndInitTimestampField(): void {
     // set timestamp list
     this._setTimestampFieldList();
-    // if selected field is timestamp field
-    if (this.timestampFieldList.every(field => field !== this.selectedTimestampField)) {
+    // if exist timestamp list, not selected timestamp field
+    if (this.timestampFieldList.length > 0 && !this.selectedTimestampField) {
+      // set selected timestamp field
+      this.selectedTimestampField = this.timestampFieldList[0];
+      // set FIELD timestamp type
+      this.selectedTimestampType = 'FIELD';
+    } else if (this.timestampFieldList.every(field => field !== this.selectedTimestampField)) { // if selected field is timestamp field
       // set NULL selected timestamp field
       this.selectedTimestampField = null;
       // set CURRENT timestamp type
