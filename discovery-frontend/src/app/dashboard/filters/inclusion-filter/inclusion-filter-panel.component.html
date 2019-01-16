@@ -124,7 +124,7 @@
 <div *ngIf="isShowFilter" class="ddp-contents-divide ddp-type" >
   <div class="ddp-ui-divide" >
     <!-- 검색 영여 -->
-    <div class="ddp-search-value" [class.ddp-search]="isSearchFocus" (blur)="isSearchFocus = false;">
+    <div class="ddp-search-value ddp-warning" [class.ddp-search]="isSearchFocus" (clickOutside)="isSearchFocus = false;">
       <a (click)="openUpdateFilterPopupForSearch()" href="javascript:" class="ddp-btn-line">Search all</a>
       <div class="ddp-data-value">
         <em class="icon-search"></em>
@@ -132,6 +132,7 @@
                (focus)="isSearchFocus = true"
                (keyup)="setCandidatePage(1, true)"
                type="text" placeholder="Search for values" >
+        <a *ngIf="searchText" (click)="searchText = '';setCandidatePage(1, true);" href="javascript:" class="ddp-btn-del"></a>
         <!--<em class="icon-warning"></em>-->
       </div>
     </div>
