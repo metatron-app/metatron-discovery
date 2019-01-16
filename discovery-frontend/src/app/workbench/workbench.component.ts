@@ -2677,7 +2677,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               data: currentResultTab.result.data
             }
           },
-          workbenchFl: true
+          workbenchFl: true,
+          fieldList: currentResultTab.result.fields,
+          fieldData: currentResultTab.result.data
         };
 
         // 로딩 hide

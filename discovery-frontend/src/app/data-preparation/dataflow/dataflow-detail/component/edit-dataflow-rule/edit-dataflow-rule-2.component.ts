@@ -170,6 +170,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   public isEnterKeyPressedFromOuter: boolean = false;
 
+  public isAggregationIncluded: boolean = false;
 
   get filteredWrangledDatasets() {
     if (this.dataflow.datasets.length === 0) return [];
@@ -1139,7 +1140,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * Open advanced formula input popup (set, keep, derive, delete)
    * @param {string} command
    */
-  public openPopupFormulaInput(data: {command : string, val : string}) {
+  public openPopupFormulaInput(data: {command : string, val : string, needCol?:boolean}) {
     const fields: Field[] = this.selectedDataSet.gridData.fields;
 
     // variables vary according to the rule name
@@ -1155,7 +1156,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     //   val = 'keepRow';
     // }
 
-    this.extendInputFormulaComponent.open(fields, data.command, this._editRuleComp.getValue( data.val ));
+  
+    //this.extendInputFormulaComponent.open(fields, data.command, this._editRuleComp.getValue( data.val ));
+
+    data.val = this._editRuleComp.getValue( data.val );
+    this.extendInputFormulaComponent.open(fields, data);
   }
 
   /**
@@ -1163,13 +1168,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param {{command: string, formula: string}} data
    */
   public doneInputFormula(data: { command: string, formula: string }) {
-
-    if (data.command === 'setCondition') {
-      this._editRuleComp.setValue( 'forceCondition', data.formula );
-    } else {
-      this._editRuleComp.setValue( 'forceFormula', data.formula );
-    }
-
+    this._editRuleComp.doneInputFormula(data);
   }
 
   /**
@@ -1581,6 +1580,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           // Set rule list
           //this.setRuleList(apiData['ruleStringInfos']);
           this.setRuleList(apiData['transformRules']);
+          this.isAggregationIncluded = this.hasAggregation();
 
           // init ruleVO
           this.initRule(apiData);
@@ -1902,6 +1902,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // set rule
     if (this.selectedDataSet.rules && this.selectedDataSet.rules.length > 0) {
       this.setRuleList(this.selectedDataSet.rules);
+      this.isAggregationIncluded = this.hasAggregation();
     }
 
     // init ruleVO
@@ -2032,6 +2033,25 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this.isRuleJoinModalShow = true;
     this.changeDetect.detectChanges();
+  }
+
+  /**
+   * Check if rule list contains aggregate rule
+   * returns true is rule list contains aggregate rule
+   * @returns {boolean}
+   */
+  private hasAggregation() {
+
+    // clone ruleList
+    let rules = [...this.ruleList];
+
+    // Only use up to serverSyncIndex
+    rules = rules.splice(0,this.serverSyncIndex+1);
+
+    const idx: number = rules.findIndex((item) => {
+      return item.valid && item.command === 'aggregate';
+    });
+    return !(idx === -1);
   }
 
 }

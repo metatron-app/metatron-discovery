@@ -879,8 +879,6 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   private formatBytes(a,b) { // a=크기 , b=소숫점자릿
 
     if (a === -1) {
-      return 'N/A';
-    } else if (a === 0) {
       return "0 Bytes";
     }
 

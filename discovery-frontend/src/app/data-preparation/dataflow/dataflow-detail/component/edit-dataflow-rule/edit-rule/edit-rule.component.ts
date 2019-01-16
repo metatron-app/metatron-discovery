@@ -114,6 +114,19 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
     this.safelyDetectChanges();
   } // function - setValue
 
+  /**
+   * Apply formula using Advanced formula popup
+   * @param {{command: string, formula: string}} data
+   */
+  public doneInputFormula(data: { command: string, formula: string }) {
+
+    if (data.command === 'setCondition') {
+      this.setValue( 'forceCondition', data.formula );
+    } else {
+      this.setValue( 'forceFormula', data.formula );
+    }
+
+  }
 
   /**
    * Returns value of variable name equals the key

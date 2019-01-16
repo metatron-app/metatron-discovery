@@ -186,10 +186,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
     // validation
     if (this.nextValidation()) {
       // 데이터 변경이 일어난경우 스키마 삭제
-      if (this.isChangeData()) {
-        this._sourceData.hasOwnProperty('schemaData') && (delete this._sourceData.schemaData);
-        this._sourceData.hasOwnProperty('ingestionData') && (delete this._sourceData.ingestionData);
-      }
+      this._deleteSchemaData();
       // 기존 데이터베이스 삭제후 생성
       this.deleteAndSaveDatabaseData();
       // 다음페이지로 이동
@@ -459,6 +456,17 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
+   * 데이터가 변경이 일어나고 스키마데이터가 있다면 스키마데이터 삭제
+   * @private
+   */
+  private _deleteSchemaData() {
+    if (this.isChangeData()) {
+      this._sourceData.hasOwnProperty('schemaData') && (delete this._sourceData.schemaData);
+      this._sourceData.hasOwnProperty('ingestionData') && (delete this._sourceData.ingestionData);
+    }
+  }
+
+  /**
    * 기존 데이터베이스 삭제후 새로 생성
    */
   private deleteAndSaveDatabaseData() {
@@ -468,6 +476,9 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
     }
     // 현재 페이지의 데이터소스 생성정보 저장
     this.saveDatabaseData(this._sourceData);
+    // set field list, field data
+    this._sourceData.fieldList = this.selectedType === 'TABLE' ? this.tableDetailData.fields : this.queryDetailData.fields;
+    this._sourceData.fieldData = this.selectedType === 'TABLE' ? this.tableDetailData.data : this.queryDetailData.data;
   }
 
 

@@ -138,11 +138,11 @@
 </div>
 
 
-<!-- 데이터 플로우 삭제 -->
+<!-- Delete dataflow popup -->
 <app-delete-modal (deleteConfirm)="deleteDataflow()"></app-delete-modal>
-<!-- //데이터 플로우 삭제 -->
+<!-- //Delete dataflow popup -->
 
-<!-- 룰 편집 화면 -->
+<!-- Main grid -->
 <app-edit-dataflow-rule-2 *ngIf="step=='update-rules'"
                         [dataflow]="dataflow"
                         [selectedDataSet]="selectedDataSet"
@@ -150,15 +150,9 @@
                         (changeDataset)="onDatasetChange($event)"
                         (closeEditRule)="closeEditRule()">
 </app-edit-dataflow-rule-2>
-<!-- //룰 편집 화면 -->
+<!-- //Main grid -->
 
-<!--<app-add-dataset *ngIf="isDatasetAddPopupOpen"-->
-                 <!--(closeEvent)="closeAddDatasetPopup()"-->
-                 <!--(doneEvent)="datasetComplete($event);"-->
-                 <!--[dataflowId]="dataflow.dfId"-->
-                 <!--[originalDatasetList]="dataSetList">-->
-<!--</app-add-dataset>-->
-
+<!-- Add dataset popup / swap popup -->
 <long-update-popup
   *ngIf="isSelectDatasetPopupOpen"
   [popType]="longUpdatePopupType"
@@ -169,6 +163,14 @@
   (addEvent)="datasetPopupAddEvent($event)"
   [isRadio]="isRadio">
 </long-update-popup>
+<!-- // Add dataset popup / swap popup -->
 
-<create-snapshot-popup (snapshotCreateFinishEvent)="snapshotCreateFinish($event)"></create-snapshot-popup>
+<!--Snapshot create popup-->
+<create-snapshot-popup (snapshotCreateFinishEvent)="snapshotCreateFinish($event)">
+</create-snapshot-popup>
+<!--// Snapshot create popup-->
+
+
+<!--Create snapshot loading component-->
 <snapshot-loading></snapshot-loading>
+<!-- // Create snapshot loading component-->
