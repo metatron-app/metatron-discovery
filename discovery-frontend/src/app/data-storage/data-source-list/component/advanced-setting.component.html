@@ -81,14 +81,16 @@
               </div>
               <div class="ddp-data-det">
                 {{'msg.storage.ui.job.properties.description' | translate}}
-              </div>
-              <div class="ddp-hover-tooltip ddp-data-det" >
-                <a target="_blank" rel="noopener noreferrer"
-                   href="http://hadoop.apache.org/docs/stable/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml">
-                  {{'msg.storage.ui.job.properties.description.link' | translate}}</a>
-                <div class="ddp-ui-tooltip-info ddp-down">
-                  http://hadoop.apache.org/docs/stable/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml
-                </div>
+                <dl class="ddp-dl-det" style="padding-top: 10px">
+                  <a target="_blank" rel="noopener noreferrer"
+                     class="ddp-hover-tooltip ddp-hover-underline"
+                     href="http://hadoop.apache.org/docs/stable/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml">
+                    {{'msg.storage.ui.job.properties.description.link' | translate}}
+                    <div class="ddp-ui-tooltip-info" style="top: unset">
+                      http://hadoop.apache.org/docs/stable/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml
+                    </div>
+                  </a>
+                </dl>
               </div>
             </div>
             <!-- //popup -->
