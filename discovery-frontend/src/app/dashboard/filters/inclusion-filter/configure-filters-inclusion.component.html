@@ -256,7 +256,7 @@
       <div class="ddp-option-search">
         <div (clickOutside)="targetFilter['isShowSearch'] = false" [class.ddp-search]="targetFilter['isShowSearch']"
              class="ddp-search-value ddp-warning" >
-          <a (click)="candidateFromSearchText()" href="javascript:" class="ddp-btn-line">Search all</a>
+          <a (click)="candidateFromSearchText()" href="javascript:" class="ddp-btn-line">{{'msg.comm.ui.search-all' | translate}}</a>
           <div class="ddp-data-value">
             <em class="icon-search"></em>
             <input #inputSearch type="text" placeholder="{{'msg.board.ui.search.item.name' | translate}}"
@@ -348,7 +348,7 @@
                  type="checkbox" >
           <i></i>
         </label>
-        {{selectedValues.length}} values selected
+        {{ 'msg.board.filter.selected-values' | translate : { value : selectedValues.length } }}
       </div>
     </div>
     <!-- // 선택 결과 표시 영역 -->

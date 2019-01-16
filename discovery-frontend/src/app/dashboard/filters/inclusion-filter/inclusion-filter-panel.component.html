@@ -125,7 +125,7 @@
   <div class="ddp-ui-divide" >
     <!-- 검색 영여 -->
     <div class="ddp-search-value ddp-warning" [class.ddp-search]="isSearchFocus" (clickOutside)="isSearchFocus = false;">
-      <a (click)="openUpdateFilterPopupForSearch()" href="javascript:" class="ddp-btn-line">Search all</a>
+      <a (click)="openUpdateFilterPopupForSearch()" href="javascript:" class="ddp-btn-line">{{'msg.comm.ui.search-all' | translate}}</a>
       <div class="ddp-data-value">
         <em class="icon-search"></em>
         <input [(ngModel)]="searchText"
@@ -189,7 +189,7 @@
                  type="checkbox" >
           <i></i>
         </label>
-        {{filter.valueList.length}} values selected
+        {{ 'msg.board.filter.selected-values' | translate : { value : filter.valueList.length } }}
       </div>
       <!-- 페이징 영역 -->
       <div class="ddp-ui-page">
