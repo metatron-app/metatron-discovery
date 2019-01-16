@@ -13,7 +13,7 @@
   -->
 
 <div class="ddp-wrap-input-info"
-  [ngClass]="{'ddp-selected':isAutoCompleteSuggestionListOpen}"
+  [ngClass]="{'ddp-selected':isSuggestOpen}"
   (clickOutside)="closeSuggest()">
   <input #inputElem
         tabindex="{{tabIndex}}"
