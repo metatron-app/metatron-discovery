@@ -170,6 +170,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   public isEnterKeyPressedFromOuter: boolean = false;
 
+  public isAggregationIncluded: boolean = false;
 
   get filteredWrangledDatasets() {
     if (this.dataflow.datasets.length === 0) return [];
@@ -1581,6 +1582,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           // Set rule list
           //this.setRuleList(apiData['ruleStringInfos']);
           this.setRuleList(apiData['transformRules']);
+          this.isAggregationIncluded = this.hasAggregation();
 
           // init ruleVO
           this.initRule(apiData);
@@ -1902,6 +1904,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // set rule
     if (this.selectedDataSet.rules && this.selectedDataSet.rules.length > 0) {
       this.setRuleList(this.selectedDataSet.rules);
+      this.isAggregationIncluded = this.hasAggregation();
     }
 
     // init ruleVO
@@ -2032,6 +2035,25 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this.isRuleJoinModalShow = true;
     this.changeDetect.detectChanges();
+  }
+
+  /**
+   * Check if rule list contains aggregate rule
+   * returns true is rule list contains aggregate rule
+   * @returns {boolean}
+   */
+  private hasAggregation() {
+
+    // clone ruleList
+    let rules = [...this.ruleList];
+
+    // Only use up to serverSyncIndex
+    rules = rules.splice(0,this.serverSyncIndex+1);
+
+    const idx: number = rules.findIndex((item) => {
+      return item.valid && item.command === 'aggregate';
+    });
+    return !(idx === -1);
   }
 
 }

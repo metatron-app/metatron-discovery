@@ -1296,6 +1296,10 @@
   "msg.dp.ui.join.key.required" : "At least one join key is required",
   "msg.dp.alert.format.error" : "Please enter timestamp pattern",
   "msg.dp.alert.clone.failed" : "Clone failed",
+  "msg.dp.ui.aggregate.warning1" : "This rule will execute for the sampled data.",
+  "msg.dp.ui.aggregate.warning2" : "The exact results for the original data can be found in the snapshot.",
+  "msg.dp.ui.aggregate.warning.grid-top1" : "This is the result of the sampled data.",
+  "msg.dp.ui.aggregate.warning.grid-top2" : "Results for all data may vary. (aggregate)",
   "msg.dp.alert.fail.change.ssName" : "Failed to modify snapshot name",
   "msg.dp.alert.modify.sSname" : "Snapshot name modified",
 
