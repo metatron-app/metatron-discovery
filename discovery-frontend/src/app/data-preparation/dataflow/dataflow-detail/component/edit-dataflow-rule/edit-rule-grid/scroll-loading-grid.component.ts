@@ -219,6 +219,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     }
     if(ieBrowser == false){
       $('.slick-headerrow').css('overflow-x','auto');
+      $('.slick-header').css('overflow-x','auto');
     }
     // horizontal_scroll_in_histogram_area
 
@@ -515,6 +516,11 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
       });
       grid.registerPlugin(headerButtonsPlugin);
     }
+
+    grid.getContainerNode().querySelector('.slick-header').addEventListener('scroll', (event)=>{
+      if(grid.getContainerNode().querySelector('.slick-viewport').scrollLeft != grid.getContainerNode().querySelector('.slick-header').scrollLeft)
+      grid.getContainerNode().querySelector('.slick-viewport').scrollLeft = grid.getContainerNode().querySelector('.slick-header').scrollLeft;
+    });
 
     return grid;
   } // function - _generateGrid
