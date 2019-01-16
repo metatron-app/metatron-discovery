@@ -67,7 +67,8 @@
       <div class="right-component rule-right" style="float: left; height: 100%;">
 
         <!-- Rule list -->
-        <app-rule-list [ruleList]="ruleList"
+        <app-rule-list [dsId]="selectedDataSet.dsId"
+                       [ruleList]="ruleList"
                        [redoable]="redoable"
                        [undoable]="undoable"
                        (jumpEvent)="jump($event)"
@@ -279,7 +280,7 @@
 </div>
 
 <!-- Snapshot create popup -->
-<create-snapshot-popup (snapshotCreateFinishEvent)="initSnapshotList(selectedDataSet.dsId, true)"
+<create-snapshot-popup (snapshotCreateFinishEvent)="initSnapshotList()"
                        (snapshotCloseEvent)="snapshotCreateClose()">
 
 </create-snapshot-popup>
@@ -313,7 +314,7 @@
 
 
 <!-- Snapshot detail popup -->
-<app-data-snapshot-detail (snapshotDetailCloseEvent)="initSnapshotList(selectedDataSet.dsId,true)"
+<app-data-snapshot-detail (snapshotDetailCloseEvent)="initSnapshotList()"
                           (navigateToDataflow)="prev()">
 </app-data-snapshot-detail>
 <!-- // Snapshot detail popup -->

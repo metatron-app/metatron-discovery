@@ -64,8 +64,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -77,6 +82,7 @@ import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -107,11 +113,24 @@ import java.util.List;
 
 import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS;
 import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_SINGLE_QUOTES;
+import static java.util.Optional.ofNullable;
 
 @Configuration
 @Import(RepositoryRestMvcConfiguration.class)
 @EnableWebMvc
 public class ApiResourceConfig extends WebMvcConfigurerAdapter {
+
+    private static Logger LOGGER = LoggerFactory.getLogger(ApiResourceConfig.class);
+
+    private static final String RESOURCE_PATH = "/resource/";
+    private static final String CHUNK_JS = RESOURCE_PATH + "*.*.chunk.js";
+    private static final String BUNDLE_JS = RESOURCE_PATH + "*.*.bundle.js";
+    private static final String BUNDLE_CSS = RESOURCE_PATH + "*.*.bundle.css";
+    private static final String PNG = RESOURCE_PATH + "*.*.png";
+    private static final String JPG = RESOURCE_PATH + "*.*.jpg";
+    private static final String WOFF = RESOURCE_PATH + "*.*.woff";
+    private static final String EOF = RESOURCE_PATH + "*.*.eot";
+    private static final String TTF = RESOURCE_PATH + "*.*.ttf";
 
     public final static String APP_UI_ROUTE_PREFIX = "/app/v2/";
     public final static String API_PREFIX = "/api";
@@ -120,6 +139,9 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
 
     @Autowired
     MetatronProperties metatronProperties;
+
+    @Value("${polaris.resources.cache.cacheControl.max-age: 604800}")
+    private Integer cacheControlMaxAge;
 
     /**
      * Maps all AngularJS routes to index so that they work with direct linking.
@@ -152,9 +174,24 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/resource/**").addResourceLocations("classpath:resource/");
-        registry.addResourceHandler("/assets/**").addResourceLocations("classpath:resource/assets/");
-        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+
+        registry.addResourceHandler("/resource/**")
+            .addResourceLocations("classpath:resource/");
+
+        ofNullable(cacheControlMaxAge).ifPresent(value -> {
+            try {
+                registry.addResourceHandler(CHUNK_JS, BUNDLE_JS, BUNDLE_CSS, PNG, JPG, WOFF, EOF, TTF)
+                    .addResourceLocations("classpath:resource/")
+                    .setCacheControl(CacheControl.maxAge(value, TimeUnit.SECONDS).cachePublic());
+            } catch (Exception e) {
+                LOGGER.debug("Please check the value of \"polaris.resources.cache.cacheControl.max-age\" in application.yaml. Resource caching is not enabled.");
+            }
+        });
+
+        registry.addResourceHandler("/assets/**")
+            .addResourceLocations("classpath:resource/assets/");
+        registry.addResourceHandler("/webjars/**")
+            .addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
     @Override

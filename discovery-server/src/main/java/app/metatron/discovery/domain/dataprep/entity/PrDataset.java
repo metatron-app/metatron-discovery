@@ -25,7 +25,6 @@ import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
@@ -118,8 +117,12 @@ public class PrDataset extends AbstractHistoryEntity {
     private String dsDesc;
 
     @JsonBackReference
-    @ManyToMany(mappedBy = "datasets", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE,CascadeType.REFRESH,CascadeType.DETACH})
+    @ManyToMany(mappedBy = "datasets", fetch = FetchType.LAZY)
     private List<PrDataflow> dataflows;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy="dataset", fetch=FetchType.LAZY)
+    private List<PrTransformRule> transformRules;
 
     @Column(name = "ds_type")
     @Enumerated(EnumType.STRING)
@@ -206,10 +209,6 @@ public class PrDataset extends AbstractHistoryEntity {
     @Column(name = "query_stmt")
     String queryStmt;
 
-    @JsonIgnore
-    @OneToMany(mappedBy="dataset", fetch=FetchType.LAZY, cascade = {CascadeType.REMOVE})
-    private List<PrTransformRule> transformRules;
-
     @Size(max = 255)
     @Column(name = "creator_df_id")
     private String creatorDfId;
@@ -237,10 +236,13 @@ public class PrDataset extends AbstractHistoryEntity {
     private String custom;
 
     @Transient
+    @JsonProperty
     DataFrame gridResponse;
 
+    /*
     @Transient
     Map<String,Object> connectionInfo;
+    */
 
     public boolean addDataflow(PrDataflow dataflow) {
         if(dataflow!=null) {
@@ -577,6 +579,7 @@ public class PrDataset extends AbstractHistoryEntity {
         this.gridResponse = gridResponse;
     }
 
+    /*
     public Map<String, Object> getConnectionInfo() {
         return connectionInfo;
     }
@@ -584,6 +587,7 @@ public class PrDataset extends AbstractHistoryEntity {
     public void setConnectionInfo(Map<String, Object> connectionInfo) {
         this.connectionInfo = connectionInfo;
     }
+    */
 
     // Temporary functions for backward compatibility
     /*

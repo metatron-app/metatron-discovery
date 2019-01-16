@@ -13,17 +13,16 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnInit, Output, SimpleChanges,
+  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges,
   ViewChild
 } from '@angular/core';
 import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { GridComponent } from '../../common/component/grid/grid.component';
 import { DatasetService } from '../dataset/service/dataset.service';
-//import { Dataset, Field } from '../../domain/data-preparation/dataset';
 import { PrDataset, Field } from '../../domain/data-preparation/pr-dataset';
 import { header, SlickGridHeader } from '../../common/component/grid/grid.header';
-import { isNull, isUndefined } from 'util';
+import { isNull, isUndefined, isNullOrUndefined } from 'util';
 import { GridOption } from '../../common/component/grid/grid.option';
 import * as pixelWidth from 'string-pixel-width';
 declare let moment : any;
@@ -33,7 +32,7 @@ declare let moment : any;
   templateUrl: './dataset-summary.component.html',
   providers: [MomentDatePipe]
 })
-export class DatasetSummaryComponent extends AbstractComponent implements OnInit, OnChanges {
+export class DatasetSummaryComponent extends AbstractComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -56,13 +55,18 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
   @Input()
   public datasetId : string;
 
-  //public dataset : Dataset;
   public dataset : PrDataset;
+
+  public isRequested: boolean = false;
+
+  public interval ;
+
+  public dsInformationList : DsInfo[];
+
+  public clearGrid: boolean = false;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(private datasetService : DatasetService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -79,11 +83,17 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
   }
 
   ngOnDestroy() {
+    this.clearExistingInterval();
     super.ngOnDestroy();
   }
 
   ngOnChanges(changes : SimpleChanges) {
-    this.getDatasetInfo(changes['datasetId'].currentValue);
+
+    if (this.selectedDatasetId !== changes['datasetId'].currentValue) {
+      this.selectedDatasetId = changes['datasetId'].currentValue;
+      this.dataset = new PrDataset();
+      this.getDatasetInfo();
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -93,79 +103,66 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
 
   /**
    * Get dataset information
-   * @param dsId
    */
-  public getDatasetInfo(dsId) {
-      if (this.selectedDatasetId !== dsId) {
-        this.selectedDatasetId = dsId;
-        //this.dataset = new Dataset();
-        this.dataset = new PrDataset();
-        this.loadingShow();
-        this.datasetService.getDataPreview(this.selectedDatasetId).then((data) => {
-          this.dataset = data;
-          this._setGridData(data.gridResponse);
-          this.loadingHide();
-          this.changeDetect.detectChanges();
-        }).catch((error) => {
-          this.loadingHide();
-          console.info(error)
-        })
+  public getDatasetInfo() {
+    this.loadingShow();
+    if (!this.isRequested) {
+      this.isRequested = true;
+      this.datasetService.getDatasetDetail(this.selectedDatasetId).then((data: PrDataset) => {
+        this.loadingHide();
+        this.isRequested = false;
 
-      }
+        this.dataset = data;
+
+        if (data.gridResponse) {
+          this._setGridData(data.gridResponse);
+        } else {
+          this.clearGrid = true;
+        }
+        this.changeDetect.detectChanges();
+        this._setDsInformationList(this.dataset);
+
+        this.clearExistingInterval();
+
+        if (this.dataset.totalLines === -1) {
+          this.interval = setInterval(() => {
+            this.getDatasetInfo();
+          }, 3000)
+        }
+      }).catch(() => {
+        this.loadingHide();
+        this.clearExistingInterval();
+      })
+    }
   } // function - getDatasetInfo
 
 
-  /**
-   * getIconClass
-   * @param itemType {string}
-   */
-  public getIconClass(itemType: string): string {
-    let result = '';
-    switch (itemType.toUpperCase()) {
-      case 'TIMESTAMP':
-        result = 'ddp-icon-type-calen';
-        break;
-      case 'BOOLEAN':
-        result = 'ddp-icon-type-tf';
-        break;
-      case 'TEXT':
-      case 'DIMENSION':
-      case 'STRING':
-        result = 'ddp-icon-type-ab';
-        break;
-      case 'USER_DEFINED':
-        result = 'ddp-icon-type-ab';
-        break;
-      case 'INT':
-      case 'INTEGER':
-      case 'LONG':
-        result = 'ddp-icon-type-int';
-        break;
-      case 'DOUBLE':
-        result = 'ddp-icon-type-float';
-        break;
-      case 'CALCULATED':
-        result = 'ddp-icon-type-sharp';
-        break;
-      case 'LNG':
-      case 'LATITUDE':
-        result = 'ddp-icon-type-latitude';
-        break;
-      case 'LNT':
-      case 'LONGITUDE':
-        result = 'ddp-icon-type-longitude';
-        break;
-      default:
-        console.error('정의되지 않은 아이콘 타입입니다.', itemType);
-        break;
+  /** get rows */
+  public get getRows() {
+    let rows = '0';
+
+    if(true==Number.isInteger(this.dataset.totalLines)) {
+      if (this.dataset.totalLines === -1) {
+        rows = '(counting)';
+      } else {
+        rows = new Intl.NumberFormat().format(this.dataset.totalLines);
+        if (rows === '0' || rows === '1') {
+          rows = rows + ` row`;
+        } else {
+          rows = rows + ` rows`;
+        }
+      }
     }
-    return result;
-  } // function - getIconClass
+    return rows;
+  }
+
+
 
   /**
    * close popup
    */
   public closeBtn() {
+    this.clearExistingInterval();
     this.closeEvent.emit();
   } // function - closeBtn
 
@@ -175,11 +172,11 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
    */
   public getTotalBytes(bytes) {
 
-      let size = 0;
-      if(true==Number.isInteger(bytes)) {
-        size = bytes;
-      }
-      return this._formatBytes(size,1);
+    let size = 0;
+    if(true==Number.isInteger(bytes)) {
+      size = bytes;
+    }
+    return this._formatBytes(size,1);
   } // function - getTotalBytes
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -195,9 +192,7 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
    * @param decimalPoint 소수점 자릿
    */
   private _formatBytes(val, decimalPoint) {
-    if ( 0 === val ) return "0 Bytes";
-    if ( -1 === val ) return '(counting)';
-
+    if ( -1 === val ) return "0 Bytes";
     let c=1024,d=decimalPoint||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(val)/Math.log(c));
     return parseFloat((val/Math.pow(c,f)).toFixed(d))+" "+e[f]
   } // function - _formatBytes
@@ -318,4 +313,43 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
 
     return gridData;
   } // function - _getGridDataFromGridResponse
+
+
+  /**
+   * Clear interval
+   */
+  private clearExistingInterval() {
+    if (!isNullOrUndefined(this.interval)) {
+      clearInterval(this.interval);
+      this.interval = undefined;
+    }
+  }
+
+  /**
+   * Set dataset information into list
+   * @param dataset
+   * @private
+   */
+  private _setDsInformationList(dataset : PrDataset) {
+
+    this.dsInformationList = [];
+
+    this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.created')
+      , value : moment.utc(dataset.createdTime).format('YYYY-MM-DD HH:mm')});
+
+    if (dataset.dcType !== 'JDBC') {
+      this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.size')
+        , value : this.getTotalBytes(dataset.totalBytes)});
+    }
+
+    this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.rows')
+      , value : this.getRows });
+
+  }
+}
+
+
+class DsInfo {
+  label: string;
+  value: string;
 }

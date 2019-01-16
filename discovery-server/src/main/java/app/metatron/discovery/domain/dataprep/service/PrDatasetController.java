@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.dataprep.service;
 import app.metatron.discovery.domain.dataprep.*;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrDatasetProjections;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
@@ -90,18 +91,19 @@ public class PrDatasetController {
 
     Long limitSize;
     public Long getLimitSize() {
+        long unit = 1000; // for safe, long unit = 1024;
         if(null==limitSize) {
             limitSize = 0L;
             if (null != maxFileSize) {
                 maxFileSize = maxFileSize.toUpperCase();
                 if (true == maxFileSize.endsWith("KB")) {
-                    limitSize = Long.parseLong(maxFileSize.replace("KB", "").trim()) * 1024;
+                    limitSize = Long.parseLong(maxFileSize.replace("KB", "").trim()) * unit;
                 } else if (true == maxFileSize.endsWith("MB")) {
-                    limitSize = Long.parseLong(maxFileSize.replace("MB", "").trim()) * 1024 * 1024;
+                    limitSize = Long.parseLong(maxFileSize.replace("MB", "").trim()) * unit * unit;
                 } else if (true == maxFileSize.endsWith("GB")) {
-                    limitSize = Long.parseLong(maxFileSize.replace("GB", "").trim()) * 1024 * 1024 * 1024;
+                    limitSize = Long.parseLong(maxFileSize.replace("GB", "").trim()) * unit * unit * unit;
                 } else if (true == maxFileSize.endsWith("TB")) {
-                    limitSize = Long.parseLong(maxFileSize.replace("TB", "").trim()) * 1024 * 1024 * 1024 * 1024;
+                    limitSize = Long.parseLong(maxFileSize.replace("TB", "").trim()) * unit * unit * unit * unit;
                 }
             }
         }
@@ -141,30 +143,80 @@ public class PrDatasetController {
     @ResponseBody
     public ResponseEntity<?> getDataset(
             @PathVariable("dsId") String dsId,
-            @RequestParam(value="projection", required=false, defaultValue="default") String projection,
+            //@RequestParam(value="projection", required=false, defaultValue="default") String projection,
+            @RequestParam(value="preview", required=false, defaultValue="false") Boolean preview,
             PersistentEntityResourceAssembler persistentEntityResourceAssembler
     ) {
         PrDataset dataset = null;
+        Resource<PrDatasetProjections.DefaultProjection> projectedDataset = null;
         try {
             dataset = this.datasetRepository.findOne(dsId);
             if(dataset!=null) {
-                if(true == projection.equalsIgnoreCase("detail")) {
+                //if(true == projection.equalsIgnoreCase("detail")) {
+                if(true == preview) {
                     DataFrame dataFrame = this.previewLineService.getPreviewLines(dsId);
                     dataset.setGridResponse(dataFrame);
                 }
 
+                /*
                 Map<String,Object> connectionInfo = this.datasetService.getConnectionInfo(dataset.getDcId());
                 dataset.setConnectionInfo(connectionInfo);
+                */
 
             } else {
                 throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET, dsId);
             }
+
+            PrDatasetProjections.DefaultProjection projection = projectionFactory.createProjection(PrDatasetProjections.DefaultProjection.class, dataset);
+            projectedDataset = new Resource<>(projection);
         } catch (Exception e) {
             LOGGER.error("getDataset(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
         }
 
-        return ResponseEntity.status(HttpStatus.SC_OK).body(persistentEntityResourceAssembler.toFullResource(dataset));
+        return ResponseEntity.status(HttpStatus.SC_OK).body(projectedDataset);
+        //return ResponseEntity.status(HttpStatus.SC_OK).body(persistentEntityResourceAssembler.toFullResource(dataset));
+    }
+
+    @RequestMapping(value = "/{dsId}", method = RequestMethod.PATCH)
+    @ResponseBody
+    public ResponseEntity<?> patchDataset(
+            @PathVariable("dsId") String dsId,
+            @RequestBody Resource<PrDataset> datasetResource,
+            PersistentEntityResourceAssembler persistentEntityResourceAssembler
+    ) {
+
+        PrDataset dataset = null;
+        PrDataset patchDataset = null;
+        PrDataset savedDataset = null;
+        Resource<PrDatasetProjections.DefaultProjection> projectedDataset = null;
+
+        try {
+            dataset = this.datasetRepository.findOne(dsId);
+            patchDataset = datasetResource.getContent();
+
+            this.datasetService.patchAllowedOnly(dataset, patchDataset);
+            /*
+            ObjectMapper objectMapper = GlobalObjectMapper.getDefaultMapper();
+            JsonPatchPatchConverter jsonPatchPatchConverter = new JsonPatchPatchConverter(objectMapper);
+            String json = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(patchDataset);
+            JsonNode jsonNode = objectMapper.valueToTree(patchDataset);
+            Patch patch = jsonPatchPatchConverter.convert(jsonNode);
+            patch.apply(dataset, PrDataset.class);
+            */
+
+            savedDataset = datasetRepository.save(dataset);
+            LOGGER.debug(savedDataset.toString());
+
+            this.datasetRepository.flush();
+        } catch (Exception e) {
+            LOGGER.error("postDataset(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
+        }
+
+        PrDatasetProjections.DefaultProjection projection = projectionFactory.createProjection(PrDatasetProjections.DefaultProjection.class, savedDataset);
+        projectedDataset = new Resource<>(projection);
+        return ResponseEntity.status(HttpStatus.SC_OK).body(projectedDataset);
     }
 
     @RequestMapping(value = "/{dsId}", method = RequestMethod.DELETE)
@@ -531,21 +583,23 @@ public class PrDatasetController {
         try {
             response = Maps.newHashMap();
 
-            String fileKey = UUID.randomUUID().toString();
-            response.put("file_key", fileKey);
+            // WARNING: UUID is almost unique. but a collision cause overwriting.
+            // If you want a completely unique ID, you should save the IDs on DB.
+            String upload_id = UUID.randomUUID().toString();
+            response.put("upload_id", upload_id);
 
             DateTime now = DateTime.now();
             response.put("timestamp", now.getMillis());
 
             response.put("limit_size", getLimitSize());
 
-            List<String> uploadLocations = Lists.newArrayList();
-            uploadLocations.add("LOCAL");
-            uploadLocations.add("HDFS");
-            uploadLocations.add("S3");
-            response.put("upload_location", uploadLocations);
+            List<PrDataset.STORAGE_TYPE> storageTypes = Lists.newArrayList();
+            for(PrDataset.STORAGE_TYPE storageType : PrDataset.STORAGE_TYPE.values()) {
+                storageTypes.add(storageType);
+            }
+            response.put("storage_types", storageTypes);
         } catch (Exception e) {
-            LOGGER.error("upload_async_poll(): caught an exception: ", e);
+            LOGGER.error("file_upload GET(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
         }
         return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
@@ -553,38 +607,35 @@ public class PrDatasetController {
 
     @RequestMapping(value = "/file_upload", method = RequestMethod.POST, produces = "application/json")
     public @ResponseBody ResponseEntity<?> file_upload(
-            /*
-            @RequestBody String fileKey,
-            @RequestBody String uploadLocation,
-            @RequestBody Integer chunkIndex,
-            @RequestBody Integer totalChunk,
-            */
-            @RequestPart("resumableChunkNumber") Integer resumableChunkNumber,
-            @RequestPart("resumableChunkSize") Integer resumableChunkSize,
-            @RequestPart("resumableCurrentChunkSize") Integer resumableCurrentChunkSize,
-            @RequestPart("resumableTotalSize") Integer resumableTotalSize,
-            @RequestPart("resumableType") String resumableType,
-            @RequestPart("resumableIdentifier") String resumableIdentifier,
-            @RequestPart("resumableFilename") String resumableFilename,
-            @RequestPart("resumableRelativePath") String resumableRelativePath,
-            @RequestPart("resumableTotalChunks") Integer resumableTotalChunks,
+            @RequestParam(value = "name") String name,
+            @RequestParam(value = "chunk") String chunk,
+            @RequestParam(value = "chunks") String chunks,
+            @RequestParam(value = "upload_id", required = false, defaultValue = "" ) String upload_id,
+            @RequestParam(value = "storage_type") String storage_type,
+            @RequestParam(value = "chunk_size") String chunk_size,
+            @RequestParam(value = "total_size") String total_size,
             @RequestPart("file") MultipartFile file
     ) {
         Map<String, Object> response = null;
-        String resumableResult = "partly_done";
         try {
-            response = Maps.newHashMap();
+            String originalFilename = name;
+            String uploadId = upload_id;
+            Integer chunkIdx = Integer.valueOf(chunk);
+            Integer chunkTotal = Integer.valueOf(chunks);
+            Integer chunkSize = Integer.valueOf(chunk_size);
+            Integer totalSize = Integer.valueOf(total_size);
+            PrDataset.STORAGE_TYPE storageType = PrDataset.STORAGE_TYPE.valueOf(storage_type);
 
-            response.put("status","success");
+            response = this.datasetFileService.uploadFileChunk(
+                      originalFilename, uploadId, chunkIdx, chunkTotal, chunkSize, totalSize, storageType,
+                      file);
 
-            if(resumableChunkNumber==resumableTotalChunks) {
-                resumableResult = "done";
-            }
         } catch (Exception e) {
-            LOGGER.error("upload_async(): caught an exception: ", e);
+            LOGGER.error("file_upload POST(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
         }
-        return ResponseEntity.status(HttpStatus.SC_CREATED).body(resumableResult);
+
+        return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
     }
 
     @RequestMapping(value = "/ready_to_preview/{dsId}", method = RequestMethod.GET, produces = "application/json")

@@ -51,6 +51,10 @@
 .ddp-ui-checkbox.ddp-checkboxtype input[type="checkbox"]:checked + i.ddp-icon-checkbox {background-position:-12px top;}
 .ddp-ui-checkbox.ddp-checkboxtype input[type="checkbox"] + i.ddp-icon-checkbox {background-position:-24px top;}
 
+.ddp-ui-checkbox input[type="checkbox"]:disabled + i.ddp-icon-checkbox + .ddp-ui-tooltip-info {position:absolute; top:100%; left:-10px; right:inherit; margin-top:6px;}
+.ddp-ui-checkbox input[type="checkbox"]:disabled + i.ddp-icon-checkbox + .ddp-ui-tooltip-info .ddp-icon-view-top {left:14px; margin-left:0;}
+.ddp-ui-checkbox input[type="checkbox"]:disabled:hover + i.ddp-icon-checkbox + .ddp-ui-tooltip-info {display:block;}
+
 .ddp-ui-checkbox.ddp-check-disabled:after {display:inline-block; position:absolute; top:0; left:0; right:0; bottom:0; cursor: no-drop; background-color:rgba(255,255,255,0.5); z-index:1; content:'';}
 .ddp-label-checkbox.ddp-type2 span.ddp-txt-checkbox {color:#90969f; font-size:12px;}
 .ddp-label-checkbox.ddp-type2 i {display:inline-block; width:12px; height:12px; position:absolute; top:50%; left:0; margin-top:-6px; background:url(../../../images/icon_checkbox2.png) no-repeat; background-position:left -13px;}

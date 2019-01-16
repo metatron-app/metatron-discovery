@@ -18,12 +18,13 @@ import app.metatron.discovery.domain.dataprep.PrepParamDatasetIdList;
 import app.metatron.discovery.domain.dataprep.PrepSwapRequest;
 import app.metatron.discovery.domain.dataprep.PrepUpstream;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
-import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
+import app.metatron.discovery.domain.dataprep.entity.PrDataflowProjections;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
-import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformResponse;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
 import com.google.common.collect.Lists;
@@ -31,7 +32,11 @@ import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.projection.ProjectionFactory;
+import org.springframework.data.rest.webmvc.PersistentEntityResource;
+import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,13 +50,103 @@ public class PrDataflowController {
     private static Logger LOGGER = LoggerFactory.getLogger(PrDataflowController.class);
 
     @Autowired
+    ProjectionFactory projectionFactory;
+
+    @Autowired
     private PrDataflowRepository dataflowRepository;
 
     @Autowired
     private PrDatasetRepository datasetRepository;
 
-    @Autowired(required = false)
+    @Autowired
+    private PrDataflowService dataflowService;
+
+    @Autowired
     private PrepTransformService transformService;
+
+    @RequestMapping(value = "/{dfId}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<?> getDataflow(
+            @PathVariable("dfId") String dfId,
+            PersistentEntityResourceAssembler persistentEntityResourceAssembler
+    ) {
+        PrDataflow dataflow = null;
+        Resource<PrDataflowProjections.DefaultProjection> projectedDataflow = null;
+        try {
+            dataflow = this.dataflowRepository.findOne(dfId);
+            if(dataflow!=null) {
+            } else {
+                throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATAFLOW, dfId);
+            }
+
+            PrDataflowProjections.DefaultProjection projection = projectionFactory.createProjection(PrDataflowProjections.DefaultProjection.class, dataflow);
+            projectedDataflow = new Resource<>(projection);
+        } catch (Exception e) {
+            LOGGER.error("getDataflow(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, e);
+        }
+
+        return ResponseEntity.status(HttpStatus.SC_OK).body(projectedDataflow);
+        //return ResponseEntity.status(HttpStatus.SC_OK).body(persistentEntityResourceAssembler.toFullResource(dataflow));
+    }
+
+    @RequestMapping(value="", method = RequestMethod.POST)
+    public @ResponseBody
+    PersistentEntityResource postDataset(
+            @RequestBody Resource<PrDataflow> dataflowResource,
+            PersistentEntityResourceAssembler resourceAssembler
+    ) {
+        PrDataflow dataflow = null;
+        PrDataflow savedDataflow = null;
+
+        try {
+            dataflow = dataflowResource.getContent();
+            savedDataflow = dataflowRepository.save(dataflow);
+            LOGGER.debug(savedDataflow.toString());
+
+            this.dataflowService.afterCreate(savedDataflow);
+
+            this.dataflowRepository.flush();
+        } catch (Exception e) {
+            LOGGER.error("postDataset(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_DATASET_FAIL_TO_CREATE, e.getMessage());
+        }
+
+        return resourceAssembler.toResource(savedDataflow);
+    }
+
+    @RequestMapping(value = "/{dsId}", method = RequestMethod.PATCH)
+    @ResponseBody
+    public ResponseEntity<?> patchDataflow(
+            @PathVariable("dsId") String dsId,
+            @RequestBody Resource<PrDataflow> dataflowResource,
+            PersistentEntityResourceAssembler persistentEntityResourceAssembler
+    ) {
+
+        PrDataflow dataflow = null;
+        PrDataflow patchDataflow = null;
+        PrDataflow savedDataflow = null;
+        Resource<PrDataflowProjections.DefaultProjection> projectedDataflow = null;
+
+        try {
+            dataflow = this.dataflowRepository.findOne(dsId);
+            patchDataflow = dataflowResource.getContent();
+
+            this.dataflowService.patchAllowedOnly(dataflow, patchDataflow);
+
+            savedDataflow = dataflowRepository.save(dataflow);
+            LOGGER.debug(savedDataflow.toString());
+
+            this.dataflowRepository.flush();
+        } catch (Exception e) {
+            LOGGER.error("postDataflow(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, e);
+        }
+
+        PrDataflowProjections.DefaultProjection projection = projectionFactory.createProjection(PrDataflowProjections.DefaultProjection.class, savedDataflow);
+        projectedDataflow = new Resource<>(projection);
+        return ResponseEntity.status(HttpStatus.SC_OK).body(projectedDataflow);
+    }
 
     @RequestMapping(value = "/{dfId}", method = RequestMethod.DELETE)
     @ResponseBody

@@ -41,7 +41,8 @@ export class AxisOptionConverter {
 
   public static axisMinMax: Object = {
     xAxis: {min: 0, max: 0},
-    yAxis: {min: 0, max: 0}
+    yAxis: {min: 0, max: 0},
+    subAxis: {min: 0, max: 0}
   };
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -626,7 +627,7 @@ export class AxisOptionConverter {
     //   }
     // });
 
-    let axisOption: UIChartAxis[] = _.filter(_.compact(_.concat(uiOption.xAxis, uiOption.yAxis, uiOption.subAxis)), (option) => {
+    let axisOption: UIChartAxis[] = _.filter(_.compact(_.concat(uiOption.xAxis, uiOption.yAxis, uiOption.secondaryAxis)), (option) => {
       if( axisType == AxisType.X ) {
         return _.eq(option.mode, AxisLabelType.ROW) || _.eq(option.mode, AxisLabelType.SUBROW);
       }

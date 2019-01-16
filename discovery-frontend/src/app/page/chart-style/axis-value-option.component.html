@@ -18,7 +18,7 @@
   <div class="ddp-wrap-option-slider">
     <span class="ddp-label-slider">{{'msg.page.chart.axis.show.axis.label' | translate}}</span>
     <!-- Slide THREE -->
-    <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+    <div *ngIf="axis.mode.toString() != 'sub_column'" class="ddp-checkbox-slide ddp-checkbox-automatic2">
       <input type="checkbox" (click)="showAxisLabel(axis.mode, !axis.showLabel)" [checked]="axis.showLabel">
       <label><span class="ddp-slide"></span></label>
     </div>
@@ -65,7 +65,7 @@
         </div>
         <div class="ddp-col-7">
           <input [(ngModel)]="axisTemp.grid.max" (keyup.enter)="changeMax()" type="text" class="ddp-input-typebasic"
-                 [attr.placeholder]="getDecimalRoundNumber(AxisOptionConverter.axisMinMax[(axis.mode == 'row' ? 'xAxis' : 'yAxis')].max)"
+                 [attr.placeholder]="getDecimalRoundNumber(AxisOptionConverter.axisMinMax[(axis.mode == 'sub_column' ? 'subAxis' : axis.mode == 'row' ? 'xAxis' : 'yAxis')].max)"
                  [disabled]="axis?.grid?.autoScaled">
         </div>
       </div>
@@ -76,7 +76,7 @@
         <div class="ddp-col-7">
           <!-- error 일때 ddp-error 추가 -->
           <input [(ngModel)]="axisTemp.grid.min" (keyup.enter)="changeMin()" type="text" class="ddp-input-typebasic"
-                 [attr.placeholder]="getDecimalRoundNumber(AxisOptionConverter.axisMinMax[(axis.mode == 'row' ? 'xAxis' : 'yAxis')].min)"
+                 [attr.placeholder]="getDecimalRoundNumber(AxisOptionConverter.axisMinMax[(axis.mode == 'sub_column' ? 'subAxis' : axis.mode == 'row' ? 'xAxis' : 'yAxis')].min)"
                  [disabled]="axis?.grid?.autoScaled">
         </div>
       </div>
@@ -100,7 +100,7 @@
 <!-- //축 범위 설정 -->
 
 <!-- 기준선 / 단위 설정 -->
-<div *ngIf="possibleChartCheck('yAxisBaseline', uiOption.type)" class="ddp-wrap-divide">
+<div *ngIf="possibleChartCheck('yAxisBaseline', uiOption.type) && axis.mode.toString() != 'sub_column'" class="ddp-wrap-divide">
   <div class="ddp-wrap-option-slider">
     <span class="ddp-label-slider">{{'msg.page.yaxis.baseline' | translate}}</span>
     <!-- Slide THREE -->

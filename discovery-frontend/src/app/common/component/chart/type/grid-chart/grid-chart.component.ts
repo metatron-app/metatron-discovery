@@ -106,6 +106,13 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     });
 
     // Chart Instance 생성
+    pivot.ui.style.summaryLabel = {
+      SUM : this.translateService.instant('msg.page.calrow.label.operator.sum'),
+      AVERAGE : this.translateService.instant('msg.page.calrow.label.operator.average'),
+      MAX : this.translateService.instant('msg.page.calrow.label.operator.max'),
+      MIN : this.translateService.instant('msg.page.calrow.label.operator.min'),
+      COUNT : this.translateService.instant('msg.page.calrow.label.operator.count')
+    };
     this.chart = new pivot.ui.pivot.Viewer(this.$element.find('.chartCanvas')[0]);
 
     // 초기에 주입된 데이터를 기준으로 차트를 표현한다.

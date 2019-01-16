@@ -231,7 +231,7 @@ export class DsSelectDatasourceComponent extends AbstractPopupComponent implemen
    * @param source
    */
   public onSelectedDatasource(source: any): void {
-    this.selectedDatasource = this.selectedDatasource ? null : source;
+    this.selectedDatasource = source;
   }
 
   /**

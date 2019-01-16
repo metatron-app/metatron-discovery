@@ -23,7 +23,8 @@ public class QueryEditorResult {
   @Column(name = "file_path")
   private String filePath;
 
-  @Column(name = "fields", length = 65535, columnDefinition = "TEXT")
+  @Lob
+  @Column(name = "fields")
   @JsonRawValue
   @JsonDeserialize(using = KeepAsJsonDeserialzier.class)
   private String fields;

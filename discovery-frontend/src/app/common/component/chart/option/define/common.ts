@@ -100,7 +100,8 @@ export enum AxisType {
   VALUE = <any>'value',
   LOG = <any>'log',
   X = <any>'xAxis',
-  Y = <any>'yAxis'
+  Y = <any>'yAxis',
+  SUB = <any>'subAxis'
 }
 
 /**

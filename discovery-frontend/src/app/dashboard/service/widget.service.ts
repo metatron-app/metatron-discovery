@@ -171,6 +171,7 @@ export class WidgetService extends AbstractService {
 
     if (maxRowsPerSheet) {
       url = url + '&maxRowsPerSheet=' + maxRowsPerSheet;
+      url = url + '&limit=' + maxRowsPerSheet;
     }
 
     const strType: string = ('CSV' === fileType) ? 'application/csv' : 'application/vnd.ms-excel';

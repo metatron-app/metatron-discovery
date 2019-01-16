@@ -13,16 +13,14 @@
  */
 
 import {
-  AfterViewInit, Component, ElementRef, Injector, OnInit, ViewChild, OnDestroy, Output,
+  Component, ElementRef, Injector, OnInit, ViewChild, OnDestroy, Output,
   HostListener, EventEmitter
 } from '@angular/core';
-//import { DataSnapshot, OriginDsInfo } from '../../domain/data-preparation/data-snapshot';
-import { PrDataSnapshot, Status, OriginDsInfo } from '../../domain/data-preparation/pr-snapshot';
+import { PrDataSnapshot, Status, OriginDsInfo, SsType } from '../../domain/data-preparation/pr-snapshot';
 import { DataSnapshotService } from './service/data-snapshot.service';
 import { PopupService } from '../../common/service/popup.service';
 import { GridComponent } from '../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../common/component/grid/grid.header';
-//import { Field } from '../../domain/data-preparation/dataset';
 import { Field } from '../../domain/data-preparation/pr-dataset';
 import { GridOption } from '../../common/component/grid/grid.option';
 import { Alert } from '../../common/util/alert.util';
@@ -33,12 +31,13 @@ import * as pixelWidth from 'string-pixel-width';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import * as $ from "jquery";
 import {PreparationCommonUtil} from "../util/preparation-common.util";
+declare let moment: any;
 
 @Component({
   selector: 'app-data-snapshot-detail',
   templateUrl: './data-snapshot-detail.component.html',
 })
-export class DataSnapshotDetailComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
+export class DataSnapshotDetailComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -46,7 +45,32 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   @ViewChild(GridComponent)
   private gridComponent: GridComponent;
 
-  private commandList: any[];
+  private commandList: {command: string, alias: string}[] = [
+    { command: 'header', alias: 'He'},
+    { command: 'keep', alias: 'Ke'},
+    { command: 'replace', alias: 'Rp'},
+    { command: 'rename', alias: 'Rn'},
+    { command: 'set', alias: 'Se'},
+    { command: 'settype', alias: 'St'},
+    { command: 'countpattern', alias: 'Co'},
+    { command: 'split', alias: 'Sp'},
+    { command: 'derive', alias: 'Dr'},
+    { command: 'delete', alias: 'De'},
+    { command: 'drop', alias: 'Dp'},
+    { command: 'pivot', alias: 'Pv'},
+    { command: 'unpivot', alias: 'Up'},
+    { command: 'Join', alias: 'Jo'},
+    { command: 'extract', alias: 'Ex'},
+    { command: 'flatten', alias: 'Fl'},
+    { command: 'merge', alias: 'Me'},
+    { command: 'nest', alias: 'Ne'},
+    { command: 'unnest', alias: 'Un'},
+    { command: 'aggregate', alias: 'Ag'},
+    { command: 'sort', alias: 'So'},
+    { command: 'move', alias: 'Mv'},
+    { command: 'Union', alias: 'Ui'},
+    { command: 'window', alias: 'Wn'},
+    { command: 'setformat', alias: 'Sf'}];
 
   private isFromDataflow : boolean = false;
 
@@ -62,9 +86,11 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @ViewChild('ssName')
+  public ssName: ElementRef;
+
   public ssId: string;
 
-  //public selectedDataSnapshot: DataSnapshot = null;
   public selectedDataSnapshot: PrDataSnapshot = null;
   public originDsInfo: OriginDsInfo = null;
   public colCnt: number = 0;
@@ -93,6 +119,11 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   public prepCommonUtil = PreparationCommonUtil;
 
   public flag: boolean = false; // Restrict api calling again and again
+
+  public snapshotUriFileFormat: string = '';
+
+  public isSsNameEditing: boolean = false;
+  public sSInformationList: {label : String, value : string}[];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -115,14 +146,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     super.ngOnInit();
   }
 
-  public init(ssId : string, isFromDataflow : boolean = false) {
-    this.isFromDataflow = isFromDataflow;
-    this.ssId = ssId;
-    this.isShow = true;
-    $('body').removeClass('body-hidden').addClass('body-hidden');
-    this.initViewPage();
-  }
-
   // Destroy
   public ngOnDestroy() {
     super.ngOnDestroy();
@@ -131,53 +154,26 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     $('body').removeClass('body-hidden');
   }
 
-  public ngAfterViewInit() {
-
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public init(ssId : string, isFromDataflow : boolean = false) {
+    this.isFromDataflow = isFromDataflow;
+    this.ssId = ssId;
+    this.isShow = true;
+    $('body').removeClass('body-hidden').addClass('body-hidden');
+    this.initViewPage();
+  }
 
   // 팝업끼리 관리하는 모델들 초기화
   public initViewPage() {
 
     const griddata = { data: [], fields: [] };
     this.updateGrid(griddata);
-    //this.selectedDataSnapshot = new DataSnapshot();
     this.selectedDataSnapshot = new PrDataSnapshot();
     this.originDsInfo = new OriginDsInfo();
     this.colCnt = 0;
-    this.commandList = [
-      { command: 'header', alias: 'He', desc: this.translateService.instant('msg.dp.li.he.description'), isHover:false },
-      { command: 'keep', alias: 'Ke', desc: this.translateService.instant('msg.dp.li.ke.description'), isHover:false },
-      { command: 'replace', alias: 'Rp', desc: this.translateService.instant('msg.dp.li.rp.description'), isHover:false },
-      { command: 'rename', alias: 'Rn', desc: this.translateService.instant('msg.dp.li.rn.description'), isHover:false },
-      { command: 'set', alias: 'Se', desc: this.translateService.instant('msg.dp.li.se.description'), isHover:false },
-      { command: 'settype', alias: 'St', desc: this.translateService.instant('msg.dp.li.st.description'), isHover:false },
-      { command: 'countpattern', alias: 'Co', desc: this.translateService.instant('msg.dp.li.co.description'), isHover:false },
-      { command: 'split', alias: 'Sp', desc: this.translateService.instant('msg.dp.li.sp.description'), isHover:false },
-      { command: 'derive', alias: 'Dr', desc: this.translateService.instant('msg.dp.li.dr.description'), isHover:false },
-      { command: 'delete', alias: 'De', desc: this.translateService.instant('msg.dp.li.de.description'), isHover:false },
-      { command: 'drop', alias: 'Dp', desc: this.translateService.instant('msg.dp.li.dp.description'), isHover:false },
-      { command: 'pivot', alias: 'Pv', desc: this.translateService.instant('msg.dp.li.pv.description'), isHover:false },
-      { command: 'unpivot', alias: 'Up', desc: this.translateService.instant('msg.dp.li.up.description'), isHover:false },
-      { command: 'Join', alias: 'Jo', desc: this.translateService.instant('msg.dp.li.jo.description'), isHover:false },
-      { command: 'extract', alias: 'Ex', desc: this.translateService.instant('msg.dp.li.ex.description'), isHover:false },
-      { command: 'flatten', alias: 'Fl', desc: this.translateService.instant('msg.dp.li.fl.description'), isHover:false },
-      { command: 'merge', alias: 'Me', desc: this.translateService.instant('msg.dp.li.me.description'), isHover:false },
-      { command: 'nest', alias: 'Ne', desc: this.translateService.instant('msg.dp.li.ne.description'), isHover:false },
-      { command: 'unnest', alias: 'Un', desc: this.translateService.instant('msg.dp.li.un.description'), isHover:false  },
-      { command: 'aggregate', alias: 'Ag', desc: this.translateService.instant('msg.dp.li.ag.description'), isHover:false },
-      { command: 'sort', alias: 'So', desc: this.translateService.instant('msg.dp.li.so.description'), isHover:false },
-      { command: 'move', alias: 'Mv', desc: this.translateService.instant('msg.dp.li.mv.description'), isHover:false },
-      { command: 'Union', alias: 'Ui', desc: this.translateService.instant('msg.dp.li.ui.description'), isHover:false },
-      { command: 'window', alias: 'Wn', desc: this.translateService.instant('msg.dp.li.ui.description'), isHover:false },
-      { command: 'setformat', alias: 'Sf', desc: 'set timestamp type .... ', isHover:false }
-
-    ];
-
-    this.interval =  setInterval(() => this.getSnapshot(), 1000);
+    this.interval =  setInterval(() => this.getSnapshot(), 3000);
     this.getSnapshot(true);
   } // end of initViewPage
 
@@ -271,6 +267,45 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     }
     return this.formatBytes(size,1);
   }
+
+
+  /**
+   * Edit snapshot name
+   * Apply changed snapshot name to server
+   */
+  public editSnapshotName() {
+    if ((this.ssName.nativeElement.value !== this.selectedDataSnapshot.ssName) && this.ssName.nativeElement.value.trim() !== '') {
+      this.loadingShow();
+      this.datasnapshotservice.editSnapshot({ssId: this.ssId, ssName: this.ssName.nativeElement.value}).then((result) => {
+        this.loadingHide();
+        if (result) {
+          this.selectedDataSnapshot.ssName = result.ssName;
+          Alert.success(this.translateService.instant('msg.dp.alert.modify.sSname'));
+        }
+      }).catch(() => {
+        this.loadingHide();
+        Alert.error(this.translateService.instant('msg.dp.alert.fail.change.ssName'));
+      });
+    }
+    this.isSsNameEditing = false;
+
+  }
+
+  /**
+   * Change snapshot name editing status
+   * @param {boolean} state
+   */
+  public changeSsNameEditingState(state: boolean) {
+
+    this.isSsNameEditing = state;
+    if (state) {
+      this.ssName.nativeElement.value = this.selectedDataSnapshot.ssName;
+      setTimeout(() => {
+        this.ssName.nativeElement.select();
+      });
+    }
+
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -295,7 +330,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
     if (!this.flag) {
       this.flag = true;
-      //this.datasnapshotservice.getDataSnapshot(this.ssId).then((snapshot : DataSnapshot) => {
       this.datasnapshotservice.getDataSnapshot(this.ssId).then((snapshot : PrDataSnapshot) => {
         this.selectedDataSnapshot = snapshot;
         this.flag = false;
@@ -308,46 +342,26 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           this.interval = undefined;
         }
 
-        //let linageInfo = JSON.parse( this.selectedDataSnapshot["lineageInfo"] );
-        /*
-        let linageInfo = this.selectedDataSnapshot["jsonLineageInfo"];
-        if( linageInfo.dsId ) {
-          this.dsId = linageInfo.dsId;
-        }
-        if( linageInfo.dfId ) {
-          this.dfId = linageInfo.dfId;
+        if (this.selectedDataSnapshot.ssType ===  SsType.URI){
+          this.snapshotUriFileFormat = this.selectedDataSnapshot.storedUri.slice((this.selectedDataSnapshot.storedUri.lastIndexOf(".") - 1 >>> 0) + 2).toLowerCase();
         }
 
-        this._setRuleList(linageInfo['ruleStringinfos']);
-        */
-        let sourceInfo = this.selectedDataSnapshot.sourceInfo;
-        this.dsId = sourceInfo.dsId;
-        this.dfId = sourceInfo.dfId;
+        this.dsId = this.selectedDataSnapshot.sourceInfo.dsId;
+        this.dfId = this.selectedDataSnapshot.sourceInfo.dfId;
+        this._setRuleList(this.selectedDataSnapshot.ruleStringInfo);
 
-        let connectionInfo = this.selectedDataSnapshot.connectionInfo;
-        let ruleStringInfo = this.selectedDataSnapshot.ruleStringInfo;
-        this._setRuleList(ruleStringInfo);
-
-        // % 계산
-        /*
-        this.missing = this.selectedDataSnapshot.missingLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines) * 100 + '%';
-        this.valid = this.selectedDataSnapshot.validLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines)  * 100 + '%';
-        this.mismatched = this.selectedDataSnapshot.mismatchedLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines) * 100 + '%';
-        */
-        let totalLines = this.selectedDataSnapshot.totalLines ? this.selectedDataSnapshot.totalLines : 0;
-        let missingLines = this.selectedDataSnapshot.missingLines ? this.selectedDataSnapshot.missingLines : 0;
-        let mismatchedLines = this.selectedDataSnapshot.mismatchedLines ? this.selectedDataSnapshot.mismatchedLines : 0;
+        const totalLines = this.selectedDataSnapshot.totalLines ? this.selectedDataSnapshot.totalLines : 0;
+        const missingLines = this.selectedDataSnapshot.missingLines ? this.selectedDataSnapshot.missingLines : 0;
+        const mismatchedLines = this.selectedDataSnapshot.mismatchedLines ? this.selectedDataSnapshot.mismatchedLines : 0;
         this.valid = (totalLines - missingLines - mismatchedLines ) / totalLines * 100 + '%';
         this.missing = missingLines / totalLines * 100 + '%';
         this.mismatched = mismatchedLines / totalLines * 100 + '%';
 
-        //if ( ['SUCCEEDED'].indexOf(this.selectedDataSnapshot.status) >= 0){
         if ( [Status.SUCCEEDED].indexOf(this.selectedDataSnapshot.status) >= 0){
           this.selectedDataSnapshot.displayStatus = 'SUCCESS';
           this.getOriginData();
           this.getGridData();
 
-        //} else if ( ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','CANCELING'].indexOf(this.selectedDataSnapshot.status) >= 0) {
         } else if ( [Status.INITIALIZING,Status.RUNNING,Status.WRITING,Status.TABLE_CREATING,Status.CANCELING].indexOf(this.selectedDataSnapshot.status) >= 0) {
           this.selectedDataSnapshot.displayStatus = 'PREPARING';
 
@@ -403,8 +417,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       if (idx > -1) {
         rule['command'] = this.commandList[idx].command;
         rule['alias'] = this.commandList[idx].alias;
-        rule['desc'] = this.commandList[idx].desc;
-        rule['desc'] = this.commandList[idx].desc;
 
         if (rule.shortRuleString) {
           rule['simplifiedRule'] = rule.shortRuleString;
@@ -460,35 +472,11 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           return;
         }
 
-        /*
-        this.originDsInfo.dsName = '';
-        this.originDsInfo.qryStmt = '';
-        this.originDsInfo.createdTime = '';
-        if( isUndefined(result.originDsInfo) ) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.info'));
-        } else {
-          if( isUndefined(result.originDsInfo.dsName) ) {
-            Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.name'));
-            this.originDsInfo.dsName = '';
-          } else {
-            this.originDsInfo.dsName = result.originDsInfo.dsName;
-          }
-          if( isUndefined(result.originDsInfo.qryStmt) ) {
-            Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.querystmt'));
-          } else {
-            this.originDsInfo.qryStmt = result.originDsInfo.qryStmt;
-          }
-          if( isUndefined(result.originDsInfo.createdTime) ) {
-            Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.createdtime'));
-          } else {
-            this.originDsInfo.createdTime = result.originDsInfo.createdTime;
-          }
-        }
-        */
-
         this.colCnt = result.gridResponse.colCnt;
         const colNames = result.gridResponse.colNames;
         const colTypes = result.gridResponse.colDescs;
+
+        this._setSnapshotInfo(this.selectedDataSnapshot);
 
         const griddata = {
           data: [],
@@ -517,11 +505,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       })
       .catch((error) => {
         this.loadingHide();
-        // let prep_error = this.dataprepExceptionHandler(error);
-        // PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
         Alert.error(error.details);
-
-
       });
   } // end of method getGridData
 
@@ -598,10 +582,10 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
   } // end of method updateGrid
 
-  public downloadSnapshot() {
-    let downloadFileName = this.selectedDataSnapshot.sourceInfo.dsName + ".csv";
+  public downloadSnapshot(fileFormat: string) {
+    let downloadFileName = this.selectedDataSnapshot.sourceInfo.dsName + "."+ fileFormat;
 
-    this.datasnapshotservice.downloadSnapshot(this.ssId).subscribe((snapshotFile) => {
+    this.datasnapshotservice.downloadSnapshot(this.ssId, fileFormat).subscribe((snapshotFile) => {
       saveAs(snapshotFile, downloadFileName);
     });
   }
@@ -642,5 +626,31 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         let prep_error = this.dataprepExceptionHandler(error);
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
+  }
+
+
+  /**
+   * Set snapshot information into list
+   * @param {PrDataSnapshot} snapshot
+   * @private
+   */
+  private _setSnapshotInfo(snapshot: PrDataSnapshot) {
+
+    this.sSInformationList = [];
+    if (snapshot.tblName) {
+      this.sSInformationList.push({label: this.translateService.instant('msg.dp.th.ss.table'), value : snapshot.tblName});
+    }
+
+    this.sSInformationList.push(
+      {label: this.translateService.instant('msg.dp.th.ss-type'), value : this.prepCommonUtil.getSnapshotType(snapshot.ssType)},
+      {label: this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.getCols()} ${this.translateService.instant('msg.dp.th.ss.cols')}`});
+
+    if (snapshot.totalBytes) {
+      this.sSInformationList.push({label: this.translateService.instant('msg.comm.detail.size'), value : this.getSize()});
+    }
+
+    this.sSInformationList.push(
+      {label: this.translateService.instant('msg.dp.th.et'), value : this.getElapsedTime(snapshot)},
+      {label: this.translateService.instant('msg.comm.th.created'), value : moment(snapshot.launchTime).format('YYYY-MM-DD HH:mm')});
   }
 } // end of class DataSnapshotDetailComponent

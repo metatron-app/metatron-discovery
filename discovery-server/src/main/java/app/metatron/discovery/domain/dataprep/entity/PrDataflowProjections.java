@@ -31,12 +31,15 @@ public class PrDataflowProjections {
         Integer getImportedDsCount();
         Integer getWrangledDsCount();
 
+        List<PrDataset> getDatasets();
+
         DateTime getCreatedTime();
         String getCreatedBy();
         DateTime getModifiedTime();
         String getModifiedBy();
     }
 
+/*
     @Projection(name = "detail", types = { PrDataflow.class })
     public interface DetailProjection {
 
@@ -70,6 +73,7 @@ public class PrDataflowProjections {
         DateTime getModifiedTime();
         String getModifiedBy();
     }
+*/
 
 }
 

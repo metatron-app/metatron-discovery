@@ -13,7 +13,7 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
+  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges,
   ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
@@ -27,19 +27,14 @@ import { IngestionSettingComponent } from '../../../component/ingestion-setting.
   selector: 'file-ingestion',
   templateUrl: './file-ingestion.component.html'
 })
-export class FileIngestionComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+export class FileIngestionComponent extends AbstractPopupComponent implements OnInit, OnDestroy, OnChanges {
 
   // datasource data
+  @Input('sourceData')
   private _sourceData: DatasourceInfo;
 
   @ViewChild(IngestionSettingComponent)
   private _ingestionSettingComponent: IngestionSettingComponent;
-
-  @Input('sourceData')
-  public set setSourceData(sourceData: DatasourceInfo) {
-    this._sourceData = sourceData;
-    this._ingestionSettingComponent.init(this._sourceData, 'FILE');
-  }
 
   @Input()
   public step: string;
@@ -66,6 +61,25 @@ export class FileIngestionComponent extends AbstractPopupComponent implements On
   public ngOnDestroy() {
     super.ngOnDestroy();
   }
+
+  /**
+   * ngOnChanges
+   * @param changes
+   */
+  ngOnChanges(changes: SimpleChanges): void {
+    // if changed source Data
+    if (changes._sourceData) {
+      this._ingestionSettingComponent.init(
+        this._sourceData,
+        'FILE',
+        this._sourceData.schemaData.selectedTimestampType === 'CURRENT' ? null :  this._sourceData.schemaData.selectedTimestampField,
+        this._sourceData.schemaData.isChangedTimestampField
+      );
+      // remove changed flag
+      delete this._sourceData.schemaData.isChangedTimestampField;
+    }
+  }
+
 
   /**
    * Move to previous step

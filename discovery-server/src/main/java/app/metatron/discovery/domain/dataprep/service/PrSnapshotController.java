@@ -173,10 +173,11 @@ public class PrSnapshotController {
     ResponseEntity<?> getDownload(
             HttpServletRequest request,
             HttpServletResponse response,
-            @PathVariable("ssId") String ssId
+            @PathVariable("ssId") String ssId,
+            @RequestParam(value = "fileType", required = false, defaultValue = "0") String fileType
     ) {
         try {
-            String downloadFileName = this.snapshotService.downloadSnapshotFile(ssId, response);
+            String downloadFileName = this.snapshotService.downloadSnapshotFile(ssId, response, fileType);
             response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", downloadFileName));
         } catch (Exception e) {
             LOGGER.error("getDownload(): caught an exception: ", e);

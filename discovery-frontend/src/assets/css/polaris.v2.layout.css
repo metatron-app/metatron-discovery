@@ -253,6 +253,8 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
 .ddp-layout-contents .ddp-ui-contents-in {position:relative; padding:0 80px;}
 .ddp-layout-contents2 {position:relative; width:100%; height:100%; padding:47px 0 0 0; margin-top:-48px; box-sizing:border-box;}
 .ddp-layout-contents-in {position:relative;}
+.ddp-layout-contents .ddp-ui-contents-in.ddp-scroll {position:relative; height:100%; box-sizing:border-box;}
+.ddp-layout-contents .ddp-ui-contents-in.ddp-scroll .ddp-ui-contents-list {position:absolute; top:113px; left:0; right:0; bottom:0; padding:0 80px 50px 80px; box-sizing:border-box; overflow:auto;}
 .ddp-ui-contentsin {position:absolute;top:54px;left:0;right:0;bottom:0;}
 .ddp-ui-contentsin.ddp-full {top:48px;}
 .ddp-layout-contents.ddp-type {padding-top:0px; z-index:65;}
@@ -622,6 +624,7 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 .ddp-type-contents.ddp-resize2 > .ddp-ui-buttons2,
 .ddp-type-contents.ddp-resize2 > .ddp-ui-buttons {position:fixed; bottom:0; left:0; right:0; padding-bottom:20px; background-color:#fff; z-index:60}
 .ddp-type-contents.ddp-resize2 .ddp-type-contents-in {min-height:100%; padding:356px 0 79px 0; box-sizing:border-box;}
+.ddp-type-contents.ddp-resize2 .ddp-type-contents-in.ddp-scroll {position:absolute; top:136px; left:0; right:0; bottom:78px; padding:0 !important; min-height:auto; overflow:auto;}
 .ddp-type-contents.ddp-resize2.ddp-type2 .ddp-type-contents-in {padding-top:139px;  box-sizing:border-box}
 
 .ddp-type-contents-in.ddp-size-resize .ddp-box-grid-detail {bottom:1px;}
@@ -651,7 +654,7 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 .ddp-type-contents-in.ddp-size-resize .ddp-box-popupcontents.ddp-info {padding-bottom:18px; box-sizing:border-box;}
 .ddp-type-contents-in.ddp-size-resize .ddp-dataflow .ddp-box-viewtable {height:100%;}
 .ddp-type-contents-in.ddp-size-resize .ddp-dataset {margin-top:-95px; padding:95px 0 0 0; box-sizing:border-box;}
-.ddp-type-contents-in.ddp-size-resize .ddp-ui-import-option.ddp-selected-query .ddp-dataset {margin-top:-227px; padding-top:226px;}
+.ddp-type-contents-in.ddp-size-resize .ddp-ui-import-option.ddp-selected-query .ddp-dataset {margin-top:-268px; padding-top:268px;}
 
 .ddp-type-contents-in.ddp-size-resize2 {height:100%;}
 .ddp-type-contents-in.ddp-size-resize2 .ddp-popup-dashboard {height:100%;}

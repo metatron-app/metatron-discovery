@@ -43,6 +43,7 @@ import { AxisOptionConverter } from '../../option/converter/axis-option-converte
 import { Axis } from '../../option/define/axis';
 import { DataZoomType } from '../../option/define/datazoom';
 import { UIOption } from '../../option/ui-option';
+import {CommonOptionConverter} from '../../option/converter/common-option-converter';
 
 @Component({
   selector: 'combine-chart',
@@ -150,6 +151,11 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
    */
   protected additionalBasic(): BaseOption {
 
+    // Secondary Axis Migration
+    if( !this.uiOption.secondaryAxis  ) {
+      this.uiOption.secondaryAxis = _.cloneDeep(this.uiOption.yAxis);
+    }
+
     // 차트가 그려진 후 UI에 필요한 옵션 설정 - 축 정보
     this.setAxisNameInfo();
 
@@ -225,55 +231,88 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
       if ((<UIChartAxisLabelValue>axisOption[index].label) && _.eq((<UIChartAxisLabelValue>axisOption[index].label).type, AxisType.VALUE)
         && axisOption[index].grid) {
 
-        // Min / Max값을 다시 구한다.
-        let min = null;
-        let max = null;
-        let calculateMin = null;
-        this.data.columns.map((column, index) => {
-          if( index % 2 == 0 ) {
-            column.value.map((value) => {
-              if (min == null || value < min) {
-                min = value;
-              }
-              if (max == null || value > max) {
-                max = value;
-              }
-            });
+        // Sub Axis
+        if( index % 2 != 0 ) {
+
+          // Min / Max값을 다시 구한다.
+          let min = null;
+          let max = null;
+          let calculateMin = null;
+          this.data.columns.map((column, index) => {
+            if( index % 2 != 0 ) {
+              column.value.map((value) => {
+                if (min == null || value < min) {
+                  min = value;
+                }
+                if (max == null || value > max) {
+                  max = value;
+                }
+              });
+            }
+          });
+
+          calculateMin = Math.ceil(min - ((max - min) * 0.05));
+          max = max;
+
+          // Min / Max 업데이트
+          AxisOptionConverter.axisMinMax[AxisType.SUB].min = min;
+          AxisOptionConverter.axisMinMax[AxisType.SUB].max = max;
+
+          // 오토스케일 적용시
+          if( axisOption[index].grid.autoScaled ) {
+            delete option.min;
+            delete option.max;
+            option.scale = true;
           }
-        });
-
-        calculateMin = Math.ceil(min - ((max - min) * 0.05));
-        // min = min > 0
-        //   ? calculateMin >= 0 ? calculateMin : min
-        //   : min;
-        max = max;
-
-        // Min / Max 업데이트
-        AxisOptionConverter.axisMinMax[AxisType.Y].min = min;
-        AxisOptionConverter.axisMinMax[AxisType.Y].max = max;
-
-        // 기준선 변경시
-        let baseline = 0;
-        if( axisOption[index].baseline && axisOption[index].baseline != 0 ) {
-          baseline = <number>axisOption[index].baseline;
+          else {
+            delete option.scale;
+          }
         }
-
-        // 축 범위 자동설정이 설정되지 않았고
-        // 오토스케일 적용시
-        if( baseline == 0 && axisOption[index].grid.autoScaled ) {
-          // // 적용
-          // option.min = min > 0
-          //   ? Math.ceil(min - ((max - min) * 0.05))
-          //   : min;
-          // option.max = max;
-
-          delete option.min;
-          delete option.max;
-          option.scale = true;
-        }
+        // Main Axis
         else {
-          delete option.scale;
+
+          // Min / Max값을 다시 구한다.
+          let min = null;
+          let max = null;
+          let calculateMin = null;
+          this.data.columns.map((column, index) => {
+            if( index % 2 == 0 ) {
+              column.value.map((value) => {
+                if (min == null || value < min) {
+                  min = value;
+                }
+                if (max == null || value > max) {
+                  max = value;
+                }
+              });
+            }
+          });
+
+          calculateMin = Math.ceil(min - ((max - min) * 0.05));
+          max = max;
+
+          // Min / Max 업데이트
+          AxisOptionConverter.axisMinMax[AxisType.Y].min = min;
+          AxisOptionConverter.axisMinMax[AxisType.Y].max = max;
+
+          // 기준선 변경시
+          let baseline = 0;
+          if( axisOption[index].baseline && axisOption[index].baseline != 0 ) {
+            baseline = <number>axisOption[index].baseline;
+          }
+
+          // 축 범위 자동설정이 설정되지 않았고
+          // 오토스케일 적용시
+          if( baseline == 0 && axisOption[index].grid.autoScaled ) {
+            delete option.min;
+            delete option.max;
+            option.scale = true;
+          }
+          else {
+            delete option.scale;
+          }
         }
+
       }
     });
 
@@ -311,7 +350,7 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
         name: column.name,
         data: column.value,
         originData: _.cloneDeep(column.value),
-        yAxisIndex: _.eq(idx % 2, 0) ? 0 : 1,
+        yAxisIndex: _.isUndefined(this.uiOption.secondaryAxis.disabled) || !this.uiOption.secondaryAxis.disabled ? _.eq(idx % 2, 0) ? 0 : 1 : 0,
         itemStyle: OptionGenerator.ItemStyle.auto(),
         label: OptionGenerator.LabelStyle.defaultLabelStyle(false, Position.TOP),
         uiData: column

@@ -93,6 +93,7 @@ import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJobIntegra
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoPointFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TemporaryTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
@@ -272,6 +273,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     TestUtils.printTestTitle("1. add DataSource with Fields include filteringOption property");
 
     Field f1 = new Field("filtering field1", DataType.TIMESTAMP, TIMESTAMP, 0L);
+    f1.setFormat(GlobalObjectMapper.writeValueAsString(new CustomDateTimeFormat("yyyy-MM-dd")));
     f1.setFiltering(true);
     f1.setFilteringSeq(0L);
     f1.setFilteringOptions(new Field.FilterOption("time", "relative", Lists.newArrayList("range", "relative")));
@@ -326,7 +328,11 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     updateField.put("id", field1Id);
     updateField.put("alias", "update field name");
     updateField.put("description", "update description");
-    //    updateField.put("filtering", false);
+
+    Map<String, Object> formatMap = Maps.newHashMap();
+    formatMap.put("type", "time_format");
+    formatMap.put("format", "yyyy-MM-dd");
+    updateField.put("format", formatMap);
     updateField.put("filteringOptions", new Field.FilterOption("time", "range", Lists.newArrayList("range", "relative")));
 
     Map<String, Object> removeField = Maps.newHashMap();
@@ -742,7 +748,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
       .accept(ContentType.JSON)
 //      .param("sheet", sheets.get(0))
       .param("lineSep", "\n")
-      .param("columnSeq", ",")
+      .param("delimiter", ",")
       .param("limit", 5)
       .param("firstHeaderRow", true)
       .log().all()
@@ -1290,6 +1296,91 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     }
 
   }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  public void createDataSourceWithLocalCsvFileInvalidIngestionByAsync() throws JsonProcessingException {
+
+    StompHeaders stompHeaders = new StompHeaders();
+    stompHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    StompSession session = null;
+    try {
+      session = stompClient
+          .connect("ws://localhost:{port}/stomp", webSocketHttpHeaders, stompHeaders, new StompSessionHandlerAdapter() {}, serverPort)
+          .get(3, SECONDS);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_invalid_row.csv").getPath();
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName("localFileIngestion_invalid_enforce_true" + PolarisUtils.randomString(5));
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(DAY);
+    dataSource.setSegGranularity(MONTH);
+    dataSource.setSrcType(FILE);
+
+    List<Field> fields = Lists.newArrayList();
+
+    Field timestampField = new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L);
+    timestampField.setFormat("yyyy-MM-dd");
+    fields.add(timestampField);
+    fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
+    Field field1 = new Field("sd", DataType.STRING, DIMENSION, 2L);
+    fields.add(field1);
+    fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
+    Field field2 = new Field("m2", DataType.DOUBLE, MEASURE, 4L);
+    fields.add(field2);
+
+    dataSource.setFields(fields);
+
+    LocalFileIngestionInfo localFileIngestionInfo = new LocalFileIngestionInfo();
+    localFileIngestionInfo.setPath(targetFile);
+    localFileIngestionInfo.setRemoveFirstRow(true);
+    localFileIngestionInfo.setFormat(new CsvFileFormat(",", "\n"));
+    localFileIngestionInfo.setTuningOptions(TestUtils.makeMap("ignoreInvalidRows", "true"));
+
+    dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(localFileIngestionInfo));
+
+    String reqBody = GlobalObjectMapper.writeValueAsString(dataSource);
+
+    System.out.println(reqBody);
+
+    // @formatter:off
+    Response dsRes =
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(reqBody)
+      .log().all()
+    .when()
+      .post("/api/datasources");
+
+    dsRes.then()
+      .statusCode(HttpStatus.SC_CREATED)
+    .log().all();
+    // @formatter:on
+
+    String id = from(dsRes.asString()).get("id");
+
+    StompHeaders stompSubscribeHeaders = new StompHeaders();
+    stompSubscribeHeaders.setDestination("/topic/datasources/" + id + "/progress");
+    stompSubscribeHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    session.subscribe(stompSubscribeHeaders, new DefaultStompFrameHandler());
+
+    try {
+      System.out.println("Sleep!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      Thread.sleep(1000000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+  }
+
 
   @Test
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})

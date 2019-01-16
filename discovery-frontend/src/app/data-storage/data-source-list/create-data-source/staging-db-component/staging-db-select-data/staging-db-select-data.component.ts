@@ -145,8 +145,8 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
   public next() {
     // validation
     if (this.isExistTableDetail()) {
-      // 데이터 변경이 일어난경우 스키마 삭제
-      this.deleteSchemaData();
+      // 데이터 변경이 일어난경우 스키마 데이터와 적재데이터 제거
+      this._deleteSchemaData();
       // 기존 데이터베이스 삭제후 생성
       this.deleteAndSaveDatabaseData();
       // 다음 step 으로 이동
@@ -376,6 +376,16 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
   }
 
   /**
+   * 데이터가 변경이 일어나고 스키마데이터가 있다면 스키마데이터, 적재데이터 삭제
+   */
+  private _deleteSchemaData() {
+    if (this.isChangeData()) {
+      this.sourceData.hasOwnProperty('schemaData') && (delete this.sourceData.schemaData);
+      this.sourceData.hasOwnProperty('ingestionData') && (delete this.sourceData.ingestionData);
+    }
+  }
+
+  /**
    * 기존 데이터베이스 삭제후 새로 생성
    */
   private deleteAndSaveDatabaseData() {
@@ -385,17 +395,9 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
     }
     // 현재 페이지의 데이터소스 생성정보 저장
     this.saveDatabaseData(this.sourceData);
-  }
-
-  /**
-   * 데이터가 변경이 일어나고 스키마데이터가 있다면 스키마데이터, 적재데이터 삭제
-   */
-  private deleteSchemaData() {
-    // 데이터 변경이 일어난경우 스키마 데이터와 적재데이터 제거
-    if (this.sourceData.hasOwnProperty('databaseData') && this.isChangeData()) {
-      delete this.sourceData.schemaData;
-      delete this.sourceData.ingestionData;
-    }
+    // set field list, field data
+    this.sourceData.fieldList = this.selectedTableDetail.fields;
+    this.sourceData.fieldData = this.selectedTableDetail.data;
   }
 
   /**
@@ -590,13 +592,15 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
    * @returns {boolean}
    */
   private isChangeData(): boolean {
-    // 데이터베이스 이름이 변경된 경우
-    if (this.sourceData.databaseData.selectedDatabase !== this.selectedDatabase) {
-      return true;
-    }
-    // 테이블 이름이 변경된 경우
-    if (this.sourceData.databaseData.selectedTable !== this.selectedTable) {
-      return true;
+    if (this.sourceData.databaseData) {
+      // 데이터베이스 이름이 변경된 경우
+      if (this.sourceData.databaseData.selectedDatabase !== this.selectedDatabase) {
+        return true;
+      }
+      // 테이블 이름이 변경된 경우
+      if (this.sourceData.databaseData.selectedTable !== this.selectedTable) {
+        return true;
+      }
     }
     return false;
   }

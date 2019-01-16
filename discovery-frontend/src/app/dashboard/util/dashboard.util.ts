@@ -34,6 +34,7 @@ import {StringUtil} from '../../common/util/string.util';
 import {CommonUtil} from '../../common/util/common.util';
 import {ChartType} from '../../common/component/chart/option/define/common';
 import {CommonConstant} from "../../common/constant/common.constant";
+import {ChartUtil} from "../../common/component/chart/option/util/chart-util";
 
 export class DashboardUtil {
 
@@ -998,7 +999,7 @@ export class DashboardUtil {
       currentCnt: 0,
       maxCnt: 0
     };
-    if( data.info ) {
+    if( ChartUtil.isUsingLimitOption(type) && data.info ) {
       limitInfo.maxCnt = data.info.totalCategory;
       if( ChartType.PIE === type || ChartType.LABEL === type || ChartType.WORDCLOUD === type ) {
         if( data.columns ) {

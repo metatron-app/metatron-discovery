@@ -115,6 +115,28 @@
           </tr>
           </tbody>
         </table>
+        <div class="ddp-wrap-rules-flow ddp-snapshot" *ngIf="dataset.dsType === dsType.WRANGLED">
+
+          <!-- title -->
+          <div class="ddp-box-title">
+            <em class="ddp-data-num">{{dataset.transformRules.length}}</em>
+            {{'msg.dp.ui.rule.list' | translate}}
+          </div>
+          <!-- //title -->
+          <div class="ddp-ui-rule-flow">
+            <ul class="ddp-list-rule2">
+              <li *ngFor="let rule of ruleList; let idx = index">
+                  <span class="ddp-data-type">
+                      <em class="ddp-ui-round">{{rule.alias}}</em>
+                  </span>
+                  <div class="ddp-ui-code" title="{{idx !== 0 ? rule.ruleString : null}}">
+                    {{rule.shortRuleString}}
+                  </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- //rule -->
       </div>
       <!-- //datadetail -->
     </div>
@@ -134,8 +156,14 @@
         <label class="ddp-label-detail">
           {{'msg.comm.th.used' | translate}}
           <div class="ddp-fright">
-            <a href="javascript:" class="ddp-btn-line" (click)="addToExistingFlow()"><em class="ddp-icon-add"></em>{{'msg.dp.ui.add.existing.dataflow' | translate}}</a>
-            <a href="javascript:" class="ddp-btn-selection ddp-gray" (click)="createNewFlow()" *ngIf="dataset.importType"><em class="ddp-icon-view"></em>{{'msg.dp.btn.create.dataflow.dataset' | translate}}</a>
+            <a href="javascript:" class="ddp-btn-line" (click)="addToExistingFlow()" *ngIf="dataset.importType">
+              <em class="ddp-icon-add"></em>
+              {{'msg.dp.ui.add.existing.dataflow' | translate}}
+            </a>
+            <a href="javascript:" class="ddp-btn-selection ddp-gray" (click)="createNewFlow()" *ngIf="dataset.importType">
+              <em class="ddp-icon-view"></em>
+              {{'msg.dp.btn.create.dataflow.dataset' | translate}}
+            </a>
           </div>
         </label>
         <div class="ddp-data-none" *ngIf="dataset.dataflows && dataset.dataflows.length === 0">{{'msg.dp.ui.no-use' | translate }}</div>

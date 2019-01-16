@@ -81,7 +81,23 @@ export class PrDataset extends AbstractHistoryEntity {
     public ruleNo: string;
 
     // add api modify
-    public connectionInfo: any;
+    //public connectionInfo: any;
+
+    // connection Info
+    public dcId: string;
+    public dcImplementor: string;
+    public dcName: string;
+    public dcDesc: string;
+    public dcType: string;
+    public dcHostname: string;
+    public dcPort: number;
+    public dcOptions: string;
+    public dcUsername: string;
+    public dcPassword: string;
+    public dcUrl: string;
+    public dcConnectUrl: string;
+    public dcAuthenticationType: string;
+    public dcPublished: boolean;
 }
 
 export class Datasets {
@@ -234,6 +250,7 @@ export class QueryInfo {
   public rows: any[];
   public queryStmt: string;
   public valid?: boolean;
+  public databaseName?: string;
 }
 
 export class TableInfo {

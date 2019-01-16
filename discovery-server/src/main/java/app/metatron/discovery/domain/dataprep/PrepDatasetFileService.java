@@ -54,6 +54,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.Future;
@@ -516,6 +519,8 @@ public class PrepDatasetFileService {
                     }
 
                     if (null != workbook) {
+                        List<String> sheets = Lists.newArrayList();
+
                         int sheetsCount = workbook.getNumberOfSheets();
                         for (Sheet sheet : workbook) {
                             boolean hasFields;
@@ -523,12 +528,16 @@ public class PrepDatasetFileService {
 
                             List<Map<String, String>> resultSet = Lists.newArrayList();
                             List<Field> fields = Lists.newArrayList();
+                            int lastFieldPos = 0;
                             List<Map<String, String>> headers = Lists.newArrayList();
 
                             String sheetName = sheet.getSheetName();
+                            sheets.add(sheetName);
                             totalRows = sheet.getLastRowNum()+1;
 
                             for (Row r : sheet) {
+                                int not_emtpy=0;
+
                                 if(r==null) {
                                     resultSet.add(Maps.newHashMap());
                                     continue;
@@ -538,24 +547,35 @@ public class PrepDatasetFileService {
                                 Map<String,String> result = Maps.newHashMap();
                                 for (Cell c : r) {
                                     int cellIdx = c.getColumnIndex();
+
                                     Field f = null;
-                                    if(cellIdx<fields.size()) {
+                                    if(cellIdx<lastFieldPos) {
                                         f = fields.get(cellIdx);
-                                    }
-                                    if(f==null) {
-                                        f = makeFieldFromCSV(cellIdx, prefixColumnName + String.valueOf(cellIdx+1), ColumnType.STRING);
-                                        fields.add(cellIdx, f);
+                                    } else {
+                                        while( lastFieldPos <= cellIdx ) {
+                                            f = makeFieldFromCSV(lastFieldPos, prefixColumnName + String.valueOf(lastFieldPos + 1), ColumnType.STRING);
+                                            fields.add(lastFieldPos, f);
+                                            lastFieldPos++;
+                                        }
                                     }
 
                                     if(c==null) {
                                         result.put(f.getName(), null);
                                     } else {
+                                        String strCellValue = null;
                                         Object cellValue = ExcelProcessor.getCellValue(c);
-                                        String strCellValue = String.valueOf(cellValue);
+                                        if(cellValue!=null) {
+                                            strCellValue = String.valueOf(cellValue);
+                                            if(false==strCellValue.isEmpty()) {
+                                                not_emtpy++;
+                                            }
+                                        }
                                         result.put(f.getName(), strCellValue);
                                     }
                                 }
-                                resultSet.add( result );
+                                if(0<not_emtpy) {
+                                    resultSet.add(result);
+                                }
                             }
 
                             Map<String, Object> grid = Maps.newHashMap();
@@ -572,6 +592,8 @@ public class PrepDatasetFileService {
 
                             grids.add(grid);
                         }
+
+                        responseMap.put("sheets", sheets);
                     }
 
                 } else if ("json".equals(extensionType)) {
@@ -973,6 +995,87 @@ public class PrepDatasetFileService {
         return dataFrame;
     }
 
+    public Map<String, Object> uploadFileChunk( String originalFilename, String uploadId,
+                  Integer chunkIdx, Integer chunkTotal, Integer chunkSize, Integer totalSize,
+                  PrDataset.STORAGE_TYPE storageType,
+                  MultipartFile file) {
+
+        Map<String, Object> responseMap = Maps.newHashMap();
+
+        String extensionType = FilenameUtils.getExtension(originalFilename).toLowerCase();
+
+        // now, this is for only PrDataset.STORAGE_TYPE.LOCAL;
+        if(false==PrDataset.STORAGE_TYPE.LOCAL.equals(storageType)) {
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_KEY_MISSING, "LOCAL storage type is only support");
+        }
+
+        FileOutputStream fos=null;
+        FileChannel och = null;
+        FileLock lock = null;
+        try {
+            String tempFileName = null;
+            String tempFilePath = null;
+
+            if(0<extensionType.length()) { tempFileName = uploadId + "." + extensionType; }
+            String storedUri = "file://" + this.getPathLocal_new(tempFileName);
+
+            URI uri = new URI(storedUri);
+            File theFile = new File(uri);
+
+            InputStream is = file.getInputStream();
+
+            fos = new FileOutputStream(theFile, true);
+            och = fos.getChannel();
+
+            byte[] buffer = new byte[8192];
+
+            lock = och.lock();
+
+            int offset = chunkIdx*chunkSize;
+            int byteCnt = 0;
+            int totalWrote = 0;
+            while(true)
+            {
+                byteCnt = is.read(buffer,0,buffer.length);
+                if(byteCnt == -1) break;
+
+                if( offset<0 || totalSize<offset+byteCnt ) {
+                    // index error
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_LOCAL_PATH, "out of bound");
+                }
+                och.write( ByteBuffer.wrap(buffer,0,byteCnt), offset );
+                offset = offset + byteCnt;
+                totalWrote = totalWrote + byteCnt;
+            }
+
+            responseMap.put("success", true);
+            responseMap.put("storedUri", storedUri);
+            responseMap.put("chunkIdx", chunkIdx);
+            responseMap.put("chunkWrote", totalWrote);
+            responseMap.put("filenameBeforeUpload", originalFilename);
+            responseMap.put("createTime", DateTime.now());
+        } catch (Exception e) {
+            LOGGER.error("Failed to upload file : {}", e.getMessage());
+            responseMap.put("success", false);
+            responseMap.put("message", e.getMessage());
+        } finally {
+            try {
+                if (null != lock) {
+                    lock.release();
+                }
+                if (null != och) {
+                    och.close();
+                }
+                if(null!=fos) {
+                    fos.close();
+                }
+            } catch (Exception e) {
+                LOGGER.error("finally: {}", e.getMessage());
+            }
+        }
+        return  responseMap;
+    }
+
     public Map<String, Object> uploadFile(MultipartFile file) {
         Map<String, Object> responseMap = Maps.newHashMap();
 
@@ -1212,12 +1315,11 @@ public class PrepDatasetFileService {
 
             int maxIdx = 0;
             for (Row r : sheet) {
-                int colIdx = 0;
                 for (Cell c : r) {
-                    colIdx++;
-                }
-                if(maxIdx<colIdx) {
-                    maxIdx = colIdx;
+                    int cellIdx = c.getColumnIndex();
+                    if(maxIdx<=cellIdx) {
+                        maxIdx = cellIdx+1;
+                    }
                 }
             }
             if(is!=null) {
@@ -1240,6 +1342,8 @@ public class PrepDatasetFileService {
             URI csvUri = new URI(csvStrUri);
             FileWriter writer = new FileWriter(new File(csvUri));
             for (Row r : sheet) {
+                int not_empty=0;
+
                 StringBuilder sb = new StringBuilder();
                 boolean first = true;
                 for (int i = 0; i < maxIdx; i++) {
@@ -1253,17 +1357,26 @@ public class PrepDatasetFileService {
                     }
 
                     Object cellValue = ExcelProcessor.getCellValue(c);
-                    String value = String.valueOf(cellValue);
-                    if (value.contains("\"")) {
-                        value = value.replace("\"", "\"\"");
+                    if(cellValue!=null) {
+                        String value = String.valueOf(cellValue);
+                        if(true==value.isEmpty()) {
+                            value = "\"\"";
+                        } else {
+                            if (value.contains("\"")) {
+                                value = value.replace("\"", "\"\"");
+                            }
+                            if (value.contains(",")) {
+                                value = "\"" + value + "\"";
+                            }
+                            not_empty++;
+                        }
+                        sb.append(value);
                     }
-                    if (value.contains(",")) {
-                        value = "\"" + value + "\"";
-                    }
-                    sb.append(value);
                 }
                 sb.append("\n");
-                writer.append(sb.toString());
+                if(0<not_empty) {
+                    writer.append(sb.toString());
+                }
             }
             writer.flush();
             writer.close();
