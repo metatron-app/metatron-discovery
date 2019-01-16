@@ -35,8 +35,11 @@
       <!-- filter search -->
       <div class="ddp-filter-search ddp-fright">
         <div class="ddp-form-filter-search">
-          <input type="text" placeholder="{{'msg.storage.ph.connection.search' | translate}}" [(ngModel)]="searchKeyword"
-                 (keypress)="onSearchConnection($event)" (keyup.esc)="resetSearchConnection()">
+          <component-input
+            [value]="searchKeyword"
+            [placeHolder]="'msg.storage.ph.connection.search' | translate"
+            (changeValue)="onChangedSearchKeyword($event)">
+          </component-input>
         </div>
         <!-- form -->
         <a href="javascript:" class="ddp-btn-selection" (click)="searchConnection()">{{'msg.comm.btn.search' | translate}}</a>

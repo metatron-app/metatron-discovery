@@ -55,8 +55,13 @@
       <!-- edit -->
       <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidName">
         <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
-        <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.name' | translate}}"
-               [(ngModel)]="dashboard.name" (focus)="isInvalidName=false" maxlength="50" />
+        <component-input
+          [value]="dashboard.name"
+          [inputClass]="'ddp-input-type'"
+          [maxLen]="50"
+          [placeHolder]="'msg.comm.ui.create.name' | translate"
+          (inputFocus)="isInvalidName=false"
+          (changeValue)="dashboard.name = $event"></component-input>
         <!-- error -->
         <span class="ddp-ui-error">{{errMsgName}}</span>
         <!-- error -->
@@ -66,8 +71,13 @@
       <!-- edit -->
       <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidDesc">
         <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
-        <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-               [(ngModel)]="dashboard.description" (focus)="isInvalidDesc=false" maxlength="150" />
+        <component-input
+          [value]="dashboard.description"
+          [inputClass]="'ddp-input-type'"
+          [maxLen]="150"
+          [placeHolder]="'msg.comm.ui.create.desc' | translate"
+          (inputFocus)="isInvalidDesc=false"
+          (changeValue)="dashboard.description = $event"></component-input>
         <!-- error -->
         <span class="ddp-ui-error">{{errMsgDesc}}</span>
         <!-- error -->

@@ -360,9 +360,12 @@
                   <span class="ddp-label-txt">{{'msg.page.common.grid.enter.remark' | translate}}</span>
                 </div>
                 <div class="ddp-col-6 ">
-                  <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.page.common.grid.enter.remark' | translate}}"
-                   (keyup.enter)="changeRemarkLabel(uiOption['annotation'])"
-                  [(ngModel)]="uiOption['annotation']['label']">
+                  <component-input
+                    [inputClass]="'ddp-input-typebasic'"
+                    [value]="uiOption['annotation']['label']"
+                    [placeHolder]="'msg.page.common.grid.enter.remark' | translate"
+                    (changeValue)="uiOption['annotation']['label'] = $event; changeRemarkLabel(uiOption['annotation']);">
+                  </component-input>
                 </div>
               </div>
               <!-- //multy -->
@@ -899,11 +902,13 @@
                   (onSelected)="kpiChangeTextTarget($event)"
                 ></component-select>
               </div>
-              <input type="text" class="ddp-input-typebasic ddp-font-size"
-                     [(ngModel)]="kpiTextTemp"
-                     (keyup.enter)="kpiApplyText()"
-                     (clickOutside)="kpiTextTemp = kpiText"
-                     maxlength="50"/>
+              <component-input
+                [inputClass]="'ddp-input-typebasic ddp-font-size'"
+                [value]="kpiTextTemp"
+                [maxLen]="50"
+                (inputBlur)="kpiTextTemp = kpiText"
+                (changeValue)="kpiTextTemp = $event; kpiApplyText();">
+              </component-input>
             </div>
             <!--  //divide -->
           </div>
@@ -997,7 +1002,7 @@
         <!-- divide -->
         <div class="ddp-divide2">
           <div class="ddp-list-label">{{'msg.page.common.pie.max.category' | translate}}</div>
-          <input type="number" (keyup.enter)="changeMaximumCategores(uiOption['maxCategory'])" [(ngModel)]="uiOption['maxCategory']" input-mask="number" class="ddp-input-typebasic"
+          <input type="number" (keyup.enter)="changeMaximumCategores(uiOption['maxCategory'])" (focusout)="changeMaximumCategores(uiOption['maxCategory'])" [(ngModel)]="uiOption['maxCategory']" input-mask="number" class="ddp-input-typebasic"
                  placeholder="{{'msg.page.common.pie.max.category.placeholder' | translate}}">
         </div>
         <!-- //divide -->
@@ -1020,7 +1025,7 @@
               <div class="ddp-col-7">
                 <!-- input number -->
                 <div class="ddp-input-number" [ngClass]="{'ddp-disabled' : !uiOption.limitCheck}">
-                  <input (keyup.enter)="onLimitChange(uiOption.limit)" [readonly]="!uiOption.limitCheck" [(ngModel)]="uiOption.limit"
+                  <input (keyup.enter)="onLimitChange(uiOption.limit)" (focusout)="onLimitChange(uiOption.limit)" [readonly]="!uiOption.limitCheck" [(ngModel)]="uiOption.limit"
                          placeholder="{{limitPlaceHolder}}"
                          type="number" input-mask="number">
                   <div class="ddp-input-number-nav">

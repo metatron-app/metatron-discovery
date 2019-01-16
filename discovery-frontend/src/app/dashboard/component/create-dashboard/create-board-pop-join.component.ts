@@ -45,9 +45,6 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
   @ViewChild('joinPreview')
   private joinPreview: GridComponent; // 조인 미리보기
 
-  @ViewChild('inputPreviewRow')
-  private _inputPreviewRow: ElementRef; // Preview Grid Row 입력
-
   private _dataSource: BoardDataSource;       // 메인 데이터소스
   private _queryLimit: number = 1000;         // 조회 갯수
   private _similarity: SimilarityInfo[];      // Join Key 유사도 정보
@@ -362,25 +359,15 @@ export class CreateBoardPopJoinComponent extends AbstractPopupComponent implemen
   } // function - addToJoinKeys
 
   /**
-   * 검색 조회 - 키보드 이벤트
-   * @param {KeyboardEvent} event
+   * 조인 결과 줄 수 설정
+   * @param {number} rowNum
    */
-  public setRowPreviewGrid(event: KeyboardEvent) {
-    if (13 === event.keyCode) {
-      // Row 설정
-      this.editingJoin.rowNum = this._inputPreviewRow.nativeElement.value;
-      // 조회
-      this._loadDataToPreviewGrid().then();
-    }
+  public setRowPreviewGrid(rowNum: number) {
+    // Row 설정
+    this.editingJoin.rowNum = rowNum;
+    // 조회
+    this._loadDataToPreviewGrid().then();
   } // function - setRowPreviewGrid
-
-  /**
-   * 검색어 리셋
-   */
-  public resetRowPreviewGrid() {
-    // 검색어 설정
-    this._inputPreviewRow.nativeElement.value = this.editingJoin.rowNum;
-  } // function - resetRowPreviewGrid
 
   /**
    * 조인 편집 내 조인타입 변경

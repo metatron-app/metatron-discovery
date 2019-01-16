@@ -28,33 +28,30 @@
           {{'msg.comm.ui.description' | translate}}
         </th>
         <td>
-          <!-- 클릭시 ddp-selected 추가 -->
-          <div class="ddp-txt-edit" [class.ddp-selected]="isDescEdit">
+          <div class="ddp-edit-description ddp-line" [class.ddp-edit]="isDescEdit">
             <!-- data -->
-            <span class="ddp-data-name" (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();" [ngClass]="{'ddp-data-none' : metadataModelService.getMetadata().description === ''}">
-              <span [innerHtml]="getDescription(metadataModelService.getMetadata().description)"></span>
-              <em class="ddp-icon-edit2"></em>
-            </span>
-            <!-- //data -->
-
-            <!-- edit -->
-            <div class="ddp-wrap-input">
-              <textarea #metadataDesc
-                     (clickOutside)="isDescEdit ? onDescEditCancel() : null"
-                     maxlength="150"
-                     class="ddp-input-edit" placeholder="{{'msg.metadata.ui.description.ph' | translate}}" [(ngModel)]="editingDesc">
-              </textarea>
-              <span class="ddp-btn-check" (click)="$event.stopPropagation(); onDescChange()"></span>
+            <div class="ddp-data-description">
+              <div class="ddp-txt-description"
+                   [innerHtml]="getDescription(metadataModelService.getMetadata().description)">
+              </div>
+              <a href="javascript:" class="ddp-btn-edit"
+                 (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();" [ngClass]="{'ddp-data-none' : metadataModelService.getMetadata().description === ''}"><em class="ddp-icon-edit"></em>Edit</a>
             </div>
-            <!-- //edit -->
+            <!-- //data -->
+            <div class="ddp-box-textarea" (clickOutside)="isDescEdit ? onDescChange() : null">
+              <textarea
+                #metadataDesc
+                maxlength="150"
+                class="ddp-input-edit" placeholder="{{'msg.metadata.ui.description.ph' | translate}}" [(ngModel)]="editingDesc">
+              </textarea>
+              <div class="ddp-textarea-buttons">
+                <a href="javascript:" class="ddp-box-btn" (click)="onDescEditCancel()"><em class="ddp-icon-cancel"></em></a>
+                <a href="javascript:" class="ddp-box-btn " (click)="onDescChange()"><em class="ddp-icon-check"></em></a>
+              </div>
+            </div>
           </div>
         </td>
-
-        <!--<td>-->
-          <!--{{metadataService.selectedMetadata.description}}-->
-        <!--</td>-->
       </tr>
-
       </tbody>
 
     </table>
@@ -133,7 +130,14 @@
               <a href="javascript:" class="ddp-btn-delete" (click)="deleteTag(tag)" *ngIf="'' !== tag.name"></a>
             </div>
             <div class="ddp-tag-default ddp-wrap-drop-search" [ngClass]="{'ddp-selected': filteredTagsList.length > 0}" (clickOutside)="tagClickOutsideEvent()">
-              <input id="tagInput" type="text" placeholder="{{'msg.metadata.ui.enter.tag' | translate}}" (keyup.enter)="addTag()" [(ngModel)]="tagValue">
+              <!--<input id="tagInput" type="text" placeholder="{{'msg.metadata.ui.enter.tag' | translate}}" (keyup.enter)="addTag()" [(ngModel)]="tagValue">-->
+
+              <component-input
+                [compType]="'default'"
+                [value]="tagValue"
+                [placeHolder]="'msg.metadata.ui.enter.tag' | translate"
+                (changeValue)="tagValue = $event; addTag();">
+              </component-input>
               <div class="ddp-ui-drop-search">
                 <ul class="ddp-list-selectbox2">
                   <li *ngFor="let tag of filteredTagsList" (click)="setTagValue(tag)">

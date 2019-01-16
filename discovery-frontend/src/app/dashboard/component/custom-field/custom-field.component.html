@@ -117,44 +117,44 @@
             <!-- //top -->
             <div class="ddp-view-formula">
               <div class="ddp-ui-formula">
-              <!-- 검색 -->
-              <div class="ddp-form-search">
-                <em class="ddp-icon-search"></em>
-                <input type="text" placeholder="{{'msg.board.custom.ui.placeholder' | translate}}" [(ngModel)]="calFuncSearchText" (keyup.esc)="calFuncSearchText = ''" >
-                <em class="ddp-btn-search-close" (click)="calFuncSearchText = ''"></em>
-              </div>
-              <!-- //검색 -->
+                <!-- 검색 -->
+                <component-input
+                  [compType]="'search'"
+                  [value]="calFuncSearchText"
+                  [immediately]="true"
+                  [placeHolder]="'msg.board.custom.ui.placeholder' | translate"
+                  (changeValue)="setSearchText($event)"></component-input>
+                <!-- //검색 -->
 
-              <!-- select box -->
-              <!-- 클릭시 ddp-selected 추가 -->
-              <component-select *ngIf="calculationCategory && categoryDefaultIndex != -1" #categorySelect
-                                [array]="calculationCategory"
-                                [viewKey]="'commonCodeNm'"
-                                [defaultIndex]="categoryDefaultIndex"
-                                (onSelected)="selectedCategory = $event"
-              ></component-select>
-              <!-- //select box -->
-              <!-- list -->
-              <div class="ddp-ui-typebasic" (mouseleave)="setCalculationDesciption(null, false)">
-                <div *ngFor="let category of calculationCategory
-              | baseFilter : ['commonCodeNm', 'ALL', true]
-              | baseFilter : ['commonCode', selectedCategory.commonCode]">
-                  <span class="ddp-list-name">{{category.commonCodeNm}}</span>
-                  <ul class="ddp-list-typebasic ddp-typeplus">
-                    <li *ngFor="let calFunction of category['calculationFunctions']
-                  | baseFilter : ['commonValue', calFuncSearchText]"
-                        (mouseenter)="setCalculationDesciption(calFunction, true)"
-                        (click)="selectedCalculationFunction(calFunction)">
-                      <a href="javascript:" (click)="selectFunction(calFunction)">
-                        {{calFunction.commonValue}}
-                        <em class="ddp-icon-plus"></em>
-                      </a>
-                    </li>
-                  </ul>
+                <!-- select box -->
+                <!-- 클릭시 ddp-selected 추가 -->
+                <component-select *ngIf="calculationCategory && categoryDefaultIndex != -1" #categorySelect
+                                  [array]="calculationCategory"
+                                  [viewKey]="'commonCodeNm'"
+                                  [defaultIndex]="categoryDefaultIndex"
+                                  (onSelected)="selectedCategory = $event"
+                ></component-select>
+                <!-- //select box -->
+                <!-- list -->
+                <div class="ddp-ui-typebasic" (mouseleave)="setCalculationDesciption(null, false)">
+                  <div *ngFor="let category of calculationCategory
+                | baseFilter : ['commonCodeNm', 'ALL', true]
+                | baseFilter : ['commonCode', selectedCategory.commonCode]">
+                    <span class="ddp-list-name">{{category.commonCodeNm}}</span>
+                    <ul class="ddp-list-typebasic ddp-typeplus">
+                      <li *ngFor="let calFunction of category['calculationFunctions']
+                    | baseFilter : ['commonValue', calFuncSearchText]"
+                          (mouseenter)="setCalculationDesciption(calFunction, true)"
+                          (click)="selectedCalculationFunction(calFunction)">
+                        <a href="javascript:" (click)="selectFunction(calFunction)">
+                          {{calFunction.commonValue}}
+                          <em class="ddp-icon-plus"></em>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
-              </div>
-              <!-- list -->
-
+                <!-- list -->
 
             </div>
 

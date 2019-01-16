@@ -17,14 +17,14 @@
         <!-- top -->
         <div class="ddp-type-top-option ddp-clear">
           <!-- search -->
-          <div class="ddp-form-search ddp-fleft">
-            <em class="ddp-icon-search"></em>
-            <input type="text" placeholder="{{'msg.storage.ui.column.search.description' | translate}}"
-                   [ngModel]="searchTextKeyword"
-                   (keypress)="onSearchText($event)"
-                   (keyup.esc)="searchText('')">
-            <em class="ddp-btn-search-close" *ngIf="searchTextKeyword !== ''" (click)="searchText('')"></em>
-          </div>
+          <component-input
+            [optionalClass]="'ddp-fleft'"
+            [compType]="'search'"
+            [showClear]="true"
+            [value]="searchTextKeyword"
+            [placeHolder]="'msg.storage.ui.column.search.description' | translate"
+            (changeValue)="searchText($event)">
+          </component-input>
           <!-- //search -->
           <div class="ddp-ui-rightoption">
 
