@@ -282,7 +282,7 @@ public class PrSnapshotController {
     public @ResponseBody
     ResponseEntity<?> workList(
             @PathVariable("dsId") String dsId,
-            @RequestParam(value = "option", required = false, defaultValue = "ALL") String option) {
+            @RequestParam(value = "option", required = false, defaultValue = "NOT_ALL") String option) {
         Map<String, Object> response = Maps.newHashMap();
         try {
             List<PrSnapshot> snapshots = this.snapshotService.getWorkList(dsId, option);
