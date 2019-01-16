@@ -33,6 +33,10 @@ import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.domain.workspace.WorkspaceRepository;
 import app.metatron.discovery.domain.workspace.WorkspaceService;
+import app.metatron.discovery.query.druid.Granularity;
+import app.metatron.discovery.query.druid.granularities.DurationGranularity;
+import app.metatron.discovery.query.druid.granularities.PeriodGranularity;
+import app.metatron.discovery.query.druid.granularities.SimpleGranularity;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.PolarisUtils;
 import com.google.common.collect.Lists;
@@ -41,6 +45,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,12 +118,31 @@ public class DataSourceService {
     dataSource.setSrcType(DataSource.SourceType.IMPORT);
     dataSource.setConnType(DataSource.ConnectionType.ENGINE);
     dataSource.setDsType(DataSource.DataSourceType.MASTER);
-    dataSource.setSegGranularity(reqDataSource.getSegGranularity() == null ? DataSource.GranularityType.DAY : reqDataSource.getSegGranularity());
-    dataSource.setGranularity(reqDataSource.getGranularity() == null ? DataSource.GranularityType.NONE : reqDataSource.getGranularity());
+
+    dataSource.setGranularity(segmentMetaData.getQueryGranularity() == null ? DataSource.GranularityType.NONE
+        : getGranularityType(segmentMetaData.getQueryGranularity()));
+
+    dataSource.setSegGranularity(segmentMetaData.getSegmentGranularity() == null ? DataSource.GranularityType.DAY
+        : getGranularityType(segmentMetaData.getSegmentGranularity()));
+
     dataSource.setStatus(DataSource.Status.ENABLED);
     dataSource.setFields(segmentMetaData.getConvertedField(reqDataSource.getFields()));
 
     return dataSourceRepository.saveAndFlush(dataSource);
+  }
+
+  public DataSource.GranularityType getGranularityType(Granularity granularity) {
+
+    if (granularity instanceof PeriodGranularity) {
+      Period period = Period.parse(((PeriodGranularity) granularity).getPeriod());
+      return DataSource.GranularityType.fromPeriod(period);
+    } else if (granularity instanceof DurationGranularity) {
+      Interval interval = Interval.parse(((DurationGranularity) granularity).getDuration());
+      return  DataSource.GranularityType.fromInterval(interval);
+    } else {
+      return DataSource.GranularityType.valueOf(((SimpleGranularity) granularity).getValue());
+    }
+
   }
 
   public void setDataSourceStatus(String datasourceId, DataSource.Status status, DataSourceSummary summary, Boolean failOnEngine) {
