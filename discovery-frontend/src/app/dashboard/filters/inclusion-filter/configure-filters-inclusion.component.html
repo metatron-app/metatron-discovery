@@ -272,7 +272,7 @@
 
       <!-- 후보값 목록 표시 -->
       <ul class="ddp-list-checktype ddp-type-list">
-        <li class="ddp-list-all">
+        <li *ngIf="useAll" class="ddp-list-all">
           <label *ngIf="!isSingleSelect(targetFilter)" class="ddp-label-checkbox">
             <input (click)="candidateSelectAll($event)" [checked]="isCheckedAllItem()" type="checkbox">
             <i class="ddp-icon-checkbox"></i>
@@ -280,7 +280,7 @@
           </label>
           <label *ngIf="isSingleSelect(targetFilter)" class="ddp-label-radio">
             <input (click)="candidateSelectAll($event)" [checked]="isCheckedAllItem()"
-                   type="radio" name="candidateSingle" >
+                   type="radio" name="candidateSingle_{{compUUID}}" >
             <i class="ddp-icon-radio"></i>
             <span class="ddp-txt-radio">({{'msg.board.filter.ui.all' | translate}})</span>
           </label>
@@ -299,7 +299,7 @@
           </label>
           <!-- radio -->
           <label class="ddp-label-radio" *ngIf="isSingleSelect(targetFilter)">
-            <input type="radio" name="candidateSingle"
+            <input type="radio" name="candidateSingle_{{compUUID}}"
                    (click)="candidateSelect(item, $event)"
                    [checked]="isCheckedItem(item)">
             <i class="ddp-icon-radio"></i>
@@ -346,3 +346,5 @@
     <!-- // 아이템 목록 영역 -->
   </div>
 </div>
+
+<div *ngIf="isNoData && isNoData" class="ddp-ui-empty">{{'msg.board.filter.ui.no-data' | translate}}</div>

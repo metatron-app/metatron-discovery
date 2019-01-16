@@ -152,19 +152,21 @@
 </app-edit-dataflow-rule-2>
 <!-- //룰 편집 화면 -->
 
-<app-add-dataset *ngIf="isDatasetAddPopupOpen"
-                 (closeEvent)="closeAddDatasetPopup()"
-                 (doneEvent)="datasetComplete($event);"
-                 [dataflowId]="dataflow.dfId"
-                 [originalDatasetList]="dataSetList">
-</app-add-dataset>
+<!--<app-add-dataset *ngIf="isDatasetAddPopupOpen"-->
+                 <!--(closeEvent)="closeAddDatasetPopup()"-->
+                 <!--(doneEvent)="datasetComplete($event);"-->
+                 <!--[dataflowId]="dataflow.dfId"-->
+                 <!--[originalDatasetList]="dataSetList">-->
+<!--</app-add-dataset>-->
 
 <long-update-popup
   *ngIf="isSelectDatasetPopupOpen"
-  [title]="datasetPopupTitle"
+  [popType]="longUpdatePopupType"
   [selectedDatasetId]="swapDatasetId"
+  [originalDatasetList]="dataSetList"
   (closeEvent)="isSelectDatasetPopupOpen = false"
   (doneEvent)="datasetPopupFinishEvent($event)"
+  (addEvent)="datasetPopupAddEvent($event)"
   [isRadio]="isRadio">
 </long-update-popup>
 

@@ -41,6 +41,9 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
   // datasource data
   private _sourceData: DatasourceInfo;
 
+  // partition key list
+  private _partitionKey: any = [];
+
   @ViewChild(ConfirmModalComponent)
   private _confirmModal: ConfirmModalComponent;
 
@@ -88,6 +91,8 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
     super.ngOnInit();
     // ui init
     this._initView();
+    // set partition key
+    this._partitionKey = this.getIngestionData.selectedPartitionType.value === 'ENABLE' ? this._getPartitionParams() : [];
     // if createData is exist, load createData
     if (this._sourceData.hasOwnProperty('createData')) {
       this._loadData(this._sourceData.createData);
@@ -181,11 +186,27 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
   }
 
   /**
-   * Get partition key label
+   * partition keys label
    * @returns {string}
    */
-  public getPartitionsEnabledLabel(): string {
-    return this.translateService.instant('msg.storage.ui.partition.enable.count.label', {value: this._getPartitionFields.length});
+  public getPartitionKeys(): string {
+    // if exist partition keys in ingestion data
+    if (this._partitionKey && this._partitionKey.length !== 0) {
+      return this._partitionKey.reduce((acc, partition) => {
+        acc += acc === ''
+          ? Object.keys(partition).reduce((line, key) => {
+            StringUtil.isNotEmpty(partition[key]) && (line += line === '' ? `${key}=${partition[key]}` : `/${key}=${partition[key]}`);
+            return line;
+          }, '')
+          : '<br>' + Object.keys(partition).reduce((line, key) => {
+          StringUtil.isNotEmpty(partition[key]) && (line += line === '' ? `${key}=${partition[key]}` : `/${key}=${partition[key]}`);
+          return line;
+        }, '');
+        return acc;
+      }, '');
+    } else { // if not exist partition keys
+      return this.translateService.instant('msg.storage.ui.set.false');
+    }
   }
 
 

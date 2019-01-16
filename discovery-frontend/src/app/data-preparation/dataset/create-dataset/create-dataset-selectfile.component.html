@@ -29,12 +29,59 @@
 
     <div class="ddp-box-popupcontents">
       <!-- file create -->
-      <div class="ddp-box-file-create" ng2FileDrop [uploader]="uploader">
+      <div class="ddp-box-file-create" #drop_container >
+
+        <div *ngIf="isUploading===true">
+          <!-- progress -->
+          <div class="ddp-wrap-progress" style="">
+            <!-- loading box -->
+            <div class="ddp-box-loading ddp-pop ddp-progress" style="">
+              <span class="ddp-data-loading">Uploading file <strong>{{this.progressPercent}}%</strong></span>
+              <a href="javascript:" class="ddp-btn-cancel" (click)="cancelClick(true)" >{{'msg.comm.btn.cancl' | translate}}</a>
+              <!-- bar -->
+              <div class="ddp-type-progressbar2" >
+                <em class="ddp-data-progressbar" [ngStyle]="{'width': progressbarWidth}"></em>
+              </div>
+              <!-- //bar -->
+            </div>
+            <!-- //loading box -->
+          </div>
+          <!-- //progress -->
+          <!-- progress (cancel) -->
+          <div class="ddp-wrap-progress" style="display:none;">
+            <!-- loading box -->
+            <div class="ddp-box-loading ddp-pop ddp-progress ddp-disabled" style="">
+              <span class="ddp-data-loading">Uploading file  <strong style="display: none;">{{this.progressPercent}}%</strong></span>
+              <a href="javascript:" class="ddp-btn-cancel">{{'msg.comm.btn.cancl' | translate}}</a>
+              <!-- bar -->
+              <div class="ddp-type-progressbar2">
+                <em class="ddp-data-progressbar" [ngStyle]="{'width': progressbarWidth}"></em>
+              </div>
+              <!-- //bar -->
+            </div>
+            <!-- //loading box -->
+
+            <div class="ddp-box-loading ddp-pop ddp-cancel" style="">
+
+              <!-- buttons -->
+              <div class="ddp-pop-buttons">
+                <div class="ddp-txt-info">{{'msg.dp.ui.snapshot.cancel.confirm' | translate}}</div>
+                <a href="javascript:" class="ddp-btn-line" (click)="cancelClick(false)">{{'msg.dp.ui.no' | translate }}</a>
+                <a href="javascript:" class="ddp-btn-solid ddp-bg-black " (click)="cancelUpload()">{{'msg.dp.ui.yes' | translate }}</a>
+              </div>
+              <!-- //buttons -->
+
+            </div>
+          </div>
+          <!-- //progress -->
+        </div>
+
+
         <!-- default -->
         <div class="ddp-box-default">
           <div class="ddp-txt-file-info">
-            <div class="ddp-link-file">
-              <input type="file" ng2FileSelect [uploader]="uploader" #fileUpload>
+            <div class="ddp-link-file" >
+              <input type="file"   #pickfiles>
               {{'msg.dp.ui.file.import' | translate}}
             </div>
             {{'msg.dp.ui.file.drop' | translate}}
@@ -49,6 +96,12 @@
     </div>
   </div>
   <!-- //contents in  -->
+
+
+
+
+
+
   <!-- buttons -->
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.cancl' | translate}}</a>

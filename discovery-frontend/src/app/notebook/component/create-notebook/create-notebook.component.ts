@@ -83,7 +83,7 @@ export class CreateNotebookComponent extends AbstractComponent implements OnInit
       if (this.step === 'close-notebook-create') {
 
       } else if (this.step === 'complete-notebook-create') {
-        this.createComplete.emit(true);
+        this.createComplete.emit(data.data);
       }
 
     });

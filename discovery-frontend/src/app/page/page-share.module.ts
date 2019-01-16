@@ -50,6 +50,7 @@ import { MapFormatOptionComponent } from './chart-style/map/map-format-option.co
 import { MapTooltipOptionComponent } from './chart-style/map/map-tooltip-option.component';
 import { MapCommonOptionComponent } from './chart-style/map/map-common-option.component';
 import { PivotContextComponent } from './page-pivot/pivot-context.component';
+import {SecondaryAxisOptionComponent} from './chart-style/secondary-axis-option.component';
 
 @NgModule({
   imports: [
@@ -71,6 +72,7 @@ import { PivotContextComponent } from './page-pivot/pivot-context.component';
     LegendOptionComponent,
     XAxisOptionComponent,
     YAxisOptionComponent,
+    SecondaryAxisOptionComponent,
     AxisValueOptionComponent,
     AxisCategoryOptionComponent,
     DataLabelOptionComponent,

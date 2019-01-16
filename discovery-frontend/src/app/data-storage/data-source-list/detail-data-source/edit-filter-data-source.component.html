@@ -8,7 +8,7 @@
       </span>
       <div class="ddp-ui-pop-buttons">
         <a href="javascript:" class="ddp-btn-pop" (click)="onClickCancel()">{{'msg.comm.btn.cancl' | translate}}</a>
-        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="onClickDone()">{{'msg.comm.btn.done' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="updateColumnList()">{{'msg.comm.btn.done' | translate}}</a>
       </div>
     </div>
     <!-- //title -->
@@ -177,5 +177,3 @@
     </div>
   </div>
 </div>
-
-<app-confirm-modal (confirm)="updateColumnList()"></app-confirm-modal>

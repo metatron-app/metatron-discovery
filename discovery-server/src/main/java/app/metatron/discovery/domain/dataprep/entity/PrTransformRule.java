@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.dataprep.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 
 @Entity
@@ -27,6 +29,7 @@ public class PrTransformRule {
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ds_id")
+    @JsonBackReference
     private PrDataset dataset;
 
     @Lob

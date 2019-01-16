@@ -20,9 +20,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -703,6 +705,33 @@ public interface Expr extends Expression {
           throw new FunctionInvalidDeltaValueException("ExprEval.eval() add_time: The delta value must be a number");
         } catch (Exception e) {
           throw new FunctionUndefinedException("ExprEval.eval() add_time: Unknown error occur");
+        }
+
+      }
+      else if (function instanceof BuiltinFunctions.Times.TimeBetweenFunc) {
+
+        assert (args.size() == 3) : args.size();
+
+        try {
+          DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.sssZ").withLocale(Locale.ENGLISH);
+          DateTime dateTime = args.get(0).eval(bindings).asTimestamp();
+          DateTime startTime = DateTime.parse(args.get(1).eval(bindings).asString(), dtf);
+          DateTime endTime = DateTime.parse(args.get(2).eval(bindings).asString(), dtf);
+
+          if(dateTime == null)
+            return ExprEval.of(false);
+          if(dateTime.isEqual(startTime))
+            return ExprEval.of(true);
+          if(dateTime.isAfter(startTime) && dateTime.isBefore(endTime))
+            return ExprEval.of(true);
+
+          return ExprEval.of(false);
+        } catch (NullPointerException ne){
+          throw new FunctionColumnNotFoundException("time_between(): No such column name >> " + args.get(0).toString());
+        } catch (FunctionWorksOnlyOnTimestampException e) {
+          throw new FunctionWorksOnlyOnTimestampException("ExprEval.eval() time_between(): This function is works only on timestamp");
+        } catch (Exception e) {
+          throw new FunctionUndefinedException("ExprEval.eval() time_between(): Unknown error occur");
         }
 
       }

@@ -15,7 +15,6 @@
 import { Component, OnInit, Injector, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { DataSnapshotService } from './service/data-snapshot.service';
 import { AbstractComponent } from '../../common/component/abstract.component';
-//import { DataSnapshot } from '../../domain/data-preparation/data-snapshot';
 import { PrDataSnapshot, SsType, Status } from '../../domain/data-preparation/pr-snapshot';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
 import { Modal } from '../../common/domain/modal';
@@ -45,11 +44,9 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
   public deleteModalComponent: DeleteModalComponent;
 
   /** 데이터스냅샷 리스트 */
-  //public datasnapshots: DataSnapshot[] = [];
   public datasnapshots: PrDataSnapshot[] = [];
 
   /** 데이터스냅샷 */
-  //public datasnapshot: DataSnapshot;
   public datasnapshot: PrDataSnapshot;
 
   /** 지울 데이터스냅샷 아이디 */

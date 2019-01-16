@@ -15,9 +15,12 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletOutputStream;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -289,5 +292,48 @@ public class PrepCsvUtil {
     }
 
     return printer;
+  }
+
+  public static void writeHiveTableAsCSV(ResultSet rs, ServletOutputStream outputStream, String dbName) {
+    try {
+      ResultSetMetaData rsmd = rs.getMetaData();
+      int columnCount = rsmd.getColumnCount();
+      StringBuffer sb = new StringBuffer();
+      for (int columnIdx = 1; columnIdx <= columnCount; columnIdx++) {
+        String colName = rsmd.getColumnName(columnIdx);
+        if (colName.startsWith(dbName + ".")) {
+          colName = colName.substring(dbName.length() + 1);
+        }
+        //int colType = rsmd.getColumnType(columnIdx);
+        if (1 < columnIdx) {
+          sb.append(",");
+        }
+        sb.append(escapeCsvField(colName));
+      }
+      outputStream.write(sb.toString().getBytes());
+      while (rs.next()) {
+        sb = new StringBuffer();
+        sb.append("\n");
+        for (int columnIdx = 1; columnIdx <= columnCount; columnIdx++) {
+          String columnValue = rs.getString(columnIdx);
+          if (1 < columnIdx) {
+            sb.append(",");
+          }
+          sb.append(escapeCsvField(columnValue));
+        }
+        outputStream.write(sb.toString().getBytes());
+      }
+    }  catch (Exception e) {
+      LOGGER.error("Failed to write hive table as CSV file : {}", e.getMessage());
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
+    }
+  }
+
+  private static String escapeCsvField(String value) {
+    if( value.contains("\"") || value.contains(",") ) {
+      value=value.replaceAll("\"","\\\"");
+      return "\"" + value + "\"";
+    }
+    return value;
   }
 }

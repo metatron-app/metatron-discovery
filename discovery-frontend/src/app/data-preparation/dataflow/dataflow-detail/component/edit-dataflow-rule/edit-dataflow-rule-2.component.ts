@@ -172,9 +172,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
 
   get filteredWrangledDatasets() {
-    if (this.dataflow['_embedded'].datasets.length === 0) return [];
+    if (this.dataflow.datasets.length === 0) return [];
 
-    let list = this.dataflow['_embedded'].datasets;
+    let list = this.dataflow.datasets;
 
     list = list.filter((dataset) => {
       return dataset.dsType.toString() === 'WRANGLED';
@@ -250,8 +250,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this.initViewPage();
 
-    this.initSnapshotList(this.selectedDataSet.dsId);
-
   }
 
   public ngOnChanges() {}
@@ -260,7 +258,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this._split = [];
     this._split.push(Split(['.rule-left', '.rule-right'], {
         sizes: [80, 20],
-      minSize: [700, 300],
+      minSize: [300, 300],
         onDragEnd: (() => {
           this._editRuleGridComp.resizeGrid();
         }),
@@ -308,16 +306,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   /**
    * Snapshot list refresh
-   * @param {string} dsId
-   * @param {boolean} changeTab
    */
-  public initSnapshotList(dsId : string, changeTab : boolean = false) {
-
-    if (changeTab) {
-      this.ruleListComponent.changeTab(1);
-    } else {
-      this.ruleListComponent.init(dsId);
-    }
+  public initSnapshotList() {
+    this.ruleListComponent.changeTab(1);
   }
 
   /**
@@ -325,7 +316,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   public snapshotCreateClose() {
     if (1 === this.ruleListComponent.tabNumber) {
-      this.ruleListComponent.getSnapshotWithInterval(this.selectedDataSet.dsId);
+      this.ruleListComponent.getSnapshotList();
     }
   }
 
@@ -348,7 +339,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * open create snapshot popup
    * */
   public createSnapshot() {
-    this.ruleListComponent.clearSnapshotInterval();
+    this.ruleListComponent.clearExistingInterval();
     this.createSnapshotPopup.init({
       id: this.selectedDataSet.dsId,
       name: this.selectedDataSet.dsName,
