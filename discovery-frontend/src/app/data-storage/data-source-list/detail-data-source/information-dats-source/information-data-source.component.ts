@@ -694,7 +694,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    */
   private _getPartitionKeyLabels(): string[] {
     // if exist partition keys in ingestion data
-    if (this.getIngestion.partitions && this.getIngestion.partitions.length !== 0) {
+    if (this.getIngestion && this.getIngestion.partitions && this.getIngestion.partitions.length !== 0) {
       return this.getIngestion.partitions.reduce((array, partition) => {
         array.push(Object.keys(partition).reduce((line, key) => {
           StringUtil.isNotEmpty(partition[key]) && (line += line === '' ? `${key}=${partition[key]}` : `/${key}=${partition[key]}`);

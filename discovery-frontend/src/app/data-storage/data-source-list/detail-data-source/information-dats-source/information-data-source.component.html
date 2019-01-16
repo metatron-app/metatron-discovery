@@ -172,15 +172,15 @@
         </td>
       </tr>
       <!-- //size -->
-      <!-- duration #1092-->
-      <!--<tr *ngIf="(isEnabled() || isDisabled()) && getSummary">-->
-        <!--<th>-->
-          <!--{{'msg.storage.th.duration' | translate}}-->
-        <!--</th>-->
-        <!--<td>-->
-          <!--{{getSummary.ingestionMinTime}} ~ {{getSummary.ingestionMaxTime}}-->
-        <!--</td>-->
-      <!--</tr>-->
+      <!-- duration -->
+      <tr *ngIf="(isEnabled() || isDisabled()) && getSummary">
+        <th>
+          {{'msg.storage.th.duration' | translate}}
+        </th>
+        <td>
+          {{getSummary.ingestionMinTime}} ~ {{getSummary.ingestionMaxTime}}
+        </td>
+      </tr>
       <!-- //duration -->
       <!-- Granularity -->
       <tr>
@@ -206,7 +206,7 @@
             </div>
             <!-- //edit option -->
           </div>
-          <div class="ddp-wrap-edit3 ddp-type" *ngIf="!timestampColumn.derived && getIngestion.intervals">
+          <div class="ddp-wrap-edit3 ddp-type" *ngIf="!timestampColumn.derived && getIngestion && getIngestion.intervals">
             <label class="ddp-label-type">{{'msg.storage.ui.intervals' | translate}}
             </label>
             <!-- edit option -->
