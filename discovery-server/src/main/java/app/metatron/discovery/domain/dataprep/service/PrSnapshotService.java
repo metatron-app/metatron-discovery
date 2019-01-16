@@ -49,11 +49,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 
 @Service
 public class PrSnapshotService {
@@ -395,11 +392,27 @@ public class PrSnapshotService {
 
         List<String> allowKeys = Lists.newArrayList();
         allowKeys.add("ssName");
+        allowKeys.add("status");
+        allowKeys.add("lineageInfo");
+        allowKeys.add("ruleCntDone");
+        allowKeys.add("custom");
+        allowKeys.add("ruleCntTotal");
+        allowKeys.add("storedUri");
+        allowKeys.add("finishTime");
+        allowKeys.add("totalLines");
 
         List<String> ignoreKeys = Lists.newArrayList();
         ignoreKeys.add("ssId");
 
         if(patchSnapshot.getSsName()!=null) { snapshot.setSsName(patchSnapshot.getSsName()); }
+        if(patchSnapshot.getStatus()!=null) { snapshot.setStatus(patchSnapshot.getStatus()); }
+        if(patchSnapshot.getLineageInfo()!=null) { snapshot.setLineageInfo(patchSnapshot.getLineageInfo()); }
+        if(patchSnapshot.getRuleCntDone()!=null) { snapshot.setRuleCntDone(patchSnapshot.getRuleCntDone()); }
+        if(patchSnapshot.getCustom()!=null) { snapshot.setCustom(patchSnapshot.getCustom()); }
+        if(patchSnapshot.getRuleCntTotal()!=null) { snapshot.setRuleCntTotal(patchSnapshot.getRuleCntTotal()); }
+        if(patchSnapshot.getStoredUri()!=null) { snapshot.setStoredUri(patchSnapshot.getStoredUri()); }
+        if(patchSnapshot.getFinishTime()!=null) { snapshot.setFinishTime(patchSnapshot.getFinishTime()); }
+        if(patchSnapshot.getTotalLines()!=null) { snapshot.setTotalLines(patchSnapshot.getTotalLines()); }
 
         ObjectMapper objectMapper = GlobalObjectMapper.getDefaultMapper();
         Map<String, Object> mapSnapshot = objectMapper.convertValue(patchSnapshot, Map.class);
