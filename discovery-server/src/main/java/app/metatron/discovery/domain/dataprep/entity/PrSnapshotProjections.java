@@ -91,6 +91,11 @@ public class PrSnapshotProjections {
         Map<String,Object> getSourceInfo();
         Map<String,Object> getConnectionInfo();
         List<Object> getRuleStringInfo();
+
+        DateTime getCreatedTime();
+        String getCreatedBy();
+        DateTime getModifiedTime();
+        String getModifiedBy();
     }
 
 }
