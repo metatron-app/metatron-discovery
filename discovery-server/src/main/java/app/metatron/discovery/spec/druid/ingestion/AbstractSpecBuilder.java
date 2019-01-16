@@ -98,10 +98,7 @@ public class AbstractSpecBuilder {
     }
 
     // Set Interval Options
-    List<String> intervals = null;
-    if (dataSource.getIngestionInfo() instanceof HiveIngestionInfo) {
-      intervals = ((HiveIngestionInfo) dataSource.getIngestionInfo()).getIntervals();
-    }
+    List<String> intervals = dataSource.getIngestionInfo().getIntervals();
 
     // Set granularity, Default value (granularity : SECOND, segment granularity : DAY)
     UniformGranularitySpec granularitySpec = new UniformGranularitySpec(
@@ -227,7 +224,7 @@ public class AbstractSpecBuilder {
 
       CsvStreamParser csvStreamParser = new CsvStreamParser();
 
-      if ( ingestionInfo instanceof LocalFileIngestionInfo ) {
+      if (ingestionInfo instanceof LocalFileIngestionInfo) {
         boolean skipHeaderRow = ((LocalFileIngestionInfo) ingestionInfo).getRemoveFirstRow();
 
         // In case of Excel file, it is set to false because it is converted to headerless csv.
@@ -238,7 +235,7 @@ public class AbstractSpecBuilder {
         csvStreamParser.setSkipHeaderRecord(skipHeaderRow);
       }
 
-      if (fileFormat instanceof CsvFileFormat){
+      if (fileFormat instanceof CsvFileFormat) {
 
         CsvFileFormat csvFormat = (CsvFileFormat) fileFormat;
 

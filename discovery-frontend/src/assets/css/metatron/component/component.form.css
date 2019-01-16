@@ -32,7 +32,7 @@
 
 .ddp-form-error .ddp-data-error {color:#e70000; font-size:12px; font-style:italic;}
 .ddp-form-error .ddp-data-error:before {display:inline-block; width:13px; height:13px; background:url(../../../images/icon_info.png) no-repeat; background-position:-28px top;
-    vertical-align:middle; content:'';}
+  vertical-align:middle; content:'';}
 
 /**************************************************************
     edit
@@ -57,7 +57,11 @@
 .ddp-wrap-edit2 .ddp-ui-option-sub {padding:0 20px;}
 .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-ui-edit-option .ddp-label-radio {margin-right:100px; vertical-align:top;}
 .ddp-wrap-edit2 .ddp-ui-option-sub + .ddp-ui-option-sub {margin-top:20px;}
+.ddp-wrap-edit2 .ddp-ui-option-sub .ddp-ui-sub-setting {padding:4px;}
+.ddp-wrap-edit2 .ddp-ui-option-sub .ddp-ui-sub-setting .ddp-type-label {position:relative; top:6px; margin-right:10px; float:left; font-size:13px; color:#90969f;}
 
+.ddp-wrap-edit2 .ddp-ui-option-sub .ddp-ui-sub-setting .ddp-box-option-input {float:left; width:90px;}
+.ddp-wrap-edit2 .ddp-ui-option-sub .ddp-ui-sub-setting .ddp-txt-error {position:relative; top:5px; margin-left:6px;}
 .ddp-wrap-edit2 .ddp-wrap-hover-info {display:inline-block; margin-left:2px; position:relative; vertical-align: middle; cursor:pointer;}
 .ddp-wrap-edit2 .ddp-wrap-hover-info:hover {z-index:50;}
 .ddp-wrap-edit2 .ddp-wrap-hover-info .ddp-icon-info3 {display:inline-block; position:relative; top:-1px; width:11px; height:11px; background:url(../../../images/icon_que.png) no-repeat; background-position:left -12px;}
@@ -89,7 +93,7 @@
 .ddp-wrap-edit2.ddp-inline .ddp-label-type {float:left; width:117px;}
 .ddp-wrap-edit2.ddp-inline .ddp-inline {display:block;}
 
-.ddp-wrap-edit2 .ddp-ui-error {display:block; visibility: hidden; position:absolute; bottom:-20px; left:0; right:0;color:#eb5f58; font-size:12px;}
+.ddp-wrap-edit2 .ddp-ui-error {display:block; visibility: hidden; position:absolute; bottom:-20px; left:0; right:0;color:#DC494F; font-size:12px;}
 .ddp-wrap-edit2.ddp-error .ddp-ui-error{visibility: inherit;}
 .ddp-wrap-edit2.ddp-error .ddp-input-type {border-bottom:1px solid #ff2a1b;}
 .ddp-wrap-edit2[class*="ddp-col-"] .ddp-ui-error {left:8px;}
@@ -109,7 +113,7 @@
 /* wrap edit3 */
 .ddp-wrap-edit3 {display:table; width:100%; table-layout:fixed; min-height:30px;}
 .ddp-wrap-edit3.ddp-error .ddp-ui-error{display:inline-block;}
-.ddp-wrap-edit3 .ddp-ui-error {display:none; position:relative; top:-2px; margin-left:5px; color:#eb5f58; font-size:12px; white-space:nowrap;}
+.ddp-wrap-edit3 .ddp-ui-error {display:none; position:relative; top:-2px; margin-left:4px; color:#DC494F; font-size:12px; white-space:nowrap; font-style:italic;}
 .ddp-wrap-edit3 .ddp-ui-label-name {display:block; width:100%; margin-bottom:14px; color:#b7b9c2; font-size:13px;  vertical-align:middle;}
 .ddp-wrap-edit3 label.ddp-label-type {display:table-cell; width: 131px; padding:8px 0;color:#b7b9c2;font-size:13px;vertical-align:top;}
 .ddp-wrap-edit3 label.ddp-label-type.ddp-text-right {padding-right:15px;}
@@ -303,19 +307,21 @@ ul.ddp-list-value li.ddp-data-none {background:none; color:#b7b9c3;}
 
 .ddp-wrap-datainput .ddp-box-error .ddp-icon-close {display:inline-block; position:absolute; top:8px; right:7px; width:11px; height:11px; background:url(../../../images/btn_close.png) no-repeat; background-position:left -58px;}
 
-.ddp-txt-error {display: inline-block; color:#ca4b4b; font-size:13px;}
+.ddp-txt-error {display: inline-block; color:#DC494F; font-size:12px; font-style:italic;}
 .ddp-txt-error.ddp-size {font-size:12px; color:#eb5f58;}
 .ddp-txt-error em.ddp-icon-error {display:inline-block; width:15px; height:15px; margin-right:6px; background:url(../../../images/icon_error.png) no-repeat; vertical-align: middle;}
-.ddp-txt-error em.ddp-icon-error-s {margin-right:8px; background-position:-16px 0;}
-.ddp-txt-error2 {color:#ff3324; text-align:center; font-size:13px;}
+.ddp-txt-error em.ddp-icon-error-s {position:relative; top:-1px; width:13px; height:13px; margin-right:4px; background:url(../../../images/icon_info.png) no-repeat;  background-position:-28px 0;vertical-align:middle;}
 
+.ddp-txt-error2 {color:#ff3324; text-align:center; font-size:13px;}
+.ddp-txt-error.ddp-default {color:#b7b9c2;}
+.ddp-txt-error.ddp-default .ddp-icon-error-s {display:inline-block; width:13px; height:13px; background:url(../../../images/icon_info.png) no-repeat; background-position:left -16px; vertical-align:middle;}
 /**************************************************************
     popup form
 **************************************************************/
 .ddp-box-layout4 {position:relative; width:211px; border-radius:2px; border:1px solid #ddd; background-color:#fff; z-index:1; box-sizing:border-box;
-    -moz-box-shadow: 0 1px 3px rgba(0,0,0,.3); /* drop shadow */
-    -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.3); /* drop shadow */
-    box-shadow: 0 1px 3px rgba(0,0,0,.3); /* drop shadow */
+  -moz-box-shadow: 0 1px 3px rgba(0,0,0,.3); /* drop shadow */
+  -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.3); /* drop shadow */
+  box-shadow: 0 1px 3px rgba(0,0,0,.3); /* drop shadow */
 }
 
 .ddp-box-layout4 .ddp-data-title {padding:15px 14px 15px 14px; color:#4b515b; font-size:12px; font-weight:bold;}

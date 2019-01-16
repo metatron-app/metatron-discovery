@@ -29,7 +29,6 @@ import {
   ConnectionType,
   Datasource,
   Field,
-  FieldRole,
   SourceType,
   Status
 } from '../../../../domain/datasource/datasource';
@@ -130,7 +129,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   public confirm = new EventEmitter;
 
   @Input()
-  public timestampColumn: any;
+  public timestampColumn: Field;
 
   // 리스트 flag
   public detailFl: boolean = false;
@@ -139,6 +138,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
 
   // process step
   public ingestionProcessStatusStep: number = 0;
+
+  // partitionKeyList
+  public partitionKeyList: string[];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -161,10 +163,20 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     super.ngOnInit();
     // ui init
     this.initView();
+    // set partition key list
+    this.partitionKeyList = this._getPartitionKeyLabels();
     // Linked 소스가 아니고 enabled 일때 timestamp 필드가 있는 경우에만 stats 조회하기
     if (!this.isLinkedSource() && this.isEnabled() && this.timestampColumn) {
       this._getFieldStats(this.timestampColumn.name, this.datasource.engineName);
     }
+  }
+
+  /**
+   * Get ingestion interval
+   * @returns {string}
+   */
+  public getIngestionInterval(): string {
+    return this.getIngestion.intervals[0].split('/').join(' ~ ');
   }
 
   // Destory
@@ -456,30 +468,6 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   }
 
   /**
-   * partition keys label
-   * @returns {string}
-   */
-  public getPartitionKeys(): string {
-    // if exist partition keys in ingestion data
-    if (this.getIngestion.partitions && this.getIngestion.partitions.length !== 0) {
-      return this.getIngestion.partitions.reduce((acc, partition) => {
-        acc += acc === ''
-          ? Object.keys(partition).reduce((line, key) => {
-            StringUtil.isNotEmpty(partition[key]) && (line += line === '' ? `${key}=${partition[key]}` : `/${key}=${partition[key]}`);
-            return line;
-          }, '')
-          : '<br>' + Object.keys(partition).reduce((line, key) => {
-            StringUtil.isNotEmpty(partition[key]) && (line += line === '' ? `${key}=${partition[key]}` : `/${key}=${partition[key]}`);
-            return line;
-        }, '');
-        return acc;
-      }, '');
-    } else { // if not exist partition keys
-      return this.translateService.instant('msg.storage.ui.set.false');
-    }
-  }
-
-  /**
    * 데이터 소스 status class
    * @returns {string}
    */
@@ -504,7 +492,6 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   public getObjectKeys(option: object): string[] {
     return _.keys(option);
   }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - validation
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -701,11 +688,23 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   }
 
   /**
-   * 현재 데이터소스의 필드
-   * @returns {Field[]}
+   * Get partition key label list
+   * @returns {string[]}
+   * @private
    */
-  private get getFields(): Field[] {
-    return this.datasource.fields;
+  private _getPartitionKeyLabels(): string[] {
+    // if exist partition keys in ingestion data
+    if (this.getIngestion && this.getIngestion.partitions && this.getIngestion.partitions.length !== 0) {
+      return this.getIngestion.partitions.reduce((array, partition) => {
+        array.push(Object.keys(partition).reduce((line, key) => {
+          StringUtil.isNotEmpty(partition[key]) && (line += line === '' ? `${key}=${partition[key]}` : `/${key}=${partition[key]}`);
+          return line;
+        }, ''));
+        return array;
+      }, []);
+    } else { // if not exist partition keys
+      return [this.translateService.instant('msg.storage.ui.set.false')];
+    }
   }
 
   /**

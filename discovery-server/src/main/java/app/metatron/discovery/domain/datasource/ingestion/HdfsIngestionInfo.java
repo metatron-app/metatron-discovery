@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.datasource.ingestion;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.List;
@@ -38,11 +40,39 @@ public class HdfsIngestionInfo implements IngestionInfo {
    */
   Boolean rollup;
 
+  /**
+   * Intervals
+   */
+  List<String> intervals;
+
+  /**
+   * Specify Tuning Configuration, override default Value
+   */
   Map<String, Object> tuningOptions;
 
+  /**
+   * Specify MR Job property, override default Value
+   */
   Map<String, Object> jobProperties;
 
   public HdfsIngestionInfo() {
+  }
+
+  @JsonCreator
+  public HdfsIngestionInfo(@JsonProperty("paths") List<String> paths,
+                           @JsonProperty("findRecursive") boolean findRecursive,
+                           @JsonProperty("format") FileFormat format,
+                           @JsonProperty("rollup") Boolean rollup,
+                           @JsonProperty("intervals") List<String> intervals,
+                           @JsonProperty("tuningOptions") Map<String, Object> tuningOptions,
+                           @JsonProperty("jobProperties") Map<String, Object> jobProperties) {
+    this.paths = paths;
+    this.findRecursive = findRecursive;
+    this.format = format;
+    this.rollup = rollup;
+    this.intervals = intervals;
+    this.tuningOptions = tuningOptions;
+    this.jobProperties = jobProperties;
   }
 
   public List<String> getPaths() {
@@ -76,6 +106,15 @@ public class HdfsIngestionInfo implements IngestionInfo {
 
   public void setRollup(Boolean rollup) {
     this.rollup = rollup;
+  }
+
+  @Override
+  public List<String> getIntervals() {
+    return intervals;
+  }
+
+  public void setIntervals(List<String> intervals) {
+    this.intervals = intervals;
   }
 
   public Map<String, Object> getTuningOptions() {

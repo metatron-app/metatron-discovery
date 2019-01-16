@@ -26,7 +26,8 @@ export class InputMaskDirective {
   private regexMap = {
     number: '^[0-9]*$',
     float: '^[+-]?([0-9]*[.])?[0-9]+$',
-    words: '([A-z]*\\s)*'
+    words: '([A-z]*\\s)*',
+    calendar: '^[0-9:\-\\s]*$'
   };
 
   @Input('input-mask')

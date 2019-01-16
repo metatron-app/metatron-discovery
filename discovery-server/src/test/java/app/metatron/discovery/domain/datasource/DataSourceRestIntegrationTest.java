@@ -1258,6 +1258,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     localFileIngestionInfo.setPath(targetFile);
     localFileIngestionInfo.setRemoveFirstRow(false);
     localFileIngestionInfo.setFormat(new CsvFileFormat("\u0020", "\n"));
+    localFileIngestionInfo.setIntervals(Lists.newArrayList("2000-01-01T00:00:00.000Z/2020-01-01T00:00:00.000Z"));
 
     dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(localFileIngestionInfo));
 
@@ -1655,6 +1656,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
                                                                     consumeProperties,
                                                                     new JsonFileFormat(),
                                                                     false,
+                                                                    null,
                                                                     null, null);
 
     dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(ingestionInfo));
