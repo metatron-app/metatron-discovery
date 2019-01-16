@@ -101,6 +101,7 @@ import { CustomSymbol } from '../../../../../domain/workbook/configurations/form
 import { UIChartAxisLabel, UIChartAxisLabelCategory, UIChartAxisLabelValue } from '../ui-option/ui-axis';
 import {MapLineStyle, MapThickness, MapType} from '../define/map/map-common';
 import { UIMapOption } from '../ui-option/map/ui-map-chart';
+import {CommonConstant} from "../../../../constant/common.constant";
 
 export namespace OptionGenerator {
 
@@ -2011,12 +2012,20 @@ export namespace OptionGenerator {
      * @returns {UIOption}
      */
     export function defaultMapViewChartUIOption(): UIMapOption {
+
+      let defaultStyle:string = 'Light';
+      const propMapConf = sessionStorage.getItem( CommonConstant.PROP_MAP_CONFIG );
+      if ( propMapConf ) {
+        const objConf = JSON.parse( propMapConf );
+        ( objConf && objConf.defaultBaseMap ) && ( defaultStyle = objConf.defaultBaseMap );
+      }
+
       return <any>{
         type: ChartType.MAP,
         layerNum: 0,
         showMapLayer: true,
         map: MapType.OSM,
-        style: 'Light',
+        style: defaultStyle,
         licenseNotation: "© OpenStreetMap contributors",
         showDistrictLayer: true,
         districtUnit: "state",

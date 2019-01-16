@@ -74,4 +74,6 @@ export class CommonConstant {
 
   public static COL_NAME_CURRENT_DATETIME:string = 'current_datetime';
 
+  public static PROP_MAP_CONFIG:string = 'METATRON_PROP_MAP_CONFIG';
+
 }
