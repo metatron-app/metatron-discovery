@@ -286,11 +286,12 @@
   "msg.comm.btn.search": "Search",
   "msg.comm.btn.new": "New",
 
-  "msg.lnb.btn.Manual" : "Manuals",
+  "msg.lnb.btn.manual" : "Manuals",
+  "msg.lnb.btn.manual.web" : "Web",
   "msg.lnb.btn.workspace-list" : "Workspace list >>",
   "msg.lnb.label.set-favorite-workspace" : "Set favorite public workspaces.",
-  "msg.lnb.label.help" : "Help",
-  "msg.lnb.label.data-manager" : "Data Manager",
+  "msg.lnb.label.help" : "User guide",
+  "msg.lnb.label.contact" : "Contact",
   "msg.lnb.label.admin" : "Administrator",
 
   "msg.space.alert.folder.del.success": "Folder deleted",
