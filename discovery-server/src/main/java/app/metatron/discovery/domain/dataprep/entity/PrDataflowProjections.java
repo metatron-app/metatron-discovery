@@ -15,7 +15,9 @@
 package app.metatron.discovery.domain.dataprep.entity;
 
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
+import app.metatron.discovery.domain.user.UserProfile;
 
 import java.util.List;
 
@@ -34,46 +36,14 @@ public class PrDataflowProjections {
         List<PrDataset> getDatasets();
 
         DateTime getCreatedTime();
-        String getCreatedBy();
         DateTime getModifiedTime();
-        String getModifiedBy();
+
+        @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
+        UserProfile getCreatedBy();
+
+        @Value("#{@cachedUserService.findUserProfile(target.modifiedBy)}")
+        UserProfile getModifiedBy();
     }
-
-/*
-    @Projection(name = "detail", types = { PrDataflow.class })
-    public interface DetailProjection {
-
-        String getDfName();
-        String getDfDesc();
-
-        Integer getImportedDsCount();
-        Integer getWrangledDsCount();
-
-        DateTime getCreatedTime();
-        String getCreatedBy();
-        DateTime getModifiedTime();
-        String getModifiedBy();
-
-        List<PrDataset> getDatasets();
-        //List<PrepStream> getUpstreamInfos();
-    }
-
-    @Projection(name = "listing", types = { PrDataflow.class })
-    public interface ListingProjection {
-
-        String getDfId();
-        String getDfName();
-        String getDfDesc();
-
-        Integer getImportedDsCount();
-        Integer getWrangledDsCount();
-
-        DateTime getCreatedTime();
-        String getCreatedBy();
-        DateTime getModifiedTime();
-        String getModifiedBy();
-    }
-*/
 
 }
 
