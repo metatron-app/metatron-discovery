@@ -54,6 +54,8 @@ declare let moment;
 
 export class FilterUtil {
 
+  public static CANDIDATE_LIMIT:number = 1000;
+
   /**
    * 필터 패널 내용 목록 조회
    * @param {Filter[]} filterList

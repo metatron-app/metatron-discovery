@@ -37,6 +37,7 @@ import {StringUtil} from '../../../common/util/string.util';
 import {DIRECTION} from '../../../domain/workbook/configurations/sort';
 import {EventBroadcaster} from '../../../common/event/event.broadcaster';
 import {FilterWidget} from '../../../domain/dashboard/widget/filter-widget';
+import {FilterUtil} from "../../util/filter.util";
 
 @Component({
   selector: 'inclusion-filter-panel',
@@ -71,8 +72,9 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
   // 검색 관련
   public searchText = '';
 
-  public isMultiSelector: boolean = false;    // 복수 선택 여부
-  public isSearchFocus: boolean = false;       // 검색바 포커스 여부
+  public isMultiSelector: boolean = false;        // 복수 선택 여부
+  public isSearchFocus: boolean = false;          // 검색바 포커스 여부
+  public isOverCandidateWarning:boolean = false;  // Candidate Limit 을 넘겼는지 여부
 
   @Input('filter')
   public originalFilter: InclusionFilter;
@@ -154,6 +156,13 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
+
+  /**
+   * Candidate 목록의 전체 갯수 조회
+   */
+  public get candidateListSize():number {
+    return this._candidateList.length;
+  } // get - candidateListSize
 
   /**
    * 전체선택
@@ -425,6 +434,9 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
             this._candidateList.push(this._objToCandidate(item, this.field));
           });
         }
+
+        // 추가 데이터가 있는지 여부
+        this.isOverCandidateWarning = ( FilterUtil.CANDIDATE_LIMIT === result.length || result.length > this.candidateListSize );
 
         // 정렬
         this.sortCandidateValues(this.filter);
