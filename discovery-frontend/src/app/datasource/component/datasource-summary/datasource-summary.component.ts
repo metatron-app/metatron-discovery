@@ -49,6 +49,11 @@ export class DatasourceSummaryComponent extends AbstractComponent implements OnI
     this.hasHeader = hasHeader;
   }
 
+  // 메타데이터이름 show/hide 여부
+  @Input()
+  public showMetadataName: boolean = true;
+
+
   // 변경 이벤트
   @Output('close')
   public closeEvent = new EventEmitter();
