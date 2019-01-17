@@ -171,6 +171,7 @@
       <!-- 설명 -->
       <app-datasource-summary *ngIf="selectedDatasource"
                               [datasource]="selectedDatasource?.id"
+                              [showMetadataName]="false"
                               (close)="onClickCloseSchema()">
       </app-datasource-summary>
       <!-- //설명 -->
