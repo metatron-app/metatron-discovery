@@ -16,9 +16,9 @@
  * Created by Dolkkok on 2017. 7. 17..
  */
 
-import { ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../abstract.component';
-import { Pivot } from '../../../domain/workbook/configurations/pivot';
+import {ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '../abstract.component';
+import {Pivot} from '../../../domain/workbook/configurations/pivot';
 import {
   UIChartColor,
   UIChartColorByDimension,
@@ -27,7 +27,7 @@ import {
   UIChartZoom,
   UIOption
 } from './option/ui-option';
-import { BaseOption } from './option/base-option';
+import {BaseOption} from './option/base-option';
 import {
   AxisLabelType,
   AxisType,
@@ -47,27 +47,27 @@ import {
   ShelveFieldType,
   ShelveType, UIChartDataLabelDisplayType
 } from './option/define/common';
-import { Field as AbstractField, Field } from '../../../domain/workbook/configurations/field/field';
+import {Field as AbstractField, Field} from '../../../domain/workbook/configurations/field/field';
 
 import * as _ from 'lodash';
-import { OptionGenerator } from './option/util/option-generator';
-import { Series } from './option/define/series';
-import { Observable } from 'rxjs';
-import { DataZoomType } from './option/define/datazoom';
-import { ColorOptionConverter } from './option/converter/color-option-converter';
-import { AxisOptionConverter } from './option/converter/axis-option-converter';
-import { LabelOptionConverter } from './option/converter/label-option-converter';
-import { FormatOptionConverter } from './option/converter/format-option-converter';
-import { CommonOptionConverter } from './option/converter/common-option-converter';
-import { ToolOptionConverter } from './option/converter/tool-option-converter';
-import { LegendOptionConverter } from './option/converter/legend-option-converter';
-import { analysis } from '../../../page/component/value/analysis';
-import { ColorRange, UIChartColorGradationByValue } from './option/ui-option/ui-color';
-import { UIScatterChart } from './option/ui-option/ui-scatter-chart';
+import {OptionGenerator} from './option/util/option-generator';
+import {Series} from './option/define/series';
+import {Observable} from 'rxjs';
+import {DataZoomType} from './option/define/datazoom';
+import {ColorOptionConverter} from './option/converter/color-option-converter';
+import {AxisOptionConverter} from './option/converter/axis-option-converter';
+import {LabelOptionConverter} from './option/converter/label-option-converter';
+import {FormatOptionConverter} from './option/converter/format-option-converter';
+import {CommonOptionConverter} from './option/converter/common-option-converter';
+import {ToolOptionConverter} from './option/converter/tool-option-converter';
+import {LegendOptionConverter} from './option/converter/legend-option-converter';
+import {analysis} from '../../../page/component/value/analysis';
+import {ColorRange, UIChartColorGradationByValue} from './option/ui-option/ui-color';
+import {UIScatterChart} from './option/ui-option/ui-scatter-chart';
 import UI = OptionGenerator.UI;
 import {UIChartAxisGrid} from "./option/ui-option/ui-axis";
-import { TooltipOptionConverter } from './option/converter/tooltip-option-converter';
-import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
+import {TooltipOptionConverter} from './option/converter/tooltip-option-converter';
+import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
 
 declare let echarts: any;
 
@@ -194,7 +194,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
   // 다시그리는 업데이트 여부
   @Input()
-  public isUpdateRedraw:boolean = true;
+  public isUpdateRedraw: boolean = true;
 
   // 고급분석
   public analysis: analysis = null;
@@ -214,7 +214,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     this.setDataInfo();
 
     // 차트 표현
-    if( this.chart && this.data ) {
+    if (this.chart && this.data) {
       this.draw(true);
     }
 
@@ -230,10 +230,12 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     ////////////////////////////////////////////////////////
 
     // 데이터가 아예 없는경우 (차트 초기 로딩같은..)
-    if( !result || !result.data ) { return; }
+    if (!result || !result.data) {
+      return;
+    }
 
     //데이터 타입이  Object일 경우 => 맵 차트
-    if( result.data instanceof Object && result.data.totalFeatures > 0) {
+    if (result.data instanceof Object && result.data.totalFeatures > 0) {
 
       // Set
       this.originalData = _.cloneDeep(result.data);
@@ -261,7 +263,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       // this.setPivotInfo();
 
       // 차트 표현
-      if( this.chart ) {
+      if (this.chart) {
         console.log('== map draw ==');
         this.draw();
       }
@@ -274,19 +276,19 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     }
 
     // 서버 데이터가 비어있을 경우
-    if( !(result.data instanceof Array)
+    if (!(result.data instanceof Array)
       && ((!result.data.columns || !result.data.rows)
-      || (result.data.columns.length == 0 && result.data.rows.length == 0))
+        || (result.data.columns.length == 0 && result.data.rows.length == 0))
       && ((!result.data.nodes || !result.data.links)
-      || (result.data.nodes.length == 0 && result.data.links.length == 0)) ) {
+        || (result.data.nodes.length == 0 && result.data.links.length == 0))) {
 
       // No Data 이벤트 발생
       this.noData.emit();
       return;
     }
     // 서버 데이터가 비어있을 경우 => 네트워크 차트
-    else if( result.data instanceof Array
-      && result.data.length == 0 ) {
+    else if (result.data instanceof Array
+      && result.data.length == 0) {
 
       // No Data 이벤트 발생
       this.noData.emit();
@@ -310,40 +312,40 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     ///////////////////////////
 
     // Y축이 Value축인경우
-    if( !_.isUndefined(this.uiOption.yAxis)
-      && _.eq(this.uiOption.yAxis.label.type, ChartAxisLabelType.VALUE) ) {
+    if (!_.isUndefined(this.uiOption.yAxis)
+      && _.eq(this.uiOption.yAxis.label.type, ChartAxisLabelType.VALUE)) {
 
       // 기준선 변경
-      if( !_.isUndefined(this.uiOption.yAxis.baseline)
-          && !isNaN(<number>this.uiOption.yAxis.baseline)
-          && this.uiOption.yAxis.baseline != 0) {
+      if (!_.isUndefined(this.uiOption.yAxis.baseline)
+        && !isNaN(<number>this.uiOption.yAxis.baseline)
+        && this.uiOption.yAxis.baseline != 0) {
 
         this.calculateBaseline(<number>this.uiOption.yAxis.baseline, result, true);
       }
 
       // Min/Max 변경
-      if( !_.isUndefined(this.uiOption.yAxis.grid)
-          && !this.uiOption.yAxis.grid.autoScaled ) {
+      if (!_.isUndefined(this.uiOption.yAxis.grid)
+        && !this.uiOption.yAxis.grid.autoScaled) {
 
         this.calculateMinMax(this.uiOption.yAxis.grid, result, true);
       }
     }
 
     // X축이 Value축인경우
-    if( !_.isUndefined(this.uiOption.xAxis)
-      && _.eq(this.uiOption.xAxis.label.type, ChartAxisLabelType.VALUE) ) {
+    if (!_.isUndefined(this.uiOption.xAxis)
+      && _.eq(this.uiOption.xAxis.label.type, ChartAxisLabelType.VALUE)) {
 
       // 기준선 변경
-      if( !_.isUndefined(this.uiOption.xAxis.baseline)
-          && !isNaN(<number>this.uiOption.xAxis.baseline)
-          && this.uiOption.xAxis.baseline != 0) {
+      if (!_.isUndefined(this.uiOption.xAxis.baseline)
+        && !isNaN(<number>this.uiOption.xAxis.baseline)
+        && this.uiOption.xAxis.baseline != 0) {
 
         this.calculateBaseline(<number>this.uiOption.xAxis.baseline, result, false);
       }
 
       // Min/Max 변경
-      if( !_.isUndefined(this.uiOption.xAxis.grid)
-          && !this.uiOption.xAxis.grid.autoScaled ) {
+      if (!_.isUndefined(this.uiOption.xAxis.grid)
+        && !this.uiOption.xAxis.grid.autoScaled) {
 
         this.calculateMinMax(this.uiOption.xAxis.grid, result, false);
       }
@@ -375,7 +377,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     this.setPivotInfo();
 
     // 차트 표현
-    if( this.chart ) {
+    if (this.chart) {
       this.draw();
     }
 
@@ -386,16 +388,16 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   protected calculateMinMax(grid: UIChartAxisGrid, result: any, isYAsis: boolean): void {
 
     // 축범위 자동설정일 경우
-    if( grid.autoScaled ) {
-      if( result.data.categories && result.data.categories.length > 0 ) {
+    if (grid.autoScaled) {
+      if (result.data.categories && result.data.categories.length > 0) {
         let min = null;
         let max = null;
         _.each(result.data.categories, (category) => {
           _.each(category.value, (value) => {
-            if( min == null || value < min ) {
+            if (min == null || value < min) {
               min = value;
             }
-            if( max == null || value > max ) {
+            if (max == null || value > max) {
               max = value;
             }
           });
@@ -404,8 +406,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
           ? Math.ceil(min - ((max - min) * 0.05))
           : min
         grid.max = max;
-      }
-      else {
+      } else {
         grid.min = result.data.info.minValue > 0
           ? Math.ceil(result.data.info.minValue - ((result.data.info.maxValue - result.data.info.minValue) * 0.05))
           : result.data.info.minValue
@@ -414,8 +415,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     }
 
     // Min / Max값이 없다면 수행취소
-    if( ((_.isUndefined(grid.min) || grid.min == 0)
-      && (_.isUndefined(grid.max) || grid.max == 0)) ) {
+    if (((_.isUndefined(grid.min) || grid.min == 0)
+      && (_.isUndefined(grid.max) || grid.max == 0))) {
       return;
     }
 
@@ -424,81 +425,73 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     result.data.columns.map((column, index) => {
       let nameArr = _.split(column.name, CHART_STRING_DELIMITER);
       let name = "";
-      if( nameArr.length > 1 ) {
+      if (nameArr.length > 1) {
         nameArr.map((temp, index) => {
-          if( index < nameArr.length - 1 ) {
-            if( index > 0 ) {
+          if (index < nameArr.length - 1) {
+            if (index > 0) {
               name += CHART_STRING_DELIMITER;
             }
             name += temp;
           }
         });
-      }
-      else {
+      } else {
         name = nameArr[0];
       }
 
       let isAlready = false;
       seriesList.map((series, index) => {
-        if( series == name ) {
+        if (series == name) {
           isAlready = true;
           return false;
         }
       });
 
-      if( !isAlready ) {
+      if (!isAlready) {
         seriesList.push(name);
       }
     });
 
     // Min/Max 처리
-    if( !result.data.categories || result.data.categories.length == 0 ) {
+    if (!result.data.categories || result.data.categories.length == 0) {
       result.data.columns.map((column, index) => {
         column.value.map((value, index) => {
-          if( value < grid.min ) {
+          if (value < grid.min) {
             column.value[index] = grid.min;
-          }
-          else if( value > grid.max ) {
+          } else if (value > grid.max) {
             column.value[index] = grid.max;
           }
         });
       });
-    }
-    else {
+    } else {
 
       _.each(result.data.categories, (category, categoryIndex) => {
         let totalValue = [];
         let seriesValue = [];
         result.data.columns.map((column, index) => {
 
-          if( column.name.indexOf(category.name) == -1 ) {
+          if (column.name.indexOf(category.name) == -1) {
             return true;
           }
 
           column.value.map((value, index) => {
-            if( _.isUndefined(totalValue[index]) || isNaN(totalValue[index]) ) {
+            if (_.isUndefined(totalValue[index]) || isNaN(totalValue[index])) {
               totalValue[index] = 0;
               seriesValue[index] = 0;
             }
 
-            if( totalValue[index] > grid.max ) {
+            if (totalValue[index] > grid.max) {
               column.value[index] = 0;
-            }
-            else if( totalValue[index] + value > grid.max ) {
-              if( seriesValue[index] <= 0 ) {
+            } else if (totalValue[index] + value > grid.max) {
+              if (seriesValue[index] <= 0) {
                 column.value[index] = grid.max;
-              }
-              else {
+              } else {
                 column.value[index] = (<number>grid.max) - totalValue[index];
               }
-            }
-            else if( totalValue[index] + value < grid.min ) {
+            } else if (totalValue[index] + value < grid.min) {
               column.value[index] = 0;
-            }
-            else if( totalValue[index] < grid.min && totalValue[index] + value > grid.min ) {
+            } else if (totalValue[index] < grid.min && totalValue[index] + value > grid.min) {
               column.value[index] = totalValue[index] + value;
-            }
-            else {
+            } else {
               column.value[index] = value;
             }
             seriesValue[index] += column.value[index];
@@ -508,10 +501,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
         // Min값보다 작다면
         _.each(totalValue, (value, valueIndex) => {
-          if( value < grid.min ) {
+          if (value < grid.min) {
             result.data.columns.map((column, index) => {
               column.value.map((value, index) => {
-                if( index == valueIndex ) {
+                if (index == valueIndex) {
                   column.value[index] = 0;
                 }
               });
@@ -529,53 +522,50 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     result.data.columns.map((column, index) => {
       let nameArr = _.split(column.name, CHART_STRING_DELIMITER);
       let name = "";
-      if( nameArr.length > 1 ) {
+      if (nameArr.length > 1) {
         nameArr.map((temp, index) => {
-          if( index < nameArr.length - 1 ) {
-            if( index > 0 ) {
+          if (index < nameArr.length - 1) {
+            if (index > 0) {
               name += CHART_STRING_DELIMITER;
             }
             name += temp;
           }
         });
-      }
-      else {
+      } else {
         name = nameArr[0];
       }
 
       let isAlready = false;
       seriesList.map((series, index) => {
-        if( series == name ) {
+        if (series == name) {
           isAlready = true;
           return false;
         }
       });
 
-      if( !isAlready ) {
+      if (!isAlready) {
         seriesList.push(name);
       }
     });
 
     // Value값을 마이너스 처리
-    if( !result.data.categories || result.data.categories.length == 0 ) {
+    if (!result.data.categories || result.data.categories.length == 0) {
       result.data.columns.map((column, index) => {
         column.value.map((value, index) => {
-          if( value > 0 ) {
+          if (value > 0) {
             column.value[index] = value - baseline;
-          }
-          else {
+          } else {
             column.value[index] = (Math.abs(value) + Math.abs(baseline)) * -1;
           }
         });
       });
-    }
-    else {
+    } else {
       let categoryVal = [];
       let categoryPer = [];
-      for( let num = 0 ; num < result.data.categories.length ; num++ ) {
+      for (let num = 0; num < result.data.categories.length; num++) {
 
         let category = result.data.categories[num];
-        for( let num2 = 0 ; num2 < category.value.length ; num2++ ) {
+        for (let num2 = 0; num2 < category.value.length; num2++) {
 
           let value = category.value[num2];
           let index = (num * category.value.length) + num2;
@@ -588,10 +578,9 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       result.data.columns.map((column, index) => {
         column.value.map((value, index) => {
-          if( categoryVal[index] < baseline ) {
+          if (categoryVal[index] < baseline) {
             column.value[index] = (Math.abs(value) * categoryPer[index]) * -1;
-          }
-          else {
+          } else {
             column.value[index] = Math.abs(value) * categoryPer[index];
           }
 
@@ -618,13 +607,41 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       return list;
     });
+/*
+    _.each(this.data.columns, (data, index) => {
+      data.categoryName = _.cloneDeep(this.data.rows); // 해당 dataIndex걸로 넣어주면됨
+
+      data.categoryValue = [];
+      data.categoryPercent = [];
+
+      // 해당 dataIndex걸로 넣어주면됨
+      // 단일 series인 경우
+      if (!this.data.categories || (this.data.categories && this.data.categories.length == 0)) {
+
+        data.categoryValue = addAllValues(_.cloneDeep(this.originalData.columns), 'value');
+        data.categoryPercent = addAllValues(_.cloneDeep(this.data.columns), 'percentage');
+        data.seriesName = _.cloneDeep(this.data.rows);
+        // 멀티 series인 경우
+      } else {
+        if (this.data.categories) {
+          for (const category of this.data.categories) {
+            data.categoryValue = _.cloneDeep(category.value);
+            data.categoryPercent = _.cloneDeep(category.percentage);
+          }
+        }
+
+        data.seriesName = _.split(data.name, CHART_STRING_DELIMITER)[0];
+      }
+
+      // 해당 dataIndex로 설정
+      data.seriesValue = _.cloneDeep(this.originalData.columns[index].value);
+      data.seriesPercent = _.cloneDeep(data.percentage);
+    });
+*/
 
     // rows 축의 개수만큼 넣어줌
     const copyOfData = JSON.parse(JSON.stringify(this.data));
     const copyOfOriginalData = JSON.parse(JSON.stringify(this.originalData));
-
-    const categoryValue = addAllValues(copyOfOriginalData.columns, 'value');
-    const categoryPercent = addAllValues(copyOfData.columns, 'percentage');
 
     _.each(copyOfData.columns, (data, index) => {
       data.categoryName = copyOfData.rows; // 해당 dataIndex걸로 넣어주면됨
@@ -635,8 +652,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       // 해당 dataIndex걸로 넣어주면됨
       // 단일 series인 경우
       if (!copyOfData.categories || (copyOfData.categories && copyOfData.categories.length == 0)) {
-        data.categoryValue = categoryValue;
-        data.categoryPercent = categoryPercent;
+        data.categoryValue = addAllValues(copyOfOriginalData.columns, 'value');
+        data.categoryPercent = addAllValues(copyOfData.columns, 'percentage');
         data.seriesName = copyOfData.rows;
       } else {
         // 멀티 series인 경우
@@ -654,6 +671,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       data.seriesValue = copyOfOriginalData.columns[index].value;
       data.seriesPercent = _.cloneDeep(data.percentage);
     });
+    this.data = copyOfData;
 
     return this.data.columns;
   }
@@ -665,7 +683,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector) {
 
     super(elementRef, injector);
   }
@@ -692,8 +710,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         if (this.chart && this.chart.resize) {
           this.chart.resize();
         }
+      } catch (error) {
       }
-      catch(error) { }
     });
 
     this.subscriptions.push(windowResizeSubscribe);
@@ -703,7 +721,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   public ngOnDestroy() {
 
     // 차트 초기화
-    if( this.chart && !this.chart._disposed ) {
+    if (this.chart && !this.chart._disposed) {
       if (!_.isUndefined(this.chart.clear)) this.chart.clear();
       if (!_.isUndefined(this.chart.dispose)) this.chart.dispose();
     }
@@ -719,7 +737,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     this.chart = this.echarts.init(this.$element.find('.chartCanvas')[0], 'exntu');
 
     // 초기에 주입된 데이터를 기준으로 차트를 표현한다.
-    if( this.data ) {
+    if (this.data) {
       this.draw();
     }
   }
@@ -739,7 +757,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // Valid 체크
     ////////////////////////////////////////////////////////
 
-    if( !this.isValid(this.pivot) ) {
+    if (!this.isValid(this.pivot)) {
 
       // No Data 이벤트 발생
       this.noData.emit();
@@ -980,7 +998,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     ////////////////////////////////////////////////////////
 
     // X축 데이터
-    if ( _.eq(this.chartOption.xAxis[0].type, AxisType.CATEGORY) ) {
+    if (_.eq(this.chartOption.xAxis[0].type, AxisType.CATEGORY)) {
       this.chartOption.xAxis[0].data = this.data.rows;
     }
 
@@ -1099,7 +1117,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     ////////////////////////////////////////////////////////
 
     // Y축 데이터
-    if ( !_.eq(this.chartOption.xAxis[0].type, AxisType.CATEGORY) ) {
+    if (!_.eq(this.chartOption.xAxis[0].type, AxisType.CATEGORY)) {
       this.chartOption.yAxis[0].data = this.data.rows;
     }
 
@@ -1453,7 +1471,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // 범례 설정이 없다면 패스
     ////////////////////////////////////////////////////////
 
-    if( !this.chartOption.legend ) {
+    if (!this.chartOption.legend) {
       return this.chartOption;
     }
 
@@ -1479,7 +1497,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       this.chartOption.legend.color = colorCodes;
 
-    // color by dimension / value인 경우
+      // color by dimension / value인 경우
     } else {
 
       // option에 범례가 있는경우
@@ -1552,7 +1570,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    */
   protected drawFinish(): void {
 
-    if( 0 < this.chartOption.series.length ) {
+    if (0 < this.chartOption.series.length) {
 
       //if (!_.isUndefined(this.chartOption.brush)) this.convertMouseMode(this.mouseMode, this.brushType);
 
@@ -1638,7 +1656,9 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     });
     const aggs = shelve.aggregations.map((aggregation) => {
       return setFieldName(aggregation, ShelveFieldType.MEASURE);
-    }).filter((item)=> {return typeof item !== 'undefined'});
+    }).filter((item) => {
+      return typeof item !== 'undefined'
+    });
 
     this.fieldInfo = new PivotTableInfo(cols, rows, aggs);
 
@@ -1651,7 +1671,9 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     });
     const originAggs = shelve.aggregations.map((aggregation) => {
       return setOriginFieldName(aggregation);
-    }).filter((item)=> {return typeof item !== 'undefined'});
+    }).filter((item) => {
+      return typeof item !== 'undefined'
+    });
 
     // name으로만 항상 넣는 fieldInfo
     this.fieldOriginInfo = new PivotTableInfo(originCols, originRows, originAggs);
@@ -1710,7 +1732,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
     let shelve: any = this.pivot;
 
-    if( shelve ) {
+    if (shelve) {
       // 선반값에서 해당 타입에 해당하는값만 name string값으로 리턴
       const getShelveReturnString = ((shelve: any, typeList: ShelveFieldType[]): string[] => {
         const resultList: string[] = [];
@@ -1761,7 +1783,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       const resultList: AbstractField[] = [];
       _.forEach(shelve, (value, key) => {
         shelve[key].map((item) => {
-          if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
+          if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')))) {
             resultList.push(item);
           }
         });
@@ -1949,7 +1971,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         selectedSeriesData[params.dataIndex].itemStyle = OptionGenerator.ItemStyle.auto();
         selectedSeriesData[params.dataIndex].itemStyle.normal.opacity = 1;
         selectedSeriesData[params.dataIndex].textStyle = OptionGenerator.TextStyle.auto();
-        selectedSeriesData[params.dataIndex].textStyle = {normal: {opacity : 1}};
+        selectedSeriesData[params.dataIndex].textStyle = {normal: {opacity: 1}};
         selectedSeriesData[params.dataIndex].selected = true;
       } else {
 
@@ -1977,7 +1999,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         // 선택한 데이터 선택효과 처리
         if (selectedSeries.lineStyle && obj.dataIndex && obj.dataIndex.length > 0) {
           selectedSeries.itemStyle.normal.opacity = 1;
-          if(selectedSeries.lineStyle) selectedSeries.lineStyle.normal.opacity = 1;
+          if (selectedSeries.lineStyle) selectedSeries.lineStyle.normal.opacity = 1;
         }
 
         // 시리즈 선택 처리
@@ -2030,8 +2052,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       delete selectedSeriesData[params.dataIndex].itemStyle;
       delete selectedSeriesData[params.dataIndex].selected;
       delete selectedSeriesData[params.dataIndex].symbolSize;
-    }
-    else selectedSeriesData[params.dataIndex] = selectedData.value;
+    } else selectedSeriesData[params.dataIndex] = selectedData.value;
 
     // 동일 시리즈내에 선택된 데이터가 있는지 확인
     const selectedDataArr = selectedSeriesData.filter((data) => {
@@ -2132,7 +2153,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       // fieldMeasureList에서 제거된 값 제거
       for (let key in (<UIChartColorBySeries>this.uiOption.color).mapping) {
 
-        const index = _.findIndex(this.uiOption.fieldMeasureList, {alias : key});
+        const index = _.findIndex(this.uiOption.fieldMeasureList, {alias: key});
 
         // fieldMeasureList에서 없는 리스트이거나 이전의 값이 제거된경우 색상 초기화를 위해 제거
         if (-1 == index || colorChangedFl) {
@@ -2153,7 +2174,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       Object.keys((<UIChartColorBySeries>this.uiOption.color).mapping).forEach((key) => {
 
-        (<UIChartColorBySeries>this.uiOption.color).mappingArray.push({alias: key, color: (<UIChartColorBySeries>this.uiOption.color).mapping[key]});
+        (<UIChartColorBySeries>this.uiOption.color).mappingArray.push({
+          alias: key,
+          color: (<UIChartColorBySeries>this.uiOption.color).mapping[key]
+        });
       });
     }
 
@@ -2191,7 +2215,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
           gridRowsListLength += this.data.columns.length;
 
-        // chart_string_delimiter 데이터가 없는경우 => original일때
+          // chart_string_delimiter 데이터가 없는경우 => original일때
         } else {
           gridRowsListLength += this.data.columns[0].value.length;
         }
@@ -2213,7 +2237,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     }
 
     // data.rows length가 colorList보다 작은경우 범위설정을 5개대신 rows개수로 설정
-    let colorListLength = colorList.length > rowsListLength ? rowsListLength - 1: colorList.length - 1;
+    let colorListLength = colorList.length > rowsListLength ? rowsListLength - 1 : colorList.length - 1;
 
     // 차이값 설정
     const addValue = (this.uiOption.maxValue - this.uiOption.minValue) / colorListLength;
@@ -2479,7 +2503,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       // 교차선반 데이터 요소 ( scatter )
       const aggs = this.pivotInfo.aggs;
 
-      const setData = ((colIdxList, data : Field[], shelveData: string[], dataAlter?: Field[], shelveAlterData?: string[]) => {
+      const setData = ((colIdxList, data: Field[], shelveData: string[], dataAlter?: Field[], shelveAlterData?: string[]) => {
 
         let returnList = [];
 
@@ -2515,7 +2539,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
           selectDataList = _.union(selectDataList, setData(colIdxList, this.pivot.columns, cols, this.pivot.aggregations, aggs));
           // 행값이 있을때에만 실행
           if (this.pivot.rows && this.pivot.rows.length > 0) {
-            selectDataList= _.union(selectDataList, setData([selected.seriesIndex], this.pivot.rows, rows));
+            selectDataList = _.union(selectDataList, setData([selected.seriesIndex], this.pivot.rows, rows));
           }
         }
       });
@@ -2733,13 +2757,13 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    */
   protected convertSelectionData(): BaseOption {
 
-    if( this.widgetDrawParam
+    if (this.widgetDrawParam
       && this.widgetDrawParam.selectFilterListList
-      && this.widgetDrawParam.selectFilterListList.length > 0 ) {
+      && this.widgetDrawParam.selectFilterListList.length > 0) {
 
       _.each(this.chartOption.series, (series) => {
         _.each(this.lastDrawSeries, (lastDrawSeries) => {
-          if( _.eq(series.name, lastDrawSeries.name) ) {
+          if (_.eq(series.name, lastDrawSeries.name)) {
             series.itemStyle = lastDrawSeries.itemStyle;
             series.lineStyle = lastDrawSeries.lineStyle;
             series.textStyle = lastDrawSeries.textStyle;
@@ -2747,14 +2771,13 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
             series.existSelectData = lastDrawSeries.existSelectData;
             _.each(series.data, (seriesData, index) => {
               let lastSeriesData = lastDrawSeries.data[index];
-              if( lastSeriesData && isNaN(lastSeriesData) ) {
-                if( seriesData && isNaN(seriesData) ) {
+              if (lastSeriesData && isNaN(lastSeriesData)) {
+                if (seriesData && isNaN(seriesData)) {
                   seriesData.itemStyle = lastSeriesData.itemStyle;
                   seriesData.lineStyle = lastSeriesData.lineStyle;
                   seriesData.textStyle = lastSeriesData.textStyle;
                   seriesData.areaStyle = lastSeriesData.areaStyle;
-                }
-                else {
+                } else {
                   lastSeriesData.value = seriesData;
                   seriesData = lastSeriesData;
                 }

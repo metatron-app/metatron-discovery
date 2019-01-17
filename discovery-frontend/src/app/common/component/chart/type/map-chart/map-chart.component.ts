@@ -205,22 +205,24 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.chart = this.area;
     if (this._propMapConf) {
       const objConf = JSON.parse(this._propMapConf);
-      this._customMapLayers
-        = objConf.baseMaps.map(item => {
-        return {
-          name: item.name,
-          layer: new ol.layer.Tile({
-            source: new ol.source.XYZ({
-              url: item.url,
-              attributions: [new ol.Attribution({
-                html: this.attribution()
-              })],
-              crossOrigin: 'anonymous'
-            })
-          }),
-          isDefault : ( objConf.defaultBaseMap === item.name )
-        }
-      });
+      if( objConf.baseMaps ) {
+        this._customMapLayers
+          = objConf.baseMaps.map(item => {
+          return {
+            name: item.name,
+            layer: new ol.layer.Tile({
+              source: new ol.source.XYZ({
+                url: item.url,
+                attributions: [new ol.Attribution({
+                  html: this.attribution()
+                })],
+                crossOrigin: 'anonymous'
+              })
+            }),
+            isDefault : ( objConf.defaultBaseMap === item.name )
+          }
+        });
+      }
     }
   }
 
