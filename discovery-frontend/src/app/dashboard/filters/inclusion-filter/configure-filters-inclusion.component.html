@@ -254,8 +254,9 @@
 
       <!-- 검색 영역 -->
       <div class="ddp-option-search">
-        <div (clickOutside)="targetFilter['isShowSearch'] = false" [class.ddp-search]="targetFilter['isShowSearch']"
-             class="ddp-search-value ddp-warning" >
+        <div (clickOutside)="targetFilter['isShowSearch'] = false"
+             [class.ddp-search]="targetFilter['isShowSearch']" [class.ddp-warning]="isOverCandidateWarning"
+             class="ddp-search-value" >
           <a (click)="candidateFromSearchText()" href="javascript:" class="ddp-btn-line">{{'msg.comm.ui.search-all' | translate}}</a>
           <div class="ddp-data-value">
             <em class="icon-search"></em>
@@ -264,7 +265,7 @@
                    (focus)="targetFilter['isShowSearch'] = true"
                    (keyup)="setCandidatePage(1, true);" >
             <a *ngIf="searchText" (click)="searchText = '';candidateFromSearchText();" href="javascript:" class="ddp-btn-del"></a>
-            <!--<em class="icon-warning"></em>-->
+            <em class="icon-warning"></em>
           </div>
         </div>
       </div>
@@ -348,7 +349,12 @@
                  type="checkbox" >
           <i></i>
         </label>
-        {{ 'msg.board.filter.selected-values' | translate : { value : selectedValues.length } }}
+        <ng-container *ngIf="targetFilter.showSelectedItem">
+          {{ 'msg.board.filter.selected-values' | translate : { value : selectedValues.length } }}
+        </ng-container>
+        <ng-container *ngIf="!targetFilter.showSelectedItem">
+          {{ 'msg.board.filter.all-values' | translate : { value : candidateListSize } }}
+        </ng-container>
       </div>
     </div>
     <!-- // 선택 결과 표시 영역 -->

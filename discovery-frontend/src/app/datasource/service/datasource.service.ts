@@ -242,7 +242,7 @@ export class DatasourceService extends AbstractService {
 
         param.sortBy = (sortBy) ? sortBy : 'COUNT';
         param.searchWord = (searchWord) ? searchWord : '';
-        param.limit = 1000;
+        param.limit = FilterUtil.CANDIDATE_LIMIT;
 
       } else if ('bound' === filter.type) {
         // Measure Filter

@@ -47,7 +47,7 @@ import {isNullOrUndefined} from "util";
 @Component({
   selector: 'app-config-filter-inclusion',
   templateUrl: './configure-filters-inclusion.component.html',
-  styles:[ '.sys-essential-result { position: relative !important; bottom: 0 !important; left: 0 !important; right: 0 !important; }']
+  styles: ['.sys-essential-result { position: relative !important; bottom: 0 !important; left: 0 !important; right: 0 !important; }']
 })
 export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupComponent implements OnInit, OnDestroy {
 
@@ -132,8 +132,8 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   public wildcard: WildCardFilter;
   public measureFields: Field[] = [];
 
-  public useDefineValue:boolean = true;
-  public usePaging:boolean = false;
+  public useDefineValue: boolean = true;
+  public usePaging: boolean = false;
 
   @Output()
   public goToSelectField: EventEmitter<any> = new EventEmitter();
@@ -167,13 +167,27 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
+   * Candidate Limit 을 넘겼는지 여부
+   */
+  public get isOverCandidateWarning():boolean {
+    return FilterUtil.CANDIDATE_LIMIT === this._candidateList.length;
+  } // get - isOverCandidateWarning
+
+  /**
+   * Candidate 목록의 전체 갯수 조회
+   */
+  public get candidateListSize():number {
+    return this._candidateList.length;
+  } // get - candidateListSize
+
+  /**
    * 컴포넌트를 표시한다.
    * @param {Dashboard} board
    * @param {InclusionFilter} targetFilter
    * @param {Field | CustomField} targetField
    * @param {boolean} useDefineValue
    */
-  public showComponent(board: Dashboard, targetFilter: InclusionFilter, targetField: (Field | CustomField), useDefineValue:boolean = true) {
+  public showComponent(board: Dashboard, targetFilter: InclusionFilter, targetField: (Field | CustomField), useDefineValue: boolean = true) {
 
     this.useDefineValue = useDefineValue;
 
@@ -240,7 +254,11 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
         this.targetFilter = targetFilter;
         this._targetField = targetField;
         this._board = board;
+        if (0 === this._candidateValues.length) {
+          this._candidateValues = result.slice(0, 100).map(item => this._objToCandidate(item, targetField));
+        }
         this._setCandidateResult(result, targetFilter, targetField);
+
 
         // 전체 선택 기능 체크 및 전체 선택 기능이 비활성 일떄, 초기값 기본 선택 - for Essential Filter
         this.useAll = !(-1 < targetField.filteringSeq);
@@ -311,13 +329,13 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    */
   public candidateFromSearchText() {
     this.loadingShow();
-    const sortBy:string = ( this.targetFilter.sort && this.targetFilter.sort.by ) ? this.targetFilter.sort.by.toString() : 'COUNT';
-    this.datasourceService.getCandidateForFilter(this.targetFilter, this._board, [], this._targetField, sortBy, this.searchText )
+    const sortBy: string = (this.targetFilter.sort && this.targetFilter.sort.by) ? this.targetFilter.sort.by.toString() : 'COUNT';
+    this.datasourceService.getCandidateForFilter(this.targetFilter, this._board, [], this._targetField, sortBy, this.searchText)
       .then(result => {
-      this._setCandidateResult(result, this.targetFilter, this._targetField);
-      this.safelyDetectChanges();
-      this.loadingHide();
-    });
+        this._setCandidateResult(result, this.targetFilter, this._targetField);
+        this.safelyDetectChanges();
+        this.loadingHide();
+      });
   } // function - candidateFromSearchText
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -541,8 +559,8 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
 
       let pagedList: Candidate[] = _.cloneDeep(this._candidateList);
 
-      if( this.targetFilter && this.targetFilter.showSelectedItem ) {
-        pagedList = pagedList.filter(item => -1 < this.selectedValues.findIndex( val => val.name === item.name ) );
+      if (this.targetFilter && this.targetFilter.showSelectedItem) {
+        pagedList = pagedList.filter(item => -1 < this.selectedValues.findIndex(val => val.name === item.name));
       }
 
       // 검색 적용
@@ -555,14 +573,12 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
         pagedList = pagedList.filter(item => this.isShowItem(item));
       }
 
-      if( this.usePaging ) {
+      if (this.usePaging) {
         // 더이상 페이지가 없을 경우 리턴
         if (page <= 0) return;
         if (this.lastPage < page) return;
 
         this.currentPage = page;
-        let start = 0;
-        let end = 0;
 
         // 총사이즈
         this.totalCount = pagedList.length;
@@ -570,8 +586,8 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
         // 마지막 페이지 계산
         this.lastPage = (this.totalCount % this.pageSize === 0) ? (this.totalCount / this.pageSize) : Math.floor(this.totalCount / this.pageSize) + 1;
 
-        start = (page * this.pageSize) - this.pageSize;
-        end = page * this.pageSize;
+        let start = (page * this.pageSize) - this.pageSize;
+        let end = page * this.pageSize;
         if (end > this.totalCount) {
           end = this.totalCount;
         }

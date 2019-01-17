@@ -1471,6 +1471,7 @@
   "msg.board.filter.ui.select-measure" : "Select Measure",
   "msg.board.filter.ui.no-data" : "No Data",
   "msg.board.filter.selected-values" : "{{value}} values selected",
+  "msg.board.filter.all-values" : "{{value}} value(s)",
   "msg.custom.filter.popup.change.aggregation.title" : "Do you want to continue to change?",
   "msg.custom.filter.popup.change.aggregation.description" : "If you change the condition including aggregations, it can affect all of charts using these columns.",
   "msg.board.ordering,tooltip" : "Ordering",

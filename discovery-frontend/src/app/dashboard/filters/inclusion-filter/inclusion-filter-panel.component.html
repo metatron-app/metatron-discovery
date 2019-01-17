@@ -124,7 +124,9 @@
 <div *ngIf="isShowFilter" class="ddp-contents-divide ddp-type" >
   <div class="ddp-ui-divide" >
     <!-- 검색 영여 -->
-    <div class="ddp-search-value ddp-warning" [class.ddp-search]="isSearchFocus" (clickOutside)="isSearchFocus = false;">
+    <div (clickOutside)="isSearchFocus = false;"
+         [class.ddp-search]="isSearchFocus"  [class.ddp-warning]="isOverCandidateWarning"
+         class="ddp-search-value" >
       <a (click)="openUpdateFilterPopupForSearch()" href="javascript:" class="ddp-btn-line">{{'msg.comm.ui.search-all' | translate}}</a>
       <div class="ddp-data-value">
         <em class="icon-search"></em>
@@ -133,7 +135,7 @@
                (keyup)="setCandidatePage(1, true)"
                type="text" placeholder="Search for values" >
         <a *ngIf="searchText" (click)="searchText = '';setCandidatePage(1, true);" href="javascript:" class="ddp-btn-del"></a>
-        <!--<em class="icon-warning"></em>-->
+        <em class="icon-warning"></em>
       </div>
     </div>
     <!-- // 검색 영여 -->
@@ -189,7 +191,13 @@
                  type="checkbox" >
           <i></i>
         </label>
-        {{ 'msg.board.filter.selected-values' | translate : { value : filter.valueList.length } }}
+        <ng-container *ngIf="filter.showSelectedItem">
+          {{ 'msg.board.filter.selected-values' | translate : { value : filter.valueList.length } }}
+        </ng-container>
+        <ng-container *ngIf="!filter.showSelectedItem">
+          {{ 'msg.board.filter.all-values' | translate : { value : candidateListSize } }}
+        </ng-container>
+
       </div>
       <!-- 페이징 영역 -->
       <div class="ddp-ui-page">
