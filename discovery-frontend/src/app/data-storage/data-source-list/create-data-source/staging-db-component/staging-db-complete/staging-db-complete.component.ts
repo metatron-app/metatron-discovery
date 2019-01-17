@@ -177,15 +177,6 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
   }
 
   /**
-   * Get data range time label
-   * @returns {string}
-   */
-  public getDataRangeTimeLabel(): string {
-    return moment(this.getIngestionData.startDateTime).format('YYYY-MM-DD HH:mm')
-      + ' ~ ' + moment(this.getIngestionData.endDateTime).format('YYYY-MM-DD HH:mm');
-  }
-
-  /**
    * partition keys label
    * @returns {string}
    */
@@ -501,16 +492,16 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
       partitions: this.getIngestionData.selectedPartitionType.value === 'ENABLE' ? this._getPartitionParams() : [],
       rollup: this.getIngestionData.selectedRollUpType.value
     };
-    // is enable data range
-    if (this.getIngestionData.selectedDataRangeType.value === 'ENABLE') {
-      ingestion['intervals'] = [this.getIngestionData.startDateTime + '/' + this.getIngestionData.endDateTime];
-    }
     // advanced setting
     if (this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)).length > 0) {
       ingestion['tuningOptions'] = this._toObject(this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)));
     }
     if (this.getIngestionData.jobProperties.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)).length > 0) {
       ingestion['jobProperties'] = this._toObject(this.getIngestionData.jobProperties.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)));
+    }
+    // if not used current_time TIMESTAMP, set intervals
+    if (this.getSchemaData.selectedTimestampType !== 'CURRENT') {
+      ingestion['intervals'] =  [this.getIngestionData.startIntervalText + '/' + this.getIngestionData.endIntervalText];
     }
     return ingestion;
   }

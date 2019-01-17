@@ -566,7 +566,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
     const ingestion = {
       dataType: this.getDatabaseData.selectedType,
       type: this.getIngestionData.selectedIngestionType.value,
-      rollup: this.getIngestionData.selectedRollUpType.value,
+      rollup: this.getIngestionData.selectedRollUpType.value
     };
     // if database is TABLE
     if (this.getDatabaseData.selectedType === 'TABLE') {
@@ -610,6 +610,10 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
     // advanced setting
     if (this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)).length > 0) {
       ingestion['tuningOptions'] = this._toObject(this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)));
+    }
+    // if not used current_time TIMESTAMP, set intervals
+    if (this.getSchemaData.selectedTimestampType !== 'CURRENT') {
+      ingestion['intervals'] =  [this.getIngestionData.startIntervalText + '/' + this.getIngestionData.endIntervalText];
     }
     return ingestion;
   }
