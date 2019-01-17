@@ -27,6 +27,7 @@ import { ConfirmModalComponent } from '../../../../../common/component/modal/con
 import { Modal } from '../../../../../common/domain/modal';
 import { CookieConstant } from '../../../../../common/constant/cookie.constant';
 import {CommonConstant} from "../../../../../common/constant/common.constant";
+import {GranularityService} from "../../../../service/granularity.service";
 
 /**
  * Creating datasource with File - complete step
@@ -75,6 +76,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
 
   // Constructor
   constructor(private datasourceService: DatasourceService,
+              private _granularityService: GranularityService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -448,7 +450,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     }
     // if not used current_time TIMESTAMP, set intervals
     if (this.getSchemaData.selectedTimestampType !== 'CURRENT') {
-      ingestion['intervals'] =  [this.getIngestionData.startIntervalText + '/' + this.getIngestionData.endIntervalText];
+      ingestion['intervals'] =  [this._granularityService.getIntervalUsedParam(this.getIngestionData.startIntervalText, this.getIngestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.getIngestionData.endIntervalText, this.getIngestionData.selectedSegmentGranularity)];
     }
     return ingestion;
   }

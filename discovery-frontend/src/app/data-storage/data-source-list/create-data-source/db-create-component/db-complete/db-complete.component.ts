@@ -34,6 +34,7 @@ import { ConfirmModalComponent } from '../../../../../common/component/modal/con
 import { Modal } from '../../../../../common/domain/modal';
 import { CookieConstant } from '../../../../../common/constant/cookie.constant';
 import {CommonConstant} from "../../../../../common/constant/common.constant";
+import {GranularityService} from "../../../../service/granularity.service";
 
 /**
  * Creating datasource with Database - complete step
@@ -82,7 +83,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
 
   // Constructor
   constructor(private datasourceService: DatasourceService,
-              private connectionService: DataconnectionService,
+              private _granularityService: GranularityService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -613,7 +614,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
     }
     // if not used current_time TIMESTAMP, set intervals
     if (this.getSchemaData.selectedTimestampType !== 'CURRENT') {
-      ingestion['intervals'] =  [this.getIngestionData.startIntervalText + '/' + this.getIngestionData.endIntervalText];
+      ingestion['intervals'] =  [this._granularityService.getIntervalUsedParam(this.getIngestionData.startIntervalText, this.getIngestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.getIngestionData.endIntervalText, this.getIngestionData.selectedSegmentGranularity)];
     }
     return ingestion;
   }

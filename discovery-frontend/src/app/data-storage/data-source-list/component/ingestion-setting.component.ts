@@ -22,7 +22,6 @@ import {
   Field,
   FieldFormat,
   FieldFormatType,
-  FieldFormatUnit
 } from '../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
@@ -59,6 +58,11 @@ export class IngestionSettingComponent extends AbstractComponent {
 
   // sorted timestamp column data list
   private _sortedTimestampColumnDataList: string[];
+
+  // timestamp field first/end data
+  private _firstMomentData: any;
+  private _endMomentData: any;
+  private _lastFormat: string;
 
   // element
   @ViewChild('resultElement')
@@ -183,6 +187,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   public intervalValid: boolean;
   // granularity unit
   public granularityUnit: number;
+
 
 
   // step change
@@ -541,9 +546,9 @@ export class IngestionSettingComponent extends AbstractComponent {
    * Check start granularity interval
    */
   public checkStartInterval(): void {
-    StringUtil.isEmpty(this.startIntervalText) && (this.startIntervalText = this._granularityService.getInterval(this._sortedTimestampColumnDataList[0], this.selectedSegmentGranularity, this._format.type, this._format.unit));
+    StringUtil.isEmpty(this.startIntervalText) && (this.startIntervalText = this._granularityService.getInitInterval(this._firstMomentData, this.selectedSegmentGranularity));
     // get interval validation info
-    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity, this._format.type, this._format.unit);
+    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity);
     this.intervalValid = validInfo.intervalValid;
     this.intervalValidMessage = validInfo.intervalValidMessage;
     this.granularityUnit = validInfo.granularityUnit;
@@ -553,9 +558,9 @@ export class IngestionSettingComponent extends AbstractComponent {
    * Check end granularity interval
    */
   public checkEndInterval(): void {
-    StringUtil.isEmpty(this.endIntervalText) && (this.endIntervalText = this._granularityService.getInterval(this._sortedTimestampColumnDataList[this._sortedTimestampColumnDataList.length-1], this.selectedSegmentGranularity, this._format.type, this._format.unit));
+    StringUtil.isEmpty(this.endIntervalText) && (this.endIntervalText = this._granularityService.getInitInterval(this._endMomentData, this.selectedSegmentGranularity));
     // get interval validation info
-    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity, this._format.type, this._format.unit);
+    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity);
     this.intervalValid = validInfo.intervalValid;
     this.intervalValidMessage = validInfo.intervalValidMessage;
     this.granularityUnit = validInfo.granularityUnit;
@@ -715,6 +720,7 @@ export class IngestionSettingComponent extends AbstractComponent {
       const initializedGranularity = this._granularityService.getInitializedGranularity(this._format.format, this._format.format.length - 1);
       this.selectedSegmentGranularity = initializedGranularity.segmentGranularity;
       this.selectedQueryGranularity = initializedGranularity.queryGranularity;
+      this._lastFormat = initializedGranularity.lastFormat;
     } else if (this._format.type === FieldFormatType.UNIX_TIME) { // if exist format, UNIX_TIME type
       // set segment granularity HOUR
       this.selectedSegmentGranularity = this._granularityList[3];
@@ -893,13 +899,16 @@ export class IngestionSettingComponent extends AbstractComponent {
    */
   private _initGranularityIntervalInfo(): void {
     // granularity unit initial
-    const info = this._granularityService.getInitializedInterval(this._sortedTimestampColumnDataList[0], this._sortedTimestampColumnDataList[this._sortedTimestampColumnDataList.length-1], this.selectedSegmentGranularity, this._format.type, this._format.unit);
+    const info = this._granularityService.getInitializedInterval(this._sortedTimestampColumnDataList, this._format.format, this.selectedSegmentGranularity, this._format.type, this._format.unit, this._lastFormat);
     // set interval text
     this.startIntervalText = info.startInterval;
     this.endIntervalText = info.endInterval;
     this.intervalValid = info.intervalValid;
     this.intervalValidMessage = info.intervalValidMessage;
     this.granularityUnit = info.granularityUnit;
+    // set moment data
+    this._firstMomentData = info.firstMoment;
+    this._endMomentData = info.endMoment;
   }
 
   /**

@@ -27,7 +27,7 @@ export class InputMaskDirective {
     number: '^[0-9]*$',
     float: '^[+-]?([0-9]*[.])?[0-9]+$',
     words: '([A-z]*\\s)*',
-    calendar: '^[0-9:T\-\\s]*$'
+    calendar: '^[0-9:\-\\s]*$'
   };
 
   @Input('input-mask')
