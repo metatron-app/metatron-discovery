@@ -216,11 +216,11 @@ export class GranularityService {
   private _getDateTimeFormat(granularity: GranularityObject): string {
     switch (granularity.value) {
       case Granularity.SECOND:
-        return 'YYYY-MM-DD HH:mm:ss';
+        return 'YYYY-MM-DDTHH:mm:ss';
       case Granularity.MINUTE:
-        return 'YYYY-MM-DD HH:mm';
+        return 'YYYY-MM-DDTHH:mm';
       case Granularity.HOUR:
-        return 'YYYY-MM-DD HH';
+        return 'YYYY-MM-DDTHH';
       case Granularity.DAY:
         return 'YYYY-MM-DD';
       case Granularity.MONTH:
@@ -228,7 +228,7 @@ export class GranularityService {
       case Granularity.YEAR:
         return 'YYYY';
       default:
-        return 'YYYY-MM-DD HH:mm:ss';
+        return 'YYYY-MM-DDTHH:mm:ss';
     }
   }
 
@@ -296,11 +296,11 @@ export class GranularityService {
   private _getDateTimeRegexp(granularity: GranularityObject): RegExp {
     switch (granularity.value) {
       case Granularity.SECOND:  // YYYY-MM-DD HH:mm:ss
-        return /^(\d{4}|\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
+        return /^(\d{4}|\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T(2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
       case Granularity.MINUTE:  // YYYY-MM-DD HH:mm
-        return /^(\d{4}|\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9]):[0-5][0-9]$/;
+        return /^(\d{4}|\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T(2[0-3]|[01][0-9]):[0-5][0-9]$/;
       case Granularity.HOUR:  // YYYY-MM-DD HH
-        return /^(\d{4}|\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\s(2[0-3]|[01][0-9])$/;
+        return /^(\d{4}|\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T(2[0-3]|[01][0-9])$/;
       case Granularity.DAY:  // YYYY-MM-DD
         return /^(\d{4}|\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
       case Granularity.MONTH:  // YYYY-MM
