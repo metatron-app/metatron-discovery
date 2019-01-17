@@ -260,7 +260,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
   public getSize() {
     let size = 0;
-    if(true==Number.isInteger(this.selectedDataSnapshot.totalBytes)) {
+    if(Number.isInteger(this.selectedDataSnapshot.totalBytes)) {
       size = this.selectedDataSnapshot.totalBytes;
     }
     return this.formatBytes(size,1);

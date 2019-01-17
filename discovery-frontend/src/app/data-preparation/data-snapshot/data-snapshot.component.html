@@ -120,6 +120,7 @@
       <tr>
         <th (click)="changeOrder('ssName')" class="ddp-cursor" colspan="2">
           {{'msg.comm.ui.name' | translate}}
+
           <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'ssName' || selectedContentSort.sort === 'default'"></em>
           <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'ssName' && selectedContentSort.sort === 'asc'"></em>
           <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'ssName' && selectedContentSort.sort === 'desc'"></em>
@@ -178,7 +179,7 @@
           </td>
 
           <td class="ddp-data-last">
-            {{item.launchTime | mdate:'YYYY-MM-DD HH:mm'}} <em class="ddp-icon-by">{{'msg.dp.ui.by' | translate}}</em>{{item.createdBy}}
+            {{item.launchTime | mdate:'YYYY-MM-DD HH:mm'}} <em class="ddp-icon-by">{{'msg.dp.ui.by' | translate}}</em>{{item.createdBy.fullName}}
             <div class="ddp-btn-control">
               <em class="ddp-icon-control-cut" (click)="confirmDelete($event, item)"></em>
             </div>
