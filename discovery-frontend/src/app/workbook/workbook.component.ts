@@ -43,6 +43,7 @@ import {UpdateDashboardComponent} from '../dashboard/update-dashboard.component'
 import {PopupInputNameDescComponent} from './component/popup-input-workbook/popup-input-namedesc.component';
 import {EventBroadcaster} from '../common/event/event.broadcaster';
 import {Datasource} from '../domain/datasource/datasource';
+import {WidgetService} from "../dashboard/service/widget.service";
 
 declare let $;
 
@@ -189,6 +190,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
               private workbookService: WorkbookService,
               private dashboardService: DashboardService,
               private workspaceService: WorkspaceService,
+              private widgetService: WidgetService,
               private popupService: PopupService,
               private broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
@@ -210,6 +212,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
     // 초기 데이터 셋팅
     this._initViewPage();
+
+    // MapView 프로퍼티 조회
+    this.widgetService.loadPropMapView();
 
     // 위젯 편집 이벤트 ( 대시보드 편집 화면으로 이동 )
     this.subscriptions.push(
