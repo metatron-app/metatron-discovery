@@ -709,6 +709,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
             promises.push(() => this.widgetService.updateWidget(result.id, param));   // update widget
           }
+        } else if ( 'text' === result.type) {
+          promises.push(() => this.widgetService.updateWidget(result.id, param));   // update widget
         }
       }
 
