@@ -20,7 +20,7 @@ import {
   Input,
   OnChanges,
   OnDestroy,
-  OnInit
+  OnInit, ViewChild
 } from '@angular/core';
 import {
   Candidate,
@@ -50,6 +50,9 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
 
   // 후보군 리스트
   private _candidateList: Candidate[] = [];
+
+  @ViewChild('inputSearch')
+  private _inputSearch:ElementRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -156,6 +159,14 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public getDimensionTypeIconClass = Field.getDimensionTypeIconClass;
+
+  /**
+   * 검색 입력을 비활성 처리 합니다.
+   */
+  public inactiveSearchInput() {
+    this.isSearchFocus = false;
+    this._inputSearch.nativeElement.blur();
+  } // function - inactiveSearchInput
 
   /**
    * Candidate 목록의 전체 갯수 조회

@@ -124,13 +124,14 @@
 <div *ngIf="isShowFilter" class="ddp-contents-divide ddp-type" >
   <div class="ddp-ui-divide" >
     <!-- 검색 영여 -->
-    <div (clickOutside)="isSearchFocus = false;"
+    <div (clickOutside)="inactiveSearchInput()"
          [class.ddp-search]="isSearchFocus"  [class.ddp-warning]="isOverCandidateWarning"
          class="ddp-search-value" >
       <a (click)="openUpdateFilterPopupForSearch()" href="javascript:" class="ddp-btn-line">{{'msg.comm.ui.search-all' | translate}}</a>
       <div class="ddp-data-value">
         <em class="icon-search"></em>
-        <input [(ngModel)]="searchText"
+        <input #inputSearch
+               [(ngModel)]="searchText"
                (focus)="isSearchFocus = true"
                (keyup)="setCandidatePage(1, true)"
                type="text" placeholder="Search for values" >
