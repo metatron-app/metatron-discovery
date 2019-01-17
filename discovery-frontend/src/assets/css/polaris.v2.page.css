@@ -5904,7 +5904,6 @@ ul.ddp-list-form-join li em.ddp-icon-control-cut {position:absolute; top:5px; ri
 .ddp-wrap-errortxt {position:absolute; top:0; left:0; right:0; bottom:0; text-align: center;}
 .ddp-wrap-errortxt:before {content: ""; display: inline-block; width: 1px; height: 100%; margin-right: 0; vertical-align: middle;}
 .ddp-txt-error {display: inline-block; color:#ca4b4b; font-size:13px;}
-.ddp-txt-error em.ddp-icon-error-s {margin-right:8px; background-position:-16px 0;}
 .ddp-type-selectbox.ddp-type {position:relative; padding-left:28px; height:28px; box-sizing:border-box;}
 .ddp-type-selectbox.ddp-type ul.ddp-list-selectbox {position:relative; bottom:inherit; box-shadow:none; border:none;}
 .ddp-type-selectbox.ddp-type .ddp-box-selecbox {display:none; position:absolute; top:34px; left:0; right:0;  padding-bottom:10px; background-color:#fff; border:1px solid #ddd;
