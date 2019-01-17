@@ -115,8 +115,17 @@ export class CreateBoardCompleteComponent extends AbstractPopupComponent impleme
    * @param {boolean} isForceClose
    */
   public closeComp(isForceClose: boolean = false) {
-    this.isShow = false;
-    (isForceClose) && (this.close());
+    if (isForceClose) {
+      this.isShow = false;
+      this.close();
+    } else {
+      this.unloadConfirmSvc.confirm().subscribe((isClose) => {
+        if(isClose) {
+          this.isShow = false;
+          this.close();
+        }
+      });
+    }
   } // function - closeComp
 
   /**
