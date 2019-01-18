@@ -118,7 +118,7 @@
 .ddp-wrap-edit3 .ddp-ui-label-name {display:block; width:100%; margin-bottom:14px; color:#b7b9c2; font-size:13px;  vertical-align:middle;}
 .ddp-wrap-edit3 label.ddp-label-type {display:table-cell; width: 131px; padding:8px 0;color:#b7b9c2;font-size:13px;vertical-align:top;}
 .ddp-wrap-edit3 label.ddp-label-type.ddp-text-right {padding-right:15px;}
-.ddp-wrap-edit3.ddp-type .ddp-label-type {position:relative; color:#4c515a; font-size:14px;}
+.ddp-wrap-edit3.ddp-type .ddp-label-type {position:relative; padding-right:10px; color:#4c515a; font-size:14px; box-sizing:border-box;}
 .ddp-wrap-edit3.ddp-type .ddp-label-type.ddp-size {width:180px; font-size:14px;}
 .ddp-wrap-edit3.ddp-type .ddp-label-type.ddp-bold {font-weight:bold; font-size:13px;}
 .ddp-wrap-edit3.ddp-type .ddp-label-type.ddp-normal {padding-top:0; width:170px; font-weight:normal;}
