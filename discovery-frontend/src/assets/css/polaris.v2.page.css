@@ -8536,7 +8536,7 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .ddp-type-dataset .ddp-wrap-variable {position:absolute; top:43px; left:0; right:0; bottom:0;}
 .ddp-type-dataset  .ddp-wrap-grid {height:100%; padding-bottom:44px; box-sizing:border-box;}
 .ddp-type-dataset .ddp-wrap-viewtable {height:100%;}
-..icon-db-hive-w .st0{fill:#EAEAEA;}
+.icon-db-hive-w .st0{fill:#EAEAEA;}
 .icon-db-hive-w .st1{fill:#B5B5B5;}
 .icon-db-hive-w .st2{fill:#F7F7F7;}
 .icon-db-hive-w .st3{fill:#FFFFFF;}
