@@ -179,14 +179,6 @@ polaris:
         uri: /druid/coordinator/v1/datasources/{datasourceId}/purge
   cache:
     configFile: default-configs/default-jgroups-tcp.xml
-
-# Static resource caching is set to the default value of 7 days (seconds).
-# Setting default value in "metatron-discovery/discovery-server/src/main/java/app/metatron/discovery/config/ApiResourceConfig.java" configuration.
-# If you want to apply longer caching, You can use the "resources.cache.cacheControl.max-age" property value to set the caching time for the static resource.
-#  resources:
-#    cache:
-#      cacheControl:
-#        max-age: 604800
 #  cors:
 #    -
 #      mapping: "/api/**"

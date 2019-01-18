@@ -22,9 +22,12 @@ import {
   UILabelIcon, UILabelAnnotation, UILabelChartSeries
 } from "../../common/component/chart/option/ui-option/ui-label-chart";
 import {
-  ChartType, LabelSecondaryIndicatorType,
-  LabelSecondaryIndicatorMarkType, LabelSecondaryIndicatorPeriod
-} from "../../common/component/chart/option/define/common";
+  ChartType,
+  LabelSecondaryIndicatorType,
+  LabelSecondaryIndicatorMarkType,
+  LabelSecondaryIndicatorPeriod,
+  ShelveFieldType,
+} from '../../common/component/chart/option/define/common';
 import {SelectComponent} from "../../common/component/select/select.component";
 import {Filter} from "../../domain/workbook/configurations/filter/filter";
 import {IntervalFilter} from "../../domain/workbook/configurations/filter/interval-filter";
@@ -140,6 +143,25 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
       let annotations: UILabelAnnotation[] = [];
       let secondaryIndicators: UILabelSecondaryIndicator[] = [];
 
+      const setFieldName = ((item, shelveFieldType?: ShelveFieldType): string => {
+        // shelveFieldType이 있는경우 해당타입일때만 데이터 리턴
+        if (!shelveFieldType || (shelveFieldType && item.type === shelveFieldType)) {
+          let fieldName = !_.isEmpty(item.alias) ? item.alias : item.name;
+          if (item['alias'] && item['alias'] !== item.name) {
+            fieldName = item['alias'];
+          } else {
+            // aggregation type과 함께 alias 설정
+            const alias: string = item['fieldAlias'] ? item['fieldAlias'] : ( item['logicalName'] ? item['logicalName'] : item['name'] );
+            fieldName = item.aggregationType ? item.aggregationType + `(${alias})` : `${alias}`;
+          }
+          return fieldName;
+        }
+      });
+
+      const aggs = this.pivot.aggregations.map((aggregation) => {
+        return setFieldName(aggregation, ShelveFieldType.MEASURE);
+      }).filter((item)=> {return typeof item !== 'undefined'});
+
       for( let num: number = 0 ; num < this.pivot.aggregations.length ; num++ ) {
 
         //////////////////////////////////////////
@@ -147,6 +169,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
         //////////////////////////////////////////
         const field: any = this.pivot.aggregations[num];
         let alias: string = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : field['name'];
+        let displayName: any = aggs[num];
         if( field.aggregationType && field.aggregationType != "" ) {
           alias = field.aggregationType +"("+ alias +")";
         }
@@ -157,22 +180,26 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
 
         //if( option.series.length <= num || option.series.length != this.pivot.aggregations.length ) {
         if( option.series.length <= num ) {
-          if( num > 0 ) {
+          if (num > 0) {
             option.series[num] = {
-              name: alias
+              name: alias,
+              displayName: displayName
             };
             option.icons[num] = {
               seriesName: alias,
+              displayName: displayName,
               show: option.icons[0].show,
               iconType: option.icons[0].iconType
             };
             option.annotations[num] = {
               seriesName: alias,
+              displayName: displayName,
               show: option.annotations[0].show,
               description: option.annotations[0].description
             };
             option.secondaryIndicators[num] = {
               seriesName: alias,
+              displayName: displayName,
               show: option.secondaryIndicators[0].show,
               indicatorType: option.secondaryIndicators[0].indicatorType,
               rangeUnit: option.secondaryIndicators[0].rangeUnit,
@@ -195,9 +222,13 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
           || _.isUndefined(option.annotations[num].seriesName)
           || _.isUndefined(option.secondaryIndicators[num].seriesName) ) {
           option.series[num].name = alias;
+          option.series[num].displayName = displayName;
           option.icons[num].seriesName = alias;
+          option.icons[num].displayName = displayName;
           option.annotations[num].seriesName = alias;
+          option.annotations[num].displayName = displayName;
           option.secondaryIndicators[num].seriesName = alias;
+          option.secondaryIndicators[num].displayName = displayName;
         }
 
         /////////////////////
@@ -227,9 +258,13 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
 
         if( !isPush ) {
           option.series[num].name = alias;
+          option.series[num].displayName = displayName;
           option.icons[num].seriesName = alias;
+          option.icons[num].displayName = displayName;
           option.annotations[num].seriesName = alias;
+          option.annotations[num].displayName = displayName;
           option.secondaryIndicators[num].seriesName = alias;
+          option.secondaryIndicators[num].displayName = displayName;
 
           for( let num2: number = 0 ; num2 < this.pivot.aggregations.length ; num2++ ) {
             if( option.series.length >= (num2+1) && _.eq(alias, option.series[num2].name) ) {
@@ -248,7 +283,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
         }
 
         this.targetList.push({
-          name: alias,
+          name: displayName,
           value: alias
         });
       }

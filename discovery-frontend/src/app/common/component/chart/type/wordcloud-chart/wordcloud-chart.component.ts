@@ -174,6 +174,14 @@ export class WordCloudChartComponent extends BaseChart implements OnInit, OnDest
     this.addChartSelectEventListener();
   }
 
+  /**
+   * 툴팁 정보를 변환한다.
+   * - 필요시 각 차트에서 Override
+   * @returns {BaseOption}
+   */
+  protected convertTooltip(): BaseOption {
+    return this.chartOption;
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

@@ -171,14 +171,6 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     }
   }
 
-  /**
-   * Get ingestion interval
-   * @returns {string}
-   */
-  public getIngestionInterval(): string {
-    return this.getIngestion.intervals[0].split('/').join(' ~ ');
-  }
-
   // Destory
   public ngOnDestroy() {
     // Destory

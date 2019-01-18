@@ -586,7 +586,6 @@ public class TeddyExecutor {
                 LOGGER.error("applyRuleStrings(): rule syntax error: ", e);
                 throw PrepException.fromTeddyException(TeddyException.fromRuleException(e));
             } catch (ExecutionException e) {
-                e.getCause().printStackTrace();
                 LOGGER.error("applyRuleStrings(): execution error on " + ruleString, e);
             }
 

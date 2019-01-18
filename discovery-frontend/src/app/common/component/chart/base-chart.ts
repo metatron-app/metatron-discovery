@@ -710,8 +710,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         if (this.chart && this.chart.resize) {
           this.chart.resize();
         }
-      } catch (error) {
-      }
+      } catch (error) {}
     });
 
     this.subscriptions.push(windowResizeSubscribe);
