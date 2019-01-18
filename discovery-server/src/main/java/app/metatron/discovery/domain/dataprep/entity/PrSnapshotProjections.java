@@ -15,7 +15,9 @@
 package app.metatron.discovery.domain.dataprep.entity;
 
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.user.UserProfile;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
 import java.util.List;
@@ -93,9 +95,13 @@ public class PrSnapshotProjections {
         List<Object> getRuleStringInfo();
 
         DateTime getCreatedTime();
-        String getCreatedBy();
         DateTime getModifiedTime();
-        String getModifiedBy();
+
+        @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
+        UserProfile getCreatedBy();
+
+        @Value("#{@cachedUserService.findUserProfile(target.modifiedBy)}")
+        UserProfile getModifiedBy();
     }
 
 }

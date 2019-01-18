@@ -18,12 +18,12 @@
     <!-- 수정 data -->
     <div class="ddp-data-form">
       <span class="ddp-txt-date">
-      {{'msg.common.ui.updated' | translate: { modifiedTime : dataflow.modifiedTime | mdate:'YYYY-MM-DD HH:mm', fullName : dataflow.modifiedBy } }}
+      {{'msg.common.ui.updated' | translate: { modifiedTime : dataflow.modifiedTime | mdate:'YYYY-MM-DD HH:mm', fullName : dataflow.modifiedBy?.fullName } }}
       </span>
       <a href="javascript:" [class.ddp-selected]="isDataflowOptionShow" class="ddp-btn-info" (click)="showOption($event);"><em class="ddp-icon-myinfo"></em></a>
       <div class="ddp-data-box" *ngIf="isDataflowOptionShow" (clickOutside)="hideOption();">
         <a href="javascript:" class="ddp-list-link" (click)="confirmDelete($event,dataflow.dfId)"><em class="ddp-icon-delete" ></em>{{'msg.dp.ui.df.del' | translate}}</a>
-        <span class="ddp-data-by">{{'msg.common.ui.created' | translate: { createdTime : dataflow.createdTime | mdate:'YYYY-MM-DD HH:mm', fullName : dataflow.createdBy } }}</span>
+        <span class="ddp-data-by">{{'msg.common.ui.created' | translate: { createdTime : dataflow.createdTime | mdate:'YYYY-MM-DD HH:mm', fullName : dataflow.createdBy?.fullName } }}</span>
 
       </div>
     </div>
