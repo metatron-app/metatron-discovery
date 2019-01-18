@@ -103,8 +103,8 @@ export class GranularityService {
    * @return {GranularityIntervalInfo}
    */
   public getInitializedInterval(fieldDataList: any[], format: string, granularity: GranularityObject, type: FieldFormatType, unit: FieldFormatUnit): GranularityIntervalInfo {
-    const firstMoment = this._getConvertedMoment(fieldDataList[0], format, type);
-    const endMoment = this._getConvertedMoment(fieldDataList[fieldDataList.length-1], format, type);
+    const firstMoment = this._getConvertedMoment(fieldDataList[0], format, type, unit);
+    const endMoment = this._getConvertedMoment(fieldDataList[fieldDataList.length-1], format, type, unit);
     // init
     const result: GranularityIntervalInfo = {
       startInterval: this.getInitInterval(firstMoment, granularity),
@@ -213,18 +213,18 @@ export class GranularityService {
    * @param data
    * @param {string} format
    * @param {FieldFormatType} type
-   * @param {string} lastFormat
+   * @param {FieldFormatUnit} unit
    * @return {any}
    * @private
    */
-  private _getConvertedMoment(data: any, format: string, type: FieldFormatType): any {
+  private _getConvertedMoment(data: any, format: string, type: FieldFormatType, unit: FieldFormatUnit): any {
     if (type === FieldFormatType.UNIX_TIME) {
       // data string type
       if (typeof data === 'string') {
         const boxingData = Number(data);
-        return Number.isNaN(boxingData) ? moment(data) : moment(boxingData);
+        return Number.isNaN(boxingData) ? moment(data) : moment(unit === FieldFormatUnit.SECOND ? boxingData * 1000 : boxingData);
       } else { // data number type
-        return moment(data);
+        return moment(unit === FieldFormatUnit.SECOND ? data * 1000 : data);
       }
     } else if (typeof data === 'number') {
       return moment(data + '', this._getChangedUpperCaseFormat(format));
