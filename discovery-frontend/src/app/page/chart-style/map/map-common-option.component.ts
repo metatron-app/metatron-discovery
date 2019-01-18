@@ -50,12 +50,14 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
     const propMapConf = sessionStorage.getItem( CommonConstant.PROP_MAP_CONFIG );
     if( propMapConf ) {
       const objConf = JSON.parse( propMapConf );
-      this.mapStyleList =
-        this.mapStyleList.concat(
-          objConf.baseMaps.map( item => {
-            return { name : item.name, value : item.name };
-          })
-        );
+      if( objConf.baseMaps ) {
+        this.mapStyleList =
+          this.mapStyleList.concat(
+            objConf.baseMaps.map( item => {
+              return { name : item.name, value : item.name };
+            })
+          );
+      }
       if( objConf.defaultBaseMap ) {
         this.setMapStyle( this.mapStyleList.find( item => objConf.defaultBaseMap === item.name ) );
       }

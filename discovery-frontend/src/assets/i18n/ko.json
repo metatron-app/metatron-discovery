@@ -388,7 +388,7 @@
   "msg.space.del.workspace" : "워크스페이스 삭제",
   "msg.space.list.search.name" : "이름으로 워크스페이스를 검색합니다",
   "msg.space.create.title" : "공유 워크스페이스 생성",
-  "msg.space.update.title" : "워크스페이스의 이름과 설명으로 찾기",
+  "msg.space.update.title" : "워크스페이스의 이름과 설명을 입력해주세요",
   "msg.space.th.allowance" : "오픈 데이터만 보기",
   "msg.space.th.server" : "서버",
   "msg.space.create.notebook.title" : "소스 타입을 선택해 주세요",

@@ -607,13 +607,41 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       return list;
     });
+/*
+    _.each(this.data.columns, (data, index) => {
+      data.categoryName = _.cloneDeep(this.data.rows); // 해당 dataIndex걸로 넣어주면됨
+
+      data.categoryValue = [];
+      data.categoryPercent = [];
+
+      // 해당 dataIndex걸로 넣어주면됨
+      // 단일 series인 경우
+      if (!this.data.categories || (this.data.categories && this.data.categories.length == 0)) {
+
+        data.categoryValue = addAllValues(_.cloneDeep(this.originalData.columns), 'value');
+        data.categoryPercent = addAllValues(_.cloneDeep(this.data.columns), 'percentage');
+        data.seriesName = _.cloneDeep(this.data.rows);
+        // 멀티 series인 경우
+      } else {
+        if (this.data.categories) {
+          for (const category of this.data.categories) {
+            data.categoryValue = _.cloneDeep(category.value);
+            data.categoryPercent = _.cloneDeep(category.percentage);
+          }
+        }
+
+        data.seriesName = _.split(data.name, CHART_STRING_DELIMITER)[0];
+      }
+
+      // 해당 dataIndex로 설정
+      data.seriesValue = _.cloneDeep(this.originalData.columns[index].value);
+      data.seriesPercent = _.cloneDeep(data.percentage);
+    });
+*/
 
     // rows 축의 개수만큼 넣어줌
     const copyOfData = JSON.parse(JSON.stringify(this.data));
     const copyOfOriginalData = JSON.parse(JSON.stringify(this.originalData));
-
-    const categoryValue = addAllValues(copyOfOriginalData.columns, 'value');
-    const categoryPercent = addAllValues(copyOfData.columns, 'percentage');
 
     _.each(copyOfData.columns, (data, index) => {
       data.categoryName = copyOfData.rows; // 해당 dataIndex걸로 넣어주면됨
@@ -624,8 +652,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       // 해당 dataIndex걸로 넣어주면됨
       // 단일 series인 경우
       if (!copyOfData.categories || (copyOfData.categories && copyOfData.categories.length == 0)) {
-        data.categoryValue = categoryValue;
-        data.categoryPercent = categoryPercent;
+        data.categoryValue = addAllValues(copyOfOriginalData.columns, 'value');
+        data.categoryPercent = addAllValues(copyOfData.columns, 'percentage');
         data.seriesName = copyOfData.rows;
       } else {
         // 멀티 series인 경우
