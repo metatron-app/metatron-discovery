@@ -61,13 +61,12 @@ export class GranularityService {
    * Get initialized granularity
    * @param {string} format
    * @param {number} startNumber
-   * @return {{segmentGranularity: GranularityObject; queryGranularity: GranularityObject; lastFormat: string}}
+   * @return {{segmentGranularity: GranularityObject; queryGranularity: GranularityObject}}
    */
-  public getInitializedGranularity(format: string, startNumber: number): {segmentGranularity: GranularityObject, queryGranularity: GranularityObject, lastFormat: string} {
+  public getInitializedGranularity(format: string, startNumber: number): {segmentGranularity: GranularityObject, queryGranularity: GranularityObject} {
     const result = {
       segmentGranularity: undefined,
       queryGranularity: undefined,
-      lastFormat: undefined
     };
     this._automationGranularity(format, startNumber, result);
     return result;
@@ -101,12 +100,11 @@ export class GranularityService {
    * @param {GranularityObject} granularity
    * @param {FieldFormatType} type
    * @param {FieldFormatUnit} unit
-   * @param {string} lastFormat
    * @return {GranularityIntervalInfo}
    */
-  public getInitializedInterval(fieldDataList: any[], format: string, granularity: GranularityObject, type: FieldFormatType, unit: FieldFormatUnit, lastFormat: string): GranularityIntervalInfo {
-    const firstMoment = this._getConvertedMoment(fieldDataList[0], format, type, lastFormat);
-    const endMoment = this._getConvertedMoment(fieldDataList[fieldDataList.length-1], format, type, lastFormat);
+  public getInitializedInterval(fieldDataList: any[], format: string, granularity: GranularityObject, type: FieldFormatType, unit: FieldFormatUnit): GranularityIntervalInfo {
+    const firstMoment = this._getConvertedMoment(fieldDataList[0], format, type);
+    const endMoment = this._getConvertedMoment(fieldDataList[fieldDataList.length-1], format, type);
     // init
     const result: GranularityIntervalInfo = {
       startInterval: this.getInitInterval(firstMoment, granularity),
@@ -198,13 +196,16 @@ export class GranularityService {
   }
 
   /**
-   * Is upper case format
-   * @param {string} lastFormat
-   * @return {boolean}
+   * Get changed uppercase format
+   * @param {string} format
+   * @return {string}
    * @private
    */
-  private _isUpperCase(lastFormat: string): boolean {
-    return 'YMD'.indexOf(lastFormat) !== -1;
+  private _getChangedUpperCaseFormat(format: string): string {
+    let result = format;
+    result = result.replace(/y/g, 'Y');
+    result = result.replace(/d/g, 'D');
+    return result;
   }
 
   /**
@@ -216,13 +217,13 @@ export class GranularityService {
    * @return {any}
    * @private
    */
-  private _getConvertedMoment(data: any, format: string, type: FieldFormatType, lastFormat: string): any {
+  private _getConvertedMoment(data: any, format: string, type: FieldFormatType): any {
     if (type === FieldFormatType.UNIX_TIME) {
       return moment(data);
     } else if (typeof data === 'number') {
-      return moment(data + '', this._isUpperCase(lastFormat) ? format.toUpperCase() : format);
+      return moment(data + '', this._getChangedUpperCaseFormat(format));
     } else if (typeof data === 'string') {
-      return moment(data, this._isUpperCase(lastFormat) ? format.toUpperCase() : format);
+      return moment(data, this._getChangedUpperCaseFormat(format));
     }
   }
 
@@ -404,10 +405,10 @@ export class GranularityService {
    * Automation granularity
    * @param {string} format
    * @param {number} startNumber
-   * @param {{segmentGranularity: GranularityObject; queryGranularity: GranularityObject; lastFormat: string}} resultObject
+   * @param {{segmentGranularity: GranularityObject; queryGranularity: GranularityObject}} resultObject
    * @private
    */
-  private _automationGranularity(format: string, startNumber: number, resultObject: {segmentGranularity: GranularityObject, queryGranularity: GranularityObject, lastFormat: string}) {
+  private _automationGranularity(format: string, startNumber: number, resultObject: {segmentGranularity: GranularityObject, queryGranularity: GranularityObject}) {
     switch (format.slice(startNumber, startNumber + 1)) {
       case 'Y':
       case 'y':
@@ -415,16 +416,12 @@ export class GranularityService {
         resultObject.segmentGranularity = this.granularityList[6];
         // set query granularity YEAR
         resultObject.queryGranularity = this.granularityList[6];
-        // set last format
-        resultObject.lastFormat = 'Y';
         break;
       case 'M':
         // set segment granularity YEAR
         resultObject.segmentGranularity = this.granularityList[6];
         // set query granularity MONTH
         resultObject.queryGranularity = this.granularityList[5];
-        // set last format
-        resultObject.lastFormat = 'M';
         break;
       case 'D':
       case 'd':
@@ -432,8 +429,6 @@ export class GranularityService {
         resultObject.segmentGranularity = this.granularityList[6];
         // set query granularity DAY
         resultObject.queryGranularity = this.granularityList[4];
-        // set last format
-        resultObject.lastFormat = 'D';
         break;
       case 'H':
       case 'h':
@@ -441,16 +436,12 @@ export class GranularityService {
         resultObject.segmentGranularity = this.granularityList[5];
         // set query granularity HOUR
         resultObject.queryGranularity = this.granularityList[3];
-        // set last format
-        resultObject.lastFormat = 'H';
         break;
       case 'm':
         // set segment granularity DAY
         resultObject.segmentGranularity = this.granularityList[4];
         // set query granularity MINUTE
         resultObject.queryGranularity = this.granularityList[2];
-        // set last format
-        resultObject.lastFormat = 'm';
         break;
       case 'S':
       case 's':
@@ -458,8 +449,6 @@ export class GranularityService {
         resultObject.segmentGranularity = this.granularityList[3];
         // set query granularity SECOND
         resultObject.queryGranularity = this.granularityList[1];
-        // set last format
-        resultObject.lastFormat = 'S';
         break;
       default:
         // if not startNum first index, call _automationGranularity method

@@ -62,7 +62,6 @@ export class IngestionSettingComponent extends AbstractComponent {
   // timestamp field first/end data
   private _firstMomentData: any;
   private _endMomentData: any;
-  private _lastFormat: string;
 
   // element
   @ViewChild('resultElement')
@@ -720,7 +719,6 @@ export class IngestionSettingComponent extends AbstractComponent {
       const initializedGranularity = this._granularityService.getInitializedGranularity(this._format.format, this._format.format.length - 1);
       this.selectedSegmentGranularity = initializedGranularity.segmentGranularity;
       this.selectedQueryGranularity = initializedGranularity.queryGranularity;
-      this._lastFormat = initializedGranularity.lastFormat;
     } else if (this._format.type === FieldFormatType.UNIX_TIME) { // if exist format, UNIX_TIME type
       // set segment granularity HOUR
       this.selectedSegmentGranularity = this._granularityList[3];
@@ -899,7 +897,7 @@ export class IngestionSettingComponent extends AbstractComponent {
    */
   private _initGranularityIntervalInfo(): void {
     // granularity unit initial
-    const info = this._granularityService.getInitializedInterval(this._sortedTimestampColumnDataList, this._format.format, this.selectedSegmentGranularity, this._format.type, this._format.unit, this._lastFormat);
+    const info = this._granularityService.getInitializedInterval(this._sortedTimestampColumnDataList, this._format.format, this.selectedSegmentGranularity, this._format.type, this._format.unit);
     // set interval text
     this.startIntervalText = info.startInterval;
     this.endIntervalText = info.endInterval;
