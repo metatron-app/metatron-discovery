@@ -219,7 +219,13 @@ export class GranularityService {
    */
   private _getConvertedMoment(data: any, format: string, type: FieldFormatType): any {
     if (type === FieldFormatType.UNIX_TIME) {
-      return moment(data);
+      // data string type
+      if (typeof data === 'string') {
+        const boxingData = Number(data);
+        return Number.isNaN(boxingData) ? moment(data) : moment(boxingData);
+      } else { // data number type
+        return moment(data);
+      }
     } else if (typeof data === 'number') {
       return moment(data + '', this._getChangedUpperCaseFormat(format));
     } else if (typeof data === 'string') {
