@@ -164,8 +164,9 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
    * 검색 입력을 비활성 처리 합니다.
    */
   public inactiveSearchInput() {
-    this.isSearchFocus = false;
-    this._inputSearch.nativeElement.blur();
+    let inputElm = this._inputSearch.nativeElement;
+    ( '' === inputElm.value.trim() ) && ( this.isSearchFocus = false );
+    inputElm.blur();
   } // function - inactiveSearchInput
 
   /**

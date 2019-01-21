@@ -324,6 +324,16 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - 검색 관련
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 검색 입력을 비활성 처리 합니다.
+   */
+  public inactiveSearchInput() {
+    let inputElm = this._inputSearch.nativeElement;
+    ( '' === inputElm.value.trim() ) && ( this.targetFilter['isShowSearch'] = false );
+    inputElm.blur();
+  } // function - inactiveSearchInput
+
   /**
    * 검색어를 이용한 목록 조회
    */
