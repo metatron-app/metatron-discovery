@@ -673,6 +673,12 @@ export class DashboardUtil {
         board.configuration.filters[idx] = _.merge(board.configuration.filters[idx], filter);
       }
     }
+
+    // for presentation mode
+    const targetWidget:FilterWidget
+      = <FilterWidget>board.widgets.find( item => this.isSameFilterAndWidget( board, filter, item ) );
+    ( targetWidget ) && ( targetWidget.configuration.filter = filter );
+
     return board;
   } // function - updateBoardFilter
 

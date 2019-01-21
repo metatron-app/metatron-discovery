@@ -106,6 +106,13 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     });
 
     // Chart Instance 생성
+    pivot.ui.style.summaryLabel = {
+      SUM : this.translateService.instant('msg.page.calrow.label.operator.sum'),
+      AVERAGE : this.translateService.instant('msg.page.calrow.label.operator.average'),
+      MAX : this.translateService.instant('msg.page.calrow.label.operator.max'),
+      MIN : this.translateService.instant('msg.page.calrow.label.operator.min'),
+      COUNT : this.translateService.instant('msg.page.calrow.label.operator.count')
+    };
     this.chart = new pivot.ui.pivot.Viewer(this.$element.find('.chartCanvas')[0]);
 
     // 초기에 주입된 데이터를 기준으로 차트를 표현한다.
@@ -313,29 +320,34 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
     // 원본 보기일경우 데이터 재가공
     if( (<UIGridChart>this.uiOption).dataType == GridViewType.MASTER ) {
 
+      // for setting aggregations original name
+      let originAggregations: any = this.fieldOriginInfo.aggs.map((name) => {
+        return {name, digits: 2};
+      });
+
       const columns = this.data.columns;
       let removeAggregationType = function (field) {
         let regExp = /\((.*)\)/gi;
         let match = regExp.exec(field.name);
         if (match != null && match.length > 1) {
           field.name = match[1];
-        }
+        } else field.name;
       };
 
       // aggregation 함수 제거
-      for (let i = 0; i < aggregations.length; i++) {
-        removeAggregationType(aggregations[i]);
+      for (let i = 0; i < originAggregations.length; i++) {
+        removeAggregationType(originAggregations[i]);
       }
 
-      aggregations = cols.concat(rows, aggregations);
+      originAggregations = cols.concat(rows, originAggregations);
 
       // 같은 이름을 가진 measure값 제거
-      aggregations = _.uniqBy(aggregations, 'name');
+      originAggregations = _.uniqBy(originAggregations, 'name');
 
       let newData = [];
       for (let i = 0; i < columns[0].value.length; i++) {
-        for (let j = 0; j < aggregations.length; j++) {
-          let key = aggregations[j].name;
+        for (let j = 0; j < originAggregations.length; j++) {
+          let key = originAggregations[j].name;
 
           let json = {};
           json["&nbsp;"] = i + 1;
@@ -348,7 +360,9 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
 
       cols = [{"name": "COLUMNS"}];
       rows = [{"name": "&nbsp;"}];
-      aggregations = [{name: "VALUE"}];
+      originAggregations = [{name: "VALUE"}];
+
+      aggregations = originAggregations;
 
       // 원본보기 데이터에 설정
       this.originData = newData;

@@ -383,4 +383,22 @@ public class WidgetRestIntegrationTest extends AbstractRestIntegrationTest {
 
   }
 
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_WORKBOOK"})
+  public void getBaseMapsInMapView() throws IOException {
+
+    // @formatter:off
+    Response fileRes = given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .get("/api/widgets/properties/mapview");
+    fileRes.then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+
+  }
+
 }

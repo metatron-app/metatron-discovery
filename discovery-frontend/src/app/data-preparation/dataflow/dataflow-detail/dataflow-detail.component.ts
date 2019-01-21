@@ -24,10 +24,8 @@ import {
 } from '@angular/core';
 import { Location } from '@angular/common';
 import { Observable } from 'rxjs/Observable';
-//import { Dataflow } from '../../../domain/data-preparation/dataflow';
 import { PrDataflow } from '../../../domain/data-preparation/pr-dataflow';
 import { DeleteModalComponent } from '../../../common/component/modal/delete/delete.component';
-//import { Dataset, DsType, ImportType, Rule } from '../../../domain/data-preparation/dataset';
 import { PrDataset, DsType, ImportType, Rule } from '../../../domain/data-preparation/pr-dataset';
 import { DataflowService } from '../service/dataflow.service';
 import { StringUtil } from '../../../common/util/string.util';
@@ -100,14 +98,12 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   public locationSubscription: any;
 
   @Input()
-  //public dataflow: Dataflow;
   public dataflow: PrDataflow;
 
   @ViewChild(DeleteModalComponent)
   public deleteModalComponent: DeleteModalComponent;
 
   @Input()
-  //public selectedDataSet: Dataset;
   public selectedDataSet: PrDataset;
 
   // 사용된 dataflow layer show/hide
@@ -121,12 +117,6 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
   // 데이터 플로우 설명 수정 모드
   public isDataflowDescEditMode: boolean = false;
-
-  // 데이터셋 추가 모달 show / hide
-  public isDatasetModalShow: boolean = false;
-
-  // 데이터 셋 교체 모달 show / hide
-  public isDatasetExchangeModalShow: boolean = false;
 
   // 데이터셋 이름 수정 모드
   public isDatasetNameEditMode: boolean = false;
@@ -159,12 +149,9 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
   public cloneFlag: boolean = false;
 
-  // public isDatasetAddPopupOpen: boolean = false;
-
   public step: string;
   public longUpdatePopupType: string = '';
 
-  // public datasetPopupTitle : string = 'Add datasets';   // Swap dataset popup title
   public isSelectDatasetPopupOpen : boolean = false;    // Swap dataset popup open/close
   public isRadio : boolean = false;                     // If swapping -> true / if Adding -> false
   public swapDatasetId : string;                        // Swapping 대상 imported 면 dataset id wrangled 면 upstreamId
@@ -262,16 +249,9 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   }
 
   public addDatasets() {
-    // this.isDatasetAddPopupOpen = true;
-    // if (this.datasetInfoPopup) {
-    //   this.datasetInfoPopup.clearExistingInterval();
-    // }
     this.openAddDatasetPopup(null);
   }
 
-  public closeAddDatasetPopup() {
-    // this.isDatasetAddPopupOpen = false;
-  }
 
   /**
    * 뒤로가기
@@ -365,9 +345,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
   // 팝업끼리 관리하는 모델들 초기화
   public init() {
-    //this.dataflow = new Dataflow();
     this.dataflow = new PrDataflow();
-    //this.selectedDataSet = new Dataset();
     this.selectedDataSet = new PrDataset();
 
     // Get param from url
@@ -534,7 +512,10 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
       });
   }
 
-  // TODO : allow button to be pressed ony once
+  /**
+   * Clone dataset
+   * @param event
+   */
   public datasetClone(event) {
     this.loadingShow();
     if (!this.cloneFlag) {
@@ -542,32 +523,12 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
         this.cloneFlag = true;
         this.selectedDataSet.dsId = '';
         this.getDataflow();
-      }).catch((error) => {
+      }).catch(() => {
         this.loadingHide();
         Alert.warning('msg.dp.alert.clone.failed');
       })
     }
   }
-
-  // 데이터셋 추가하기 show/hide 처리
-  // public datasetComplete(data) {
-  //
-  //   this.isDatasetModalShow = false;
-  //   // this.isDatasetAddPopupOpen = false;
-  //   if (!data.isCancel) { // dataflow를 새로 불러와야 하는 경우만 차트를 다시 그린다
-  //     this.getDataflow();
-  //
-  //     //선택된 데이터셋 초기화
-  //     this.initSelectedDataSet()
-  //
-  //   }
-  // }
-
-  // 데이터셋 교체 show/hide 처리
-  // public datasetExchangeComplete() {`
-  //   this.isDatasetExchangeModalShow = false;
-  //   this.getDataflow();
-  // }
 
   /**
    * 데이터셋 타입 아이콘
@@ -628,15 +589,6 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    * @param init is it from same page or from outside
    */
   public changeChartClickStatus(dataset, init:boolean = false) {
-    // this.selectedDataSet.creatorDfId != this.dataflow.dfId ? 다른플로우 : 지금플로우
-    // let currentOrDiff = '';
-    //
-    //
-    // if (!dataset.creatorDfId) {
-    //   currentOrDiff = 'DIFF';
-    // } else {
-    //   dataset.creatorDfId != this.dataflow.dfId ? currentOrDiff = 'DIFF' : currentOrDiff = 'CURR';
-    // }
 
     if (!init) { // 현재 page에서 X 버튼을 눌러서 preview 창을 닫았을때
       let temp = this.chart.getOption();

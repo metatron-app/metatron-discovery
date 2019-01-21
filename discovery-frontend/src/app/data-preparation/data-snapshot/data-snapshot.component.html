@@ -13,7 +13,7 @@
   -->
 
 <em class="ddp-bg-back"></em>
-<div class="ddp-ui-contents-in">
+<div class="ddp-ui-contents-in ddp-scroll">
   <!-- top -->
   <div class="ddp-ui-contents-top">
     <div class="ddp-ui-title">
@@ -108,16 +108,19 @@
 
     <table class="ddp-table-form ddp-table-type3" *ngIf="datasnapshots.length > 0">
       <colgroup>
+        <col width="45px">
         <col width="*">
         <col width="20%">
         <col width="10%">
         <col width="10%">
-        <col width="20%">
+        <col width="10%">
+        <col width="15%">
       </colgroup>
       <thead>
       <tr>
-        <th (click)="changeOrder('ssName')" class="ddp-cursor">
+        <th (click)="changeOrder('ssName')" class="ddp-cursor" colspan="2">
           {{'msg.comm.ui.name' | translate}}
+
           <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'ssName' || selectedContentSort.sort === 'default'"></em>
           <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'ssName' && selectedContentSort.sort === 'asc'"></em>
           <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'ssName' && selectedContentSort.sort === 'desc'"></em>
@@ -144,45 +147,44 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let item of datasnapshots; let i = index" [attr.data-index]="i" (click)="snapshotDetail(item)" >
-        <td >
-          <div class="ddp-wrap-long">
-            <div class="ddp-txt-long">
-              {{item.ssName}}
+        <tr *ngFor="let item of datasnapshots; let i = index" [attr.data-index]="i" (click)="snapshotDetail(item)" >
+          <td>
+            <svg-icon-component [name]="getSvgName(item)" [isBlackAndWhite]="true"></svg-icon-component>
+          </td>
+          <td >
+            <div class="ddp-wrap-long">
+              <div class="ddp-txt-long" title="{{item.ssName}}">
+                {{item.ssName}}
+              </div>
             </div>
-          </div>
-        </td>
-        <td>
-          <span *ngIf="item.dsName === ''" class="ddp-data-delete">{{'msg.dp.ui.ds.del.success' | translate}}</span>
-          {{item.dfName}} | {{item.dsName}}
-        </td>
-        <td>
-          {{prepCommonUtil.getSnapshotType(item.ssType)}}
-        </td>
-        <td>
-          <span class="ddp-data-state ddp-rejected" *ngIf="item.displayStatus === 'FAIL'"><em class="ddp-icon-state"></em>{{'msg.dp.ui.fail' | translate}}</span>
-          <span class="ddp-data-state ddp-success" *ngIf="item.displayStatus === 'SUCCESS'"><em class="ddp-icon-state"></em>{{'msg.dp.ui.success' | translate}}</span>
-          <span class="ddp-data-state ddp-inprogress" *ngIf="item.displayStatus === 'PREPARING'"><em class="ddp-icon-state"></em>{{'msg.dp.ui.preparing' | translate}}
-            <em class="ddp-icon-error2" *ngIf="false"></em>
-            <!-- 툴팁 -->
-                  <div class="ddp-ui-tooltip-info">
-                      <em class="ddp-icon-view-left"></em>{{'msg.dp.th.ss.generating' | translate}}
-                  </div>
-            <!-- //툴팁 -->
-          </span>
-        </td>
-        <td>
-          <span *ngIf="getElapsedDay() > 0">{{getElapsedDay(item) + '일'}}</span>
-          {{getElapsedTime(item)}}
-        </td>
+          </td>
+          <td>
+            <span *ngIf="item.dsName === ''" class="ddp-data-delete">{{'msg.dp.ui.ds.del.success' | translate}}</span>
+            <div class="ddp-txt-long" title="{{item.dfName}} | {{item.dsName}}">
+              {{item.dfName}} | {{item.dsName}}
+            </div>
 
-        <td class="ddp-data-last">
-          {{item.launchTime | mdate:'YYYY-MM-DD HH:mm'}} <em class="ddp-icon-by">{{'msg.dp.ui.by' | translate}}</em>{{item.createdBy}}
-          <div class="ddp-btn-control">
-            <em class="ddp-icon-control-cut" (click)="confirmDelete($event, item)"></em>
-          </div>
-        </td>
-      </tr>
+          </td>
+          <td>
+            {{prepCommonUtil.getSnapshotType(item.ssType)}}
+          </td>
+          <td>
+            <em class="ddp-icon-status-success" *ngIf="item.displayStatus === 'SUCCESS'"></em>
+            <em class="ddp-icon-status-error" *ngIf="item.displayStatus === 'FAIL'"></em>
+            <em class="ddp-icon-status-inprogress" *ngIf="item.displayStatus === 'PREPARING'"></em>
+          </td>
+          <td>
+            <span *ngIf="getElapsedDay() > 0">{{getElapsedDay(item) + '일'}}</span>
+            {{getElapsedTime(item)}}
+          </td>
+
+          <td class="ddp-data-last">
+            {{item.launchTime | mdate:'YYYY-MM-DD HH:mm'}} <em class="ddp-icon-by">{{'msg.dp.ui.by' | translate}}</em>{{item.createdBy.fullName}}
+            <div class="ddp-btn-control">
+              <em class="ddp-icon-control-cut" (click)="confirmDelete($event, item)"></em>
+            </div>
+          </td>
+        </tr>
       </tbody>
 
     </table>

@@ -27,6 +27,7 @@ import { ConfirmModalComponent } from '../../../../../common/component/modal/con
 import { Modal } from '../../../../../common/domain/modal';
 import { CookieConstant } from '../../../../../common/constant/cookie.constant';
 import {CommonConstant} from "../../../../../common/constant/common.constant";
+import {GranularityService} from "../../../../service/granularity.service";
 
 /**
  * Creating datasource with File - complete step
@@ -75,6 +76,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
 
   // Constructor
   constructor(private datasourceService: DatasourceService,
+              private _granularityService: GranularityService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -293,6 +295,9 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     // delete used UI
     delete column.isValidTimeFormat;
     delete column.isValidReplaceValue;
+    delete column.replaceValidMessage;
+    delete column.timeFormatValidMessage;
+    delete column.checked;
     // if not GEO types
     if (column.logicalType.indexOf('GEO_') === -1) {
       if (column.logicalType !== 'TIMESTAMP' && column.format) {
@@ -375,7 +380,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     // timestamp enable
     const isCreateTimestamp = this.getSchemaData.selectedTimestampType === 'CURRENT';
     // fields param
-    let fields = _.cloneDeep(this.getSchemaData.fields);
+    let fields = _.cloneDeep(this.getSchemaData._originFieldList);
     // seq number
     let seq = 0;
     // field setting
@@ -387,9 +392,9 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       // if you don't want to create a timestamp column
       if (!isCreateTimestamp) {
         // if specified as a timestamp column
-        if (column.name === this.getSchemaData.selectedTimestampColumn.name) {
+        if (column.name === this.getSchemaData.selectedTimestampField.name) {
           column.role = 'TIMESTAMP';
-        } else if (column.name !== this.getSchemaData.selectedTimestampColumn.name
+        } else if (column.name !== this.getSchemaData.selectedTimestampField.name
           && column.role === 'TIMESTAMP') {
           // this column is not timestamp column, but column role is timestamp, specified as Dimension
           column.role = 'DIMENSION';
@@ -442,6 +447,10 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     // advanced
     if (this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)).length > 0) {
       ingestion['tuningOptions'] = this._toObject(this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)));
+    }
+    // if not used current_time TIMESTAMP, set intervals
+    if (this.getSchemaData.selectedTimestampType !== 'CURRENT') {
+      ingestion['intervals'] =  [this._granularityService.getIntervalUsedParam(this.getIngestionData.startIntervalText, this.getIngestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.getIngestionData.endIntervalText, this.getIngestionData.selectedSegmentGranularity)];
     }
     return ingestion;
   }

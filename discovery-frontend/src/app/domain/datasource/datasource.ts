@@ -190,6 +190,7 @@ export class Field {
   replaceValidMessage?: string;
   timeFormatValidMessage?: string;
   unloaded?: boolean;
+  checked?: boolean;
 
   // [UI] for Alias
   dsId?:string;                   // 데이터소스 아이디
@@ -282,15 +283,22 @@ export class DatasourceInfo {
 
   // 분기를 위한 플래그
   public workbenchFl: boolean;
+
+  // field list data
+  public fieldList: any;
+  // field data
+  public fieldData: any;
 }
 
 export class IngestionRule {
-
   // type
   public type: IngestionRuleType;
-
   // value
   public value: string;
+  // constructor
+  constructor() {
+    this.type = IngestionRuleType.DEFAULT;
+  }
 }
 
 export class DerivationRule {

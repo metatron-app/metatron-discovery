@@ -19,8 +19,7 @@ import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { isUndefined } from "util";
 import * as _ from 'lodash';
-import { StringUtil } from '../../../../../../common/util/string.util';
-import { RuleConditionInputComponent } from './rule-condition-input.component';
+import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 import {PreparationCommonUtil} from "../../../../../util/preparation-common.util";
 
 @Component({
@@ -32,8 +31,8 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
+  @ViewChild('keep_row_input')
+  private rowInput : RuleSuggestInputComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -93,30 +92,18 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
    * @return
    */
   public getRuleData(): { command: string, ruleString:string} {
-    if (this.ruleConditionInputComponent.autoCompleteSuggestions_selectedIdx == -1) {
-      this.keepRow = this.ruleConditionInputComponent.getCondition();
+    
+      this.keepRow = this.rowInput.getFormula();
       let val = _.cloneDeep(this.keepRow);
       if (isUndefined(val) || '' === val || '\'\'' === val) {
         Alert.warning(this.translateService.instant('msg.dp.alert.keep.warn'));
         return undefined
       }
 
-      if (!isUndefined(val) && '' !== val.trim() && '\'\'' !== val.trim()) {
-        let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
-        if (check[0] === false) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.check.condition'));
-          return undefined
-        } else {
-          val = check[1];
-        }
-      }
       return {
         command: 'keep',
         ruleString: 'keep row: ' + val
       };
-    } else {
-      return undefined;
-    }
   } // function - getRuleData
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -126,9 +113,18 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
    * Open advanced formula popup
    */
   public openPopupFormulaInput() {
-    this.keepRow = this.ruleConditionInputComponent.getCondition();
+    this.keepRow = this.rowInput.getFormula();;
     this.advancedEditorClickEvent.emit({command : 'keep', val : 'keepRow'});
   } // function - openPopupFormulaInput
+
+  /**
+   * Apply formula using Advanced formula popup
+   * @param {{command: string, formula: string}} data
+   */
+  public doneInputFormula(data: { command: string, formula: string }) {
+    this.keepRow = data.formula;
+    this.rowInput.setFormula(this.keepRow);
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

@@ -208,10 +208,7 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     // validation
     if (this.getNextValidation()) {
       // 데이터 변경이 일어난경우 스키마 데이터와 적재데이터 제거
-      if (this.isChangeData()) {
-        this.sourceData.hasOwnProperty('schemaData') && (delete this.sourceData.schemaData);
-        this.sourceData.hasOwnProperty('ingestionData') && (delete this.sourceData.ingestionData);
-      }
+      this._deleteSchemaData();
       // 기존 파일 데이터 삭제후 생성
       this.deleteAndSaveFileData();
       // 다음페이지로 이동
@@ -440,6 +437,17 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
+   * 데이터가 변경이 일어나고 스키마데이터가 있다면 스키마데이터 삭제
+   */
+  private _deleteSchemaData() {
+    // 데이터 변경이 일어난경우 스키마 삭제
+    if (this.isChangeData()) {
+      this.sourceData.hasOwnProperty('schemaData') && (delete this.sourceData.schemaData);
+      this.sourceData.hasOwnProperty('ingestionData') && (delete this.sourceData.ingestionData);
+    }
+  }
+
+  /**
    * 기존 파일 삭제후 새로 생성
    */
   private deleteAndSaveFileData() {
@@ -449,6 +457,9 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     }
     // 현재 페이지의 데이터소스 생성정보 저장
     this.saveFileData(this.sourceData);
+    // set field list, field data
+    this.sourceData.fieldList = this.datasourceFile.selectedFile.fields;
+    this.sourceData.fieldData = this.datasourceFile.selectedFile.data;
   }
 
   /**

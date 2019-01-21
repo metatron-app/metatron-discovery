@@ -24,7 +24,7 @@
     </div>
   </div>
   <!-- contents in  -->
-  <div class="ddp-type-contents-in">
+  <div class="ddp-type-contents-in ddp-size-resize">
     <div class="ddp-popup-dashboard">
       <!-- 옵션 -->
       <div class="ddp-type-top-option ddp-clear">
@@ -70,8 +70,9 @@
       <!-- //옵션 -->
       <!-- 그리드 영역 -->
       <!-- 설명 나올때 ddp-selected 추가 -->
-      <div class="ddp-wrap-grid" [class.ddp-selected]="selectedDatasource">
-        <div class="ddp-wrap-viewtable">
+      <div class="ddp-wrap-variable">
+        <div class="ddp-wrap-grid" [class.ddp-selected]="selectedDatasource">
+        <div class="ddp-wrap-viewtable ddp-add">
           <!-- 테이블 -->
           <div class="ddp-box-viewtable">
             <!-- gridhead -->
@@ -165,10 +166,12 @@
           </div>
         </div>
       </div>
+      </div>
       <!-- //그리드 영역 -->
       <!-- 설명 -->
       <app-datasource-summary *ngIf="selectedDatasource"
                               [datasource]="selectedDatasource?.id"
+                              [showMetadataName]="false"
                               (close)="onClickCloseSchema()">
       </app-datasource-summary>
       <!-- //설명 -->

@@ -46,8 +46,9 @@
             && uiOption.color.type.toString() === 'dimension'">
             <!-- SELECTBOX -->
             <component-select
-              [array]="uiOption.fieldList"
-              [defaultIndex]="uiOption.fieldList && uiOption.fieldList.indexOf(uiOption.color['targetField'])"
+              [array]="uiOption.fielDimensionList"
+              [viewKey]="'alias'"
+              [defaultIndex]="getDimensionIndex()"
               (onSelected)="colorByDimension($event)"
             ></component-select>
           </div>

@@ -1,10 +1,6 @@
-# 기본 Active Profile 정의
-# 변경시는 실행시점에 별도 인자값으로 정의
-# ex) --spring.profiles.active=local,mysql-local-db
-# --polaris.analyze.pivot=false --polaris.analyze.forward=JSON
 spring:
   profiles:
-    active: local,h2-default-db,logging-console-debug,spark-local-yarn #,scheduling # cloud-local #, initial #, bcrypt-encoder, encode-password-initial, datasource-filter-sample
+    active: local,h2-default-db,logging-console-debug,scheduling #, initial #, bcrypt-encoder, encode-password-initial, datasource-filter-sample
   application:
     name: ${METATRON_NAME:metatron}
   datasource:
@@ -46,6 +42,10 @@ polaris:
     manualLinks:
      ko: file://${METATRON_HOME:/metatron}/doc/metatronDiscovery.user.manual.ko.pdf
      en: file://${METATRON_HOME:/metatron}/doc/metatronDiscovery.user.manual.en.pdf
+  widget:
+    mapView:
+      defaultBaseMap: Light
+      overrideBaseMap: false
   oauth2:
     permitAll:
       -
@@ -179,7 +179,6 @@ polaris:
         uri: /druid/coordinator/v1/datasources/{datasourceId}/purge
   cache:
     configFile: default-configs/default-jgroups-tcp.xml
-
 #  cors:
 #    -
 #      mapping: "/api/**"

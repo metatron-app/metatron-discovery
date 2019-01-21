@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.datasource.ingestion.jdbc;
 
+import java.util.List;
 import java.util.Map;
 
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
@@ -51,12 +52,17 @@ public abstract class JdbcIngestionInfo implements IngestionInfo {
   FileFormat format;
 
   /**
-   * Rollup 여부
+   * Roll-up
    */
   Boolean rollup;
 
   /**
-   * Tuning Config 지정, 기본값 override
+   * Intervals
+   */
+  List<String> intervals;
+
+  /**
+   * Specify Tuning Configuration, override default Value
    */
   Map<String, Object> tuningOptions;
 
@@ -132,6 +138,15 @@ public abstract class JdbcIngestionInfo implements IngestionInfo {
 
   public void setRollup(Boolean rollup) {
     this.rollup = rollup;
+  }
+
+  @Override
+  public List<String> getIntervals() {
+    return intervals;
+  }
+
+  public void setIntervals(List<String> intervals) {
+    this.intervals = intervals;
   }
 
   @Override
