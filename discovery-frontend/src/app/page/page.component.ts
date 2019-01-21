@@ -3179,8 +3179,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       });
     }
     else {
-      this.onChangeShelf({
-        shelf: this.pivot,
+      this.onChangePivot({
+        pivot: this.pivot,
         eventType: EventType.DASHBOARD_ALIAS
       });
     }

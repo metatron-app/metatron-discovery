@@ -13,20 +13,33 @@
  */
 
 import * as _ from 'lodash';
-import { Injectable } from '@angular/core';
-import { AbstractService } from '../../common/service/abstract.service';
-import { Widget } from '../../domain/dashboard/widget/widget';
-import { ResponseContentType, Headers } from '@angular/http';
-import { Observable } from 'rxjs';
-import { CookieConstant } from '../../common/constant/cookie.constant';
-import { SearchQueryRequest } from '../../domain/datasource/data/search-query-request';
-import { UIOption } from '../../common/component/chart/option/ui-option';
-import { SPEC_VERSION } from '../../common/component/chart/option/define/common';
-import { OptionGenerator } from '../../common/component/chart/option/util/option-generator';
-import { FilterUtil } from '../util/filter.util';
+import {Injectable} from '@angular/core';
+import {AbstractService} from '../../common/service/abstract.service';
+import {Widget} from '../../domain/dashboard/widget/widget';
+import {ResponseContentType, Headers} from '@angular/http';
+import {Observable} from 'rxjs';
+import {CookieConstant} from '../../common/constant/cookie.constant';
+import {SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
+import {UIOption} from '../../common/component/chart/option/ui-option';
+import {SPEC_VERSION} from '../../common/component/chart/option/define/common';
+import {OptionGenerator} from '../../common/component/chart/option/util/option-generator';
+import {FilterUtil} from '../util/filter.util';
+import {isNullOrUndefined} from "util";
+import {CommonConstant} from "../../common/constant/common.constant";
 
 @Injectable()
 export class WidgetService extends AbstractService {
+
+  /**
+   * MapView 에 대한 설정 정보를 얻습니다.
+   */
+  public loadPropMapView() {
+    if (isNullOrUndefined(sessionStorage.getItem(CommonConstant.PROP_MAP_CONFIG))) {
+      this.get(this.API_URL + `widgets/properties/mapview`).then(data => {
+        sessionStorage.setItem(CommonConstant.PROP_MAP_CONFIG, JSON.stringify(data));
+      });
+    }
+  } // function - loadPropMapView
 
   /**
    * 위젯 정보 조회
@@ -56,7 +69,7 @@ export class WidgetService extends AbstractService {
    */
   public createWidget(widget: Widget, dashboardId: string): Promise<any> {
     const url = this.API_URL + 'widgets';
-    let param = _.extend({ name: '' }, widget, {
+    let param = _.extend({name: ''}, widget, {
       dashBoard: '/api/dashboards/' + dashboardId
     });
 
@@ -84,8 +97,7 @@ export class WidgetService extends AbstractService {
           uiOption = OptionGenerator.initUiOption(uiOption);
           options['configuration']['chart'] = uiOption;
         }
-      }
-      catch (error) {
+      } catch (error) {
       }
     }
 
@@ -140,7 +152,7 @@ export class WidgetService extends AbstractService {
     // 호출
     return this.http.post(url, config, option)
       .map((res) => {
-        return new Blob([res.blob()], { type: 'application/vnd.ms-excel' })
+        return new Blob([res.blob()], {type: 'application/vnd.ms-excel'})
       });
   }
 
@@ -151,7 +163,7 @@ export class WidgetService extends AbstractService {
    * @param {boolean} preview
    * @returns {Promise<any>}
    */
-  public previewWidget(widgetId: string, original: boolean, preview:boolean ): Promise<any> {
+  public previewWidget(widgetId: string, original: boolean, preview: boolean): Promise<any> {
     const url = this.API_URL + `widgets/${widgetId}/data?original=${original}&preview=${preview}`;
     return this.post(url, null);
   } // function - previewWidget
@@ -192,7 +204,7 @@ export class WidgetService extends AbstractService {
     // 호출
     return this.http.post(url, null, option)
       .map((res) => {
-        return new Blob([res.blob()], { type: strType })
+        return new Blob([res.blob()], {type: strType})
       });
   }
 
@@ -209,10 +221,10 @@ export class WidgetService extends AbstractService {
     if (param) {
       let conf = param.configuration;
       if (conf && conf.filter) {
-        param.configuration.filter = FilterUtil.convertToServerSpecForDashboard( conf.filter );
+        param.configuration.filter = FilterUtil.convertToServerSpecForDashboard(conf.filter);
       }
       if (conf && conf.filters) {
-        param.configuration.filters = conf.filters.map(item => FilterUtil.convertToServerSpecForDashboard( item ) );
+        param.configuration.filters = conf.filters.map(item => FilterUtil.convertToServerSpecForDashboard(item));
       }
       if (conf && conf.pivot) {
         if (conf.pivot.columns) {

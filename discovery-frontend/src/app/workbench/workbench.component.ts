@@ -1351,6 +1351,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.isCanceled = false;
     this.executeTabIds = [];
     this.executeEditorId = item.editorId;
+    item.startDate = '';
+    item.finishDate = '';
 
     this.workbenchService.checkConnectionStatus(item.editorId, this.websocketId)
       .then((result) => {
@@ -2792,7 +2794,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       },
       removeFirstRow: true,
       path: currentResultTab.result.csvFilePath,
-      rollup: true
+      rollup: false
     };
 
     this.loadingShow();

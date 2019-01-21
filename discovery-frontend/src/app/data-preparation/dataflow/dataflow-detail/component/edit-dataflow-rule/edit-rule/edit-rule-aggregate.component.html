@@ -28,14 +28,29 @@
 </div>
 <!--//part-->
 <!--part-->
-<div class="ddp-box-part" *ngIf="isShow">
-  <div class="ddp-box-title">
-    {{'msg.dp.th.group.by' | translate}}<em class="ddp-icon-essential"></em>
-  </div>
+<div class="ddp-box-part ddp-type-part" *ngIf="isShow">
+  <div class="ddp-error-part">
+    <div class="ddp-box-title">
+      {{'msg.dp.th.group.by' | translate}}<em class="ddp-icon-essential"></em>
+    </div>
 
-  <!-- select box -->
-  <edit-rule-field-combo [isMulti]="true" [fields]="fields" [selected]="selectedFields" [tabIndex]="3"
-                         (onChange)="changeFields($event)" ></edit-rule-field-combo>
-  <!-- //select box -->
+    <!-- select box -->
+    <div class="ddp-wrap-selectbox">
+      <edit-rule-field-combo [isMulti]="true" [fields]="fields" [selected]="selectedFields" [tabIndex]="3"
+                             (onChange)="changeFields($event)" ></edit-rule-field-combo>
+    </div>
+    <!-- //select box -->
+    <!--<span class="ddp-txt-error ddp-size"><em class="ddp-icon-error-s"></em>{{'msg.dp.ui.aggregate.warning' | translate }}</span>-->
+
+    <div class="ddp-wrap-warning ddp-size">
+      <div class="ddp-box-warning">
+        <em class="ddp-icon-warning"></em>
+        <div class="ddp-txt-warning">
+          {{'msg.dp.ui.aggregate.warning1' | translate }}<br/>
+          {{'msg.dp.ui.aggregate.warning2' | translate }}
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <!--//part-->

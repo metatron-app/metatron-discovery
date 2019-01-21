@@ -67,6 +67,7 @@ import { CriterionTimeRadioboxComponent } from './component/criterion/criterion-
 import { SchemaConfigComponent } from './component/schema-config/schema-config.component';
 import { SchemaConfigDetailComponent } from './component/schema-config/schema-config-detail.component';
 import { SchemaConfigActionBarComponent } from './component/schema-config/schema-config-action-bar.component';
+import { GranularityService } from './service/granularity.service';
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -159,7 +160,8 @@ const storageRoutes: Routes = [
     DatasourceManagementGuard,
     DatasourceService,
     DataconnectionService,
-    MetadataService
+    MetadataService,
+    GranularityService
   ]
 })
 export class DataStorageModule {

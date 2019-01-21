@@ -17,6 +17,7 @@ import { BaseOptionComponent } from '../base-option.component';
 import * as _ from 'lodash';
 import { MapType } from '../../../common/component/chart/option/define/map/map-common';
 import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
+import {CommonConstant} from "../../../common/constant/common.constant";
 
 @Component({
   selector: 'map-common-option',
@@ -40,6 +41,27 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
               protected injector: Injector) {
 
     super(elementRef, injector);
+  }
+
+  // Init
+  public ngOnInit() {
+    super.ngOnInit();
+
+    const propMapConf = sessionStorage.getItem( CommonConstant.PROP_MAP_CONFIG );
+    if( propMapConf ) {
+      const objConf = JSON.parse( propMapConf );
+      if( objConf.baseMaps ) {
+        this.mapStyleList =
+          this.mapStyleList.concat(
+            objConf.baseMaps.map( item => {
+              return { name : item.name, value : item.name };
+            })
+          );
+      }
+      if( objConf.defaultBaseMap ) {
+        this.setMapStyle( this.mapStyleList.find( item => objConf.defaultBaseMap === item.name ) );
+      }
+    }
   }
 
   /**

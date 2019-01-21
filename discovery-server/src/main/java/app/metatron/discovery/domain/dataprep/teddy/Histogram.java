@@ -1059,8 +1059,8 @@ public class Histogram implements Serializable {
     List<Granule> granules  = new ArrayList<>();
     List<Integer> unitSizes = new ArrayList<>();
 
-    granules.addAll( Arrays.asList(new Granule[]{YEAR, YEAR, YEAR, YEAR}));
-    unitSizes.addAll(Arrays.asList(new Integer[]{  10,    5,    2,    1}));
+    granules.addAll( Arrays.asList(new Granule[]{YEAR, YEAR, YEAR, YEAR, YEAR, YEAR, YEAR, YEAR, YEAR}));
+    unitSizes.addAll(Arrays.asList(new Integer[]{5000, 1000,  500,  100,   50,   10,    5,    2,    1}));
 
     granules.addAll( Arrays.asList(new Granule[]{MONTH, MONTH, MONTH, MONTH}));
     unitSizes.addAll(Arrays.asList(new Integer[]{    6,    3,      2,     1}));

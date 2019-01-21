@@ -244,6 +244,14 @@ public class SegmentMetaDataResponse implements Serializable {
     this.queryGranularity = queryGranularity;
   }
 
+  public Granularity getSegmentGranularity() {
+    return segmentGranularity;
+  }
+
+  public void setSegmentGranularity(Granularity segmentGranularity) {
+    this.segmentGranularity = segmentGranularity;
+  }
+
   public String getErrorMessage() { return errorMessage; }
 
   public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }

@@ -22,7 +22,6 @@ import {
   Field,
   FieldFormat,
   FieldFormatType,
-  FieldFormatUnit
 } from '../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
@@ -30,6 +29,7 @@ import { StringUtil } from '../../../common/util/string.util';
 import { Alert } from '../../../common/util/alert.util';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
 import { CommonUtil } from '../../../common/util/common.util';
+import { GranularityService } from '../../service/granularity.service';
 
 declare let moment: any;
 /**
@@ -45,15 +45,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _sourceData: DatasourceInfo;
 
   // granularity list
-  private _granularityList: any[] = [
-    { label: this.translateService.instant('msg.storage.li.dsource.granularity-none'), value: 'NONE' },
-    { label: this.translateService.instant('msg.storage.li.dsource.granularity-second'), value: 'SECOND' },
-    { label: this.translateService.instant('msg.storage.li.dsource.granularity-minute'), value: 'MINUTE' },
-    { label: this.translateService.instant('msg.storage.li.dsource.granularity-hour'), value: 'HOUR' },
-    { label: this.translateService.instant('msg.storage.li.dsource.granularity-day'), value: 'DAY' },
-    { label: this.translateService.instant('msg.storage.li.dsource.granularity-month'), value: 'MONTH' },
-    { label: this.translateService.instant('msg.storage.li.dsource.granularity-year'), value: 'YEAR' }
-  ];
+  private _granularityList: any[] = this._granularityService.granularityList;
   // scope type list (only engine source type)
   private _scopeTypeList: any[] = [
     { label: this.translateService.instant('msg.storage.th.dsource.scope-incremental'), value: 'INCREMENTAL' },
@@ -63,6 +55,13 @@ export class IngestionSettingComponent extends AbstractComponent {
 
   // format
   private _format: FieldFormat;
+
+  // sorted timestamp column data list
+  private _sortedTimestampColumnDataList: string[];
+
+  // timestamp field first/end data
+  private _firstMomentData: any;
+  private _endMomentData: any;
 
   // element
   @ViewChild('resultElement')
@@ -77,15 +76,6 @@ export class IngestionSettingComponent extends AbstractComponent {
   public rollUpTypeList: any[];
   // selected rollup type
   public selectedRollUpType: any;
-
-  // data range type list (only stagingDB create type)
-  public dataRangeTypeList: any[];
-  // selected data range type (only stagingDB create type)
-  public selectedDataRangeType: any;
-  // start date time in data range (only stagingDB create type)
-  public startDateTime: string = moment().subtract(1, 'years').format('YYYY-MM-DDTHH:mm');
-  // end date time in data range (only stagingDB create type)
-  public endDateTime: string = moment().format('YYYY-MM-DDTHH:mm');
 
   // partition type list
   public partitionTypeList: any[];
@@ -187,17 +177,28 @@ export class IngestionSettingComponent extends AbstractComponent {
   // clicked next button flag
   public isClickedNext: boolean;
 
+  // interval input text
+  public startIntervalText: string;
+  public endIntervalText: string;
+  // interval valid message
+  public intervalValidMessage: string;
+  // interval valid
+  public intervalValid: boolean;
+  // granularity unit
+  public granularityUnit: number;
+
+
+
   // step change
   @Output()
   public prevStep: EventEmitter<any> = new EventEmitter();
   @Output()
   public nextStep: EventEmitter<any> = new EventEmitter();
 
-
-
   // constructor
   constructor(private _dataSourceService: DatasourceService,
               private _dataConnectionService: DataconnectionService,
+              private _granularityService: GranularityService,
               protected element: ElementRef,
               protected renderer: Renderer2,
               protected injector: Injector) {
@@ -232,12 +233,25 @@ export class IngestionSettingComponent extends AbstractComponent {
     // if exist ingestionData
     if (this._sourceData.hasOwnProperty("ingestionData")) {
       this._loadIngestionData(this._sourceData.ingestionData);
-      // if changed timestamp field, init granularity
-      isChangedTimestampField && this._initGranularity();
+      // if changed timestamp field
+      if (isChangedTimestampField) {
+        // init granularity
+        this._initGranularity();
+        // if used TIMESTAMP column
+        if (!this.isUsedCurrentTimestampColumn()) {
+          // granularity interval initial
+          this._initGranularityIntervalInfo();
+        }
+      }
     } else { // init
       this._setDefaultIngestionOption();
       // init granularity
       this._initGranularity();
+      // if used TIMESTAMP column
+      if (!this.isUsedCurrentTimestampColumn()) {
+        // granularity interval initial
+        this._initGranularityIntervalInfo();
+      }
       // if staging type, set partition key list
       if (this.createType === 'STAGING' && this._sourceData.databaseData.selectedTableDetail.partitionFields.length > 0) {
         // set key list
@@ -421,6 +435,8 @@ export class IngestionSettingComponent extends AbstractComponent {
     if (_.every(this.queryGranularityList, item => item.value !== this.selectedQueryGranularity.value)) {
       this.selectedQueryGranularity = this.queryGranularityList[0];
     }
+    // if used TIMESTAMP column, granularity interval initial
+    !this.isUsedCurrentTimestampColumn() && this._initGranularityIntervalInfo();
   }
 
   /**
@@ -429,23 +445,6 @@ export class IngestionSettingComponent extends AbstractComponent {
    */
   public onChangeRollUpType(rollUp: any): void {
     this.selectedRollUpType = rollUp;
-  }
-
-  /**
-   * Data range change event
-   * @param dataRangeType
-   */
-  public onChangeDataRangeType(dataRangeType: any): void {
-    this.selectedDataRangeType = dataRangeType;
-  }
-
-  /**
-   * Data range time change vent
-   * @param time
-   */
-  public onChangeRangeTime(time: any): void {
-    this.startDateTime = time.startDateStr;
-    this.endDateTime = time.endDateStr;
   }
 
   /**
@@ -541,6 +540,32 @@ export class IngestionSettingComponent extends AbstractComponent {
     event.keyCode === 13 && this.cronValidation();
   }
 
+
+  /**
+   * Check start granularity interval
+   */
+  public checkStartInterval(): void {
+    StringUtil.isEmpty(this.startIntervalText) && (this.startIntervalText = this._granularityService.getInitInterval(this._firstMomentData, this.selectedSegmentGranularity));
+    // get interval validation info
+    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity);
+    this.intervalValid = validInfo.intervalValid;
+    this.intervalValidMessage = validInfo.intervalValidMessage;
+    this.granularityUnit = validInfo.granularityUnit;
+  }
+
+  /**
+   * Check end granularity interval
+   */
+  public checkEndInterval(): void {
+    StringUtil.isEmpty(this.endIntervalText) && (this.endIntervalText = this._granularityService.getInitInterval(this._endMomentData, this.selectedSegmentGranularity));
+    // get interval validation info
+    const validInfo = this._granularityService.getIntervalValidationInfo(this.startIntervalText, this.endIntervalText, this.selectedSegmentGranularity);
+    this.intervalValid = validInfo.intervalValid;
+    this.intervalValidMessage = validInfo.intervalValidMessage;
+    this.granularityUnit = validInfo.granularityUnit;
+  }
+
+
   /**
    * Is used current_time column in schema step
    * @returns {boolean}
@@ -619,12 +644,6 @@ export class IngestionSettingComponent extends AbstractComponent {
       { label: this.translateService.instant('msg.storage.ui.set.false'), value: false },
     ];
     this.selectedRollUpType = this.rollUpTypeList[0];
-    // init data range type list
-    this.dataRangeTypeList = [
-      { label: this.translateService.instant('msg.storage.ui.set.disable'), value: 'DISABLE' },
-      { label: this.translateService.instant('msg.storage.ui.set.enable'), value: 'ENABLE' }
-    ];
-    this.selectedDataRangeType = this.dataRangeTypeList[0];
     // init partition type list
     this.partitionTypeList = [
       { label: this.translateService.instant('msg.storage.ui.set.disable'), value: 'DISABLE' },
@@ -677,7 +696,9 @@ export class IngestionSettingComponent extends AbstractComponent {
     this.selectedWeeklyTime = this.selectedDailyTime = this._getCurrentTime();
     // init segment granularity list
     // #1058 remove MINUTE, SECOND in segment granularity
-    this.segmentGranularityList = _.filter(this._granularityList, item => item.value !== 'NONE' && item.value !== 'SECOND' && item.value !== 'MINUTE');
+    this.segmentGranularityList = this._granularityService.getSegmentGranularityList();
+    // set timestamp column data list
+    this._sortedTimestampColumnDataList = this._sourceData.schemaData.timestampFieldData.sort();
   }
 
   /**
@@ -695,8 +716,9 @@ export class IngestionSettingComponent extends AbstractComponent {
       // set query granularity SECOND
       // this.selectedQueryGranularity =this._granularityList[1];
     } else if (this._format.type === FieldFormatType.DATE_TIME) { // if exist format, DATE_TIME type
-      // _automationGranularity
-      this._automationGranularity(this._format.format, this._format.format.length - 1);
+      const initializedGranularity = this._granularityService.getInitializedGranularity(this._format.format, this._format.format.length - 1);
+      this.selectedSegmentGranularity = initializedGranularity.segmentGranularity;
+      this.selectedQueryGranularity = initializedGranularity.queryGranularity;
     } else if (this._format.type === FieldFormatType.UNIX_TIME) { // if exist format, UNIX_TIME type
       // set segment granularity HOUR
       this.selectedSegmentGranularity = this._granularityList[3];
@@ -713,74 +735,12 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * automation granularity
-   * @param {string} format
-   * @param {number} startNum
-   * @private
-   */
-  private _automationGranularity(format: string, startNum: number) {
-    switch (format.slice(startNum, startNum + 1)) {
-      case 'Y':
-      case 'y':
-        // set segment granularity YEAR
-        this.selectedSegmentGranularity = this._granularityList[6];
-        // set query granularity YEAR
-        this.selectedQueryGranularity = this._granularityList[6];
-        break;
-      case 'M':
-        // set segment granularity YEAR
-        this.selectedSegmentGranularity = this._granularityList[6];
-        // set query granularity MONTH
-        this.selectedQueryGranularity = this._granularityList[5];
-        break;
-      case 'D':
-      case 'd':
-        // set segment granularity YEAR
-        this.selectedSegmentGranularity = this._granularityList[6];
-        // set query granularity DAY
-        this.selectedQueryGranularity = this._granularityList[4];
-        break;
-      case 'H':
-      case 'h':
-        // set segment granularity MONTH
-        this.selectedSegmentGranularity = this._granularityList[5];
-        // set query granularity HOUR
-        this.selectedQueryGranularity = this._granularityList[3];
-        break;
-      case 'm':
-        // set segment granularity DAY
-        this.selectedSegmentGranularity = this._granularityList[4];
-        // set query granularity MINUTE
-        this.selectedQueryGranularity = this._granularityList[2];
-        break;
-      case 'S':
-      case 's':
-        // set segment granularity HOUR
-        this.selectedSegmentGranularity = this._granularityList[3];
-        // set query granularity SECOND
-        this.selectedQueryGranularity = this._granularityList[1];
-        break;
-      default:
-        // if not startNum first index, call _automationGranularity method
-        if (startNum !== 0) {
-          this._automationGranularity(this._format.format, startNum - 1);
-        } else { // set default
-          // set segment granularity HOUR
-          this.selectedSegmentGranularity = this._granularityList[3];
-          // set query granularity SECOND
-          this.selectedQueryGranularity = this._granularityList[1];
-        }
-        break;
-    }
-  }
-
-  /**
    * Update query granularity list
    * @param granularity
    * @private
    */
   private _updateQueryGranularityList(granularity: any): void {
-    this.queryGranularityList = this._granularityList.slice(0, _.findIndex(this._granularityList, item => item.value === granularity.value) + 1)
+    this.queryGranularityList = this._granularityService.getQueryGranularityList(granularity);
   }
 
   /**
@@ -811,15 +771,17 @@ export class IngestionSettingComponent extends AbstractComponent {
     if (this.createType === 'STAGING' && this.isStrictMode && this.partitionKeyList.length !== 0 && !this.partitionValidationResult) {
       return false;
     }
-    // valid tuning config
-    if (this.tuningConfig.length !== 0) {
-      // if exist tuningConfig error
-      return !_.some(this.tuningConfig, config => config.keyError || config.valueError);
+    // valid interval granularity (only column TIMESTAMP)
+    if (!this.isUsedCurrentTimestampColumn() && !this.intervalValid) {
+      return false;
     }
-    // valid job properties
-    if (this.jobProperties.length !== 0) {
-      // if exist jobProperties error
-      return !_.some(this.jobProperties, config => config.keyError || config.valueError);
+    // valid tuning config (if exist tuningConfig error)
+    if (this.tuningConfig.length !== 0 && _.some(this.tuningConfig, config => config.keyError || config.valueError)) {
+      return false;
+    }
+    // valid job properties (if exist jobProperties error)
+    if (this.jobProperties.length !== 0 && _.some(this.jobProperties, config => config.keyError || config.valueError)) {
+      return false;
     }
     return true;
   }
@@ -930,6 +892,24 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
+   * Granularity interval initial
+   * @private
+   */
+  private _initGranularityIntervalInfo(): void {
+    // granularity unit initial
+    const info = this._granularityService.getInitializedInterval(this._sortedTimestampColumnDataList, this._format.format, this.selectedSegmentGranularity, this._format.type, this._format.unit);
+    // set interval text
+    this.startIntervalText = info.startInterval;
+    this.endIntervalText = info.endInterval;
+    this.intervalValid = info.intervalValid;
+    this.intervalValidMessage = info.intervalValidMessage;
+    this.granularityUnit = info.granularityUnit;
+    // set moment data
+    this._firstMomentData = info.firstMoment;
+    this._endMomentData = info.endMoment;
+  }
+
+  /**
    * Check enable partition keys
    * @param partitionList
    * @returns {boolean}
@@ -961,6 +941,15 @@ export class IngestionSettingComponent extends AbstractComponent {
     this.tuningConfig = ingestionData.tuningConfig;
     // isShowAdvancedSetting
     this.isShowAdvancedSetting = ingestionData.isShowAdvancedSetting;
+    // interval text
+    this.startIntervalText = ingestionData.startIntervalText;
+    this.endIntervalText = ingestionData.endIntervalText;
+    // interval valid message
+    this.intervalValidMessage = ingestionData.intervalValidMessage;
+    // interval valid
+    this.intervalValid = ingestionData.intervalValid;
+    // granularity unit
+    this.granularityUnit = ingestionData.granularityUnit;
     // if create type is DB
     if (this.createType === 'DB') {
       // load selected expiration time
@@ -995,14 +984,10 @@ export class IngestionSettingComponent extends AbstractComponent {
     // if create type is StagingDB
     if (this.createType === 'STAGING') {
       // load selected data range type
-      this.selectedDataRangeType = ingestionData.selectedDataRangeType;
       // load selected partition type
       this.selectedPartitionType = ingestionData.selectedPartitionType;
       // load job properties
       this.jobProperties = ingestionData.jobProperties;
-      // load date time used data range
-      this.startDateTime = ingestionData.startDateTime;
-      this.endDateTime = ingestionData.endDateTime;
       // partition key list
       this.partitionKeyList = ingestionData.partitionKeyList;
       // is show partition validation button (only stagingDB)
@@ -1038,7 +1023,16 @@ export class IngestionSettingComponent extends AbstractComponent {
       // save tuning configuration
       tuningConfig : this.tuningConfig,
       // isShowAdvancedSetting
-      isShowAdvancedSetting: this.isShowAdvancedSetting
+      isShowAdvancedSetting: this.isShowAdvancedSetting,
+      // interval text
+      startIntervalText: this.startIntervalText,
+      endIntervalText: this.endIntervalText,
+      // interval valid message
+      intervalValidMessage: this.intervalValidMessage,
+      // interval valid
+      intervalValid: this.intervalValid,
+      // granularity unit
+      granularityUnit: this.granularityUnit
     };
     // if create type DB
     if (this.createType === 'DB') {
@@ -1067,15 +1061,10 @@ export class IngestionSettingComponent extends AbstractComponent {
     }
     // if create type Staging
     if (this.createType === 'STAGING') {
-      // save selected data range type
-      sourceData['ingestionData'].selectedDataRangeType = this.selectedDataRangeType;
       // save selected partition type
       sourceData['ingestionData'].selectedPartitionType = this.selectedPartitionType;
       // selected job properties
       sourceData['ingestionData'].jobProperties = this.jobProperties;
-      // selected time used data range
-      sourceData['ingestionData'].startDateTime = this.startDateTime;
-      sourceData['ingestionData'].endDateTime = this.endDateTime;
       // partition key list
       sourceData['ingestionData'].partitionKeyList = this.partitionKeyList;
       // is show partition validation button (only stagingDB)

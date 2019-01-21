@@ -54,6 +54,8 @@ import org.hibernate.search.bridge.builtin.BooleanBridge;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.joda.time.Period;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import java.io.IOException;
@@ -72,6 +74,7 @@ import app.metatron.discovery.common.CustomCollectors;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.KeepAsJsonDeserialzier;
 import app.metatron.discovery.common.entity.Spec;
+import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.context.ContextEntity;
@@ -177,11 +180,11 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
 
   @Column(name = "ds_granularity")
   @Enumerated(EnumType.STRING)
-  GranularityType granularity = GranularityType.NONE;
+  GranularityType granularity;
 
   @Column(name = "ds_seg_granularity")
   @Enumerated(EnumType.STRING)
-  GranularityType segGranularity = GranularityType.NONE;
+  GranularityType segGranularity;
 
   /**
    * 파티션을 구성하는 필드 명 목록 (,) 구분자 사용
@@ -950,21 +953,33 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   public enum GranularityType {
 
     ALL(Long.MAX_VALUE),
-    SECOND(1000L),
-    MINUTE(60 * 1000L),
-    HOUR(60 * 60 * 1000L),
-    DAY(24 * 60 * 60 * 1000L),
-    DAYOFWEEK(24 * 60 * 60 * 1000L),    // timeExprUnit에서만 사용
-    WEEK(7 * 24 * 60 * 60 * 1000L),
-    MONTH(31 * 24 * 60 * 60 * 1000L),
-    QUARTER(4 * 31 * 24 * 60 * 60 * 1000L),
-    YEAR(365 * 24 * 60 * 60 * 1000L),
+    SECOND(1000L, "PT1S"),
+    MINUTE(60 * 1000L, "PT1M"),
+    FIVE_MINUTE(5 * 60 * 1000L, "PT5M"),
+    TEN_MINUTE(10 * 60 * 1000L, "PT10M"),
+    FIFTEEN_MINUTE(15 * 60 * 1000L, "PT15M"),
+    THIRTY_MINUTE(30 * 60 * 1000L, "PT30M"),
+    HOUR(60 * 60 * 1000L, "PT1H"),
+    SIX_HOUR(6 * 60 * 60 * 1000L, "PT6H"),
+    DAY(24 * 60 * 60 * 1000L, "P1D"),
+    DAYOFWEEK(24 * 60 * 60 * 1000L),    // Use only at timeExprUnit
+    WEEK(7 * 24 * 60 * 60 * 1000L, "P1W"),
+    MONTH(31 * 24 * 60 * 60 * 1000L, "P1M"),
+    QUARTER(4 * 31 * 24 * 60 * 60 * 1000L, "P3M"),
+    YEAR(365 * 24 * 60 * 60 * 1000L, "P1Y"),
     NONE(0L);
 
     long mils;
+    Period period;
 
     GranularityType(long mils) {
       this.mils = mils;
+      this.period = null;
+    }
+
+    GranularityType(long mils, String period) {
+      this.mils = mils;
+      this.period = new Period(period);
     }
 
     public long getMils() {
@@ -987,9 +1002,14 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
           resultFormat = "yyyy-MM-dd HH:mm:ss";
           break;
         case MINUTE:
+        case FIVE_MINUTE:
+        case TEN_MINUTE:
+        case FIFTEEN_MINUTE:
+        case THIRTY_MINUTE:
           resultFormat = "yyyy-MM-dd HH:mm";
           break;
         case HOUR:
+        case SIX_HOUR:
           resultFormat = "yyyy-MM-dd HH";
           break;
         case DAY:
@@ -1073,6 +1093,72 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
       }
 
       return type.getTimeUnitFormat();
+    }
+
+    public static GranularityType fromPeriod(Period period) {
+      int [] vals = period.getValues();
+      int index = -1;
+      for (int i = 0; i < vals.length; i++) {
+        if (vals[i] != 0) {
+          if (index < 0) {
+            index = i;
+          } else {
+
+            throw new MetatronException("Granularity is not supported : " + period);
+          }
+        }
+      }
+
+      switch (index) {
+        case 0:
+          return GranularityType.YEAR;
+        case 1:
+          if (vals[index] == 3) {
+            return GranularityType.QUARTER;
+          } else if (vals[index] == 1) {
+            return GranularityType.MONTH;
+          }
+          break;
+        case 2:
+          return GranularityType.WEEK;
+        case 3:
+          return GranularityType.DAY;
+        case 4:
+          if (vals[index] == 6) {
+            return GranularityType.SIX_HOUR;
+          } else if (vals[index] == 1) {
+            return GranularityType.HOUR;
+          }
+          break;
+        case 5:
+          if (vals[index] == 30) {
+            return GranularityType.THIRTY_MINUTE;
+          } else if (vals[index] == 15) {
+            return GranularityType.FIFTEEN_MINUTE;
+          } else if (vals[index] == 10) {
+            return GranularityType.TEN_MINUTE;
+          } else if (vals[index] == 5) {
+            return GranularityType.FIVE_MINUTE;
+          } else if (vals[index] == 1) {
+            return GranularityType.MINUTE;
+          }
+          break;
+        case 6:
+          return GranularityType.SECOND;
+        default:
+          break;
+      }
+      throw new MetatronException("Granularity is not supported : " + period);
+    }
+
+    public static GranularityType fromInterval(Interval interval)
+    {
+      try {
+        return fromPeriod(new Period(interval.getStart(), interval.getEnd()));
+      }
+      catch (Exception e) {
+        return null;
+      }
     }
   }
 }

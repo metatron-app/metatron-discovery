@@ -16,12 +16,13 @@ package app.metatron.discovery.domain.datasource.ingestion;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import java.util.List;
 import java.util.Map;
 
 import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
 
 /**
- * Created by kyungtaak on 2017. 4. 30..
+ *
  */
 @JsonTypeName("local")
 public class LocalFileIngestionInfo implements IngestionInfo {
@@ -35,12 +36,17 @@ public class LocalFileIngestionInfo implements IngestionInfo {
   FileFormat format;
 
   /**
-   * Rollup 여부
+   * Roll-up
    */
   Boolean rollup;
 
   /**
-   * Tuning Config 지정, 기본값 override
+   * Intervals
+   */
+  List<String> intervals;
+
+  /**
+   * Specify Tuning Configuration, override default Value
    */
   Map<String, Object> tuningOptions;
 
@@ -78,6 +84,15 @@ public class LocalFileIngestionInfo implements IngestionInfo {
 
   public void setRollup(Boolean rollup) {
     this.rollup = rollup;
+  }
+
+  @Override
+  public List<String> getIntervals() {
+    return intervals;
+  }
+
+  public void setIntervals(List<String> intervals) {
+    this.intervals = intervals;
   }
 
   public FileFormat getFormat() {

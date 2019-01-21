@@ -873,4 +873,13 @@ em.ddp-icon-menu-parameters { width:20px; height:18px; margin:-9px 0 0 -10px; ba
 em.ddp-icon-menu-mapview1 {width:21px; height:20px; margin:-10px 0 0 -10px; background-position:left -396px;}
 em.ddp-icon-menu-mapview2 {width:21px; height:20px; margin:-10px 0 0 -10px;background-position:left -417px;}
 em.ddp-icon-menu-mapview3 {width:21px; height:20px; margin:-10px 0 0 -10px;background-position:left -438px;}
-
+/*상태 아이콘*/
+em.ddp-icon-status-success,
+em.ddp-icon-status-error,
+em.ddp-icon-status-inprogress,
+em.ddp-icon-status-inprogress2 {display:inline-block; position:relative; width:20px; height:20px; background:url(../../../images/icon_snapshot_status.png) no-repeat;}
+em.ddp-icon-status-error {background-position:left -21px;}
+em.ddp-icon-status-inprogress {background-position:left -42px;}
+em.ddp-icon-status-inprogress2 {background-position:left -63px;}
+em.ddp-icon-status-inprogress:hover .ddp-ui-tooltip-info,
+em.ddp-icon-status-inprogress2:hover .ddp-ui-tooltip-info{display:block; left:100%; top:-2px; margin-left:5px;}
