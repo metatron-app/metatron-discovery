@@ -30,6 +30,7 @@ import * as _ from 'lodash';
 import { Alert } from '../../../common/util/alert.util';
 import { SchemaConfigActionBarComponent } from './schema-config-action-bar.component';
 import { SchemaConfigDetailComponent } from './schema-config-detail.component';
+import {SchemaConfigService} from "../../service/schema-config.service";
 
 @Component({
   selector: 'schema-config-component',
@@ -156,9 +157,11 @@ export class SchemaConfigComponent extends AbstractComponent {
 
   // 생성자
   constructor(private _datasourceService: DatasourceService,
+              private _schemaConfigService: SchemaConfigService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
+    console.log(_schemaConfigService.timeZoneList);
   }
 
   /**

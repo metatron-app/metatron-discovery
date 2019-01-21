@@ -68,6 +68,7 @@ import { SchemaConfigComponent } from './component/schema-config/schema-config.c
 import { SchemaConfigDetailComponent } from './component/schema-config/schema-config-detail.component';
 import { SchemaConfigActionBarComponent } from './component/schema-config/schema-config-action-bar.component';
 import { GranularityService } from './service/granularity.service';
+import {SchemaConfigService} from "./service/schema-config.service";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -161,7 +162,8 @@ const storageRoutes: Routes = [
     DatasourceService,
     DataconnectionService,
     MetadataService,
-    GranularityService
+    GranularityService,
+    SchemaConfigService
   ]
 })
 export class DataStorageModule {
