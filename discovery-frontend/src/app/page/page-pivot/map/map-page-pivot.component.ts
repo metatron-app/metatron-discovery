@@ -401,20 +401,35 @@ export class MapPagePivotComponent extends PagePivotComponent {
    */
   public addLayer(): void {
 
-     // add empty layer
-     this.shelf.layers.push([]);
+    if( this.shelf.layers.length >= 3) {
+      return;
+    }
 
-     // set current layer number
-     this.uiOption.layerNum = this.shelf.layers.length - 1;
+    // add empty layer
+    this.shelf.layers.push([]);
 
-     this.changePivot();
-   }
+    // set current layer number
+    this.uiOption.layerNum = this.shelf.layers.length - 1;
+
+    this.changePivot();
+}
 
   /**
    * map chart - remove layer
    */
   public removeLayer(): void {
 
+    if( this.shelf.layers.length <= 1) {
+      return;
+    }
+
+    // remove layer
+    this.shelf.layers.pop();
+
+    // set current layer number
+    this.uiOption.layerNum = this.shelf.layers.length - 1;
+
+    this.changePivot();
   }
 
   /**
@@ -689,5 +704,10 @@ export class MapPagePivotComponent extends PagePivotComponent {
     }
 
     return false;
+  }
+
+  public selectedLayer( index: number){
+    console.log(index);
+    this.uiOption.layerNum = index;
   }
 }

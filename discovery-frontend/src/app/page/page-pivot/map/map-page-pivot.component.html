@@ -14,7 +14,7 @@
 
 <div class="ddp-wrap-shelf ddp-mapview">
   <!-- shelf -->
-  <div *ngFor="let item of shelf.layers; let index = index" id="layer{{index}}" class="ddp-ui-shelf" [ngClass]="{'ddp-add-self' : true}">
+  <div *ngFor="let item of shelf.layers; let index = index" id="layer{{index}}" class="ddp-ui-shelf" [ngClass]="{'ddp-add-self' : index==shelf.layers.length-1}">
     <em class="ddp-icon-mapview{{index + 1}}"></em>
     <!-- drag slide -->
     <div class="ddp-ui-drag-slide">
@@ -22,8 +22,8 @@
       <div class="ddp-slide-control">
         <a (mouseover)="mouseOverNext($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-next"><em class="ddp-icon-next"></em></a>
         <!-- TODO plus, minus button-->
-        <!--<a href="javascript:" class="ddp-btn-plus" (click)="addLayer()"></a>-->
-        <!--<a href="javascript:" class="ddp-btn-minus" (click)="removeLayer()"></a>-->
+        <a href="javascript:" class="ddp-btn-plus" (click)="addLayer()"></a>
+        <a href="javascript:" class="ddp-btn-minus" (click)="removeLayer()"></a>
       </div>
       <div class="ddp-ui-drag-slide-in">
 
