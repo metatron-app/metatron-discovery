@@ -266,6 +266,41 @@
               <!-- //edit format -->
             </div>
             <!-- //Time display format -->
+            <!-- Timezone -->
+            <div class="ddp-wrap-edit3">
+              <label class="ddp-ui-label-name">
+                Time zone
+
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-option-in">
+                <!--
+                    클릭할때 : ddp-selected 추가
+                    결과 보여질때 : ddp-result 추가
+                -->
+                <div class="ddp-type-selectbox ddp-type-search-select ddp-selected ddp-result">
+                  <!-- 선택시 자동 input display:block; -->
+                  <input type="text" class="ddp-input-selectbox" value="+09:00 Asia/Seoul">
+                  <span class="ddp-txt-selectbox">+09:00 Asia/Seoul</span>
+                  <div class="ddp-wrap-popup2">
+                    <ul class="ddp-list-popup">
+                      <li>
+                        <span class="ddp-noresult">no result</span>
+                      </li>
+                      <li class="ddp-selected" *ngFor="let item of timezoneList">
+                        <a href="javascript:">
+                          {{item.label}}
+                          <em class="ddp-icon-check"></em>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //Timezone -->
             <!-- Null  -->
             <div class="ddp-wrap-edit3">
               <label class="ddp-ui-label-name">{{'msg.storage.ui.th.missing' | translate}}</label>

@@ -30,7 +30,7 @@ import * as _ from 'lodash';
 import { Alert } from '../../../common/util/alert.util';
 import { SchemaConfigActionBarComponent } from './schema-config-action-bar.component';
 import { SchemaConfigDetailComponent } from './schema-config-detail.component';
-import {SchemaConfigService} from "../../service/schema-config.service";
+import {SchemaConfigService, TimeZoneObject} from "../../service/schema-config.service";
 
 @Component({
   selector: 'schema-config-component',
@@ -151,6 +151,9 @@ export class SchemaConfigComponent extends AbstractComponent {
   // selected action object
   public selectedAction: any;
 
+  // timezone list
+  public timezoneList: TimeZoneObject[];
+
   // step changed
   @Output()
   public changedStep: EventEmitter<string> = new EventEmitter();
@@ -161,7 +164,7 @@ export class SchemaConfigComponent extends AbstractComponent {
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
-    console.log(_schemaConfigService.timeZoneList);
+    this.timezoneList = _schemaConfigService.timeZoneList;
   }
 
   /**

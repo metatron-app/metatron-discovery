@@ -27,6 +27,7 @@ import {
   LogicalType
 } from '../../../domain/datasource/datasource';
 import { StringUtil } from '../../../common/util/string.util';
+import {TimeZoneObject} from "../../service/schema-config.service";
 
 declare let moment: any;
 
@@ -136,6 +137,9 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   // selected field data list
   @Input()
   public selectedFieldDataList: any[] = [];
+
+  @Input()
+  public timezoneList: TimeZoneObject[];
 
   // logical type list
   public logicalTypeList: any[] = [];
