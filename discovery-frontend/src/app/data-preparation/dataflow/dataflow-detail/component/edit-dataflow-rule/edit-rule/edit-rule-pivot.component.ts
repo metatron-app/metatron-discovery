@@ -112,12 +112,12 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
     const invalidFormula:boolean = this.formulaList.some( (formula, index) => {
       formula = this.ruleConditionInputComponent['_results'][index].getCondition();
       if( StringUtil.checkSingleQuote(formula, { isWrapQuote: false, isAllowBlank: false })[0] ) {
-        if( StringUtil.checkFormula( formula ) ) {
+        // if( StringUtil.checkFormula( formula ) ) {
           validFormulaList.push( '\'' + formula + '\'' );
           return false;
-        } else {
+        /* } else {
           return true;
-        }
+        } */
       } else {
         return true;
       }
