@@ -14,6 +14,12 @@
 
 package app.metatron.discovery.domain.auth;
 
+import app.metatron.discovery.domain.user.UserRepository;
+import app.metatron.discovery.domain.user.group.Group;
+import app.metatron.discovery.domain.user.group.GroupMember;
+import app.metatron.discovery.domain.user.group.GroupService;
+import app.metatron.discovery.domain.user.role.RoleService;
+import app.metatron.discovery.domain.workspace.WorkspaceService;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -31,6 +37,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,10 +45,17 @@ import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.OAuth2Request;
+import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
+import org.springframework.security.providers.ExpiringUsernameAuthenticationToken;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.security.saml.metadata.MetadataManager;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -56,6 +70,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.security.Principal;
+import java.util.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -89,6 +105,21 @@ public class AuthenticationController {
 
   @Autowired
   JdbcClientDetailsService jdbcClientDetailsService;
+
+  @Autowired
+  DefaultTokenServices defaultTokenServices;
+
+  @Autowired
+  UserRepository userRepository;
+
+  @Autowired
+  RoleService roleService;
+
+  @Autowired
+  GroupService groupService;
+
+  @Autowired
+  WorkspaceService workspaceService;
 
   @RequestMapping(value = "/auth/{domain}/permissions", method = RequestMethod.GET)
   public ResponseEntity<Object> getPermissions(@PathVariable String domain) {
@@ -341,4 +372,61 @@ public class AuthenticationController {
 
   }
 
+
+  @RequestMapping(value = "/oauth/proxy-user", method = RequestMethod.GET)
+  public ResponseEntity<OAuth2AccessToken> authProxyUser(@RequestParam String username) {
+    // user 관리 권한이 있는 사용자에게만 허용
+    if(AuthUtils.getPermissions().contains("PERM_SYSTEM_MANAGE_USER")) {
+
+      User user = userRepository.findByUsername(username);
+      if(user == null) {
+        // 미 가입된 사용자
+        user = new User(username, UUID.randomUUID().toString());
+        user.setFullName(username);
+        user.setStatus(User.Status.ACTIVATED);
+
+        // 기본 그룹에 포함
+        Group defaultGroup = groupService.getDefaultGroup();
+        if (defaultGroup == null) {
+          LOGGER.warn("Default group not found.");
+        } else {
+          defaultGroup.addGroupMember(new GroupMember(user.getUsername(), user.getFullName()));
+        }
+
+        // 워크스페이스 생성(등록된 워크스페이스가 없을 경우 생성)
+        workspaceService.createWorkspaceByUserCreation(user, false);
+        userRepository.save(user);
+      }
+      user.setRoleService(roleService);
+
+      UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, "", user.getAuthorities());
+      HashMap<String, String> authorizationParameters = new HashMap<String, String>();
+      authorizationParameters.put("scope", "read");
+      authorizationParameters.put("username", "user");
+      authorizationParameters.put("client_id", "client_id");
+      authorizationParameters.put("grant", "password");
+
+      Set<String> responseType = new HashSet<String>();
+      responseType.add("password");
+
+      Set<String> scopes = new HashSet<String>();
+      scopes.add("read");
+      scopes.add("write");
+
+      OAuth2Request authorizationRequest = new OAuth2Request(
+          authorizationParameters, "polaris_trusted",
+          user.getAuthorities(), true, scopes, null, "",
+          responseType, null);
+
+      OAuth2Authentication oAuth2Authentication = new OAuth2Authentication(authorizationRequest, authToken);
+      oAuth2Authentication.setAuthenticated(true);
+
+      OAuth2AccessToken oAuth2AccessToken = defaultTokenServices.createAccessToken(oAuth2Authentication);
+
+      return ResponseEntity.ok(oAuth2AccessToken);
+
+    } else {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+  }
 }
