@@ -15,11 +15,11 @@
 
 import { Injectable, Injector } from '@angular/core';
 import { TranslateService } from 'ng2-translate';
-import {StringUtil} from "../../common/util/string.util";
+import { StringUtil } from "../../common/util/string.util";
 declare let moment: any;
 
 @Injectable()
-export class SchemaConfigService {
+export class TimezoneService {
 
   private _translateService: TranslateService;
 
@@ -33,7 +33,6 @@ export class SchemaConfigService {
     this._initTimeZoneList();
     this._initBrowserTimezone();
   }
-
 
   /**
    * Get searched timezone list

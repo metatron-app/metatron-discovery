@@ -27,7 +27,7 @@ import {
   LogicalType
 } from '../../../domain/datasource/datasource';
 import { StringUtil } from '../../../common/util/string.util';
-import {SchemaConfigService, TimeZoneObject} from "../../service/schema-config.service";
+import {TimezoneService, TimeZoneObject} from "../../service/timezone.service";
 
 declare let moment: any;
 
@@ -183,10 +183,17 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
 
   // 생성자
   constructor(private _datasourceService: DatasourceService,
-              private _schemaConfigService: SchemaConfigService,
+              private _timezoneService: TimezoneService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
+  }
+
+  ngOnInit() {
+    // TODO
+    this.browserTimezone = this._timezoneService.browserTimezone;
+    // set searched timezone list
+    this._setSearchedTimezoneList(this.searchTimezoneKeyword);
   }
 
   /**
@@ -201,10 +208,6 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
       if (!this.selectedField.ingestionRule) {
         this.selectedField.ingestionRule = new IngestionRule();
       }
-      // TODO
-      this.browserTimezone = this._schemaConfigService.browserTimezone;
-      // set searched timezone list
-      this._setSearchedTimezoneList(this.searchTimezoneKeyword);
     }
   }
 
@@ -225,7 +228,7 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
    * @private
    */
   private _setSearchedTimezoneList(searchKeyword: string): void {
-    this.filteredTimezoneList = this._schemaConfigService.getSearchedTimezoneList(searchKeyword);
+    this.filteredTimezoneList = this._timezoneService.getSearchedTimezoneList(searchKeyword);
   }
 
   /**
@@ -519,6 +522,7 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
         this.changedFieldLogicalType.emit();
         // if changed logical type is TIMESTAMP
         if (LogicalType.TIMESTAMP === type.value) {
+          // TODO set browser timezone at field
           // init format in field
           field.format = new FieldFormat();
           // if not exist field data
