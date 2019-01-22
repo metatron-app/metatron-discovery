@@ -114,11 +114,12 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
 
       if( StringUtil.checkSingleQuote(formula, { isWrapQuote: false, isAllowBlank: false })[0] ) {
         // if( StringUtil.checkFormula( formula ) ) {
-          validFormulaList.push( '\'' + formula + '\'' );
+        //  validFormulaList.push( '\'' + formula + '\'' );
+          validFormulaList.push( formula );
           return false;
         /* } else {
           return true;
-        } */
+        }*/
       } else {
         return true;
       }
