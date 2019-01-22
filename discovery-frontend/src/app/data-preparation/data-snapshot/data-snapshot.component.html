@@ -110,7 +110,7 @@
       <colgroup>
         <col width="45px">
         <col width="*">
-        <col width="20%">
+        <col width="25%">
         <col width="10%">
         <col width="10%">
         <col width="10%">
@@ -179,7 +179,9 @@
           </td>
 
           <td class="ddp-data-last">
-            {{item.launchTime | mdate:'YYYY-MM-DD HH:mm'}} <em class="ddp-icon-by">{{'msg.dp.ui.by' | translate}}</em>{{item.createdBy.fullName}}
+            <div class="ddp-txt-long" title="{{item.launchTime | mdate:'YYYY-MM-DD HH:mm'}} by {{item.createdBy.fullName}}">
+              {{item.launchTime | mdate:'YYYY-MM-DD HH:mm'}} <em class="ddp-icon-by">{{'msg.dp.ui.by' | translate}}</em>{{item.createdBy.fullName}}
+            </div>
             <div class="ddp-btn-control">
               <em class="ddp-icon-control-cut" (click)="confirmDelete($event, item)"></em>
             </div>
