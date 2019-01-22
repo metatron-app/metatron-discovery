@@ -2124,6 +2124,7 @@
   "msg.storage.ui.intervals": "데이터 범위",
   "msg.storage.ui.intervals.units": "세그먼트 단위 수",
   "msg.storage.ui.intervals.valid.unit": "간격의 설정값은 타임스탬프 컬럼의 데이터값 범위와 같거나 커야하며, 이 구간에 의한 세그먼트 갯수가 10,000개가 넘을 수 없습니다.",
+  "msg.storage.ui.timezone": "타임존",
 
   "msg.storage.ui.timezone.country.zimbabwe": "짐바브웨",
   "msg.storage.ui.timezone.country.zambia": "잠비아",
@@ -2909,7 +2910,7 @@
   "msg.storage.ui.timezone.city.winnipeg": "위니펙",
   "msg.storage.ui.timezone.city.yakutat": "야쿠탓",
   "msg.storage.ui.timezone.city.yakutsk": "야쿠츠크",
-  "msg.storage.ui.timezone.city.yancowinna": "Yancowinna",
+  "msg.storage.ui.timezone.city.yancowinna": "얀코윈나",
   "msg.storage.ui.timezone.city.yangon": "양곤",
   "msg.storage.ui.timezone.city.yap": "Yap",
   "msg.storage.ui.timezone.city.yekaterinburg": "예카테린부르크",

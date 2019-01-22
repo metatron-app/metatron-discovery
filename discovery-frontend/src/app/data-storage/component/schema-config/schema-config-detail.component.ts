@@ -27,7 +27,7 @@ import {
   LogicalType
 } from '../../../domain/datasource/datasource';
 import { StringUtil } from '../../../common/util/string.util';
-import {TimeZoneObject} from "../../service/schema-config.service";
+import {SchemaConfigService, TimeZoneObject} from "../../service/schema-config.service";
 
 declare let moment: any;
 
@@ -138,9 +138,6 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   @Input()
   public selectedFieldDataList: any[] = [];
 
-  @Input()
-  public timezoneList: TimeZoneObject[];
-
   // logical type list
   public logicalTypeList: any[] = [];
   // logical type list show / hide flag
@@ -175,8 +172,18 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   @Output()
   public changedFieldLogicalType: EventEmitter<any> = new EventEmitter();
 
+  // TODO
+  public browserTimezone: TimeZoneObject;
+  // filtered timezone list
+  public filteredTimezoneList: TimeZoneObject[];
+  // search keyword
+  public searchTimezoneKeyword: string;
+  // timezone list show flag
+  public isShowTimezoneList: boolean;
+
   // 생성자
   constructor(private _datasourceService: DatasourceService,
+              private _schemaConfigService: SchemaConfigService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -194,7 +201,31 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
       if (!this.selectedField.ingestionRule) {
         this.selectedField.ingestionRule = new IngestionRule();
       }
+      // TODO
+      this.browserTimezone = this._schemaConfigService.browserTimezone;
+      // set searched timezone list
+      this._setSearchedTimezoneList(this.searchTimezoneKeyword);
     }
+  }
+
+  /**
+   * Change search timezone keyword
+   * @param {string} searchKeyword
+   */
+  public onChangeSearchTimezoneKeyword(searchKeyword: string): void {
+    // set search timezone keyword
+    this.searchTimezoneKeyword = searchKeyword;
+    // set searched timezone list
+    this._setSearchedTimezoneList(this.searchTimezoneKeyword);
+  }
+
+  /**
+   * Set searched timezone list
+   * @param {string} searchKeyword
+   * @private
+   */
+  private _setSearchedTimezoneList(searchKeyword: string): void {
+    this.filteredTimezoneList = this._schemaConfigService.getSearchedTimezoneList(searchKeyword);
   }
 
   /**
