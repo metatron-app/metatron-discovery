@@ -63,7 +63,7 @@
                 <em class="ddp-icon-control-calculat" *ngIf="field.subType == 'user_expr' && field.type == 'measure'"></em>
                 <em class="ddp-icon-control-user" *ngIf="field.subType == 'user_expr' && field.type == 'dimension'"></em>
                 <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field" (click)="openFieldSetting($event, field)"><em></em></span>
-                <span class="ddp-icon-close" (click)="removeField($event, 'MAP_LAYER0', item, i)"><em></em></span>
+                <span class="ddp-icon-close" (click)="removeField($event, 'MAP_LAYER'+ index, item, i)"><em></em></span>
               </div>
             </a>
           </div>

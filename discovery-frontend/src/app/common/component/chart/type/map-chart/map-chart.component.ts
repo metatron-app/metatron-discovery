@@ -294,16 +294,20 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     if (!shelf) return false;
 
     let valid: boolean = false;
-    let layers: Field[] = shelf.layers[this.getUiMapOption().layerNum];
+
 
     if (shelf.layers) {
-      for (let layer of layers) {
-        if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
-          valid = true;
+
+      for( let index: number = 0 ; index < shelf.layers.length; index++ ) {
+        let layers: Field[] = shelf.layers[index];
+        for (let layer of layers) {
+          if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
+            valid = true;
+          }
         }
       }
-    }
 
+    }
     return valid;
   }
 
@@ -335,13 +339,22 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     ////////////////////////////////////////////////////////
 
     // Get geo type
+    // todo : validation
     let field = null;
-    _.each(this.shelf.layers[this.getUiMapOption().layerNum], (fieldTemp) => {
-      if (fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
-        field = fieldTemp;
-        return false;
-      }
-    });
+    for( let index: number = 0 ; index < this.shelf.layers.length; index++ ) {
+      _.each(this.shelf.layers[index], (fieldTemp) => {
+        if (fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
+          field = fieldTemp;
+          return false;
+        }
+      });
+    }
+    // _.each(this.shelf.layers[this.getUiMapOption().layerNum], (fieldTemp) => {
+    //   if (fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
+    //     field = fieldTemp;
+    //     return false;
+    //   }
+    // });
     let geomType = field.field.logicalType.toString();
 
     ////////////////////////////////////////////////////////
@@ -645,6 +658,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     // Is map creation
     if (this.olmap) {
+
       // Change map style
       this.olmap.removeLayer(this.osmLayer);
       this.olmap.removeLayer(this.cartoDarkLayer);
@@ -2545,7 +2559,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : 'VC1';
       layer.color.column = this.uiOption.fieldMeasureList[0]['name'];
       layer.color.aggregationType = this.uiOption.fieldMeasureList[0]['aggregationType'];
-      layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[0], this.getColorList(layer), this.getUiMapOption().layerNum, this.shelf.layers[this.getUiMapOption().layerNum]);
+      // layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[0], this.getColorList(layer), this.getUiMapOption().layerNum, this.shelf.layers[this.getUiMapOption().layerNum]);
+      layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[this.getUiMapOption().layerNum], this.getColorList(layer), this.getUiMapOption().layerNum, this.shelf.layers[this.getUiMapOption().layerNum]);
     }
     ///////////////////////////
     // Color by Dimension
