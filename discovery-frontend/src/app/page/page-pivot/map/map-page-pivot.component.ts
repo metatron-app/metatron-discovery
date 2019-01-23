@@ -442,6 +442,9 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // uiOption layer 제거
     this.uiOption.layers.splice( index, 1 );
 
+    // remove 일경우 재적용
+    this.changePivot(EventType.CHANGE_PIVOT);
+
   }
 
   /**
