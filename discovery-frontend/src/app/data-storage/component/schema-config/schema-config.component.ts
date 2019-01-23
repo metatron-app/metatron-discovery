@@ -542,6 +542,9 @@ export class SchemaConfigComponent extends AbstractComponent {
     timestampFieldList.forEach((field: Field) => {
       // init format
       field.format = new FieldFormat();
+      // TODO set browser timezone at field
+      field.format.timeZone =  this._timezoneService.browserTimezone.momentName;
+      field.format.locale = this._timezoneService.browserLocal;
       // field data
       const fieldDataList: any[] = this._getFieldDataList(field);
       // if not exist field data

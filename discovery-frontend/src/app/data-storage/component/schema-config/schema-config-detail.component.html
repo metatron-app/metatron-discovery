@@ -267,7 +267,7 @@
             </div>
             <!-- //Time display format -->
             <!-- Timezone -->
-            <div class="ddp-wrap-edit3">
+            <div class="ddp-wrap-edit3" *ngIf="selectedField.logicalType.toString() === 'TIMESTAMP'">
               <label class="ddp-ui-label-name">
                 {{'msg.storage.ui.timezone' | translate}}
               </label>
@@ -277,16 +277,16 @@
                     클릭할때 : ddp-selected 추가
                     결과 보여질때 : ddp-result 추가
                 -->
-                <div class="ddp-type-selectbox ddp-type-search-select ddp-result" [class.ddp-selected]="isShowTimezoneList" (click)="isShowTimezoneList = !isShowTimezoneList">
+                <div class="ddp-type-selectbox ddp-type-search-select ddp-result" [class.ddp-selected]="isShowTimezoneList" (click)="onChangeTimezoneSelectBoxShowFlag($event)" (clickOutside)="isShowTimezoneList = false">
                   <!-- 선택시 자동 input display:block; -->
                   <input type="text" class="ddp-input-selectbox" [ngModel]="searchTimezoneKeyword" (ngModelChange)="onChangeSearchTimezoneKeyword($event)">
-                  <span class="ddp-txt-selectbox">{{browserTimezone.label}}</span>
+                  <span class="ddp-txt-selectbox">{{getSelectedTimezoneLabel(selectedField.format.timeZone)}}</span>
                   <div class="ddp-wrap-popup2">
                     <ul class="ddp-list-popup">
                       <li *ngIf="filteredTimezoneList.length === 0">
                         <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
                       </li>
-                      <li [class.ddp-selected]="item.momentName === browserTimezone.momentName" *ngFor="let item of filteredTimezoneList">
+                      <li [class.ddp-selected]="item.momentName === selectedField.format.timeZone" *ngFor="let item of filteredTimezoneList" (click)="onChangeTimezoneInField(selectedField, item)">
                         <a href="javascript:" title="{{item.label}}">
                           {{item.label}}
                           <em class="ddp-icon-check"></em>

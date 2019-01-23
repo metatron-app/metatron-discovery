@@ -345,6 +345,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
 
   /**
    * Delete unnecessary property in column
+   * TODO 추후 개선필요
    * @param column
    * @private
    */

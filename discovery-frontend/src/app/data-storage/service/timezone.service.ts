@@ -27,11 +27,14 @@ export class TimezoneService {
 
   public browserTimezone: TimeZoneObject;
 
+  public browserLocal: string;
+
   constructor(protected injector: Injector) {
     this._translateService = injector.get(TranslateService);
     // init
     this._initTimeZoneList();
     this._initBrowserTimezone();
+    this._initBrowserLocale();
   }
 
   /**
@@ -41,6 +44,10 @@ export class TimezoneService {
    */
   public getSearchedTimezoneList(searchKeyword: string): TimeZoneObject[] {
     return StringUtil.isEmpty(searchKeyword) ? this.timeZoneList : this.timeZoneList.filter(timezone => timezone.label.toUpperCase().includes(searchKeyword.toUpperCase()));
+  }
+
+  public getTimezoneObject(timezoneValue: string): TimeZoneObject {
+     return this.timeZoneList.find(timezone => timezone.momentName === timezoneValue);
   }
 
   /**
@@ -62,6 +69,14 @@ export class TimezoneService {
    */
   private _initBrowserTimezone(): void {
     this.browserTimezone = this.timeZoneList.find(timezoneObject => timezoneObject.momentName.indexOf(moment.tz.guess(true)) !== -1) || this.timeZoneList[0];
+  }
+
+  /**
+   * Init browser locale
+   * @private
+   */
+  private _initBrowserLocale(): void {
+    this.browserLocal = moment.locale();
   }
 
   /**

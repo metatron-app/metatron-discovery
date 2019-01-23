@@ -455,6 +455,9 @@ export class FieldFormat {
   type: FieldFormatType;
   // default FieldFormatUnit.MILLISECOND
   unit: FieldFormatUnit;
+  // timezone (default browser) TODO 추후 서비스 로직에서 default 설정
+  timeZone: string;
+  locale: string;
   constructor() {
     this.unit = FieldFormatUnit.MILLISECOND;
     this.type = FieldFormatType.DATE_TIME;

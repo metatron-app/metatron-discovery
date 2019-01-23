@@ -190,8 +190,6 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   }
 
   ngOnInit() {
-    // TODO
-    this.browserTimezone = this._timezoneService.browserTimezone;
     // set searched timezone list
     this._setSearchedTimezoneList(this.searchTimezoneKeyword);
   }
@@ -209,26 +207,6 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
         this.selectedField.ingestionRule = new IngestionRule();
       }
     }
-  }
-
-  /**
-   * Change search timezone keyword
-   * @param {string} searchKeyword
-   */
-  public onChangeSearchTimezoneKeyword(searchKeyword: string): void {
-    // set search timezone keyword
-    this.searchTimezoneKeyword = searchKeyword;
-    // set searched timezone list
-    this._setSearchedTimezoneList(this.searchTimezoneKeyword);
-  }
-
-  /**
-   * Set searched timezone list
-   * @param {string} searchKeyword
-   * @private
-   */
-  private _setSearchedTimezoneList(searchKeyword: string): void {
-    this.filteredTimezoneList = this._timezoneService.getSearchedTimezoneList(searchKeyword);
   }
 
   /**
@@ -325,6 +303,15 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
         console.error(this.translateService.instant('msg.common.ui.no.icon.type'), field.logicalType);
         break;
     }
+  }
+
+  /**
+   * Get selected timezone label
+   * @param {string} value
+   * @return {string}
+   */
+  public getSelectedTimezoneLabel(value: string): string {
+    return this._timezoneService.getTimezoneObject(value).label;
   }
 
   /**
@@ -522,9 +509,11 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
         this.changedFieldLogicalType.emit();
         // if changed logical type is TIMESTAMP
         if (LogicalType.TIMESTAMP === type.value) {
-          // TODO set browser timezone at field
           // init format in field
           field.format = new FieldFormat();
+          // TODO set browser timezone at field
+          field.format.timeZone = this._timezoneService.browserTimezone.momentName;
+          field.format.locale = this._timezoneService.browserLocal;
           // if not exist field data
           if (this.selectedFieldDataList.length === 0) {
             // set timestamp error
@@ -653,6 +642,39 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   }
 
   /**
+   * Change timezone in field
+   * @param {Field} field
+   * @param {TimeZoneObject} timezoneObj
+   */
+  public onChangeTimezoneInField(field: Field, timezoneObj: TimeZoneObject): void {
+    // change timezone in field
+    field.format.timeZone = timezoneObj.momentName;
+    // close select box
+    this.isShowTimezoneList = false;
+  }
+
+  /**
+   * Change search timezone keyword
+   * @param {string} searchKeyword
+   */
+  public onChangeSearchTimezoneKeyword(searchKeyword: string): void {
+    // set search timezone keyword
+    this.searchTimezoneKeyword = searchKeyword;
+    // set searched timezone list
+    this._setSearchedTimezoneList(this.searchTimezoneKeyword);
+  }
+
+  /**
+   * Change timezone selectbox show flag
+   * @param {MouseEvent} event
+   */
+  public onChangeTimezoneSelectBoxShowFlag(event: MouseEvent): void {
+    if ($(event.target).hasClass('ddp-type-selectbox ddp-type-search-select') || $(event.target).hasClass('ddp-txt-selectbox')) {
+      this.isShowTimezoneList = !this.isShowTimezoneList
+    }
+  }
+
+  /**
    * Time format validation click event
    * @param {Field} field
    */
@@ -715,6 +737,15 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
           reject(error);
         });
     });
+  }
+
+  /**
+   * Set searched timezone list
+   * @param {string} searchKeyword
+   * @private
+   */
+  private _setSearchedTimezoneList(searchKeyword: string): void {
+    this.filteredTimezoneList = this._timezoneService.getSearchedTimezoneList(searchKeyword);
   }
 
   /**

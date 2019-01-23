@@ -251,24 +251,26 @@
                 <col width="*">
               </colgroup>
               <tbody>
-              <tr *ngIf="selectedField.logicalType === 'TIMESTAMP'">
-                <th>
-                  {{'msg.storage.ui.th.display.format' | translate}}
-                </th>
-                <td>
-                  {{selectedField.format ? selectedField.format.format : selectedField.format}}
-                </td>
-              </tr>
-              <!-- only show Date/Time type -->
-              <tr>
-                <th>
-                  {{'msg.storage.ui.timezone' | translate}}
-                </th>
-                <td>
-                  +09:00 Seoul/Korea/Asia
-                </td>
-              </tr>
-              <!-- //only show Date/Time type -->
+              <ng-container *ngIf="selectedField.logicalType === 'TIMESTAMP'">
+                <tr>
+                  <th>
+                    {{'msg.storage.ui.th.display.format' | translate}}
+                  </th>
+                  <td>
+                    {{selectedField.format ? selectedField.format.format : selectedField.format}}
+                  </td>
+                </tr>
+                <!-- only show Date/Time type -->
+                <tr>
+                  <th>
+                    {{'msg.storage.ui.timezone' | translate}}
+                  </th>
+                  <td>
+                    {{selectedField.format.timeZone ? getTimezoneLabel(selectedField.format.timeZone) : ''}}
+                  </td>
+                </tr>
+                <!-- //only show Date/Time type -->
+              </ng-container>
               <tr>
                 <th>
                   {{'msg.storage.ui.th.missing' | translate}}

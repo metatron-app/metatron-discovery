@@ -30,6 +30,7 @@ import { AbstractComponent } from '../../../../common/component/abstract.compone
 import { EditFilterDataSourceComponent } from '../edit-filter-data-source.component';
 import { FilteringOptions, FilteringOptionType } from '../../../../domain/workbook/configurations/filter/filter';
 import { EditConfigSchemaComponent } from './edit-config-schema/edit-config-schema.component';
+import {TimezoneService} from "../../../service/timezone.service";
 
 declare let echarts: any;
 
@@ -102,6 +103,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
 
   // constructor
   constructor(private datasourceService: DatasourceService,
+              private _timezoneService: TimezoneService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -231,6 +233,15 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    */
   public getEnableChangePhysicalTypeList(): any {
     return this.physicalTypeList.filter(type => !type.derived);
+  }
+
+  /**
+   * Get timezone label
+   * @param {string} value
+   * @return {string}
+   */
+  public getTimezoneLabel(value: string): string {
+    return this._timezoneService.getTimezoneObject(value).label;
   }
 
   /**
