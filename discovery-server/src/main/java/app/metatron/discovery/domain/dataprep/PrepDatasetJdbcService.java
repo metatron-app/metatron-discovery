@@ -18,6 +18,7 @@ import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.jdbc.PrepJdbcService;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
+import app.metatron.discovery.domain.dataprep.service.PrDatasetService;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.datasource.Field;
@@ -65,6 +66,9 @@ public class PrepDatasetJdbcService {
 
     @Autowired
     PrDatasetRepository datasetRepository;
+
+    @Autowired
+    PrDatasetService datasetService;
 
     @Value("${server.port:8180}")
     private String restAPIserverPort;
@@ -222,7 +226,7 @@ public class PrepDatasetJdbcService {
             int limitSize = Integer.parseInt(size);
 
             String dcId = dataset.getDcId();
-            DataConnection connection = this.connectionRepository.findOne(dcId);
+            DataConnection connection = this.datasetService.findRealDataConnection(this.connectionRepository.findOne(dcId));
 
             String connectUrl = connection.getConnectUrl();
             String username = connection.getUsername();
@@ -324,7 +328,7 @@ public class PrepDatasetJdbcService {
             List<Field> fields = Lists.newArrayList();
             List<Map<String, String>> headers = Lists.newArrayList();
 
-            DataConnection dataConnection = this.connectionRepository.findOne(dcId);
+            DataConnection dataConnection = this.datasetService.findRealDataConnection(this.connectionRepository.findOne(dcId));
             String connectUrl = dataConnection.getConnectUrl();
             String username = dataConnection.getUsername();
             String password = dataConnection.getPassword();
