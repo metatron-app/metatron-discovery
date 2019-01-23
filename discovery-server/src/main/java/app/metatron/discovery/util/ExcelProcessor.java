@@ -65,15 +65,20 @@ public class ExcelProcessor {
 
   }
 
-  public List<String> getSheetNames() throws IOException {
+  public Map<String, FileValidationResponse> getSheetNames() {
 
-    List<String> sheetNames = Lists.newArrayList();
-    int sheetsCount = workbook.getNumberOfSheets();
-    for (int i = 0; i < sheetsCount; i++) {
-      sheetNames.add(workbook.getSheetAt(i).getSheetName());
+    Map<String, FileValidationResponse> sheetNames = Maps.newTreeMap();
+    int sheetCount = workbook.getNumberOfSheets();
+
+    for (int i = 0; i < sheetCount; i++) {
+      for ( Row row : workbook.getSheetAt(i)) {
+        sheetNames.put(workbook.getSheetAt(i).getSheetName(), validateHeaders(row));
+        break;
+      }
     }
 
     return sheetNames;
+
   }
 
   public IngestionDataResultResponse getSheetData(String sheetName, int limit, boolean firstHeaderRow) throws IOException {
