@@ -645,7 +645,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     // Is map creation
     if (this.olmap) {
-
       // Change map style
       this.olmap.removeLayer(this.osmLayer);
       this.olmap.removeLayer(this.cartoDarkLayer);
@@ -693,7 +692,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * Creation map layer
    */
   private createLayer(source: any, clusterSource: any, hexagonSource: any, emptySource: any, isMapCreation: boolean, geomType: LogicalType): void {
-
+    this.clusterLayer = null;
+    this.heatmapLayer = null;
+    this.symbolLayer = null;
+    this.hexagonLayer = null;
     ////////////////////////////////////////////////////////
     // Create layer
     ////////////////////////////////////////////////////////
@@ -715,12 +717,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         if (symbolLayer.clustering) {
 
           // Create
-          if (!this.clusterLayer) {
-            this.clusterLayer = new ol.layer.Vector({
-              source: _.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource,
-              style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style()
-            });
-          }
+          this.clusterLayer = new ol.layer.Vector({
+            source: _.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource,
+            style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style()
+          });
+
+          // if (!this.clusterLayer) {
+          // }
 
           // Set source
           this.clusterLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource);
@@ -733,9 +736,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           } else {
             if (this.getUiMapOption().showMapLayer) {
               // Add layer
-              if (this.olmap.getLayers().getLength() == 1) {
-                this.olmap.addLayer(this.clusterLayer);
-              }
+              this.olmap.addLayer(this.clusterLayer);
+              // if (this.olmap.getLayers().getLength() == 1) {
+              // }
 
               // Set style
               this.clusterLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style());
@@ -751,12 +754,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         else {
 
           // Create
-          if (!this.symbolLayer) {
-            this.symbolLayer = new ol.layer.Vector({
-              source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
-              style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style()
-            });
-          }
+          this.symbolLayer = new ol.layer.Vector({
+            source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
+            style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style()
+          });
+          // if (!this.symbolLayer) {
+          // }
 
           // Set source
           this.symbolLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource);
@@ -769,9 +772,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           } else {
             if (this.getUiMapOption().showMapLayer) {
               // Add layer
-              if (this.olmap.getLayers().getLength() == 1) {
-                this.olmap.addLayer(this.symbolLayer);
-              }
+              this.olmap.addLayer(this.symbolLayer);
+              // if (this.olmap.getLayers().getLength() == 1) {
+              // }
 
               // Set style
               this.symbolLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style());
@@ -789,12 +792,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         || _.eq(layer.type, MapLayerType.POLYGON)) {
 
         // Create
-        if (!this.symbolLayer) {
-          this.symbolLayer = new ol.layer.Vector({
-            source: source,
-            style: this.mapStyleFunction(0, this.data)
-          });
-        }
+        this.symbolLayer = new ol.layer.Vector({
+          source: source,
+          style: this.mapStyleFunction(0, this.data)
+        });
+        // if (!this.symbolLayer) {
+        // }
 
         // Set source
         this.symbolLayer.setSource(source);
@@ -807,9 +810,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         } else {
           if (this.getUiMapOption().showMapLayer) {
             // Add layer
-            if (this.olmap.getLayers().getLength() == 1) {
-              this.olmap.addLayer(this.symbolLayer);
-            }
+            this.olmap.addLayer(this.symbolLayer);
+            // if (this.olmap.getLayers().getLength() == 1) {
+            // }
 
             // Set style
             this.symbolLayer.setStyle(this.mapStyleFunction(0, this.data));
@@ -827,16 +830,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         let heatmapLayer: UIHeatmapLayer = <UIHeatmapLayer>layer;
 
         // Create
-        if (!this.heatmapLayer) {
-          this.heatmapLayer = new ol.layer.Heatmap({
-            source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
-            // Style
-            gradient: HeatmapColorList[heatmapLayer.color.schema],
-            opacity: 1 - (heatmapLayer.color.transparency * 0.01),
-            radius: heatmapLayer.radius,
-            blur: heatmapLayer.blur * 0.7
-          });
-        }
+        this.heatmapLayer = new ol.layer.Heatmap({
+          source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
+          // Style
+          gradient: HeatmapColorList[heatmapLayer.color.schema],
+          opacity: 1 - (heatmapLayer.color.transparency * 0.01),
+          radius: heatmapLayer.radius,
+          blur: heatmapLayer.blur * 0.7
+        });
+        // if (!this.heatmapLayer) {
+        // }
 
         this.heatmapLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource);
         this.featureLayer = this.heatmapLayer;
@@ -848,9 +851,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         } else {
           if (this.getUiMapOption().showMapLayer) {
             // Add layer
-            if (this.olmap.getLayers().getLength() == 1) {
-              this.olmap.addLayer(this.heatmapLayer);
-            }
+            this.olmap.addLayer(this.heatmapLayer);
+            // if (this.olmap.getLayers().getLength() == 1) {
+            // }
 
             // Set style
             this.heatmapLayer.setGradient(HeatmapColorList[heatmapLayer.color.schema]);
@@ -873,12 +876,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       else if (_.eq(layer.type, MapLayerType.TILE)) {
 
         // Create
-        if (!this.hexagonLayer) {
-          this.hexagonLayer = new ol.layer.Vector({
-            source: _.eq(geomType, LogicalType.GEO_POINT) ? hexagonSource : emptySource,
-            style: _.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(0, this.data) : new ol.style.Style()
-          });
-        }
+        this.hexagonLayer = new ol.layer.Vector({
+          source: _.eq(geomType, LogicalType.GEO_POINT) ? hexagonSource : emptySource,
+          style: _.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(0, this.data) : new ol.style.Style()
+        });
+        // if (!this.hexagonLayer) {
+        // }
 
         // Set source
         this.hexagonLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? hexagonSource : emptySource);
@@ -891,9 +894,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         } else {
           if (this.getUiMapOption().showMapLayer) {
             // Add layer
-            if (this.olmap.getLayers().getLength() == 1) {
-              this.olmap.addLayer(this.hexagonLayer);
-            }
+            this.olmap.addLayer(this.hexagonLayer);
+            // if (this.olmap.getLayers().getLength() == 1) {
+            // }
 
             // Set style
             this.hexagonLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(0, this.data) : new ol.style.Style());
@@ -903,7 +906,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           }
         }
       }
-    }
+    } //  for - end
+
+    this.changeDetect.detectChanges();
 
     // Map data place fit
     if (this.drawByType) {
