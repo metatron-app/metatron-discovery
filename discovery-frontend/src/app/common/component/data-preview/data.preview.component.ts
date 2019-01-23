@@ -45,6 +45,7 @@ import {PeriodData} from "../../value/period.data.value";
 import {TimeRangeFilter} from "../../../domain/workbook/configurations/filter/time-range-filter";
 import {Filter} from "../../../domain/workbook/configurations/filter/filter";
 import {DIRECTION, Sort} from "../../../domain/workbook/configurations/sort";
+import {TimezoneService} from "../../../data-storage/service/timezone.service";
 
 declare let echarts: any;
 
@@ -173,6 +174,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   // 생성자
   constructor(private datasourceService: DatasourceService,
               private connectionService: DataconnectionService,
+              private _timezoneService: TimezoneService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -1003,6 +1005,17 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+
+  /**
+   * Get timezone label
+   * @param {string} value
+   * @return {string}
+   */
+  public getTimezoneLabel(value: string): string {
+    return this._timezoneService.getTimezoneObject(value).label;
+  }
+
 
   /**
    * 조회 날짜 변경
