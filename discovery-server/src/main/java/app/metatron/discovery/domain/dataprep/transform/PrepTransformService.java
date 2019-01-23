@@ -41,6 +41,7 @@ import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.*;
 import app.metatron.discovery.prep.parser.preparation.rule.Set;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import com.facebook.presto.jdbc.internal.guava.collect.Lists;
@@ -1839,8 +1840,8 @@ public class PrepTransformService {
         Window window = (Window) rule;
         Expression order = window.getOrder();
         Expression value = window.getValue();
-        if (null == value) {
-          LOGGER.error("confirmRuleStringForException(): aggregate value is null");
+        if (null == value || !(value instanceof Expr.FunctionExpr || value instanceof Expr.FunctionArrayExpr)) {
+          LOGGER.error("confirmRuleStringForException(): window value is null");
           throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_WINDOW_VALUE);
         }
       } else {
