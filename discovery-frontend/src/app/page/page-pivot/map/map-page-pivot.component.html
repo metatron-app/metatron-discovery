@@ -14,7 +14,7 @@
 
 <div class="ddp-wrap-shelf ddp-mapview">
   <!-- shelf -->
-  <div *ngFor="let item of shelf.layers; let index = index" id="layer{{index}}" class="ddp-ui-shelf" [ngClass]="{'ddp-add-self' : index==shelf.layers.length-1}">
+  <div *ngFor="let item of shelf.layers; let index = index" id="layer{{index}}" class="ddp-ui-shelf" [ngClass]="{'ddp-add-self' : index == uiOption.layerNum}">
     <em class="ddp-icon-mapview{{index + 1}}"></em>
     <!-- drag slide -->
     <div class="ddp-ui-drag-slide">
