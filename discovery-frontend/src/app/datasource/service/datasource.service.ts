@@ -49,6 +49,7 @@ import {CommonConstant} from "../../common/constant/common.constant";
 import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
 import { UITileLayer } from '../../common/component/chart/option/ui-option/map/ui-tile-layer';
 import { MapLayerType } from '../../common/component/chart/option/define/map/map-common';
+import {Shelf} from "../../domain/workbook/configurations/shelf/shelf";
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -500,7 +501,7 @@ export class DatasourceService extends AbstractService {
 
       query.shelf = {
         type: ShelfType.GEO,
-        layers: [query.shelf.layers[layerNum]]
+        layers: query.shelf.layers
       };
 
       //map 은 limit 5000개 제한

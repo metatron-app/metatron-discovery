@@ -36,6 +36,8 @@ import { MapLayerType } from '../../../common/component/chart/option/define/map/
 import { UIOption } from '../../../common/component/chart/option/ui-option';
 import { Alert } from '../../../common/util/alert.util';
 import { ChartUtil } from '../../../common/component/chart/option/util/chart-util';
+import {OptionGenerator} from "../../../common/component/chart/option/util/option-generator";
+import {UILayers} from "../../../common/component/chart/option/ui-option/map/ui-layers";
 
 @Component({
   selector: 'map-page-pivot',
@@ -399,7 +401,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
   /**
    * map chart - add layer
    */
-  public addLayer(): void {
+  public addLayer(index : number): void {
 
     if( this.shelf.layers.length >= 3) {
       return;
@@ -407,29 +409,39 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
     // add empty layer
     this.shelf.layers.push([]);
-
     // set current layer number
     this.uiOption.layerNum = this.shelf.layers.length - 1;
 
-    this.changePivot();
+    // set layer alias
+    this.shelf.layers[this.uiOption.layerNum] = this.shelf.layers[this.uiOption.layerNum].map(this.checkAlias);
+
+    // uiOption layer 추가
+    let tempLayer : UILayers = OptionGenerator.MapViewChart.defaultMapViewChartUIOption().layers[0];
+    tempLayer.name = "Layer" + (this.uiOption.layerNum +1);
+    // tempLayer['symbol'] = "SQUARE";
+    this.uiOption.layers.push( tempLayer );
+
 }
 
   /**
    * map chart - remove layer
    */
-  public removeLayer(): void {
+  public removeLayer(index : number): void {
 
     if( this.shelf.layers.length <= 1) {
       return;
     }
 
     // remove layer
-    this.shelf.layers.pop();
+    this.shelf.layers.splice( index, 1 );
 
     // set current layer number
     this.uiOption.layerNum = this.shelf.layers.length - 1;
+    // set layer alias
+    this.shelf.layers[this.uiOption.layerNum] = this.shelf.layers[this.uiOption.layerNum].map(this.checkAlias);
+    // uiOption layer 제거
+    this.uiOption.layers.splice( index, 1 );
 
-    this.changePivot();
   }
 
   /**
