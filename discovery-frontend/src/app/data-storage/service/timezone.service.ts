@@ -46,8 +46,13 @@ export class TimezoneService {
     return StringUtil.isEmpty(searchKeyword) ? this.timeZoneList : this.timeZoneList.filter(timezone => timezone.label.toUpperCase().includes(searchKeyword.toUpperCase()));
   }
 
+  /**
+   * Get timezone object
+   * @param {string} timezoneValue
+   * @return {TimeZoneObject}
+   */
   public getTimezoneObject(timezoneValue: string): TimeZoneObject {
-     return this.timeZoneList.find(timezone => timezone.momentName === timezoneValue);
+     return this.timeZoneList.find(timezone => timezone.momentName === timezoneValue) || this.browserTimezone;
   }
 
   /**
