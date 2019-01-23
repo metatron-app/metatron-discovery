@@ -253,9 +253,11 @@ public class PrDatasetService {
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
             String oAuthToken = "bearer ";
             Cookie[] cookies = request.getCookies();
-            for(int i=0; i<cookies.length; i++){
-                if(cookies[i].getName().equals("LOGIN_TOKEN"))
-                    oAuthToken = oAuthToken + cookies[i].getValue();
+            if(cookies!=null) {
+                for (int i = 0; i < cookies.length; i++) {
+                    if (cookies[i].getName().equals("LOGIN_TOKEN"))
+                        oAuthToken = oAuthToken + cookies[i].getValue();
+                }
             }
 
             // excel to csv
