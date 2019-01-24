@@ -409,6 +409,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
     // add empty layer
     this.shelf.layers.push([]);
+
     // set current layer number
     this.uiOption.layerNum = this.shelf.layers.length - 1;
 
@@ -722,7 +723,6 @@ export class MapPagePivotComponent extends PagePivotComponent {
   }
 
   public selectedLayer( index: number){
-    console.log(index);
     this.uiOption.layerNum = index;
   }
 }
