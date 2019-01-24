@@ -511,11 +511,11 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * @param {string} type
    * @returns {boolean}
    */
-  public getMapGuideText(type?: string): boolean {
+  public getMapGuideText(index : number, type?: string): boolean {
 
     if (!this.shelf.layers) return;
 
-    let layers = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum];
+    let layers = this.shelf.layers[index];
 
     let returnValue: boolean;
 
@@ -730,7 +730,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     return false;
   }
 
-  public selectedLayer( index: number){
+  public selectedLayer( index: number, item){
     this.uiOption.layerNum = index;
   }
 }

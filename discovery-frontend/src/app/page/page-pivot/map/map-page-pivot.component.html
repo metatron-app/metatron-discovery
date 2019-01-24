@@ -70,13 +70,13 @@
           <!-- //Pivot -->
           <!-- Guide -->
           <div class="dragIgnore ddp-wrap-example">
-            <div *ngIf="getMapGuideText('geo')" class="ddp-box-dimension">
+            <div *ngIf="getMapGuideText(index, 'geo')" class="ddp-box-dimension">
               {{'GEO_POINT' === geoType?.toString() ? '1 or more geo dimension' : '1 geo dimension'}}
             </div>
-            <div *ngIf="getMapGuideText()" class="ddp-box-dimension">
+            <div *ngIf="getMapGuideText(index)" class="ddp-box-dimension">
               1 or more dimension
             </div>
-            <div *ngIf="getMapGuideText()" class="ddp-box-measure">
+            <div *ngIf="getMapGuideText(index)" class="ddp-box-measure">
               1 or more measure
             </div>
           </div>
