@@ -502,4 +502,17 @@ public class TeddyImpl {
     timestampStyles.add(timestampStyle);
   }
 
+  // Just apply rules to dataframe. No rule list
+  public DataFrame applyAutoTyping(DataFrame df) throws TeddyException {
+    if (!prepProperties.isAutoTypingEnabled()) {
+      return df;
+    }
+
+    List<String> ruleStrings = getAutoTypingRules(df);
+    for (String ruleString : ruleStrings) {
+      df = dataFrameService.applyRule(df, ruleString);
+    }
+
+    return df;
+  }
 }

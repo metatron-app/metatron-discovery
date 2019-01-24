@@ -501,11 +501,11 @@ public class PrepTransformService {
     }
   }
 
-  private DataFrame load_internal(String dsId) throws Exception {
+  private DataFrame load_internal(String dsId) throws IOException, CannotSerializeIntoJsonException {
     return load_internal(dsId, false);
   }
 
-  private DataFrame load_internal(String dsId, boolean compaction) throws Exception {
+  private DataFrame load_internal(String dsId, boolean compaction) throws IOException, CannotSerializeIntoJsonException {
     if (teddyImpl.revisionSetCache.containsKey(dsId)) {
       if (compaction && !onlyAppend(dsId)) {
         LOGGER.trace("load_internal(): dataset will be uncached and reloaded: dsId={}", dsId);
@@ -1177,10 +1177,17 @@ public class PrepTransformService {
   }
 
   @Transactional(rollbackFor = Exception.class)
-  public PrepTransformResponse fetch(String dsId, Integer stageIdx) throws Exception {
-    load_internal(dsId);
+  public PrepTransformResponse fetch(String dsId, Integer stageIdx) throws IOException {
+    PrepTransformResponse response = null;
 
-    PrepTransformResponse response = fetch_internal(dsId, stageIdx);
+    try {
+      load_internal(dsId);
+
+      response = fetch_internal(dsId, stageIdx);
+    } catch (CannotSerializeIntoJsonException e) {
+      e.printStackTrace();
+      throw PrepException.fromTeddyException(e);
+    }
 
     response.setTransformRules(getRulesInOrder(dsId), false, false);
     response.setRuleCurIdx(stageIdx != null ? stageIdx : teddyImpl.getCurStageIdx(dsId));
@@ -1188,7 +1195,7 @@ public class PrepTransformService {
     return response;
   }
 
-  public PrepTransformResponse fetch_internal(String dsId, Integer stageIdx) throws Exception {
+  public PrepTransformResponse fetch_internal(String dsId, Integer stageIdx) {
     DataFrame gridResponse = teddyImpl.fetch(dsId, stageIdx);
     PrepTransformResponse response = new PrepTransformResponse(gridResponse);
     return response;
@@ -1248,7 +1255,7 @@ public class PrepTransformService {
     }
   }
 
-  private DataFrame createStage0(String wrangledDsId, PrDataset importedDataset) throws Exception {
+  private DataFrame createStage0(String wrangledDsId, PrDataset importedDataset) {
     PrDataset wrangledDataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
     DataFrame gridResponse;
 
