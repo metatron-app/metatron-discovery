@@ -3850,53 +3850,25 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       let isChangeDimensionType : boolean = false;
 
-      let targetField : string = '';
-      let fieldDimensionRowCnt = 0;
-      let fieldDimensionAggregationCnt = 0;
-      if( !isUndefined(this.uiOption.fielDimensionList) ){
-
-        this.uiOption.fielDimensionList.forEach((item) => {
-          if( item['currentPivot'].toString() == 'ROWS' ){
-            fieldDimensionRowCnt++;
-            ( targetField == '' ?  targetField = item['targetField'] : '' );
-          }
-          if( item['currentPivot'].toString() == 'AGGREGATIONS' ){
-            fieldDimensionAggregationCnt++;
-            ( targetField == '' ?  targetField = item['targetField'] : '' );
-          }
-        });
-      }
-
       // 행선반에 dimension 값이 처음 생기는 경우
-      if ( this.pivot.rows.length == 1 && fieldDimensionRowCnt == 0 ){
-        this.pivot.rows.forEach((item) => {
-
-          // dimension이면
-          if (item.type === String(ShelveFieldType.DIMENSION)) {
-            isChangeDimensionType = true;
-          }
-        });
-      }
-
-      let fieldAggregationCnt = 0;
+      this.pivot.rows.forEach((item) => {
+        if (item.type === String(ShelveFieldType.DIMENSION)) {
+          isChangeDimensionType = true;
+        }
+      });
 
       // 교차선반에 dimension 값이 처음 생기는 경우
       this.pivot.aggregations.forEach((item) => {
-
-        // dimension이면
         if (item.type === String(ShelveFieldType.DIMENSION)) {
-          fieldAggregationCnt++;
+          isChangeDimensionType = true;
         }
       });
-      if( fieldAggregationCnt == 1 && fieldDimensionAggregationCnt == 0 ){
-        isChangeDimensionType = true;
-      }
 
       // dimension color 변경
       if( isChangeDimensionType ) {
         this.uiOption.color['schema'] = 'SC1';
         this.uiOption.color['type'] = ChartColorType.DIMENSION;
-        this.uiOption.color['targetField'] = targetField;
+        this.uiOption.color['targetField'] = '';
       }
 
     } // end if - barChart
