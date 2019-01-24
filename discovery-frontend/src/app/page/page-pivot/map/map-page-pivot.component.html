@@ -22,12 +22,12 @@
       <div class="ddp-slide-control">
         <a (mouseover)="mouseOverNext($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-next"><em class="ddp-icon-next"></em></a>
         <!-- TODO plus, minus button-->
-        <a href="javascript:" class="ddp-btn-plus" (click)="addLayer(index)"></a>
-        <a href="javascript:" class="ddp-btn-minus" (click)="removeLayer(index)"></a>
+        <a href="javascript:" class="ddp-btn-plus" (click)="$event.stopPropagation(); addLayer(index)"></a>
+        <a href="javascript:" class="ddp-btn-minus" (click)="$event.stopPropagation(); removeLayer(index)"></a>
       </div>
       <div class="ddp-ui-drag-slide-in">
 
-        <div class="ddp-wrap-default" [dragula]="'dragbag'" [dragulaModel]="item" [attr.data-container]="'layer0'">
+        <div class="ddp-wrap-default" [dragula]="'dragbag'" [dragulaModel]="item" [attr.data-container]="'layer'+ index">
           <!-- box shelf -->
           <div class="dragIgnore ddp-wrap-example" *ngIf="chartType == '' && item.length == 0">
             <div class="ddp-box-shelf">

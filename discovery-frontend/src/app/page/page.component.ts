@@ -630,7 +630,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {Datasource} dataSource
    */
   public selectDataSource(dataSource: Datasource) {
-    this.isChartShow = false;
+    // data source 변경 시 제거
+    // this.isChartShow = false;
     ( this.widget ) || ( this.widget = _.cloneDeep(this.originalWidget) );
 
     if( ChartType.MAP === this.widget.configuration.chart.type ) {
