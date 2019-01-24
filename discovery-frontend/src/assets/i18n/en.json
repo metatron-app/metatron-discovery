@@ -1559,6 +1559,7 @@
   "msg.board.ui.filter.limitation" : "Limitation",
   "msg.board.ui.filter.filtering" : "Filtering",
   "msg.board.th.filter.wildcard" : "Wildcard",
+  "msg.board.th.filter.regular-expression" : "Regular Expression",
   "msg.board.th.filter.cond" : "Condition",
   "msg.board.ui.filter.add-edit.filter" : "Add & edit filters",
   "msg.board.ui.select-data" : "Please select data from <em>{{value}}</em>",

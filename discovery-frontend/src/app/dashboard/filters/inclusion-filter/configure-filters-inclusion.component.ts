@@ -42,6 +42,7 @@ import { StringUtil } from '../../../common/util/string.util';
 import { SelectComponent } from '../../../common/component/select/select.component';
 import { DashboardUtil } from '../../util/dashboard.util';
 import { DIRECTION } from '../../../domain/workbook/configurations/sort';
+import {RegExprFilter} from "../../../domain/workbook/configurations/filter/reg-expr-filter";
 
 @Component({
   selector: 'app-config-filter-inclusion',
@@ -93,6 +94,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   private _condition: MeasureInequalityFilter;
   private _limitation: MeasurePositionFilter;
   private _wildcard: WildCardFilter;
+  private _regExpr: RegExprFilter;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -128,7 +130,11 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   public condition: MeasureInequalityFilter;
   public limitation: MeasurePositionFilter;
   public wildcard: WildCardFilter;
+  public regExpr : RegExprFilter;
   public measureFields: Field[] = [];
+
+  public matcherTypeList: any[];
+  private selectedMatcherType: any;
 
   @Output()
   public goToSelectField: EventEmitter<any> = new EventEmitter();
@@ -151,6 +157,13 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   // Init
   public ngOnInit() {
     super.ngOnInit();
+
+    this.matcherTypeList = [
+      { label : this.translateService.instant('msg.board.th.filter.wildcard'), value : MatcherType.WILDCARD },
+      { label : this.translateService.instant('msg.board.th.filter.regular-expression'), value : MatcherType.REGULAR_EXPRESSION }
+    ];
+
+    this.selectedMatcherType = this.matcherTypeList[0];
   }
 
   // Destroy
@@ -206,8 +219,17 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
       } else if (preFilter.type === 'wildcard') {
         this._wildcard = <WildCardFilter>preFilter;
         this.wildcard = _.cloneDeep( this._wildcard );
+      } else if (preFilter.type === 'regexpr') {
+        this._regExpr = <RegExprFilter>preFilter;
+        this.regExpr = _.cloneDeep( this._regExpr );
       }
     });
+
+    if(StringUtil.isNotEmpty(this.wildcard.value)) {
+      this.selectedMatcherType = this.matcherTypeList[0];
+    } else if(StringUtil.isNotEmpty(this.regExpr.expr)) {
+      this.selectedMatcherType = this.matcherTypeList[1];
+    }
 
     // 값 정보 설정
     if (targetFilter.valueList && 0 < targetFilter.valueList.length) {
@@ -379,9 +401,19 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    */
   public resetWildcard(filter: WildCardFilter) {
     filter.value = '';
-    this._wildCardContainsCombo.selected(this.wildCardTypeList[0]);
+    if(this.isWildCardMatcher()) {
+      this._wildCardContainsCombo.selected(this.wildCardTypeList[0]);
+    }
     this.safelyDetectChanges();
   } // function resetWildcard
+
+  /**
+   * 와일드 카드의 값을 초기화 시킨다.
+   */
+  public resetRegExpr(filter: RegExprFilter) {
+    filter.expr = '';
+    this.safelyDetectChanges();
+  } // function resetRegExpr
 
   // noinspection JSMethodCanBeStatic
   /**
@@ -414,6 +446,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    */
   public resetAll() {
     this.resetWildcard(this.wildcard);
+    this.resetRegExpr(this.regExpr);
     this.resetCondition(this.condition);
     this.resetLimitation(this.limitation);
   } // function resetAll
@@ -426,10 +459,18 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     if (this._isInvalidFiltering()) {
       return;
     }
+
+    if(this.isWildCardMatcher()) {
+      this.resetRegExpr(this.regExpr);
+    } else {
+      this.resetWildcard(this.wildcard);
+    }
+
     this._wildcard = _.cloneDeep( this.wildcard );
+    this._regExpr = _.cloneDeep( this.regExpr );
     this._condition = _.cloneDeep( this.condition );
     this._limitation = _.cloneDeep( this.limitation );
-    this.targetFilter.preFilters = [this._wildcard, this._condition, this._limitation];
+    this.targetFilter.preFilters = [this._wildcard, this._regExpr, this._condition, this._limitation];
     this.datasourceService.getCandidateForFilter(this.targetFilter, this._board, [], this._targetField).then(result => {
       this._setCandidateResult(result, this.targetFilter, this._targetField);
       this.safelyDetectChanges();
@@ -446,7 +487,10 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
       this.wildcard = _.cloneDeep( this._wildcard );
       this.condition = _.cloneDeep( this._condition );
       this.limitation = _.cloneDeep( this._limitation );
-      this._wildCardContainsCombo.selected( this.wildCardTypeList.find(item => ContainsType[item.value] === this.wildcard.contains) );
+
+      if(this.isWildCardMatcher()) {
+        this._wildCardContainsCombo.selected( this.wildCardTypeList.find(item => ContainsType[item.value] === this.wildcard.contains) );
+      }
       this._condFieldCombo.selected( this.measureFields.find(item => item.name === this.condition.field) );
       this._condAggrCombo.selected( this.aggregationTypeList.find(item => AggregationType[item.value] === this.condition.aggregation) );
       this._condInequalityCombo.selected( this.conditionTypeList.find(item => InequalityType[item.value] === this.condition.inequality) );
@@ -679,6 +723,18 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     this.newCandidateName = '';
   } // function - addNewCandidateValue
 
+  public onChangeMatcherType(type: any): void {
+    this.selectedMatcherType = type;
+  }
+
+  public isWildCardMatcher(): boolean {
+    return this.selectedMatcherType.value == MatcherType.WILDCARD;
+  }
+
+  public isRegularExpressionMatcher(): boolean {
+    return this.selectedMatcherType.value == MatcherType.REGULAR_EXPRESSION;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -791,5 +847,9 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     candidate.isDefinedValue = isDefine;
     return candidate;
   } // function - _stringToCandidate
+}
 
+enum MatcherType {
+  WILDCARD = <any>'WILDCARD',
+  REGULAR_EXPRESSION = <any>'REGULAR_EXPRESSION'
 }

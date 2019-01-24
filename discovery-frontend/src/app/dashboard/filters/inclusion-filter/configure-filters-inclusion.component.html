@@ -71,36 +71,54 @@
 
           <!-- 필터링 조건 설정 영역 -->
           <div class="ddp-ui-edit-set">
-            <!-- 와일드카드 설정 영역 -->
             <label class="ddp-label-title">
-              {{'msg.board.th.filter.wildcard' | translate}}
-              <span *ngIf="isSetWildCard( wildcard )" class="ddp-data-info">
-                {{getWildCardDesc(wildcard)}} <span class="ddp-data2">'{{wildcard.value}}'</span>
-              </span>
-              <a *ngIf="isSetWildCard( wildcard )" (click)="$event.stopPropagation();resetWildcard(wildcard)"
-                 href="javascript:" class="ddp-btn-reset ddp-hover-tooltip" >
-                <!-- tooltip -->
-                <div class="ddp-ui-tooltip-info ddp-down">
-                  <em class="ddp-icon-view-top"></em> {{'msg.page.btn.reset' | translate}}
-                </div>
-                <!-- // tooltip -->
-              </a>
+              Matcher
             </label>
+            <ul class="ddp-list-buttons" *ngFor="let type of matcherTypeList">
+              <li [ngClass]="{'ddp-selected': selectedMatcherType.value === type.value}" (click)="onChangeMatcherType(type)">
+                {{type.label}}
+              </li>
+            </ul>
+            <div class="ddp-edit-set-contents">
+              <div class="ddp-form-edit-set ddp-clear">
+                <!-- 와일드카드 설정 영역 -->
+                <div *ngIf="isWildCardMatcher()">
+                  <label>
+                    <span *ngIf="isSetWildCard( wildcard )" class="ddp-data-info">
+                      {{getWildCardDesc(wildcard)}} <span class="ddp-data2">'{{wildcard.value}}'</span>
+                    </span>
+                    <a *ngIf="isSetWildCard( wildcard )" (click)="$event.stopPropagation();resetWildcard(wildcard)"
+                       href="javascript:" class="ddp-btn-reset ddp-hover-tooltip" >
+                      <!-- tooltip -->
+                      <div class="ddp-ui-tooltip-info ddp-down">
+                        <em class="ddp-icon-view-top"></em> {{'msg.page.btn.reset' | translate}}
+                      </div>
+                      <!-- // tooltip -->
+                    </a>
+                  </label>
+                  <div class="ddp-form-edit-set ddp-clear">
+                    <div class="ddp-col-4">
+                      <input type="text" class="ddp-input-typebasic" [(ngModel)]="wildcard.value" />
+                    </div>
+                    <div class="ddp-col-3">
+                      <component-select
+                        #wildCardContains
+                        [array]="wildCardTypeList"
+                        [viewKey]="'name'"
+                        (onSelected)="wildcard.contains = $event ? $event['value'] : null">
+                      </component-select>
+                    </div>
+                  </div>
+                </div>
+                <!-- // 와일드카드 설정 영역 -->
 
-            <div class="ddp-form-edit-set ddp-clear">
-              <div class="ddp-col-4">
-                <input type="text" class="ddp-input-typebasic" [(ngModel)]="wildcard.value" />
-              </div>
-              <div class="ddp-col-3">
-                <component-select
-                  #wildCardContains
-                  [array]="wildCardTypeList"
-                  [viewKey]="'name'"
-                  (onSelected)="wildcard.contains = $event ? $event['value'] : null">
-                </component-select>
+                <!-- 정규식 설정 영역 -->
+                <div *ngIf="isRegularExpressionMatcher()">
+                  <input type="text" class="ddp-input-typebasic" [(ngModel)]="regExpr.expr" />
+                </div>
+                <!-- // 정규식 설정 영역 -->
               </div>
             </div>
-            <!-- // 와일드카드 설정 영역 -->
 
             <!-- 컨디션 설정 영역 -->
             <label class="ddp-label-title">

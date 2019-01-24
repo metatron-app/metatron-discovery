@@ -42,6 +42,8 @@
 
 package app.metatron.discovery.query.druid.queries;
 
+import app.metatron.discovery.domain.workbook.configurations.filter.*;
+import app.metatron.discovery.query.druid.filters.RegExpFilter;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -79,11 +81,6 @@ import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.field.TimestampField;
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
-import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.domain.workbook.configurations.filter.LikeFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.MeasureInequalityFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.MeasurePositionFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.WildCardFilter;
 import app.metatron.discovery.domain.workbook.configurations.format.ContinuousTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.DefaultFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
@@ -413,8 +410,9 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
         }
 
         filters(Lists.newArrayList(new LikeFilter(wildCardFilter.getField(), likeExpr, wildCardFilter.getRef())));
+      } else if (filter instanceof RegExprFilter) {
+        filters(Lists.newArrayList(filter));
       }
-
     }
 
     // count aggregation 이 하나도 없을 경우 추가
