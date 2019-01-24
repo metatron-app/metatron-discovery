@@ -422,7 +422,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // tempLayer['symbol'] = "SQUARE";
     this.uiOption.layers.push( tempLayer );
 
-}
+  }
 
   /**
    * map chart - remove layer
@@ -435,6 +435,14 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
     // remove layer
     this.shelf.layers.splice( index, 1 );
+
+    // 필드의 선반정보 제거
+    for( let idx=0; idx < this.shelf.layers.length; idx++ ) {
+      let item = this.shelf.layers[idx];
+      for( let idx2=0; idx2 < item.length; idx2++ ) {
+        item[idx2].field.pivot.splice( item[idx2].field.pivot.indexOf(index), 1);
+      }
+    }
 
     // set current layer number
     this.uiOption.layerNum = this.shelf.layers.length - 1;
