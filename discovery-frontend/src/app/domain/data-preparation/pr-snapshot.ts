@@ -62,6 +62,9 @@ public isCancel : boolean = false;
 public displayStatus: string;
 public dsName: string;
 public dfName: string;
+
+public dsCreatedTime: Date;
+public dsModifiedTime: Date;
 }
 
 export class OriginDsInfo {

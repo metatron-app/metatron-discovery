@@ -124,6 +124,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
   public isSsNameEditing: boolean = false;
   public sSInformationList: {label : String, value : string}[] = [];
+
+  public ssType = SsType;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -441,8 +443,11 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
         this.selectedDataSnapshot.displayStatus = this._findDisplayStatus(this.selectedDataSnapshot.status);
 
+        // 실패해도 원본 데이터셋 정보 필요함
+        this.getOriginData();
+
         if (this.selectedDataSnapshot.displayStatus === 'SUCCESS') {
-          this.getOriginData();
+          // 성공했을경우에만 그리드 그림
           this.getGridData();
         }
 
@@ -712,7 +717,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     if (snapshot.storedUri) {
       const fileType : string[] = this.prepCommonUtil.getFileNameAndExtension(snapshot.storedUri);
       this.sSInformationList.push({label: this.translateService.instant('msg.dp.th.ss-type'),
-        value : `${this.prepCommonUtil.getSnapshotType(snapshot.ssType)} (${fileType[1].toUpperCase()})`});
+        value : `${this.prepCommonUtil.getSnapshotType(snapshot.ssType)} (${fileType[1].toUpperCase()})`},
+        {label: this.translateService.instant('msg.dp.th.file.uri'),
+          value : snapshot.storedUri});
     }
 
     // Summary only when snapshot is successful
@@ -727,16 +734,16 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     }
 
     if (snapshot.dbName) {
-      this.sSInformationList.push({label: 'Database', value : this.selectedDataSnapshot.dbName});
+      this.sSInformationList.push({label: this.translateService.instant('msg.dp.th.database'), value : this.selectedDataSnapshot.dbName});
     }
 
     if (snapshot.tblName) {
-      this.sSInformationList.push({label: 'Table', value : this.selectedDataSnapshot.tblName});
+      this.sSInformationList.push({label: this.translateService.instant('msg.dp.th.ss.table'), value : this.selectedDataSnapshot.tblName});
     }
 
     this.sSInformationList.push(
       {label: this.translateService.instant('msg.dp.th.et'), value : this.getElapsedTime(snapshot)},
-      {label: this.translateService.instant('msg.comm.th.created'), value : moment(snapshot.launchTime).format('YYYY-MM-DD HH:mm')});
+      {label: this.translateService.instant('msg.comm.th.created'), value : moment(snapshot.createdTime).format('YYYY-MM-DD HH:mm')});
   }
 
 
