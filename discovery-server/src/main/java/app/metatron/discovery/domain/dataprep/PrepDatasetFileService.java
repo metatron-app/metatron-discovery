@@ -284,10 +284,7 @@ public class PrepDatasetFileService {
         df.setByGridWithJson(PrepJsonUtil.parseJSON(storedUri, ",", limitRows, hdfsService.getConf()));
 
         if (autoTyping) {
-            List<String> ruleStrings = teddyImpl.getAutoTypingRules(df);
-            for (String ruleString : ruleStrings) {
-                df = dataFrameService.applyRule(df, ruleString);
-            }
+            df = teddyImpl.applyAutoTyping(df);
         }
 
         for (int colno = 0; colno < df.getColCnt(); colno++) {
@@ -329,10 +326,7 @@ public class PrepDatasetFileService {
         df.setByGrid(PrepCsvUtil.parse(storedUri, delimiterCol, limitRows, hdfsService.getConf()));
 
         if (autoTyping) {
-            List<String> ruleStrings = teddyImpl.getAutoTypingRules(df);
-            for (String ruleString : ruleStrings) {
-                df = dataFrameService.applyRule(df, ruleString);
-            }
+            df = teddyImpl.applyAutoTyping(df);
         }
 
         for (int colno = 0; colno < df.getColCnt(); colno++) {
@@ -345,7 +339,7 @@ public class PrepDatasetFileService {
             Map<String, String> resultRow = Maps.newHashMap();
 
             for (int colno = 0; colno < df.getColCnt(); colno++) {
-                resultRow.put(df.getColName(colno), df.rows.get(rowno).get(colno).toString());
+                resultRow.put(df.getColName(colno), row.get(colno).toString());
             }
             resultSet.add(resultRow);
         }
@@ -358,6 +352,19 @@ public class PrepDatasetFileService {
         responseMap.put("grids", grids);
         return responseMap;
     }
+
+//    public DataFrame applyAutoTyping(DataFrame df) throws TeddyException {
+//        if (!prepProperties.isAutoTypingEnabled()) {
+//            return df;
+//        }
+//
+//        List<String> ruleStrings = teddyImpl.getAutoTypingRules(df);
+//        for (String ruleString : ruleStrings) {
+//            df = dataFrameService.applyRule(df, ruleString);
+//        }
+//
+//        return df;
+//    }
 
     /*
      * Response contains:
@@ -413,7 +420,7 @@ public class PrepDatasetFileService {
         return responseMap;
     }
 
-    public DataFrame getPreviewLinesFromFileForDataFrame(PrDataset dataset, String sheetindex, String size) throws IOException {
+    public DataFrame getPreviewLinesFromFileForDataFrame(PrDataset dataset, String sheetindex, String size) throws IOException, TeddyException {
         DataFrame dataFrame = new DataFrame();
         String strUri = null;
 
@@ -590,6 +597,11 @@ public class PrepDatasetFileService {
             LOGGER.error("Failed to read file : {}", e.getMessage());
             throw e;
         }
+
+        // This is the only point where the auto typing is applied for I.DS preview.
+        // BTW, there are 2 more points where auto typing is applied. They're for upload previews.
+        // Auto typing for W.DS does not use this function.
+        dataFrame = teddyImpl.applyAutoTyping(dataFrame);
 
         return dataFrame;
     }

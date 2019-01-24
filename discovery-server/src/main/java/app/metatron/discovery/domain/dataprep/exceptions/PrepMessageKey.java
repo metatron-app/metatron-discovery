@@ -28,7 +28,6 @@ public enum PrepMessageKey {
     MSG_DP_ALERT_NO_DATAFLOW(                                    "msg.dp.alert.no.dataflow"),
     MSG_DP_ALERT_USING_OTHER_DATAFLOW(                           "msg.dp.alert.using.other.dataflow"),
     MSG_DP_ALERT_NO_DATASET(                                     "msg.dp.alert.no.dataset"),
-    MSG_DP_ALERT_NO_UPSTREAM(                                    "msg.dp.alert.no.upstream"),
     MSG_DP_ALERT_NO_SNAPSHOT(                                    "msg.dp.alert.no.snapshot"),
     MSG_DP_ALERT_IMPORT_TYPE_IS_WRONG(                           "msg.dp.alert.import.type.is.wrong"),
     MSG_DP_ALERT_NOT_IMPORTED_DATASET(                           "msg.dp.alert.not.imported.dataset"),

@@ -450,7 +450,7 @@ public class PrepDatasetStagingDbService {
     }
 
     // FIXME: connectUrl에 명시된 server에 hiveserver2가 돌고 있어야 한다.
-    public DataFrame getPreviewLinesFromStagedbForDataFrame(PrDataset dataset, String size) throws Exception {
+    public DataFrame getPreviewLinesFromStagedbForDataFrame(PrDataset dataset, String size) throws SQLException, IOException {
 
         DataFrame dataFrame = new DataFrame();
 
@@ -575,8 +575,13 @@ public class PrepDatasetStagingDbService {
                 Callable<Integer> callable = new PrepDatasetTotalLinesCallable(this, dataset.getDsId(), queryStmt, connectUrl, username, password, customUrl, dbName);
                 this.futures.add( poolExecutorService.submit(callable) );
             }
-        } catch (Exception e) {
-            LOGGER.error("Failed to read hive : {}", e.getMessage());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            LOGGER.error("SQLException while read from staging db : {}", e.getMessage());
+            throw e;
+        } catch (IOException e) {
+            e.printStackTrace();
+            LOGGER.error("IOException while read from staging db : {}", e.getMessage());
             throw e;
         }
 
