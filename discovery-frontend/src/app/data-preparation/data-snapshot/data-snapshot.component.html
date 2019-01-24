@@ -165,9 +165,14 @@
             </div>
 
           </td>
-          <td>
-            {{prepCommonUtil.getSnapshotType(item.ssType)}}
+          <td *ngIf="'FILE' === prepCommonUtil.getSnapshotType(item.ssType); else notFile">
+            {{prepCommonUtil.getSnapshotType(item.ssType)}} ({{getSvgName(item)}})
           </td>
+          <ng-template #notFile>
+            <td>
+              {{prepCommonUtil.getSnapshotType(item.ssType)}}
+            </td>
+          </ng-template>
           <td>
             <em class="ddp-icon-status-success" *ngIf="item.displayStatus === 'SUCCESS'"></em>
             <em class="ddp-icon-status-error" *ngIf="item.displayStatus === 'FAIL'"></em>
