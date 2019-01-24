@@ -198,16 +198,11 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     if (SsType.URI === this.snapshot.ssType) {
       this.snapshot.hiveFileCompression = HiveFileCompression.NONE;
       this.snapshot.engine = Engine.EMBEDDED;
-      // 변경한 게 없으면 보내지 않음
-      for(let idx=0;idx<this.fileLocations.length;idx++) {
-        if( this.snapshot.storageType == this.fileLocations[idx].value ) {
-          if( this.snapshot.storedUri == this.fileUris[idx] ) {
-            delete this.snapshot.storedUri;
-          }
-          break;
-        }
-      }
 
+      if (this.snapshot.storedUri.length < 1){
+        Alert.warning(this.translateService.instant('msg.dp.alert.ss.require.file-uri'));
+        return;
+      }
     }
 
     this.loadingShow();
@@ -237,7 +232,9 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * When snapshot Name change, modfiy file type uris
    * */
   public chnageSSUri(){
-    if(this.snapshot.storedUri && this.snapshot.storedUri.lastIndexOf("/") > 0) this.snapshot.storedUri = this.snapshot.storedUri.substring(0,this.snapshot.storedUri.lastIndexOf("/")+1)  +  this.snapshot.ssName;
+    if(this.snapshot.storedUri && this.snapshot.storedUri.lastIndexOf("/") > 0)
+      this.snapshot.storedUri = this.snapshot.storedUri.substring(0,this.snapshot.storedUri.lastIndexOf("/")+1)  +  this.snapshot.ssName
+        + '.'+this.snapshot.uriFileFormat.toString().toLowerCase();
   }
 
   /**
@@ -254,8 +251,12 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         }
         break;
       case 'format':
-        if ( this.snapshot.ssType && this.snapshot.ssType === SsType.URI) this.snapshot.uriFileFormat = event.value;
-        if ( this.snapshot.ssType && this.snapshot.ssType === SsType.STAGING_DB) this.snapshot.hiveFileFormat = event.value;
+        if ( this.snapshot.ssType && this.snapshot.ssType === SsType.URI) {
+          this.snapshot.uriFileFormat = event.value;
+        }
+        if ( this.snapshot.ssType && this.snapshot.ssType === SsType.STAGING_DB)
+          this.snapshot.hiveFileFormat = event.value;
+          this.chnageSSUri();
         break;
       case 'location':
         for(let idx=0;idx<this.fileLocations.length;idx++) {
@@ -331,7 +332,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
           idx = 0;
         }
         this.snapshot.storageType = this.fileLocations[idx].value;
-        this.snapshot.storedUri = this.fileUris[idx];
+        this.snapshot.storedUri = this.fileUris[idx] ;
+        if (['.csv','.json'].indexOf(this.snapshot.storedUri) < 0) this.snapshot.storedUri +=  '.' + this.snapshot.uriFileFormat.toString().toLowerCase();
         this.fileLocationDefaultIdx = idx;
       }
     }
@@ -368,9 +370,11 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
               this.fileLocations.push( { 'value': loc, 'label': loc } );
               this.fileUris.push( conf['file_uri'][locType] );
             }
+
             if(0<this.fileLocations.length) {
               this.snapshot.storageType = this.fileLocations[0].value;
               this.snapshot.storedUri = this.fileUris[0];
+              if (['.csv','.json'].indexOf(this.snapshot.storedUri) < 0) this.snapshot.storedUri += '.csv';
             }
           }
 

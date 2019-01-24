@@ -789,6 +789,7 @@
   "msg.dp.alert.ss.require.db-name" : "DB 이름이 필요합니다",
   "msg.dp.alert.ss.require.output-path" : "Output 경로가 필요합니다",
   "msg.dp.alert.ss.require.table-name" : "테이블 이름이 필요합니다",
+  "msg.dp.alert.ss.require.file-uri" : "파일 URI 가 필요합니다.",
   "msg.dp.alert.ss.sel.format" : "포멧을 선택해 주세요",
   "msg.dp.alert.stagingdb.connection.error": "Staging DB 접속에 실패하였습니다",
   "msg.dp.alert.success.create.ss": " 데이터스냅샷이 생성되었습니다",
