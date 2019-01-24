@@ -659,7 +659,8 @@ public class PrepDatasetFileService {
             Map<String, String> resultRow = Maps.newHashMap();
 
             for (int colno = 0; colno < df.getColCnt(); colno++) {
-                resultRow.put(df.getColName(colno), row.get(colno).toString());
+                Object obj = row.get(colno);
+                resultRow.put(df.getColName(colno), obj == null ? null : obj.toString());
             }
             resultSet.add(resultRow);
         }
