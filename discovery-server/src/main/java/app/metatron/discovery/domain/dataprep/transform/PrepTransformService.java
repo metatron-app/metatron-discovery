@@ -1066,7 +1066,7 @@ public class PrepTransformService {
     }
 
     // put sourceQuery
-    assert datasetInfo.get("sourceQuery") != null || datasetInfo.get("filePath") != null : wrangledDsId;
+    assert datasetInfo.get("sourceQuery") != null || datasetInfo.get("storedUri") != null : wrangledDsId;
 
     // put ruleStrings
     List<String> ruleStrings = new ArrayList<>();
