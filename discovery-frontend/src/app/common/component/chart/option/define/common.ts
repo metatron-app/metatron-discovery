@@ -844,7 +844,8 @@ export enum UIFormatCurrencyType {
   USCENT = <any>'USCENT',
   GBP = <any>'GBP',
   JPY = <any>'JPY',
-  EUR = <any>'EUR'
+  EUR = <any>'EUR',
+  CNY = <any>'CNY'
 }
 
 /**
