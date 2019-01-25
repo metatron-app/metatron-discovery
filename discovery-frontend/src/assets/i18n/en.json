@@ -2126,6 +2126,11 @@
   "msg.storage.ui.intervals": "Data range",
   "msg.storage.ui.intervals.units": "segment granularity units",
   "msg.storage.ui.intervals.valid.unit": "The interval should set equal to or greater than the range of data values in the timestamp column, and the number of segments units cannot exceed 10,000.",
+  "msg.storage.ui.file.result.FV001": "Column name contains an invalid character",
+  "msg.storage.ui.file.result.FV002": "The first row contains merged cells. The new row is used as the head column.",
+  "msg.storage.ui.file.result.FV003": "Duplicate column name not available.",
+  "msg.storage.ui.file.result.FV004": "Column names are allowed up to 50 characters.",
+  "msg.storage.ui.file.result.FV005": "Empty column name is not allowed.",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job name, application ID, and User",
