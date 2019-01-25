@@ -12,20 +12,19 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { Component, ElementRef, Injector, Input, OnInit, ViewChild } from '@angular/core';
-import { GridComponent } from '../../../../common/component/grid/grid.component';
-import { Datasource, Field } from '../../../../domain/datasource/datasource';
-import { QueryParam } from '../../../../domain/dashboard/dashboard';
+import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
+import {Component, ElementRef, Injector, Input, OnInit, ViewChild} from '@angular/core';
+import {GridComponent} from '../../../../common/component/grid/grid.component';
+import {Datasource, Field, FieldRole} from '../../../../domain/datasource/datasource';
+import {QueryParam} from '../../../../domain/dashboard/dashboard';
 import * as _ from 'lodash';
-import { DatasourceService } from '../../../../datasource/service/datasource.service';
-import { header, SlickGridHeader } from '../../../../common/component/grid/grid.header';
-import { GridOption } from '../../../../common/component/grid/grid.option';
-import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
-import { Metadata } from '../../../../domain/meta-data-management/metadata';
-import { isUndefined } from 'util';
-import { MetadataColumn } from '../../../../domain/meta-data-management/metadata-column';
-import { ConnectionType, Dataconnection } from '../../../../domain/dataconnection/dataconnection';
+import {DatasourceService} from '../../../../datasource/service/datasource.service';
+import {header, SlickGridHeader} from '../../../../common/component/grid/grid.header';
+import {GridOption} from '../../../../common/component/grid/grid.option';
+import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
+import {Metadata} from '../../../../domain/meta-data-management/metadata';
+import {isUndefined} from 'util';
+import {ConnectionType, Dataconnection} from '../../../../domain/dataconnection/dataconnection';
 
 enum FieldRoleType {
   ALL = <any>'ALL',
@@ -86,6 +85,8 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   // 현재 마스터 데이터소스의 연결 타입
   public connType: string;
 
+  public isExistTimestamp: boolean;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -110,6 +111,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     this._initView();
     // 그리드 데이터 조회
     this.fields = this.datasource.fields;
+    this.isExistTimestamp = this.datasource.fields.some(field => field.role === FieldRole.TIMESTAMP);
     // 마스터 소스 타입
     this.connType = this.datasource.hasOwnProperty('connType') ? this.datasource.connType.toString() : 'ENGINE';
     // linked인 경우
@@ -142,6 +144,22 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   }
 
   /**
+   * Is extend grid header
+   * @return {boolean}
+   */
+  public isExtendGridHeader(): boolean {
+    return this.isExistMetaData() || this.isExistTimestamp;
+  }
+
+  /**
+   * Is more extend grid header
+   * @return {boolean}
+   */
+  public isMoreExtendGridHeader(): boolean {
+    return this.isExistMetaData() && this.isExistTimestamp;
+  }
+
+  /**
    * init searchText
    * @param {boolean} updateGridFl
    */
@@ -154,13 +172,18 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   }
 
   /**
-   * 메타데이터 헤더 생성
+   * Extend grid header
    * @param args
    */
-  public createMetaDataHeader(args: any): void {
-    // TODO 추후 그리드 자체에서 생성하도록 변경하기
-    $('<div class="slick-data">('+ _.find(this.metaData.columns, {'physicalName': args.column.id}).name +')</div>')
-      .appendTo(args.node);
+  public extendGridHeader(args: any): void {
+    // if exist timestamp column
+    if (this.isExistTimestamp) {
+      $('<div style="font-size:12px;text-align:left;padding-left: 20px;color:#90969f;" title="+09:00">+09:00</div>').appendTo(args.node);
+    }
+    // if exist metadata
+    if (this.isExistMetaData()) {
+      $('<div class="slick-data">('+ _.find(this.metaData.columns, {'physicalName': args.column.id}).name +')</div>').appendTo(args.node);
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
