@@ -79,6 +79,12 @@ public class CsvProcessor {
         break;
       }
 
+      if ( headers == null && i == 0 ) {
+        headers = makeHeader(row.length);
+      }
+
+      // TODO: Validation disabled. it will be check later.
+      /*
       // If not set header, then make headers. Otherwise, validate parsed headers.
       if ( i == 0 ) {
         if ( headers == null ) {
@@ -86,15 +92,24 @@ public class CsvProcessor {
         } else {
           isParsable = validateHeaders(headers);
         }
-      }
+      }*/
 
       Map<String, Object> resultRow = Maps.newLinkedHashMap();
       for (int j = 0; j<headers.length; j++) {
+        if (headers[j] == null) {
+          headers[j] = "col_" + j;
+
+          isParsable.setValid(false);
+          isParsable.setWarning(FileValidationResponse.WarningType.NULL_HEADER.getCode());
+        }
         if (row.length <= j) {
           resultRow.put(headers[j], null);
-          isParsable = new FileValidationResponse(false,
-              FileValidationResponse.WarningType.SEEMS_NOT_FORMAL.getCode());
+
+          isParsable.setValid(false);
+          isParsable.setWarning(FileValidationResponse.WarningType.SEEMS_NOT_FORMAL.getCode());
+
           break;
+
         } else {
           resultRow.put(headers[j], row[j]);
         }
@@ -139,6 +154,8 @@ public class CsvProcessor {
     csvWriter.close();
   }
 
+  //TODO: Disable header validation. Discussed on #1057.
+  // It will be refactor after datasource schema validation is adapted.
   private FileValidationResponse validateHeaders(String[] headers){
 
     Set<String> bounder = new HashSet<>();

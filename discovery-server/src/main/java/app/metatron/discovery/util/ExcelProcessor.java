@@ -67,7 +67,7 @@ public class ExcelProcessor {
 
   public Map<String, FileValidationResponse> getSheetNames() {
 
-    Map<String, FileValidationResponse> sheetNames = Maps.newTreeMap();
+    Map<String, FileValidationResponse> sheetNames = Maps.newLinkedHashMap();
     int sheetCount = workbook.getNumberOfSheets();
 
     for (int i = 0; i < sheetCount; i++) {
@@ -137,6 +137,10 @@ public class ExcelProcessor {
           String value;
           if(firstHeaderRow) {
             value = PolarisUtils.objectToString(getCellValue(cell), "col" + columnIndex);
+            if (getCellValue(cell) == null) { // Check header is merged.
+              isParsable.setValid(false);
+              isParsable.setWarning(FileValidationResponse.WarningType.HEADER_MERGED.getCode());
+            }
             columnMap.put(columnIndex, value);
             fields.add(makeField(columnIndex, value, cell));
           } else {
@@ -151,10 +155,6 @@ public class ExcelProcessor {
             rowMap.put(columnMap.get(columnIndex), getCellValue(cell));
           }
         }
-      }
-
-      if(firstHeaderRow && rowCnt == 0){
-        isParsable = validateHeaders(row);
       }
 
       if (rowCnt > 0 || false==firstHeaderRow) {
@@ -174,15 +174,19 @@ public class ExcelProcessor {
 
   private FileValidationResponse validateHeaders(Row row) {
 
+    //TODO: Disable null, long, duplicated header validation. Discussed on #1057.
+    // It will be refactor after datasource schema validation is adapted.
+
+/*
     Set<String> bounder = new HashSet<>();
 
     if (row.getLastCellNum() != row.getPhysicalNumberOfCells()) {
       return new FileValidationResponse(false,
           FileValidationResponse.WarningType.NULL_HEADER.getCode());
     }
-
+*/
     for ( Cell cell : row ) {
-
+/*
       if (cell.getStringCellValue().length() > MAX_HEADER_NAME) {
         return new FileValidationResponse(false,
             FileValidationResponse.WarningType.TOO_LONG_HEADER.getCode());
@@ -192,15 +196,13 @@ public class ExcelProcessor {
         return new FileValidationResponse(false,
             FileValidationResponse.WarningType.DUPLICATED_HEADER.getCode());
       }
-
+*/
       if (getCellValue(cell) == null) {
         return new FileValidationResponse(false,
             FileValidationResponse.WarningType.HEADER_MERGED.getCode());
       }
-
-      bounder.add(cell.getStringCellValue());
+//      bounder.add(cell.getStringCellValue());
     }
-
     return new FileValidationResponse(true);
   }
 
