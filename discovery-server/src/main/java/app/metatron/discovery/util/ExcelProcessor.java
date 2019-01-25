@@ -120,7 +120,7 @@ public class ExcelProcessor {
     // 병합의 이슈로 컬럼 정보는 Column Index
     Map<Integer, String> columnMap = Maps.newTreeMap();
 
-    FileValidationResponse isParsable = null;
+    FileValidationResponse isParsable = new FileValidationResponse(true);
 
     long rowCnt = 0;
     for (Row row : sheet) {

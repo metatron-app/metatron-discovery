@@ -58,7 +58,7 @@ public class CsvProcessor {
 
     List<Field> fields = Lists.newArrayList();
     List<Map<String, Object>> resultSet = Lists.newArrayList();
-    FileValidationResponse isParsable = null;
+    FileValidationResponse isParsable = new FileValidationResponse(true);
 
     CsvParserSettings settings = new CsvParserSettings();
     settings.getFormat().setLineSeparator(lineSep);
