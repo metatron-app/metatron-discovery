@@ -141,7 +141,7 @@ public abstract class AbstractQueryBuilder {
   /**
    * Default Intervals, Define if interval is null.
    */
-  public static final List<String> DEFAULT_INTERVALS = Lists.newArrayList("1970-01-01T00:00:00.0Z/2051-01-01T00:00:00.0Z");
+  public static final List<String> DEFAULT_INTERVALS = Lists.newArrayList("1900-01-01T00:00:00.0Z/2051-01-01T00:00:00.0Z");
 
   /**
    * Partition 관련 처리, 추후 지원여부 확인 필요
@@ -252,7 +252,7 @@ public abstract class AbstractQueryBuilder {
       mainMetaDataSource = dataSource.getMetaDataSource();
       metaFieldMap.putAll(mainMetaDataSource.getMetaFieldMap(false, ""));
 
-    } else if(dataSource instanceof MultiDataSource) {
+    } else if (dataSource instanceof MultiDataSource) {
       MultiDataSource multiDataSource = (MultiDataSource) dataSource;
       for (DataSource source : multiDataSource.getDataSources()) {
         metaFieldMap.putAll(source.getMetaDataSource().getMetaFieldMap(true, null));
@@ -566,7 +566,7 @@ public abstract class AbstractQueryBuilder {
     app.metatron.discovery.domain.datasource.Field datasourceField = this.metaFieldMap.get(columnName);
 
     if (datasourceField.getRole() == TIMESTAMP && !(timeFilter instanceof TimeListFilter)) {
-      intervals.addAll(timeFilter.getEngineIntervals());
+      intervals.addAll(timeFilter.getEngineIntervals(datasourceField));
     } else {
       String expr = timeFilter.getExpression(columnName, datasourceField);
       if (StringUtils.isNotEmpty(expr)) {
@@ -606,7 +606,7 @@ public abstract class AbstractQueryBuilder {
         String countField = measureField.getRef() == null ? "count" : measureField.getRef() + "." + "count";
         aggregations.add(new GenericSumAggregation(fieldName + "_sum", fieldName, dataType));
 
-        if(!(dataSource instanceof MultiDataSource)
+        if (!(dataSource instanceof MultiDataSource)
             && dataSource.getMetaDataSource().rollup()) {
           aggregations.add(new GenericSumAggregation("count", countField, dataType));
         } else {
@@ -715,8 +715,8 @@ public abstract class AbstractQueryBuilder {
 
     // TODO: 파라미터도 추가해야함, 일단 기존 로직 유지
     Map<String, String> exprMap = userFieldsMap.values().stream()
-        .filter(userDefinedField -> userDefinedField instanceof ExpressionField)
-        .collect(Collectors.toMap(UserDefinedField::getName, f -> ((ExpressionField) f).getExpr()));
+                                               .filter(userDefinedField -> userDefinedField instanceof ExpressionField)
+                                               .collect(Collectors.toMap(UserDefinedField::getName, f -> ((ExpressionField) f).getExpr()));
 
     ComputationalField.makeAggregationFunctionsIn(field.getAlias(), curExpr, aggregations
         , postAggregations, windowingSpecs, context, exprMap);
@@ -735,8 +735,8 @@ public abstract class AbstractQueryBuilder {
     Pattern pattern = Pattern.compile(String.format(PATTERN_FIELD_NAME_STRING, escapedName));
 
     List<String> validColumn = validColumnNames.parallelStream()
-                                                .filter(colName -> pattern.matcher(colName).matches())
-                                                .collect(Collectors.toList());
+                                               .filter(colName -> pattern.matcher(colName).matches())
+                                               .collect(Collectors.toList());
 
     if (validColumn.size() == 1) {
       return validColumn.get(0);

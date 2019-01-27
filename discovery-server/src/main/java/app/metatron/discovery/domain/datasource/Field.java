@@ -320,6 +320,15 @@ public class Field implements MetatronDomain<Long> {
   }
 
   /**
+   * for backward compatibility of timezone
+   */
+  public static Field ofFakeTimestamp() {
+    Field field = new Field();
+    field.setFormat(null);
+    return field;
+  }
+
+  /**
    * Ingestion spec. 처리시 확인 할 것
    */
   @JsonIgnore
@@ -431,9 +440,6 @@ public class Field implements MetatronDomain<Long> {
 
     TimestampSpec timestampSpec = new TimestampSpec();
     timestampSpec.setColumn(this.getName());
-    DateTime defaultReplaceDateTime = DateTime.now(DateTimeZone.UTC);
-    timestampSpec.setInvalidValue(defaultReplaceDateTime);
-    timestampSpec.setMissingValue(defaultReplaceDateTime);
     timestampSpec.setReplaceWrongColumn(true);
 
     FieldFormat fieldFormat = GlobalObjectMapper.readValue(this.format, FieldFormat.class);
@@ -450,7 +456,10 @@ public class Field implements MetatronDomain<Long> {
     }
 
     TimeFieldFormat timeFieldFormat = (TimeFieldFormat) fieldFormat;
-    // add timezone or locales ?..
+
+    DateTime defaultReplaceDateTime = DateTime.now(DateTimeZone.forID(timeFieldFormat.getTimeZone()));
+    timestampSpec.setInvalidValue(defaultReplaceDateTime);
+    timestampSpec.setMissingValue(defaultReplaceDateTime);
 
     if (fieldFormat instanceof CustomDateTimeFormat) {
       timestampSpec.setFormat(timeFieldFormat.getFormat());
@@ -465,7 +474,22 @@ public class Field implements MetatronDomain<Long> {
       timestampSpec.setFormat(timeFieldFormat.getFormat());
     }
 
+    timestampSpec.setTimeZone(timeFieldFormat.getTimeZone());
+    timestampSpec.setLocale(timeFieldFormat.getLocale());
+
     return timestampSpec;
+  }
+
+  /**
+   * For backward compatibility of timezone. <br/>
+   * Defines the conditions under which backward compatibility should be performed.
+   */
+  public boolean backwardTime() {
+    FieldFormat fieldFormat = GlobalObjectMapper.readValue(format, FieldFormat.class);
+    if (fieldFormat == null) {
+      return true;
+    }
+    return false;
   }
 
   @JsonIgnore
@@ -588,7 +612,11 @@ public class Field implements MetatronDomain<Long> {
 
   @JsonIgnore
   public FieldFormat getFormatObject() {
-    return GlobalObjectMapper.readValue(format, FieldFormat.class);
+    FieldFormat fieldFormat = GlobalObjectMapper.readValue(format, FieldFormat.class);
+    if (getLogicalType() == LogicalType.TIMESTAMP && fieldFormat == null) {
+      fieldFormat = new CustomDateTimeFormat(getTimeFormat());
+    }
+    return fieldFormat;
   }
 
   public String getFormat() {

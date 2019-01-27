@@ -179,13 +179,16 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
                                                      new ExpressionFunction(((DefaultFormat) format).getFormat(), fieldName)));
               break;
             case TIMESTAMP: // TODO: 추후 별도의 Timestamp 처리 확인 해볼것
+              TimeFieldFormat fieldFormat = (TimeFieldFormat) datasourceField.getFormatObject();
               TimeFieldFormat timeFormat = (TimeFieldFormat) format;
               ExtractionDimension extractionDimension = new ExtractionDimension();
               extractionDimension.setDimension(fieldName);
               extractionDimension.setOutputName(aliasName);
 
               extractionDimension.setExtractionFn(
-                  new TimeParsingFunction(datasourceField.getFormat(),
+                  new TimeParsingFunction(fieldFormat.getFormat(),
+                                          fieldFormat.getTimeZone(),
+                                          fieldFormat.getLocale(),
                                           timeFormat.getFormat(),
                                           timeFormat.getLocale(),
                                           timeFormat.getTimeZone())
