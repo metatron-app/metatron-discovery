@@ -13,7 +13,7 @@
  */
 
 import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import * as Clipboard from 'clipboard';
+import { ClipboardService } from 'ngx-clipboard';
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { Log } from '../../../../common/domain/modal';
 import { EditorComponent } from '../../../../workbench/component/detail-workbench/datail-workbench-editor/editor.component';
@@ -60,7 +60,8 @@ export class LogEditorComponent extends AbstractComponent implements OnInit, OnD
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected element: ElementRef,
+  constructor(private _clipboardService: ClipboardService,
+              protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
   }
@@ -112,10 +113,7 @@ export class LogEditorComponent extends AbstractComponent implements OnInit, OnD
    * copy clipboard
    */
   public copyToClipboard() {
-    const option = {
-      text: () => this.log.data
-    };
-    new Clipboard(this.element.nativeElement, option);
+    this._clipboardService.copyFromContent( this.log.data );
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

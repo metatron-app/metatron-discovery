@@ -22,7 +22,7 @@ import { JoinComponent } from './login/component/join/join.component';
 import { JoinCompleteComponent } from './login/component/join-complete/join-complete.component';
 import { ResetPasswordComponent } from './login/component/reset-password/reset-password.component';
 import { FileModule } from '../common/file.module';
-import { StompService } from 'ng2-stomp-service';
+import { StompService } from '@stomp/ng2-stompjs';
 import { WorkspaceService } from '../workspace/service/workspace.service';
 import { KorPolicyComponent } from './login/kor-policy.component';
 import { EngPolicyComponent } from './login/eng-policy.component';

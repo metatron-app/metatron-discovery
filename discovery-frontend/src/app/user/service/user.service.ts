@@ -13,11 +13,11 @@
  */
 
 import { Injectable, Injector } from '@angular/core';
+import { HttpHeaders } from '@angular/common/http';
 import { AbstractService } from '../../common/service/abstract.service';
 import { User } from '../../domain/user/user';
 import 'rxjs/add/operator/toPromise';
 import { CookieConstant } from '../../common/constant/cookie.constant';
-import { Headers } from '@angular/http';
 import { CommonUtil } from '../../common/util/common.util';
 
 @Injectable()
@@ -44,7 +44,7 @@ export class UserService extends AbstractService {
       const url = this.URL_USER + '/' + userId;
 
       // 헤더
-      const headers = new Headers({
+      const headers = new HttpHeaders({
         'Content-Type'	: 'application/json',
         Authorization	: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
         + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),

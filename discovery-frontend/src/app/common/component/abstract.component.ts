@@ -12,29 +12,30 @@
  * limitations under the License.
  */
 
-import { AfterViewInit, ChangeDetectorRef, ElementRef, HostListener, Injector, OnDestroy, OnInit } from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
 import * as $ from 'jquery';
-import { Router } from '@angular/router';
-import { Loading } from '../util/loading.util';
-import { TranslateService } from 'ng2-translate';
-import { Page, PageResult } from '../../domain/common/page';
-import { Subscription } from 'rxjs/Subscription';
-import { Location } from '@angular/common';
-import { CommonConstant } from '../constant/common.constant';
-import { CookieConstant } from '../constant/cookie.constant';
-import { isUndefined } from 'util';
-import { StompService } from 'ng2-stomp-service';
-import { Alert } from '../util/alert.util';
-import { Observable } from 'rxjs/Observable';
-import { UnloadConfirmService } from '../service/unload.confirm.service';
-import { CanComponentDeactivate } from '../gaurd/can.deactivate.guard';
-import { CookieService } from 'ng2-cookies';
-import { Modal } from 'app/common/domain/modal';
-import { SYSTEM_PERMISSION } from '../permission/permission';
-import { CommonUtil } from '../util/common.util';
-import { User } from '../../domain/user/user';
-import { Group } from '../../domain/user/group';
-import { UserDetail } from '../../domain/common/abstract-history-entity';
+import {Router} from '@angular/router';
+import {Loading} from '../util/loading.util';
+import {TranslateService} from '@ngx-translate/core';
+import {Page, PageResult} from '../../domain/common/page';
+import {Subscription} from 'rxjs/Subscription';
+import {Location} from '@angular/common';
+import {CommonConstant} from '../constant/common.constant';
+import {CookieConstant} from '../constant/cookie.constant';
+import {Alert} from '../util/alert.util';
+import {UnloadConfirmService} from '../service/unload.confirm.service';
+import {CanComponentDeactivate} from '../gaurd/can.deactivate.guard';
+import {CookieService} from 'ng2-cookies';
+import {Modal} from 'app/common/domain/modal';
+import {SYSTEM_PERMISSION} from '../permission/permission';
+import {CommonUtil} from '../util/common.util';
+import {User} from '../../domain/user/user';
+import {Group} from '../../domain/user/group';
+import {UserDetail} from '../../domain/common/abstract-history-entity';
+import {StompService, StompState} from '@stomp/ng2-stompjs';
+import {Observable} from 'rxjs';
+import {filter, map} from 'rxjs/operators';
+import {isUndefined} from "util";
 
 export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanComponentDeactivate {
 
@@ -93,7 +94,9 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   // 로그인 아이디
   public loginUserId: string;
 
-  public compUUID:string;
+  public compUUID: string;
+
+  protected stompSubscriptions: Subscription[] = [];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -139,6 +142,9 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     this.subscriptions.forEach((sub: Subscription) => {
       sub.unsubscribe();
     });
+    this.stompSubscriptions.forEach((sub: Subscription) => {
+      sub.unsubscribe();
+    });
 
     if (this.$element) {
 
@@ -153,7 +159,8 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   /**
    * unload 전 실행
    */
-  public execBeforeUnload() {}
+  public execBeforeUnload() {
+  }
 
   /**
    * deactive 체크
@@ -161,9 +168,9 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   public canDeactivate(): Observable<boolean> | boolean {
     this.execBeforeUnload();
     if (this.useUnloadConfirm) {
-      const obConfirm:Observable<boolean>  = this.unloadConfirmSvc.confirm();
-      obConfirm.subscribe( data => {
-        if( !data ) {
+      const obConfirm: Observable<boolean> = this.unloadConfirmSvc.confirm();
+      obConfirm.subscribe(data => {
+        if (!data) {
           history.pushState(null, null, this.router.url);
         }
       });
@@ -189,6 +196,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   // noinspection JSMethodCanBeStatic
   /**
    * add body scroll hidden class
@@ -346,7 +354,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    * @returns {string}
    */
   public getFieldRoleTypeIconClass(roleType: string): string {
-    return roleType === 'MEASURE' ? 'ddp-measure' : 'ddp-dimension' ;
+    return roleType === 'MEASURE' ? 'ddp-measure' : 'ddp-dimension';
   }
 
   // noinspection JSMethodCanBeStatic
@@ -469,12 +477,12 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    */
   public getEnabledConnectionTypes(isDeleteAll: boolean = false) {
     const types = [
-      { label: this.translateService.instant('msg.storage.ui.list.all'), value: 'all' },
+      {label: this.translateService.instant('msg.storage.ui.list.all'), value: 'all'},
       // { label: 'Oracle', value: 'ORACLE', icon: 'type-oracle'  },
-      { label: 'MySQL', value: 'MYSQL', icon: 'type-mysql' },
-      { label: 'PostgreSQL', value: 'POSTGRESQL', icon: 'type-postgre' },
-      { label: 'Hive', value: 'HIVE', icon: 'type-hive' },
-      { label: 'Presto', value: 'PRESTO', icon: 'type-presto' },
+      {label: 'MySQL', value: 'MYSQL', icon: 'type-mysql'},
+      {label: 'PostgreSQL', value: 'POSTGRESQL', icon: 'type-postgre'},
+      {label: 'Hive', value: 'HIVE', icon: 'type-hive'},
+      {label: 'Presto', value: 'PRESTO', icon: 'type-presto'},
       // { label: 'Apache Phoenix', value: 'PHOENIX', icon: 'type-pache' },
       // { label: 'Tibero', value: 'TIBERO', icon: 'type-tibero' }
     ];
@@ -528,25 +536,25 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
         value: 'LNG',
         icon: 'ddp-icon-type-longitude'
       },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.image'), value: 'IMAGE', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.binary'), value: 'BINARY', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.spatial'), value: 'SPATIAL', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.private'), value: 'PRIVATE', icon: '' },
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.image'), value: 'IMAGE', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.binary'), value: 'BINARY', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.spatial'), value: 'SPATIAL', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.private'), value: 'PRIVATE', icon: ''},
       {
         label: this.translateService.instant('msg.metadata.ui.dictionary.type.phone'),
         value: 'PHONE_NUMBER',
         icon: ''
       },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.email'), value: 'EMAIL', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.gender'), value: 'SEX', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.url'), value: 'URL', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.post'), value: 'POSTAL_CODE', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.country'), value: 'COUNTRY', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.state'), value: 'STATE', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.city'), value: 'CITY', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.gu'), value: 'GU', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.dong'), value: 'DONG', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.etc'), value: 'ETC', icon: '' },
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.email'), value: 'EMAIL', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.gender'), value: 'SEX', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.url'), value: 'URL', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.post'), value: 'POSTAL_CODE', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.country'), value: 'COUNTRY', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.state'), value: 'STATE', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.city'), value: 'CITY', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.gu'), value: 'GU', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.dong'), value: 'DONG', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.etc'), value: 'ETC', icon: ''},
     ];
   }
 
@@ -556,25 +564,25 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    */
   public getMetaDataLogicalTypeEtcList(): any[] {
     return [
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.image'), value: 'IMAGE', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.binary'), value: 'BINARY', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.spatial'), value: 'SPATIAL', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.private'), value: 'PRIVATE', icon: '' },
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.image'), value: 'IMAGE', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.binary'), value: 'BINARY', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.spatial'), value: 'SPATIAL', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.private'), value: 'PRIVATE', icon: ''},
       {
         label: this.translateService.instant('msg.metadata.ui.dictionary.type.phone'),
         value: 'PHONE_NUMBER',
         icon: ''
       },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.email'), value: 'EMAIL', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.gender'), value: 'SEX', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.url'), value: 'URL', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.post'), value: 'POSTAL_CODE', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.country'), value: 'COUNTRY', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.state'), value: 'STATE', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.city'), value: 'CITY', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.gu'), value: 'GU', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.dong'), value: 'DONG', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.etc'), value: 'ETC', icon: '' },
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.email'), value: 'EMAIL', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.gender'), value: 'SEX', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.url'), value: 'URL', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.post'), value: 'POSTAL_CODE', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.country'), value: 'COUNTRY', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.state'), value: 'STATE', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.city'), value: 'CITY', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.gu'), value: 'GU', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.dong'), value: 'DONG', icon: ''},
+      {label: this.translateService.instant('msg.metadata.ui.dictionary.type.etc'), value: 'ETC', icon: ''},
     ];
   }
 
@@ -629,41 +637,105 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
       (isReload) && (window.location.reload());
     }
 
-    return new Promise<string>((resolve, reject) => {
-      try {
-        (isUndefined(CommonConstant.stomp)) && (CommonConstant.stomp = this.stomp);
+    if (0 === this.stompSubscriptions.length) {
+      this.stomp.configure({
+        connectHeaders: {'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)}
+      });
+      this.stomp.initAndConnect();
+      (isUndefined(CommonConstant.stomp)) && (CommonConstant.stomp = this.stomp);
+      return new Promise<string>((resolve, reject) => {
+        console.log('Status init');
+        // let state = this.stomp.state.pipe(
+        //   map((state: number) => {
+        //     console.log(`Current state: ${StompState[state]}`);
+        //     return StompState[state];
+        //   })
+        // );
+        // this.stompSubscriptions.forEach((sub: Subscription) => {
+        //   sub.unsubscribe();
+        // });
+        // this.stompSubscriptions = [];
 
-        if ('CONNECTED' === CommonConstant.stomp.status) {
-          this._webSocketReConnectCnt = 0;
-          const temp: string = CommonConstant.stomp['socket']['_transport']['url'];
-          const tempArr = temp.split('/');
-          CommonConstant.websocketId = tempArr[5];
-          resolve('CONNECTED');
-        } else if ('CONNECTING' === CommonConstant.stomp.status) {
-          setTimeout(() => {
-            this.checkAndConnectWebSocket().then(resolve);
-          }, 500);
-        } else if (CommonConstant.stomp.status === 'CLOSED') {
-          this.stomp.configure({
-            host: CommonConstant.API_CONSTANT.URL + '/stomp',
-            headers: { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) },
-            debug: false,
-            heartbeatOut: 1000,
-            heartbeatIn: 0,
-            queue: { init: false }
-          });
-          this.stomp.startConnect().then(() => {
-            const temp: string = this.stomp['socket']['_transport']['url'];
+        const MAX_RETRIES = 3;
+        let numRetries = MAX_RETRIES;
+
+        this.stompSubscriptions.push(
+          this.stomp.state.pipe(
+            filter((state: number) => state === StompState.CLOSED)
+          ).subscribe(() => {
+            console.log(`Will retry ${numRetries} times`);
+            if (numRetries <= 0) {
+              console.info('>>>> disconnect');
+              this.stomp.disconnect();
+            }
+            numRetries--;
+          })
+        );
+
+        this.stompSubscriptions.push(
+          this.stomp.connectObservable.subscribe(() => {
+            console.log('connectObservable');
+            numRetries = MAX_RETRIES;
+          })
+        );
+
+        this.stompSubscriptions.push(
+          this.stomp.connected$.subscribe(() => {
+            console.log('I will be called for each time connection is established.');
+            this._webSocketReConnectCnt = 0;
+            const temp: string = CommonConstant.stomp['stompClient']['_webSocket']['_transport']['url'];
             const tempArr = temp.split('/');
             CommonConstant.websocketId = tempArr[5];
-            this.checkAndConnectWebSocket().then(resolve);
-          }).catch(err => console.error(err));
-        }
-      } catch (err) {
-        console.error(err);
-        reject('ERROR');
-      }
-    });
+            resolve('CONNECTED');
+          })
+        );
+
+      });
+    } else {
+      // if (this.stomp.connected()) {
+      return new Promise<string>((resolve, reject) => {
+        resolve('CONNECTED');
+      });
+      // }
+    }
+
+    /*
+        return new Promise<string>((resolve, reject) => {
+          try {
+            (isUndefined(CommonConstant.stomp)) && (CommonConstant.stomp = this.stomp);
+
+            if ('CONNECTED' === CommonConstant.stomp.status) {
+              this._webSocketReConnectCnt = 0;
+              const temp: string = CommonConstant.stomp['socket']['_transport']['url'];
+              const tempArr = temp.split('/');
+              CommonConstant.websocketId = tempArr[5];
+              resolve('CONNECTED');
+            } else if ('CONNECTING' === CommonConstant.stomp.status) {
+              setTimeout(() => {
+                this.checkAndConnectWebSocket().then(resolve);
+              }, 500);
+            } else if (CommonConstant.stomp.status === 'CLOSED') {
+              this.stomp.configure({
+                brokerURL: CommonConstant.API_CONSTANT.URL + '/stomp',
+                connectHeaders: { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) },
+                heartbeatOutgoing: 1000,
+                heartbeatIncoming: 0,
+                debug: (str) => {
+                  console.log(new Date(), str);
+                }
+              });
+              this.stomp.activate();
+              const temp: string = this.stomp['socket']['_transport']['url'];
+              const tempArr = temp.split('/');
+              CommonConstant.websocketId = tempArr[5];
+              this.checkAndConnectWebSocket().then(resolve);
+            }
+          } catch (err) {
+            console.error(err);
+            reject('ERROR');
+          }
+        });
+    */
   } // function - checkAndConnectWebSocket
 
   // noinspection JSUnusedGlobalSymbols
@@ -684,13 +756,18 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
       this.checkAndConnectWebSocket().then(() => {
         try {
           // 메세지 발신
-          const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
           const params = {
             'type': 'View',
-            'object': { 'id': id, 'type': type },
-            'generator': { 'type': 'WEBAPP', 'name': navigator.userAgent }
+            'object': {'id': id, 'type': type},
+            'generator': {'type': 'WEBAPP', 'name': navigator.userAgent}
           };
-          CommonConstant.stomp.send('/message/activities/add', params, headers);
+          CommonConstant.stomp.publish(
+            {
+              destination: '/message/activities/add',
+              headers: {'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)},
+              body: JSON.stringify(params)
+            }
+          );
         } catch (err) {
           console.error(err);
         }
@@ -711,14 +788,19 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
       this.checkAndConnectWebSocket().then(() => {
         try {
           // 메세지 발신
-          const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
           const params = {
             'type': 'Link',
-            'object': { 'id': sourceId, 'type': sourceType },
-            'target': { 'id': targetId, 'type': targetType },
-            'generator': { 'type': 'WEBAPP', 'name': navigator.userAgent }
+            'object': {'id': sourceId, 'type': sourceType},
+            'target': {'id': targetId, 'type': targetType},
+            'generator': {'type': 'WEBAPP', 'name': navigator.userAgent}
           };
-          CommonConstant.stomp.send('/message/activities/add', params, headers);
+          CommonConstant.stomp.publish(
+            {
+              destination: '/message/activities/add',
+              headers: {'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)},
+              body: JSON.stringify(params)
+            }
+          );
         } catch (err) {
           console.error(err);
         }
