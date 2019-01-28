@@ -28,7 +28,6 @@ import {
   SelectionColor,
 } from '../../option/define/map/map-common';
 import {ColorRange} from '../../option/ui-option/ui-color';
-import {OptionGenerator} from '../../option/util/option-generator';
 import {
   ChartColorList,
   ChartSelectMode,
@@ -56,19 +55,7 @@ import {UITileLayer} from '../../option/ui-option/map/ui-tile-layer';
 import {ColorOptionConverter} from '../../option/converter/color-option-converter';
 import {CommonConstant} from "../../../../constant/common.constant";
 
-import Map from 'ol/Map';
-import View from 'ol/View';
-import Feature from 'ol/Feature';
-import Overlay from 'ol/Overlay';
-import * as OlLayer from 'ol/layer';
-import * as OlSource from 'ol/source';
-import * as OlStyle from 'ol/style';
-import * as OlControl from 'ol/control';
-import * as OlFormat from 'ol/format';
-import * as OlExtent from 'ol/extent';
-import * as OlGeom from 'ol/geom';
-import * as OlInteraction from 'ol/interaction';
-import * as OlCondition from 'ol/events/condition';
+declare let ol;
 
 @Component({
   selector: 'map-chart',
@@ -105,35 +92,29 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // Map Object
-  public olmap: Map = undefined;
+  public olmap: any = undefined;
 
   // OSM Layer
-  public osmLayer = new OlLayer.Tile({
-    source: new OlSource.OSM({
-      attributions: [new OlControl.Attribution({
-        html: this.attribution()
-      })],
+  public osmLayer = new ol.layer.Tile({
+    source: new ol.source.OSM({
+      attributions: this.attribution(),
       crossOrigin: 'anonymous'
     })
   });
 
-  public cartoPositronLayer = new OlLayer.Tile({
-    source: new OlSource.XYZ({
+  public cartoPositronLayer = new ol.layer.Tile({
+    source: new ol.source.XYZ({
       url: 'http://{1-4}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-      attributions: [new OlControl.Attribution({
-        html: this.attribution()
-      })],
+      attributions: this.attribution(),
       crossOrigin: 'anonymous'
     })
   });
 
   // Carto Dark Layer
-  public cartoDarkLayer = new OlLayer.Tile({
-    source: new OlSource.XYZ({
+  public cartoDarkLayer = new ol.layer.Tile({
+    source: new ol.source.XYZ({
       url: 'http://{1-4}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-      attributions: [new OlControl.Attribution({
-        html: this.attribution()
-      })],
+      attributions: this.attribution(),
       crossOrigin: 'anonymous'
     })
   });
@@ -222,12 +203,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           = objConf.baseMaps.map(item => {
           return {
             name: item.name,
-            layer: new OlLayer.Tile({
-              source: new OlSource.XYZ({
+            layer: new ol.layer.Tile({
+              source: new ol.source.XYZ({
                 url: item.url,
-                attributions: [new OlControl.Attribution({
-                  html: this.attribution()
-                })],
+                attributions: this.attribution(),
                 crossOrigin: 'anonymous'
               })
             }),
@@ -381,19 +360,19 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let isMapCreation: boolean = this.createMap();
 
     // Soruce
-    let source = new OlSource.Vector({crossOrigin: 'anonymous'});
+    let source = new ol.source.Vector({crossOrigin: 'anonymous'});
 
     // Hexagon Soruce
-    let hexagonSource = new OlSource.Vector({crossOrigin: 'anonymous'});
+    let hexagonSource = new ol.source.Vector({crossOrigin: 'anonymous'});
 
     // Line & Polygon Source
-    let emptySource = new OlSource.Vector();
+    let emptySource = new ol.source.Vector();
 
     // Creation feature
     this.createFeature(source, hexagonSource, geomType);
 
     // Cluster source
-    let clusterSource = new OlSource.Cluster({
+    let clusterSource = new ol.source.Cluster({
       distance: this.getUiMapOption().layers[this.getUiMapOption().layerNum]['coverage'],
       source: source,
       crossOrigin: 'anonymous'
@@ -669,8 +648,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     }
 
     // Map object initialize
-    this.olmap = new Map({
-      view: new View({
+    this.olmap = new ol.Map({
+      view: new ol.View({
         center: [126, 37],
         zoom: 6,
         // zoom: this.getMinZoom(),
@@ -694,7 +673,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.olmap.updateSize();
 
     // Zoom slider
-    const zoomslider = new OlControl.ZoomSlider();
+    const zoomslider = new ol.control.ZoomSlider();
     this.olmap.addControl(zoomslider);
 
     // Is map creation
@@ -728,9 +707,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
           // Create
           if (!this.clusterLayer) {
-            this.clusterLayer = new OlLayer.Vector({
+            this.clusterLayer = new ol.layer.Vector({
               source: _.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource,
-              style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new OlStyle.Style()
+              style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style()
             });
           }
 
@@ -750,7 +729,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
               }
 
               // Set style
-              this.clusterLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new OlStyle.Style());
+              this.clusterLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style());
             } else {
               // Remove layer
               this.olmap.removeLayer(this.clusterLayer);
@@ -764,9 +743,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
           // Create
           if (!this.symbolLayer) {
-            this.symbolLayer = new OlLayer.Vector({
+            this.symbolLayer = new ol.layer.Vector({
               source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
-              style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new OlStyle.Style()
+              style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style()
             });
           }
 
@@ -786,7 +765,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
               }
 
               // Set style
-              this.symbolLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new OlStyle.Style());
+              this.symbolLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style());
             } else {
               // Remove layer
               this.olmap.removeLayer(this.symbolLayer);
@@ -802,7 +781,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
         // Create
         if (!this.symbolLayer) {
-          this.symbolLayer = new OlLayer.Vector({
+          this.symbolLayer = new ol.layer.Vector({
             source: source,
             style: this.mapStyleFunction(0, this.data)
           });
@@ -840,7 +819,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
         // Create
         if (!this.heatmapLayer) {
-          this.heatmapLayer = new OlLayer.Heatmap({
+          this.heatmapLayer = new ol.layer.Heatmap({
             source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
             // Style
             gradient: HeatmapColorList[heatmapLayer.color.schema],
@@ -871,7 +850,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             this.heatmapLayer.setBlur(heatmapLayer.blur * 0.7);
             if (!_.eq(geomType, LogicalType.GEO_POINT)) {
               // Set style
-              this.symbolLayer.setStyle(new OlStyle.Style());
+              this.symbolLayer.setStyle(new ol.style.Style());
             }
           } else {
             // Remove layer
@@ -886,9 +865,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
         // Create
         if (!this.hexagonLayer) {
-          this.hexagonLayer = new OlLayer.Vector({
+          this.hexagonLayer = new ol.layer.Vector({
             source: _.eq(geomType, LogicalType.GEO_POINT) ? hexagonSource : emptySource,
-            style: _.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(0, this.data) : new OlStyle.Style()
+            style: _.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(0, this.data) : new ol.style.Style()
           });
         }
 
@@ -908,7 +887,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             }
 
             // Set style
-            this.hexagonLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(0, this.data) : new OlStyle.Style());
+            this.hexagonLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(0, this.data) : new ol.style.Style());
           } else {
             // Remove layer
             this.olmap.removeLayer(this.hexagonLayer);
@@ -945,16 +924,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Data interate
     for (let i = 0; i < this.data[0]["features"].length; i++) {
 
-      let feature = new Feature();
-      feature = (new OlFormat.GeoJSON()).readFeature(this.data[0].features[i]);
+      let feature = new ol.Feature();
+      feature = (new ol.format.GeoJSON()).readFeature(this.data[0].features[i]);
 
       if (_.eq(geomType, LogicalType.GEO_POINT)) {
         let featureCenter = feature.getGeometry().getCoordinates();
 
         if (featureCenter.length === 1) {
           let extent = feature.getGeometry().getExtent();
-          featureCenter = OlExtent.getCenter(extent);
-          feature.setGeometry(new OlGeom.Point(featureCenter));
+          featureCenter = ol.extent.getCenter(extent);
+          feature.setGeometry(new ol.geom.Point(featureCenter));
         }
 
         if (this.uiOption.fieldMeasureList.length > 0) {
@@ -977,7 +956,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Generate hexagon feature
     ////////////////////////////////////////////////////////
 
-    let hexagonFeatures = (new OlFormat.GeoJSON()).readFeatures(this.data[0]);
+    let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(this.data[0]);
 
     for (let feature of hexagonFeatures) {
       feature.set('layerNum', 0);
@@ -1204,23 +1183,23 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // Creation style
       ////////////////////////////////////////////////////////
 
-      let style = new OlStyle.Style();
+      let style = new ol.style.Style();
 
       if (_.eq(layerType, MapLayerType.LINE)) {
-        style = new OlStyle.Style({
-          stroke: new OlStyle.Stroke({
+        style = new ol.style.Style({
+          stroke: new ol.style.Stroke({
             color: featureColor,
             width: lineThickness,
             lineDash: lineDash
           })
         });
       } else if (_.eq(layerType, MapLayerType.POLYGON)) {
-        style = new OlStyle.Style({
-          stroke: new OlStyle.Stroke({
+        style = new ol.style.Style({
+          stroke: new ol.style.Stroke({
             color: outlineColor,
             width: outlineWidth
           }),
-          fill: new OlStyle.Fill({
+          fill: new ol.style.Fill({
             color: featureColor
           })
         });
@@ -1440,136 +1419,136 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         // Creation style
         ////////////////////////////////////////////////////////
 
-        style = new OlStyle.Style({
-          image: new OlStyle.Circle({
+        style = new ol.style.Style({
+          image: new ol.style.Circle({
             radius: 4,
-            fill: new OlStyle.Fill({
+            fill: new ol.style.Fill({
               color: featureColor
             })
           }),
-          stroke: new OlStyle.Stroke({
+          stroke: new ol.style.Stroke({
             color: featureColor,
             width: lineThickness
           }),
-          fill: new OlStyle.Fill({
+          fill: new ol.style.Fill({
             color: featureColor
           })
         });
 
         switch (symbolType) {
           case MapSymbolType.CIRCLE :
-            style = new OlStyle.Style({
-              image: new OlStyle.Circle({
+            style = new ol.style.Style({
+              image: new ol.style.Circle({
                 radius: featureSize,
-                fill: new OlStyle.Fill({
+                fill: new ol.style.Fill({
                   color: featureColor
                 }),
-                stroke: new OlStyle.Stroke({color: outlineColor, width: outlineWidth})
+                stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
               }),
-              stroke: new OlStyle.Stroke({
+              stroke: new ol.style.Stroke({
                 color: outlineColor,
                 width: outlineWidth
               }),
-              fill: new OlStyle.Fill({
+              fill: new ol.style.Fill({
                 color: featureColor
               })
             });
             break;
           case MapSymbolType.SQUARE :
-            style = new OlStyle.Style({
-              image: new OlStyle.RegularShape({
-                fill: new OlStyle.Fill({color: featureColor}),
+            style = new ol.style.Style({
+              image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({color: featureColor}),
                 points: 4,
                 radius: featureSize,
                 angle: Math.PI / 4,
-                stroke: new OlStyle.Stroke({color: outlineColor, width: outlineWidth})
+                stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
               }),
-              stroke: new OlStyle.Stroke({
+              stroke: new ol.style.Stroke({
                 color: outlineColor,
                 width: outlineWidth
               }),
-              fill: new OlStyle.Fill({
+              fill: new ol.style.Fill({
                 color: featureColor
               })
             });
             break;
           case MapSymbolType.TRIANGLE :
-            style = new OlStyle.Style({
-              image: new OlStyle.RegularShape({
-                fill: new OlStyle.Fill({color: featureColor}),
+            style = new ol.style.Style({
+              image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({color: featureColor}),
                 points: 3,
                 radius: featureSize,
                 rotation: Math.PI / 4,
                 angle: -28,
-                stroke: new OlStyle.Stroke({color: outlineColor, width: outlineWidth})
+                stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
               }),
-              stroke: new OlStyle.Stroke({
+              stroke: new ol.style.Stroke({
                 color: outlineColor,
                 width: outlineWidth
               }),
-              fill: new OlStyle.Fill({
+              fill: new ol.style.Fill({
                 color: featureColor
               })
             });
             break;
           case MapSymbolType.PIN :
-            style = new OlStyle.Style({
-              image: new OlStyle.Icon(/** @type {module:ol/style/Icon~Options} */ ({
+            style = new ol.style.Style({
+              image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
                 color: featureColor,
                 crossOrigin: 'anonymous',
                 scale: featureSize * 0.1,
                 src: '../../../../../../assets/images/ic_pin.png'
               })),
-              stroke: new OlStyle.Stroke({
+              stroke: new ol.style.Stroke({
                 color: outlineColor,
                 width: outlineWidth
               }),
-              fill: new OlStyle.Fill({
+              fill: new ol.style.Fill({
                 color: featureColor
               })
             });
             break;
           case MapSymbolType.PLAIN :
-            style = new OlStyle.Style({
-              image: new OlStyle.Icon(/** @type {module:ol/style/Icon~Options} */ ({
+            style = new ol.style.Style({
+              image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
                 color: featureColor,
                 crossOrigin: 'anonymous',
                 scale: featureSize * 0.1,
                 src: '../../../../../../assets/images/ic_map_airport.png'
               })),
-              stroke: new OlStyle.Stroke({
+              stroke: new ol.style.Stroke({
                 color: outlineColor,
                 width: outlineWidth
               }),
-              fill: new OlStyle.Fill({
+              fill: new ol.style.Fill({
                 color: featureColor
               })
             });
             break;
           case MapSymbolType.USER :
-            style = new OlStyle.Style({
-              image: new OlStyle.Icon(/** @type {module:ol/style/Icon~Options} */ ({
+            style = new ol.style.Style({
+              image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
                 color: featureColor,
                 crossOrigin: 'anonymous',
                 scale: featureSize * 0.1,
                 src: '../../../../../../assets/images/ic_map_human.png'
               })),
-              stroke: new OlStyle.Stroke({
+              stroke: new ol.style.Stroke({
                 color: outlineColor,
                 width: outlineWidth
               }),
-              fill: new OlStyle.Fill({
+              fill: new ol.style.Fill({
                 color: featureColor
               })
             });
             break;
           default :
-            style = new OlStyle.Style({
-              stroke: new OlStyle.Stroke({
+            style = new ol.style.Style({
+              stroke: new ol.style.Stroke({
                 color: outlineColor,
                 width: outlineWidth
               }),
-              fill: new OlStyle.Fill({
+              fill: new ol.style.Fill({
                 color: featureColor
               })
             });
@@ -1666,16 +1645,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         // Creation style
         ////////////////////////////////////////////////////////
 
-        // style = new OlStyle.Style({
-        //   image: new OlStyle.Circle({
+        // style = new ol.style.Style({
+        //   image: new ol.style.Circle({
         //     radius: 15,
-        //     fill: new OlStyle.Fill({
+        //     fill: new ol.style.Fill({
         //       color: featureColor
         //     })
         //   }),
-        //   text: new OlStyle.Text({ // 클러스터링 되는 갯수 라벨링
+        //   text: new ol.style.Text({ // 클러스터링 되는 갯수 라벨링
         //     text: size.toString(), // 클러스터링 갯수
-        //     fill: new OlStyle.Fill({
+        //     fill: new ol.style.Fill({
         //       color: '#fff'
         //     })
         //   })
@@ -1683,15 +1662,15 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
         let canvas = scope.featureEl.nativeElement;
 
-        style = new OlStyle.Style({
-          image: new OlStyle.Icon({
+        style = new ol.style.Style({
+          image: new ol.style.Icon({
             img: canvas,
             imgSize: [canvas.width, canvas.height],
             opacity: 0.85
           })
-          , text: new OlStyle.Text({ // 클러스터링 되는 갯수 라벨링
+          , text: new ol.style.Text({ // 클러스터링 되는 갯수 라벨링
             text: size.toString(), // 클러스터링 갯수
-            fill: new OlStyle.Fill({
+            fill: new ol.style.Fill({
               color: '#fff'
             }),
             font: '10px sans-serif'
@@ -1850,12 +1829,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // Creation style
       ////////////////////////////////////////////////////////
 
-      let style = new OlStyle.Style({
-        stroke: new OlStyle.Stroke({
+      let style = new ol.style.Style({
+        stroke: new ol.style.Stroke({
           color: featureColor,
           width: 1
         }),
-        fill: new OlStyle.Fill({
+        fill: new ol.style.Fill({
           color: featureColor
         })
       });
@@ -1870,9 +1849,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   private attribution(): any {
 
     if (this.getUiMapOption()) {
-      return [new OlControl.Attribution({
-        html: this.getUiMapOption().licenseNotation
-      })];
+      return this.getUiMapOption().licenseNotation;
     } else {
       return "© OpenStreetMap contributors";
     }
@@ -1898,7 +1875,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     if (!this.tooltipLayer) {
 
       // Create
-      this.tooltipLayer = new Overlay({
+      this.tooltipLayer = new ol.Overlay({
         element: this.tooltipEl.nativeElement,
         positioning: 'top-center',
         stopEvent: false
@@ -2031,7 +2008,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       coords = feature.getGeometry().getCoordinates();
     } else {
       let extent = feature.getGeometry().getExtent();
-      coords = OlExtent.getCenter(extent);
+      coords = ol.extent.getCenter(extent);
     }
 
     this.tooltipInfo.coords = [];
@@ -2106,7 +2083,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
       let extent = feature.getGeometry().getExtent();
-      coords = OlExtent.getCenter(extent);
+      coords = ol.extent.getCenter(extent);
       this.tooltipLayer.setPosition(coords);
     } else {
       this.tooltipLayer.setPosition(coords);
@@ -2119,10 +2096,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   private createInteraction(): void {
 
     // drag style
-    var dragBoxInteraction = new OlInteraction.DragBox({
-      condition: OlCondition.shiftKeyOnly,
-      style: new OlStyle.Style({
-        stroke: new OlStyle.Stroke({
+    var dragBoxInteraction = new ol.interaction.DragBox({
+      condition: ol.events.condition.shiftKeyOnly,
+      style: new ol.style.Style({
+        stroke: new ol.style.Stroke({
           color: 'yellow',
           width: 2
         })
@@ -2132,12 +2109,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // TODO need to move on addChartMultiSelectEventListener
     dragBoxInteraction.on('boxend', function (event) {
 
-      const format = new OlFormat.GeoJSON();
+      const format = new ol.format.GeoJSON();
       const geom = event.target.getGeometry();
 
       // event.target.getMap().getView()
 
-      var feature = new Feature({
+      var feature = new ol.Feature({
         geometry: geom
       });
 
