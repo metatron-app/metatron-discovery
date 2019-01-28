@@ -1,4 +1,5 @@
 <!--
+  ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
@@ -12,70 +13,64 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-box-action">
+<div class="ddp-box-action" *ngIf="showFlag">
   <a href="javascript:" class="ddp-btn-box-close" (click)="onClickUnSelected()">
     <em class="ddp-icon-box-close"></em>
     {{'msg.storage.th.unsel.all' | translate}}
   </a>
-  <span class="ddp-data-selet"><strong>{{items.length}}</strong>{{'msg.storage.ui.sel.count' | translate}}</span>
+  <span class="ddp-data-selet"><strong>{{checkedFieldList.length}}</strong>{{'msg.storage.ui.sel.count' | translate}}</span>
   <a href="javascript:" class="ddp-btn-line" (click)="onClickAction()">{{'msg.storage.btn.apply' | translate}}</a>
   <!-- check action -->
   <div class="ddp-ui-checkaction">
     <div class="ddp-wrap-action">
       <!-- 액션 -->
       <!-- 선택시 ddp-selected 추가 -->
-      <div class="ddp-type-selectbox" [ngClass]="{'ddp-selected' : actionShowFl}" (click)="actionShowFl = !actionShowFl" (clickOutside)="actionShowFl=false">
+      <div class="ddp-type-selectbox" [class.ddp-selected]="actionTypeListShowFlag"
+           (click)="actionTypeListShowFlag = !actionTypeListShowFlag" (clickOutside)="actionTypeListShowFlag = false">
         <span class="ddp-txt-selectbox">{{selectedActionType.label}}</span>
         <ul class="ddp-list-selectbox ">
-          <li *ngFor="let action of actionTypes" (click)="onSelectedAction(action)">
-            <a href="javascript:">
-              {{action.label}}
-            </a>
+          <li *ngFor="let type of actionTypeList" (click)="onChangeActionType(type)">
+            <a href="javascript:">{{type.label}}</a>
           </li>
         </ul>
       </div>
       <!-- //액션 -->
       <!-- role 선택 -->
-      <div class="ddp-type-selectbox" *ngIf="isChangeActionType()"
-           [ngClass]="{'ddp-selected' : roleShowFl}"
-           (click)="roleShowFl = !roleShowFl"
-           (clickOutside)="roleShowFl=false">
+      <div class="ddp-type-selectbox" *ngIf="selectedActionType.value === 'CHANGE'" [class.ddp-selected]="roleTypeListShowFlag"
+           (click)="roleTypeListShowFlag = !roleTypeListShowFlag" (clickOutside)="roleTypeListShowFlag = false">
         <span class="ddp-txt-selectbox">{{selectedRoleType.label}}</span>
         <ul class="ddp-list-selectbox ">
-          <li *ngFor="let role of roleTypes" (click)="onSelectedRole(role)">
-            <a href="javascript:">
-              {{role.label}}
-            </a>
+          <li *ngFor="let type of roleTypeList" (click)="onChangeRoleType(type)">
+            <a href="javascript:">{{type.label}}</a>
           </li>
         </ul>
       </div>
       <!-- // role 선택 -->
-      <!-- 타입변경 -->
-      <!-- 선택시 ddp-selected 추가 -->
-      <div class="ddp-type-selectbox" *ngIf="isChangeActionType()"
-           [ngClass]="{'ddp-selected' : logicalShowFl}"
-           (click)="logicalShowFl = !logicalShowFl"
-           (clickOutside)="logicalShowFl=false">
+      <!-- change logical type -->
+      <div class="ddp-type-selectbox" *ngIf="selectedActionType.value === 'CHANGE'" [class.ddp-selected]="logicalTypeListShowFlag"
+           (click)="logicalTypeListShowFlag = !logicalTypeListShowFlag" (clickOutside)="logicalTypeListShowFlag = false">
         <span class="ddp-txt-selectbox">
          <span class="ddp-type-txt">
           <em class="{{selectedLogicalType.icon}}"></em>
-          {{selectedLogicalType.label}}
+           {{selectedLogicalType.label}}
          </span>
         </span>
         <div class="ddp-types">
           <ul class="ddp-list-selectbox ddp-list-popup ">
-            <li *ngFor="let logical of getLogicalTypes()"
-                [ngClass]="{'ddp-selected' : selectedLogicalType.value === logical.value}"
-                (click)="onSelectedLogicalType(logical)">
+            <li *ngFor="let type of logicalTypeList" [class.ddp-selected]="selectedLogicalType.value === type.value"
+                (click)="onChangeLogicalType(type)">
               <a href="javascript:" style="padding-left:35px;">
-                <em class="{{logical.icon}}"></em>
-                {{logical.label}}
+                <em class="{{type.icon}}"></em>
+                {{type.label}}
                 <em class="ddp-icon-check"></em>
               </a>
             </li>
           </ul>
         </div>
       </div>
+      <!-- //change logical type -->
+      <div class="ddp-info" *ngIf="isExistDerivedField">{{'msg.storage.ui.configure.schema.logical.change.derived' | translate}}</div>
+      <div class="ddp-info" *ngIf="!isExistDerivedField && isExistTimestampField">{{'msg.storage.ui.configure.schema.logical.change.timestamp' | translate}}</div>
     </div>
   </div>
   <!-- //check action -->

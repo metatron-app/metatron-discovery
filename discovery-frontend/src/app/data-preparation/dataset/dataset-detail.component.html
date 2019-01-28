@@ -20,7 +20,7 @@
       <!-- 수정 data -->
       <div class="ddp-data-form">
       <span class="ddp-txt-date">
-      {{'msg.common.ui.updated' | translate: { modifiedTime : dataset.modifiedTime | mdate:'YYYY-MM-DD HH:mm', fullName : dataset.modifiedBy } }}
+      {{'msg.common.ui.updated' | translate: { modifiedTime : dataset.modifiedTime | mdate:'YYYY-MM-DD HH:mm', fullName : dataset.modifiedBy.fullName } }}
       </span>
         <a href="javascript:" class="ddp-btn-info" (click)="showOption($event);" [class.ddp-selected]="isDatasetOptionShow"><em class="ddp-icon-myinfo"></em></a>
         <div class="ddp-data-box" *ngIf="isDatasetOptionShow" (clickOutside)="hideOption();">
@@ -28,7 +28,7 @@
           <a href="javascript:" class="ddp-list-link" (click)="confirmDelete($event,dataset)"><em class="ddp-icon-delete"></em>{{'msg.dp.ui.ds.del' | translate}}</a>
           <a href="javascript:" class="ddp-list-link" *ngIf="'WRANGLED' === dataset.dsType.toString()" (click)="createSnapshot()"><em class="ddp-icon-create"></em>{{'msg.dp.ui.create.ss' | translate }}</a>
           <span class="ddp-data-by">
-          {{'msg.common.ui.created' | translate: { createdTime : dataset.createdTime | mdate:'YYYY-MM-DD HH:mm', fullName :dataset.createdBy } }}
+          {{'msg.common.ui.created' | translate: { createdTime : dataset.createdTime | mdate:'YYYY-MM-DD HH:mm', fullName :dataset.createdBy.fullName } }}
         </span>
         </div>
       </div>

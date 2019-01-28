@@ -14,7 +14,6 @@
 
 package app.metatron.discovery.domain.datasource.ingestion;
 
-import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,13 +21,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Map;
 
+import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
+
 /**
  * Hive 적재 정보
  */
 public class HiveIngestionInfo implements IngestionInfo {
 
-  public final static String KEY_HIVE_METASTORE="metatron.hive.metastoreUri";
-  public final static String KEY_ORC_SCHEMA="metatron.hive.orcSchema";
+  public final static String KEY_HIVE_METASTORE = "metatron.hive.metastoreUri";
+  public final static String KEY_ORC_SCHEMA = "metatron.hive.orcSchema";
 
   /**
    * 테이블 포맷
@@ -36,73 +37,70 @@ public class HiveIngestionInfo implements IngestionInfo {
   FileFormat format;
 
   /**
-   * 대상 테이블 명
-   * [schema].[table]
-   *
+   * 대상 테이블 명 [schema].[table]
    */
   String source;
 
   /**
    * 대상 파티션 지정
    *
-   * [{"column name1" : "partition value", "column name2" : "partition value"...},
-   * {"column name1" : "partition value", "column name2" : "partition value"...}]
+   * [{"column name1" : "partition value", "column name2" : "partition value"...}, {"column name1" :
+   * "partition value", "column name2" : "partition value"...}]
    */
   List<Map<String, Object>> partitions;
 
   /**
-   * MR Job Option, 기본값 override
-   */
-  Map<String, Object> jobProperties;
-
-  /**
-   * Tuning Config 지정, 기본값 override
+   * Specify Tuning Configuration, override default Value
    */
   Map<String, Object> tuningOptions;
 
   /**
-   * Context 값 처리
+   * Specify MR Job property, override default Value
+   */
+  Map<String, Object> jobProperties;
+
+  /**
+   * Context value
    */
   Map<String, Object> context;
 
   /**
-   * Granularity Intervals
+   * Intervals
    */
   List<String> intervals;
 
   /**
-   * Rollup 여부
+   * Roll-up
    */
   Boolean rollup;
 
   /**
-   * 대상 테이블 ORC 포맷 스키마 정보(optional)
+   * Schema information for ORC Table(optional)
    */
   @JsonIgnore
   String typeString;
 
 
   @JsonCreator
-  public HiveIngestionInfo(
-      @JsonProperty("format") FileFormat format,
-      @JsonProperty("source") String source,
-      @JsonProperty("partitions") List<Map<String, Object>> partitions,
-      @JsonProperty("jobProperties") Map<String, Object> jobProperties,
-      @JsonProperty("tuningOptions") Map<String, Object> tuningOptions,
-      @JsonProperty("intervals") List<String> intervals,
-      @JsonProperty("context") Map<String, Object> context) {
+  public HiveIngestionInfo(@JsonProperty("format") FileFormat format,
+                           @JsonProperty("source") String source,
+                           @JsonProperty("partitions") List<Map<String, Object>> partitions,
+                           @JsonProperty("tuningOptions") Map<String, Object> tuningOptions,
+                           @JsonProperty("jobProperties") Map<String, Object> jobProperties,
+                           @JsonProperty("intervals") List<String> intervals,
+                           @JsonProperty("context") Map<String, Object> context) {
     this.format = format;
     this.source = source;
     this.partitions = partitions;
-    this.jobProperties = jobProperties;
     this.tuningOptions = tuningOptions;
+    this.jobProperties = jobProperties;
     this.intervals = intervals;
     this.context = context;
   }
 
   @JsonIgnore
   public <T> T getContextValue(String key) {
-    if(context == null) {
+    if (context == null) {
       return null;
     }
 
@@ -138,6 +136,7 @@ public class HiveIngestionInfo implements IngestionInfo {
     return context;
   }
 
+  @Override
   public List<String> getIntervals() {
     return intervals;
   }

@@ -18,9 +18,8 @@ import {
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import {isNullOrUndefined, isUndefined} from "util";
-import { StringUtil } from '../../../../../../common/util/string.util';
 import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
-import { RuleConditionInputComponent } from './rule-condition-input.component';
+import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 import * as _ from 'lodash';
 
 @Component({
@@ -32,8 +31,10 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
+
+  @ViewChild('derive_value_input')
+  private valueInput : RuleSuggestInputComponent;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -95,43 +96,32 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    * @return
    */
   public getRuleData(): { command: string, ruleString:string} {
-    if (this.ruleConditionInputComponent.autoCompleteSuggestions_selectedIdx == -1) {
-      this.deriveVal = this.ruleConditionInputComponent.getCondition();
-      let val = _.cloneDeep(this.deriveVal);
+    
+    this.deriveVal = this.valueInput.getFormula();
+    let val = _.cloneDeep(this.deriveVal);
 
-      if (isUndefined(val) || '' === val || '\'\'' === val) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
-        return undefined
-      }
-      if (!isUndefined(val) && '' !== val.trim()) {
-        let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
-        if (check[0] === false) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.check.expression'));
-          return undefined
-        } else {
-          val = check[1];
-        }
-      }
-      if (isUndefined(this.deriveAs) || '' === this.deriveAs) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
-        return undefined
-      }
-
-      let deriveAs : string  = '';
-      if (this.deriveAs.indexOf(' ') === -1) {
-        deriveAs = `'${this.deriveAs}'`;
-      } else {
-        deriveAs = '`' +this.deriveAs + '`';
-      }
-
-      return {
-        command: 'derive',
-        ruleString: 'derive value: ' + val + ' as: ' + deriveAs
-      }
-    } else {
-      return undefined;
+    if (isUndefined(val) || '' === val || '\'\'' === val) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
+      return undefined
+    }
+    
+    if (isUndefined(this.deriveAs) || '' === this.deriveAs) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
+      return undefined
     }
 
+    let deriveAs : string  = '';
+    if (this.deriveAs.indexOf(' ') === -1) {
+      deriveAs = `'${this.deriveAs}'`;
+    } else {
+      deriveAs = '`' +this.deriveAs + '`';
+    }
+
+    return {
+      command: 'derive',
+      ruleString: 'derive value: ' + val + ' as: ' + deriveAs
+    }
+    
   } // function - getRuleData
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -141,9 +131,18 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
 `   * Open advanced editor popup
    */
   public openPopupFormulaInput() {
-    this.deriveVal = this.ruleConditionInputComponent.getCondition();
+    this.deriveVal = this.valueInput.getFormula();
     this.advancedEditorClickEvent.emit({command :'derive', val : 'deriveVal' });
   } // function - openPopupFormulaInput
+
+  /**
+   * Apply formula using Advanced formula popup
+   * @param {{command: string, formula: string}} data
+   */
+  public doneInputFormula(data: { command: string, formula: string }) {
+    this.deriveVal = data.formula;
+    this.valueInput.setFormula(this.deriveVal);
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

@@ -1351,6 +1351,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.isCanceled = false;
     this.executeTabIds = [];
     this.executeEditorId = item.editorId;
+    item.startDate = '';
+    item.finishDate = '';
 
     this.workbenchService.checkConnectionStatus(item.editorId, this.websocketId)
       .then((result) => {
@@ -2606,6 +2608,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     // textAll = this.replaceAll(textAll, textSelected, text);
     // this.editor.setText(textAll);
+
+    // 쿼리 저장
+    this.textList[this.selectedTabNum]['query'] = this.getSelectedTabText();
+    // 로컬 스토리지에 쿼리에 저장
+    this.saveLocalStorage(this.getSelectedTabText(), this.textList[this.selectedTabNum]['editorId']);
   }
 
   public replaceAll(str, find, replace) {
@@ -2672,7 +2679,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               data: currentResultTab.result.data
             }
           },
-          workbenchFl: true
+          workbenchFl: true,
+          fieldList: currentResultTab.result.fields,
+          fieldData: currentResultTab.result.data
         };
 
         // 로딩 hide
@@ -2785,7 +2794,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       },
       removeFirstRow: true,
       path: currentResultTab.result.csvFilePath,
-      rollup: true
+      rollup: false
     };
 
     this.loadingShow();

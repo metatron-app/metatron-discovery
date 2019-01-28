@@ -36,7 +36,6 @@ import { CreateDatasetDbQueryComponent } from './dataset/create-dataset/create-d
 import { SplitPaneModule } from 'ng2-split-pane/lib/ng2-split-pane';
 import { WorkbenchEditorModule } from '../workbench/workbench.editor.module';
 import { DataflowDetailComponent } from './dataflow/dataflow-detail/dataflow-detail.component';
-import { AddDatasetModalComponent } from './dataflow/dataflow-detail/component/add-dataset-modal/add-dataset-modal.component';
 import { RuleJoinPopupComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-join-popup/rule-join-popup.component';
 import { RuleUnionPopupComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-union-popup/rule-union-popup.component';
 import { UnionAddDatasetsComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-union-popup/union-add-datasets/union-add-datasets.component';
@@ -52,7 +51,6 @@ import { EditDataflowRule2Component } from './dataflow/dataflow-detail/component
 import { EditRuleGridComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule-grid/edit-rule-grid.component';
 import { RuleSnapshotListComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-snapshot-list.component';
 import { CreateDataflowNameDescComponent } from './dataflow/create-dataflow-name-desc.component';
-import { AddDatasetComponent } from './dataflow/dataflow-detail/add-dataset.component';
 import { DatasetSummaryComponent } from './component/dataset-summary.component';
 import { EditRuleHeaderComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-header.component';
 import { EditRuleKeepComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-keep.component';
@@ -61,6 +59,7 @@ import { EditRuleDropComponent } from './dataflow/dataflow-detail/component/edit
 import { CreateSnapshotPopup } from './component/create-snapshot-popup.component';
 import { SnapshotLoadingComponent } from './component/snapshot-loading.component';
 import { RuleConditionInputComponent } from "./dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/rule-condition-input.component";
+import { RuleSuggestInputComponent } from "./dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/rule-suggest-input.component";
 import { EditRuleFieldComboComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-field-combo.component';
 import { EditRuleDeriveComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-derive.component';
 import { EditRuleSetComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-set.component';
@@ -122,7 +121,6 @@ const dataPreparationRoutes: Routes = [
     CreateDatasetDbQueryComponent,
     DatasetDetailComponent,
     DataflowDetailComponent,
-    AddDatasetModalComponent,
     RuleJoinPopupComponent,
     RuleUnionPopupComponent,
     UnionAddDatasetsComponent,
@@ -160,12 +158,12 @@ const dataPreparationRoutes: Routes = [
     EditRuleSettypeComponent,
     EditRuleWindowComponent,
     RuleSnapshotListComponent,
-    AddDatasetComponent,
     CreateDataflowNameDescComponent,
     DatasetSummaryComponent,
     CreateSnapshotPopup,
     SnapshotLoadingComponent,
     RuleConditionInputComponent,
+    RuleSuggestInputComponent,
     PrepSelectBoxComponent,
     PrepSelectBoxCustomComponent,
     RadioSelectDatasetComponent,

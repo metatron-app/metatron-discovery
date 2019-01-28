@@ -125,7 +125,7 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
     if (!uiOption.totalValueStyle) {
 
       uiOption.totalValueStyle = {};
-      uiOption.totalValueStyle.label = this.translateService.instant('msg.page.calrow.label.grand.total');
+      // uiOption.totalValueStyle.label = this.translateService.instant('msg.page.calrow.label.grand.total');
       uiOption.totalValueStyle.fontSize = FontSize.NORMAL;
       uiOption.totalValueStyle.fontStyles = [];
       uiOption.totalValueStyle.fontColor = '';
@@ -153,7 +153,7 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
    */
   public changeLabel(label: string): void {
 
-    if (_.isEmpty(label)) label = 'Grand Total';
+    // if (_.isEmpty(label)) label = 'Grand Total';
 
     let totalValueStyle = (<UIGridChart>this.uiOption).totalValueStyle;
     totalValueStyle.label = label;

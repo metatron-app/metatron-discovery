@@ -31,6 +31,7 @@ package app.metatron.discovery.domain.workbook.widget;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -110,6 +112,9 @@ public class WidgetController {
   DataSourceValidator dataSourceValidator;
 
   @Autowired
+  WidgetProperties widgetProperties;
+
+  @Autowired
   WidgetService widgetService;
 
   @Autowired
@@ -155,13 +160,20 @@ public class WidgetController {
     return ResponseEntity.ok(result);
   }
 
+  @RequestMapping(path = "/widgets/properties/mapview", method = RequestMethod.GET)
+  public @ResponseBody ResponseEntity<?> getBaseMapsInMapView() {
+
+    WidgetProperties.MapView mapView = widgetProperties.getMapView();
+
+    return ResponseEntity.ok(mapView);
+  }
+
   @RequestMapping(path = "/widgets/{widgetId}/data", method = RequestMethod.POST)
   public @ResponseBody ResponseEntity<?> getDataFromWidget(@PathVariable("widgetId") String widgetId,
                                                            @RequestParam(value = "original", required = false) boolean isOriginal,
                                                            @RequestParam(value = "preview", required = false) boolean preview,
                                                            @RequestParam(value = "limit", required = false) Integer limit,
-                                                           @RequestBody(required = false) SearchResultFormat resultFormat) {
-
+                                                           @RequestBody(required = false) List<Filter> filters) {
     Widget widget = widgetRepository.findOne(widgetId);
     if (widget == null) {
       throw new ResourceNotFoundException(widgetId);
@@ -176,14 +188,22 @@ public class WidgetController {
                                                           .filter(dataSourceAlias -> StringUtils.isNotEmpty(dataSourceAlias.getValueAlias()))
                                                           .collect(Collectors.toMap(DataSourceAlias::getFieldName, dataSourceAlias -> dataSourceAlias));
 
+    BoardConfiguration boardConfiguration = GlobalObjectMapper.readValue(widget.getDashBoard().getConfiguration(), BoardConfiguration.class);
+    if(CollectionUtils.isNotEmpty(filters)) {
+      if(boardConfiguration.getFilters() == null) {
+        boardConfiguration.setFilters(new ArrayList<>());
+      }
+      boardConfiguration.getFilters().addAll(filters);
+    }
+
     Object result = engineQueryService.search(getQueryRequestFromConfig(
-        GlobalObjectMapper.readValue(widget.getDashBoard().getConfiguration(), BoardConfiguration.class),
+        boardConfiguration,
         GlobalObjectMapper.readValue(widget.getConfiguration(), PageWidgetConfiguration.class),
         aliases,
         isOriginal,
         preview,
         limit,
-        resultFormat
+        null
     ));
 
     return ResponseEntity.ok(result);
@@ -293,7 +313,8 @@ public class WidgetController {
                                      @PathVariable("widgetId") String widgetId,
                                      @RequestParam(value = "original", required = false) boolean isOriginal,
                                      @RequestParam(value = "limit", required = false) Integer limit,
-                                     @RequestParam(value = "maxRowsPerSheet", defaultValue = "1000000") Integer maxRowsPerSheet) throws IOException {
+                                     @RequestParam(value = "maxRowsPerSheet", defaultValue = "1000000") Integer maxRowsPerSheet,
+                                     @RequestBody(required = false) List<Filter> filters) throws IOException {
 
     if(maxRowsPerSheet > 1000000) {
       throw new BadRequestException("Not allowed row count. max 1,000,000");
@@ -314,8 +335,16 @@ public class WidgetController {
                                                           .filter(dataSourceAlias -> StringUtils.isNotEmpty(dataSourceAlias.getValueAlias()))
                                                           .collect(Collectors.toMap(DataSourceAlias::getFieldName, dataSourceAlias -> dataSourceAlias));
 
+    BoardConfiguration boardConfiguration = GlobalObjectMapper.readValue(widget.getDashBoard().getConfiguration(), BoardConfiguration.class);
+    if(CollectionUtils.isNotEmpty(filters)) {
+      if(boardConfiguration.getFilters() == null) {
+        boardConfiguration.setFilters(new ArrayList<>());
+      }
+      boardConfiguration.getFilters().addAll(filters);
+    }
+
     SearchQueryRequest searchQuery = getQueryRequestFromConfig(
-        GlobalObjectMapper.readValue(widget.getDashBoard().getConfiguration(), BoardConfiguration.class),
+        boardConfiguration,
         GlobalObjectMapper.readValue(widget.getConfiguration(), PageWidgetConfiguration.class),
         aliases,
         isOriginal,
@@ -478,6 +507,5 @@ public class WidgetController {
 
     return queryRequest;
   }
-
 
 }

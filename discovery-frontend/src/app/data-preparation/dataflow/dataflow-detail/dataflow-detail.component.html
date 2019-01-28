@@ -18,12 +18,12 @@
     <!-- 수정 data -->
     <div class="ddp-data-form">
       <span class="ddp-txt-date">
-      {{'msg.common.ui.updated' | translate: { modifiedTime : dataflow.modifiedTime | mdate:'YYYY-MM-DD HH:mm', fullName : dataflow.modifiedBy } }}
+      {{'msg.common.ui.updated' | translate: { modifiedTime : dataflow.modifiedTime | mdate:'YYYY-MM-DD HH:mm', fullName : dataflow.modifiedBy?.fullName } }}
       </span>
       <a href="javascript:" [class.ddp-selected]="isDataflowOptionShow" class="ddp-btn-info" (click)="showOption($event);"><em class="ddp-icon-myinfo"></em></a>
       <div class="ddp-data-box" *ngIf="isDataflowOptionShow" (clickOutside)="hideOption();">
         <a href="javascript:" class="ddp-list-link" (click)="confirmDelete($event,dataflow.dfId)"><em class="ddp-icon-delete" ></em>{{'msg.dp.ui.df.del' | translate}}</a>
-        <span class="ddp-data-by">{{'msg.common.ui.created' | translate: { createdTime : dataflow.createdTime | mdate:'YYYY-MM-DD HH:mm', fullName : dataflow.createdBy } }}</span>
+        <span class="ddp-data-by">{{'msg.common.ui.created' | translate: { createdTime : dataflow.createdTime | mdate:'YYYY-MM-DD HH:mm', fullName : dataflow.createdBy?.fullName } }}</span>
 
       </div>
     </div>
@@ -138,11 +138,11 @@
 </div>
 
 
-<!-- 데이터 플로우 삭제 -->
+<!-- Delete dataflow popup -->
 <app-delete-modal (deleteConfirm)="deleteDataflow()"></app-delete-modal>
-<!-- //데이터 플로우 삭제 -->
+<!-- //Delete dataflow popup -->
 
-<!-- 룰 편집 화면 -->
+<!-- Main grid -->
 <app-edit-dataflow-rule-2 *ngIf="step=='update-rules'"
                         [dataflow]="dataflow"
                         [selectedDataSet]="selectedDataSet"
@@ -150,23 +150,27 @@
                         (changeDataset)="onDatasetChange($event)"
                         (closeEditRule)="closeEditRule()">
 </app-edit-dataflow-rule-2>
-<!-- //룰 편집 화면 -->
+<!-- //Main grid -->
 
-<app-add-dataset *ngIf="isDatasetAddPopupOpen"
-                 (closeEvent)="closeAddDatasetPopup()"
-                 (doneEvent)="datasetComplete($event);"
-                 [dataflowId]="dataflow.dfId"
-                 [originalDatasetList]="dataSetList">
-</app-add-dataset>
-
+<!-- Add dataset popup / swap popup -->
 <long-update-popup
   *ngIf="isSelectDatasetPopupOpen"
-  [title]="datasetPopupTitle"
+  [popType]="longUpdatePopupType"
   [selectedDatasetId]="swapDatasetId"
+  [originalDatasetList]="dataSetList"
   (closeEvent)="isSelectDatasetPopupOpen = false"
   (doneEvent)="datasetPopupFinishEvent($event)"
+  (addEvent)="datasetPopupAddEvent($event)"
   [isRadio]="isRadio">
 </long-update-popup>
+<!-- // Add dataset popup / swap popup -->
 
-<create-snapshot-popup (snapshotCreateFinishEvent)="snapshotCreateFinish($event)"></create-snapshot-popup>
+<!--Snapshot create popup-->
+<create-snapshot-popup (snapshotCreateFinishEvent)="snapshotCreateFinish($event)">
+</create-snapshot-popup>
+<!--// Snapshot create popup-->
+
+
+<!--Create snapshot loading component-->
 <snapshot-loading></snapshot-loading>
+<!-- // Create snapshot loading component-->

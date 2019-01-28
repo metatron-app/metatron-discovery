@@ -851,7 +851,7 @@ export class GaugeChartComponent extends BaseChart {
     const data = this.data;
 
     // 해당 dimension의 리스트 가져오기
-    const rowsList = shelve.rows.map((item) => {return item.name});
+    const rowsList = shelve.rows.map((item) => {return item.alias});
 
     let value = [];
     let percentage = [];

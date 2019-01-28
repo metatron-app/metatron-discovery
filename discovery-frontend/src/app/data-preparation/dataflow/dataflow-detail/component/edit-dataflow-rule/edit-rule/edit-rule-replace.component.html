@@ -105,12 +105,12 @@
 <div *ngIf="isShow" class="ddp-box-part ddp-editor" style="margin-right: 125px;">
   <div class="ddp-box-title"> {{'msg.dp.ui.cond' | translate}} </div>
   <div class="ddp-wrap-datainput">
-    <rule-condition-input
-      [formula]="condition" [command]="'keep'"
-      [forceFormula]="forceFormula"
-      [fields]="fields"
+    <rule-suggest-input #replace_row_input
+      [formula]="condition"
+      [command]="'replace'" [cmdArg]="'row'" 
       [tabIndex]="6" [placeholder]="'msg.dp.ui.cond.ph' | translate"
-      (onChange)="condition = $event"></rule-condition-input>
+      [fields]="fields"
+      (onChange)="condition = $event" ></rule-suggest-input>
     <!-- ddp-selected 추가시 display:block; -->
   </div>
   <a href="javascript:" class="ddp-btn-bg" (click)="openPopupFormulaInput()"><em class="ddp-icon-editor"></em>{{'msg.dp.btn.advanced.editor' | translate }}</a>

@@ -24,7 +24,7 @@ import { StringUtil } from '../../../../../../common/util/string.util';
 import { isUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import * as _ from 'lodash';
-import {RuleConditionInputComponent} from "./rule-condition-input.component";
+import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 
 @Component({
   selector : 'edit-rule-replace',
@@ -37,8 +37,8 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
   @ViewChild('patternValue')
   private _patternValue: ElementRef;
 
-  @ViewChild(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
+  @ViewChild('replace_row_input')
+  private rowInput : RuleSuggestInputComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -146,7 +146,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
     }
 
     // condition
-    this.condition = this.ruleConditionInputComponent.getCondition();
+    this.condition = this.rowInput.getFormula();
     let clonedCondition = this.condition;
     if (!isUndefined(clonedCondition) && '' !== clonedCondition.trim() && '\'\'' !== clonedCondition.trim()) {
       let check = StringUtil.checkSingleQuote(clonedCondition, { isPairQuote: true });
@@ -189,10 +189,18 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
    * open advanced formula popup
    */
   public openPopupFormulaInput() {
-    this.condition = this.ruleConditionInputComponent.getCondition();
+    this.condition = this.rowInput.getFormula();
     this.advancedEditorClickEvent.emit({command : 'replace', val : 'condition'});
   } // function - openPopupFormulaInput
 
+  /**
+   * Apply formula using Advanced formula popup
+   * @param {{command: string, formula: string}} data
+   */
+  public doneInputFormula(data: { command: string, formula: string }) {
+    this.condition = data.formula;
+    this.rowInput.setFormula(this.condition);
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

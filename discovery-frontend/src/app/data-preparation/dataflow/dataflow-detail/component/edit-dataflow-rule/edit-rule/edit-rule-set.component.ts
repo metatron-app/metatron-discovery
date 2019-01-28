@@ -13,13 +13,13 @@
  */
 
 import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChildren
+  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild
 } from '@angular/core';
 //import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { RuleConditionInputComponent } from './rule-condition-input.component';
+import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 import {isNullOrUndefined, isUndefined} from 'util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import * as _ from 'lodash';
@@ -32,8 +32,12 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChildren(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent; // Has multiple rule condition input. Using viewChildren instead of viewChild
+  @ViewChild('set_value_input')
+  private valueInput : RuleSuggestInputComponent; 
+  
+  @ViewChild('set_row_input')
+  private rowInput : RuleSuggestInputComponent; 
+  
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -83,52 +87,50 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    */
   public getRuleData(): { command: string, col: string, ruleString: string } {
 
-    // differentiate between pressing enter key when select box is opened & adding a rule
-    if (this.ruleConditionInputComponent['_results'][0].autoCompleteSuggestions_selectedIdx == -1) {
+    
+    // column
+    if (this.selectedFields.length === 0) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
+      return undefined
+    }
 
-      // column
-      if (this.selectedFields.length === 0) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-        return undefined
-      }
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
+      return '`' + item.name + '`';
+    }).join(', ');
 
-      const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-        return '`' + item.name + '`';
-      }).join(', ');
+    // val
+    this.inputValue = this.valueInput.getFormula();
 
-      // val
-      this.inputValue = this.ruleConditionInputComponent['_results'][0].getCondition();
-      let val = _.cloneDeep(this.inputValue);
-      if (isUndefined(val) || '' === val.trim()) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
-        return undefined;
-      }
-      if (!isUndefined(val)) {
-        let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
-        if (check[0] === false) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.check.expression'));
-          return undefined;
-        } else {
-          val = check[1];
-        }
-      }
-
-      let rules =  {
-        command: 'set',
-        col: columnsStr,
-        ruleString: `set col: ${columnsStr} value: ${val}`
-      };
-
-      this.condition = this.ruleConditionInputComponent['_results'][1].getCondition();
-      if ('' !== this.condition && !isNullOrUndefined(this.condition)) {
-        rules.ruleString += ` row: ${this.condition}`;
-      }
-
-      return rules;
-
-    } else {
+    let val = _.cloneDeep(this.inputValue);
+    if (isUndefined(val) || '' === val.trim()) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
       return undefined;
     }
+
+    /*  validation 
+    if (!isUndefined(val)) {
+      let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
+      if (check[0] === false) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.check.expression'));
+        return undefined;
+      } else {
+        val = check[1];
+      }
+    }
+    */
+
+    let rules =  {
+      command: 'set',
+      col: columnsStr,
+      ruleString: `set col: ${columnsStr} value: ${val}`
+    };
+
+    this.condition = this.rowInput.getFormula();
+    if ('' !== this.condition && !isNullOrUndefined(this.condition)) {
+      rules.ruleString += ` row: ${this.condition}`;
+    }
+
+    return rules;
 
   } // function - getRuleData
 
@@ -148,19 +150,36 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    */
   public openPopupFormulaInput(val: string) {
 
-    let command: string = 'set';
+    let command = val ;
     if (val === 'condition') {
-      this.condition = this.ruleConditionInputComponent['_results'][1].getCondition();
-      command = 'setCondition';
-    } else {
-      this.inputValue = this.ruleConditionInputComponent['_results'][0].getCondition();
+      this.condition = this.rowInput.getFormula();
+    } else if (val === 'inputValue'){
+      this.inputValue = this.valueInput.getFormula();
     }
 
-    this.safelyDetectChanges();
+    if( val === 'condition' || val === 'inputValue' ) {
+      this.safelyDetectChanges();
 
-    this.advancedEditorClickEvent.emit({command : command, val : val});
-
+      this.advancedEditorClickEvent.emit({command : command, val : val, needCol: true});
+    }
   } // function - openPopupFormulaInput
+
+  /**
+   * Apply formula using Advanced formula popup
+   * @param {{command: string, formula: string}} data
+   */
+  public doneInputFormula(data: { command: string, formula: string }) {
+
+    if (data.command === 'condition') {
+      this.condition = data.formula;
+      this.rowInput.setFormula(this.condition);
+    } else if (data.command === 'inputValue'){
+      this.inputValue = data.formula;
+      this.valueInput.setFormula(this.inputValue);
+    }
+
+  }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -177,14 +196,13 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    */
   protected afterShowComp() {
 
-    const comp = this.ruleConditionInputComponent['_results'];
-
-    // focus on expression
-    comp[0] && comp[0].setFocus();
-
-    // set value from context menu
-    comp[1] && comp[1].setCondition(this.condition);
-
+    if( this.valueInput ){
+      this.valueInput.setFocus();
+    }
+    
+    if( this.rowInput ) {
+      this.rowInput.setFormula(this.condition);
+    }
 
   } // function - _afterShowComp
 

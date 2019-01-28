@@ -23,10 +23,10 @@ import {
   OnInit,
   Output, ViewChild,
 } from '@angular/core';
-import { StringUtil } from '../../../../../../common/util/string.util';
+
 import { Alert } from '../../../../../../common/util/alert.util';
 import { isUndefined } from "util";
-import { RuleConditionInputComponent } from './rule-condition-input.component';
+import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 import * as _ from 'lodash';
 import {PreparationCommonUtil} from "../../../../../util/preparation-common.util";
 
@@ -39,9 +39,13 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @ViewChild('delete_row_input')
+  private rowInput : RuleSuggestInputComponent;
 
+  /*
   @ViewChild(RuleConditionInputComponent)
   private ruleConditionInputComponent : RuleConditionInputComponent;
+  */
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -99,30 +103,18 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
    */
   public getRuleData(): { command: string, ruleString:string} {
 
-    if (this.ruleConditionInputComponent.autoCompleteSuggestions_selectedIdx == -1) {
-      this.rowNum = this.ruleConditionInputComponent.getCondition();
-      let val = _.cloneDeep(this.rowNum);
-      if (isUndefined(val) || '' === val || '\'\'' === val) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.keep.warn'));
-        return undefined
-      }
-
-      if (!isUndefined(val) && '' !== val.trim() && '\'\'' !== val.trim()) {
-        let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
-        if (check[0] === false) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.check.condition'));
-          return undefined
-        } else {
-          val = check[1];
-        }
-      }
-      return {
-        command: 'delete',
-        ruleString: 'delete row: ' + val
-      };
-    } else {
-      return undefined;
+    this.rowNum = this.rowInput.getFormula();
+    let val = _.cloneDeep(this.rowNum);
+    if (isUndefined(val) || '' === val || '\'\'' === val) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.keep.warn'));
+      return undefined
     }
+
+    return {
+      command: 'delete',
+      ruleString: 'delete row: ' + val
+    };
+    
   } // function - getRuleData
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -133,10 +125,18 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
    * @param {string} command 수식 입력 실행 커맨드
    */
   public openPopupFormulaInput() {
-    this.rowNum = this.ruleConditionInputComponent.getCondition();
+    this.rowNum = this.rowInput.getFormula();
     this.advancedEditorClickEvent.emit({command :'delete', val : 'rowNum' });
   } // function - openPopupFormulaInput
 
+  /**
+   * Apply formula using Advanced formula popup
+   * @param {{command: string, formula: string}} data
+   */
+  public doneInputFormula(data: { command: string, formula: string }) {
+    this.rowNum = data.formula;
+    this.rowInput.setFormula(this.rowNum);
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

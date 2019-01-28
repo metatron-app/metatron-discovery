@@ -129,7 +129,7 @@
         </td>
 
         <td class="ddp-data-last">
-          {{item.createdTime | mdate:'YYYY-MM-DD HH:mm'}} <em class="ddp-icon-by">{{'msg.dp.ui.by' | translate}}</em>{{item.createdBy}}
+          {{item.createdTime | mdate:'YYYY-MM-DD HH:mm'}} <em class="ddp-icon-by">{{'msg.dp.ui.by' | translate}}</em>{{item.createdBy.fullName}}
           <div class="ddp-btn-control">
             <em class="ddp-icon-control-cut" (click)="confirmDelete($event,item);"></em>
           </div>

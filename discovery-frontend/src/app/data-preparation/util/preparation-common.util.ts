@@ -337,7 +337,7 @@ export class PreparationCommonUtil {
   /**
    * Returns user friendly snapshot type name
    * FILE -> Local, JDBC -> Database, HIVE -> Staging DB HDFS-> HDFS
-   * @param {string} sstype
+   * @param {string} ssType
    * @returns {string}
    */
   public static getSnapshotType(ssType: SsType) : string {

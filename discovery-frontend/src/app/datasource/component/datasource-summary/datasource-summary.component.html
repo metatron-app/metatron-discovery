@@ -37,7 +37,7 @@
         <col width="*">
       </colgroup>
       <tbody>
-      <tr>
+      <tr *ngIf="showMetadataName">
         <th> {{ 'msg.comm.detail.metadata-name' | translate }} </th>
         <td> {{ metadata?.name }} </td>
       </tr>

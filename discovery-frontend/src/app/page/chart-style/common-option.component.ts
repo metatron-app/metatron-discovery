@@ -42,13 +42,13 @@ import {
   LineMode,
   LineStyle,
   PieSeriesViewType,
-  PointShape,
+  PointShape, ShelveFieldType,
   SymbolType,
   UIChartDataLabelDisplayType,
   UIFontStyle,
   UIOrient,
   UIPosition,
-  WaterfallBarColor
+  WaterfallBarColor,
 } from '../../common/component/chart/option/define/common';
 import {Modal} from '../../common/domain/modal';
 import * as _ from 'lodash';
@@ -87,6 +87,12 @@ export class CommonOptionComponent extends BaseOptionComponent {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  @ViewChild('iconTargetListComp')
+  private iconTargetListComp: SelectComponent;
+
+  @ViewChild('textTargetListComp')
+  private textTargetListComp: SelectComponent;
 
   @ViewChildren('iconType')
   private iconTypeComp: QueryList<SelectComponent>;
@@ -228,6 +234,25 @@ export class CommonOptionComponent extends BaseOptionComponent {
         let annotations: UILabelAnnotation[] = [];
         let secondaryIndicators: UILabelSecondaryIndicator[] = [];
 
+        const setFieldName = ((item, shelveFieldType?: ShelveFieldType): string => {
+          // shelveFieldType이 있는경우 해당타입일때만 데이터 리턴
+          if (!shelveFieldType || (shelveFieldType && item.type === shelveFieldType)) {
+            let fieldName = !_.isEmpty(item.alias) ? item.alias : item.name;
+            if (item['alias'] && item['alias'] !== item.name) {
+              fieldName = item['alias'];
+            } else {
+              // aggregation type과 함께 alias 설정
+              const alias: string = item['fieldAlias'] ? item['fieldAlias'] : ( item['logicalName'] ? item['logicalName'] : item['name'] );
+              fieldName = item.aggregationType ? item.aggregationType + `(${alias})` : `${alias}`;
+            }
+            return fieldName;
+          }
+        });
+
+        const aggs = this.pivot.aggregations.map((aggregation) => {
+          return setFieldName(aggregation, ShelveFieldType.MEASURE);
+        }).filter((item)=> {return typeof item !== 'undefined'});
+
         for (let num: number = 0; num < this.pivot.aggregations.length; num++) {
 
           //////////////////////////////////////////
@@ -235,8 +260,9 @@ export class CommonOptionComponent extends BaseOptionComponent {
           //////////////////////////////////////////
           const field: any = this.pivot.aggregations[num];
           let alias: string = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : field['name'];
-          if (field.aggregationType && field.aggregationType != "") {
-            alias = field.aggregationType + "(" + alias + ")";
+          let displayName: any = aggs[num];
+          if( field.aggregationType && field.aggregationType != "" ) {
+            alias = field.aggregationType +"("+ alias +")";
           }
 
           /////////////////////
@@ -247,20 +273,24 @@ export class CommonOptionComponent extends BaseOptionComponent {
           if (option.series.length <= num) {
             if (num > 0) {
               option.series[num] = {
-                name: alias
+                name: alias,
+                displayName: displayName
               };
               option.icons[num] = {
                 seriesName: alias,
+                displayName: displayName,
                 show: option.icons[0].show,
                 iconType: option.icons[0].iconType
               };
               option.annotations[num] = {
                 seriesName: alias,
+                displayName: displayName,
                 show: option.annotations[0].show,
                 description: option.annotations[0].description
               };
               option.secondaryIndicators[num] = {
                 seriesName: alias,
+                displayName: displayName,
                 show: option.secondaryIndicators[0].show,
                 indicatorType: option.secondaryIndicators[0].indicatorType,
                 rangeUnit: option.secondaryIndicators[0].rangeUnit,
@@ -282,12 +312,16 @@ export class CommonOptionComponent extends BaseOptionComponent {
             || _.isUndefined(option.annotations[num].seriesName)
             || _.isUndefined(option.secondaryIndicators[num].seriesName)) {
             option.series[num].name = alias;
+            option.series[num].displayName = displayName;
             option.icons[num].seriesName = alias;
+            option.icons[num].displayName = displayName;
             option.annotations[num].seriesName = alias;
+            option.annotations[num].displayName = displayName;
             option.secondaryIndicators[num].seriesName = alias;
+            option.secondaryIndicators[num].displayName = displayName;
           }
           this.kpiIconTargetList.push({
-            name: alias,
+            name: displayName,
             value: alias
           });
 
@@ -318,9 +352,13 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
           if (!isPush) {
             option.series[num].name = alias;
+            option.series[num].displayName = displayName;
             option.icons[num].seriesName = alias;
+            option.icons[num].displayName = displayName;
             option.annotations[num].seriesName = alias;
+            option.annotations[num].displayName = displayName;
             option.secondaryIndicators[num].seriesName = alias;
+            option.secondaryIndicators[num].displayName = displayName;
 
             for (let num2: number = 0; num2 < this.pivot.aggregations.length; num2++) {
               if (option.series.length >= (num2 + 1) && _.eq(alias, option.series[num2].name)) {
@@ -345,11 +383,14 @@ export class CommonOptionComponent extends BaseOptionComponent {
         option.annotations = annotations;
         option.secondaryIndicators = secondaryIndicators;
 
+        this.changeDetect.detectChanges();
         if (!isIconAll) {
-          this.kpiIconTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
+          //this.kpiIconTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
+          this.iconTargetListComp.selected(this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0]);
         }
         if (!isTextAll) {
-          this.kpiTextTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
+          //this.kpiTextTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
+          this.textTargetListComp.selected(this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0]);
 
           if (option.annotations[0].show) {
             this.kpiText = this.kpiIconTargetList.length > 1 ? option.annotations[0].description : "";

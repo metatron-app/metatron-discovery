@@ -264,7 +264,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     this.close();
     this.popupService.notiPopup({
       name: 'complete-dataset-create',
-      data: null
+      data: result.dsId
     });
 
   }

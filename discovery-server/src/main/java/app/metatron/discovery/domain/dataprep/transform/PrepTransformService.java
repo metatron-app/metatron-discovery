@@ -757,9 +757,10 @@ public class PrepTransformService {
       try {
         colHists.add(futures.get(colno).get());
       } catch (InterruptedException e) {
-        e.printStackTrace();
+        LOGGER.error("createHistsWithColWidths(): interrupted", e);
       } catch (ExecutionException e) {
-        e.printStackTrace();
+        e.getCause().printStackTrace();
+        LOGGER.error("createHistsWithColWidths(): execution error on " + df.dsName, e);
       }
     }
 

@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.datasource.ingestion;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import java.util.List;
 import java.util.Map;
 
 import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
@@ -29,16 +30,20 @@ import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionIn
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = LinkIngestionInfo.class, name = "link"),
-        @JsonSubTypes.Type(value = SingleIngestionInfo.class, name = "single"),
-        @JsonSubTypes.Type(value = BatchIngestionInfo.class, name = "batch"),
-        @JsonSubTypes.Type(value = RealtimeIngestionInfo.class, name = "realtime"),
-        @JsonSubTypes.Type(value = LocalFileIngestionInfo.class, name = "local"),
-        @JsonSubTypes.Type(value = HdfsIngestionInfo.class, name = "hdfs"),
-        @JsonSubTypes.Type(value = HiveIngestionInfo.class, name = "hive")
+    @JsonSubTypes.Type(value = LinkIngestionInfo.class, name = "link"),
+    @JsonSubTypes.Type(value = SingleIngestionInfo.class, name = "single"),
+    @JsonSubTypes.Type(value = BatchIngestionInfo.class, name = "batch"),
+    @JsonSubTypes.Type(value = RealtimeIngestionInfo.class, name = "realtime"),
+    @JsonSubTypes.Type(value = LocalFileIngestionInfo.class, name = "local"),
+    @JsonSubTypes.Type(value = HdfsIngestionInfo.class, name = "hdfs"),
+    @JsonSubTypes.Type(value = HiveIngestionInfo.class, name = "hive")
 })
 public interface IngestionInfo {
   FileFormat getFormat();
+
   Boolean getRollup();
+
   Map<String, Object> getTuningOptions();
+
+  List<String> getIntervals();
 }

@@ -191,7 +191,7 @@
         {{'msg.comm.th.created.on' | translate}}
       </dt>
       <dd>
-        {{selectedDataSet.createdTime | mdate:'YYYY-MM-DD HH:mm'}} by {{selectedDataSet.createdBy}}
+        {{selectedDataSet.createdTime | mdate:'YYYY-MM-DD HH:mm'}} by {{selectedDataSet.createdBy?.fullName}}
       </dd>
     </dl>
     <!-- //detail -->
@@ -201,7 +201,7 @@
         {{'msg.comm.th.updated.on' | translate}}
       </dt>
       <dd>
-        {{selectedDataSet.modifiedTime | mdate:'YYYY-MM-DD HH:mm'}} by {{selectedDataSet.modifiedBy}}
+        {{selectedDataSet.modifiedTime | mdate:'YYYY-MM-DD HH:mm'}} by {{selectedDataSet.modifiedBy?.fullName}}
       </dd>
     </dl>
     <!-- //detail -->
