@@ -57,7 +57,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
         RestAssured.port = serverPort;
     }
 
-    public String make_snapshot(PrSnapshot.SS_TYPE ssType, PrSnapshot.STORAGE_TYPE storage_type) {
+    public String make_snapshot(PrSnapshot.SS_TYPE ssType) {
         File file = new File("src/test/resources/test_dataprep.csv");
 
         // UPLOAD
@@ -190,7 +190,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     @Test
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationsnapshots_GET_FILE_type() throws JsonProcessingException {
-        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI, PrSnapshot.STORAGE_TYPE.LOCAL);
+        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI);
         given()
                 .auth()
                 .oauth2(oauth_token)
@@ -205,7 +205,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     @Test
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationsnapshots_GET_HDFS_type() throws JsonProcessingException {
-        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI, PrSnapshot.STORAGE_TYPE.HDFS);
+        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI);
         given()
                 .auth()
                 .oauth2(oauth_token)
@@ -220,7 +220,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     @Test
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationsnapshots_Id_GET() throws JsonProcessingException {
-        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI, PrSnapshot.STORAGE_TYPE.LOCAL);
+        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI);
         given()
                 .auth()
                 .oauth2(oauth_token)
@@ -235,7 +235,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     @Test
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationsnapshots_DELETE() throws JsonProcessingException {
-        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI, PrSnapshot.STORAGE_TYPE.LOCAL);
+        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI);
 
         given()
                 .auth()
@@ -252,7 +252,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationdatasets_POST_makeSnapshot() throws JsonProcessingException {
 
-        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI, PrSnapshot.STORAGE_TYPE.LOCAL);
+        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI);
         LOGGER.debug("snapshot ID is " + ssId);
     }
 

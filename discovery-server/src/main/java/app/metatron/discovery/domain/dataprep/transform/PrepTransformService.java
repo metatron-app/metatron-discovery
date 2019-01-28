@@ -142,28 +142,27 @@ public class PrepTransformService {
 
   // Properties along the ETL program kinds are gathered into a single JSON properties string.
   // Currently, the ETL programs kinds are the embedded engine and Apache Spark.
-  private String getJsonPrepPropertiesInfo(String dsId, PrepSnapshotRequestPost requestPost) throws JsonProcessingException {
+  private String getJsonPrepPropertiesInfo(String dsId, PrepSnapshotRequestPost requestPost) throws JsonProcessingException, URISyntaxException {
     PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
 
     PrDataset.IMPORT_TYPE importType = dataset.getImportType();
     boolean dsStagingDb = (importType == PrDataset.IMPORT_TYPE.STAGING_DB);
 
     PrSnapshot.SS_TYPE ssType = requestPost.getSsType();
-    PrSnapshot.STORAGE_TYPE storageType = requestPost.getStorageType();
-    boolean ssFile = (ssType == PrSnapshot.SS_TYPE.URI && storageType == PrSnapshot.STORAGE_TYPE.LOCAL);
-    boolean ssHdfs = (ssType == PrSnapshot.SS_TYPE.URI && storageType == PrSnapshot.STORAGE_TYPE.HDFS);
-    boolean ssHive = (ssType == PrSnapshot.SS_TYPE.STAGING_DB);
+
+    boolean ssHdfs = (ssType == PrSnapshot.SS_TYPE.URI && (new URI(requestPost.getStoredUri())).getScheme().equals("hdfs"));
+    boolean ssStagingDb = (ssType == PrSnapshot.SS_TYPE.STAGING_DB);
 
     PrSnapshot.ENGINE engine = requestPost.getEngine();
 
     // check polaris.dataprep.hadoopConfDir
-    if (ssHdfs || ssHive) {
+    if (ssHdfs || ssStagingDb) {
       prepProperties.getHadoopConfDir(true);
       prepProperties.getStagingBaseDir(true);
     }
 
     // check polaris.dataprep.hive
-    if (dsStagingDb || ssHive) {
+    if (dsStagingDb || ssStagingDb) {
       prepProperties.getHiveHostname(true);
     }
 
@@ -186,32 +185,16 @@ public class PrepTransformService {
     map.put("ssName",         requestPost.getSsName());
     map.put("ssType",         ssType.name());
     map.put("engine",         engine.name());
-    map.put("uriFileFormat",         requestPost.getUriFileFormat());
     map.put("hiveFileFormat",         requestPost.getHiveFileFormat());
     map.put("hiveFileCompression",    requestPost.getHiveFileCompression());
     map.put("localBaseDir",   prepProperties.getLocalBaseDir());
 
     switch (ssType) {
       case URI:
-//        map.put("fileUri",        requestPost.getUri());
-//        break;
-//      case HDFS:
-//        map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
-//        map.put("fileUri",        requestPost.getUri());
         String storedUri = requestPost.getStoredUri();
-        if(storedUri==null) {
-          if(requestPost.getStorageType()== PrSnapshot.STORAGE_TYPE.LOCAL) {
-            storedUri = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), requestPost.getSsName());
-          } else if(requestPost.getStorageType()== PrSnapshot.STORAGE_TYPE.HDFS) {
-            storedUri = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), requestPost.getSsName());
-          }
-        }
+        assert storedUri != null;
         map.put("storedUri",        storedUri);
-        map.put("storageType",      requestPost.getStorageType());
         break;
-//      case JDBC:
-//        assert false : ssId;
-//        break;
       case STAGING_DB:
         map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
         map.put("partitionColNames",       requestPost.getPartitionColNames());
@@ -1092,26 +1075,6 @@ public class PrepTransformService {
   }
 
   String runTransformer(String wrangledDsId, PrepSnapshotRequestPost requestPost, String ssId, String authorization) throws Throwable {
-    // 1. spark, dataprep configuration
-    // 2. datasetInfos --> 순차적으로 만들 dataframe의 ruleStrings 및 importInfo
-    // 3. snapshotInfo --> 목적 결과물에 대한 정보 (HIVE의 경우 table)
-    //    - 공통
-    //      - ssType -> FILE, HDFS, HIVE
-    //      - format -> CSV, ORC
-    //      - engine
-    //      - ssId
-    //      - localBaseDir
-    //      - stagingBaseDir
-    //    - HIVE
-    //      - partKeys
-    //      - codec     (사용자가 입력한 compression 항목)
-    //      - mode
-    //      - dbName
-    //      - tblName
-    //      - extHdfsDir
-    //    - FILE
-    //      - compression
-    //      - ssName    (target directory 명에 쓰임)
 
     String jsonPrepPropertiesInfo = getJsonPrepPropertiesInfo(wrangledDsId, requestPost);
     String jsonDatasetInfo        = getJsonDatasetInfo(wrangledDsId);
@@ -1474,14 +1437,15 @@ public class PrepTransformService {
       if(prepProperties.isFileSnapshotEnabled()) {
         Map<String,Object> fileUri = Maps.newHashMap();
 
+        // TODO: "LOCAL", "HDFS" will be replaced by location presets from application.yaml (later)
         String localDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
         localDir = this.snapshotService.escapeUri(localDir);
-        fileUri.put(PrSnapshot.STORAGE_TYPE.LOCAL.name(), "file://" + localDir);
+        fileUri.put("LOCAL", "file://" + localDir);
 
         try {
           String hdfsDir = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), ssName);
           hdfsDir = this.snapshotService.escapeUri(hdfsDir);
-          fileUri.put(PrSnapshot.STORAGE_TYPE.HDFS.name(), hdfsDir);
+          fileUri.put("HDFS", hdfsDir);
         } catch (Exception e) {
           // MSG_DP_ALERT_STAGING_DIR_NOT_CONFIGURED is suppressed
         }
