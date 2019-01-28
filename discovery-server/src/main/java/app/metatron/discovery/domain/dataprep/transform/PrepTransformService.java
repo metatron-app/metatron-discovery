@@ -57,6 +57,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.StandardEnvironment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -1127,10 +1128,19 @@ public class PrepTransformService {
     return "CANNOT_REACH_HERE";
   }
 
+  private String getServerPort() {
+    // Temporary code for REST Assure test
+    if (!serverPort.equals("0")) {
+      return serverPort;
+    }
+
+    return ((StandardEnvironment) this.env).getPropertySources().get("server.ports").getProperty("local.server.port").toString();
+  }
+
   private String runTeddy(String jsonPrepPropertiesInfo, String jsonDatasetInfo, String jsonSnapshotInfo, String authorization) throws Throwable {
     LOGGER.info("runTeddy(): engine=embedded");
 
-    Future<String> future = teddyExecutor.run(new String[]{"embedded", jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, serverPort, authorization});
+    Future<String> future = teddyExecutor.run(new String[]{"embedded", jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, getServerPort(), authorization});
 
     LOGGER.debug("runTeddy(): (Future) result from teddyExecutor: " + future.toString());
     return "RUNNING";
