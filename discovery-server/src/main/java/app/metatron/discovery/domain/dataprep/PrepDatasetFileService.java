@@ -179,10 +179,51 @@ public class PrepDatasetFileService {
         }
     }
 
-    private Map<String, Object> getResponseMapFromExcel(File theFile, String extensionType, int limitRows) throws IOException {
+    private List<String[]> getGridFromExcel(Sheet sheet, int limitRows) {
+        List<String[]> grid = Lists.newArrayList();
+
+        for (Row r : sheet) {
+            List<String> row = Lists.newArrayList();
+
+            int not_emtpy=0;
+
+            if(r==null) {
+                continue;
+            }
+            if(limitRows<=r.getRowNum()) { break; }
+
+            for (Cell c : r) {
+                if(c==null) {
+                    row.add(null);
+                    continue;
+                }
+
+                String strCellValue = null;
+                Object cellValue = ExcelProcessor.getCellValue(c);
+                if(cellValue!=null) {
+                    strCellValue = String.valueOf(cellValue);
+                    if(false==strCellValue.isEmpty()) {
+                        not_emtpy++;
+                    }
+                }
+                row.add(strCellValue);
+            }
+
+            if(0<not_emtpy) {
+                grid.add(row.toArray(new String[row.size()]));
+                if (grid.size() >= limitRows) {
+                    break;
+                }
+            }
+        }
+
+        return grid;
+    }
+
+    private Map<String, Object> getResponseMapFromExcel(File theFile, String extensionType, int limitRows, boolean autoTyping) throws IOException, TeddyException {
         Map<String, Object> responseMap = Maps.newHashMap();
         List<String> sheetNames = Lists.newArrayList();
-        List<Object> grids = Lists.newArrayList();
+        List<DataFrame> gridResponses = Lists.newArrayList();
         Workbook workbook;
 
         if ("xls".equals(extensionType)) {       // 97~2003
@@ -197,79 +238,24 @@ public class PrepDatasetFileService {
 
         if (null == workbook) {
             responseMap.put("sheetNames", sheetNames);
-            responseMap.put("grids", grids);
+            responseMap.put("gridResponses", gridResponses);
             return responseMap;
         }
 
         for (Sheet sheet : workbook) {
-            int totalRows;
+            DataFrame df = new DataFrame(sheet.getSheetName());
+            df.setByGrid(getGridFromExcel(sheet, limitRows), null);
 
-            List<Map<String, String>> resultSet = Lists.newArrayList();
-            List<Field> fields = Lists.newArrayList();
-            int lastFieldPos = 0;
-            List<Map<String, String>> headers = Lists.newArrayList();
-
-            String sheetName = sheet.getSheetName();
-            sheetNames.add(sheetName);
-            totalRows = sheet.getLastRowNum()+1;
-
-            for (Row r : sheet) {
-                int not_emtpy=0;
-
-                if(r==null) {
-                    resultSet.add(Maps.newHashMap());
-                    continue;
-                }
-                if(limitRows<=r.getRowNum()) { break; }
-
-                Map<String,String> result = Maps.newHashMap();
-                for (Cell c : r) {
-                    int cellIdx = c.getColumnIndex();
-
-                    Field f = null;
-                    if(cellIdx<lastFieldPos) {
-                        f = fields.get(cellIdx);
-                    } else {
-                        while( lastFieldPos <= cellIdx ) {
-                            f = makeFieldFromCSV(lastFieldPos, prefixColumnName + String.valueOf(lastFieldPos + 1), ColumnType.STRING);
-                            fields.add(lastFieldPos, f);
-                            lastFieldPos++;
-                        }
-                    }
-
-                    if(c==null) {
-                        result.put(f.getName(), null);
-                    } else {
-                        String strCellValue = null;
-                        Object cellValue = ExcelProcessor.getCellValue(c);
-                        if(cellValue!=null) {
-                            strCellValue = String.valueOf(cellValue);
-                            if(false==strCellValue.isEmpty()) {
-                                not_emtpy++;
-                            }
-                        }
-                        result.put(f.getName(), strCellValue);
-                    }
-                }
-                if(0<not_emtpy) {
-                    resultSet.add(result);
-                }
+            if (autoTyping) {
+                df = teddyImpl.applyAutoTyping(df);
             }
 
-            Map<String, Object> grid = Maps.newHashMap();
-
-            int resultSetSize = resultSet.size();
-            int endIndex = resultSetSize - limitRows < 0 ? resultSetSize : limitRows;
-
-            grid.put("sheetName", sheetName);
-            grid.put("fields", fields);
-            grid.put("data", resultSet.subList(0, endIndex));
-            grid.put("totalRows", totalRows);
-            grids.add(grid);
+            sheetNames.add(sheet.getSheetName());
+            gridResponses.add(df);
         }
 
-        responseMap.put("sheets", sheetNames);      // FIXME: Name? Index? Let's change into sheetNames for clearance.
-        responseMap.put("grids", grids);
+        responseMap.put("sheetNames", sheetNames);
+        responseMap.put("gridResponses", gridResponses);
         return responseMap;
     }
 
@@ -399,7 +385,7 @@ public class PrepDatasetFileService {
             switch (extensionType) {
                 case "xlsx":
                 case "xls":
-                    responseMap = getResponseMapFromExcel(theFile, extensionType, limitRows);
+                    responseMap = getResponseMapFromExcel(theFile, extensionType, limitRows, autoTyping);
                     break;
                 case "json":
                     responseMap = getResponseMapFromJson(storedUri, limitRows, autoTyping);
