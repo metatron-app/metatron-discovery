@@ -31,7 +31,7 @@
             {{'msg.metadata.ui.metadata.create.type.hive' | translate}}
           </a>
 
-          <a href="javascript:" class="ddp-btn-select" (click)="onSelectedDataType('staging')">
+          <a href="javascript:" class="ddp-btn-select" (click)="onSelectedDataType('staging')" *ngIf="isEnableStageDB()">
             <em class="ddp-icon-boxbtn-staging"></em>
             {{'msg.metadata.ui.metadata.create.type.staging' | translate}}
           </a>
