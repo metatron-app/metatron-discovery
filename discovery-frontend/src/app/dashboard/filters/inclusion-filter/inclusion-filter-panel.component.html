@@ -81,7 +81,7 @@
               </a>
             </li>
             <li *ngIf="isEditable">
-              <a href="javascript:" (click)="openUpdateFilterPopup(originalFilter)">
+              <a href="javascript:" (click)="editFilterByPopup(originalFilter)">
                 <em class="ddp-icon-drop-editmodify" ></em>
                 {{'msg.board.filter.ui.edit' | translate}}
               </a>
@@ -137,6 +137,9 @@
                type="text" placeholder="Search for values" >
         <a *ngIf="searchText" (click)="searchText = '';setCandidatePage(1, true);" href="javascript:" class="ddp-btn-del"></a>
         <em class="icon-warning"></em>
+        <!-- popup -->
+        <div class="ddp-pop-warning" [innerHTML]="'msg.board.filter.limmited-alert' | translate : { value : candidateListSize }"></div>
+        <!-- //popup -->
       </div>
     </div>
     <!-- // 검색 영여 -->

@@ -366,6 +366,15 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
     this.openUpdateFilterPopup(this.originalFilter);
   } // function - openUpdateFilterPopupForSearch
 
+  /**
+   * 팝업을 통한 필터 수정
+   * @param {Filter} filter
+   */
+  public editFilterByPopup(filter:Filter) {
+    delete filter['tempSearchText'];
+    this.openUpdateFilterPopup(filter);
+  } // function - editFilterByPopup
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -436,9 +445,12 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
 
         // 후보값 추가
         if (selectedCandidateValues && 0 < selectedCandidateValues.length) {
-          result.forEach((item) => {
-            if (selectedCandidateValues.some(selectedItem => item.field === selectedItem)) {
+          selectedCandidateValues.forEach((selectedItem) => {
+            const item = result.find(item => item.field === selectedItem);
+            if (item) {
               this._candidateList.push(this._objToCandidate(item, this.field));
+            } else {
+              this._candidateList.push(this._stringToCandidate(selectedItem));
             }
           });
         } else {
@@ -448,7 +460,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
         }
 
         // 추가 데이터가 있는지 여부
-        this.isOverCandidateWarning = ( FilterUtil.CANDIDATE_LIMIT === result.length || result.length > this.candidateListSize );
+        this.isOverCandidateWarning = ( FilterUtil.CANDIDATE_LIMIT <= result.length || result.length > this.candidateListSize );
 
         // 정렬
         this.sortCandidateValues(this.filter);

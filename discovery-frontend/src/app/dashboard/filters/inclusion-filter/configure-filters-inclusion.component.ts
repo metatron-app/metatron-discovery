@@ -169,14 +169,14 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   /**
    * Candidate Limit 을 넘겼는지 여부
    */
-  public get isOverCandidateWarning():boolean {
-    return FilterUtil.CANDIDATE_LIMIT === this._candidateList.length;
+  public get isOverCandidateWarning(): boolean {
+    return FilterUtil.CANDIDATE_LIMIT <= this._candidateList.length;
   } // get - isOverCandidateWarning
 
   /**
    * Candidate 목록의 전체 갯수 조회
    */
-  public get candidateListSize():number {
+  public get candidateListSize(): number {
     return this._candidateList.length;
   } // get - candidateListSize
 
@@ -232,18 +232,6 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
       }
     });
 
-    // 값 정보 설정
-    if (targetFilter.valueList && 0 < targetFilter.valueList.length) {
-      this.selectedValues = targetFilter.valueList.map(item => this._stringToCandidate(item));
-      (1 < this.selectedValues.length) && (targetFilter.selector = InclusionSelectorType.MULTI_LIST);
-    }
-    if (targetFilter.candidateValues && 0 < targetFilter.candidateValues.length) {
-      this._candidateValues = targetFilter.candidateValues.map(item => this._stringToCandidate(item));
-    }
-    if (targetFilter.definedValues && 0 < targetFilter.definedValues.length) {
-      this._candidateList = targetFilter.definedValues.map(item => this._stringToCandidate(item, true));
-    }
-
     if (!isNullOrUndefined(targetFilter['tempSearchText'])) {
       this.searchText = targetFilter['tempSearchText'];
       delete targetFilter['tempSearchText'];
@@ -254,11 +242,10 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
         this.targetFilter = targetFilter;
         this._targetField = targetField;
         this._board = board;
-        if (0 === this._candidateValues.length) {
-          this._candidateValues = result.slice(0, 100).map(item => this._objToCandidate(item, targetField));
-        }
         this._setCandidateResult(result, targetFilter, targetField);
-
+        if (0 === this._candidateValues.length) {
+          this._candidateValues = this._candidateList.slice(0, 100);
+        }
 
         // 전체 선택 기능 체크 및 전체 선택 기능이 비활성 일떄, 초기값 기본 선택 - for Essential Filter
         this.useAll = !(-1 < targetField.filteringSeq);
@@ -330,7 +317,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    */
   public inactiveSearchInput() {
     let inputElm = this._inputSearch.nativeElement;
-    ( '' === inputElm.value.trim() ) && ( this.targetFilter['isShowSearch'] = false );
+    ('' === inputElm.value.trim()) && (this.targetFilter['isShowSearch'] = false);
     inputElm.blur();
   } // function - inactiveSearchInput
 
@@ -801,9 +788,39 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
    * @private
    */
   private _setCandidateResult(result: any[], targetFilter: InclusionFilter, targetField: (Field | CustomField)) {
-    this._candidateList = this._candidateList.filter(item => item.isDefinedValue);
+    const defineValues = this._candidateList.filter(item => item.isDefinedValue);
 
-    result.forEach((item) => this._candidateList.push(this._objToCandidate(item, targetField)));
+    // 값 정보 설정
+    if (0 === this.selectedValues.length && targetFilter.valueList && 0 < targetFilter.valueList.length) {
+      this.selectedValues = targetFilter.valueList.map(item => this._stringToCandidate(item));
+      this._candidateValues = this.selectedValues;
+      (1 < this.selectedValues.length) && (targetFilter.selector = InclusionSelectorType.MULTI_LIST);
+    }
+    if (0 === this._candidateValues.length && targetFilter.candidateValues && 0 < targetFilter.candidateValues.length) {
+      this._candidateValues
+        = this._candidateValues.concat(
+        targetFilter.candidateValues
+          .filter(item => -1 === this._candidateValues.findIndex(can => can.name === item))
+          .map(item => this._stringToCandidate(item))
+      );
+      this._candidateList = this._candidateValues;
+    }
+    if (0 === defineValues.length && targetFilter.definedValues && 0 < targetFilter.definedValues.length) {
+      this._candidateList =
+        this._candidateList.concat(
+          targetFilter.definedValues
+            .filter(item => -1 === this._candidateList.findIndex(can => can.name === item))
+            .map(item => this._stringToCandidate(item, true))
+        );
+    }
+
+    this._candidateList =
+      this._candidateList.concat(
+        result
+          .map(item => this._objToCandidate(item, targetField))
+          .filter(item => -1 === this._candidateList.findIndex(can => can.name === item.name))
+      );
+
     this.totalItemCnt = this._candidateList.length;
     (targetFilter.candidateValues) || (targetFilter.candidateValues = []);
     this.isNoData = (0 === this.totalItemCnt);

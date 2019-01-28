@@ -1475,6 +1475,7 @@
   "msg.board.filter.placeholder.search-field" : "필드 이름 검색",
   "msg.board.filter.ui.select-measure" : "측정값 선택",
   "msg.board.filter.ui.no-data" : "선택할 수 있는 값이 없습니다",
+  "msg.board.filter.limmited-alert" : "<strong>{{value}}</strong>건의 데이터를 표시하고 있습니다.<br/>검색을 이용해 보세요.",
   "msg.board.filter.selected-values" : "{{value}} 값이 선택되었습니다.",
   "msg.board.filter.all-values" : "{{value}} value(s)",
   "msg.custom.filter.popup.change.aggregation.title" : "조건식 변경을 계속 진행하시겠습니까?",

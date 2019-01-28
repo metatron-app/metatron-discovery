@@ -1476,6 +1476,7 @@
   "msg.board.filter.placeholder.search-field" : "Search by field name",
   "msg.board.filter.ui.select-measure" : "Select Measure",
   "msg.board.filter.ui.no-data" : "No Data",
+  "msg.board.filter.limmited-alert" : "We are displaying <strong>{{value}}</strong> data.<br/>Try searching to find more data.",
   "msg.board.filter.selected-values" : "{{value}} values selected",
   "msg.board.filter.all-values" : "{{value}} value(s)",
   "msg.custom.filter.popup.change.aggregation.title" : "Do you want to continue to change?",
