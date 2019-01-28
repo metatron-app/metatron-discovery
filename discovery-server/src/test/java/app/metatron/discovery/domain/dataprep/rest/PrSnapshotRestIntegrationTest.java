@@ -331,12 +331,11 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
                 .response();
 
         String wrangledDsId = transform_post_response.path("wrangledDsId");
-        Integer ruleCurIdx = transform_post_response.path("ruleCurIdx");
 
         Map<String, Object> transform_put_body = Maps.newHashMap();
         transform_put_body.put("count", "100");
         transform_put_body.put("op", "APPEND");
-        transform_put_body.put("ruleIdx", ruleCurIdx);
+        transform_put_body.put("ruleIdx", 1);
         transform_put_body.put("ruleString", "rename col: column1 to: 'user_id'");
 
         // APPEND #1 - RENAME
@@ -354,11 +353,11 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
                 .extract()
                 .response();
 
-        List<Map<String, Object>> ruleStringInfos = transform_put_response.path("ruleStringInfos");
+        List<Map<String, Object>> transformRules = transform_put_response.path("transformRules");
 
         transform_put_body.put("count", "100");
-        transform_put_body.put("ruleIdx", ruleCurIdx);
         transform_put_body.put("op", "APPEND");
+        transform_put_body.put("ruleIdx", 2);
         transform_put_body.put("ruleString", "rename col: column2 to: 'birth_day'");
 
         // APPEND #2 - RENAME
@@ -381,9 +380,8 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
         data.setSsName("test_snapshot");
         data.setEngine(PrSnapshot.ENGINE.EMBEDDED);
         data.setSsType(PrSnapshot.SS_TYPE.URI);
+        data.setUriFileFormat(PrSnapshot.URI_FILE_FORMAT.CSV);
         data.setStorageType(PrSnapshot.STORAGE_TYPE.HDFS);
-        data.setHiveFileFormat(PrSnapshot.HIVE_FILE_FORMAT.CSV);
-        data.setHiveFileCompression(PrSnapshot.HIVE_FILE_COMPRESSION.NONE);
 
         Response snapshot_post_response = given()
                 .auth()
