@@ -109,7 +109,7 @@ export class ExternalPageComponent extends AbstractComponent implements OnInit, 
       this._openExternalView(menuItem.subContents[arrUrl[2]]);
       this.loadingHide();
     } else {
-      this.commonService.getExtensions('lnb', true).then( items => {
+      this.commonService.getExtensions('lnb').then( items => {
         if( items && 0 < items.length ) {
           const exts:Extension[] = items;
           const menuItem = exts.filter( item => ( item.parent === arrUrl[0] && item.name === arrUrl[1] ) )[0];

@@ -32,8 +32,6 @@ export class CommonService extends AbstractService {
 
   public static extensions: Extension[] = [];
 
-  public static isEnableStageDB: boolean;
-
   constructor(protected injector: Injector) {
     super(injector);
   }
@@ -41,14 +39,11 @@ export class CommonService extends AbstractService {
   /**
    * get extension Info
    * @param {string} type
-   * @param {boolean} isOverwriteGlobal
    * @return {Promise<any>}
    */
-  public getExtensions(type: string, isOverwriteGlobal: boolean = false): Promise<any> {
+  public getExtensions(type: string): Promise<any> {
     return this.get(this.API_URL + `extensions/${type}`).then(items => {
-      (items && 0 < items.length && isOverwriteGlobal) && (CommonService.extensions = items);
-      // if type stagedb, set enableStageDbFlag
-      type === 'stagedb' && (CommonService.isEnableStageDB = items ? true : false);
+      (items && 0 < items.length) && (CommonService.extensions = items);
       return items;
     });
   } // function - getExtensions
