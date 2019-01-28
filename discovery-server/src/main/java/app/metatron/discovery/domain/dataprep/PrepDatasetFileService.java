@@ -581,10 +581,7 @@ public class PrepDatasetFileService {
 
     private Map<String, Object> getResponseMapFromJson(String storedUri, int limitRows, boolean autoTyping) throws TeddyException {
         Map<String, Object> responseMap = Maps.newHashMap();
-        List<Object> grids = Lists.newArrayList();
-        Map<String, Object> grid = Maps.newHashMap();
-        List<Map<String, String>> resultSet = Lists.newArrayList();
-        List<Field> fields = Lists.newArrayList();
+        List<DataFrame> gridResponses = Lists.newArrayList();
 
         DataFrame df = new DataFrame("df_for_preview");
         df.setByGridWithJson(PrepJsonUtil.parseJSON(storedUri, ",", limitRows, hdfsService.getConf()));
@@ -593,40 +590,15 @@ public class PrepDatasetFileService {
             df = teddyImpl.applyAutoTyping(df);
         }
 
-        for (int colno = 0; colno < df.getColCnt(); colno++) {
-            fields.add(makeFieldFromCSV(colno, df.getColName(colno), df.getColType(colno)));
-        }
+        gridResponses.add(df);
 
-        limitRows = Math.min(limitRows, df.rows.size());
-        for (int rowno = 0; rowno < limitRows; rowno++) {
-            app.metatron.discovery.domain.dataprep.teddy.Row row = df.rows.get(rowno);
-            Map<String, String> resultRow = Maps.newHashMap();
-
-            for (int colno = 0; colno < df.getColCnt(); colno++) {
-                Object obj = df.rows.get(rowno).get(colno);
-                if (obj == null) {
-                    continue;
-                }
-                resultRow.put(df.getColName(colno), obj.toString());
-            }
-            resultSet.add(resultRow);
-        }
-
-        grid.put("fields", fields);
-        grid.put("data", resultSet);
-        grid.put("totalRows", df.rows.size());
-        grids.add(grid);
-
-        responseMap.put("grids", grids);
+        responseMap.put("gridResponses", gridResponses);
         return responseMap;
     }
 
     private Map<String, Object> getResponseMapFromCsv(String storedUri, int limitRows, String delimiterCol, boolean autoTyping) throws TeddyException {
         Map<String, Object> responseMap = Maps.newHashMap();
-        List<Object> grids = Lists.newArrayList();
-        Map<String, Object> grid = Maps.newHashMap();
-        List<Map<String, String>> resultSet = Lists.newArrayList();
-        List<Field> fields = Lists.newArrayList();
+        List<DataFrame> gridResponses = Lists.newArrayList();
 
         DataFrame df = new DataFrame("df_for_preview");
         df.setByGrid(PrepCsvUtil.parse(storedUri, delimiterCol, limitRows, hdfsService.getConf()));
@@ -635,28 +607,9 @@ public class PrepDatasetFileService {
             df = teddyImpl.applyAutoTyping(df);
         }
 
-        for (int colno = 0; colno < df.getColCnt(); colno++) {
-            fields.add(makeFieldFromCSV(colno, df.getColName(colno), df.getColType(colno)));
-        }
+        gridResponses.add(df);
 
-        limitRows = Math.min(limitRows, df.rows.size());
-        for (int rowno = 0; rowno < limitRows; rowno++) {
-            app.metatron.discovery.domain.dataprep.teddy.Row row = df.rows.get(rowno);
-            Map<String, String> resultRow = Maps.newHashMap();
-
-            for (int colno = 0; colno < df.getColCnt(); colno++) {
-                Object obj = row.get(colno);
-                resultRow.put(df.getColName(colno), obj == null ? null : obj.toString());
-            }
-            resultSet.add(resultRow);
-        }
-
-        grid.put("fields", fields);
-        grid.put("data", resultSet);
-        grid.put("totalRows", df.rows.size());
-        grids.add(grid);
-
-        responseMap.put("grids", grids);
+        responseMap.put("gridResponses", gridResponses);
         return responseMap;
     }
 
