@@ -690,7 +690,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       this.datasetInformationList = [
         { name : this.translateService.instant('msg.comm.th.type') , value : dataset.dsType },
         {name : this.translateService.instant('msg.dp.th.summary'), value :this.getRows},
-        {name : 'S', value : cols + ' column(s)'}
+        {name : '', value : cols + ' column(s)'}
       ];
 
       // FILE
@@ -712,7 +712,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
       this.datasetInformationList.push(
         {name : this.translateService.instant('msg.dp.th.summary'), value :this.getRows},
-        {name : 'S', value : cols + ' column(s)'}
+        {name : '', value : cols + ' column(s)'}
         )
 
 
@@ -747,7 +747,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
       this.datasetInformationList.push(
         {name : this.translateService.instant('msg.dp.th.summary'), value :this.getRows},
-        {name : 'S', value : cols + ' column(s)'})
+        {name : '', value : cols + ' column(s)'})
 
     }
   }
