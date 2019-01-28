@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.datasource.ingestion.job;
 
+import app.metatron.discovery.domain.extension.ExtensionProperties;
 import com.google.common.collect.Maps;
 
 import net.jodah.failsafe.Failsafe;
@@ -91,6 +92,9 @@ public class IngestionJobRunner {
 
   @Autowired
   private EngineProperties engineProperties;
+
+  @Autowired
+  private ExtensionProperties extensionProperties;
 
   @Autowired
   private FileLoaderFactory fileLoaderFactory;
@@ -309,6 +313,7 @@ public class IngestionJobRunner {
     if (ingestionInfo instanceof LocalFileIngestionInfo) {
       FileIngestionJob ingestionJob = new FileIngestionJob(dataSource, ingestionHistory);
       ingestionJob.setEngineProperties(engineProperties);
+      ingestionJob.setExtensionProperties(extensionProperties);
       ingestionJob.setEngineMetaRepository(engineMetaRepository);
       ingestionJob.setEngineRepository(engineRepository);
       ingestionJob.setFileLoaderFactory(fileLoaderFactory);
@@ -320,6 +325,7 @@ public class IngestionJobRunner {
     } else if (ingestionInfo instanceof JdbcIngestionInfo) {
       JdbcIngestionJob ingestionJob = new JdbcIngestionJob(dataSource, ingestionHistory);
       ingestionJob.setEngineProperties(engineProperties);
+      ingestionJob.setExtensionProperties(extensionProperties);
       ingestionJob.setEngineMetaRepository(engineMetaRepository);
       ingestionJob.setEngineRepository(engineRepository);
       ingestionJob.setFileLoaderFactory(fileLoaderFactory);
@@ -332,6 +338,7 @@ public class IngestionJobRunner {
     } else if (ingestionInfo instanceof HdfsIngestionInfo) {
       HdfsIngestionJob ingestionJob = new HdfsIngestionJob(dataSource, ingestionHistory);
       ingestionJob.setEngineProperties(engineProperties);
+      ingestionJob.setExtensionProperties(extensionProperties);
       ingestionJob.setEngineMetaRepository(engineMetaRepository);
       ingestionJob.setEngineRepository(engineRepository);
       ingestionJob.setFileLoaderFactory(fileLoaderFactory);
@@ -343,6 +350,7 @@ public class IngestionJobRunner {
     } else if (ingestionInfo instanceof HiveIngestionInfo) {
       HiveIngestionJob ingestionJob = new HiveIngestionJob(dataSource, ingestionHistory);
       ingestionJob.setEngineProperties(engineProperties);
+      ingestionJob.setExtensionProperties(extensionProperties);
       ingestionJob.setEngineMetaRepository(engineMetaRepository);
       ingestionJob.setEngineRepository(engineRepository);
       ingestionJob.setFileLoaderFactory(fileLoaderFactory);

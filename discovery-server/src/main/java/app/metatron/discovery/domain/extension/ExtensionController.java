@@ -14,15 +14,14 @@
 
 package app.metatron.discovery.domain.extension;
 
+import app.metatron.discovery.util.CaseInsensitiveConverter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,18 +34,34 @@ public class ExtensionController {
   @Autowired
   ExtensionProperties extensionProperties;
 
-  @RequestMapping(value = "/extensions/{type}", method = RequestMethod.GET)
-  public ResponseEntity<?> findExtensionInfoByType(@PathVariable String type) {
+  @RequestMapping(value = "/extensions/{extensionType}", method = RequestMethod.GET)
+  public ResponseEntity<?> findExtensionInfoByType(@PathVariable ExtensionProperties.ExtensionType extensionType) {
 
-    if (!"lnb".equalsIgnoreCase(type)) {
-      throw new IllegalArgumentException("Not supported type " + type);
+    switch (extensionType){
+      case LNB:
+        List<ExtensionProperties.Lnb> lnbs = extensionProperties.getLnb();
+        if (CollectionUtils.isEmpty(lnbs)) {
+          return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(lnbs);
+      case STAGEDB:
+        ExtensionProperties.StageDBConnection stageDBConnection = extensionProperties.getStagedb();
+        if(stageDBConnection == null){
+          return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(stageDBConnection);
+      case CONNECTION:
+        break;
+      default:
+        throw new IllegalArgumentException("Not supported type " + extensionType);
     }
 
-    List<ExtensionProperties.Lnb> lnbs = extensionProperties.getLnb();
-    if (CollectionUtils.isEmpty(lnbs)) {
-      return ResponseEntity.noContent().build();
-    }
+    return ResponseEntity.badRequest().build();
+  }
 
-    return ResponseEntity.ok(extensionProperties.getLnb());
+  @InitBinder
+  public void initBinder(final WebDataBinder webdataBinder) {
+    webdataBinder.registerCustomEditor(ExtensionProperties.ExtensionType.class,
+            new CaseInsensitiveConverter(ExtensionProperties.ExtensionType.class));
   }
 }

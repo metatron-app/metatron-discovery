@@ -42,6 +42,7 @@
 
 package app.metatron.discovery.domain.datasource.ingestion.job;
 
+import app.metatron.discovery.domain.extension.ExtensionProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -94,6 +95,8 @@ public abstract class AbstractIngestionJob {
 
   protected boolean noDateTimeField;
 
+  protected ExtensionProperties extensionProperties;
+
   public AbstractIngestionJob(DataSource dataSource, IngestionHistory ingestionHistory) {
     this.dataSource = dataSource;
     this.ingestionHistory = ingestionHistory;
@@ -133,6 +136,10 @@ public abstract class AbstractIngestionJob {
     }
 
     dedicatedWorker = engineMetaRepository.dedicatedWorker().orElse(null);
+  }
+
+  public void setExtensionProperties(ExtensionProperties extensionProperties) {
+    this.extensionProperties = extensionProperties;
   }
 
   /**
