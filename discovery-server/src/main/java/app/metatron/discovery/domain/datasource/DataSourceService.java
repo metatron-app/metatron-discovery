@@ -21,7 +21,7 @@ import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineQueryService;
 import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
-import app.metatron.discovery.domain.extension.ExtensionProperties;
+import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.user.DirectoryProfile;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.UserRepository;
@@ -107,7 +107,7 @@ public class DataSourceService {
   DataSourceProperties dataSourceProperties;
 
   @Autowired
-  ExtensionProperties extensionProperties;
+  StorageProperties storageProperties;
 
   /**
    * 데이터 소스 엔진 적재시 name 을 기반으로 engin 내 데이터 소스 지정
@@ -394,7 +394,7 @@ public class DataSourceService {
             DataSource.SourceType.SNAPSHOT
         };
 
-        boolean supportStageDB = extensionProperties.getStagedb() != null;
+        boolean supportStageDB = storageProperties.getStagedb() != null;
         if(supportStageDB){
           srcTypes = ArrayUtils.add(srcTypes, 2, DataSource.SourceType.HIVE);
         }

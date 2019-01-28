@@ -251,7 +251,7 @@ polaris:
     username: admin
     password: geoserver
     defaultWorkspace: metatron
-  extensions:
+  storage:
     stagedb:
       hostname: localhost
       port: 10000

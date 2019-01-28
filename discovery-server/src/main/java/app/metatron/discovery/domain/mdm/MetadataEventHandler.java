@@ -14,7 +14,7 @@
 
 package app.metatron.discovery.domain.mdm;
 
-import app.metatron.discovery.domain.extension.ExtensionProperties;
+import app.metatron.discovery.domain.storage.StorageProperties;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +56,7 @@ public class MetadataEventHandler {
   EngineProperties engineProperties;
 
   @Autowired
-  ExtensionProperties extensionProperties;
+  StorageProperties storageProperties;
 
   @HandleBeforeCreate
   public void handleBeforeCreate(Metadata metadata) {
@@ -148,7 +148,7 @@ public class MetadataEventHandler {
       String schema = metadataSource.getSchema();
       String tableName = metadataSource.getTable();
 
-      ExtensionProperties.StageDBConnection stageDBConnection = extensionProperties.getStagedb();
+      StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
       if (stageDBConnection == null) {
         throw new IllegalArgumentException("Staging Hive DB info. required.");

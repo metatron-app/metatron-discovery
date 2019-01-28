@@ -28,17 +28,6 @@
 
 package app.metatron.discovery.domain.datasource.ingestion.job;
 
-import app.metatron.discovery.domain.extension.ExtensionProperties;
-import com.google.common.collect.Lists;
-
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Map;
-
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
@@ -48,11 +37,19 @@ import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionOption;
 import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
-import app.metatron.discovery.domain.engine.EngineProperties;
+import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.spec.druid.ingestion.HadoopIndex;
 import app.metatron.discovery.spec.druid.ingestion.Index;
 import app.metatron.discovery.spec.druid.ingestion.IngestionSpec;
 import app.metatron.discovery.spec.druid.ingestion.IngestionSpecBuilder;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
 
 public class HiveIngestionJob extends AbstractIngestionJob implements IngestionJob {
 
@@ -90,7 +87,7 @@ public class HiveIngestionJob extends AbstractIngestionJob implements IngestionJ
   @Override
   public void buildSpec() {
 
-    ExtensionProperties.StageDBConnection stageDBConnection = extensionProperties.getStagedb();
+    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
     String metastoreUri = ingestionInfo.getContextValue(HiveIngestionInfo.KEY_HIVE_METASTORE);
     if (StringUtils.isEmpty(metastoreUri)) {
@@ -135,7 +132,7 @@ public class HiveIngestionJob extends AbstractIngestionJob implements IngestionJ
     return taskId;
   }
 
-  private String makeOrcTypeSchema(ExtensionProperties.StageDBConnection hiveProperties, String source) {
+  private String makeOrcTypeSchema(StorageProperties.StageDBConnection hiveProperties, String source) {
     HiveConnection connection = new HiveConnection();
     connection.setUrl(hiveProperties.getUrl());
     connection.setHostname(hiveProperties.getHostname());
