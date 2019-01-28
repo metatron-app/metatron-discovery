@@ -24,9 +24,9 @@ import app.metatron.discovery.domain.datasource.connection.jdbc.*;
 import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.engine.EngineProperties;
-import app.metatron.discovery.domain.extension.ExtensionProperties;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
 import app.metatron.discovery.domain.mdm.source.MetadataSourceRepository;
+import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.workbench.Workbench;
 import app.metatron.discovery.domain.workbench.WorkbenchRepository;
 import app.metatron.discovery.domain.workbench.hive.HiveNamingRule;
@@ -88,7 +88,7 @@ public class DataConnectionController {
   MetadataSourceRepository metadataSourceRepository;
   
   @Autowired
-  ExtensionProperties extensionProperties;
+  StorageProperties storageProperties;
 
   /**
    * 서비스에서 이용가능한 JDBC 종류 전달
@@ -184,10 +184,10 @@ public class DataConnectionController {
   @RequestMapping(value = "/connections/query/hive/databases", method = RequestMethod.POST)
   public @ResponseBody ResponseEntity<?> queryForListOfHiveDatabases(Pageable pageable) {
 
-    ExtensionProperties.StageDBConnection stageDBConnection = extensionProperties.getStagedb();
+    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
     if(stageDBConnection == null){
-      throw new ResourceNotFoundException("ExtensionProperties.StageDBConnection");
+      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
     }
 
     HiveConnection hiveConnection = new HiveConnection();
@@ -218,10 +218,10 @@ public class DataConnectionController {
     //유효성 체크
     SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
 
-    ExtensionProperties.StageDBConnection stageDBConnection = extensionProperties.getStagedb();
+    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
     if(stageDBConnection == null){
-      throw new ResourceNotFoundException("ExtensionProperties.StageDBConnection");
+      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
     }
 
     HiveConnection hiveConnection = new HiveConnection();
@@ -262,10 +262,10 @@ public class DataConnectionController {
     SearchParamValidator.checkNull(checkRequest.getQuery(), "query");
     SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
 
-    ExtensionProperties.StageDBConnection stageDBConnection = extensionProperties.getStagedb();
+    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
     if(stageDBConnection == null){
-      throw new ResourceNotFoundException("ExtensionProperties.StageDBConnection");
+      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
     }
 
     HiveConnection hiveConnection = new HiveConnection();
@@ -563,10 +563,10 @@ public class DataConnectionController {
     //유효성 체크
     SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
 
-    ExtensionProperties.StageDBConnection stageDBConnection = extensionProperties.getStagedb();
+    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
     if(stageDBConnection == null){
-      throw new ResourceNotFoundException("ExtensionProperties.StageDBConnection");
+      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
     }
 
     HiveConnection hiveConnection = new HiveConnection();
@@ -629,9 +629,9 @@ public class DataConnectionController {
 
   @RequestMapping(value = "/connections/query/hive/strict", method = RequestMethod.GET)
   public @ResponseBody ResponseEntity<?> strictModeForHiveIngestion() {
-    ExtensionProperties.StageDBConnection stageDBConnection = extensionProperties.getStagedb();
+    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
     if(stageDBConnection == null){
-      throw new ResourceNotFoundException("ExtensionProperties.StageDBConnection");
+      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
     }
     return ResponseEntity.ok(stageDBConnection.isStrictMode());
   }
@@ -644,10 +644,10 @@ public class DataConnectionController {
     SearchParamValidator.checkNull(checkRequest.getQuery(), "query");
     SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
 
-    ExtensionProperties.StageDBConnection stageDBConnection = extensionProperties.getStagedb();
+    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
     if(stageDBConnection == null){
-      throw new ResourceNotFoundException("ExtensionProperties.StageDBConnection");
+      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
     }
 
     //when strict mode, requires hive metastore connection info
@@ -680,10 +680,10 @@ public class DataConnectionController {
     SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
     SearchParamValidator.checkNull(checkRequest.getPartitions(), "partitions");
 
-    ExtensionProperties.StageDBConnection stageDBConnection = extensionProperties.getStagedb();
+    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
     if(stageDBConnection == null){
-      throw new ResourceNotFoundException("ExtensionProperties.StageDBConnection");
+      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
     }
 
     //when strict mode, requires hive metastore connection info
