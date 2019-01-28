@@ -13,12 +13,11 @@
  */
 
 import {
-  ChangeDetectorRef,
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { DatasourceFile, DatasourceInfo, Field } from '../../../../../domain/datasource/datasource';
+import { DatasourceInfo, Field } from '../../../../../domain/datasource/datasource';
 import { FileLikeObject, FileUploader} from 'ng2-file-upload';
 import { Alert } from '../../../../../common/util/alert.util';
 import { CookieConstant } from '../../../../../common/constant/cookie.constant';
@@ -35,7 +34,6 @@ import {
   FileResult, Sheet,
   UploadResult
 } from "../../../../service/data-source-create.service";
-import {StringUtil} from "../../../../../common/util/string.util";
 
 @Component({
   selector: 'file-select',
@@ -82,8 +80,6 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
   public delimiter: string = ',';
   // csv 파일 줄바꿈자
   public separator: string = '\\n';
-  // 임의의 헤드컬럼 생성여부
-  public createHeadColumnFl: boolean = false;
   // Use the first row as the head column
   public isFirstHeaderRow: boolean = true;
 
@@ -237,15 +233,6 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
   }
 
 
-
-  private _isEnableNext(): boolean {
-    // exist selectedFileDetailData
-    // exist fields in selectedFileDetailData
-    // enable grid
-    return this.selectedFileDetailData && this.selectedFileDetailData.fields && !this.clearGrid;
-  }
-
-
   /**
    * Is CSV type file
    * @returns {boolean}
@@ -359,6 +346,8 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
    */
   private saveFileData(sourceData: DatasourceInfo) {
     const fileData = {
+      // file result
+      fileResult: this.fileResult,
       // file data
       selectedFileDetailData: this.selectedFileDetailData,
       // 그리드 row
@@ -453,6 +442,18 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
+   * Is enable next
+   * @return {boolean}
+   * @private
+   */
+  private _isEnableNext(): boolean {
+    // exist selectedFileDetailData
+    // exist fields in selectedFileDetailData
+    // enable grid
+    return this.selectedFileDetailData && this.selectedFileDetailData.fields && !this.clearGrid;
+  }
+
+  /**
    * 데이터가 변경이 일어났는지 확인
    * @returns {boolean}
    */
@@ -483,6 +484,10 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     this.selectedFileDetailData = undefined;
     // grid hide
     this.clearGrid = true;
+    // if invalid file
+    if (!this.isCsvFile() && !this.fileResult.selectedSheet.valid) {
+      return;
+    }
     // 로딩 show
     this.loadingShow();
     // 파일 조회
@@ -497,8 +502,6 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
         }
         // set file detail data
         this.selectedFileDetailData = result;
-        // set error message
-        result.isParsable.warning && (this.selectedFileDetailData.errorMessage = this._dataSourceCreateService.getFileErrorMessage(result.isParsable.warning));
         // grid show
         this.clearGrid = false;
         // grid 출력
@@ -526,13 +529,6 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     }
     return params;
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method - setter
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-
-
 
 
   /**
@@ -567,6 +563,8 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
    * @param fileData
    */
   private initData(fileData) {
+    // file result
+    this.fileResult = fileData.fileResult;
     // file data
     this.selectedFileDetailData = fileData.selectedFileDetailData;
     // 그리드 row

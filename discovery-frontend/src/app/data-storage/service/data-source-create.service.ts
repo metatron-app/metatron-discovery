@@ -11,10 +11,14 @@ export class DataSourceCreateService {
     this._translateService = injector.get(TranslateService);
   }
 
-
+  /**
+   * Get convert sheets
+   * @param {object} sheets
+   * @return {Sheet[]}
+   */
   public getConvertSheets(sheets: object): Sheet[] {
     return Object.keys(sheets).map(key => {
-      return {sheetName: key, valid: sheets[key].valid, warning: sheets[key].warning};
+      return sheets[key].valid ? {sheetName: key, valid: sheets[key].valid, warning: sheets[key].warning} : {sheetName: key, valid: sheets[key].valid, warning: sheets[key].warning, errorMessage: this.getFileErrorMessage(sheets[key].warning)};
     });
   }
 
@@ -41,6 +45,7 @@ export interface Sheet {
   sheetName: string;
   valid: boolean;
   warning?: string;
+  errorMessage?: string
 }
 
 export interface UploadResult {
@@ -58,5 +63,4 @@ export interface FileDetail {
   success?: boolean;
   totalRows?: number;
   isParsable: {valid: boolean, warning?: string};
-  errorMessage?: string
 }
