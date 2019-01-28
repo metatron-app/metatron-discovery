@@ -62,6 +62,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -1189,22 +1191,6 @@ public class PrepTransformService {
       throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_INVALID_SNAPSHOT_NAME);
     }
 
-    // If storedUri is null, it means storeUri is using default value
-    // FIXME: need to adjust the protocol of storedUri
-    if(requestPost.getStoredUri()==null) {
-      if (requestPost.getStorageType() == PrSnapshot.STORAGE_TYPE.LOCAL) {
-        requestPost.setStoredUri( "file://" + this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), requestPost.getSsName()) );
-      } else if (requestPost.getStorageType() == PrSnapshot.STORAGE_TYPE.HDFS) {
-        requestPost.setStoredUri( this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), requestPost.getSsName()) );
-      }
-    } else {
-      if (requestPost.getStorageType() == PrSnapshot.STORAGE_TYPE.LOCAL) {
-        if(requestPost.getStoredUri().startsWith("/")) {
-          requestPost.setStoredUri( "file://" + requestPost.getStoredUri() );
-        }
-      }
-    }
-
     load_internal(wrangledDsId);
 
     if (requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB) {
@@ -1267,27 +1253,18 @@ public class PrepTransformService {
     snapshot.setOrigDsTblName(origDataset.getTblName());
     snapshot.setOrigDsQueryStmt(origDataset.getQueryStmt());
 
-//    Map<String, Object> mapOrigDataset = new HashMap<>();
-//    String origDsId = getFirstUpstreamDsId(dataset.getDsId());
-//    PrDataset origDataset = datasetRepository.findRealOne(datasetRepository.findOne(origDsId));
-//    mapOrigDataset.put("origDsId", origDsId);
-//    mapOrigDataset.put("dsName", origDataset.getDsName());
-//    mapOrigDataset.put("queryStmt", requestPost.getSsType() == PrSnapshot.SS_TYPE.STAGING_DB ? origDataset.getQueryStmt() : "N/A");
-//    mapOrigDataset.put("createdTime", origDataset.getCreatedTime().toString());
-//    mapOrigDataset.put("createdBy", origDataset.getCreatedBy());
-//    map.put("origDsInfo", mapOrigDataset);
-
-
-    // lineage information도 JSON으로 저장
-    // - dataflow name
-    // - dataset name, createdTime, createdBy
-    // - origImported name, query, cretedTime, createdBy
-//    map.put("createdTime", dataset.getCreatedTime().toString());
-//    map.put("createdBy", dataset.getCreatedBy());
-
     // fill snapshot entity: attributes per ssType
     switch (ssType) {
       case URI:
+        String storedUri = requestPost.getStoredUri();
+        if (storedUri == null) {
+          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_DEST_URI_IS_NEEDED);
+        }
+        try {
+          new URI(storedUri);
+        } catch (URISyntaxException e) {
+          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX);
+        }
         snapshot.setStoredUri(requestPost.getStoredUri());
         break;
 
@@ -1314,6 +1291,8 @@ public class PrepTransformService {
         snapshot.setHiveFileFormat(requestPost.getHiveFileFormat());
         snapshot.setHiveFileCompression(requestPost.getHiveFileCompression());
         snapshot.setPartitionColNames(requestPost.getJsonPartitionColNames());
+        break;
+      case DRUID:
         break;
       default:
         throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_TYPE_NOT_SUPPORTED_YET, ssType.name());
