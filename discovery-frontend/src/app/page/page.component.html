@@ -641,7 +641,7 @@
                 <!-- 편집 input -->
                 <div class="ddp-wrap-input">
                   <component-input
-                    #pageName
+                    *ngIf="isPageNameEdit"
                     [inputClass]="'ddp-input-navi'"
                     [value]="editingPageName"
                     [maxLen]="50"

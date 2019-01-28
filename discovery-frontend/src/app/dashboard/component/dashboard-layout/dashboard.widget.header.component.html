@@ -75,11 +75,14 @@
             <div class="ddp-data-enter">
               <span class="ddp-data-name">{{widget.name}}</span>
             </div>
-            <input #widgetName type="text" class="ddp-input-edit" maxlength="50"
-                   [ngModel]="widget.name"
-                   (mousedown)="$event.stopPropagation()"
-                   (mousemove)="$event.stopPropagation()"
-                   (keyup)="changeWidgetName($event)" (clickOutside)="cancelEditName()"/>
+            <component-input
+              *ngIf="isEditTitle"
+              [value]="widget.name"
+              [inputClass]="'ddp-input-edit'"
+              [maxLen]="50"
+              [placeHolder]="'msg.board.ui.name.ph' | translate"
+              (inputBlur)="isEditTitle = false"
+              (changeValue)="changeWidgetName($event)"></component-input>
           </div>
           <!-- // 이름 -->
         </div>

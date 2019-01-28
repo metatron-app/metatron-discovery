@@ -128,7 +128,6 @@ export class InputComponent implements OnInit, OnDestroy {
     if (isNullOrUndefined(this.value)) {
       inputNativeElm.value = '';
     }
-    inputNativeElm.focus();
 
     if ('' !== this.optionalStyle) {
       this._styleElm.nativeElement.style = this.optionalStyle;
@@ -143,7 +142,12 @@ export class InputComponent implements OnInit, OnDestroy {
           break;
       }
     }
+
     this._safelyDetectChanges();
+
+    setTimeout( () => {
+      inputNativeElm.focus();
+    }, 400 );
   } // function - ngAfterViewInit
 
   /**
