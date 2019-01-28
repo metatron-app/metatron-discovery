@@ -22,7 +22,7 @@ import { Alert } from '../../../../common/util/alert.util';
 import { DatasourceService } from '../../../../datasource/service/datasource.service';
 import * as _ from 'lodash';
 import { Covariance } from '../../../../domain/datasource/covariance';
-import { ConnectionType, Datasource, Field } from '../../../../domain/datasource/datasource';
+import {ConnectionType, Datasource, Field, FieldFormat} from '../../../../domain/datasource/datasource';
 import { Metadata } from '../../../../domain/meta-data-management/metadata';
 import { MetadataColumn } from '../../../../domain/meta-data-management/metadata-column';
 import { isUndefined } from 'util';
@@ -234,14 +234,14 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   public getEnableChangePhysicalTypeList(): any {
     return this.physicalTypeList.filter(type => !type.derived);
   }
-
+  
   /**
    * Get timezone label
-   * @param {string} value
+   * @param {FieldFormat} format
    * @return {string}
    */
-  public getTimezoneLabel(value: string): string {
-    return this._timezoneService.getTimezoneObject(value).label;
+  public getTimezoneLabel(format: FieldFormat): string {
+    return format && format.timeZone ? this._timezoneService.getTimezoneObject(format.timeZone).label : '';
   }
 
   /**

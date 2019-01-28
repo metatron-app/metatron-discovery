@@ -4,10 +4,14 @@
   height: 100% !important;
   width: 100%;
 }
-:host /deep/ .slick-pane-header {z-index:10;}
-:host /deep/ slick-grid-component > div {
+
+:host /deep/ .slick-pane-header {
+  z-index: 10;
+}
+
+:host /deep/ .slick-grid-component > div {
   width: 100% !important;
-  height:100%;
+  height: 100%;
 }
 
 :host /deep/ .slick-header-columns {
@@ -15,24 +19,36 @@
   background: none;
 }
 
-:host /deep/ .slick-header-column.ui-state-default  {
+:host /deep/ .slick-header-column.ui-state-default {
 
   line-height: 29px;
-  height:29px;
-  padding:0px 20px 0 9px;
+  height: 29px;
+  padding: 0px 20px 0 9px;
   border-right: 1px solid #ebebed;
   border-bottom: 1px solid #ebebed;
   text-align: left;
-  color:#4b515b;
+  color: #4b515b;
   background: none;
-  background-color:#fff;
+  background-color: #fff;
   cursor: pointer;
+}
+
+
+:host /deep/ .slick-headerrow-column.ui-state-default {
+  padding: 0px;
+  border-right: 1px solid #ebebed;
+  text-align: center;
+  color: #4b515b;
+  background: none;
+  background-color: #fff;
+  cursor: initial;
+  min-height: 32px;
 }
 
 :host /deep/ .slick-column-name {
 
-  width:100%;
-  height:40px;
+  width: 100%;
+  height: 40px;
   text-align: center;
   vertical-align: middle;
 }
@@ -40,30 +56,69 @@
 :host /deep/ .slick-row.odd {
   background: #fafafa;
 }
-:host /deep/ .slick-cell {padding:0 10px; border-bottom:none; border-right:1px solid #ebebed; color:#4b525b; font-size:12px;}
+
+:host /deep/ .slick-row.last {
+  border-bottom: 1px solid #ebebed;
+}
+
+:host /deep/ .slick-cell {
+  padding: 0 10px;
+  border-bottom: none;
+  border-right: 1px solid #ebebed;
+  color: #4b525b;
+  font-size: 12px;
+}
+
 :host /deep/ .slick-row > .slick-cell {
   line-height: 30px;
 }
 
-:host /deep/ .slick-cell.l0 {
-  text-align: center;
-}
+/*:host /deep/ .slick-cell.l0 {*/
+/*text-align: center;*/
+/*}*/
+
 :host /deep/ .slick-cell.l1 {
   text-align: left;
 }
 
 :host /deep/ .checkbox-tbl {
-  display:inline-block !important;
-  width:15px;
-  height:15px;
+  display: inline-block !important;
+  width: 15px;
+  height: 15px;
   -webkit-appearance: checkbox;
 }
 
 :host /deep/ .slick-sort-indicator {
-  float:inherit; margin:0;width:7px; height:4px; display:inline-block; position:absolute; top:10px; right:9px; width:7px; height:9px; background:url(../images/icon_array.png) no-repeat; cursor: pointer;
+  float: inherit;
+  margin: 0;
+  width: 7px;
+  height: 4px;
+  display: inline-block;
+  position: absolute;
+  top: 10px;
+  right: 9px;
+  width: 7px;
+  height: 9px;
+  background: url(images/icon_array.png) no-repeat;
+  cursor: pointer;
 }
-:host /deep/ .slick-sort-indicator-asc {position:absolute; top:10px; right:9px; width:7px; height:4px;}
-:host /deep/ .slick-sort-indicator-desc {position:absolute; top:15px; right:9px; width:7px; height:4px; background-position:left -5px;}
+
+:host /deep/ .slick-sort-indicator-asc {
+  position: absolute;
+  top: 10px;
+  right: 9px;
+  width: 7px;
+  height: 4px;
+}
+
+:host /deep/ .slick-sort-indicator-desc {
+  position: absolute;
+  top: 15px;
+  right: 9px;
+  width: 7px;
+  height: 4px;
+  background-position: left -5px;
+}
 
 :host /deep/ .slick-header-column-sorted {
   font-style: normal;
@@ -82,12 +137,32 @@
 }
 
 :host /deep/ .slick-cell.selected {
-  background-color:#a6d3ed;
+  background-color: #d6d9f1;
 }
 
-:host /deep/ .slick-pane.slick-pane-top.slick-pane-left {top:0px !important; padding-top:30px; height:100% !important; box-sizing:border-box;}
-:host /deep/ .slick-viewport {height:100% !important;}
+:host /deep/ .slick-cell.ddp-selected {
+  background-color: #d6d9f1;
+  border: 1px solid #9ca2cc;
+}
 
+:host /deep/ .slick-pane.slick-pane-top.slick-pane-left {
+  top: 0px !important;
+  padding-top: 30px;
+  height: 100% !important;
+  box-sizing: border-box;
+}
 
-:host /deep/ .slick-headerrow-column.ui-state-default .slick-column-det {padding:0 10px; position:Relative; top:-4px; text-align:left; font-size:12px; color:#90969f;}
-:host /deep/ .meta-grid.meta-grid-type .slick-viewport {top:70px;}
+:host /deep/ .slick-viewport {
+  position: absolute !important;
+  top: 31px;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  height: auto !important;
+}
+
+:host /deep/ .slick-headerrow-columns {
+  height:52px;
+  border-bottom:1px solid #ebebed;
+}
+

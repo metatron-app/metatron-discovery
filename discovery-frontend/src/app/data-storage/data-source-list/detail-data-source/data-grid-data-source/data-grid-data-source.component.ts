@@ -15,7 +15,7 @@
 import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
 import {Component, ElementRef, Injector, Input, OnInit, ViewChild} from '@angular/core';
 import {GridComponent} from '../../../../common/component/grid/grid.component';
-import {Datasource, Field, FieldRole} from '../../../../domain/datasource/datasource';
+import {Datasource, Field, FieldRole, LogicalType} from '../../../../domain/datasource/datasource';
 import {QueryParam} from '../../../../domain/dashboard/dashboard';
 import * as _ from 'lodash';
 import {DatasourceService} from '../../../../datasource/service/datasource.service';
@@ -111,7 +111,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     this._initView();
     // 그리드 데이터 조회
     this.fields = this.datasource.fields;
-    this.isExistTimestamp = this.datasource.fields.some(field => field.role === FieldRole.TIMESTAMP);
+    this.isExistTimestamp = this.datasource.fields.some(field => field.logicalType === LogicalType.TIMESTAMP);
     // 마스터 소스 타입
     this.connType = this.datasource.hasOwnProperty('connType') ? this.datasource.connType.toString() : 'ENGINE';
     // linked인 경우
@@ -178,7 +178,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   public extendGridHeader(args: any): void {
     // if exist timestamp column
     if (this.isExistTimestamp) {
-      $('<div style="font-size:12px;text-align:left;padding-left: 20px;color:#90969f;" title="+09:00">+09:00</div>').appendTo(args.node);
+      $('<div class="slick-column-det" title="+09:00">+09:00</div>').appendTo(args.node);
     }
     // if exist metadata
     if (this.isExistMetaData()) {
@@ -320,7 +320,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
       // dom 이 모두 로드되었을때 작동
       this.changeDetect.detectChanges();
       // 그리드 생성
-      this.isExistMetaData()
+      this.isExtendGridHeader()
         ? this._gridComponent.create(headers, rows, new GridOption()
         .SyncColumnCellResize(true)
         .MultiColumnSort(true)
@@ -337,7 +337,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
       // search
       this._gridComponent.search(this.searchText);
       // ExplicitInitialization 을 true 로 줬기 떄문에 init해줘야 한다.
-      this.isExistMetaData() && this._gridComponent.grid.init();
+      this.isExtendGridHeader() && this._gridComponent.grid.init();
     } else {
       this._gridComponent.destroy();
     }

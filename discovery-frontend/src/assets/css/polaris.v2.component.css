@@ -717,7 +717,10 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .meta-grid .slick-headerrow.ui-state-default {margin-top:-1px; border-top:1px solid #fff;}
 .meta-grid .slick-headerrow .slick-data {padding:0 10px 10px 10px; text-align:left; color:#b7b9c2; font-size:12px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
 .meta-grid .slick-viewport {top:55px !important;}
-
+.meta-grid.meta-grid-type .slick-headerrow-column.ui-state-default {border-right:1px solid #ebebed;}
+.slick-headerrow-column.ui-state-default .slick-column-det {padding:0 10px 3px 10px; position:Relative; text-align:left; font-size:12px; color:#90969f;}
+.meta-grid.meta-grid-type .slick-viewport {top:70px !important; border-top:1px solid #ebebed;}
+.meta-grid.meta-grid-type .slick-headerrow-columns {height:40px !important;}
 /**************************************************************
   split
 **************************************************************/
