@@ -87,7 +87,6 @@ public class PrDataflowController {
         }
 
         return ResponseEntity.status(HttpStatus.SC_OK).body(projectedDataflow);
-        //return ResponseEntity.status(HttpStatus.SC_OK).body(persistentEntityResourceAssembler.toFullResource(dataflow));
     }
 
     @RequestMapping(value="", method = RequestMethod.POST)
