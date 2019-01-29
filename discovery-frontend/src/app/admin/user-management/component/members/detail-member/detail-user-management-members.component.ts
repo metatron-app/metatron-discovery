@@ -12,20 +12,28 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { User } from '../../../../../domain/user/user';
-import { ActivatedRoute } from '@angular/router';
-import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
-import { Modal } from '../../../../../common/domain/modal';
-import { AbstractUserManagementComponent } from '../../../abstract.user-management.component';
-import { Alert } from '../../../../../common/util/alert.util';
-import { UpdateUserManagementMembersComponent } from '../update-member/update-user-management-members.component';
-import { PermissionService } from '../../../../../user/service/permission.service';
-import { CommonUtil } from '../../../../../common/util/common.util';
+import {
+  Component,
+  ElementRef,
+  Injector,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import {User} from '../../../../../domain/user/user';
+import {ActivatedRoute} from '@angular/router';
+import {ConfirmModalComponent} from '../../../../../common/component/modal/confirm/confirm.component';
+import {Modal} from '../../../../../common/domain/modal';
+import {AbstractUserManagementComponent} from '../../../abstract.user-management.component';
+import {Alert} from '../../../../../common/util/alert.util';
+import {UpdateUserManagementMembersComponent} from '../update-member/update-user-management-members.component';
+import {PermissionService} from '../../../../../user/service/permission.service';
+import {CommonUtil} from '../../../../../common/util/common.util';
+import {Group} from '../../../../../domain/user/group';
 
 @Component({
   selector: 'app-member-detail',
-  templateUrl: './detail-user-management-members.component.html'
+  templateUrl: './detail-user-management-members.component.html',
 })
 export class DetailUserManagementMembersComponent extends AbstractUserManagementComponent implements OnInit, OnDestroy {
 
@@ -44,7 +52,6 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
   @ViewChild(UpdateUserManagementMembersComponent)
   private _setGroupComponent: UpdateUserManagementMembersComponent;
 
-
   private defaultPhotoSrc = '/assets/images/img_photo.png';
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -60,18 +67,27 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
 
   // status list
   public userStatusList = [
-    { label: this.translateService.instant('msg.mem.ui.active'), value: 'ACTIVATED'},
-    { label: this.translateService.instant('msg.mem.ui.inactive'), value: 'LOCKED'},
+    {
+      label: this.translateService.instant('msg.mem.ui.active'),
+      value: 'ACTIVATED',
+    },
+    {
+      label: this.translateService.instant('msg.mem.ui.inactive'),
+      value: 'LOCKED',
+    },
   ];
 
   // 유저레벨 리스트 필터
   public userLevelList = [
-    { label: 'General user',  name: 'SYSTEM_USER', id: 'ROLE_SYSTEM_USER' },
-    { label: 'General user',  name: 'SYSTEM_GUEST', id: 'ROLE_SYSTEM_GUEST' },
-    { label: 'Data manager', name: 'SYSTEM_SUPERVISOR', id: 'ROLE_SYSTEM_SUPERVISOR' },
-    { label: 'Administrator', name: 'SYSTEM_ADMIN', id: 'ROLE_SYSTEM_ADMIN' }
+    {label: 'General user', name: 'SYSTEM_USER', id: 'ROLE_SYSTEM_USER'},
+    {label: 'General user', name: 'SYSTEM_GUEST', id: 'ROLE_SYSTEM_GUEST'},
+    {
+      label: 'Data manager',
+      name: 'SYSTEM_SUPERVISOR',
+      id: 'ROLE_SYSTEM_SUPERVISOR',
+    },
+    {label: 'Administrator', name: 'SYSTEM_ADMIN', id: 'ROLE_SYSTEM_ADMIN'},
   ];
-
 
   // status flag
   public statusShowFl: boolean = false;
@@ -81,10 +97,11 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private permissionService: PermissionService,
-              private activatedRoute: ActivatedRoute,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    private permissionService: PermissionService,
+    private activatedRoute: ActivatedRoute,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -147,20 +164,21 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
    * @returns {number}
    */
   public getGroupLength(): number {
-     return this.userData.groups ? this.getGroupList().length : 0;
+    return this.userData.groups ? this.getGroupList().length : 0;
   }
 
   /**
-   * 현자 사용자가 포함된 그룹 목록
+   * 현재 사용자가 포함된 그룹 목록
    * @returns {any}
    */
-  public getGroupList(): any {
+  public getGroupList(): Group[] {
     // groups가 있으면 filter
     return this.userData.groups
       ? this.userData.groups.filter((group) => {
         return this.userLevelList.findIndex((item) => {
           return item.id === group.id;
-        }) === -1; })
+        }) === -1;
+      })
       : [];
   }
 
@@ -185,17 +203,15 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
     // 로딩 show
     this.loadingShow();
     // 상세정보 조회
-    this.membersService.getUserDetail(this._userId)
-      .then((result) => {
-        // 로딩 hide
-        this.loadingHide();
-        // 유저 정보 저장
-        this.userData = result;
-      })
-      .catch(() => {
-        // 로딩 hide
-        this.loadingHide();
-      });
+    this.membersService.getUserDetail(this._userId).then((result) => {
+      // 로딩 hide
+      this.loadingHide();
+      // 유저 정보 저장
+      this.userData = result;
+    }).catch(() => {
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**
@@ -215,8 +231,10 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
    */
   public getRoleNames(roles: string[]): string {
     return roles.map(item => {
-      const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole( item );
-      return ( '' === strMsgCode ) ? '' : this.translateService.instant(strMsgCode);
+      const strMsgCode: string = CommonUtil.getMsgCodeBySystemRole(item);
+      return ('' === strMsgCode) ?
+        '' :
+        this.translateService.instant(strMsgCode);
     }).join(', ');
   } // function - getRoleNames
 
@@ -238,12 +256,16 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
     modal.data = 'STATUS';
     // 이미 활성화 상태라면
     if (status === 'LOCKED') {
-      modal.name = this.translateService.instant('msg.mem.ui.inactive.title', {value:this.userData.fullName});
-      modal.description = this.translateService.instant('msg.mem.ui.inactive.description');
+      modal.name = this.translateService.instant('msg.mem.ui.inactive.title',
+        {value: this.userData.fullName});
+      modal.description = this.translateService.instant(
+        'msg.mem.ui.inactive.description');
       modal.btnName = this.translateService.instant('msg.mem.ui.inactive');
     } else {
-      modal.name = this.translateService.instant('msg.mem.ui.active.title', {value:this.userData.fullName});
-      modal.description = this.translateService.instant('msg.mem.ui.active.description');
+      modal.name = this.translateService.instant('msg.mem.ui.active.title',
+        {value: this.userData.fullName});
+      modal.description = this.translateService.instant(
+        'msg.mem.ui.active.description');
       modal.btnName = this.translateService.instant('msg.mem.ui.active');
     }
     // 변경할 status
@@ -258,8 +280,10 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
   public onClickResetPassword(): void {
     const modal = new Modal();
     modal.data = 'RESET';
-    modal.name = this.translateService.instant('msg.mem.ui.pw.usr.title', {value: this.userData.fullName});
-    modal.description = this.translateService.instant('msg.mem.ui.pw.usr.description');
+    modal.name = this.translateService.instant('msg.mem.ui.pw.usr.title',
+      {value: this.userData.fullName});
+    modal.description = this.translateService.instant(
+      'msg.mem.ui.pw.usr.description');
     modal.btnName = this.translateService.instant('msg.mem.btn.pw.usr');
     // 팝업 창 오픈
     this._confirmModalComponent.init(modal);
@@ -271,21 +295,11 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
   public onClickDeleteUser(): void {
     const modal = new Modal();
     modal.data = 'DELETE';
-    modal.name = this.translateService.instant('msg.mem.ui.delete.usr.title', {value: this.userData.fullName});
-    modal.description = this.translateService.instant('msg.mem.ui.delete.usr.description');
+    modal.name = this.translateService.instant('msg.mem.ui.delete.usr.title',
+      {value: this.userData.fullName});
+    modal.description = this.translateService.instant(
+      'msg.mem.ui.delete.usr.description');
     modal.btnName = this.translateService.instant('msg.mem.btn.delete.usr');
-    // 팝업 창 오픈
-    this._confirmModalComponent.init(modal);
-  }
-
-  /**
-   * 사용자 로그인 클릭
-   */
-  public onClickLoginUser(): void {
-    const modal = new Modal();
-    modal.data = 'LOGIN';
-    modal.name = this.translateService.instant('msg.mem.ui.login.usr.title', {value: this.userData.fullName});
-    modal.btnName = this.translateService.instant('msg.mem.btn.login.usr');
     // 팝업 창 오픈
     this._confirmModalComponent.init(modal);
   }
@@ -347,23 +361,22 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
     // 로딩 show
     this.loadingShow();
     // 삭제 요청
-    this.membersService.deleteUser(userId)
-      .then((result) => {
-        // alert
-        Alert.success(this.translateService.instant('msg.mem.alert.delete.usr.success'));
-        // 로딩 hide
-        this.loadingHide();
-        // 기존에 저장된 라우트 삭제
-        this.cookieService.delete('PREV_ROUTER_URL');
-        // 사용자 관리 목록으로 돌아가기
-        this.router.navigate(['/admin/user/members']);
-      })
-      .catch((error)=> {
-        // alert
-        Alert.error(error);
-        // 로딩 hide
-        this.loadingHide();
-      });
+    this.membersService.deleteUser(userId).then(() => {
+      // alert
+      Alert.success(
+        this.translateService.instant('msg.mem.alert.delete.usr.success'));
+      // 로딩 hide
+      this.loadingHide();
+      // 기존에 저장된 라우트 삭제
+      this.cookieService.delete('PREV_ROUTER_URL');
+      // 사용자 관리 목록으로 돌아가기
+      this.router.navigate(['/admin/user/members']);
+    }).catch((error) => {
+      // alert
+      Alert.error(error);
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**
@@ -374,14 +387,15 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
     // 로딩 show
     this.loadingShow();
     // 비밀번호 초기화
-    this.membersService.userPasswordReset(this.userData.email)
-      .then((result) => {
+    this.membersService.userPasswordReset(this.userData.email).
+      then(() => {
         // alert
-        Alert.success(this.translateService.instant('msg.mem.alert.reset.usr.pw.success'));
+        Alert.success(
+          this.translateService.instant('msg.mem.alert.reset.usr.pw.success'));
         // 로딩 hide
         this.loadingHide();
-      })
-      .catch((error)=> {
+      }).
+      catch((error) => {
         // alert
         Alert.error(error);
         // 로딩 hide
@@ -398,18 +412,24 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
     // 로딩 show
     this.loadingShow();
     // 비밀번호 초기화
-    this.membersService.updateUserStatus(this._userId, status)
-      .then((result) => {
+    this.membersService.updateUserStatus(this._userId, status).
+      then(() => {
         // alert
         Alert.success(status === 'LOCKED'
-          ? this.translateService.instant('msg.mem.alert.change.usr.status.inactive.success', {value: this.userData.fullName})
-          : this.translateService.instant('msg.mem.alert.change.usr.status.active.success', {value: this.userData.fullName}));
+          ?
+          this.translateService.instant(
+            'msg.mem.alert.change.usr.status.inactive.success',
+            {value: this.userData.fullName})
+          :
+          this.translateService.instant(
+            'msg.mem.alert.change.usr.status.active.success',
+            {value: this.userData.fullName}));
         // 로딩 hide
         this.loadingHide();
         // 사용자 재조회
         this.getUserDetail();
-      })
-      .catch((error)=> {
+      }).
+      catch((error) => {
         // alert
         Alert.error(error);
         // 로딩 hide
