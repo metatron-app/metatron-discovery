@@ -339,7 +339,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    * @private
    */
   private _getTimezoneLabel(format: FieldFormat): string {
-    return format.type === FieldFormatType.UNIX_TIME ?  'Unix time'  : this.timezoneService.getTimezoneObject(format).label;
+    return (format && format.type === FieldFormatType.UNIX_TIME) ?  'Unix time'  : this.timezoneService.getTimezoneObject(format).label;
   }
 
   /**
