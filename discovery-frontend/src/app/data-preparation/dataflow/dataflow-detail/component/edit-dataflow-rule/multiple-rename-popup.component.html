@@ -65,6 +65,7 @@
                        (click)="editItem(column, index, renamedAsColumns)">
                     <input type="text" [(ngModel)]="column.renamedAs"
                            (keydown)="onKeydownHandler($event, column)"
+                           (keyup.enter)="applyRename()"
                            (focus)="focus(column)"
                            #renamedAsColumns
                            (focusout)="focusOut(column,index, $event, renamedAsColumns)">

@@ -13,7 +13,6 @@
  */
 import {
   Component,
-  ContentChildren,
   ElementRef,
   EventEmitter,
   Injector,
@@ -30,7 +29,6 @@ import {GridOption} from "../../../../../common/component/grid/grid.option";
 import {GridComponent} from "../../../../../common/component/grid/grid.component";
 import {ScrollLoadingGridComponent} from "./edit-rule-grid/scroll-loading-grid.component";
 import {ScrollLoadingGridModel} from "./edit-rule-grid/scroll-loading-grid.model";
-import {CommonUtil} from "../../../../../common/util/common.util";
 import {isNullOrUndefined} from "util";
 
 @Component({
@@ -54,7 +52,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ContentChildren('renamedAsColumns', { read: ElementRef })
+  @ViewChildren('renamedAsColumns')
   public renamedAsColumns: QueryList<ElementRef>;
 
   public isPopupOpen: boolean = false;
@@ -152,8 +150,9 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    * @param index
    * @param input
    */
-  public editItem(column : Column, index: number, input: any) {
+  public editItem(column : Column, index: number, input: HTMLInputElement) {
 
+    // 에러가 있을떄는 에러가 해결돼야 다른 컬럼을 수정할 수 있다
     if (isNullOrUndefined(this.errorEsg)) {
 
       // 에러가 없을때만 !
@@ -167,13 +166,12 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
 
 
   /**
-   * Focus
+   * Focus (tab 버튼으로 이동할때 focus가 잡히지 않아서 (focus)이용
    * @param column
    */
   public focus(column: Column) {
     if (isNullOrUndefined(this.errorEsg)) {
       column.isEditing = true;
-      event.stopPropagation();
     }
   }
 
@@ -227,11 +225,11 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
 
     if (event.keyCode === 9) {
       if (isNullOrUndefined(this.errorEsg)) {
+
+        // 에러가 있을때 탭을 눌렀다면 현재 input을 벗어나지 못함
         column.isEditing = true;
-      } else {
-        event.preventDefault();
       }
-    } else {
+    } else { // 아무 키를 눌렀다면 에러 메시지 삭제
       column.isError = false;
       this.errorEsg=null
     }
@@ -242,18 +240,14 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   /**
    * Check if column name has back quote
    * @param column
-   * @param input
    * returns trues if column name has quote (`)
    */
-  public hasBackTick(column: Column, input?) : boolean {
+  public hasBackTick(column: Column) : boolean {
 
     let result: boolean = false;
     if (-1 !== column.renamedAs.indexOf('`')) {
       this.errorEsg = this.translateService.instant('msg.dp.alert.no.backtick.colname');
       result = true;
-      if(input) {
-        input.focus();
-      }
     }
     return result;
   }
@@ -296,38 +290,34 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    * @param event
    * @param input
    */
-  public focusOut(column: Column, index: number, event?, input?) {
+  public focusOut(column: Column, index: number, event?:FocusEvent, input?:HTMLInputElement) {
 
     // 편집중이면
     if (column.isEditing) {
 
-      // 백틱 검사
-      column.isError = this.hasBackTick(column);
-      if (this.hasBackTick(column)) {
-        event && event.preventDefault();
-        input && input.focus();
+      // Validation - back quote, duplicate name
+      if (this.hasBackTick(column) || this.isNameDuplicate(column, index)) {
         column.isError = true;
+        event && event.stopPropagation();
+        input && input.focus();
         return;
       }
 
-      // 중복 검사
-      if (this.isNameDuplicate(column, index)) {
-        column.isError = true;
-        input && input.focus();
-        event && event.preventDefault();
-        return;
-      }
+      // Validation - Check if input is empty
+      if (this.isRenameInputEmpty(column)) {
 
-      // empty value 검사
-      const isEmpty: boolean = this.isRenameInputEmpty(column);
-      if (isEmpty) {
+        // Put original name
         column.renamedAs = column.original;
+        column.isEditing = false;
+        return;
       }
 
+      // 포커스 아웃 할 대상은 false 로 바꿔줘야한다
       if (isNullOrUndefined(this.errorEsg)) {
         column.isEditing = false;
       }
 
+      // 그리드 업데이트
       this._updateGrid(this.gridData.fields, this.gridData.data);
     }
 
