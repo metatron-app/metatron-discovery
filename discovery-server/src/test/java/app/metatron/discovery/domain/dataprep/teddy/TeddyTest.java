@@ -118,8 +118,8 @@ public class TeddyTest {
         ruleStrings.add("replace col: column3, column4, column5, column6, column7, column8, column9, column10, column11, column13, column12 with: '' on: /_$/ global: true");
         ruleStrings.add("replace col: column3, column4, column5, column7, column6, column8, column9, column10, column11, column12, column13 with: ' ' on: '_' global: true");
         ruleStrings.add("header rownum: 1");
-        ruleStrings.add("replace col: Population, Total_Crime, Violent_Crime, Property_Crime, Murder, Forcible_Rape, Robbery, Aggravated_Assault, Burglary, Larceny_Theft, Vehicle_Theft with: '' on: ',' global: true");
-        ruleStrings.add("replace col: Population, Violent_Crime, Total_Crime, Property_Crime, Murder, Forcible_Rape, Robbery, Aggravated_Assault, Burglary, Larceny_Theft, Vehicle_Theft with: '' on: ' ' global: true");
+        ruleStrings.add("replace col: Population, `Total Crime`, `Violent Crime`, `Property Crime`, Murder, `Forcible Rape`, Robbery, `Aggravated Assault`, Burglary, `Larceny Theft`, `Vehicle Theft` with: '' on: ',' global: true");
+        ruleStrings.add("replace col: Population, `Total Crime`, `Violent Crime`, `Property Crime`, Murder, `Forcible Rape`, Robbery, `Aggravated Assault`, Burglary, `Larceny Theft`, `Vehicle Theft` with: '' on: ' ' global: true");
         return apply_rules(crime, ruleStrings);
     }
 
@@ -187,7 +187,7 @@ public class TeddyTest {
     static DataFrame apply_rule(DataFrame df, String ruleString) throws TeddyException {
         DataFrameService dataFrameService = new DataFrameService();
 
-        df = dataFrameService.applyRule_Test(df, ruleString, new ArrayList<>());
+        df = dataFrameService.applyRule(df, ruleString, null, 2, 60);
 
         return df;
     }
@@ -195,7 +195,7 @@ public class TeddyTest {
     static DataFrame apply_rule(DataFrame df, String ruleString, List<DataFrame> slaveDFs) throws TeddyException {
         DataFrameService dataFrameService = new DataFrameService();
 
-        df = dataFrameService.applyRule_Test(df, ruleString, slaveDFs);
+        df = dataFrameService.applyRule(df, ruleString, slaveDFs, 2, 60);
 
         return df;
     }
@@ -204,7 +204,7 @@ public class TeddyTest {
         DataFrameService dataFrameService = new DataFrameService();
 
         for (String ruleString : ruleStrings) {
-            df = dataFrameService.applyRule_Test(df, ruleString, new ArrayList<>());
+            df = dataFrameService.applyRule(df, ruleString, null, 2, 60);
         }
         return df;
     }

@@ -80,7 +80,8 @@ export class FormatItemComponent extends AbstractComponent implements OnInit, On
     {name: '$ (USD)', value: 'USD'},
     {name: '£ (GBP)', value: 'GBP'},
     {name: '¥ (JPY)', value: 'JPY'},
-    {name: '€ (EUR)', value: 'EUR'}
+    {name: '€ (EUR)', value: 'EUR'},
+    {name: '¥ (CNY)', value: 'CNY'}
   ];
 
   // 선택된 기호
