@@ -20,11 +20,13 @@ import app.metatron.discovery.domain.dataprep.PrepUpstream;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflowProjections;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrTransformRuleRepository;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformResponse;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
 import com.google.common.collect.Lists;
@@ -57,6 +59,9 @@ public class PrDataflowController {
 
     @Autowired
     private PrDatasetRepository datasetRepository;
+
+    @Autowired
+    private PrTransformRuleRepository transformRuleRepository;
 
     @Autowired
     private PrDataflowService dataflowService;
@@ -161,6 +166,12 @@ public class PrDataflowController {
                     ds.deleteDataflow(dataflow);
                     dataflow.deleteDataset(ds);
                     if( ds.getDsType() == PrDataset.DS_TYPE.WRANGLED) {
+                        List<PrTransformRule> transformRules = ds.getTransformRules();
+                        if(null!=transformRules) {
+                            for(PrTransformRule transformRule : transformRules) {
+                                this.transformRuleRepository.delete(transformRule);
+                            }
+                        }
                         this.datasetRepository.delete(ds.getDsId());
                     }
                 }

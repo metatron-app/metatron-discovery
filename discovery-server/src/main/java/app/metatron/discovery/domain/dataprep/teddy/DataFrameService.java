@@ -86,67 +86,15 @@ public class DataFrameService {
     }
   }
 
-public DataFrame applyRule(DataFrame df, String ruleString, List<DataFrame> slaveDfs) throws TeddyException {
-    int cores     = prepProperties.getSamplingCores();
-    int limitRows = prepProperties.getSamplingLimitRows();
-    int timeout   = prepProperties.getSamplingTimeout();
-    LOGGER.trace("applyRule(): start");
-
-      List<Future<List<Row>>> futures = new ArrayList<>();
-      Rule rule = new RuleVisitorParser().parse(ruleString);
-      DataFrame newDf = DataFrame.getNewDf(rule, df.dsName, ruleString);
-
-      try {
-        LOGGER.debug("applyRule(): start: ruleString={}", ruleString);
-        List<Object> preparedArgs = newDf.prepare(df, rule, slaveDfs);
-        int rowcnt = df.rows.size();
-
-        if (rowcnt > 0) {
-          if (DataFrame.isParallelizable(rule)) {
-            int partSize = rowcnt / cores + 1;  // +1 to prevent being 0
-
-            for (int rowno = 0; rowno < rowcnt; rowno += partSize) {
-              LOGGER.debug("applyRuleString(): add thread: rowno={} partSize={} rowcnt={}", rowno, partSize, rowcnt);
-              futures.add(gatherAsync(df, newDf, preparedArgs, rowno, Math.min(partSize, rowcnt - rowno), hardRowLimit));
-            }
-
-            for (int i = 0; i < futures.size(); i++) {
-              List<Row> rows = futures.get(i).get(timeout, TimeUnit.SECONDS);
-              assert rows != null : rule.toString();
-              newDf.rows.addAll(rows);
-            }
-          } else {
-            // if not parallelizable, newDf comes to be modified directly.
-            // then, 'rows' returned is only for assertion.
-            List<Row> rows = newDf.gather(df, preparedArgs, 0, rowcnt, hardRowLimit);
-            assert rows == null : ruleString;
-          }
-        }
-      }
-      catch (ExecutionException e) {
-        String msg = "applyRule(): transform execution failed";
-        LOGGER.error(msg, e);
-        throw new TransformExecutionFailedException(msg);
-      }
-      catch (InterruptedException e) {
-        String msg = "applyRule(): transform execution interrupted";
-        LOGGER.error(msg, e);
-        throw new TransformExecutionInterrupteddException(msg);
-      }
-      catch (TimeoutException e) {
-        String msg = String.format("applyRule(): transform timeout: timeout=%ds", timeout);
-        LOGGER.error(msg, e);
-        throw new TransformTimeoutException(msg);
-      }
-
-      LOGGER.trace("applyRule(): end (parallel)");
-      return newDf;
+  public DataFrame applyRule(DataFrame df, String ruleString) throws TeddyException {
+    return applyRule(df, ruleString, null);
   }
 
-  public DataFrame applyRule_Test(DataFrame df, String ruleString, List<DataFrame> slaveDfs) throws TeddyException {
-    int cores     = 2;
-    int limitRows = 1000;
-    int timeout   = 60;
+  public DataFrame applyRule(DataFrame df, String ruleString, List<DataFrame> slaveDfs) throws TeddyException {
+    return applyRule(df, ruleString, slaveDfs, prepProperties.getSamplingCores(), prepProperties.getSamplingTimeout());
+  }
+
+  public DataFrame applyRule(DataFrame df, String ruleString, List<DataFrame> slaveDfs, Integer cores, Integer timeout) throws TeddyException {
     LOGGER.trace("applyRule(): start");
 
     List<Future<List<Row>>> futures = new ArrayList<>();
@@ -160,7 +108,7 @@ public DataFrame applyRule(DataFrame df, String ruleString, List<DataFrame> slav
 
       if (rowcnt > 0) {
         if (DataFrame.isParallelizable(rule)) {
-          int partSize = rowcnt / (cores + 1);  // +1 to prevent being 0
+          int partSize = rowcnt / cores + 1;  // +1 to prevent being 0
 
           for (int rowno = 0; rowno < rowcnt; rowno += partSize) {
             LOGGER.debug("applyRuleString(): add thread: rowno={} partSize={} rowcnt={}", rowno, partSize, rowcnt);
@@ -181,17 +129,17 @@ public DataFrame applyRule(DataFrame df, String ruleString, List<DataFrame> slav
       }
     }
     catch (ExecutionException e) {
-      String msg = "loadContentsByRule(): transform execution failed";
+      String msg = "applyRule(): transform execution failed";
       LOGGER.error(msg, e);
       throw new TransformExecutionFailedException(msg);
     }
     catch (InterruptedException e) {
-      String msg = "loadContentsByRule(): transform execution interrupted";
+      String msg = "applyRule(): transform execution interrupted";
       LOGGER.error(msg, e);
       throw new TransformExecutionInterrupteddException(msg);
     }
     catch (TimeoutException e) {
-      String msg = String.format("loadContentsByRule(): transform timeout: timeout=%ds", timeout);
+      String msg = String.format("applyRule(): transform timeout: timeout=%ds", timeout);
       LOGGER.error(msg, e);
       throw new TransformTimeoutException(msg);
     }
