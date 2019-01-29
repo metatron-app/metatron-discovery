@@ -730,7 +730,12 @@ export class MapPagePivotComponent extends PagePivotComponent {
     return false;
   }
 
-  public selectedLayer( index: number, item){
+  /**
+   * layer 변경
+   * @param index
+   */
+  public selectedLayer( index: number ){
     this.uiOption.layerNum = index;
+    this.changePivot(EventType.CHANGE_PIVOT);
   }
 }

@@ -366,9 +366,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Check option (spec)
     ////////////////////////////////////////////////////////
 
-    for( let index: number = 0 ; index < this.shelf.layers.length; index++ ) {
-      this.checkOption(geomType, index);
-    }
+    // for( let index: number = 0 ; index < this.shelf.layers.length; index++ ) {
+    //   this.checkOption(geomType, index);
+      this.checkOption(geomType, this.uiOption['layerNum']);
+    // }
 
     ////////////////////////////////////////////////////////
     // Creation map & layer
@@ -736,7 +737,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           this.clusterLayer = new ol.layer.Vector({
             source: _.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource,
             // style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style()
-            style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(this.getUiMapOption().layerNum, this.data) : new ol.style.Style()
+            style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(num, this.data) : new ol.style.Style()
           });
 
           // if (!this.clusterLayer) {
@@ -759,7 +760,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
               // Set style
               // this.clusterLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style());
-              this.clusterLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(this.getUiMapOption().layerNum, this.data) : new ol.style.Style());
+              this.clusterLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(num, this.data) : new ol.style.Style());
             } else {
               // Remove layer
               this.olmap.removeLayer(this.clusterLayer);
@@ -775,7 +776,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           this.symbolLayer = new ol.layer.Vector({
             source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
             // style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style()
-            style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(this.getUiMapOption().layerNum, this.data) : new ol.style.Style()
+            style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(num, this.data) : new ol.style.Style()
           });
           // if (!this.symbolLayer) {
           // }
@@ -797,7 +798,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
               // Set style
               // this.symbolLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style());
-              this.symbolLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(this.getUiMapOption().layerNum, this.data) : new ol.style.Style());
+              this.symbolLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(num, this.data) : new ol.style.Style());
             } else {
               // Remove layer
               this.olmap.removeLayer(this.symbolLayer);
@@ -815,7 +816,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         this.symbolLayer = new ol.layer.Vector({
           source: source,
           // style: this.mapStyleFunction(0, this.data)
-          style: this.mapStyleFunction(this.getUiMapOption().layerNum, this.data)
+          style: this.mapStyleFunction(num, this.data)
         });
         // if (!this.symbolLayer) {
         // }
@@ -837,7 +838,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
             // Set style
             // this.symbolLayer.setStyle(this.mapStyleFunction(0, this.data));
-            this.symbolLayer.setStyle(this.mapStyleFunction(this.getUiMapOption().layerNum, this.data));
+            this.symbolLayer.setStyle(this.mapStyleFunction(num, this.data));
           } else {
             // Remove layer
             this.olmap.removeLayer(this.symbolLayer);
@@ -901,7 +902,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         this.hexagonLayer = new ol.layer.Vector({
           source: _.eq(geomType, LogicalType.GEO_POINT) ? hexagonSource : emptySource,
           // style: _.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(0, this.data) : new ol.style.Style()
-          style: _.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(this.getUiMapOption().layerNum, this.data) : new ol.style.Style()
+          style: _.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(num, this.data) : new ol.style.Style()
         });
         // if (!this.hexagonLayer) {
         // }
@@ -923,7 +924,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
             // Set style
             // this.hexagonLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(0, this.data) : new ol.style.Style());
-            this.hexagonLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(this.getUiMapOption().layerNum, this.data) : new ol.style.Style());
+            this.hexagonLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(num, this.data) : new ol.style.Style());
           } else {
             // Remove layer
             this.olmap.removeLayer(this.hexagonLayer);
@@ -1256,6 +1257,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let styleOption: UIMapOption = this.getUiMapOption();
     let styleLayer: UILayers = styleOption.layers[layerNum];
     let styleData = data[layerNum];
+    let optionNum = layerNum;
 
     return function (feature, resolution) {
 
@@ -1317,7 +1319,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
                 }
               } else {
                 if (rangeMin === null) {
-                  let minValue = styleData.valueRange[alias].minValue;
+
+                  // let minValue = styleData.valueRange[alias].minValue;
+                  let minValue = 0;
+
+                  if( styleData.valueRange[alias] ){
+                    minValue = styleData.valueRange[alias].minValue;
+                  }
 
                   if (minValue >= 0) {
                     rangeMin = 0;
