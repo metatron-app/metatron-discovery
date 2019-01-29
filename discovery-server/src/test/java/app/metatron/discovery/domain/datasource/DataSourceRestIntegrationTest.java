@@ -30,7 +30,6 @@ package app.metatron.discovery.domain.datasource;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.restassured.RestAssured;
@@ -381,7 +380,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     Field field4 = new Field("keyValue", DataType.ARRAY, DIMENSION, 4L);
     field4.setLogicalType(LogicalType.MAP_VALUE);
 
-    field2.setMappedField(Sets.newHashSet(field3, field4));
+    //field2.setMappedField(Sets.newHashSet(field3, field4));
 
     DataSource dataSource1 = new DataSourceBuilder()
         .name("datasource1")

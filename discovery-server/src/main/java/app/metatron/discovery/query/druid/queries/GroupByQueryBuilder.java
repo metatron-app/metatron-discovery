@@ -239,18 +239,12 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
             break;
 
           case TIMESTAMP:
-            TimeFieldFormat fieldFormat = (TimeFieldFormat) datasourceField.getFormatObject();
+            TimeFieldFormat originalTimeFormat = (TimeFieldFormat) datasourceField.getFormatObject();
             TimeFieldFormat timeFormat = (TimeFieldFormat) format;
 
             String innerFieldName = aliasName + Query.POSTFIX_INNER_FIELD;
 
-            TimeFormatFunc timeFormatFunc = new TimeFormatFunc("\"" + fieldName + "\"",
-                                                               fieldFormat.getFormat(),
-                                                               fieldFormat.getTimeZone(),
-                                                               fieldFormat.getLocale(),
-                                                               timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
-                                                               timeFormat.getTimeZone(),
-                                                               timeFormat.getLocale());
+            TimeFormatFunc timeFormatFunc = createTimeFormatFunc(fieldName, originalTimeFormat, timeFormat);
 
             ExprVirtualColumn exprVirtualColumn = new ExprVirtualColumn(timeFormatFunc.toExpression(), innerFieldName);
             virtualColumns.put(aliasName, exprVirtualColumn);
@@ -266,14 +260,14 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
               }
 
               if (postProcessor instanceof PostAggregationProcessor) {
-                // Sort 를 위한 Format 으로 모든 연산 수행 후, 최종 클라이언트가 지정한 Format 으로 변경
+                // Change date-time format that set from the query, after calculating date-time format for sort
                 TimeFormatFunc postFormatFunc = new TimeFormatFunc("\"" + aliasName + "\"",
-                                                                   fieldFormat.getFormat(),
-                                                                   fieldFormat.getTimeZone(),
-                                                                   fieldFormat.getLocale(),
+                                                                   timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
+                                                                   null,
+                                                                   null,
                                                                    timeFormat.getFormat(),
-                                                                   timeFormat.getTimeZone(),
-                                                                   timeFormat.getLocale());
+                                                                   null,
+                                                                   null);
 
                 ((PostAggregationProcessor) postProcessor)
                     .addPostAggregation(

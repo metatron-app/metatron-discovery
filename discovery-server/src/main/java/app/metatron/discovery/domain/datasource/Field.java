@@ -614,7 +614,7 @@ public class Field implements MetatronDomain<Long> {
   public FieldFormat getFormatObject() {
     FieldFormat fieldFormat = GlobalObjectMapper.readValue(format, FieldFormat.class);
     if (getLogicalType() == LogicalType.TIMESTAMP && fieldFormat == null) {
-      fieldFormat = new CustomDateTimeFormat(getTimeFormat());
+      fieldFormat = new CustomDateTimeFormat(format);
     }
     return fieldFormat;
   }

@@ -42,7 +42,7 @@ public abstract class TimeFilter extends Filter {
 
   public static final DateTime MAX_DATETIME = DateTime.parse("2051-01-01T00:00:00.000Z");
 
-  public static final List<String> DEFAULT_INTERVAL = Lists.newArrayList(MAX_DATETIME.toString() + "/" + MAX_DATETIME.toString());
+  public static final List<String> DEFAULT_INTERVAL = Lists.newArrayList(MIN_DATETIME.toString() + "/" + MAX_DATETIME.toString());
 
   public static final List<String> filterOptionTypes = Lists.newArrayList("RELATIVE", "RANGE");
 

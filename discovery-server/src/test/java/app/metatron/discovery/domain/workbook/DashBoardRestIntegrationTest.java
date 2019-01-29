@@ -218,7 +218,7 @@ public class DashBoardRestIntegrationTest extends AbstractRestIntegrationTest {
   @Sql({"/sql/test_workbook.sql", "/sql/test_widget.sql"})
   public void getDashBoardDetailView() {
 
-    String dashBoardId = "db-001";
+    String dashBoardId = "db-005";
 
     // @formatter:off
     given()

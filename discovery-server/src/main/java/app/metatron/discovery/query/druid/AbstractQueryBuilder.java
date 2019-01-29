@@ -88,6 +88,7 @@ import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeListFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimestampFilter;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
 import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
@@ -107,6 +108,7 @@ import app.metatron.discovery.query.druid.filters.MathFilter;
 import app.metatron.discovery.query.druid.filters.OrFilter;
 import app.metatron.discovery.query.druid.filters.RegExpFilter;
 import app.metatron.discovery.query.druid.filters.SelectorFilter;
+import app.metatron.discovery.query.druid.funtions.CastFunc;
 import app.metatron.discovery.query.druid.funtions.DateTimeMillisFunc;
 import app.metatron.discovery.query.druid.funtions.InFunc;
 import app.metatron.discovery.query.druid.funtions.TimeFormatFunc;
@@ -122,6 +124,7 @@ import app.metatron.discovery.query.druid.virtualcolumns.IndexVirtualColumn;
 import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
 import app.metatron.discovery.query.polaris.ComputationalField;
 import app.metatron.discovery.util.PolarisUtils;
+import app.metatron.discovery.util.TimeUnits;
 
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.CONFUSING_FIELD_CODE;
 import static app.metatron.discovery.domain.datasource.Field.FieldRole.DIMENSION;
@@ -346,6 +349,34 @@ public abstract class AbstractQueryBuilder {
       }
 
     }
+  }
+
+  protected TimeFormatFunc createTimeFormatFunc(String fieldName, TimeFieldFormat originalTimeFormat, TimeFieldFormat timeFormat) {
+    TimeFormatFunc timeFormatFunc;
+    if (originalTimeFormat instanceof UnixTimeFormat) {
+      CastFunc func = new CastFunc(fieldName, CastFunc.CastType.LONG);
+      String expr = func.toExpression();
+      if (((UnixTimeFormat) originalTimeFormat).getUnit() == TimeUnits.SECOND) {
+        expr += expr + "* 1000";
+      }
+
+      timeFormatFunc = new TimeFormatFunc(expr,
+                                          timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
+                                          timeFormat.getTimeZone(),
+                                          timeFormat.getLocale());
+
+    } else {
+      timeFormatFunc = new TimeFormatFunc("\"" + fieldName + "\"",
+                                          originalTimeFormat.getFormat(),
+                                          originalTimeFormat.getTimeZone(),
+                                          originalTimeFormat.getLocale(),
+                                          timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
+                                          timeFormat.getTimeZone(),
+                                          timeFormat.getLocale());
+
+    }
+
+    return timeFormatFunc;
   }
 
 
