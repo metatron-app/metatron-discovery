@@ -127,6 +127,8 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     this.uploader.onSuccessItem = (item, response, status, headers) => {
       const success = true;
       this._uploadResult = { success, item, response, status, headers };
+      // loading hide
+      this.loadingHide();
     };
     // 업로드 완료후 작동
     this.uploader.onCompleteAll = () => {
