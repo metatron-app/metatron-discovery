@@ -484,6 +484,8 @@ export class MapPagePivotComponent extends PagePivotComponent {
    */
   public openFieldSetting(event, field) {
 
+    event.stopPropagation();
+
     // toggle editing Field
     if (this.editingField === field) {
       this.editingField = null;
@@ -736,6 +738,6 @@ export class MapPagePivotComponent extends PagePivotComponent {
    */
   public selectedLayer( index: number ){
     this.uiOption.layerNum = index;
-    this.changePivot(EventType.CHANGE_PIVOT);
+    this.changePivot();
   }
 }

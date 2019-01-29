@@ -286,7 +286,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * Pivot Valid Check
+   * Shelf Valid Check
+   * 선반 전체 부분을 체크
    * @param pivot
    */
   public isValid(pivot: Pivot, shelf: Shelf): boolean {
@@ -308,6 +309,33 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       }
 
     }
+
+    return valid;
+  }
+
+  /**
+   * Shelf current field Valid Check
+   * 현재 선반의 필드를 체크
+   * @param pivot
+   * @param shelf
+   * @returns {boolean}
+   */
+  public isCurrentShelfValid(pivot: Pivot, shelf: Shelf): boolean {
+
+    if (!shelf) return false;
+
+    let valid: boolean = false;
+
+    let layers: Field[] = shelf.layers[this.getUiMapOption().layerNum];
+
+    if (shelf.layers) {
+      for (let layer of layers) {
+        if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
+          valid = true;
+        }
+      }
+    }
+
     return valid;
   }
 
@@ -325,6 +353,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // No Data 이벤트 발생
       this.data.show = false;
       this.noData.emit();
+      return;
+    }
+
+    if (!this.isCurrentShelfValid(this.pivot, this.shelf)) {
       return;
     }
 
@@ -1257,7 +1289,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let styleOption: UIMapOption = this.getUiMapOption();
     let styleLayer: UILayers = styleOption.layers[layerNum];
     let styleData = data[layerNum];
-    let optionNum = layerNum;
 
     return function (feature, resolution) {
 
