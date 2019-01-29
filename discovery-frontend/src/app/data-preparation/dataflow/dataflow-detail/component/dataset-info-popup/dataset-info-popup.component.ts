@@ -292,18 +292,12 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   /** get rows */
   public get getRows() {
     let rows = '0';
-
-    if(true==Number.isInteger(this.selectedDataSet.totalLines)) {
+    if(Number.isInteger(this.selectedDataSet.totalLines)) {
       if (this.selectedDataSet.totalLines === -1) {
         rows = '(counting)';
       } else {
-        rows = new Intl.NumberFormat().format(this.selectedDataSet.totalLines);
+        rows = new Intl.NumberFormat().format(this.selectedDataSet.totalLines) + ' row(s)';
         this.clearExistingInterval();
-        if (rows === '0' || rows === '1') {
-          rows = rows + ` row`;
-        } else {
-          rows = rows + ` rows`;
-        }
       }
     }
     return rows;
@@ -693,8 +687,10 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
     // WRANGLED
     if (dataset.dsType === DsType.WRANGLED) {
-      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : dataset.dsType },
-        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${cols } ${ cols === '1' || cols === '0' ? 'column': 'columns'}` }
+      this.datasetInformationList = [
+        { name : this.translateService.instant('msg.comm.th.type') , value : dataset.dsType },
+        {name : this.translateService.instant('msg.dp.th.summary'), value :this.getRows},
+        {name : '', value : cols + ' column(s)'}
       ];
 
       // FILE
@@ -714,7 +710,10 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
         this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes });
       }
 
-      this.datasetInformationList.push({name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${ cols } ${ cols === '1' || cols === '0' ? 'column': 'columns'}`})
+      this.datasetInformationList.push(
+        {name : this.translateService.instant('msg.dp.th.summary'), value :this.getRows},
+        {name : '', value : cols + ' column(s)'}
+        )
 
 
       // STAGING OR DB
@@ -747,7 +746,8 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       }
 
       this.datasetInformationList.push(
-        { name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${ cols } ${ cols === '1' || cols === '0' ? 'column': 'columns'}` })
+        {name : this.translateService.instant('msg.dp.th.summary'), value :this.getRows},
+        {name : '', value : cols + ' column(s)'})
 
     }
   }
