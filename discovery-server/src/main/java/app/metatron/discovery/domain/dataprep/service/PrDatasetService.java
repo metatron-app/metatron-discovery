@@ -30,6 +30,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -217,7 +219,7 @@ public class PrDatasetService {
     public Map<String,Object> getConnectionInfo(String dcId) {
         Map<String,Object> connectionInfo = null;
         if(null!=dcId) {
-            DataConnection dataConnection = this.dataConnectionRepository.getOne(dcId);
+            DataConnection dataConnection = findRealDataConnection( this.dataConnectionRepository.getOne(dcId) );
 
             // hibernate lazy problem
             /*
@@ -253,9 +255,11 @@ public class PrDatasetService {
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
             String oAuthToken = "bearer ";
             Cookie[] cookies = request.getCookies();
-            for(int i=0; i<cookies.length; i++){
-                if(cookies[i].getName().equals("LOGIN_TOKEN"))
-                    oAuthToken = oAuthToken + cookies[i].getValue();
+            if(cookies!=null) {
+                for (int i = 0; i < cookies.length; i++) {
+                    if (cookies[i].getName().equals("LOGIN_TOKEN"))
+                        oAuthToken = oAuthToken + cookies[i].getValue();
+                }
             }
 
             // excel to csv
@@ -278,17 +282,31 @@ public class PrDatasetService {
 
     }
 
+    public DataConnection findRealDataConnection(DataConnection lazyOne) {
+        DataConnection realOne = null;
+        Hibernate.initialize(lazyOne);
+        if (lazyOne instanceof HibernateProxy) {
+            realOne = (DataConnection) ((HibernateProxy) lazyOne).getHibernateLazyInitializer().getImplementation();
+        }
+        if( realOne == null ) {
+            return lazyOne;
+        }
+        return realOne;
+    }
+
     public void setConnectionInfo(PrDataset dataset) throws PrepException {
         String dcId = dataset.getDcId();
         if(null!=dcId) {
-            DataConnection dataConnection = this.dataConnectionRepository.getOne(dcId);
+            DataConnection dataConnection = findRealDataConnection( this.dataConnectionRepository.getOne(dcId) );
 
             dataset.setDcName(dataConnection.getName());
             dataset.setDcDesc(dataConnection.getDescription());
             dataset.setDcImplementor(dataConnection.getImplementor());
             dataset.setDcOptions(dataConnection.getOptions());
             dataset.setDcType(dataConnection.getType().name());
-            dataset.setDcAuthenticationType(dataConnection.getAuthenticationType().name());
+            if(null != dataConnection.getAuthenticationType()) {
+                dataset.setDcAuthenticationType(dataConnection.getAuthenticationType().name());
+            }
             dataset.setDcHostname(dataConnection.getHostname());
             dataset.setDcPort(dataConnection.getPort());
             dataset.setDcUsername(dataConnection.getUsername());

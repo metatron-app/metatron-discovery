@@ -1302,6 +1302,12 @@
   "msg.dp.ui.aggregate.warning.grid-top2" : "Results for all data may vary. (aggregate)",
   "msg.dp.alert.fail.change.ssName" : "Failed to modify snapshot name",
   "msg.dp.alert.modify.sSname" : "Snapshot name modified",
+  "msg.dp.btn.csv.download" : "Download as CSV",
+  "msg.dp.btn.json.download" : "Download as JSON",
+  "msg.dp.ui.detail": "Detail",
+  "msg.dp.ui.grid" : "Grid",
+  "msg.dp.ui.error.log" : "Error log",
+  "msg.dp.th.file.uri" : "File URI",
   "msg.dp.alert.no.backtick.colname": "Cannot use back quotes in column name",
   "msg.dp.alert.duplicate.colname" : "Already in use",
 

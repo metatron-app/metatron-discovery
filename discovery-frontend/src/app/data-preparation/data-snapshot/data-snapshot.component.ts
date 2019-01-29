@@ -123,11 +123,23 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     return item.elapsedTime.days;
   }
 
-  public getElapsedTime(item) {
-    if( true===isUndefined(item) || true===isUndefined(item.elapsedTime)
-     || true===isUndefined(item.elapsedTime.hours) || true===isUndefined(item.elapsedTime.minutes) || true===isUndefined(item.elapsedTime.seconds) || true===isUndefined(item.elapsedTime.milliseconds)
-    ) { return '--:--:--'; }
-    return this.padleft(item.elapsedTime.hours) + ':' + this.padleft(item.elapsedTime.minutes) + ':' +this.padleft(item.elapsedTime.seconds) + '.' + this.padleft(item.elapsedTime.milliseconds);
+  /**
+   * Returns formatted elapsed time
+   * hour:minute:second.millisecond
+   * @param item
+   */
+  public getElapsedTime(item: PrDataSnapshot) {
+
+    if (isUndefined(item) ||
+      isUndefined(item.elapsedTime) ||
+      isUndefined(item.elapsedTime.hours) ||
+      isUndefined(item.elapsedTime.minutes) ||
+      isUndefined(item.elapsedTime.seconds) ||
+      isUndefined(item.elapsedTime.milliseconds)
+    ) {
+      return '--:--:--';
+    }
+    return `${this.prepCommonUtil.padLeft(item.elapsedTime.hours)}:${this.prepCommonUtil.padLeft(item.elapsedTime.minutes)}:${this.prepCommonUtil.padLeft(item.elapsedTime.seconds)}.${this.prepCommonUtil.padLeft(item.elapsedTime.milliseconds)}`;
   }
 
   /** Fetch snapshot list */
@@ -301,14 +313,6 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     this.pageSize = 20;
     this.page.size = 20;
 
-  }
-
-  /** Formatting number to 2 whole number digit */
-  public padleft(data) {
-
-    let z = '0';
-    let n = data + '';
-    return n.length >= 2 ? n : new Array(2 - n.length + 1).join(z) + n;
   }
 
 

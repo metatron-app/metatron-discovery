@@ -89,7 +89,7 @@ public class SetTypeTest extends  TeddyTest{
     crime = DataFrameTest.prepare_crime_more(crime);
     crime.show();
 
-    String ruleString = "settype col: Total_Crime, Violent_Crime type: long";
+    String ruleString = "settype col: `Total Crime`, `Violent Crime` type: long";
     DataFrame newDf = apply_rule(crime, ruleString);
     newDf.show();
 

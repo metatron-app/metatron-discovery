@@ -14,12 +14,14 @@
 
 package app.metatron.discovery.domain.dataprep.rest;
 
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
 import com.facebook.presto.jdbc.internal.guava.collect.Maps;
 import com.facebook.presto.jdbc.internal.jackson.core.JsonProcessingException;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,10 +35,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
 
 import static com.jayway.restassured.RestAssured.given;
 
@@ -58,9 +56,26 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
     }
 
     public List<String> file_upload() {
+
         File file = new File("src/test/resources/test_dataprep.csv");
 
-        // UPLOAD
+        // UPLOAD GET
+        Response upload_get_response = given()
+                .auth()
+                .oauth2(oauth_token)
+                .accept(ContentType.JSON)
+                .when()
+                .get("/api/preparationdatasets/file_upload")
+                .then()
+                .statusCode(HttpStatus.SC_CREATED)
+                .log().all()
+                .extract()
+                .response();
+        String upload_id = upload_get_response.path("upload_id");
+
+        String params = String.format( "?name=%s&upload_id=%s&chunk=%d&chunks=%d&storage_type=%s&chunk_size=%d&total_size=%d",
+                file.getName(), upload_id, 0, 1, "LOCAL", file.length(), file.length());
+        // UPLOAD POST
         Response upload_response = given()
                 .auth()
                 .oauth2(oauth_token)
@@ -68,38 +83,38 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
                 .when()
                 .multiPart("file", file)
                 .contentType("multipart/form-data")
-                .post("/api/preparationdatasets/upload")
+                .post("/api/preparationdatasets/file_upload" + params)
                 .then()
                 .statusCode(HttpStatus.SC_CREATED)
                 .log().all()
                 .extract()
                 .response();
 
-        String filekey = upload_response.path("filekey");
-        String filename = upload_response.path("filename");
+        String filenameBeforeUpload = upload_response.path("filenameBeforeUpload");
+        String storedUri = upload_response.path("storedUri");
 
         List<String> ret = new ArrayList<String>();
-        ret.add(0,filekey);
-        ret.add(1,filename);
+        ret.add(0,filenameBeforeUpload);
+        ret.add(1,storedUri);
 
         return ret;
     }
 
     public String make_dataset_withoutDf() {
         List<String> ret = file_upload();
-        String filekey=ret.get(0);
-        String filename=ret.get(1);
+        String filenameBeforeUpload=ret.get(0);
+        String storedUri=ret.get(1);
 
         Map<String, Object> dataset_post_body  = Maps.newHashMap();
         dataset_post_body.put("dsName", "file ds1");
         dataset_post_body.put("dsDesc", "dataset with file");
         dataset_post_body.put("dsType", "IMPORTED");
-        dataset_post_body.put("importType", "FILE");
-        dataset_post_body.put("fileType", "LOCAL");
-        dataset_post_body.put("filekey", filekey);
-        dataset_post_body.put("filename", filename);
-        dataset_post_body.put("custom", "{\"fileType\":\"dsv\",\"delimiter\":\",\"}");
-        dataset_post_body.put("dcId", "file dc");
+        dataset_post_body.put("delimiter", ",");
+        dataset_post_body.put("importType", "UPLOAD");
+        dataset_post_body.put("fileFormat", "CSV");
+        dataset_post_body.put("filenameBeforeUpload", filenameBeforeUpload);
+        dataset_post_body.put("storageType", "LOCAL");
+        dataset_post_body.put("storedUri", storedUri);
 
         // CREATE DATASET
         Response dataset_post_response = given()
@@ -111,7 +126,7 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
                 .content(dataset_post_body)
                 .post("/api/preparationdatasets")
                 .then()
-                .statusCode(HttpStatus.SC_CREATED)
+                .statusCode(HttpStatus.SC_OK)
                 .log().all()
                 .extract()
                 .response();
@@ -123,19 +138,19 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
 
     public String make_dataset() {
         List<String> ret = file_upload();
-        String filekey=ret.get(0);
-        String filename=ret.get(1);
+        String filenameBeforeUpload=ret.get(0);
+        String storedUri=ret.get(1);
 
         Map<String, Object> dataset_post_body  = Maps.newHashMap();
         dataset_post_body.put("dsName", "file ds1");
         dataset_post_body.put("dsDesc", "dataset with file");
         dataset_post_body.put("dsType", "IMPORTED");
-        dataset_post_body.put("importType", "FILE");
-        dataset_post_body.put("fileType", "LOCAL");
-        dataset_post_body.put("filekey", filekey);
-        dataset_post_body.put("filename", filename);
-        dataset_post_body.put("custom", "{\"fileType\":\"dsv\",\"delimiter\":\",\"}");
-        dataset_post_body.put("dcId", "file dc");
+        dataset_post_body.put("delimiter", ",");
+        dataset_post_body.put("importType", "UPLOAD");
+        dataset_post_body.put("fileFormat", "CSV");
+        dataset_post_body.put("filenameBeforeUpload", filenameBeforeUpload);
+        dataset_post_body.put("storageType", "LOCAL");
+        dataset_post_body.put("storedUri", storedUri);
 
         // CREATE DATASET
         Response dataset_post_response = given()
@@ -147,7 +162,7 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
                 .content(dataset_post_body)
                 .post("/api/preparationdatasets")
                 .then()
-                .statusCode(HttpStatus.SC_CREATED)
+                .statusCode(HttpStatus.SC_OK)
                 .log().all()
                 .extract()
                 .response();
@@ -172,7 +187,7 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
                 .content(dataflow_post_body)
                 .post("/api/preparationdataflows")
                 .then()
-                .statusCode(HttpStatus.SC_CREATED)
+                .statusCode(HttpStatus.SC_OK)
                 .log().all()
                 .extract()
                 .response();
@@ -188,11 +203,13 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
         Map<String, Object> connection  = Maps.newHashMap();
         connection.put("implementor","HIVE");
         connection.put("hostname","localhost");
-        connection.put("port",9000);
+        connection.put("port",10000);
         connection.put("type","JDBC");
         connection.put("name","Hive DataConnection");
         connection.put("username","hive");
-        connection.put("password","hive1234");
+        connection.put("password","hive");
+        connection.put("published",true);
+        connection.put("authenticationType","MANUAL");
         Response createResponse = given()
                 .auth()
                 .oauth2(oauth_token)
@@ -209,14 +226,31 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
 
         String dcId = createResponse.path("id");
 
+        Response getResponse = given()
+                .auth()
+                .oauth2(oauth_token)
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .when()
+                .content(connection)
+                .get("/api/connections/"+dcId)
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .log().all()
+                .extract()
+                .response();
+
         Map<String, Object> dataset_post_body  = Maps.newHashMap();
         dataset_post_body.put("dsName", "db ds");
         dataset_post_body.put("dsDesc", "dataset with db type");
         dataset_post_body.put("dsType", "IMPORTED");
-        dataset_post_body.put("importType", "DB");
-        dataset_post_body.put("rsType", "TABLE");
+        dataset_post_body.put("importType", "DATABASE");
         dataset_post_body.put("custom", "");
         dataset_post_body.put("dcId", dcId);
+        dataset_post_body.put("rsType", "TABLE");
+        dataset_post_body.put("dbName", "default");
+        dataset_post_body.put("queryStmt", "select * from default.snapshot1");
+        dataset_post_body.put("tblName", "snapshot1");
 
         // CREATE DATASET
         Response dataset_post_response = given()
@@ -228,7 +262,7 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
                 .content(dataset_post_body)
                 .post("/api/preparationdatasets")
                 .then()
-                .statusCode(HttpStatus.SC_CREATED)
+                .statusCode(HttpStatus.SC_OK)
                 .log().all()
                 .extract()
                 .response();
@@ -253,7 +287,7 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
                 .content(dataflow_post_body)
                 .post("/api/preparationdataflows")
                 .then()
-                .statusCode(HttpStatus.SC_CREATED)
+                .statusCode(HttpStatus.SC_OK)
                 .log().all()
                 .extract()
                 .response();
@@ -294,11 +328,13 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
         dataset_post_body.put("dsName", "hive ds");
         dataset_post_body.put("dsDesc", "dataset with hive type");
         dataset_post_body.put("dsType", "IMPORTED");
-        dataset_post_body.put("importType", "HIVE");
-        dataset_post_body.put("rsType", "TABLE");
-        dataset_post_body.put("tableName", "test");
+        dataset_post_body.put("importType", "STAGING_DB");
         dataset_post_body.put("custom", "");
         dataset_post_body.put("dcId", dcId);
+        dataset_post_body.put("rsType", "TABLE");
+        dataset_post_body.put("dbName", "default");
+        dataset_post_body.put("queryStmt", "select * from default.snapshot1");
+        dataset_post_body.put("tblName", "snapshot1");
 
         // CREATE DATASET
         Response dataset_post_response = given()
@@ -310,7 +346,7 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
                 .content(dataset_post_body)
                 .post("/api/preparationdatasets")
                 .then()
-                .statusCode(HttpStatus.SC_CREATED)
+                .statusCode(HttpStatus.SC_OK)
                 .log().all()
                 .extract()
                 .response();
@@ -335,7 +371,7 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
                 .content(dataflow_post_body)
                 .post("/api/preparationdataflows")
                 .then()
-                .statusCode(HttpStatus.SC_CREATED)
+                .statusCode(HttpStatus.SC_OK)
                 .log().all()
                 .extract()
                 .response();
@@ -390,15 +426,21 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
     @Test
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationdatasets_with_db_POST() throws JsonProcessingException {
+        // If the connection parameters in make_dataset_with_db() are correct, uncomment and test it.
+        /*
         String dsId=make_dataset_with_db();
         LOGGER.debug("dataset ID is "+dsId);
+        */
     }
 
     @Test
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationdatasets_with_hive_POST() throws JsonProcessingException {
+        // If the connection parameters in make_dataset_with_hive() are correct, uncomment and test it.
+        /*
         String dsId=make_dataset_with_hive();
         LOGGER.debug("dataset ID is "+dsId);
+        */
     }
 
     @Test
@@ -434,14 +476,19 @@ public class PrDatasetRestIntegrationTest extends AbstractRestIntegrationTest {
         String dsId= make_dataset();
 
 
-        given()
+        Response dataset_post_response = given()
                 .auth()
                 .oauth2(oauth_token)
                 .accept(ContentType.JSON)
                 .when()
-                .get("/api/preparationdatasets/"+dsId+"/previewLines")
+                .get("/api/preparationdatasets/"+dsId+"?preview=true")
                 .then()
                 .statusCode(HttpStatus.SC_OK)
-                .log().all();
+                .log().all()
+                .extract()
+                .response();
+
+        Map<String, Object> previewLines = dataset_post_response.path("gridResponse");
+        LOGGER.debug(previewLines.toString());
     }
 }
