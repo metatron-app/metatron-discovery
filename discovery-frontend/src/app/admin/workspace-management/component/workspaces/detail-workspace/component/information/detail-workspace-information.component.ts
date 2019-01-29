@@ -48,6 +48,8 @@ export class DetailWorkspaceInformationComponent extends AbstractComponent {
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  public readonly UNKNOWN_USER = 'Unknown user';
+
   @Input('workspace')
   public set setWorkspace(workspace) {
     // 워크스페이스 상세정보
