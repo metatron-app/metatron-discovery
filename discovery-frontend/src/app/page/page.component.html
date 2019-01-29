@@ -1667,7 +1667,7 @@
               </a>
             <!-- //맵뷰: 레이어 설정 -->
             <!-- 맵뷰: 레이어 설정 -->
-              <a *ngIf="selectChart == 'map' && uiOption.layers.length > 1" href="javascript:" (click)="toggleMapLayer('mapLayer2', 1)" [ngClass]="{'ddp-disabled': !isChartShow || setDisableShelf(1)}" [class.ddp-selected]="isChartShow && rnbMenu=='mapLayer2' && !setDisableShelf(1)">
+              <a *ngIf="selectChart == 'map' && uiOption['layers'].length > 1" href="javascript:" (click)="toggleMapLayer('mapLayer2', 1)" [ngClass]="{'ddp-disabled': !isChartShow || setDisableShelf(1)}" [class.ddp-selected]="isChartShow && rnbMenu=='mapLayer2' && !setDisableShelf(1)">
                 <em class="ddp-icon-menu-mapview2"></em>
                 <!-- 툴팁 -->
                 <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
@@ -1678,7 +1678,7 @@
               </a>
             <!-- //맵뷰: 레이어 설정 -->
             <!-- 맵뷰: 레이어 설정 -->
-              <a *ngIf="selectChart == 'map' && uiOption.layers.length > 2" href="javascript:" (click)="toggleMapLayer('mapLayer3', 2)" [ngClass]="{'ddp-disabled': !isChartShow || setDisableShelf(2)}" [class.ddp-selected]="isChartShow && rnbMenu=='mapLayer3' && !setDisableShelf(2)">
+              <a *ngIf="selectChart == 'map' && uiOption['layers'].length > 2" href="javascript:" (click)="toggleMapLayer('mapLayer3', 2)" [ngClass]="{'ddp-disabled': !isChartShow || setDisableShelf(2)}" [class.ddp-selected]="isChartShow && rnbMenu=='mapLayer3' && !setDisableShelf(2)">
                 <em class="ddp-icon-menu-mapview3"></em>
                 <!-- 툴팁 -->
                 <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">

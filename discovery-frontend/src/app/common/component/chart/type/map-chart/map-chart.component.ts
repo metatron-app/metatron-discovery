@@ -740,6 +740,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(num, this.data) : new ol.style.Style()
           });
 
+          this.clusterLayer.setZIndex(num==this.getUiMapOption().layerNum?this.getUiMapOption().layerNum:0);
+
           // if (!this.clusterLayer) {
           // }
 
@@ -778,6 +780,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             // style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(0, this.data) : new ol.style.Style()
             style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(num, this.data) : new ol.style.Style()
           });
+
+          this.symbolLayer.setZIndex(num==this.getUiMapOption().layerNum?this.getUiMapOption().layerNum:0);
+
           // if (!this.symbolLayer) {
           // }
 
@@ -861,6 +866,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           radius: heatmapLayer.radius,
           blur: heatmapLayer.blur * 0.7
         });
+
+        this.heatmapLayer.setZIndex(num==this.getUiMapOption().layerNum?this.getUiMapOption().layerNum:0);
+
         // if (!this.heatmapLayer) {
         // }
 

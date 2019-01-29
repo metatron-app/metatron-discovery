@@ -17,14 +17,13 @@ import {
   OnDestroy, ViewEncapsulation, Injector
 } from '@angular/core';
 import { RangeSliderResult } from '../../value/range-slider-result';
-
-import 'ion-rangeslider';
-import * as $ from 'jquery';
 import * as _ from 'lodash';
 import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Observable';
 import { AbstractComponent } from '../../../../common/component/abstract.component';
+
+declare var $: any;
 
 @Component({
   selector: 'range-slider-component',
@@ -349,8 +348,8 @@ export class RangeSliderComponent extends AbstractComponent implements OnChanges
 
     this.initialized = true;
 
-    (<any>$(this.inputElem))
-      .ionRangeSlider({
+      $(this.inputElem)
+        .ionRangeSlider({
 
         min: scope.min,
         max: scope.max,
