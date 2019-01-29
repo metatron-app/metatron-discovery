@@ -125,7 +125,8 @@
   <div class="ddp-ui-divide" >
     <!-- 검색 영여 -->
     <div (clickOutside)="inactiveSearchInput()"
-         [class.ddp-search]="isSearchFocus"  [class.ddp-warning]="isOverCandidateWarning"
+         [class.ddp-search]="isSearchFocus" [class.ddp-focus]="isSearchFocus"
+         [class.ddp-warning]="isOverCandidateWarning"
          class="ddp-search-value" >
       <a (click)="openUpdateFilterPopupForSearch()" href="javascript:" class="ddp-btn-line">{{'msg.comm.ui.search-all' | translate}}</a>
       <div class="ddp-data-value">

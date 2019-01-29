@@ -35,7 +35,9 @@
 .ddp-search-value .ddp-btn-line {display:none; float:right; margin-left:4px;}
 .ddp-search-value.ddp-warning.ddp-search .ddp-btn-line {display:block;}
 .ddp-search-value.ddp-search .ddp-data-value .icon-warning {display:none;}
-.ddp-search-value.ddp-search .ddp-btn-del {display:block;}
+.ddp-search-value.ddp-search .ddp-btn-del {display:block !important;}
+.ddp-search-value.ddp-warning.ddp-focus .ddp-data-value {overflow:hidden;}
+.ddp-search-value.ddp-warning.ddp-search .ddp-data-value {overflow:hidden;}
 .ddp-search-value .ddp-pop-warning {display:none; position:absolute; top:100%; right:-10px; padding:5px 10px; max-width:240px; border-radius:3px; background-color:rgba(97,116,179,0.9); color:#fff; font-size:13px; box-sizing:border-box; letter-spacing:-0.5px;}
 .ddp-search-value .ddp-data-value .icon-warning:hover + .ddp-pop-warning {display:block;}
 

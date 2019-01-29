@@ -255,7 +255,8 @@
       <!-- 검색 영역 -->
       <div class="ddp-option-search">
         <div (clickOutside)="inactiveSearchInput()"
-             [class.ddp-search]="targetFilter['isShowSearch']" [class.ddp-warning]="isOverCandidateWarning"
+             [class.ddp-search]="targetFilter['isShowSearch']"  [class.ddp-focus]="targetFilter['isShowSearch']"
+             [class.ddp-warning]="isOverCandidateWarning"
              class="ddp-search-value" >
           <a (click)="candidateFromSearchText()" href="javascript:" class="ddp-btn-line">{{'msg.comm.ui.search-all' | translate}}</a>
           <div class="ddp-data-value">
