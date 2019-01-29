@@ -15,7 +15,7 @@
 import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
 import {Component, ElementRef, Injector, Input, OnInit, ViewChild} from '@angular/core';
 import {GridComponent} from '../../../../common/component/grid/grid.component';
-import {Datasource, Field, FieldRole, LogicalType} from '../../../../domain/datasource/datasource';
+import {Datasource, Field, FieldFormat, LogicalType} from '../../../../domain/datasource/datasource';
 import {QueryParam} from '../../../../domain/dashboard/dashboard';
 import * as _ from 'lodash';
 import {DatasourceService} from '../../../../datasource/service/datasource.service';
@@ -25,6 +25,7 @@ import {DataconnectionService} from '../../../../dataconnection/service/dataconn
 import {Metadata} from '../../../../domain/meta-data-management/metadata';
 import {isUndefined} from 'util';
 import {ConnectionType, Dataconnection} from '../../../../domain/dataconnection/dataconnection';
+import {TimezoneService} from "../../../service/timezone.service";
 
 enum FieldRoleType {
   ALL = <any>'ALL',
@@ -94,6 +95,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   // 생성자
   constructor(private datasourceService: DatasourceService,
               private connectionService: DataconnectionService,
+              private timezoneService: TimezoneService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -144,22 +146,6 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   }
 
   /**
-   * Is extend grid header
-   * @return {boolean}
-   */
-  public isExtendGridHeader(): boolean {
-    return this.isExistMetaData() || this.isExistTimestamp;
-  }
-
-  /**
-   * Is more extend grid header
-   * @return {boolean}
-   */
-  public isMoreExtendGridHeader(): boolean {
-    return this.isExistMetaData() && this.isExistTimestamp;
-  }
-
-  /**
    * init searchText
    * @param {boolean} updateGridFl
    */
@@ -176,14 +162,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    * @param args
    */
   public extendGridHeader(args: any): void {
-    // if exist timestamp column
-    if (this.isExistTimestamp) {
-      $('<div class="slick-column-det" title="+09:00">+09:00</div>').appendTo(args.node);
-    }
-    // if exist metadata
-    if (this.isExistMetaData()) {
-      $('<div class="slick-data">('+ _.find(this.metaData.columns, {'physicalName': args.column.id}).name +')</div>').appendTo(args.node);
-    }
+    $(`<div class="slick-data">(${_.find(this.metaData.columns, {'physicalName': args.column.id}).name})</div>`).appendTo(args.node);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -320,7 +299,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
       // dom 이 모두 로드되었을때 작동
       this.changeDetect.detectChanges();
       // 그리드 생성
-      this.isExtendGridHeader()
+      this.isExistMetaData()
         ? this._gridComponent.create(headers, rows, new GridOption()
         .SyncColumnCellResize(true)
         .MultiColumnSort(true)
@@ -337,15 +316,21 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
       // search
       this._gridComponent.search(this.searchText);
       // ExplicitInitialization 을 true 로 줬기 떄문에 init해줘야 한다.
-      this.isExtendGridHeader() && this._gridComponent.grid.init();
+      this.isExistMetaData() && this._gridComponent.grid.init();
     } else {
       this._gridComponent.destroy();
     }
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method - getter
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Get timezone label
+   * @param {FieldFormat} format
+   * @return {string}
+   * @private
+   */
+  public _getTimezoneLabel(format: FieldFormat): string {
+    return this.timezoneService.getTimezoneObject(format).label;
+  }
 
   /**
    * 그리드 header 리스트 생성
@@ -369,7 +354,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
         const headerName: string = field.headerKey || field.name;
         return new SlickGridHeader()
           .Id(headerName)
-          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + headerName + '</span>')
+          .Name(this._getGridHeaderName(field, headerName))
           .Field(headerName)
           .Behavior('select')
           .Selectable(false)
@@ -382,6 +367,19 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
           .Sortable(true)
           .build();
       });
+  }
+
+  /**
+   * Get grid header name
+   * @param {Field} field
+   * @param {string} headerName
+   * @return {string}
+   * @private
+   */
+  private _getGridHeaderName(field: Field, headerName: string): string {
+    return field.logicalType === LogicalType.TIMESTAMP
+      ? `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(field.logicalType.toString())}"></em>${headerName}<div class="slick-column-det" title="${this._getTimezoneLabel(field.format)}">${this._getTimezoneLabel(field.format)}</div></span>`
+      : `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(field.logicalType.toString())}"></em>${headerName}</span>`;
   }
 
   /**

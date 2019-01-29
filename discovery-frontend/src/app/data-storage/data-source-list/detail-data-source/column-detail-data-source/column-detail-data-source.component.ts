@@ -241,7 +241,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    * @return {string}
    */
   public getTimezoneLabel(format: FieldFormat): string {
-    return format && format.timeZone ? this._timezoneService.getTimezoneObject(format.timeZone).label : '';
+    return this._timezoneService.getTimezoneObject(format).label;
   }
 
   /**

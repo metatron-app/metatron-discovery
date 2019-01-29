@@ -307,11 +307,11 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
 
   /**
    * Get selected timezone label
-   * @param {string} value
+   * @param {FieldFormat} format
    * @return {string}
    */
-  public getSelectedTimezoneLabel(value: string): string {
-    return this._timezoneService.getTimezoneObject(value).label;
+  public getSelectedTimezoneLabel(format: FieldFormat): string {
+    return this._timezoneService.getTimezoneObject(format).label;
   }
 
   /**

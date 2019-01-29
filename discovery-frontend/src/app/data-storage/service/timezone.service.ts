@@ -16,6 +16,7 @@
 import { Injectable, Injector } from '@angular/core';
 import { TranslateService } from 'ng2-translate';
 import { StringUtil } from "../../common/util/string.util";
+import {FieldFormat} from "../../domain/datasource/datasource";
 declare let moment: any;
 
 @Injectable()
@@ -48,11 +49,11 @@ export class TimezoneService {
 
   /**
    * Get timezone object
-   * @param {string} timezoneValue
+   * @param {FieldFormat} format
    * @return {TimeZoneObject}
    */
-  public getTimezoneObject(timezoneValue: string): TimeZoneObject {
-     return this.timeZoneList.find(timezone => timezone.momentName === timezoneValue) || this.browserTimezone;
+  public getTimezoneObject(format: FieldFormat): TimeZoneObject {
+     return format && format.timeZone ? (this.timeZoneList.find(timezone => timezone.momentName === format.timeZone) || this.browserTimezone) : this.browserTimezone;
   }
 
   /**

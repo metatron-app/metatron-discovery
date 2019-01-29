@@ -26,7 +26,7 @@ import {
 } from '@angular/core';
 import {BoardDataSource, Dashboard, JoinMapping, QueryParam} from '../../../domain/dashboard/dashboard';
 import {DatasourceService} from 'app/datasource/service/datasource.service';
-import {Datasource, DataSourceSummary, Field} from '../../../domain/datasource/datasource';
+import {Datasource, DataSourceSummary, Field, FieldFormat} from '../../../domain/datasource/datasource';
 import {SlickGridHeader} from 'app/common/component/grid/grid.header';
 import {header} from '../grid/grid.header';
 import {GridComponent} from '../grid/grid.component';
@@ -1006,14 +1006,13 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-
   /**
    * Get timezone label
-   * @param {string} value
+   * @param {FieldFormat} format
    * @return {string}
    */
-  public getTimezoneLabel(value: string): string {
-    return this._timezoneService.getTimezoneObject(value).label;
+  public getTimezoneLabel(format: FieldFormat): string {
+    return this._timezoneService.getTimezoneObject(format).label;
   }
 
 

@@ -112,7 +112,7 @@
     </div>
     <!-- //option -->
     <!-- fix grid -->
-    <div class="ddp-fix-grid" [class.meta-grid]="isExtendGridHeader()" [class.meta-grid-type]="isMoreExtendGridHeader()"
+    <div class="ddp-fix-grid" [class.meta-grid]="isExistTimestamp" [class.meta-grid-type]="isExistMetaData()"
          #main grid-component
          (onHeaderRowCellRendered)="extendGridHeader($event)">
     </div>

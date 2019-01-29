@@ -20,37 +20,24 @@
 }
 
 :host /deep/ .slick-header-column.ui-state-default {
-
-  line-height: 29px;
-  height: 29px;
-  padding: 0px 20px 0 9px;
+  padding:0px 20px 0 9px;
   border-right: 1px solid #ebebed;
-  border-bottom: 1px solid #ebebed;
   text-align: left;
-  color: #4b515b;
+  color:#4b515b;
   background: none;
-  background-color: #fff;
+  background-color:#fff;
   cursor: pointer;
 }
 
 
-:host /deep/ .slick-headerrow-column.ui-state-default {
-  padding: 0px;
-  border-right: 1px solid #ebebed;
-  text-align: center;
-  color: #4b515b;
-  background: none;
-  background-color: #fff;
-  cursor: initial;
-  min-height: 32px;
-}
-
 :host /deep/ .slick-column-name {
-
-  width: 100%;
-  height: 40px;
-  text-align: center;
+  display:inline-block;
+  width:100%;
+  line-height:29px;
   vertical-align: middle;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  overflow:hidden;
 }
 
 :host /deep/ .slick-row.odd {
@@ -95,8 +82,9 @@
   height: 4px;
   display: inline-block;
   position: absolute;
-  top: 10px;
+  top: 50%;
   right: 9px;
+  margin-top:-5px;
   width: 7px;
   height: 9px;
   background: url(images/icon_array.png) no-repeat;
@@ -162,7 +150,6 @@
 }
 
 :host /deep/ .slick-headerrow-columns {
-  height:52px;
   border-bottom:1px solid #ebebed;
 }
 

@@ -280,7 +280,7 @@
                 <div class="ddp-type-selectbox ddp-type-search-select ddp-result" [class.ddp-selected]="isShowTimezoneList" (click)="onChangeTimezoneSelectBoxShowFlag($event)" (clickOutside)="isShowTimezoneList = false">
                   <!-- 선택시 자동 input display:block; -->
                   <input type="text" class="ddp-input-selectbox" [ngModel]="searchTimezoneKeyword" (ngModelChange)="onChangeSearchTimezoneKeyword($event)">
-                  <span class="ddp-txt-selectbox">{{getSelectedTimezoneLabel(selectedField.format.timeZone)}}</span>
+                  <span class="ddp-txt-selectbox">{{getSelectedTimezoneLabel(selectedField.format)}}</span>
                   <div class="ddp-wrap-popup2">
                     <ul class="ddp-list-popup">
                       <li *ngIf="filteredTimezoneList.length === 0">
