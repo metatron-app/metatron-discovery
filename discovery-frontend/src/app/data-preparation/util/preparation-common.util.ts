@@ -14,6 +14,7 @@
 
 import { ImportType } from '../../domain/data-preparation/pr-dataset';
 import { SsType } from '../../domain/data-preparation/pr-snapshot';
+import {isNullOrUndefined} from "util";
 
 declare const moment: any;
 
@@ -382,6 +383,11 @@ export class PreparationCommonUtil {
 
     const val = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName);
 
+    // returns [fileName,'csv'] if regular expression is error
+    if (isNullOrUndefined(val)) {
+      return [fileName, 'csv']
+    }
+
     return [val[0].split('.' + val[1])[0],val[1]]
 
   }
@@ -436,6 +442,18 @@ export class PreparationCommonUtil {
         break;
     }
     return result;
+  }
+
+
+  /**
+   * Formatting number to 2 whole number digit
+   * 1 -> 01
+   * @param num {number}
+   */
+  public static padLeft(num : number): string {
+    let z = '0';
+    let n = num + '';
+    return n.length >= 2 ? n : new Array(2 - n.length + 1).join(z) + n;
   }
 
 }

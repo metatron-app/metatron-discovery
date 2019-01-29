@@ -28,7 +28,7 @@
     <div class="ddp-type-top-option" *ngIf="selectedDataSnapshot.displayStatus==='SUCCESS' || selectedDataSnapshot.displayStatus==='PREPARING'">
       <ul class="ddp-ui-tab ddp-type">
         <li [ngClass]="{'ddp-selected' : currentTab === 0 }" (click)="onTabClick(0)">
-          <a href="javascript:">Detail</a>
+          <a href="javascript:">{{'msg.dp.ui.detail' | translate }}</a>
         </li>
         <!--<li [ngClass]="{'ddp-selected' : currentTab === 1 }" (click)="onTabClick(1)">-->
         <!--<a href="javascript:">log</a>-->
@@ -57,12 +57,23 @@
         </div>
 
         <div class="ddp-grid-label">
-          <span class="ddp-txt-label">Grid</span>
+          <span class="ddp-txt-label">{{'msg.dp.ui.grid' | translate}}</span>
           <!--
               loading 시 ddp-load 추가
           -->
-          <a href="javascript:" class="ddp-btn-bg " (click)="downloadSnapshot('csv')" *ngIf="snapshotUriFileFormat === 'csv' || selectedDataSnapshot.ssType === 'STAGING_DB' " ><em class="ddp-icon-link-down"></em><em class="ddp-icon-spin-loading"></em>Download CSV</a>
-          <a href="javascript:" class="ddp-btn-bg " (click)="downloadSnapshot('json')" *ngIf="snapshotUriFileFormat === 'json' || selectedDataSnapshot.ssType === 'STAGING_DB' "><em class="ddp-icon-link-down"></em><em class="ddp-icon-spin-loading"></em>Download JSON</a>
+          <a href="javascript:" class="ddp-btn-bg " (click)="downloadSnapshot('csv')"
+             *ngIf="snapshotUriFileFormat === 'csv' || selectedDataSnapshot.ssType === ssType.STAGING_DB">
+            <em class="ddp-icon-link-down"></em>
+            <em class="ddp-icon-spin-loading"></em>
+            {{'msg.dp.btn.csv.download' | translate}}
+          </a>
+          <a href="javascript:" class="ddp-btn-bg "
+             (click)="downloadSnapshot('json')"
+             *ngIf="snapshotUriFileFormat === 'json' || selectedDataSnapshot.ssType === ssType.STAGING_DB">
+            <em class="ddp-icon-link-down"></em>
+            <em class="ddp-icon-spin-loading"></em>
+            {{'msg.dp.btn.json.download' | translate}}
+          </a>
         </div>
         <!-- //요약 -->
         <!-- grid -->
@@ -70,7 +81,7 @@
           <div class="ddp-ui-empty" *ngIf="!selectedDataSnapshot.gridData">
             {{'msg.dp.ui.no.preview' | translate}}
           </div>
-          <div *ngIf="selectedDataSnapshot.displayStatus==='SUCCESS'" class="ddp-box-gridarea" grid-component style="width:100%; height: 100%;"> suc </div>
+          <div *ngIf="selectedDataSnapshot.displayStatus==='SUCCESS'" class="ddp-box-gridarea" grid-component style="width:100%; height: 100%;"></div>
           <!--<div *ngIf="selectedDataSnapshot.status==='FAIL'" class="ddp-box-gridarea" style="width:100%; height: 100%;">-->
           <!--<p [innerHTML]="selectedDataSnapshot.custom.fail_msg">-->
           <!--</p>-->
@@ -89,10 +100,10 @@
     <div class="ddp-layout-pop-contents ddp-wrap-snapshot" *ngIf="selectedDataSnapshot.displayStatus==='PREPARING'">
       <div class="ddp-wrap-tab-contents">
         <!-- progress (진행중) -->
-        <div class="ddp-wrap-progress" style="">
+        <div class="ddp-wrap-progress">
           <span class="ddp-data-status">{{'msg.dp.th.ss.generating' | translate}}</span>
           <!-- loading box -->
-          <div class="ddp-box-loading ddp-pop ddp-progress" style="">
+          <div class="ddp-box-loading ddp-pop ddp-progress">
             <span class="ddp-data-loading">{{'msg.dp.th.ss.generating-ss-table' | translate}} <strong>({{selectedDataSnapshot.ruleCntDone}}/{{selectedDataSnapshot.ruleCntTotal}})</strong></span>
             <a href="javascript:" class="ddp-btn-cancel" (click)="cancelClick(true)" >{{'msg.comm.btn.cancl' | translate}}</a>
             <!-- bar -->
@@ -108,8 +119,8 @@
         <div class="ddp-wrap-progress" style="display:none;">
           <span class="ddp-data-status"><em class="ddp-icon-info"></em>{{'msg.dp.th.ss.generating' | translate}}</span>
           <!-- loading box -->
-          <div class="ddp-box-loading ddp-pop ddp-progress ddp-disabled" style="">
-            <span class="ddp-data-loading">{{'msg.dp.th.ss.generating-ss-table' | translate}} <strong style="display: none;">({{selectedDataSnapshot.ruleCntDone}}/{{selectedDataSnapshot.ruleCntTotal}})</strong></span>
+          <div class="ddp-box-loading ddp-pop ddp-progress ddp-disabled">
+            <span class="ddp-data-loading">{{'msg.dp.th.ss.generating-ss-table' | translate}} ({{selectedDataSnapshot.ruleCntDone}}/{{selectedDataSnapshot.ruleCntTotal}})</span>
             <a href="javascript:" class="ddp-btn-cancel">{{'msg.comm.btn.cancl' | translate}}</a>
             <!-- bar -->
             <div class="ddp-type-progressbar2">
@@ -139,9 +150,9 @@
 
     <div class="ddp-layout-pop-contents ddp-wrap-snapshot" *ngIf="selectedDataSnapshot.displayStatus==='FAIL'" >
       <div class="ddp-error-log">
-        <div class="ddp-label-title">Error log </div>
+        <div class="ddp-label-title">{{'msg.dp.ui.error.log' | translate }}</div>
         <div class="ddp-txt-log">
-          <p [innerHTML]="selectedDataSnapshot.custom.fail_msg">
+          <p [innerHTML]="selectedDataSnapshot.custom['fail_msg']">
           </p>
         </div>
       </div>
@@ -187,14 +198,19 @@
       <div class="ddp-view-contents-scroll">
 
         <!-- 상세 -->
-        <div class="ddp-view-detail">
+        <div class="ddp-view-detail ddp-txt-cut">
           <dl class="ddp-dl-detail" *ngFor="let item of sSInformationList">
             <dt>
               {{item.label}}
             </dt>
-            <dd>
+            <dd *ngIf="item.label === 'File URI'; else notFile" title="{{item.value}}">
               {{item.value}}
             </dd>
+            <ng-template #notFile>
+              <dd>
+                {{item.value}}
+              </dd>
+            </ng-template>
           </dl>
         </div>
         <!-- //상세 -->
@@ -208,8 +224,8 @@
             <dd>
               <a href="javascript:" (click)="navigateDataflow(dfId)" class="ddp-link-data"><strong>{{ selectedDataSnapshot.dsName }}</strong> in {{ selectedDataSnapshot.dfName }} </a>
               <div class="ddp-ui-sub">
-                <span class="ddp-data-sub">{{'msg.comm.ui.list.created' | translate}} <em class="ddp-data-result">{{selectedDataSnapshot.createdTime | mdate:'YYYY-MM-DD HH:mm:ss'}}</em></span>
-                <span class="ddp-data-sub">{{'msg.comm.ui.list.updated' | translate}} <em class="ddp-data-result">{{selectedDataSnapshot.modifiedTime | mdate:'YYYY-MM-DD HH:mm:ss'}}</em></span>
+                <span class="ddp-data-sub">{{'msg.comm.ui.list.created' | translate}} <em class="ddp-data-result">{{selectedDataSnapshot.dsCreatedTime | mdate:'YYYY-MM-DD HH:mm'}}</em></span>
+                <span class="ddp-data-sub">{{'msg.comm.ui.list.updated' | translate}} <em class="ddp-data-result">{{selectedDataSnapshot.dsModifiedTime | mdate:'YYYY-MM-DD HH:mm'}}</em></span>
               </div>
             </dd>
             <dt>
@@ -229,9 +245,7 @@
               <div class="ddp-ui-sub">
                 <span class="ddp-data-sub">{{'msg.comm.ui.list.created' | translate}} <em class="ddp-data-result">{{originDsInfo.createdTime | mdate:'YYYY-MM-DD HH:mm'}}</em></span>
               </div>
-
             </dd>
-
           </dl>
         </div>
         <!-- //info -->

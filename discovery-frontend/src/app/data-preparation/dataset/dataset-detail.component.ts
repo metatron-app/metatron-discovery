@@ -361,12 +361,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       if (this.dataset.totalLines === -1) {
         rows = '(counting)';
       } else {
-        rows = new Intl.NumberFormat().format(this.dataset.totalLines);
-        if (rows === '0' || rows === '1') {
-          rows = rows + ' row';
-        } else {
-          rows = rows + ' rows';
-        }
+        rows = new Intl.NumberFormat().format(this.dataset.totalLines) + ' row(s)';
         clearInterval(this.interval);
         this.interval = undefined;
       }
@@ -472,9 +467,9 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     // WRANGLED
     if (dataset.dsType === DsType.WRANGLED) {
       this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : dataset.dsType },
-        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${this.dataset.gridResponse.colCnt } ${this.dataset.gridResponse.colCnt === '1' || this.dataset.gridResponse.colCnt === '0' ? 'column': 'columns'}` }
-      ]
-
+        {name : this.translateService.instant('msg.dp.th.summary'), value : this.getRows },
+          {name : '', value : this.dataset.gridResponse.colCnt + ' column(s)' }
+        ]
       // FILE
     }  else if (dataset.importType === ImportType.UPLOAD || dataset.importType === ImportType.URI) {
       let filepath : string = dataset.importType === ImportType.UPLOAD? dataset.filenameBeforeUpload : dataset.storedUri;
@@ -489,8 +484,11 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         this.datasetInformationList.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetName() })
       }
 
-      this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes },
-        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${this.dataset.gridResponse.colCnt} ${this.dataset.gridResponse.colCnt === '1' || this.dataset.gridResponse.colCnt === '0' ? 'column': 'columns'}`})
+      this.datasetInformationList.push(
+        {name : 'URI', value : this.dataset.storedUri},
+        {name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes },
+        {name : this.translateService.instant('msg.dp.th.summary'), value : this.getRows },
+        {name : '', value : this.dataset.gridResponse.colCnt + ' column(s)' })
 
 
       // STAGING OR DB
@@ -523,7 +521,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       }
 
       this.datasetInformationList.push(
-        { name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows} / ${ this.dataset.gridResponse.colCnt } ${ this.dataset.gridResponse.colCnt === '1' || this.dataset.gridResponse.colCnt === '0' ? 'column': 'columns'}` })
+        {name : this.translateService.instant('msg.dp.th.summary'), value : this.getRows },
+        {name : '', value : this.dataset.gridResponse.colCnt + ' column(s)' })
 
     }
   }
