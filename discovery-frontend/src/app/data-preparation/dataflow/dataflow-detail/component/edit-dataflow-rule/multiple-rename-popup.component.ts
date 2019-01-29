@@ -92,6 +92,10 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Open rename component with init
+   * @param dsInfo
+   */
   public init(dsInfo : { gridData : {data: any, fields: any}, dsName : string,
     editInfo? : {ruleCurIdx : number, cols: string[], to : string[]}}) {
 
