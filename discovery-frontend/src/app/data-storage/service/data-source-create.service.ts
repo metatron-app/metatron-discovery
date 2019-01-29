@@ -45,7 +45,7 @@ export interface Sheet {
   sheetName: string;
   valid: boolean;
   warning?: string;
-  errorMessage?: string
+  errorMessage?: string;
 }
 
 export interface UploadResult {
@@ -63,4 +63,5 @@ export interface FileDetail {
   success?: boolean;
   totalRows?: number;
   isParsable: {valid: boolean, warning?: string};
+  errorMessage?: string;
 }

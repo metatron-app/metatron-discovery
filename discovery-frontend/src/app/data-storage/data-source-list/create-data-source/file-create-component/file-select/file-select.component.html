@@ -193,8 +193,8 @@
             <span class="ddp-txt-checkbox">{{'msg.storage.ui.dsource.create.file.column.head.enable' | translate}}</span>
           </label>
           <!-- if exist error sheet -->
-          <div class="ddp-txt-error ddp-clear ddp-data-error" *ngIf="!isCsvFile() && !fileResult.selectedSheet.valid">
-            <em class="ddp-icon-error-s"></em>{{fileResult.selectedSheet.errorMessage}}
+          <div class="ddp-txt-error ddp-clear ddp-data-error" *ngIf="isCsvFile() ? (selectedFileDetailData && selectedFileDetailData.isParsable && !selectedFileDetailData.isParsable.valid) : !fileResult.selectedSheet.valid">
+            <em class="ddp-icon-error-s"></em>{{isCsvFile() ? selectedFileDetailData.errorMessage : fileResult.selectedSheet.errorMessage}}
           </div>
           <!-- //if exist error sheet -->
         </div>

@@ -450,7 +450,7 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     // exist selectedFileDetailData
     // exist fields in selectedFileDetailData
     // enable grid
-    return this.selectedFileDetailData && this.selectedFileDetailData.fields && !this.clearGrid;
+    return !this.clearGrid && this.selectedFileDetailData && this.selectedFileDetailData.fields && this.selectedFileDetailData.isParsable.valid;
   }
 
   /**
@@ -484,7 +484,7 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     this.selectedFileDetailData = undefined;
     // grid hide
     this.clearGrid = true;
-    // if invalid file
+    // if excel invalid file
     if (!this.isCsvFile() && !this.fileResult.selectedSheet.valid) {
       return;
     }
@@ -496,16 +496,22 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
         // 로딩 hide
         this.loadingHide();
         // if SUCCESS
-        if (result['success'] === false) {
+        if (result.success === false) {
           Alert.warning(this.translateService.instant('msg.storage.alert.file.import.error'));
           return;
         }
         // set file detail data
         this.selectedFileDetailData = result;
-        // grid show
-        this.clearGrid = false;
-        // grid 출력
-        this.updateGrid(this.selectedFileDetailData.data, this.selectedFileDetailData.fields);
+        // if result is parsable
+        if (result.isParsable && result.isParsable.valid) {
+          // grid show
+          this.clearGrid = false;
+          // grid 출력
+          this.updateGrid(this.selectedFileDetailData.data, this.selectedFileDetailData.fields);
+        } else if (result.isParsable) { // if result is not parsable
+          // set error message
+          this.selectedFileDetailData.errorMessage = this._dataSourceCreateService.getFileErrorMessage(result.isParsable.warning);
+        }
       })
       .catch(error => this.commonExceptionHandler(error));
   }
