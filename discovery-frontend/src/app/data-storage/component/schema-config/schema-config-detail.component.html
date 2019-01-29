@@ -235,7 +235,7 @@
                 </div>
                 <div class="ddp-type-format ddp-fright" (click)="onChangeEnableUnixCodeInField(selectedField); $event.preventDefault()">
                   <label class="ddp-label-checkbox">
-                    <input type="checkbox" [checked]="selectedField.format && selectedField.format.type.toString() === 'time_unix'">
+                    <input type="checkbox" [checked]="isUnixTypeField(selectedField)">
                     <i class="ddp-icon-checkbox"></i>
                     <span class="ddp-txt-checkbox">{{'msg.storage.ui.enable.unix' | translate}}</span>
                   </label>
@@ -244,7 +244,7 @@
 
               <!-- edit format -->
               <div class="ddp-ui-option-in">
-                <div class="ddp-input-apply" *ngIf="selectedField.format && selectedField.format.type.toString() === 'time_format'">
+                <div class="ddp-input-apply" *ngIf="isTimeTypeField(selectedField)">
                   <input type="text" class="ddp-input-txt" placeholder="{{'msg.storage.ph.time.format' | translate}}"
                          [(ngModel)]="selectedField.format.format"
                          (ngModelChange)="initTimeFormatValid(selectedField); initIngestionRuleReplaceValid(selectedField)">
@@ -253,7 +253,7 @@
                 <div class="ddp-ui-error ddp-italic" *ngIf="selectedField.isValidTimeFormat === false">
                   <em class="ddp-icon-error"></em>{{selectedField.timeFormatValidMessage}}
                 </div>
-                <ul class="ddp-list-checktype" *ngIf="selectedField.format && selectedField.format.type.toString() === 'time_unix'">
+                <ul class="ddp-list-checktype" *ngIf="isUnixTypeField(selectedField)">
                   <li *ngFor="let unit of formatUnitList">
                     <label class="ddp-label-radio" (change)="onChangeFormatUnitInField(selectedField, unit)">
                       <input type="radio" [checked]="selectedField.format.unit === unit.value">
@@ -267,7 +267,7 @@
             </div>
             <!-- //Time display format -->
             <!-- Timezone -->
-            <div class="ddp-wrap-edit3" *ngIf="selectedField.logicalType.toString() === 'TIMESTAMP'">
+            <div class="ddp-wrap-edit3" *ngIf="selectedField.logicalType.toString() === 'TIMESTAMP' && isTimeTypeField(selectedField)">
               <label class="ddp-ui-label-name">
                 {{'msg.storage.ui.timezone' | translate}}
               </label>

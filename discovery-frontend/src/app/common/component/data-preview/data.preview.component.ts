@@ -26,7 +26,7 @@ import {
 } from '@angular/core';
 import {BoardDataSource, Dashboard, JoinMapping, QueryParam} from '../../../domain/dashboard/dashboard';
 import {DatasourceService} from 'app/datasource/service/datasource.service';
-import {Datasource, DataSourceSummary, Field, FieldFormat} from '../../../domain/datasource/datasource';
+import {Datasource, DataSourceSummary, Field, FieldFormat, LogicalType} from '../../../domain/datasource/datasource';
 import {SlickGridHeader} from 'app/common/component/grid/grid.header';
 import {header} from '../grid/grid.header';
 import {GridComponent} from '../grid/grid.component';
@@ -174,7 +174,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   // 생성자
   constructor(private datasourceService: DatasourceService,
               private connectionService: DataconnectionService,
-              private _timezoneService: TimezoneService,
+              private timezoneService: TimezoneService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -405,7 +405,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
         const headerName: string = field.headerKey ? field.headerKey : field.name;
         return new SlickGridHeader()
           .Id(headerName)
-          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + headerName + '</span>')
+          .Name(this._getGridHeaderName(field, headerName))
           .Field(headerName)
           .Behavior('select')
           .Selectable(false)
@@ -459,6 +459,19 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       this.gridComponent.destroy();
     }
   } // function - updateGrid
+
+  /**
+   * Get grid header name
+   * @param {Field} field
+   * @param {string} headerName
+   * @return {string}
+   * @private
+   */
+  private _getGridHeaderName(field: Field, headerName: string): string {
+    return field.logicalType === LogicalType.TIMESTAMP
+      ? `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(field.logicalType.toString())}"></em>${headerName}<div class="slick-column-det" title="${this.getTimezoneLabel(field.format)}">${this.getTimezoneLabel(field.format)}</div></span>`
+      : `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(field.logicalType.toString())}"></em>${headerName}</span>`;
+  }
 
   /**
    * Get query data for linked type
@@ -1012,9 +1025,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    * @return {string}
    */
   public getTimezoneLabel(format: FieldFormat): string {
-    return this._timezoneService.getTimezoneObject(format).label;
+    return this.timezoneService.getTimezoneObject(format).label;
   }
-
 
   /**
    * 조회 날짜 변경
@@ -1200,7 +1212,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    */
   public createMetaDataHeader(args: any): void {
     // TODO 추후 그리드 자체에서 생성하도록 변경하기
-    $('<div class="slick-data">(' + (_.find(this.columns, {'name': args.column.id}).logicalName || '') + ')</div>')
+    $('<div class="slick-data">' + (_.find(this.columns, {'name': args.column.id}).logicalName || '') + '</div>')
       .appendTo(args.node);
   }
 
@@ -1594,6 +1606,14 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    */
   public isEnableSecondHeader(): boolean {
     return this.joinDataSources.some(source => this.isExistMetaData(source));
+  }
+
+  /**
+   * Is exist timestamp field
+   * @return {boolean}
+   */
+  public isExistTimestampField(): boolean {
+    return this.joinDataSources.some(source => source.fields.some(field => field.logicalType === LogicalType.TIMESTAMP));
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

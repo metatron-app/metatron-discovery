@@ -256,7 +256,9 @@
         <!-- 그리드 -->
         <div grid-component #main
              [style.display]="isShowDataGrid ? 'block' : 'none'"
-             [ngClass]="{'meta-grid' : isEnableSecondHeader(), 'ddp-type' : timestampField }"
+             [class.meta-grid]="isExistTimestampField()"
+             [class.meta-grid-type]="isEnableSecondHeader()"
+             [class.ddp-type]="timestampField"
              (onHeaderRowCellRendered)="createMetaDataHeader($event)"
              class="ddp-ui-grid2" ></div>
         <!-- //그리드 -->

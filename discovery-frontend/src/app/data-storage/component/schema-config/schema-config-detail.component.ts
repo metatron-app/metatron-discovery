@@ -445,6 +445,24 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   }
 
   /**
+   * Is unix type field
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isUnixTypeField(field: Field): boolean {
+    return field.format && field.format.type === FieldFormatType.UNIX_TIME;
+  }
+
+  /**
+   * Is time type field
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isTimeTypeField(field: Field): boolean {
+    return field.format && field.format.type === FieldFormatType.DATE_TIME;
+  }
+
+  /**
    * Logical type list show flag change event
    */
   public onChangeLogicalTypeListShowFlag(): void {

@@ -162,7 +162,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    * @param args
    */
   public extendGridHeader(args: any): void {
-    $(`<div class="slick-data">(${_.find(this.metaData.columns, {'physicalName': args.column.id}).name})</div>`).appendTo(args.node);
+    $(`<div class="slick-data">${_.find(this.metaData.columns, {'physicalName': args.column.id}).name}</div>`).appendTo(args.node);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -328,7 +328,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    * @return {string}
    * @private
    */
-  public _getTimezoneLabel(format: FieldFormat): string {
+  private _getTimezoneLabel(format: FieldFormat): string {
     return this.timezoneService.getTimezoneObject(format).label;
   }
 
