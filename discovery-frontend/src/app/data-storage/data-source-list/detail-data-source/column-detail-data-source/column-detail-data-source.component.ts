@@ -22,7 +22,13 @@ import { Alert } from '../../../../common/util/alert.util';
 import { DatasourceService } from '../../../../datasource/service/datasource.service';
 import * as _ from 'lodash';
 import { Covariance } from '../../../../domain/datasource/covariance';
-import {ConnectionType, Datasource, Field, FieldFormat} from '../../../../domain/datasource/datasource';
+import {
+  ConnectionType,
+  Datasource,
+  Field,
+  FieldFormat,
+  FieldFormatType
+} from '../../../../domain/datasource/datasource';
 import { Metadata } from '../../../../domain/meta-data-management/metadata';
 import { MetadataColumn } from '../../../../domain/meta-data-management/metadata-column';
 import { isUndefined } from 'util';
@@ -215,6 +221,24 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    */
   public isDerivedColumn(column: Field): boolean {
     return column.derived;
+  }
+
+  /**
+   * Is unix type field
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isUnixTypeField(field: Field): boolean {
+    return field.format && field.format.type === FieldFormatType.UNIX_TIME;
+  }
+
+  /**
+   * Is time type field
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isTimeTypeField(field: Field): boolean {
+    return field.format && field.format.type === FieldFormatType.DATE_TIME;
   }
 
   /**

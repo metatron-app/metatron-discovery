@@ -15,7 +15,7 @@
 import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
 import {Component, ElementRef, Injector, Input, OnInit, ViewChild} from '@angular/core';
 import {GridComponent} from '../../../../common/component/grid/grid.component';
-import {Datasource, Field, FieldFormat, LogicalType} from '../../../../domain/datasource/datasource';
+import {Datasource, Field, FieldFormat, FieldFormatType, LogicalType} from '../../../../domain/datasource/datasource';
 import {QueryParam} from '../../../../domain/dashboard/dashboard';
 import * as _ from 'lodash';
 import {DatasourceService} from '../../../../datasource/service/datasource.service';
@@ -144,6 +144,16 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   public isExistMetaData(): boolean {
     return !isUndefined(this.metaData);
   }
+
+  /**
+   * Is unix type field
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isUnixTypeField(field: Field): boolean {
+    return field.format && field.format.type === FieldFormatType.UNIX_TIME;
+  }
+
 
   /**
    * init searchText
@@ -329,7 +339,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    * @private
    */
   private _getTimezoneLabel(format: FieldFormat): string {
-    return this.timezoneService.getTimezoneObject(format).label;
+    return format.type === FieldFormatType.UNIX_TIME ?  'Unix time'  : this.timezoneService.getTimezoneObject(format).label;
   }
 
   /**

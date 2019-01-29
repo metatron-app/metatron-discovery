@@ -26,7 +26,14 @@ import {
 } from '@angular/core';
 import {BoardDataSource, Dashboard, JoinMapping, QueryParam} from '../../../domain/dashboard/dashboard';
 import {DatasourceService} from 'app/datasource/service/datasource.service';
-import {Datasource, DataSourceSummary, Field, FieldFormat, LogicalType} from '../../../domain/datasource/datasource';
+import {
+  Datasource,
+  DataSourceSummary,
+  Field,
+  FieldFormat,
+  FieldFormatType,
+  LogicalType
+} from '../../../domain/datasource/datasource';
 import {SlickGridHeader} from 'app/common/component/grid/grid.header';
 import {header} from '../grid/grid.header';
 import {GridComponent} from '../grid/grid.component';
@@ -1025,7 +1032,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    * @return {string}
    */
   public getTimezoneLabel(format: FieldFormat): string {
-    return this.timezoneService.getTimezoneObject(format).label;
+    return format.type === FieldFormatType.UNIX_TIME ?  'Unix time'  : this.timezoneService.getTimezoneObject(format).label;
   }
 
   /**
@@ -1614,6 +1621,15 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    */
   public isExistTimestampField(): boolean {
     return this.joinDataSources.some(source => source.fields.some(field => field.logicalType === LogicalType.TIMESTAMP));
+  }
+
+  /**
+   * Is unix type field
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isUnixTypeField(field: Field): boolean {
+    return field.format && field.format.type === FieldFormatType.UNIX_TIME;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
