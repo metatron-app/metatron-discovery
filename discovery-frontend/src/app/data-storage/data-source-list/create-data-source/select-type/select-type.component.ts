@@ -14,6 +14,7 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
+import {StorageService} from "../../../service/storage.service";
 
 @Component({
   selector: 'select-type',
@@ -68,10 +69,6 @@ export class SelectTypeComponent extends AbstractPopupComponent implements OnIni
     super.ngOnDestroy();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
    * 생성할 데이터 타입 선택
    * @param {string} selectType
@@ -85,22 +82,20 @@ export class SelectTypeComponent extends AbstractPopupComponent implements OnIni
         this.step = 'db-data-connection';
         break;
       case 'staging':
-        this.step = 'staging-db-select';
+        this.isEnableStageDB() && (this.step = 'staging-db-select');
         break;
       case 'druid':
         this.step = 'druid-select';
         break;
     }
-
     this.stepChange.emit(this.step);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
+  /**
+   * Check enable stageDB
+   * @return {boolean}
+   */
+  public isEnableStageDB(): boolean {
+    return StorageService.isEnableStageDB;
+  }
 }

@@ -18,6 +18,7 @@ import {
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
 import { DatasetService } from '../service/dataset.service';
+import {StorageService} from "../../../data-storage/service/storage.service";
 
 @Component({
   selector: 'app-create-dataset-datatype',
@@ -100,6 +101,17 @@ export class CreateDatasetDataTypeComponent extends AbstractPopupComponent imple
     }
   } // function - next
 
+  public setConnectionType(type: string) {
+
+    if ('staging' === type && !this.isStagingEnabled()) {
+      return;
+    } else {
+      this.connectionType = type;
+      this.next();
+    }
+
+  }
+
 
   /**
    * 창 닫기
@@ -118,6 +130,14 @@ export class CreateDatasetDataTypeComponent extends AbstractPopupComponent imple
       data: null
     });
   } // function - close
+
+
+  /**
+   * Check if staging db is enabled
+   */
+  public isStagingEnabled() : boolean {
+    return StorageService.isEnableStageDB
+  }
 
 
   /**

@@ -30,6 +30,7 @@ import { ChangePasswordComponent } from '../../user/profile/change-password/chan
 import { MembersService } from '../../admin/user-management/service/members.service';
 import { MetadataManagementGuard } from '../../common/gaurd/metadata-management.guard';
 import {CommonService} from "../../common/service/common.service";
+import {StorageService} from "../../data-storage/service/storage.service";
 
 const layoutRoutes: Routes = [
   {
@@ -98,6 +99,7 @@ const layoutRoutes: Routes = [
     MembersService,
     WorkspaceService,
     CommonService,
+    StorageService,
     MetadataManagementGuard,
     DatasourceManagementGuard
   ]

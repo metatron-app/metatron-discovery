@@ -26,6 +26,7 @@ import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo
 import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
 import app.metatron.discovery.domain.mdm.source.MetadataSourceRepository;
+import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.workbench.Workbench;
 import app.metatron.discovery.domain.workbench.WorkbenchRepository;
 import app.metatron.discovery.domain.workbench.hive.HiveNamingRule;
@@ -85,6 +86,9 @@ public class DataConnectionController {
 
   @Autowired
   MetadataSourceRepository metadataSourceRepository;
+  
+  @Autowired
+  StorageProperties storageProperties;
 
   /**
    * 서비스에서 이용가능한 JDBC 종류 전달
@@ -180,18 +184,18 @@ public class DataConnectionController {
   @RequestMapping(value = "/connections/query/hive/databases", method = RequestMethod.POST)
   public @ResponseBody ResponseEntity<?> queryForListOfHiveDatabases(Pageable pageable) {
 
-    EngineProperties.HiveConnection hivePropertyConnection = engineProperties.getIngestion().getHive();
+    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
-    if(hivePropertyConnection == null){
-      throw new ResourceNotFoundException("EngineProperties.HiveConnection");
+    if(stageDBConnection == null){
+      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
     }
 
     HiveConnection hiveConnection = new HiveConnection();
-    hiveConnection.setUrl(hivePropertyConnection.getUrl());
-    hiveConnection.setHostname(hivePropertyConnection.getHostname());
-    hiveConnection.setPort(hivePropertyConnection.getPort());
-    hiveConnection.setUsername(hivePropertyConnection.getUsername());
-    hiveConnection.setPassword(hivePropertyConnection.getPassword());
+    hiveConnection.setUrl(stageDBConnection.getUrl());
+    hiveConnection.setHostname(stageDBConnection.getHostname());
+    hiveConnection.setPort(stageDBConnection.getPort());
+    hiveConnection.setUsername(stageDBConnection.getUsername());
+    hiveConnection.setPassword(stageDBConnection.getPassword());
 
     return ResponseEntity.ok(
             connectionService.findDatabases(hiveConnection, pageable)
@@ -214,18 +218,18 @@ public class DataConnectionController {
     //유효성 체크
     SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
 
-    EngineProperties.HiveConnection hivePropertyConnection = engineProperties.getIngestion().getHive();
+    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
-    if(hivePropertyConnection == null){
-      throw new ResourceNotFoundException("EngineProperties.HiveConnection");
+    if(stageDBConnection == null){
+      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
     }
 
     HiveConnection hiveConnection = new HiveConnection();
-    hiveConnection.setUrl(hivePropertyConnection.getUrl());
-    hiveConnection.setHostname(hivePropertyConnection.getHostname());
-    hiveConnection.setPort(hivePropertyConnection.getPort());
-    hiveConnection.setUsername(hivePropertyConnection.getUsername());
-    hiveConnection.setPassword(hivePropertyConnection.getPassword());
+    hiveConnection.setUrl(stageDBConnection.getUrl());
+    hiveConnection.setHostname(stageDBConnection.getHostname());
+    hiveConnection.setPort(stageDBConnection.getPort());
+    hiveConnection.setUsername(stageDBConnection.getUsername());
+    hiveConnection.setPassword(stageDBConnection.getPassword());
 
     return ResponseEntity.ok(
             connectionService.findTablesInDatabase(hiveConnection, checkRequest.getDatabase(), pageable)
@@ -258,18 +262,18 @@ public class DataConnectionController {
     SearchParamValidator.checkNull(checkRequest.getQuery(), "query");
     SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
 
-    EngineProperties.HiveConnection hivePropertyConnection = engineProperties.getIngestion().getHive();
+    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
-    if(hivePropertyConnection == null){
-      throw new ResourceNotFoundException("EngineProperties.HiveConnection");
+    if(stageDBConnection == null){
+      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
     }
 
     HiveConnection hiveConnection = new HiveConnection();
-    hiveConnection.setUrl(hivePropertyConnection.getUrl());
-    hiveConnection.setHostname(hivePropertyConnection.getHostname());
-    hiveConnection.setPort(hivePropertyConnection.getPort());
-    hiveConnection.setUsername(hivePropertyConnection.getUsername());
-    hiveConnection.setPassword(hivePropertyConnection.getPassword());
+    hiveConnection.setUrl(stageDBConnection.getUrl());
+    hiveConnection.setHostname(stageDBConnection.getHostname());
+    hiveConnection.setPort(stageDBConnection.getPort());
+    hiveConnection.setUsername(stageDBConnection.getUsername());
+    hiveConnection.setPassword(stageDBConnection.getPassword());
 
     if(checkRequest.getDatabase() != null && checkRequest.getType() == JdbcIngestionInfo.DataType.QUERY) {
       hiveConnection.setDatabase(checkRequest.getDatabase());
@@ -289,12 +293,12 @@ public class DataConnectionController {
       fileFormat = hiveTableInformation.getFileFormat();
 
       //when strict mode, requires hive metastore connection info
-      if(hivePropertyConnection.isStrictMode() && !partitionFielsList.isEmpty()){
-        hiveConnection.setMetastoreHost(hivePropertyConnection.getMetastoreHost());
-        hiveConnection.setMetastorePort(hivePropertyConnection.getMetastorePort());
-        hiveConnection.setMetastoreSchema(hivePropertyConnection.getMetastoreSchema());
-        hiveConnection.setMetastoreUserName(hivePropertyConnection.getMetastoreUserName());
-        hiveConnection.setMetastorePassword(hivePropertyConnection.getMetastorePassword());
+      if(stageDBConnection.isStrictMode() && !partitionFielsList.isEmpty()){
+        hiveConnection.setMetastoreHost(stageDBConnection.getMetastoreHost());
+        hiveConnection.setMetastorePort(stageDBConnection.getMetastorePort());
+        hiveConnection.setMetastoreSchema(stageDBConnection.getMetastoreSchema());
+        hiveConnection.setMetastoreUserName(stageDBConnection.getMetastoreUserName());
+        hiveConnection.setMetastorePassword(stageDBConnection.getMetastorePassword());
 
         //getting recent partition
         List<Map<String, Object>> partitionList = connectionService.getPartitionList(hiveConnection, checkRequest);
@@ -559,18 +563,18 @@ public class DataConnectionController {
     //유효성 체크
     SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
 
-    EngineProperties.HiveConnection hivePropertyConnection = engineProperties.getIngestion().getHive();
+    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
-    if(hivePropertyConnection == null){
-      throw new ResourceNotFoundException("EngineProperties.HiveConnection");
+    if(stageDBConnection == null){
+      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
     }
 
     HiveConnection hiveConnection = new HiveConnection();
-    hiveConnection.setUrl(hivePropertyConnection.getUrl());
-    hiveConnection.setHostname(hivePropertyConnection.getHostname());
-    hiveConnection.setPort(hivePropertyConnection.getPort());
-    hiveConnection.setUsername(hivePropertyConnection.getUsername());
-    hiveConnection.setPassword(hivePropertyConnection.getPassword());
+    hiveConnection.setUrl(stageDBConnection.getUrl());
+    hiveConnection.setHostname(stageDBConnection.getHostname());
+    hiveConnection.setPort(stageDBConnection.getPort());
+    hiveConnection.setUsername(stageDBConnection.getUsername());
+    hiveConnection.setPassword(stageDBConnection.getPassword());
 
     //Whole Table Name List
     Map<String, Object> tables = connectionService.findTablesInDatabase(hiveConnection, checkRequest.getDatabase(), null);
@@ -625,11 +629,11 @@ public class DataConnectionController {
 
   @RequestMapping(value = "/connections/query/hive/strict", method = RequestMethod.GET)
   public @ResponseBody ResponseEntity<?> strictModeForHiveIngestion() {
-    EngineProperties.HiveConnection hivePropertyConnection = engineProperties.getIngestion().getHive();
-    if(hivePropertyConnection == null){
-      throw new ResourceNotFoundException("EngineProperties.HiveConnection");
+    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
+    if(stageDBConnection == null){
+      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
     }
-    return ResponseEntity.ok(hivePropertyConnection.isStrictMode());
+    return ResponseEntity.ok(stageDBConnection.isStrictMode());
   }
 
   @RequestMapping(value = "/connections/query/hive/partitions", method = RequestMethod.POST)
@@ -640,20 +644,20 @@ public class DataConnectionController {
     SearchParamValidator.checkNull(checkRequest.getQuery(), "query");
     SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
 
-    EngineProperties.HiveConnection hivePropertyConnection = engineProperties.getIngestion().getHive();
+    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
-    if(hivePropertyConnection == null){
-      throw new ResourceNotFoundException("EngineProperties.HiveConnection");
+    if(stageDBConnection == null){
+      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
     }
 
     //when strict mode, requires hive metastore connection info
-    if(hivePropertyConnection.isStrictMode()){
+    if(stageDBConnection.isStrictMode()){
       HiveConnection hiveConnection = new HiveConnection();
-      hiveConnection.setMetastoreHost(hivePropertyConnection.getMetastoreHost());
-      hiveConnection.setMetastorePort(hivePropertyConnection.getMetastorePort());
-      hiveConnection.setMetastoreSchema(hivePropertyConnection.getMetastoreSchema());
-      hiveConnection.setMetastoreUserName(hivePropertyConnection.getMetastoreUserName());
-      hiveConnection.setMetastorePassword(hivePropertyConnection.getMetastorePassword());
+      hiveConnection.setMetastoreHost(stageDBConnection.getMetastoreHost());
+      hiveConnection.setMetastorePort(stageDBConnection.getMetastorePort());
+      hiveConnection.setMetastoreSchema(stageDBConnection.getMetastoreSchema());
+      hiveConnection.setMetastoreUserName(stageDBConnection.getMetastoreUserName());
+      hiveConnection.setMetastorePassword(stageDBConnection.getMetastorePassword());
 
       if(!hiveConnection.includeMetastoreInfo()){
         throw new ResourceNotFoundException("EngineProperties.HiveConnection's MetaStoreInfo");
@@ -676,20 +680,20 @@ public class DataConnectionController {
     SearchParamValidator.checkNull(checkRequest.getDatabase(), "database");
     SearchParamValidator.checkNull(checkRequest.getPartitions(), "partitions");
 
-    EngineProperties.HiveConnection hivePropertyConnection = engineProperties.getIngestion().getHive();
+    StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
-    if(hivePropertyConnection == null){
-      throw new ResourceNotFoundException("EngineProperties.HiveConnection");
+    if(stageDBConnection == null){
+      throw new ResourceNotFoundException("StorageProperties.StageDBConnection");
     }
 
     //when strict mode, requires hive metastore connection info
-    if(hivePropertyConnection.isStrictMode()){
+    if(stageDBConnection.isStrictMode()){
       HiveConnection hiveConnection = new HiveConnection();
-      hiveConnection.setMetastoreHost(hivePropertyConnection.getMetastoreHost());
-      hiveConnection.setMetastorePort(hivePropertyConnection.getMetastorePort());
-      hiveConnection.setMetastoreSchema(hivePropertyConnection.getMetastoreSchema());
-      hiveConnection.setMetastoreUserName(hivePropertyConnection.getMetastoreUserName());
-      hiveConnection.setMetastorePassword(hivePropertyConnection.getMetastorePassword());
+      hiveConnection.setMetastoreHost(stageDBConnection.getMetastoreHost());
+      hiveConnection.setMetastorePort(stageDBConnection.getMetastorePort());
+      hiveConnection.setMetastoreSchema(stageDBConnection.getMetastoreSchema());
+      hiveConnection.setMetastoreUserName(stageDBConnection.getMetastoreUserName());
+      hiveConnection.setMetastorePassword(stageDBConnection.getMetastorePassword());
 
       List<Map<String, Object>> validatePartition = connectionService.validatePartition(hiveConnection, checkRequest);
       return ResponseEntity.ok(validatePartition);

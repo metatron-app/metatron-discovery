@@ -12,10 +12,9 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.extension;
+package app.metatron.discovery.domain.storage;
 
 import app.metatron.discovery.util.CaseInsensitiveConverter;
-import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,39 +22,33 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api")
-public class ExtensionController {
+public class StorageController {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(ExtensionController.class);
+  private static Logger LOGGER = LoggerFactory.getLogger(StorageController.class);
 
   @Autowired
-  ExtensionProperties extensionProperties;
+  StorageProperties storageProperties;
 
-  @RequestMapping(value = "/extensions/{extensionType}", method = RequestMethod.GET)
-  public ResponseEntity<?> findExtensionInfoByType(@PathVariable ExtensionProperties.ExtensionType extensionType) {
+  @RequestMapping(value = "/storage/{storageType}", method = RequestMethod.GET)
+  public ResponseEntity<?> findStorageInfoByType(@PathVariable StorageProperties.StorageType storageType) {
 
-    switch (extensionType){
-      case LNB:
-        List<ExtensionProperties.Lnb> lnbs = extensionProperties.getLnb();
-        if (CollectionUtils.isEmpty(lnbs)) {
+    switch (storageType){
+      case STAGEDB:
+        StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
+        if(stageDBConnection == null){
           return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(lnbs);
-      case CONNECTION:
-        break;
+        return ResponseEntity.ok(stageDBConnection);
       default:
-        throw new IllegalArgumentException("Not supported type " + extensionType);
+        throw new IllegalArgumentException("Not supported type " + storageType);
     }
-
-    return ResponseEntity.badRequest().build();
   }
 
   @InitBinder
   public void initBinder(final WebDataBinder webdataBinder) {
-    webdataBinder.registerCustomEditor(ExtensionProperties.ExtensionType.class,
-            new CaseInsensitiveConverter(ExtensionProperties.ExtensionType.class));
+    webdataBinder.registerCustomEditor(StorageProperties.StorageType.class,
+            new CaseInsensitiveConverter(StorageProperties.StorageType.class));
   }
 }

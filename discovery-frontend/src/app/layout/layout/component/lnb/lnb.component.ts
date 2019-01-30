@@ -223,7 +223,7 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
     );
 
     // extensions 설정
-    this.commonService.getExtensions('lnb' ).then( items => {
+    this.commonService.getExtensions('lnb').then( items => {
       if( items && 0 < items.length ) {
         const exts:Extension[] = items;
         exts.forEach( ext => {
