@@ -504,7 +504,7 @@ public class TeddyExecutor {
 
         LOGGER.info("loadCsvFile(): dsId={} strUri={} delemiter={}", dsId, strUri, delimiter);
 
-        PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", limitRows, conf, false);
+        PrepCsvParseResult result = PrepCsvUtil.parse(strUri, delimiter, limitRows, conf, false);
         df.setByGrid(result);
 
         LOGGER.info("loadCsvFile(): done");
