@@ -3897,7 +3897,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       (data) => {
 
         const resultData = {
-          data,
+          data: data,
           config: uiCloneQuery,
           uiOption: this.uiOption,
           type: params.type
@@ -4187,7 +4187,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   private convertPivotToShelf(shelf: Shelf): Shelf {
 
     // when shelf is empty, convert shelf from pivot
-    if (0 === shelf.layers[(<UIMapOption>this.uiOption).layerNum].length) {
+    // if (0 === shelf.layers[(<UIMapOption>this.uiOption).layerNum].length) {
+    if (0 === shelf.layers[(<UIMapOption>this.uiOption).layerNum].length || shelf.layers[(<UIMapOption>this.uiOption).layerNum] == null) {
 
       // convert shelf from pivot
       _.forEach(_.cloneDeep(this.pivot), (value, key) => {
@@ -4234,5 +4235,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         return this.geoType = item.logicalType;
       }
     }
+  }
+
+  public onChangeLayer(shelf) {
+    // convert pivot to shelf or shelf to pivot
+    this.shelf = this.convertPivotToShelf(shelf);
+
+    // 차트별 선반위치 변경
+    this.changeDetect.detectChanges();
   }
 }

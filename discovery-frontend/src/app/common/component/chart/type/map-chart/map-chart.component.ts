@@ -29,7 +29,6 @@ import {
   SelectionColor,
 } from '../../option/define/map/map-common';
 import {ColorRange} from '../../option/ui-option/ui-color';
-import {OptionGenerator} from '../../option/util/option-generator';
 import {
   ChartColorList,
   ChartSelectMode,
@@ -55,7 +54,6 @@ import {UIHeatmapLayer} from '../../option/ui-option/map/ui-heatmap-layer';
 import {UIPolygonLayer} from '../../option/ui-option/map/ui-polygon-layer';
 import {UITileLayer} from '../../option/ui-option/map/ui-tile-layer';
 import {ColorOptionConverter} from '../../option/converter/color-option-converter';
-import {WidgetService} from "../../../../../dashboard/service/widget.service";
 import {CommonConstant} from "../../../../constant/common.constant";
 
 @Component({
@@ -82,7 +80,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   private featureEl: ElementRef;
 
   private _propMapConf = sessionStorage.getItem(CommonConstant.PROP_MAP_CONFIG);
-  private _customMapLayers: { name: string, layer: any, isDefault : boolean }[] = [];
+  private _customMapLayers: { name: string, layer: any, isDefault: boolean }[] = [];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -205,7 +203,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.chart = this.area;
     if (this._propMapConf) {
       const objConf = JSON.parse(this._propMapConf);
-      if( objConf.baseMaps ) {
+      if (objConf.baseMaps) {
         this._customMapLayers
           = objConf.baseMaps.map(item => {
           return {
@@ -219,7 +217,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
                 crossOrigin: 'anonymous'
               })
             }),
-            isDefault : ( objConf.defaultBaseMap === item.name )
+            isDefault: (objConf.defaultBaseMap === item.name)
           }
         });
       }
@@ -299,7 +297,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     if (shelf.layers) {
 
-      for( let index: number = 0 ; index < shelf.layers.length; index++ ) {
+      for (let index: number = 0; index < shelf.layers.length; index++) {
         let layers: Field[] = shelf.layers[index];
         for (let layer of layers) {
           if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
@@ -373,7 +371,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Get geo type
     // todo : validation
     let field = null;
-    for( let index: number = 0 ; index < this.shelf.layers.length; index++ ) {
+    for (let index: number = 0; index < this.shelf.layers.length; index++) {
       _.each(this.shelf.layers[index], (fieldTemp) => {
         if (fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
           field = fieldTemp;
@@ -400,7 +398,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     // for( let index: number = 0 ; index < this.shelf.layers.length; index++ ) {
     //   this.checkOption(geomType, index);
-      this.checkOption(geomType, this.uiOption['layerNum']);
+    this.checkOption(geomType, this.uiOption['layerNum']);
     // }
 
     ////////////////////////////////////////////////////////
@@ -662,8 +660,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     // Light (Default)
     let layer;
-    if( 0 < this._customMapLayers.length ) {
-      layer = this._customMapLayers.find(item => item.isDefault );
+    if (0 < this._customMapLayers.length) {
+      layer = this._customMapLayers.find(item => item.isDefault);
     }
 
     switch (this.getUiMapOption().style) {
@@ -741,10 +739,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * Creation map layer
    */
   private createLayer(source: any, clusterSource: any, hexagonSource: any, emptySource: any, isMapCreation: boolean, geomType: LogicalType): void {
-    this.clusterLayer = null;
-    this.heatmapLayer = null;
-    this.symbolLayer = null;
-    this.hexagonLayer = null;
+
     ////////////////////////////////////////////////////////
     // Create layer
     ////////////////////////////////////////////////////////
@@ -772,7 +767,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(num, this.data) : new ol.style.Style()
           });
 
-          this.clusterLayer.setZIndex(num==this.getUiMapOption().layerNum?this.getUiMapOption().layerNum:0);
+          // this.clusterLayer.setZIndex(num == this.getUiMapOption().layerNum ? this.getUiMapOption().layerNum : 0);
 
           // if (!this.clusterLayer) {
           // }
@@ -813,7 +808,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(num, this.data) : new ol.style.Style()
           });
 
-          this.symbolLayer.setZIndex(num==this.getUiMapOption().layerNum?this.getUiMapOption().layerNum:0);
+          this.symbolLayer.setZIndex(num == this.getUiMapOption().layerNum ? this.getUiMapOption().layerNum : 0);
 
           // if (!this.symbolLayer) {
           // }
@@ -899,7 +894,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           blur: heatmapLayer.blur * 0.7
         });
 
-        this.heatmapLayer.setZIndex(num==this.getUiMapOption().layerNum?this.getUiMapOption().layerNum:0);
+        this.heatmapLayer.setZIndex(num == this.getUiMapOption().layerNum ? this.getUiMapOption().layerNum : 0);
 
         // if (!this.heatmapLayer) {
         // }
@@ -1362,7 +1357,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
                   // let minValue = styleData.valueRange[alias].minValue;
                   let minValue = 0;
 
-                  if( styleData.valueRange[alias] ){
+                  if (styleData.valueRange[alias]) {
                     minValue = styleData.valueRange[alias].minValue;
                   }
 

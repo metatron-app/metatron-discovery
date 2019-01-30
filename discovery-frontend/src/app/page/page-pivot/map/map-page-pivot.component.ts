@@ -83,6 +83,9 @@ export class MapPagePivotComponent extends PagePivotComponent {
   @Output('changeShelf')
   public changeShelfEvent: EventEmitter<any> = new EventEmitter();
 
+  @Output('changeLayer')
+  public changeLayerEvent: EventEmitter<any> = new EventEmitter();
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -402,26 +405,29 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * map chart - add layer
    */
   public addLayer(index : number): void {
-
-    if( this.shelf.layers.length >= 3) {
+    if( this.shelf.layers.length >= 2) {
       return;
+    } else {
+      // add empty layer
+      this.shelf.layers.push([]);
+
+      // set current layer number
+      this.uiOption.layerNum = this.shelf.layers.length - 1;
+
+      // set layer alias
+      this.shelf.layers[this.uiOption.layerNum] = this.shelf.layers[this.uiOption.layerNum].map(this.checkAlias);
+
+      // init layer
+      let addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
+
+      // layer name setting
+      addUiOptionLayer.name = this.uiOption.layers[index].name == ('Layer' + (index+1)) ? 'Layer' + (index+2) : 'Layer' + (index+1);
+
+      this.uiOption.layers.push(addUiOptionLayer);
+
+      // emit
+      this.changeLayerEvent.emit(this.shelf);
     }
-
-    // add empty layer
-    this.shelf.layers.push([]);
-
-    // set current layer number
-    this.uiOption.layerNum = this.shelf.layers.length - 1;
-
-    // set layer alias
-    this.shelf.layers[this.uiOption.layerNum] = this.shelf.layers[this.uiOption.layerNum].map(this.checkAlias);
-
-    // uiOption layer 추가
-    let tempLayer : UILayers = OptionGenerator.MapViewChart.defaultMapViewChartUIOption().layers[0];
-    tempLayer.name = "Layer" + (this.uiOption.layerNum +1);
-    // tempLayer['symbol'] = "SQUARE";
-    this.uiOption.layers.push( tempLayer );
-
   }
 
   /**
@@ -447,13 +453,14 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // set current layer number
     this.uiOption.layerNum = this.shelf.layers.length - 1;
     // set layer alias
+    // this.shelf.layers[this.uiOption.layerNum] = this.shelf.layers[this.uiOption.layerNum].map(this.checkAlias);
     this.shelf.layers[this.uiOption.layerNum] = this.shelf.layers[this.uiOption.layerNum].map(this.checkAlias);
     // uiOption layer 제거
     this.uiOption.layers.splice( index, 1 );
-
+    // emit
+    this.changeShelfEvent.emit({ shelf: this.shelf });
     // remove 일경우 재적용
-    this.changePivot(EventType.CHANGE_PIVOT);
-
+    this.changePivot();
   }
 
   /**

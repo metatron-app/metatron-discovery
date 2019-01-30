@@ -1157,6 +1157,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   private setMeasureDimensions(shelf: Shelf, measureFl?: boolean) {
 
+    // nothing left when remove a map-layer
+    if(shelf.layers[this.index] == null) return;
+
     let layers = _.cloneDeep(shelf.layers[this.index]);
 
     const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
