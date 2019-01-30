@@ -21,7 +21,6 @@ import {Widget} from '../../../domain/dashboard/widget/widget';
 import {PageWidget, PageWidgetConfiguration} from 'app/domain/dashboard/widget/page-widget';
 import {saveAs} from 'file-saver';
 import {Alert} from '../../../common/util/alert.util';
-import {CommonUtil} from '../../../common/util/common.util';
 import {FunctionValidator} from '../../../common/component/chart/option/define/common';
 import {EventBroadcaster} from '../../../common/event/event.broadcaster';
 import {LayoutMode} from '../../../domain/dashboard/dashboard';
@@ -43,9 +42,6 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild('widgetName')
-  private widgetName: ElementRef;
-
   @ViewChild('controlContainer')
   private controlContainer: ElementRef;
 
@@ -289,42 +285,23 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
     $event.stopImmediatePropagation();
     this.isEditTitle = true;
     this.changeDetect.detectChanges();
-    this.widgetName.nativeElement.focus();
   } // function - editModeName
 
   /**
-   * 이름 편집 모드 취소
-   */
-  public cancelEditName() {
-    this.isEditTitle = false;
-    this.widgetName.nativeElement.value = this.widget.name;
-  } // function - cancelEditName
-
-  /**
    * 이름 변경 등록
-   * @param {KeyboardEvent} $event
+   * @param {string} inputName
    */
-  public changeWidgetName($event: KeyboardEvent) {
-    if (13 === $event.keyCode) {
-      this.widgetName.nativeElement.blur();
-      let inputName: string = this.widgetName.nativeElement.value;
-      inputName = inputName ? inputName.trim() : '';
-      if (inputName && 0 < inputName.length) {
-        if (CommonUtil.getByte(inputName) > 150) {
-          this.widgetName.nativeElement.value = this.widget.name;
-          Alert.warning(this.translateService.instant('msg.alert.edit.name.len'));
-        } else {
-          this.widget.name = inputName;
-          this.broadCaster.broadcast('WIDGET_CHANGE_TITLE', {
-            widgetId: this.widget.id,
-            value: inputName
-          });
-        }
-      } else {
-        this.widgetName.nativeElement.value = this.widget.name;
-        Alert.warning(this.translateService.instant('msg.alert.edit.name.empty'));
-      }
-      this.isEditTitle = false;
+  public changeWidgetName(inputName:string) {
+    this.isEditTitle = false;
+    inputName = inputName ? inputName.trim() : '';
+    if (inputName && 0 < inputName.length) {
+      this.widget.name = inputName;
+      this.broadCaster.broadcast('WIDGET_CHANGE_TITLE', {
+        widgetId: this.widget.id,
+        value: inputName
+      });
+    } else {
+      Alert.warning(this.translateService.instant('msg.alert.edit.name.empty'));
     }
   } // function - changeWidgetName
 

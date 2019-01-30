@@ -29,14 +29,12 @@
     <!-- // Name -->
     <div class="ddp-ui-drop-option">
       <!-- 검색 -->
-      <div class="ddp-form-search">
-        <em class="ddp-icon-search"></em>
-        <input #srchText type="text"
-               placeholder="{{'msg.board.ui.board.dsource.ph' | translate}}"
-               [ngModel]="searchText"
-               (keyup.esc)="clearSearch()" (clickOutside)="restoreSearch()"
-               (keypress)="searchField($event)" >
-      </div>
+      <component-input
+        [compType]="'search'"
+        [value]="searchText"
+        [showClear]="false"
+        [placeHolder]="'msg.board.ui.board.dsource.ph' | translate"
+        (changeValue)="searchField($event)"></component-input>
       <!-- // 검색 -->
     </div>
     <!-- 차원값 영역 -->

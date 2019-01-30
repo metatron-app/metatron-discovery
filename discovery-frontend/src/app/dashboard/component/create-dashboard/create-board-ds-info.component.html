@@ -55,13 +55,11 @@
           <strong>{{headerCnt}}</strong> {{'msg.comm.detail.columns' | translate}}
         </div>
         <div class="ddp-data-form">
-          <input #inputDsRow
-                 type="text" class="ddp-data-input" input-mask="number"
-                 placeholder="{{'msg.board.ui.search.full-column.ph' | translate}}"
-                 [ngModel]="rowNum"
-                 (keypress)="setGridRow($event)"
-                 (keyup.esc)="resetGridRow()"
-                 (blur)="resetGridRow()">
+          <component-input
+            [value]="rowNum"
+            [valueType]="'number'"
+            [placeHolder]="'msg.board.ui.search.full-column.ph' | translate"
+            (changeValue)="setGridRow($event)"></component-input>
           <strong> / {{ dataSourceSummary?.count }}</strong>
           {{'msg.comm.detail.rows' | translate}}
         </div>

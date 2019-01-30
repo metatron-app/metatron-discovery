@@ -43,12 +43,6 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @ViewChild('inputLastValue')
-  private _inputLastValue: ElementRef;
-
-  @ViewChild('inputNextValue')
-  private _inputNextValue: ElementRef;
-
   @ViewChild('filterArea')
   private _filterArea: ElementRef;
 

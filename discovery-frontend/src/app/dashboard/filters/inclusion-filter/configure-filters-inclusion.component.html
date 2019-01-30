@@ -48,15 +48,13 @@
              [class.ddp-selected]="targetFilter['isShowSearch']" class="ddp-ui-search" >
           <em (click)="targetFilter['isShowSearch'] = true"
               class="ddp-icon-search-default ddp-btn-box"></em>
-          <div class="ddp-form-search">
-            <em class="ddp-icon-search"></em>
-            <input #inputSearch type="text" placeholder="{{'msg.board.ui.search.item.name' | translate}}"
-                   [ngModel]="searchText"
-                   (keypress)="searchEventPressKey($event)"
-                   (keyup.esc)="resetSearchText(false);"
-                   (clickOutside)="resetSearchText(false);">
-            <em class="ddp-btn-search-close" *ngIf="searchText" (click)="resetSearchText(true);searchEvent();"></em>
-          </div>
+          <!-- 검색 -->
+          <component-input
+            [compType]="'search'"
+            [value]="searchText"
+            [placeHolder]="'msg.board.ui.search.item.name' | translate"
+            (changeValue)="searchCandidateList($event)"></component-input>
+          <!-- //검색 -->
         </div>
         <!-- // 상단 목록 검색 영역 -->
 
@@ -332,12 +330,11 @@
 
       <!-- 사용자 정의 값 입력 영역 -->
       <div class="ddp-box-search">
-        <input #inputNewCandidateValue
-               (keypress)="addNewCandidateValuePressKey($event)"
-               (keyup.esc)="clearInputNewCandidateValue();"
-               (clickOutside)="clearInputNewCandidateValue();"
-               placeholder="{{'msg.board.ui.filter.defined-value.ph' | translate}}"
-               type="text" class="ddp-input-typebasic" >
+        <component-input
+          [value]="newCandidateName"
+          [inputClass]="'ddp-input-typebasic'"
+          [placeHolder]="'msg.board.ui.filter.defined-value.ph' | translate"
+          (changeValue)="newCandidateName = $event"></component-input>
         <a href="javascript:" class="ddp-btn-solid3" (click)="addNewCandidateValue()">{{'msg.board.btn.add' | translate}}</a>
       </div>
       <!-- // 사용자 정의 값 입력 영역 -->

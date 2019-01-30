@@ -33,15 +33,12 @@
       <!-- 옵션 -->
       <div class="ddp-type-top-option ddp-clear">
         <!-- 검색 -->
-        <div class="ddp-form-search ddp-fleft">
-          <em class="ddp-icon-search"></em>
-          <input #inputSearch type="text" placeholder="{{'msg.comm.search.ds' | translate}}"
-                 [ngModel]="searchText"
-                 (keypress)="searchEventPressKey($event)"
-                 (keyup.esc)="resetSearchText(false)"
-                 (clickOutside)="resetSearchText(false)">
-          <em class="ddp-btn-search-close" *ngIf="searchText" (click)="resetSearchText(true);"></em>
-        </div>
+        <component-input
+          [compType]="'search'"
+          [value]="searchText"
+          [optionalClass]="'ddp-fleft'"
+          [placeHolder]="'msg.comm.search.ds' | translate"
+          (changeValue)="searchEvent($event)"></component-input>
         <!-- //검색 -->
 
         <!-- 필터 -->

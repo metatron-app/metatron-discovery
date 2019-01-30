@@ -15,7 +15,12 @@
 <div class="ddp-wrap-popup2">
   <!-- search -->
   <div class="ddp-pop-search" *ngIf="criterion.searchable">
-    <input type="text" placeholder="{{searchPlaceHolder}}" [(ngModel)]="searchKeyword" (ngModelChange)="searchItem()" (keyup.esc)="initSearchKeyword()">
+    <component-input
+      [immediately]="true"
+      [value]="searchKeyword"
+      [placeHolder]="searchPlaceHolder"
+      (changeValue)="searchItem($event)">
+    </component-input>
   </div>
   <!-- //search -->
   <!-- ALL -->

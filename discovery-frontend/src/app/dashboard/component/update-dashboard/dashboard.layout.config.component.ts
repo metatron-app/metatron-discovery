@@ -23,15 +23,15 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import {AbstractComponent} from '../../../common/component/abstract.component';
 import {
   BoardGlobalOptions, BoardLayoutOptions,
   BoardLayoutType, BoardSyncOptions,
   BoardWidgetOptions, WidgetShowType
 } from '../../../domain/dashboard/dashboard.globalOptions';
-import { BoardConfiguration, Dashboard } from '../../../domain/dashboard/dashboard';
-import { SourceType } from '../../../domain/datasource/datasource';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
+import {BoardConfiguration, Dashboard} from '../../../domain/dashboard/dashboard';
+import {SourceType} from '../../../domain/datasource/datasource';
+import {EventBroadcaster} from '../../../common/event/event.broadcaster';
 
 @Component({
   selector: 'app-dashboard-layout-config',
@@ -43,12 +43,6 @@ export class DashboardLayoutConfigComponent extends AbstractComponent implements
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private _widgetOpts: BoardWidgetOptions = new BoardWidgetOptions();
-
-  @ViewChild('inputHeight')
-  private _inputHeight: ElementRef;
-
-  @ViewChild('inputMargin')
-  private _inputMargin: ElementRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Input&Output Variables
@@ -75,12 +69,12 @@ export class DashboardLayoutConfigComponent extends AbstractComponent implements
   public isLiveDatasource: boolean = false;
   public isShowIntervalList: boolean = false;
   public syncIntervals: SyncInterval[] = [
-    { name: this.translateService.instant('msg.comm.ui.not-used'), interval: 0 },
-    { name: '1', interval: 1 },
-    { name: '5', interval: 5 },
-    { name: '10', interval: 10 },
-    { name: '30', interval: 30 },
-    { name: '60', interval: 60 }
+    {name: this.translateService.instant('msg.comm.ui.not-used'), interval: 0},
+    {name: '1', interval: 1},
+    {name: '5', interval: 5},
+    {name: '10', interval: 10},
+    {name: '30', interval: 30},
+    {name: '60', interval: 60}
   ];
   public selectedInterval: SyncInterval;
 
@@ -113,22 +107,19 @@ export class DashboardLayoutConfigComponent extends AbstractComponent implements
       return SourceType.REALTIME === item.srcType
         && item.id === this.dashboard.configuration.dataSource.id;
     });
-    if( this.isLiveDatasource && globalOpts.sync && globalOpts.sync.enabled ) {
-      this.selectedInterval = this.syncIntervals.find( item => item.interval === globalOpts.sync.interval );
+    if (this.isLiveDatasource && globalOpts.sync && globalOpts.sync.enabled) {
+      this.selectedInterval = this.syncIntervals.find(item => item.interval === globalOpts.sync.interval);
     }
 
     // 기존 Layout 정보에 레이아웃 옵션 설정
-    ( globalOpts.layout.layoutType ) || ( globalOpts.layout.layoutType = BoardLayoutType.FIT_TO_SCREEN );
-    if (globalOpts.layout.layoutType === BoardLayoutType.FIT_TO_SCREEN) {
-      this._inputHeight.nativeElement.disabled = true;
-    }
-    ( globalOpts.layout.layoutHeight ) && ( this.layoutHeight = globalOpts.layout.layoutHeight );
-    ( globalOpts.layout.widgetPadding ) && ( this.layoutMargin = globalOpts.layout.widgetPadding );
+    (globalOpts.layout.layoutType) || (globalOpts.layout.layoutType = BoardLayoutType.FIT_TO_SCREEN);
+    (globalOpts.layout.layoutHeight) && (this.layoutHeight = globalOpts.layout.layoutHeight);
+    (globalOpts.layout.widgetPadding) && (this.layoutMargin = globalOpts.layout.widgetPadding);
 
     // 차트 옵션 설정
-    this._widgetOpts.showTitle = ( globalOpts.widget.showTitle ) ? globalOpts.widget.showTitle : WidgetShowType.BY_WIDGET;
-    this._widgetOpts.showLegend = ( globalOpts.widget.showLegend ) ? globalOpts.widget.showLegend : WidgetShowType.BY_WIDGET;
-    this._widgetOpts.showMinimap = ( globalOpts.widget.showMinimap ) ? globalOpts.widget.showMinimap : WidgetShowType.BY_WIDGET;
+    this._widgetOpts.showTitle = (globalOpts.widget.showTitle) ? globalOpts.widget.showTitle : WidgetShowType.BY_WIDGET;
+    this._widgetOpts.showLegend = (globalOpts.widget.showLegend) ? globalOpts.widget.showLegend : WidgetShowType.BY_WIDGET;
+    this._widgetOpts.showMinimap = (globalOpts.widget.showMinimap) ? globalOpts.widget.showMinimap : WidgetShowType.BY_WIDGET;
 
 
     // 위젯 타이틀 표시 여부 변경
@@ -162,10 +153,10 @@ export class DashboardLayoutConfigComponent extends AbstractComponent implements
   public ngOnChanges(changes: SimpleChanges) {
     const confChanges: SimpleChange = changes.inputBoardConf;
     const boardChanges: SimpleChange = changes.inputDashboard;
-    if( confChanges && confChanges.currentValue ) {
+    if (confChanges && confChanges.currentValue) {
       this.boardConf = confChanges.currentValue;
     }
-    if( boardChanges && boardChanges.currentValue ) {
+    if (boardChanges && boardChanges.currentValue) {
       this.dashboard = boardChanges.currentValue;
     }
   } // function - ngOnChanges
@@ -192,7 +183,6 @@ export class DashboardLayoutConfigComponent extends AbstractComponent implements
     const layoutInfo: BoardLayoutOptions = this.boardConf.options.layout;
     layoutInfo.layoutType = BoardLayoutType.FIT_TO_SCREEN;
     delete layoutInfo.layoutHeight;
-    this._inputHeight.nativeElement.disabled = true;
     this.changeConfig();
   } // function - setFitToScreen
 
@@ -210,72 +200,41 @@ export class DashboardLayoutConfigComponent extends AbstractComponent implements
     const layoutInfo: BoardLayoutOptions = this.boardConf.options.layout;
     layoutInfo.layoutType = BoardLayoutType.FIT_TO_HEIGHT;
     layoutInfo.layoutHeight = this.layoutHeight;
-    this._inputHeight.nativeElement.disabled = false;
     this.changeConfig();
   } // function - setFitToHeight
 
   /**
    * 레이아웃 높이를 지정한다
-   * @param {KeyboardEvent} event
+   * @param {number} heightValue
    */
-  public setLayoutHeight(event: KeyboardEvent) {
+  public setLayoutHeight(heightValue: number) {
     const layoutInfo: BoardLayoutOptions = this.boardConf.options.layout;
-    if (13 === event.keyCode && BoardLayoutType.FIT_TO_HEIGHT === layoutInfo.layoutType) {
-      this._inputHeight.nativeElement.blur();
-      let inputValue: string = this._inputHeight.nativeElement.value;
-      inputValue = inputValue ? inputValue.trim() : '';
-
-      if (/^[0-9]*$/gi.test(inputValue)) {
-        let numberValue: number = +inputValue;
-        if (numberValue < 900) {
-          numberValue = 900;
-        } else if (numberValue > 2400) {
-          numberValue = 2400;
-        }
-        this.layoutHeight = numberValue;
-        layoutInfo.layoutHeight = numberValue;
-        this.changeConfig();
+    if (BoardLayoutType.FIT_TO_HEIGHT === layoutInfo.layoutType) {
+      if (heightValue < 900) {
+        heightValue = 900;
+      } else if (heightValue > 2400) {
+        heightValue = 2400;
       }
+      this.layoutHeight = heightValue;
+      layoutInfo.layoutHeight = heightValue;
+      this.changeConfig();
     }
   } // function - setLayoutHeight
 
   /**
-   * 레이아웃 높이 설정 취소
-   */
-  public cancelEditHeight() {
-    this._inputHeight.nativeElement.value = this.layoutHeight;
-  } // function - cancelEditHeight
-
-  /**
    * 레이아웃 여백 설정
-   * @param {KeyboardEvent} event
+   * @param {number} marginValue
    */
-  public setLayoutMargin(event: KeyboardEvent) {
-    if (13 === event.keyCode) {
-      this._inputMargin.nativeElement.blur();
-      let inputValue: string = this._inputMargin.nativeElement.value;
-      inputValue = inputValue ? inputValue.trim() : '';
-
-      if (/^[0-9]*$/gi.test(inputValue)) {
-        let numberValue: number = +inputValue;
-        if (numberValue < 0) {
-          numberValue = 0;
-        } else if (numberValue > 100) {
-          numberValue = 100;
-        }
-        this.layoutMargin = numberValue;
-        this.boardConf.options.layout.widgetPadding = numberValue;
-        this.changeConfig();
-      }
+  public setLayoutMargin(marginValue: number) {
+    if (marginValue < 0) {
+      marginValue = 0;
+    } else if (marginValue > 100) {
+      marginValue = 100;
     }
+    this.layoutMargin = marginValue;
+    this.boardConf.options.layout.widgetPadding = marginValue;
+    this.changeConfig();
   } // function - setLayoutMargin
-
-  /**
-   * 레이아웃 여백 설정 취소
-   */
-  public cancelEditMargin() {
-    this._inputMargin.nativeElement.value = this.layoutMargin;
-  } // function - cancelEditMargin
 
   /**
    * 위젯 기능 - 위젯 설정 여부
@@ -298,7 +257,7 @@ export class DashboardLayoutConfigComponent extends AbstractComponent implements
    * @param {string} feature
    * @return {string}
    */
-  public getFeatureLabel(feature:string):string {
+  public getFeatureLabel(feature: string): string {
     return this._widgetOpts[feature];
   } // function - getFeatureLabel
 
@@ -308,7 +267,7 @@ export class DashboardLayoutConfigComponent extends AbstractComponent implements
    */
   public featureClickHandler(feature: string) {
     this._widgetOpts[feature]
-      = ( this._widgetOpts[feature] === WidgetShowType.ON ) ? WidgetShowType.OFF : WidgetShowType.ON;
+      = (this._widgetOpts[feature] === WidgetShowType.ON) ? WidgetShowType.OFF : WidgetShowType.ON;
     this.boardConf.options.widget = this._widgetOpts;
     this.changeConfig();
   } // function - featureClickHandler

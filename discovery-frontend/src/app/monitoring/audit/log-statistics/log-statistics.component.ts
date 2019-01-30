@@ -526,22 +526,9 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
 
   /**
    * 검색 이벤트
-   * @param event
    */
-  public search(event : KeyboardEvent) {
-
-    if ( 13 === event.keyCode) {
-
-      // 리스트 재조회
-      this.getStatisticData();
-
-    } else if ( 27 === event.keyCode ) {
-
-      this.searchText = '';
-      // 페이지 초기화
-      this.getStatisticData();
-    }
-
+  public search() {
+    this.getStatisticData();
   }
 
   public getMoreContents(event) {

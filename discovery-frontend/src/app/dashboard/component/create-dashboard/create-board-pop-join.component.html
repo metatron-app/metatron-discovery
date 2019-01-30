@@ -308,12 +308,10 @@
               {{'msg.comm.detail.columns' | translate}}
             </div>
             <div class="ddp-data-form">
-              <input #inputPreviewRow
-                     type="text" class="ddp-data-input" input-mask="number"
-                     [ngModel]="editingJoin.rowNum"
-                     (keypress)="setRowPreviewGrid($event)"
-                     (keyup.esc)="resetRowPreviewGrid()"
-                     (blur)="resetRowPreviewGrid()">
+              <component-input
+                [value]="editingJoin.rowNum"
+                [valueType]="'number'"
+                (changeValue)="setRowPreviewGrid($event)"></component-input>
               {{'msg.comm.detail.rows' | translate}}
             </div>
           </div>

@@ -100,7 +100,7 @@
 <div *ngIf="isShowFilter" class="ddp-contents-divide ">
   <!-- divide -->
   <div class="ddp-ui-divide">
-    <bound-filter [filter]="filter" (change)="applyValue()"></bound-filter>
+    <bound-filter [filter]="filter" (changeFilterData)="applyValue()"></bound-filter>
   </div>
   <!-- // divide -->
   <!--

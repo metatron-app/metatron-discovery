@@ -12,11 +12,22 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+  ViewChildren
+} from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { MetadataService } from './service/metadata.service';
 import { Alert } from '../../common/util/alert.util';
 import { MetadataModelService } from './service/metadata.model.service';
+import {InputComponent} from "../../common/component/input/input.component";
 
 @Component({
   selector: 'app-metadata-detail-information',
@@ -30,6 +41,9 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
 
   @ViewChild('metadataDesc')
   private metadataDesc: ElementRef;
+
+  @ViewChildren(InputComponent)
+  private tagInput : InputComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -148,7 +162,6 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     if (!this.tagFlag) {
       this.tagFlag = true;
       this.metadataService.addTagToMetadata(this.metadataModelService.getMetadata().id,[this.tagValue]).then(() => {
-        $('#tagInput')[0]['value'] = '';
         this.tagValue = '';
         this.isAddTag = false;
         this.getMetadataDetail();
@@ -173,7 +186,6 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
    */
   public setTagValue(tag) {
     this.tagValue = tag;
-    setTimeout(() => $('#tagInput').trigger('focus')); // 포커스
   } // function - setTagValue
 
 
