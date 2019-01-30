@@ -25,6 +25,7 @@ import { CatalogService } from '../catalog/service/catalog.service';
 declare let $;
 import * as _ from 'lodash';
 import { DomSanitizer } from '@angular/platform-browser';
+import {StorageService} from "../../data-storage/service/storage.service";
 
 @Component({
   selector: 'app-metadata',
@@ -439,14 +440,18 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * @private
    */
   private _initView() {
-
-    this.sourceTypeList = [
-      {label : 'All', value : ''},
-      {label : 'Datasource', value : SourceType.ENGINE},
-      {label : 'Hive', value : SourceType.JDBC},
-      {label : 'Staging DB', value : SourceType.STAGING},
-
-    ];
+    this.sourceTypeList = StorageService.isEnableStageDB
+      ? [
+          {label : 'All', value : ''},
+          {label : 'Datasource', value : SourceType.ENGINE},
+          {label : 'Hive', value : SourceType.JDBC},
+          {label : 'Staging DB', value : SourceType.STAGING},
+        ]
+      : [
+        {label : 'All', value : ''},
+        {label : 'Datasource', value : SourceType.ENGINE},
+        {label : 'Hive', value : SourceType.JDBC},
+      ];
 
     this.sourceType = '';
     this.listSearchText = '';
