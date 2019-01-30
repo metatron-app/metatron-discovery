@@ -56,6 +56,9 @@ export interface UILabelChartSeries {
 
   // 시리즈 이름
   name?: string;
+
+  // Display Name => UI Only
+  displayName?: string;
 }
 
 export interface UILabelPositiveNegativeColor {
@@ -75,6 +78,9 @@ export interface UILabelIcon {
 
   // UI 스펙
   show?: boolean;
+
+  // Display Name => UI Only
+  displayName?: string;
 }
 
 export interface UILabelAnnotation {
@@ -87,6 +93,9 @@ export interface UILabelAnnotation {
 
   // UI 스펙
   show?: boolean;
+
+  // Display Name => UI Only
+  displayName?: string;
 }
 
 export interface UILabelSecondaryIndicator {
@@ -111,4 +120,7 @@ export interface UILabelSecondaryIndicator {
 
   // UI 스펙
   show?: boolean;
+
+  // Display Name => UI Only
+  displayName?: string;
 }

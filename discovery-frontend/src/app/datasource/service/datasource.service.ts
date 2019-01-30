@@ -394,9 +394,6 @@ export class DatasourceService extends AbstractService {
         if (_.eq((<UIGridChart>pageConf.chart).dataType, GridViewType.MASTER)) {
           // 옵션 변경
           query.resultFormat.options.isOriginal = true;
-
-          // limit 100개로 고정
-          query.limits.limit = 100;
         } else {
           delete query.resultFormat.options.isOriginal;
         }

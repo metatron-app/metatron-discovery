@@ -12,18 +12,17 @@
  * limitations under the License.
  */
 
-import { Component, OnInit, Injector, ElementRef, ViewChild, OnDestroy } from '@angular/core';
-import { DataSnapshotService } from './service/data-snapshot.service';
-import { AbstractComponent } from '../../common/component/abstract.component';
-//import { DataSnapshot } from '../../domain/data-preparation/data-snapshot';
-import { PrDataSnapshot, SsType, Status } from '../../domain/data-preparation/pr-snapshot';
-import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
-import { Modal } from '../../common/domain/modal';
-import { Alert } from '../../common/util/alert.util';
-import { PreparationAlert } from '../util/preparation-alert.util';
-import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
-import { isUndefined } from 'util';
-import { DataSnapshotDetailComponent } from './data-snapshot-detail.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {DataSnapshotService} from './service/data-snapshot.service';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {PrDataSnapshot, SsType, Status} from '../../domain/data-preparation/pr-snapshot';
+import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {Modal} from '../../common/domain/modal';
+import {Alert} from '../../common/util/alert.util';
+import {PreparationAlert} from '../util/preparation-alert.util';
+import {MomentDatePipe} from '../../common/pipe/moment.date.pipe';
+import {isUndefined} from 'util';
+import {DataSnapshotDetailComponent} from './data-snapshot-detail.component';
 import {PreparationCommonUtil} from "../util/preparation-common.util";
 
 @Component({
@@ -45,11 +44,9 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
   public deleteModalComponent: DeleteModalComponent;
 
   /** 데이터스냅샷 리스트 */
-  //public datasnapshots: DataSnapshot[] = [];
   public datasnapshots: PrDataSnapshot[] = [];
 
   /** 데이터스냅샷 */
-  //public datasnapshot: DataSnapshot;
   public datasnapshot: PrDataSnapshot;
 
   /** 지울 데이터스냅샷 아이디 */
@@ -126,11 +123,23 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     return item.elapsedTime.days;
   }
 
-  public getElapsedTime(item) {
-    if( true===isUndefined(item) || true===isUndefined(item.elapsedTime)
-     || true===isUndefined(item.elapsedTime.hours) || true===isUndefined(item.elapsedTime.minutes) || true===isUndefined(item.elapsedTime.seconds) || true===isUndefined(item.elapsedTime.milliseconds)
-    ) { return '--:--:--'; }
-    return this.padleft(item.elapsedTime.hours) + ':' + this.padleft(item.elapsedTime.minutes) + ':' +this.padleft(item.elapsedTime.seconds) + '.' + this.padleft(item.elapsedTime.milliseconds);
+  /**
+   * Returns formatted elapsed time
+   * hour:minute:second.millisecond
+   * @param item
+   */
+  public getElapsedTime(item: PrDataSnapshot) {
+
+    if (isUndefined(item) ||
+      isUndefined(item.elapsedTime) ||
+      isUndefined(item.elapsedTime.hours) ||
+      isUndefined(item.elapsedTime.minutes) ||
+      isUndefined(item.elapsedTime.seconds) ||
+      isUndefined(item.elapsedTime.milliseconds)
+    ) {
+      return '--:--:--';
+    }
+    return `${this.prepCommonUtil.padLeft(item.elapsedTime.hours)}:${this.prepCommonUtil.padLeft(item.elapsedTime.minutes)}:${this.prepCommonUtil.padLeft(item.elapsedTime.seconds)}.${this.prepCommonUtil.padLeft(item.elapsedTime.milliseconds)}`;
   }
 
   /** Fetch snapshot list */
@@ -306,14 +315,6 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
   }
 
-  /** Formatting number to 2 whole number digit */
-  public padleft(data) {
-
-    let z = '0';
-    let n = data + '';
-    return n.length >= 2 ? n : new Array(2 - n.length + 1).join(z) + n;
-  }
-
 
   /**
    * Change snapshot type
@@ -354,6 +355,24 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     this.pageNum += 1;
     this.page.size = this.pageNum * this.pageSize;
     this.initViewPage();
+  }
+
+  /**
+   * Returns name for svg component
+   * @param snapshot
+   */
+  public getSvgName(snapshot: PrDataSnapshot) {
+
+    const csv : string = 'CSV';
+    if (snapshot.ssType === SsType.STAGING_DB) {
+      return 'HIVE'
+    }
+
+    if (snapshot.storedUri.endsWith('.json')) {
+      return 'JSON';
+    }
+
+    return csv;
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

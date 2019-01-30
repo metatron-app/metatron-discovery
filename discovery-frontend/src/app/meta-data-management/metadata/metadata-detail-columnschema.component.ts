@@ -13,14 +13,12 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild,
+  Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
   ViewChildren
 } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
-import { FieldFormat, FieldFormatType, FieldRole, LogicalType } from '../../domain/datasource/datasource';
+import { FieldFormat, FieldFormatType, LogicalType } from '../../domain/datasource/datasource';
 import * as _ from 'lodash';
-import { ChooseCodeTableComponent } from '../component/choose-code-table/choose-code-table.component';
-import { ChooseColumnDictionaryComponent } from '../component/choose-column-dictionary/choose-column-dictionary.component';
 import { MetadataService } from './service/metadata.service';
 import { MetadataModelService } from './service/metadata.model.service';
 import { MetadataColumn } from '../../domain/meta-data-management/metadata-column';
@@ -30,6 +28,7 @@ import { CodeTableService } from '../code-table/service/code-table.service';
 import { CodeValuePair } from '../../domain/meta-data-management/code-value-pair';
 import { ColumnDictionaryService } from '../column-dictionary/service/column-dictionary.service';
 import { Alert } from '../../common/util/alert.util';
+import {CommonConstant} from "../../common/constant/common.constant";
 
 @Component({
   selector: 'app-metadata-detail-columnschema',
@@ -466,10 +465,12 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
     // 컬럼 조회
     this._metaDataService.getColumnSchemaListInMetaData(this.metaDataModelService.getMetadata().id)
       .then((result) => {
-        // 컬럼 데이터
-        this.columnList = result;
+        // Hide current time
+        this.columnList = result.filter((item) => {
+          return item.physicalName !== CommonConstant.COL_NAME_CURRENT_DATETIME && item.physicalType !== 'TIMESTAMP';
+        });
         // 컬럼 데이터 원본 저장
-        this._originColumnList = _.cloneDeep(result);
+        this._originColumnList = _.cloneDeep(this.columnList);
         // 로딩 hide
         this.loadingHide();
       })

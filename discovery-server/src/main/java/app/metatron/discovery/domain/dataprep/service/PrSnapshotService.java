@@ -14,15 +14,17 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
-import app.metatron.discovery.domain.dataprep.PrepDatasetSparkHiveService;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
 import app.metatron.discovery.domain.dataprep.PrepHdfsService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
-import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
-import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -40,15 +42,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 
 @Service
 public class PrSnapshotService {
@@ -61,7 +63,7 @@ public class PrSnapshotService {
     PrDataflowRepository dataflowRepository;
 
     @Autowired
-    private PrepDatasetSparkHiveService datasetSparkHiveService;
+    private PrepDatasetStagingDbService datasetStagingDbService;
 
     @Autowired
     PrepHdfsService hdfsService;
@@ -180,7 +182,7 @@ public class PrSnapshotService {
                     if(Strings.isNullOrEmpty(fileType)) {
                         fileType = "csv";
                     }
-                    this.datasetSparkHiveService.writeSnapshot(response.getOutputStream(), dbName, sql, fileType);
+                    this.datasetStagingDbService.writeSnapshot(response.getOutputStream(), dbName, sql, fileType);
 
                     fileName = snapshot.getDsName() + "." + fileType;
                 }
@@ -303,7 +305,7 @@ public class PrSnapshotService {
                     String dbName = snapshot.getDbName();
                     String tblName = snapshot.getTblName();
                     String sql = "DROP TABLE IF EXISTS "+dbName+"."+tblName;
-                    this.datasetSparkHiveService.dropHiveSnapshotTable(sql);
+                    this.datasetStagingDbService.dropHiveSnapshotTable(sql);
                 }
             } catch (Exception e) {
                 throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
@@ -382,5 +384,44 @@ public class PrSnapshotService {
         }
 
         return null;
+    }
+
+    public void patchAllowedOnly(PrSnapshot snapshot, PrSnapshot patchSnapshot) {
+        // Only a few fields are allowed to be changed.
+        // It can be changed.
+
+        List<String> allowKeys = Lists.newArrayList();
+        allowKeys.add("ssName");
+        allowKeys.add("status");
+        allowKeys.add("lineageInfo");
+        allowKeys.add("ruleCntDone");
+        allowKeys.add("custom");
+        allowKeys.add("ruleCntTotal");
+        allowKeys.add("storedUri");
+        allowKeys.add("finishTime");
+        allowKeys.add("totalLines");
+
+        List<String> ignoreKeys = Lists.newArrayList();
+        ignoreKeys.add("ssId");
+
+        if(patchSnapshot.getSsName()!=null) { snapshot.setSsName(patchSnapshot.getSsName()); }
+        if(patchSnapshot.getStatus()!=null) { snapshot.setStatus(patchSnapshot.getStatus()); }
+        if(patchSnapshot.getLineageInfo()!=null) { snapshot.setLineageInfo(patchSnapshot.getLineageInfo()); }
+        if(patchSnapshot.getRuleCntDone()!=null) { snapshot.setRuleCntDone(patchSnapshot.getRuleCntDone()); }
+        if(patchSnapshot.getCustom()!=null) { snapshot.setCustom(patchSnapshot.getCustom()); }
+        if(patchSnapshot.getRuleCntTotal()!=null) { snapshot.setRuleCntTotal(patchSnapshot.getRuleCntTotal()); }
+        if(patchSnapshot.getStoredUri()!=null) { snapshot.setStoredUri(patchSnapshot.getStoredUri()); }
+        if(patchSnapshot.getFinishTime()!=null) { snapshot.setFinishTime(patchSnapshot.getFinishTime()); }
+        if(patchSnapshot.getTotalLines()!=null) { snapshot.setTotalLines(patchSnapshot.getTotalLines()); }
+
+        ObjectMapper objectMapper = GlobalObjectMapper.getDefaultMapper();
+        Map<String, Object> mapSnapshot = objectMapper.convertValue(patchSnapshot, Map.class);
+        for(String key : mapSnapshot.keySet()) {
+            if( false==ignoreKeys.contains(key) ) { continue; }
+
+            if( false==allowKeys.contains(key) ) {
+                LOGGER.debug("'" + key + "' of pr-snapshot is an attribute to which patch is not applied");
+            }
+        }
     }
 }

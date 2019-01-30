@@ -14,6 +14,31 @@
 
 package app.metatron.discovery.domain.datasource.data.result;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.net.URI;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.MatrixResponse;
 import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
@@ -34,28 +59,6 @@ import app.metatron.discovery.query.druid.limits.PivotSpec;
 import app.metatron.discovery.query.druid.limits.PivotWindowingSpec;
 import app.metatron.discovery.query.druid.queries.GroupingSet;
 import app.metatron.discovery.util.EnumUtils;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.net.URI;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Created by kyungtaak on 2016. 8. 21..
@@ -265,8 +268,8 @@ public class PivotResultFormat extends SearchResultFormat {
       while (fields.hasNext()) {
         Map.Entry<String, JsonNode> nodeMap = fields.next();
         String nodeKey = nodeMap.getKey();
-        // Escape separator if nodeKey start with separator. ex. -SUM(m1)
-        nodeKey = nodeKey.startsWith(separator) ? nodeKey.substring(1) : nodeKey;
+        // Escape separator if nodeKey start with separator. ex. -SUM(m1) --SUM(m1)
+        nodeKey = nodeKey.startsWith(separator) ? nodeKey.substring(pivots.size()) : nodeKey;
         JsonNode nodeValue = nodeMap.getValue();
 
         // Percentage Case

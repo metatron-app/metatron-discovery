@@ -42,40 +42,37 @@
               {{getDatabaseData.selectedDatabase}} / {{getDatabaseData.selectedTable}}
             </td>
           </tr>
-          <!-- partition -->
-          <tr>
-            <th>
-              {{'msg.storage.ui.dsource.create.partition.keys' | translate}}
-            </th>
-            <td [innerHTML]="getPartitionKeys()">
-            </td>
-          </tr>
-          <!-- //partition -->
-          <!-- range -->
-          <tr>
-            <th>
-              {{'msg.storage.ui.dsource.create.data.range' | translate}}
-            </th>
-            <td>
-             {{getIngestionData.selectedDataRangeType.value === 'ENABLE' ? getDataRangeTimeLabel() : ('msg.storage.ui.set.disable' | translate)}}
-            </td>
-          </tr>
-          <!-- //range -->
+          <!-- granularity -->
           <tr>
             <th>
               {{'msg.storage.th.gran.settings' | translate}}
             </th>
             <td>
               <ul class="ddp-list-sub">
+                <!-- partition -->
+                <li>
+                  {{'msg.storage.ui.dsource.create.partition.keys' | translate}}
+                  <div class="ddp-sub" [innerHTML]="getPartitionKeys()">
+                  </div>
+                </li>
+                <!-- //partition -->
+                <!-- granularity -->
                 <li>
                   {{'msg.storage.th.segment.gran' | translate}} : {{getIngestionData.selectedSegmentGranularity.label}}
                 </li>
                 <li>
                   {{'msg.storage.th.query.gran' | translate}} : {{getIngestionData.selectedQueryGranularity.label}}
                 </li>
+                <!-- //granularity -->
+                <!-- if not used current TIMESTAMP-->
+                <li *ngIf="getSchemaData.selectedTimestampType !== 'CURRENT'">
+                  {{'msg.storage.ui.intervals' | translate}} : {{getIngestionData.startIntervalText}} ~ {{getIngestionData.endIntervalText}}
+                </li>
+                <!-- //if not used current TIMESTAMP-->
               </ul>
             </td>
           </tr>
+          <!-- //granularity -->
           <!-- roll up -->
           <tr>
             <th>

@@ -268,8 +268,13 @@ export class SchemaConfigComponent extends AbstractComponent {
   public checkAndInitTimestampField(): void {
     // set timestamp list
     this._setTimestampFieldList();
-    // if selected field is timestamp field
-    if (this.timestampFieldList.every(field => field !== this.selectedTimestampField)) {
+    // if exist timestamp list, not selected timestamp field
+    if (this.timestampFieldList.length > 0 && !this.selectedTimestampField) {
+      // set selected timestamp field
+      this.selectedTimestampField = this.timestampFieldList[0];
+      // set FIELD timestamp type
+      this.selectedTimestampType = 'FIELD';
+    } else if (this.timestampFieldList.every(field => field !== this.selectedTimestampField)) { // if selected field is timestamp field
       // set NULL selected timestamp field
       this.selectedTimestampField = null;
       // set CURRENT timestamp type
@@ -626,7 +631,9 @@ export class SchemaConfigComponent extends AbstractComponent {
       // if changed timestamp field
       return (this.selectedTimestampType !== this._sourceData.schemaData.selectedTimestampType) ||
         this.selectedTimestampField &&
-        (this.selectedTimestampField.name !== this._sourceData.schemaData.selectedTimestampField.name || this.selectedTimestampField.format.type !== this._sourceData.schemaData.selectedTimestampField.format.type);
+        (this.selectedTimestampField.name !== this._sourceData.schemaData.selectedTimestampField.name
+          || this.selectedTimestampField.format.type !== this._sourceData.schemaData.selectedTimestampField.format.type
+          || this.selectedTimestampField.format.type === FieldFormatType.UNIX_TIME && this._sourceData.schemaData.selectedTimestampField.format.type === FieldFormatType.UNIX_TIME && this.selectedTimestampField.format.unit !== this._sourceData.schemaData.selectedTimestampField.format.unit);
     } else { // if not exist schema data
       return false;
     }
@@ -696,6 +703,8 @@ export class SchemaConfigComponent extends AbstractComponent {
       selectedRoleTypeFilter : this.selectedRoleTypeFilter,
       // selected action
       selectedAction: this.selectedAction,
+      // timestampFieldData
+      timestampFieldData: this.selectedTimestampType === 'FIELD' ? this._getFieldDataList(this.selectedTimestampField) : []
     };
     sourceData.schemaData = schemaData;
   }

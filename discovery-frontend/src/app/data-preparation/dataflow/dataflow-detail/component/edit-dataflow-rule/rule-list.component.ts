@@ -15,7 +15,7 @@
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {AbstractComponent} from '../../../../../common/component/abstract.component';
 import {DataflowService} from '../../../service/dataflow.service';
-import {PrDataSnapshot, Status} from '../../../../../domain/data-preparation/pr-snapshot';
+import {PrDataSnapshot, SsType, Status} from '../../../../../domain/data-preparation/pr-snapshot';
 import {isNullOrUndefined} from 'util';
 import {Rule} from '../../../../../domain/data-preparation/pr-dataset';
 import {DataSnapshotService} from "../../../../data-snapshot/service/data-snapshot.service";
@@ -414,6 +414,19 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
     // refresh snapshot list
     this.getSnapshotList();
   } // function - refreshSnapshotList
+
+  public getSvgName(snapshot: PrDataSnapshot) {
+    const csv: string = 'CSV';
+    if (snapshot.ssType === SsType.STAGING_DB) {
+      return 'HIVE'
+    }
+
+    if (snapshot.storedUri.endsWith('.json')) {
+      return 'JSON';
+    }
+
+    return csv;
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

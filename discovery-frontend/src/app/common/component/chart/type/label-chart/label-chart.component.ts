@@ -386,6 +386,8 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
       // 값이 없을경우 처리
       const field: any = this.pivot.aggregations[num];
       let alias: any = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : field['name'];
+      //let displayName: any = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : field['name'];
+      let displayName: any = this.fieldInfo.aggs[num];
       if( field.aggregationType
           && field.aggregationType != ""
           && alias.indexOf(field.aggregationType +"(") == -1 ) {
@@ -401,20 +403,24 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
       if( option.series.length <= num ) {
         if( num > 0 ) {
           option.series[num] = {
-            name: alias
+            name: alias,
+            displayName: displayName
           };
           option.icons[num] = {
             seriesName: alias,
+            displayName: displayName,
             show: option.icons[0].show,
             iconType: option.icons[0].iconType
           };
           option.annotations[num] = {
             seriesName: alias,
+            displayName: displayName,
             show: option.annotations[0].show,
             description: option.annotations[0].description
           };
           option.secondaryIndicators[num] = {
             seriesName: alias,
+            displayName: displayName,
             show: option.secondaryIndicators[0].show,
             indicatorType: option.secondaryIndicators[0].indicatorType,
             rangeUnit: option.secondaryIndicators[0].rangeUnit,
@@ -436,9 +442,13 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
         || _.isUndefined(option.annotations[num].seriesName)
         || _.isUndefined(option.secondaryIndicators[num].seriesName) ) {
         option.series[num].name = alias;
+        option.series[num].displayName = displayName;
         option.icons[num].seriesName = alias;
+        option.icons[num].displayName = displayName;
         option.annotations[num].seriesName = alias;
+        option.annotations[num].displayName = displayName;
         option.secondaryIndicators[num].seriesName = alias;
+        option.secondaryIndicators[num].displayName = displayName;
       }
 
       // 이전스펙 마이그레이션
@@ -479,9 +489,13 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
 
       if( !isPush ) {
         option.series[num].name = alias;
+        option.series[num].displayName = displayName;
         option.icons[num].seriesName = alias;
+        option.icons[num].displayName = displayName;
         option.annotations[num].seriesName = alias;
+        option.annotations[num].displayName = displayName;
         option.secondaryIndicators[num].seriesName = alias;
+        option.secondaryIndicators[num].displayName = displayName;
 
         for( let num2: number = 0 ; num2 < this.pivot.aggregations.length ; num2++ ) {
           if( option.series.length >= (num2+1) && _.eq(alias, option.series[num2].name) ) {

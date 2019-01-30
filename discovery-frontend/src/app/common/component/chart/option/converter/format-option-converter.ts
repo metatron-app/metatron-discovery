@@ -257,6 +257,7 @@ export class FormatOptionConverter {
           value = '£ ' + value;
           break;
         case String(UIFormatCurrencyType.JPY) :
+        case String(UIFormatCurrencyType.CNY) :
           value = '¥ ' + value;
           break;
         case String(UIFormatCurrencyType.EUR) :
@@ -581,10 +582,25 @@ export class FormatOptionConverter {
 
       if ('timestamp' == targetPivot.type) {
 
-        let granularity = targetPivot.format.unit.toString().slice(0, 1).toUpperCase();
-        granularity += targetPivot.format.unit.toString().slice(1, targetPivot.format.unit.toString().length).toLowerCase();
+        let resultData: string = '';
 
-        result.push(granularity + ' of ' + targetPivot.name + ' : ' + item);
+        if (titleUseFl) {
+          let granularity = targetPivot.format.unit.toString().slice(0, 1).toUpperCase();
+          granularity += targetPivot.format.unit.toString().slice(1, targetPivot.format.unit.toString().length).toLowerCase();
+
+          const name = targetPivot['fieldAlias'] ? targetPivot['fieldAlias'] : targetPivot.name;
+
+          let defaultAlias = targetPivot.granularity + '(' + name + ')';
+
+          if (defaultAlias === targetPivot.alias) {
+            resultData = granularity + ' of ' + name + ' : ';
+          } else {
+            resultData = targetPivot['alias'] + ' : ';
+          }
+        }
+
+        resultData += item;
+        result.push(resultData);
       }
       else if ('measure' == targetPivot.type) {
 
@@ -600,9 +616,15 @@ export class FormatOptionConverter {
             if ('Avg' == aggregationType) aggregationType = 'Average';
           }
 
-          let seriesValue = (aggregationType ? aggregationType+ ' of ' : '') + targetPivot.name;
+          const name = targetPivot['fieldAlias'] ? targetPivot['fieldAlias'] : targetPivot.name;
 
-          result.push(seriesValue);
+          let defaultAlias = targetPivot.aggregationType + '(' + name + ')';
+
+          if (defaultAlias === targetPivot.alias) {
+            result.push((aggregationType ? aggregationType+ ' of ' : '') + name);
+          } else {
+            result.push(targetPivot['alias']);
+          }
         }
       } else {
 
@@ -635,17 +657,26 @@ export class FormatOptionConverter {
     // 해당 value값으로 찾을 수 없는경우 seriesName으로 찾기
     if (!aggValue && seriesName) aggValue = _.find(aggregations, {alias : seriesName});
 
-    let aggregationType = "";
-    if( aggValue.aggregationType && -1 < aggValue.alias.indexOf( aggValue.aggregationType + "(" ) ) {
-      aggregationType = aggValue.aggregationType.toString().slice(0, 1).toUpperCase();
-      aggregationType += aggValue.aggregationType.toString().slice(1, aggValue.aggregationType.toString().length).toLowerCase();
-      // Avg인 경우 Average로 치환
-      if ('Avg' == aggregationType) aggregationType = 'Average';
-      aggregationType += ' of ';
-      seriesValue = aggregationType +
-        aggValue.alias.replace( new RegExp( aggValue.aggregationType + '\\(([a-zA-Z]+)\\)', 'gi' ), '$1' ) + ' : ' +
-        this.getFormatValue(value, format);
+    // priority of fiedAlias is higher, set fieldAlias
+    let aggValueName = aggValue.fieldAlias ? aggValue.fieldAlias : aggValue.name;
+
+    let defaultAlias = aggValue.aggregationType + '(' + aggValueName + ')';
+    // when alias is not changed
+    if (defaultAlias === aggValue.alias) {
+      let aggregationType = "";
+      if( aggValue.aggregationType ) {
+        aggregationType = aggValue.aggregationType.toString().slice(0, 1).toUpperCase();
+        aggregationType += aggValue.aggregationType.toString().slice(1, aggValue.aggregationType.toString().length).toLowerCase();
+        // Avg인 경우 Average로 치환
+        if ('Avg' == aggregationType) aggregationType = 'Average';
+        aggregationType += ' of ';
+      }
+
+      seriesValue = aggregationType + aggValueName + ' : ' + this.getFormatValue(value, format);
+
+      // when alias is changed, set tooltip name as alias
     } else {
+
       seriesValue = aggValue.alias + ' : ' + this.getFormatValue(value, format);
     }
 

@@ -20,11 +20,13 @@ import app.metatron.discovery.domain.dataprep.PrepUpstream;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflowProjections;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
+import app.metatron.discovery.domain.dataprep.entity.PrTransformRule;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrTransformRuleRepository;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformResponse;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
 import com.google.common.collect.Lists;
@@ -59,6 +61,9 @@ public class PrDataflowController {
     private PrDatasetRepository datasetRepository;
 
     @Autowired
+    private PrTransformRuleRepository transformRuleRepository;
+
+    @Autowired
     private PrDataflowService dataflowService;
 
     @Autowired
@@ -87,12 +92,11 @@ public class PrDataflowController {
         }
 
         return ResponseEntity.status(HttpStatus.SC_OK).body(projectedDataflow);
-        //return ResponseEntity.status(HttpStatus.SC_OK).body(persistentEntityResourceAssembler.toFullResource(dataflow));
     }
 
     @RequestMapping(value="", method = RequestMethod.POST)
     public @ResponseBody
-    PersistentEntityResource postDataset(
+    PersistentEntityResource postDataflow(
             @RequestBody Resource<PrDataflow> dataflowResource,
             PersistentEntityResourceAssembler resourceAssembler
     ) {
@@ -108,17 +112,17 @@ public class PrDataflowController {
 
             this.dataflowRepository.flush();
         } catch (Exception e) {
-            LOGGER.error("postDataset(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_DATASET_FAIL_TO_CREATE, e.getMessage());
+            LOGGER.error("postDataflow(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATAFLOW, e.getMessage());
         }
 
         return resourceAssembler.toResource(savedDataflow);
     }
 
-    @RequestMapping(value = "/{dsId}", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/{dfId}", method = RequestMethod.PATCH)
     @ResponseBody
     public ResponseEntity<?> patchDataflow(
-            @PathVariable("dsId") String dsId,
+            @PathVariable("dfId") String dfId,
             @RequestBody Resource<PrDataflow> dataflowResource,
             PersistentEntityResourceAssembler persistentEntityResourceAssembler
     ) {
@@ -129,7 +133,7 @@ public class PrDataflowController {
         Resource<PrDataflowProjections.DefaultProjection> projectedDataflow = null;
 
         try {
-            dataflow = this.dataflowRepository.findOne(dsId);
+            dataflow = this.dataflowRepository.findOne(dfId);
             patchDataflow = dataflowResource.getContent();
 
             this.dataflowService.patchAllowedOnly(dataflow, patchDataflow);
@@ -162,6 +166,12 @@ public class PrDataflowController {
                     ds.deleteDataflow(dataflow);
                     dataflow.deleteDataset(ds);
                     if( ds.getDsType() == PrDataset.DS_TYPE.WRANGLED) {
+                        List<PrTransformRule> transformRules = ds.getTransformRules();
+                        if(null!=transformRules) {
+                            for(PrTransformRule transformRule : transformRules) {
+                                this.transformRuleRepository.delete(transformRule);
+                            }
+                        }
                         this.datasetRepository.delete(ds.getDsId());
                     }
                 }

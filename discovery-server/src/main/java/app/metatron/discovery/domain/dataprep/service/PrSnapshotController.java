@@ -14,11 +14,12 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
-import app.metatron.discovery.domain.dataprep.PrepDatasetSparkHiveService;
+import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
 import app.metatron.discovery.domain.dataprep.PrepHdfsService;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshotProjections;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
@@ -33,7 +34,11 @@ import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.projection.ProjectionFactory;
+import org.springframework.data.rest.webmvc.PersistentEntityResource;
+import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,13 +64,101 @@ public class PrSnapshotController {
     private PrSnapshotRepository snapshotRepository;
 
     @Autowired
+    ProjectionFactory projectionFactory;
+
+    @Autowired
     private PrSnapshotService snapshotService;
 
     @Autowired
     private PrepHdfsService hdfsService;
 
     @Autowired(required = false)
-    private PrepDatasetSparkHiveService datasetSparkHivePreviewService;
+    private PrepDatasetStagingDbService datasetStagingDbPreviewService;
+
+    @RequestMapping(value = "/{ssId}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<?> getSnapshot(
+            @PathVariable("ssId") String ssId,
+            PersistentEntityResourceAssembler persistentEntityResourceAssembler
+    ) {
+        PrSnapshot snapshot = null;
+        Resource<PrSnapshotProjections.DefaultProjection> projectedSnapshot = null;
+        try {
+            snapshot = this.snapshotRepository.findOne(ssId);
+            if(snapshot!=null) {
+            } else {
+                throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_SNAPSHOT, ssId);
+            }
+
+            PrSnapshotProjections.DefaultProjection projection = projectionFactory.createProjection(PrSnapshotProjections.DefaultProjection.class, snapshot);
+            projectedSnapshot = new Resource<>(projection);
+        } catch (Exception e) {
+            LOGGER.error("getSnapshot(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, e);
+        }
+
+        return ResponseEntity.status(HttpStatus.SC_OK).body(projectedSnapshot);
+    }
+
+    @RequestMapping(value="", method = RequestMethod.POST)
+    public @ResponseBody
+    PersistentEntityResource postSnapshot(
+            @RequestBody Resource<PrSnapshot> snapshotResource,
+            PersistentEntityResourceAssembler resourceAssembler
+    ) {
+        throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_SHOULD_BE_MADE_BY_TRANSFORM, "go to edit-rule");
+        // Snapshot is not made by API
+        /*
+        PrSnapshot snapshot = null;
+        PrSnapshot savedSnapshot = null;
+
+        try {
+            snapshot = snapshotResource.getContent();
+            savedSnapshot = snapshotRepository.save(snapshot);
+            LOGGER.debug(savedSnapshot.toString());
+
+            this.snapshotRepository.flush();
+        } catch (Exception e) {
+            LOGGER.error("postSnapshot(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_NOT_SAVED, e.getMessage());
+        }
+
+        return resourceAssembler.toResource(savedSnapshot);
+        */
+    }
+
+    @RequestMapping(value = "/{ssId}", method = RequestMethod.PATCH)
+    @ResponseBody
+    public ResponseEntity<?> patchSnapshot(
+            @PathVariable("ssId") String ssId,
+            @RequestBody Resource<PrSnapshot> snapshotResource,
+            PersistentEntityResourceAssembler persistentEntityResourceAssembler
+    ) {
+
+        PrSnapshot snapshot = null;
+        PrSnapshot patchSnapshot = null;
+        PrSnapshot savedSnapshot = null;
+        Resource<PrSnapshotProjections.DefaultProjection> projectedSnapshot = null;
+
+        try {
+            snapshot = this.snapshotRepository.findOne(ssId);
+            patchSnapshot = snapshotResource.getContent();
+
+            this.snapshotService.patchAllowedOnly(snapshot, patchSnapshot);
+
+            savedSnapshot = snapshotRepository.save(snapshot);
+            LOGGER.debug(savedSnapshot.toString());
+
+            this.snapshotRepository.flush();
+        } catch (Exception e) {
+            LOGGER.error("postSnapshot(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, e);
+        }
+
+        PrSnapshotProjections.DefaultProjection projection = projectionFactory.createProjection(PrSnapshotProjections.DefaultProjection.class, savedSnapshot);
+        projectedSnapshot = new Resource<>(projection);
+        return ResponseEntity.status(HttpStatus.SC_OK).body(projectedSnapshot);
+    }
 
     @RequestMapping(value="/check_table/{schema}/{table}",method = RequestMethod.GET)
     public @ResponseBody
@@ -124,7 +217,7 @@ public class PrSnapshotController {
                     String tblName = snapshot.getTblName();
                     String sql = "SELECT * FROM "+dbName+"."+tblName;
                     Integer size = offset+target;
-                    gridResponse = datasetSparkHivePreviewService.getPreviewStagedbForDataFrame(sql,dbName,tblName,String.valueOf(size));
+                    gridResponse = datasetStagingDbPreviewService.getPreviewStagedbForDataFrame(sql,dbName,tblName,String.valueOf(size));
                     if(null==gridResponse) {
                         gridResponse = new DataFrame();
                     } else {
@@ -191,14 +284,14 @@ public class PrSnapshotController {
     public @ResponseBody
     ResponseEntity<?> workList(
             @PathVariable("dsId") String dsId,
-            @RequestParam(value = "option", required = false, defaultValue = "0") String option) {
+            @RequestParam(value = "option", required = false, defaultValue = "NOT_ALL") String option) {
         Map<String, Object> response = Maps.newHashMap();
         try {
             List<PrSnapshot> snapshots = this.snapshotService.getWorkList(dsId, option);
             response.put("snapshots",snapshots);
         } catch (Exception e) {
             LOGGER.error("workList(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
+            throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE,e);
         }
         return ResponseEntity.ok(response);
     }

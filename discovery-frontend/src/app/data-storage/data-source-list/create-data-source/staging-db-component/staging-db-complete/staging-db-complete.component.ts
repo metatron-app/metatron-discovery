@@ -27,6 +27,7 @@ import { ConfirmModalComponent } from '../../../../../common/component/modal/con
 import { Modal } from '../../../../../common/domain/modal';
 import { CookieConstant } from '../../../../../common/constant/cookie.constant';
 import {CommonConstant} from "../../../../../common/constant/common.constant";
+import {GranularityService} from "../../../../service/granularity.service";
 declare let moment: any;
 
 /**
@@ -79,6 +80,7 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
 
   // Constructor
   constructor(private datasourceService: DatasourceService,
+              private _granularityService: GranularityService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -174,15 +176,6 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
    */
   public get getIngestionData(): any {
     return this._sourceData.ingestionData;
-  }
-
-  /**
-   * Get data range time label
-   * @returns {string}
-   */
-  public getDataRangeTimeLabel(): string {
-    return moment(this.getIngestionData.startDateTime).format('YYYY-MM-DD HH:mm')
-      + ' ~ ' + moment(this.getIngestionData.endDateTime).format('YYYY-MM-DD HH:mm');
   }
 
   /**
@@ -501,16 +494,16 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
       partitions: this.getIngestionData.selectedPartitionType.value === 'ENABLE' ? this._getPartitionParams() : [],
       rollup: this.getIngestionData.selectedRollUpType.value
     };
-    // is enable data range
-    if (this.getIngestionData.selectedDataRangeType.value === 'ENABLE') {
-      ingestion['intervals'] = [this.getIngestionData.startDateTime + '/' + this.getIngestionData.endDateTime];
-    }
     // advanced setting
     if (this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)).length > 0) {
       ingestion['tuningOptions'] = this._toObject(this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)));
     }
     if (this.getIngestionData.jobProperties.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)).length > 0) {
       ingestion['jobProperties'] = this._toObject(this.getIngestionData.jobProperties.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)));
+    }
+    // if not used current_time TIMESTAMP, set intervals
+    if (this.getSchemaData.selectedTimestampType !== 'CURRENT') {
+      ingestion['intervals'] =  [this._granularityService.getIntervalUsedParam(this.getIngestionData.startIntervalText, this.getIngestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(this.getIngestionData.endIntervalText, this.getIngestionData.selectedSegmentGranularity)];
     }
     return ingestion;
   }

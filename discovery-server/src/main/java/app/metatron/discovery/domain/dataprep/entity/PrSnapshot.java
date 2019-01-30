@@ -1103,7 +1103,7 @@ public class PrSnapshot extends AbstractHistoryEntity {
         connectionInfo.put("dcImplementor", getDcImplementor());
         connectionInfo.put("dcName", getDcName());
         connectionInfo.put("dcDesc", getDcDesc());
-        connectionInfo.put("dcType ", getDcType ());
+        connectionInfo.put("dcType", getDcType ());
         connectionInfo.put("dcHostname", getDcHostname());
         connectionInfo.put("dcPort", getDcPort());
         connectionInfo.put("dcUsername", getDcUsername());

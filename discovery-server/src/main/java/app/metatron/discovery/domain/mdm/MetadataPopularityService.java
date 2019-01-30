@@ -28,13 +28,22 @@ public class MetadataPopularityService {
 
     MetadataPopularity popularity = popularityRepository.findByTypeAndMetadataId(MetadataPopularity.PopularityType.METADATA, metadataId);
 
-    return popularity == null ? 0.0 : popularity.getPopularity();
+    if ( popularity == null || popularity.getPopularity() == null ) {
+      return 0.0;
+    } else {
+      return popularity.getPopularity();
+    }
+
   }
 
   public Double getPopularityColumnValue(Long metaColumn) {
 
     MetadataPopularity popularity = popularityRepository.findByTypeAndMetaColumnId(MetadataPopularity.PopularityType.METACOLUMN, metaColumn);
 
-    return popularity == null ? 0.0 : popularity.getPopularity();
+    if ( popularity == null || popularity.getPopularity() == null ) {
+      return 0.0;
+    } else {
+      return popularity.getPopularity();
+    }
   }
 }
