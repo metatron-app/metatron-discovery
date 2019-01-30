@@ -625,11 +625,7 @@ public class Field implements MetatronDomain<Long> {
     }
 
     // For the backward compatibility of existing plain text.
-    if (format != null && getFormatObject() == null) {
-      return GlobalObjectMapper.writeValueAsString(new CustomDateTimeFormat(format));
-    }
-
-    return format;
+    return GlobalObjectMapper.writeValueAsString(getFormatObject());
   }
 
   public void setFormat(Object object) {
