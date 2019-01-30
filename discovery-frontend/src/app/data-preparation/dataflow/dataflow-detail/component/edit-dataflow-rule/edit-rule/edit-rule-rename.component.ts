@@ -100,10 +100,15 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
     }
 
     // Check if name is duplicate
-    if (this.fields.some(item => item.name === this.newFieldName)) {
+    if (this.fields.some(item => this.selectedFields[0].name !== this.newFieldName && item.name ===  this.newFieldName)) {
       Alert.warning(this.translateService.instant('msg.dp.alert.duplicate.colname'));
       return undefined
     }
+
+    // if (this.fields.some(item => item.name === this.newFieldName)) {
+    //   Alert.warning(this.translateService.instant('msg.dp.alert.duplicate.colname'));
+    //   return undefined
+    // }
 
     // check if column name has back quote
     if (-1 !== this.newFieldName.indexOf('`')) {

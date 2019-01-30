@@ -201,9 +201,19 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
     // wrap original columns with back ticks,
     // wrap renamed columns with single quotation
     this.columns.forEach((item) => {
-      if (item.renamedAs.trim() !== '' && item.original !== item.renamedAs) {
-        originals.push('`' + item.original + '`');
-        renamed.push("'" + item.renamedAs + "'");
+
+      if (this.op === 'UPDATE') {
+        if (item.renamedAs.trim() !== '' && item.editOriginalName !== item.renamedAs) {
+          originals.push('`' + item.original + '`');
+          renamed.push("'" + item.renamedAs + "'");
+        }
+      }
+
+      if (this.op === 'APPEND') {
+        if (item.renamedAs.trim() !== '' && item.original !== item.renamedAs) {
+          originals.push('`' + item.original + '`');
+          renamed.push("'" + item.renamedAs + "'");
+        }
       }
     });
 
@@ -262,7 +272,12 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    * @param column
    */
   public isRenameInputEmpty(column: Column) : boolean {
-    return column.renamedAs.trim() === '' || isNullOrUndefined(column.renamedAs)
+    let result: boolean = false;
+    if (column.renamedAs.trim() === '' || isNullOrUndefined(column.renamedAs)) {
+      this.errorEsg = this.translateService.instant('msg.dp.alert.empty.column');
+      result = true;
+    }
+    return result;
 
   }
 
@@ -299,20 +314,11 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
     // 편집중이면
     if (column.isEditing) {
 
-      // Validation - back quote, duplicate name
-      if (this.hasBackTick(column) || this.isNameDuplicate(column, index)) {
+      // Validation - back quote, duplicate name, Check if input is empty
+      if (this.hasBackTick(column) || this.isNameDuplicate(column, index) || this.isRenameInputEmpty(column)) {
         column.isError = true;
         event && event.stopPropagation();
         input && input.focus();
-        return;
-      }
-
-      // Validation - Check if input is empty
-      if (this.isRenameInputEmpty(column)) {
-
-        // Put original name
-        column.renamedAs = column.original;
-        column.isEditing = false;
         return;
       }
 
@@ -376,9 +382,19 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
       if (cols) {
         // 편집일 경우 편집한 이름으로 renamedAs 를 넣어준다
         let idx = cols.indexOf(item.name);
-        this.columns.push({ original : item.name, renamedAs: idx === -1 ? item.name : tos[idx], isError: false, isEditing: false });
+        this.columns.push({
+          editOriginalName: idx === -1 ? item.name : tos[idx],
+          original : item.name, renamedAs: idx === -1 ? item.name : tos[idx],
+          isError: false,
+          isEditing: false
+        });
       } else {
-        this.columns.push({ original : item.name, renamedAs: item.name, isError: false, isEditing: false });
+        this.columns.push({
+          original : item.name,
+          renamedAs: item.name,
+          isError: false,
+          isEditing: false
+        });
       }
     })
   }
@@ -447,6 +463,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
 class Column {
   public original: string;
   public renamedAs : string;
+  public editOriginalName?: string;
   public isError: boolean;
   public isEditing: boolean;
 }
