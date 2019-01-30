@@ -91,7 +91,7 @@ public class PrDatasetService {
             dataFrame = this.datasetStagingDbPreviewService.getPreviewLinesFromStagedbForDataFrame(dataset, this.hivePreviewSize);
         } else {
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
-                    PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_IMPORTED_DATASET, importType.toString());
+                    PrepMessageKey.MSG_DP_ALERT_IMPORT_TYPE_IS_WRONG, importType.toString());
         }
 
         return dataFrame;
