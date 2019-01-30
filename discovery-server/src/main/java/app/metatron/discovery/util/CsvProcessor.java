@@ -30,16 +30,21 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.FileValidationResponse;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionDataResultResponse;
 
 public class CsvProcessor {
 
   File targetFile;
+
+  private static int MAX_HEADER_NAME = 50;
 
   public CsvProcessor() {
 
@@ -53,6 +58,7 @@ public class CsvProcessor {
 
     List<Field> fields = Lists.newArrayList();
     List<Map<String, Object>> resultSet = Lists.newArrayList();
+    FileValidationResponse isParsable = new FileValidationResponse(true);
 
     CsvParserSettings settings = new CsvParserSettings();
     settings.getFormat().setLineSeparator(lineSep);
@@ -73,14 +79,40 @@ public class CsvProcessor {
         break;
       }
 
-      // 헤더가 없는 경우
-      if(headers == null && i == 0) {
+      if ( headers == null && i == 0 ) {
         headers = makeHeader(row.length);
       }
 
+      // TODO: Validation disabled. it will be check later.
+      /*
+      // If not set header, then make headers. Otherwise, validate parsed headers.
+      if ( i == 0 ) {
+        if ( headers == null ) {
+          headers = makeHeader(row.length);
+        } else {
+          isParsable = validateHeaders(headers);
+        }
+      }*/
+
       Map<String, Object> resultRow = Maps.newLinkedHashMap();
-      for(int j = 0; j<headers.length; j++) {
-        resultRow.put(headers[j], row[j]);
+      for (int j = 0; j<headers.length; j++) {
+        if (headers[j] == null) {
+          headers[j] = "col_" + j;
+
+          isParsable.setValid(false);
+          isParsable.setWarning(FileValidationResponse.WarningType.NULL_HEADER.getCode());
+        }
+        if (row.length <= j) {
+          resultRow.put(headers[j], null);
+
+          isParsable.setValid(false);
+          isParsable.setWarning(FileValidationResponse.WarningType.SEEMS_NOT_FORMAL.getCode());
+
+          break;
+
+        } else {
+          resultRow.put(headers[j], row[j]);
+        }
       }
       resultSet.add(resultRow);
       i++;
@@ -92,7 +124,7 @@ public class CsvProcessor {
       totalCount++;
     }
 
-    return new IngestionDataResultResponse(makeField(Lists.newArrayList(headers)), resultSet, totalCount);
+    return new IngestionDataResultResponse(makeField(Lists.newArrayList(headers)), resultSet, totalCount, isParsable);
   }
 
   private List<Field> makeField(List<String> headers) {
@@ -120,6 +152,38 @@ public class CsvProcessor {
     csvWriter.writeHeaders();
     csvWriter.processRecords(records);
     csvWriter.close();
+  }
+
+  //TODO: Disable header validation. Discussed on #1057.
+  // It will be refactor after datasource schema validation is adapted.
+  private FileValidationResponse validateHeaders(String[] headers){
+
+    Set<String> bounder = new HashSet<>();
+
+    for (int j = 0; j < headers.length; j++) {
+
+      if (headers[j] == null || headers[j].isEmpty()){
+
+        headers[j] = "col_" + j;
+
+        return new FileValidationResponse(false,
+            FileValidationResponse.WarningType.NULL_HEADER.getCode());
+      }
+
+      if (headers[j].length() > MAX_HEADER_NAME) {
+        return new FileValidationResponse(false,
+            FileValidationResponse.WarningType.TOO_LONG_HEADER.getCode());
+      }
+
+      if (bounder.contains(headers[j])){
+        return new FileValidationResponse(false,
+            FileValidationResponse.WarningType.DUPLICATED_HEADER.getCode());
+      }
+
+      bounder.add(headers[j]);
+    }
+
+    return new FileValidationResponse(true);
   }
 
 }
