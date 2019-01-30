@@ -28,6 +28,7 @@ import {saveAs} from 'file-saver';
 import {GridComponent} from '../grid/grid.component';
 import {CommonUtil} from '../../util/common.util';
 import {Alert} from '../../util/alert.util';
+import {SearchQueryRequest} from "../../../domain/datasource/data/search-query-request";
 
 @Component({
   selector: 'data-download',
@@ -71,6 +72,9 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
 
   @Input()
   public title: string = '';
+
+  @Input()
+  public query: SearchQueryRequest = null;
 
   @Output('close')
   public closeEvent: EventEmitter<any> = new EventEmitter<any>();
@@ -206,7 +210,12 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     this.close();
     if ('WIDGET' === this.mode) {
       this.startDownEvent.emit();
-      this.widgetService.downloadWidget(this._downloadId, this.isOriginDown, 1000000, 'CSV').subscribe(
+      let param = null;
+      if(this.query) {
+        param = this.query.getDownloadFilters();
+      }
+
+      this.widgetService.downloadWidget(this._downloadId, this.isOriginDown, 1000000, 'CSV', param).subscribe(
         result => {
           // 파일 저장
           saveAs(result, 'data.csv');
@@ -230,7 +239,11 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     this.close();
     if ('WIDGET' === this.mode) {
       this.startDownEvent.emit();
-      this.widgetService.downloadWidget(this._downloadId, this.isOriginDown, 1000000, 'EXCEL').subscribe(
+      let param = null;
+      if(this.query) {
+        param = this.query.getDownloadFilters();
+      }
+      this.widgetService.downloadWidget(this._downloadId, this.isOriginDown, 1000000, 'EXCEL', param).subscribe(
         result => {
           // 파일 저장
           saveAs(result, 'data.xlsx');

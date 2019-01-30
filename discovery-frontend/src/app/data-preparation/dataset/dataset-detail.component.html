@@ -110,7 +110,12 @@
               {{item.name}}
             </th>
             <td>
-              {{item.value}}
+              <div class="ddp-txt-cut" *ngIf="item.name === 'URI'; else notURI" title="{{item.value}}">
+                {{item.value}}
+              </div>
+              <ng-template #notURI>
+                {{item.value}}
+              </ng-template>
             </td>
           </tr>
           </tbody>

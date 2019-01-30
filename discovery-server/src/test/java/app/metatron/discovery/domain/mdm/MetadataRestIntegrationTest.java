@@ -155,6 +155,26 @@ public class MetadataRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER"})
+  @Sql({"/sql/test_mdm_popularity.sql"})
+  public void findNullMetadataList(){
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .accept(ContentType.JSON)
+      .param("page", "0")
+      .param("size", "15")
+      .param("sort", "createdTime,desc")
+      .param("projection", "forListView")
+      .log().all()
+    .when()
+      .get("/api/metadatas")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER"})
   @Sql({"/sql/test_mdm.sql"})
   public void findMetadataList() {
     // @formatter:off
