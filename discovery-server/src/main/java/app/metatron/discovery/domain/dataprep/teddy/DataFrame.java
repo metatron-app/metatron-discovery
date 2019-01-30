@@ -15,7 +15,6 @@
 package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.json.PrepJsonParseResult;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
@@ -389,7 +388,7 @@ public class DataFrame implements Serializable, Transformable {
     setByGrid(result.grid, result.colNames, result.maxColCnt);
   }
 
-  public void setByGridwithJson(PrepJsonParseResult result) {
+  public void setByGridWithJson(PrepJsonParseResult result) {
     setByGrid(result.grid, result.colNames, result.maxColCnt);
   }
 

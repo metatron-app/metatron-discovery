@@ -129,8 +129,8 @@ public class PrepProperties {
   public boolean isHDFSConfigured()      { return (hadoopConfDir != null && stagingBaseDir != null); }
   public boolean isFileSnapshotEnabled() { return (true); } // always true
   public boolean isHiveSnapshotEnabled() { return (isHDFSConfigured() && hive != null); }
-  public boolean isHiveDatasetEnabled() { return (hadoopConfDir != null && hive != null); }
-  public boolean isAutoTyping()          { return sampling.getAutoTyping(); }
+  public boolean isHiveDatasetEnabled()  { return (hadoopConfDir != null && hive != null); }
+  public boolean isAutoTypingEnabled()   { return sampling.getAutoTyping(); }
 
   // Everything for ETL
   public Map<String, Object> getEveryForEtl() {
