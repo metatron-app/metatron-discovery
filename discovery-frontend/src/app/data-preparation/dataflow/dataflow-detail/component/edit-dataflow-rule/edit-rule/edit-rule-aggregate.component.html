@@ -12,10 +12,18 @@
     <div class="ddp-wrap-boxwrap">
       <div class="ddp-wrap-boxadd" *ngFor="let item of formulas;trackBy:trackByFn;let idx = index;">
         <div class="ddp-wrap-datainput">
+          <rule-suggest-input
+            [formula]="item.value" [isEmptyViewAll]="true"
+            [command]="'aggregate'" [cmdArg]="'value'" [funcType]="'aggr'"
+            [tabIndex]="2" [placeholder]="'msg.dp.th.expression.ph' | translate"
+            [fields]="fields"
+            (onChange)="item.value = $event" ></rule-suggest-input>
+          <!--  
           <rule-condition-input
             [placeholder]="'msg.dp.th.expression.ph' | translate"
             [formula]="item.value" [command]="'aggregate'" [fields]="fields" [tabIndex]="2"
             (onChange)="item.value = $event"></rule-condition-input>
+          -->
         </div>
 
         <div class="ddp-ui-buttons">
@@ -42,7 +50,7 @@
     <!-- //select box -->
     <!--<span class="ddp-txt-error ddp-size"><em class="ddp-icon-error-s"></em>{{'msg.dp.ui.aggregate.warning' | translate }}</span>-->
 
-    <div class="ddp-wrap-warning ddp-size">
+    <div class="ddp-wrap-warning ddp-size" style="position: relative; z-index: 10;">
       <div class="ddp-box-warning">
         <em class="ddp-icon-warning"></em>
         <div class="ddp-txt-warning">

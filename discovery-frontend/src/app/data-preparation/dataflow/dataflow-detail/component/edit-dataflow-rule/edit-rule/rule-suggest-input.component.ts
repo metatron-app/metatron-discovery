@@ -90,6 +90,13 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   @Input()
   public columnType = 'all'; /* all, no */
 
+  /** 컬럼 선택시 backtick을 붙일지 여부 */
+  @Input()
+  public isBackTick = true; 
+
+  /** 아이템 높이 (화살표시 이동할 스크롤 바 ) */
+  public itemHeight = 25;
+
   /* 제안 화면에 표시할 아이템 */
   public suggestItems: any = [];
   
@@ -130,6 +137,8 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
    * 컴포넌트 초기 실행
    */
   public ngOnInit() {
+    super.ngOnInit();
+
     this.setBroadcast();
   } // function - ngOnInit
 
@@ -137,7 +146,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
    * 화면 초기화
    */
   public ngAfterViewInit() {
-    
+    super.ngAfterViewInit();
   } // function - ngAfterViewInit
 
   /**
@@ -161,7 +170,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
    * 컴포넌트 제거
    */
   public ngOnDestroy() {
-    
+    super.ngOnDestroy();
   } // function - ngOnDestroy
 
   /**
@@ -282,6 +291,18 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     }
   } 
 
+  public onClick( $event ) {
+
+    const input = $event.currentTarget;
+    if( this.isEmptyViewAll && input.value.trim().length < 1) {
+      // 아무 것도 입력 되지 않았을 경우 
+      this.setSuggetionInfoByType();
+    } else {
+      this.closeSuggest();
+    }
+    
+  }
+
   /**
    * 제안 정보 설정
    * @param ruleString 
@@ -297,7 +318,23 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
     let funcType = this.funcType ;
     let columnType = this.columnType;
-    
+
+    try{
+      // 부모가 함수 이름인지 
+      const parFuncName = this.ruleSuggest.getParentFuction(parseInfo.tokens, tokenPoz);
+
+      // 함수가 컬럼 이름만 파라마터로 취하는지 여부
+      if( this.ruleSuggest.isOnlyColumnName(parFuncName) ) {
+        funcType = 'no';
+      }
+
+      if( this.isFisrtFuncCommand(parseInfo.tokens.length) ){
+        columnType = 'no';
+      }
+    }catch(e) {
+      console.info('warn RuleSuggestInputComponent.setSuggetionInfo ',e);
+    }
+
     const itemList = this.ruleSuggest.getList(tokenInfo, tokenPoz, funcType, columnType );
     
     this.selectedTokenInfo = tokenInfo;
@@ -313,17 +350,48 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   }
 
   /**
+   * 첫번째는 함수 목록만 보여 주는 경우
+   * @param tokenLength 토큰의 개수가 <=4 
+   */
+  protected isFisrtFuncCommand(tokenLength: number = 3) {
+    if( !this.command ) {
+      return false;
+    }
+
+    const cmd = this.command.toLowerCase();
+
+    if( 'window' === cmd || 'pivot' === cmd || 'aggregate' === cmd ) {
+      // aggr, window 이면 , column 나오지 않게
+
+      if( tokenLength < 5) {
+        // token 개수가 4개보다 크면 함수이름이 아니고 파라미터 들이다.
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * 제안 정보 설정
    * @param ruleString 
    * @param poz 
    */
-  protected setSuggetionInfoAll( ) {
+  protected setSuggetionInfoByType( funcType?: string, columnType?:string) {
 
+    if( !funcType ) {
+      funcType = this.funcType ;
+    }
 
-    let funcType = this.funcType ;
-    let columnType = this.columnType;
-    
+    if( !columnType ) {
+      columnType = this.columnType ;
+    }
+
     const funcList = this.ruleSuggest.getFuncList('',funcType);
+
+    if( this.isFisrtFuncCommand() ) {
+      columnType = 'no';
+    }
     const columnList = this.ruleSuggest.getColumnList('',columnType);
     
     const itemList = funcList.concat(columnList);  
@@ -348,20 +416,6 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     
   }
 
-
-
-  public onClick( $event ) {
-
-    const input = $event.currentTarget;
-    if( this.isEmptyViewAll && input.value.trim().length < 1) {
-      // 아무 것도 입력 되지 않았을 경우 
-      this.setSuggetionInfoAll();
-    } else {
-      this.closeSuggest();
-    }
-    
-  }
-
   /**
    * 자동완성 아이템을 선택 했을 경우
    * @param item
@@ -373,7 +427,6 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     if (isUndefined(input) || !item ) {
       return;
     }
-
 
     let inputVal = input.value;
 
@@ -473,6 +526,17 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
       // Arrow Left
       this.initSuggest();
       return true;
+    } else if (keyCode === 8) {
+      // backspace
+      const input = $event.currentTarget;
+      if( this.isEmptyViewAll && input.value.trim().length < 1) {
+        // 아무 것도 입력 되지 않았을 경우 
+        this.setSuggetionInfoByType();
+      } else {
+        this.initSuggest();
+      }
+
+      return true;
     }
     
     let isNumber = false;
@@ -551,11 +615,15 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
         this.selectedIndex++;
       }
 
-      if( this.selectedIndex < -1 ){
-        this.selectedIndex = -1;
-      } else if( this.selectedIndex > (length-1) ){
+      if( this.selectedIndex < 0 ){
         this.selectedIndex = length-1;
+      } else if( this.selectedIndex > (length-1) ){
+        this.selectedIndex = 0;
       }
+
+      // 화살표 움직임시 스크롤바 조정 
+      let sHeight = this.selectedIndex * this.itemHeight;
+      this.$element.find('.ddp-list-command').scrollTop(sHeight);
 
       if( $event &&  $event.preventDefault ) {
         $event.stopPropagation();
@@ -600,7 +668,9 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
     if( item.type === 'column') {
       // add backticks to column name ; 
-      value = '`' + value + '`';
+      if( this.isBackTick ) {
+        value = '`' + value + '`';
+      }
     }
 
     return value;

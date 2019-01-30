@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.FileValidationResponse;
 
 /**
  * Created by kyungtaak on 2016. 6. 16..
@@ -30,6 +31,9 @@ public class IngestionDataResultResponse implements Serializable {
   protected List<Map<String,Object>> data;
 
   protected long totalRows;
+
+  // Use this on file ingestion preview
+  protected FileValidationResponse isParsable;
 
   public IngestionDataResultResponse() {
     // Empty Constructor
@@ -45,6 +49,20 @@ public class IngestionDataResultResponse implements Serializable {
     this.fields = fields;
     this.data = data;
     this.totalRows = totalRows;
+  }
+
+  public IngestionDataResultResponse(List<Field> fields, List<Map<String, Object>> data, long totalRows, FileValidationResponse isParsable) {
+    this.fields = fields;
+    this.data = data;
+    this.totalRows = totalRows;
+    this.isParsable = isParsable;
+  }
+
+  public IngestionDataResultResponse(List<Field> fields, List<Map<String, Object>> data, FileValidationResponse isParsable) {
+    this.fields = fields;
+    this.data = data;
+    this.totalRows = 0;
+    this.isParsable = isParsable;
   }
 
   public List<Field> getFields() {
@@ -69,6 +87,14 @@ public class IngestionDataResultResponse implements Serializable {
 
   public void setTotalRows(long totalRows) {
     this.totalRows = totalRows;
+  }
+
+  public FileValidationResponse getIsParsable() {
+    return isParsable;
+  }
+
+  public void setIsParsable(FileValidationResponse isParsable) {
+    this.isParsable = isParsable;
   }
 
   @Override

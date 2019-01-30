@@ -69,6 +69,7 @@ import { SchemaConfigDetailComponent } from './component/schema-config/schema-co
 import { SchemaConfigActionBarComponent } from './component/schema-config/schema-config-action-bar.component';
 import { GranularityService } from './service/granularity.service';
 import { TimezoneService } from "./service/timezone.service";
+import {DataSourceCreateService} from "./service/data-source-create.service";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -163,6 +164,7 @@ const storageRoutes: Routes = [
     DataconnectionService,
     MetadataService,
     GranularityService,
+    DataSourceCreateService,
     TimezoneService
   ]
 })

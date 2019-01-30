@@ -64,6 +64,14 @@
   -webkit-box-orient: vertical;
   /* autoprefixer: on */
   word-wrap:break-word;}
+.popup-prep-snapshot .ddp-layout-pop-right .ddp-view-detail dl.ddp-dl-detail dd { overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 라인수 */
+  /* autoprefixer: off */
+  -webkit-box-orient: vertical;
+  /* autoprefixer: on */
+  word-wrap:break-word;}
 .popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-title.type-edit span.ddp-txt-title {position:relative; padding-right:23px; font-size:16px; font-weight:bold;color:#35393f; line-height:22px; letter-spacing:-1px; box-sizing:border-box;
   overflow: hidden;
   text-overflow: ellipsis;

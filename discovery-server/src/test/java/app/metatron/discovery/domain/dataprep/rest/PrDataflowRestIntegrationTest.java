@@ -14,12 +14,15 @@
 
 package app.metatron.discovery.domain.dataprep.rest;
 
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.dataprep.PrepParamDatasetIdList;
 import com.facebook.presto.jdbc.internal.guava.collect.Maps;
 import com.facebook.presto.jdbc.internal.jackson.core.JsonProcessingException;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,11 +36,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.dataprep.PrepParamDatasetIdList;
 
 import static com.jayway.restassured.RestAssured.given;
 
@@ -58,52 +56,8 @@ public class PrDataflowRestIntegrationTest extends AbstractRestIntegrationTest {
     RestAssured.port = serverPort;
   }
   public List<String> make_dataflow_with_twoDs() {
-    File file = new File("src/test/resources/test_dataprep.csv");
 
-    // UPLOAD
-    Response upload_response = given()
-            .auth()
-            .oauth2(oauth_token)
-            .accept(ContentType.JSON)
-            .when()
-            .multiPart("file", file)
-            .contentType("multipart/form-data")
-            .post("/api/preparationdatasets/upload")
-            .then()
-            .statusCode(HttpStatus.SC_CREATED)
-            .log().all()
-            .extract()
-            .response();
-
-    String filekey = upload_response.path("filekey");
-    String filename = upload_response.path("filename");
-
-    Map<String, Object> dataset_post_body  = Maps.newHashMap();
-    dataset_post_body.put("dsName", "file ds1");
-    dataset_post_body.put("dsDesc", "dataset with file");
-    dataset_post_body.put("dsType", "IMPORTED");
-    dataset_post_body.put("importType", "FILE");
-    dataset_post_body.put("fileType", "LOCAL");
-    dataset_post_body.put("filekey", filekey);
-    dataset_post_body.put("filename", filename);
-    dataset_post_body.put("custom", "{\"fileType\":\"dsv\",\"delimiter\":\",\"}");
-    dataset_post_body.put("dcId", "file dc");
-
-    // CREATE DATASET
-    Response dataset_post_response = given()
-            .auth()
-            .oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .when()
-            .content(dataset_post_body)
-            .post("/api/preparationdatasets")
-            .then()
-            .statusCode(HttpStatus.SC_CREATED)
-            .log().all()
-            .extract()
-            .response();
-
+    Response dataset_post_response = make_dataset();
     String importedDsId = dataset_post_response.path("dsId");
 
     Map<String, Object> dataflow_post_body = Maps.newHashMap();
@@ -124,7 +78,7 @@ public class PrDataflowRestIntegrationTest extends AbstractRestIntegrationTest {
             .content(dataflow_post_body)
             .post("/api/preparationdataflows")
             .then()
-            .statusCode(HttpStatus.SC_CREATED)
+            .statusCode(HttpStatus.SC_OK)
             .log().all()
             .extract()
             .response();
@@ -156,10 +110,26 @@ public class PrDataflowRestIntegrationTest extends AbstractRestIntegrationTest {
     return ret;
   }
 
-  public String make_dataflow() {
+  public Response make_dataset() {
     File file = new File("src/test/resources/test_dataprep.csv");
 
-    // UPLOAD
+    // UPLOAD GET
+    Response upload_get_response = given()
+            .auth()
+            .oauth2(oauth_token)
+            .accept(ContentType.JSON)
+            .when()
+            .get("/api/preparationdatasets/file_upload")
+            .then()
+            .statusCode(HttpStatus.SC_CREATED)
+            .log().all()
+            .extract()
+            .response();
+    String upload_id = upload_get_response.path("upload_id");
+
+    String params = String.format( "?name=%s&upload_id=%s&chunk=%d&chunks=%d&storage_type=%s&chunk_size=%d&total_size=%d",
+            file.getName(), upload_id, 0, 1, "LOCAL", file.length(), file.length());
+    // UPLOAD POST
     Response upload_response = given()
             .auth()
             .oauth2(oauth_token)
@@ -167,26 +137,27 @@ public class PrDataflowRestIntegrationTest extends AbstractRestIntegrationTest {
             .when()
             .multiPart("file", file)
             .contentType("multipart/form-data")
-            .post("/api/preparationdatasets/upload")
+            .post("/api/preparationdatasets/file_upload" + params)
             .then()
             .statusCode(HttpStatus.SC_CREATED)
             .log().all()
             .extract()
             .response();
 
-    String filekey = upload_response.path("filekey");
-    String filename = upload_response.path("filename");
+    String filenameBeforeUpload = upload_response.path("filenameBeforeUpload");
+    String storedUri = upload_response.path("storedUri");
 
     Map<String, Object> dataset_post_body  = Maps.newHashMap();
+
     dataset_post_body.put("dsName", "file ds1");
     dataset_post_body.put("dsDesc", "dataset with file");
     dataset_post_body.put("dsType", "IMPORTED");
-    dataset_post_body.put("importType", "FILE");
-    dataset_post_body.put("fileType", "LOCAL");
-    dataset_post_body.put("filekey", filekey);
-    dataset_post_body.put("filename", filename);
-    dataset_post_body.put("custom", "{\"fileType\":\"dsv\",\"delimiter\":\",\"}");
-    dataset_post_body.put("dcId", "file dc");
+    dataset_post_body.put("delimiter", ",");
+    dataset_post_body.put("importType", "UPLOAD");
+    dataset_post_body.put("fileFormat", "CSV");
+    dataset_post_body.put("filenameBeforeUpload", filenameBeforeUpload);
+    dataset_post_body.put("storageType", "LOCAL");
+    dataset_post_body.put("storedUri", storedUri);
 
     // CREATE DATASET
     Response dataset_post_response = given()
@@ -198,12 +169,18 @@ public class PrDataflowRestIntegrationTest extends AbstractRestIntegrationTest {
             .content(dataset_post_body)
             .post("/api/preparationdatasets")
             .then()
-            .statusCode(HttpStatus.SC_CREATED)
+            .statusCode(HttpStatus.SC_OK)
             .log().all()
             .extract()
             .response();
 
     String importedDsId = dataset_post_response.path("dsId");
+
+    return dataset_post_response;
+  }
+
+  public String make_dataflow() {
+    Response dataset_post_response = make_dataset();
 
     Map<String, Object> dataflow_post_body = Maps.newHashMap();
     dataflow_post_body.put("dfName", "posted_df1");
@@ -223,7 +200,7 @@ public class PrDataflowRestIntegrationTest extends AbstractRestIntegrationTest {
             .content(dataflow_post_body)
             .post("/api/preparationdataflows")
             .then()
-            .statusCode(HttpStatus.SC_CREATED)
+            .statusCode(HttpStatus.SC_OK)
             .log().all()
             .extract()
             .response();
@@ -236,7 +213,7 @@ public class PrDataflowRestIntegrationTest extends AbstractRestIntegrationTest {
   @Test
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
   //@Sql("/sql/test_dataprep.sql")
-  public void preparationdataflows_default_GET() throws JsonProcessingException {
+  public void preparationdataflows_GET() throws JsonProcessingException {
     make_dataflow();
 
     given()
@@ -244,28 +221,12 @@ public class PrDataflowRestIntegrationTest extends AbstractRestIntegrationTest {
       .oauth2(oauth_token)
       .accept(ContentType.JSON)
       .when()
-      .get("/api/preparationdataflows?projection=default")
+      .get("/api/preparationdataflows")
       .then()
       .statusCode(HttpStatus.SC_OK)
       .log().all();
   }
 
-  @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
-  //@Sql("/sql/test_dataprep.sql")
-  public void preparationdataflows_listing_GET() throws JsonProcessingException {
-    make_dataflow();
-
-    given()
-      .auth()
-      .oauth2(oauth_token)
-      .accept(ContentType.JSON)
-      .when()
-      .get("/api/preparationdataflows?projection=listing")
-      .then()
-      .statusCode(HttpStatus.SC_OK)
-      .log().all();
-  }
   @Test
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
   //@Sql("/sql/test_dataprep.sql")
@@ -339,68 +300,11 @@ public class PrDataflowRestIntegrationTest extends AbstractRestIntegrationTest {
   @Test
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
   //@Sql("/sql/test_dataprep.sql")
-  public void preparationdataflows_upstream_POST() throws JsonProcessingException {
-
-    List<String> ret = make_dataflow_with_twoDs();
-
-    String dfId=ret.get(0);
-    String importedDsId=ret.get(1);
-    String wrangledDsId=ret.get(2);
-
-    given()
-            .auth()
-            .oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .when()
-            .post("/api/preparationdataflows/"+dfId+"/datasets/"+wrangledDsId+"/upstream/"+importedDsId)
-            .then()
-            .statusCode(HttpStatus.SC_CREATED)
-            .log().all();
-
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
-  //@Sql("/sql/test_dataprep.sql")
   public void preparationdataflows_add_dataset_POST() throws JsonProcessingException {
 
     String dfId = make_dataflow();
 
-    // before add
-    given()
-            .auth()
-            .oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .when()
-            .get("/api/preparationdataflows/"+dfId+"?projection=detail")
-            .then()
-            .statusCode(HttpStatus.SC_OK)
-            .log().all();
-
-    Map<String, Object> dataset_post_body  = Maps.newHashMap();
-    dataset_post_body.put("dsName", "new dataset");
-    dataset_post_body.put("dsDesc", "dataset has no dataflow");
-    dataset_post_body.put("dsType", "IMPORTED");
-    dataset_post_body.put("importType", "FILE");
-    dataset_post_body.put("fileType", "LOCAL");
-
-    // CREATE DATASET
-    Response dataset_post_response = given()
-            .auth()
-            .oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .when()
-            .content(dataset_post_body)
-            .post("/api/preparationdatasets")
-            .then()
-            .statusCode(HttpStatus.SC_CREATED)
-            .log().all()
-            .extract()
-            .response();
-
+    Response dataset_post_response = make_dataset();
     String dsId = dataset_post_response.path("dsId");
 
     // add dataset
@@ -449,53 +353,10 @@ public class PrDataflowRestIntegrationTest extends AbstractRestIntegrationTest {
 
     PrepParamDatasetIdList param = new PrepParamDatasetIdList();
 
-    Map<String, Object> dataset_post_body  = Maps.newHashMap();
-    dataset_post_body.put("dsName", "new dataset");
-    dataset_post_body.put("dsDesc", "dataset has no dataflow");
-    dataset_post_body.put("dsType", "IMPORTED");
-    dataset_post_body.put("importType", "FILE");
-    dataset_post_body.put("fileType", "LOCAL");
-
-    // CREATE DATASET
-    Response dataset_post_response = given()
-            .auth()
-            .oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .when()
-            .content(dataset_post_body)
-            .post("/api/preparationdatasets")
-            .then()
-            .statusCode(HttpStatus.SC_CREATED)
-            .log().all()
-            .extract()
-            .response();
-
+    Response dataset_post_response = make_dataset();
     param.getDsIds().add(dataset_post_response.path("dsId"));
 
-
-    Map<String, Object> dataset_post_body2 = Maps.newHashMap();
-    dataset_post_body.put("dsName", "new dataset");
-    dataset_post_body.put("dsDesc", "dataset has no dataflow");
-    dataset_post_body.put("dsType", "IMPORTED");
-    dataset_post_body.put("importType", "FILE");
-    dataset_post_body.put("fileType", "LOCAL");
-
-    // CREATE DATASET
-    Response dataset_post_response2 = given()
-            .auth()
-            .oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .when()
-            .content(dataset_post_body2)
-            .post("/api/preparationdatasets")
-            .then()
-            .statusCode(HttpStatus.SC_CREATED)
-            .log().all()
-            .extract()
-            .response();
-
+    Response dataset_post_response2 = make_dataset();
     param.getDsIds().add(dataset_post_response2.path("dsId"));
 
     // add dataset
@@ -545,52 +406,10 @@ public class PrDataflowRestIntegrationTest extends AbstractRestIntegrationTest {
 
     PrepParamDatasetIdList param = new PrepParamDatasetIdList();
 
-    Map<String, Object> dataset_post_body  = Maps.newHashMap();
-    dataset_post_body.put("dsName", "new dataset");
-    dataset_post_body.put("dsDesc", "dataset has no dataflow");
-    dataset_post_body.put("dsType", "IMPORTED");
-    dataset_post_body.put("importType", "FILE");
-    dataset_post_body.put("fileType", "LOCAL");
-
-    // CREATE DATASET
-    Response dataset_post_response = given()
-            .auth()
-            .oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .when()
-            .content(dataset_post_body)
-            .post("/api/preparationdatasets")
-            .then()
-            .statusCode(HttpStatus.SC_CREATED)
-            .log().all()
-            .extract()
-            .response();
-
+    Response dataset_post_response = make_dataset();
     param.getDsIds().add(dataset_post_response.path("dsId"));
 
-    Map<String, Object> dataset_post_body2 = Maps.newHashMap();
-    dataset_post_body.put("dsName", "new dataset");
-    dataset_post_body.put("dsDesc", "dataset has no dataflow");
-    dataset_post_body.put("dsType", "IMPORTED");
-    dataset_post_body.put("importType", "FILE");
-    dataset_post_body.put("fileType", "LOCAL");
-
-    // CREATE DATASET
-    Response dataset_post_response2 = given()
-            .auth()
-            .oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .when()
-            .content(dataset_post_body2)
-            .post("/api/preparationdatasets")
-            .then()
-            .statusCode(HttpStatus.SC_CREATED)
-            .log().all()
-            .extract()
-            .response();
-
+    Response dataset_post_response2 = make_dataset();
     String willBeRemovedDsId = dataset_post_response2.path("dsId");
     param.getDsIds().add(willBeRemovedDsId);
 
@@ -621,20 +440,7 @@ public class PrDataflowRestIntegrationTest extends AbstractRestIntegrationTest {
             .extract()
             .response();
 
-    // CREATE DATASET
-    Response dataset_post_response3 = given()
-            .auth()
-            .oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .when()
-            .content(dataset_post_body2)
-            .post("/api/preparationdatasets")
-            .then()
-            .statusCode(HttpStatus.SC_CREATED)
-            .log().all()
-            .extract()
-            .response();
+    Response dataset_post_response3 = make_dataset();
     String willBeAddedDsId = dataset_post_response3.path("dsId");
 
     List<String> dsIds = param.getDsIds();
@@ -662,85 +468,16 @@ public class PrDataflowRestIntegrationTest extends AbstractRestIntegrationTest {
   //@Sql("/sql/test_dataprep.sql")
   public void preparationdataflows_delete_datasets_DELETE() throws JsonProcessingException {
 
-    String dfId = make_dataflow();
+    List<String> ret = make_dataflow_with_twoDs();
 
-    // before add
-    given()
-            .auth()
-            .oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .when()
-            .get("/api/preparationdataflows/"+dfId+"?projection=detail")
-            .then()
-            .statusCode(HttpStatus.SC_OK)
-            .log().all();
+    String dfId=ret.get(0);
+    String importedDsId=ret.get(1);
+    String wrangledDsId=ret.get(2);
 
     PrepParamDatasetIdList param = new PrepParamDatasetIdList();
+    param.getDsIds().add(wrangledDsId);
+    param.getDsIds().add(importedDsId);
 
-    Map<String, Object> dataset_post_body  = Maps.newHashMap();
-    dataset_post_body.put("dsName", "new dataset");
-    dataset_post_body.put("dsDesc", "dataset has no dataflow");
-    dataset_post_body.put("dsType", "IMPORTED");
-    dataset_post_body.put("importType", "FILE");
-    dataset_post_body.put("fileType", "LOCAL");
-
-    // CREATE DATASET
-    Response dataset_post_response = given()
-            .auth()
-            .oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .when()
-            .content(dataset_post_body)
-            .post("/api/preparationdatasets")
-            .then()
-            .statusCode(HttpStatus.SC_CREATED)
-            .log().all()
-            .extract()
-            .response();
-
-    param.getDsIds().add(dataset_post_response.path("dsId"));
-
-
-    Map<String, Object> dataset_post_body2 = Maps.newHashMap();
-    dataset_post_body.put("dsName", "new dataset");
-    dataset_post_body.put("dsDesc", "dataset has no dataflow");
-    dataset_post_body.put("dsType", "IMPORTED");
-    dataset_post_body.put("importType", "FILE");
-    dataset_post_body.put("fileType", "LOCAL");
-
-    // CREATE DATASET
-    Response dataset_post_response2 = given()
-            .auth()
-            .oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .when()
-            .content(dataset_post_body2)
-            .post("/api/preparationdatasets")
-            .then()
-            .statusCode(HttpStatus.SC_CREATED)
-            .log().all()
-            .extract()
-            .response();
-
-    param.getDsIds().add(dataset_post_response2.path("dsId"));
-
-    // add dataset
-    given()
-            .auth()
-            .oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .when()
-            .content(param)
-            .post("/api/preparationdataflows/"+dfId+"/add_datasets")
-            .then()
-            .statusCode(HttpStatus.SC_OK)
-            .log().all();
-
-    // after add
     given()
             .auth()
             .oauth2(oauth_token)
@@ -858,7 +595,7 @@ public class PrDataflowRestIntegrationTest extends AbstractRestIntegrationTest {
             .when()
             .delete("/api/preparationdataflows/"+dfId)
             .then()
-            .statusCode(HttpStatus.SC_NO_CONTENT)
+            .statusCode(HttpStatus.SC_OK)
             .log().all();
 
     // after delete
@@ -870,7 +607,9 @@ public class PrDataflowRestIntegrationTest extends AbstractRestIntegrationTest {
             .when()
             .get("/api/preparationdataflows/"+dfId)
             .then()
-            .statusCode(HttpStatus.SC_NOT_FOUND)
-            .log().all();
+            .statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+            .log().all()
+            .extract()
+            .response();
   }
 }

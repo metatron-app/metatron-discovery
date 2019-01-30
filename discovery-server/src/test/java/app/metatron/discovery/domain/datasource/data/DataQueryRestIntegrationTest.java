@@ -1390,10 +1390,21 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         new MeasureField("Discount", MeasureField.AggregationType.SUM)
     ));
 
-    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot2, limit);
+    // Case 2.
+    Pivot pivot3 = new Pivot();
+    pivot3.setColumns(Lists.newArrayList(new TimestampField("OrderDate", null,
+                                                            new ContinuousTimeFormat(false, TimeFieldFormat.TimeUnit.YEAR.name(), null))));
+    pivot3.setRows(null);
+    pivot3.setAggregations(Lists.newArrayList(
+        new DimensionField("Category"),
+        new DimensionField("Sub-Category"),
+        new MeasureField("Discount", MeasureField.AggregationType.SUM)
+    ));
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot3, limit);
     ChartResultFormat format = new ChartResultFormat("line");
-    //    format.addOptions("showPercentage", true);
-    //    format.addOptions("showCategory", true);
+    format.addOptions("showPercentage", true);
+    format.addOptions("showCategory", true);
     format.addOptions("isCumulative", true);
     format.addOptions("addMinMax", true);
     request.setResultFormat(format);
