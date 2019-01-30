@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren, QueryList} from '@angular/core';
 //import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
@@ -21,6 +21,13 @@ import {StringUtil} from "../../../../../../common/util/string.util";
 import {isNullOrUndefined,isUndefined} from "util";
 import * as _ from 'lodash';
 import {RuleConditionInputComponent} from "./rule-condition-input.component";
+import { RuleSuggestInputComponent } from './rule-suggest-input.component';
+
+interface formula {
+  id: number;
+  value: string
+}
+
 
 @Component({
   selector: 'edit-rule-window',
@@ -31,8 +38,13 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @ViewChildren(RuleSuggestInputComponent)
+  private ruleSuggestInput : QueryList<RuleSuggestInputComponent>;
+
+  /*
   @ViewChildren(RuleConditionInputComponent)
   private ruleConditionInputComponent : RuleConditionInputComponent;
+  */
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -40,7 +52,7 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public formulaList:string[] = [''];
+  // public formulaList:string[] = [''];
   // public selectedGroupFields: Field[] = [];
   public selectedSortFields: Field[] = [];
   public sortList : any [];
@@ -135,47 +147,36 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
    * @return {{command: string, col: string, ruleString: string}}
    */
   public getRuleData(): { command: string, col: string, ruleString: string } {
-
-    this.formulaList = [];
-    this.formulas.forEach((item:formula)=>{ if(!isUndefined(item.value) && item.value.length > 0) this.formulaList.push(item.value)});
-    if (this.formulaList.length === 0) {
+    
+    // 수식
+    const formulaValueList = this.ruleSuggestInput
+                                 .map(el => el.getFormula())
+                                 .filter( v => (!isUndefined(v) && v.trim().length > 0) );
+    
+    if ( !formulaValueList || formulaValueList.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
       return undefined;
-    }
-
-    const validFormulaList:string[] = [];
-    const invalidFormula:boolean = this.formulaList.some((formula, index) => {
-      if( StringUtil.checkSingleQuote(formula, { isWrapQuote: false, isAllowBlank: false })[0] ) {
-        formula = this.ruleConditionInputComponent['_results'][index].getCondition();
-        validFormulaList.push(formula );
-        return false;
-      } else {
-        return true;
-      }
-    });
-    if( invalidFormula ) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.check.expression'));
-      return undefined;
-    }
+    }  
+    
+    const value = formulaValueList.join(',');
 
     // 그룹
     let groupStr: string = '';
     if (this.selectedFields.length !== 0) {
-      let selFields = _.cloneDeep(this.selectedFields);
-      groupStr = selFields.map((item) => {
+      groupStr = this.selectedFields.map((item) => {
         return '`' + item.name + '`';
       }).join(', ');
     }
 
+    // 정렬
     let sortStr: string = '';
     if (this.selectedSortFields.length !== 0) {
-      let selSortFields = _.cloneDeep(this.selectedSortFields);
-      sortStr = selSortFields.map((item) => {
+      sortStr = this.selectedSortFields.map((item) => {
         return '`' + item.name + '`';
       }).join(', ');
     }
 
-    let resultRuleString : string = `window value: ${validFormulaList}`;
+    let resultRuleString : string = `window value: ${value}`;
 
     if (groupStr !== '') {
       resultRuleString += ` group: ${groupStr}`;
@@ -283,7 +284,3 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   }
 }
 
-interface formula {
-  id: number;
-  value: string
-}
