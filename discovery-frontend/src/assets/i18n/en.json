@@ -1308,6 +1308,9 @@
   "msg.dp.ui.grid" : "Grid",
   "msg.dp.ui.error.log" : "Error log",
   "msg.dp.th.file.uri" : "File URI",
+  "msg.dp.alert.no.backtick.colname": "Cannot use back quotes in column name",
+  "msg.dp.alert.duplicate.colname" : "Already in use",
+  "msg.dp.alert.empty.column" : "Column name must not be empty",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",
