@@ -2266,7 +2266,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // when it's map chart, option is mapLayer
     if ('map' === chartType && -1 !== type.indexOf('mapLayer')) {
-      return _.indexOf(possibleChartObj[type], chartType) > -1 && (type == 'mapLayer' + ((<UIMapOption>this.uiOption).layerNum + 1));
+      return _.indexOf(possibleChartObj[type], chartType) > -1;
     }
 
     return _.indexOf(possibleChartObj[type], chartType) > -1;
@@ -3246,11 +3246,28 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    */
   public setDisableShelf(layerNum: number): boolean {
 
-    // not set disable class
-    if ((<UIMapOption>this.uiOption).layerNum === layerNum) return false;
+    let valid: boolean = true;
+    let layers = this.shelf.layers[layerNum];
+
+    if( layers ) {
+      for (let layer of layers) {
+        if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
+          valid = false;
+        }
+      }
+    }
 
     // set disable class
-    return true;
+    return valid;
+  }
+
+  public setDisableMapLayer(): boolean {
+
+    let index : number;
+    ( this.rnbMenu.indexOf('1') != -1 ? index = 0 : index = 1);
+
+    return this.setDisableShelf(index);
+
   }
 
   /**
