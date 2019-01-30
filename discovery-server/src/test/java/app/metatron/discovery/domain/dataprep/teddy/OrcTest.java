@@ -623,7 +623,7 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "aggregate value: 'sum(pcode4)' group: pcode1, pcode2";
+    String ruleString = "aggregate value: sum(pcode4) group: pcode1, pcode2";
 
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
@@ -636,7 +636,7 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "aggregate value: 'count()' group: pcode1, pcode2";
+    String ruleString = "aggregate value: count() group: pcode1, pcode2";
 
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
@@ -649,7 +649,7 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "aggregate value: 'avg(pcode4)' group: pcode1, pcode2";
+    String ruleString = "aggregate value: avg(pcode4) group: pcode1, pcode2";
 
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
@@ -662,7 +662,7 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "aggregate value: 'min(detail_store_code)', 'max(detail_store_code)' group: pcode1, pcode2";
+    String ruleString = "aggregate value: min(detail_store_code), max(detail_store_code) group: pcode1, pcode2";
 
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
@@ -718,7 +718,7 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "pivot col: pcode1, pcode2 value: 'sum(detail_store_code)', 'count()' group: pcode3, pcode4";
+    String ruleString = "pivot col: pcode1, pcode2 value: sum(detail_store_code), count() group: pcode3, pcode4";
 
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
@@ -731,7 +731,7 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "pivot col: pcode1, pcode2 value: 'avg(detail_store_code)' group: pcode3, pcode4";
+    String ruleString = "pivot col: pcode1, pcode2 value: avg(detail_store_code) group: pcode3, pcode4";
 
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show(100);
@@ -744,7 +744,7 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "pivot col: pcode1 value: 'sum(detail_store_code)' group: pcode3, pcode4";
+    String ruleString = "pivot col: pcode1 value: sum(detail_store_code) group: pcode3, pcode4";
 
     DataFrame newDf = apply_rule(contract, ruleString);
 
@@ -762,7 +762,7 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "pivot col: pcode1 value: 'sum(detail_store_code)' group: pcode3, pcode4";
+    String ruleString = "pivot col: pcode1 value: sum(detail_store_code) group: pcode3, pcode4";
 
     DataFrame newDf = apply_rule(contract, ruleString);
 
