@@ -48,18 +48,18 @@
         {{ isShortLabel ? 'Y' : 'Last Year' }}
       </li>
     </ul>
-    <div [class.ddp-selected]="isSelectedRelative('INPUT', 'PREVIOUS')" class="ddp-btn-time" style="height:30px;">
+    <div (click)="setRelative( 'PREVIOUS', selectedTimeUnitItem.value.toString(), 2 )" [class.ddp-selected]="isSelectedRelative('INPUT', 'PREVIOUS')" class="ddp-btn-time" style="height:30px;">
       <div class="ddp-form-multy">
         <span class="ddp-txt-label" >Last</span>
         <div class="ddp-box-multy ddp-clear ddp-form-time">
-          <input #inputLastValue [ngModel]="targetFilter.value"
+          <input #inputLastValue [ngModel]="initialInputValue"
                  (keypress)="setLastValue($event)" (blur)="resetLastValue()"
                  class="ddp-input-typebasic" type="text" title="relvalue" >
           <!-- Selectbox -->
           <div (click)="isShowLastComboOpts = !isShowLastComboOpts"
                (clickOutside)="isShowLastComboOpts = false"
                [ngClass]="{'ddp-selected' : isShowLastComboOpts}" class="ddp-type-selectbox" >
-            <span class="ddp-txt-selectbox">{{selectedTimeUnitItem.name}}</span>
+            <span class="ddp-txt-selectbox">{{selectedTimeUnitItem?.name}}</span>
             <ul class="ddp-list-selectbox ddp-selectdown ddp-pass">
               <li *ngFor="let item of timeUnitComboList"
                   (click)="setRelative('PREVIOUS', item.value.toString());" >
@@ -138,18 +138,18 @@
         {{ isShortLabel ? 'Y' : 'Next Year' }}
       </li>
     </ul>
-    <div [class.ddp-selected]="isSelectedRelative('INPUT', 'NEXT')" class="ddp-btn-time" style="height:30px;">
+    <div (click)="setRelative( 'NEXT', selectedTimeUnitItem.value.toString(), 2 )" [class.ddp-selected]="isSelectedRelative('INPUT', 'NEXT')" class="ddp-btn-time" style="height:30px;">
       <div class="ddp-form-multy">
         <span class="ddp-txt-label" >Next</span>
         <div class="ddp-box-multy ddp-clear ddp-form-time">
-          <input #inputNextValue [ngModel]="targetFilter.value"
+          <input #inputNextValue [ngModel]="initialInputValue"
                  (keypress)="setNextValue($event)" (blur)="resetNextValue()"
                  class="ddp-input-typebasic" type="text" title="relvalue" >
           <!-- Selectbox -->
           <div (click)="isShowNextComboOpts = !isShowNextComboOpts"
                (clickOutside)="isShowNextComboOpts = false"
                [ngClass]="{'ddp-selected' : isShowNextComboOpts}" class="ddp-type-selectbox" >
-            <span class="ddp-txt-selectbox">{{selectedTimeUnitItem.name}}</span>
+            <span class="ddp-txt-selectbox">{{selectedTimeUnitItem?.name}}</span>
             <ul class="ddp-list-selectbox ddp-selectdown ddp-pass">
               <li *ngFor="let item of timeUnitComboList"
                   (click)="setRelative('NEXT', item.value.toString());" >

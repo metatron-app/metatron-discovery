@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { AbstractFilterPopupComponent } from '../abstract-filter-popup.component';
+import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
 import {
   ElementRef,
   OnDestroy,
@@ -24,14 +24,13 @@ import {
   SimpleChange,
   EventEmitter, Output, ViewChild, AfterViewInit
 } from '@angular/core';
-import { TimeUnit } from '../../../domain/workbook/configurations/field/timestamp-field';
+import {TimeUnit} from '../../../domain/workbook/configurations/field/timestamp-field';
 import {
   TimeRelativeFilter,
   TimeRelativeTense
 } from '../../../domain/workbook/configurations/filter/time-relative-filter';
-import { isNullOrUndefined } from 'util';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import {TimeRangeFilter} from "../../../domain/workbook/configurations/filter/time-range-filter";
+import {isNullOrUndefined} from 'util';
+import {EventBroadcaster} from '../../../common/event/event.broadcaster';
 
 declare let moment;
 
@@ -51,7 +50,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   private _inputNextValue: ElementRef;
 
   @ViewChild('filterArea')
-  private _filterArea:ElementRef;
+  private _filterArea: ElementRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -64,15 +63,15 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   public isShowNextComboOpts: boolean = false;    // 미래 시점 입력 콤보박스 옵션 표시 여부
   public timeUnitComboList = [
     /* { name: this.translateService.instant('msg.board.filter.ui.timeunit.seconds'), value: TimeUnit.SECOND }, */
-    { name: this.translateService.instant('msg.board.filter.ui.timeunit.minutes'), value: TimeUnit.MINUTE },
-    { name: this.translateService.instant('msg.board.filter.ui.timeunit.hours'), value: TimeUnit.HOUR },
-    { name: this.translateService.instant('msg.board.filter.ui.timeunit.days'), value: TimeUnit.DAY },
-    { name: this.translateService.instant('msg.board.filter.ui.timeunit.weeks'), value: TimeUnit.WEEK },
-    { name: this.translateService.instant('msg.board.filter.ui.timeunit.months'), value: TimeUnit.MONTH },
+    {name: this.translateService.instant('msg.board.filter.ui.timeunit.minutes'), value: TimeUnit.MINUTE},
+    {name: this.translateService.instant('msg.board.filter.ui.timeunit.hours'), value: TimeUnit.HOUR},
+    {name: this.translateService.instant('msg.board.filter.ui.timeunit.days'), value: TimeUnit.DAY},
+    {name: this.translateService.instant('msg.board.filter.ui.timeunit.weeks'), value: TimeUnit.WEEK},
+    {name: this.translateService.instant('msg.board.filter.ui.timeunit.months'), value: TimeUnit.MONTH},
     /* { name: this.translateService.instant('msg.board.filter.ui.timeunit.quarters'), value: TimeUnit.QUARTER }, */
-    { name: this.translateService.instant('msg.board.filter.ui.timeunit.years'), value: TimeUnit.YEAR }
+    {name: this.translateService.instant('msg.board.filter.ui.timeunit.years'), value: TimeUnit.YEAR}
   ];
-  public selectedTimeUnitItem;
+  public selectedTimeUnitItem: { name: string, value: TimeUnit };
 
   public targetFilter: TimeRelativeFilter;    // 수정 대상 필터
 
@@ -87,7 +86,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   @Output('change')
   public changeEvent: EventEmitter<TimeRelativeFilter> = new EventEmitter();
 
-  public isShortLabel:boolean = false;
+  public isShortLabel: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -95,8 +94,8 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
 
   // 생성자
   constructor(protected broadCaster: EventBroadcaster,
-    protected elementRef: ElementRef,
-    protected injector: Injector) {
+              protected elementRef: ElementRef,
+              protected injector: Injector) {
     super(elementRef, injector);
   }
 
@@ -129,15 +128,15 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   public ngAfterViewInit() {
 
     // Set whether short labels
-    this.isShortLabel = ( 'PANEL' === this.mode );
+    this.isShortLabel = ('PANEL' === this.mode);
     this.safelyDetectChanges();
 
     // Widget Resize Event
-    const $filterArea = $( this._filterArea.nativeElement );
+    const $filterArea = $(this._filterArea.nativeElement);
     this.subscriptions.push(
       this.broadCaster.on<any>('RESIZE_WIDGET').subscribe(() => {
         if ('WIDGET' === this.mode) {
-          this.isShortLabel = ( 320 > $filterArea.width() );
+          this.isShortLabel = (320 > $filterArea.width());
           this.safelyDetectChanges();
         }
       })
@@ -159,7 +158,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
    * @param {TimeRelativeFilter} filter
    * @param {boolean} isBroadcast
    */
-  public setData(filter: TimeRelativeFilter, isBroadcast:boolean = false ) {
+  public setData(filter: TimeRelativeFilter, isBroadcast: boolean = false) {
     let tempFilter: TimeRelativeFilter = filter;
 
     {
@@ -174,7 +173,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
 
     this.targetFilter = tempFilter;
 
-    ( isBroadcast ) && ( this.changeEvent.emit(this.targetFilter) );
+    (isBroadcast) && (this.changeEvent.emit(this.targetFilter));
 
     this.safelyDetectChanges();
   } // function - setData
@@ -229,20 +228,42 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
         strManipulateKey = 's';
         break;
     }
+    /*
+        // 날짜 설정
+        let objDate = moment();
+        let strPreview: string = '';
+        switch (this.targetFilter.tense) {
+          case TimeRelativeTense.PREVIOUS :
+            objDate.subtract(this.targetFilter.value, strManipulateKey);
+            strPreview = objDate.format(strFormat);
+            strPreview = strPreview + ' ~ ' + moment().format(strFormat);
+            break;
+          case TimeRelativeTense.NEXT :
+            objDate.add(this.targetFilter.value, strManipulateKey);
+            strPreview = objDate.format(strFormat);
+            strPreview = moment().format(strFormat) + ' ~ ' + strPreview;
+            break;
+          default :
+            strPreview = objDate.format(strFormat);
+            break;
+        }
+    */
 
     // 날짜 설정
     let objDate = moment();
     let strPreview: string = '';
     switch (this.targetFilter.tense) {
       case TimeRelativeTense.PREVIOUS :
-        objDate.subtract(this.targetFilter.value, strManipulateKey);
+        objDate.subtract(this.targetFilter.value, strManipulateKey).add( 1, 'd' );
+        strFormat = 'YYYY-MM-DD';
         strPreview = objDate.format(strFormat);
         strPreview = strPreview + ' ~ ' + moment().format(strFormat);
         break;
       case TimeRelativeTense.NEXT :
         objDate.add(this.targetFilter.value, strManipulateKey);
+        strFormat = 'YYYY-MM-DD';
         strPreview = objDate.format(strFormat);
-        strPreview = moment().format(strFormat) + ' ~ ' + strPreview;
+        strPreview = moment().add( 1, 'd' ).format(strFormat) + ' ~ ' + strPreview;
         break;
       default :
         strPreview = objDate.format(strFormat);
@@ -258,7 +279,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
    * @param {string} timeUnit
    * @param {number} value
    */
-  public setRelative(tense: string, timeUnit: string, value?: number) {
+  public setRelative(tense: 'PREVIOUS' | 'CURRENT' | 'NEXT', timeUnit: string, value?: number) {
     this.targetFilter.relTimeUnit = TimeUnit[timeUnit];
     this.targetFilter.tense = TimeRelativeTense[tense];
     if (value) {
@@ -277,7 +298,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
    * @param {string} inputType
    * @return {boolean}
    */
-  public isSelectedRelative(inputType: string, tense: string, timeUnit?: string): boolean {
+  public isSelectedRelative(inputType: 'BUTTON' | 'INPUT', tense: 'PREVIOUS' | 'CURRENT' | 'NEXT', timeUnit?: string): boolean {
     let isSelected: boolean = (
       this.targetFilter.tense === TimeRelativeTense[tense]
       && (('BUTTON' === inputType) ? 1 === this.targetFilter.value : 1 < this.targetFilter.value)
@@ -295,11 +316,9 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   public setLastValue(event: KeyboardEvent) {
     if (13 === event.keyCode) {
       const inputVal = this._inputLastValue.nativeElement.value;
-      if (/^[0-9]*$/g.test(inputVal)) {
+      if (/^[0-9]*$/g.test(inputVal) && 1 < (1 * inputVal)) {
         this.targetFilter.value = inputVal;
-
-        // 값 변경 전달
-        this.changeEvent.emit(this.targetFilter);
+        this.changeEvent.emit(this.targetFilter); // 값 변경 전달
       } else {
         this.resetLastValue();
       }
@@ -310,7 +329,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
    * 과거 값 초기화
    */
   public resetLastValue() {
-    this._inputLastValue.nativeElement.value = this.targetFilter.value;
+    this._inputLastValue.nativeElement.value = this.initialInputValue;
   } // function - resetLastValue
 
   /**
@@ -320,11 +339,9 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   public setNextValue(event: KeyboardEvent) {
     if (13 === event.keyCode) {
       const inputVal = this._inputNextValue.nativeElement.value;
-      if (/^[0-9]*$/g.test(inputVal)) {
+      if (/^[0-9]*$/g.test(inputVal) && 1 < (1 * inputVal)) {
         this.targetFilter.value = inputVal;
-
-        // 값 변경 전달
-        this.changeEvent.emit(this.targetFilter);
+        this.changeEvent.emit(this.targetFilter); // 값 변경 전달
       } else {
         this.resetNextValue();
       }
@@ -335,9 +352,15 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
    * 미래 값 초기화
    */
   public resetNextValue() {
-    this._inputNextValue.nativeElement.value = this.targetFilter.value;
+    this._inputNextValue.nativeElement.value = this.initialInputValue;
   } // function - resetNextValue
 
+  /**
+   * input 의 초기값 반환
+   */
+  public get initialInputValue() {
+    return 1 < this.targetFilter.value ? this.targetFilter.value : 2;
+  } // get - initialInputValue
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
