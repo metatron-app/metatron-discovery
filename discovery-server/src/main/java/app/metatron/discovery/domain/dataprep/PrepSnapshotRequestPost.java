@@ -23,27 +23,17 @@ import java.util.List;
 
 public class PrepSnapshotRequestPost {
     PrSnapshot.SS_TYPE ssType;              // URI, DATABASE, STAGING_DB
-    PrSnapshot.STORAGE_TYPE storageType;    // LOCAL, HDFS
 
     String ssName;
     String storedUri;
     String dbName;
     String tblName;
-    PrSnapshot.URI_FILE_FORMAT uriFileFormat;
     PrSnapshot.HIVE_FILE_FORMAT hiveFileFormat;
     PrSnapshot.HIVE_FILE_COMPRESSION hiveFileCompression;
     PrSnapshot.APPEND_MODE appendMode;
     PrSnapshot.ENGINE engine;
     List<String> partitionColNames;
 
-
-    public PrSnapshot.URI_FILE_FORMAT getUriFileFormat() {
-        return uriFileFormat;
-    }
-
-    public void setUriFileFormat(PrSnapshot.URI_FILE_FORMAT uriFileFormat) {
-        this.uriFileFormat = uriFileFormat;
-    }
 
     public PrSnapshot.HIVE_FILE_FORMAT getHiveFileFormat() {
         return hiveFileFormat;
@@ -71,14 +61,6 @@ public class PrepSnapshotRequestPost {
 
     public PrSnapshot.SS_TYPE getSsType() {
         return ssType;
-    }
-
-    public PrSnapshot.STORAGE_TYPE getStorageType() {
-        return storageType;
-    }
-
-    public void setStorageType(PrSnapshot.STORAGE_TYPE storageType) {
-        this.storageType = storageType;
     }
 
     public void setSsType(PrSnapshot.SS_TYPE ssType) {

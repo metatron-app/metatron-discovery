@@ -218,20 +218,6 @@ public class PrSnapshotService {
             try {
                 PrSnapshot.SS_TYPE ss_type = snapshot.getSsType();
                 if( PrSnapshot.SS_TYPE.URI==ss_type ) {
-//                    PrSnapshot.URI_FILE_FORMAT uriFileFormat = snapshot.getUriFileFormat();
-//                    if (PrSnapshot.URI_FILE_FORMAT.CSV == uriFileFormat) {
-
-//                        String dirPath = snapshot.getHiveExtDir();
-//                        if(dirPath!=null) {
-//                            File dirSnapshot = new File(dirPath);
-//                            if (dirSnapshot.exists()) {
-//                                deleteFile(dirSnapshot);
-//                            } else {
-//                                LOGGER.info("deleteSnapshot(): the file does not exists");
-//                            }
-//                        } else {
-//                            LOGGER.info("deleteSnapshot(): the file does not exists");
-//                        }
 
                       String storedUri = snapshot.getStoredUri();
                       URI uri = new URI(storedUri);
@@ -276,10 +262,6 @@ public class PrSnapshotService {
                           default:
                               assert false : uri.getScheme();
                       }
-//                    } else if (PrSnapshot.URI_FILE_FORMAT.JSON == uriFileFormat) {
-//                        LOGGER.error("deleteSnapshot(): file not supported: JSON");
-//                        throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREP_FILE_TYPE_NOT_SUPPORTED);
-//                    }
 //                } else if( PrSnapshot.SS_TYPE.HDFS==ss_type ) {
 //                    Configuration conf = this.hdfsService.getConf();
 //                    FileSystem fs = FileSystem.get(conf);
@@ -302,6 +284,8 @@ public class PrSnapshotService {
 //                    LOGGER.error("deleteSnapshot(): file not supported: JDBC");
 //                    throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREP_FILE_TYPE_NOT_SUPPORTED);
                 } else if( PrSnapshot.SS_TYPE.STAGING_DB==ss_type ) {
+                    // FIXME: delete the files!!! (according to the Hive metadb)
+
                     String dbName = snapshot.getDbName();
                     String tblName = snapshot.getTblName();
                     String sql = "DROP TABLE IF EXISTS "+dbName+"."+tblName;

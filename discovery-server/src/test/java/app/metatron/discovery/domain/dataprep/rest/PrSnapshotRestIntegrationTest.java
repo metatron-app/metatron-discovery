@@ -58,7 +58,6 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     }
 
     public List<String> file_upload() {
-
         File file = new File("src/test/resources/test_dataprep.csv");
 
         // UPLOAD GET
@@ -169,7 +168,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
         return dataflow_post_response;
     }
 
-    public String make_snapshot(PrSnapshot.SS_TYPE ssType, PrSnapshot.STORAGE_TYPE storage_type) {
+    public String make_snapshot(PrSnapshot.SS_TYPE ssType) {
         Response dataset_post_response = make_dataset();
         String importedDsId = dataset_post_response.path("dsId");
 
@@ -201,7 +200,6 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
         data.setSsName("test_snapshot");
         data.setEngine(PrSnapshot.ENGINE.EMBEDDED);
         data.setSsType(ssType);
-        data.setStorageType(storage_type);
         data.setHiveFileFormat(PrSnapshot.HIVE_FILE_FORMAT.CSV);
         data.setHiveFileCompression(PrSnapshot.HIVE_FILE_COMPRESSION.NONE);
 
@@ -234,7 +232,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     @Test
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationsnapshots_GET_FILE_type() throws JsonProcessingException {
-        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI, PrSnapshot.STORAGE_TYPE.LOCAL);
+        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI);
         given()
                 .auth()
                 .oauth2(oauth_token)
@@ -249,7 +247,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     @Test
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationsnapshots_GET_HDFS_type() throws JsonProcessingException {
-        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI, PrSnapshot.STORAGE_TYPE.HDFS);
+        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI);
         given()
                 .auth()
                 .oauth2(oauth_token)
@@ -264,7 +262,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     @Test
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationsnapshots_Id_GET() throws JsonProcessingException {
-        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI, PrSnapshot.STORAGE_TYPE.LOCAL);
+        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI);
         given()
                 .auth()
                 .oauth2(oauth_token)
@@ -281,7 +279,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     @Test
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationsnapshots_DELETE() throws JsonProcessingException {
-        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI, PrSnapshot.STORAGE_TYPE.LOCAL);
+        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI);
 
         given()
                 .auth()
@@ -298,7 +296,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationdatasets_POST_makeSnapshot() throws JsonProcessingException {
 
-        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI, PrSnapshot.STORAGE_TYPE.LOCAL);
+        String ssId = make_snapshot(PrSnapshot.SS_TYPE.URI);
         LOGGER.debug("snapshot ID is " + ssId);
     }
 
@@ -380,8 +378,6 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
         data.setSsName("test_snapshot");
         data.setEngine(PrSnapshot.ENGINE.EMBEDDED);
         data.setSsType(PrSnapshot.SS_TYPE.URI);
-        data.setUriFileFormat(PrSnapshot.URI_FILE_FORMAT.CSV);
-        data.setStorageType(PrSnapshot.STORAGE_TYPE.HDFS);
 
         Response snapshot_post_response = given()
                 .auth()
