@@ -52,9 +52,11 @@
       <div class="ddp-form-multy">
         <span class="ddp-txt-label" >Last</span>
         <div class="ddp-box-multy ddp-clear ddp-form-time">
-          <input #inputLastValue [ngModel]="targetFilter.value"
-                 (keypress)="setLastValue($event)" (blur)="resetLastValue()"
-                 class="ddp-input-typebasic" type="text" title="relvalue" >
+          <component-input
+            [value]="targetFilter.value"
+            [valueType]="'number'"
+            [inputClass]="'ddp-input-typebasic'"
+            (changeValue)="setFilterValue($event)"></component-input>
           <!-- Selectbox -->
           <div (click)="isShowLastComboOpts = !isShowLastComboOpts"
                (clickOutside)="isShowLastComboOpts = false"
@@ -142,9 +144,11 @@
       <div class="ddp-form-multy">
         <span class="ddp-txt-label" >Next</span>
         <div class="ddp-box-multy ddp-clear ddp-form-time">
-          <input #inputNextValue [ngModel]="targetFilter.value"
-                 (keypress)="setNextValue($event)" (blur)="resetNextValue()"
-                 class="ddp-input-typebasic" type="text" title="relvalue" >
+          <component-input
+            [value]="targetFilter.value"
+            [valueType]="'number'"
+            [inputClass]="'ddp-input-typebasic'"
+            (changeValue)="setFilterValue($event)"></component-input>
           <!-- Selectbox -->
           <div (click)="isShowNextComboOpts = !isShowNextComboOpts"
                (clickOutside)="isShowNextComboOpts = false"

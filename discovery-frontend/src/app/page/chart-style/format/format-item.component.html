@@ -49,7 +49,7 @@
     <!-- number -->
     <div class="ddp-input-number">
       <input (keyup)="$event.keyCode == 13 ? onDigitValid() : null"
-             (clickOutside)="decimalCopy = decimal"
+             (clickOutside)="onDigitValid()"
              [(ngModel)]="decimalCopy" type="number" maxlength="1">
       <div class="ddp-input-number-nav">
         <div (click)="onDigitChange(false)" class="ddp-input-number-button ddp-input-number-down"></div>
@@ -105,8 +105,11 @@
   <div *ngIf="customSymbol" class="ddp-list-sub2">
     <div class="ddp-divide2">
       <div class="ddp-list-label">{{'msg.page.format.custom.symbol.enter' | translate}}</div>
-      <input type="text" class="ddp-input-typebasic" [(ngModel)]="customSymbol['value']"
-      (keyup.enter)="changeSymbol()">
+      <component-input
+        [inputClass]="'ddp-input-typebasic'"
+        [value]="customSymbol['value']"
+        (changeValue)="customSymbol['value'] = $event; changeSymbol();">
+      </component-input>
     </div>
     <div class="ddp-divide2">
       <div class="ddp-list-label">{{'msg.page.format.custom.symbol.position' | translate}}</div>

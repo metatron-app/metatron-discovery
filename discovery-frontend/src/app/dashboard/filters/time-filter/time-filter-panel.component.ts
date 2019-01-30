@@ -149,9 +149,6 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
     if (isNullOrUndefined(filter) || !FilterUtil.isTimeFilter(filter)) {
       return;
     }
-
-    console.info( '>>>>>>> changeFilterEvent', filter );
-
     // this.filter = _.cloneDeep(filter);
     // this._setStatus();
     this._updateFilter(filter);

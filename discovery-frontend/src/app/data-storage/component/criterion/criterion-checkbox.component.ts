@@ -146,20 +146,12 @@ export class CriterionCheckboxComponent extends AbstractComponent {
   }
 
   /**
-   * Init search keyword
-   * @param {KeyboardEvent} event
-   */
-  public initSearchKeyword(): void {
-    // init search keyword
-    this.searchKeyword = '';
-    // search
-    this.searchItem();
-  }
-
-  /**
    * Search item
+   * @param {string} keyword
    */
-  public searchItem(): void {
+  public searchItem(keyword: string): void {
+    // set keyword
+    this.searchKeyword = keyword;
     // init criterion list
     this.criterionList = _.cloneDeep(this.criterion.subCriteria);
     // if not empty search keyword

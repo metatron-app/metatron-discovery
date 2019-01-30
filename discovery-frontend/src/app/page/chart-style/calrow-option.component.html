@@ -45,7 +45,11 @@
                 <span class="ddp-label-txt">{{'msg.page.calrow.label' | translate}}</span>
               </div>
               <div class="ddp-col-6">
-                <input type="text" class="ddp-input-typebasic" [(ngModel)]="uiOption['totalValueStyle']['label']" (keyup.enter)="changeLabel(uiOption['totalValueStyle']['label'])">
+                <component-input
+                  [inputClass]="'ddp-input-typebasic'"
+                  [value]="uiOption['totalValueStyle']['label']"
+                  (changeValue)="uiOption['totalValueStyle']['label'] = $event; changeLabel(uiOption['totalValueStyle']['label']);">
+                </component-input>
               </div>
             </div>
             <!-- //multy -->
