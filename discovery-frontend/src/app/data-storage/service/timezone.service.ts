@@ -62,7 +62,7 @@ export class TimezoneService {
    * @return {string}
    */
   public getConvertedTimezoneUTCLabel(utc: string): string {
-    let result = `UTC ${utc.slice(0,1)}${Number(utc.slice(1,3))}`;
+    let result = `UTC${utc.slice(0,1)}${Number(utc.slice(1,3))}`;
     if (utc.slice(4,6) !== '00') {
       result += utc.slice(3,6);
     }
