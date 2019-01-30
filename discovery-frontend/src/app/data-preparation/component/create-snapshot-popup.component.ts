@@ -27,7 +27,7 @@ import { AbstractPopupComponent } from '../../common/component/abstract-popup.co
 import { DatasetService } from '../dataset/service/dataset.service';
 import { DataflowService } from '../dataflow/service/dataflow.service';
 import { PopupService } from '../../common/service/popup.service';
-import { HiveFileCompression, Engine, PrDataSnapshot, SsType, StorageType } from '../../domain/data-preparation/pr-snapshot';
+import { HiveFileCompression, Engine, PrDataSnapshot, SsType, UriFileFormat } from '../../domain/data-preparation/pr-snapshot';
 import { Field } from '../../domain/data-preparation/pr-dataset';
 
 @Component({
@@ -39,7 +39,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
+  private  uriFileFormat: UriFileFormat;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -159,7 +159,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    */
   public complete() {
 
-    if ( (this.snapshot.ssType===SsType.URI && isUndefined(this.snapshot.uriFileFormat))
+    if ( (this.snapshot.ssType===SsType.URI && isUndefined(this.uriFileFormat))
       || (this.snapshot.ssType===SsType.STAGING_DB && isUndefined(this.snapshot.hiveFileFormat))
     ) {
       Alert.warning(this.translateService.instant('msg.dp.alert.ss.sel.format'));
@@ -203,6 +203,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         Alert.warning(this.translateService.instant('msg.dp.alert.ss.require.file-uri'));
         return;
       }
+
     }
 
     this.loadingShow();
@@ -233,8 +234,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * */
   public chnageSSUri(){
     if(this.snapshot.storedUri && this.snapshot.storedUri.lastIndexOf("/") > 0)
-      this.snapshot.storedUri = this.snapshot.storedUri.substring(0,this.snapshot.storedUri.lastIndexOf("/")+1)  +  this.snapshot.ssName
-        + '.'+this.snapshot.uriFileFormat.toString().toLowerCase();
+      this.snapshot.storedUri = this.snapshot.storedUri.substring(0,this.snapshot.storedUri.lastIndexOf("/")+1)  +  this.snapshot.ssName.replace(/\s/gi, "")
+        + '.'+this.uriFileFormat.toString().toLowerCase();
   }
 
   /**
@@ -243,7 +244,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * @param type
    * */
   public onSelected(event,type) {
-    this.snapshot[type] = event.value;
     switch (type){
       case 'engine':
         if ('EMBEDDED' === event.value) {
@@ -252,16 +252,15 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         break;
       case 'format':
         if ( this.snapshot.ssType && this.snapshot.ssType === SsType.URI) {
-          this.snapshot.uriFileFormat = event.value;
+          this.uriFileFormat = event.value;
         }
         if ( this.snapshot.ssType && this.snapshot.ssType === SsType.STAGING_DB)
           this.snapshot.hiveFileFormat = event.value;
-          this.chnageSSUri();
+        this.chnageSSUri();
         break;
       case 'location':
         for(let idx=0;idx<this.fileLocations.length;idx++) {
           if( event.value==this.fileLocations[idx].value ) {
-            this.snapshot.storageType = this.fileLocations[idx].value;
             this.snapshot.storedUri = this.fileUris[idx];
             this.chnageSSUri();
             break;
@@ -321,7 +320,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
       // delete this.snapshot.location;
       delete this.snapshot.dbName;
 
-      this.snapshot.uriFileFormat = this.fileFormat[0].value;
+      this.uriFileFormat = this.fileFormat[0].value;
 
       if(0<this.fileLocations.length) {
         let idx = this.fileLocations.findIndex((item) => {
@@ -331,9 +330,9 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         if (idx === -1) {
           idx = 0;
         }
-        this.snapshot.storageType = this.fileLocations[idx].value;
         this.snapshot.storedUri = this.fileUris[idx] ;
-        if (['.csv','.json'].indexOf(this.snapshot.storedUri) < 0) this.snapshot.storedUri +=  '.' + this.snapshot.uriFileFormat.toString().toLowerCase();
+        if (['.csv','.json'].indexOf(this.snapshot.storedUri) < 0)
+          this.snapshot.storedUri +=  '.' + this.uriFileFormat.toString().toLowerCase();
         this.fileLocationDefaultIdx = idx;
       }
     }
@@ -351,67 +350,66 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   } // function - openAdvancedPref
 
   public getConfig() {
-      this.loadingShow();
-      this.dataflowService.getConfiguration(this.datasetId)
-        .then((conf) => {
-          if( !isUndefined(conf['ss_name']) ) {
-            this.ssName = conf['ss_name'];
-          } else {
-            let today = moment();
-            this.ssName = `${this.datasetName}_${today.format('YYYYMMDD_HHmmss')}`;
-          }
-          this.snapshot.ssName = this.ssName;
+    this.loadingShow();
+    this.dataflowService.getConfiguration(this.datasetId)
+      .then((conf) => {
+        if( !isUndefined(conf['ss_name']) ) {
+          this.ssName = conf['ss_name'];
+        } else {
+          let today = moment();
+          this.ssName = `${this.datasetName}_${today.format('YYYYMMDD_HHmmss')}`;
+        }
+        this.snapshot.ssName = this.ssName;
 
-          if( !isUndefined(conf['file_uri']) ) {
-            this.fileLocations = [];
-            this.fileUris = [];
-            for( let locType in conf['file_uri'] ) {
-              let loc = locType.toUpperCase();
-              this.fileLocations.push( { 'value': loc, 'label': loc } );
-              this.fileUris.push( conf['file_uri'][locType] );
-            }
-
-            if(0<this.fileLocations.length) {
-              this.snapshot.storageType = this.fileLocations[0].value;
-              this.snapshot.storedUri = this.fileUris[0];
-              if (['.csv','.json'].indexOf(this.snapshot.storedUri) < 0) this.snapshot.storedUri += '.csv';
-            }
+        if( !isUndefined(conf['file_uri']) ) {
+          this.fileLocations = [];
+          this.fileUris = [];
+          for( let locType in conf['file_uri'] ) {
+            let loc = locType.toUpperCase();
+            this.fileLocations.push( { 'value': loc, 'label': loc } );
+            this.fileUris.push( conf['file_uri'][locType] );
           }
 
-          if( !isUndefined(conf['hive_info']) ) {
-            let connInfo: any = {};
-            connInfo.implementor = 'HIVE';
-            connInfo.hostname = conf['hive_info'].hostname;
-            connInfo.port = conf['hive_info'].port;
-            connInfo.username = conf['hive_info'].username;
-            connInfo.password = conf['hive_info'].password;
-            connInfo.url = conf['hive_info'].custom_url;
-            //connInfo.nothing = conf['hive_info'].metastore_uris;
+          if(0<this.fileLocations.length) {
+            this.snapshot.storedUri = this.fileUris[0];
+            if (['.csv','.json'].indexOf(this.snapshot.storedUri) < 0) this.snapshot.storedUri += '.csv';
+          }
+        }
 
-            this.datasetService.setConnInfo(connInfo);
-            this.isHiveDisable = false;
+        if( !isUndefined(conf['hive_info']) ) {
+          let connInfo: any = {};
+          connInfo.implementor = 'HIVE';
+          connInfo.hostname = conf['hive_info'].hostname;
+          connInfo.port = conf['hive_info'].port;
+          connInfo.username = conf['hive_info'].username;
+          connInfo.password = conf['hive_info'].password;
+          connInfo.url = conf['hive_info'].custom_url;
+          //connInfo.nothing = conf['hive_info'].metastore_uris;
 
-            this.datasetService.getStagingSchemas().then((data) => {
-              this.dbList = data;
-              this.snapshot.dbName = data[0];
-              if (this.dbList.length === 0 ) {
-                this.isHiveDisable = true;
-              }
-            }).catch(() => {
+          this.datasetService.setConnInfo(connInfo);
+          this.isHiveDisable = false;
+
+          this.datasetService.getStagingSchemas().then((data) => {
+            this.dbList = data;
+            //this.snapshot.dbName = data[0];
+            if (this.dbList.length === 0 ) {
               this.isHiveDisable = true;
-            });
-          } else {
+            }
+          }).catch(() => {
             this.isHiveDisable = true;
-          }
+          });
+        } else {
+          this.isHiveDisable = true;
+        }
 
-          this.changeSsType(SsType.URI);
-          this.loadingHide();
-        })
-        .catch((error) => {
-          this.loadingHide();
-          let prep_error = this.dataprepExceptionHandler(error);
-          PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        });
+        this.changeSsType(SsType.URI);
+        this.loadingHide();
+      })
+      .catch((error) => {
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      });
   }
 
   /**
