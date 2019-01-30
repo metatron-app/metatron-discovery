@@ -43,12 +43,6 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @ViewChild('inputLastValue')
-  private _inputLastValue: ElementRef;
-
-  @ViewChild('inputNextValue')
-  private _inputNextValue: ElementRef;
-
   @ViewChild('filterArea')
   private _filterArea: ElementRef;
 
@@ -370,12 +364,9 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
     }
   } // function - setNextValue
 
-  /**
-   * 미래 값 초기화
-   */
-  public resetNextValue() {
-    this._inputNextValue.nativeElement.value = this.targetFilter.value;
-  } // function - resetNextValue
+    // 값 변경 전달
+    this.changeEvent.emit(this.targetFilter);
+  } // function - setFilterValue
 
   /**
    * input 의 초기값 반환
