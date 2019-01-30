@@ -22,20 +22,25 @@
         <!-- 데이터 선택 -->
         <div class="ddp-ui-data-select">
           <!-- 선택시 ddp-selected 추가 -->
-          <a href="javascript:" class="ddp-btn-select" (click)="connectionType = 'file';next()" [ngClass]="{'ddp-selected':connectionType=='file'}">
-            <!--(click)="connectionType = 'file';next()"-->
+          <a href="javascript:" class="ddp-btn-select"
+             (click)="setConnectionType('file')"
+             [ngClass]="{'ddp-selected':connectionType=='file'}">
             <em class="ddp-icon-boxbtn-file"></em>
             {{'msg.dp.ui.list.file' | translate}}
             <em class="ddp-icon-check"></em>
           </a>
 
-          <a href="javascript:" class="ddp-btn-select" (click)="connectionType = 'db';next()" [ngClass]="{'ddp-selected':connectionType=='db'}">
+          <a href="javascript:" class="ddp-btn-select"
+             (click)="setConnectionType('db')"
+             [ngClass]="{'ddp-selected':connectionType=='db'}">
             <em class="ddp-icon-boxbtn-database"></em>
             {{'msg.dp.ui.sel.data.db' | translate}}
             <em class="ddp-icon-check"></em>
           </a>
 
-          <a href="javascript:" class="ddp-btn-select" (click)="connectionType = 'staging';next()" [ngClass]="{'ddp-selected':connectionType=='staging'}">
+          <a href="javascript:" class="ddp-btn-select"
+             (click)="setConnectionType('staging')"
+             [ngClass]="{'ddp-selected':connectionType=='staging','ddp-disabled': !isStagingEnabled()}">
             <em class="ddp-icon-boxbtn-staging"></em>
             {{'msg.dp.ui.list.staging-db' | translate}}
             <em class="ddp-icon-check"></em>

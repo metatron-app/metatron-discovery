@@ -24,6 +24,7 @@ import {MomentDatePipe} from '../../common/pipe/moment.date.pipe';
 import {isUndefined} from 'util';
 import {DataSnapshotDetailComponent} from './data-snapshot-detail.component';
 import {PreparationCommonUtil} from "../util/preparation-common.util";
+import {StorageService} from "../../data-storage/service/storage.service";
 
 @Component({
   selector: 'app-data-snapshot',
@@ -76,13 +77,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
   public prepCommonUtil = PreparationCommonUtil;
 
-  public snapshotTypes = [
-    {label:'All', value : null},
-    {label: 'Staging DB', value : SsType.STAGING_DB},
-    {label: 'FILE', value : SsType.URI},
-    {label: 'Database', value : SsType.DATABASE},
-    {label: 'DRUID', value : SsType.DRUID}
-    ];
+  public snapshotTypes: SnapshotType[] = [];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -338,6 +333,18 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     this.page.sort = 'createdTime,desc';
     this.interval =  setInterval(() => this.getDatasnapshots(), 3000);
     this.getDatasnapshots();
+
+    this.snapshotTypes = [
+      {label:'All', value : null},
+      {label: 'FILE', value : SsType.URI},
+      {label: 'Database', value : SsType.DATABASE},
+      {label: 'DRUID', value : SsType.DRUID}
+    ];
+
+    if (StorageService.isEnableStageDB) {
+      this.snapshotTypes.push({label: 'Staging DB', value : SsType.STAGING_DB});
+    }
+
   }
 
 
@@ -379,4 +386,9 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 class Order {
   key: string = 'createdTime';
   sort: string = 'default';
+}
+
+class SnapshotType {
+  public label: string;
+  public value: SsType;
 }
