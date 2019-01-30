@@ -203,7 +203,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
     this.columns.forEach((item) => {
 
       if (this.op === 'UPDATE') {
-        if (item.renamedAs.trim() !== '' && item.editOriginalName !== item.renamedAs) {
+        if (item.renamedAs.trim() !== '' && (item.editOriginalName !== item.renamedAs) || item.original !== item.renamedAs) {
           originals.push('`' + item.original + '`');
           renamed.push("'" + item.renamedAs + "'");
         }
