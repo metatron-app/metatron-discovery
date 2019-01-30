@@ -544,7 +544,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    * @private
    */
   private _getTimezoneLabel(format: FieldFormat): string {
-    return (format && format.type === FieldFormatType.UNIX_TIME) ?  'Unix time'  : `UTC ${this.timezoneService.getTimezoneObject(format).utc}`;
+    return (format && format.type === FieldFormatType.UNIX_TIME) ? 'Unix time' :this.timezoneService.getConvertedTimezoneUTCLabel(this.timezoneService.getTimezoneObject(format).utc);
   }
 
   // ui init
