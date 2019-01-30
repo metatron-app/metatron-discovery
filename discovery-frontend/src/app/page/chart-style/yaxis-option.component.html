@@ -35,8 +35,13 @@
           </div>
           <!-- //slider -->
 
-          <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.page.ui.y-axis.title.ph' | translate}}"
-                 [(ngModel)]="nameUiOption.yAxis.customName" (keyup.enter)="axisName('column', 1, $event)" [disabled]="!uiOption.yAxis.showName">
+          <component-input
+            [disabled]="!uiOption.yAxis.showName"
+            [inputClass]="'ddp-input-typebasic'"
+            [placeHolder]="'msg.page.ui.y-axis.title.ph' | translate"
+            [value]="nameUiOption.yAxis.customName"
+            (changeValue)="nameUiOption.yAxis.customName = $event; axisName('column', 1, $event);">
+          </component-input>
         </div>
       </div>
 

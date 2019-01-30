@@ -51,7 +51,7 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   public datasourceList: Datasource[] = [];
 
   // search
-  public searchKeyword: string = '';
+  public searchKeyword: string;
 
   // datasource filter list (for UI)
   public datasourceFilterList: ListCriterion[] = [];
@@ -254,24 +254,13 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   }
 
   /**
-   * Search datasource keypress event
-   * @param {KeyboardEvent} event
+   * Search connection keypress event
+   * @param {string} keyword
    */
-  public onSearchDatasource(event: KeyboardEvent): void {
-    // enter event
-    if (13 === event.keyCode) {
-      // search datasource
-      this.searchDatasource();
-    }
-  }
-
-  /**
-   * Reset search datasource keyup event
-   */
-  public resetSearchDatasource(): void {
-    // init search keyword
-    this.searchKeyword = '';
-    // search datasource
+  public onChangedSearchKeyword(keyword: string): void {
+    // set search keyword
+    this.searchKeyword = keyword;
+    // search
     this.searchDatasource();
   }
 

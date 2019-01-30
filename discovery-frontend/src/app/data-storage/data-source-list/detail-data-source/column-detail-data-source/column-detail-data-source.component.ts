@@ -216,16 +216,6 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   }
 
   /**
-   * Is tooltip class changed
-   * @param columnList
-   * @param {number} index
-   * @returns {boolean}
-   */
-  // public isChangeTooltipClass(columnList: any, index: number): boolean {
-  //   return index > (columnList.length / 2 - 1) ? true : false;
-  // }
-
-  /**
    * Get enable change physical type list
    * @returns {any}
    */
@@ -399,14 +389,6 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     this.selectedTypeFilter = this.typeFilterList[0];
     // update filtered column list
     this._updateFilteredColumnList();
-  }
-
-  /**
-   * Search text event
-   * @param {Event} event
-   */
-  public onSearchText(event: KeyboardEvent): void {
-    event.keyCode === 13 && this.searchText(event.target['value']);
   }
 
   /**

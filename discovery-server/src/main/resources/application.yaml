@@ -230,12 +230,6 @@ polaris:
       loader:
         remoteType: LOCAL
         localBaseDir: ${java.io.tmpdir:-/tmp}
-      hive:
-        hostname: localhost
-        port: 10000
-        username: hive
-        password: hive
-        metastoreUri: thrift://localhost:9083
     query:
       loader:
         remoteType: LOCAL
@@ -257,6 +251,13 @@ polaris:
     username: admin
     password: geoserver
     defaultWorkspace: metatron
+  storage:
+    stagedb:
+      hostname: localhost
+      port: 10000
+      username: hive
+      password: hive
+      metastore: thrift://localhost:9083
   dataprep:
     localBaseDir: ${user.home}/dataprep
 #    hadoopConfDir: /etc/hadoop

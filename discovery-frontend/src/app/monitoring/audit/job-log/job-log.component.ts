@@ -178,25 +178,13 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
 
   /**
    * 검색 이벤트
-   * @param event
    */
-  public search(event : KeyboardEvent) {
+  public search() {
 
-    if ( 13 === event.keyCode) {
-
-      // 페이지 초기화
-      this.pageResult.number = 0;
-      // 리스트 재조회
-      this.getAuditList();
-
-    } else if ( 27 === event.keyCode ) {
-
-      this.searchText = '';
-      // 페이지 초기화
-      this.pageResult.number = 0;
-      // 리스트 재조회
-      this.getAuditList();
-    }
+    // 페이지 초기화
+    this.pageResult.number = 0;
+    // 리스트 재조회
+    this.getAuditList();
 
   }
 

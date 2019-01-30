@@ -133,13 +133,13 @@ export class XAxisOptionComponent extends BaseOptionComponent {
    * @param index
    * @param event
    */
-  public axisName(axisLabelType: any, event: any): void {
+  public axisName(axisLabelType: any, name: string): void {
 
     // axis title이 hide이면 설정 x
     if (!this.uiOption.xAxis.showName) return;
 
     // enter시 currentTarget.value값으로 설정, click시 row / column에 따라 nameUiOption axis name값으로 설정
-    const value = event.currentTarget.value ? event.currentTarget.value : AxisLabelType.ROW === axisLabelType ?  this.nameUiOption.xAxis.customName : this.nameUiOption.yAxis.customName;
+    const value = name ? name : AxisLabelType.ROW === axisLabelType ?  this.nameUiOption.xAxis.customName : this.nameUiOption.yAxis.customName;
 
     // max length validation
     if (value && value.length > 20) {

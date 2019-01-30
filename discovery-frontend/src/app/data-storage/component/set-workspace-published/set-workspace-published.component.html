@@ -52,15 +52,13 @@
         <div class="ddp-ui-tab-contents" *ngIf="tabChange === 'PRIVATE'">
           <div class="ddp-wrap-switch">
             <!-- 검색 -->
-            <div class="ddp-form-search">
-              <em class="ddp-icon-search"></em>
-              <input type="text" placeholder="Search by workspace"
-                     [ngModel]="searchPersonal"
-                     (keypress)="searchPrivateSpace($event)"
-                     (keyup.esc)="searchText('PRIVATE', $event, true)">
-              <em class="ddp-btn-search-close" *ngIf="searchPersonal !== ''"
-                  (click)="searchText('PRIVATE', $event, true)"></em>
-            </div>
+            <component-input
+              [compType]="'search'"
+              [showClear]="true"
+              [value]="searchPersonal"
+              [placeHolder]="'msg.storage.ui.spaces.search.ph' | translate"
+              (changeValue)="onChangedPersonalSearchKeyword($event)">
+            </component-input>
             <!-- //검색 -->
             <!-- on 일때 ddp-selected 추가 -->
             <a href="javascript:" class="ddp-btn-switch"
@@ -150,18 +148,15 @@
 
         <!-- Public tab contents -->
         <div class="ddp-ui-tab-contents" *ngIf="tabChange === 'SHARED'">
-
           <div class="ddp-wrap-switch">
             <!-- 검색 -->
-            <div class="ddp-form-search">
-              <em class="ddp-icon-search"></em>
-              <input type="text" placeholder="Search by workspace"
-                     [ngModel]="searchPublic"
-                     (keyup.enter)="searchSharedSpace($event)"
-                     (keyup.esc)="searchText('SHARED', $event, true)">
-              <em class="ddp-btn-search-close" *ngIf="searchPublic !== ''"
-                  (click)="searchText('SHARED', $event, true)"></em>
-            </div>
+            <component-input
+              [compType]="'search'"
+              [showClear]="true"
+              [value]="searchPublic"
+              [placeHolder]="'msg.storage.ui.spaces.search.ph' | translate"
+              (changeValue)="onChangedPublicSearchKeyword($event)">
+            </component-input>
             <!-- //검색 -->
             <!-- on 일때 ddp-selected 추가 -->
             <a href="javascript:" class="ddp-btn-switch"

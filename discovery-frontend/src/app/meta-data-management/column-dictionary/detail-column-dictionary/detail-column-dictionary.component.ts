@@ -288,7 +288,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
 
   /**
    * LogicalType 변경 이벤트
-   * @param item
+   * @param type
    */
   public onChangeLogicalType(type: string): void {
     // 컬럼 사전 업데이트
@@ -336,7 +336,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
           // edit flag
           this.logicalNameEditFl = false;
           // blur
-          this.logicalNameElement.nativeElement.blur();
+          // this.logicalNameElement.nativeElement.blur();
           // 컬럼 사전 업데이트
           this._updateColumnDictionary({logicalName: this.reLogicalName.trim()});
         }
@@ -365,7 +365,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // edit flag
     this.columnNameEditFl = false;
     // blur
-    this.columnNameElement.nativeElement.blur();
+    // this.columnNameElement.nativeElement.blur();
     // 컬럼 사전 업데이트
     this._updateColumnDictionary({name: this.reColumnName.trim()});
   }
@@ -384,7 +384,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // edit flag
     this.shortNameEditFl = false;
     // blur
-    this.shortNameElement.nativeElement.blur();
+    // this.shortNameElement.nativeElement.blur();
     // 컬럼 사전 업데이트
     this._updateColumnDictionary({suggestionShortName: this.reShortName.trim()});
   }
@@ -403,7 +403,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // edit flag
     this.descEditFl = false;
     // blur
-    this.descElement.nativeElement.blur();
+    // this.descElement.nativeElement.blur();
     // 컬럼 사전 업데이트
     this._updateColumnDictionary({description: this.reDesc.trim()});
   }

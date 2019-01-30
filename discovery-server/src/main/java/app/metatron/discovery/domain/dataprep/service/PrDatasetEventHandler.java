@@ -15,22 +15,14 @@
 package app.metatron.discovery.domain.dataprep.service;
 
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
-import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.*;
 
 @RepositoryEventHandler(PrDataset.class)
 public class PrDatasetEventHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PrDatasetEventHandler.class);
-
-    @Autowired
-    PrDatasetRepository datasetRepository;
-
-    @Autowired
-    PrDatasetService datasetService;
 
     @HandleBeforeCreate
     public void beforeCreate(PrDataset dataset) {

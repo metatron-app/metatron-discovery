@@ -2134,6 +2134,11 @@
   "msg.storage.ui.intervals": "데이터 범위",
   "msg.storage.ui.intervals.units": "세그먼트 단위 수",
   "msg.storage.ui.intervals.valid.unit": "간격의 설정값은 타임스탬프 컬럼의 데이터값 범위와 같거나 커야하며, 이 구간에 의한 세그먼트 갯수가 10,000개가 넘을 수 없습니다.",
+  "msg.storage.ui.file.result.FV001": "컬럼명에 사용할 수 없는 문자열이 있습니다.",
+  "msg.storage.ui.file.result.FV002": "첫 번째 행에는 병합된 셀이 포함되어 있습니다. 새로운 헤더를 사용해주세요.",
+  "msg.storage.ui.file.result.FV003": "동일한 컬럼명은 사용할 수 없습니다.",
+  "msg.storage.ui.file.result.FV004": "1자~50자 이내의 컬럼명으로 작성해주세요.",
+  "msg.storage.ui.file.result.FV005": "빈 컬럼명은 허용되지 않습니다.",
 
   "msg.log.th.status": "상태",
   "msg.log.ui.search.description" : "잡 이름, 어플리케이션 ID 및 사용자별로 검색",
@@ -3143,5 +3148,7 @@
   "msg.metadata.ui.info" : "메타데이터 정보",
   "msg.metadata.ui.enter.tag" : "태그 입력",
   "msg.metadata.th.column.logical.tooltip.title" : "논리 컬럼 이름이란?",
-  "msg.metadata.th.column.logical.tooltip.desc" : "논리 컬럼 이름은 메타트론에서 사용자가 일반적으로 사용하는 컬럼 이름입니다. 사용자의 비즈니스 용어 또는 인덱스를 생성할 때 논리 이름으로 지정됩니다 논리 컬럼 이름은 차트 또는 워크벤치를 작성할 때 메타트론에서 사용됩니다."
+  "msg.metadata.th.column.logical.tooltip.desc" : "논리 컬럼 이름은 메타트론에서 사용자가 일반적으로 사용하는 컬럼 이름입니다. 사용자의 비즈니스 용어 또는 인덱스를 생성할 때 논리 이름으로 지정됩니다 논리 컬럼 이름은 차트 또는 워크벤치를 작성할 때 메타트론에서 사용됩니다.",
+  "msg.catalog.alert.catalog.already.exists" : "카달로그가 이미 있습니다",
+  "msg.catalog.alert.catalog.create.success" : "'{{value}}' 카달로그가 생성되었습니다."
 }

@@ -186,8 +186,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
    * @returns {boolean}
    */
   public isExcelFile(): boolean {
-    return (this.getFileData.datasourceFile.hasOwnProperty('sheets')
-      && this.getFileData.datasourceFile.sheets.length !== 0);
+    return this.getFileData.fileResult.sheets && this.getFileData.fileResult.sheets.length !== 0;
   }
 
 
@@ -425,7 +424,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       format['lineSeparator'] = this.getFileData.separator;
     } else {
       // add sheetIndex
-      format['sheetIndex'] = this.getFileData.datasourceFile.sheets.findIndex(item => item === this.getFileData.datasourceFile.selectedSheetName);
+      format['sheetIndex'] = this.getFileData.fileResult.sheets.findIndex(sheet => sheet === this.getFileData.fileResult.selectedSheet);
     }
     return format;
   }
@@ -440,8 +439,8 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     const ingestion = {
       type: 'local',
       format: this._getFileFormatParams(),
-      removeFirstRow: !this.getFileData.createHeadColumnFl,
-      path: this.getFileData.datasourceFile.filepath,
+      removeFirstRow: this.getFileData.isFirstHeaderRow,
+      path: this.getFileData.fileResult.filePath,
       rollup: this.getIngestionData.selectedRollUpType.value
     };
     // advanced

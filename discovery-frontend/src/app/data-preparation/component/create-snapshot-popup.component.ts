@@ -14,6 +14,8 @@
 
 //import {calcPossibleSecurityContexts} from "@angular/compiler/src/template_parser/binding_parser";
 
+import {StorageService} from "../../data-storage/service/storage.service";
+
 declare let moment : any;
 import { isUndefined } from 'util';
 import { Alert } from '../../common/util/alert.util';
@@ -409,6 +411,12 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
           PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
         });
   }
+
+
+  public isStagingEnabled() :boolean {
+    return StorageService.isEnableStageDB
+  }
+
 
   /**
    * Make snapshot with enter key

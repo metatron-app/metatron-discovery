@@ -15,7 +15,7 @@
 import * as _ from 'lodash';
 import {
   Component,
-  ElementRef, EventEmitter, HostListener,
+  ElementRef, EventEmitter,
   Injector,
   Input,
   OnChanges, OnDestroy,
@@ -42,15 +42,7 @@ export class BoundFilterComponent extends AbstractComponent implements OnInit, O
   @ViewChild('rangeSlider')
   private _rangeSlider: ElementRef;
 
-  @ViewChild('inputMinValue')
-  private _inputMinValue: ElementRef;
-
-  @ViewChild('inputMaxValue')
-  private _inputMaxValue: ElementRef;
-
   private _$rangeSlider: any;
-  private _$inputMin: JQuery;
-  private _$inputMax: JQuery;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -66,7 +58,7 @@ export class BoundFilterComponent extends AbstractComponent implements OnInit, O
   public inputFilter: BoundFilter;
 
   @Output()
-  public change: EventEmitter<BoundFilter> = new EventEmitter();
+  public changeFilterData: EventEmitter<BoundFilter> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -104,32 +96,11 @@ export class BoundFilterComponent extends AbstractComponent implements OnInit, O
   } // function - ngOnChanges
 
   /**
-   * 화면 초기화
-   */
-  public ngAfterViewInit() {
-    this._$inputMin = $(this._inputMinValue.nativeElement);
-    this._$inputMax = $(this._inputMaxValue.nativeElement);
-  } // function - ngAfterViewInit
-
-  /**
    * 컴포넌트 제거
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
   }
-
-  /**
-   * Document Click Handler ( input class 제거 )
-   * @param target
-   */
-  @HostListener('document:click', ['$event.target'])
-  documentClickHandler(target) {
-    const $target = $(target);
-    if (!$target.hasClass('ddp-input-apply') && 0 === $target.closest('.ddp-input-apply').length) {
-      this.resetMinValue();
-      this.resetMaxValue();
-    }
-  } // function - documentClickHandler
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
@@ -153,28 +124,10 @@ export class BoundFilterComponent extends AbstractComponent implements OnInit, O
   } // function - setFilter
 
   /**
-   * 최소값 설정 - 키보드 이벤트
-   * @param {KeyboardEvent} event
-   */
-  public setMinValueByEnter(event: KeyboardEvent) {
-
-    if (this.filter.min !== this._$inputMin.val()) {
-      this._$inputMin.parent().addClass('ddp-edit');
-    } else {
-      this._$inputMin.parent().removeClass('ddp-edit');
-    }
-
-    if (13 === event.keyCode) {
-      this.setMinValue();
-    }
-  } // function - setMinValueByEnter
-
-  /**
    * 최소값 설정
+   * @param {string} inputValue
    */
-  public setMinValue() {
-    this._$inputMin.parent().removeClass('ddp-edit');
-    let inputValue: string = <string>this._$inputMin.val();
+  public setMinValue(inputValue:string) {
     if (/^[+-]?\d+(\.\d+)?$/gi.test(inputValue)) {
       let numValue: number = +inputValue;
       // Validation
@@ -184,45 +137,17 @@ export class BoundFilterComponent extends AbstractComponent implements OnInit, O
       if (numValue !== this.filter.min) {
         (numValue > this.filter.max) && (this.filter.max = numValue);
         this.filter.min = numValue;
+        this.changeFilterData.emit(this.filter);
         this._setSlider(this.filter.min, this.filter.max);
       }
     }
   } // function - setMinValue
 
   /**
-   * 최소값 초기화
-   */
-  public resetMinValue() {
-    const $inputContainer: JQuery = this._$inputMin.parent();
-    if ($inputContainer.hasClass('ddp-edit')) {
-      $inputContainer.removeClass('ddp-edit');
-      this._inputMinValue.nativeElement.value = this.filter.min;
-    }
-  } // function - resetMinValue
-
-  /**
-   * 최대값 설정 - 키보드 이벤트
-   * @param {KeyboardEvent} event
-   */
-  public setMaxValueByEnter(event: KeyboardEvent) {
-
-    if (this.filter.max !== this._$inputMax.val()) {
-      this._$inputMax.parent().addClass('ddp-edit');
-    } else {
-      this._$inputMax.parent().removeClass('ddp-edit');
-    }
-
-    if (13 === event.keyCode) {
-      this.setMaxValue();
-    }
-  } // function - setMaxValueByEnter
-
-  /**
    * 최대값 설정
+   * @param {string} inputValue
    */
-  public setMaxValue() {
-    this._$inputMax.parent().removeClass('ddp-edit');
-    let inputValue: string = <string>this._$inputMax.val();
+  public setMaxValue(inputValue:string) {
     if (/^[+-]?\d+(\.\d+)?$/gi.test(inputValue)) {
       let numValue: number = +inputValue;
       if (numValue < this.filter.minValue) numValue = this.filter.minValue;
@@ -231,21 +156,11 @@ export class BoundFilterComponent extends AbstractComponent implements OnInit, O
       if (numValue !== this.filter.max) {
         (numValue < this.filter.min) && (this.filter.min = numValue);
         this.filter.max = numValue;
+        this.changeFilterData.emit(this.filter);
         this._setSlider(this.filter.min, this.filter.max);
       }
     }
   } // function - setMaxValue
-
-  /**
-   * 최대값 초기화
-   */
-  public resetMaxValue() {
-    const $inputContainer: JQuery = this._$inputMax.parent();
-    if ($inputContainer.hasClass('ddp-edit')) {
-      $inputContainer.removeClass('ddp-edit');
-      this._inputMaxValue.nativeElement.value = this.filter.max;
-    }
-  } // function - resetMaxValue
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -267,7 +182,6 @@ export class BoundFilterComponent extends AbstractComponent implements OnInit, O
     if (this._$rangeSlider) {
       const slider = this._$rangeSlider.data('ionRangeSlider');
       slider.update({ from: from, to: to });
-      // this.change.emit(this.filter);
     } else {
       const scope = this;
       this._$rangeSlider = $(this._rangeSlider.nativeElement);
@@ -283,7 +197,7 @@ export class BoundFilterComponent extends AbstractComponent implements OnInit, O
           },
           onFinish(data) {
             scope._updateBoundValue(data);
-            scope.change.emit(scope.getData());
+            scope.changeFilterData.emit(scope.getData());
           }
         }
       );

@@ -112,10 +112,12 @@
         <!-- 검색 -->
         <div class="ddp-form-search ddp-fleft">
           <em class="ddp-icon-search"></em>
-          <input type="text" placeholder="{{'msg.log.ui.search.description' | translate}}"
-                 [(ngModel)]="searchText"
-                 (keypress)="search($event)">
-          <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchText = ''; pageResult.number = 0; getAuditList();" ></em>
+          <component-input
+            [compType]="'search'"
+            [value]="searchText"
+            [placeHolder]="'msg.log.ui.search.description' | translate"
+            (changeValue)="searchText = $event; search();">
+          </component-input>
         </div>
         <!-- //검색 -->
         <!-- right -->

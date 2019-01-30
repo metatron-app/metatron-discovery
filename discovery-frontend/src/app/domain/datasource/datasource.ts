@@ -93,14 +93,6 @@ export class DatasourceFile {
   public selectedFile: File;
 }
 
-export class File {
-  public data: any[];
-  public fields: any[];
-  public headers: any[];
-  public success: boolean;
-  public totalRows: number;
-}
-
 export class DatasourceHive {
   // 컬럼
   public fields: Field[];

@@ -1410,7 +1410,7 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 
 .ddp-pop-filter .ddp-top-filter .ddp-ui-label {overflow:hidden;}
 
-.ddp-add-filter {position:absolute; top:0; left:0; right:0; bottom:0; overflow:auto; }
+.ddp-add-filter {position:absolute; top:50px; left:0; right:0; bottom:0; overflow:auto; }
 .ddp-add-filter .ddp-data-filter {position:relative; padding:7px 50px 7px 25px; cursor:pointer; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
 .ddp-add-filter .ddp-data-filter:hover,
 .ddp-add-filter li.ddp-selected .ddp-data-filter{background-color:#f6f6f7;}
@@ -5234,6 +5234,26 @@ table.ddp-table-detail tbody tr td .ddp-ui-summary ul.ddp-list-sub li a {color:#
 .ddp-txt-edit.ddp-selected .ddp-wrap-input .ddp-btn-check {position:absolute; bottom:0; right:0; top:0; height:auto;}
 .ddp-txt-edit.ddp-selected .ddp-wrap-input input {display:block; width:100%; padding:6px 0 6px 0; border:none; background:none; box-sizing:Border-box; font-size:13px; font-family:sans-serif;}
 .ddp-txt-edit.ddp-selected .ddp-wrap-input textarea {display:block; padding:5px 0; width:100%; height:76px; border:none; background:none; font-family:sans-serif; font-size:13px; line-height:18px; box-sizing:border-box;}
+
+.ddp-edit-description {position:relative; padding-bottom:23px; }
+.ddp-edit-description.ddp-line:after {position:absolute; bottom:0; left:0; right:0;border-bottom:1px dotted #ccc; content:'';}
+.ddp-edit-description .ddp-box-textarea {display:none;}
+.ddp-edit-description .ddp-txt-description {position:relative; top:-3px;  font-size:13px; line-height:18px; cursor:pointer;}
+.ddp-edit-description .ddp-data-description {position:relative; padding-bottom:30px;}
+.ddp-edit-description .ddp-data-description:hover .ddp-btn-edit {display:inline-block;}
+.ddp-edit-description .ddp-data-description .ddp-btn-edit {display:none; padding:4px 7px; position:absolute; bottom:0; left:0;  height:21px; color:#91969e; font-size:12px; font-style:italic; background-color:#f3f3f4; box-sizing:border-box;}
+.ddp-edit-description .ddp-data-description .ddp-btn-edit .ddp-icon-edit {display:inline-block; width:12px; height:13px; margin-right:3px; background:url(../images/icon_control.png) no-repeat; background-position:-39px -96px; vertical-align:top;}
+.ddp-edit-description .ddp-data-description .ddp-btn-edit:hover {background-color:#e7e7ea;}
+.ddp-edit-description.ddp-edit .ddp-data-description {display:none;}
+.ddp-edit-description.ddp-edit .ddp-box-textarea {display:block; overflow:hidden;}
+.ddp-edit-description.ddp-edit .ddp-box-textarea textarea {display:block; width:100%; height:194px; padding:5px 9px; line-height:18px;border:1px solid #d0d1d8; border-radius:2px; box-sizing:border-box;}
+.ddp-edit-description.ddp-edit .ddp-box-textarea .ddp-textarea-buttons {float:right; padding:4px 0 0 0;}
+.ddp-edit-description.ddp-edit .ddp-box-textarea .ddp-textarea-buttons .ddp-box-btn {float:Left; position:relative; width:24px; height:24px; margin-left:4px;border-radius:2px; background-color:#d0d1d8;}
+.ddp-edit-description.ddp-edit .ddp-box-textarea .ddp-textarea-buttons .ddp-box-btn:hover {background-color:#9ca2cc;}
+.ddp-edit-description.ddp-edit .ddp-box-textarea .ddp-textarea-buttons .ddp-box-btn em.ddp-icon-cancel {display:inline-block; width:9px; height:9px; position:absolute; top:50%; left:50%; margin:-5px 0 0 -5px; background:url(../images/btn_close.png) no-repeat; background-position:-20px -82px;}
+.ddp-edit-description.ddp-edit .ddp-box-textarea .ddp-textarea-buttons .ddp-box-btn .ddp-icon-check {display:inline-block; position:absolute; top:50%; left:50%; margin:-4px 0 0 -6px;  width:11px; height:8px; background:url(../images/icon_select2.png) no-repeat; background-position:-27px top;}
+
+
 
 .ddp-wrap-table-detail .ddp-wrap-edit3.ddp-type .ddp-label-type.ddp-normal {font-size:16px;}
 .ddp-wrap-table-detail {position:relative; border-top:1px dotted #ccc; margin:40px -20px 0 -20px; padding:40px 20px 0 20px;}

@@ -454,6 +454,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Common
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /**
    * 차트 위젯을 추가함
    */
@@ -623,8 +624,9 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
   /**
    * 대시보드를 변경한다.
+   * @param {Dashboard} dashboardItem
    */
-  public moveOrNewDashboard(dashboardItem: Dashboard) {
+  public moveOrNewDashboard(dashboardItem?: Dashboard) {
     this.execBeforeUnload();
     if( this.useUnloadConfirm ) {
       const modal = new Modal();
@@ -1215,6 +1217,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
     // 대시보드 필터 업데이트
     this.dashboard = DashboardUtil.updateBoardFilter(this.dashboard, filter, true);
+
     this._organizeAllFilters(true).then(() => {
       this._syncFilterWidget();
 
