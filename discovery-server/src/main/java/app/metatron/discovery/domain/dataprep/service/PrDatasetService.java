@@ -30,6 +30,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,10 +62,10 @@ public class PrDatasetService {
     private PrepDatasetFileService datasetFilePreviewService;
 
     @Autowired
-    private PrepDatasetSparkHiveService datasetSparkHivePreviewService;
+    private PrepDatasetStagingDbService datasetStagingDbPreviewService;
 
     @Autowired
-    private PrepDatasetJdbcService datasetJdbcPreviewService;
+    private PrepDatasetDatabaseService datasetJdbcPreviewService;
 
     @Autowired
     private DataConnectionRepository dataConnectionRepository;
@@ -81,7 +83,7 @@ public class PrDatasetService {
         } else if(importType == PrDataset.IMPORT_TYPE.DATABASE) {
             dataFrame = this.datasetJdbcPreviewService.getPreviewLinesFromJdbcForDataFrame(dataset, this.jdbcPreviewSize);
         } else if(importType == PrDataset.IMPORT_TYPE.STAGING_DB) {
-            dataFrame = this.datasetSparkHivePreviewService.getPreviewLinesFromStagedbForDataFrame(dataset, this.hivePreviewSize);
+            dataFrame = this.datasetStagingDbPreviewService.getPreviewLinesFromStagedbForDataFrame(dataset, this.hivePreviewSize);
         } else {
             assert false : importType;
         }
@@ -96,11 +98,13 @@ public class PrDatasetService {
         if(importType == PrDataset.IMPORT_TYPE.UPLOAD || importType == PrDataset.IMPORT_TYPE.URI) {
             dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, "0", this.filePreviewSize);
         } else if(importType == PrDataset.IMPORT_TYPE.DATABASE) {
-            this.datasetJdbcPreviewService.setoAuthToekn(oAuthToken);
+            this.datasetJdbcPreviewService.setoAuthToken(oAuthToken);
             dataFrame = this.datasetJdbcPreviewService.getPreviewLinesFromJdbcForDataFrame(dataset, this.jdbcPreviewSize);
         } else if(importType == PrDataset.IMPORT_TYPE.STAGING_DB) {
-            this.datasetSparkHivePreviewService.setoAuthToekn(oAuthToken);
-            dataFrame = this.datasetSparkHivePreviewService.getPreviewLinesFromStagedbForDataFrame(dataset, this.hivePreviewSize);
+            this.datasetStagingDbPreviewService.setoAuthToken(oAuthToken);
+            dataFrame = this.datasetStagingDbPreviewService.getPreviewLinesFromStagedbForDataFrame(dataset, this.hivePreviewSize);
+        } else {
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_IMPORT_TYPE_IS_WRONG, importType.name());
         }
 
         if(dataFrame!=null) {
@@ -131,31 +135,6 @@ public class PrDatasetService {
 
         return;
     }
-
-    /*
-    public void uploadFileToStorage(PrDataset dataset) throws Exception {
-        String storedUri = dataset.getStoredUri();
-
-        if (storedUri == null) {
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_KEY_MISSING,
-                    String.format("storedUri=%s", storedUri));
-        }
-
-        if(dataset.getStorageType() == PrDataset.STORAGE_TYPE.HDFS) {
-            uploadFileToHdfs(dataset);
-        } else if(dataset.getStorageType() == PrDataset.STORAGE_TYPE.FTP) {
-            // Will be implemented in the future
-        } else if(dataset.getStorageType() == PrDataset.STORAGE_TYPE.S3) {
-            // Will be implemented in the future
-        } else if(dataset.getStorageType() == PrDataset.STORAGE_TYPE.BLOB) {
-            // Will be implemented in the future
-        } else {
-            // nothing to do. PrDataset.STORAGE_TYPE.LOCAL
-        }
-
-        return;
-    }
-    */
 
     public void uploadFileToStorage(PrDataset dataset, String storageType) throws Exception {
         String storedUri = dataset.getStoredUri();
@@ -217,7 +196,7 @@ public class PrDatasetService {
     public Map<String,Object> getConnectionInfo(String dcId) {
         Map<String,Object> connectionInfo = null;
         if(null!=dcId) {
-            DataConnection dataConnection = this.dataConnectionRepository.getOne(dcId);
+            DataConnection dataConnection = findRealDataConnection( this.dataConnectionRepository.getOne(dcId) );
 
             // hibernate lazy problem
             /*
@@ -253,9 +232,11 @@ public class PrDatasetService {
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
             String oAuthToken = "bearer ";
             Cookie[] cookies = request.getCookies();
-            for(int i=0; i<cookies.length; i++){
-                if(cookies[i].getName().equals("LOGIN_TOKEN"))
-                    oAuthToken = oAuthToken + cookies[i].getValue();
+            if(cookies!=null) {
+                for (int i = 0; i < cookies.length; i++) {
+                    if (cookies[i].getName().equals("LOGIN_TOKEN"))
+                        oAuthToken = oAuthToken + cookies[i].getValue();
+                }
             }
 
             // excel to csv
@@ -278,17 +259,31 @@ public class PrDatasetService {
 
     }
 
+    public DataConnection findRealDataConnection(DataConnection lazyOne) {
+        DataConnection realOne = null;
+        Hibernate.initialize(lazyOne);
+        if (lazyOne instanceof HibernateProxy) {
+            realOne = (DataConnection) ((HibernateProxy) lazyOne).getHibernateLazyInitializer().getImplementation();
+        }
+        if( realOne == null ) {
+            return lazyOne;
+        }
+        return realOne;
+    }
+
     public void setConnectionInfo(PrDataset dataset) throws PrepException {
         String dcId = dataset.getDcId();
         if(null!=dcId) {
-            DataConnection dataConnection = this.dataConnectionRepository.getOne(dcId);
+            DataConnection dataConnection = findRealDataConnection( this.dataConnectionRepository.getOne(dcId) );
 
             dataset.setDcName(dataConnection.getName());
             dataset.setDcDesc(dataConnection.getDescription());
             dataset.setDcImplementor(dataConnection.getImplementor());
             dataset.setDcOptions(dataConnection.getOptions());
             dataset.setDcType(dataConnection.getType().name());
-            dataset.setDcAuthenticationType(dataConnection.getAuthenticationType().name());
+            if(null != dataConnection.getAuthenticationType()) {
+                dataset.setDcAuthenticationType(dataConnection.getAuthenticationType().name());
+            }
             dataset.setDcHostname(dataConnection.getHostname());
             dataset.setDcPort(dataConnection.getPort());
             dataset.setDcUsername(dataConnection.getUsername());

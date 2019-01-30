@@ -15,6 +15,7 @@
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { MetadataModelService } from '../service/metadata.model.service';
+import {StorageService} from "../../../data-storage/service/storage.service";
 
 @Component({
   selector: 'app-select-datatype',
@@ -95,6 +96,10 @@ export class SelectDatatypeComponent extends AbstractComponent implements OnInit
    * @param {string} selectType
    */
   public onSelectedDataType(selectType: string): void {
+    // if disabled stageDB
+    if (selectType === 'staging' && !this.isEnableStageDB()) {
+      return;
+    }
     // 생성할 데이터 타입 초기화
     this.metaDataModelService.setCreateData({});
     // 타입 변경
@@ -120,6 +125,14 @@ export class SelectDatatypeComponent extends AbstractComponent implements OnInit
    */
   public isCreateStep(step: string): boolean {
     return step === this.metaDataModelService.getCreateStep();
+  }
+
+  /**
+   * Check enable stageDB
+   * @return {boolean}
+   */
+  public isEnableStageDB(): boolean {
+    return StorageService.isEnableStageDB;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

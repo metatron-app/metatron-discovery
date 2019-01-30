@@ -19,7 +19,6 @@ import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.repository.PrDataflowRepository;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformResponse;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,8 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Map;
 
@@ -41,13 +38,7 @@ public class PrDataflowService {
     private static Logger LOGGER = LoggerFactory.getLogger(PrDataflowService.class);
 
     @Autowired
-    PrDataflowRepository dataflowRepository;
-
-    @Autowired
     private PrepTransformService transformService;
-
-    @PersistenceContext
-    EntityManager em;
 
     public void afterCreate(PrDataflow dataflow) throws PrepException {
         try {

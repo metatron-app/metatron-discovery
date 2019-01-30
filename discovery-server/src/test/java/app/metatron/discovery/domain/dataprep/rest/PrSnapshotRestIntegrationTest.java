@@ -57,10 +57,26 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
         RestAssured.port = serverPort;
     }
 
-    public String make_snapshot(PrSnapshot.SS_TYPE ssType) {
+    public List<String> file_upload() {
         File file = new File("src/test/resources/test_dataprep.csv");
 
-        // UPLOAD
+        // UPLOAD GET
+        Response upload_get_response = given()
+                .auth()
+                .oauth2(oauth_token)
+                .accept(ContentType.JSON)
+                .when()
+                .get("/api/preparationdatasets/file_upload")
+                .then()
+                .statusCode(HttpStatus.SC_CREATED)
+                .log().all()
+                .extract()
+                .response();
+        String upload_id = upload_get_response.path("upload_id");
+
+        String params = String.format( "?name=%s&upload_id=%s&chunk=%d&chunks=%d&storage_type=%s&chunk_size=%d&total_size=%d",
+                file.getName(), upload_id, 0, 1, "LOCAL", file.length(), file.length());
+        // UPLOAD POST
         Response upload_response = given()
                 .auth()
                 .oauth2(oauth_token)
@@ -68,26 +84,38 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
                 .when()
                 .multiPart("file", file)
                 .contentType("multipart/form-data")
-                .post("/api/preparationdatasets/upload")
+                .post("/api/preparationdatasets/file_upload" + params)
                 .then()
                 .statusCode(HttpStatus.SC_CREATED)
                 .log().all()
                 .extract()
                 .response();
 
-        String filekey = upload_response.path("filekey");
-        String filename = upload_response.path("filename");
+        String filenameBeforeUpload = upload_response.path("filenameBeforeUpload");
+        String storedUri = upload_response.path("storedUri");
 
-        Map<String, Object> dataset_post_body  = Maps.newHashMap();
+        List<String> ret = new ArrayList<String>();
+        ret.add(0,filenameBeforeUpload);
+        ret.add(1,storedUri);
+
+        return ret;
+    }
+
+    public Response make_dataset() {
+        List<String> ret = file_upload();
+        String filenameBeforeUpload = ret.get(0);
+        String storedUri = ret.get(1);
+
+        Map<String, Object> dataset_post_body = Maps.newHashMap();
         dataset_post_body.put("dsName", "file ds1");
         dataset_post_body.put("dsDesc", "dataset with file");
         dataset_post_body.put("dsType", "IMPORTED");
-        dataset_post_body.put("importType", "FILE");
-        dataset_post_body.put("fileType", "LOCAL");
-        dataset_post_body.put("filekey", filekey);
-        dataset_post_body.put("filename", filename);
-        dataset_post_body.put("custom", "{\"fileType\":\"dsv\",\"delimiter\":\",\"}");
-        dataset_post_body.put("dcId", "file dc");
+        dataset_post_body.put("delimiter", ",");
+        dataset_post_body.put("importType", "UPLOAD");
+        dataset_post_body.put("fileFormat", "CSV");
+        dataset_post_body.put("filenameBeforeUpload", filenameBeforeUpload);
+        dataset_post_body.put("storageType", "LOCAL");
+        dataset_post_body.put("storedUri", storedUri);
 
         // CREATE DATASET
         Response dataset_post_response = given()
@@ -99,13 +127,17 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
                 .content(dataset_post_body)
                 .post("/api/preparationdatasets")
                 .then()
-                .statusCode(HttpStatus.SC_CREATED)
+                .statusCode(HttpStatus.SC_OK)
                 .log().all()
                 .extract()
                 .response();
 
         String importedDsId = dataset_post_response.path("dsId");
 
+        return dataset_post_response;
+    }
+
+    public Response make_dataflow(Response dataset_post_response) {
         Map<String, Object> dataflow_post_body = Maps.newHashMap();
         dataflow_post_body.put("dfName", "posted_df1");
         dataflow_post_body.put("dfDesc", "posted_df_desc1");
@@ -124,10 +156,23 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
                 .content(dataflow_post_body)
                 .post("/api/preparationdataflows")
                 .then()
-                .statusCode(HttpStatus.SC_CREATED)
+                .statusCode(HttpStatus.SC_OK)
                 .log().all()
                 .extract()
                 .response();
+
+        Map<String, Object> transform_post_body = Maps.newHashMap();
+        String dfId = dataflow_post_response.path("dfId");
+        transform_post_body.put("dfId", dfId);
+
+        return dataflow_post_response;
+    }
+
+    public String make_snapshot(PrSnapshot.SS_TYPE ssType) {
+        Response dataset_post_response = make_dataset();
+        String importedDsId = dataset_post_response.path("dsId");
+
+        Response dataflow_post_response = make_dataflow(dataset_post_response);
 
         Map<String, Object> transform_post_body = Maps.newHashMap();
         String dfId = dataflow_post_response.path("dfId");
@@ -149,17 +194,14 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
                 .response();
 
         String wrangledDsId = transform_post_response.path("wrangledDsId");
+        Integer ruleCurIdx = transform_post_response.path("ruleCurIdx");
 
         PrepSnapshotRequestPost data = new PrepSnapshotRequestPost();
+        data.setSsName("test_snapshot");
         data.setEngine(PrSnapshot.ENGINE.EMBEDDED);
         data.setSsType(ssType);
-        //data.setFormat(PrSnapshot.HIVE_FILE_FORMAT.CSV.name());
         data.setHiveFileFormat(PrSnapshot.HIVE_FILE_FORMAT.CSV);
-//        data.setCompression(PrSnapshot.COMPRESSION.ZLIB);
-
-        List<String> partKeys = new ArrayList<>();
-        partKeys.add("month");
-        data.setPartitionColNames((ArrayList<String>) partKeys);
+        data.setHiveFileCompression(PrSnapshot.HIVE_FILE_COMPRESSION.NONE);
 
         Response snapshot_post_response = given()
                 .auth()
@@ -230,6 +272,8 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
                 .then()
                 .statusCode(HttpStatus.SC_OK)
                 .log().all();
+
+        LOGGER.debug("snapshot ID is " + ssId);
     }
 
     @Test
@@ -242,9 +286,9 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
                 .oauth2(oauth_token)
                 .accept(ContentType.JSON)
                 .when()
-                .get("/api/preparationsnapshots/"+ssId)
+                .delete("/api/preparationsnapshots/"+ssId)
                 .then()
-                .statusCode(HttpStatus.SC_OK)
+                .statusCode(HttpStatus.SC_NO_CONTENT)
                 .log().all();
     }
 
@@ -260,76 +304,10 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
     @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKSPACE"})
     public void preparationsnapshot_contents_GET() throws JsonProcessingException {
 
-        File file = new File("src/test/resources/test_dataprep.csv");
-
-        // UPLOAD
-        Response upload_response = given()
-                .auth()
-                .oauth2(oauth_token)
-                .accept(ContentType.JSON)
-                .when()
-                .multiPart("file", file)
-                .contentType("multipart/form-data")
-                .post("/api/preparationdatasets/upload")
-                .then()
-                .statusCode(HttpStatus.SC_CREATED)
-                .log().all()
-                .extract()
-                .response();
-
-        String filekey = upload_response.path("filekey");
-        String filename = upload_response.path("filename");
-
-        Map<String, Object> dataset_post_body  = Maps.newHashMap();
-        dataset_post_body.put("dsName", "file ds1");
-        dataset_post_body.put("dsDesc", "dataset with file");
-        dataset_post_body.put("dsType", "IMPORTED");
-        dataset_post_body.put("importType", "FILE");
-        dataset_post_body.put("fileType", "LOCAL");
-        dataset_post_body.put("filekey", filekey);
-        dataset_post_body.put("filename", filename);
-        dataset_post_body.put("custom", "{\"fileType\":\"dsv\",\"delimiter\":\",\"}");
-        dataset_post_body.put("dcId", "file dc");
-
-        // CREATE DATASET
-        Response dataset_post_response = given()
-                .auth()
-                .oauth2(oauth_token)
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .when()
-                .content(dataset_post_body)
-                .post("/api/preparationdatasets")
-                .then()
-                .statusCode(HttpStatus.SC_CREATED)
-                .log().all()
-                .extract()
-                .response();
-
+        Response dataset_post_response = make_dataset();
         String importedDsId = dataset_post_response.path("dsId");
 
-        Map<String, Object> dataflow_post_body = Maps.newHashMap();
-        dataflow_post_body.put("dfName", "posted_df1");
-        dataflow_post_body.put("dfDesc", "posted_df_desc1");
-
-        List<String> datasets = new ArrayList<>();
-        datasets.add(dataset_post_response.path("_links.self.href"));
-        dataflow_post_body.put("datasets", datasets);
-
-        // CREATE DATAFLOW
-        Response dataflow_post_response = given()
-                .auth()
-                .oauth2(oauth_token)
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .when()
-                .content(dataflow_post_body)
-                .post("/api/preparationdataflows")
-                .then()
-                .statusCode(HttpStatus.SC_CREATED)
-                .log().all()
-                .extract()
-                .response();
+        Response dataflow_post_response = make_dataflow(dataset_post_response);
 
         Map<String, Object> transform_post_body = Maps.newHashMap();
         String dfId = dataflow_post_response.path("dfId");
@@ -352,22 +330,10 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
 
         String wrangledDsId = transform_post_response.path("wrangledDsId");
 
-        // LOAD WRANGLED DATASET
-        Response transform_get_response = given()
-                .auth()
-                .oauth2(oauth_token)
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .when()
-                .get("/api/preparationdatasets/" + wrangledDsId + "/transform")
-                .then()
-                .statusCode(HttpStatus.SC_OK)
-                .log().all()
-                .extract()
-                .response();
-
         Map<String, Object> transform_put_body = Maps.newHashMap();
+        transform_put_body.put("count", "100");
         transform_put_body.put("op", "APPEND");
+        transform_put_body.put("ruleIdx", 1);
         transform_put_body.put("ruleString", "rename col: column1 to: 'user_id'");
 
         // APPEND #1 - RENAME
@@ -385,10 +351,11 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
                 .extract()
                 .response();
 
-        List<Map<String, Object>> ruleStringInfos = transform_put_response.path("ruleStringInfos");
-        String jsonRuleString = (String)ruleStringInfos.get(0).get("jsonRuleString");
+        List<Map<String, Object>> transformRules = transform_put_response.path("transformRules");
 
+        transform_put_body.put("count", "100");
         transform_put_body.put("op", "APPEND");
+        transform_put_body.put("ruleIdx", 2);
         transform_put_body.put("ruleString", "rename col: column2 to: 'birth_day'");
 
         // APPEND #2 - RENAME
@@ -406,50 +373,35 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
                 .extract()
                 .response();
 
-        List<Map<String, Object>> ruleStringInfos2 = transform_put_response2.path("ruleStringInfos");
 
-        transform_put_body.put("op", "APPEND");
-        transform_put_body.put("ruleString", "split col: birth_day on: '-' limit: 2 quote: '\"' ignoreCase: false");
+        PrepSnapshotRequestPost data = new PrepSnapshotRequestPost();
+        data.setSsName("test_snapshot");
+        data.setEngine(PrSnapshot.ENGINE.EMBEDDED);
+        data.setSsType(PrSnapshot.SS_TYPE.URI);
 
-        // APPEND #3 - SPLIT
-        Response transform_put_response3 = given()
-                .auth()
-                .oauth2(oauth_token)
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .when()
-                .content(transform_put_body)
-                .put("/api/preparationdatasets/" + wrangledDsId + "/transform")
-                .then()
-                .statusCode(HttpStatus.SC_OK)
-                .log().all()
-                .extract()
-                .response();
-
-        List<Map<String, Object>> ruleStringInfos3 = transform_put_response3.path("ruleStringInfos");
-
-        Map<String, Object> snapshot_post_body = Maps.newHashMap();
-        snapshot_post_body.put("format", "CSV");
-        snapshot_post_body.put("compression", "NONE");
-//    snapshot_post_body.put("partKey", "SOME_COLUMN_NAME");  // necessary in hive
-        snapshot_post_body.put("profile", true);
-
-        // GENERATE SNAPSHOT
         Response snapshot_post_response = given()
                 .auth()
                 .oauth2(oauth_token)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .when()
-                .content(snapshot_post_body)
-                .post("/api/preparationdatasets/" + wrangledDsId)
+                .content(data)
+                .post("/api/preparationdatasets/" + wrangledDsId + "/transform/snapshot")
                 .then()
-                .statusCode(HttpStatus.SC_CREATED)
+                .statusCode(HttpStatus.SC_OK)
                 .log().all()
                 .extract()
                 .response();
 
         String ssId = snapshot_post_response.path("ssId");
+        String stored_uri = snapshot_post_response.path("storedUri");
+
+        // snapshot을 생성하는 과정이 비동기이기 때문에, 기다리지 않고 테스트를 종료하면, 제대로 snapshot 생성 과정이 중단된다.
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         // first call, target means count of rows
         Response snapshot_get_response = given()
@@ -458,7 +410,7 @@ public class PrSnapshotRestIntegrationTest extends AbstractRestIntegrationTest {
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .when()
-                .get("/api/preparationsnapshots/" + ssId + "/contents?target=3")
+                .get("/api/preparationsnapshots/" + ssId + "/contents?offset=0&target=3")
                 .then()
                 .statusCode(HttpStatus.SC_OK)
                 .log().all()

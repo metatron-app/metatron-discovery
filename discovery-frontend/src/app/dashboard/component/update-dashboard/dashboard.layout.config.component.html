@@ -76,9 +76,11 @@
                     </div>
                     <div class="ddp-col-4">
                       <div class="ddp-box-option-input">
-                        <input #inputHeight type="text"
-                               [input-mask]="'number'" [ngModel]="layoutHeight"
-                               (keypress)="setLayoutHeight($event)" (clickOutside)="cancelEditHeight()">
+                        <component-input
+                          [value]="layoutHeight"
+                          [valueType]="'number'"
+                          [disabled]="isFitToScreen()"
+                          (changeValue)="setLayoutHeight($event)"></component-input>
                         <span class="ddp-txt-input">{{'msg.board.ui.px' | translate}}</span>
                       </div>
                     </div>
@@ -90,9 +92,10 @@
               <div class="ddp-label-txt2">{{'msg.board.th.margin' | translate}}</div>
               <div class="ddp-box-area">
                 <div class="ddp-box-option-input">
-                  <input #inputMargin type="text"
-                         [input-mask]="'number'" [ngModel]="layoutMargin"
-                         (keypress)="setLayoutMargin($event)" (clickOutside)="cancelEditMargin()" >
+                  <component-input
+                    [value]="layoutMargin"
+                    [valueType]="'number'"
+                    (changeValue)="setLayoutMargin($event)"></component-input>
                   <span class="ddp-txt-input">{{'msg.board.ui.px' | translate}}</span>
                 </div>
               </div>

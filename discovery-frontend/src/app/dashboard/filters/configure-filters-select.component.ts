@@ -45,9 +45,6 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
   @ViewChild(ConfirmModalComponent)
   private _confirmModalComp: ConfirmModalComponent;
 
-  @ViewChild('inputSearch')
-  private _inputSearch: ElementRef;
-
   // 필드 목록 정보
   private _measureFields: (Field | CustomField)[] = [];
   private _dimensionFields: (Field | CustomField)[] = [];
@@ -376,19 +373,12 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
   } // function - editTimestampFilter
 
   /**
-   * 검색 조회 - 키보드 이벤트
-   * @param {KeyboardEvent} event
-   */
-  public searchEventPressKey(event: KeyboardEvent) {
-    (13 === event.keyCode) && (this.searchEvent());
-  } // function - searchEventPressKey
-
-  /**
    * 검색 조회
+   * @param {string} searchText
    */
-  public searchEvent() {
+  public searchEvent(searchText:string) {
     // 검색어 설정
-    this.searchText = this._inputSearch.nativeElement.value;
+    this.searchText = searchText;
     if (this.isShowDimTab) {
       this.dimensionFields = this._dimensionFields.filter(item => {
         return -1 !== item.name.toLowerCase().indexOf(this.searchText.toLowerCase());
@@ -399,19 +389,6 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
       });
     }
   } // function - searchEvent
-
-  /**
-   * 검색어 리셋
-   */
-  public resetSearchText(isClear: boolean) {
-    if (isClear) {
-      this._inputSearch.nativeElement.value = '';
-    } else {
-      // 검색어 설정
-      this._inputSearch.nativeElement.value = this.searchText;
-    }
-  } // function - resetSearchText
-
 
   /**
    * 확인 팝업 확인 클릭시

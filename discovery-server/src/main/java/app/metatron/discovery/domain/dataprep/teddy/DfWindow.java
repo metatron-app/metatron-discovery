@@ -72,15 +72,15 @@ public class DfWindow extends DataFrame {
         Expression valueExpr = window.getValue();
         Expression groupExpr = window.getGroup();
         Expression orderExpr = window.getOrder();
-        List<Expr.FunctionExpr> functionExprList = new ArrayList<>();
+        List<Expr.FunctionExpr> funcExprs = new ArrayList<>();
         List<String> groupColNames = new ArrayList<>();
         List<String> orderColNames = new ArrayList<>();
 
         // values
         if (valueExpr instanceof Expr.FunctionExpr) {
-            functionExprList.add((Expr.FunctionExpr) valueExpr);
+            funcExprs.add((Expr.FunctionExpr) valueExpr);
         } else if (valueExpr instanceof Expr.FunctionArrayExpr) {
-            functionExprList.addAll(((Expr.FunctionArrayExpr) valueExpr).getFunctions());
+            funcExprs.addAll(((Expr.FunctionArrayExpr) valueExpr).getFunctions());
         } else {
             throw new InvalidAggregationValueExpressionTypeException("doPivot(): invalid aggregation value expression type: " + valueExpr.toString());
         }
@@ -107,7 +107,7 @@ public class DfWindow extends DataFrame {
             throw new InvalidColumnExpressionTypeException("doPivot(): invalid pivot column expression type: " + orderExpr.toString());
         }
 
-        preparedArgs.add(functionExprList);
+        preparedArgs.add(funcExprs);
         preparedArgs.add(groupColNames);
         preparedArgs.add(orderColNames);
         return preparedArgs;
@@ -115,8 +115,8 @@ public class DfWindow extends DataFrame {
 
     @Override
     public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
-        List<Expr.FunctionExpr> functionExprList = (List<Expr.FunctionExpr>) preparedArgs.get(0);
-        List<Expr.FunctionExpr> aggrFunctions = new ArrayList<>();
+        List<Expr.FunctionExpr> funcExprs = (List<Expr.FunctionExpr>) preparedArgs.get(0);
+        List<Expr.FunctionExpr> aggrExprs = new ArrayList<>();
         HashMap<String, Expr.FunctionExpr> newColNameAndFunctions = new HashMap<>();
         List<String> groupByColNames = (List<String>) preparedArgs.get(1);
         List<String> orderColNames = (List<String>) preparedArgs.get(2);
@@ -147,80 +147,86 @@ public class DfWindow extends DataFrame {
         }
 
         //Aggregation Function과 Window Function 나눠담기.
-        for (Expr.FunctionExpr func : functionExprList) {
-            if("SUM, AVG, MAX, MIN, COUNT".contains(func.getName().toUpperCase())) {
-                aggrFunctions.add(func);
+        for (Expr.FunctionExpr funcExpr : funcExprs) {
+            switch (funcExpr.getName()) {
+                case "avg":
+                case "count":
+                case "sum":
+                case "min":
+                case "max":
+                    aggrExprs.add(funcExpr);
+                    break;
+                default:
+                    break;
             }
         }
 
         //Aggregation Function들의 값은 aggreatedDF를 만들어서 가져온다.
         DataFrame aggregatedDf = new DfAggregate(dsName, null);
-        if(!aggrFunctions.isEmpty()) {
-            List<String> aggrFunctionStr = new ArrayList<>();
-            for (Expr.FunctionExpr func : aggrFunctions) {
-                aggrFunctionStr.add(func.toString());
-            }
-            aggregatedDf.aggregate(this, groupByColNames, aggrFunctionStr);
+        if(!aggrExprs.isEmpty()) {
+            aggregatedDf.aggregate(this, groupByColNames, aggrExprs);
         }
 
         //새로운 column들을 추가한다.
-        for (Expr.FunctionExpr func : functionExprList) {
-            int i = functionExprList.indexOf(func)+1;
+        for (Expr.FunctionExpr funcExpr : funcExprs) {
+            int i = funcExprs.indexOf(funcExpr) + 1;
             int newColPosition = 0;
 
             //column name
-            String newColName = "window" + i + "_" + func.getName();
-            if(!func.getArgs().isEmpty()) {
-                String refColName = func.getArgs().get(0).toString();
+            String newColName = "window" + i + "_" + funcExpr.getName();
+            List<Expr> args = funcExpr.getArgs();
+
+            if(!args.isEmpty()) {
+                String refColName = args.get(0).toString();
                 newColName = newColName + "_" + refColName;
                 newColPosition = getColnoByColName(refColName) + 1;
             }
 
             //column type
-            ColumnType newColType = ColumnType.UNKNOWN;
-            switch (func.getName()) {
+            ColumnType newColType;
+            switch (funcExpr.getName()) {
                 case "row_number":
-                    if(func.getArgs().size()!=0)
-                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + func.getName());
+                    if(args.size()!=0)
+                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + funcExpr.getName());
                     newColType = ColumnType.LONG;
                     break;
                 case "rolling_avg":
-                    if(func.getArgs().size()!=3)
-                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + func.getName());
-                    if(!prevDf.getColTypeByColName(func.getArgs().get(0).toString()).equals(ColumnType.LONG) && !prevDf.getColTypeByColName(func.getArgs().get(0).toString()).equals(ColumnType.DOUBLE))
-                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): This function works with numeric values only: " + func.getName());
+                    if(args.size()!=3)
+                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + funcExpr.getName());
+                    if(!prevDf.getColTypeByColName(args.get(0).toString()).equals(ColumnType.LONG) && !prevDf.getColTypeByColName(args.get(0).toString()).equals(ColumnType.DOUBLE))
+                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): This function works with numeric values only: " + funcExpr.getName());
                     newColType = ColumnType.DOUBLE;
                     break;
                 case "rolling_sum":
-                    if(func.getArgs().size()!=3)
-                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + func.getName());
-                    if(!prevDf.getColTypeByColName(func.getArgs().get(0).toString()).equals(ColumnType.LONG) && !prevDf.getColTypeByColName(func.getArgs().get(0).toString()).equals(ColumnType.DOUBLE))
-                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): This function works with numeric values only: " + func.getName());
-                    newColType = prevDf.getColTypeByColName(func.getArgs().get(0).toString());
+                    if(args.size()!=3)
+                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + funcExpr.getName());
+                    if(!prevDf.getColTypeByColName(args.get(0).toString()).equals(ColumnType.LONG) && !prevDf.getColTypeByColName(args.get(0).toString()).equals(ColumnType.DOUBLE))
+                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): This function works with numeric values only: " + funcExpr.getName());
+                    newColType = prevDf.getColTypeByColName(args.get(0).toString());
                     break;
                 case "lag":
-                    if(func.getArgs().size()!=2)
-                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + func.getName());
-                    newColType = prevDf.getColTypeByColName(func.getArgs().get(0).toString());
+                    if(args.size()!=2)
+                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + funcExpr.getName());
+                    newColType = prevDf.getColTypeByColName(args.get(0).toString());
                     break;
                 case "lead":
-                    if(func.getArgs().size()!=2)
-                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + func.getName());
-                    newColType = prevDf.getColTypeByColName(func.getArgs().get(0).toString());
+                    if(args.size()!=2)
+                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + funcExpr.getName());
+                    newColType = prevDf.getColTypeByColName(args.get(0).toString());
                     break;
                 case "sum":
                 case "max":
                 case "min":
                 case "avg":
                 case "count":
-                    newColType = aggregatedDf.getColType(groupByColNames.size() + aggrFunctions.indexOf(func));
+                    newColType = aggregatedDf.getColType(groupByColNames.size() + aggrExprs.indexOf(funcExpr));
                     break;
                 default:
-                    throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Unsupported window function: " + func.getName());
+                    throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Unsupported window function: " + funcExpr.getName());
             }
 
             newColName = addColumnWithTimestampStyle(newColPosition, newColName, newColType, null);
-            newColNameAndFunctions.put(newColName, func);
+            newColNameAndFunctions.put(newColName, funcExpr);
             interestedColNames.add(newColName);
         }
 
@@ -258,24 +264,25 @@ public class DfWindow extends DataFrame {
                     newRow.add(getColName(j), row.get(getColName(j)));
                 }
                 else {
-                    Expr.FunctionExpr func = newColNameAndFunctions.get(getColName(j));
+                    Expr.FunctionExpr funcExpr = newColNameAndFunctions.get(getColName(j));
+                    List<Expr> args = funcExpr.getArgs();
                     String targetColName;
                     int start;
                     int end;
 
                     //Aggregate Function 인경우의 처리. 미리 구해놓은 값을 넣어준다.
-                    if (aggrFunctions.contains(func)) {
-                        Object value = aggregatedValues.get(aggrFunctions.indexOf(func));
+                    if (aggrExprs.contains(funcExpr)) {
+                        Object value = aggregatedValues.get(aggrExprs.indexOf(funcExpr));
                         newRow.add(getColName(j), value);
                     } else {//Window Function인 경우의 처리.
-                        switch (func.getName()) {
+                        switch (funcExpr.getName()) {
                             case "row_number":
                                 newRow.add(getColName(j), (long) count++);
                                 break;
                             case "rolling_sum":
-                                targetColName = func.getArgs().get(0).toString();
-                                start = i - func.getArgs().get(1).eval(row).asInt();
-                                end = i + func.getArgs().get(2).eval(row).asInt() + 1;
+                                targetColName = args.get(0).toString();
+                                start = i - args.get(1).eval(row).asInt();
+                                end = i + args.get(2).eval(row).asInt() + 1;
 
                                 if (this.getColTypeByColName(targetColName) == ColumnType.LONG) {
                                     long value = 0L;
@@ -296,9 +303,9 @@ public class DfWindow extends DataFrame {
                                 }
                                 break;
                             case "rolling_avg":
-                                targetColName = func.getArgs().get(0).toString();
-                                start = i - func.getArgs().get(1).eval(row).asInt();
-                                end = i + func.getArgs().get(2).eval(row).asInt() + 1;
+                                targetColName = args.get(0).toString();
+                                start = i - args.get(1).eval(row).asInt();
+                                end = i + args.get(2).eval(row).asInt() + 1;
                                 int avg_count = 0;
 
                                 if (this.getColTypeByColName(targetColName) == ColumnType.LONG) {
@@ -323,8 +330,8 @@ public class DfWindow extends DataFrame {
                                 }
                                 break;
                             case "lag":
-                                targetColName = func.getArgs().get(0).toString();
-                                start = i - func.getArgs().get(1).eval(row).asInt();
+                                targetColName = args.get(0).toString();
+                                start = i - args.get(1).eval(row).asInt();
 
                                 if (start >= 0 && partitionNumber.get(start) == partitionIndex) {
                                     newRow.add(getColName(j), rows.get(start).get(targetColName));
@@ -333,8 +340,8 @@ public class DfWindow extends DataFrame {
                                 }
                                 break;
                             case "lead":
-                                targetColName = func.getArgs().get(0).toString();
-                                start = i + func.getArgs().get(1).eval(row).asInt();
+                                targetColName = args.get(0).toString();
+                                start = i + args.get(1).eval(row).asInt();
 
                                 if (start >= 0 && start < rows.size() && partitionNumber.get(start) == partitionIndex) {
                                     newRow.add(getColName(j), rows.get(start).get(targetColName));
@@ -343,7 +350,7 @@ public class DfWindow extends DataFrame {
                                 }
                                 break;
                             default:
-                                throw new WrongWindowFunctionExpressionException("There is no window function like " + func.getName());
+                                throw new WrongWindowFunctionExpressionException("There is no window function like " + funcExpr.getName());
                         }
                     }
                 }

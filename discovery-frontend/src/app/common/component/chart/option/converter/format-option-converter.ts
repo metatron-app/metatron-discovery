@@ -257,6 +257,7 @@ export class FormatOptionConverter {
           value = '£ ' + value;
           break;
         case String(UIFormatCurrencyType.JPY) :
+        case String(UIFormatCurrencyType.CNY) :
           value = '¥ ' + value;
           break;
         case String(UIFormatCurrencyType.EUR) :

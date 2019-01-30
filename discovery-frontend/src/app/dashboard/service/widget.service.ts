@@ -163,9 +163,9 @@ export class WidgetService extends AbstractService {
    * @param {boolean} preview
    * @returns {Promise<any>}
    */
-  public previewWidget(widgetId: string, original: boolean, preview: boolean): Promise<any> {
+  public previewWidget(widgetId: string, original: boolean, preview:boolean, param: any = null): Promise<any> {
     const url = this.API_URL + `widgets/${widgetId}/data?original=${original}&preview=${preview}`;
-    return this.post(url, null);
+    return this.post(url, param);
   } // function - previewWidget
 
   /**
@@ -176,7 +176,7 @@ export class WidgetService extends AbstractService {
    * @param {string} fileType
    * @returns {Observable<any>}
    */
-  public downloadWidget(widgetId: string, original: boolean, maxRowsPerSheet?: number, fileType?: string): Observable<any> {
+  public downloadWidget(widgetId: string, original: boolean, maxRowsPerSheet?: number, fileType?: string, param: any = null): Observable<any> {
 
     // URL
     let url: string = this.API_URL + 'widgets/' + widgetId + '/download?original=' + original;
@@ -191,7 +191,7 @@ export class WidgetService extends AbstractService {
     // 헤더
     let headers = new Headers({
       'Accept': strType,
-      'Content-Type': 'application/octet-binary',
+      'Content-Type': 'application/json',
       'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
     });
 
@@ -202,7 +202,7 @@ export class WidgetService extends AbstractService {
     };
 
     // 호출
-    return this.http.post(url, null, option)
+    return this.http.post(url, param, option)
       .map((res) => {
         return new Blob([res.blob()], {type: strType})
       });

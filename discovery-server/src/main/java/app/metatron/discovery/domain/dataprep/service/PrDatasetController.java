@@ -63,10 +63,10 @@ public class PrDatasetController {
     private PrepDatasetFileService datasetFileService;
 
     @Autowired(required = false)
-    private PrepDatasetJdbcService datasetJdbcService;
+    private PrepDatasetDatabaseService datasetJdbcService;
 
     @Autowired(required = false)
-    private PrepDatasetSparkHiveService datasetSparkHiveService;
+    private PrepDatasetStagingDbService datasetStagingDbService;
 
     @Autowired(required = false)
     private PrepHdfsService hdfsService;
@@ -137,8 +137,6 @@ public class PrDatasetController {
         return resourceAssembler.toResource(savedDataset);
     }
 
-
-
     @RequestMapping(value = "/{dsId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<?> getDataset(
@@ -175,7 +173,6 @@ public class PrDatasetController {
         }
 
         return ResponseEntity.status(HttpStatus.SC_OK).body(projectedDataset);
-        //return ResponseEntity.status(HttpStatus.SC_OK).body(persistentEntityResourceAssembler.toFullResource(dataset));
     }
 
     @RequestMapping(value = "/{dsId}", method = RequestMethod.PATCH)
@@ -196,14 +193,6 @@ public class PrDatasetController {
             patchDataset = datasetResource.getContent();
 
             this.datasetService.patchAllowedOnly(dataset, patchDataset);
-            /*
-            ObjectMapper objectMapper = GlobalObjectMapper.getDefaultMapper();
-            JsonPatchPatchConverter jsonPatchPatchConverter = new JsonPatchPatchConverter(objectMapper);
-            String json = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(patchDataset);
-            JsonNode jsonNode = objectMapper.valueToTree(patchDataset);
-            Patch patch = jsonPatchPatchConverter.convert(jsonNode);
-            patch.apply(dataset, PrDataset.class);
-            */
 
             savedDataset = datasetRepository.save(dataset);
             LOGGER.debug(savedDataset.toString());
@@ -379,6 +368,7 @@ public class PrDatasetController {
         return ResponseEntity.ok(response);
     }
 
+    /*
     @RequestMapping(value = "/jdbc", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> previewJdbc(
             @RequestParam(value = "sql", required = false, defaultValue = "") String sql,
@@ -395,6 +385,7 @@ public class PrDatasetController {
         }
         return ResponseEntity.ok(response);
     }
+    */
 
     @RequestMapping(value = "/staging", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> previewStaging(
@@ -404,7 +395,7 @@ public class PrDatasetController {
             @RequestParam(value = "size", required = false, defaultValue = "50") String size ) {
         Map<String, Object> response = null;
         try {
-            response = this.datasetSparkHiveService.getPreviewStagedb(sql,dbname,tblname,size);
+            response = this.datasetStagingDbService.getPreviewStagedb(sql,dbname,tblname,size);
         } catch (Exception e) {
             LOGGER.error("previewStaging(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
@@ -419,7 +410,7 @@ public class PrDatasetController {
         List<String> response;
 
         try {
-            response = this.datasetSparkHiveService.getQuerySchemas(queryRequest);
+            response = this.datasetStagingDbService.getQuerySchemas(queryRequest);
         } catch (Exception e) {
             LOGGER.error("querySchemas(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
@@ -434,77 +425,10 @@ public class PrDatasetController {
         List<String> response = null;
 
         try {
-            response = this.datasetSparkHiveService.getQueryTables(queryRequest);
+            response = this.datasetStagingDbService.getQueryTables(queryRequest);
         } catch (Exception e) {
             LOGGER.error("queryTables(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
-        }
-        return ResponseEntity.ok(response);
-    }
-
-    @RequestMapping(value = "/reload_preview/{dsId}", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> previewFileCheckSheet(@PathVariable(value = "dsId") String dsId,
-            @RequestParam(value = "sheetindex", required = false, defaultValue = "0") String sheetindex,
-            @RequestParam(value = "resultSize", required = false, defaultValue = "2000") String size ) {
-        Map<String, Object> response = null;
-        /*
-        try {
-            PrDataset dataset = this.datasetRepository.findOne(dsId);
-            if(null==dataset) {
-                LOGGER.error("previewFileCheckSheet(): no dataset : "+ dsId);
-                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
-            }
-            if(dataset.getDsType() != PrDataset.DS_TYPE.IMPORTED) {
-                LOGGER.error("previewFileCheckSheet(): not imported type : "+ dsId);
-                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NOT_IMPORTED_DATASET);
-            }
-            if(dataset.getImport()==PrDataset.IMPORT_TYPE.FILE) {
-                String filekey = dataset.getFilekey();
-                if (null != filekey) {
-                    DataFrame dataFrame = this.datasetFileService.getPreviewLinesFromFileForDataFrame(dataset, filekey, sheetindex, size);
-                    if (null != dataFrame) {
-                        int previewSize = this.previewLineService.putPreviewLines(dsId, dataFrame);
-                        response = Maps.newHashMap();
-                        response.put("gridResponse", dataFrame);
-                    }
-                }
-            } else if(dataset.getImport()==PrDataset.IMPORT_TYPE.HIVE) {
-                DataFrame dataFrame = this.datasetSparkHiveService.getPreviewLinesFromStagedbForDataFrame(dataset,size);
-                if (null != dataFrame) {
-                    int previewSize = this.previewLineService.putPreviewLines(dsId, dataFrame);
-                    response = Maps.newHashMap();
-                    response.put("gridResponse", dataFrame);
-                }
-            } else if(dataset.getImport()==PrDataset.IMPORT_TYPE.DB) {
-                DataFrame dataFrame = this.datasetJdbcService.getPreviewLinesFromJdbcForDataFrame(dataset,size);
-                if (null != dataFrame) {
-                    int previewSize = this.previewLineService.putPreviewLines(dsId, dataFrame);
-                    response = Maps.newHashMap();
-                    response.put("gridResponse", dataFrame);
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.error("previewFileCheckSheet(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
-        }
-        */
-        return ResponseEntity.ok(response);
-    }
-
-    @RequestMapping(value = "/file/{fileKey:.+}", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> fileCheckSheet(@PathVariable(value = "fileKey") String fileKey,
-                                                          @RequestParam(value = "sheetname", required = false) String sheetname,
-                                                          @RequestParam(value = "sheetindex", required = false, defaultValue = "0") String sheetindex,
-                                                          @RequestParam(value = "resultSize", required = false, defaultValue = "250") String size,
-                                                          @RequestParam(value = "delimiterRow", required = false, defaultValue = "\n") String delimiterRow,
-                                                          @RequestParam(value = "delimiterCol", required = false, defaultValue = ",") String delimiterCol,
-                                                          @RequestParam(value = "hasFields", required = false, defaultValue = "N") String hasFieldsFlag) {
-        Map<String, Object> response = null;
-        try {
-            response = this.datasetFileService.fileCheckSheet3( fileKey, size, delimiterRow, delimiterCol );
-        } catch (Exception e) {
-            LOGGER.error("fileCheckSheet(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
         }
         return ResponseEntity.ok(response);
     }
@@ -517,7 +441,7 @@ public class PrDatasetController {
                                                           @RequestParam(value = "delimiterCol", required = false, defaultValue = ",") String delimiterCol ) {
         Map<String, Object> response = null;
         try {
-            response = this.datasetFileService.fileCheckSheet3( storedUri, size, delimiterRow, delimiterCol );
+            response = this.datasetFileService.fileCheckSheet( storedUri, size, delimiterRow, delimiterCol );
         } catch (Exception e) {
             LOGGER.error("fileCheckSheet(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
@@ -537,7 +461,6 @@ public class PrDatasetController {
         }
         return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
     }
-    */
 
     @RequestMapping(value = "/upload_async", method = RequestMethod.POST, produces = "application/json")
     public @ResponseBody ResponseEntity<?> upload_async(@RequestParam("file") MultipartFile file) {
@@ -562,6 +485,7 @@ public class PrDatasetController {
         }
         return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
     }
+    */
 
     @RequestMapping(value = "/check_hdfs", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody ResponseEntity<?> checkHdfs() {

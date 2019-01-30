@@ -1304,6 +1304,15 @@
   "msg.dp.ui.aggregate.warning.grid-top2" : "Results for all data may vary. (aggregate)",
   "msg.dp.alert.fail.change.ssName" : "Failed to modify snapshot name",
   "msg.dp.alert.modify.sSname" : "Snapshot name modified",
+  "msg.dp.btn.csv.download" : "Download as CSV",
+  "msg.dp.btn.json.download" : "Download as JSON",
+  "msg.dp.ui.detail": "Detail",
+  "msg.dp.ui.grid" : "Grid",
+  "msg.dp.ui.error.log" : "Error log",
+  "msg.dp.th.file.uri" : "File URI",
+  "msg.dp.alert.no.backtick.colname": "Cannot use back quotes in column name",
+  "msg.dp.alert.duplicate.colname" : "Already in use",
+  "msg.dp.alert.empty.column" : "Column name must not be empty",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",
@@ -2128,6 +2137,11 @@
   "msg.storage.ui.intervals": "Data range",
   "msg.storage.ui.intervals.units": "segment granularity units",
   "msg.storage.ui.intervals.valid.unit": "The interval should set equal to or greater than the range of data values in the timestamp column, and the number of segments units cannot exceed 10,000.",
+  "msg.storage.ui.file.result.FV001": "Column name contains an invalid character",
+  "msg.storage.ui.file.result.FV002": "The first row contains merged cells. The new row is used as the head column.",
+  "msg.storage.ui.file.result.FV003": "Duplicate column name not available.",
+  "msg.storage.ui.file.result.FV004": "Column names are allowed up to 50 characters.",
+  "msg.storage.ui.file.result.FV005": "Empty column name is not allowed.",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job name, application ID, and User",
@@ -3136,5 +3150,7 @@
   "msg.metadata.ui.info" : "Metadata information",
   "msg.metadata.ui.enter.tag" : "Enter tag",
   "msg.metadata.th.column.logical.tooltip.title" : "What is logical column name?",
-  "msg.metadata.th.column.logical.tooltip.desc" : "Logical column name is the column name that is commonly used by the user in Metatron. It is specified as a logical name when creating business terms or index for users. Logical column names are used in Metatron when creating a chart or workbench."
+  "msg.metadata.th.column.logical.tooltip.desc" : "Logical column name is the column name that is commonly used by the user in Metatron. It is specified as a logical name when creating business terms or index for users. Logical column names are used in Metatron when creating a chart or workbench.",
+  "msg.catalog.alert.catalog.already.exists" : "Catalog already exists",
+  "msg.catalog.alert.catalog.create.success" : "'{{value}}' catalog is created."
 }

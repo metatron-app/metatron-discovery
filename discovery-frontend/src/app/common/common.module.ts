@@ -58,6 +58,7 @@ import { ColorPickerComponent } from './component/color-picker/color.picker.comp
 import { GradationGeneratorComponent } from './component/gradation/gradation-generator.component';
 import { DashboardDatasourceComboComponent } from '../dashboard/component/dashboard-datasource-combo.component';
 import { ColorTemplateComponent } from './component/color-picker/color-template.component';
+import {InputComponent} from "./component/input/input.component";
 import {SvgIconComponent} from "./component/icon/svg-icon.component";
 
 
@@ -105,7 +106,8 @@ import {SvgIconComponent} from "./component/icon/svg-icon.component";
     GradationGeneratorComponent,
     DashboardDatasourceComboComponent,
     ColorTemplateComponent,
-    SvgIconComponent
+    SvgIconComponent,
+    InputComponent
   ],
   exports: [
     AngularCommonModule,
@@ -149,7 +151,8 @@ import {SvgIconComponent} from "./component/icon/svg-icon.component";
     GradationGeneratorComponent,
     DashboardDatasourceComboComponent,
     ColorTemplateComponent,
-    SvgIconComponent
+    SvgIconComponent,
+    InputComponent
   ],
   providers: [
     {

@@ -42,7 +42,7 @@ import {
   LogicalType
 } from '../domain/datasource/datasource';
 import {
-  BarMarkType,
+  BarMarkType, ChartColorType,
   ChartType,
   EventType,
   LegendConvertType,
@@ -169,9 +169,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
   @ViewChild('gridChart')
   private gridChart: GridChartComponent;
-
-  @ViewChild('pageName')
-  private pageName: ElementRef;
 
   @ViewChild('formatOption')
   private formatOption: FormatOptionComponent;
@@ -1109,7 +1106,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.isPageNameEdit = !this.isPageNameEdit;
     this.editingPageName = this.widget.name;
     this.changeDetect.detectChanges();
-    this.pageName.nativeElement.focus();
   }
 
   /**
@@ -3844,6 +3840,35 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if ('map' !== this.selectChart && uiCloneQuery.pivot.columns.length + uiCloneQuery.pivot.rows.length + uiCloneQuery.pivot.aggregations.length === 0) {
       return;
     }
+
+    // (bar차트) 행 또는 교차 선반에 값이 올라갈 경우 차원값 색상 및 범례 변경
+    if ('bar' == this.selectChart ) {
+
+      let isChangeDimensionType : boolean = false;
+
+      // 행선반에 dimension 값이 처음 생기는 경우
+      this.pivot.rows.forEach((item) => {
+        if (item.type === String(ShelveFieldType.DIMENSION)) {
+          isChangeDimensionType = true;
+        }
+      });
+
+      // 교차선반에 dimension 값이 처음 생기는 경우
+      this.pivot.aggregations.forEach((item) => {
+        if (item.type === String(ShelveFieldType.DIMENSION)) {
+          isChangeDimensionType = true;
+        }
+      });
+
+      // dimension color 변경
+      if( isChangeDimensionType ) {
+        this.uiOption.color['schema'] = 'SC1';
+        this.uiOption.color['type'] = ChartColorType.DIMENSION;
+        this.uiOption.color['targetField'] = '';
+      }
+
+    } // end if - barChart
+
     this.loadingShow();
     this.isNoData = false;
     this.isError = false;

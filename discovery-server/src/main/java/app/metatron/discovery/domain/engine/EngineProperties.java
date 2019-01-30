@@ -208,138 +208,6 @@ public class EngineProperties {
     }
   }
 
-  public static class HiveConnection {
-
-    String hostname;
-
-    int port;
-
-    String url;
-
-    String username;
-
-    String password;
-
-    String metastore;
-
-    String keytab;
-
-    boolean strictMode;
-
-    //hive metastore connection info
-    String metastoreHost;
-    String metastorePort;
-    String metastoreSchema;
-    String metastoreUserName;
-    String metastorePassword;
-
-    public HiveConnection() {
-    }
-
-    public String getHostname() {
-      return hostname;
-    }
-
-    public void setHostname(String hostname) {
-      this.hostname = hostname;
-    }
-
-    public int getPort() {
-      return port;
-    }
-
-    public void setPort(int port) {
-      this.port = port;
-    }
-
-    public String getUrl() {
-      return url;
-    }
-
-    public void setUrl(String url) {
-      this.url = url;
-    }
-
-    public String getUsername() {
-      return username;
-    }
-
-    public void setUsername(String username) {
-      this.username = username;
-    }
-
-    public String getPassword() {
-      return password;
-    }
-
-    public void setPassword(String password) {
-      this.password = password;
-    }
-
-    public String getMetastore() {
-      return metastore;
-    }
-
-    public void setMetastore(String metastore) {
-      this.metastore = metastore;
-    }
-
-    public String getKeytab() {
-      return keytab;
-    }
-
-    public void setKeytab(String keytab) {
-      this.keytab = keytab;
-    }
-
-    public boolean isStrictMode() {
-      return strictMode;
-    }
-
-    public void setStrictMode(boolean strictMode) {
-      this.strictMode = strictMode;
-    }
-
-    public String getMetastorePassword() {
-      return metastorePassword;
-    }
-
-    public void setMetastorePassword(String metastorePassword) {
-      this.metastorePassword = metastorePassword;
-    }
-
-    public String getMetastoreHost() {
-      return metastoreHost;
-    }
-
-    public void setMetastoreHost(String metastoreHost) {
-      this.metastoreHost = metastoreHost;
-    }
-
-    public String getMetastorePort() {
-      return metastorePort;
-    }
-
-    public void setMetastorePort(String metastorePort) {
-      this.metastorePort = metastorePort;
-    }
-
-    public String getMetastoreSchema() {
-      return metastoreSchema;
-    }
-
-    public void setMetastoreSchema(String metastoreSchema) {
-      this.metastoreSchema = metastoreSchema;
-    }
-
-    public String getMetastoreUserName() {
-      return metastoreUserName;
-    }
-
-    public void setMetastoreUserName(String metastoreUserName) {
-      this.metastoreUserName = metastoreUserName;
-    }
-  }
 
   /**
    * 엔진(Druid) 적재를 위한 정보
@@ -351,11 +219,6 @@ public class EngineProperties {
 
     @Deprecated
     Map<String, Host> hosts = Maps.newHashMap();
-
-    /**
-     * StageDB 연결을 위한 정보
-     */
-    HiveConnection hive;
 
     /**
      * 적재를 위한 파일 처리 정보
@@ -397,14 +260,6 @@ public class EngineProperties {
       this.hosts = hosts;
     }
 
-    public HiveConnection getHive() {
-      return hive;
-    }
-
-    public void setHive(HiveConnection hive) {
-      this.hive = hive;
-    }
-
     public FileLoaderProperties getLoader() {
       return loader;
     }
@@ -416,7 +271,6 @@ public class EngineProperties {
     @Override
     public String toString() {
       return "IngestionInfo{" +
-          ", hive=" + hive +
           ", loader=" + getLoader() +
           '}';
     }

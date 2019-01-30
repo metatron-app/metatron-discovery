@@ -76,6 +76,10 @@ export class MetadataModelService extends AbstractService {
     this._selectedMetadata = metadata;
   }
 
+  public updateMetadataName(name: string): void {
+    this._selectedMetadata.name = name;
+  }
+
   /**
    * 생성 데이터 오브젝트 조회
    * @returns {Object}
