@@ -48,7 +48,7 @@
         {{ isShortLabel ? 'Y' : 'Last Year' }}
       </li>
     </ul>
-    <div (click)="setRelative( 'PREVIOUS', selectedTimeUnitItem.value.toString(), 2 )" [class.ddp-selected]="isSelectedRelative('INPUT', 'PREVIOUS')" class="ddp-btn-time" style="height:30px;">
+    <div [class.ddp-selected]="isSelectedRelative('INPUT', 'PREVIOUS')" class="ddp-btn-time" style="height:30px;">
       <div class="ddp-form-multy">
         <span class="ddp-txt-label" >Last</span>
         <div class="ddp-box-multy ddp-clear ddp-form-time">
@@ -59,7 +59,7 @@
           <div (click)="isShowLastComboOpts = !isShowLastComboOpts"
                (clickOutside)="isShowLastComboOpts = false"
                [ngClass]="{'ddp-selected' : isShowLastComboOpts}" class="ddp-type-selectbox" >
-            <span class="ddp-txt-selectbox">{{selectedTimeUnitItem?.name}}</span>
+            <span class="ddp-txt-selectbox">{{selectedTimeUnitItem.name}}</span>
             <ul class="ddp-list-selectbox ddp-selectdown ddp-pass">
               <li *ngFor="let item of timeUnitComboList"
                   (click)="setRelative('PREVIOUS', item.value.toString());" >
