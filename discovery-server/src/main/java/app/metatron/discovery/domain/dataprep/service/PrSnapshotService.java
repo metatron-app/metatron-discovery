@@ -15,7 +15,7 @@
 package app.metatron.discovery.domain.dataprep.service;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.dataprep.PrepDatasetSparkHiveService;
+import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
 import app.metatron.discovery.domain.dataprep.PrepHdfsService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
@@ -49,11 +49,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 
 @Service
 public class PrSnapshotService {
@@ -66,7 +63,7 @@ public class PrSnapshotService {
     PrDataflowRepository dataflowRepository;
 
     @Autowired
-    private PrepDatasetSparkHiveService datasetSparkHiveService;
+    private PrepDatasetStagingDbService datasetStagingDbService;
 
     @Autowired
     PrepHdfsService hdfsService;
@@ -185,7 +182,7 @@ public class PrSnapshotService {
                     if(Strings.isNullOrEmpty(fileType)) {
                         fileType = "csv";
                     }
-                    this.datasetSparkHiveService.writeSnapshot(response.getOutputStream(), dbName, sql, fileType);
+                    this.datasetStagingDbService.writeSnapshot(response.getOutputStream(), dbName, sql, fileType);
 
                     fileName = snapshot.getDsName() + "." + fileType;
                 }
@@ -308,7 +305,7 @@ public class PrSnapshotService {
                     String dbName = snapshot.getDbName();
                     String tblName = snapshot.getTblName();
                     String sql = "DROP TABLE IF EXISTS "+dbName+"."+tblName;
-                    this.datasetSparkHiveService.dropHiveSnapshotTable(sql);
+                    this.datasetStagingDbService.dropHiveSnapshotTable(sql);
                 }
             } catch (Exception e) {
                 throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
