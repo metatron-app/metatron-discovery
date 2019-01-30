@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
 import { Modal } from '../../common/domain/modal';
@@ -27,6 +27,7 @@ import {MetadataDetailColumnschemaComponent} from "./metadata-detail-columnschem
 import {ChooseColumnDictionaryComponent} from "../component/choose-column-dictionary/choose-column-dictionary.component";
 import {ColumnDictionary} from "../../domain/meta-data-management/column-dictionary";
 import {CodeTable} from "../../domain/meta-data-management/code-table";
+import {Metadata} from "../../domain/meta-data-management/metadata";
 
 @Component({
   selector: 'app-metadata-detail',
@@ -175,20 +176,12 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
 
   /**
    * 이름 에디터 모드로 변경
-   * @param $event
    */
-  public onNameEdit($event: Event): void {
+  public onNameEdit(): void {
 
-    $event.stopPropagation();
-    this.isNameEdit = !this.isNameEdit;
-
-    if (this.isDescEdit) {
-      this.isDescEdit = false;
-    }
-
+    this.isNameEdit = true;
     this.editingName = this.metadataModelService.getMetadata().name;
-    this.changeDetect.detectChanges();
-    this.metadataName.nativeElement.focus();
+
   } // function - onNameEdit
 
   /**
@@ -210,10 +203,11 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     this.name = this.editingName.trim();
 
     // TODO : server 호출
-    this.metadataService.updateMetadata(this.selectedMetadataId, {name : this.name}).then((result) => {
-      this.metadataModelService.setMetadata(result);
-    }).catch(() => {
-
+    this.metadataService.updateMetadata(this.selectedMetadataId, {name : this.name}).then((result:Metadata) => {
+      this.metadataModelService.updateMetadataName(result.name);
+    }).catch((error) => {
+      console.info(error);
+      Alert.error('Failed to modify metadata name');
     })
   } // function - onNameChange
 

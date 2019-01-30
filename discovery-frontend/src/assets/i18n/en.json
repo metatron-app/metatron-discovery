@@ -3145,5 +3145,7 @@
   "msg.metadata.ui.info" : "Metadata information",
   "msg.metadata.ui.enter.tag" : "Enter tag",
   "msg.metadata.th.column.logical.tooltip.title" : "What is logical column name?",
-  "msg.metadata.th.column.logical.tooltip.desc" : "Logical column name is the column name that is commonly used by the user in Metatron. It is specified as a logical name when creating business terms or index for users. Logical column names are used in Metatron when creating a chart or workbench."
+  "msg.metadata.th.column.logical.tooltip.desc" : "Logical column name is the column name that is commonly used by the user in Metatron. It is specified as a logical name when creating business terms or index for users. Logical column names are used in Metatron when creating a chart or workbench.",
+  "msg.catalog.alert.catalog.already.exists" : "Catalog already exists",
+  "msg.catalog.alert.catalog.create.success" : "'{{value}}' catalog is created."
 }

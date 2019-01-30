@@ -23,12 +23,15 @@
   <!-- box layout -->
   <div class="ddp-box-layout4 ddp-datasource">
     <!-- 검색 영역 -->
-    <div class="ddp-form-search" style="width:86%;">
-      <em class="ddp-icon-search"></em>
-      <input type="text" class="ng-untouched ng-pristine ng-valid" placeholder="{{'msg.board.custom.ui.placeholder' | translate}}" [(ngModel)]="searchText" >
-      <a href="javascript:" class="ddp-btn-search-close" (click)="searchText = ''"></a>
-    </div>
+    <component-input
+      [compType]="'search'"
+      [value]="searchText"
+      [immediately]="true"
+      [optionalStyle]="'width:86%;'"
+      [placeHolder]="'msg.board.custom.ui.placeholder' | translate"
+      (changeValue)="searchText = $event"></component-input>
     <!-- // 검색 영역 -->
+
     <!-- 목록 영역 -->
     <div class="ddp-ui-list-type" >
       <ul class="ddp-list-type ddp-list-popup" >

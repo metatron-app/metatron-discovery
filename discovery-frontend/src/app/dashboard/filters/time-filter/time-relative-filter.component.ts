@@ -44,12 +44,6 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @ViewChild('inputLastValue')
-  private _inputLastValue: ElementRef;
-
-  @ViewChild('inputNextValue')
-  private _inputNextValue: ElementRef;
-
   @ViewChild('filterArea')
   private _filterArea:ElementRef;
 
@@ -289,54 +283,15 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   } // function - isSelectedRelative
 
   /**
-   * 과거 값 설정 - 키보드 이벤트
-   * @param {KeyboardEvent} event
+   * 필터 값 설정
+   * @param {number} filterValue
    */
-  public setLastValue(event: KeyboardEvent) {
-    if (13 === event.keyCode) {
-      const inputVal = this._inputLastValue.nativeElement.value;
-      if (/^[0-9]*$/g.test(inputVal)) {
-        this.targetFilter.value = inputVal;
+  public setFilterValue(filterValue: number) {
+    this.targetFilter.value = filterValue;
 
-        // 값 변경 전달
-        this.changeEvent.emit(this.targetFilter);
-      } else {
-        this.resetLastValue();
-      }
-    }
-  } // function - setLastValue
-
-  /**
-   * 과거 값 초기화
-   */
-  public resetLastValue() {
-    this._inputLastValue.nativeElement.value = this.targetFilter.value;
-  } // function - resetLastValue
-
-  /**
-   * 미래 값 설정 - 키보드 이벤트
-   * @param {KeyboardEvent} event
-   */
-  public setNextValue(event: KeyboardEvent) {
-    if (13 === event.keyCode) {
-      const inputVal = this._inputNextValue.nativeElement.value;
-      if (/^[0-9]*$/g.test(inputVal)) {
-        this.targetFilter.value = inputVal;
-
-        // 값 변경 전달
-        this.changeEvent.emit(this.targetFilter);
-      } else {
-        this.resetNextValue();
-      }
-    }
-  } // function - setNextValue
-
-  /**
-   * 미래 값 초기화
-   */
-  public resetNextValue() {
-    this._inputNextValue.nativeElement.value = this.targetFilter.value;
-  } // function - resetNextValue
+    // 값 변경 전달
+    this.changeEvent.emit(this.targetFilter);
+  } // function - setFilterValue
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
