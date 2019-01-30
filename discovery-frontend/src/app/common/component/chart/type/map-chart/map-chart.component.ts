@@ -12,7 +12,10 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, ElementRef, HostListener, Injector, ViewChild,} from '@angular/core';
+import {
+  AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Injector, Output,
+  ViewChild,
+} from '@angular/core';
 import {BaseChart, ChartSelectInfo} from '../../base-chart';
 import {Pivot} from '../../../../../domain/workbook/configurations/pivot';
 import * as ol from 'openlayers';
@@ -320,7 +323,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * @param shelf
    * @returns {boolean}
    */
-  public isCurrentShelfValid(pivot: Pivot, shelf: Shelf): boolean {
+  public isCurrentShelfValid(shelf: Shelf): boolean {
 
     if (!shelf) return false;
 
@@ -356,7 +359,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       return;
     }
 
-    if (!this.isCurrentShelfValid(this.pivot, this.shelf)) {
+    if (!this.isCurrentShelfValid(this.shelf)) {
       return;
     }
 
