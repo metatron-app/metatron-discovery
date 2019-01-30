@@ -96,6 +96,10 @@ export class SelectDatatypeComponent extends AbstractComponent implements OnInit
    * @param {string} selectType
    */
   public onSelectedDataType(selectType: string): void {
+    // if disabled stageDB
+    if (selectType === 'staging' && !this.isEnableStageDB()) {
+      return;
+    }
     // 생성할 데이터 타입 초기화
     this.metaDataModelService.setCreateData({});
     // 타입 변경

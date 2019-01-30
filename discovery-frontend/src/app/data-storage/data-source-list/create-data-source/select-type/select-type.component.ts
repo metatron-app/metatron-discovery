@@ -82,7 +82,7 @@ export class SelectTypeComponent extends AbstractPopupComponent implements OnIni
         this.step = 'db-data-connection';
         break;
       case 'staging':
-        this.step = 'staging-db-select';
+        this.isEnableStageDB() && (this.step = 'staging-db-select');
         break;
       case 'druid':
         this.step = 'druid-select';

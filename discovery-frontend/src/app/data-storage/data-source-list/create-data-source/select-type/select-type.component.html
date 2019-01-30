@@ -30,7 +30,7 @@
             <em class="ddp-icon-boxbtn-database"></em>
             {{'msg.storage.li.db' | translate}}
           </a>
-          <a href="javascript:" class="ddp-btn-select" (click)="selectType('staging')" *ngIf="isEnableStageDB()">
+          <a href="javascript:" class="ddp-btn-select" [class.ddp-disabled]="!isEnableStageDB()" (click)="selectType('staging')">
             <em class="ddp-icon-boxbtn-staging"></em>
             {{'msg.storage.li.hive' | translate}}
           </a>
