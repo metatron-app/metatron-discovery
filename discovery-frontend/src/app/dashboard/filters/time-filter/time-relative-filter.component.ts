@@ -43,6 +43,12 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  @ViewChild('inputLastValue')
+  private _inputLastValue: ElementRef;
+
+  @ViewChild('inputNextValue')
+  private _inputNextValue: ElementRef;
+
   @ViewChild('filterArea')
   private _filterArea: ElementRef;
 
@@ -223,19 +229,19 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
         break;
     }
     /*
-        // 날짜 설정
-        let objDate = moment();
-        let strPreview: string = '';
-        switch (this.targetFilter.tense) {
-          case TimeRelativeTense.PREVIOUS :
-            objDate.subtract(this.targetFilter.value, strManipulateKey);
-            strPreview = objDate.format(strFormat);
-            strPreview = strPreview + ' ~ ' + moment().format(strFormat);
-            break;
-          case TimeRelativeTense.NEXT :
-            objDate.add(this.targetFilter.value, strManipulateKey);
-            strPreview = objDate.format(strFormat);
-            strPreview = moment().format(strFormat) + ' ~ ' + strPreview;
+    // 날짜 설정
+    let objDate = moment();
+    let strPreview: string = '';
+    switch (this.targetFilter.tense) {
+      case TimeRelativeTense.PREVIOUS :
+        objDate.subtract(this.targetFilter.value, strManipulateKey);
+        strPreview = objDate.format(strFormat);
+        strPreview = strPreview + ' ~ ' + moment().format(strFormat);
+        break;
+      case TimeRelativeTense.NEXT :
+        objDate.add(this.targetFilter.value, strManipulateKey);
+        strPreview = objDate.format(strFormat);
+        strPreview = moment().format(strFormat) + ' ~ ' + strPreview;
             break;
           default :
             strPreview = objDate.format(strFormat);
@@ -248,7 +254,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
     let strPreview: string = '';
     switch (this.targetFilter.tense) {
       case TimeRelativeTense.PREVIOUS :
-        objDate.subtract(this.targetFilter.value, strManipulateKey).add( 1, 'd' );
+        objDate.subtract(this.targetFilter.value, strManipulateKey).add(1, 'd');
         strFormat = 'YYYY-MM-DD';
         strPreview = objDate.format(strFormat);
         strPreview = strPreview + ' ~ ' + moment().format(strFormat);
@@ -257,7 +263,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
         objDate.add(this.targetFilter.value, strManipulateKey);
         strFormat = 'YYYY-MM-DD';
         strPreview = objDate.format(strFormat);
-        strPreview = moment().add( 1, 'd' ).format(strFormat) + ' ~ ' + strPreview;
+        strPreview = moment().add(1, 'd').format(strFormat) + ' ~ ' + strPreview;
         break;
       default :
         strPreview = objDate.format(strFormat);
@@ -307,15 +313,26 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
    * 과거 값 설정 - 키보드 이벤트
    * @param {KeyboardEvent} event
    */
-  public setLastValue(event: KeyboardEvent) {
+  public setLastValueByKeyEvent(event: KeyboardEvent) {
     if (13 === event.keyCode) {
-      const inputVal = this._inputLastValue.nativeElement.value;
-      if (/^[0-9]*$/g.test(inputVal) && 1 < (1 * inputVal)) {
-        this.targetFilter.value = inputVal;
-        this.changeEvent.emit(this.targetFilter); // 값 변경 전달
-      } else {
-        this.resetLastValue();
-      }
+      this.setLastValue();
+    } else if (27 === event.keyCode) {
+      this.resetLastValue();
+    }
+  } // function - setLastValueByKeyEvent
+
+  /**
+   * 과거 값 설정
+   */
+  public setLastValue() {
+    const inputVal = this._inputLastValue.nativeElement.value;
+    if (/^[0-9]*$/g.test(inputVal) && 1 < (1 * inputVal)) {
+      this.targetFilter.value = inputVal;
+
+      // 값 변경 전달
+      this.changeEvent.emit(this.targetFilter);
+    } else {
+      this.resetLastValue();
     }
   } // function - setLastValue
 
@@ -323,22 +340,33 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
    * 과거 값 초기화
    */
   public resetLastValue() {
-    this._inputLastValue.nativeElement.value = this.initialInputValue;
+    this._inputLastValue.nativeElement.value = this.targetFilter.value;
   } // function - resetLastValue
 
   /**
    * 미래 값 설정 - 키보드 이벤트
    * @param {KeyboardEvent} event
    */
-  public setNextValue(event: KeyboardEvent) {
+  public setNextValueByKeyEvent(event: KeyboardEvent) {
     if (13 === event.keyCode) {
-      const inputVal = this._inputNextValue.nativeElement.value;
-      if (/^[0-9]*$/g.test(inputVal) && 1 < (1 * inputVal)) {
-        this.targetFilter.value = inputVal;
-        this.changeEvent.emit(this.targetFilter); // 값 변경 전달
-      } else {
-        this.resetNextValue();
-      }
+      this.setNextValue();
+    } else if (27 === event.keyCode) {
+      this.resetNextValue();
+    }
+  } // function - setNextValueByKeyEvent
+
+  /**
+   * 미래 값 설정
+   */
+  public setNextValue() {
+    const inputVal = this._inputNextValue.nativeElement.value;
+    if (/^[0-9]*$/g.test(inputVal) && 1 < (1 * inputVal)) {
+      this.targetFilter.value = inputVal;
+
+      // 값 변경 전달
+      this.changeEvent.emit(this.targetFilter);
+    } else {
+      this.resetNextValue();
     }
   } // function - setNextValue
 
@@ -346,7 +374,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
    * 미래 값 초기화
    */
   public resetNextValue() {
-    this._inputNextValue.nativeElement.value = this.initialInputValue;
+    this._inputNextValue.nativeElement.value = this.targetFilter.value;
   } // function - resetNextValue
 
   /**
