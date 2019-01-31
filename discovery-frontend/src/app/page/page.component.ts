@@ -2266,7 +2266,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // when it's map chart, option is mapLayer
     if ('map' === chartType && -1 !== type.indexOf('mapLayer')) {
-      return _.indexOf(possibleChartObj[type], chartType) > -1;
+      return _.indexOf(possibleChartObj[type], chartType) > -1 && !this.setDisableMapLayer();
     }
 
     return _.indexOf(possibleChartObj[type], chartType) > -1;
@@ -2364,7 +2364,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (_.eq(this.selectChart, ChartType.MAP)) {
 
       let layerNum = (<UIMapOption>this.uiOption).layerNum;
-
       let currentMapLayer = this.shelf.layers[layerNum];
 
       let fieldPivot: FieldPivot;
@@ -3261,10 +3260,14 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     return valid;
   }
 
+  /**
+   * rnbMenu type set disable in map chart
+   * @returns {boolean}
+   */
   public setDisableMapLayer(): boolean {
 
     let index : number;
-    ( this.rnbMenu.indexOf('1') != -1 ? index = 0 : index = 1);
+    ( this.rnbMenu.indexOf('1') != -1 ? index = 0 : index = (Number(this.rnbMenu.split('mapLayer')[1]) -1) );
 
     return this.setDisableShelf(index);
 

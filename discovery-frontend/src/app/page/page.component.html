@@ -1500,7 +1500,7 @@
             <map-common-option #mapCommonOption *ngIf="isChartShow && 'mapCommon' === rnbMenu" [(uiOption)]="uiOption"></map-common-option>
 
             <map-layer-option #mapLayerOption
-                              *ngIf="isChartShow && ('mapLayer1' === rnbMenu || 'mapLayer2' === rnbMenu)"
+                              *ngIf="isChartShow && ('mapLayer1' === rnbMenu || 'mapLayer2' === rnbMenu) && !setDisableMapLayer()"
                               [(uiOption)]="uiOption"
                               [rnbMenu]="rnbMenu"
                               (drawChartParam)="onSetDrawChartParam($event)"
