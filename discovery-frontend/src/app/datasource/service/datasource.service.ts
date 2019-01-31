@@ -29,7 +29,7 @@ import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid
 import {FilterUtil} from '../../dashboard/util/filter.util';
 import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
 import {Dashboard} from '../../domain/dashboard/dashboard';
-import { Datasource, Field, LogicalType } from '../../domain/datasource/datasource';
+import { Field, LogicalType } from '../../domain/datasource/datasource';
 import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
 import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
 import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
@@ -43,20 +43,24 @@ import {DashboardUtil} from '../../dashboard/util/dashboard.util';
 import { GeoBoundaryFormat, GeoHashFormat } from '../../domain/workbook/configurations/field/geo-field';
 import { UIMapOption } from '../../common/component/chart/option/ui-option/map/ui-map-chart';
 import { ChartUtil } from '../../common/component/chart/option/util/chart-util';
-import {Limit} from "../../domain/workbook/configurations/limit";
 import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
 import {CommonConstant} from "../../common/constant/common.constant";
 import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
 import { UITileLayer } from '../../common/component/chart/option/ui-option/map/ui-tile-layer';
 import { MapLayerType } from '../../common/component/chart/option/define/map/map-common';
+import {Pivot} from "../../domain/workbook/configurations/pivot";
+import {TimezoneService} from "../../data-storage/service/timezone.service";
 
 @Injectable()
 export class DatasourceService extends AbstractService {
 
   private _useMetaDataQuery: boolean = false;
 
+  private _timezoneSvc:TimezoneService;
+
   constructor(protected injector: Injector) {
     super(injector);
+    this._timezoneSvc = this.injector.get( TimezoneService );
   }
 
   /**
@@ -288,6 +292,28 @@ export class DatasourceService extends AbstractService {
     query.dataSource.name = query.dataSource.engineName;
     query.filters = _.cloneDeep(pageConf.filters);
     query.pivot = _.cloneDeep(pageConf.pivot);
+
+    // timezone 처리 - S
+    {
+      const pivotConf:Pivot = query.pivot;
+      if (pivotConf.columns && 0 < pivotConf.columns.length) {
+        pivotConf.columns.forEach(column => {
+          if( LogicalType.TIMESTAMP.toString() === column.subType && column.format ) {
+            column.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
+            column.format.locale = this._timezoneSvc.browserLocal;
+          }
+        });
+      }
+      if (pivotConf.rows && 0 < pivotConf.rows.length) {
+        pivotConf.rows.forEach(row => {
+          if( LogicalType.TIMESTAMP.toString() === row.subType && row.format ) {
+            row.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
+            row.format.locale = this._timezoneSvc.browserLocal;
+          }
+        });
+      }
+    }
+    // timezone 처리 - E
 
     let allPivotFields = [];
 
