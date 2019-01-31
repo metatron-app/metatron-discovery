@@ -418,86 +418,92 @@ export class DatasourceService extends AbstractService {
     // map 차트일때 shelf
     if (_.eq(pageConf.chart.type, ChartType.MAP)) {
 
-      // current layer
-      let layerNum = (<UIMapOption>pageConf.chart).layerNum ? (<UIMapOption>pageConf.chart).layerNum : 0;
-
-      let geoFieldCnt: number = 0;
+      let geoFieldArr: number[] = [];
 
       // check multiple geo type
-      for(let column of query.shelf.layers[layerNum]) {
-        if(column && column.field && column.field.logicalType && (-1 !== column.field.logicalType.toString().indexOf('GEO'))) {
-          geoFieldCnt++;
+      for(let idx=0; idx<query.shelf.layers.length; idx++) {
+
+        let geoFieldCnt: number = 0;
+        for(let column of query.shelf.layers[idx]) {
+          if(column && column.field && column.field.logicalType && (-1 !== column.field.logicalType.toString().indexOf('GEO'))) {
+            geoFieldCnt++;
+          }
         }
+        geoFieldArr.push(geoFieldCnt);
       }
+
 
       // set current layer values
-      for(let layer of query.shelf.layers[layerNum]) {
+      for(let idx=0; idx<query.shelf.layers.length; idx++){
+        for(let layer of query.shelf.layers[idx]) {
 
-        // when it's measure
-        if ('measure' === layer.type) {
+          // when it's measure
+          if ('measure' === layer.type) {
 
-          // add aggregation type
-          layer.aggregationType = layer.aggregationType;
+            // add aggregation type
+            layer.aggregationType = layer.aggregationType;
 
-        // when it's dimension
-        } else if ('dimension' === layer.type) {
+            // when it's dimension
+          } else if ('dimension' === layer.type) {
 
-          // set current layer datasource
-          if (layer.field.dataSource && layer.field.dsId) {
-            query.dataSource.engineName = layer.field.dataSource;
-            query.dataSource.name = layer.field.dataSource;
-            query.dataSource.id = layer.field.dsId;
-          }
-
-          let radius = (<UITileLayer>(<UIMapOption>pageConf.chart).layers[layerNum]).radius;
-
-          // to make reverse (bigger radius => set small precision), get precision from 0 - 100
-          let precision = Math.round((100 - radius) / 8.33);
-
-          if (precision > 12) precision = 12;
-          if (precision < 1) precision = 1;
-
-          if (layer.field && layer.field.logicalType) {
-            // default geo format
-            if(layer.field.logicalType && layer.field.logicalType.toString().indexOf('GEO') > -1) {
-              layer.format = {
-                type: FormatType.GEO.toString()
-              }
+            // set current layer datasource
+            if (layer.field.dataSource && layer.field.dsId) {
+              query.dataSource.engineName = layer.field.dataSource;
+              query.dataSource.name = layer.field.dataSource;
+              query.dataSource.id = layer.field.dsId;
             }
 
-            // when logicalType => geo point
-            if(layer.field.logicalType === LogicalType.GEO_POINT) {
+            let radius = (<UITileLayer>(<UIMapOption>pageConf.chart).layers[idx]).radius;
 
-              // geo_hash is only used in hexagon
-              if (MapLayerType.TILE === (<UIMapOption>pageConf.chart).layers[layerNum].type) {
-                layer.format = <GeoHashFormat>{
-                  type: FormatType.GEO_HASH.toString(),
-                  method: "geohex",
-                  precision: precision
-                }
-              }
+            // to make reverse (bigger radius => set small precision), get precision from 0 - 100
+            let precision = Math.round((100 - radius) / 8.33);
 
-              // when they have multiple geo values
-              if(geoFieldCnt > 1) {
-                layer.format = <GeoBoundaryFormat>{
-                  type: FormatType.GEO_BOUNDARY.toString(),
-                  geoColumn: query.pivot.columns[0].field.name,
-                  descColumn: query.pivot.columns[0].field.name
-                }
-              }
+            if (precision > 12) precision = 12;
+            if (precision < 1) precision = 1;
 
-            // when polygon, line type
-            } else if((layer.field.logicalType === LogicalType.GEO_POLYGON || layer.field.logicalType === LogicalType.GEO_LINE)) {
-              // when they have multiple geo values
-              if(geoFieldCnt > 1) {
+            if (layer.field && layer.field.logicalType) {
+              // default geo format
+              if(layer.field.logicalType && layer.field.logicalType.toString().indexOf('GEO') > -1) {
                 layer.format = {
-                  type: FormatType.GEO_JOIN.toString()
+                  type: FormatType.GEO.toString()
+                }
+              }
+
+              // when logicalType => geo point
+              if(layer.field.logicalType === LogicalType.GEO_POINT) {
+
+                // geo_hash is only used in hexagon
+                if (MapLayerType.TILE === (<UIMapOption>pageConf.chart).layers[idx].type) {
+                  layer.format = <GeoHashFormat>{
+                    type: FormatType.GEO_HASH.toString(),
+                    method: "geohex",
+                    precision: precision
+                  }
+                }
+
+                // when they have multiple geo values
+                if(geoFieldArr[idx] > 1) {
+                  layer.format = <GeoBoundaryFormat>{
+                    type: FormatType.GEO_BOUNDARY.toString(),
+                    geoColumn: query.pivot.columns[0].field.name,
+                    descColumn: query.pivot.columns[0].field.name
+                  }
+                }
+
+                // when polygon, line type
+              } else if((layer.field.logicalType === LogicalType.GEO_POLYGON || layer.field.logicalType === LogicalType.GEO_LINE)) {
+                // when they have multiple geo values
+                if(geoFieldArr[idx] > 1) {
+                  layer.format = {
+                    type: FormatType.GEO_JOIN.toString()
+                  }
                 }
               }
             }
           }
-        }
-      }
+        } // end for (layer)
+      } // end for (layers)
+
 
       query.shelf = {
         type: ShelfType.GEO,
