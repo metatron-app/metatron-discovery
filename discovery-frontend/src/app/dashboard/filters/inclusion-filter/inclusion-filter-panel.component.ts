@@ -363,6 +363,8 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
   public openUpdateFilterPopupForSearch() {
     this.isSearchFocus = false;
     this.originalFilter['tempSearchText'] = this.searchText;
+    this.searchText = '';
+    this.setCandidatePage(1, true);
     this.openUpdateFilterPopup(this.originalFilter);
   } // function - openUpdateFilterPopupForSearch
 

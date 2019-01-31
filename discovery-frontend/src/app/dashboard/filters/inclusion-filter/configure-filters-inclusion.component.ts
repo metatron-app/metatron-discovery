@@ -124,7 +124,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   public searchText: string = '';
 
   // 신규 후보값 이름
-  public newCandidateName:string = '';
+  public newCandidateName: string = '';
 
   // 필터링 관련
   public condition: MeasureInequalityFilter;
@@ -667,6 +667,9 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
         _.remove(this.selectedValues, {name: item.name});
       }
     }
+    if (!this.isShowItem(item)) {
+      this._candidateValues.push(item);
+    }
   } // function - candidateSelect
 
   /**
@@ -684,6 +687,11 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   public candidateShowToggle(item: Candidate) {
     if (this.isShowItem(item)) {
       _.remove(this._candidateValues, {name: item.name});
+      // 선택 정보 제거
+      _.remove(this.selectedValues, {name: item.name});
+      if (this.isSingleSelect(this.targetFilter) && 0 < this._candidateValues.length) {
+        this.selectedValues = [this._candidateValues[0]];
+      }
     } else {
       this._candidateValues.push(item);
     }
@@ -691,6 +699,8 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     if (this.isOnlyShowCandidateValues) {
       this.setCandidatePage(1, true);
     }
+
+    this.safelyDetectChanges();
   } // function candidateShowToggle
 
   /**
@@ -798,12 +808,23 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
         );
     }
 
+    // 목록 설정
     this._candidateList =
       this._candidateList.concat(
         result
           .map(item => this._objToCandidate(item, targetField))
           .filter(item => -1 === this._candidateList.findIndex(can => can.name === item.name))
       );
+
+    // 목록에 선택값이 없을 경우 선택값 추가
+    if (this.selectedValues && 0 < this.selectedValues.length) {
+      this.selectedValues.forEach((selectedItem) => {
+        const item = this._candidateList.find(item => item.name === selectedItem.name);
+        if (isNullOrUndefined(item)) {
+          this._candidateList.push(selectedItem);
+        }
+      });
+    }
 
     this.totalItemCnt = this._candidateList.length;
     (targetFilter.candidateValues) || (targetFilter.candidateValues = []);
