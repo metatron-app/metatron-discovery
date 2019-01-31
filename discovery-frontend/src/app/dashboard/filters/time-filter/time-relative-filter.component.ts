@@ -43,6 +43,12 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  @ViewChild('inputLastValue')
+  private _inputLastValue: ElementRef;
+
+  @ViewChild('inputNextValue')
+  private _inputNextValue: ElementRef;
+
   @ViewChild('filterArea')
   private _filterArea: ElementRef;
 
@@ -322,9 +328,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
     const inputVal = this._inputLastValue.nativeElement.value;
     if (/^[0-9]*$/g.test(inputVal) && 1 < (1 * inputVal)) {
       this.targetFilter.value = inputVal;
-
-      // 값 변경 전달
-      this.changeEvent.emit(this.targetFilter);
+      this.changeEvent.emit(this.targetFilter);   // 값 변경 전달
     } else {
       this.resetLastValue();
     }
@@ -356,17 +360,18 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
     const inputVal = this._inputNextValue.nativeElement.value;
     if (/^[0-9]*$/g.test(inputVal) && 1 < (1 * inputVal)) {
       this.targetFilter.value = inputVal;
-
-      // 값 변경 전달
-      this.changeEvent.emit(this.targetFilter);
+      this.changeEvent.emit(this.targetFilter);   // 값 변경 전달
     } else {
       this.resetNextValue();
     }
   } // function - setNextValue
 
-    // 값 변경 전달
-    this.changeEvent.emit(this.targetFilter);
-  } // function - setFilterValue
+  /**
+   * 미래 값 초기화
+   */
+  public resetNextValue() {
+    this._inputNextValue.nativeElement.value = this.targetFilter.value;
+  } // function - resetNextValue
 
   /**
    * input 의 초기값 반환
@@ -374,6 +379,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   public get initialInputValue() {
     return 1 < this.targetFilter.value ? this.targetFilter.value : 2;
   } // get - initialInputValue
+  
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
