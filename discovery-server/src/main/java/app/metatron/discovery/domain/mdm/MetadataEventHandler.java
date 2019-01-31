@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.mdm;
 
+import app.metatron.discovery.domain.storage.StorageProperties;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,9 @@ public class MetadataEventHandler {
 
   @Autowired
   EngineProperties engineProperties;
+
+  @Autowired
+  StorageProperties storageProperties;
 
   @HandleBeforeCreate
   public void handleBeforeCreate(Metadata metadata) {
@@ -144,19 +148,18 @@ public class MetadataEventHandler {
       String schema = metadataSource.getSchema();
       String tableName = metadataSource.getTable();
 
-      EngineProperties.IngestionInfo ingestionInfo = engineProperties.getIngestion();
-      EngineProperties.HiveConnection hivePropertyConnection = ingestionInfo == null ? null : ingestionInfo.getHive();
+      StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
 
-      if (hivePropertyConnection == null) {
+      if (stageDBConnection == null) {
         throw new IllegalArgumentException("Staging Hive DB info. required.");
       }
 
       HiveConnection hiveConnection = new HiveConnection();
-      hiveConnection.setUrl(hivePropertyConnection.getUrl());
-      hiveConnection.setHostname(hivePropertyConnection.getHostname());
-      hiveConnection.setPort(hivePropertyConnection.getPort());
-      hiveConnection.setUsername(hivePropertyConnection.getUsername());
-      hiveConnection.setPassword(hivePropertyConnection.getPassword());
+      hiveConnection.setUrl(stageDBConnection.getUrl());
+      hiveConnection.setHostname(stageDBConnection.getHostname());
+      hiveConnection.setPort(stageDBConnection.getPort());
+      hiveConnection.setUsername(stageDBConnection.getUsername());
+      hiveConnection.setPassword(stageDBConnection.getPassword());
 
       HiveTableInformation hiveTableInformation =
           jdbcConnectionService.showHiveTableDescription(hiveConnection,

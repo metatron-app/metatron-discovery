@@ -437,14 +437,6 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   }
 
   /**
-   * Search text event
-   * @param {Event} event
-   */
-  public onSearchText(event: KeyboardEvent): void {
-    event.keyCode === 13 && this.searchText(event.target['value']);
-  }
-
-  /**
    * Selected field change event
    * @param field
    * @param {Datasource} source

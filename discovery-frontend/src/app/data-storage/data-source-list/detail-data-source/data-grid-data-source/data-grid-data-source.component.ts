@@ -75,7 +75,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   public isShowLogicalTypesFl: boolean = false;
 
   // 검색어
-  public searchText: string = '';
+  public searchTextKeyword: string;
 
   // 그리도 data num
   public rowNum: number = 100;
@@ -156,15 +156,14 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
 
 
   /**
-   * init searchText
-   * @param {boolean} updateGridFl
+   * Change search text keyword and update grid list
+   * @param text
    */
-  public initSearchText(updateGridFl?: boolean): void {
-    this.searchText = '';
-    // 그리드 업데이트
-    if (updateGridFl) {
-      this._updateGrid(this._gridData, this.fields);
-    }
+  public searchText(text: string): void {
+    // change search text keyword
+    this.searchTextKeyword = text;
+    // update grid
+    this._updateGrid(this._gridData, this.fields);
   }
 
   /**
@@ -178,19 +177,6 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - event
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 검색 이벤트
-   * @param {KeyboardEvent} event
-   */
-  public onSearchText(event: KeyboardEvent): void {
-    if (13 === event.keyCode) {
-      // search text
-      this.searchText = event.target['value'];
-      // grid update
-      this._updateGrid(this._gridData, this.fields);
-    }
-  }
 
   /**
    * role type 필터링 변경 이벤트
@@ -225,7 +211,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    */
   public onClickResetFilter(): void {
     // 검색어 초기화
-    this.initSearchText();
+    this.searchTextKeyword = '';
     // role type
     this.selectedFieldRole = FieldRoleType.ALL;
     // logical type
@@ -279,7 +265,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     ];
     this.selectedLogicalType = this.logicalTypes[0];
     // search
-    this.searchText = '';
+    this.searchTextKeyword = '';
     // filter
     this.fieldRoleType = FieldRoleType;
     this.selectedFieldRole = this.fieldRoleType.ALL;
@@ -324,7 +310,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
         .RowHeight(32)
         .build());
       // search
-      this._gridComponent.search(this.searchText);
+      this._gridComponent.search(this.searchTextKeyword);
       // ExplicitInitialization 을 true 로 줬기 떄문에 init해줘야 한다.
       this.isExistMetaData() && this._gridComponent.grid.init();
     } else {

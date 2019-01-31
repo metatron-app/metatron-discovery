@@ -735,6 +735,7 @@
   "msg.dp.alert.failed.to.delete.snapshot": "IOException while deleting a snapshot",
   "msg.dp.alert.invalid.snapshot.name": "Invalid snapshot name (null or empty)",
   "msg.dp.alert.snapshot.type.not.supported.yet": "Snapshot type not supported",
+  "msg.dp.alert.snapshot.dest.uri.is.needed": "Destination URI for snapshot is needed",
   "msg.dp.alert.unsupported.charset": "Unsupported encoding character set.",
   "msg.dp.alert.unknown.bom": "Unsupported byte-order mark (BOM)",
   "msg.dp.alert.has.no.creator.dataflow" : "Cannot find the creator of the dataflow",
@@ -762,10 +763,12 @@
   "msg.dp.alert.no.data": "There is nothing to add",
   "msg.dp.alert.no.data.union" : "There is no data to Union.",
   "msg.dp.alert.no.dataflow" : "Dataflow does not exist",
+  "msg.dp.alert.using.other.dataflow" : "This dataset is used by another dataflow",
   "msg.dp.alert.no.dataset" : "Dataset does not exist",
+  "msg.dp.alert.no.snapshot" : "Snapshot does not exist",
+  "msg.dp.alert.unsupported.imported.dataset" : "Unsupported imported dataset type",
   "msg.dp.alert.no.flow.info" : "No dataflow information",
   "msg.dp.alert.no.row.data" : " data does not exist",
-  "msg.dp.alert.no.upstream" : "Upstream does not exist",
   "msg.dp.alert.out.of.range": "Value out of range",
   "msg.dp.alert.please.sel.ds": "Please select dataset",
   "msg.dp.alert.redo.fail": "REDO failed",
@@ -791,6 +794,7 @@
   "msg.dp.alert.ss.require.db-name" : "DB name is required",
   "msg.dp.alert.ss.require.output-path" : "Output path is required",
   "msg.dp.alert.ss.require.table-name" : "Table name is required",
+  "msg.dp.alert.ss.require.file-uri" : "File URI is required",
   "msg.dp.alert.ss.sel.format" : "Please select format",
   "msg.dp.alert.stagingdb.connection.error": "Staging DB connection error",
   "msg.dp.alert.success.create.ss": " Data snapshot created",
@@ -1308,6 +1312,9 @@
   "msg.dp.ui.grid" : "Grid",
   "msg.dp.ui.error.log" : "Error log",
   "msg.dp.th.file.uri" : "File URI",
+  "msg.dp.alert.no.backtick.colname": "Cannot use back quotes in column name",
+  "msg.dp.alert.duplicate.colname" : "Already in use",
+  "msg.dp.alert.empty.column" : "Column name must not be empty",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",
@@ -3941,5 +3948,7 @@
   "msg.metadata.ui.info" : "Metadata information",
   "msg.metadata.ui.enter.tag" : "Enter tag",
   "msg.metadata.th.column.logical.tooltip.title" : "What is logical column name?",
-  "msg.metadata.th.column.logical.tooltip.desc" : "Logical column name is the column name that is commonly used by the user in Metatron. It is specified as a logical name when creating business terms or index for users. Logical column names are used in Metatron when creating a chart or workbench."
+  "msg.metadata.th.column.logical.tooltip.desc" : "Logical column name is the column name that is commonly used by the user in Metatron. It is specified as a logical name when creating business terms or index for users. Logical column names are used in Metatron when creating a chart or workbench.",
+  "msg.catalog.alert.catalog.already.exists" : "Catalog already exists",
+  "msg.catalog.alert.catalog.create.success" : "'{{value}}' catalog is created."
 }

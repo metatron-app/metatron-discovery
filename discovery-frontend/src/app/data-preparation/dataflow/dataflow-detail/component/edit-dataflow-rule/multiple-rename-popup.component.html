@@ -1,0 +1,94 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-layout-popuptype" *ngIf="isPopupOpen">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup">
+    <!-- title -->
+    <div class="ddp-ui-popup-title">
+      <span class="ddp-txt-title-name">Rename</span>
+      <div class="ddp-ui-pop-buttons">
+        <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" [ngClass]="{'ddp-disabled': errorEsg }" (click)="applyRename()">
+          {{ getButtonLabel() }}
+        </a>
+      </div>
+    </div>
+    <!-- //title -->
+    <div class="ddp-page-rename">
+      <div class="ddp-wrap-rename">
+        <!-- result -->
+        <div class="ddp-result">
+          <span class="ddp-col">{{gridData?.fields.length}} column(s)</span>
+          <span class="ddp-name">{{datasetName}}</span>
+        </div>
+        <!-- //result -->
+        <!-- column -->
+        <div class="ddp-wrap-list">
+
+          <table class="ddp-table-column">
+            <colgroup>
+              <col width="50%">
+              <col width="50%">
+            </colgroup>
+            <thead>
+            <tr>
+              <th>{{'msg.dp.ui.before' | translate}}</th>
+              <th>{{'msg.dp.ui.after' | translate}}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- 수정될때 ddp-selected 추가 -->
+              <tr *ngFor="let column of columns; let index = index"
+                  [ngClass]="{'ddp-selected': isChanged(column) || isEditing(column),
+                  'ddp-edit':isChanged(column)}">
+                <td>
+                  <span class="ddp-txt-column">{{gridData.fields[index].name}}</span>
+                  <em class="ddp-view"></em>
+                </td>
+                <td>
+                  <!-- edit -->
+                  <!-- 클릭시 ddp-selected 추가 -->
+                  <div class="ddp-box-edit"
+                       [ngClass]="{'ddp-selected': isEditing(column)}"
+                       (click)="editItem(column, index, renamedAsColumns)">
+                    <input type="text" [(ngModel)]="column.renamedAs"
+                           (keydown)="onKeydownHandler($event, column)"
+                           (keyup.enter)="applyRename()"
+                           (focus)="focus(column)"
+                           #renamedAsColumns
+                           (focusout)="focusOut(column,index, $event, renamedAsColumns)">
+                    <em class="ddp-icon-edit"></em>
+                  </div>
+                  <!-- //edit -->
+                  <span class="ddp-txt-error" *ngIf="column.isError"><em class="ddp-icon-error"></em>{{errorEsg}}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- //column -->
+        <!-- grid -->
+        <div class="ddp-wrap-grid">
+          <div class="ddp-ui-grid">
+            <div scroll-grid-component style="width:100%; height: 100%;">
+            </div>
+          </div>
+        </div>
+        <!-- //grid -->
+      </div>
+    </div>
+
+  </div>
+</div>

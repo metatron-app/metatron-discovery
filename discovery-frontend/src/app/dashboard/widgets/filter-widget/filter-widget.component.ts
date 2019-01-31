@@ -342,9 +342,8 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
   /**
    * Include Filter 값 선택
    * @param item
-   * @param $event
    */
-  public onSelectInclude(item: any, $event?: any) {
+  public onSelectInclude(item: any) {
 
     const filter = <InclusionFilter>this.filter;
 
@@ -362,8 +361,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
       filter.valueList.push(item.name);
     } else if (filter.selector === InclusionSelectorType.MULTI_LIST) {
       // 멀티 리스트
-      const checked = $event.target ? $event.target.checked : $event.currentTarget.checked;
-      if (checked) {
+      if (-1 === filter.valueList.indexOf( item.name ) ) {
         filter.valueList.push(item.name);
       } else {
         const idx = filter.valueList.indexOf(item.name);

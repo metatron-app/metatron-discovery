@@ -62,9 +62,6 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
   @ViewChild('main')
   private gridComponent: GridComponent;
 
-  @ViewChild('inputDsRow')
-  private _inputDsRow: ElementRef;  // Main Grid Row 입력
-
   @ViewChild(CreateBoardPopJoinComponent)
   private _joinPopupComp: CreateBoardPopJoinComponent;
 
@@ -267,25 +264,15 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 검색 조회 - 키보드 이벤트
-   * @param {KeyboardEvent} event
+   * Grid Row 설정
+   * @param {number} event
    */
-  public setGridRow(event: KeyboardEvent) {
-    if (13 === event.keyCode) {
-      // Row 설정
-      this.rowNum = this._inputDsRow.nativeElement.value;
-      // 조회
-      this._loadGridData();
-    }
+  public setGridRow(event: number) {
+    // Row 설정
+    this.rowNum = event;
+    // 조회
+    this._loadGridData();
   } // function - setGridRow
-
-  /**
-   * 검색어 리셋
-   */
-  public resetGridRow() {
-    // 검색어 설정
-    this._inputDsRow.nativeElement.value = this.rowNum;
-  } // function - resetGridRow
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Join

@@ -163,15 +163,14 @@
           <!-- Common Menu -->
           <div class="ddp-fleft">
             <!-- search -->
-            <div class="ddp-form-search">
-              <em class="ddp-icon-search"></em>
-              <input type="text" placeholder="{{ (isShowDataGrid ? 'msg.storage.ui.search.data' : 'msg.storage.ui.search.column') | translate}}"
-                     (keyup)="searchData($event)" [ngModel]="srchText"  />
-              <em class="ddp-btn-search-close" *ngIf="srchText && srchText !== ''"
-                  (click)="clearSrchText()"></em>
-            </div>
+            <component-input
+              [compType]="'search'"
+              [value]="srchText"
+              [showClear]="true"
+              [placeHolder]="(isShowDataGrid ? 'msg.storage.ui.search.data' : 'msg.storage.ui.search.column') | translate"
+              (changeValue)="searchData($event)">
+            </component-input>
             <!-- //search -->
-
             <!-- Select Role -->
             <div class="ddp-wrap-edit3">
               <label class="ddp-label-type">{{'msg.comm.th.role' | translate}}</label>

@@ -35,8 +35,13 @@
             <!-- //Slide THREE -->
           </div>
           <!-- //slider -->
-          <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.page.ui.x-axis.title.ph' | translate}}" [(ngModel)]="nameUiOption.xAxis.customName"
-                 (keyup.enter)="axisName('row', $event)" [disabled]="!uiOption.xAxis.showName">
+          <component-input
+            [disabled]="!uiOption.xAxis.showName"
+            [inputClass]="'ddp-input-typebasic'"
+            [placeHolder]="'msg.page.ui.x-axis.title.ph' | translate"
+            [value]="nameUiOption.xAxis.customName"
+            (changeValue)="nameUiOption.xAxis.customName = $event; axisName('row', $event);">
+          </component-input>
         </div>
       </div>
 

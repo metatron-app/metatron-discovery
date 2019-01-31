@@ -42,15 +42,6 @@
 
 package app.metatron.discovery.domain.datasource.ingestion.job;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Map;
-
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.fileloader.FileLoaderFactory;
 import app.metatron.discovery.common.fileloader.FileLoaderProperties;
@@ -63,8 +54,17 @@ import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionService
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.DruidEngineRepository;
 import app.metatron.discovery.domain.engine.EngineProperties;
+import app.metatron.discovery.domain.extension.ExtensionProperties;
 import app.metatron.discovery.domain.geo.GeoService;
+import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.spec.druid.ingestion.Index;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractIngestionJob {
 
@@ -93,6 +93,8 @@ public abstract class AbstractIngestionJob {
   protected List<String> loadedFilePaths;
 
   protected boolean noDateTimeField;
+
+  protected StorageProperties storageProperties;
 
   public AbstractIngestionJob(DataSource dataSource, IngestionHistory ingestionHistory) {
     this.dataSource = dataSource;
@@ -133,6 +135,10 @@ public abstract class AbstractIngestionJob {
     }
 
     dedicatedWorker = engineMetaRepository.dedicatedWorker().orElse(null);
+  }
+
+  public void setStorageProperties(StorageProperties storageProperties) {
+    this.storageProperties = storageProperties;
   }
 
   /**

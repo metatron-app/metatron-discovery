@@ -18,13 +18,14 @@
     <!-- TOP -->
     <div class="ddp-type-top-option ddp-clear">
       <!-- 검색 -->
-      <div class="ddp-form-search ddp-fleft">
-        <em class="ddp-icon-search"></em>
-        <input type="text" placeholder="{{'msg.storage.ui.column.search.description' | translate}}" [(ngModel)]="searchText"
-               (ngModelChange)="onChangedSearchText()"
-               (keyup.esc)="searchText = ''; onChangedSearchText()">
-        <em class="ddp-btn-search-close" *ngIf="searchText !== ''" (click)="searchText = ''; onChangedSearchText()"></em>
-      </div>
+      <component-input
+        [compType]="'search'"
+        [showClear]="true"
+        [optionalClass]="'ddp-fleft'"
+        [value]="searchText"
+        [placeHolder]="'msg.storage.ui.column.search.description' | translate"
+        (changeValue)="onChangedSearchText($event)">
+      </component-input>
       <!-- //검색 -->
       <!-- 필터링 -->
       <div class="ddp-ui-rightoption">

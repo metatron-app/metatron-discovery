@@ -19,11 +19,12 @@
       <!-- 검색 -->
       <div class="ddp-form-search ddp-fleft">
         <em class="ddp-icon-search"></em>
-        <input placeholder="{{'msg.metadata.cat.ui.ph.search' | translate}}"
-               [(ngModel)]="searchText" #searchInput
-               (keyup.enter)="searchCatalog()"
-               (keyup.esc)="refreshFilter()">
-        <em class="ddp-btn-search-close" *ngIf="searchText" (click)="refreshFilter()"></em>
+        <component-input
+          [compType]="'search'"
+          [value]="searchText"
+          [placeHolder]="'msg.metadata.cat.ui.ph.search' | translate"
+          (changeValue)="searchText = $event; searchCatalog();">
+        </component-input>
       </div>
       <!-- //검색 -->
 
@@ -79,7 +80,7 @@
             [ngClass]="{'ddp-selected':selectedCatalog && selectedCatalog.id === catalog.id && !catalog.editing, 'ddp-box-edit': catalog.editing, 'ddp-sub':catalog }"
             *ngFor="let catalog of catalogs; let index = index"
             (click)="catalogDetail(catalog)"
-            (clickOutside)=" cancelEditing(catalog)">
+            (clickOutside)="cancelEditing(catalog)">
           <a>
             <em class="ddp-icon-folder"></em>
             <div class="ddp-wrap-name">

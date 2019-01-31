@@ -21,6 +21,7 @@ import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineQueryService;
 import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
+import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.user.DirectoryProfile;
 import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.user.UserRepository;
@@ -42,6 +43,7 @@ import app.metatron.discovery.util.PolarisUtils;
 import com.google.common.collect.Lists;
 import com.querydsl.core.types.Predicate;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -103,6 +105,9 @@ public class DataSourceService {
 
   @Autowired
   DataSourceProperties dataSourceProperties;
+
+  @Autowired
+  StorageProperties storageProperties;
 
   /**
    * 데이터 소스 엔진 적재시 name 을 기반으로 engin 내 데이터 소스 지정
@@ -383,12 +388,16 @@ public class DataSourceService {
         DataSource.SourceType[] srcTypes = {
             DataSource.SourceType.FILE,
             DataSource.SourceType.HDFS,
-            DataSource.SourceType.HIVE,
             DataSource.SourceType.JDBC,
             DataSource.SourceType.REALTIME,
             DataSource.SourceType.IMPORT,
             DataSource.SourceType.SNAPSHOT
         };
+
+        boolean supportStageDB = storageProperties.getStagedb() != null;
+        if(supportStageDB){
+          srcTypes = ArrayUtils.add(srcTypes, 2, DataSource.SourceType.HIVE);
+        }
 
         for (DataSource.SourceType sourceType : srcTypes) {
           String filterName = sourceType.toString();

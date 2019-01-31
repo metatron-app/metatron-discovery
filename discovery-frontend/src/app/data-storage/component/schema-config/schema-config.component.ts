@@ -410,8 +410,11 @@ export class SchemaConfigComponent extends AbstractComponent {
 
   /**
    * Field search event
+   * @param {string} keyword
    */
-  public onChangedSearchText(): void {
+  public onChangedSearchText(keyword: string): void {
+    // set keyword
+    this.searchText = keyword;
     // filtered field list
     this._setFilteredFieldList();
   }

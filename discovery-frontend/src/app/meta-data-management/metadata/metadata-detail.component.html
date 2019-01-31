@@ -41,21 +41,22 @@
         <div class="ddp-ui-naviarea">
           <!-- name -->
           <!-- 클릭시 ddp-selected 추가 -->
-          <div class="ddp-box-navi" (click)="!isNameEdit ? onNameEdit($event) : $event.stopPropagation();" [class.ddp-selected]="isNameEdit">
-            <div class="ddp-wrap-naviname">
+          <div class="ddp-box-navi" [class.ddp-selected]="isNameEdit" (clickOutside)="isNameEdit = false">
+            <div class="ddp-wrap-naviname" (click)="onNameEdit()">
             <span class="ddp-data-naviname">{{metadataModelService.getMetadata()['name']}}
-              <em *ngIf="!isNameEdit" class="ddp-icon-edit2"></em>
+              <em class="ddp-icon-edit2"></em>
             </span>
             </div>
             <!-- 편집 input -->
             <div class="ddp-wrap-input">
-              <input #metadataName
-                     [(ngModel)]="editingName"
-                     (keyup.enter)="metadataName.blur(); isNameEdit ? onNameChange() : null;"
-                     (clickOutside)="isNameEdit ? onNameEditCancel() : null"
-                     maxlength="50"
-                     class="ddp-input-navi" placeholder="{{'msg.metadata.ui.name.ph' | translate }}">
-              <span class="ddp-btn-check" (click)="$event.stopPropagation(); onNameChange()"></span>
+              <component-input
+                [compType]="'default'"
+                [value]="editingName"
+                [placeHolder]="'msg.metadata.ui.name.ph' | translate"
+                [inputClass]="'ddp-input-navi'"
+                (changeValue)="editingName = $event; onNameChange();">
+              </component-input>
+              <span class="ddp-btn-check" (click)="onNameChange()"></span>
             </div>
             <!-- //편집 input -->
 

@@ -378,12 +378,15 @@
             <span class="ddp-data-naviname">{{selectedDashboard.name ? selectedDashboard.name : ''}}<em class="ddp-icon-edit2"></em></span>
           </div>
           <div class="ddp-wrap-input" >
-            <input #inputDashboardName type="text" class="ddp-input-navi" maxlength="50"
-                   placeholder="{{'msg.board.ui.name.ph' | translate }}"
-                   [ngModel]="selectedDashboard.name"
-                   (clickOutside)="isDashboardNameEditMode=false"
-                   (keypress)="renameDashboardWithEnterKey($event)"/>
-            <span class="ddp-btn-check" (click)="renameDashboard()"></span>
+            <component-input
+              *ngIf="isDashboardNameEditMode"
+              [value]="selectedDashboard.name"
+              [inputClass]="'ddp-input-navi'"
+              [maxLen]="50"
+              [placeHolder]="'msg.board.ui.name.ph' | translate"
+              (inputBlur)="isDashboardNameEditMode=false"
+              (changeValue)="renameDashboard($event)"></component-input>
+            <span class="ddp-btn-check" ></span>
           </div>
         </div>
         <!-- // name -->
@@ -394,12 +397,15 @@
             <span class="ddp-data-navidet">{{selectedDashboard.description || 'msg.board.ui.description.ph' | translate }}<em class="ddp-icon-edit2"></em></span>
           </div>
           <div class="ddp-wrap-input">
-            <input #inputDashboardDesc type="text" class="ddp-input-navi" maxlength="150"
-                   placeholder="{{'msg.board.ui.description.ph' | translate}}"
-                   [ngModel]="selectedDashboard.description"
-                   (clickOutside)="isDashboardDescEditMode=false"
-                   (keypress)="changeDescWithEnterKey($event)" />
-            <span class="ddp-btn-check" (click)="changeDesc()"></span>
+            <component-input
+              *ngIf="isDashboardDescEditMode"
+              [value]="selectedDashboard.description"
+              [inputClass]="'ddp-input-navi'"
+              [maxLen]="150"
+              [placeHolder]="'msg.board.ui.description.ph' | translate"
+              (inputBlur)="isDashboardDescEditMode=false"
+              (changeValue)="changeDesc($event)"></component-input>
+            <span class="ddp-btn-check" ></span>
           </div>
         </div>
         <!-- // description -->

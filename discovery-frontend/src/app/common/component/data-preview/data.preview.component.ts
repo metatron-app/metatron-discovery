@@ -1394,18 +1394,13 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
   /**
    * 데이터를 검색한다.
-   * @param {Event} event
+   * @param {string} keyword
    */
-  public searchData(event: KeyboardEvent) {
-    if (13 === event.keyCode) {
-      if (this.isShowDataGrid) {
-        this.srchText = event.target['value'];
-        // grid update
-        this.updateGrid(this.gridData, this.columns);
-      } else {
-        this.srchText = event.target['value'];
-      }
-    }
+  public searchData(keyword: string) {
+    // set search text
+    this.srchText = keyword;
+    // grid update
+    this.updateGrid(this.gridData, this.columns);
   } // function - searchData
 
   /**

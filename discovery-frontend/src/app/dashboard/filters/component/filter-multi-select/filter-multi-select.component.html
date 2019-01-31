@@ -36,7 +36,7 @@
             <label class="ddp-label-checkbox">
               <input type="checkbox"
                      [disabled]="isMockup" (change)="checkAll($event)"
-                     [checked]="selectedArray && selectedArray.length > 0 && selectedArray.length === array.length">
+                     [checked]="isSelectedAll">
               <i class="ddp-icon-checkbox ddp-dark"></i>
               <span class="ddp-txt-checkbox">{{'msg.comm.ui.list.all'|translate}}</span>
             </label>

@@ -48,9 +48,6 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
   private DIM_PAGE_SIZE: number = 10;
   private MEA_PAGE_SIZE: number = 7;
 
-  @ViewChild('srchText')
-  private _inputSrchText: ElementRef;
-
   // page data 하위의 context menu
   @ViewChild(PageDataContextComponent)
   private _dataContext: PageDataContextComponent;
@@ -235,29 +232,12 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 검색 초기화
-   */
-  public clearSearch() {
-    this.searchText = '';
-    this._setFields();
-  } // function - clearSearch
-
-  /**
-   * 검색어 복구
-   */
-  public restoreSearch() {
-    this._inputSrchText.nativeElement.value = this.searchText;
-  } // function - restoreSearch
-
-  /**
    * 검색어에 따라 필드 검색
-   * @param {KeyboardEvent} event
+   * @param {string} inputText
    */
-  public searchField(event: KeyboardEvent) {
-    if (13 === event.keyCode) {
-      this.searchText = this._inputSrchText.nativeElement.value;
-      this._setFields(this.searchText);
-    }
+  public searchField(inputText: string) {
+    this.searchText = inputText;
+    this._setFields(this.searchText);
   } // function - searchField
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

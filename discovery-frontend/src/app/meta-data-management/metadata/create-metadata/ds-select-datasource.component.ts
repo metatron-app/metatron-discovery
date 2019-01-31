@@ -213,10 +213,9 @@ export class DsSelectDatasourceComponent extends AbstractPopupComponent implemen
 
   /**
    * 데이터소스 이름 검색 이벤트
-   * @param {KeyboardEvent} event
    */
-  public onSearchText(event: KeyboardEvent): void {
-    event.keyCode === 13 && this._searchText(event.target['value']);
+  public onSearchText(): void {
+    this._searchText(this.searchText);
   }
 
   /**
