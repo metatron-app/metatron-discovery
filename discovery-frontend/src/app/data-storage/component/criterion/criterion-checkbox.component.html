@@ -16,6 +16,7 @@
   <!-- search -->
   <div class="ddp-pop-search" *ngIf="criterion.searchable">
     <component-input
+      [autoFocus]="false"
       [immediately]="true"
       [value]="searchKeyword"
       [placeHolder]="searchPlaceHolder"
