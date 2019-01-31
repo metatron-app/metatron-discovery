@@ -102,7 +102,6 @@ public class IngestionJobRunner {
   @Autowired
   private IngestionOptionService ingestionOptionService;
 
-  @Autowired
   private SimpMessageSendingOperations messagingTemplate;
 
   private TransactionTemplate transactionTemplate;
@@ -118,6 +117,11 @@ public class IngestionJobRunner {
 
   public IngestionJobRunner() {
     // Empty Constructor
+  }
+
+  @Autowired
+  public void setMessagingTemplate(SimpMessageSendingOperations messagingTemplate) {
+    this.messagingTemplate = messagingTemplate;
   }
 
   @PostConstruct
