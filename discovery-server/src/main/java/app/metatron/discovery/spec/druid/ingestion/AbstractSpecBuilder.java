@@ -14,10 +14,12 @@
 
 package app.metatron.discovery.spec.druid.ingestion;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
 import java.util.List;
@@ -61,6 +63,8 @@ public class AbstractSpecBuilder {
 
   protected boolean useGeoIngestion;
 
+  protected boolean derivedTimestamp;
+
   protected Map<String, SecondaryIndexing> secondaryIndexing = Maps.newLinkedHashMap();
 
   public void setDataSchema(DataSource dataSource) {
@@ -90,8 +94,17 @@ public class AbstractSpecBuilder {
       }
     }
 
+    dataSchema.setParser(makeParser(dataSource));
+
     // Set Interval Options
-    List<String> intervals = dataSource.getIngestionInfo().getIntervals();
+    List<String> intervals;
+    if (derivedTimestamp) {
+      // If the Timestamp field is set, an interval of one year is set based on the current time.
+      DateTime now = DateTime.now(DateTimeZone.UTC);
+      intervals = Lists.newArrayList(now.minusMonths(6) + "/" + now.plusMonths(6));
+    } else {
+      intervals = dataSource.getIngestionInfo().getIntervals();
+    }
 
     // Set granularity, Default value (granularity : SECOND, segment granularity : DAY)
     UniformGranularitySpec granularitySpec = new UniformGranularitySpec(
@@ -123,8 +136,6 @@ public class AbstractSpecBuilder {
       }
       dataSchema.addMetrics(field.getAggregation(useGeoIngestion));
     }
-
-    dataSchema.setParser(makeParser(dataSource));
 
   }
 
@@ -166,6 +177,7 @@ public class AbstractSpecBuilder {
     }
 
     Field timeField = timeFields.get(0);
+    derivedTimestamp = BooleanUtils.isTrue(timeField.getDerived());
 
     TimestampSpec timestampSpec = timeField.createTimestampSpec();
 

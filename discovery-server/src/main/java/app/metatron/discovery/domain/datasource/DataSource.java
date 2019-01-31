@@ -440,13 +440,15 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
 
       switch (field.getRole()) {
         case DIMENSION:
-          resultFields.add(new DimensionField(fieldName, ref));
+          resultFields.add(new DimensionField(fieldName, ref, field.getFormatObject()));
           break;
         case MEASURE:
           resultFields.add(new MeasureField(fieldName, ref));
           break;
         case TIMESTAMP:
-          resultFields.add(new TimestampField(fieldName, ref));
+          if (BooleanUtils.isNotTrue(field.getDerived())) {
+            resultFields.add(new TimestampField(fieldName, ref, field.getFormatObject()));
+          }
           break;
       }
     }

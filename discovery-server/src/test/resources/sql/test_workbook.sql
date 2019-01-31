@@ -17,8 +17,8 @@ INSERT INTO PUBLIC.BOOK_TREE(BOOK_ANCESTOR, BOOK_DESCENDANT, BOOK_DEPTH) VALUES
 ('wb-003', 'wb-003', 0),
 ('wb-folder-001', 'wb-003', 1);
 
-INSERT INTO DATACONNECTION(DC_IMPLEMENTOR, ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, DC_DESC, DC_HOSTNAME, DC_NAME, DC_OPTIONS, DC_PASSWORD, DC_PORT, DC_TYPE, DC_URL, DC_USERNAME, DC_DATABASE, PATH, DC_CATALOG, DC_SID, REMOVEFIRSTROW, DC_USAGE_SCOPE) VALUES
-('MYSQL', 'mysql-connection', 'polaris', now(), 'polaris', '2017-08-13T15:11:07', 0, NULL, 'localhost', 'mysql-local-conn', NULL, 'polaris', 3306, 'JDBC', NULL, 'polaris', 'polaris', NULL, NULL, NULL, NULL, 'DEFAULT');
+INSERT INTO DATACONNECTION(DC_IMPLEMENTOR, ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, DC_DESC, DC_HOSTNAME, DC_NAME, DC_OPTIONS, DC_PASSWORD, DC_PORT, DC_TYPE, DC_URL, DC_USERNAME, DC_DATABASE, PATH, DC_CATALOG, DC_SID) VALUES
+('MYSQL', 'mysql-connection', 'polaris', now(), 'polaris', '2017-08-13T15:11:07', 0, NULL, 'localhost', 'mysql-local-conn', NULL, 'polaris', 3306, 'JDBC', NULL, 'polaris', 'polaris', NULL, NULL, NULL);
 
 -- 링크할 테스트 데이터 소스
 INSERT INTO datasource(id, ds_name, ds_engine_name, ds_owner_id, ds_desc, ds_type, ds_conn_type, ds_src_type, ds_granularity, ds_status, ds_published, ds_linked_workspaces, dc_id, version, created_time, created_by, modified_time, modified_by) values
@@ -42,7 +42,7 @@ INSERT INTO DATASOURCE_DASHBOARD(DASHBOARD_ID, DS_ID) VALUES
 ('db-002', 'ds-test-01'),
 ('db-003', 'ds-test-02'),
 ('db-004', 'ds-test-02'),
-('db-005', 'ds-37');
+('db-005', 'ds-gis-37');
 INSERT INTO COMMENT(ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, COMMENT_DOMAIN_TYPE, COMMENT_DOMAIN_ID, COMMENT_CONTENTS) VALUES
 (1000001, 'polaris', now(), 'polaris', now(), 0, 'WORKBOOK', 'wb-001', '댓글1'),
 (1000002, 'polaris', now(), 'polaris', now(), 0, 'WORKBOOK', 'wb-001', '댓글2');

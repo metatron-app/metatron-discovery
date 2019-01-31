@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.query.druid.AbstractQueryBuilder;
 
 @JsonTypeName("time_all")
 public class TimeAllFilter extends TimeFilter {
@@ -34,7 +33,7 @@ public class TimeAllFilter extends TimeFilter {
   @JsonCreator
   public TimeAllFilter(@JsonProperty(value = "field", required = true) String field,
                        @JsonProperty("ref") String ref) {
-    super(field, ref, null, null, null);
+    super(field, ref, null, null, null, null, null);
   }
 
   @Override
@@ -57,8 +56,8 @@ public class TimeAllFilter extends TimeFilter {
   }
 
   @Override
-  public List<String> getEngineIntervals() {
-    return AbstractQueryBuilder.DEFAULT_INTERVALS;
+  public List<String> getEngineIntervals(Field datasourceField) {
+    return TimeFilter.DEFAULT_INTERVAL;
   }
 
   @Override

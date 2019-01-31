@@ -302,7 +302,11 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       if (column.logicalType !== 'TIMESTAMP' && column.format) {
         delete column.format;
       } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {
+        // remove format
         delete column.format.format;
+        // remove timezone
+        delete column.format.timeZone;
+        delete column.format.locale;
       } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.DATE_TIME) {
         delete column.format.unit;
       }

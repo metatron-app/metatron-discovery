@@ -202,7 +202,7 @@
           <span class="ddp-txt-selectbox">{{selectedTimestampField ? selectedTimestampField.name : ('msg.storage.ui.ph.timestamp.column' | translate)}}</span>
           <ul class="ddp-list-selectbox ddp-selectdown">
             <li *ngIf="timestampFieldList.length === 0">
-              <span class="ddp-noresult">No result</span>
+              <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
             </li>
             <li *ngFor="let field of timestampFieldList" (click)="onChangeSelectedTimestampField(field)">
               <a href="javascript:">

@@ -68,6 +68,7 @@ import { SchemaConfigComponent } from './component/schema-config/schema-config.c
 import { SchemaConfigDetailComponent } from './component/schema-config/schema-config-detail.component';
 import { SchemaConfigActionBarComponent } from './component/schema-config/schema-config-action-bar.component';
 import { GranularityService } from './service/granularity.service';
+import { TimezoneService } from "./service/timezone.service";
 import {DataSourceCreateService} from "./service/data-source-create.service";
 
 const storageRoutes: Routes = [
@@ -163,7 +164,8 @@ const storageRoutes: Routes = [
     DataconnectionService,
     MetadataService,
     GranularityService,
-    DataSourceCreateService
+    DataSourceCreateService,
+    TimezoneService
   ]
 })
 export class DataStorageModule {
