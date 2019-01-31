@@ -20,7 +20,7 @@ import org.joda.time.DateTime;
 import javax.validation.constraints.NotNull;
 
 /**
- * Created by kyungtaak on 2016. 6. 17..
+ *
  */
 public class TimestampSpec {
 
@@ -37,6 +37,10 @@ public class TimestampSpec {
 
   boolean replaceWrongColumn;
 
+  String timeZone;
+
+  String locale;
+
   public TimestampSpec() {
   }
 
@@ -52,7 +56,7 @@ public class TimestampSpec {
     this.type = type;
     this.column = column;
 
-    if(StringUtils.isEmpty(format)) {
+    if (StringUtils.isEmpty(format)) {
       this.format = "auto";
     } else {
       this.format = format;
@@ -105,5 +109,21 @@ public class TimestampSpec {
 
   public void setReplaceWrongColumn(boolean replaceWrongColumn) {
     this.replaceWrongColumn = replaceWrongColumn;
+  }
+
+  public String getTimeZone() {
+    return timeZone;
+  }
+
+  public void setTimeZone(String timeZone) {
+    this.timeZone = timeZone;
+  }
+
+  public String getLocale() {
+    return locale;
+  }
+
+  public void setLocale(String locale) {
+    this.locale = locale;
   }
 }

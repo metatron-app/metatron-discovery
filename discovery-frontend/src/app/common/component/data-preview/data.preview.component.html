@@ -255,7 +255,9 @@
         <!-- 그리드 -->
         <div grid-component #main
              [style.display]="isShowDataGrid ? 'block' : 'none'"
-             [ngClass]="{'meta-grid' : isEnableSecondHeader(), 'ddp-type' : timestampField }"
+             [class.meta-grid]="isExistTimestampField()"
+             [class.meta-grid-type]="isEnableSecondHeader()"
+             [class.ddp-type]="timestampField"
              (onHeaderRowCellRendered)="createMetaDataHeader($event)"
              class="ddp-ui-grid2" ></div>
         <!-- //그리드 -->
@@ -417,14 +419,26 @@
                     <col width="*">
                   </colgroup>
                   <tbody>
-                  <tr *ngIf="selectedField.logicalType === 'TIMESTAMP'">
-                    <th>
-                      {{'msg.storage.ui.th.display.format' | translate}}
-                    </th>
-                    <td>
-                      {{selectedField.format ? selectedField.format.format : selectedField.format}}
-                    </td>
-                  </tr>
+                  <ng-container *ngIf="selectedField.logicalType === 'TIMESTAMP'">
+                    <tr>
+                      <th>
+                        {{'msg.storage.ui.th.display.format' | translate}}
+                      </th>
+                      <td>
+                        {{selectedField.format ? selectedField.format.format : selectedField.format}}
+                      </td>
+                    </tr>
+                    <!-- only show time type -->
+                    <tr *ngIf="!isUnixTypeField(selectedField)">
+                      <th>
+                        {{'msg.storage.ui.timezone' | translate}}
+                      </th>
+                      <td>
+                        {{getTimezoneLabelInColumn(selectedField.format)}}
+                      </td>
+                    </tr>
+                    <!-- //only show time type -->
+                  </ng-container>
                   <tr>
                     <th>
                       {{'msg.storage.ui.th.missing' | translate}}

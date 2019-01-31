@@ -30,6 +30,7 @@ import * as _ from 'lodash';
 import { Alert } from '../../../common/util/alert.util';
 import { SchemaConfigActionBarComponent } from './schema-config-action-bar.component';
 import { SchemaConfigDetailComponent } from './schema-config-detail.component';
+import { TimezoneService, TimeZoneObject } from "../../service/timezone.service";
 
 @Component({
   selector: 'schema-config-component',
@@ -156,6 +157,7 @@ export class SchemaConfigComponent extends AbstractComponent {
 
   // 생성자
   constructor(private _datasourceService: DatasourceService,
+              private _timezoneService: TimezoneService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -543,6 +545,9 @@ export class SchemaConfigComponent extends AbstractComponent {
     timestampFieldList.forEach((field: Field) => {
       // init format
       field.format = new FieldFormat();
+      // TODO set browser timezone at field
+      field.format.timeZone =  this._timezoneService.browserTimezone.momentName;
+      field.format.locale = this._timezoneService.browserLocal;
       // field data
       const fieldDataList: any[] = this._getFieldDataList(field);
       // if not exist field data

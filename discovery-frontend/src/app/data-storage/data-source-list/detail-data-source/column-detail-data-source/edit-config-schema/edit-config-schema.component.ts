@@ -104,7 +104,6 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
       // 타임스탬프인데 format이 없는경우 init
       if (column.logicalType === LogicalType.TIMESTAMP && !column.format) {
         column.format = new FieldFormat();
-        column.format.type = FieldFormatType.DATE_TIME;
       }
     });
     // flag

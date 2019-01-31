@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -49,6 +50,7 @@ import javax.validation.constraints.NotNull;
 
 import app.metatron.discovery.common.MatrixResponse;
 import app.metatron.discovery.common.RawJsonString;
+import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.domain.datasource.SimilarityQueryRequest;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.datasource.data.result.ChartResultFormat;
@@ -170,14 +172,14 @@ public class DataQueryController {
         if (result instanceof ObjectNode) {
           baseTime = DateTime.parse(((ObjectNode) result).get("maxTime").textValue());
         } else {
-          baseTime = DateTime.now(DateTimeZone.forID(timeCompareRequest.getTimezone()));
+          baseTime = DateTime.now(DateTimeZone.forID(timeCompareRequest.getTimeZone()));
         }
       } else {
         baseTime = DateTime.parse(timeCompareRequest.getBaseTime(),
                                   DateTimeFormat.forPattern(timeCompareRequest.getTimeUnit().sortFormat()));
       }
     } else {
-      baseTime = DateTime.now(DateTimeZone.forID(timeCompareRequest.getTimezone()));
+      baseTime = DateTime.now(DateTimeZone.forID(timeCompareRequest.getTimeZone()));
     }
 
     SearchQueryRequest currentRequest = timeCompareRequest.convertSearchQueryRequest(baseTime);
@@ -263,7 +265,8 @@ public class DataQueryController {
     TimeFieldFormat.TimeUnit timeUnit;
     BasePoint basePoint;
     Integer value;
-    String timezone;
+    String timeZone;
+    String locale;
     String baseTime;
 
     @JsonCreator
@@ -276,7 +279,8 @@ public class DataQueryController {
         @JsonProperty("timeUnit") String timeUnit,
         @JsonProperty("basePoint") String basePoint,
         @JsonProperty("value") Integer value,
-        @JsonProperty("timezone") String timezone,
+        @JsonProperty("timeZone") String timeZone,
+        @JsonProperty("locale") String locale,
         @JsonProperty("baseTime") String baseTime) {
       this.dataSource = dataSource;
       this.userFields = userFields;
@@ -287,10 +291,16 @@ public class DataQueryController {
       this.basePoint = EnumUtils.getUpperCaseEnum(BasePoint.class, basePoint, BasePoint.LAST);
       this.value = (value == null || value < 1) ? 1 : value;
 
-      if (StringUtils.isEmpty(timezone)) {
-        this.timezone = "UTC";
-      } else {
-        this.timezone = DateTimeZone.forID(timezone).getID();
+      try {
+        this.timeZone = StringUtils.isEmpty(timeZone) ? "UTC" : DateTimeZone.forID(timeZone).toString();
+      } catch (Exception e) {
+        throw new BadRequestException("Invalid timezone ID : " + e.getMessage());
+      }
+
+      try {
+        this.locale = locale == null ? "en" : new Locale(locale).getLanguage();
+      } catch (Exception e) {
+        throw new BadRequestException("Invalid local value : " + e.getMessage());
       }
 
       this.baseTime = baseTime;
@@ -301,6 +311,7 @@ public class DataQueryController {
       TimeListFilter currentTimeFilter = new TimeListFilter(timeField.getName(), timeField.getRef(),
                                                             timeUnit.name(),
                                                             null, false,
+                                                            timeZone, locale,
                                                             Lists.newArrayList(
                                                                 timeUnit.parsedDateTime(dateTime, timeUnit.format(), null)
                                                             ),
@@ -348,8 +359,12 @@ public class DataQueryController {
       return value;
     }
 
-    public String getTimezone() {
-      return timezone;
+    public String getTimeZone() {
+      return timeZone;
+    }
+
+    public String getLocale() {
+      return locale;
     }
 
     public String getBaseTime() {
