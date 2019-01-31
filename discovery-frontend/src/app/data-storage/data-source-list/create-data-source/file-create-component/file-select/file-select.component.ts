@@ -172,7 +172,7 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     // 현재 페이지 데이터소스 파일보가 있다면
     if (this.sourceData.hasOwnProperty('fileData')) {
       // init data
-      this.initData(_.cloneDeep(this.sourceData.fileData));
+      this._initData(_.cloneDeep(this.sourceData.fileData));
     }
   }
 
@@ -192,11 +192,11 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
    */
   public next() {
     // validation
-    if (this._isEnableNext()) {
+    if (this.isEnableNext()) {
       // 데이터 변경이 일어난경우 스키마 데이터와 적재데이터 제거
       this._deleteSchemaData();
       // 기존 파일 데이터 삭제후 생성
-      this.deleteAndSaveFileData();
+      this._deleteAndSaveFileData();
       // 다음페이지로 이동
       this.step = 'file-configure-schema';
       this.stepChange.emit(this.step);
@@ -243,9 +243,16 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     return !this.fileResult.sheets;
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method - event
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Is enable next
+   * @return {boolean}
+   */
+  public isEnableNext(): boolean {
+    // exist selectedFileDetailData
+    // exist fields in selectedFileDetailData
+    // enable grid
+    return !this.clearGrid && this.selectedFileDetailData && this.selectedFileDetailData.fields && this.selectedFileDetailData.isParsable.valid;
+  }
 
   /**
    * Change selected sheet
@@ -308,20 +315,14 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     this._setFileDetail();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * 데이터가 변경이 일어나고 스키마데이터가 있다면 스키마데이터 삭제
+   * @private
    */
-  private _deleteSchemaData() {
+  private _deleteSchemaData(): void {
     // 데이터 변경이 일어난경우 스키마 삭제
-    if (this.isChangeData()) {
+    if (this._isChangeData()) {
       this.sourceData.hasOwnProperty('schemaData') && (delete this.sourceData.schemaData);
       this.sourceData.hasOwnProperty('ingestionData') && (delete this.sourceData.ingestionData);
     }
@@ -329,14 +330,15 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
 
   /**
    * 기존 파일 삭제후 새로 생성
+   * @private
    */
-  private deleteAndSaveFileData() {
+  private _deleteAndSaveFileData(): void {
     // 파일 정보가 있다면 삭제
     if (this.sourceData.hasOwnProperty('fileData')) {
       delete this.sourceData.fileData;
     }
     // 현재 페이지의 데이터소스 생성정보 저장
-    this.saveFileData(this.sourceData);
+    this._saveFileData(this.sourceData);
     // set field list, field data
     this.sourceData.fieldList = this.selectedFileDetailData.fields;
     this.sourceData.fieldData = this.selectedFileDetailData.data;
@@ -345,8 +347,9 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
   /**
    * 현재 페이지의 데이터소스 파일정보 저장
    * @param {DatasourceInfo} sourceData
+   * @private
    */
-  private saveFileData(sourceData: DatasourceInfo) {
+  private _saveFileData(sourceData: DatasourceInfo) {
     const fileData = {
       // file result
       fileResult: this.fileResult,
@@ -360,8 +363,6 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
       separator: this.separator,
       // 임의의 헤드컬럼 생성여부
       isFirstHeaderRow: this.isFirstHeaderRow,
-      // grid
-      clearGrid: this.clearGrid
     };
     sourceData['fileData'] = fileData;
   }
@@ -370,8 +371,11 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
    * 그리드 출력
    * @param {any[]} headers
    * @param {any[]} rows
+   * @private
    */
-  private drawGrid(headers: any[], rows: any[]) {
+  private _drawGrid(headers: any[], rows: any[]) {
+    // grid show
+    this.clearGrid = false;
     this.changeDetect.detectChanges();
     // 그리드 옵션은 선택
     this.gridComponent.create(headers, rows, new GridOption()
@@ -386,22 +390,24 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
    * grid 정보 업데이트
    * @param data
    * @param {Field[]} fields
+   * @private
    */
-  private updateGrid(data: any, fields: Field[]) {
+  private _updateGrid(data: any, fields: Field[]) {
     // headers
-    const headers: header[] = this.getHeaders(fields);
+    const headers: header[] = this._getHeaders(fields);
     // rows
-    const rows: any[] = this.getRows(data);
+    const rows: any[] = this._getRows(data);
     // grid 그리기
-    this.drawGrid(headers, rows);
+    headers && headers.length > 0 && this._drawGrid(headers, rows);
   }
 
   /**
    * 헤더정보 얻기
    * @param {Field[]} fields
    * @returns {header[]}
+   * @private
    */
-  private getHeaders(fields: Field[]) {
+  private _getHeaders(fields: Field[]): header[] {
     return fields.map(
       (field: Field) => {
         /* 70 는 CSS 상의 padding 수치의 합산임 */
@@ -427,8 +433,9 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
    * rows 얻기
    * @param data
    * @returns {any[]}
+   * @private
    */
-  private getRows(data: any) {
+  private _getRows(data: any): any[] {
     let rows: any[] = data;
     if (data.length > 0 && !data[0].hasOwnProperty('id')) {
       rows = rows.map((row: any, idx: number) => {
@@ -439,27 +446,14 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     return rows;
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method - getter
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /**
-   * Is enable next
-   * @return {boolean}
-   * @private
-   */
-  private _isEnableNext(): boolean {
-    // exist selectedFileDetailData
-    // exist fields in selectedFileDetailData
-    // enable grid
-    return !this.clearGrid && this.selectedFileDetailData && this.selectedFileDetailData.fields && this.selectedFileDetailData.isParsable.valid;
-  }
 
   /**
    * 데이터가 변경이 일어났는지 확인
-   * @returns {boolean}
+   * @return {boolean}
+   * @private
    */
-  private isChangeData(): boolean {
+  private _isChangeData(): boolean {
     if (this.sourceData.fileData) {
       // 파일 key 가 변경된 경우
       if (this.sourceData.fileData.fileResult.fileKey !== this.fileResult.fileKey) {
@@ -506,10 +500,8 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
         this.selectedFileDetailData = result;
         // if result is parsable
         if (result.isParsable && result.isParsable.valid) {
-          // grid show
-          this.clearGrid = false;
           // grid 출력
-          this.updateGrid(this.selectedFileDetailData.data, this.selectedFileDetailData.fields);
+          this._updateGrid(this.selectedFileDetailData.data, this.selectedFileDetailData.fields);
         } else if (result.isParsable) { // if result is not parsable
           // set error message
           this.selectedFileDetailData.errorMessage = this._dataSourceCreateService.getFileErrorMessage(result.isParsable.warning);
@@ -562,15 +554,12 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     }
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method - init
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
    * init source file data
    * @param fileData
+   * @private
    */
-  private initData(fileData) {
+  private _initData(fileData) {
     // file result
     this.fileResult = fileData.fileResult;
     // file data
@@ -583,9 +572,7 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     this.separator = fileData.separator;
     // 임의의 헤드컬럼 생성여부
     this.isFirstHeaderRow = fileData.isFirstHeaderRow;
-    // grid show
-    this.clearGrid = fileData.clearGrid;
     // grid 출력
-    this.updateGrid(this.selectedFileDetailData.data, this.selectedFileDetailData.fields);
+    this._updateGrid(this.selectedFileDetailData.data, this.selectedFileDetailData.fields);
   }
 }
