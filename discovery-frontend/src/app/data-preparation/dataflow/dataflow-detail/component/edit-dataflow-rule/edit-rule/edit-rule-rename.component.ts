@@ -94,7 +94,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
     }
 
     // check if new column name is empty
-    if (isUndefined(this.newFieldName) || '' === this.newFieldName) {
+    if (isUndefined(this.newFieldName) || '' === this.newFieldName.trim()) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
       return undefined
     }
@@ -104,11 +104,6 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
       Alert.warning(this.translateService.instant('msg.dp.alert.duplicate.colname'));
       return undefined
     }
-
-    // if (this.fields.some(item => item.name === this.newFieldName)) {
-    //   Alert.warning(this.translateService.instant('msg.dp.alert.duplicate.colname'));
-    //   return undefined
-    // }
 
     // check if column name has back quote
     if (-1 !== this.newFieldName.indexOf('`')) {

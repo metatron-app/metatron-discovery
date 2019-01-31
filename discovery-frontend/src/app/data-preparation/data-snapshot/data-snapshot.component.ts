@@ -98,6 +98,19 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
   public ngOnInit() {
     // Init
     super.ngOnInit();
+
+    this.snapshotTypes = [
+      {label:'All', value : null},
+      {label: 'FILE', value : SsType.URI},
+      // {label: 'Database', value : SsType.DATABASE},
+      // {label: 'DRUID', value : SsType.DRUID}
+    ];
+
+    if (StorageService.isEnableStageDB) {
+      this.snapshotTypes.push({label: 'Staging DB', value : SsType.STAGING_DB});
+    }
+
+
     // 뷰
     this.initViewPage();
   }
@@ -333,21 +346,11 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /** View 초기화 */
   private initViewPage() {
+
     // Default 정렬
     this.page.sort = 'createdTime,desc';
     this.interval =  setInterval(() => this.getDatasnapshots(), 3000);
     this.getDatasnapshots();
-
-    this.snapshotTypes = [
-      {label:'All', value : null},
-      {label: 'FILE', value : SsType.URI},
-      {label: 'Database', value : SsType.DATABASE},
-      {label: 'DRUID', value : SsType.DRUID}
-    ];
-
-    if (StorageService.isEnableStageDB) {
-      this.snapshotTypes.push({label: 'Staging DB', value : SsType.STAGING_DB});
-    }
 
   }
 
