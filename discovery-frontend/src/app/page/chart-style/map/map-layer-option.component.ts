@@ -1365,7 +1365,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * get layer index
    */
   private getLayerIndex() {
-    ( this.rnbMenu.indexOf('1') != -1 ? this.index = 0 : (Number(this.rnbMenu.split('mapLayer')[1]) -1));
+    ( this.rnbMenu.indexOf('1') != -1 ? this.index = 0 : this.index = (Number(this.rnbMenu.split('mapLayer')[1]) -1));
   }
 
 }
