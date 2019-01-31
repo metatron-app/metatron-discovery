@@ -762,9 +762,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             source: _.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource,
             style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(num, this.data) : new ol.style.Style()
           });
-          // this.clusterLayer.setZIndex(num == this.getUiMapOption().layerNum ? this.getUiMapOption().layerNum : 0);
-          // Set source
           this.clusterLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource);
+          this.clusterLayer.setZIndex(this.getUiMapOption().layerNum);
           this.featureLayer = this.clusterLayer;
           // Init
           if (isMapCreation && this.getUiMapOption().showMapLayer) {
@@ -775,7 +774,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
               // Add layer
               this.olmap.addLayer(this.clusterLayer);
               // Set style
-              // this.clusterLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(num, this.data) : new ol.style.Style());
+              this.clusterLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(num, this.data) : new ol.style.Style());
             } else {
               // Remove layer
               this.olmap.removeLayer(this.clusterLayer);
@@ -790,9 +789,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
             style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(num, this.data) : new ol.style.Style()
           });
-          // this.symbolLayer.setZIndex(num == this.getUiMapOption().layerNum ? this.getUiMapOption().layerNum : 0);
-          // Set source
           this.symbolLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource);
+          this.symbolLayer.setZIndex(this.getUiMapOption().layerNum);
           this.featureLayer = this.symbolLayer;
           // Init
           if (isMapCreation && this.getUiMapOption().showMapLayer) {
@@ -820,8 +818,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           source: source,
           style: this.mapStyleFunction(num, this.data)
         });
-        // Set source
         this.symbolLayer.setSource(source);
+        this.symbolLayer.setZIndex(this.getUiMapOption().layerNum);
         this.featureLayer = this.symbolLayer;
         // Init
         if (isMapCreation && this.getUiMapOption().showMapLayer) {
@@ -852,8 +850,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           radius: heatmapLayer.radius,
           blur: heatmapLayer.blur * 0.7
         });
-        // this.heatmapLayer.setZIndex(num == this.getUiMapOption().layerNum ? this.getUiMapOption().layerNum : 0);
         this.heatmapLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource);
+        this.heatmapLayer.setZIndex(this.getUiMapOption().layerNum);
         this.featureLayer = this.heatmapLayer;
         // Init
         if (isMapCreation && this.getUiMapOption().showMapLayer) {
@@ -886,8 +884,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           source: _.eq(geomType, LogicalType.GEO_POINT) ? hexagonSource : emptySource,
           style: _.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(num, this.data) : new ol.style.Style()
         });
-        // Set source
         this.hexagonLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? hexagonSource : emptySource);
+        this.hexagonLayer.setZIndex(this.getUiMapOption().layerNum);
         this.featureLayer = this.hexagonLayer;
         // Init
         if (isMapCreation && this.getUiMapOption().showMapLayer) {
@@ -930,53 +928,47 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     ////////////////////////////////////////////////////////
     // Generate feature
     ////////////////////////////////////////////////////////
-
     // Feature list
     let features = [];
+    for( let polygonIndex=0; polygonIndex < this.data.length; polygonIndex++ ) {
+      // Data interate
+      for (let i = 0; i < this.data[polygonIndex]["features"].length; i++) {
+        let feature = new ol.Feature();
+        feature = (new ol.format.GeoJSON()).readFeature(this.data[polygonIndex].features[i]);
 
-    // Data interate
-    for (let i = 0; i < this.data[this.getUiMapOption().layerNum]["features"].length; i++) {
+        if (_.eq(geomType, LogicalType.GEO_POINT)) {
+          let featureCenter = feature.getGeometry().getCoordinates();
 
-      let feature = new ol.Feature();
-      feature = (new ol.format.GeoJSON()).readFeature(this.data[this.getUiMapOption().layerNum].features[i]);
+          if (featureCenter.length === 1) {
+            let extent = feature.getGeometry().getExtent();
+            featureCenter = ol.extent.getCenter(extent);
+            feature.setGeometry(new ol.geom.Point(featureCenter));
+          }
+          if (this.uiOption.fieldMeasureList.length > 0) {
+            const alias = ChartUtil.getFieldAlias(this.getUiMapOption().layers[polygonIndex].color.column, this.shelf.layers[polygonIndex], this.getUiMapOption().layers[polygonIndex].color.aggregationType);
 
-      if (_.eq(geomType, LogicalType.GEO_POINT)) {
-        let featureCenter = feature.getGeometry().getCoordinates();
-
-        if (featureCenter.length === 1) {
-          let extent = feature.getGeometry().getExtent();
-          featureCenter = ol.extent.getCenter(extent);
-          feature.setGeometry(new ol.geom.Point(featureCenter));
-        }
-
-        if (this.uiOption.fieldMeasureList.length > 0) {
-
-          // const alias = ChartUtil.getFieldAlias(this.getUiMapOption().layers[0].color.column, this.shelf.layers[0], this.getUiMapOption().layers[0].color.aggregationType);
-          const alias = ChartUtil.getFieldAlias(this.getUiMapOption().layers[this.getUiMapOption().layerNum].color.column, this.shelf.layers[this.getUiMapOption().layerNum], this.getUiMapOption().layers[this.getUiMapOption().layerNum].color.aggregationType);
-
-          //히트맵 weight 설정
-          if (this.data[this.getUiMapOption().layerNum].valueRange[alias]) {
-            feature.set('weight', feature.getProperties()[alias] / this.data[this.getUiMapOption().layerNum].valueRange[alias].maxValue);
+            //히트맵 weight 설정
+            if (this.data[polygonIndex].valueRange[alias]) {
+              feature.set('weight', feature.getProperties()[alias] / this.data[polygonIndex].valueRange[alias].maxValue);
+            }
           }
         }
+        feature.set('layerNum', polygonIndex);
+        features[i] = feature;
       }
-      feature.set('layerNum', this.getUiMapOption().layerNum);
-      features[i] = feature;
+      source.addFeatures(features);
     }
-
-    source.addFeatures(features);
-
     ////////////////////////////////////////////////////////
     // Generate hexagon feature
     ////////////////////////////////////////////////////////
-
-    let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(this.data[this.getUiMapOption().layerNum]);
-
-    for (let feature of hexagonFeatures) {
-      feature.set('layerNum', this.getUiMapOption().layerNum);
+    for( let hexagonIndex=0; hexagonIndex < this.data.length; hexagonIndex++ ) {
+      let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(this.data[hexagonIndex]);
+      for (let feature of hexagonFeatures) {
+        feature.set('layerNum', this.getUiMapOption().layerNum);
+      }
+      hexagonSource.addFeatures(hexagonFeatures);
     }
 
-    hexagonSource.addFeatures(hexagonFeatures);
   }
 
   /**

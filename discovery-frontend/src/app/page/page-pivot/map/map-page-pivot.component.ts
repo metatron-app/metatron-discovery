@@ -12,32 +12,32 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
-import { Pivot } from '../../../domain/workbook/configurations/pivot';
-import { BIType, Field, FieldPivot, LogicalType } from '../../../domain/datasource/datasource';
+import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
+import {Pivot} from '../../../domain/workbook/configurations/pivot';
+import {BIType, Field, FieldPivot, LogicalType} from '../../../domain/datasource/datasource';
 import {
   ChartType,
-  EventType, ShelveFieldType,
+  EventType,
+  ShelveFieldType,
   UIFormatCurrencyType,
   UIFormatNumericAliasType,
   UIFormatType
 } from '../../../common/component/chart/option/define/common';
 
 import * as _ from 'lodash';
-import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
-import { TimestampField } from '../../../domain/workbook/configurations/field/timestamp-field';
-import { DimensionField } from '../../../domain/workbook/configurations/field/dimension-field';
-import { MeasureField } from '../../../domain/workbook/configurations/field/measure-field';
-import { PagePivotComponent } from '../page-pivot.component';
-import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
-import { Field as AbstractField } from '../../../domain/workbook/configurations/field/field';
+import {UIMapOption} from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
+import {TimestampField} from '../../../domain/workbook/configurations/field/timestamp-field';
+import {DimensionField} from '../../../domain/workbook/configurations/field/dimension-field';
+import {MeasureField} from '../../../domain/workbook/configurations/field/measure-field';
+import {PagePivotComponent} from '../page-pivot.component';
+import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
+import {Field as AbstractField} from '../../../domain/workbook/configurations/field/field';
 import * as $ from "jquery";
-import { MapLayerType } from '../../../common/component/chart/option/define/map/map-common';
-import { UIOption } from '../../../common/component/chart/option/ui-option';
-import { Alert } from '../../../common/util/alert.util';
-import { ChartUtil } from '../../../common/component/chart/option/util/chart-util';
+import {MapLayerType} from '../../../common/component/chart/option/define/map/map-common';
+import {UIOption} from '../../../common/component/chart/option/ui-option';
+import {Alert} from '../../../common/util/alert.util';
+import {ChartUtil} from '../../../common/component/chart/option/util/chart-util';
 import {OptionGenerator} from "../../../common/component/chart/option/util/option-generator";
-import {UILayers} from "../../../common/component/chart/option/ui-option/map/ui-layers";
 
 @Component({
   selector: 'map-page-pivot',
@@ -460,7 +460,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // emit
     this.changeShelfEvent.emit({ shelf: this.shelf });
     // remove 일경우 재적용
-    this.changePivot();
+    this.changePivot(EventType.CHANGE_PIVOT);
   }
 
   /**
