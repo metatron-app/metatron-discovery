@@ -40,7 +40,7 @@ import {FilteringType} from '../../domain/workbook/configurations/field/timestam
 import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
 import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
-import { GeoBoundaryFormat, GeoHashFormat } from '../../domain/workbook/configurations/field/geo-field';
+import {GeoBoundaryFormat, GeoField, GeoHashFormat} from '../../domain/workbook/configurations/field/geo-field';
 import { UIMapOption } from '../../common/component/chart/option/ui-option/map/ui-map-chart';
 import { ChartUtil } from '../../common/component/chart/option/util/chart-util';
 import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
@@ -50,6 +50,7 @@ import { UITileLayer } from '../../common/component/chart/option/ui-option/map/u
 import { MapLayerType } from '../../common/component/chart/option/define/map/map-common';
 import {Pivot} from "../../domain/workbook/configurations/pivot";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
+import {Shelf} from "../../domain/workbook/configurations/shelf/shelf";
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -293,39 +294,55 @@ export class DatasourceService extends AbstractService {
     query.filters = _.cloneDeep(pageConf.filters);
     query.pivot = _.cloneDeep(pageConf.pivot);
 
-    // timezone 처리 - S
-    {
-      const pivotConf:Pivot = query.pivot;
-      if (pivotConf.columns && 0 < pivotConf.columns.length) {
-        pivotConf.columns.forEach(column => {
-          if( LogicalType.TIMESTAMP.toString() === column.subType && column.format ) {
-            column.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
-            column.format.locale = this._timezoneSvc.browserLocal;
-          }
-        });
-      }
-      if (pivotConf.rows && 0 < pivotConf.rows.length) {
-        pivotConf.rows.forEach(row => {
-          if( LogicalType.TIMESTAMP.toString() === row.subType && row.format ) {
-            row.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
-            row.format.locale = this._timezoneSvc.browserLocal;
-          }
-        });
-      }
-    }
-    // timezone 처리 - E
-
     let allPivotFields = [];
 
     // 파라미터 치환
 
     // set alias list by pivot or shelf list
     if (_.eq(pageConf.chart.type, ChartType.MAP)) {
-
       query.shelf = _.cloneDeep(pageConf.shelf);
+
+      // timezone 처리 - S
+      {
+        const shelfConf:Shelf = query.shelf;
+        if (shelfConf.layers && 0 < shelfConf.layers.length) {
+          shelfConf.layers.forEach( (layer:GeoField[]) => {
+            layer.forEach(field => {
+              if( LogicalType.TIMESTAMP.toString() === field.subType && field.format ) {
+                field.format['timeZone'] = this._timezoneSvc.browserTimezone.momentName;
+                field.format['locale'] = this._timezoneSvc.browserLocal;
+              }
+            });
+          });
+        }
+      }
+      // timezone 처리 - E
 
       allPivotFields = _.concat(query.shelf.layers[(<UIMapOption>pageConf.chart).layerNum]);
     } else {
+
+      // timezone 처리 - S
+      {
+        const pivotConf:Pivot = query.pivot;
+        if (pivotConf.columns && 0 < pivotConf.columns.length) {
+          pivotConf.columns.forEach(column => {
+            if( LogicalType.TIMESTAMP.toString() === column.subType && column.format ) {
+              column.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
+              column.format.locale = this._timezoneSvc.browserLocal;
+            }
+          });
+        }
+        if (pivotConf.rows && 0 < pivotConf.rows.length) {
+          pivotConf.rows.forEach(row => {
+            if( LogicalType.TIMESTAMP.toString() === row.subType && row.format ) {
+              row.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
+              row.format.locale = this._timezoneSvc.browserLocal;
+            }
+          });
+        }
+      }
+      // timezone 처리 - E
+
       allPivotFields = _.concat(query.pivot.columns, query.pivot.rows, query.pivot.aggregations);
     }
 
