@@ -374,20 +374,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Get geo type
     // todo : validation
     let field = null;
-    for (let index: number = 0; index < this.shelf.layers.length; index++) {
-      _.each(this.shelf.layers[index], (fieldTemp) => {
-        if (fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
-          field = fieldTemp;
-          return false;
-        }
-      });
-    }
-    // _.each(this.shelf.layers[this.getUiMapOption().layerNum], (fieldTemp) => {
-    //   if (fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
-    //     field = fieldTemp;
-    //     return false;
-    //   }
-    // });
+    _.each(this.shelf.layers[this.getUiMapOption().layerNum], (fieldTemp) => {
+      if (fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
+        field = fieldTemp;
+        return false;
+      }
+    });
     let geomType = field.field.logicalType.toString();
 
     ////////////////////////////////////////////////////////
@@ -427,7 +419,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let emptySource = new ol.source.Vector();
 
     // Creation feature
-    this.createFeature(source, hexagonSource, geomType);
+    this.createFeature(source, hexagonSource);
 
     // Cluster source
     let clusterSource = new ol.source.Cluster({
@@ -437,7 +429,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     });
 
     // Creation layer
-    this.createLayer(source, clusterSource, hexagonSource, emptySource, isMapCreation, geomType);
+    this.createLayer(source, clusterSource, hexagonSource, emptySource, isMapCreation);
 
     // Chart resize
     this.olmap.updateSize();
@@ -741,7 +733,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   /**
    * Creation map layer
    */
-  private createLayer(source: any, clusterSource: any, hexagonSource: any, emptySource: any, isMapCreation: boolean, geomType: LogicalType): void {
+  private createLayer(source: any, clusterSource: any, hexagonSource: any, emptySource: any, isMapCreation: boolean): void {
     ////////////////////////////////////////////////////////
     // Create layer
     ////////////////////////////////////////////////////////
@@ -751,6 +743,15 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       ////////////////////////////////////////////////////////
       // Cluster & Point layer
       ////////////////////////////////////////////////////////
+      let field = null;
+      _.each(this.shelf.layers[num], (fieldTemp) => {
+        if (fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
+          field = fieldTemp;
+          return false;
+        }
+      });
+      let geomType = field.field.logicalType.toString();
+
       if (_.eq(layer.type, MapLayerType.SYMBOL)) {
         let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
         //////////////////////////
@@ -771,6 +772,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             this.olmap.addLayer(this.clusterLayer);
           } else {
             if (this.getUiMapOption().showMapLayer) {
+
               // Add layer
               this.olmap.addLayer(this.clusterLayer);
               // Set style
@@ -923,7 +925,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   /**
    * Creation feature
    */
-  private createFeature(source, hexagonSource, geomType): void {
+  private createFeature(source, hexagonSource): void {
 
     ////////////////////////////////////////////////////////
     // Generate feature
@@ -931,11 +933,20 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Feature list
     let features = [];
     for( let polygonIndex=0; polygonIndex < this.data.length; polygonIndex++ ) {
+
+      let field = null;
+      _.each(this.shelf.layers[polygonIndex], (fieldTemp) => {
+        if (fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
+          field = fieldTemp;
+          return false;
+        }
+      });
+      let geomType = field.field.logicalType.toString();
+
       // Data interate
       for (let i = 0; i < this.data[polygonIndex]["features"].length; i++) {
         let feature = new ol.Feature();
         feature = (new ol.format.GeoJSON()).readFeature(this.data[polygonIndex].features[i]);
-
         if (_.eq(geomType, LogicalType.GEO_POINT)) {
           let featureCenter = feature.getGeometry().getCoordinates();
 
