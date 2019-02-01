@@ -27,7 +27,7 @@ import {
   Datasource,
   Field,
   FieldFormat,
-  FieldFormatType
+  FieldFormatType, LogicalType
 } from '../../../../domain/datasource/datasource';
 import { Metadata } from '../../../../domain/meta-data-management/metadata';
 import { MetadataColumn } from '../../../../domain/meta-data-management/metadata-column';
@@ -37,6 +37,7 @@ import { EditFilterDataSourceComponent } from '../edit-filter-data-source.compon
 import { FilteringOptions, FilteringOptionType } from '../../../../domain/workbook/configurations/filter/filter';
 import { EditConfigSchemaComponent } from './edit-config-schema/edit-config-schema.component';
 import {TimezoneService} from "../../../service/timezone.service";
+import {FormatType} from "../../../../common/component/chart/option/define/common";
 
 declare let echarts: any;
 
@@ -399,6 +400,14 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
         // if logical type is TIMESTAMP, delete format in column
         if (column.logicalType === 'TIMESTAMP') {
           delete result.format;
+        } else if (type.value === LogicalType.TIMESTAMP) {
+          // set default format
+          result['format'] = {
+            format: 'yyyy-MM-dd HH:mm:ss',
+            timeZone: this._timezoneService.browserTimezone.momentName,
+            locale: this._timezoneService.browserLocal,
+            type: FieldFormatType.DATE_TIME
+          };
         }
         // if exist filtering and filteringOptions in column
         if (column.filtering && column.filteringOptions) {

@@ -66,6 +66,8 @@ export class InputComponent implements OnInit, OnDestroy {
 
   @Input() public inputClass: string = ''; // Input Element 클래스
 
+  @Input() public autoFocus: boolean = true;  // 자동으로 focus 여부
+
   @Input() public optionalClass: string = '';   // 추가적인 스타일 적용을 위한 클래스
 
   @Input() public optionalStyle: string = '';   // 추가적인 스타일 적용을 위한 스타일
@@ -145,7 +147,7 @@ export class InputComponent implements OnInit, OnDestroy {
 
     this._safelyDetectChanges();
 
-    setTimeout( () => {
+    this.autoFocus && setTimeout( () => {
       inputNativeElm.focus();
     }, 400 );
   } // function - ngAfterViewInit

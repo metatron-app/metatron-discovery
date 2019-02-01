@@ -203,7 +203,7 @@
             <dt>
               {{item.label}}
             </dt>
-            <dd *ngIf="item.label === 'File URI'; else notFile" title="{{item.value}}">
+            <dd *ngIf="item.isFileUri; else notFile" title="{{item.value}}">
               {{item.value}}
             </dd>
             <ng-template #notFile>

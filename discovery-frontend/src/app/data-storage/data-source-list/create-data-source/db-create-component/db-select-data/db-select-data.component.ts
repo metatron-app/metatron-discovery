@@ -476,9 +476,6 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
     }
     // 현재 페이지의 데이터소스 생성정보 저장
     this.saveDatabaseData(this._sourceData);
-    // set field list, field data
-    this._sourceData.fieldList = this.selectedType === 'TABLE' ? this.tableDetailData.fields : this.queryDetailData.fields;
-    this._sourceData.fieldData = this.selectedType === 'TABLE' ? this.tableDetailData.data : this.queryDetailData.data;
   }
 
 
@@ -1035,5 +1032,14 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
       searchTextTable: this.searchTextTable
     };
     sourceData['databaseData'] = databaseData;
+
+    // set field list, field data
+    if (this.selectedType === 'TABLE' && this.tableDetailData) {
+      this._sourceData.fieldList = this.tableDetailData.fields;
+      this._sourceData.fieldData = this.tableDetailData.data;
+    } else if (this.selectedType === 'QUERY' && this.queryDetailData) {
+      this._sourceData.fieldList = this.queryDetailData.fields;
+      this._sourceData.fieldData = this.queryDetailData.data;
+    }
   }
 }

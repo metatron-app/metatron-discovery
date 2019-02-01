@@ -123,7 +123,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   public snapshotUriFileFormat: string = '';
 
   public isSsNameEditing: boolean = false;
-  public sSInformationList: {label : String, value : string}[] = [];
+  public sSInformationList: {label : String, value : string, isFileUri?: boolean}[] = [];
 
   public ssType = SsType;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -719,7 +719,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       this.sSInformationList.push({label: this.translateService.instant('msg.dp.th.ss-type'),
         value : `${this.prepCommonUtil.getSnapshotType(snapshot.ssType)} (${fileType[1].toUpperCase()})`},
         {label: this.translateService.instant('msg.dp.th.file.uri'),
-          value : snapshot.storedUri});
+          value : snapshot.storedUri, isFileUri: true});
     }
 
     // Summary only when snapshot is successful
