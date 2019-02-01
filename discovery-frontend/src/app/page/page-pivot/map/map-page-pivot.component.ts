@@ -86,6 +86,9 @@ export class MapPagePivotComponent extends PagePivotComponent {
   @Output('changeLayer')
   public changeLayerEvent: EventEmitter<any> = new EventEmitter();
 
+  @Output('selectLayer')
+  public selectLayerEvent: EventEmitter<any> = new EventEmitter();
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -744,7 +747,9 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * @param index
    */
   public selectedLayer( index: number ){
-    this.uiOption.layerNum = index;
-    this.changePivot();
+    if( this.uiOption.layerNum != index ) {
+      this.uiOption.layerNum = index;
+      this.selectLayerEvent.emit(index);
+    }
   }
 }

@@ -127,21 +127,18 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     })
   });
 
+  public layerMap: any = [];
+
   // Feature layer
   public featureLayer = undefined;
-
   // Cluster layer
   public clusterLayer = undefined;
-
   // Symbol layer
   public symbolLayer = undefined;
-
   // Heatmap layer
   public heatmapLayer = undefined;
-
   // Hexagon layer
   public hexagonLayer = undefined;
-
   // Tooltip layer
   public tooltipLayer = undefined;
 
@@ -695,12 +692,23 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     // Is map created
     if (this.olmap) {
-      // Change map style
+
+      // z index reset
+      this.layerMap.forEach( item => {
+        item.layerValue.setZIndex(0);
+      });
+
+      // Change map style (remove all layer)
+      this.layerMap.forEach(item => this.olmap.removeLayer(item.layerValue));
+      this.layerMap = [];
+
       this.olmap.removeLayer(this.osmLayer);
       this.olmap.removeLayer(this.cartoDarkLayer);
       this.olmap.removeLayer(this.cartoPositronLayer);
       this.olmap.removeLayer(this.featureLayer);
+
       this._customMapLayers.forEach(item => this.olmap.removeLayer(item.layer));
+
       this.olmap.addLayer(layer);
       return false;
     }
@@ -763,7 +771,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(num, this.data) : new ol.style.Style()
           });
           this.clusterLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource);
-          this.clusterLayer.setZIndex(this.getUiMapOption().layerNum);
+          // set z index (the default value is 0 and higher would be 1)
+          this.clusterLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
+          this.layerMap.push({id:num, layerValue:this.clusterLayer});
           this.featureLayer = this.clusterLayer;
           // Init
           if (isMapCreation && this.getUiMapOption().showMapLayer) {
@@ -790,7 +800,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(num, this.data) : new ol.style.Style()
           });
           this.symbolLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource);
-          this.symbolLayer.setZIndex(this.getUiMapOption().layerNum);
+          // set z index (the default value is 0 and higher would be 1)
+          this.symbolLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
+          this.layerMap.push({id:num, layerValue:this.symbolLayer});
           this.featureLayer = this.symbolLayer;
           // Init
           if (isMapCreation && this.getUiMapOption().showMapLayer) {
@@ -819,7 +831,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           style: this.mapStyleFunction(num, this.data)
         });
         this.symbolLayer.setSource(source);
-        this.symbolLayer.setZIndex(this.getUiMapOption().layerNum);
+        // set z index (the default value is 0 and higher would be 1)
+        this.symbolLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
+        this.layerMap.push({id:num, layerValue:this.symbolLayer});
         this.featureLayer = this.symbolLayer;
         // Init
         if (isMapCreation && this.getUiMapOption().showMapLayer) {
@@ -851,7 +865,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           blur: heatmapLayer.blur * 0.7
         });
         this.heatmapLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource);
-        this.heatmapLayer.setZIndex(this.getUiMapOption().layerNum);
+        // set z index (the default value is 0 and higher would be 1)
+        this.heatmapLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
+        this.layerMap.push({id:num, layerValue:this.heatmapLayer});
         this.featureLayer = this.heatmapLayer;
         // Init
         if (isMapCreation && this.getUiMapOption().showMapLayer) {
@@ -885,7 +901,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           style: _.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(num, this.data) : new ol.style.Style()
         });
         this.hexagonLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? hexagonSource : emptySource);
-        this.hexagonLayer.setZIndex(this.getUiMapOption().layerNum);
+        // set z index (the default value is 0 and higher would be 1)
+        this.hexagonLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
+        this.layerMap.push({id:num, layerValue:this.hexagonLayer});
         this.featureLayer = this.hexagonLayer;
         // Init
         if (isMapCreation && this.getUiMapOption().showMapLayer) {
@@ -2929,5 +2947,15 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         this.uiOption.maxValue = valueRange.maxValue;
       }
     }
+  }
+
+  public selectedLayer(selectedIndex:number) {
+    this.layerMap.forEach( item => {
+      item.layerValue.setZIndex(0);
+      if( item['id'] == selectedIndex ) {
+        item.layerValue.setZIndex(1);
+      }
+    });
+    this.changeDetect.detectChanges();
   }
 }
