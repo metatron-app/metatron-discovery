@@ -19,14 +19,19 @@ import com.google.common.collect.Lists;
 
 import java.util.List;
 
+import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
+
 /**
- * Created by kyungtaak on 2016. 6. 17..
+ *
  */
 public class UniformGranularitySpec implements GranularitySpec {
 
   String segmentGranularity;
+
   String queryGranularity;
+
   List<String> intervals;
+
   Boolean rollup;
 
   public UniformGranularitySpec() {
@@ -36,15 +41,15 @@ public class UniformGranularitySpec implements GranularitySpec {
     this.segmentGranularity = segmentGranularity;
     this.queryGranularity = queryGranularity;
 
-    if(intervals == null || intervals.length == 0) {
-      this.intervals = Lists.newArrayList("1970-01-01/2050-01-01");
+    if (intervals == null || intervals.length == 0) {
+      this.intervals = TimeFilter.DEFAULT_INTERVAL;
     } else {
       this.intervals = Lists.newArrayList(intervals);
     }
   }
 
   public void addInterval(String interval) {
-    if(intervals == null) {
+    if (intervals == null) {
       intervals = Lists.newArrayList();
     }
 

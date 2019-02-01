@@ -278,6 +278,7 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
             // set changed timestamp flag
             changedTimestamp = true;
           } else if (LogicalType.TIMESTAMP === this.selectedLogicalType.value) {  // if change type is TIMESTAMP
+            // TODO set browser timezone at field
             // set changed timestamp flag
             changedTimestamp = true;
             // push timestamp field

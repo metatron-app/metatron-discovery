@@ -14,10 +14,12 @@
 
 package app.metatron.discovery.spec.druid.ingestion;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
 import java.util.List;
@@ -28,6 +30,7 @@ import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
@@ -50,15 +53,7 @@ import app.metatron.discovery.spec.druid.ingestion.granularity.UniformGranularit
 import app.metatron.discovery.spec.druid.ingestion.index.LuceneIndexStrategy;
 import app.metatron.discovery.spec.druid.ingestion.index.LuceneIndexing;
 import app.metatron.discovery.spec.druid.ingestion.index.SecondaryIndexing;
-import app.metatron.discovery.spec.druid.ingestion.parser.CsvStreamParser;
-import app.metatron.discovery.spec.druid.ingestion.parser.DimensionsSpec;
-import app.metatron.discovery.spec.druid.ingestion.parser.JsonParseSpec;
-import app.metatron.discovery.spec.druid.ingestion.parser.OrcParser;
-import app.metatron.discovery.spec.druid.ingestion.parser.ParquetParser;
-import app.metatron.discovery.spec.druid.ingestion.parser.Parser;
-import app.metatron.discovery.spec.druid.ingestion.parser.StringParser;
-import app.metatron.discovery.spec.druid.ingestion.parser.TimeAndDimsParseSpec;
-import app.metatron.discovery.spec.druid.ingestion.parser.TimestampSpec;
+import app.metatron.discovery.spec.druid.ingestion.parser.*;
 
 public class AbstractSpecBuilder {
 
@@ -67,6 +62,8 @@ public class AbstractSpecBuilder {
   protected DataSchema dataSchema = new DataSchema();
 
   protected boolean useGeoIngestion;
+
+  protected boolean derivedTimestamp;
 
   protected Map<String, SecondaryIndexing> secondaryIndexing = Maps.newLinkedHashMap();
 
@@ -97,8 +94,17 @@ public class AbstractSpecBuilder {
       }
     }
 
+    dataSchema.setParser(makeParser(dataSource));
+
     // Set Interval Options
-    List<String> intervals = dataSource.getIngestionInfo().getIntervals();
+    List<String> intervals;
+    if (derivedTimestamp) {
+      // If the Timestamp field is set, an interval of one year is set based on the current time.
+      DateTime now = DateTime.now(DateTimeZone.UTC);
+      intervals = Lists.newArrayList(now.minusMonths(6) + "/" + now.plusMonths(6));
+    } else {
+      intervals = dataSource.getIngestionInfo().getIntervals();
+    }
 
     // Set granularity, Default value (granularity : SECOND, segment granularity : DAY)
     UniformGranularitySpec granularitySpec = new UniformGranularitySpec(
@@ -130,8 +136,6 @@ public class AbstractSpecBuilder {
       }
       dataSchema.addMetrics(field.getAggregation(useGeoIngestion));
     }
-
-    dataSchema.setParser(makeParser(dataSource));
 
   }
 
@@ -173,6 +177,7 @@ public class AbstractSpecBuilder {
     }
 
     Field timeField = timeFields.get(0);
+    derivedTimestamp = BooleanUtils.isTrue(timeField.getDerived());
 
     TimestampSpec timestampSpec = timeField.createTimestampSpec();
 
@@ -212,6 +217,8 @@ public class AbstractSpecBuilder {
       throw new IllegalArgumentException("Required file format.");
     }
 
+    boolean hadoopIngestion = (ingestionInfo instanceof HdfsIngestionInfo) || (ingestionInfo instanceof HiveIngestionInfo);
+
     Parser parser;
 
     if (fileFormat instanceof CsvFileFormat || fileFormat instanceof ExcelFileFormat) {
@@ -222,44 +229,68 @@ public class AbstractSpecBuilder {
                                        .map((field) -> field.getName())
                                        .collect(Collectors.toList());
 
-      CsvStreamParser csvStreamParser = new CsvStreamParser();
-
-      if (ingestionInfo instanceof LocalFileIngestionInfo) {
-        boolean skipHeaderRow = ((LocalFileIngestionInfo) ingestionInfo).getRemoveFirstRow();
-
-        // In case of Excel file, it is set to false because it is converted to headerless csv.
-        if(fileFormat instanceof ExcelFileFormat) {
-          skipHeaderRow = false;
-        }
-
-        csvStreamParser.setSkipHeaderRecord(skipHeaderRow);
-      }
-
-      if (fileFormat instanceof CsvFileFormat) {
-
+      if (hadoopIngestion) {
         CsvFileFormat csvFormat = (CsvFileFormat) fileFormat;
 
-        if (!csvFormat.isDefaultCsvMode()) {
-          csvStreamParser.setTimestampSpec(timestampSpec);
-          csvStreamParser.setDimensionsSpec(dimensionsSpec);
-          csvStreamParser.setColumns(columns);
-          csvStreamParser.setDelimiter(csvFormat.getDelimeter());
+        if (csvFormat.isDefaultCsvMode()) {
+          CsvParseSpec parseSpec = new CsvParseSpec();
+          parseSpec.setTimestampSpec(timestampSpec);
+          parseSpec.setDimensionsSpec(dimensionsSpec);
+          parseSpec.setColumns(columns);
 
-          parser = csvStreamParser;
+          parser = new StringParser(parseSpec);
+        } else {
+          TsvParseSpec parseSpec = new TsvParseSpec();
+          parseSpec.setTimestampSpec(timestampSpec);
+          parseSpec.setDimensionsSpec(dimensionsSpec);
+          parseSpec.setColumns(columns);
+
+          parseSpec.setDelimiter(csvFormat.getDelimeter());
+          parseSpec.setListDelimiter(csvFormat.getLineSeparator());
+
+          parser = new StringParser(parseSpec);
+        }
+      } else {
+
+        CsvStreamParser csvStreamParser = new CsvStreamParser();
+
+        if (ingestionInfo instanceof LocalFileIngestionInfo) {
+          boolean skipHeaderRow = ((LocalFileIngestionInfo) ingestionInfo).getRemoveFirstRow();
+
+          // In case of Excel file, it is set to false because it is converted to headerless csv.
+          if (fileFormat instanceof ExcelFileFormat) {
+            skipHeaderRow = false;
+          }
+
+          csvStreamParser.setSkipHeaderRecord(skipHeaderRow);
+        }
+
+        if (fileFormat instanceof CsvFileFormat) {
+
+          CsvFileFormat csvFormat = (CsvFileFormat) fileFormat;
+
+          if (!csvFormat.isDefaultCsvMode()) {
+            csvStreamParser.setTimestampSpec(timestampSpec);
+            csvStreamParser.setDimensionsSpec(dimensionsSpec);
+            csvStreamParser.setColumns(columns);
+            csvStreamParser.setDelimiter(csvFormat.getDelimeter());
+
+            parser = csvStreamParser;
+          } else {
+            csvStreamParser.setTimestampSpec(timestampSpec);
+            csvStreamParser.setDimensionsSpec(dimensionsSpec);
+            csvStreamParser.setColumns(columns);
+            csvStreamParser.setDelimiter(csvFormat.getDelimeter());
+
+            parser = csvStreamParser;
+          }
         } else {
           csvStreamParser.setTimestampSpec(timestampSpec);
           csvStreamParser.setDimensionsSpec(dimensionsSpec);
           csvStreamParser.setColumns(columns);
-          csvStreamParser.setDelimiter(csvFormat.getDelimeter());
 
           parser = csvStreamParser;
         }
-      } else {
-        csvStreamParser.setTimestampSpec(timestampSpec);
-        csvStreamParser.setDimensionsSpec(dimensionsSpec);
-        csvStreamParser.setColumns(columns);
-
-        parser = csvStreamParser;
       }
 
     } else if (fileFormat instanceof JsonFileFormat) {

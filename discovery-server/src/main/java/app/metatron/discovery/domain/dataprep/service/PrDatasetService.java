@@ -21,6 +21,7 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,6 +44,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -74,8 +77,10 @@ public class PrDatasetService {
     private String hivePreviewSize = "50";
     private String jdbcPreviewSize = "50";
 
-    public DataFrame getImportedPreview(PrDataset dataset) throws Exception {
-        DataFrame dataFrame = null;
+    public DataFrame getImportedPreview(PrDataset dataset) throws IOException, SQLException, TeddyException {
+        DataFrame dataFrame;
+
+        assert dataset.getDsType() == PrDataset.DS_TYPE.IMPORTED : dataset.getDsType();
 
         PrDataset.IMPORT_TYPE importType = dataset.getImportType();
         if(importType == PrDataset.IMPORT_TYPE.UPLOAD || importType == PrDataset.IMPORT_TYPE.URI) {
@@ -85,14 +90,18 @@ public class PrDatasetService {
         } else if(importType == PrDataset.IMPORT_TYPE.STAGING_DB) {
             dataFrame = this.datasetStagingDbPreviewService.getPreviewLinesFromStagedbForDataFrame(dataset, this.hivePreviewSize);
         } else {
-            assert false : importType;
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
+                    PrepMessageKey.MSG_DP_ALERT_IMPORT_TYPE_IS_WRONG, importType.toString());
         }
 
         return dataFrame;
     }
 
+    // This function is only for imported datasets!
     public void savePreview(PrDataset dataset, String oAuthToken) throws Exception {
         DataFrame dataFrame = null;
+
+        assert dataset.getDsType() == PrDataset.DS_TYPE.IMPORTED : dataset.getDsType();
 
         PrDataset.IMPORT_TYPE importType = dataset.getImportType();
         if(importType == PrDataset.IMPORT_TYPE.UPLOAD || importType == PrDataset.IMPORT_TYPE.URI) {

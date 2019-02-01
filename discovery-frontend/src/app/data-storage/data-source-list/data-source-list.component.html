@@ -37,6 +37,7 @@
       <div class="ddp-filter-search ddp-fright">
         <div class="ddp-form-filter-search">
           <component-input
+            [autoFocus]="false"
             [value]="searchKeyword"
             [placeHolder]="'msg.storage.ph.source.search' | translate"
             (changeValue)="onChangedSearchKeyword($event)">

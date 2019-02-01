@@ -18,6 +18,7 @@ import { DataPreviewComponent } from './component/data-preview/data.preview.comp
 import { DatasourceAliasService } from '../datasource/service/datasource-alias.service';
 import { DataDownloadComponent } from './component/data-download/data.download.component';
 import { WidgetService } from '../dashboard/service/widget.service';
+import {TimezoneService} from "../data-storage/service/timezone.service";
 
 @NgModule({
   imports: [
@@ -31,6 +32,10 @@ import { WidgetService } from '../dashboard/service/widget.service';
     DataPreviewComponent,
     DataDownloadComponent
   ],
-  providers: [DatasourceAliasService,WidgetService]
+  providers: [
+    DatasourceAliasService,
+    WidgetService,
+    TimezoneService
+  ]
 })
 export class DataPreviewModule { }

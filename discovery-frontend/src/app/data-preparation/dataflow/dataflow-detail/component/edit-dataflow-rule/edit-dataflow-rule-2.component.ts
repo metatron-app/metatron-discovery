@@ -20,9 +20,7 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-//import { Dataflow } from '../../../../../domain/data-preparation/dataflow';
 import { PrDataflow } from '../../../../../domain/data-preparation/pr-dataflow';
-//import { Dataset, Field, Rule } from '../../../../../domain/data-preparation/dataset';
 import { PrDataset, Field, Rule } from '../../../../../domain/data-preparation/pr-dataset';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { Alert } from '../../../../../common/util/alert.util';
@@ -38,6 +36,7 @@ import { RuleListComponent } from './rule-list.component';
 import { DataSnapshotDetailComponent } from '../../../../data-snapshot/data-snapshot-detail.component';
 import { EventBroadcaster } from '../../../../../common/event/event.broadcaster';
 import {PreparationCommonUtil} from "../../../../util/preparation-common.util";
+import {MultipleRenamePopupComponent} from "./multiple-rename-popup.component";
 
 declare let Split;
 
@@ -55,6 +54,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   @ViewChild(MulticolumnRenameComponent)
   private multicolumnRenameComponent: MulticolumnRenameComponent;
+
+  @ViewChild(MultipleRenamePopupComponent)
+  private multipleRenamePopupComponent: MultipleRenamePopupComponent;
 
   @ViewChild(ExtendInputFormulaComponent)
   private extendInputFormulaComponent: ExtendInputFormulaComponent;
@@ -709,14 +711,23 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
                 tos.push(item.substring(1, item.length - 1));
               }
             });
+            // let cols = _.cloneDeep(this.ruleVO.col['value']);
+            // this.multicolumnRenameComponent.init({
+            //   data: _.cloneDeep(gridData),
+            //   datasetName: this.selectedDataSet.dsName,
+            //   ruleCurIdx: rule['ruleNo'],
+            //   cols: cols,
+            //   to: tos
+            // });
+
             let cols = _.cloneDeep(this.ruleVO.col['value']);
-            this.multicolumnRenameComponent.init({
-              data: _.cloneDeep(gridData),
-              datasetName: this.selectedDataSet.dsName,
-              ruleCurIdx: rule['ruleNo'],
-              cols: cols,
-              to: tos
+            this.multipleRenamePopupComponent.init({gridData: _.cloneDeep(gridData),
+              dsName: this.selectedDataSet.dsName, editInfo: {ruleCurIdx: this.ruleVO['ruleNo'],
+                cols: cols,
+                to: tos}
             });
+
+
             // TODO : ... 지우면 안되는데..
             this.ruleVO.col = '';
             this.ruleVO.to = '';
@@ -1384,20 +1395,31 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * Multicolumn rename popup open
    */
   public onMultiColumnRenameClick() {
-    let clonedGridData = _.cloneDeep(this.selectedDataSet.gridData);
+    // let clonedGridData = _.cloneDeep(this.selectedDataSet.gridData);
+    // if ('UPDATE' === this.opString) {
+    //   this.multicolumnRenameComponent.init({
+    //     data: clonedGridData,
+    //     datasetName: this.selectedDataSet.dsName,
+    //     ruleCurIdx: this.ruleVO['ruleNo'],
+    //     cols: this.ruleVO.cols,
+    //     to: [this.ruleVO.to]
+    //   });
+    // } else {
+    //   this.multicolumnRenameComponent.init({
+    //     data: clonedGridData,
+    //     datasetName: this.selectedDataSet.dsName
+    //   });
+    // }
+
     if ('UPDATE' === this.opString) {
-      this.multicolumnRenameComponent.init({
-        data: clonedGridData,
-        datasetName: this.selectedDataSet.dsName,
-        ruleCurIdx: this.ruleVO['ruleNo'],
-        cols: this.ruleVO.cols,
-        to: [this.ruleVO.to]
+      this.multipleRenamePopupComponent.init({gridData: _.cloneDeep(this.selectedDataSet.gridData),
+        dsName: this.selectedDataSet.dsName, editInfo: {ruleCurIdx: this.ruleVO['ruleNo'],
+          cols: this.ruleVO.cols,
+          to: [this.ruleVO.to]}
       });
     } else {
-      this.multicolumnRenameComponent.init({
-        data: clonedGridData,
-        datasetName: this.selectedDataSet.dsName
-      });
+      this.multipleRenamePopupComponent.init({gridData: _.cloneDeep(this.selectedDataSet.gridData),
+        dsName: this.selectedDataSet.dsName});
     }
   }
 
@@ -1526,6 +1548,22 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.selectedColumns = [];
     this.editColumnList = [];
   }
+
+
+  /**
+   * Apply multi column rename
+   * @param data
+   */
+  public onRenameMultiColumns(data) {
+
+    if (isNullOrUndefined(data) ) { // Cancel rename if nothing is changed
+      this.jumpToCurrentIndex()
+    } else {
+      this.applyRule(data);
+    }
+
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

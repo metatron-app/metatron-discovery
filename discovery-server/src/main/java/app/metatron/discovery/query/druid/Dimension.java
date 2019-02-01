@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.query.druid.dimensions.DefaultDimension;
+import app.metatron.discovery.query.druid.dimensions.ExpressionDimension;
 import app.metatron.discovery.query.druid.dimensions.ExtractionDimension;
 import app.metatron.discovery.query.druid.dimensions.LookupDimension;
 
@@ -27,6 +28,7 @@ import app.metatron.discovery.query.druid.dimensions.LookupDimension;
 @JsonSubTypes({
     @JsonSubTypes.Type(value = DefaultDimension.class, name = "default"),
     @JsonSubTypes.Type(value = LookupDimension.class, name = "lookup"),
+    @JsonSubTypes.Type(value = ExpressionDimension.class, name = "expression"),
     @JsonSubTypes.Type(value = ExtractionDimension.class, name = "extraction")
 })
 public interface Dimension {

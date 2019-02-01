@@ -30,10 +30,9 @@
       <div class="ddp-wrap-variable">
         <!-- wrap sheet -->
         <!-- ddp-full 추가 -->
-        <div class="ddp-wrap-sheet" [ngClass]="{'ddp-full':datasetFile.sheets.length === 0 || datasetFile.sheets.length === 1}">
-
+        <div class="ddp-wrap-sheet" [ngClass]="{'ddp-full': isCSV || isJSON}">
           <!-- sheet list -->
-          <div class="ddp-ui-sheet-list">
+          <div class="ddp-ui-sheet-list" *ngIf="isExcel">
             <ul class="ddp-list-sheet"  *ngFor="let item of datasetFile.selectedSheets; let idx = index">
               <li [ngClass]="{'ddp-selected' : item.name === datasetFile.sheetName}" (click)="setDataSetSheetIndex($event,item.name, idx)">
                 <span class="ddp-txt-checkbox">{{item.name}}</span>
@@ -62,7 +61,6 @@
       </div>
       <div class="ddp-wrap-edit-form" >
         <div class="ddp-clear">
-          <!--<div class="ddp-col-6" *ngIf="!datasetFile.sheets || 0 == datasetFile.sheets.length">  this.isCSV = true-->
           <div class="ddp-col-6" *ngIf="isCSV">
             <div class="ddp-wrap-edit3 ddp-type">
               <label class="ddp-label-type">{{'msg.dp.th.col.delimiter' | translate}}</label>

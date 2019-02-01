@@ -19,6 +19,7 @@ import { CommonModule } from '../common/common.module';
 import { PageShareModule } from './page-share.module';
 import { ImageService } from '../common/service/image.service';
 import { AnalysisPredictionService } from './component/analysis/service/analysis.prediction.service';
+import {TimezoneService} from "../data-storage/service/timezone.service";
 
 const pageRoutes: Routes = [
   {
@@ -36,6 +37,7 @@ const pageRoutes: Routes = [
   exports: [],
   providers: [
     ImageService,
+    TimezoneService,
     AnalysisPredictionService
   ]
 })

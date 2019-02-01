@@ -21,15 +21,15 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.jdbc.PrepJdbcService;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
-import app.metatron.discovery.domain.dataprep.teddy.Revision;
-import app.metatron.discovery.domain.dataprep.teddy.RevisionSet;
+import app.metatron.discovery.domain.dataprep.teddy.*;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
 import com.facebook.presto.jdbc.internal.guava.collect.Maps;
+import com.facebook.presto.jdbc.internal.joda.time.DateTime;
+import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormat;
+import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +38,7 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class TeddyImpl {
@@ -143,7 +140,7 @@ public class TeddyImpl {
   }
 
   // APPEND *AFTER* stageIdx
-  public DataFrame append(String dsId, int stageIdx, String ruleString, boolean forced) {
+  public DataFrame append(String dsId, int stageIdx, String ruleString, boolean suppress) {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
     Revision newRev = new Revision(rev, stageIdx + 1);
     DataFrame newDf = null;
@@ -152,7 +149,7 @@ public class TeddyImpl {
     try {
       newDf = apply(rev.get(stageIdx), ruleString);
     } catch (TeddyException te) {
-      if (forced == false) {
+      if (suppress == false) {
         throw PrepException.fromTeddyException(te);   // RuntimeException
       }
       suppressed = true;
@@ -350,5 +347,172 @@ public class TeddyImpl {
       valids.add(df.isValid());
     }
     return valids;
+  }
+
+  // Get header and settype rule strings via inspecting 100 rows.
+  public List<String> getAutoTypingRules(DataFrame df) throws TeddyException {
+    String[] ruleStrings = new String[3];
+    List<String> setTypeRules = new ArrayList<>();
+    List<String> columnNames = new ArrayList<>(df.colNames);
+    List<ColumnType> columnTypes = new ArrayList<>();
+    List<ColumnType> columnTypesRow0 = new ArrayList<>();
+    List<String> timestampStyles = new ArrayList<>();
+
+    if(df.colCnt == 0)
+      df.colCnt = df.rows.get(0).objCols.size();
+
+    for(int i=0; i<df.colCnt; i++) {
+      //각 컬럼마다 100개의 row를 검색하여 Type, 0번 row의 Type, TimestampStyle을 확인.
+      guessColTypes(df, i, columnTypes, columnTypesRow0, timestampStyles);
+    }
+
+    //If all column types of row 0 elements is String and predicted column types is not all String.
+    //Then add Header rule and change column name.
+    if(Collections.frequency(columnTypesRow0, ColumnType.STRING) == df.colCnt &&
+            Collections.frequency(columnTypes, ColumnType.STRING) != df.colCnt) {
+      String ruleString = "header rownum: 1";
+
+      setTypeRules.add(ruleString);
+      columnNames.clear();
+
+      DataFrame newDf = dataFrameService.applyRule(df, ruleString);
+
+      columnNames.addAll(newDf.colNames);
+    }
+    //Boolean, Long, Double 룰스트링 만들기.(Timestamp는 format 문제로 개별 추가)
+    ruleStrings[0] = "settype col: ";
+    ruleStrings[1] = "settype col: ";
+    ruleStrings[2] = "settype col: ";
+
+    //각 컬럼의 type에 따라 rulestring에 추가.
+    for(int i = 0; i < df.colCnt; i++) {
+      if(columnTypes.get(i) == ColumnType.BOOLEAN)
+        ruleStrings[0] = ruleStrings[0] + "`" + columnNames.get(i) + "`, ";
+      else if(columnTypes.get(i) == ColumnType.LONG)
+        ruleStrings[1] = ruleStrings[1] + "`" + columnNames.get(i) + "`, ";
+      else if(columnTypes.get(i) == ColumnType.DOUBLE)
+        ruleStrings[2] = ruleStrings[2] + "`" + columnNames.get(i) + "`, ";
+      else if(columnTypes.get(i) == ColumnType.TIMESTAMP)
+        setTypeRules.add("settype col: `" + columnNames.get(i) + "` type: Timestamp format: '" + timestampStyles.get(i) + "'");
+    }
+
+    //생선된 rulestring을 settypeRules에 추가.
+    if(ruleStrings[0].length() > 13) {
+      ruleStrings[0] = ruleStrings[0].substring(0, ruleStrings[0].length() - 2) + " type: Boolean";
+      setTypeRules.add(ruleStrings[0]);
+    }
+    if(ruleStrings[1].length() > 13) {
+      ruleStrings[1] = ruleStrings[1].substring(0, ruleStrings[1].length() - 2) + " type: Long";
+      setTypeRules.add(ruleStrings[1]);
+    }
+    if(ruleStrings[2].length() > 13) {
+      ruleStrings[2] = ruleStrings[2].substring(0, ruleStrings[2].length() - 2) + " type: Double";
+      setTypeRules.add(ruleStrings[2]);
+    }
+    return setTypeRules;
+  }
+
+  // Guess column types via inspecting 100 rows.
+  private void guessColTypes(DataFrame df, int colNo, List<ColumnType> columnTypes, List<ColumnType> columnTypesrow0, List<String> timestampStyles) {
+    List<ColumnType> columnTypeGuess = new ArrayList<>();
+    List<TimestampTemplate> timestampStyleGuess = new ArrayList<>();
+    ColumnType columnType = ColumnType.STRING;
+    String timestampStyle = "";
+    int maxCount;
+    int maxRow = df.rows.size() < 100 ? df.rows.size() : 100;
+
+    //0번부터 99번까지 첫 100개의 row를 검사.
+    for(int i = 0; i<maxRow; i++) {
+      //null check
+      if(df.rows.get(i).objCols.get(colNo) == null) {
+        columnTypeGuess.add(ColumnType.UNKNOWN);
+        continue;
+      }
+
+      String str = df.rows.get(i).objCols.get(colNo).toString();
+
+      //Boolean Check
+      if (str.equalsIgnoreCase("true") || str.equalsIgnoreCase("false")) {
+        columnTypeGuess.add(ColumnType.BOOLEAN);
+        continue;
+      }
+
+      //Long Check
+      try {
+        Long.parseLong(str);
+        columnTypeGuess.add(ColumnType.LONG);
+        continue;
+      } catch (Exception e) {
+        //LOGGER.info("create(): Detecting Column Type...", e);
+      }
+
+      //Double Check
+      try {
+        Double.parseDouble(str);
+        columnTypeGuess.add(ColumnType.DOUBLE);
+        continue;
+      } catch (Exception e) {
+        //LOGGER.info("create(): Detecting Column Type...", e);
+      }
+
+      //Timestamp Check
+      for (TimestampTemplate tt : TimestampTemplate.values()) {
+        try {
+          DateTimeFormatter dtf = DateTimeFormat.forPattern(tt.getFormat()).withLocale(Locale.ENGLISH);
+          DateTime.parse(str, dtf);
+
+          timestampStyleGuess.add(tt);
+          columnTypeGuess.add(ColumnType.TIMESTAMP);
+          break;
+        } catch (Exception e) {
+          //LOGGER.info("create(): Detecting Column Type...", e);
+        }
+      }
+
+      //Else String
+      if(columnTypeGuess.size() == i)
+        columnTypeGuess.add(ColumnType.STRING);
+    }
+
+    //가장 많이 선택된 columnType을 확인.
+    maxCount = 0;
+    for(ColumnType ct: ColumnType.values()){
+      if(Collections.frequency(columnTypeGuess, ct) > maxCount) {
+        maxCount = Collections.frequency(columnTypeGuess, ct);
+        columnType = ct;
+      }
+    }
+
+    //columnType == TIMESTAMP인 경우엔 Style 확인 필요.
+    maxCount = 0;
+    if(columnType == ColumnType.TIMESTAMP) {
+      for(TimestampTemplate tt : TimestampTemplate.values()) {
+        if(Collections.frequency(timestampStyleGuess, tt) > maxCount) {
+          maxCount = Collections.frequency(timestampStyleGuess, tt);
+          timestampStyle = tt.getFormat();
+        }
+      }
+    } else {
+      timestampStyle = null;
+    }
+
+    //최다 득표 타입, 0번 row의 타입, timestampStyle을 넣어준다.
+    columnTypes.add(columnType);
+    columnTypesrow0.add(columnTypeGuess.get(0));
+    timestampStyles.add(timestampStyle);
+  }
+
+  // Just apply rules to dataframe. No rule list
+  public DataFrame applyAutoTyping(DataFrame df) throws TeddyException {
+    if (!prepProperties.isAutoTypingEnabled()) {
+      return df;
+    }
+
+    List<String> ruleStrings = getAutoTypingRules(df);
+    for (String ruleString : ruleStrings) {
+      df = dataFrameService.applyRule(df, ruleString);
+    }
+
+    return df;
   }
 }

@@ -67,17 +67,6 @@ public class PrSnapshot extends AbstractHistoryEntity {
     }
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-    public enum STORAGE_TYPE {
-        LOCAL,
-        HDFS;
-
-        @JsonValue
-        public String toJson() {
-            return name();
-        }
-    }
-
-    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     public enum HIVE_FILE_FORMAT {
         CSV,
         ORC;
@@ -1124,5 +1113,13 @@ public class PrSnapshot extends AbstractHistoryEntity {
             }
         }
         return Lists.newArrayList();
+    }
+
+    static public URI_FILE_FORMAT getFileFormatByUri(String uri) {
+        if (uri.endsWith(".json")) {
+            return URI_FILE_FORMAT.JSON;
+        }
+
+        return URI_FILE_FORMAT.CSV;
     }
 }

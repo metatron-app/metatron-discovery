@@ -80,9 +80,7 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
     }).catch((err) => this.commonExceptionHandler(err));
     // check stageDB enable
     this.storageService.checkEnableStageDB().then((result) => {
-      console.log(result);
     }).catch((err) => this.commonExceptionHandler(err));
-
   }
 
   // Destroy

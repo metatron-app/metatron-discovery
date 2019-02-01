@@ -350,7 +350,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         null,
         1,
         "Asia/Seoul",
-        null
+        null, null
     );
 
     // @formatter:off
@@ -381,12 +381,14 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         //        new Sort("OrderDate","ASC")
     ));
 
-    //    TimeRangeFilter timeRangeFilter = new TimeRangeFilter("OrderDate", null, "DAY",
-    //                                                          Lists.newArrayList(
-    //                                                              "EARLIEST_DATETIME/2011-05-19",
-    //                                                              "2012-05-19/2013-05-19",
-    //                                                              "2014-05-19/LATEST_DATETIME"
-    //                                                          ));
+    TimeRangeFilter timeRangeFilter = new TimeRangeFilter("OrderDate", null, "DAY",
+                                                          Lists.newArrayList(
+                                                              "EARLIEST_DATETIME/2011-05-19",
+                                                              "2012-05-19/2013-05-19",
+                                                              "2014-05-19/LATEST_DATETIME"
+                                                          ),
+                                                          "Asia/Seoul",
+                                                          "ko");
 
     //    TimeRangeFilter timeRangeFilter = new TimeRangeFilter("ShipDate", null, "DAY",
     //                                                          Lists.newArrayList(
@@ -395,11 +397,13 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     //                                                              "2014-05-19/LATEST_DATETIME"
     //                                                          ));
 
-    TimeRangeFilter timeRangeFilter = new TimeRangeFilter("ShipDate", null, null,
-                                                          Lists.newArrayList(
-                                                              "EARLIEST_DATETIME/2011-05-19 12:00:00",
-                                                              "2014-05-19 16:00:23/LATEST_DATETIME"
-                                                          ));
+    //    TimeRangeFilter timeRangeFilter = new TimeRangeFilter("OrderDate", null, null,
+    //                                                          Lists.newArrayList(
+    //                                                              "EARLIEST_DATETIME/2011-05-19 12:00:00",
+    //                                                              "2014-05-19 16:00:23/LATEST_DATETIME"
+    //                                                          ),
+    //                                                          "Asia/Seoul",
+    //                                                          "ko");
 
     List<Filter> filters = Lists.newArrayList(
         timeRangeFilter
@@ -451,7 +455,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     );
 
     TimeListFilter timeListFilter = new TimeListFilter("OrderDate", null, "MONTH", "MONTH", false,
-                                                       valueList, null);
+                                                       null, null, valueList, null);
 
     List<Filter> filters = Lists.newArrayList(
         timeListFilter
@@ -497,7 +501,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         //        new Sort("OrderDate","ASC")
     ));
 
-    TimeRelativeFilter relativeFilter = new TimeRelativeFilter("OrderDate", null, "year", null, TimeRelativeFilter.Tense.PREVIOUS.name(), 6, "Asia/Seoul");
+    TimeRelativeFilter relativeFilter = new TimeRelativeFilter("OrderDate", null, "year", null, TimeRelativeFilter.Tense.PREVIOUS.name(), 6, "Asia/Seoul", "en");
     //    TimeRelativeFilter relativeFilter = new TimeRelativeFilter("ShipDate", null, "year", null, TimeRelativeFilter.Tense.PREVIOUS.name(), 6, null);
 
     List<Filter> filters = Lists.newArrayList(
@@ -2011,7 +2015,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     );
 
     TimeListFilter timeListFilter = new TimeListFilter("event_time", null, "MONTH", "MONTH", false,
-                                                       valueList, null);
+                                                       null, null, valueList, null);
 
     List<Filter> filters = Lists.newArrayList(
         new ExpressionFilter("amt < 50000 && amt > 40000"),
