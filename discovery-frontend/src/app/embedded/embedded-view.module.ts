@@ -24,6 +24,7 @@ import { EmbeddedPageComponent } from './page/embedded-page.component';
 import { ChartModule } from '../common/chart.module';
 import { EventBroadcaster } from '../common/event/event.broadcaster';
 import { EmbeddedMetadataDetailComponent } from '../meta-data-management/metadata/component/embedded-metadata-detail.component';
+import {TimezoneService} from "../data-storage/service/timezone.service";
 
 const embeddedViewRoutes: Routes = [
   { path: 'dashboard/presentation/:workbookId', component: PresentationDashboardComponent },
@@ -54,6 +55,7 @@ const embeddedViewRoutes: Routes = [
   ],
   providers: [
     CookieService,
+    TimezoneService,
     WorkbookService
   ]
 })
