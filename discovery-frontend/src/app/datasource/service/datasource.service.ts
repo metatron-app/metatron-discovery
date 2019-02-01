@@ -29,7 +29,7 @@ import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid
 import {FilterUtil} from '../../dashboard/util/filter.util';
 import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
 import {Dashboard} from '../../domain/dashboard/dashboard';
-import { Field, LogicalType } from '../../domain/datasource/datasource';
+import {Field, LogicalType} from '../../domain/datasource/datasource';
 import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
 import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
 import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
@@ -41,13 +41,13 @@ import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-requ
 import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
 import {GeoBoundaryFormat, GeoField, GeoHashFormat} from '../../domain/workbook/configurations/field/geo-field';
-import { UIMapOption } from '../../common/component/chart/option/ui-option/map/ui-map-chart';
-import { ChartUtil } from '../../common/component/chart/option/util/chart-util';
-import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
+import {UIMapOption} from '../../common/component/chart/option/ui-option/map/ui-map-chart';
+import {ChartUtil} from '../../common/component/chart/option/util/chart-util';
+import {CriterionKey, ListCriterion} from '../../domain/datasource/listCriterion';
 import {CommonConstant} from "../../common/constant/common.constant";
-import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
-import { UITileLayer } from '../../common/component/chart/option/ui-option/map/ui-tile-layer';
-import { MapLayerType } from '../../common/component/chart/option/define/map/map-common';
+import {CriteriaFilter} from '../../domain/datasource/criteriaFilter';
+import {UITileLayer} from '../../common/component/chart/option/ui-option/map/ui-tile-layer';
+import {MapLayerType} from '../../common/component/chart/option/define/map/map-common';
 import {Pivot} from "../../domain/workbook/configurations/pivot";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
 import {Shelf} from "../../domain/workbook/configurations/shelf/shelf";
@@ -57,11 +57,11 @@ export class DatasourceService extends AbstractService {
 
   private _useMetaDataQuery: boolean = false;
 
-  private _timezoneSvc:TimezoneService;
+  private _timezoneSvc: TimezoneService;
 
   constructor(protected injector: Injector) {
     super(injector);
-    this._timezoneSvc = this.injector.get( TimezoneService );
+    this._timezoneSvc = this.injector.get(TimezoneService);
   }
 
   /**
@@ -124,7 +124,7 @@ export class DatasourceService extends AbstractService {
    */
   public searchQuery(query: SearchQueryRequest): Promise<any> {
     // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '129.444 38.444', upperCorner: '129.888 38.999', dataSource: 'cei_m1_b'};
-      // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '38.444 129.444', upperCorner: '38.999 129.888', dataSource: 'cei_m1_b'};
+    // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '38.444 129.444', upperCorner: '38.999 129.888', dataSource: 'cei_m1_b'};
 
     // query.filters.push(params);
 
@@ -173,7 +173,7 @@ export class DatasourceService extends AbstractService {
     if (FilterUtil.isTimeFilter(filter)) {
       const timeFilter: TimeFilter = <TimeFilter>filter;
       if (CommonConstant.COL_NAME_CURRENT_DATETIME === timeFilter.field) {
-        param.targetField = { granularity: 'ALL', name: CommonConstant.COL_NAME_CURRENT_DATETIME, type: 'timestamp' };
+        param.targetField = {granularity: 'ALL', name: CommonConstant.COL_NAME_CURRENT_DATETIME, type: 'timestamp'};
       } else {
         param.targetField = {
           type: 'timestamp',
@@ -210,7 +210,7 @@ export class DatasourceService extends AbstractService {
         });
       }
 
-      param.targetField = { alias: field.alias, name: field.name };
+      param.targetField = {alias: field.alias, name: field.name};
       if ('user_expr' === field.type) {
         param.targetField.ref = 'user_defined';
       } else if (field.ref) {
@@ -226,12 +226,12 @@ export class DatasourceService extends AbstractService {
         (<InclusionFilter>filter).preFilters.filter((preFilter: AdvancedFilter) => {
           if (preFilter.type === 'measure_inequality') {
             const condition: MeasureInequalityFilter = <MeasureInequalityFilter>preFilter;
-            if( condition.inequality && condition.aggregation && condition.field && 0 < condition.value ) {
+            if (condition.inequality && condition.aggregation && condition.field && 0 < condition.value) {
               tempFilters.push(FilterUtil.convertToServerSpec(condition));
             }
           } else if (preFilter.type === 'measure_position') {
             const limitation: MeasurePositionFilter = <MeasurePositionFilter>preFilter;
-            if( limitation.position && limitation.aggregation && limitation.field && 0 < limitation.value ) {
+            if (limitation.position && limitation.aggregation && limitation.field && 0 < limitation.value) {
               tempFilters.push(FilterUtil.convertToServerSpec(limitation));
             }
           } else if (preFilter.type === 'wildcard') {
@@ -242,10 +242,10 @@ export class DatasourceService extends AbstractService {
           }
         });
         param.filters = param.filters.concat(tempFilters);
-        ( param.targetField ) && ( param.targetField.type = 'dimension' );
+        (param.targetField) && (param.targetField.type = 'dimension');
       } else if ('bound' === filter.type) {
         // Measure Filter
-        if( param.targetField ) {
+        if (param.targetField) {
           param.targetField.aggregationType = 'NONE';
           param.targetField.type = 'measure';
         }
@@ -304,11 +304,13 @@ export class DatasourceService extends AbstractService {
 
       // timezone 처리 - S
       {
-        const shelfConf:Shelf = query.shelf;
+        const shelfConf: Shelf = query.shelf;
         if (shelfConf.layers && 0 < shelfConf.layers.length) {
-          shelfConf.layers.forEach( (layer:GeoField[]) => {
+          shelfConf.layers.forEach((layer: GeoField[]) => {
             layer.forEach(field => {
-              if( LogicalType.TIMESTAMP.toString() === field.subType && field.format ) {
+              if ((LogicalType.TIMESTAMP.toString() === field.type.toUpperCase()
+                || LogicalType.TIMESTAMP.toString() === field.subType
+                || LogicalType.TIMESTAMP.toString() === field.subRole) && field.format) {
                 field.format['timeZone'] = this._timezoneSvc.browserTimezone.momentName;
                 field.format['locale'] = this._timezoneSvc.browserLocal;
               }
@@ -323,10 +325,12 @@ export class DatasourceService extends AbstractService {
 
       // timezone 처리 - S
       {
-        const pivotConf:Pivot = query.pivot;
+        const pivotConf: Pivot = query.pivot;
         if (pivotConf.columns && 0 < pivotConf.columns.length) {
           pivotConf.columns.forEach(column => {
-            if( LogicalType.TIMESTAMP.toString() === column.subType && column.format ) {
+            if ((LogicalType.TIMESTAMP.toString() === column.type.toUpperCase()
+              || LogicalType.TIMESTAMP.toString() === column.subType
+              || LogicalType.TIMESTAMP.toString() === column.subRole) && column.format) {
               column.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
               column.format.locale = this._timezoneSvc.browserLocal;
             }
@@ -334,7 +338,9 @@ export class DatasourceService extends AbstractService {
         }
         if (pivotConf.rows && 0 < pivotConf.rows.length) {
           pivotConf.rows.forEach(row => {
-            if( LogicalType.TIMESTAMP.toString() === row.subType && row.format ) {
+            if ((LogicalType.TIMESTAMP.toString() === row.type.toUpperCase()
+              || LogicalType.TIMESTAMP.toString() === row.subType
+              || LogicalType.TIMESTAMP.toString() === row.subRole) && row.format) {
               row.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
               row.format.locale = this._timezoneSvc.browserLocal;
             }
@@ -362,7 +368,7 @@ export class DatasourceService extends AbstractService {
       }
     }
 
-    if( 0 < pageConf.chart.limit ) {
+    if (0 < pageConf.chart.limit) {
       pageConf.limit.limit = pageConf.chart.limit;
     } else {
       pageConf.limit.limit = 100000;
@@ -466,14 +472,14 @@ export class DatasourceService extends AbstractService {
       let geoFieldCnt: number = 0;
 
       // check multiple geo type
-      for(let column of query.shelf.layers[layerNum]) {
-        if(column && column.field && column.field.logicalType && (-1 !== column.field.logicalType.toString().indexOf('GEO'))) {
+      for (let column of query.shelf.layers[layerNum]) {
+        if (column && column.field && column.field.logicalType && (-1 !== column.field.logicalType.toString().indexOf('GEO'))) {
           geoFieldCnt++;
         }
       }
 
       // set current layer values
-      for(let layer of query.shelf.layers[layerNum]) {
+      for (let layer of query.shelf.layers[layerNum]) {
 
         // when it's measure
         if ('measure' === layer.type) {
@@ -481,7 +487,7 @@ export class DatasourceService extends AbstractService {
           // add aggregation type
           layer.aggregationType = layer.aggregationType;
 
-        // when it's dimension
+          // when it's dimension
         } else if ('dimension' === layer.type) {
 
           // set current layer datasource
@@ -501,14 +507,14 @@ export class DatasourceService extends AbstractService {
 
           if (layer.field && layer.field.logicalType) {
             // default geo format
-            if(layer.field.logicalType && layer.field.logicalType.toString().indexOf('GEO') > -1) {
+            if (layer.field.logicalType && layer.field.logicalType.toString().indexOf('GEO') > -1) {
               layer.format = {
                 type: FormatType.GEO.toString()
               }
             }
 
             // when logicalType => geo point
-            if(layer.field.logicalType === LogicalType.GEO_POINT) {
+            if (layer.field.logicalType === LogicalType.GEO_POINT) {
 
               // geo_hash is only used in hexagon
               if (MapLayerType.TILE === (<UIMapOption>pageConf.chart).layers[layerNum].type) {
@@ -520,7 +526,7 @@ export class DatasourceService extends AbstractService {
               }
 
               // when they have multiple geo values
-              if(geoFieldCnt > 1) {
+              if (geoFieldCnt > 1) {
                 layer.format = <GeoBoundaryFormat>{
                   type: FormatType.GEO_BOUNDARY.toString(),
                   geoColumn: query.pivot.columns[0].field.name,
@@ -528,10 +534,10 @@ export class DatasourceService extends AbstractService {
                 }
               }
 
-            // when polygon, line type
-            } else if((layer.field.logicalType === LogicalType.GEO_POLYGON || layer.field.logicalType === LogicalType.GEO_LINE)) {
+              // when polygon, line type
+            } else if ((layer.field.logicalType === LogicalType.GEO_POLYGON || layer.field.logicalType === LogicalType.GEO_LINE)) {
               // when they have multiple geo values
-              if(geoFieldCnt > 1) {
+              if (geoFieldCnt > 1) {
                 layer.format = {
                   type: FormatType.GEO_JOIN.toString()
                 }
@@ -913,17 +919,17 @@ export class DatasourceService extends AbstractService {
       // if (field['alias'] && field['alias'] !== field.name) {
       //   field['alias'] = field['alias'];
       // } else {
-        // aggregation type과 함께 alias 설정
-        // const alias: string = field['fieldAlias'] ? field['fieldAlias'] : ( field['logicalName'] ? field['logicalName'] : field['name'] );
-        // field['alias'] = field.aggregationType ? field.aggregationType + `(${alias})` : `${alias}`;
+      // aggregation type과 함께 alias 설정
+      // const alias: string = field['fieldAlias'] ? field['fieldAlias'] : ( field['logicalName'] ? field['logicalName'] : field['name'] );
+      // field['alias'] = field.aggregationType ? field.aggregationType + `(${alias})` : `${alias}`;
 
-        field['alias'] = ChartUtil.getAlias(field);
+      field['alias'] = ChartUtil.getAlias(field);
       // }
 
     } else if (ShelveFieldType.TIMESTAMP.toString() === field.type) {   // timestamp 일때
 
       // alias랑 name이 같지않은경우 (alias 변경시 => granularity Type을 alias에 설정하지 않음)
-      const alias: string = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : ( field['logicalName'] ? field['logicalName'] : field['name'] );
+      const alias: string = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : (field['logicalName'] ? field['logicalName'] : field['name']);
       if (alias === field.name) {
         // aggregation type과 함께 alias 설정
         if (field.format && field.format.unit) field['alias'] = (field.format && field.format.unit ? field.format.unit : 'NONE') + `(${alias})`;
