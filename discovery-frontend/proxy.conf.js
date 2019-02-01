@@ -4,14 +4,14 @@ const PROXY_CONFIG = [
       "/api",
       "/oauth"
     ],
-    target: "http://52.231.184.135:8180",
+    target: "http://localhost:8180",
     secure: false
   },
   {
     context: [
       "/stomp"
     ],
-    target: "http://52.231.184.135:8180",
+    target: "http://localhost:8180",
     secure: false
   }
 ];
