@@ -86,9 +86,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   private _propMapConf = sessionStorage.getItem(CommonConstant.PROP_MAP_CONFIG);
   private _customMapLayers: { name: string, layer: any, isDefault: boolean }[] = [];
 
-  @Input('rnbMenu')
-  public rnbMenu: string;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -328,8 +325,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     let valid: boolean = false;
 
-    let layers: Field[] = shelf.layers[this.findLayerNum(this.getUiMapOption().layerNum, this.rnbMenu)];
-    // let layers: Field[] = shelf.layers[this.getUiMapOption().layerNum];
+    let layers: Field[] = shelf.layers[this.getUiMapOption().layerNum];
 
     if (layers) {
       for (let layer of layers) {
@@ -375,8 +371,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Get geo type
     // todo : validation
     let field = null;
-    // _.each(this.shelf.layers[this.getUiMapOption().layerNum], (fieldTemp) => {
-    _.each(this.shelf.layers[this.findLayerNum(this.getUiMapOption().layerNum, this.rnbMenu)], (fieldTemp) => {
+    _.each(this.shelf.layers[this.getUiMapOption().layerNum], (fieldTemp) => {
       if (fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
         field = fieldTemp;
         return false;
@@ -567,8 +562,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   protected setDimensionList(): UIOption {
 
-    let layerNum = this.findLayerNum((<UIMapOption>this.uiOption).layerNum, this.rnbMenu);
-    // let layerNum = (<UIMapOption>this.uiOption).layerNum ? (<UIMapOption>this.uiOption).layerNum : 0;
+    let layerNum = (<UIMapOption>this.uiOption).layerNum ? (<UIMapOption>this.uiOption).layerNum : 0;
 
     let shelve: any = !this.shelf ? [] : _.cloneDeep(this.shelf.layers[layerNum]);
 
@@ -615,8 +609,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   protected setMeasureList(): UIOption {
 
-    let layerNum = this.findLayerNum((<UIMapOption>this.uiOption).layerNum, this.rnbMenu);
-    // let layerNum = (<UIMapOption>this.uiOption).layerNum ? (<UIMapOption>this.uiOption).layerNum : 0;
+    let layerNum = (<UIMapOption>this.uiOption).layerNum ? (<UIMapOption>this.uiOption).layerNum : 0;
 
     let shelve: any = !this.shelf ? [] : _.cloneDeep(this.shelf.layers[layerNum]);
 
@@ -1989,7 +1982,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let scope = this;
 
     // heatmap => no tooltip
-    if (MapLayerType.HEATMAP === this.getUiMapOption().layers[this.findLayerNum(this.getUiMapOption().layerNum, this.rnbMenu)].type) {
+    if (MapLayerType.HEATMAP === this.getUiMapOption().layers[this.getUiMapOption().layerNum].type) {
       return;
     }
 
@@ -2430,8 +2423,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   private checkOption(geomType: LogicalType, uiOption: UIMapOption): void {
 
-    let layer: UILayers = uiOption.layers[this.findLayerNum(uiOption.layerNum, this.rnbMenu)];
-    // let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[this.findLayerNum(uiOption.layerNum, this.rnbMenu)]);
+    let layer: UILayers = uiOption.layers[uiOption.layerNum];
     let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[uiOption.layerNum]);
 
     ////////////////////////////////////////////////////////
@@ -2952,16 +2944,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   private setMinMax() {
 
-    // let layer: UILayers = this.getUiMapOption().layers[this.getUiMapOption().layerNum];
-    let layer: UILayers = this.getUiMapOption().layers[this.findLayerNum(this.getUiMapOption().layerNum, this.rnbMenu)];
-    // let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[this.getUiMapOption().layerNum]);
-    let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[ this.findLayerNum(this.getUiMapOption().layerNum, this.rnbMenu)]);
+    let layer: UILayers = this.getUiMapOption().layers[this.getUiMapOption().layerNum];
+    let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[this.getUiMapOption().layerNum]);
 
     if (!_.isEmpty(layer.color.column) && this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal && this.data && this.data.length > 0) {
 
       let alias = ChartUtil.getFieldAlias(layer.color.column, shelf, layer.color.aggregationType);
 
-      let valueRange = _.cloneDeep(this.data[this.findLayerNum(this.getUiMapOption().layerNum, this.rnbMenu)]['valueRange'][alias]);
+      let valueRange = _.cloneDeep(this.data[this.getUiMapOption().layerNum]['valueRange'][alias]);
       if (valueRange) {
         this.uiOption.minValue = valueRange.minValue;
         this.uiOption.maxValue = valueRange.maxValue;
@@ -2977,27 +2967,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       }
     });
     this.changeDetect.detectChanges();
-  }
-
-  /**
-   * find which layer is changing
-   * @param layerNum
-   * @param rnbMenu
-   */
-  private findLayerNum( layerNum: number, rnbMenu: string ): number {
-    if( isNullOrUndefined(rnbMenu) == false && rnbMenu.trim() != '' ) {
-      let rnbMenuNum = 0;
-      if( rnbMenu == 'mapLayer2' ) {
-        rnbMenuNum = 1;
-      }
-      if( layerNum != null ) {
-        if( layerNum != rnbMenuNum ) {
-          return rnbMenuNum;
-        }
-        return layerNum;
-      }
-    }
-    return layerNum != null ? layerNum : 0;
   }
 
 }
