@@ -365,21 +365,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // this.data[0].features = [this.data[0].features[0]];
 
     ////////////////////////////////////////////////////////
-    // Get geo type
-    ////////////////////////////////////////////////////////
-
-    // Get geo type
-    // todo : validation
-    let field = null;
-    _.each(this.shelf.layers[this.getUiMapOption().layerNum], (fieldTemp) => {
-      if (fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
-        field = fieldTemp;
-        return false;
-      }
-    });
-    let geomType = field.field.logicalType.toString();
-
-    ////////////////////////////////////////////////////////
     // set min / max
     ////////////////////////////////////////////////////////
     this.setMinMax();
@@ -388,10 +373,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Check option (spec)
     ////////////////////////////////////////////////////////
 
-    // for( let index: number = 0 ; index < this.shelf.layers.length; index++ ) {
-    //   this.checkOption(geomType, index);
-    this.checkOption(geomType, this.getUiMapOption());
-    // }
+    this.checkOption(this.getUiMapOption());
+
     ////////////////////////////////////////////////////////
     // Creation map & layer
     ////////////////////////////////////////////////////////
@@ -960,6 +943,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       });
       if( field != null && field.field != null && field.field.logicalType != null ) {
         let geomType = field.field.logicalType.toString();
+
+        ////////////////////////////////////////////////////////
+        // set field list
+        ////////////////////////////////////////////////////////
+        let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[polygonIndex]);
+        this.checkFieldList(shelf);
+
         // Data interate
         for (let i = 0; i < this.data[polygonIndex]["features"].length; i++) {
           let feature = new ol.Feature();
@@ -2421,265 +2411,284 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   /**
    * Check UI Option (Spec) => Shelf add & remove
    */
-  private checkOption(geomType: LogicalType, uiOption: UIMapOption): void {
+  private checkOption(uiOption: UIMapOption): void {
 
-    let layer: UILayers = uiOption.layers[uiOption.layerNum];
-    let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[uiOption.layerNum]);
+    for( let index: number = 0 ; index < this.shelf.layers.length; index++ ) {
 
-    ////////////////////////////////////////////////////////
-    // Set geo type
-    ////////////////////////////////////////////////////////
-
-    let layerType: MapLayerType = layer.type;
-
-    // Set layer type
-    if (_.eq(geomType, LogicalType.GEO_LINE) && !_.eq(layerType, MapLayerType.LINE)) {
-      let lineLayer: UILineLayer = <UILineLayer>layer;
-      lineLayer.type = MapLayerType.LINE;
-      lineLayer.thickness = {
-        by: MapBy.NONE,
-        column: "NONE",
-        maxValue: 10
-      };
-    } else if (_.eq(geomType, LogicalType.GEO_POLYGON) && !_.eq(layerType, MapLayerType.POLYGON)) {
-      let polygonLayer: UIPolygonLayer = <UIPolygonLayer>layer;
-      polygonLayer.type = MapLayerType.POLYGON;
-      polygonLayer.outline
-    }
-
-    ////////////////////////////////////////////////////////
-    // Cluster check
-    ////////////////////////////////////////////////////////
-
-    if (_.eq(layerType, MapLayerType.SYMBOL)) {
-
-      let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
-      if (_.isUndefined(symbolLayer.clustering) || symbolLayer.clustering == null) {
-        symbolLayer.clustering = true;
-      }
-    }
-
-    // Option panel change cancle
-    if (!this.drawByType || String(this.drawByType) == "") {
-      return;
-    }
-
-    ////////////////////////////////////////////////////////
-    // Add pivot(shelf) check
-    ////////////////////////////////////////////////////////
-
-    // ////////////////////////////////////////////////////////
-    // // Alias
-    // ////////////////////////////////////////////////////////
-    // _.each(option.layers, (layer) => {
-    //   ////////////////////////////////////////////////////////
-    //   // Symbol
-    //   ////////////////////////////////////////////////////////
-    //   if( _.eq(layer.type, MapLayerType.SYMBOL) ) {
-    //     // Symbol layer
-    //     let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
-    //     ///////////////////////////
-    //     // Color
-    //     ///////////////////////////
-    //     if( _.eq(layer.color.by, MapBy.MEASURE) || _.eq(layer.color.by, MapBy.DIMENSION) ) {
-    //       let column: string = layer.color.column;
-    //       let name: string = layer.color.name;
-    //       _.each(this.shelf.layers, (shelf) => {
-    //         _.each(shelf, (field) => {
-    //           if( _.eq(name, field['name']) ) {
-    //             layer.color.column = this.getAlias(field);
-    //           }
-    //         });
-    //       });
-    //     }
-    //     ///////////////////////////
-    //     // Size
-    //     ///////////////////////////
-    //     if( _.eq(symbolLayer.size.by, MapBy.MEASURE) ) {
-    //       let column: string = symbolLayer.size.column;
-    //       let name: string = symbolLayer.size.name;
-    //       _.each(this.shelf.layers, (shelf) => {
-    //         _.each(shelf, (field) => {
-    //           if( _.eq(name, field['name']) ) {
-    //             symbolLayer.size.column = this.getAlias(field);
-    //           }
-    //         });
-    //       });
-    //     }
-    //   }
-    //   ////////////////////////////////////////////////////////
-    //   // Line
-    //   ////////////////////////////////////////////////////////
-    //   else if( _.eq(layer.type, MapLayerType.LINE) ) {
-    //
-    //   }
-    //   ////////////////////////////////////////////////////////
-    //   // Polygon
-    //   ////////////////////////////////////////////////////////
-    //   else if( _.eq(layer.type, MapLayerType.POLYGON) ) {
-    //
-    //   }
-    // });
-    // ////////////////////////////////////////////////////////
-    // // Tooltip
-    // ////////////////////////////////////////////////////////
-    // _.each(option.toolTip.displayColumns, (column) => {
-    //
-    // });
-    // ////////////////////////////////////////////////////////
-    // // //End Alias
-    // ////////////////////////////////////////////////////////
-
-    // Find field
-    let isNone: boolean = true;
-    let isDimension: boolean = false;
-    let isMeasure: boolean = false;
-    _.each(shelf, (field) => {
-      if ('user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1)) {
-        isNone = false;
-      }
-      // when logical type is not geo, type is dimension
-      if (('user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1)) && _.eq(field.type, ShelveFieldType.DIMENSION)) {
-        isDimension = true;
-      }
-      if (_.eq(field.type, ShelveFieldType.MEASURE)) {
-        isMeasure = true;
-      }
-    });
-
-    ////////////////////////////////////////////////////////
-    // Color
-    ////////////////////////////////////////////////////////
-
-    // init custom user color setting
-    layer.color.ranges = undefined;
-    layer.color['settingUseFl'] = false;
-
-    ///////////////////////////
-    // Color by None
-    ///////////////////////////
-    if (isNone) {
-      layer.color.by = MapBy.NONE;
-      layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : '#6344ad';
-      layer.color.column = null;
-      layer.color.aggregationType = null;
-    }
-    ///////////////////////////
-    // Color by Measure
-    ///////////////////////////
-    // remove not isDimension => exceptional case select dimension and remove dimension
-    else if (isMeasure) {
-      layer.color.by = MapBy.MEASURE;
-      layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : 'VC1';
-      // layer.color.column = this.uiOption.fieldMeasureList[0]['name'];
-      layer.color.column = uiOption.fieldMeasureList[0]['name'];
-      layer.color.aggregationType = uiOption.fieldMeasureList[0]['aggregationType'];
-      layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(uiOption, this.data[uiOption.layerNum], this.getColorList(layer), uiOption.layerNum, shelf);
-    }
-    ///////////////////////////
-    // Color by Dimension
-    ///////////////////////////
-    // hexagon && isDimension => init as none
-    else if (MapLayerType.TILE === layer.type && isDimension) {
-      layer.color.by = MapBy.NONE;
-      layer.color.schema = '#6344ad';
-      layer.color.column = null;
-      layer.color.aggregationType = null;
-    } else if (isDimension) {
-      layer.color.by = MapBy.DIMENSION;
-      layer.color.schema = 'SC1';
-      layer.color.column = uiOption.fielDimensionList[0]['name'];
-      layer.color.aggregationType = null;
-      if (uiOption.fielDimensionList[0]['format']) layer.color.granularity = uiOption.fielDimensionList[0]['format']['unit'].toString();
-    }
-
-    ////////////////////////////////////////////////////////
-    // Symbol
-    ////////////////////////////////////////////////////////
-    if (_.eq(layer.type, MapLayerType.SYMBOL)) {
-
-      // Symbol layer
-      let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
+      let layer: UILayers = uiOption.layers[index];
+      let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[index]);
 
       ////////////////////////////////////////////////////////
-      // Size
+      // Set geo type
       ////////////////////////////////////////////////////////
 
+      let layerType: MapLayerType = layer.type;
+
+      let field = null;
+      _.each(this.shelf.layers[index], (fieldTemp) => {
+        if (fieldTemp != null && fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
+          field = fieldTemp;
+          return false;
+        }
+      });
+      let geomType = field.field.logicalType.toString();
+
+      // Set layer type
+      if (_.eq(geomType, LogicalType.GEO_LINE) && !_.eq(layerType, MapLayerType.LINE)) {
+        let lineLayer: UILineLayer = <UILineLayer>layer;
+        lineLayer.type = MapLayerType.LINE;
+        lineLayer.thickness = {
+          by: MapBy.NONE,
+          column: "NONE",
+          maxValue: 10
+        };
+      } else if (_.eq(geomType, LogicalType.GEO_POLYGON) && !_.eq(layerType, MapLayerType.POLYGON)) {
+        let polygonLayer: UIPolygonLayer = <UIPolygonLayer>layer;
+        polygonLayer.type = MapLayerType.POLYGON;
+        polygonLayer.outline
+      }
+
+      ////////////////////////////////////////////////////////
+      // Cluster check
+      ////////////////////////////////////////////////////////
+
+      if (_.eq(layerType, MapLayerType.SYMBOL)) {
+
+        let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
+        if (_.isUndefined(symbolLayer.clustering) || symbolLayer.clustering == null) {
+          symbolLayer.clustering = true;
+        }
+      }
+
+      // Option panel change cancle
+      if (!this.drawByType || String(this.drawByType) == "") {
+        return;
+      }
+
+      ////////////////////////////////////////////////////////
+      // Add pivot(shelf) check
+      ////////////////////////////////////////////////////////
+
+      // ////////////////////////////////////////////////////////
+      // // Alias
+      // ////////////////////////////////////////////////////////
+      // _.each(option.layers, (layer) => {
+      //   ////////////////////////////////////////////////////////
+      //   // Symbol
+      //   ////////////////////////////////////////////////////////
+      //   if( _.eq(layer.type, MapLayerType.SYMBOL) ) {
+      //     // Symbol layer
+      //     let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
+      //     ///////////////////////////
+      //     // Color
+      //     ///////////////////////////
+      //     if( _.eq(layer.color.by, MapBy.MEASURE) || _.eq(layer.color.by, MapBy.DIMENSION) ) {
+      //       let column: string = layer.color.column;
+      //       let name: string = layer.color.name;
+      //       _.each(this.shelf.layers, (shelf) => {
+      //         _.each(shelf, (field) => {
+      //           if( _.eq(name, field['name']) ) {
+      //             layer.color.column = this.getAlias(field);
+      //           }
+      //         });
+      //       });
+      //     }
+      //     ///////////////////////////
+      //     // Size
+      //     ///////////////////////////
+      //     if( _.eq(symbolLayer.size.by, MapBy.MEASURE) ) {
+      //       let column: string = symbolLayer.size.column;
+      //       let name: string = symbolLayer.size.name;
+      //       _.each(this.shelf.layers, (shelf) => {
+      //         _.each(shelf, (field) => {
+      //           if( _.eq(name, field['name']) ) {
+      //             symbolLayer.size.column = this.getAlias(field);
+      //           }
+      //         });
+      //       });
+      //     }
+      //   }
+      //   ////////////////////////////////////////////////////////
+      //   // Line
+      //   ////////////////////////////////////////////////////////
+      //   else if( _.eq(layer.type, MapLayerType.LINE) ) {
+      //
+      //   }
+      //   ////////////////////////////////////////////////////////
+      //   // Polygon
+      //   ////////////////////////////////////////////////////////
+      //   else if( _.eq(layer.type, MapLayerType.POLYGON) ) {
+      //
+      //   }
+      // });
+      // ////////////////////////////////////////////////////////
+      // // Tooltip
+      // ////////////////////////////////////////////////////////
+      // _.each(option.toolTip.displayColumns, (column) => {
+      //
+      // });
+      // ////////////////////////////////////////////////////////
+      // // //End Alias
+      // ////////////////////////////////////////////////////////
+
+      // Find field
+      let isNone: boolean = true;
+      let isDimension: boolean = false;
+      let isMeasure: boolean = false;
+      _.each(shelf, (field) => {
+        if ('user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1)) {
+          isNone = false;
+        }
+        // when logical type is not geo, type is dimension
+        if (('user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') == -1)) && _.eq(field.type, ShelveFieldType.DIMENSION)) {
+          isDimension = true;
+        }
+        if (_.eq(field.type, ShelveFieldType.MEASURE)) {
+          isMeasure = true;
+        }
+      });
+
+      ////////////////////////////////////////////////////////
+      // set field list
+      ////////////////////////////////////////////////////////
+      this.checkFieldList(shelf);
+
+      ////////////////////////////////////////////////////////
+      // Color
+      ////////////////////////////////////////////////////////
+
+      // init custom user color setting
+      layer.color.ranges = undefined;
+      layer.color['settingUseFl'] = false;
+
       ///////////////////////////
-      // Size by None
+      // Color by None
       ///////////////////////////
-      if (isNone || !isMeasure) {
-        symbolLayer.size.by = MapBy.NONE;
+      if (isNone) {
+        layer.color.by = MapBy.NONE;
+        layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : '#6344ad';
+        layer.color.column = null;
+        layer.color.aggregationType = null;
       }
       ///////////////////////////
-      // Size by Measure
+      // Color by Measure
       ///////////////////////////
+      // remove not isDimension => exceptional case select dimension and remove dimension
       else if (isMeasure) {
-        symbolLayer.size.by = MapBy.MEASURE;
-        symbolLayer.size.column = uiOption.fieldMeasureList[0]['name'];
-      }
-    }
-    ////////////////////////////////////////////////////////
-    // Heatmap
-    ////////////////////////////////////////////////////////
-    else if (_.eq(layer.type, MapLayerType.HEATMAP)) {
-
-      ///////////////////////////
-      // Legend
-      ///////////////////////////
-      // when measure doesn't exist, hide/disable legend
-      if (!uiOption.fieldMeasureList || uiOption.fieldMeasureList.length === 0) {
-        this.uiOption.legend.auto = false;
-        this.uiOption.legend.showName = false;
-      } else {
-        this.uiOption.legend.auto = true;
-      }
-    }
-    ////////////////////////////////////////////////////////
-    // Hexagon
-    ////////////////////////////////////////////////////////
-    else if (_.eq(layer.type, MapLayerType.TILE)) {
-
-      // Hexagon layer
-      let hexagonLayer: UITileLayer = <UITileLayer>layer;
-    }
-    ////////////////////////////////////////////////////////
-    // Line
-    ////////////////////////////////////////////////////////
-    else if (_.eq(layer.type, MapLayerType.LINE)) {
-
-      // line layer
-      let lineLayer: UILineLayer = <UILineLayer>layer;
-
-      ///////////////////////////
-      // Thickness by None
-      ///////////////////////////
-      if (isNone || !isMeasure) {
-        lineLayer.thickness.by = MapBy.NONE;
+        layer.color.by = MapBy.MEASURE;
+        layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : 'VC1';
+        // layer.color.column = this.uiOption.fieldMeasureList[0]['name'];
+        layer.color.column = uiOption.fieldMeasureList[0]['name'];
+        layer.color.aggregationType = uiOption.fieldMeasureList[0]['aggregationType'];
+        // layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(uiOption, this.data[uiOption.layerNum], this.getColorList(layer), uiOption.layerNum, shelf);
+        layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(uiOption, this.data[index], this.getColorList(layer), index, shelf);
       }
       ///////////////////////////
-      // Thickness by Measure
+      // Color by Dimension
       ///////////////////////////
-      else if (isMeasure) {
-        lineLayer.thickness.by = MapBy.MEASURE;
-        // lineLayer.thickness.column = this.uiOption.fieldMeasureList[0]['name'];
-        lineLayer.thickness.column = uiOption.fieldMeasureList[uiOption.layerNum]['name'];
+      // hexagon && isDimension => init as none
+      else if (MapLayerType.TILE === layer.type && isDimension) {
+        layer.color.by = MapBy.NONE;
+        layer.color.schema = '#6344ad';
+        layer.color.column = null;
+        layer.color.aggregationType = null;
+      } else if (isDimension) {
+        layer.color.by = MapBy.DIMENSION;
+        layer.color.schema = 'SC1';
+        layer.color.column = uiOption.fielDimensionList[0]['name'];
+        layer.color.aggregationType = null;
+        if (uiOption.fielDimensionList[0]['format']) layer.color.granularity = uiOption.fielDimensionList[0]['format']['unit'].toString();
       }
-    }
-    ////////////////////////////////////////////////////////
-    // Polygon
-    ////////////////////////////////////////////////////////
-    else if (_.eq(layer.type, MapLayerType.POLYGON)) {
+
+      ////////////////////////////////////////////////////////
+      // Symbol
+      ////////////////////////////////////////////////////////
+      if (_.eq(layer.type, MapLayerType.SYMBOL)) {
+
+        // Symbol layer
+        let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
+
+        ////////////////////////////////////////////////////////
+        // Size
+        ////////////////////////////////////////////////////////
+
+        ///////////////////////////
+        // Size by None
+        ///////////////////////////
+        if (isNone || !isMeasure) {
+          symbolLayer.size.by = MapBy.NONE;
+        }
+        ///////////////////////////
+        // Size by Measure
+        ///////////////////////////
+        else if (isMeasure) {
+          symbolLayer.size.by = MapBy.MEASURE;
+          symbolLayer.size.column = uiOption.fieldMeasureList[0]['name'];
+        }
+      }
+      ////////////////////////////////////////////////////////
+      // Heatmap
+      ////////////////////////////////////////////////////////
+      else if (_.eq(layer.type, MapLayerType.HEATMAP)) {
+
+        ///////////////////////////
+        // Legend
+        ///////////////////////////
+        // when measure doesn't exist, hide/disable legend
+        if (!uiOption.fieldMeasureList || uiOption.fieldMeasureList.length === 0) {
+          this.uiOption.legend.auto = false;
+          this.uiOption.legend.showName = false;
+        } else {
+          this.uiOption.legend.auto = true;
+        }
+      }
+      ////////////////////////////////////////////////////////
+      // Hexagon
+      ////////////////////////////////////////////////////////
+      else if (_.eq(layer.type, MapLayerType.TILE)) {
+
+        // Hexagon layer
+        let hexagonLayer: UITileLayer = <UITileLayer>layer;
+      }
+      ////////////////////////////////////////////////////////
+      // Line
+      ////////////////////////////////////////////////////////
+      else if (_.eq(layer.type, MapLayerType.LINE)) {
+
+        // line layer
+        let lineLayer: UILineLayer = <UILineLayer>layer;
+
+        ///////////////////////////
+        // Thickness by None
+        ///////////////////////////
+        if (isNone || !isMeasure) {
+          lineLayer.thickness.by = MapBy.NONE;
+        }
+        ///////////////////////////
+        // Thickness by Measure
+        ///////////////////////////
+        else if (isMeasure) {
+          lineLayer.thickness.by = MapBy.MEASURE;
+          lineLayer.thickness.column = this.uiOption.fieldMeasureList[0]['name'];
+          // lineLayer.thickness.column = uiOption.fieldMeasureList[uiOption.layerNum]['name'];
+        }
+      }
+      ////////////////////////////////////////////////////////
+      // Polygon
+      ////////////////////////////////////////////////////////
+      else if (_.eq(layer.type, MapLayerType.POLYGON)) {
+
+      }
+
+      ////////////////////////////////////////////////////////
+      // Tooltip
+      ////////////////////////////////////////////////////////
+      if (!uiOption.toolTip.displayColumns) uiOption.toolTip.displayColumns = [];
+
+      let fields = TooltipOptionConverter.returnTooltipDataValue(shelf);
+      this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(fields);
 
     }
-
-    ////////////////////////////////////////////////////////
-    // Tooltip
-    ////////////////////////////////////////////////////////
-    if (!uiOption.toolTip.displayColumns) uiOption.toolTip.displayColumns = [];
-
-    let fields = TooltipOptionConverter.returnTooltipDataValue(shelf);
-    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(fields);
   }
 
   /**
@@ -2967,6 +2976,27 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       }
     });
     this.changeDetect.detectChanges();
+  }
+
+  /**
+   * check field list
+   * @param shelf
+   */
+  private checkFieldList(shelf : any) {
+    // 선반값에서 해당 타입에 해당하는값만 field값으로 리턴
+    const getShelveReturnField = ((shelf: any, typeList: ShelveFieldType[]): AbstractField[] => {
+      const resultList: AbstractField[] = [];
+      shelf.map((item) => {
+        if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')))) {
+          resultList.push(item);
+        }
+      });
+      return resultList;
+    });
+    // 색상지정 기준 필드리스트 설정(measure list)
+    this.uiOption.fieldMeasureList = getShelveReturnField(shelf, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
+    // 색상지정 기준 필드리스트 설정(dimension list)
+    this.uiOption.fielDimensionList = getShelveReturnField(shelf, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
   }
 
 }
