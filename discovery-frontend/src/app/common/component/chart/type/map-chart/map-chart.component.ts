@@ -58,6 +58,7 @@ import {UIPolygonLayer} from '../../option/ui-option/map/ui-polygon-layer';
 import {UITileLayer} from '../../option/ui-option/map/ui-tile-layer';
 import {ColorOptionConverter} from '../../option/converter/color-option-converter';
 import {CommonConstant} from "../../../../constant/common.constant";
+import {isEmpty} from "rxjs/operator/isEmpty";
 
 @Component({
   selector: 'map-chart',
@@ -2984,7 +2985,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * @param rnbMenu
    */
   private findLayerNum( layerNum: number, rnbMenu: string ): number {
-    if( rnbMenu != null ) {
+    if( isNullOrUndefined(rnbMenu) == false && rnbMenu.trim() != '' ) {
       let rnbMenuNum = 0;
       if( rnbMenu == 'mapLayer2' ) {
         rnbMenuNum = 1;
