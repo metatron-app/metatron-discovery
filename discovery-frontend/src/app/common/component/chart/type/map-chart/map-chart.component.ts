@@ -2430,7 +2430,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   private checkOption(geomType: LogicalType, uiOption: UIMapOption): void {
 
     let layer: UILayers = uiOption.layers[this.findLayerNum(uiOption.layerNum, this.rnbMenu)];
-    let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[this.findLayerNum(uiOption.layerNum, this.rnbMenu)]);
+    // let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[this.findLayerNum(uiOption.layerNum, this.rnbMenu)]);
+    let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[uiOption.layerNum]);
 
     ////////////////////////////////////////////////////////
     // Set geo type
