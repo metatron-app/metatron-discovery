@@ -53,10 +53,12 @@
               <em class="ddp-icon-edit2"></em></span>
             </div>
             <div class="ddp-wrap-input">
-              <input #nameElement type="text" class="ddp-input-navi" placeholder="{{'msg.comm.ui.create.name' | translate}}"
-                     [(ngModel)]="reName"
-                     [focus]="nameFl"
-                     (keyup.enter)="renameDatasource()">
+              <component-input
+                [value]="reName"
+                [inputClass]="'ddp-input-navi'"
+                [placeHolder]="'msg.comm.ui.create.name' | translate"
+                (changeValue)="onChangedSourceName($event)">
+              </component-input>
               <span class="ddp-btn-check" (click)="renameDatasource()"></span>
             </div>
           </div>
@@ -69,10 +71,12 @@
               <em class="ddp-icon-edit2"></em></span>
             </div>
             <div class="ddp-wrap-input">
-              <input #descElement type="text" class="ddp-input-navi" placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-                        [(ngModel)]="reDesc"
-                        [focus]="descFl"
-                        (keyup.enter)="redescDatasource()">
+              <component-input
+                [value]="datasource.description"
+                [inputClass]="'ddp-input-navi'"
+                [placeHolder]="'msg.comm.ui.create.desc' | translate"
+                (changeValue)="onChangedSourceDesc($event)">
+              </component-input>
               <span class="ddp-btn-check" (click)="redescDatasource()"></span>
             </div>
           </div>

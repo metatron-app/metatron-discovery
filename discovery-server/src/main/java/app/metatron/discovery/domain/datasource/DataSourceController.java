@@ -869,7 +869,7 @@ public class DataSourceController {
   ResponseEntity<?> getPreviewFromFile(@PathVariable(value = "fileKey") String fileKey,
                                        @RequestParam(value = "sheet", required = false) String sheetName,
                                        @RequestParam(value = "lineSep", required = false, defaultValue = "\n") String lineSep,
-                                       @RequestParam(value = "delimiter", required = false, defaultValue = ",") String delimiter,
+                                       @RequestParam(value = "columnSeq", required = false, defaultValue = ",") String delimiter,
                                        @RequestParam(value = "limit", required = false, defaultValue = "100") int limit,
                                        @RequestParam(value = "firstHeaderRow", required = false, defaultValue = "true") boolean firstHeaderRow) {
 

@@ -28,8 +28,8 @@ public enum PrepMessageKey {
     MSG_DP_ALERT_NO_DATAFLOW(                                    "msg.dp.alert.no.dataflow"),
     MSG_DP_ALERT_USING_OTHER_DATAFLOW(                           "msg.dp.alert.using.other.dataflow"),
     MSG_DP_ALERT_NO_DATASET(                                     "msg.dp.alert.no.dataset"),
-    MSG_DP_ALERT_NO_UPSTREAM(                                    "msg.dp.alert.no.upstream"),
     MSG_DP_ALERT_NO_SNAPSHOT(                                    "msg.dp.alert.no.snapshot"),
+    MSG_DP_ALERT_IMPORT_TYPE_IS_WRONG(                           "msg.dp.alert.import.type.is.wrong"),
     MSG_DP_ALERT_NOT_IMPORTED_DATASET(                           "msg.dp.alert.not.imported.dataset"),
     MSG_DP_ALERT_HAS_NO_CREATOR_DATAFLOW(                        "msg.dp.alert.has.no.creator.dataflow"),
     MSG_DP_ALERT_HAS_NO_SHEET_NAME(                              "msg.dp.alert.has.no.sheet.name"),
@@ -59,6 +59,7 @@ public enum PrepMessageKey {
     MSG_DP_ALERT_FAILED_TO_DELETE_SNAPSHOT(                      "msg.dp.alert.failed.to.delete.snapshot"),
     MSG_DP_ALERT_INVALID_SNAPSHOT_NAME(                          "msg.dp.alert.invalid.snapshot.name"),
     MSG_DP_ALERT_SNAPSHOT_TYPE_NOT_SUPPORTED_YET(                "msg.dp.alert.snapshot.type.not.supported.yet"),
+    MSG_DP_ALERT_SNAPSHOT_DEST_URI_IS_NEEDED(                    "msg.dp.alert.snapshot.dest.uri.is.needed"),
 
     MSG_DP_ALERT_TEDDY_PARSE_FAILED(                             "msg.dp.alert.teddy.parse.failed"),
     MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_RULENAME(                 "msg.dp.alert.teddy.parse.failed.by.rulename"),
@@ -167,6 +168,7 @@ public enum PrepMessageKey {
     MSG_DP_ALERT_TEDDY_NO_ASSIGNMENT_STATEMENT_IS_ALLOWED(       "msg.dp.alert.teddy.no.assignment.statement.is.allowed"),
     MSG_DP_ALERT_TRANSFORM_SNAPSHOT_FAILED(                      "msg.dp.alert.snapshot.failed"),
     MSG_DP_ALERT_SNAPSHOT_NOT_SAVED(                             "msg.dp.alert.snapshot.not.saved"),
+    MSG_DP_ALERT_SNAPSHOT_SHOULD_BE_MADE_BY_TRANSFORM(           "msg.dp.alert.snapshot.should.be.made.by.transform"),
     MSG_DP_ALERT_TEDDY_WRONG_WINDOW_FUNCTION_EXPRESSION(         "msg.dp.alert.teddy.wrong.window.function.expression"),
 
     MSG_DP_ALERT_UNSUPPORTED_NUMBER_FORMAT(                      "msg.dp.alert.unsupported.number.format"),

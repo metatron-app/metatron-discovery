@@ -172,9 +172,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   @ViewChild('gridChart')
   private gridChart: GridChartComponent;
 
-  @ViewChild('pageName')
-  private pageName: ElementRef;
-
   @ViewChild('formatOption')
   private formatOption: FormatOptionComponent;
 
@@ -1111,7 +1108,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.isPageNameEdit = !this.isPageNameEdit;
     this.editingPageName = this.widget.name;
     this.changeDetect.detectChanges();
-    this.pageName.nativeElement.focus();
   }
 
   /**

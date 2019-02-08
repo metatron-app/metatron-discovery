@@ -19,6 +19,7 @@ import { UserService } from '../../../../user/service/user.service';
 import { User } from '../../../../domain/user/user';
 import { ProfileComponent } from '../../../../user/profile/profile.component';
 import { CommonUtil } from '../../../../common/util/common.util';
+import {StorageService} from "../../../../data-storage/service/storage.service";
 
 @Component({
   selector: 'app-gnb',
@@ -55,6 +56,7 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
 
   // 생성자
   constructor(private userService: UserService,
+              private storageService: StorageService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -76,7 +78,9 @@ export class GnbComponent extends AbstractComponent implements OnInit, OnDestroy
     this.userService.getUser(userId).then((user) => {
       this.user = user;
     }).catch((err) => this.commonExceptionHandler(err));
-
+    // check stageDB enable
+    this.storageService.checkEnableStageDB().then((result) => {
+    }).catch((err) => this.commonExceptionHandler(err));
   }
 
   // Destroy

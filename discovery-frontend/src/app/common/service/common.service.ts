@@ -31,7 +31,8 @@ export class CommonService extends AbstractService {
 
   /**
    * get extension Info
-   * @param type
+   * @param {string} type
+   * @return {Promise<any>}
    */
   public getExtensions(type: string): Promise<any> {
     return this.get(this.API_URL + `extensions/${type}`).then(items => {

@@ -42,7 +42,6 @@
 
 package app.metatron.discovery.domain.datasource.data;
 
-import app.metatron.discovery.fixture.SalesGeoDataSourceTestFixture;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -114,7 +113,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    SalesGeoDataSourceTestFixture.setUp(datasourceEngineName);
+    //SalesGeoDataSourceTestFixture.setUp(datasourceEngineName);
   }
 
   @Before
@@ -351,7 +350,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         null,
         1,
         "Asia/Seoul",
-        null
+        null, null
     );
 
     // @formatter:off
@@ -382,12 +381,14 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         //        new Sort("OrderDate","ASC")
     ));
 
-    //    TimeRangeFilter timeRangeFilter = new TimeRangeFilter("OrderDate", null, "DAY",
-    //                                                          Lists.newArrayList(
-    //                                                              "EARLIEST_DATETIME/2011-05-19",
-    //                                                              "2012-05-19/2013-05-19",
-    //                                                              "2014-05-19/LATEST_DATETIME"
-    //                                                          ));
+    TimeRangeFilter timeRangeFilter = new TimeRangeFilter("OrderDate", null, "DAY",
+                                                          Lists.newArrayList(
+                                                              "EARLIEST_DATETIME/2011-05-19",
+                                                              "2012-05-19/2013-05-19",
+                                                              "2014-05-19/LATEST_DATETIME"
+                                                          ),
+                                                          "Asia/Seoul",
+                                                          "ko");
 
     //    TimeRangeFilter timeRangeFilter = new TimeRangeFilter("ShipDate", null, "DAY",
     //                                                          Lists.newArrayList(
@@ -396,11 +397,13 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     //                                                              "2014-05-19/LATEST_DATETIME"
     //                                                          ));
 
-    TimeRangeFilter timeRangeFilter = new TimeRangeFilter("ShipDate", null, null,
-                                                          Lists.newArrayList(
-                                                              "EARLIEST_DATETIME/2011-05-19 12:00:00",
-                                                              "2014-05-19 16:00:23/LATEST_DATETIME"
-                                                          ));
+    //    TimeRangeFilter timeRangeFilter = new TimeRangeFilter("OrderDate", null, null,
+    //                                                          Lists.newArrayList(
+    //                                                              "EARLIEST_DATETIME/2011-05-19 12:00:00",
+    //                                                              "2014-05-19 16:00:23/LATEST_DATETIME"
+    //                                                          ),
+    //                                                          "Asia/Seoul",
+    //                                                          "ko");
 
     List<Filter> filters = Lists.newArrayList(
         timeRangeFilter
@@ -452,7 +455,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     );
 
     TimeListFilter timeListFilter = new TimeListFilter("OrderDate", null, "MONTH", "MONTH", false,
-                                                       valueList, null);
+                                                       null, null, valueList, null);
 
     List<Filter> filters = Lists.newArrayList(
         timeListFilter
@@ -498,7 +501,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         //        new Sort("OrderDate","ASC")
     ));
 
-    TimeRelativeFilter relativeFilter = new TimeRelativeFilter("OrderDate", null, "year", null, TimeRelativeFilter.Tense.PREVIOUS.name(), 6, "Asia/Seoul");
+    TimeRelativeFilter relativeFilter = new TimeRelativeFilter("OrderDate", null, "year", null, TimeRelativeFilter.Tense.PREVIOUS.name(), 6, "Asia/Seoul", "en");
     //    TimeRelativeFilter relativeFilter = new TimeRelativeFilter("ShipDate", null, "year", null, TimeRelativeFilter.Tense.PREVIOUS.name(), 6, null);
 
     List<Filter> filters = Lists.newArrayList(
@@ -1387,10 +1390,21 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         new MeasureField("Discount", MeasureField.AggregationType.SUM)
     ));
 
-    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot2, limit);
+    // Case 2.
+    Pivot pivot3 = new Pivot();
+    pivot3.setColumns(Lists.newArrayList(new TimestampField("OrderDate", null,
+                                                            new ContinuousTimeFormat(false, TimeFieldFormat.TimeUnit.YEAR.name(), null))));
+    pivot3.setRows(null);
+    pivot3.setAggregations(Lists.newArrayList(
+        new DimensionField("Category"),
+        new DimensionField("Sub-Category"),
+        new MeasureField("Discount", MeasureField.AggregationType.SUM)
+    ));
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot3, limit);
     ChartResultFormat format = new ChartResultFormat("line");
-    //    format.addOptions("showPercentage", true);
-    //    format.addOptions("showCategory", true);
+    format.addOptions("showPercentage", true);
+    format.addOptions("showCategory", true);
     format.addOptions("isCumulative", true);
     format.addOptions("addMinMax", true);
     request.setResultFormat(format);
@@ -2001,7 +2015,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     );
 
     TimeListFilter timeListFilter = new TimeListFilter("event_time", null, "MONTH", "MONTH", false,
-                                                       valueList, null);
+                                                       null, null, valueList, null);
 
     List<Filter> filters = Lists.newArrayList(
         new ExpressionFilter("amt < 50000 && amt > 40000"),
@@ -2053,7 +2067,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     GeoHashFormat hashFormat = new GeoHashFormat("geohex", 5);
 
     //    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()), new DimensionField("gu"), new MeasureField("py", null, MeasureField.AggregationType.NONE));
-//    List<Field> layer1 = Lists.newArrayList(new DimensionField("location", null, new GeoFormat()), new TimestampField("OrderDate", null), new MeasureField("Sales", null, MeasureField.AggregationType.NONE));
+    //    List<Field> layer1 = Lists.newArrayList(new DimensionField("location", null, new GeoFormat()), new TimestampField("OrderDate", null), new MeasureField("Sales", null, MeasureField.AggregationType.NONE));
     List<Field> layer1 = Lists.newArrayList(new DimensionField("location", null, hashFormat), new MeasureField("Profit", null, MeasureField.AggregationType.AVG), new MeasureField("Sales", null, MeasureField.AggregationType.AVG));
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
@@ -2882,21 +2896,21 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     // when
     Response response =
         given()
-          .auth().oauth2(oauth_token)
-          .contentType(ContentType.JSON)
-          .body(requestBody)
-          .log().all()
-        .when()
-          .post("/api/datasources/query/search")
-        .then()
-          .statusCode(HttpStatus.SC_OK)
-          .log().all()
-          .extract().response();
+            .auth().oauth2(oauth_token)
+            .contentType(ContentType.JSON)
+            .body(requestBody)
+            .log().all()
+            .when()
+            .post("/api/datasources/query/search")
+            .then()
+            .statusCode(HttpStatus.SC_OK)
+            .log().all()
+            .extract().response();
 
     // then
     Map<String, Object> resMap = response.jsonPath().get();
 
-    List<Map<String, Object>> columns = (List<Map<String, Object>>)resMap.get("columns");
+    List<Map<String, Object>> columns = (List<Map<String, Object>>) resMap.get("columns");
     assertThat(columns).hasSize(4);
     assertThat(columns).extracting("name").containsExactly("Standard Class―SUM(Sales)", "Second Class―SUM(Sales)", "Same Day―SUM(Sales)", "First Class―SUM(Sales)");
   }

@@ -503,13 +503,13 @@
           <div class="ddp-ui-tab-contents" >
             <div class="ddp-wrap-grid-option ddp-clear">
               <div class="ddp-fleft">
-                <!-- search -->
-                <div class="ddp-form-search">
-                  <em class="ddp-icon-search"></em>
-                  <input [(ngModel)]="srchText" (keyup)="searchKeyUp($event)" type="text" placeholder="Search data"/>
-                  <em (click)="clearSearch()" class="ddp-btn-search-close"></em>
-                </div>
-                <!-- //search -->
+                <!-- 검색 -->
+                <component-input
+                  [compType]="'search'"
+                  [value]="srchText"
+                  [placeHolder]="'Search data'"
+                  (changeValue)="setSearchText($event)"></component-input>
+                <!-- //검색 -->
               </div>
             </div>
             <!-- 그리드 -->

@@ -62,19 +62,7 @@ public class PrepException extends MetatronException {
         } else if(e instanceof  TeddyException) {
             return PrepException.fromTeddyException((TeddyException) e);
         } else {
-            if (e.getMessage()!=null && e.getMessage().contains("jdbc:hive2")) {
-                StackTraceElement[] stackTraceElements = e.getStackTrace();
-                for (StackTraceElement stackTraceElement : stackTraceElements) {
-                    if (stackTraceElement.getMethodName().equalsIgnoreCase("getQuerySchemas")
-                            && stackTraceElement.getClassName().endsWith("PrepDatasetSparkHiveService")) {
-                        return create(code, PrepMessageKey.MSG_DP_ALERT_STAGINGDB_CONNECTION_ERROR);
-                    } else if (stackTraceElement.getMethodName().equalsIgnoreCase("loadContentsByImportedHIVE")
-                                && stackTraceElement.getClassName().endsWith("TeddyImpl")) {
-                        return create(code, PrepMessageKey.MSG_DP_ALERT_STAGINGDB_CONNECTION_ERROR);
-                    }
-                }
-                return create(code, PrepMessageKey.MSG_DP_ALERT_JDBC_CONNECTION_ERROR);
-            } else if(e instanceof JdbcDataConnectionException) {
+            if(e instanceof JdbcDataConnectionException) {
                 return create(code, PrepMessageKey.MSG_DP_ALERT_JDBC_CONNECTION_ERROR);
             } else {
                 String detail = e.getMessage();

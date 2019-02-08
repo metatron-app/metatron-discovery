@@ -15,7 +15,9 @@
 package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.ql.exec.vector.BytesColumnVector;
 import org.apache.hadoop.hive.ql.exec.vector.DoubleColumnVector;
@@ -31,8 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
-
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -622,7 +622,7 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "aggregate value: 'sum(pcode4)' group: pcode1, pcode2";
+    String ruleString = "aggregate value: sum(pcode4) group: pcode1, pcode2";
 
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
@@ -635,7 +635,7 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "aggregate value: 'count()' group: pcode1, pcode2";
+    String ruleString = "aggregate value: count() group: pcode1, pcode2";
 
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
@@ -648,7 +648,7 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "aggregate value: 'avg(pcode4)' group: pcode1, pcode2";
+    String ruleString = "aggregate value: avg(pcode4) group: pcode1, pcode2";
 
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
@@ -661,7 +661,7 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "aggregate value: 'min(detail_store_code)', 'max(detail_store_code)' group: pcode1, pcode2";
+    String ruleString = "aggregate value: min(detail_store_code), max(detail_store_code) group: pcode1, pcode2";
 
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
@@ -717,7 +717,7 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "pivot col: pcode1, pcode2 value: 'sum(detail_store_code)', 'count()' group: pcode3, pcode4";
+    String ruleString = "pivot col: pcode1, pcode2 value: sum(detail_store_code), count() group: pcode3, pcode4";
 
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
@@ -730,7 +730,7 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "pivot col: pcode1, pcode2 value: 'avg(detail_store_code)' group: pcode3, pcode4";
+    String ruleString = "pivot col: pcode1, pcode2 value: avg(detail_store_code) group: pcode3, pcode4";
 
     DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show(100);
@@ -743,7 +743,7 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "pivot col: pcode1 value: 'sum(detail_store_code)' group: pcode3, pcode4";
+    String ruleString = "pivot col: pcode1 value: sum(detail_store_code) group: pcode3, pcode4";
 
     DataFrame newDf = apply_rule(contract, ruleString);
 
@@ -761,7 +761,7 @@ public class OrcTest extends TeddyTest {
     contract = prepare_contract(contract);
     contract.show();
 
-    String ruleString = "pivot col: pcode1 value: 'sum(detail_store_code)' group: pcode3, pcode4";
+    String ruleString = "pivot col: pcode1 value: sum(detail_store_code) group: pcode3, pcode4";
 
     DataFrame newDf = apply_rule(contract, ruleString);
 
@@ -1118,7 +1118,10 @@ public class OrcTest extends TeddyTest {
     conf.addResource(new Path(hadoopConfDir + File.separator + "core-site.xml"));
     conf.addResource(new Path(hadoopConfDir + File.separator + "hdfs-site.xml"));
 
-    Path file = new Path("/user/hive/dataprep/orc4/test_writeOrc.orc");
+    Path file = new Path("/tmp/test_dataprep/orc4/test_writeOrc.orc");
+
+    FileSystem fs = FileSystem.get(conf);
+    fs.delete(file, true);
 
     TeddyOrcWriter orcWriter = new TeddyOrcWriter();
     orcWriter.writeOrc(df, conf, file, PrSnapshot.HIVE_FILE_COMPRESSION.SNAPPY);
@@ -1136,8 +1139,11 @@ public class OrcTest extends TeddyTest {
     conf.addResource(new Path(hadoopConfDir + File.separator + "core-site.xml"));
     conf.addResource(new Path(hadoopConfDir + File.separator + "hdfs-site.xml"));
 
-    String location = "/user/hive/dataprep/test_makeHiveTable";
+    String location = "/tmp/test_dataprep/test_makeHiveTable";
     Path file = new Path(location + "/file1.orc");
+
+    FileSystem fs = FileSystem.get(conf);
+    fs.delete(file, true);
 
     TeddyOrcWriter orcWriter = new TeddyOrcWriter();
     orcWriter.writeOrc(df, conf, file, PrSnapshot.HIVE_FILE_COMPRESSION.SNAPPY);

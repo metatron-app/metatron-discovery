@@ -83,12 +83,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   @ViewChild('srchDashboard')
   private inputSrchDashboard: ElementRef;
 
-  @ViewChild('inputDashboardName')
-  private inputDashboardName: ElementRef;
-
-  @ViewChild('inputDashboardDesc')
-  private inputDashboardDesc: ElementRef;
-
   // 워크스페이스 권한 확인기
   private _permissionChecker: PermissionChecker;
 
@@ -1091,40 +1085,23 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.isDashboardNameEditMode = true;
       this.isDashboardDescEditMode = false;
       this.changeDetect.detectChanges();
-      this.inputDashboardName.nativeElement.focus();
     }
   } // function - onChangeModeName
 
   /**
-   * 이름 변경 ( 엔터키 입력으로... )
-   * @param {KeyboardEvent} event
-   */
-  public renameDashboardWithEnterKey(event: KeyboardEvent) {
-    if (13 === event.keyCode) {
-      this.inputDashboardName.nativeElement.blur();
-      this.renameDashboard();
-    }
-  } // function - renameDashboardWithEnterKey
-
-  /**
    * 이름 변경
+   *
+   * @param {string} inputName
    */
-  public renameDashboard() {
-    let inputName: string = this.inputDashboardName.nativeElement.value;
+  public renameDashboard(inputName:string) {
+    this.isDashboardNameEditMode = false;
     inputName = inputName ? inputName.trim() : '';
     if (inputName && 0 < inputName.length) {
-      if (CommonUtil.getByte(inputName) > 150) {
-        this.inputDashboardName.nativeElement.value = this.selectedDashboard.name;
-        Alert.warning(this.translateService.instant('msg.alert.edit.name.len'));
-      } else {
-        this.selectedDashboard.name = inputName;
-        this.updateDashboard(this.selectedDashboard);
-      }
+      this.selectedDashboard.name = inputName;
+      this.updateDashboard(this.selectedDashboard);
     } else {
-      this.inputDashboardName.nativeElement.value = this.selectedDashboard.name;
       Alert.warning(this.translateService.instant('msg.alert.edit.name.empty'));
     }
-    this.isDashboardNameEditMode = false;
   } // function - renameDashboard
 
   /**
@@ -1137,38 +1114,18 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.isDashboardDescEditMode = true;
       this.isDashboardNameEditMode = false;
       this.changeDetect.detectChanges();
-      this.inputDashboardDesc.nativeElement.focus();
     }
   } // function - onChangeModeDesc
 
   /**
-   * 설명 변경 ( 엔터키 입력으로.. )
-   * @param {KeyboardEvent} event
-   */
-  public changeDescWithEnterKey(event: KeyboardEvent) {
-    if (13 === event.keyCode) {
-      this.inputDashboardDesc.nativeElement.blur();
-      this.changeDesc();
-    }
-  } // function - changeDescWithEnterKey
-
-  /**
    * 설명 변경
+   *
+   * @param {string} inputDesc
    */
-  public changeDesc() {
-    let inputDesc: string = this.inputDashboardDesc.nativeElement.value;
-    if (inputDesc && 0 < inputDesc.trim().length) {
-      if (CommonUtil.getByte(inputDesc) > 450) {
-        this.inputDashboardDesc.nativeElement.value = this.selectedDashboard.description;
-        Alert.warning(this.translateService.instant('msg.alert.edit.description.len'));
-      } else {
-        this.selectedDashboard.description = inputDesc;
-        this.updateDashboard(this.selectedDashboard);
-      }
-    } else {
-      this.inputDashboardDesc.nativeElement.value = this.selectedDashboard.description;
-    }
+  public changeDesc(inputDesc:string) {
     this.isDashboardDescEditMode = false;
+    this.selectedDashboard.description = inputDesc;
+    this.updateDashboard(this.selectedDashboard);
   } // function - changeDesc
 
   /**

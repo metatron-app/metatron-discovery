@@ -55,9 +55,6 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   @ViewChild('inputSearch')
   private _inputSearch: ElementRef;
 
-  @ViewChild('inputNewCandidateValue')
-  private _inputNewCandidateValue: ElementRef;
-
   @ViewChild('wildCardContains')
   private _wildCardContainsCombo: SelectComponent;
 
@@ -96,6 +93,7 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   private _condition: MeasureInequalityFilter;
   private _limitation: MeasurePositionFilter;
   private _wildcard: WildCardFilter;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -122,6 +120,9 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
 
   // 검색 관련
   public searchText: string = '';
+
+  // 신규 후보값 이름
+  public newCandidateName:string = '';
 
   // 필터링 관련
   public condition: MeasureInequalityFilter;
@@ -292,32 +293,13 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 검색어 리셋
+   * 후보값 목록 검색
+   * @param {string} searchText
    */
-  public resetSearchText(isClear: boolean) {
-    if (isClear) {
-      this._inputSearch.nativeElement.value = '';
-    } else {
-      // 검색어 설정
-      this._inputSearch.nativeElement.value = this.searchText;
-    }
-  } // function - resetSearchText
-
-  /**
-   * 검색 조회
-   */
-  public searchEvent() {
-    this.searchText = this._inputSearch.nativeElement.value;    // 검색어 설정
+  public searchCandidateList(searchText:string) {
+    this.searchText = searchText;    // 검색어 설정
     this.setCandidatePage(1, true);
-  } // function - searchEvent
-
-  /**
-   * 검색 조회 - 키보드 이벤트
-   * @param {KeyboardEvent} event
-   */
-  public searchEventPressKey(event: KeyboardEvent) {
-    (13 === event.keyCode) && (this.searchEvent());
-  } // function - searchEventPressKey
+  } // function - searchCandidateList
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - 필터링 관련
@@ -681,37 +663,21 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   } // function deleteDefinedValue
 
   /**
-   * 사용자 정의 값 입력 초기화
-   */
-  public clearInputNewCandidateValue() {
-    this._inputNewCandidateValue.nativeElement.value = '';
-  } // function - clearInputNewCandidateValue
-
-  /**
    * 사용자 정의 값 추가
    */
   public addNewCandidateValue() {
-    const newCandidateValue: string = this._inputNewCandidateValue.nativeElement.value;    // 검색어 설정
-
-    if (null === newCandidateValue || newCandidateValue.trim().length === 0) {
+    if (null === this.newCandidateName || this.newCandidateName.trim().length === 0) {
       Alert.warning(this.translateService.instant('msg.board.filter.alert.defined.empty'));
       return;
     }
 
     // 데이터 추가
-    this._candidateList.push(this._stringToCandidate(newCandidateValue, true));
+    this._candidateList.push(this._stringToCandidate(this.newCandidateName, true));
 
     this.setCandidatePage(1, true);
-    this.clearInputNewCandidateValue();
-  } // function - addNewCandidateValue
 
-  /**
-   * 사용자 정의 값 추가 - 키보드 이벤트
-   * @param {KeyboardEvent} event
-   */
-  public addNewCandidateValuePressKey(event: KeyboardEvent) {
-    (13 === event.keyCode) && (this.addNewCandidateValue());
-  } // function - addNewCandidateValuePressKey
+    this.newCandidateName = '';
+  } // function - addNewCandidateValue
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

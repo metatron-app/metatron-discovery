@@ -41,7 +41,7 @@
               <i class="ddp-icon-radio"></i>
               <span class="ddp-txt-radio">{{'msg.dp.ui.file-system' | translate }}</span>
             </label>
-            <label class="ddp-label-radio ddp-inline">
+            <label class="ddp-label-radio ddp-inline" *ngIf="isStagingEnabled()">
               <input type="radio" name="snapshotFormatRadio" (change)="changeSsType(SsType.STAGING_DB)" [attr.disabled]="isHiveDisable ? true : null">
               <i class="ddp-icon-radio"></i>
               <span class="ddp-txt-radio">{{ 'msg.dp.th.hive' | translate }}</span> <span style="color:#d0d1d8 ; cursor: no-drop" *ngIf="isHiveDisable" [innerHTML]="'<i>(No hive connections)</i>'"></span>

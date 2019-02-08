@@ -44,7 +44,7 @@ public class PivotTest extends TeddyTest {
   @Test
   public void test_pivot1() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    String ruleString = "pivot col: minute value: 'sum(measure)' group: machine_code";
+    String ruleString = "pivot col: minute value: sum(measure) group: machine_code";
     DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
@@ -54,7 +54,7 @@ public class PivotTest extends TeddyTest {
   @Test
   public void test_pivot2() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    String ruleString = "pivot col: minute value: 'sum(measure)' group: machine_code,module_code";
+    String ruleString = "pivot col: minute value: sum(measure) group: machine_code,module_code";
     DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
@@ -64,7 +64,7 @@ public class PivotTest extends TeddyTest {
   @Test
   public void test_pivot3() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    String ruleString = "pivot col: minute,column15 value: 'count()','sum(measure)' group: machine_code,module_code";
+    String ruleString = "pivot col: minute, column15 value: count(), sum(measure) group: machine_code,module_code";
     DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
@@ -74,7 +74,7 @@ public class PivotTest extends TeddyTest {
   @Test
   public void test_pivot4() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    String ruleString = "pivot col: minute,column15 value: 'sum(measure)','count()' group: machine_code,module_code";
+    String ruleString = "pivot col: minute, column15 value: sum(measure), count() group: machine_code,module_code";
     DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
@@ -84,7 +84,7 @@ public class PivotTest extends TeddyTest {
   @Test
   public void test_pivot5() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    String ruleString = "pivot col: minute,column15 value: 'sum(measure)','min(measure)','max(measure)','count()' group: machine_code";
+    String ruleString = "pivot col: minute, column15 value: sum(measure), min(measure), max(measure), count() group: machine_code";
     DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
@@ -94,7 +94,7 @@ public class PivotTest extends TeddyTest {
   @Test
   public void test_pivot6() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    String ruleString = "pivot col: minute,column15 value: 'sum(measure)','count()' group: machine_code,module_code";
+    String ruleString = "pivot col: minute, column15 value: sum(measure), count() group: machine_code,module_code";
     DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
@@ -104,7 +104,7 @@ public class PivotTest extends TeddyTest {
   @Test
   public void test_pivot7() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    String ruleString = "pivot col: minute,column15,column7 value: 'sum(measure)','count()' group: machine_code,module_code";
+    String ruleString = "pivot col: minute, column15,column7 value: sum(measure), count() group: machine_code,module_code";
     DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
@@ -114,7 +114,7 @@ public class PivotTest extends TeddyTest {
   @Test
   public void test_pivot8() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    String ruleString = "pivot col: minute,column11 value: 'count()'";
+    String ruleString = "pivot col: minute, column11 value: count()";
     DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 

@@ -12,17 +12,17 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import {
   ElementRef, OnChanges, SimpleChanges, Input, EventEmitter, Output, Component, Injector
 } from '@angular/core';
 import { RangeSliderResult } from '../../value/range-slider-result';
-
-import * as _ from 'lodash';
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { Subject, Subscription, of } from "rxjs";
 import { debounceTime, distinctUntilChanged, switchMap } from "rxjs/operators";
 
 declare let $;
+declare var $: any;
 
 @Component({
   selector: 'range-slider-component',

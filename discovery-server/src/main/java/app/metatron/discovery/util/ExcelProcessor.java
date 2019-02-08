@@ -16,6 +16,7 @@ package app.metatron.discovery.util;
 
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.FileValidationResponse;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionDataResultResponse;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -29,8 +30,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ExcelProcessor {
 
@@ -39,6 +42,8 @@ public class ExcelProcessor {
   Workbook workbook;
 
   String extensionType;
+
+  private static int MAX_HEADER_NAME = 50;
 
   public ExcelProcessor(File targetFile) throws IOException {
 
@@ -60,15 +65,20 @@ public class ExcelProcessor {
 
   }
 
-  public List<String> getSheetNames() throws IOException {
+  public Map<String, FileValidationResponse> getSheetNames() {
 
-    List<String> sheetNames = Lists.newArrayList();
-    int sheetsCount = workbook.getNumberOfSheets();
-    for (int i = 0; i < sheetsCount; i++) {
-      sheetNames.add(workbook.getSheetAt(i).getSheetName());
+    Map<String, FileValidationResponse> sheetNames = Maps.newLinkedHashMap();
+    int sheetCount = workbook.getNumberOfSheets();
+
+    for (int i = 0; i < sheetCount; i++) {
+      for ( Row row : workbook.getSheetAt(i)) {
+        sheetNames.put(workbook.getSheetAt(i).getSheetName(), validateHeaders(row));
+        break;
+      }
     }
 
     return sheetNames;
+
   }
 
   public IngestionDataResultResponse getSheetData(String sheetName, int limit, boolean firstHeaderRow) throws IOException {
@@ -110,6 +120,8 @@ public class ExcelProcessor {
     // 병합의 이슈로 컬럼 정보는 Column Index
     Map<Integer, String> columnMap = Maps.newTreeMap();
 
+    FileValidationResponse isParsable = new FileValidationResponse(true);
+
     long rowCnt = 0;
     for (Row row : sheet) {
 
@@ -125,6 +137,10 @@ public class ExcelProcessor {
           String value;
           if(firstHeaderRow) {
             value = PolarisUtils.objectToString(getCellValue(cell), "col" + columnIndex);
+            if (getCellValue(cell) == null) { // Check header is merged.
+              isParsable.setValid(false);
+              isParsable.setWarning(FileValidationResponse.WarningType.HEADER_MERGED.getCode());
+            }
             columnMap.put(columnIndex, value);
             fields.add(makeField(columnIndex, value, cell));
           } else {
@@ -153,7 +169,41 @@ public class ExcelProcessor {
       rowCnt = rowCnt - 1;
     }
 
-    return new IngestionDataResultResponse(fields, resultSet, rowCnt);
+    return new IngestionDataResultResponse(fields, resultSet, rowCnt, isParsable);
+  }
+
+  private FileValidationResponse validateHeaders(Row row) {
+
+    //TODO: Disable null, long, duplicated header validation. Discussed on #1057.
+    // It will be refactor after datasource schema validation is adapted.
+
+/*
+    Set<String> bounder = new HashSet<>();
+
+    if (row.getLastCellNum() != row.getPhysicalNumberOfCells()) {
+      return new FileValidationResponse(false,
+          FileValidationResponse.WarningType.NULL_HEADER.getCode());
+    }
+*/
+    for ( Cell cell : row ) {
+/*
+      if (cell.getStringCellValue().length() > MAX_HEADER_NAME) {
+        return new FileValidationResponse(false,
+            FileValidationResponse.WarningType.TOO_LONG_HEADER.getCode());
+      }
+
+      if (bounder.contains(cell.getStringCellValue())) {
+        return new FileValidationResponse(false,
+            FileValidationResponse.WarningType.DUPLICATED_HEADER.getCode());
+      }
+*/
+      if (getCellValue(cell) == null) {
+        return new FileValidationResponse(false,
+            FileValidationResponse.WarningType.HEADER_MERGED.getCode());
+      }
+//      bounder.add(cell.getStringCellValue());
+    }
+    return new FileValidationResponse(true);
   }
 
   private Field makeField(int idx, String fieldName, Cell dataCell) {

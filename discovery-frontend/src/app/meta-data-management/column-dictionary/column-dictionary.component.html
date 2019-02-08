@@ -34,11 +34,13 @@
       <!-- 검색 -->
       <div class="ddp-form-search ddp-fleft">
         <em class="ddp-icon-search"></em>
-        <input type="text" placeholder="{{'msg.metadata.ui.dictionary.search.ph' | translate}}"
-               [ngModel]="searchText"
-               (keyup.esc)="onSearchTextInit()"
-               (keypress)="onSearchText($event)">
-        <em class="ddp-btn-search-close" *ngIf="searchText" (click)="onSearchTextInit()"></em>
+        <component-input
+          [autoFocus]="false"
+          [compType]="'search'"
+          [value]="searchText"
+          [placeHolder]="'msg.metadata.ui.dictionary.search.ph' | translate"
+          (changeValue)="searchText = $event; onSearchText();">
+        </component-input>
       </div>
       <!-- //검색 -->
       <!-- right -->

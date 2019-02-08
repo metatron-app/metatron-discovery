@@ -12,20 +12,20 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { Component, ElementRef, Injector, Input, OnInit, ViewChild } from '@angular/core';
-import { GridComponent } from '../../../../common/component/grid/grid.component';
-import { Datasource, Field } from '../../../../domain/datasource/datasource';
-import { QueryParam } from '../../../../domain/dashboard/dashboard';
+import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
+import {Component, ElementRef, Injector, Input, OnInit, ViewChild} from '@angular/core';
+import {GridComponent} from '../../../../common/component/grid/grid.component';
+import {Datasource, Field, FieldFormat, FieldFormatType, LogicalType} from '../../../../domain/datasource/datasource';
+import {QueryParam} from '../../../../domain/dashboard/dashboard';
 import * as _ from 'lodash';
-import { DatasourceService } from '../../../../datasource/service/datasource.service';
-import { header, SlickGridHeader } from '../../../../common/component/grid/grid.header';
-import { GridOption } from '../../../../common/component/grid/grid.option';
-import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
-import { Metadata } from '../../../../domain/meta-data-management/metadata';
-import { isUndefined } from 'util';
-import { MetadataColumn } from '../../../../domain/meta-data-management/metadata-column';
-import { ConnectionType, Dataconnection } from '../../../../domain/dataconnection/dataconnection';
+import {DatasourceService} from '../../../../datasource/service/datasource.service';
+import {header, SlickGridHeader} from '../../../../common/component/grid/grid.header';
+import {GridOption} from '../../../../common/component/grid/grid.option';
+import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
+import {Metadata} from '../../../../domain/meta-data-management/metadata';
+import {isUndefined} from 'util';
+import {ConnectionType, Dataconnection} from '../../../../domain/dataconnection/dataconnection';
+import {TimezoneService} from "../../../service/timezone.service";
 
 enum FieldRoleType {
   ALL = <any>'ALL',
@@ -75,7 +75,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   public isShowLogicalTypesFl: boolean = false;
 
   // 검색어
-  public searchText: string = '';
+  public searchTextKeyword: string;
 
   // 그리도 data num
   public rowNum: number = 100;
@@ -86,6 +86,8 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   // 현재 마스터 데이터소스의 연결 타입
   public connType: string;
 
+  public isExistTimestamp: boolean;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -93,6 +95,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   // 생성자
   constructor(private datasourceService: DatasourceService,
               private connectionService: DataconnectionService,
+              private timezoneService: TimezoneService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -110,6 +113,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     this._initView();
     // 그리드 데이터 조회
     this.fields = this.datasource.fields;
+    this.isExistTimestamp = this.datasource.fields.some(field => field.logicalType === LogicalType.TIMESTAMP);
     // 마스터 소스 타입
     this.connType = this.datasource.hasOwnProperty('connType') ? this.datasource.connType.toString() : 'ENGINE';
     // linked인 경우
@@ -142,43 +146,37 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   }
 
   /**
-   * init searchText
-   * @param {boolean} updateGridFl
+   * Is unix type field
+   * @param {Field} field
+   * @return {boolean}
    */
-  public initSearchText(updateGridFl?: boolean): void {
-    this.searchText = '';
-    // 그리드 업데이트
-    if (updateGridFl) {
-      this._updateGrid(this._gridData, this.fields);
-    }
+  public isUnixTypeField(field: Field): boolean {
+    return field.format && field.format.type === FieldFormatType.UNIX_TIME;
+  }
+
+
+  /**
+   * Change search text keyword and update grid list
+   * @param text
+   */
+  public searchText(text: string): void {
+    // change search text keyword
+    this.searchTextKeyword = text;
+    // update grid
+    this._updateGrid(this._gridData, this.fields);
   }
 
   /**
-   * 메타데이터 헤더 생성
+   * Extend grid header
    * @param args
    */
-  public createMetaDataHeader(args: any): void {
-    // TODO 추후 그리드 자체에서 생성하도록 변경하기
-    $('<div class="slick-data">('+ _.find(this.metaData.columns, {'physicalName': args.column.id}).name +')</div>')
-      .appendTo(args.node);
+  public extendGridHeader(args: any): void {
+    $(`<div class="slick-data">${_.find(this.metaData.columns, {'physicalName': args.column.id}).name}</div>`).appendTo(args.node);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - event
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 검색 이벤트
-   * @param {KeyboardEvent} event
-   */
-  public onSearchText(event: KeyboardEvent): void {
-    if (13 === event.keyCode) {
-      // search text
-      this.searchText = event.target['value'];
-      // grid update
-      this._updateGrid(this._gridData, this.fields);
-    }
-  }
 
   /**
    * role type 필터링 변경 이벤트
@@ -213,7 +211,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    */
   public onClickResetFilter(): void {
     // 검색어 초기화
-    this.initSearchText();
+    this.searchTextKeyword = '';
     // role type
     this.selectedFieldRole = FieldRoleType.ALL;
     // logical type
@@ -267,7 +265,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     ];
     this.selectedLogicalType = this.logicalTypes[0];
     // search
-    this.searchText = '';
+    this.searchTextKeyword = '';
     // filter
     this.fieldRoleType = FieldRoleType;
     this.selectedFieldRole = this.fieldRoleType.ALL;
@@ -312,7 +310,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
         .RowHeight(32)
         .build());
       // search
-      this._gridComponent.search(this.searchText);
+      this._gridComponent.search(this.searchTextKeyword);
       // ExplicitInitialization 을 true 로 줬기 떄문에 init해줘야 한다.
       this.isExistMetaData() && this._gridComponent.grid.init();
     } else {
@@ -320,9 +318,15 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     }
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method - getter
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Get timezone label
+   * @param {FieldFormat} format
+   * @return {string}
+   * @private
+   */
+  private _getTimezoneLabel(format: FieldFormat): string {
+    return (format && format.type === FieldFormatType.UNIX_TIME) ?  'Unix time'  : this.timezoneService.getConvertedTimezoneUTCLabel(this.timezoneService.getTimezoneObject(format).utc);
+  }
 
   /**
    * 그리드 header 리스트 생성
@@ -346,7 +350,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
         const headerName: string = field.headerKey || field.name;
         return new SlickGridHeader()
           .Id(headerName)
-          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + headerName + '</span>')
+          .Name(this._getGridHeaderName(field, headerName))
           .Field(headerName)
           .Behavior('select')
           .Selectable(false)
@@ -359,6 +363,19 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
           .Sortable(true)
           .build();
       });
+  }
+
+  /**
+   * Get grid header name
+   * @param {Field} field
+   * @param {string} headerName
+   * @return {string}
+   * @private
+   */
+  private _getGridHeaderName(field: Field, headerName: string): string {
+    return field.logicalType === LogicalType.TIMESTAMP
+      ? `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(field.logicalType.toString())}"></em>${headerName}<div class="slick-column-det" title="${this._getTimezoneLabel(field.format)}">${this._getTimezoneLabel(field.format)}</div></span>`
+      : `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(field.logicalType.toString())}"></em>${headerName}</span>`;
   }
 
   /**

@@ -241,48 +241,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
       .catch(error => this.commonExceptionHandler(error));
   }
 
-  /**
-   * 데이터소스 이름 수정
-   */
-  public renameDatasource() {
-    // 수정할 이름이 없다면
-    if (this.reName.trim() === '') {
-      Alert.warning(this.translateService.instant('msg.storage.alert.insert.name'));
-      return;
-    }
-    // 이름 길이 체크
-    if (CommonUtil.getByte(this.reName.trim()) > 150) {
-      Alert.warning(this.translateService.instant('msg.alert.edit.name.len'));
-      return;
-    }
-    const params = {
-      name : this.reName.trim()
-    };
-    this.nameFl = false;
-    // blur
-    this.nameElement.nativeElement.blur();
-    // update
-    this.updateDatasource(params);
-  }
 
-  /**
-   * 데이터소스 설명 수정
-   */
-  public redescDatasource() {
-    // 설명 길이 체크
-    if (CommonUtil.getByte(this.reDesc.trim()) > 450) {
-      Alert.warning(this.translateService.instant('msg.alert.edit.description.len'));
-      return;
-    }
-    const params = {
-      description : this.reDesc.trim()
-    };
-    this.descFl = false;
-    // blur
-    this.descElement.nativeElement.blur();
-    // update
-    this.updateDatasource(params);
-  }
 
   /**
    * 데이터소스 수정
@@ -380,6 +339,39 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     this._confirmModalComponent.init(modal);
   }
 
+  /**
+   * 데이터소스 이름 수정
+   */
+  public renameDatasource() {
+    // 수정할 이름이 없다면
+    if (this.reName.trim() === '') {
+      Alert.warning(this.translateService.instant('msg.storage.alert.insert.name'));
+      return;
+    }
+    // 이름 길이 체크
+    if (CommonUtil.getByte(this.reName.trim()) > 150) {
+      Alert.warning(this.translateService.instant('msg.alert.edit.name.len'));
+      return;
+    }
+    this.nameFl = false;
+    // update
+    this.updateDatasource({name : this.reName.trim()});
+  }
+
+  /**
+   * 데이터소스 설명 수정
+   */
+  public redescDatasource() {
+    // 설명 길이 체크
+    if (CommonUtil.getByte(this.reDesc.trim()) > 450) {
+      Alert.warning(this.translateService.instant('msg.alert.edit.description.len'));
+      return;
+    }
+    this.descFl = false;
+    // update
+    this.updateDatasource({description : this.reDesc.trim()});
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - event
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -406,6 +398,29 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   public onOpenLogModal(log: Log): void {
     this._logComponent.init(log);
   }
+
+  /**
+   * Changed datasource name event
+   * @param {string} text
+   */
+  public onChangedSourceName(text: string): void {
+    // set rename text
+    this.reName = text;
+    // rename
+    this.renameDatasource();
+  }
+
+  /**
+   * Changed datasource description event
+   * @param {string} text
+   */
+  public onChangedSourceDesc(text: string): void {
+    // set redesc text
+    this.reDesc = text;
+    // reDesc
+    this.redescDatasource();
+  }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - getter

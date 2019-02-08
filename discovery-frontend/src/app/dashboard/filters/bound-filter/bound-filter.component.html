@@ -18,23 +18,19 @@
   <div class="ddp-range-num">
     <div class="ddp-data-num ddp-min">
       <span class="ddp-label">Minimum</span>
-      <div class="ddp-input-apply" >
-        <input #inputMinValue [ngModel]="filter.min"
-               (keypress)="setMinValueByEnter($event)" (keyup.esc)="resetMinValue()"
-               type="text" class="ddp-input-txt" />
-        <em (click)="setMinValue()" class="ddp-icon-apply"></em>
-        <em class="ddp-icon-apply-loading"></em>
-      </div>
+      <component-input
+        [compType]="'apply'"
+        [value]="filter.min"
+        [valueType]="'number'"
+        (changeValue)="setMinValue($event)"></component-input>
     </div>
     <div class="ddp-data-num ddp-max">
       <span class="ddp-label">Maximum</span>
-      <div class="ddp-input-apply" >
-        <input #inputMaxValue [ngModel]="filter.max"
-               (keypress)="setMaxValueByEnter($event)" (keyup.esc)="resetMaxValue()"
-               type="text" class="ddp-input-txt">
-        <em (click)="setMaxValue()" class="ddp-icon-apply"></em>
-        <em class="ddp-icon-apply-loading"></em>
-      </div>
+      <component-input
+        [compType]="'apply'"
+        [value]="filter.max"
+        [valueType]="'number'"
+        (changeValue)="setMaxValue($event)"></component-input>
     </div>
   </div>
   <!-- // Input Range -->

@@ -58,7 +58,7 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
   public selectedConnection: Dataconnection = new Dataconnection();
 
   // search
-  public searchKeyword: string = '';
+  public searchKeyword: string;
 
   // connection filter list (for UI)
   public connectionFilterList: ListCriterion[] = [];
@@ -266,23 +266,12 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
 
   /**
    * Search connection keypress event
-   * @param {KeyboardEvent} event
+   * @param {string} keyword
    */
-  public onSearchConnection(event: KeyboardEvent): void {
-    // enter event
-    if (13 === event.keyCode) {
-      // search connection
-      this.searchConnection();
-    }
-  }
-
-  /**
-   * Reset search connection keyup event
-   */
-  public resetSearchConnection(): void {
-    // init search keyword
-    this.searchKeyword = '';
-    // search connection
+  public onChangedSearchKeyword(keyword: string): void {
+    // set search keyword
+    this.searchKeyword = keyword;
+    // search
     this.searchConnection();
   }
 

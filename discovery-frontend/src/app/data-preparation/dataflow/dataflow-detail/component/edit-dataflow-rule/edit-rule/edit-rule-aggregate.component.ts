@@ -12,15 +12,21 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren, QueryList} from '@angular/core';
 //import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import {RuleConditionInputComponent} from "./rule-condition-input.component";
+import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 import * as _ from 'lodash';
 import {isUndefined} from "util";
+
+interface formula {
+  id: number;
+  value: string
+}
 
 @Component({
   selector: 'edit-rule-aggregate',
@@ -30,8 +36,13 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @ViewChildren(RuleSuggestInputComponent)
+  private ruleSuggestInput : QueryList<RuleSuggestInputComponent>;
+
+  /*
   @ViewChildren(RuleConditionInputComponent)
   private ruleConditionInputComponent : RuleConditionInputComponent;
+  */
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -91,46 +102,31 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
    */
   public getRuleData(): { command: string, ruleString: string } {
 
-    this.formulaList = [];
-    this.formulas.forEach((item:formula)=>{ if(!isUndefined(item.value) && item.value.length > 0) this.formulaList.push(item.value)});
-    if (this.formulaList.length === 0) {
+    // 수식
+    const formulaValueList = this.ruleSuggestInput
+                                 .map(el => el.getFormula())
+                                 .filter( v => (!isUndefined(v) && v.trim().length > 0) );
+    
+    if ( !formulaValueList || formulaValueList.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
       return undefined;
-    }
+    }  
 
+    const value = formulaValueList.join(',');
+    
+    // 그룹
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.enter.groupby'));
       return undefined;
     }
 
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
+    const columnsStr: string = this.selectedFields.map((item) => {
       return '`' + item.name + '`';
     }).join(', ');
 
-    const validFormulaList:string[] = [];
-    const invalidFormula:boolean = this.formulaList.some( (formula, index) => {
-
-      formula = this.ruleConditionInputComponent['_results'][index].getCondition();
-
-      if( StringUtil.checkSingleQuote(formula, { isWrapQuote: false, isAllowBlank: false })[0] ) {
-        if( StringUtil.checkFormula( formula ) ) {
-          validFormulaList.push( '\'' + formula + '\'' );
-          return false;
-        } else {
-          return true;
-        }
-      } else {
-        return true;
-      }
-    });
-    if( invalidFormula ) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.check.expression'));
-      return undefined;
-    }
-
     return {
       command: 'aggregate',
-      ruleString: 'aggregate value: ' + validFormulaList.join(',') + ' group: ' + columnsStr
+      ruleString: `aggregate value: ${value} group: ${columnsStr}`
     };
 
   } // function - getRuleData
@@ -224,7 +220,3 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
 
 }
 
-interface formula {
-  id: number;
-  value: string
-}

@@ -18,6 +18,7 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.prep.parser.preparation.rule.Pivot;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import org.slf4j.Logger;
@@ -61,6 +62,17 @@ public class DfPivot extends DataFrame {
       }
       newColName = makeParsable(newColName);
       return modifyDuplicatedColName(oldColNames, newColName);
+  }
+
+  private String buildPivotNewColName2(String colPrefix, List<String> pivotColNames, List<String> oldColNames, Row row) throws TeddyException {
+    String newColName = colPrefix;
+
+    for (String pivotColName : pivotColNames) {
+      newColName += "_" + row.get(pivotColName);
+    }
+
+    newColName = makeParsable(newColName);
+    return modifyDuplicatedColName(oldColNames, newColName);
   }
 
   private Map<String, Object> buildGroupByKey(Row row, List<String> groupByColNames) {
@@ -116,7 +128,7 @@ public class DfPivot extends DataFrame {
     Expression aggrValueExpr = pivot.getValue();
     List<String> pivotColNames = new ArrayList<>();
     List<String> groupByColNames = new ArrayList<>();
-    List<String> aggrValueStrs = new ArrayList<>();      // sum(x), avg(x), count() 등의 expression string
+    List<Expr.FunctionExpr> funcExprs;
 
     // group by expression -> group by colnames
     if (groupByColExpr == null) {
@@ -138,16 +150,14 @@ public class DfPivot extends DataFrame {
       throw new InvalidColumnExpressionTypeException("doPivot(): invalid pivot column expression type: " + pivotColExpr.toString());
     }
 
-    // aggregation value expression -> aggregation expression strings
-    if (aggrValueExpr instanceof Constant.StringExpr) {
-      aggrValueStrs.add((String) (((Constant.StringExpr) aggrValueExpr).getValue()));
-    } else if (aggrValueExpr instanceof Constant.ArrayExpr) {
-      for (Object obj : ((Constant.ArrayExpr) aggrValueExpr).getValue()) {
-        String strAggrValue = (String) obj;
-        aggrValueStrs.add(strAggrValue);
-      }
+    // aggregation value expression is not string literals any more.
+    if (aggrValueExpr instanceof Expr.FunctionExpr) {
+      funcExprs = new ArrayList(1);
+      funcExprs.add((Expr.FunctionExpr) aggrValueExpr);
+    } else if (aggrValueExpr instanceof Expr.FunctionArrayExpr) {
+      funcExprs = ((Expr.FunctionArrayExpr) aggrValueExpr).getFunctions();
     } else {
-      throw new InvalidAggregationValueExpressionTypeException("doPivot(): invalid aggregation value expression type: " + aggrValueExpr.toString());
+      throw new InvalidAggregationValueExpressionTypeException("DfAggregate.prepare(): invalid aggregation value expression type: " + aggrValueExpr.toString());
     }
 
     List<String> mergedGroupByColNames = new ArrayList<>();
@@ -155,7 +165,7 @@ public class DfPivot extends DataFrame {
     mergedGroupByColNames.addAll(groupByColNames);
 
     preparedArgs.add(mergedGroupByColNames);
-    preparedArgs.add(aggrValueStrs);
+    preparedArgs.add(funcExprs);
     preparedArgs.add(groupByColNames);
     preparedArgs.add(pivotColNames);
     return preparedArgs;
@@ -164,17 +174,16 @@ public class DfPivot extends DataFrame {
   @Override
   public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
     List<String> mergedGroupByColNames = (List<String>) preparedArgs.get(0);
-    List<String> aggrValueStrs = (List<String>) preparedArgs.get(1);
+    List<Expr.FunctionExpr> funcExprs = (List<Expr.FunctionExpr>) preparedArgs.get(1);
     List<String> groupByColNames = (List<String>) preparedArgs.get(2);
     List<String> pivotColNames = (List<String>) preparedArgs.get(3);
-
-    List<AggrType> aggrTypes = new ArrayList<>();
-    List<String> aggrTargetColNames = new ArrayList<>();
+    List<String> newColNames = new ArrayList<>();
+    List<Integer> targetColnos = new ArrayList<>();   // Each aggregation value has 1 target column. (except "count")
 
     LOGGER.trace("DfPivot.gather(): start: offset={} length={}", offset, length);
 
     DataFrame aggregatedDf = new DfAggregate(dsName, null);
-    aggregatedDf.aggregate(prevDf, mergedGroupByColNames, aggrValueStrs);
+    aggregatedDf.aggregate(prevDf, mergedGroupByColNames, funcExprs);
 
     for (String colName : groupByColNames) {
       addColumn(colName, prevDf.getColTypeByColName(colName));
@@ -183,45 +192,45 @@ public class DfPivot extends DataFrame {
     DataFrame pivotColSortedDf = new DfSort(dsName, null);
     pivotColSortedDf.sorted(aggregatedDf, pivotColNames, SortType.ASCENDING);
 
-    for (int i = 0; i < aggrValueStrs.size(); i++) {
-      String aggrValueStr = stripSingleQuote(aggrValueStrs.get(i));
-      AggrType aggrType;
+    String[] colPrefixes = new String[funcExprs.size()];
+
+    for (int i = 0; i <  funcExprs.size(); i++) {
+      Expr.FunctionExpr funcExpr = funcExprs.get(i);
       ColumnType newColType;
-      String newColName;
-      String aggrTargetColName = null;
 
-      if (aggrValueStr.toUpperCase().startsWith("COUNT")) {
-        aggrType = AggrType.COUNT;
-        newColType = ColumnType.LONG;
-      } else {
-        if (aggrValueStr.toUpperCase().startsWith(AggrType.SUM.name())) {
-          aggrType = AggrType.SUM;
-        } else if (aggrValueStr.toUpperCase().startsWith(AggrType.AVG.name())) {
-          aggrType = AggrType.AVG;
-        } else if (aggrValueStr.toUpperCase().startsWith(AggrType.MIN.name())) {
-          aggrType = AggrType.MIN;
-        } else if (aggrValueStr.toUpperCase().startsWith(AggrType.MAX.name())) {
-          aggrType = AggrType.MAX;
-        } else {
-          throw new UnsupportedAggregationFunctionExpressionException("doAggregateInternal(): unsupported aggregation function: " + aggrValueStr);
-        }
+      List<Expr> args = funcExpr.getArgs();
 
-        Pattern pattern = Pattern.compile("\\w+\\((\\w+)\\)");
-        Matcher matcher = pattern.matcher(aggrValueStr);
-        if (matcher.find() == false) {
-          throw new WrongAggregationFunctionExpressionException("doAggregateInternal(): wrong aggregation function expression: " + aggrValueStr);
-        }
-
-        aggrTargetColName = matcher.group(1);
-        newColType = (aggrType == AggrType.AVG) ? ColumnType.DOUBLE : prevDf.getColTypeByColName(aggrTargetColName);
+      switch (funcExpr.getName()) {
+        case "count":
+          if (args == null || args.size() == 0) {   // I'm not sure what parser produces.
+            colPrefixes[i] = "row_count";
+            targetColnos.add(-1);
+          } else {
+            colPrefixes[i] = prevDf.getColNameAndColnoFromFunc(funcExpr, targetColnos);
+          }
+          newColType = ColumnType.LONG;
+          break;
+        case "avg":
+          colPrefixes[i] = prevDf.getColNameAndColnoFromFunc(funcExpr, targetColnos);
+          newColType = ColumnType.DOUBLE;
+          break;
+        case "sum":
+        case "min":
+        case "max":
+          colPrefixes[i] = prevDf.getColNameAndColnoFromFunc(funcExpr, targetColnos);
+          newColType = prevDf.getColType(targetColnos.get(targetColnos.size() - 1));   // last appended colType
+          break;
+        default:
+          throw new UnsupportedAggregationFunctionExpressionException("DfPivot: unsupported aggregation function: " + funcExpr.toString());
       }
 
       Map<String, Object> pivotColGroupKey = null;
       for (Row row : pivotColSortedDf.rows) {
         if (pivotColGroupKey == null || groupByKeyChanged(row, pivotColNames, pivotColGroupKey)) {
-          newColName = buildPivotNewColName(aggrType, aggrTargetColName, pivotColNames, groupByColNames, row);
+          String finalColName = buildPivotNewColName2(colPrefixes[i], pivotColNames, groupByColNames, row);
+          newColNames.add(finalColName);
 
-          addColumn(newColName, newColType);
+          addColumn(finalColName, newColType);
 
           pivotColGroupKey = buildGroupByKey(row, pivotColNames);
         }
@@ -233,9 +242,6 @@ public class DfPivot extends DataFrame {
       if (getColCnt() > 2000) {  // FIXME: hard-cording
         throw new TooManyPivotedColumnsException("doPivot(): too many pivoted column count: " + getColCnt());
       }
-
-      aggrTypes.add(aggrType);
-      aggrTargetColNames.add(aggrTargetColName);
     }
 
     DataFrame groupByColSortedDf = new DfSort(dsName, null);
@@ -258,13 +264,9 @@ public class DfPivot extends DataFrame {
         groupByKey = buildGroupByKey(row, groupByColNames);
       }
 
-      List<String> aggregatedDfColNames = new ArrayList<>();
-      for (int colno = 0; colno < aggrTargetColNames.size(); colno++) {
-        aggregatedDfColNames.add(groupByColSortedDf.getColName(colno));
-      }
-      for (int i = 0; i < aggrTargetColNames.size(); i++) {
-        String aggrTargetColName = aggrTargetColNames.get(i);
-        newRow.set(buildPivotNewColName(aggrTypes.get(i), aggrTargetColName, pivotColNames, groupByColNames, row), row.get(aggregatedDataPointer+i));
+      for (int i = 0; i < funcExprs.size(); i++) {
+        String finalColName = buildPivotNewColName2(colPrefixes[i], pivotColNames, groupByColNames, row);
+        newRow.set(finalColName, row.get(aggregatedDataPointer + i));
       }
     }
     rows.add(newRow); // add the last retained row

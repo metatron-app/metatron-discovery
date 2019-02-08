@@ -25,6 +25,10 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "polaris.extensions")
 public class ExtensionProperties {
 
+  public enum ExtensionType{
+    LNB, CONNECTION
+  }
+
   List<Lnb> lnb;
 
   public ExtensionProperties() {
@@ -79,5 +83,4 @@ public class ExtensionProperties {
       this.subContents = subContents;
     }
   }
-
 }

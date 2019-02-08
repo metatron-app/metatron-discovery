@@ -39,13 +39,12 @@ public class PrepJsonUtil {
    * @param strDelim    Delimiter as String (to be Char)
    * @param limitRows   Read not more than this
    * @param conf        Hadoop configuration which is mandatory when the url's protocol is hdfs
-   * @param header      If true, fill PrepCsvParseResult.colNames with the header line, then skip it
    *
    * @return PrepCsvParseResult: grid, header, maxColCnt
    *
    *  Sorry for so many try-catches. Sacrificed readability for end-users' usability.
    */
-  public static PrepJsonParseResult parseJSON(String strUri, String strDelim, int limitRows, Configuration conf, boolean header) {
+  public static PrepJsonParseResult parseJSON(String strUri, String strDelim, int limitRows, Configuration conf) {
     PrepJsonParseResult result = new PrepJsonParseResult();
     BufferedReader reader;
     URI uri;

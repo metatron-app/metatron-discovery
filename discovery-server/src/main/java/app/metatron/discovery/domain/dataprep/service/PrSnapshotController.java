@@ -14,7 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.service;
 
-import app.metatron.discovery.domain.dataprep.PrepDatasetSparkHiveService;
+import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
 import app.metatron.discovery.domain.dataprep.PrepHdfsService;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.projection.ProjectionFactory;
+import org.springframework.data.rest.webmvc.PersistentEntityResource;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.hateoas.Resource;
@@ -72,7 +73,7 @@ public class PrSnapshotController {
     private PrepHdfsService hdfsService;
 
     @Autowired(required = false)
-    private PrepDatasetSparkHiveService datasetSparkHivePreviewService;
+    private PrepDatasetStagingDbService datasetStagingDbPreviewService;
 
     @RequestMapping(value = "/{ssId}", method = RequestMethod.GET)
     @ResponseBody
@@ -99,14 +100,15 @@ public class PrSnapshotController {
         return ResponseEntity.status(HttpStatus.SC_OK).body(projectedSnapshot);
     }
 
-    /*
-    // Snapshot is not made by API
     @RequestMapping(value="", method = RequestMethod.POST)
     public @ResponseBody
     PersistentEntityResource postSnapshot(
             @RequestBody Resource<PrSnapshot> snapshotResource,
             PersistentEntityResourceAssembler resourceAssembler
     ) {
+        throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_SNAPSHOT_SHOULD_BE_MADE_BY_TRANSFORM, "go to edit-rule");
+        // Snapshot is not made by API
+        /*
         PrSnapshot snapshot = null;
         PrSnapshot savedSnapshot = null;
 
@@ -122,8 +124,8 @@ public class PrSnapshotController {
         }
 
         return resourceAssembler.toResource(savedSnapshot);
+        */
     }
-    */
 
     @RequestMapping(value = "/{ssId}", method = RequestMethod.PATCH)
     @ResponseBody
@@ -200,8 +202,8 @@ public class PrSnapshotController {
 
                     // We generated JSON snapshots to have ".json" at the end of the URI.
                     if (storedUri.endsWith(".json")) {
-                        PrepJsonParseResult result = PrepJsonUtil.parseJSON(snapshot.getStoredUri(), ",", 10000, this.hdfsService.getConf(), true);
-                        gridResponse.setByGridwithJson(result);
+                        PrepJsonParseResult result = PrepJsonUtil.parseJSON(snapshot.getStoredUri(), ",", 10000, this.hdfsService.getConf());
+                        gridResponse.setByGridWithJson(result);
                     } else {
                         PrepCsvParseResult result = PrepCsvUtil.parse(snapshot.getStoredUri(), ",", 10000, this.hdfsService.getConf(), true);
                         gridResponse.setByGrid(result);
@@ -215,7 +217,7 @@ public class PrSnapshotController {
                     String tblName = snapshot.getTblName();
                     String sql = "SELECT * FROM "+dbName+"."+tblName;
                     Integer size = offset+target;
-                    gridResponse = datasetSparkHivePreviewService.getPreviewStagedbForDataFrame(sql,dbName,tblName,String.valueOf(size));
+                    gridResponse = datasetStagingDbPreviewService.getPreviewStagedbForDataFrame(sql,dbName,tblName,String.valueOf(size));
                     if(null==gridResponse) {
                         gridResponse = new DataFrame();
                     } else {

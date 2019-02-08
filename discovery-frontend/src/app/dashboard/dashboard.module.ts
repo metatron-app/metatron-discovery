@@ -58,6 +58,7 @@ import { CreateBoardPopRelationComponent } from './component/create-dashboard/cr
 import { CreateBoardCompleteComponent } from './component/create-dashboard/create-board-complete.component';
 import { SplitPaneModule } from 'ng2-split-pane/lib/ng2-split-pane';
 import { UpdateDatasourceComponent } from './component/update-dashboard/update-datasource.component';
+import {TimezoneService} from "../data-storage/service/timezone.service";
 
 const dashboardRoutes: Routes = [
   {
@@ -112,6 +113,7 @@ const dashboardRoutes: Routes = [
     DatasourceService,
     WidgetService,
     ImageService,
+    TimezoneService,
     AnalysisPredictionService
   ],
   exports: [

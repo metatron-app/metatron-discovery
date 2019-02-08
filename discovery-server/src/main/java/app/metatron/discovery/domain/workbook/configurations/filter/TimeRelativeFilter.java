@@ -43,8 +43,6 @@ public class TimeRelativeFilter extends TimeFilter {
 
   Integer value;
 
-  String timezone;
-
   public TimeRelativeFilter() {
     // Empty Constructor
   }
@@ -56,18 +54,13 @@ public class TimeRelativeFilter extends TimeFilter {
                             @JsonProperty("relTimeUnit") String relTimeUnit,
                             @JsonProperty("tense") String tense,
                             @JsonProperty("value") Integer value,
-                            @JsonProperty("timezone") String timezone) {
-    super(field, ref, timeUnit, null, null);
+                            @JsonProperty("timeZone") String timeZone,
+                            @JsonProperty("locale") String locale) {
+    super(field, ref, timeUnit, null, null, timeZone, locale);
 
     this.relTimeUnit = EnumUtils.getUpperCaseEnum(TimeFieldFormat.TimeUnit.class, relTimeUnit);
     this.tense = EnumUtils.getUpperCaseEnum(Tense.class, tense, Tense.CURRENT);
     this.value = (value == null || value < 1) ? 1 : value;
-
-    if (StringUtils.isEmpty(timezone)) {
-      this.timezone = "UTC";
-    } else {
-      this.timezone = DateTimeZone.forID(timezone).getID();
-    }
   }
 
   @Override
@@ -101,24 +94,27 @@ public class TimeRelativeFilter extends TimeFilter {
    * Engine 쿼리 활용
    */
   @Override
-  public List<String> getEngineIntervals() {
+  public List<String> getEngineIntervals(Field datasourceField) {
 
-    List<DateTime> rangeDateTimes = rangeDateTimes();
+    List<DateTime> rangeDateTimes = rangeDateTimes(datasourceField.backwardTime());
 
     return Lists.newArrayList(rangeDateTimes.get(0).toString() + "/" + rangeDateTimes.get(1).toString());
   }
 
   public String getExpression(String columnName, Field datasourceField) {
 
-    List<DateTime> rangeDateTimes = rangeDateTimes();
+    List<DateTime> rangeDateTimes = rangeDateTimes(datasourceField.backwardTime());
 
     String field = null;
     if (datasourceField.getRole() == TIMESTAMP) {
       field = "__time";
     } else {
+      TimeFieldFormat fieldFormat = (TimeFieldFormat) datasourceField.getFormatObject();
+
       DateTimeMillisFunc millisFunc = new DateTimeMillisFunc(columnName,
-                                                             datasourceField.getTimeFormat(),
-                                                             null, null);
+                                                             fieldFormat.getFormat(),
+                                                             fieldFormat.getTimeZone(),
+                                                             fieldFormat.getLocale());
       field = millisFunc.toExpression();
     }
 
@@ -126,9 +122,11 @@ public class TimeRelativeFilter extends TimeFilter {
         + field + " <= " + rangeDateTimes.get(1).getMillis();
   }
 
-  private List<DateTime> rangeDateTimes() {
+  private List<DateTime> rangeDateTimes(boolean backward) {
 
-    DateTime currentTime = utcFakeNow(DateTimeZone.forID(timezone));
+    DateTime currentTime = backward ?
+        utcFakeNow(DateTimeZone.forID(timeZone)) : DateTime.now(DateTimeZone.forID(timeZone));
+
     switch (tense) {
       case NEXT:
         DateTime nextTime = currentTime.plus(Period.parse(realTimeUnit().peridFormat(this.value)));
@@ -163,10 +161,6 @@ public class TimeRelativeFilter extends TimeFilter {
 
   public Integer getValue() {
     return value;
-  }
-
-  public String getTimezone() {
-    return timezone;
   }
 
   public TimeFieldFormat.TimeUnit getRelTimeUnit() {

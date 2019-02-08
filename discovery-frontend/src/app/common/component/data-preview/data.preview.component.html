@@ -163,15 +163,14 @@
           <!-- Common Menu -->
           <div class="ddp-fleft">
             <!-- search -->
-            <div class="ddp-form-search">
-              <em class="ddp-icon-search"></em>
-              <input type="text" placeholder="{{ (isShowDataGrid ? 'msg.storage.ui.search.data' : 'msg.storage.ui.search.column') | translate}}"
-                     (keyup)="searchData($event)" [ngModel]="srchText"  />
-              <em class="ddp-btn-search-close" *ngIf="srchText && srchText !== ''"
-                  (click)="clearSrchText()"></em>
-            </div>
+            <component-input
+              [compType]="'search'"
+              [value]="srchText"
+              [showClear]="true"
+              [placeHolder]="(isShowDataGrid ? 'msg.storage.ui.search.data' : 'msg.storage.ui.search.column') | translate"
+              (changeValue)="searchData($event)">
+            </component-input>
             <!-- //search -->
-
             <!-- Select Role -->
             <div class="ddp-wrap-edit3">
               <label class="ddp-label-type">{{'msg.comm.th.role' | translate}}</label>
@@ -256,7 +255,9 @@
         <!-- 그리드 -->
         <div grid-component #main
              [style.display]="isShowDataGrid ? 'block' : 'none'"
-             [ngClass]="{'meta-grid' : isEnableSecondHeader(), 'ddp-type' : timestampField }"
+             [class.meta-grid]="isExistTimestampField()"
+             [class.meta-grid-type]="isEnableSecondHeader()"
+             [class.ddp-type]="timestampField"
              (onHeaderRowCellRendered)="createMetaDataHeader($event)"
              class="ddp-ui-grid2" ></div>
         <!-- //그리드 -->
@@ -418,14 +419,26 @@
                     <col width="*">
                   </colgroup>
                   <tbody>
-                  <tr *ngIf="selectedField.logicalType === 'TIMESTAMP'">
-                    <th>
-                      {{'msg.storage.ui.th.display.format' | translate}}
-                    </th>
-                    <td>
-                      {{selectedField.format ? selectedField.format.format : selectedField.format}}
-                    </td>
-                  </tr>
+                  <ng-container *ngIf="selectedField.logicalType === 'TIMESTAMP'">
+                    <tr>
+                      <th>
+                        {{'msg.storage.ui.th.display.format' | translate}}
+                      </th>
+                      <td>
+                        {{selectedField.format ? selectedField.format.format : selectedField.format}}
+                      </td>
+                    </tr>
+                    <!-- only show time type -->
+                    <tr *ngIf="!isUnixTypeField(selectedField)">
+                      <th>
+                        {{'msg.storage.ui.timezone' | translate}}
+                      </th>
+                      <td>
+                        {{getTimezoneLabelInColumn(selectedField.format)}}
+                      </td>
+                    </tr>
+                    <!-- //only show time type -->
+                  </ng-container>
                   <tr>
                     <th>
                       {{'msg.storage.ui.th.missing' | translate}}

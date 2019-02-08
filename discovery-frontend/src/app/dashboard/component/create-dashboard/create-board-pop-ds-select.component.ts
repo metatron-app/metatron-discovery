@@ -30,9 +30,6 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @ViewChild('inputSearch')
-  private _inputSearch: ElementRef;
-
   private _workspaceId: string;  // 워크스페이스 아이디
 
   private _prevDataSourceIds: string[] = [];   // 이전에 선택되었던 데이터소스 아이디 목록
@@ -167,37 +164,17 @@ export class CreateBoardPopDsSelectComponent extends AbstractPopupComponent impl
   } // function - done
 
   /**
-   * 검색 조회 - 키보드 이벤트
-   * @param {KeyboardEvent} event
-   */
-  public searchEventPressKey(event: KeyboardEvent) {
-    (13 === event.keyCode) && (this.searchEvent());
-  } // function - searchEventPressKey
-
-  /**
    * 검색 조회
+   * @param {string} inputText
    */
-  public searchEvent() {
+  public searchEvent(inputText:string) {
     // 검색어 설정
-    this.searchText = this._inputSearch.nativeElement.value;
+    this.searchText = inputText;
     // 페이지 초기화
     this.page.page = 0;
     // 데이터소스 리스트 조회
     this._getDataSources();
   } // function - searchEvent
-
-  /**
-   * 검색어 리셋
-   */
-  public resetSearchText(isClear: boolean) {
-    if (isClear) {
-      this._inputSearch.nativeElement.value = '';
-      this.searchEvent();
-    } else {
-      // 검색어 설정
-      this._inputSearch.nativeElement.value = this.searchText;
-    }
-  } // function - resetSearchText
 
   /**
    * publish 상태 변환

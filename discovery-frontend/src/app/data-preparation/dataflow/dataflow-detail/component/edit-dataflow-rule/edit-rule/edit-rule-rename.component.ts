@@ -13,11 +13,7 @@
  */
 
 import { EditRuleComponent } from './edit-rule.component';
-import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
-  ViewChild
-} from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import {isNullOrUndefined, isUndefined} from 'util';
@@ -91,27 +87,28 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
   public getRuleData(): { command: string, to: string, col: string, ruleString: string } {
 
 
+    // Check if at least one column is selected
     if (isUndefined(this.selectedFields) || 0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined
     }
-    if (isUndefined(this.newFieldName) || '' === this.newFieldName) {
+
+    // check if new column name is empty
+    if (isUndefined(this.newFieldName) || '' === this.newFieldName.trim()) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
       return undefined
     }
 
-    if (this.fields.some(item => item.name === this.newFieldName)) {
-      Alert.warning('Column name already in use.');
+    // Check if name is duplicate
+    if (this.fields.some(item => this.selectedFields[0].name !== this.newFieldName && item.name ===  this.newFieldName)) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.duplicate.colname'));
       return undefined
     }
 
-    let clonedNewFieldName : string = this.newFieldName;
-    const renameReg = /^[a-zA-Z가-힣\s][가-힣a-zA-Z0-9_ \s]*$/;
-    if (!renameReg.test(clonedNewFieldName)) {
-      Alert.warning('There is a special character or Hangul is not completed');
+    // check if column name has back quote
+    if (-1 !== this.newFieldName.indexOf('`')) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.no.backtick.colname'));
       return undefined;
-    } else {
-      clonedNewFieldName = "'" + clonedNewFieldName + "'";
     }
 
     let selectedFieldName:string = this.selectedFields[0].name;
@@ -120,7 +117,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
       command: 'rename',
       to: this.newFieldName,
       col: selectedFieldName,
-      ruleString: 'rename col: `' + selectedFieldName + '`' + `to: ${clonedNewFieldName}`
+      ruleString: 'rename col: `' + selectedFieldName + '`' + `to: '${this.newFieldName}'`
     };
 
   } // function - getRuleData

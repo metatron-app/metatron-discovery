@@ -20,6 +20,7 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.prep.parser.preparation.rule.Aggregate;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ public class DfAggregate extends DataFrame {
     Expression groupByColExpr = aggregate.getGroup();
     Expression aggrValueExpr = aggregate.getValue();
     List<String> groupByColNames = new ArrayList<>();
-    List<String> targetExprStrs = new ArrayList<>();      // sum(x), avg(x), count() 등의 expression string
+    List<Expr.FunctionExpr> targetExprs;
 
     // group by expression -> group by colnames
     if (groupByColExpr == null) {
@@ -56,31 +57,29 @@ public class DfAggregate extends DataFrame {
       throw new InvalidColumnExpressionTypeException("DfAggregate.prepare(): invalid group by column expression type: " + groupByColExpr.toString());
     }
 
-    // aggregation value expression -> aggregation expression strings
-    if (aggrValueExpr instanceof Constant.StringExpr) {
-      targetExprStrs.add((String)(((Constant.StringExpr) aggrValueExpr).getValue()));
-    } else if (aggrValueExpr instanceof Constant.ArrayExpr) {
-      for (Object obj : ((Constant.ArrayExpr) aggrValueExpr).getValue()) {
-        String strAggrValue = (String)obj;
-        targetExprStrs.add(strAggrValue);
-      }
+    // aggregation value expression is not string literals any more.
+    if (aggrValueExpr instanceof Expr.FunctionExpr) {
+      targetExprs = new ArrayList(1);
+      targetExprs.add((Expr.FunctionExpr) aggrValueExpr);
+    } else if (aggrValueExpr instanceof Expr.FunctionArrayExpr) {
+      targetExprs = ((Expr.FunctionArrayExpr) aggrValueExpr).getFunctions();
     } else {
       throw new InvalidAggregationValueExpressionTypeException("DfAggregate.prepare(): invalid aggregation value expression type: " + aggrValueExpr.toString());
     }
 
     preparedArgs.add(groupByColNames);
-    preparedArgs.add(targetExprStrs);
+    preparedArgs.add(targetExprs);
     return preparedArgs;
   }
 
   @Override
   public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
     List<String> groupByColNames = (List<String>) preparedArgs.get(0);
-    List<String> targetExprStrs = (List<String>) preparedArgs.get(1);
+    List<Expr.FunctionExpr> targetExprs = (List<Expr.FunctionExpr>) preparedArgs.get(1);
 
     LOGGER.trace("DfAggregate.gather(): start: offset={} length={} groupByColNames={}", offset, length, groupByColNames);
 
-    aggregate(prevDf, groupByColNames, targetExprStrs);
+    aggregate(prevDf, groupByColNames, targetExprs);
 
     LOGGER.trace("DfAggregate.gather(): end: offset={} length={} groupByColNames={}", offset, length, groupByColNames);
     return null;
