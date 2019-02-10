@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
 import java.util.List;
 
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
@@ -28,21 +29,21 @@ public class GeoShelf implements Shelf {
   /**
    * GEO Layers
    */
-  List<List<Field>> layers;
+  List<Layer> layers;
 
   @JsonCreator
-  public GeoShelf(@JsonProperty("layers") List<List<Field>> layers) {
+  public GeoShelf(@JsonProperty("layers") List<Layer> layers) {
     this.layers = layers;
   }
 
   @Override
   public List<Field> getFields() {
     List<Field> collectedFields = Lists.newArrayList();
-    layers.forEach(fields -> collectedFields.addAll(fields));
+    layers.forEach(layer -> collectedFields.addAll(layer.getFields()));
     return collectedFields;
   }
 
-  public List<List<Field>> getLayers() {
+  public List<Layer> getLayers() {
     return layers;
   }
 
@@ -51,5 +52,59 @@ public class GeoShelf implements Shelf {
     return "GeoShelf{" +
         "layers=" + layers +
         '}';
+  }
+
+  /**
+   * Map View Layer
+   */
+  public static class Layer implements Serializable {
+
+    /**
+     * Name of layer (optional)
+     */
+    String name;
+
+    /**
+     * datasource reference
+     */
+    String ref;
+
+    /**
+     * fields
+     */
+    List<Field> fields;
+
+    public Layer() {
+    }
+
+    @JsonCreator
+    public Layer(@JsonProperty("name") String name,
+                 @JsonProperty("ref") String ref,
+                 @JsonProperty("layer") List<Field> fields) {
+      this.name = name;
+      this.ref = ref;
+      this.fields = fields;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public String getRef() {
+      return ref;
+    }
+
+    public List<Field> getFields() {
+      return fields;
+    }
+
+    @Override
+    public String toString() {
+      return "Layer{" +
+          "name='" + name + '\'' +
+          ", ref='" + ref + '\'' +
+          ", fields=" + fields +
+          '}';
+    }
   }
 }
