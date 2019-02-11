@@ -1,6 +1,6 @@
 <img title="logo-metatron" src="https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png" alt="metatron-discovery-logo" width="400px">
 
-**Metatron Discovery** is an end-to-end big daata self discovery solution.
+**Metatron Discovery** is an end-to-end big data self discovery solution.
 To learn more about metatron discovery, visit our web site [https://metatron.app](https://metatron.app)
 
 Strengths
