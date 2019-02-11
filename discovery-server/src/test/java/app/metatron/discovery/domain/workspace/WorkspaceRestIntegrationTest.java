@@ -549,38 +549,26 @@ public class WorkspaceRestIntegrationTest extends AbstractRestIntegrationTest {
 
   }
 
-  @SuppressWarnings({"SpellCheckingInspection", "RedundantThrows"})
   @Test
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_WORKSPACE_MANAGE_WORKSPACE"})
   @Sql("/sql/test_shared_workspace_list.sql")
-  public void delegate_workspace_with_non_existent_user() throws JsonProcessingException {
+  public void delegate_workspace_with_non_existent_user() {
 
     String workspaceId = "ws-0001";
     String ownerId = "EMPTY_USER_ID";
 
     // @formatter:off
     given()
-            .auth().oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .log().all()
-            .when()
-            .post("/api/workspaces/{id}/delegate/{ownername}", workspaceId, ownerId)
-            .then()
-            .statusCode(HttpStatus.SC_BAD_REQUEST)
-            .log().all();
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/workspaces/{id}/delegate/{ownername}", workspaceId, ownerId)
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_BAD_REQUEST);
     // @formatter:on
 
-    // @formatter:off
-    given()
-            .auth().oauth2(oauth_token)
-            .contentType(ContentType.JSON)
-            .log().all()
-            .when()
-            .get("/api/workspaces/{id}", workspaceId)
-            .then()
-            .statusCode(HttpStatus.SC_OK)
-            .log().all();
-    // @formatter:on
   }
 
   @Test
