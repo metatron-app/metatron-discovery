@@ -34,7 +34,7 @@ export class WorkspaceDetailComponent extends AbstractComponent implements OnIni
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @ViewChild(WorkspaceMembersSelectBoxComponent)
-  private _workspaceMembersSelectBoxComponent: WorkspaceMembersSelectBoxComponent;
+  private readonly _workspaceMembersSelectBoxComponent: WorkspaceMembersSelectBoxComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -45,10 +45,10 @@ export class WorkspaceDetailComponent extends AbstractComponent implements OnIni
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
-  public workspace: WorkspaceAdmin;
+  public readonly workspace: WorkspaceAdmin;
 
   @Input()
-  public member;
+  public readonly member;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -126,5 +126,4 @@ export class WorkspaceDetailComponent extends AbstractComponent implements OnIni
   private _isNotNil(data) {
     return _.negate(_.isNil)(data);
   }
-
 }

@@ -48,7 +48,7 @@ export class ChangeWorkspaceOwnerModalComponent extends AbstractPopupComponent i
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @ViewChildren(WorkspaceDetailComponent)
-  private _workspaceDetailComponents: QueryList<WorkspaceDetailComponent>;
+  private readonly _workspaceDetailComponents: QueryList<WorkspaceDetailComponent>;
 
   private _deleteTargetUserid: string;
 
@@ -106,8 +106,8 @@ export class ChangeWorkspaceOwnerModalComponent extends AbstractPopupComponent i
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public ngOnInit(): void {
-    this._initialize();
     super.ngOnInit();
+    this._initialize();
   }
 
   public ngAfterViewInit(): void {
