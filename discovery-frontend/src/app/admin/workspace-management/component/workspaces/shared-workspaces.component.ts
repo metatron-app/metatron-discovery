@@ -12,15 +12,18 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { Component, ElementRef, Injector, ViewChild } from '@angular/core';
-import { WorkspaceService } from '../../../../workspace/service/workspace.service';
-import { Alert } from '../../../../common/util/alert.util';
-import { PublicType, WorkspaceAdmin } from '../../../../domain/workspace/workspace';
-import { PeriodComponent } from '../../../../common/component/period/period.component';
-import { Modal } from '../../../../common/domain/modal';
-import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
-import { PeriodData } from '../../../../common/value/period.data.value';
+import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {Component, ElementRef, Injector, ViewChild} from '@angular/core';
+import {WorkspaceService} from '../../../../workspace/service/workspace.service';
+import {Alert} from '../../../../common/util/alert.util';
+import {PublicType, WorkspaceAdmin} from '../../../../domain/workspace/workspace';
+import {PeriodComponent} from '../../../../common/component/period/period.component';
+import {Modal} from '../../../../common/domain/modal';
+import {ConfirmModalComponent} from '../../../../common/component/modal/confirm/confirm.component';
+import {PeriodData} from '../../../../common/value/period.data.value';
+import {Page} from "../../../../domain/common/page";
+import {ActivatedRoute} from "@angular/router";
+import {isNullOrUndefined} from "util";
 
 declare let moment: any;
 
@@ -43,6 +46,8 @@ export class SharedWorkspacesComponent extends AbstractComponent {
   private _filterStatus: string;
   // 워크스페이스 필터링
   private _filterWorkspaceType: string;
+  // 검색 파라메터
+  private _searchParams: { [key: string]: string };
 
   // 공통 팝업 모달
   @ViewChild(ConfirmModalComponent)
@@ -60,6 +65,8 @@ export class SharedWorkspacesComponent extends AbstractComponent {
   @ViewChild(PeriodComponent)
   public periodComponent: PeriodComponent;
 
+  public initialPeriodData:PeriodData;
+
   // 정렬
   public selectedContentSort: Order = new Order();
 
@@ -75,8 +82,8 @@ export class SharedWorkspacesComponent extends AbstractComponent {
 
   // 사용자 정의 커스텀 Date 필터링
   public customDateTypeList = [
-    { label: this.translateService.instant('msg.spaces.spaces.th.last.access'), value: 'LASTACCESSED'},
-    { label: this.translateService.instant('msg.spaces.spaces.th.created'), value: 'CREATED'},
+    {label: this.translateService.instant('msg.spaces.spaces.th.last.access'), value: 'LASTACCESSED'},
+    {label: this.translateService.instant('msg.spaces.spaces.th.created'), value: 'CREATED'},
   ];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -85,6 +92,7 @@ export class SharedWorkspacesComponent extends AbstractComponent {
 
   // 생성자
   constructor(private workspaceService: WorkspaceService,
+              private activatedRoute: ActivatedRoute,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -94,20 +102,64 @@ export class SharedWorkspacesComponent extends AbstractComponent {
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Init
+  /**
+   * 컴포넌트 시작
+   */
   public ngOnInit() {
-    // Init
     super.ngOnInit();
+
     // ui 초기화
     this._initView();
-    // 워크스페이스 리스트 조회
-    this._getWorkspaceListInServer();
+
+    // 파라메터 조회
+    this.activatedRoute.queryParams.subscribe(params => {
+
+      console.info( '>>>>>>> list param', params );
+
+      const size = params['size'];
+      (isNullOrUndefined(size)) || (this.page.size = size);
+
+      const page = params['page'];
+      (isNullOrUndefined(page)) || (this.page.page = page);
+
+      const publicType = params['publicType'];
+      (isNullOrUndefined(publicType)) || (this._filterWorkspaceType = publicType);
+
+      const sort = params['sort'];
+      if (!isNullOrUndefined(sort)) {
+        const sortInfo = decodeURIComponent(sort).split(',');
+        this.selectedContentSort.key = sortInfo[0];
+        this.selectedContentSort.sort = sortInfo[1];
+      }
+      const published = params['published'];
+      (isNullOrUndefined(published)) || (this.filterAllowance = published);
+      const active = params['active'];
+      if (!isNullOrUndefined(active)) {
+        this._filterStatus = ('true' === active) ? 'active' : 'inactive';
+      }
+
+      this._filterDate = new PeriodData();
+      this._filterDate.type = 'ALL';
+      const searchDateBy = params['searchDateBy'];
+      const from = params['from'];
+      const to = params['to'];
+      if (!isNullOrUndefined(searchDateBy) && !isNullOrUndefined(from) && !isNullOrUndefined(to)) {
+        this._filterDate.type = 'NOT';
+        this._filterDate.dateType = searchDateBy;
+        this._filterDate.startDateStr = decodeURIComponent(from);
+        this._filterDate.endDateStr = decodeURIComponent(to);
+        this.initialPeriodData = this._filterDate;
+      }
+
+      // 워크스페이스 리스트 조회
+      this._getWorkspaceListInServer();
+    });
   }
 
-  // Destory
+  /**
+   * 컴포넌트 종료
+   */
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
@@ -184,16 +236,8 @@ export class SharedWorkspacesComponent extends AbstractComponent {
   }
 
   /**
-   * 더 조회할 컨텐츠가 있는지 여부
-   * @returns {boolean}
-   */
-  public isMoreContents(): boolean {
-    return (this.pageResult.number < this.pageResult.totalPages -1);
-  }
-
-  /**
    * 해당 워크스페이스가 공유 워크스페이스인지 확인
-   * @param {WorkspaceAdmin} worspace
+   * @param {WorkspaceAdmin} workspace
    * @returns {boolean}
    */
   public isPublicWorkspace(workspace: WorkspaceAdmin): boolean {
@@ -218,7 +262,7 @@ export class SharedWorkspacesComponent extends AbstractComponent {
    * @param {KeyboardEvent} event
    */
   public onSearchText(event: KeyboardEvent): void {
-    ( 13 === event.keyCode ) && (this._searchText(event.target['value']));
+    (13 === event.keyCode) && (this._searchText(event.target['value']));
   }
 
   /**
@@ -235,7 +279,10 @@ export class SharedWorkspacesComponent extends AbstractComponent {
   public onOpenWorkspaceDetail(workspaceId: string): void {
     // 기존에 저장된 라우트 삭제
     this.cookieService.delete('PREV_ROUTER_URL');
-    this.router.navigate(['/admin/workspaces/shared', workspaceId]);
+    this.router.navigate(
+      ['/admin/workspaces/shared', workspaceId],
+      {queryParams: this._searchParams}
+    ).then();
   }
 
   /**
@@ -246,7 +293,7 @@ export class SharedWorkspacesComponent extends AbstractComponent {
   public onOpenChangeStatus(workspace: WorkspaceAdmin, status: string): void {
     // 이벤트 전파 stop
     event.stopImmediatePropagation();
-    if( ( workspace.active ? 'active' : 'inactive' ) === status ) {
+    if ((workspace.active ? 'active' : 'inactive') === status) {
       return;
     }
 
@@ -303,12 +350,12 @@ export class SharedWorkspacesComponent extends AbstractComponent {
     this.selectedContentSort = new Order();
     // 검색조건 초기화
     this.searchText = '';
-    // 페이지 초기화
-    this.pageResult.number = 0;
     // date 필터 created update 설정 default lastaccessed로 설정
     this.periodComponent.selectedDate = 'LASTACCESSED';
     // date 필터 init
     this.periodComponent.setAll();
+    // 페이지 초기화
+    this.page = new Page();
   }
 
   /**
@@ -377,18 +424,6 @@ export class SharedWorkspacesComponent extends AbstractComponent {
   }
 
   /**
-   * 더보기 버튼 클릭
-   */
-  public onClickMoreContents(): void {
-    // 더 보여줄 데이터가 있다면
-    if (this.isMoreContents()) {
-      this.pageResult.number += 1;
-      // 워크스페이스 조회
-      this._getWorkspaceListInServer();
-    }
-  }
-
-  /**
    * 워크스페이스의 status list show
    * @param {WorkspaceAdmin} workspace
    * @param {boolean} showFl
@@ -412,6 +447,19 @@ export class SharedWorkspacesComponent extends AbstractComponent {
     // 워크스페이스 재조회
     this._getWorkspaceInit();
   }
+
+  /**
+   * 페이지 변경
+   * @param data
+   */
+  public changePage(data: { page: number, size: number }) {
+    if (data) {
+      this.page.page = data.page;
+      this.page.size = data.size;
+      // 워크스페이스 조회
+      this._getWorkspaceListInServer();
+    }
+  } // function - changePage
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -493,15 +541,17 @@ export class SharedWorkspacesComponent extends AbstractComponent {
   private _getWorkspaceListInServer(): void {
     // 로딩 show
     this.loadingShow();
+
+    this._workspaceList = [];
+
     // 전체 워크스페이스 조회
-    this.workspaceService.getWorkspaceByAdmin(this._getWorkspaceParams())
+    const params = this._getWorkspaceParams();
+    this.workspaceService.getWorkspaceByAdmin(params)
       .then((result) => {
+        // 검색 파라메터 정보 저장
+        this._searchParams = params;
         // 페이지 객체
         this.pageResult = result['page'];
-        // 페이지가 첫번째면 초기화
-        if (this.pageResult.number === 0) {
-          this._workspaceList = [];
-        }
         // 데이터 있다면
         this._workspaceList = result['_embedded'] ? this._workspaceList.concat(result['_embedded'].workspaces) : [];
         // 로딩 hide
@@ -519,7 +569,7 @@ export class SharedWorkspacesComponent extends AbstractComponent {
    */
   private _getWorkspaceInit(): void {
     // 페이지 초기화
-    this.pageResult.number = 0;
+    this.page.page = 0;
     // 재조회
     this._getWorkspaceListInServer();
   }
@@ -531,9 +581,10 @@ export class SharedWorkspacesComponent extends AbstractComponent {
    */
   private _getWorkspaceParams(): any {
     const params = {
-      size: this.pageResult.size,
-      page: this.pageResult.number,
+      size: this.page.size,
+      page: this.page.page
     };
+
     // 타입
     this._filterWorkspaceType !== 'all' && (params['publicType'] = this._filterWorkspaceType);
     // 정렬
@@ -543,7 +594,7 @@ export class SharedWorkspacesComponent extends AbstractComponent {
     // allowance
     this.filterAllowance && (params['published'] = this.filterAllowance);
     // status
-    this._filterStatus !== 'all' && (params['active'] = this._filterStatus === 'active' ? true : false);
+    this._filterStatus !== 'all' && (params['active'] = (this._filterStatus === 'active'));
     // date
     if (this._filterDate && this._filterDate.type !== 'ALL') {
       params['searchDateBy'] = this._filterDate.dateType;
@@ -564,20 +615,17 @@ export class SharedWorkspacesComponent extends AbstractComponent {
    * ui 초기화
    * @private
    */
-  private _initView():void {
-    // 페이지 초기화
-    this.pageResult.number = 0;
-    this.pageResult.size = 20;
+  private _initView(): void {
     // status
     this.filterStatusList = [
-      { label: this.translateService.instant('msg.storage.ui.list.all'), value: 'all' },
-      { label: this.translateService.instant('msg.spaces.spaces.ui.active'), value: 'active' },
-      { label: this.translateService.instant('msg.spaces.spaces.ui.inactive'), value: 'inactive' },
+      {label: this.translateService.instant('msg.storage.ui.list.all'), value: 'all'},
+      {label: this.translateService.instant('msg.spaces.spaces.ui.active'), value: 'active'},
+      {label: this.translateService.instant('msg.spaces.spaces.ui.inactive'), value: 'inactive'},
     ];
     this._filterStatus = this.filterStatusList[0].value;
     this.statusList = [
-      { label: this.translateService.instant('msg.spaces.spaces.ui.active'), value: 'active', active: true },
-      { label: this.translateService.instant('msg.spaces.spaces.ui.inactive'), value: 'inactive', active: false },
+      {label: this.translateService.instant('msg.spaces.spaces.ui.active'), value: 'active', active: true},
+      {label: this.translateService.instant('msg.spaces.spaces.ui.inactive'), value: 'inactive', active: false},
     ];
     // search text
     this.searchText = '';

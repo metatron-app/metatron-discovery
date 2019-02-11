@@ -46,14 +46,15 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 기준
-  public selectedDate: string = 'CREATED';
-
   // 기간타입
   public periodType = PeriodType;
 
   // 선택 타입
   public selectedType = PeriodType.ALL;
+
+  // 기준
+  @Input()
+  public selectedDate: string = 'CREATED';
 
   @Input()
   public containerClass:string = '';

@@ -77,6 +77,10 @@
     <div class="ddp-ui-option ddp-clear">
       <!-- edit -->
       <component-period
+        [defaultType]="initialPeriodData?.type"
+        [selectedDate]="initialPeriodData?.dateType"
+        [startDateDefault]="initialPeriodData?.startDateStr"
+        [endDateDefault]="initialPeriodData?.endDateStr"
         [usedCustomDateType]="true"
         [customDateTypeList]="customDateTypeList"
         [roundSecond]="true"
@@ -222,11 +226,9 @@
     </tr>
     </tbody>
   </table>
-  <!-- more contents -->
-  <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickMoreContents()">
-    <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
-  </div>
-  <!-- //more contents -->
+  <!-- Pagination -->
+  <component-pagination [info]="pageResult" (changePageData)="changePage($event)"></component-pagination>
+  <!-- // Pagination -->
 </div>
 <!-- 공통 모달 -->
 <app-confirm-modal (confirm)="confirmEvent($event)"></app-confirm-modal>

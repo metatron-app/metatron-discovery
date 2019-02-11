@@ -29,3 +29,21 @@
 .ddp-ui-pageing .ddp-btn-next.ddp-disabled,
 .ddp-ui-pageing .ddp-btn-prev.ddp-disabled:hover,
 .ddp-ui-pageing .ddp-btn-next.ddp-disabled:hover {color:#90969f; opacity:0.3; cursor:no-drop;}
+
+/**************************************************************
+	box page
+**************************************************************/
+.ddp-box-page {float:left; width:100%; padding:0 20px 0 18px; margin-top:10px; border:1px solid #d5d6dc; background-color:#fff; box-sizing:border-box;}
+.ddp-box-page .ddp-page-num {float:left; padding:7px 0;}
+.ddp-box-page .ddp-page-num a {display:inline-block; position:relative; float:left; width:28px; height:28px; margin:0 2px;padding:4px 0; text-align:center; color:#4b515b; font-size:14px; box-sizing:border-box;}
+.ddp-box-page .ddp-page-num a.ddp-btn-prev,
+.ddp-box-page .ddp-page-num a.ddp-btn-next{display:inline-block; position:relative; top:3px; width:21px; height:21px; border:1px solid #e7e8ec; border-radius:2px; font-size:0px;}
+.ddp-box-page .ddp-page-num a.ddp-btn-prev {margin-right:12px;}
+.ddp-box-page .ddp-page-num a.ddp-btn-next {margin-left:12px; transform:rotate(180deg);}
+.ddp-box-page .ddp-page-num a.ddp-btn-prev:before,
+.ddp-box-page .ddp-page-num a.ddp-btn-next:before{display:Inline-block; position:absolute; top:50%; left:50%; margin:-4px 0 0 -2px; width:4px; height:7px; background:url(../../../images/btn_page2.png) no-repeat; background-position:-8px -29px; content:'';}
+.ddp-box-page .ddp-page-num a.ddp-page-skip:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-2px 0 0 -8px; width:16px; height:4px; background:url(../../../images/icon_page_skip.png) no-repeat; content:'';}
+.ddp-box-page .ddp-page-num a.ddp-selected {background-color:#f6f6f7; font-weight:bold;}
+.ddp-box-page .ddp-page-setting {float:right; padding:6px 0;}
+.ddp-box-page .ddp-page-setting .ddp-wrap-edit .ddp-label-type {padding-right:5px;}
+.ddp-box-page .ddp-page-setting .ddp-wrap-edit .ddp-label-type + .ddp-ui-edit-option.ddp-inline {top:0; width:68px;}

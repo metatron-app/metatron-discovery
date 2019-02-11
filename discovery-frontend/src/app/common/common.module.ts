@@ -61,6 +61,7 @@ import {InputComponent} from "./component/input/input.component";
 import {SvgIconComponent} from "./component/icon/svg-icon.component";
 import {CommonConstant} from "./constant/common.constant";
 import {CookieConstant} from "./constant/cookie.constant";
+import {PaginationComponent} from "./component/pagination/pagination.component";
 
 import {StompConfig, StompService} from '@stomp/ng2-stompjs';
 import * as SockJS from 'sockjs-client';
@@ -124,7 +125,8 @@ const stompConfig: StompConfig = {
     DashboardDatasourceComboComponent,
     ColorTemplateComponent,
     SvgIconComponent,
-    InputComponent
+    InputComponent,
+    PaginationComponent
   ],
   exports: [
     AngularCommonModule,
@@ -169,7 +171,8 @@ const stompConfig: StompConfig = {
     DashboardDatasourceComboComponent,
     ColorTemplateComponent,
     SvgIconComponent,
-    InputComponent
+    InputComponent,
+    PaginationComponent
   ],
   providers: [
     {
