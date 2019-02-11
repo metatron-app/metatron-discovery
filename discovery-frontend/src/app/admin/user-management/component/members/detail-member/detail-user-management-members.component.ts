@@ -12,14 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  Injector,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {User} from '../../../../../domain/user/user';
 import {ActivatedRoute} from '@angular/router';
 import {ConfirmModalComponent} from '../../../../../common/component/modal/confirm/confirm.component';
@@ -30,6 +23,7 @@ import {UpdateUserManagementMembersComponent} from '../update-member/update-user
 import {PermissionService} from '../../../../../user/service/permission.service';
 import {CommonUtil} from '../../../../../common/util/common.util';
 import {Group} from '../../../../../domain/user/group';
+import {ChangeWorkspaceOwnerModalComponent} from '../change-workspace-owner-modal/change-workspace-owner-modal.component';
 
 @Component({
   selector: 'app-member-detail',
@@ -91,6 +85,9 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
 
   // status flag
   public statusShowFl: boolean = false;
+
+  @ViewChild(ChangeWorkspaceOwnerModalComponent)
+  private changeWorkspaceOwnerModal: ChangeWorkspaceOwnerModalComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -293,15 +290,23 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
    * 사용자 삭제 클릭
    */
   public onClickDeleteUser(): void {
-    const modal = new Modal();
-    modal.data = 'DELETE';
-    modal.name = this.translateService.instant('msg.mem.ui.delete.usr.title',
-      {value: this.userData.fullName});
-    modal.description = this.translateService.instant(
-      'msg.mem.ui.delete.usr.description');
-    modal.btnName = this.translateService.instant('msg.mem.btn.delete.usr');
-    // 팝업 창 오픈
-    this._confirmModalComponent.init(modal);
+    this.changeWorkspaceOwnerModal.show(this._userId);
+  }
+
+  /**
+   * 사용자 삭제 컨펌 보여주기
+   */
+  public showDeleteUserConfirm(event: { byPass: boolean }) {
+    if (this.isDeleteUserConfirmPass(event)) {
+      this.executeDeleteUser();
+    } else {
+      // 팝업 창 오픈
+      this._confirmModalComponent.init(this._deleteUserModalDataGenerator());
+    }
+  }
+
+  public executeDeleteUser() {
+    this.confirmHandler(this._deleteUserModalDataGenerator());
   }
 
   /**
@@ -443,5 +448,24 @@ export class DetailUserManagementMembersComponent extends AbstractUserManagement
    */
   private _savePrevRouterUrl(): void {
     this.cookieService.set('PREV_ROUTER_URL', this.router.url);
+  }
+
+  /**
+   * Create data for deleting user
+   *
+   * @private
+   */
+  private _deleteUserModalDataGenerator() {
+    const modal = new Modal();
+    modal.data = 'DELETE';
+    modal.name = this.translateService.instant('msg.mem.ui.delete.usr.title', {value: this.userData.fullName});
+    modal.description = this.translateService.instant('msg.mem.ui.delete.usr.description');
+    modal.btnName = this.translateService.instant('msg.mem.btn.delete.usr');
+    return modal;
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private isDeleteUserConfirmPass($event: { byPass: boolean }): boolean {
+    return $event.byPass;
   }
 }
