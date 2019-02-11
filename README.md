@@ -1,28 +1,29 @@
 <img title="logo-metatron" src="https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png" alt="metatron-discovery-logo" width="400px">
 
-**Metatron Discovery** is a end-to-end self-service solution for big data discovery.
+**Metatron Discovery** is an end-to-end big data self discovery solution.
 To learn more about metatron discovery, visit our web site [https://metatron.app](https://metatron.app)
 
 Strengths
 ------------------
-1. Powered by [Apache Druid](http://druid.io/), metatron can process huge size of data super fast.
-2. A single unified product for field users enabling data analytics.
-3. The whole features are supported by intuitive web UI.
+- Able to process HUGE data sets super FAST, powered by (optimized) [Apache Druid](http://druid.io/)
+- Easy data analytics for everyone
+- Intuitive UI with full API support
 
-Features
+Key Features
 ------------------
-Metatron Discovery is a data discovery web application which supports end-to-end features from data management to analytics.
 
 Metatron provides:
-- Interactive dashboarding with various types of charts.
-- SQL based data exploration.
-- Data source creation from your local, existing DBs, HIVE, or Kafka streams.
-- Monitoring for job logs and data sources.
+- Interactive dashboards with numerous preloaded charts.
+- Supports query(SQL) based data exploration and GUI based data wrangling.
+- Supports various data sources (e.g. DBs, HIVE, or Kafka streams).
+- Job and data usage monitoring.
 - Metadata management.
-- GUI based data wrangling.
-- Connections with advanced data analytics tools like [Apache Zeppelin](https://zeppelin.apache.org/).
-- Administrations for users and workspaces for high ganularity security model.
-- [Metatron distributed Druid](https://metatron.app/index.php/2018/06/15/skt-druid-features/) allows for metatron not only staying blazing-fast while slicing and dicing large, but also overcoming Druid weaknesses.
+- Supports 3rd party data analytics tool integration(e.g. [Apache Zeppelin](https://zeppelin.apache.org/)).
+- Fine grain access control of users and workspaces.
+- Overcomes Druid weaknesses (e.g. no data join function) without performance degradation using [Metatron optimized Druid](https://metatron.app/index.php/2018/06/15/skt-druid-features/)
+- Full API support, enabling easy integration into your environment/software
+- Available on AWS, Azure('19.3Q).
+- Docker support for distributed version deploy('19.3Q).
 
 Screenshots
 ------------------
