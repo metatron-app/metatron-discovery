@@ -12,10 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output,
-  ViewChild,
-} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, HostListener, Injector, ViewChild,} from '@angular/core';
 import {BaseChart, ChartSelectInfo} from '../../base-chart';
 import {Pivot} from '../../../../../domain/workbook/configurations/pivot';
 import * as ol from 'openlayers';
@@ -58,7 +55,6 @@ import {UIPolygonLayer} from '../../option/ui-option/map/ui-polygon-layer';
 import {UITileLayer} from '../../option/ui-option/map/ui-tile-layer';
 import {ColorOptionConverter} from '../../option/converter/color-option-converter';
 import {CommonConstant} from "../../../../constant/common.constant";
-import {isEmpty} from "rxjs/operator/isEmpty";
 
 @Component({
   selector: 'map-chart',
@@ -550,7 +546,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let shelve: any = !this.shelf ? [] : _.cloneDeep(this.shelf.layers[layerNum]);
 
     // undefined shelf layer can be existed because of adding removing layers
-    if(shelve == null) return;
+    if (shelve == null) return;
 
     // 선반값에서 해당 타입에 해당하는값만 name string값으로 리턴
     const getShelveReturnString = ((shelve: any, typeList: ShelveFieldType[]): string[] => {
@@ -667,10 +663,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Is map created
     if (this.olmap) {
 
-      // z index reset
-      this.layerMap.forEach( item => {
-        item.layerValue.setZIndex(0);
-      });
+      // // z index reset
+      // this.layerMap.forEach( item => {
+      //   item.layerValue.setZIndex(0);
+      // });
 
       // Change map style (remove all layer)
       this.layerMap.forEach(item => this.olmap.removeLayer(item.layerValue));
@@ -740,7 +736,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           return false;
         }
       });
-      if( field != null && field.field != null && field.field.logicalType != null ) {
+      if (field != null && field.field != null && field.field.logicalType != null) {
         let geomType = field.field.logicalType.toString();
 
         if (_.eq(layer.type, MapLayerType.SYMBOL)) {
@@ -756,8 +752,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             });
             this.clusterLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource);
             // set z index (the default value is 0 and higher would be 1)
-            this.clusterLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
-            this.layerMap.push({id:num, layerValue:this.clusterLayer});
+            // this.clusterLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
+            this.clusterLayer.setZIndex(5);
+            this.layerMap.push({id: num, layerValue: this.clusterLayer});
             this.featureLayer = this.clusterLayer;
             // Init
             if (isMapCreation && this.getUiMapOption().showMapLayer) {
@@ -786,8 +783,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             });
             this.symbolLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource);
             // set z index (the default value is 0 and higher would be 1)
-            this.symbolLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
-            this.layerMap.push({id:num, layerValue:this.symbolLayer});
+            // this.symbolLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
+            this.symbolLayer.setZIndex(4);
+            this.layerMap.push({id: num, layerValue: this.symbolLayer});
             this.featureLayer = this.symbolLayer;
             // Init
             if (isMapCreation && this.getUiMapOption().showMapLayer) {
@@ -817,8 +815,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           });
           this.symbolLayer.setSource(source);
           // set z index (the default value is 0 and higher would be 1)
-          this.symbolLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
-          this.layerMap.push({id:num, layerValue:this.symbolLayer});
+          // this.symbolLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
+          this.symbolLayer.setZIndex(3);
+          this.layerMap.push({id: num, layerValue: this.symbolLayer});
           this.featureLayer = this.symbolLayer;
           // Init
           if (isMapCreation && this.getUiMapOption().showMapLayer) {
@@ -851,8 +850,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           });
           this.heatmapLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource);
           // set z index (the default value is 0 and higher would be 1)
-          this.heatmapLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
-          this.layerMap.push({id:num, layerValue:this.heatmapLayer});
+          // this.heatmapLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
+          this.heatmapLayer.setZIndex(0);
+          this.layerMap.push({id: num, layerValue: this.heatmapLayer});
           this.featureLayer = this.heatmapLayer;
           // Init
           if (isMapCreation && this.getUiMapOption().showMapLayer) {
@@ -887,8 +887,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           });
           this.hexagonLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? hexagonSource : emptySource);
           // set z index (the default value is 0 and higher would be 1)
-          this.hexagonLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
-          this.layerMap.push({id:num, layerValue:this.hexagonLayer});
+          // this.hexagonLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
+          this.hexagonLayer.setZIndex(1);
+          this.layerMap.push({id: num, layerValue: this.hexagonLayer});
           this.featureLayer = this.hexagonLayer;
           // Init
           if (isMapCreation && this.getUiMapOption().showMapLayer) {
@@ -933,7 +934,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     ////////////////////////////////////////////////////////
     // Feature list
     let features = [];
-    for( let polygonIndex=0; polygonIndex < this.data.length; polygonIndex++ ) {
+    for (let polygonIndex = 0; polygonIndex < this.data.length; polygonIndex++) {
       let field = null;
       _.each(this.shelf.layers[polygonIndex], (fieldTemp) => {
         if (fieldTemp != null && fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
@@ -941,7 +942,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           return false;
         }
       });
-      if( field != null && field.field != null && field.field.logicalType != null ) {
+      if (field != null && field.field != null && field.field.logicalType != null) {
         let geomType = field.field.logicalType.toString();
 
         ////////////////////////////////////////////////////////
@@ -980,7 +981,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     ////////////////////////////////////////////////////////
     // Generate hexagon feature
     ////////////////////////////////////////////////////////
-    for( let hexagonIndex=0; hexagonIndex < this.data.length; hexagonIndex++ ) {
+    for (let hexagonIndex = 0; hexagonIndex < this.data.length; hexagonIndex++) {
       let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(this.data[hexagonIndex]);
       for (let feature of hexagonFeatures) {
         feature.set('layerNum', this.getUiMapOption().layerNum);
@@ -1895,72 +1896,84 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     ////////////////////////////////////////////////////////
     // Heatmap => not set tooltip
     ////////////////////////////////////////////////////////
+    //
+    // if (MapLayerType.HEATMAP === this.getUiMapOption().layers[this.getUiMapOption().layerNum].type) {
+    //   return;
+    // }
 
-    if (MapLayerType.HEATMAP === this.getUiMapOption().layers[this.getUiMapOption().layerNum].type) {
-      return;
-    }
+    this.olmap.getOverlays().forEach((overlay) => {
+      this.olmap.removeOverlay(overlay);
+    });
 
-    ////////////////////////////////////////////////////////
-    // Create tooltip layer
-    ////////////////////////////////////////////////////////
+    for (let toolTipIndex = 0; this.getUiMapOption().layers.length > toolTipIndex; toolTipIndex++) {
+      ////////////////////////////////////////////////////////
+      // do not set tooltip for HEATMAP
+      ////////////////////////////////////////////////////////
+      if (MapLayerType.HEATMAP !== this.getUiMapOption().layers[toolTipIndex].type) {
 
-    if (!this.tooltipLayer) {
+        ////////////////////////////////////////////////////////
+        // Create tooltip layer
+        ////////////////////////////////////////////////////////
+        this.tooltipLayer = null;
+        if (!this.tooltipLayer) {
 
-      // Create
-      this.tooltipLayer = new ol.Overlay({
-        element: this.tooltipEl.nativeElement,
-        positioning: 'top-center',
-        stopEvent: false
-      });
+          // Create
+          this.tooltipLayer = new ol.Overlay({
+            element: this.tooltipEl.nativeElement,
+            positioning: 'top-center',
+            stopEvent: false
+          });
 
-      // Add
-      this.olmap.addOverlay(this.tooltipLayer);
-    }
+          // Add
+          this.olmap.addOverlay(this.tooltipLayer);
+        }
 
-    // set tooltip position
-    if (this.uiOption.toolTip) {
+        // set tooltip position
+        if (this.uiOption.toolTip) {
 
-      let yOffset = 20;
+          let yOffset = 20;
 
-      if (MapLayerType.LINE === this.getUiMapOption().layers[this.getUiMapOption().layerNum].type) {
-        yOffset = 50;
+          if (MapLayerType.LINE === this.getUiMapOption().layers[toolTipIndex].type) {
+            yOffset = 50;
+          }
+
+          let offset = [-92, -yOffset];
+          let displayTypeList = _.filter(_.cloneDeep(this.uiOption.toolTip.displayTypes), (item) => {
+            if (!_.isEmpty(item) && item !== UIChartDataLabelDisplayType.DATA_VALUE) return item
+          });
+
+          let columnList = [];
+          // set columnList when data value is checked
+          if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.DATA_VALUE)) {
+            columnList = this.uiOption.toolTip.displayColumns;
+          }
+
+          let addYOffset = 37 * (displayTypeList.length) + 40 * (columnList.length);
+
+          offset[1] = -(yOffset + addYOffset);
+
+          this.tooltipLayer.setOffset(offset);
+        }
+
+        ////////////////////////////////////////////////////////
+        // Add event
+        ////////////////////////////////////////////////////////
+
+        this.olmap.un('pointermove', this.tooltipFunction);
+        this.olmap.on('pointermove', this.tooltipFunction);
+        this.olmap.on('moveend', this.zoomFunction);
+        // this.olmap.on('click', this.zoomFunction);
+        // this.olmap.on('pointermove', function(event) {
+        //
+        //   if (event.dragging) {
+        //     return;
+        //   }
+        //
+        //   // let pixel = this.olmap.getEventPixel(event.originalEvent);
+        //
+        // });
       }
-
-      let offset = [-92, -yOffset];
-      let displayTypeList = _.filter(_.cloneDeep(this.uiOption.toolTip.displayTypes), (item) => {
-        if (!_.isEmpty(item) && item !== UIChartDataLabelDisplayType.DATA_VALUE) return item
-      });
-
-      let columnList = [];
-      // set columnList when data value is checked
-      if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.DATA_VALUE)) {
-        columnList = this.uiOption.toolTip.displayColumns;
-      }
-
-      let addYOffset = 37 * (displayTypeList.length) + 40 * (columnList.length);
-
-      offset[1] = -(yOffset + addYOffset);
-
-      this.tooltipLayer.setOffset(offset);
     }
-
-    ////////////////////////////////////////////////////////
-    // Add event
-    ////////////////////////////////////////////////////////
-
-    this.olmap.un('pointermove', this.tooltipFunction);
-    this.olmap.on('pointermove', this.tooltipFunction);
-    this.olmap.on('moveend', this.zoomFunction);
-    // this.olmap.on('click', this.zoomFunction);
-    // this.olmap.on('pointermove', function(event) {
-    //
-    //   if (event.dragging) {
-    //     return;
-    //   }
-    //
-    //   // let pixel = this.olmap.getEventPixel(event.originalEvent);
-    //
-    // });
   }
 
   /**
@@ -1969,158 +1982,160 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   private tooltipFunction = (event) => {
 
-    let scope = this;
+    let that = this;
+    let tooltipTypeToShow = null;
 
-    // heatmap => no tooltip
-    if (MapLayerType.HEATMAP === this.getUiMapOption().layers[this.getUiMapOption().layerNum].type) {
-      return;
-    }
+    for (let toolTipIndex = 0; this.getUiMapOption().layers.length > toolTipIndex; toolTipIndex++) {
+      // do not set tooltip for HEATMAP
+      if (this.getUiMapOption().layers[toolTipIndex].type !== MapLayerType.HEATMAP) {
 
-    // Get feature
-    let feature = this.olmap.forEachFeatureAtPixel(event.pixel, (feature) => {
-      return feature;
-    });
-
-    // Featrue check
-    if (!feature) {
-
-      // Disable tooltip
-      this.tooltipInfo.enable = false;
-      this.tooltipLayer.setPosition(undefined);
-
-      // remove z-index for tooltip
-      if (!this.isPage) $(document).find('.ddp-ui-dash-contents').removeClass('ddp-tooltip');
-      else $(document).find('.ddp-view-chart-contents').removeClass('ddp-tooltip');
-      return;
-    }
-
-    // set z-index for tooltip
-    if (!this.isPage) $(document).find('.ddp-ui-dash-contents').addClass('ddp-tooltip');
-    else $(document).find('.ddp-view-chart-contents').addClass('ddp-tooltip');
-
-    ////////////////////////////////////////////////////////
-    // Layer num & name
-    ////////////////////////////////////////////////////////
-
-    // Cluster check
-    let features = feature.get('features');
-    if (!isNullOrUndefined(features)) {
-      if (features.length > 1) {
-        return;
-      }
-      feature = features[0];
-    }
-
-
-    // Layer num
-    this.tooltipInfo.num = _.cloneDeep(feature.get('layerNum')) + 1;
-
-    // Layer name
-    if (this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[17] !== null) {
-      this.tooltipInfo.name = this.getUiMapOption().layers[feature.get('layerNum')].name;
-    } else {
-      this.tooltipInfo.name = null;
-    }
-
-    ////////////////////////////////////////////////////////
-    // Geometry Type
-    ////////////////////////////////////////////////////////
-
-    this.tooltipInfo.geometryType = feature.getGeometry().getType();
-
-    ////////////////////////////////////////////////////////
-    // Coordinates (Geo Info)
-    ////////////////////////////////////////////////////////
-
-    let coords = [0, 0];
-    let pointerX = coords[0].toFixed(4);
-    let pointerY = coords[1].toFixed(4);
-
-    if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.POINT)) || _.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
-      coords = feature.getGeometry().getCoordinates();
-    } else {
-      let extent = feature.getGeometry().getExtent();
-      coords = ol.extent.getCenter(extent);
-    }
-
-    this.tooltipInfo.coords = [];
-
-    if (this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[18] !== null) {
-
-      // Line Type
-      if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
-        this.tooltipInfo.coords[0] = coords[0];
-        this.tooltipInfo.coords[coords.length - 1] = coords[coords.length - 1];
-      }
-      // Other
-      else {
-        this.tooltipInfo.coords[0] = coords[0].toFixed(4) + ', ' + coords[1].toFixed(4);
-      }
-    }
-
-    ////////////////////////////////////////////////////////
-    // Field info (Data Value)
-    ////////////////////////////////////////////////////////
-
-    this.tooltipInfo.fields = [];
-
-    // Properties (DATA_VALUE)
-    if (this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[19] !== null) {
-
-      let aggregationKeys: any[] = [];
-      for (let key in feature.getProperties()) {
-        _.each(this.getUiMapOption().toolTip.displayColumns, (field, idx) => {
-          if (_.eq(field, key)) {
-            aggregationKeys.push({idx: idx, key: key});
-            return false;
-          }
+        // Get feature
+        let feature = this.olmap.forEachFeatureAtPixel(event.pixel, (feature) => {
+          return feature;
         });
-      }
+        // console.log(this.olmap.getFeaturesAtPixel(event.pixel));
+        // console.log(this.olmap.hasFeatureAtPixel(event.pixel));
 
-      _.each(_.orderBy(aggregationKeys, ['idx']), (aggregationKey) => {
-        let tooltipVal = feature.get(aggregationKey.key);
-        if (aggregationKey.key !== 'geometry' && aggregationKey.key !== 'weight' && aggregationKey.key !== 'layerNum') {
-          let field = {
-            name: '',
-            value: ''
-          };
-          if (aggregationKey.key === 'features') {
-            field.name = aggregationKey.key;
-            field.value = feature.get(aggregationKey.key).length;
-          } else {
-            if (typeof (tooltipVal) === "number") {
-              tooltipVal = FormatOptionConverter.getFormatValue(tooltipVal, this.getUiMapOption().valueFormat);
-            }
-            field.name = aggregationKey.key;
-            field.value = tooltipVal;
-          }
-          this.tooltipInfo.fields.push(field);
+        // feature check
+        if (!feature) {
+          // Disable tooltip
+          this.tooltipInfo.enable = false;
+          this.tooltipLayer.setPosition(undefined);
+          // remove z-index for tooltip
+          if (!this.isPage) $(document).find('.ddp-ui-dash-contents').removeClass('ddp-tooltip');
+          else $(document).find('.ddp-view-chart-contents').removeClass('ddp-tooltip');
+          return;
         }
-      });
+        // set z-index for tooltip
+        if (!this.isPage) $(document).find('.ddp-ui-dash-contents').addClass('ddp-tooltip');
+        else $(document).find('.ddp-view-chart-contents').addClass('ddp-tooltip');
+
+        ////////////////////////////////////////////////////////
+        // Layer num & name
+        ////////////////////////////////////////////////////////
+        // Cluster check
+        let features = feature.get('features');
+        if (!isNullOrUndefined(features)) {
+          if (features.length > 1) {
+            return;
+          }
+          feature = features[0];
+        }
+
+        // 점 > 선 > 면
+        if (tooltipTypeToShow == null || this.getUiMapOption().layers[toolTipIndex].type == MapLayerType.SYMBOL) {
+          // Layer num & name
+          if (this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[17] !== null) {
+            console.log(this.getUiMapOption().layers[toolTipIndex].type);
+            // show point first
+            tooltipTypeToShow = this.getUiMapOption().layers[toolTipIndex].type;
+            this.tooltipInfo.num = toolTipIndex + 1;
+            this.tooltipInfo.name = this.getUiMapOption().layers[toolTipIndex].name;
+          } else {
+            this.tooltipInfo.name = null;
+          }
+
+          ////////////////////////////////////////////////////////
+          // Geometry Type
+          ////////////////////////////////////////////////////////
+          this.tooltipInfo.geometryType = feature.getGeometry().getType();
+
+          ////////////////////////////////////////////////////////
+          // Coordinates (Geo Info)
+          ////////////////////////////////////////////////////////
+          let coords = [0, 0];
+          let pointerX = coords[0].toFixed(4);
+          let pointerY = coords[1].toFixed(4);
+
+          if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.POINT)) || _.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
+            coords = feature.getGeometry().getCoordinates();
+          } else {
+            let extent = feature.getGeometry().getExtent();
+            coords = ol.extent.getCenter(extent);
+          }
+
+          this.tooltipInfo.coords = [];
+
+          if (this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[18] !== null) {
+
+            // Line Type
+            if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
+              this.tooltipInfo.coords[0] = coords[0];
+              this.tooltipInfo.coords[coords.length - 1] = coords[coords.length - 1];
+            }
+            // Other
+            else {
+              this.tooltipInfo.coords[0] = coords[0].toFixed(4) + ', ' + coords[1].toFixed(4);
+            }
+          }
+
+          ////////////////////////////////////////////////////////
+          // Field info (Data Value)
+          ////////////////////////////////////////////////////////
+
+          this.tooltipInfo.fields = [];
+
+          // Properties (DATA_VALUE)
+          if (this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[19] !== null) {
+
+            let aggregationKeys: any[] = [];
+            for (let key in feature.getProperties()) {
+              _.each(this.getUiMapOption().toolTip.displayColumns, (field, idx) => {
+                if (_.eq(field, key)) {
+                  aggregationKeys.push({idx: idx, key: key});
+                  return false;
+                }
+              });
+            }
+
+            _.each(_.orderBy(aggregationKeys, ['idx']), (aggregationKey) => {
+              let tooltipVal = feature.get(aggregationKey.key);
+              if (aggregationKey.key !== 'geometry' && aggregationKey.key !== 'weight' && aggregationKey.key !== 'layerNum') {
+                let field = {
+                  name: '',
+                  value: ''
+                };
+                if (aggregationKey.key === 'features') {
+                  field.name = aggregationKey.key;
+                  field.value = feature.get(aggregationKey.key).length;
+                } else {
+                  if (typeof (tooltipVal) === "number") {
+                    tooltipVal = FormatOptionConverter.getFormatValue(tooltipVal, this.getUiMapOption().valueFormat);
+                  }
+                  field.name = aggregationKey.key;
+                  field.value = tooltipVal;
+                }
+                this.tooltipInfo.fields.push(field);
+              }
+            });
+          }
+
+          ////////////////////////////////////////////////////////
+          // Apply
+          ////////////////////////////////////////////////////////
+
+          // if required values are empty, enable false
+          if (null === this.tooltipInfo.name && 0 === this.tooltipInfo.coords.length && 0 === this.tooltipInfo.fields.length) {
+            this.tooltipInfo.enable = false;
+          } else {
+            // Enable tooltip
+            this.tooltipInfo.enable = true;
+          }
+
+          // Element apply
+          this.changeDetect.detectChanges();
+
+          if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
+            let extent = feature.getGeometry().getExtent();
+            coords = ol.extent.getCenter(extent);
+            this.tooltipLayer.setPosition(coords);
+          } else {
+            this.tooltipLayer.setPosition(coords);
+          }
+        }
+      }
     }
-
-    ////////////////////////////////////////////////////////
-    // Apply
-    ////////////////////////////////////////////////////////
-
-    // if required values are empty, enable false
-    if (null === this.tooltipInfo.name && 0 === this.tooltipInfo.coords.length && 0 === this.tooltipInfo.fields.length) {
-      this.tooltipInfo.enable = false;
-
-      // Enable tooltip
-    } else this.tooltipInfo.enable = true;
-
-    // Element apply
-    this.changeDetect.detectChanges();
-
-    if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
-      let extent = feature.getGeometry().getExtent();
-      coords = ol.extent.getCenter(extent);
-      this.tooltipLayer.setPosition(coords);
-    } else {
-      this.tooltipLayer.setPosition(coords);
-    }
-  };
+  }
 
   /**
    * create drag interaction (for selection filter)
@@ -2413,7 +2428,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   private checkOption(uiOption: UIMapOption): void {
 
-    for( let index: number = 0 ; index < this.shelf.layers.length; index++ ) {
+    for (let index: number = 0; index < this.shelf.layers.length; index++) {
 
       let layer: UILayers = uiOption.layers[index];
       let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[index]);
@@ -2967,21 +2982,21 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     }
   }
 
-  public selectedLayer(selectedIndex:number) {
-    this.layerMap.forEach( item => {
-      item.layerValue.setZIndex(0);
-      if( item['id'] == selectedIndex ) {
-        item.layerValue.setZIndex(1);
-      }
-    });
-    this.changeDetect.detectChanges();
-  }
+  // public selectedLayer(selectedIndex:number) {
+  //   this.layerMap.forEach( item => {
+  //     item.layerValue.setZIndex(0);
+  //     if( item['id'] == selectedIndex ) {
+  //       item.layerValue.setZIndex(1);
+  //     }
+  //   });
+  //   this.changeDetect.detectChanges();
+  // }
 
   /**
    * check field list
    * @param shelf
    */
-  private checkFieldList(shelf : any) {
+  private checkFieldList(shelf: any) {
     // 선반값에서 해당 타입에 해당하는값만 field값으로 리턴
     const getShelveReturnField = ((shelf: any, typeList: ShelveFieldType[]): AbstractField[] => {
       const resultList: AbstractField[] = [];

@@ -8423,9 +8423,9 @@ em.ddp-icon-mapview3-w:before{display:inline-block; width:17px; height:15px; con
 
 em.ddp-icon-mapview2:before {background-position:-18px -16px;}
 em.ddp-icon-mapview3:before {background-position:-18px -32px;}
-em.ddp-icon-mapview1-w:before,
-em.ddp-icon-mapview2-w:before,
-em.ddp-icon-mapview3-w:before {background-position-x:0;}
+em.ddp-icon-mapview1-w:before {background-position:0 0;}
+em.ddp-icon-mapview2-w:before {background-position:0 -16px;}
+em.ddp-icon-mapview3-w:before {background-position:0 -32px;}
 
 .ddp-ui-shelf em.ddp-icon-mapview1,
 .ddp-ui-shelf em.ddp-icon-mapview2,

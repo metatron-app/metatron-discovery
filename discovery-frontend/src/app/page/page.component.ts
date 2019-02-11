@@ -4265,10 +4265,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.changeDetect.detectChanges();
   }
 
-  public onSelectLayer(index:number) {
-    this.mapChart.selectedLayer(index);
-
-    // 차트별 선반위치 변경
-    this.changeDetect.detectChanges();
-  }
+  // public onSelectLayer(index:number) {
+  //   this.mapChart.selectedLayer(index);
+  //   // 차트별 선반위치 변경
+  //   this.changeDetect.detectChanges();
+  // }
 }
