@@ -81,6 +81,8 @@
   "msg.comm.menu.admin.user.user": "Members",
   "msg.comm.menu.admin.user.grp": "Groups",
   "msg.comm.menu.admin.user.permission": "Discovery Permission",
+  "msg.comm.menu.admin.user.modal.change.owner.need.to.change": "Need to change",
+  "msg.comm.menu.admin.user.modal.change.owner.please.select": "Please select",
   "msg.comm.menu.admin.workspace" : "Workspaces",
   "msg.comm.menu.admin.workspace.shared" : "Workspace",
   "msg.comm.menu.admin.workspace.permission" : "Permission schemas",
