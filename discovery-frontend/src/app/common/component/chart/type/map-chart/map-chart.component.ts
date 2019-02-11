@@ -1722,7 +1722,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let styleOption: UIMapOption = this.getUiMapOption();
     let styleLayer: UILayers = styleOption.layers[layerNum];
     let styleData = data[layerNum];
-    let alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[styleOption.layerNum], styleLayer.color.aggregationType);
+    let alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[layerNum], styleLayer.color.aggregationType);
 
     return function (feature, resolution) {
 
@@ -1907,7 +1907,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     for (let toolTipIndex = 0; this.getUiMapOption().layers.length > toolTipIndex; toolTipIndex++) {
       ////////////////////////////////////////////////////////
-      // do not set tooltip for HEATMAP
+      // do not create tooltip for HEATMAP
       ////////////////////////////////////////////////////////
       if (MapLayerType.HEATMAP !== this.getUiMapOption().layers[toolTipIndex].type) {
 
@@ -1915,18 +1915,15 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         // Create tooltip layer
         ////////////////////////////////////////////////////////
         this.tooltipLayer = null;
-        if (!this.tooltipLayer) {
-
-          // Create
-          this.tooltipLayer = new ol.Overlay({
-            element: this.tooltipEl.nativeElement,
-            positioning: 'top-center',
-            stopEvent: false
-          });
-
-          // Add
-          this.olmap.addOverlay(this.tooltipLayer);
-        }
+        // Create
+        this.tooltipLayer = new ol.Overlay({
+          element: this.tooltipEl.nativeElement,
+          positioning: 'top-center',
+          stopEvent: false,
+          id: 'layerId' + (toolTipIndex + 1)
+        });
+        // Add
+        this.olmap.addOverlay(this.tooltipLayer);
 
         // set tooltip position
         if (this.uiOption.toolTip) {
@@ -1982,30 +1979,37 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   private tooltipFunction = (event) => {
 
-    let that = this;
+    let scope = this;
     let tooltipTypeToShow = null;
+
+    // Get feature
+    let feature = this.olmap.forEachFeatureAtPixel(event.pixel, (feature) => {
+      return feature;
+    });
+    // let feature = event.map.forEachFeatureAtPixel(event.pixel, (feature) => {
+    //   return feature;
+    // });
+    // console.log(this.olmap.getFeaturesAtPixel(event.pixel));
+    // console.log(this.olmap.hasFeatureAtPixel(event.pixel));
+
+    // feature check
+    if (!feature) {
+      // Disable tooltip
+      this.tooltipInfo.enable = false;
+      this.tooltipLayer.setPosition(undefined);
+      // remove z-index for tooltip
+      if (!this.isPage) $(document).find('.ddp-ui-dash-contents').removeClass('ddp-tooltip');
+      else $(document).find('.ddp-view-chart-contents').removeClass('ddp-tooltip');
+      return;
+    }
+
+    // get tooltip number from feature
+    let toolTipLayerNum = _.cloneDeep(!isNullOrUndefined(feature.getProperties().layerNum)?feature.getProperties().layerNum:!isNullOrUndefined(feature.getProperties().features[0].get('layerNum'))?feature.getProperties().features[0].get('layerNum'):0);
 
     for (let toolTipIndex = 0; this.getUiMapOption().layers.length > toolTipIndex; toolTipIndex++) {
       // do not set tooltip for HEATMAP
-      if (this.getUiMapOption().layers[toolTipIndex].type !== MapLayerType.HEATMAP) {
+      if (this.getUiMapOption().layers[toolTipLayerNum].type !== MapLayerType.HEATMAP) {
 
-        // Get feature
-        let feature = this.olmap.forEachFeatureAtPixel(event.pixel, (feature) => {
-          return feature;
-        });
-        // console.log(this.olmap.getFeaturesAtPixel(event.pixel));
-        // console.log(this.olmap.hasFeatureAtPixel(event.pixel));
-
-        // feature check
-        if (!feature) {
-          // Disable tooltip
-          this.tooltipInfo.enable = false;
-          this.tooltipLayer.setPosition(undefined);
-          // remove z-index for tooltip
-          if (!this.isPage) $(document).find('.ddp-ui-dash-contents').removeClass('ddp-tooltip');
-          else $(document).find('.ddp-view-chart-contents').removeClass('ddp-tooltip');
-          return;
-        }
         // set z-index for tooltip
         if (!this.isPage) $(document).find('.ddp-ui-dash-contents').addClass('ddp-tooltip');
         else $(document).find('.ddp-view-chart-contents').addClass('ddp-tooltip');
@@ -2026,11 +2030,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         if (tooltipTypeToShow == null || this.getUiMapOption().layers[toolTipIndex].type == MapLayerType.SYMBOL) {
           // Layer num & name
           if (this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[17] !== null) {
-            console.log(this.getUiMapOption().layers[toolTipIndex].type);
-            // show point first
-            tooltipTypeToShow = this.getUiMapOption().layers[toolTipIndex].type;
-            this.tooltipInfo.num = toolTipIndex + 1;
-            this.tooltipInfo.name = this.getUiMapOption().layers[toolTipIndex].name;
+            // tooltipTypeToShow = this.getUiMapOption().layers[feature.getProperties().features[0].get('layerNum')].type;
+            // this.tooltipInfo.num = toolTipIndex + 1;
+            // this.tooltipInfo.name = this.getUiMapOption().layers[toolTipIndex].name;
+            tooltipTypeToShow = this.getUiMapOption().layers[toolTipLayerNum].type;
+            this.tooltipInfo.num = toolTipLayerNum + 1;
+            this.tooltipInfo.name = this.getUiMapOption().layers[toolTipLayerNum].name;
+
           } else {
             this.tooltipInfo.name = null;
           }
