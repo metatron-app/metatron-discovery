@@ -198,17 +198,18 @@ export class MapPagePivotComponent extends PagePivotComponent {
       shelf = this.shelf.layers[0];
       shelfElement = this.$element.find('#layer0');
       fieldPivot = FieldPivot.MAP_LAYER0;
-
+      this.uiOption.layerNum = 0;
     } else if (targetContainer === 'layer1') {
       shelf = this.shelf.layers[1];
       shelfElement = this.$element.find('#layer1');
       fieldPivot = FieldPivot.MAP_LAYER1;
-
-    } else if (targetContainer === 'layer2') {
-      shelf = this.shelf.layers[2];
-      shelfElement = this.$element.find('#layer2');
-      fieldPivot = FieldPivot.MAP_LAYER2;
+      this.uiOption.layerNum = 1;
     }
+    // else if (targetContainer === 'layer2') {
+    //   shelf = this.shelf.layers[2];
+    //   shelfElement = this.$element.find('#layer2');
+    //   fieldPivot = FieldPivot.MAP_LAYER2;
+    // }
 
     const idx = shelf.findIndex((field) => {
       return field.name === targetField.name && targetField.biType === field.biType;
@@ -334,17 +335,18 @@ export class MapPagePivotComponent extends PagePivotComponent {
       shelf = this.shelf.layers[0];
       shelfElement = this.$element.find('#layer0');
       fieldPivot = FieldPivot.MAP_LAYER0;
-
+      this.uiOption.layerNum = 0;
     } else if (targetContainer === 'layer1') {
       shelf = this.shelf.layers[1];
       shelfElement = this.$element.find('#layer1');
       fieldPivot = FieldPivot.MAP_LAYER1;
-
-    } else if (targetContainer === 'layer2') {
-      shelf = this.shelf.layers[2];
-      shelfElement = this.$element.find('#layer2');
-      fieldPivot = FieldPivot.MAP_LAYER2;
+      this.uiOption.layerNum = 1;
     }
+    // else if (targetContainer === 'layer2') {
+    //   shelf = this.shelf.layers[2];
+    //   shelfElement = this.$element.find('#layer2');
+    //   fieldPivot = FieldPivot.MAP_LAYER2;
+    // }
 
     // 선반의 위치가 다른선반으로 이동시에만 설정
     if (pivotField.currentPivot !== fieldPivot) {

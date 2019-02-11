@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.workbook.configurations.datasource;
 
+import com.google.common.base.Preconditions;
+
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonTypeName;
@@ -21,6 +23,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  *
@@ -29,12 +32,12 @@ import java.util.Map;
 public class MultiDataSource extends DataSource {
 
   /**
-   * 선택된 데이터 소스 목록
+   * list of datasource
    */
   List<DataSource> dataSources;
 
   /**
-   * 데이터 소스간 연결 정보
+   * association with datasources
    */
   List<Association> associations;
 
@@ -46,6 +49,20 @@ public class MultiDataSource extends DataSource {
                          @JsonProperty("associations") List<Association> associations) {
     this.dataSources = dataSources;
     this.associations = associations;
+  }
+
+  /**
+   * find datasource by name (in multiple datasource)
+   */
+  public Optional<DataSource> getDatasourceByName(String name) {
+    Preconditions.checkNotNull(name, "Name of datasource is required.");
+
+    for (DataSource dataSource : dataSources) {
+      if (name.equals(dataSource.getName())) {
+        return Optional.of(dataSource);
+      }
+    }
+    return Optional.empty();
   }
 
   public List<DataSource> getDataSources() {
@@ -67,17 +84,17 @@ public class MultiDataSource extends DataSource {
   public static class Association implements Serializable {
 
     /**
-     * 주 연결 데이터 소스 명 (engineName)
+     * source datasource name
      */
     String source;
 
     /**
-     * 타겟 연결 데이터 소스 명 (engineName)
+     * target datasource name
      */
     String target;
 
     /**
-     * 연결 컬럼 정보 ("주 연결 데이터소스 컬럼명" : "주 연결 데이터소스 컬럼명")
+     * column pair for association ("column name of source datasource" : "column name of target datasource")
      */
     Map<String, String> columnPair;
 

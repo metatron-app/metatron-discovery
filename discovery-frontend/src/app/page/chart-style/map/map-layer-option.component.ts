@@ -241,7 +241,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     if ((MapLayerType.TILE === cloneLayerType || MapLayerType.TILE === layerType) && cloneLayerType !== layerType) {
 
       // call search api (for precision setting)
-      this.applyLayers({type : EventType.CHANGE_PIVOT});
+      this.applyLayers({type : EventType.MAP_CHANGE_OPTION});
       return;
     }
 

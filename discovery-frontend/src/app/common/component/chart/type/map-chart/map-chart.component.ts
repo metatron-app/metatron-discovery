@@ -32,7 +32,7 @@ import {ColorRange} from '../../option/ui-option/ui-color';
 import {
   ChartColorList,
   ChartSelectMode,
-  ChartType,
+  ChartType, EventType,
   ShelveFieldType,
   UIChartDataLabelDisplayType,
   UIPosition,
@@ -49,7 +49,7 @@ import {LogicalType} from '../../../../../domain/datasource/datasource';
 import {GeoField} from '../../../../../domain/workbook/configurations/field/geo-field';
 import {TooltipOptionConverter} from '../../option/converter/tooltip-option-converter';
 import {ChartUtil} from '../../option/util/chart-util';
-import {isNullOrUndefined} from 'util';
+import {isNullOrUndefined, isUndefined} from 'util';
 import {UIHeatmapLayer} from '../../option/ui-option/map/ui-heatmap-layer';
 import {UIPolygonLayer} from '../../option/ui-option/map/ui-polygon-layer';
 import {UITileLayer} from '../../option/ui-option/map/ui-tile-layer';
@@ -2378,7 +2378,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         // _.each(this.shelf.layers[this.getUiMapOption().layerNum], (field) => {
         _.each(this.shelf.layers[num], (field) => {
           if ('user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') != -1)) {
-            colorInfo.column = field.alias;
+            colorInfo.column = ( isUndefined( field.alias ) ? field.fieldAlias : field.alias );
             return false;
           }
         });
@@ -2475,9 +2475,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         }
       }
 
-      // Option panel change cancle
-      if (!this.drawByType || String(this.drawByType) == "") {
-        return;
+      // Option panel change cancel, not current shelf change
+      if (!this.drawByType || String(this.drawByType) == "" || ( EventType.CHANGE_PIVOT == this.drawByType && uiOption.layerNum != index ) ) {
+        continue;
       }
 
       ////////////////////////////////////////////////////////
@@ -2592,10 +2592,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       else if (isMeasure) {
         layer.color.by = MapBy.MEASURE;
         layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : 'VC1';
-        // layer.color.column = this.uiOption.fieldMeasureList[0]['name'];
         layer.color.column = uiOption.fieldMeasureList[0]['name'];
         layer.color.aggregationType = uiOption.fieldMeasureList[0]['aggregationType'];
-        // layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(uiOption, this.data[uiOption.layerNum], this.getColorList(layer), uiOption.layerNum, shelf);
         layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(uiOption, this.data[index], this.getColorList(layer), index, shelf);
       }
       ///////////////////////////
@@ -2685,7 +2683,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         else if (isMeasure) {
           lineLayer.thickness.by = MapBy.MEASURE;
           lineLayer.thickness.column = this.uiOption.fieldMeasureList[0]['name'];
-          // lineLayer.thickness.column = uiOption.fieldMeasureList[uiOption.layerNum]['name'];
         }
       }
       ////////////////////////////////////////////////////////

@@ -27,8 +27,8 @@ import app.metatron.discovery.domain.workbook.configurations.chart.ChartLegend;
 import app.metatron.discovery.domain.workbook.configurations.chart.ChartToolTip;
 import app.metatron.discovery.domain.workbook.configurations.chart.MapChart;
 import app.metatron.discovery.domain.workbook.configurations.chart.MapChartLayer;
-import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
+import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
@@ -102,17 +102,18 @@ public class WidgetConfigurationTest {
   @Test
   public void de_serializeMapPageWidgetConfiguration() throws IOException {
 
-    DataSource dataSource = new DefaultDataSource("datasource_name");
+    MultiDataSource dataSource = new MultiDataSource(Lists.newArrayList(new DefaultDataSource("datasource_name1"),
+                                                                        new DefaultDataSource("datasource_name2")), null);
 
     List<Filter> filters = Lists.newArrayList(
         new InclusionFilter("f1", Lists.newArrayList("v1", "v2", "v3"))
     );
 
+    GeoShelf.Layer layer1 = new GeoShelf.Layer("layer1", "datasource_name1", Lists.newArrayList(new DimensionField("Geo1"), new DimensionField("region")));
+    GeoShelf.Layer layer2 = new GeoShelf.Layer("layer2", "datasource_name2", Lists.newArrayList(new DimensionField("Geo1"), new DimensionField("Geo2"), new MeasureField("measure")));
+
     Shelf geoShelf = new GeoShelf(
-        Lists.newArrayList(
-            Lists.newArrayList(Lists.newArrayList(new DimensionField("Geo1"), new DimensionField("region"))),
-            Lists.newArrayList(Lists.newArrayList(new DimensionField("Geo1"), new DimensionField("Geo2"), new MeasureField("measure")))
-        )
+        Lists.newArrayList(layer1, layer2)
     );
 
     // Layers

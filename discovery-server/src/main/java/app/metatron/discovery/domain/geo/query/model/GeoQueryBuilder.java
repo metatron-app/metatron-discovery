@@ -50,6 +50,7 @@ import app.metatron.discovery.domain.geo.query.model.filter.OrOperator;
 import app.metatron.discovery.domain.geo.query.model.filter.PropertyIsBetween;
 import app.metatron.discovery.domain.geo.query.model.filter.PropertyIsEqualTo;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
+import app.metatron.discovery.domain.workbook.configurations.analysis.Analysis;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MappingDataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
@@ -71,10 +72,10 @@ import app.metatron.discovery.domain.workbook.configurations.filter.TimeListFilt
 import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoBoundaryFormat;
-import app.metatron.discovery.domain.workbook.configurations.format.GeoFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoHashFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoJoinFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
 import app.metatron.discovery.query.druid.AbstractQueryBuilder;
 import app.metatron.discovery.query.druid.Aggregation;
 import app.metatron.discovery.query.druid.Dimension;
@@ -133,6 +134,25 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
     srsName = "EPSG:4326";
   }
 
+  public GeoQueryBuilder dataSourceRole(List<GeoShelf.Layer> layers, Analysis analysis) {
+    if (analysis == null) {
+      // assume that layer is only one
+      GeoShelf.Layer layer = layers.get(0);
+      if (dataSource instanceof MultiDataSource) {
+        mainDataSource = ((MultiDataSource) dataSource).getDatasourceByName(layer.getRef())
+                                                       .map(ds -> ds.getName())
+                                                       .orElseThrow(() -> new IllegalArgumentException("'ref' value in layer doesn't include multi-datasource"));
+      } else {
+        mainDataSource = dataSource.getName();
+      }
+
+    } else {
+      // TODO: multi-layer case
+    }
+
+    return this;
+  }
+
   public GeoQueryBuilder initVirtualColumns(List<UserDefinedField> userFields) {
 
     setVirtualColumns(userFields);
@@ -145,8 +165,6 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
     if (propertyNames == null) {
       propertyNames = Lists.newArrayList();
     }
-
-    setMainDataSource(projections);
 
     enableAggrExtension = needAggregationExtension(projections);
 
@@ -362,18 +380,18 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
     return false;
   }
 
-  private void setMainDataSource(List<Field> projections) {
-    if (dataSource instanceof MultiDataSource) {
-      for (Field field : projections) {
-        if (field.getFormat() instanceof GeoFormat
-            && !(field.getFormat() instanceof GeoJoinFormat)) {
-          mainDataSource = field.getRef();
-        }
-      }
-    } else {
-      mainDataSource = dataSource.getName();
-    }
-  }
+  //  private void setMainDataSource(List<Field> projections) {
+  //    if (dataSource instanceof MultiDataSource) {
+  //      for (Field field : projections) {
+  //        if (field.getFormat() instanceof GeoFormat
+  //            && !(field.getFormat() instanceof GeoJoinFormat)) {
+  //          mainDataSource = field.getRef();
+  //        }
+  //      }
+  //    } else {
+  //      mainDataSource = dataSource.getName();
+  //    }
+  //  }
 
   public GeoQueryBuilder limit(Limit limit) {
     if (limit == null) {
