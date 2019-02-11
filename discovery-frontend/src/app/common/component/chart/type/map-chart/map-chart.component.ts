@@ -355,7 +355,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     }
 
     if (!this.isCurrentShelfValid(this.shelf)) {
-      return;
+      this.removeLayer(this.getUiMapOption().layerNum);
     }
 
     // Test!
@@ -2431,6 +2431,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           return false;
         }
       });
+
+      // Option panel change cancel, not current shelf change
+      if (!this.drawByType || String(this.drawByType) == "" || ( EventType.CHANGE_PIVOT == this.drawByType && uiOption.layerNum != index )
+        || isNullOrUndefined( field )  ) {
+        continue;
+      }
+
       let geomType = field.field.logicalType.toString();
 
       // Set layer type
@@ -2458,11 +2465,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         if (_.isUndefined(symbolLayer.clustering) || symbolLayer.clustering == null) {
           symbolLayer.clustering = true;
         }
-      }
-
-      // Option panel change cancel, not current shelf change
-      if (!this.drawByType || String(this.drawByType) == "" || ( EventType.CHANGE_PIVOT == this.drawByType && uiOption.layerNum != index ) ) {
-        continue;
       }
 
       ////////////////////////////////////////////////////////
@@ -2994,6 +2996,26 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.uiOption.fieldMeasureList = getShelveReturnField(shelf, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
     // 색상지정 기준 필드리스트 설정(dimension list)
     this.uiOption.fielDimensionList = getShelveReturnField(shelf, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+  }
+
+  /**
+   * remove layer
+   * @param layerNumber
+   */
+  private removeLayer( layerNumber : number ){
+
+    if( this.getUiMapOption().layers.length < (layerNumber+1) ) {
+      return;
+    }
+
+    this.layerMap.forEach((item, index) => {
+      if (layerNumber == index) {
+        this.olmap.removeLayer(item.layerValue)
+      }
+    });
+
+    this.layerMap.splice( layerNumber, 1 );
+
   }
 
 }
