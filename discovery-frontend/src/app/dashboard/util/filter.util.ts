@@ -49,6 +49,7 @@ import {
   IntervalSelectorType
 } from '../../domain/workbook/configurations/filter/interval-filter';
 import {DIRECTION} from '../../domain/workbook/configurations/sort';
+import {TimezoneService} from "../../data-storage/service/timezone.service";
 
 declare let moment;
 
@@ -334,7 +335,11 @@ export class FilterUtil {
     } // end if - time_range
     else if (FilterUtil.isTimeRelativeFilter(filter)) {
       const timeRelativeFilter: TimeRelativeFilter = <TimeRelativeFilter>filter;
-      (timeRelativeFilter.timezone) || (timeRelativeFilter.timezone = moment.tz.guess());
+      if( timeRelativeFilter.clzField && timeRelativeFilter.clzField.format && TimezoneService.DISABLE_TIMEZONE_KEY === timeRelativeFilter.clzField.format.timeZone ) {
+        delete timeRelativeFilter.timezone;
+      } else {
+        (timeRelativeFilter.timezone) || (timeRelativeFilter.timezone = moment.tz.guess());
+      }
     } // end if - time_relative
 
     return filter;
@@ -410,7 +415,11 @@ export class FilterUtil {
     } // end if - time_range
     else if (FilterUtil.isTimeRelativeFilter(filter)) {
       const timeRelativeFilter: TimeRelativeFilter = <TimeRelativeFilter>filter;
-      (timeRelativeFilter.timezone) || (timeRelativeFilter.timezone = moment.tz.guess());
+      if( timeRelativeFilter.clzField && timeRelativeFilter.clzField.format && TimezoneService.DISABLE_TIMEZONE_KEY === timeRelativeFilter.clzField.format.timeZone ) {
+        delete timeRelativeFilter.timezone;
+      } else {
+        (timeRelativeFilter.timezone) || (timeRelativeFilter.timezone = moment.tz.guess());
+      }
     } // end if - time_relative
 
     return filter;
