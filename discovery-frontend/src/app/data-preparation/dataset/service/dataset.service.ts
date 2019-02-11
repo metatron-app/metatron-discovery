@@ -133,42 +133,6 @@ export class DatasetService extends AbstractService {
   }
 
 
-  // staging connection info 가져오기
-  public getStagingConnectionInfo() {
-    return this.get(this.API_URL + 'preparationdatasets/getStagingConnection');
-  }
-
-  public setConnInfo(info:any) {
-    this.connInfo = info;
-  }
-
-  /**
-   * Staging : Get database list
-   * @returns {Promise<any>}
-   */
-  public getStagingSchemas() {
-    const params:any = {};
-    params.connection = this.connInfo;
-
-    return this.post(this.API_URL + 'preparationdatasets/query/schemas', params);
-  } // function - getStagingSchemas
-
-
-  /**
-   * Staging : Get tables from selected database
-   * @param {string} schema
-   * @returns {Promise<any>}
-   */
-  public getStagingTables(schema:string) {
-    const params:any = {};
-    params.connection = this.connInfo;
-    params.schema = schema;
-
-    return this.post(this.API_URL + 'preparationdatasets/query/tables', params);
-  } // function - getStagingTables
-
-
-
   public getStagingTableData(schema:string, table:string) {
 
     const query = 'select * from '+ table;

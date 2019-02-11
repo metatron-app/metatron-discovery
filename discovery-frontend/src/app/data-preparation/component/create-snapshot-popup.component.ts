@@ -31,6 +31,7 @@ import { DataflowService } from '../dataflow/service/dataflow.service';
 import { PopupService } from '../../common/service/popup.service';
 import { HiveFileCompression, Engine, PrDataSnapshot, SsType, UriFileFormat } from '../../domain/data-preparation/pr-snapshot';
 import { Field } from '../../domain/data-preparation/pr-dataset';
+import {DataconnectionService} from "../../dataconnection/service/dataconnection.service";
 
 @Component({
   selector: 'create-snapshot-popup',
@@ -94,7 +95,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected popupService: PopupService,
+  constructor(private _connectionService: DataconnectionService,
+              protected popupService: PopupService,
               protected dataflowService: DataflowService,
               protected datasetService: DatasetService,
               protected elementRef: ElementRef,
@@ -139,7 +141,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
     this._initialiseValues();
 
-    this.getConfig();
+    this.getStagingConfig();
 
   } // function - init
 
@@ -351,11 +353,18 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     this.isAdvancedPrefOpen = !this.isAdvancedPrefOpen;
   } // function - openAdvancedPref
 
-  public getConfig() {
-    this.loadingShow();
+
+  /**
+   * Fetch Staging configuration (databases and etc)
+   */
+  public getStagingConfig() {
+
+
     this.dataflowService.getConfiguration(this.datasetId)
       .then((conf) => {
-        if( !isUndefined(conf['ss_name']) ) {
+
+        // SS NAME
+        if(conf.hasOwnProperty('ss_name')) {
           this.ssName = conf['ss_name'];
         } else {
           let today = moment();
@@ -363,55 +372,44 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         }
         this.snapshot.ssName = this.ssName;
 
-        if( !isUndefined(conf['file_uri']) ) {
+        // FILE URI
+        if(conf.hasOwnProperty('file_uri')) {
           this.fileLocations = [];
           this.fileUris = [];
+
           for( let locType in conf['file_uri'] ) {
-            let loc = locType.toUpperCase();
+            const loc = locType.toUpperCase();
             this.fileLocations.push( { 'value': loc, 'label': loc } );
             this.fileUris.push( conf['file_uri'][locType] );
           }
 
-          if(0<this.fileLocations.length) {
+          if(0 < this.fileLocations.length) {
             this.snapshot.storedUri = this.fileUris[0];
             if (['.csv','.json'].indexOf(this.snapshot.storedUri) < 0) this.snapshot.storedUri += '.csv';
           }
         }
 
-        if( !isUndefined(conf['hive_info']) ) {
-          let connInfo: any = {};
-          connInfo.implementor = 'HIVE';
-          connInfo.hostname = conf['hive_info'].hostname;
-          connInfo.port = conf['hive_info'].port;
-          connInfo.username = conf['hive_info'].username;
-          connInfo.password = conf['hive_info'].password;
-          connInfo.url = conf['hive_info'].custom_url;
-          //connInfo.nothing = conf['hive_info'].metastore_uris;
+        if (this.isStagingEnabled()) {
+          this._connectionService.getDatabaseForHive().then((data) => {
+            this.dbList = [];
+            if (data['databases']) {
+              this.dbList = data['databases'];
+            }
 
-          this.datasetService.setConnInfo(connInfo);
-          this.isHiveDisable = false;
-
-          this.datasetService.getStagingSchemas().then((data) => {
-            this.dbList = data;
-            //this.snapshot.dbName = data[0];
             if (this.dbList.length === 0 ) {
               this.isHiveDisable = true;
             }
-          }).catch(() => {
+
+          }).catch((error) => {
             this.isHiveDisable = true;
+            this.commonExceptionHandler(error);
           });
-        } else {
-          this.isHiveDisable = true;
         }
 
         this.changeSsType(SsType.URI);
         this.loadingHide();
-      })
-      .catch((error) => {
-        this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
+
   }
 
 

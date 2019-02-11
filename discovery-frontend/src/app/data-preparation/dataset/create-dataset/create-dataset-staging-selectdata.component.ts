@@ -25,6 +25,7 @@ import { GridOption } from '../../../common/component/grid/grid.option';
 import { StringUtil } from '../../../common/util/string.util';
 import * as $ from "jquery";
 import { isNullOrUndefined } from "util";
+import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
 
 @Component({
   selector: 'app-create-dataset-staging-selectdata',
@@ -147,6 +148,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   // 생성자
   constructor(private popupService: PopupService,
               private datasetService: DatasetService,
+              private _connectionService: DataconnectionService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -683,69 +685,47 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
    */
   private getDatabases() {
     this.loadingShow();
-    this.datasetService.getStagingConnectionInfo().then((data) => {
-
-      if (data.errorMsg) {
-        Alert.error(data.errorMsg);
-        this.loadingHide();
+    this._connectionService.getDatabaseForHive().then((result) => {
+      this.loadingHide();
+      if (!result['databases']) {
+        Alert.error('No databases');
       } else {
+        result['databases'].forEach((item, index) => {
+          this.databaseList.push({idx : index, name : item, selected : false})
+        });
+        // TABLE && GRID INFO
+        if (this.datasetHive.rsType === RsType.TABLE && this.datasetHive.tableInfo.headers) {
 
-        this.datasetService.setConnInfo(data);
+          this.clearGrid = false;
+          this.getTables(this.datasetHive.tableInfo.databaseName);
+          this._drawGrid(this.datasetHive.tableInfo.headers,this.datasetHive.tableInfo.rows);
 
-        this.datasetService.getStagingSchemas().then((data) => {
+          // QUERY AND GRID INFO
+        } else if (this.datasetHive.rsType === RsType.QUERY && this.datasetHive.sqlInfo.queryStmt) {
 
-          this.loadingHide();
-
-          this.databaseList = [];
-
-          if (data) {
-            data.forEach((item, index) => {
-              this.databaseList.push({idx : index, name : item, selected : false})
-            })
-          }
-
-          // TABLE && GRID INFO
-          if (this.datasetHive.rsType === RsType.TABLE && this.datasetHive.tableInfo.headers) {
-
-            this.clearGrid = false;
+          if (this.datasetHive.tableInfo && this.datasetHive.tableInfo.databaseName) {
             this.getTables(this.datasetHive.tableInfo.databaseName);
-            this._drawGrid(this.datasetHive.tableInfo.headers,this.datasetHive.tableInfo.rows);
-
-            // QUERY AND GRID INFO
-          } else if (this.datasetHive.rsType === RsType.QUERY && this.datasetHive.sqlInfo.queryStmt) {
-
-            if (this.datasetHive.tableInfo && this.datasetHive.tableInfo.databaseName) {
-              this.getTables(this.datasetHive.tableInfo.databaseName);
-            }
-
-            // GRID INFO O
-            if (this.datasetHive.sqlInfo.headers.length > 0) {
-              this.clearGrid = false;
-              this._drawGrid(this.datasetHive.sqlInfo.headers,this.datasetHive.sqlInfo.rows);
-            } else {
-
-              // GRID INFO X
-              this.clickable = true;
-              this.clearGrid = true;
-            }
-
-          } else {  // Neither
-            this.showDatabaseList();
           }
 
-        })
-          .catch((error) => {
-            this.loadingHide();
-            let prep_error = this.dataprepExceptionHandler(error);
-            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-          });
+          // GRID INFO O
+          if (this.datasetHive.sqlInfo.headers.length > 0) {
+            this.clearGrid = false;
+            this._drawGrid(this.datasetHive.sqlInfo.headers,this.datasetHive.sqlInfo.rows);
+          } else {
+
+            // GRID INFO X
+            this.clickable = true;
+            this.clearGrid = true;
+          }
+
+        } else {  // Neither
+          this.showDatabaseList();
+        }
       }
-    })
-      .catch((error) => {
-        this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-      });
+    }).catch((error) => {
+      this.loadingHide();
+    });
+
   } // function - getDatabases
 
 
@@ -756,17 +736,15 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
   private getTables(database:string) {
     this.loadingShow();
 
-    this.datasetService.getStagingTables(database).then((data) => {
-
+    this._connectionService.getTableForHive(database).then((result) => {
       this.loadingHide();
       this.schemaList = [];
 
-      if (data) {
-        for (let idx = 0, nMax = data.length; idx < nMax; idx = idx + 1) {
-          this.schemaList.push({ idx : idx, name : data[idx], selected : false });
-        }
+      if (result['tables']) {
+        result['tables'].forEach((item, index) => {
+          this.schemaList.push({ idx : index, name : item, selected : false });
+        });
         this.isTableEmpty = false;
-
       } else {
         this.schemaList = [];
         this.datasetHive.tableInfo.tableName = undefined;
@@ -778,16 +756,12 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
           this.gridComponent.destroy();
         }
       }
+
+    }).catch((error) => {
+      this.loadingHide();
+      this.commonExceptionHandler(error);
     })
-      .catch((error) => {
 
-        this.schemaList = [];
-        this.isTableEmpty = true;
-
-        this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-      });
   } // function - getTables
 
 
