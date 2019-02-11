@@ -177,5 +177,5 @@
 <!-- //confirm modal -->
 
 <!-- change-workspace-owner modal -->
-<change-workspace-owner-modal *ngIf="false"></change-workspace-owner-modal>
+<change-workspace-owner-modal (onComplete)="showDeleteUserConfirm($event);"></change-workspace-owner-modal>
 <!-- //change-workspace-owner modal -->
