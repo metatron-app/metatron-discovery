@@ -325,7 +325,13 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    * @private
    */
   private _getTimezoneLabel(format: FieldFormat): string {
-    return (format && format.type === FieldFormatType.UNIX_TIME) ?  'Unix time'  : this.timezoneService.getConvertedTimezoneUTCLabel(this.timezoneService.getTimezoneObject(format).utc);
+    if (format && format && format.type === FieldFormatType.UNIX_TIME) {
+      return 'Unix time';
+    } else if (format && format.type === FieldFormatType.DATE_TIME) {
+      return this.timezoneService.isEnableTimezoneInDateFormat(format.format) ? this.timezoneService.getConvertedTimezoneUTCLabel(this.timezoneService.getTimezoneObject(format).utc) : '';
+    } else {
+      return this.timezoneService.getConvertedTimezoneUTCLabel(this.timezoneService.getTimezoneObject(format).utc);
+    }
   }
 
   /**
