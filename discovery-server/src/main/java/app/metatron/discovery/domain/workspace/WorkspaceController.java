@@ -810,7 +810,11 @@ public class WorkspaceController {
       throw new ResourceNotFoundException(workspaceId);
     }
 
-    if (cachedUserService.findUser(owner) == null) {
+    final User user = cachedUserService.findUser(owner);
+    if (user == null) {
+      throw new BadRequestException("Invalid username of owner : " + owner);
+    }
+    if (!workspace.checkMemberExistByUserName(user)) {
       throw new BadRequestException("Invalid username of owner : " + owner);
     }
 

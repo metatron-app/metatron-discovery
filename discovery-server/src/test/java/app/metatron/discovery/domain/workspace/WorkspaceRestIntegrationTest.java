@@ -574,6 +574,28 @@ public class WorkspaceRestIntegrationTest extends AbstractRestIntegrationTest {
   @Test
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_WORKSPACE_MANAGE_WORKSPACE"})
   @Sql("/sql/test_shared_workspace_list.sql")
+  public void delegate_workspace_owner_to_users_not_exist_in_the_workspace_member_list() {
+
+    String workspaceId = "ws-0001";
+    String ownerId = "guest";
+
+    // @formatter:off
+    given()
+            .auth().oauth2(oauth_token)
+            .contentType(ContentType.JSON)
+            .log().all()
+            .when()
+            .post("/api/workspaces/{id}/delegate/{ownername}", workspaceId, ownerId)
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.SC_BAD_REQUEST);
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_WORKSPACE_MANAGE_WORKSPACE"})
+  @Sql("/sql/test_shared_workspace_list.sql")
   public void updateLastAccessWorkspace() throws JsonProcessingException {
 
     String workspaceId = "ws-0001";
