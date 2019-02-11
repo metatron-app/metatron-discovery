@@ -302,8 +302,7 @@ export class ChangeWorkspaceOwnerModalComponent extends AbstractPopupComponent i
         this.onComplete.emit({byPass: true});
       },
       (error) => {
-        this.loadingHide();
-        Alert.error(error);
+        this.commonExceptionHandler(error);
         this.show(this._deleteTargetUserid);
       },
     );
