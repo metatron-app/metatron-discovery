@@ -1351,8 +1351,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.isCanceled = false;
     this.executeTabIds = [];
     this.executeEditorId = item.editorId;
-    item.startDate = '';
-    item.finishDate = '';
 
     this.workbenchService.checkConnectionStatus(item.editorId, this.websocketId)
       .then((result) => {
@@ -3246,6 +3244,9 @@ class ResultTab {
     this.resultStatus = 'NONE';
     this.result = undefined;
     this.name = 'Loading..';
+    this.startDate = undefined;
+    this.finishDate = undefined;
+    this.message = undefined;
     this.appendLog(this.sql);
     this.setExecuteStatus('GET_CONNECTION');
   } // function - initialize
