@@ -1,0 +1,65 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--suppress NsUnresolvedStyleClassReference, HtmlFormInputWithoutLabel -->
+<div *ngIf="isShow" class="ddp-wrap-layout-popup">
+  <div class="ddp-ui-layout-popup">
+    <div class="ddp-box-popup3">
+      <a href="javascript:" class="ddp-btn-close" (click)="selfHide()"></a>
+      <!-- title -->
+      <div class="ddp-pop-title">
+        <!-- TODO: 다국어 처리가 필요한지 체크 필요 -->
+        Change owner
+        <div class="ddp-txt-pop-info ">
+          <!-- TODO: 다국어 처리 필요 -->
+          <strong>{{ workspaces.length | number: '1.0-3' }}</strong>개의 공유워크스페이스의 오너를 변경해 주세요
+        </div>
+      </div>
+      <div class="pop-box-owner" (scroll)="workspacesScrollEvent()">
+        <!-- division -->
+        <div class="ddp-ui-division" *ngFor="let workspace of workspaces; let index = index;">
+
+          <!-- top -->
+          <div workspace-detail
+               [workspace]="workspace"
+               [member]="members[index]">
+          </div>
+          <!-- //top -->
+
+          <div class="ddp-data-description" *ngIf="workspace.description && workspace.description.length > 0">
+            {{ workspace.description }}
+          </div>
+        </div>
+        <!-- //division -->
+      </div>
+      <!-- //box -->
+
+      <!-- button -->
+      <div class="ddp-ui-buttons">
+        <!-- TODO: 공통에 있는 메세지를 사용했는데 상관 없을지 확인 필요 -->
+        <!--suppress JSUnresolvedFunction -->
+        <a href="javascript:" class="ddp-btn-type-popup" (click)="selfHide()">
+          {{ 'msg.comm.btn.cancl' | translate }}
+        </a>
+        <!-- disabled 시 ddp-disabled 추가 -->
+        <!-- TODO: 공통에 있는 메세지를 사용했는데 상관 없을지 확인 필요 -->
+        <!--suppress JSUnresolvedFunction -->
+        <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="complete()">
+          {{ 'msg.comm.btn.modal.done' | translate}}
+        </a>
+      </div>
+      <!-- //button -->
+    </div>
+  </div>
+</div>
