@@ -19,11 +19,15 @@
       <a href="javascript:" class="ddp-btn-close" (click)="selfHide()"></a>
       <!-- title -->
       <div class="ddp-pop-title">
-        <!-- TODO: 다국어 처리가 필요한지 체크 필요 -->
-        Change owner
-        <div class="ddp-txt-pop-info ">
-          <!-- TODO: 다국어 처리 필요 -->
-          <strong>{{ workspaces.length | number: '1.0-3' }}</strong>개의 공유워크스페이스의 오너를 변경해 주세요
+        {{ 'msg.comm.menu.admin.user.modal.title' | translate }}
+        <div class="ddp-txt-pop-info" *ngIf="translateService.getBrowserLang() === 'ko'">
+          <strong>{{ workspaces.length | number: '1.0-3' }}</strong>{{ 'msg.comm.menu.admin.user.modal.description.last' | translate }}
+        </div>
+        <div class="ddp-txt-pop-info" *ngIf="translateService.getBrowserLang() === 'en'">
+          {{ 'msg.comm.menu.admin.user.modal.description.first' | translate }} <strong>{{ workspaces.length | number: '1.0-3' }}</strong> {{ 'msg.comm.menu.admin.user.modal.description.last' | translate }}
+        </div>
+        <div class="ddp-txt-pop-info" *ngIf="translateService.getBrowserLang() === 'zh'">
+          {{ 'msg.comm.menu.admin.user.modal.description.first' | translate }}<strong>{{ workspaces.length | number: '1.0-3' }}</strong>{{ 'msg.comm.menu.admin.user.modal.description.last' | translate }}
         </div>
       </div>
       <div class="pop-box-owner" (scroll)="workspacesScrollEvent()">
@@ -56,7 +60,7 @@
         <!-- TODO: 공통에 있는 메세지를 사용했는데 상관 없을지 확인 필요 -->
         <!--suppress JSUnresolvedFunction -->
         <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="complete()">
-          {{ 'msg.comm.btn.modal.done' | translate}}
+          {{ 'msg.comm.btn.modal.done' | translate }}
         </a>
       </div>
       <!-- //button -->
