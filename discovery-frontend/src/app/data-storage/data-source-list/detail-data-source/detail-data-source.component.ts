@@ -28,6 +28,7 @@ import {MetadataService} from '../../../meta-data-management/metadata/service/me
 import {Metadata} from '../../../domain/meta-data-management/metadata';
 import {CookieConstant} from '../../../common/constant/cookie.constant';
 import {CommonConstant} from '../../../common/constant/common.constant';
+import { Message } from '@stomp/stompjs';
 
 @Component({
   selector: 'app-detail-datasource',
@@ -207,7 +208,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     super.ngOnDestroy();
     // if exist _subscribe
     if (this._subscribe) {
-      CommonConstant.stomp.unsubscribe(this._subscribe);
+      this._subscribe.unsubscribe();
     }
   }
 
@@ -545,8 +546,11 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     try {
       const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
       // 메세지 수신
-      this._subscribe = CommonConstant.stomp.subscribe(
-        `/topic/datasources/${datasourceId}/progress`, (data: { progress: number, message: string, results: any }) => {
+      this._subscribe = CommonConstant.stomp.watch( `/topic/datasources/${datasourceId}/progress` )
+        .subscribe((msg: Message) => {
+
+          const data: { progress: number, message: string, results: any } = JSON.parse( msg.body );
+
           console.log('process socket', data);
           // if has history
           if (data.results && data.results.history) {
@@ -570,12 +574,12 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
               };
             }
             // disconnect websocket
-            CommonConstant.stomp.unsubscribe(this._subscribe);
+            this._subscribe.unsubscribe();
           } else if (100 === data.progress) { // 성공시
             // set status
             this.datasource.status = Status.ENABLED;
             // disconnect websocket
-            CommonConstant.stomp.unsubscribe(this._subscribe);
+            this._subscribe.unsubscribe();
           }
         }, headers);
     } catch (e) {

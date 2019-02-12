@@ -21,9 +21,9 @@ import { MomentDatePipe } from '../../../common/pipe/moment.date.pipe';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import * as $ from 'jquery';
 import { PageResult } from '../../../domain/common/page';
-import * as Clipboard from "clipboard";
 import { CommonUtil } from '../../../common/util/common.util';
 import { AuditService } from '../service/audit.service';
+import { ClipboardService } from 'ngx-clipboard';
 
 @Component({
   selector: 'app-log-statistics-detail',
@@ -78,7 +78,9 @@ export class LogStatisticsDetailComponent extends AbstractComponent implements O
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected element: ElementRef, protected auditService : AuditService,
+  constructor(private _clipboardService: ClipboardService,
+              protected auditService : AuditService,
+              protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
   }
@@ -306,11 +308,7 @@ export class LogStatisticsDetailComponent extends AbstractComponent implements O
    * copy clipboard
    */
   public copyToClipboard(data) {
-
-    const option = {
-      text: () => data
-    };
-    new Clipboard(this.element.nativeElement, option);
+    this._clipboardService.copyFromContent( data );
   }
 
   /**

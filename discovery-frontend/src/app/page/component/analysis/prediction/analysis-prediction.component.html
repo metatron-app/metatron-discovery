@@ -21,7 +21,7 @@
     </div>
 
     <!-- TODO: inline style 은 추후에 제거할 예정 -->
-    <div class="ddp-ui-down-contents" style="display: ;">
+    <div class="ddp-ui-down-contents" >
 
         <!-- active -->
         <!-- 활성화 off 일 때 ddp-disabled 추가 -->
@@ -74,7 +74,7 @@
                                class="ddp-input-typebasic"
                                #predictionInterval
                                input-mask="number"
-                               [ngModel]="data.analysis.analysis.interval"
+                               [ngModel]="data.analysis.analysis.interval + ''"
                                (blur)="blurPredictionInterval(predictionInterval);"
                                (keyup.enter)="keyupEnterPredictionInterval(predictionInterval.value);">
                         <!-- selectbox -->
@@ -161,7 +161,7 @@
                                        input-mask="float"
                                        #selectedForecastParameterAlpha
                                        [disabled]="selectedForecastParameter.isAlphaDisabled || !selectedForecastParameter.isAlphaSelected"
-                                       [ngModel]="selectedForecastParameter.alpha"
+                                       [ngModel]="selectedForecastParameter.alpha + ''"
                                        (blur)="blurSelectedForecastParameterAlpha(selectedForecastParameterAlpha);"
                                        (keyup.enter)="keyupEnterSelectedForecastParameterAlpha(selectedForecastParameterAlpha)"
                                        maxlength="5"
@@ -191,7 +191,7 @@
                                        input-mask="float"
                                        #selectedForecastParameterBeta
                                        [disabled]="selectedForecastParameter.isBetaDisabled || !selectedForecastParameter.isBetaSelected"
-                                       [ngModel]="selectedForecastParameter.beta"
+                                       [ngModel]="selectedForecastParameter.beta + ''"
                                        (blur)="blurSelectedForecastParameterBeta(selectedForecastParameterBeta);"
                                        (keyup.enter)="keyupEnterSelectedForecastParameterBeta(selectedForecastParameterBeta);"
                                        maxlength="5"
@@ -223,7 +223,7 @@
                                        input-mask="float"
                                        #selectedForecastParameterGamma
                                        [disabled]="selectedForecastParameter.isGammaDisabled || !selectedForecastParameter.isGammaSelected"
-                                       [ngModel]="selectedForecastParameter.gamma"
+                                       [ngModel]="selectedForecastParameter.gamma + ''"
                                        (blur)="blurSelectedForecastParameterGamma(selectedForecastParameterGamma);"
                                        (keyup.enter)="keyupEnterSelectedForecastParameterGamma(selectedForecastParameterGamma);"
                                        maxlength="5"
@@ -250,7 +250,7 @@
                                    placeholder="0.000"
                                    input-mask="number"
                                    [disabled]="selectedForecastParameter.isAuto || !selectedForecastParameter.isPeriodSelected"
-                                   [ngModel]="selectedForecastParameter.period"
+                                   [ngModel]="selectedForecastParameter.period + ''"
                                    (keyup.enter)="changeAdvancedPeriod(advancedPeriod)">
                           </div>
                         </div>
@@ -417,7 +417,7 @@
                                 <input type="text"
                                        #confidenceTransparency
                                        input-mask="number"
-                                       [ngModel]="data.analysis.analysis.confidence.style.transparency"
+                                       [ngModel]="data.analysis.analysis.confidence.style.transparency + ''"
                                        (blur)="blurConfidenceTransparency(confidenceTransparency);"
                                        (keyup.enter)="keyupConfidenceTransparency(confidenceTransparency);">
                                 <span class="ddp-txt-input ddp-dark">{{LABEL.PROCENT}}</span>

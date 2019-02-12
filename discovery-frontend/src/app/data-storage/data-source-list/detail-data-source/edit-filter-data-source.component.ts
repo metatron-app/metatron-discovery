@@ -334,13 +334,13 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
     // add
     _.forEach(filteringList, (column) =>{
       // get column exist in origin filtered column list
-      const temp = _.find(this._originFilteringColumnList, originColumn => originColumn.id === column.id);
+      const temp = _.find(this._originFilteringColumnList, originColumn => originColumn.id === column['id']);
       // If is not exist in the origin filtered list
       // If different seq
       // If different filteringOptions
       if (!temp
-        || temp.filteringSeq !== column.filteringSeq
-        || ((temp.filteringOptions && !column.filteringOptions) || (!temp.filteringOptions && column.filteringOptions))) {
+        || temp.filteringSeq !== column['filteringSeq']
+        || ((temp.filteringOptions && !column['filteringOptions']) || (!temp.filteringOptions && column['filteringOptions']))) {
         column['op'] = 'replace';
         result.push(column);
       }
@@ -348,7 +348,7 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
     // remove
     _.forEach(this._originFilteringColumnList, (originColumn) => {
       // If is not exist in the filtered list, add
-      if (_.every(filteringList, column => column.id!== originColumn.id)) {
+      if (_.every(filteringList, column => column['id'] !== originColumn.id)) {
         originColumn['op'] = 'replace';
         originColumn['filtering'] = false;
         result.push(originColumn);

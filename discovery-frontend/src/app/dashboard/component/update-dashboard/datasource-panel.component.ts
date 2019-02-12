@@ -192,11 +192,11 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
       this.boardDs = DashboardUtil.getBoardDataSourceFromDataSource( this.dashboard, dataSource );
 
       this.dsFields = _.cloneDeep( DashboardUtil.getFieldsForMainDataSource(boardConf, dataSource.engineName) );
+      this._totalFields = this.dsFields;
       if( boardConf.customFields ) {
         this.dsCustomFields = boardConf.customFields.filter( filter => filter.dataSource === this.boardDs.engineName );
-        this._totalFields = this.dsFields.concat(this.dsCustomFields);
-      } else {
-        this._totalFields = this.dsFields;
+        // this._totalFields = this.dsFields.concat(this.dsCustomFields);
+        this._totalFields = this._totalFields.concat(this.dsCustomFields);
       }
 
       this._setFields();
@@ -582,7 +582,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     totalFields.forEach(field => {
       field.useChartFilter = false;
       field.useFilter = false;
-      field['isCustomMeasure'] = this.isCustomMeasureField(field);
+      field['isCustomMeasure'] = this.isCustomMeasureField(<Field>field);
     });
 
     // 필드로 필터 사용판단

@@ -13,7 +13,7 @@
  */
 
 import { Injectable, Injector } from '@angular/core';
-import { Headers, Http, Response, } from '@angular/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CommonConstant } from '../constant/common.constant';
 import 'rxjs/add/operator/toPromise';
 import { User } from '../../domain/user/user';
@@ -31,7 +31,7 @@ import { CommonUtil } from '../util/common.util';
 export class AbstractService {
 
   // HTTP Module
-  protected http: Http;
+  protected http: HttpClient;
 
   // API URL Prefix
   protected API_URL: string = CommonConstant.API_CONSTANT.API_URL;
@@ -53,7 +53,7 @@ export class AbstractService {
 
   // 생성자
   constructor(protected injector: Injector) {
-    this.http = injector.get(Http);
+    this.http = injector.get(HttpClient);
     this.cookieService = injector.get(CookieService);
     this.router = injector.get(Router);
   }
@@ -71,7 +71,7 @@ export class AbstractService {
     const url = this.OAUTH_URL + 'token';
 
     // 헤더
-    const headers = new Headers({
+    const headers = new HttpHeaders({
       'Content-Type': 'application/x-www-form-urlencoded',
       Authorization: 'Basic cG9sYXJpc19jbGllbnQ6cG9sYXJpcw==',
     });
@@ -81,7 +81,6 @@ export class AbstractService {
       url, 'grant_type=password&scope=write&username=' + user.username + '&password=' + user.password,
       { headers })
       .toPromise()
-      .then(response => scope.resultHandler(scope, response))
       .catch(error => scope.errorHandler(scope, error));
   }
 
@@ -100,7 +99,7 @@ export class AbstractService {
       + this.cookieService.get(CookieConstant.KEY.REFRESH_LOGIN_TOKEN);
 
     // 헤더
-    const headers = new Headers({
+    const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: 'Basic cG9sYXJpc19jbGllbnQ6cG9sYXJpcw==',
     });
@@ -108,7 +107,6 @@ export class AbstractService {
     // 호출
     return this.http.post(url, null, { headers })
       .toPromise()
-      .then(response => scope.resultHandler(scope, response))
       .catch(error => scope.tokenRefreshFail(scope, error));
   }
 
@@ -120,7 +118,7 @@ export class AbstractService {
     const scope: any = this;
 
     // 헤더
-    const headers = new Headers({
+    const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
         + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
@@ -130,14 +128,12 @@ export class AbstractService {
     if (timeout) { // with timeout
       return this.http.get(url, { headers }).timeout(20000)
         .toPromise()
-        .then(response => scope.resultHandler(scope, response))
         .catch(error => scope.errorHandler(scope, error, httpMethod.GET));
 
     } else {
       // 호출
       return this.http.get(url, { headers })
         .toPromise()
-        .then(response => scope.resultHandler(scope, response))
         .catch(error => scope.errorHandler(scope, error, httpMethod.GET));
     }
 
@@ -155,7 +151,7 @@ export class AbstractService {
     const scope: any = this;
 
     // 헤더
-    const headers = new Headers({
+    const headers = new HttpHeaders({
       'Content-Type': 'multipart/form-data',
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
         + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
@@ -165,14 +161,12 @@ export class AbstractService {
     if (timeout) { // with timeout
       return this.http.get(url, { headers }).timeout(20000)
         .toPromise()
-        .then(response => scope.resultHandler(scope, response))
         .catch(error => scope.errorHandler(scope, error, httpMethod.GET));
 
     } else {
       // 호출
       return this.http.get(url, { headers })
         .toPromise()
-        .then(response => scope.resultHandler(scope, response))
         .catch(error => scope.errorHandler(scope, error, httpMethod.GET));
     }
 
@@ -185,7 +179,7 @@ export class AbstractService {
     const scope: any = this;
 
     // 헤더
-    const headers = new Headers({
+    const headers = new HttpHeaders({
       'Content-Type': 'text/html',
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
         + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
@@ -195,7 +189,6 @@ export class AbstractService {
     // 호출
     return this.http.get(url, { headers })
       .toPromise()
-      .then(response => scope.resultHandler(scope, response))
       .catch(error => scope.errorHandler(scope, error, httpMethod.GET));
 
   }
@@ -209,7 +202,6 @@ export class AbstractService {
     // 호출
     return this.http.get(url)
       .toPromise()
-      .then(response => scope.resultHandler(scope, response))
       .catch(error => scope.errorHandler(scope, error));
   }
 
@@ -220,7 +212,7 @@ export class AbstractService {
     const scope: any = this;
 
     // 헤더
-    const headers = new Headers({
+    const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
         + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
@@ -231,7 +223,6 @@ export class AbstractService {
       // 호출
       return this.http.post(url, JSON.stringify(data), { headers })
         .toPromise()
-        .then(response => scope.resultHandler(scope, response))
         .catch(error => scope.errorHandler(scope, error, httpMethod.POST, data));
     } catch (err) {
       console.error( err );
@@ -244,7 +235,7 @@ export class AbstractService {
   protected postBinary2(url: string, data: any): void {
     const scope: any = this;
     // 헤더
-    const headers = new Headers({
+    const headers = new HttpHeaders({
       Accept: 'application/octet-stream',
       'Content-Type': 'application/json',
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
@@ -264,7 +255,7 @@ export class AbstractService {
     // this
     const scope: any = this;
     // 헤더
-    const headers = new Headers({
+    const headers = new HttpHeaders({
       Accept: 'application/octet-stream',
       'Content-Type': 'application/json',
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
@@ -285,7 +276,7 @@ export class AbstractService {
     const scope: any = this;
 
     // 헤더
-    const headers = new Headers({
+    const headers = new HttpHeaders({
       'Content-Type': contentType,
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
         + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
@@ -298,9 +289,7 @@ export class AbstractService {
     // 호출
     return this.http.patch(url, body, { headers })
       .toPromise()
-      .then(response => scope.resultHandler(scope, response))
       .catch(error => scope.errorHandler(scope, error, httpMethod.POST, data));
-
   }
 
 
@@ -311,12 +300,11 @@ export class AbstractService {
     const scope: any = this;
 
     // 헤더
-    const headers = new Headers({ 'Content-Type': 'application/json' });
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
 
     // 호출
     return this.http.post(url, JSON.stringify(data), { headers })
       .toPromise()
-      .then(response => scope.resultHandler(scope, response))
       .catch(error => scope.errorHandler(scope, error));
   }
 
@@ -331,7 +319,7 @@ export class AbstractService {
       type = contentType;
     }
     // 헤더
-    const headers = new Headers({
+    const headers = new HttpHeaders({
       'Content-Type': type,
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
         + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
@@ -343,7 +331,6 @@ export class AbstractService {
     // 호출
     return this.http.put(url, params, { headers })
       .toPromise()
-      .then(response => scope.resultHandler(scope, response))
       .catch(error => scope.errorHandler(scope, error, httpMethod.PUT, data));
 
   }
@@ -355,15 +342,12 @@ export class AbstractService {
     const scope: any = this;
 
     // 헤더
-    const headers = new Headers({ 'Content-Type': 'application/json' });
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
 
     // 호출
     return this.http.put(url, JSON.stringify(data), { headers })
       .toPromise()
-      .then(response => scope.resultHandler(scope, response))
       .catch(error => scope.errorHandler(scope, error));
-
-
   }
 
   // delete
@@ -373,7 +357,7 @@ export class AbstractService {
     const scope: any = this;
 
     // 헤더
-    const headers = new Headers({
+    const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
         + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
@@ -383,7 +367,6 @@ export class AbstractService {
     // 호출
     return this.http.delete(url, { headers })
       .toPromise()
-      .then(response => scope.resultHandler(scope, response))
       .catch(error => scope.errorHandler(scope, error, httpMethod.DELETE));
 
   }
@@ -397,28 +380,9 @@ export class AbstractService {
     // 호출
     return this.http.delete(url)
       .toPromise()
-      .then(response => scope.resultHandler(scope, response))
       .catch(error => scope.errorHandler(scope, error));
 
 
-  }
-
-  // 결과 핸들러
-  protected resultHandler(scope: any, response: Response): Promise<any> {
-
-    // TODO 결과에 따라서 오류 검증
-    if (response.status >= 200 && response.status < 300) {
-      // response data가 없을 경우
-      if (response['_body'] === '') {
-        return Promise.resolve('');
-      } else {
-        return response.json();
-      }
-
-    }
-
-    // 에러 발생
-    throw new Error(response.json().message);
   }
 
   protected resultDownHandler(scope: any, response: Response): Promise<any> {
@@ -427,7 +391,8 @@ export class AbstractService {
       return Promise.resolve(response['_body']);
     }
     // 에러 발생
-    throw new Error(response.json().message);
+    // throw new Error(response.json().message);
+    throw new Error(response.statusText);
   }
 
   // error 핸들러
@@ -436,7 +401,7 @@ export class AbstractService {
     let errorMessage: any;
     if (error.status && error.status !== 404) {
       try {
-        errorMessage = error ? error.json() : 'Server error';
+        errorMessage = ( error && error['error'] ) ? error['error'] : 'Server error';
       } catch (e) {
         errorMessage = 'Server error';
       }
@@ -460,7 +425,7 @@ export class AbstractService {
           service.cookieService.set(CookieConstant.KEY.REFRESH_LOGIN_TOKEN, token.refresh_token, 0, '/');
 
           // 헤더
-          const headers = new Headers({
+          const headers = new HttpHeaders({
             'Content-Type': 'application/json',
             Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
               + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),

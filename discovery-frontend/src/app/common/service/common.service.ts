@@ -13,19 +13,12 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../common/service/abstract.service';
+import { HttpHeaders } from '@angular/common/http';
 import 'rxjs/add/operator/toPromise';
-import {Workspace, Workspaces} from '../../domain/workspace/workspace';
-import {BookTree} from '../../domain/workspace/book';
-import {CommonUtil} from '../../common/util/common.util';
-import {Page} from '../../domain/common/page';
-import {SYSTEM_PERMISSION} from '../../common/permission/permission';
-import {PermissionService} from '../../user/service/permission.service';
-import {RoleSet} from '../../domain/user/role/roleSet';
 import {saveAs} from 'file-saver';
-import {CookieConstant} from '../../common/constant/cookie.constant';
-import {Headers, ResponseContentType} from '@angular/http';
 import {Extension} from "../domain/extension";
+import {CookieConstant} from "../constant/cookie.constant";
+import {AbstractService} from "./abstract.service";
 
 @Injectable()
 export class CommonService extends AbstractService {
@@ -54,16 +47,16 @@ export class CommonService extends AbstractService {
    */
   public downloadManual(lang: string) {
 
-    const headers = new Headers({
+    const headers = new HttpHeaders({
       'Accept': 'application/pdf,*/*;',
       'Content-Type': 'application/octet-binary',
       'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
         + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
     });
     this.http.get(this.API_URL + `common/manual/download?lang=${lang}`,
-      {headers: headers, responseType: ResponseContentType.Blob})
+      {headers: headers, responseType: 'blob'})
       .toPromise()
-      .then((result) => saveAs(result.blob(), 'metatronDiscovery.user.manual.pdf'));
+      .then((result) => saveAs(result, 'metatronDiscovery.user.manual.pdf'));
 
   } // function - downloadManual
 }

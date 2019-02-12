@@ -21,7 +21,7 @@
  */
 
 import { CookieService } from 'ng2-cookies';
-import { TranslateService } from 'ng2-translate';
+import { TranslateService } from '@ngx-translate/core';
 
 class APIConstant {
 

@@ -528,7 +528,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
       link.target = link.target + CHART_STRING_DELIMITER + link.targetField;
 
       // nodes의 fields값에서 sourceField이면서 name값과 source값이 같은경우
-      _.find(this.data.nodes, (item) => {
+      _.forEach(this.data.nodes, (item) => {
 
         // set the source that exists in multiple fields
         if (item.fields.length > 1 && item.originalName === link.source.split(CHART_STRING_DELIMITER)[0]) {

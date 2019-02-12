@@ -1154,7 +1154,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     let idx = _.findIndex(this.chartFilters, {field: field.name});
     if (idx > -1) useFilterList.push(this.chartFilters[idx].type + '_' + this.chartFilters[idx].field);
     // 글로벌필터에서 사용중인지 체크
-    const boardFilter: Filter = DashboardUtil.getBoardFilter(this.dashboard, field);
+    const boardFilter: Filter = DashboardUtil.getBoardFilter(this.dashboard, <Field>field);
     (boardFilter) && (useFilterList.push(boardFilter.type + '_' + boardFilter.field));
 
     // 사용중인 곳이 있으면 알림 팝업

@@ -13,7 +13,6 @@
  */
 
 import * as _ from 'lodash';
-import waterfall from 'async/waterfall';
 import { Injectable, Injector } from '@angular/core';
 import { AbstractService } from '../../common/service/abstract.service';
 import 'rxjs/add/operator/toPromise';
@@ -23,6 +22,8 @@ import { BoardGlobalOptions } from '../../domain/dashboard/dashboard.globalOptio
 import { FilterUtil } from '../util/filter.util';
 import { MetadataService } from '../../meta-data-management/metadata/service/metadata.service';
 import { CommonUtil } from '../../common/util/common.util';
+
+declare let async;
 
 @Injectable()
 export class DashboardService extends AbstractService {
@@ -99,7 +100,7 @@ export class DashboardService extends AbstractService {
               }).catch(() => callback())
             });
           });
-          waterfall(procMetas, () => {
+          async.waterfall(procMetas, () => {
             resolve(board);
           });
         })
