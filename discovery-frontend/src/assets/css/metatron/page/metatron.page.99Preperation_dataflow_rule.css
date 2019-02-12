@@ -53,4 +53,7 @@
 .page-prep-dataflow .ddp-box-warning .ddp-txt-warning {display:none; position:absolute; top:100%; right:0; padding:7px 10px; margin-top:2px; background-color:#e9b017; color:#fff; font-size:12px; white-space:nowrap; border-radius:2px;}
 .page-prep-dataflow .ddp-box-warning:hover .ddp-txt-warning {display:block;}
 
+.page-prep-dataflow .slick-headerrow-column.ui-state-default {border-right:1px solid #ebebed;}
+.page-prep-dataflow .slick-headerrow.ui-state-default {border-top:1px solid #ebebed;}
+
 

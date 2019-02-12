@@ -733,7 +733,10 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
           'line-height': '29px',
           'white-space': 'nowrap',
           'text-overflow': 'ellipsis',
-          'overflow': 'hidden'
+          'overflow': 'hidden',
+          'paddingLeft' : '9px',
+          'paddingRight' : '9px',
+          'box-sizing' :'border-box'
         })
         .appendTo(args.node);
 
