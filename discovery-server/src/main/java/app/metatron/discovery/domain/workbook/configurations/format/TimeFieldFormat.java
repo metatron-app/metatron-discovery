@@ -31,6 +31,8 @@ public abstract class TimeFieldFormat {
 
   public static final String DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
+  public static final String DISABLE_TIMEZONE = "DISABLE_ZONE";
+
   String timeZone;
 
   String locale;
@@ -44,10 +46,15 @@ public abstract class TimeFieldFormat {
   }
 
   public TimeFieldFormat(String timeZone, String locale, String filteringType) {
-    try {
-      this.timeZone = timeZone == null ? EngineQueryProperties.getDefaultTimezone() : DateTimeZone.forID(timeZone).toString();
-    } catch (Exception e) {
-      throw new BadRequestException("Invalid timezone ID : " + e.getMessage());
+
+    if (DISABLE_TIMEZONE.equalsIgnoreCase(timeZone)) {
+      this.timeZone = timeZone;
+    } else {
+      try {
+        this.timeZone = timeZone == null ? EngineQueryProperties.getDefaultTimezone() : DateTimeZone.forID(timeZone).toString();
+      } catch (Exception e) {
+        throw new BadRequestException("Invalid timezone ID : " + e.getMessage());
+      }
     }
 
     try {
@@ -57,6 +64,14 @@ public abstract class TimeFieldFormat {
     }
 
     this.filteringType = EnumUtils.getUpperCaseEnum(FilteringType.class, filteringType);
+  }
+
+  public String selectTimezone() {
+    if (DISABLE_TIMEZONE.equalsIgnoreCase(timeZone)) {
+      return "UTC";
+    } else {
+      return timeZone;
+    }
   }
 
   public String getTimeZone() {

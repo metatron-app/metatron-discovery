@@ -428,8 +428,7 @@
                         {{selectedField.format ? selectedField.format.format : selectedField.format}}
                       </td>
                     </tr>
-                    <!-- only show time type -->
-                    <tr *ngIf="!isUnixTypeField(selectedField)">
+                    <tr *ngIf="isEnableTimezone(selectedField)">
                       <th>
                         {{'msg.storage.ui.timezone' | translate}}
                       </th>
@@ -437,7 +436,6 @@
                         {{getTimezoneLabelInColumn(selectedField.format)}}
                       </td>
                     </tr>
-                    <!-- //only show time type -->
                   </ng-container>
                   <tr>
                     <th>

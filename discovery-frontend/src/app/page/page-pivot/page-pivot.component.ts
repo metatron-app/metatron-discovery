@@ -2008,6 +2008,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             shelf[idx].format.type = String(UIFormatType.TIME_CONTINUOUS);
             shelf[idx].format.discontinuous = false;
             shelf[idx].format.unit = copiedTimestampList[0].id;
+            if( field.field && field.field.format ) {
+              shelf[idx].format.timeZone = field.field.format.timeZone;
+            }
           }
           // 최초 granularity 설정
         } else {
@@ -2020,6 +2023,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             shelf[idx].format.type = String(UIFormatType.TIME_CONTINUOUS);
             shelf[idx].format.discontinuous = false;
             shelf[idx].format.unit = copiedTimestampList[0].id;
+            if( field.field && field.field.format ) {
+              shelf[idx].format.timeZone = field.field.format.timeZone;
+            }
           }
           else if (shelf[idx].field.role === FieldRole.DIMENSION) {
 
@@ -2028,6 +2034,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             shelf[idx].format.type = String(UIFormatType.TIME_CONTINUOUS);
             shelf[idx].format.discontinuous = false;
             shelf[idx].format.unit = TimeUnit.NONE;
+            if( field.field && field.field.format ) {
+              shelf[idx].format.timeZone = field.field.format.timeZone;
+            }
           }
         }
 

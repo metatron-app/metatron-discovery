@@ -311,8 +311,14 @@ export class DatasourceService extends AbstractService {
               if ((LogicalType.TIMESTAMP.toString() === field.type.toUpperCase()
                 || LogicalType.TIMESTAMP.toString() === field.subType
                 || LogicalType.TIMESTAMP.toString() === field.subRole) && field.format) {
-                field.format['timeZone'] = this._timezoneSvc.browserTimezone.momentName;
-                field.format['locale'] = this._timezoneSvc.browserLocal;
+                const dsField:Field = dataSourceFields.find( item => item.name === field.name );
+                if( dsField && dsField.format && TimezoneService.DISABLE_TIMEZONE_KEY === dsField.format['timeZone'] ) {
+                  delete field.format['timeZone'];
+                  delete field.format['locale'];
+                } else {
+                  field.format['timeZone'] = this._timezoneSvc.browserTimezone.momentName;
+                  field.format['locale'] = this._timezoneSvc.browserLocal;
+                }
               }
             });
           });
@@ -331,8 +337,14 @@ export class DatasourceService extends AbstractService {
             if ((LogicalType.TIMESTAMP.toString() === column.type.toUpperCase()
               || LogicalType.TIMESTAMP.toString() === column.subType
               || LogicalType.TIMESTAMP.toString() === column.subRole) && column.format) {
-              column.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
-              column.format.locale = this._timezoneSvc.browserLocal;
+              const dsField:Field = dataSourceFields.find( item => item.name === column.name );
+              if( dsField && dsField.format && TimezoneService.DISABLE_TIMEZONE_KEY === dsField.format['timeZone'] ) {
+                delete column.format['timeZone'];
+                delete column.format['locale'];
+              } else {
+                column.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
+                column.format.locale = this._timezoneSvc.browserLocal;
+              }
             }
           });
         }
@@ -341,8 +353,14 @@ export class DatasourceService extends AbstractService {
             if ((LogicalType.TIMESTAMP.toString() === row.type.toUpperCase()
               || LogicalType.TIMESTAMP.toString() === row.subType
               || LogicalType.TIMESTAMP.toString() === row.subRole) && row.format) {
-              row.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
-              row.format.locale = this._timezoneSvc.browserLocal;
+              const dsField:Field = dataSourceFields.find( item => item.name === row.name );
+              if( dsField && dsField.format && TimezoneService.DISABLE_TIMEZONE_KEY === dsField.format['timeZone'] ) {
+                delete row.format['timeZone'];
+                delete row.format['locale'];
+              } else {
+                row.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
+                row.format.locale = this._timezoneSvc.browserLocal;
+              }
             }
           });
         }

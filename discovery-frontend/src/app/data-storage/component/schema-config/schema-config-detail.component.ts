@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, EventEmitter, Injector, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {
   Field,
   FieldFormat,
@@ -26,8 +26,8 @@ import {
   IngestionRuleType,
   LogicalType
 } from '../../../domain/datasource/datasource';
-import { StringUtil } from '../../../common/util/string.util';
-import {TimezoneService, TimeZoneObject} from "../../service/timezone.service";
+import {StringUtil} from '../../../common/util/string.util';
+import {TimeZoneObject, TimezoneService} from "../../service/timezone.service";
 
 declare let moment: any;
 
@@ -172,8 +172,6 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   @Output()
   public changedFieldLogicalType: EventEmitter<any> = new EventEmitter();
 
-  // TODO
-  public browserTimezone: TimeZoneObject;
   // filtered timezone list
   public filteredTimezoneList: TimeZoneObject[];
   // search keyword
@@ -463,6 +461,15 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   }
 
   /**
+   * Is enable timezone
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isEnableTimezone(field: Field): boolean {
+    return field.logicalType === LogicalType.TIMESTAMP && this.isTimeTypeField(field) && field.isValidTimeFormat && this._timezoneService.isEnableTimezoneInDateFormat(field.format);
+  }
+
+  /**
    * Logical type list show flag change event
    */
   public onChangeLogicalTypeListShowFlag(): void {
@@ -529,9 +536,6 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
         if (LogicalType.TIMESTAMP === type.value) {
           // init format in field
           field.format = new FieldFormat();
-          // TODO set browser timezone at field
-          field.format.timeZone = this._timezoneService.browserTimezone.momentName;
-          field.format.locale = this._timezoneService.browserLocal;
           // if not exist field data
           if (this.selectedFieldDataList.length === 0) {
             // set timestamp error
@@ -548,6 +552,13 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
                   field.format.format = result.pattern;
                   // set time format valid message
                   field.isValidTimeFormat = true;
+                  // if enable timezone, set browser timezone at field
+                  if (this._timezoneService.isEnableTimezoneInDateFormat(field.format)) {
+                    !field.format.timeZone && (field.format.timeZone = this._timezoneService.browserTimezone.momentName);
+                    field.format.locale = this._timezoneService.browserLocal;
+                  } else { // if not enable timezone
+                    field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
+                  }
                 }
               })
               .catch((error) => {
@@ -720,6 +731,13 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
         if (result.valid) {
           // set time format valid TRUE
           field.isValidTimeFormat = true;
+          // if enable timezone, set browser timezone at field
+          if (this._timezoneService.isEnableTimezoneInDateFormat(field.format)) {
+            !field.format.timeZone && (field.format.timeZone = this._timezoneService.browserTimezone.momentName);
+            field.format.locale = this._timezoneService.browserLocal;
+          } else { // if not enable timezone
+            field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
+          }
         } else {
           // set time format valid FALSE
           field.isValidTimeFormat = false;

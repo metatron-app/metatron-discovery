@@ -30,7 +30,7 @@ import * as _ from 'lodash';
 import { Alert } from '../../../common/util/alert.util';
 import { SchemaConfigActionBarComponent } from './schema-config-action-bar.component';
 import { SchemaConfigDetailComponent } from './schema-config-detail.component';
-import { TimezoneService, TimeZoneObject } from "../../service/timezone.service";
+import { TimezoneService } from "../../service/timezone.service";
 
 @Component({
   selector: 'schema-config-component',
@@ -545,9 +545,6 @@ export class SchemaConfigComponent extends AbstractComponent {
     timestampFieldList.forEach((field: Field) => {
       // init format
       field.format = new FieldFormat();
-      // TODO set browser timezone at field
-      field.format.timeZone =  this._timezoneService.browserTimezone.momentName;
-      field.format.locale = this._timezoneService.browserLocal;
       // field data
       const fieldDataList: any[] = this._getFieldDataList(field);
       // if not exist field data
@@ -749,6 +746,13 @@ export class SchemaConfigComponent extends AbstractComponent {
             field.format.format = result.pattern;
             // set time format valid TRUE
             field.isValidTimeFormat = true;
+            // if enable timezone, set browser timezone at field
+            if (this._timezoneService.isEnableTimezoneInDateFormat(field.format)) {
+              !field.format.timeZone && (field.format.timeZone = this._timezoneService.browserTimezone.momentName);
+              field.format.locale = this._timezoneService.browserLocal;
+            } else { // if not enable timezone
+              field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
+            }
           }
           resolve(result);
         })
