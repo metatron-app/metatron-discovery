@@ -12,10 +12,6 @@
  * limitations under the License.
  */
 
-//import {calcPossibleSecurityContexts} from "@angular/compiler/src/template_parser/binding_parser";
-
-import {StorageService} from "../../data-storage/service/storage.service";
-
 declare let moment : any;
 import { isUndefined } from 'util';
 import { Alert } from '../../common/util/alert.util';
@@ -32,6 +28,7 @@ import { PopupService } from '../../common/service/popup.service';
 import { HiveFileCompression, Engine, PrDataSnapshot, SsType, UriFileFormat } from '../../domain/data-preparation/pr-snapshot';
 import { Field } from '../../domain/data-preparation/pr-dataset';
 import {DataconnectionService} from "../../dataconnection/service/dataconnection.service";
+import {StorageService} from "../../data-storage/service/storage.service";
 
 @Component({
   selector: 'create-snapshot-popup',
@@ -77,7 +74,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
   public dbList : any [] = []; // db name list
 
-  public isHiveDisable : boolean = false;
   public isAdvancedPrefOpen : boolean = false;
 
   public fileLocationDefaultIdx : number = 0;
@@ -90,11 +86,10 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
   @Output()
   public snapshotCloseEvent = new EventEmitter();
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(private _connectionService: DataconnectionService,
               protected popupService: PopupService,
               protected dataflowService: DataflowService,
@@ -108,19 +103,12 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Override Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
   public ngOnInit() {
-
-    // Init
     super.ngOnInit();
 
   }
 
-  // Destory
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
@@ -307,7 +295,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     this.snapshot.ssName = this.ssName;
     this.snapshot.ssType = sstype;
 
-    if (!this.isHiveDisable && sstype === SsType.STAGING_DB) {
+    if (sstype === SsType.STAGING_DB) {
       this.snapshot.dbName = this.dbList[0];
       this.snapshot.tblName = 'snapshot1';
       this.snapshot.appendMode = this.overwriteMethod[0].value;
@@ -396,12 +384,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
               this.dbList = data['databases'];
             }
 
-            if (this.dbList.length === 0 ) {
-              this.isHiveDisable = true;
-            }
-
           }).catch((error) => {
-            this.isHiveDisable = true;
             this.commonExceptionHandler(error);
           });
         }
