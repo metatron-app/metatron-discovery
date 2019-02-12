@@ -82,6 +82,9 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
   // clear grid
   public clearGrid: boolean = true;
 
+  // table list error flag
+  public isTableListError: boolean;
+
   @Output()
   public stepChange: EventEmitter<string> = new EventEmitter();
 
@@ -475,11 +478,15 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
   private _setTableList(databaseName: string): void {
     // loading show
     this.loadingShow();
+    // init table list error
+    this.isTableListError = false;
     // 테이블 리스트 조회
     this.connectionService.getTablesWitoutId(this._getTableParams(databaseName))
       .then((result: {tables: string[]}) => {
         // 테이블 목록 저장
         this.tableList = result.tables || [];
+        // if not exist table list, set table list error TRUE
+        this.tableList.length === 0 && (this.isTableListError = true);
         // loading hide
         this.loadingHide();
       })
@@ -522,7 +529,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
         if (Tab.TABLE === selectedTab) {
           // 테이블 상세데이터 저장
           this.tableResultData = error;
-          // set message (only table)
+          // override message (only table)
           this.tableResultData.message = this.translateService.instant('msg.storage.ui.connection.jdbc.table.error');
         } else {
           // 쿼리 데이터 저장
@@ -656,6 +663,8 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
     this.searchTextDatabaseInQuery = data.searchTextDatabaseInQuery;
     // search text table
     this.searchTextTable = data.searchTextTable;
+    // if not exist table list, set table list error TRUE
+    this.tableList.length === 0 && (this.isTableListError = true);
   }
 }
 

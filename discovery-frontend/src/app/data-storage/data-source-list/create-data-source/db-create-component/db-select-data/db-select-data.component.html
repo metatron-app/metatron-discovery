@@ -122,7 +122,7 @@
               </component-paging-search-select>
               <!-- //테이블 리스트-->
               <!-- error -->
-              <div class="ddp-txt-error" *ngIf="selectedDatabase && tableList.length === 0">
+              <div class="ddp-txt-error" *ngIf="selectedDatabase && isTableListError">
                 <em class="ddp-icon-error"></em>{{'msg.storage.no.tbl.error' | translate}}
               </div>
               <!-- //error -->
