@@ -299,26 +299,49 @@ export class DatasourceService extends AbstractService {
 
       query.shelf = _.cloneDeep(pageConf.shelf);
 
-      allPivotFields = _.concat(query.shelf.layers[(<UIMapOption>pageConf.chart).layerNum]);
+      for (let layer of query.shelf.layers) {
+
+        allPivotFields = _.concat(layer);
+        for (let field of allPivotFields) {
+
+          // Alias 설정
+          field['alias'] = this._setFieldAlias(field, dataSourceFields);
+
+          // Dimension 이면서 Timestamp 타입인 필드는 타입을 변경해준다.
+          if (field['type'].toUpperCase() == 'TIMESTAMP' && field['subRole'] && field['subRole'].toUpperCase() == 'DIMENSION') {
+            field['type'] = 'dimension';
+          }
+
+          // 그리드이면서 원본보기일 경우
+          if (_.eq(pageConf.chart.type, 'grid') && (<UIGridChart>pageConf.chart).dataType == GridViewType.MASTER) {
+            field['aggregationType'] = 'NONE';
+          }
+        }
+
+      }
+
     } else {
       allPivotFields = _.concat(query.pivot.columns, query.pivot.rows, query.pivot.aggregations);
-    }
 
-    for (let field of allPivotFields) {
+      for (let field of allPivotFields) {
 
-      // Alias 설정
-      field['alias'] = this._setFieldAlias(field, dataSourceFields);
+        // Alias 설정
+        field['alias'] = this._setFieldAlias(field, dataSourceFields);
 
-      // Dimension 이면서 Timestamp 타입인 필드는 타입을 변경해준다.
-      if (field['type'].toUpperCase() == 'TIMESTAMP' && field['subRole'] && field['subRole'].toUpperCase() == 'DIMENSION') {
-        field['type'] = 'dimension';
+        // Dimension 이면서 Timestamp 타입인 필드는 타입을 변경해준다.
+        if (field['type'].toUpperCase() == 'TIMESTAMP' && field['subRole'] && field['subRole'].toUpperCase() == 'DIMENSION') {
+          field['type'] = 'dimension';
+        }
+
+        // 그리드이면서 원본보기일 경우
+        if (_.eq(pageConf.chart.type, 'grid') && (<UIGridChart>pageConf.chart).dataType == GridViewType.MASTER) {
+          field['aggregationType'] = 'NONE';
+        }
       }
 
-      // 그리드이면서 원본보기일 경우
-      if (_.eq(pageConf.chart.type, 'grid') && (<UIGridChart>pageConf.chart).dataType == GridViewType.MASTER) {
-        field['aggregationType'] = 'NONE';
-      }
     }
+
+
 
     if( 0 < pageConf.chart.limit ) {
       pageConf.limit.limit = pageConf.chart.limit;
