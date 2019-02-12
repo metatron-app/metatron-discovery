@@ -140,7 +140,7 @@ public class TimeRangeFilter extends TimeFilter {
 
         DateTimeMillisFunc millisFunc = new DateTimeMillisFunc(columnName,
                                                                fieldFormat.getFormat(),
-                                                               fieldFormat.getTimeZone(),
+                                                               fieldFormat.selectTimezone(),
                                                                fieldFormat.getLocale());
         field = millisFunc.toExpression();
       }

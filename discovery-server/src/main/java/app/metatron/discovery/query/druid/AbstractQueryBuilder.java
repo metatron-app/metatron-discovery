@@ -574,7 +574,7 @@ public abstract class AbstractQueryBuilder {
         TimeFieldFormat timeFormat = (TimeFieldFormat) timestampFilter.getTimeFormat();
         TimeFormatFunc timeFormatFunc = new TimeFormatFunc(field,
                                                            timeFormat.getFormat(),
-                                                           timeFormat.getTimeZone(),
+                                                           timeFormat.selectTimezone(),
                                                            timeFormat.getLocale());
 
         InFunc inFunc = new InFunc(timeFormatFunc.toExpression(), timestampFilter.getSelectedTimestamps());

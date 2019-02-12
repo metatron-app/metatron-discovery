@@ -98,7 +98,7 @@ public class ContinuousTimeFormat extends TimeFieldFormat implements FieldFormat
     if (enableSortField()) {
       return String.format(PivotColumn.SortComparator.DATETIME,
                            "'" + this.getFormat() + "'",
-                           this.getTimeZone(),
+                           this.selectTimezone(),
                            this.getLocale());
     } else {
       if (unit == TimeUnit.MONTH && byUnit != ByTimeUnit.QUARTER) {

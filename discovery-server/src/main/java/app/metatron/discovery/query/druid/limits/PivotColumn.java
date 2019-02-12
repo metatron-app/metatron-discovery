@@ -53,10 +53,10 @@ public class PivotColumn {
       TimeFieldFormat format = (TimeFieldFormat) field.getFormat();
       TimeFormatFunc timeFormatFunc = new TimeFormatFunc("\"" + field.getAlias() + "\"",
                                                          format.enableSortField() ? format.getSortFormat() : format.getFormat(),
-                                                         format.getTimeZone(),
+                                                         format.selectTimezone(),
                                                          format.getLocale(),
                                                          format.getFormat(),
-                                                         format.getTimeZone(),
+                                                         format.selectTimezone(),
                                                          format.getLocale());
       this.expression = timeFormatFunc.toExpression();
       this.dimensionOrder = format.getSortComparator();

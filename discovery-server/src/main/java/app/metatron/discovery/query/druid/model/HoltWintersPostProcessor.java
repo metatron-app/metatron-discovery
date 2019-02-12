@@ -155,7 +155,7 @@ public class HoltWintersPostProcessor implements PostProcessor {
     // 클라이언트가 지정한 Format 으로 변환
     TimeFormatFunc postFormatFunc = new TimeFormatFunc("__time",
                                                        timeFormat.getFormat(),
-                                                       timeFormat.getTimeZone(),
+                                                       timeFormat.selectTimezone(),
                                                        timeFormat.getLocale());
 
     MathPostAggregator mathPostAggregator = new MathPostAggregator(timeField.getAlias(), postFormatFunc.toExpression(), null);

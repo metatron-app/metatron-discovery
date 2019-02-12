@@ -261,7 +261,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
                                                              null,
                                                              null,
                                                              timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
-                                                             timeFormat.getTimeZone(),
+                                                             timeFormat.selectTimezone(),
                                                              timeFormat.getLocale());
 
           ExprVirtualColumn exprVirtualColumn = new ExprVirtualColumn(timeFormatFunc.toExpression(), innerFieldName);
@@ -311,7 +311,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
 
         TimeFormatFunc timeFormatFunc = new TimeFormatFunc(predefinedFieldName,
                                                            timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
-                                                           timeFormat.getTimeZone(),
+                                                           timeFormat.selectTimezone(),
                                                            timeFormat.getLocale());
 
         ExprVirtualColumn exprVirtualColumn = new ExprVirtualColumn(timeFormatFunc.toExpression(), innerFieldName);

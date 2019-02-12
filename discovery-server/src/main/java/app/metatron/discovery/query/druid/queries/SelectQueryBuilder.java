@@ -229,8 +229,8 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
         }
 
         TimeFormatFunc timeFormatFunc = new TimeFormatFunc(timestampField.getPredefinedColumn(dataSource instanceof MappingDataSource),
+                                                           timeFormat.getFormat(),
                                                            timeFormat.selectTimezone(),
-                                                           timeFormat.getTimeZone(),
                                                            timeFormat.getLocale());
 
         dimensions.add(new ExpressionDimension(aliasName, timeFormatFunc.toExpression()));
