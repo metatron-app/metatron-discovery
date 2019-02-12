@@ -75,11 +75,11 @@ export class TimezoneService {
 
   /**
    * Is enable timezone in date format
-   * @param {string} format
+   * @param {FieldFormat} format
    * @return {boolean}
    */
-  public isEnableTimezoneInDateFormat(format: string): boolean {
-    return format.toUpperCase().indexOf('H') !== -1;
+  public isEnableTimezoneInDateFormat(format: FieldFormat): boolean {
+    return format && format.format && format.format.toUpperCase().indexOf('H') !== -1;
   }
 
   /**

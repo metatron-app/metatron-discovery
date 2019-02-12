@@ -747,7 +747,7 @@ export class SchemaConfigComponent extends AbstractComponent {
             // set time format valid TRUE
             field.isValidTimeFormat = true;
             // if enable timezone, set browser timezone at field
-            if (this._timezoneService.isEnableTimezoneInDateFormat(field.format.format)) {
+            if (this._timezoneService.isEnableTimezoneInDateFormat(field.format)) {
               !field.format.timeZone && (field.format.timeZone = this._timezoneService.browserTimezone.momentName);
               field.format.locale = this._timezoneService.browserLocal;
             } else { // if not enable timezone

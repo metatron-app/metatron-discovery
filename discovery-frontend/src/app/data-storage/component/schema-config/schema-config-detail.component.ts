@@ -466,7 +466,7 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
    * @return {boolean}
    */
   public isEnableTimezone(field: Field): boolean {
-    return field.logicalType === LogicalType.TIMESTAMP && this.isTimeTypeField(field) && field.isValidTimeFormat && this._timezoneService.isEnableTimezoneInDateFormat(field.format.format);
+    return field.logicalType === LogicalType.TIMESTAMP && this.isTimeTypeField(field) && field.isValidTimeFormat && this._timezoneService.isEnableTimezoneInDateFormat(field.format);
   }
 
   /**
@@ -553,7 +553,7 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
                   // set time format valid message
                   field.isValidTimeFormat = true;
                   // if enable timezone, set browser timezone at field
-                  if (this._timezoneService.isEnableTimezoneInDateFormat(field.format.format)) {
+                  if (this._timezoneService.isEnableTimezoneInDateFormat(field.format)) {
                     !field.format.timeZone && (field.format.timeZone = this._timezoneService.browserTimezone.momentName);
                     field.format.locale = this._timezoneService.browserLocal;
                   } else { // if not enable timezone
@@ -732,7 +732,7 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
           // set time format valid TRUE
           field.isValidTimeFormat = true;
           // if enable timezone, set browser timezone at field
-          if (this._timezoneService.isEnableTimezoneInDateFormat(field.format.format)) {
+          if (this._timezoneService.isEnableTimezoneInDateFormat(field.format)) {
             !field.format.timeZone && (field.format.timeZone = this._timezoneService.browserTimezone.momentName);
             field.format.locale = this._timezoneService.browserLocal;
           } else { // if not enable timezone
