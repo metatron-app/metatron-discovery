@@ -67,3 +67,9 @@ export enum ConnectionType {
   STAGE = <any>'STAGE',
   FILE = <any>'FILE'
 }
+
+export enum AuthenticationType {
+  USERINFO = <any>'USERINFO',
+  MANUAL = <any>'MANUAL',
+  DIALOG = <any>'DIALOG'
+}

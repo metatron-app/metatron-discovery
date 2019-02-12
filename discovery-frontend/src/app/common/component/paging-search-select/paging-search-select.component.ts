@@ -17,6 +17,7 @@ import {
   Injector, Input, OnInit, Output
 } from '@angular/core';
 import { AbstractComponent } from '../abstract.component';
+import {StringUtil} from "../../util/string.util";
 
 @Component({
   selector: 'component-paging-search-select',
@@ -185,13 +186,9 @@ export class PagingSearchSelectComponent extends AbstractComponent implements On
     let arrayList = this.array;
     // search option
     if (this.isSearchOptions) {
-      // search text
-      const searchText = this.searchText.trim();
       // 검색어 필터링
-      if (searchText !== '') {
-        arrayList = this.array.filter((item) => {
-          return item.includes(searchText);
-        });
+      if (StringUtil.isNotEmpty(this.searchText)) {
+        arrayList = this.array.filter(item => item.includes(this.searchText));
       }
     }
     // internal page

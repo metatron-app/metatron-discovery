@@ -2669,10 +2669,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             isUsedConnectionPreset: true
           },
           databaseData: {
-            selectedType: 'QUERY',
-            selectedDatabaseQuery: this.workbench.dataConnection.database,
+            selectedTab: 'QUERY',
+            selectedDatabaseInQuery: this.workbench.dataConnection.database,
             queryText: currentResultTab.result.runQuery,
-            queryDetailData: {
+            queryResultData: {
               fields: currentResultTab.result.fields,
               data: currentResultTab.result.data
             }
