@@ -2029,7 +2029,7 @@
   "msg.storage.ui.conn.url.ph" : "URL을 입력해 주세요",
   "msg.storage.ui.conn.sid.ph" : "SID를 입력해 주세요",
   "msg.storage.ui.conn.catalog.ph" : "Catalog를 입력해 주세요",
-  "msg.storage.ui.spaces.search.ph" : "워크스페이스 검색",
+  "msg.storage.ui.spaces.search.ph" : "워크스페이스 또는 소유자 검색",
   "msg.storage.ui.action.delete" : "삭제합니까?",
   "msg.storage.ui.action.data.detail" : "데이터 상세",
   "msg.storage.ui.server" : "서버",
