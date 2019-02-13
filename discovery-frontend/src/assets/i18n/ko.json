@@ -84,7 +84,7 @@
   "msg.comm.menu.admin.user.modal.change.owner.please.select": "선택해 주세요",
   "msg.comm.menu.admin.user.modal.title" : "소유자 변경",
   "msg.comm.menu.admin.user.modal.description.first" : "",
-  "msg.comm.menu.admin.user.modal.description.last" : "개의 공유워크스페이스의 오너를 변경해 주세요",
+  "msg.comm.menu.admin.user.modal.description.last" : "개의 공유 워크스페이스의 오너를 변경해 주세요",
   "msg.comm.menu.admin.user.modal.new.owner" : "새로운 소유자",
   "msg.comm.menu.admin.workspace" : "워크스페이스",
   "msg.comm.menu.admin.workspace.shared" : "워크스페이스",
