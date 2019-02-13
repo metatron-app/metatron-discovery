@@ -91,7 +91,7 @@
               {{getConnectionData.sid}}
             </td>
           </tr>
-          <tr *ngIf="getDatabaseData.selectedType === 'TABLE'">
+          <tr *ngIf="getDatabaseData.selectedTab === 'TABLE'">
             <th>
               {{'msg.lineage.ui.list.title.database' | translate}} / {{'msg.lineage.ui.list.title.table' | translate}}
             </th>
@@ -99,12 +99,12 @@
               {{getDatabaseData.selectedDatabase}} <span>/</span> {{getDatabaseData.selectedTable}}
             </td>
           </tr>
-          <tr *ngIf="getDatabaseData.selectedType === 'QUERY'">
+          <tr *ngIf="getDatabaseData.selectedTab === 'QUERY'">
             <th>
               {{'msg.lineage.ui.list.title.database' | translate}} / {{'msg.storage.btn.query' | translate}}
             </th>
             <td>
-              {{getDatabaseData.selectedDatabaseQuery}} <span>/</span> {{getDatabaseData.queryText}}
+              {{getDatabaseData.selectedDatabaseInQuery}} <span>/</span> {{getDatabaseData.queryText}}
             </td>
           </tr>
           <!-- ingestion -->
