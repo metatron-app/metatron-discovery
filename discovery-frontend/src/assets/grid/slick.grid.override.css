@@ -35,7 +35,7 @@
   width:100%;
   line-height:29px;
   vertical-align: middle;
-  white-space:nowrap;
+  white-space:pre;
   text-overflow:ellipsis;
   overflow:hidden;
 }
