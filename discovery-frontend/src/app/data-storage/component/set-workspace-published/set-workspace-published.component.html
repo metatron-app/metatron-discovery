@@ -110,6 +110,9 @@
                     <col width="23%">
                   </colgroup>
                   <tbody>
+                  <tr *ngIf="!personalWorkspaceList() || personalWorkspaceList().length === 0">
+                    <td class="ddp-data-none " colspan="5">{{'msg.comm.ui.no.rslt' | translate}}</td>
+                  </tr>
                   <!-- 체크시 상태 tr class="ddp-tr-select" 추가 -->
                   <tr *ngFor="let workspace of personalWorkspaceList()"
                       [ngClass]="{'ddp-tr-select' : checkInWorkspaces(workspace)}"
@@ -219,6 +222,9 @@
                     <col width="23%">
                   </colgroup>
                   <tbody>
+                  <tr *ngIf="!publicWorkspaceList() || publicWorkspaceList().length === 0">
+                    <td class="ddp-data-none " colspan="5">{{'msg.comm.ui.no.rslt' | translate}}</td>
+                  </tr>
                   <tr *ngFor="let workspace of publicWorkspaceList()"
                       [ngClass]="{'ddp-tr-select' : checkInWorkspaces(workspace)}"
                       (click)="onCheckedWorkspace(workspace, 'SHARED')">
