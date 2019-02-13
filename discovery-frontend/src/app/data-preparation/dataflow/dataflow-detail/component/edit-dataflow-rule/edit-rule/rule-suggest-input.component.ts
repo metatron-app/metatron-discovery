@@ -506,8 +506,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   protected prcessEvent($event) {
     const keyCode = $event.keyCode;
 
-    if( $event.metaKey === true || $event.ctrlKey === true || 
-        $event.altKey === true ){
+    if( $event.metaKey === true || $event.ctrlKey === true || $event.altKey === true ){
       return true;
     } else if ( 16 === keyCode && this.isSuggestOpen ) {
       // 대소문자 입력후 아무일도 하지 않는다.
@@ -517,7 +516,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     if( keyCode === 38 || keyCode == 40) {
 
       if( this.isArrowDown) {
-        // 이전에 화살표 Down Event가 아니면 
+        // 이전에 화살표 Down Event가 아니면
         // 화살표 위 아래 처리
         this.isArrowDown = false;
         return this.processUpDown(keyCode, $event);
