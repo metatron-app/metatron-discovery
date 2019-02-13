@@ -2145,6 +2145,7 @@
   "msg.storage.ui.file.result.FV004": "Column names are allowed up to 50 characters.",
   "msg.storage.ui.file.result.FV005": "Empty column name is not allowed.",
   "msg.storage.ui.timezone": "Time zone",
+  "msg.storage.ui.username": "Username",
 
   "msg.storage.ui.timezone.country.zimbabwe": "Zimbabwe",
   "msg.storage.ui.timezone.country.zambia": "Zambia",

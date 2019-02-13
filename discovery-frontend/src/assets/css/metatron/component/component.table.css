@@ -95,6 +95,7 @@ table.ddp-table-form tbody tr td .ddp-link-delete:hover em.ddp-icon-delete {back
 .ddp-ui-grid .ddp-ui-empty {padding:20px; color:#b7b9c3; font-size:12px;}
 .ddp-ui-gridbody {position:absolute; top:28px; left:0; right:0; bottom:0; overflow-y:scroll;}
 .ddp-box-viewtable .ddp-ui-gridhead {height:33px;border-top:none;}
+.ddp-box-viewtable .ddp-ui-gridhead table {padding-right:18px;}
 .ddp-box-viewtable .ddp-ui-gridhead tr th {height:33px; box-sizing:border-box;}
 .ddp-box-viewtable .ddp-ui-gridbody {top:34px;}
 
@@ -202,7 +203,7 @@ table.ddp-table-select tbody tr.ddp-selected td:last-of-type {border-right:1px s
 table.ddp-table-select tbody tr td .ddp-box-tag {position:relative; top:2px;}
 table.ddp-table-type2.ddp-table-select tbody tr.ddp-selected > td {padding:12px 10px 13px 10px}
 table.ddp-table-type2.ddp-table-select tbody tr.ddp-selected > td:first-of-type {padding-left:9px;}
-table.ddp-table-type2.ddp-table-select tbody tr.ddp-selected > td:last-of-type {padding-right:29px;}
+table.ddp-table-select tbody tr td:last-of-type {padding-right:29px !important;}
 
 table.ddp-table-select tr td:last-of-type {padding-right:35px;}
 table.ddp-table-select tbody tr.ddp-selected td:first-child:before {border-left:1px solid #666eb2;}
