@@ -1,6 +1,6 @@
 import {Injectable, Injector} from "@angular/core";
 import {FileItem, ParsedResponseHeaders} from "ng2-file-upload";
-import {TranslateService} from "ng2-translate";
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
 export class DataSourceCreateService {

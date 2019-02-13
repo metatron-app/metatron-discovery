@@ -22,7 +22,6 @@ import { Subject, Subscription, of } from "rxjs";
 import { debounceTime, distinctUntilChanged, switchMap } from "rxjs/operators";
 
 declare let $;
-declare var $: any;
 
 @Component({
   selector: 'range-slider-component',
