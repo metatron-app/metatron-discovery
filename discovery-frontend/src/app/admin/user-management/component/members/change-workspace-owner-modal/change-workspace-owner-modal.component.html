@@ -30,20 +30,24 @@
           {{ 'msg.comm.menu.admin.user.modal.description.first' | translate }}<strong>{{ workspaces.length | number: '1.0-3' }}</strong>{{ 'msg.comm.menu.admin.user.modal.description.last' | translate }}
         </div>
       </div>
+
+      <!-- box -->
       <div class="pop-box-owner" (scroll)="workspacesScrollEvent()">
         <!-- division -->
         <div class="ddp-ui-division" *ngFor="let workspace of workspaces; let index = index;">
-
-          <!-- top -->
-          <div workspace-detail
-               [workspace]="workspace"
-               [member]="members[index]">
-          </div>
-          <!-- //top -->
-
+          <div workspace-detail [workspace]="workspace"></div>
           <div class="ddp-data-description" *ngIf="workspace.description && workspace.description.length > 0">
             {{ workspace.description }}
           </div>
+          <!-- edit -->
+          <div class="ddp-wrap-edit3">
+            <label class="ddp-label-type">{{ 'msg.comm.menu.admin.user.modal.new.owner' | translate }}</label>
+            <div workspace-members-select-box
+                 [workspace]="workspace"
+                 [member]="members[index]">
+            </div>
+          </div>
+          <!-- //edit -->
         </div>
         <!-- //division -->
       </div>

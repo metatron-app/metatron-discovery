@@ -12,12 +12,10 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
 import {AbstractComponent} from '../../../../../common/component/abstract.component';
 import * as _ from 'lodash';
 import {PublicType, WorkspaceAdmin} from '../../../../../domain/workspace/workspace';
-import {WorkspaceMembersSelectBoxComponent} from './workspace-members-select-box.component';
-import {WorkspaceService} from '../../../../../workspace/service/workspace.service';
 
 @Component({
   selector: '[workspace-detail]',
@@ -33,9 +31,6 @@ export class WorkspaceDetailComponent extends AbstractComponent implements OnIni
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @ViewChild(WorkspaceMembersSelectBoxComponent)
-  private readonly _workspaceMembersSelectBoxComponent: WorkspaceMembersSelectBoxComponent;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -47,17 +42,13 @@ export class WorkspaceDetailComponent extends AbstractComponent implements OnIni
   @Input()
   public readonly workspace: WorkspaceAdmin;
 
-  @Input()
-  public readonly member;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector,
-    private workspaceService: WorkspaceService) {
+    protected injector: Injector) {
     super(elementRef, injector);
   }
 
@@ -97,21 +88,9 @@ export class WorkspaceDetailComponent extends AbstractComponent implements OnIni
       && _.eq(this.workspace.publicType, PublicType.SHARED);
   }
 
-  public workspaceOwnerChecksForChange() {
-    this._workspaceMembersSelectBoxComponent.workspaceOwnerChecksForChange();
-  }
-
-  public getIsWorkspaceOwnerChanged(): boolean {
-    return this._workspaceMembersSelectBoxComponent.isWorkspaceOwnerChanged;
-  }
-
-  public transferWorkspaceOwner() {
-    return new Promise((resolve, reject) => {
-      this.workspaceService.transferWorkspaceOwner(this.workspace.id,
-        this._workspaceMembersSelectBoxComponent.getCheckedMember().value.username).
-        then(result => resolve(result)).
-        catch(error => reject(error));
-    });
+  // noinspection JSMethodCanBeStatic
+  public getWorkspaceId(): string {
+    return this.workspace.id;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

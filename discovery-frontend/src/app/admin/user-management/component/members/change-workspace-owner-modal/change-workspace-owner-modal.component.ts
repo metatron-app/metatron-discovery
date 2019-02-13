@@ -35,7 +35,7 @@ import {of} from 'rxjs/observable/of';
 import {from} from 'rxjs/observable/from';
 import {EventsService} from './service/events.service';
 import {WorkspaceDetailComponent} from './workspace-detail.component';
-import {Alert} from '../../../../../common/util/alert.util';
+import {WorkspaceMembersSelectBoxComponent} from './workspace-members-select-box.component';
 
 @Component({
   selector: 'change-workspace-owner-modal',
@@ -49,6 +49,9 @@ export class ChangeWorkspaceOwnerModalComponent extends AbstractPopupComponent i
 
   @ViewChildren(WorkspaceDetailComponent)
   private readonly _workspaceDetailComponents: QueryList<WorkspaceDetailComponent>;
+
+  @ViewChildren(WorkspaceMembersSelectBoxComponent)
+  private readonly _workspaceMembersSelectBoxComponents: QueryList<WorkspaceMembersSelectBoxComponent>;
 
   private _deleteTargetUserid: string;
 
@@ -283,16 +286,25 @@ export class ChangeWorkspaceOwnerModalComponent extends AbstractPopupComponent i
   }
 
   private _hasWorkspaceOwnerNotChanged() {
-    return this._workspaceDetailComponents.filter(_workspaceDetailComponent => {
-      _workspaceDetailComponent.workspaceOwnerChecksForChange();
-      return _workspaceDetailComponent.getIsWorkspaceOwnerChanged();
+    return this._workspaceMembersSelectBoxComponents.filter((component) => {
+      component.workspaceOwnerChecksForChange();
+      return component.isWorkspaceOwnerChanged;
     }).length > 0;
+  }
+
+  private transferWorkspaceOwner(workspaceId: string, username: string) {
+    return new Promise((resolve, reject) => {
+      this.workspaceService.transferWorkspaceOwner(workspaceId, username).
+        then(result => resolve(result)).
+        catch(error => reject(error));
+    });
   }
 
   private _transferWorkspacesOwner() {
     forkJoin(
-      this._workspaceDetailComponents.map(_workspaceDetailComponent => {
-          return from(_workspaceDetailComponent.transferWorkspaceOwner());
+      this._workspaceDetailComponents.map((component, index) => {
+          return from(this.transferWorkspaceOwner(component.getWorkspaceId(),
+            this._workspaceMembersSelectBoxComponents.toArray()[index].getCheckedMember().value.username));
         },
       ),
     ).subscribe(
