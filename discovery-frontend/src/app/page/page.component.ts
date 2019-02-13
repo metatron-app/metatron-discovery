@@ -104,6 +104,8 @@ import { MapPagePivotComponent } from './page-pivot/map/map-page-pivot.component
 import { UIMapOption } from '../common/component/chart/option/ui-option/map/ui-map-chart';
 import { MapLayerType } from '../common/component/chart/option/define/map/map-common';
 import { ChartUtil } from '../common/component/chart/option/util/chart-util';
+import {fromEvent} from "rxjs";
+import {debounceTime, map} from "rxjs/operators";
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -196,7 +198,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   private lineChartComponent: LineChartComponent;
 
   private selectChartSource: Subject<Object> = new Subject<Object>();
-  private selectChart$ = this.selectChartSource.asObservable().debounceTime(100);
+  private selectChart$ = this.selectChartSource.asObservable().pipe( debounceTime(100) );
 
   // page data 하위의 context menu
   @ViewChild(PageDataContextComponent)
@@ -541,11 +543,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.init();
 
     // resize시 data panel의 내부 스크롤 설정
-    const resizeEvent$ = Observable
-      .fromEvent(window, 'resize', () => {
-        return document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight;
-      })
-      .debounceTime(500);
+    const resizeEvent$ = fromEvent(window, 'resize')
+      .pipe(
+        map( () => document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight ),
+        debounceTime(500)
+      );
     const windowResizeSubscribe = resizeEvent$.subscribe((data) => {
       this.dataPanelInnerScroll();
 

@@ -13,19 +13,19 @@
  */
 
 import * as _ from 'lodash';
-import {Injectable} from '@angular/core';
-import {AbstractService} from '../../common/service/abstract.service';
-import {Widget} from '../../domain/dashboard/widget/widget';
-import {ResponseContentType, Headers} from '@angular/http';
-import {Observable} from 'rxjs';
-import {CookieConstant} from '../../common/constant/cookie.constant';
-import {SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
-import {UIOption} from '../../common/component/chart/option/ui-option';
-import {SPEC_VERSION} from '../../common/component/chart/option/define/common';
-import {OptionGenerator} from '../../common/component/chart/option/util/option-generator';
-import {FilterUtil} from '../util/filter.util';
-import {isNullOrUndefined} from "util";
-import {CommonConstant} from "../../common/constant/common.constant";
+import { Injectable } from '@angular/core';
+import { HttpHeaders } from '@angular/common/http';
+import { AbstractService } from '../../common/service/abstract.service';
+import { Widget } from '../../domain/dashboard/widget/widget';
+import { Observable } from 'rxjs';
+import { CookieConstant } from '../../common/constant/cookie.constant';
+import { SearchQueryRequest } from '../../domain/datasource/data/search-query-request';
+import { UIOption } from '../../common/component/chart/option/ui-option';
+import { SPEC_VERSION } from '../../common/component/chart/option/define/common';
+import { OptionGenerator } from '../../common/component/chart/option/util/option-generator';
+import { FilterUtil } from '../util/filter.util';
+import { isNullOrUndefined } from "util";
+import { CommonConstant } from "../../common/constant/common.constant";
 
 @Injectable()
 export class WidgetService extends AbstractService {
@@ -137,7 +137,7 @@ export class WidgetService extends AbstractService {
     let url: string = this.API_URL + 'widgets/config/download?original=' + original + '&maxRowsPerSheet=' + maxRowsPerSheet;
 
     // 헤더
-    let headers = new Headers({
+    let headers = new HttpHeaders({
       'Accept': 'application/vnd.ms-excel',
       'Content-Type': 'application/json',
       'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
@@ -146,13 +146,13 @@ export class WidgetService extends AbstractService {
     // 옵션
     let option: Object = {
       headers: headers,
-      responseType: ResponseContentType.Blob
+      responseType: 'blob'
     };
 
     // 호출
     return this.http.post(url, config, option)
       .map((res) => {
-        return new Blob([res.blob()], {type: 'application/vnd.ms-excel'})
+        return new Blob([res], { type: 'application/vnd.ms-excel' })
       });
   }
 
@@ -189,7 +189,7 @@ export class WidgetService extends AbstractService {
     const strType: string = ('CSV' === fileType) ? 'application/csv' : 'application/vnd.ms-excel';
 
     // 헤더
-    let headers = new Headers({
+    let headers = new HttpHeaders({
       'Accept': strType,
       'Content-Type': 'application/json',
       'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
@@ -198,13 +198,13 @@ export class WidgetService extends AbstractService {
     // 옵션
     let option: Object = {
       headers: headers,
-      responseType: ResponseContentType.Blob
+      responseType: 'blob'
     };
 
     // 호출
     return this.http.post(url, param, option)
       .map((res) => {
-        return new Blob([res.blob()], {type: strType})
+        return new Blob([res], { type: strType })
       });
   }
 

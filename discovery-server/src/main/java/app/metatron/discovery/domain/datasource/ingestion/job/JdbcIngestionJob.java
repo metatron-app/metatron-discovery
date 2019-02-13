@@ -28,6 +28,7 @@
 
 package app.metatron.discovery.domain.datasource.ingestion.job;
 
+import app.metatron.discovery.domain.datasource.connection.jdbc.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -42,10 +43,6 @@ import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.DataSourceSummary;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnectionErrorCodes;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnectionException;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionOption;
 import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
@@ -92,6 +89,15 @@ public class JdbcIngestionJob extends AbstractIngestionJob implements IngestionJ
 
     // Select 문을 가지고 CSV 파일로 변환
     List<String> csvFiles = null;
+
+    if (connection instanceof MySQLConnection
+        || connection instanceof HiveConnection
+        || connection instanceof PrestoConnection) {
+      if (ingestionInfo.getDatabase() != null && ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.QUERY) {
+        ((JdbcDataConnection)connection).setDatabase(ingestionInfo.getDatabase());
+      }
+    }
+
     try {
       if (ingestionInfo instanceof BatchIngestionInfo
           && ((BatchIngestionInfo) ingestionInfo).getRange() == INCREMENTAL) {

@@ -14,7 +14,7 @@
  */
 
 import { Injectable, Injector } from '@angular/core';
-import { TranslateService } from 'ng2-translate';
+import { TranslateService } from '@ngx-translate/core';
 import { StringUtil } from "../../common/util/string.util";
 import {FieldFormat} from "../../domain/datasource/datasource";
 declare let moment: any;
@@ -28,7 +28,11 @@ export class TimezoneService {
 
   public browserTimezone: TimeZoneObject;
 
+  // TODO 추후 local => locale로 수정
   public browserLocal: string;
+
+  // if not used TIMEZONE, set this key in timeZone property
+  public static DISABLE_TIMEZONE_KEY = 'DISABLE_ZONE';
 
   constructor(protected injector: Injector) {
     this._translateService = injector.get(TranslateService);
@@ -67,6 +71,15 @@ export class TimezoneService {
       result += utc.slice(3,6);
     }
     return result;
+  }
+
+  /**
+   * Is enable timezone in date format
+   * @param {FieldFormat} format
+   * @return {boolean}
+   */
+  public isEnableTimezoneInDateFormat(format: FieldFormat): boolean {
+    return format && format.format && format.format.toUpperCase().indexOf('H') !== -1;
   }
 
   /**

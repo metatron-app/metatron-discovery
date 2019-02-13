@@ -85,7 +85,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
 
   // 현재 마스터 데이터소스의 연결 타입
   public connType: string;
-
+  // exist timestamp flag
   public isExistTimestamp: boolean;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -113,7 +113,8 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     this._initView();
     // 그리드 데이터 조회
     this.fields = this.datasource.fields;
-    this.isExistTimestamp = this.datasource.fields.some(field => field.logicalType === LogicalType.TIMESTAMP);
+    // set exist timestamp flag
+    this.isExistTimestamp = this.datasource.fields.some(field => field.logicalType === LogicalType.TIMESTAMP && (this.timezoneService.isEnableTimezoneInDateFormat(field.format) || field.format && field.format.type === FieldFormatType.UNIX_TIME));
     // 마스터 소스 타입
     this.connType = this.datasource.hasOwnProperty('connType') ? this.datasource.connType.toString() : 'ENGINE';
     // linked인 경우
@@ -325,7 +326,11 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    * @private
    */
   private _getTimezoneLabel(format: FieldFormat): string {
-    return (format && format.type === FieldFormatType.UNIX_TIME) ?  'Unix time'  : this.timezoneService.getConvertedTimezoneUTCLabel(this.timezoneService.getTimezoneObject(format).utc);
+    if (format.type === FieldFormatType.UNIX_TIME) {
+      return 'Unix time';
+    } else {
+      return this.timezoneService.getConvertedTimezoneUTCLabel(this.timezoneService.getTimezoneObject(format).utc);
+    }
   }
 
   /**
@@ -373,7 +378,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    * @private
    */
   private _getGridHeaderName(field: Field, headerName: string): string {
-    return field.logicalType === LogicalType.TIMESTAMP
+    return field.logicalType === LogicalType.TIMESTAMP && (this.timezoneService.isEnableTimezoneInDateFormat(field.format) || field.format && field.format.type === FieldFormatType.UNIX_TIME)
       ? `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(field.logicalType.toString())}"></em>${headerName}<div class="slick-column-det" title="${this._getTimezoneLabel(field.format)}">${this._getTimezoneLabel(field.format)}</div></span>`
       : `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(field.logicalType.toString())}"></em>${headerName}</span>`;
   }

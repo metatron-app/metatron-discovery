@@ -29,8 +29,7 @@ export class DimensionField extends Field {
   locale: string;
 
   // format
-  format: string;
-
+  // format: string;
 
   constructor() {
     super();

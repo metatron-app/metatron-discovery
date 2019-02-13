@@ -36,7 +36,6 @@ import {
   TimeUnit
 } from '../../domain/workbook/configurations/field/timestamp-field';
 import * as $ from 'jquery';
-import { Observable } from 'rxjs/Rx';
 
 import * as _ from 'lodash';
 import { ClickOutsideDirective } from 'ng-click-outside';
@@ -59,6 +58,8 @@ import { Shelf } from '../../domain/workbook/configurations/shelf/shelf';
 import { Alert } from '../../common/util/alert.util';
 import { StringUtil } from '../../common/util/string.util';
 import { DIRECTION } from '../../domain/workbook/configurations/sort';
+import {fromEvent} from "rxjs";
+import {debounceTime, map} from "rxjs/operators";
 
 @Component({
   selector: 'page-pivot',
@@ -257,14 +258,14 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     this.init();
 
-    const resizeEvent$ = Observable
-      .fromEvent(window, 'resize', () => {
-        this.onShelveAnimation(this.$element.find('.ddp-wrap-default'));
-        return document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight;
-      })
-      .debounceTime(500);
+    const resizeEvent$ = fromEvent(window, 'resize')
+      .pipe(
+        map( () => document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight ),
+        debounceTime(500)
+      );
 
     const windowResizeSubscribe = resizeEvent$.subscribe((data) => {
+      this.onShelveAnimation(this.$element.find('.ddp-wrap-default'));
       console.info('resize pivot! - TODO scrollCheck');
     });
 
@@ -1990,7 +1991,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             // none값의 순서변경
             if (shelf[idx].field.role === FieldRole.DIMENSION) {
 
-              const noneIndex = _.findIndex(copiedTimestampList, { id: 'NONE' });
+              const noneIndex = _.findIndex(copiedTimestampList, (obj) => { return obj.id === 'NONE'; });
 
               // none이 있는경우
               if (-1 !== noneIndex) {
@@ -2008,6 +2009,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             shelf[idx].format.type = String(UIFormatType.TIME_CONTINUOUS);
             shelf[idx].format.discontinuous = false;
             shelf[idx].format.unit = copiedTimestampList[0].id;
+            if( field.field && field.field.format ) {
+              shelf[idx].format.timeZone = field.field.format.timeZone;
+            }
           }
           // 최초 granularity 설정
         } else {
@@ -2020,6 +2024,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             shelf[idx].format.type = String(UIFormatType.TIME_CONTINUOUS);
             shelf[idx].format.discontinuous = false;
             shelf[idx].format.unit = copiedTimestampList[0].id;
+            if( field.field && field.field.format ) {
+              shelf[idx].format.timeZone = field.field.format.timeZone;
+            }
           }
           else if (shelf[idx].field.role === FieldRole.DIMENSION) {
 
@@ -2028,6 +2035,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             shelf[idx].format.type = String(UIFormatType.TIME_CONTINUOUS);
             shelf[idx].format.discontinuous = false;
             shelf[idx].format.unit = TimeUnit.NONE;
+            if( field.field && field.field.format ) {
+              shelf[idx].format.timeZone = field.field.format.timeZone;
+            }
           }
         }
 

@@ -13,11 +13,11 @@
  */
 
 import { Injectable, Injector } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import * as $ from 'jquery';
 import { FileUploader } from 'ng2-file-upload';
 import { CommonConstant } from '../constant/common.constant';
 import { CookieConstant } from 'app/common/constant/cookie.constant';
-import { Http, Headers, ResponseContentType } from '@angular/http';
 import { CookieService } from 'ng2-cookies';
 
 declare const html2canvas: any;
@@ -27,14 +27,14 @@ export class ImageService {
 
   private uploader: FileUploader;
 
-  private _http: Http;
+  private _http: HttpClient;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(private cookieService: CookieService,
               protected injector: Injector) {
-    this._http = injector.get(Http);
+    this._http = injector.get(HttpClient);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -159,13 +159,13 @@ export class ImageService {
     const imgUrl: string = '/api/images/load/url?url=' + url;
 
     // 헤더
-    const headers = new Headers({
+    const headers = new HttpHeaders({
       'Accept': 'image/webp,image/apng,image/*,*/*;',
       'Content-Type': 'application/octet-binary',
       'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
       + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
     });
-    return this._http.get(imgUrl, { headers: headers, responseType: ResponseContentType.Blob }).toPromise();
+    return this._http.get(imgUrl, { headers: headers, responseType: 'blob' }).toPromise();
   } // function - downloadImageFromUrl
 
   /**

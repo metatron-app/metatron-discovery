@@ -48,6 +48,7 @@ import {WildCardFilter} from '../../../domain/workbook/configurations/filter/wil
 import {MeasurePositionFilter} from '../../../domain/workbook/configurations/filter/measure-position-filter';
 import {AdvancedFilter} from '../../../domain/workbook/configurations/filter/advanced-filter';
 import {DashboardUtil} from '../../util/dashboard.util';
+import { Message } from '@stomp/stompjs';
 
 @Component({
   selector: 'app-essential-filter',
@@ -474,18 +475,21 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
     try {
       const headers: any = {'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)};
       // 메세지 수신
-      const subscription = CommonConstant.stomp.subscribe(
-        tempDsInfo.progressTopic, (data: { progress: number, message: string }) => {
+      const subscription = CommonConstant.stomp.watch( tempDsInfo.progressTopic )
+        .subscribe( (msg: Message) => {
+
+          const data: { progress: number, message: string } = JSON.parse( msg.body );
+
           if (-1 === data.progress) {
             this.ingestionStatus = data;
             this.ingestionStatus.step = -1;
             Alert.error(data.message);
             this.safelyDetectChanges();
-            CommonConstant.stomp.unsubscribe(subscription);     // Socket 응답 해제
+            subscription.unsubscribe();     // Socket 응답 해제
           } else if (100 === data.progress) {
             this.ingestionStatus = data;
             this.safelyDetectChanges();
-            CommonConstant.stomp.unsubscribe(subscription);     // Socket 응답 해제
+            subscription.unsubscribe();     // Socket 응답 해제
             this._loadTempDatasourceDetail(tempDsInfo.id);
           } else {
             this.ingestionStatus = data;

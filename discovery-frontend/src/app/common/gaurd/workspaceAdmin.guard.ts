@@ -14,7 +14,7 @@
 
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { SYSTEM_PERMISSION } from '../permission/permission';
 import { CommonUtil } from '../util/common.util';
 

@@ -25,7 +25,6 @@ import {
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
 import { DatasourceInfo, FieldFormatType, IngestionRuleType } from '../../../../../domain/datasource/datasource';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
-import { DataconnectionService } from '../../../../../dataconnection/service/dataconnection.service';
 import { Alert } from '../../../../../common/util/alert.util';
 import { CommonUtil } from '../../../../../common/util/common.util';
 import * as _ from 'lodash';
@@ -570,18 +569,18 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
   private _getIngestionParams(): object {
     // ingestion param
     const ingestion = {
-      dataType: this.getDatabaseData.selectedType,
+      dataType: this.getDatabaseData.selectedTab,
       type: this.getIngestionData.selectedIngestionType.value,
       rollup: this.getIngestionData.selectedRollUpType.value
     };
     // if database is TABLE
-    if (this.getDatabaseData.selectedType === 'TABLE') {
+    if (this.getDatabaseData.selectedTab === 'TABLE') {
       ingestion['query'] = this.getDatabaseData.selectedTable;
       ingestion['database'] = this.getDatabaseData.selectedDatabase;
     } else {
       // if database is QUERY
       ingestion['query'] = this.getDatabaseData.queryText;
-      ingestion['database'] = this.getDatabaseData.selectedDatabaseQuery;
+      ingestion['database'] = this.getDatabaseData.selectedDatabaseInQuery;
     }
     // if source type is LINK
     if (this.getConnectionData.selectedIngestionType.value === 'LINK') {

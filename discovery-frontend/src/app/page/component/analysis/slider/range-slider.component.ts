@@ -12,18 +12,16 @@
  * limitations under the License.
  */
 
+import * as _ from 'lodash';
 import {
-  ElementRef, OnChanges, SimpleChanges, Input, EventEmitter, Output, Component, OnInit,
-  OnDestroy, ViewEncapsulation, Injector
+  ElementRef, OnChanges, SimpleChanges, Input, EventEmitter, Output, Component, Injector
 } from '@angular/core';
 import { RangeSliderResult } from '../../value/range-slider-result';
-import * as _ from 'lodash';
-import { Subscription } from 'rxjs/Subscription';
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Observable';
 import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { Subject, Subscription, of } from "rxjs";
+import { debounceTime, distinctUntilChanged, switchMap } from "rxjs/operators";
 
-declare var $: any;
+declare let $;
 
 @Component({
   selector: 'range-slider-component',
@@ -231,7 +229,8 @@ export class RangeSliderComponent extends AbstractComponent implements OnChanges
 
   /**
    * 생성자
-   * @param {ElementRef} element
+   * @param elementRef
+   * @param injector
    */
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -241,9 +240,11 @@ export class RangeSliderComponent extends AbstractComponent implements OnChanges
     this.currentElement = elementRef;
 
     this.changeFromValueSubjectSubscription = this.changeFromValueSubject$
-      .debounceTime(200)
-      .distinctUntilChanged()
-      .switchMap((value) => Observable.of<number>(value))
+      .pipe(
+        debounceTime(200),
+        distinctUntilChanged(),
+        switchMap((value) => of<number>(value))
+      )
       .subscribe(() => {
         this.onChange.emit(this.buildCallback());
       });

@@ -830,7 +830,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQueryForSalesWithTimestamp() throws JsonProcessingException {
 
-    DataSource dataSource1 = new DefaultDataSource("sales");
+    DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
     // Limit
     Limit limit = new Limit();
@@ -890,7 +890,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         new MeasureField("Sales", MeasureField.AggregationType.AVG)
     ));
 
-    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot1, limit);
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot2, limit);
 
     // @formatter:off
     given()

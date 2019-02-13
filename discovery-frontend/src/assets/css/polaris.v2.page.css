@@ -6213,8 +6213,9 @@ ul.ddp-list-dbtype li .ddp-label-dbtype.type-pache {padding:10px 30px 10px 44px;
 
 .ddp-ui-import-option .ddp-ui-option-select .ddp-ui-input-form {padding-bottom:0px;}
 .ddp-ui-import-option .ddp-ui-option-select .ddp-ui-edit-db .ddp-wrap-edit {width:100%; border-top:1px solid #e7e7ea; border-bottom:1px solid #e7e7ea;}
-.ddp-ui-import-option .ddp-ui-option-select .ddp-ui-edit-db .ddp-ui-edit {display:block; width:100%; height:160px; padding:28px 30px; font-size:14px; color:#444; box-sizing:border-box; border:none; background-color:#f9f9f9; white-space:pre-wrap; box-sizing:border-box; outline:none;}
+.ddp-ui-import-option .ddp-ui-option-select .ddp-ui-edit-db .ddp-ui-edit {display:block; position:relative; width:100%; height:250px; padding:28px 30px; font-size:14px; color:#444; box-sizing:border-box; border:none; background-color:#f9f9f9; white-space:pre-wrap; box-sizing:border-box; outline:none;}
 
+.ddp-ui-import-option .ddp-ui-option-select .ddp-ui-edit-db .ddp-ui-edit .ddp-wrap-editor {position:absolute; top:0; left:0; right:0; bottom:0; background-color:#f9f9f9;}
 .ddp-ui-import-option .ddp-ui-option-select .ddp-ui-edit-db .ddp-wrap-edit .ace_scroller {background-color:#f9f9f9;}
 
 .ddp-ui-import-option .ddp-btn-preview {display:block; padding:18px 0 0 0; text-align:right;}

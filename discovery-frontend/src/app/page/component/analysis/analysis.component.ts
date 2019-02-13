@@ -27,6 +27,7 @@ import { EventType } from '../../../common/component/chart/option/define/common'
 import { HyperParameter } from '../value/analysis';
 import { LineChartComponent } from '../../../common/component/chart/type/line-chart/line-chart.component';
 import { AnalysisPredictionService } from './service/analysis.prediction.service';
+import {fromEvent} from "rxjs";
 
 @Component({
   selector: 'analysis-component',
@@ -124,8 +125,7 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   // Init
   public ngOnInit(): void {
     // 패널 클릭 이벤트
-    Observable
-      .fromEvent(this.panel.nativeElement, 'click')
+    fromEvent(this.panel.nativeElement, 'click')
       .subscribe(() => {
         this.clickDataPanel('analysis');
       });
