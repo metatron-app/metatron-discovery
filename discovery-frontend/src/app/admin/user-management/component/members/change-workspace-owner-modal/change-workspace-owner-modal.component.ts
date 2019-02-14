@@ -36,6 +36,7 @@ import {from} from 'rxjs/observable/from';
 import {EventsService} from './service/events.service';
 import {WorkspaceDetailComponent} from './workspace-detail.component';
 import {WorkspaceMembersSelectBoxComponent} from './workspace-members-select-box.component';
+import {mergeMap} from 'rxjs/internal/operators/mergeMap';
 
 @Component({
   selector: 'change-workspace-owner-modal',
@@ -237,13 +238,9 @@ export class ChangeWorkspaceOwnerModalComponent extends AbstractPopupComponent i
       });
     };
 
-    of(_.map(workspaces, workspace => workspace.id)).mergeMap(project => {
-      return forkJoin(
-        project.map(id => {
-          return from(getWorkspaceUsers(id));
-        }),
-      );
-    }).subscribe(
+    of(_.map(workspaces, workspace => workspace.id)).pipe(
+      mergeMap(project => forkJoin(project.map(id => from(getWorkspaceUsers(id))))),
+    ).subscribe(
       members => {
         this.members = members;
         this._selfShow();
