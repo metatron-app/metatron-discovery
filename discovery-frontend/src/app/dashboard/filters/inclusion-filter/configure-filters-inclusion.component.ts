@@ -232,10 +232,6 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
       }
     });
 
-    if (!isNullOrUndefined(targetFilter['tempSearchText'])) {
-      this.searchText = targetFilter['tempSearchText'];
-      delete targetFilter['tempSearchText'];
-    }
     this.loadingShow();
     this.datasourceService.getCandidateForFilter(targetFilter, board, [], targetField, 'COUNT', this.searchText)
       .then(result => {
@@ -611,7 +607,8 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
       this.selectedValues = [];
     } else {
       if (checked) {
-        this.selectedValues = _.cloneDeep(this._candidateList);
+        this.selectedValues = [].concat(this._candidateList);
+        this.toggleAllCandidateValues(true);
       } else {
         this.selectedValues = [];
       }
@@ -728,6 +725,19 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
 
     this.newCandidateName = '';
   } // function - addNewCandidateValue
+
+  /**
+   * 전체 노출 On/Off
+   * @param isShowAll
+   */
+  public toggleAllCandidateValues(isShowAll: boolean) {
+    if (isShowAll) {
+      this._candidateValues = [].concat(this._candidateList);
+    } else {
+      this._candidateValues = [];
+      this.selectedValues = [];
+    }
+  } // function - toggleAllCandidateValues
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

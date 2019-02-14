@@ -128,7 +128,7 @@
          [class.ddp-search]="isSearchFocus" [class.ddp-focus]="isSearchFocus"
          [class.ddp-warning]="isOverCandidateWarning"
          class="ddp-search-value" >
-      <a (click)="openUpdateFilterPopupForSearch()" href="javascript:" class="ddp-btn-line">{{'msg.comm.ui.search-all' | translate}}</a>
+      <a (click)="candidateFromSearchText()" href="javascript:" class="ddp-btn-line">{{'msg.comm.ui.search-all' | translate}}</a>
       <div class="ddp-data-value">
         <em class="icon-search"></em>
         <input #inputSearch
@@ -136,7 +136,7 @@
                (focus)="isSearchFocus = true"
                (keyup)="setCandidatePage(1, true)"
                type="text" placeholder="Search for values" >
-        <a *ngIf="searchText" (click)="searchText = '';setCandidatePage(1, true);" href="javascript:" class="ddp-btn-del"></a>
+        <a *ngIf="searchText" (click)="searchText = '';candidateFromSearchText();" href="javascript:" class="ddp-btn-del"></a>
         <em class="icon-warning"></em>
         <!-- popup -->
         <div class="ddp-pop-warning" [innerHTML]="'msg.board.filter.limmited-alert' | translate : { value : candidateListSize }"></div>

@@ -1171,8 +1171,20 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-box-item-search .ddp-list-checktype li {position:relative; padding:4px 0;}
 .ddp-box-item-search .ddp-list-checktype li .ddp-label-checkbox span.ddp-txt-checkbox {font-size:14px;}
 .ddp-box-item-search .ddp-list-checktype li .ddp-label-radio span.ddp-txt-radio {font-size:14px;}
-.ddp-box-item-search .ddp-list-checktype.ddp-type-list li {padding-right:30px; font-size:0px;}
-.ddp-box-item-search .ddp-list-checktype.ddp-type-list li.ddp-list-all {padding:6px 0 11px 0; margin-bottom:5px; border-bottom:1px dotted #ddd;}
+.ddp-box-item-search .ddp-list-checktype.ddp-type-list li {position:relative; padding-right:30px; font-size:0px;}
+.ddp-box-item-search .ddp-list-checktype.ddp-type-list li .ddp-setting {position:absolute; top:5px; right:0;font-size:13px; color:#b7b9c2;}
+
+.ddp-box-item-search .ddp-list-checktype.ddp-type-list li .ddp-setting .ddp-label-setting {float:left; }
+.ddp-box-item-search .ddp-list-checktype.ddp-type-list li .ddp-setting .ddp-label-setting .ddp-icon-eye {display:inline-block; position:relative; top:2px; width:16px; height:11px; margin-right:3px; background:url(../images/icon_eyes.png) no-repeat; vertical-align:top;}
+.ddp-box-item-search .ddp-list-checktype.ddp-type-list li .ddp-setting .ddp-setting-check {float:left;}
+.ddp-box-item-search .ddp-list-checktype.ddp-type-list li .ddp-setting .ddp-setting-check a {display:inline-block; position:relative; padding:0 7px; color:#b7b9c2;}
+.ddp-box-item-search .ddp-list-checktype.ddp-type-list li .ddp-setting .ddp-setting-check a:before {display:inline-block; position:absolute; top:50%; right:0; height:10px; margin-top:-5px; border-right:1px solid #e7e7ea; content:'';}
+.ddp-box-item-search .ddp-list-checktype.ddp-type-list li .ddp-setting .ddp-setting-check a:last-of-type {padding-right:0;}
+.ddp-box-item-search .ddp-list-checktype.ddp-type-list li .ddp-setting .ddp-setting-check a:last-of-type:before {display:none;}
+.ddp-box-item-search .ddp-list-checktype.ddp-type-list li .ddp-setting .ddp-setting-check a:hover {color:#4c515a;}
+
+.ddp-box-item-search .ddp-list-checktype.ddp-type-list li .ddp-list-all {padding:6px 0 11px 0; margin-bottom:5px; border-bottom:1px dotted #ddd; }
+
 .ddp-box-item-search .ddp-list-checktype li .ddp-label-checkbox {display:inline-block;}
 .ddp-box-item-search .ddp-list-checktype li .ddp-label-checkbox span.ddp-data-valuenum,
 .ddp-box-item-search .ddp-list-checktype li .ddp-label-radio span.ddp-data-valuenum {position:relative; top:-1px; margin-left:5px; color:#90969f; font-size:12px;}

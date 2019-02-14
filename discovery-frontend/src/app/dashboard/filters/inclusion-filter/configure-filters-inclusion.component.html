@@ -11,7 +11,6 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <!-- 선택 방식 결정 -->
 <div *ngIf="isShow" class="ddp-toggle">
   <ul class="ddp-list-buttons ddp-type2">
@@ -296,6 +295,17 @@
           <i class="ddp-icon-radio"></i>
           <span class="ddp-txt-radio">({{'msg.board.filter.ui.all' | translate}})</span>
         </label>
+        <!-- setting -->
+        <div class="ddp-setting">
+          <div class="ddp-label-setting">
+            <em class="ddp-icon-eye"></em>Turn all
+          </div>
+          <div class="ddp-setting-check">
+            <a (click)="toggleAllCandidateValues(true)" href="javascript:">on</a>
+            <a (click)="toggleAllCandidateValues(false)" href="javascript:">off</a>
+          </div>
+        </div>
+        <!-- //setting -->
       </li>
       <li *ngFor="let item of pageCandidateList" >
         <!-- check -->

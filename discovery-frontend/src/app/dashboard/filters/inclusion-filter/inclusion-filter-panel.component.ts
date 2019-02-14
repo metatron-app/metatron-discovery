@@ -38,6 +38,7 @@ import {DIRECTION} from '../../../domain/workbook/configurations/sort';
 import {EventBroadcaster} from '../../../common/event/event.broadcaster';
 import {FilterWidget} from '../../../domain/dashboard/widget/filter-widget';
 import {FilterUtil} from "../../util/filter.util";
+import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'inclusion-filter-panel',
@@ -52,7 +53,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
   private _candidateList: Candidate[] = [];
 
   @ViewChild('inputSearch')
-  private _inputSearch:ElementRef;
+  private _inputSearch: ElementRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -77,7 +78,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
 
   public isMultiSelector: boolean = false;        // 복수 선택 여부
   public isSearchFocus: boolean = false;          // 검색바 포커스 여부
-  public isOverCandidateWarning:boolean = false;  // Candidate Limit 을 넘겼는지 여부
+  public isOverCandidateWarning: boolean = false;  // Candidate Limit 을 넘겼는지 여부
 
   @Input('filter')
   public originalFilter: InclusionFilter;
@@ -165,14 +166,14 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
    */
   public inactiveSearchInput() {
     let inputElm = this._inputSearch.nativeElement;
-    ( '' === inputElm.value.trim() ) && ( this.isSearchFocus = false );
+    ('' === inputElm.value.trim()) && (this.isSearchFocus = false);
     inputElm.blur();
   } // function - inactiveSearchInput
 
   /**
    * Candidate 목록의 전체 갯수 조회
    */
-  public get candidateListSize():number {
+  public get candidateListSize(): number {
     return this._candidateList.length;
   } // get - candidateListSize
 
@@ -192,6 +193,14 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
     } else {
       this.filter.valueList = [];
     }
+
+    // 선택값을 후보값에 넣는다.
+    this.filter.valueList.forEach(item => {
+      if (-1 === this.filter.candidateValues.indexOf(item)) {
+        this.filter.candidateValues.push(item);
+      }
+    });
+
     this.updateFilterEvent.emit(this.filter);
   } // function - checkAll
 
@@ -223,6 +232,13 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
       this.filter.valueList = [];
       this.filter.valueList.push(item);
     }
+
+    // 선택값을 후보값에 넣는다.
+    this.filter.valueList.forEach(item => {
+      if (-1 === this.filter.candidateValues.indexOf(item)) {
+        this.filter.candidateValues.push(item);
+      }
+    });
 
     this.updateFilterEvent.emit(this.filter);
   } // function - onSelected
@@ -324,8 +340,8 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
 
       let pagedList: Candidate[] = _.cloneDeep(this._candidateList);
 
-      if( this.filter.showSelectedItem ) {
-        pagedList = pagedList.filter(item => -1 < this.filter.valueList.findIndex( val => val === item.name ) );
+      if (this.filter.showSelectedItem) {
+        pagedList = pagedList.filter(item => -1 < this.filter.valueList.findIndex(val => val === item.name));
       }
 
       // 검색 적용
@@ -358,24 +374,20 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
   } // function - deleteFilter
 
   /**
-   * 검색을 위한 펄터 팝업 오픈
-   */
-  public openUpdateFilterPopupForSearch() {
-    this.isSearchFocus = false;
-    this.originalFilter['tempSearchText'] = this.searchText;
-    this.searchText = '';
-    this.setCandidatePage(1, true);
-    this.openUpdateFilterPopup(this.originalFilter);
-  } // function - openUpdateFilterPopupForSearch
-
-  /**
    * 팝업을 통한 필터 수정
    * @param {Filter} filter
    */
-  public editFilterByPopup(filter:Filter) {
-    delete filter['tempSearchText'];
+  public editFilterByPopup(filter: Filter) {
     this.openUpdateFilterPopup(filter);
   } // function - editFilterByPopup
+
+  /**
+   * API 검색을 위한 펄터 팝업 오픈
+   */
+  public candidateFromSearchText() {
+    this.isSearchFocus = false;
+    this._candidate();
+  } // function - candidateFromSearchText
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -435,7 +447,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
       // this.datasourceService.getCandidateForFilter(
       //   this.filter, this.dashboard, this.getFiltersParam(this.filter), this.field).then((result) => {
       this.datasourceService.getCandidateForFilter(
-        this.filter, this.dashboard, [], this.field).then((result) => {
+        this.filter, this.dashboard, [], this.field, 'COUNT', this.searchText).then((result) => {
 
         this._candidateList = [];
 
@@ -445,8 +457,8 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
         // 선택된 후보값 목록
         const selectedCandidateValues: string[] = this.filter.candidateValues;
 
-        // 후보값 추가
         if (selectedCandidateValues && 0 < selectedCandidateValues.length) {
+          // 후보값 추가
           selectedCandidateValues.forEach((selectedItem) => {
             const item = result.find(item => item.field === selectedItem);
             if (item) {
@@ -455,14 +467,24 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
               this._candidateList.push(this._stringToCandidate(selectedItem));
             }
           });
+          // 후보값에 포함되지 않은 검색값 추가
+          if (this.searchText) {
+            result.forEach(searchItem => {
+              const item = this._candidateList.find(item => item.name === searchItem.field);
+              if (isNullOrUndefined(item)) {
+                this._candidateList.push(this._objToCandidate(searchItem, this.field));
+              }
+            });
+          }
         } else {
+          // 전체 목록 추가
           result.forEach(item => {
             this._candidateList.push(this._objToCandidate(item, this.field));
           });
         }
 
         // 추가 데이터가 있는지 여부
-        this.isOverCandidateWarning = ( FilterUtil.CANDIDATE_LIMIT <= result.length || result.length > this.candidateListSize );
+        this.isOverCandidateWarning = (FilterUtil.CANDIDATE_LIMIT <= result.length || result.length > this.candidateListSize);
 
         // 정렬
         this.sortCandidateValues(this.filter);
