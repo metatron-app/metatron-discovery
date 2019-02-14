@@ -2029,7 +2029,7 @@
   "msg.storage.ui.conn.url.ph" : "URL을 입력해 주세요",
   "msg.storage.ui.conn.sid.ph" : "SID를 입력해 주세요",
   "msg.storage.ui.conn.catalog.ph" : "Catalog를 입력해 주세요",
-  "msg.storage.ui.spaces.search.ph" : "워크스페이스 검색",
+  "msg.storage.ui.spaces.search.ph" : "워크스페이스 또는 소유자 검색",
   "msg.storage.ui.action.delete" : "삭제합니까?",
   "msg.storage.ui.action.data.detail" : "데이터 상세",
   "msg.storage.ui.server" : "서버",
@@ -2143,6 +2143,7 @@
   "msg.storage.ui.file.result.FV004": "1자~50자 이내의 컬럼명으로 작성해주세요.",
   "msg.storage.ui.file.result.FV005": "빈 컬럼명은 허용되지 않습니다.",
   "msg.storage.ui.timezone": "타임존",
+  "msg.storage.ui.username": "사용자이름",
 
   "msg.storage.ui.timezone.country.zimbabwe": "짐바브웨",
   "msg.storage.ui.timezone.country.zambia": "잠비아",
