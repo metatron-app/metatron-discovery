@@ -16,7 +16,6 @@ import { Injectable, Injector } from '@angular/core';
 import { AbstractService } from '../../../common/service/abstract.service';
 import { Datasets } from '../../../domain/data-preparation/pr-dataset';
 import { CommonUtil } from '../../../common/util/common.util';
-import { ConnectionRequest } from '../../../domain/dataconnection/connectionrequest';
 
 @Injectable()
 export class DatasetService extends AbstractService {
@@ -78,14 +77,12 @@ export class DatasetService extends AbstractService {
    * @param param {storedUri :string, fileType : string, delimiter? : string}
    * @returns {Promise<any>}
    */
-  public getFileGridInfo(param : {storedUri :string, fileType : string, delimiter? : string}) {
+  public getFileGridInfo(param : {storedUri :string, delimiter? : string}) {
 
     let url = this.API_URL + 'preparationdatasets/file_grid?storedUri=' + encodeURI(param.storedUri);
 
-    if (param.fileType === 'csv' || param.fileType === 'txt') {
-      if (param.delimiter) {
-        url += `&delimiterCol=${encodeURI(param.delimiter)}`;
-      }
+    if (param.delimiter) {
+      url += `&delimiterCol=${encodeURI(param.delimiter)}`;
     }
 
     return this.get(url);
@@ -186,15 +183,6 @@ export class DatasetService extends AbstractService {
     return this.get(this.API_URL + path);
   } // function - getResultWithStagingDBQuery
 
-
-
-  /**
-   * Check asynchronously if file is uploaded
-   * @param {string} storedUri
-   */
-  public checkFileUploadStatus(storedUri: string) {
-    return this.post(this.API_URL + 'preparationdatasets/upload_async_poll', storedUri);
-  }
 
   /**
    * Create dataset

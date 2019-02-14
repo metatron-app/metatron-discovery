@@ -12,16 +12,17 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { PrDatasetFile, PrDatasetHive, PrDatasetJdbc, RsType } from '../../../domain/data-preparation/pr-dataset';
-import { PopupService } from '../../../common/service/popup.service';
-import { DatasetService } from '../service/dataset.service';
-import { isUndefined } from 'util';
-import { StringUtil } from '../../../common/util/string.util';
-import { Alert } from '../../../common/util/alert.util';
-import { PreparationAlert } from '../../util/preparation-alert.util';
+import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {PrDatasetFile, PrDatasetHive, PrDatasetJdbc, RsType} from '../../../domain/data-preparation/pr-dataset';
+import {PopupService} from '../../../common/service/popup.service';
+import {DatasetService} from '../service/dataset.service';
+import {isUndefined} from 'util';
+import {StringUtil} from '../../../common/util/string.util';
+import {Alert} from '../../../common/util/alert.util';
+import {PreparationAlert} from '../../util/preparation-alert.util';
 import {PreparationCommonUtil} from "../../util/preparation-common.util";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-create-dataset-name',
@@ -41,38 +42,23 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @Input() // Input from parent component if type is hive
-  //public datasetHive: DatasetHive;
+  @Input()
   public datasetHive: PrDatasetHive;
 
-  @Input() // Input from parent component if type is hive
-  //public datasetJdbc: DatasetJdbc;
+  @Input()
   public datasetJdbc: PrDatasetJdbc;
 
-  @Input() // Input from parent component if type if file
-  //public datasetFile : DatasetFile;
+  @Input()
   public datasetFile : PrDatasetFile;
 
-  @Input() // Type of Dataset. [DB,STAGING,FILE]
+  @Input() // [DB, STAGING, FILE]
   public type : string;
-
-  // user input
-  public name : string;
-
-  // user input
-  public description : string;
 
   // name error msg show/hide
   public showNameError: boolean = false;
 
   // desc error msg show/hide
   public showDescError: boolean = false;
-
-  // name error description
-  public nameErrorDesc: string = '';
-
-  // error description
-  public nameDescErrorDesc: string = '';
 
   // to check request is only sent once.
   public flag: boolean = false;
@@ -82,13 +68,21 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
   public datasetInfo : DatasetInfo[] = [];
   public fileExtension: string;
+
+  public isMultiSheet: boolean = false;
+  public names : string [] = [];
+  public clonedNames:string[] = [];
+  public descriptions : string [] = [];
+  public nameErrors: string[] = [];
+  public descriptionErrors: string[] = [];
+  public isLast: boolean = false;
+  public fileParams: any[]=[];
+  public currentIndex: number = 0;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Constructor
   constructor(private popupService: PopupService,
               private datasetService: DatasetService,
               protected elementRef: ElementRef,
@@ -99,22 +93,19 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
   public ngOnInit() {
-
-    // Init
     super.ngOnInit();
 
+
+    // Set default name
     this._setDefaultDatasetName(this.type);
+
+    // Set dataset information
     this._setDatasetInfo();
 
   }
 
-  // Destory
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
@@ -125,79 +116,67 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   /** Complete */
   public complete() {
 
-    if (this.flag === false) {
-
-      // Validation - name is mandatory
-      if (isUndefined(this.name) || this.name.trim() ==='' || this.name.length < 1) {
-        this.showNameError = true;
-        this.nameErrorDesc = this.translateService.instant('msg.dp.alert.name.error');
-        return;
-      }
-
-      // 이름 validation
-      if (this.name.length > 50) {
-        this.showNameError = true;
-        this.nameErrorDesc = this.translateService.instant('msg.dp.alert.name.error.description');
-        return true;
-      }
-
-      // 설명 validation
-      if (!StringUtil.isEmpty(this.description) && this.description.length > 150) {
-        this.showDescError = true;
-        this.nameDescErrorDesc = this.translateService.instant('msg.dp.alert.description.error.description');
-        return true;
-      }
-      // 서버에 보낼 이름 설명 앞뒤 공백 제거
-      switch(this.type) {
-        case 'FILE':
-          //this.datasetFile.name = this.name.trim();
-          this.datasetFile.dsName = this.name.trim();
-          break;
-        case 'STAGING':
-          this.datasetHive.dsName = this.name.trim();
-          break;
-        case 'DB':
-          this.datasetJdbc.dsName = this.name.trim();
-          break;
-      }
-      if (!isUndefined(this.description) && this.description.trim() !== '') {
-        switch(this.type) {
-          case 'FILE':
-            //this.datasetFile.desc = this.description.trim();
-            this.datasetFile.dsDesc = this.description.trim();
-            break;
-          case 'STAGING':
-            this.datasetHive.dsDesc = this.description.trim();
-            break;
-          case 'DB':
-            this.datasetJdbc.dsDesc = this.description.trim();
-            break;
-        }
-      }
-
-      this.loadingShow();
-      this.flag = true;
-
-      let params = {};
-
-      // 데이터 저장 서비스호출
-      if(this.type === 'STAGING')  {
-
-        params = this._getHiveParams(this.datasetHive);
-        this._createDataset(params);
-
-      } else if (this.type === 'FILE') {
-
-        params = this._getFileParams(this.datasetFile);
-        this._createDataset(params);
-
-      } else if(this.type === 'DB') {
-
-        params = this._getJdbcParams(this.datasetJdbc);
-        this._createDataset(params);
-
-      }
+    if (this.flag) {
+      return;
     }
+
+    // Name validation
+    this.names.forEach((item, index) => {
+      if (isUndefined(item) || item.trim() === '' || item.length < 1) {
+        this.nameErrors[index] = this.translateService.instant('msg.dp.alert.name.error');
+        this.showNameError = true;
+      }
+
+      if (item.length > 50) {
+        this.showNameError = true;
+        this.nameErrors[index] = this.translateService.instant('msg.dp.alert.name.error.description');
+      }
+
+    });
+
+
+    // description validation
+    this.descriptions.forEach((item, index) => {
+      if (!StringUtil.isEmpty(this.descriptions[index]) && this.descriptions[index].length > 150) {
+        this.descriptionErrors[index] = this.translateService.instant('msg.dp.alert.description.error.description');
+      }
+    });
+
+    if (this.showNameError || this.showDescError) {
+      return;
+    }
+
+
+    let params = {};
+    if (this.type === 'STAGING') {
+
+      this.datasetHive.dsName = this.names[0];
+      this.datasetHive.dsDesc = this.descriptions[0];
+      params = this._getHiveParams(this.datasetHive);
+      this._createDataset(params);
+    }
+
+    if (this.type === 'DB') {
+
+      this.datasetJdbc.dsName = this.names[0];
+      this.datasetJdbc.dsDesc = this.descriptions[0];
+      params = this._getJdbcParams(this.datasetJdbc);
+      this._createDataset(params);
+
+    }
+
+    if (this.type === 'FILE') {
+
+      this.names.forEach((item, index) => {
+        this.datasetFile.dsName = item;
+        this.datasetFile.dsDesc = this.descriptions[index];
+        params = this._getFileParams(this.datasetFile);
+        this.fileParams.push(params);
+      });
+
+      this._createDataset(this.fileParams[0]);
+    }
+
   }
 
   /** go to previous step */
@@ -220,7 +199,11 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       });
     }
   }
-  /** close popup */
+
+
+  /**
+   * close popup
+   * */
   public close() {
     super.close();
 
@@ -235,47 +218,96 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     });
   }
 
-  /** show/hide error msg */
-  public hideNameError() {
-    if (isUndefined(this.name) || this.name.length > 0 || this.name.length < 50) {
+
+  /**
+   * show/hide error msg
+   * @param index
+   * */
+  public hideNameError(index: number) {
+    if (isUndefined(this.names[index]) || this.names[index].length > 0 || this.names[index].length < 50) {
       this.showNameError = false;
-      this.nameErrorDesc = '';
+      this.nameErrors[index] = '';
 
     }
   }
 
-  /** show/hide error msg */
-  public hideDescError() {
-    if (isUndefined(this.description) || this.description.length < 150) {
+  /**
+   * show/hide error msg
+   * @param index
+   * */
+  public hideDescError(index: number) {
+    if (isUndefined(this.descriptions[index]) || this.descriptions[index].length < 150) {
       this.showDescError = false;
-      this.nameDescErrorDesc = '';
+      this.descriptionErrors[index] = '';
     }
   }
 
+
+  /**
+   * Success action
+   * @param result
+   */
   public successAction(result) {
+
     this.flag = false;
     Alert.success(this.translateService.instant('msg.dp.alert.create-ds.success',{value:result.dsName}));
 
-    if (this.datasetService.dataflowId) {
-      sessionStorage.setItem('DATASET_ID', result.dsId);
-      this.router.navigate(['/management/datapreparation/dataflow/' + this.datasetService.dataflowId]);
-    }
+    // only close popup when all request is finished
+    if (this.type === "FILE" && this.isLast || (this.type == 'STAGING' || this.type === 'DB')) {
+      if (this.datasetService.dataflowId) {
+        sessionStorage.setItem('DATASET_ID', result.dsId);
+        this.router.navigate(['/management/datapreparation/dataflow/' + this.datasetService.dataflowId]);
+      }
 
-    this.close();
-    this.popupService.notiPopup({
-      name: 'complete-dataset-create',
-      data: result.dsId
-    });
+      this.close();
+      this.popupService.notiPopup({
+        name: 'complete-dataset-create',
+        data: result.dsId
+      });
+    } else {
+      this._createDataset(this.fileParams[this.currentIndex]);
+    }
 
   }
 
+
+  /**
+   * Error action
+   * @param error
+   */
   public errorAction(error) {
     this.flag = false;
 
-    this.loadingHide();
     let prep_error = this.dataprepExceptionHandler(error);
     PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+
+    if (this.type === "FILE" && this.isLast || (this.type == 'STAGING' || this.type === 'DB')) {
+      this.close();
+    } else {
+      this._createDataset(this.fileParams[this.currentIndex]);
+    }
+
   }
+
+
+  /**
+   * Check if next button is disabled or not
+   */
+  public isBtnDisabled() : boolean {
+    return this.showNameError || this.showDescError;
+  }
+
+
+  /**
+   * Keyup event
+   * @param event
+   */
+  public keyupEvent(event) {
+    if (event.keyCode === 13) {
+      this.complete();
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -295,20 +327,34 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       let file = PreparationCommonUtil.getFileNameAndExtension(this.datasetFile.filenameBeforeUpload);
       this.fileExtension = file[1];
       let fileName = file[0];
-
       if(this.fileExtension.toUpperCase() === 'XLSX' || this.fileExtension.toUpperCase() === 'XLS') {
 
-        this.name = `${fileName} - ${this.datasetFile.sheetName} (EXCEL)`;
+        this.datasetFile.selectedSheets.forEach((item) => {
+          this.names.push(`${fileName} - ${item} (EXCEL)`);
+          this.descriptions.push('');
+          this.nameErrors.push('');
+          this.descriptionErrors.push('');
+        });
 
+        // For placeholder
+        this.clonedNames = _.cloneDeep(this.names);
+
+        if (this.names.length > 1) {
+          this.isMultiSheet = true;
+        } else {
+          this.names[0] = `${fileName} - ${this.datasetFile.selectedSheets[0]} (EXCEL)`;
+        }
+
+      } else if (this.fileExtension.toUpperCase() === 'JSON') {
+        this.names[0] = `${fileName} (JSON)`;
       } else {
-
-        this.name = `${fileName} (${this.fileExtension.toUpperCase()})`;
+        this.names[0] = `${fileName} (CSV)`;
       }
     } else if ('DB' === type) {
 
       // When table
       if (this.datasetJdbc.rsType === RsType.TABLE) {
-        this.name = this.datasetJdbc.tableInfo.tableName +' ('+this.datasetJdbc.dataconnection.connection.implementor+')';
+        this.names[0] = this.datasetJdbc.tableInfo.tableName +' ('+this.datasetJdbc.dataconnection.connection.implementor+')';
       }
 
       // When query
@@ -318,17 +364,21 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
       // When table
       if (this.datasetHive.rsType === RsType.TABLE) {
-        this.name = `${this.datasetHive.tableInfo.tableName} (STAGING)`;
+        this.names[0] = `${this.datasetHive.tableInfo.tableName} (STAGING)`;
       }
 
       // When query
 
     }
 
-    setTimeout(() => { this.nameElement.nativeElement.select(); });
+    this.nameElement && setTimeout(() => { this.nameElement.nativeElement.select(); });
   } // function - _setDefaultDatasetName
 
 
+  /**
+   * Set dataset information (summary)
+   * @private
+   */
   private _setDatasetInfo() {
 
     if ('FILE' === this.type) {
@@ -337,12 +387,10 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
       if ('XLSX' === this.fileExtension.toUpperCase() || 'XLS' === this.fileExtension.toUpperCase()) {
 
-        // if (this.datasetFile.sheetInformation.length === 1) {
-        //   this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.datasetFile.sheetInformation[0].sheetName});
-        // } else if (this.datasetFile.sheetInformation.length > 1) {
-        //   this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetNames()});
-        // }
-        this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.datasetFile.sheetName});
+        if (!this.isMultiSheet) {
+          this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.datasetFile.selectedSheets[0]});
+        }
+
       }
 
     } else if ('DB' === this.type) {
@@ -468,7 +516,6 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     params.filenameBeforeUpload = file.filenameBeforeUpload;
     params.storageType = file.storageType;
     params.sheetName = file.sheetName;
-    //params.storageType = file.storageType;
     params.storedUri = file.storedUri;
 
     const filenameBeforeUpload = file.filenameBeforeUpload.toLowerCase();
@@ -516,6 +563,14 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     this.datasetService.createDataSet(params).then((result) => {
 
+      if (this.type === 'FILE') {
+        if (this.fileParams.length-1 !== this.currentIndex) {
+          this.currentIndex +=1;
+        } else {
+          this.isLast = true;
+        }
+      }
+
       this.loadingHide();
       this.successAction(result);
 
@@ -527,6 +582,14 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       // Error when creating dataflow with dataset with no querystmt
       if (this.type !== 'FILE' && type.rsType === RsType.TABLE) {
         delete params['queryStmt'];
+      }
+
+      if (this.type === 'FILE') {
+        if (this.fileParams.length-1 !== this.currentIndex) {
+          this.currentIndex +=1;
+        } else {
+          this.isLast = true;
+        }
       }
 
       this.loadingHide();
