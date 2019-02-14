@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.Serializable;
 import java.util.List;
 
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
@@ -29,10 +28,10 @@ public class GeoShelf implements Shelf {
   /**
    * GEO Layers
    */
-  List<Layer> layers;
+  List<MapViewLayer> layers;
 
   @JsonCreator
-  public GeoShelf(@JsonProperty("layers") List<Layer> layers) {
+  public GeoShelf(@JsonProperty("layers") List<MapViewLayer> layers) {
     this.layers = layers;
   }
 
@@ -43,7 +42,7 @@ public class GeoShelf implements Shelf {
     return collectedFields;
   }
 
-  public List<Layer> getLayers() {
+  public List<MapViewLayer> getLayers() {
     return layers;
   }
 
@@ -54,57 +53,4 @@ public class GeoShelf implements Shelf {
         '}';
   }
 
-  /**
-   * Map View Layer
-   */
-  public static class Layer implements Serializable {
-
-    /**
-     * Name of layer (optional)
-     */
-    String name;
-
-    /**
-     * datasource reference
-     */
-    String ref;
-
-    /**
-     * fields
-     */
-    List<Field> fields;
-
-    public Layer() {
-    }
-
-    @JsonCreator
-    public Layer(@JsonProperty("name") String name,
-                 @JsonProperty("ref") String ref,
-                 @JsonProperty("layer") List<Field> fields) {
-      this.name = name;
-      this.ref = ref;
-      this.fields = fields;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public String getRef() {
-      return ref;
-    }
-
-    public List<Field> getFields() {
-      return fields;
-    }
-
-    @Override
-    public String toString() {
-      return "Layer{" +
-          "name='" + name + '\'' +
-          ", ref='" + ref + '\'' +
-          ", fields=" + fields +
-          '}';
-    }
-  }
 }

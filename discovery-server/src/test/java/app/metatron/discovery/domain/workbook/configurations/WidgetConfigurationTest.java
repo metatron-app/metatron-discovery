@@ -41,6 +41,8 @@ import app.metatron.discovery.domain.workbook.configurations.widget.FilterWidget
 import app.metatron.discovery.domain.workbook.configurations.widget.PageWidgetConfiguration;
 import app.metatron.discovery.domain.workbook.configurations.widget.TextWidgetConfiguration;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.LayerView;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
 
 public class WidgetConfigurationTest {
@@ -109,8 +111,8 @@ public class WidgetConfigurationTest {
         new InclusionFilter("f1", Lists.newArrayList("v1", "v2", "v3"))
     );
 
-    GeoShelf.Layer layer1 = new GeoShelf.Layer("layer1", "datasource_name1", Lists.newArrayList(new DimensionField("Geo1"), new DimensionField("region")));
-    GeoShelf.Layer layer2 = new GeoShelf.Layer("layer2", "datasource_name2", Lists.newArrayList(new DimensionField("Geo1"), new DimensionField("Geo2"), new MeasureField("measure")));
+    MapViewLayer layer1 = new MapViewLayer("layer1", "datasource_name1", Lists.newArrayList(new DimensionField("Geo1"), new DimensionField("region")), new LayerView.OriginalLayerView());
+    MapViewLayer layer2 = new MapViewLayer("layer2", "datasource_name2", Lists.newArrayList(new DimensionField("Geo1"), new DimensionField("Geo2"), new MeasureField("measure")), new LayerView.HashLayerView("h3", 5));
 
     Shelf geoShelf = new GeoShelf(
         Lists.newArrayList(layer1, layer2)
@@ -136,8 +138,8 @@ public class WidgetConfigurationTest {
                                                     "auto", new NumberFieldFormat.CustomSymbol("원", "after"));
     ChartLegend mapChartLegend = new ChartLegend(null, null, "RIGHT_BOTTOM");
     ChartToolTip chartToolTip = new ChartToolTip(
-        org.assertj.core.util.Lists.newArrayList("layer_name", "location_info", "data_value"),
-        org.assertj.core.util.Lists.newArrayList("column1", "column2"),
+        Lists.newArrayList("layer_name", "location_info", "data_value"),
+        Lists.newArrayList("column1", "column2"),
         null
     );
 
