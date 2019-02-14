@@ -24,10 +24,21 @@ export class Shelf {
   public type: ShelfType;
 
   // Layers
-  public layers: [GeoField[]];
+  // public layers: [GeoField[]];
+  public layers: [{
+    name : string
+    ref : string
+    view? : any
+    fields : GeoField[]
+  }];
 
   constructor() {
     this.type = ShelfType.GEO;
-    this.layers = [[]];
+    // this.layers = [[]];
+    this.layers = [{
+      name : '',
+      ref : '',
+      fields : []
+    }];
   }
 }

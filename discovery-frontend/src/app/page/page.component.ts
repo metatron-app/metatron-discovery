@@ -2364,7 +2364,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (_.eq(this.selectChart, ChartType.MAP)) {
 
       let layerNum = (<UIMapOption>this.uiOption).layerNum;
-      let currentMapLayer = this.shelf.layers[layerNum];
+      let currentMapLayer = this.shelf.layers[layerNum].fields;
 
       let fieldPivot: FieldPivot;
 
@@ -2394,7 +2394,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         if (!isAlreadyPivot) {
 
           // push pivotField to layers
-          this.shelf.layers[layerNum].push(pivotFiled);
+          this.shelf.layers[layerNum].fields.push(pivotFiled);
           this.mapPivot.convertField(targetField, 'layer' + layerNum);
 
           // remove
@@ -2415,7 +2415,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         // push pivotField to layers
         } else {
 
-          this.shelf.layers[layerNum].push(pivotFiled);
+          this.shelf.layers[layerNum].fields.push(pivotFiled);
           this.mapPivot.convertField(targetField, 'layer' + layerNum);
         }
       }
@@ -3229,7 +3229,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    */
   public static updateShelfAliasFromField(shelf: Shelf, field: Field, layerNum: number) {
 
-    shelf.layers[layerNum].forEach((layer) => {
+    shelf.layers[layerNum].fields.forEach((layer) => {
       if (layer.name === field.name) {
         (layer.fieldAlias === layer.alias || layer.name === layer.alias) && (layer.alias = field.nameAlias.nameAlias);
         layer.fieldAlias = field.nameAlias.nameAlias;
@@ -3246,7 +3246,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   public setDisableShelf(layerNum: number): boolean {
 
     let valid: boolean = true;
-    let layers = this.shelf.layers[layerNum];
+    let layers = this.shelf.layers[layerNum].fields;
 
     if( layers ) {
       for (let layer of layers) {
@@ -3537,7 +3537,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
               fieldPivot = FieldPivot.MAP_LAYER2;
             }
 
-            this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']]
+            this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']].fields
               .forEach((abstractField) => {
                 if (String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
                   abstractField.field = field;
@@ -3648,7 +3648,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // // const aggTimestampCnt = getShelfCnt('agg', ['timestamp'], this.pivot);
 
     let pivotList = [];
-    if (this.shelf && this.shelf.layers && undefined !== (<UIMapOption>this.uiOption).layerNum) pivotList = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum];
+    if (this.shelf && this.shelf.layers && undefined !== (<UIMapOption>this.uiOption).layerNum) pivotList = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields;
     else if (this.pivot) pivotList = this.pivot.aggregations.concat(this.pivot.rows.concat(this.pivot.columns));
 
     const geoCnt = getGeoType('GEO', pivotList);
@@ -3857,7 +3857,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         url: this.router.url,
         dashboardId: this.widget.dashBoard.id,
         widgetId: this.widget.id
-      }, params.resultFormatOptions
+      }, params.resultFormatOptions, null, this.dataSourceList
     );
 
     const uiCloneQuery = _.cloneDeep(query);
@@ -4033,11 +4033,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // map - set shelf layers
     if (cloneQuery.shelf && cloneQuery.shelf.layers && cloneQuery.shelf.layers.length > 0) {
-      for (let layer of cloneQuery.shelf.layers[0]) {
-        delete layer['field'];
-        delete layer['currentPivot'];
-        delete layer['granularity'];
-        delete layer['segGranularity'];
+      for (let layers of cloneQuery.shelf.layers) {
+        for (let layer of layers.fields) {
+          delete layer['field'];
+          delete layer['currentPivot'];
+          delete layer['granularity'];
+          delete layer['segGranularity'];
+        }
       }
     }
 
@@ -4168,13 +4170,14 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   private convertShelfToPivot(pivot: Pivot, uiOption: UIOption) {
 
     // when shelf layers exists, pivot is null, convert shelf to pivot
-    if (this.shelf.layers && this.shelf.layers[0] && this.shelf.layers[0].length > 0) {
+    if (this.shelf.layers && this.shelf.layers[0] && this.shelf.layers[0].fields[0] && this.shelf.layers[0].fields.length > 0) {
 
       // init pivot
       pivot = new Pivot();
 
       _.each(this.shelf.layers, (layer, layerNum) => {
-        _.each(layer, (item, index) => {
+        let layers = layer['fields'];
+        _.each(layers, (item, index) => {
 
           // convert pivot type(agg, column, row) to shelf type (MAP_LAYER0 ..)
           if (item.field && item.field.pivot) {
@@ -4187,7 +4190,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           // when it's point or heatmap, add aggregation type
           if (MapLayerType.SYMBOL === (<UIMapOption>uiOption).layers[layerNum].type ||
               MapLayerType.HEATMAP === (<UIMapOption>uiOption).layers[layerNum].type) {
-            this.pagePivot.distinctPivotItems(layer, item, index, layer, 'layer' + layerNum);
+            this.pagePivot.distinctPivotItems(layers, item, index, layers, 'layer' + layerNum);
           }
 
           pivot.aggregations.push(item);
@@ -4208,7 +4211,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // when shelf is empty, convert shelf from pivot
     // if (0 === shelf.layers[(<UIMapOption>this.uiOption).layerNum].length) {
-    if (0 === shelf.layers[(<UIMapOption>this.uiOption).layerNum].length || shelf.layers[(<UIMapOption>this.uiOption).layerNum] == null) {
+    if (0 === shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields.length || shelf.layers[(<UIMapOption>this.uiOption).layerNum] == null) {
 
       // convert shelf from pivot
       _.forEach(_.cloneDeep(this.pivot), (value, key) => {
@@ -4225,15 +4228,15 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           // remove aggregation type
           delete item.aggregationType;
 
-          shelf.layers[(<UIMapOption>this.uiOption).layerNum].push(item);
+          shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields.push(item);
         });
       });
 
       // remove duplicate measure, timestamp
-      shelf.layers[(<UIMapOption>this.uiOption).layerNum] = _.uniqBy(shelf.layers[(<UIMapOption>this.uiOption).layerNum], 'name');
+      shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields = _.uniqBy(shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields, 'name');
 
       // remove duplicate measure pivot
-      for (const item of shelf.layers[(<UIMapOption>this.uiOption).layerNum]) {
+      for (const item of shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields) {
         item.field.pivot = _.uniq(item.field.pivot);
       }
     }

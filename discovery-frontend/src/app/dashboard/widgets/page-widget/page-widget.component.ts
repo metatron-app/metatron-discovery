@@ -1138,7 +1138,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           // map - set shelf layers
           if (undefined !== this.widgetConfiguration.chart['layerNum'] && this.widgetConfiguration.chart['layerNum'] >= 0) {
 
-            this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']]
+            this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']].fields
               .forEach((abstractField) => {
                 if (isNullOrUndefined(abstractField.field)
                   && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
@@ -1410,11 +1410,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     // map - set shelf layers
     if (cloneQuery.shelf && cloneQuery.shelf.layers && cloneQuery.shelf.layers.length > 0) {
-      for (let layer of cloneQuery.shelf.layers[0]) {
-        delete layer['field'];
-        delete layer['currentPivot'];
-        delete layer['granularity'];
-        delete layer['segGranularity'];
+      for (let layers of cloneQuery.shelf.layers) {
+        for (let layer of layers.fields) {
+          delete layer['field'];
+          delete layer['currentPivot'];
+          delete layer['granularity'];
+          delete layer['segGranularity'];
+        }
       }
     }
 

@@ -954,8 +954,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       // set shelf layers (map chart)
       const shelf: Shelf = widget.configuration['shelf'];
       const layerNum: number = widget.configuration['chart'].layerNum;
-      if (shelf && undefined !== layerNum && shelf.layers[layerNum] && shelf.layers[layerNum].length > 0) {
-        arrFields = arrFields.concat(shelf.layers[layerNum].map(item => {
+      if (shelf && undefined !== layerNum && shelf.layers[layerNum] && shelf.layers[layerNum].fields.length > 0) {
+        arrFields = arrFields.concat(shelf.layers[layerNum].fields.map(item => {
           if (item.alias) {
             return item.alias;
           } else {
@@ -1521,7 +1521,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     if (customFields) {
       customFields.forEach((field: CustomField) => {
         if (FieldRole.DIMENSION === field.role) {
-          shelf.layers[layerNum].some(layer => {
+          shelf.layers[layerNum].fields.some(layer => {
             if (layer.name === field['oriColumnName']) {
               layer.field = _.merge(layer.field, field);
               layer['expr'] = field['expr'];
@@ -1531,7 +1531,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
           });
         } else if (FieldRole.MEASURE === field.role) {
           const customFieldPivotIdxs: number[] = [];
-          shelf.layers[layerNum].forEach((agg, idx: number) => {
+          shelf.layers[layerNum].fields.forEach((agg, idx: number) => {
             if (agg.name === field['oriColumnName']) {
               customFieldPivotIdxs.push(idx);
             }
@@ -1539,10 +1539,10 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
           if (1 < customFieldPivotIdxs.length) {
             customFieldPivotIdxs.splice(0, 1);
             customFieldPivotIdxs.reverse().forEach(idx => {
-              shelf.layers[layerNum].splice(idx, 1);
+              shelf.layers[layerNum].fields.splice(idx, 1);
             });
           }
-          shelf.layers[layerNum].forEach(agg => {
+          shelf.layers[layerNum].fields.forEach(agg => {
             if (agg.name === field['oriColumnName']) {
               agg.field = _.merge(agg.field, field);
               agg['expr'] = field['expr'];

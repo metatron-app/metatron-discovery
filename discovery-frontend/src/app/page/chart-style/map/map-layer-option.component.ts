@@ -412,7 +412,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
       // not heatmap => set ranges
       if (MapLayerType.HEATMAP !== this.uiOption.layers[layerIndex].type && MapBy.MEASURE === this.uiOption.layers[layerIndex].color.by) {
-        this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex], []);
+        this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
       }
 
     } else if (MapBy.NONE === data['value']) {
@@ -439,7 +439,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       this.uiOption.layers[layerIndex].color.granularity = null;
       // init ranges
       const colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[layerIndex].color['schema']]);
-      this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex], []);
+      this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
     // granularity
     } else {
       if (data.format) this.uiOption.layers[layerIndex].color.granularity = data.format.unit.toString();
@@ -661,7 +661,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     // not heatmap => set ranges
     if (MapLayerType.HEATMAP !== this.uiOption.layers[layerIndex].type && MapBy.MEASURE === this.uiOption.layers[layerIndex].color.by) {
-      this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex], []);
+      this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
     // heatmap => init ranges
     } else {
       this.uiOption.layers[layerIndex].color.ranges = undefined;
@@ -797,7 +797,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // custom user color is show, set ranges
     const ranges = this.uiOption.layers[layerIndex].color.settingUseFl ? colorOption.ranges : [];
 
-    this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], <any>ChartColorList[colorOption.schema], layerIndex, this.shelf.layers[layerIndex], ranges);
+    this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], <any>ChartColorList[colorOption.schema], layerIndex, this.shelf.layers[layerIndex].fields, ranges);
 
     this.applyLayers();
   }
@@ -1070,7 +1070,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     });
 
     // set color ranges
-    this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex], rangeList);
+    this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, rangeList);
 
     this.applyLayers();
   }
@@ -1177,7 +1177,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     for(let index=0; index < shelf.layers.length; index++) {
 
-      let layers = _.cloneDeep(shelf.layers[index]);
+      let layers = _.cloneDeep(shelf.layers[index].fields);
 
       const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
         const resultList: AbstractField[] = [];
@@ -1227,7 +1227,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   private removeAggregationType() {
     // add aggregation type in current layer
-    let layer = this.shelf.layers[this.uiOption.layerNum];
+    let layer = this.shelf.layers[this.uiOption.layerNum].fields;
 
     // remove duplicate measure list
     let uniMeasureList = _.uniqBy(layer, 'name');
@@ -1240,7 +1240,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       }
     }
 
-    this.shelf.layers[this.uiOption.layerNum] = uniMeasureList;
+    this.shelf.layers[this.uiOption.layerNum].fields = uniMeasureList;
   }
 
   /**
@@ -1248,7 +1248,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   private addAggregationType() {
     // add aggregation type in current layer
-    let layer = this.shelf.layers[this.uiOption.layerNum];
+    let layer = this.shelf.layers[this.uiOption.layerNum].fields;
 
     for (const item of layer) {
       if (item.type === 'measure') {
@@ -1264,7 +1264,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   private setColorByShelf(aggregationFl: boolean, layerIndex : number): UILayers {
 
-    let shelf: GeoField[] = this.shelf.layers[layerIndex];
+    let shelf: GeoField[] = this.shelf.layers[layerIndex].fields;
 
     let preference = this.checkFieldPreference(shelf);
 

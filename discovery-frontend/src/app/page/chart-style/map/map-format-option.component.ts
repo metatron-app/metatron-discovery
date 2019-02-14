@@ -43,7 +43,7 @@ export class MapFormatOptionComponent extends FormatOptionComponent {
     }
 
     // shelf 정보에서 매저만 골라낸다
-    const fieldList: AbstractField[] = _.cloneDeep(this.shelf.layers[(<UIMapOption>this.uiOption).layerNum]);
+    const fieldList: AbstractField[] = _.cloneDeep(this.shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields);
     for( let num: number = fieldList.length - 1 ; num >= 0 ; num-- ) {
       if( "measure" != fieldList[num].type.toLowerCase() ) {
         fieldList.splice(num, 1);
@@ -100,7 +100,7 @@ export class MapFormatOptionComponent extends FormatOptionComponent {
     this.format = target as Format;
 
     // 모든 매저의 포맷변경
-    this.shelf.layers[(<UIMapOption>this.uiOption).layerNum].forEach((field) => {
+    this.shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields.forEach((field) => {
       if( field.type == 'measure' ) {
         field.format = this.format;
       }

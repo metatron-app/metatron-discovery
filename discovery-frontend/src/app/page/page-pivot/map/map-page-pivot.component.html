@@ -26,20 +26,20 @@
       </div>
       <div class="ddp-ui-drag-slide-in">
 
-        <div class="ddp-wrap-default" [dragula]="'dragbag'" [dragulaModel]="item" [attr.data-container]="'layer'+ index">
+        <div class="ddp-wrap-default" [dragula]="'dragbag'" [dragulaModel]="item.fields" [attr.data-container]="'layer'+ index">
           <!-- box shelf -->
-          <div class="dragIgnore ddp-wrap-example" *ngIf="chartType == '' && item.length == 0">
+          <div class="dragIgnore ddp-wrap-example" *ngIf="chartType == '' && item.fields.length == 0">
             <div class="ddp-box-shelf">
               {{'msg.page.ui.place.data' | translate}}
             </div>
           </div>
           <!-- //box shelf -->
           <!-- Pivot -->
-          <div class="ddp-ui-default" *ngFor="let field of item; let i = index" [ngStyle]="{display: finishAnimation ? 'block' : 'none'}">
+          <div class="ddp-ui-default" *ngFor="let field of item.fields; let i = index" [ngStyle]="{display: finishAnimation ? 'block' : 'none'}">
             <a href="javascript:" unselectable="on"
                [class.ddp-ui-dimension-wrap]="field.type == 'dimension' || field.type == 'timestamp'"
                [class.ddp-ui-measure-wrap]="field.type == 'measure'"
-               (mousedown)="dragField = item.slice(i, i+1)[0]">
+               (mousedown)="dragField = item.fields.slice(i, i+1)[0]">
               <!-- timestamp type -->
               <span class="ddp-type-value" *ngIf="field.type && 'timestamp' === field.type">{{getGranularityName(field)}}</span>
               <!-- //timestamp type -->
@@ -62,7 +62,7 @@
                 <em class="ddp-icon-control-calculat" *ngIf="field.subType == 'user_expr' && field.type == 'measure'"></em>
                 <em class="ddp-icon-control-user" *ngIf="field.subType == 'user_expr' && field.type == 'dimension'"></em>
                 <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field" (click)="openFieldSetting($event, field)"><em></em></span>
-                <span class="ddp-icon-close" (click)="removeField($event, 'MAP_LAYER'+ index, item, i)"><em></em></span>
+                <span class="ddp-icon-close" (click)="removeField($event, 'MAP_LAYER'+ index, item.fields, i)"><em></em></span>
               </div>
             </a>
           </div>

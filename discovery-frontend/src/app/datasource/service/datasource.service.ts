@@ -16,7 +16,7 @@ import {Injectable, Injector} from '@angular/core';
 import {AbstractService} from '../../common/service/abstract.service';
 import {Page} from '../../domain/common/page';
 import {CommonUtil} from '../../common/util/common.util';
-import {SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
+import {MapDataSource, SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
 
 import * as _ from 'lodash';
 import {PageWidgetConfiguration} from '../../domain/dashboard/widget/page-widget';
@@ -28,7 +28,7 @@ import {UILineChart} from '../../common/component/chart/option/ui-option/ui-line
 import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid-chart';
 import {FilterUtil} from '../../dashboard/util/filter.util';
 import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
-import {Dashboard} from '../../domain/dashboard/dashboard';
+import {BoardDataSource, Dashboard} from '../../domain/dashboard/dashboard';
 import { Datasource, Field, LogicalType } from '../../domain/datasource/datasource';
 import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
 import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
@@ -270,7 +270,7 @@ export class DatasourceService extends AbstractService {
   public makeQuery(pageConf: PageWidgetConfiguration,
                    dataSourceFields: Field[],
                    context: { url: string, dashboardId: string, widgetId?: string },
-                   resultFormatOptions?: any, isChartData?: boolean): SearchQueryRequest {
+                   resultFormatOptions?: any, isChartData?: boolean, dataSourceList? : Datasource[]): SearchQueryRequest {
     const query: SearchQueryRequest = new SearchQueryRequest();
 
     // 호출 추적 정보 등록
@@ -283,25 +283,28 @@ export class DatasourceService extends AbstractService {
     if (pageConf.hasOwnProperty('customFields')) {
       query.userFields = pageConf['customFields'];
     }
-    query.dataSource = _.cloneDeep(pageConf.dataSource);
-    delete query.dataSource['fields']; // 불필요 항목 제거
-    // EngineName 처리
-    query.dataSource.name = query.dataSource.engineName;
+
     query.filters = _.cloneDeep(pageConf.filters);
     query.pivot = _.cloneDeep(pageConf.pivot);
 
     let allPivotFields = [];
-
     // 파라미터 치환
-
-    // set alias list by pivot or shelf list
+    // set alias list by pivot or shelf list, Datasource setting
     if (_.eq(pageConf.chart.type, ChartType.MAP)) {
 
+      // data source
+      query.dataSource = new MapDataSource();
+      query.dataSource.type = 'multi';
+      query.dataSource.dataSources = [];
+
+      // alias 설정
       query.shelf = _.cloneDeep(pageConf.shelf);
 
+      let layerNum : number = 0;
       for (let layer of query.shelf.layers) {
+        layerNum++;
 
-        allPivotFields = _.concat(layer);
+        allPivotFields = _.concat(layer.fields);
         for (let field of allPivotFields) {
 
           // Alias 설정
@@ -318,13 +321,46 @@ export class DatasourceService extends AbstractService {
           }
         }
 
-      }
+        // 레이어 별 필드값에 맞는 datasource 설정 추가
+        for(let Datasource of dataSourceList) {
+          if( Datasource.id == allPivotFields[0].field.dsId ){
+
+            let searchQueryDataSource = _.cloneDeep( BoardDataSource.convertDsToMetaDs(Datasource) );
+            // let searchQueryDataSource = _.cloneDeep( pageConf.dataSource );
+            delete searchQueryDataSource['fields']; // 불필요 항목 제거
+            delete searchQueryDataSource['uiFields']; // 불필요 항목 제거
+            // EngineName 처리
+            searchQueryDataSource.name = searchQueryDataSource.engineName;
+            if( Datasource.id == pageConf.dataSource.id ) {
+              searchQueryDataSource.type = pageConf.dataSource.type;
+            } else {
+              searchQueryDataSource.type = 'default';
+            }
+
+            if( _.isUndefined( _.find(query.dataSource.dataSources, searchQueryDataSource) ) ) {
+              // datasource 추가
+              query.dataSource.dataSources.push( searchQueryDataSource );
+            }
+
+            // 선반에 datasource key 값 추가
+            layer.name = 'layer' + (layerNum);
+            layer.ref  = searchQueryDataSource.name;
+          }
+        }
+
+      } // end for - shelf.layers
 
     } else {
+
+      // datasource 설정 추가
+      query.dataSource = _.cloneDeep(pageConf.dataSource);
+      delete query.dataSource['fields']; // 불필요 항목 제거
+      // EngineName 처리
+      query.dataSource.name = query.dataSource.engineName;
+
+      // alias 설정
       allPivotFields = _.concat(query.pivot.columns, query.pivot.rows, query.pivot.aggregations);
-
       for (let field of allPivotFields) {
-
         // Alias 설정
         field['alias'] = this._setFieldAlias(field, dataSourceFields);
 
@@ -447,7 +483,7 @@ export class DatasourceService extends AbstractService {
       for(let idx=0; idx<query.shelf.layers.length; idx++) {
 
         let geoFieldCnt: number = 0;
-        for(let column of query.shelf.layers[idx]) {
+        for(let column of query.shelf.layers[idx].fields) {
           if(column && column.field && column.field.logicalType && (-1 !== column.field.logicalType.toString().indexOf('GEO'))) {
             geoFieldCnt++;
           }
@@ -458,7 +494,7 @@ export class DatasourceService extends AbstractService {
 
       // set current layer values
       for(let idx=0; idx<query.shelf.layers.length; idx++){
-        for(let layer of query.shelf.layers[idx]) {
+        for(let layer of query.shelf.layers[idx].fields) {
 
           // when it's measure
           if ('measure' === layer.type) {
@@ -470,11 +506,11 @@ export class DatasourceService extends AbstractService {
           } else if ('dimension' === layer.type) {
 
             // set current layer datasource
-            if (layer.field.dataSource && layer.field.dsId) {
-              query.dataSource.engineName = layer.field.dataSource;
-              query.dataSource.name = layer.field.dataSource;
-              query.dataSource.id = layer.field.dsId;
-            }
+            // if (layer.field.dataSource && layer.field.dsId) {
+            //   query.dataSource.dataSources[0].engineName = layer.field.dataSource;
+            //   query.dataSource.dataSources[0].name = layer.field.dataSource;
+            //   query.dataSource.dataSources[0].id = layer.field.dsId;
+            // }
 
             let radius = (<UITileLayer>(<UIMapOption>pageConf.chart).layers[idx]).radius;
 

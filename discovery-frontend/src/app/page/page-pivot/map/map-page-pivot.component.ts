@@ -195,18 +195,18 @@ export class MapPagePivotComponent extends PagePivotComponent {
     let fieldPivot: FieldPivot;
 
     if (targetContainer === 'layer0') {
-      shelf = this.shelf.layers[0];
+      shelf = this.shelf.layers[0].fields;
       shelfElement = this.$element.find('#layer0');
       fieldPivot = FieldPivot.MAP_LAYER0;
       this.uiOption.layerNum = 0;
     } else if (targetContainer === 'layer1') {
-      shelf = this.shelf.layers[1];
+      shelf = this.shelf.layers[1].fields;
       shelfElement = this.$element.find('#layer1');
       fieldPivot = FieldPivot.MAP_LAYER1;
       this.uiOption.layerNum = 1;
     }
     // else if (targetContainer === 'layer2') {
-    //   shelf = this.shelf.layers[2];
+    //   shelf = this.shelf.layers[2].fields;
     //   shelfElement = this.$element.find('#layer2');
     //   fieldPivot = FieldPivot.MAP_LAYER2;
     // }
@@ -265,7 +265,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
       // 현재 드래그된 필드
       this.dragField = field;
 
-      let shelves = this.shelf.layers[this.uiOption.layerNum];
+      let shelves = this.shelf.layers[this.uiOption.layerNum].fields;
 
       // remove duplicate list
       let duplicateFl = this.distinctPivotItems(shelves, field, idx, shelf, targetContainer);
@@ -332,18 +332,18 @@ export class MapPagePivotComponent extends PagePivotComponent {
     let shelfElement: JQuery;
 
     if (targetContainer === 'layer0') {
-      shelf = this.shelf.layers[0];
+      shelf = this.shelf.layers[0].fields;
       shelfElement = this.$element.find('#layer0');
       fieldPivot = FieldPivot.MAP_LAYER0;
       this.uiOption.layerNum = 0;
     } else if (targetContainer === 'layer1') {
-      shelf = this.shelf.layers[1];
+      shelf = this.shelf.layers[1].fields;
       shelfElement = this.$element.find('#layer1');
       fieldPivot = FieldPivot.MAP_LAYER1;
       this.uiOption.layerNum = 1;
     }
     // else if (targetContainer === 'layer2') {
-    //   shelf = this.shelf.layers[2];
+    //   shelf = this.shelf.layers[2].fields;
     //   shelfElement = this.$element.find('#layer2');
     //   fieldPivot = FieldPivot.MAP_LAYER2;
     // }
@@ -400,7 +400,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
    public changePivot(eventType?: EventType) {
 
      // set layer alias
-     this.shelf.layers[this.uiOption.layerNum] = this.shelf.layers[this.uiOption.layerNum].map(this.checkAlias);
+     this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkAlias);
 
      // emit
      this.changeShelfEvent.emit({ shelf: this.shelf, eventType: eventType });
@@ -413,14 +413,26 @@ export class MapPagePivotComponent extends PagePivotComponent {
     if( this.shelf.layers.length >= 2) {
       return;
     } else {
+
+      let layers = {
+        name : '',
+        ref : '',
+        // view : {
+        //   "type": "hash",
+        //   "method": "h3",
+        //   "precision": 5
+        // },
+        fields : []
+      };
+
       // add empty layer
-      this.shelf.layers.push([]);
+      this.shelf.layers.push(layers);
 
       // set current layer number
       this.uiOption.layerNum = this.shelf.layers.length - 1;
 
       // set layer alias
-      this.shelf.layers[this.uiOption.layerNum] = this.shelf.layers[this.uiOption.layerNum].map(this.checkAlias);
+      this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkAlias);
 
       // init layer
       let addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
@@ -449,7 +461,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
     // 필드의 선반정보 제거
     for( let idx=0; idx < this.shelf.layers.length; idx++ ) {
-      let item = this.shelf.layers[idx];
+      let item = this.shelf.layers[idx].fields;
       for( let idx2=0; idx2 < item.length; idx2++ ) {
         item[idx2].field.pivot.splice( item[idx2].field.pivot.indexOf(index), 1);
       }
@@ -458,8 +470,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // set current layer number
     this.uiOption.layerNum = this.shelf.layers.length - 1;
     // set layer alias
-    // this.shelf.layers[this.uiOption.layerNum] = this.shelf.layers[this.uiOption.layerNum].map(this.checkAlias);
-    this.shelf.layers[this.uiOption.layerNum] = this.shelf.layers[this.uiOption.layerNum].map(this.checkAlias);
+    this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkAlias);
     // uiOption layer 제거
     this.uiOption.layers.splice( index, 1 );
     // emit
@@ -480,7 +491,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
      }
 
      // when geo dimension on shelf, hide guide
-     for (let field of this.shelf.layers[this.uiOption.layerNum]) {
+     for (let field of this.shelf.layers[this.uiOption.layerNum].fields) {
        if (field && field.field && field.field.logicalType && -1 !== field.field.logicalType.toString().indexOf("GEO")) {
          return false;
        }
@@ -507,7 +518,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     this.editingField = field;
 
     // 모든선반에서 같은 field aggregation Type 설정
-    let shelves = this.shelf.layers[this.uiOption.layerNum];
+    let shelves = this.shelf.layers[this.uiOption.layerNum].fields;
 
     // set field setting
     this.fieldSetting(shelves);
@@ -537,7 +548,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
       returnValue = true;
 
       // hide when there is geo dimension
-      layers.forEach((item) => {
+      layers.fields.forEach((item) => {
         if (item.field && item.field.logicalType && -1 !== item.field.logicalType.toString().indexOf('GEO')) {
           return returnValue = false;
         }
@@ -546,7 +557,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
       returnValue = false;
 
       // show when there is geo dimension
-      layers.forEach((item) => {
+      layers.fields.forEach((item) => {
         if (item.field && item.field.logicalType && -1 !== item.field.logicalType.toString().indexOf('GEO')) {
           return returnValue = true;
         }
@@ -698,10 +709,10 @@ export class MapPagePivotComponent extends PagePivotComponent {
   protected deleteDuplicatedField(field: any, idx: number, targetContainer: string): boolean {
 
     // 열선반에서 해당 선반 중복시 제거
-    if (this.checkDuplicatedField(this.shelf.layers[this.uiOption.layerNum], field).length > 1) {
+    if (this.checkDuplicatedField(this.shelf.layers[this.uiOption.layerNum].fields, field).length > 1) {
 
       // 선반에서 해당 아이템 제거
-      this.shelf.layers[this.uiOption.layerNum].splice(idx, 1);
+      this.shelf.layers[this.uiOption.layerNum].fields.splice(idx, 1);
       return true;
     }
 

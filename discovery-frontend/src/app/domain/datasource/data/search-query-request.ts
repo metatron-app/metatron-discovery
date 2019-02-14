@@ -29,7 +29,9 @@ export class SearchQueryRequest {
   /**
    * 질의할 DataSource 정보
    */
-  dataSource: BoardDataSource;
+  // dataSource: BoardDataSource;
+  // 일반 차트 : BoardDataSource, 맵 차트 : MapDataSource
+  dataSource: any;
 
   /**
    * Filter 정보
@@ -114,4 +116,9 @@ export class SearchQueryAlias {
   type: string;
   codes?: any;
   ref?: string;
+}
+
+export class MapDataSource {
+  type        : string;
+  dataSources : BoardDataSource[]
 }

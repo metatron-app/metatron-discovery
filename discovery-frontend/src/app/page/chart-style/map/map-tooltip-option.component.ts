@@ -65,7 +65,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     if (!shelf || !shelf.layers || !shelf.layers[this.uiOption.layerNum]) return;
 
-    const layerItems = _.cloneDeep(shelf.layers[this.uiOption.layerNum]);
+    const layerItems = _.cloneDeep(shelf.layers[this.uiOption.layerNum].fields);
 
     // set alias
     for (const item of layerItems) {

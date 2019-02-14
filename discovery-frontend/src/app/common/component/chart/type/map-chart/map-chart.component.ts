@@ -295,8 +295,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     if (shelf.layers) {
 
       for (let index: number = 0; index < shelf.layers.length; index++) {
-        let layers: Field[] = shelf.layers[index];
-        for (let layer of layers) {
+        let fields: Field[] = shelf.layers[index].fields;
+        for (let layer of fields) {
           if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
             valid = true;
           }
@@ -321,10 +321,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     let valid: boolean = false;
 
-    let layers: Field[] = shelf.layers[this.getUiMapOption().layerNum];
+    let fields: Field[] = shelf.layers[this.getUiMapOption().layerNum].fields;
 
-    if (layers) {
-      for (let layer of layers) {
+    if (fields) {
+      for (let layer of fields) {
         if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
           valid = true;
         }
@@ -543,7 +543,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     let layerNum = (<UIMapOption>this.uiOption).layerNum ? (<UIMapOption>this.uiOption).layerNum : 0;
 
-    let shelve: any = !this.shelf ? [] : _.cloneDeep(this.shelf.layers[layerNum]);
+    let shelve: any = !this.shelf ? [] : _.cloneDeep(this.shelf.layers[layerNum].fields);
 
     // undefined shelf layer can be existed because of adding removing layers
     if (shelve == null) return;
@@ -590,7 +590,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     let layerNum = (<UIMapOption>this.uiOption).layerNum ? (<UIMapOption>this.uiOption).layerNum : 0;
 
-    let shelve: any = !this.shelf ? [] : _.cloneDeep(this.shelf.layers[layerNum]);
+    let shelve: any = !this.shelf ? [] : _.cloneDeep(this.shelf.layers[layerNum].fields);
 
     // 선반값에서 해당 타입에 해당하는값만 field값으로 리턴
     const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
@@ -730,7 +730,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // Cluster & Point layer
       ////////////////////////////////////////////////////////
       let field = null;
-      _.each(this.shelf.layers[num], (fieldTemp) => {
+      _.each(this.shelf.layers[num].fields, (fieldTemp) => {
         if (fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
           field = fieldTemp;
           return false;
@@ -941,7 +941,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let features = [];
     for (let polygonIndex = 0; polygonIndex < this.data.length; polygonIndex++) {
       let field = null;
-      _.each(this.shelf.layers[polygonIndex], (fieldTemp) => {
+      _.each(this.shelf.layers[polygonIndex].fields, (fieldTemp) => {
         if (fieldTemp != null && fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
           field = fieldTemp;
           return false;
@@ -953,7 +953,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         ////////////////////////////////////////////////////////
         // set field list
         ////////////////////////////////////////////////////////
-        let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[polygonIndex]);
+        let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[polygonIndex].fields);
         this.checkFieldList(shelf);
 
         // Data interate
@@ -969,7 +969,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
               feature.setGeometry(new ol.geom.Point(featureCenter));
             }
             if (this.uiOption.fieldMeasureList.length > 0) {
-              const alias = ChartUtil.getFieldAlias(this.getUiMapOption().layers[polygonIndex].color.column, this.shelf.layers[polygonIndex], this.getUiMapOption().layers[polygonIndex].color.aggregationType);
+              const alias = ChartUtil.getFieldAlias(this.getUiMapOption().layers[polygonIndex].color.column, this.shelf.layers[polygonIndex].fields, this.getUiMapOption().layers[polygonIndex].color.aggregationType);
 
               //히트맵 weight 설정
               if (this.data[polygonIndex].valueRange[alias]) {
@@ -1264,7 +1264,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       let lineMaxVal = 1; //styleLayer.size.max;
       let featureSizeType = symbolLayer.size.by;
       let style = null;
-      let alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[layerNum], styleLayer.color.aggregationType);
+      let alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[layerNum].fields, styleLayer.color.aggregationType);
 
       ////////////////////////////////////////////////////////
       // Cluster size
@@ -1331,7 +1331,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
               }
             }
           } else {
-            const ranges = ColorOptionConverter.setMapMeasureColorRange(styleOption, styleData, scope.getColorList(styleLayer), layerNum, scope.shelf.layers[layerNum]);
+            const ranges = ColorOptionConverter.setMapMeasureColorRange(styleOption, styleData, scope.getColorList(styleLayer), layerNum, scope.shelf.layers[layerNum].fields);
 
             // set decimal value
             const formatValue = ((value) => {
@@ -1406,7 +1406,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         let featureSize = 5;
         try {
           if (_.eq(featureSizeType, MapBy.MEASURE)) {
-            featureSize = parseInt(feature.get(ChartUtil.getFieldAlias((<UISymbolLayer>styleLayer).size.column, scope.shelf.layers[layerNum]))) / (styleData.valueRange[ChartUtil.getFieldAlias((<UISymbolLayer>styleLayer).size.column, scope.shelf.layers[layerNum])].maxValue / 30);
+            featureSize = parseInt(feature.get(ChartUtil.getFieldAlias((<UISymbolLayer>styleLayer).size.column, scope.shelf.layers[layerNum].fields))) / (styleData.valueRange[ChartUtil.getFieldAlias((<UISymbolLayer>styleLayer).size.column, scope.shelf.layers[layerNum].fields)].maxValue / 30);
             if (featureSize < 5) {
               featureSize = 5;
             }
@@ -1417,7 +1417,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         let lineThickness = 2;
         try {
           if (_.eq(featureSizeType, MapBy.MEASURE)) {
-            lineThickness = parseInt(feature.get(ChartUtil.getFieldAlias((<UISymbolLayer>styleLayer).size.column, scope.shelf.layers[layerNum]))) / (styleData.valueRange[ChartUtil.getFieldAlias((<UISymbolLayer>styleLayer).size.column, scope.shelf.layers[layerNum])].maxValue / lineMaxVal);
+            lineThickness = parseInt(feature.get(ChartUtil.getFieldAlias((<UISymbolLayer>styleLayer).size.column, scope.shelf.layers[layerNum].fields))) / (styleData.valueRange[ChartUtil.getFieldAlias((<UISymbolLayer>styleLayer).size.column, scope.shelf.layers[layerNum].fields)].maxValue / lineMaxVal);
             if (lineThickness < 1) {
               lineThickness = 1;
             }
@@ -1727,7 +1727,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let styleOption: UIMapOption = this.getUiMapOption();
     let styleLayer: UILayers = styleOption.layers[layerNum];
     let styleData = data[layerNum];
-    let alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[layerNum], styleLayer.color.aggregationType);
+    let alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[layerNum].fields, styleLayer.color.aggregationType);
 
     return function (feature, resolution) {
 
@@ -1782,7 +1782,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             }
           }
         } else {
-          const ranges = ColorOptionConverter.setMapMeasureColorRange(styleOption, styleData, scope.getColorList(styleLayer), layerNum, scope.shelf.layers[layerNum]);
+          const ranges = ColorOptionConverter.setMapMeasureColorRange(styleOption, styleData, scope.getColorList(styleLayer), layerNum, scope.shelf.layers[layerNum].fields);
           // set decimal value
           const formatValue = ((value) => {
             return parseFloat((Number(value) * (Math.pow(10, styleOption.valueFormat.decimal)) / Math.pow(10, styleOption.valueFormat.decimal)).toFixed(styleOption.valueFormat.decimal));
@@ -2248,7 +2248,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       ////////////////////////////////////////////////////////
 
       if (MapLayerType.SYMBOL === layer.type && _.eq((<UISymbolLayer>layer).size.by, MapBy.MEASURE)) {
-        legendInfo.radiusColumn = 'By ' + ChartUtil.getFieldAlias((<UISymbolLayer>layer).size.column, this.shelf.layers[num]);
+        legendInfo.radiusColumn = 'By ' + ChartUtil.getFieldAlias((<UISymbolLayer>layer).size.column, this.shelf.layers[num].fields);
       }
 
       ////////////////////////////////////////////////////////
@@ -2257,7 +2257,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       if (_.eq(layer.color.by, MapBy.DIMENSION)) {
 
         // Layer column
-        legendInfo.column = 'By ' + ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[num], layer.color.aggregationType);
+        legendInfo.column = 'By ' + ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[num].fields, layer.color.aggregationType);
 
         if (layer.color.ranges) {
           _.each(layer.color.ranges, (range) => {
@@ -2291,8 +2291,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       else if (_.eq(layer.color.by, MapBy.MEASURE)) {
 
         // Layer column
-        // legendInfo.column = 'By ' + ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[this.getUiMapOption().layerNum], layer.color.aggregationType);
-        legendInfo.column = 'By ' + ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[num], layer.color.aggregationType);
+        legendInfo.column = 'By ' + ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[num].fields, layer.color.aggregationType);
 
         if (layer.color.ranges) {
           _.each(layer.color.ranges, (range, index) => {
@@ -2316,10 +2315,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           });
         } else {
 
-          // if (this.data[num].valueRange && this.data[num].valueRange[ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[this.getUiMapOption().layerNum], layer.color.aggregationType)]) {
-          if (this.data[num].valueRange && this.data[num].valueRange[ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[num], layer.color.aggregationType)]) {
+          if (this.data[num].valueRange && this.data[num].valueRange[ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[num].fields, layer.color.aggregationType)]) {
 
-            const ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[num], this.getColorList(layer), num, this.shelf.layers[num]);
+            const ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[num], this.getColorList(layer), num, this.shelf.layers[num].fields);
 
             _.each(ranges, (range, index) => {
               let minVal: number = range.fixMin;
@@ -2386,8 +2384,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         if (_.eq(layer.type, MapLayerType.HEATMAP)) {
           colorInfo.color = HeatmapColorList[layer.color.schema][(HeatmapColorList[layer.color.schema].length - 1)];
         }
-        // _.each(this.shelf.layers[this.getUiMapOption().layerNum], (field) => {
-        _.each(this.shelf.layers[num], (field) => {
+        _.each(this.shelf.layers[num].fields, (field) => {
           if ('user_expr' === field.field.type || (field.field.logicalType && field.field.logicalType.toString().indexOf('GEO') != -1)) {
             colorInfo.column = ( isUndefined( field.alias ) ? field.fieldAlias : field.alias );
             return false;
@@ -2425,7 +2422,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       featureList.push(feature.properties)
     });
 
-    let featuresGroup = _.groupBy(featureList, ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[this.getUiMapOption().layerNum], layer.color.aggregationType));
+    let featuresGroup = _.groupBy(featureList, ChartUtil.getFieldAlias(layer.color.column, this.shelf.layers[this.getUiMapOption().layerNum].fields, layer.color.aggregationType));
     _.each(Object.keys(featuresGroup), (column, index) => {
       let color = colorList[index % colorList.length];
       rangeList.push({column: column, color: color});
@@ -2442,7 +2439,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     for (let index: number = 0; index < this.shelf.layers.length; index++) {
 
       let layer: UILayers = uiOption.layers[index];
-      let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[index]);
+      let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[index].fields);
 
       ////////////////////////////////////////////////////////
       // Set geo type
@@ -2451,7 +2448,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       let layerType: MapLayerType = layer.type;
 
       let field = null;
-      _.each(this.shelf.layers[index], (fieldTemp) => {
+      _.each(this.shelf.layers[index].fields, (fieldTemp) => {
         if (fieldTemp != null && fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
           field = fieldTemp;
           return false;
@@ -2828,7 +2825,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       }
 
       // get dimensions (except geo) from layer shelf
-      let dimensionLayer = this.originShelf.layers[(<UIMapOption>this.uiOption).layerNum].filter((item) => {
+      let dimensionLayer = this.originShelf.layers[(<UIMapOption>this.uiOption).layerNum].fields.filter((item) => {
         if ('dimension' === item.type && ('user_expr' == item.field.type || (item.field.logicalType && -1 == item.field.logicalType.toString().indexOf('GEO')))) {
           return item;
         }
@@ -2980,7 +2977,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   private setMinMax() {
 
     let layer: UILayers = this.getUiMapOption().layers[this.getUiMapOption().layerNum];
-    let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[this.getUiMapOption().layerNum]);
+    let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[this.getUiMapOption().layerNum].fields);
 
     if (!_.isEmpty(layer.color.column) && this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal && this.data && this.data.length > 0) {
 
