@@ -115,7 +115,6 @@
                   </tr>
                   <!-- 체크시 상태 tr class="ddp-tr-select" 추가 -->
                   <tr *ngFor="let workspace of personalWorkspaceList()"
-                      [ngClass]="{'ddp-tr-select' : checkInWorkspaces(workspace)}"
                       (click)="onCheckedWorkspace(workspace, 'PRIVATE')">
                     <td class="ddp-txt-center">
                       <div class="ddp-ui-checkbox">
@@ -226,7 +225,6 @@
                     <td class="ddp-data-none " colspan="5">{{'msg.comm.ui.no.rslt' | translate}}</td>
                   </tr>
                   <tr *ngFor="let workspace of publicWorkspaceList()"
-                      [ngClass]="{'ddp-tr-select' : checkInWorkspaces(workspace)}"
                       (click)="onCheckedWorkspace(workspace, 'SHARED')">
                     <td class="ddp-txt-center">
                       <div class="ddp-ui-checkbox">
