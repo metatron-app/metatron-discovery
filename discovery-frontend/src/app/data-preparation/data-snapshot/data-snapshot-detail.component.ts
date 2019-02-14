@@ -678,6 +678,13 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           .Sortable(false)
           .Formatter((function (scope) {
             return function (row, cell, value) {
+              if (field.type === 'STRING') {
+                value = (value) ? value.toString().replace(/</gi, '&lt;') : value;
+                value = (value) ? value.toString().replace(/>/gi, '&gt;') : value;
+                value = (value) ? value.toString().replace(/\n/gi, '&crarr;') : value;
+                let tag = '<span style="color:#ff00ff; font-size: 9pt; letter-spacing: 0px">&middot;</span>';
+                value = (value) ? value.toString().replace(/\s/gi, tag) : value;
+              }
               if (isNull(value)) {
                 return '<div  style=\'color:#b8bac2; font-style: italic ;line-height:30px;\'>' + '(null)' + '</div>';
               } else {
