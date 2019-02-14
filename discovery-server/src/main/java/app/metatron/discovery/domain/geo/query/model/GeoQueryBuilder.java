@@ -72,10 +72,10 @@ import app.metatron.discovery.domain.workbook.configurations.filter.TimeListFilt
 import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoBoundaryFormat;
-import app.metatron.discovery.domain.workbook.configurations.format.GeoHashFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoJoinFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
-import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.LayerView;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
 import app.metatron.discovery.query.druid.AbstractQueryBuilder;
 import app.metatron.discovery.query.druid.Aggregation;
 import app.metatron.discovery.query.druid.Dimension;
@@ -114,6 +114,10 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
 
   String boundary;
 
+  MapViewLayer mainLayer;
+
+  MapViewLayer subLayer;
+
   Map<String, Object> boundaryJoin;
 
   Map<String, String> projectionMapper = Maps.newHashMap();
@@ -134,12 +138,14 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
     srsName = "EPSG:4326";
   }
 
-  public GeoQueryBuilder dataSourceRole(List<GeoShelf.Layer> layers, Analysis analysis) {
+  public GeoQueryBuilder dataSourceRole(List<MapViewLayer> layers, Analysis analysis) {
     if (analysis == null) {
       // assume that layer is only one
-      GeoShelf.Layer layer = layers.get(0);
+      mainLayer = layers.get(0);
+      enableAggrExtension = mainLayer.getView() != null && mainLayer.getView().needAggregation();
+
       if (dataSource instanceof MultiDataSource) {
-        mainDataSource = ((MultiDataSource) dataSource).getDatasourceByName(layer.getRef())
+        mainDataSource = ((MultiDataSource) dataSource).getDatasourceByName(mainLayer.getRef())
                                                        .map(ds -> ds.getName())
                                                        .orElseThrow(() -> new IllegalArgumentException("'ref' value in layer doesn't include multi-datasource"));
       } else {
@@ -165,8 +171,6 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
     if (propertyNames == null) {
       propertyNames = Lists.newArrayList();
     }
-
-    enableAggrExtension = needAggregationExtension(projections);
 
     int measureCnt = 1;
     int dimensionCnt = 1;
@@ -236,15 +240,17 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
 
         if (datasourceField.getLogicalType() == LogicalType.GEO_POINT) {
 
-          if (fieldFormat instanceof GeoHashFormat) {
-            GeoHashFormat geoHashFormat = (GeoHashFormat) fieldFormat;
+          LayerView layerView = mainLayer.getView();
+
+          if (layerView instanceof LayerView.HashLayerView) {
+            LayerView.HashLayerView hashLayerView = (LayerView.HashLayerView) layerView;
 
             String dummyDimName = "__s" + dimensionCnt++;
             String geoName = "__g" + geoCnt++;
 
-            virtualColumns.put(dummyDimName, new ExprVirtualColumn(geoHashFormat.toHashExpression(field.getName()), dummyDimName));
+            virtualColumns.put(dummyDimName, new ExprVirtualColumn(hashLayerView.toHashExpression(field.getName()), dummyDimName));
             dimensions.add(new DefaultDimension(dummyDimName));
-            postAggregations.add(new ExprPostAggregator(geoHashFormat.toWktExpression(dummyDimName, geoName)));
+            postAggregations.add(new ExprPostAggregator(hashLayerView.toWktExpression(dummyDimName, geoName)));
 
           } else if (fieldFormat instanceof GeoBoundaryFormat) {
             GeoBoundaryFormat boundaryFormat = (GeoBoundaryFormat) fieldFormat;
@@ -366,32 +372,6 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
       return new CustomDateTimeFormat(TimeFieldFormat.DEFAULT_DATETIME_FORMAT);
     }
   }
-
-  private boolean needAggregationExtension(List<Field> fields) {
-
-    for (Field field : fields) {
-      if (field.getFormat() instanceof GeoJoinFormat
-          || field.getFormat() instanceof GeoBoundaryFormat
-          || field.getFormat() instanceof GeoHashFormat) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  //  private void setMainDataSource(List<Field> projections) {
-  //    if (dataSource instanceof MultiDataSource) {
-  //      for (Field field : projections) {
-  //        if (field.getFormat() instanceof GeoFormat
-  //            && !(field.getFormat() instanceof GeoJoinFormat)) {
-  //          mainDataSource = field.getRef();
-  //        }
-  //      }
-  //    } else {
-  //      mainDataSource = dataSource.getName();
-  //    }
-  //  }
 
   public GeoQueryBuilder limit(Limit limit) {
     if (limit == null) {

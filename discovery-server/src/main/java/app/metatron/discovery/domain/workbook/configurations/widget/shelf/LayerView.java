@@ -1,0 +1,132 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+package app.metatron.discovery.domain.workbook.configurations.widget.shelf;
+
+import com.google.common.base.Preconditions;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.Serializable;
+import java.util.List;
+
+import app.metatron.discovery.common.datasource.LogicalType;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+    property = "type",
+    defaultImpl = LayerView.OriginalLayerView.class)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = LayerView.OriginalLayerView.class, name = "original"),
+    @JsonSubTypes.Type(value = LayerView.ClusteringLayerView.class, name = "clustering"),
+    @JsonSubTypes.Type(value = LayerView.HashLayerView.class, name = "hash")
+})
+public interface LayerView extends Serializable {
+
+  boolean needAggregation();
+
+  class OriginalLayerView implements LayerView {
+
+    public OriginalLayerView() {
+    }
+
+    @Override
+    public boolean needAggregation() {
+      return false;
+    }
+  }
+
+  class ClusteringLayerView implements LayerView {
+    Integer precision;
+
+    public ClusteringLayerView() {
+    }
+
+    @JsonCreator
+    public ClusteringLayerView(@JsonProperty("precision") Integer precision) {
+      this.precision = precision;
+    }
+
+    @Override
+    public boolean needAggregation() {
+      return true;
+    }
+
+    public Integer getPrecision() {
+      return precision;
+    }
+  }
+
+  class HashLayerView implements LayerView {
+    String method;
+    Integer precision;
+
+    public HashLayerView() {
+    }
+
+    @JsonCreator
+    public HashLayerView(@JsonProperty("method") String method,
+                         @JsonProperty("precision") Integer precision) {
+      this.method = StringUtils.isEmpty(method) ? "geohex" : method;
+
+      if (precision == null) {
+        this.precision = 4;
+      } else {
+        Preconditions.checkArgument(precision > 0 && precision < 13, "precision value must be between 1 and 12.");
+        this.precision = precision;
+      }
+    }
+
+    public String toHashExpression(String fieldName) {
+
+      List<String> pointKeyList = LogicalType.GEO_POINT.getGeoPointKeys();
+      StringBuilder builder = new StringBuilder();
+      builder.append("to_").append(method).append("(");
+      builder.append(fieldName).append(".").append(pointKeyList.get(0)).append(",");
+      builder.append(fieldName).append(".").append(pointKeyList.get(1)).append(",");
+      builder.append(precision).append(")");
+
+      return builder.toString();
+    }
+
+    public String toWktExpression(String hashColumnName, String geoColumnName) {
+
+      StringBuilder builder = new StringBuilder();
+      builder.append(geoColumnName).append("=");
+      builder.append(method).append("_to_boundary_wkt").append("(");
+      builder.append(hashColumnName).append(")");
+
+      return builder.toString();
+    }
+
+    @Override
+    public boolean needAggregation() {
+      return true;
+    }
+
+    public String getMethod() {
+      return method;
+    }
+
+    public Integer getPrecision() {
+      return precision;
+    }
+  }
+
+}

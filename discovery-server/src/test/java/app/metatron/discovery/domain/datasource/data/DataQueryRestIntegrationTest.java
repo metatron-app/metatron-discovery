@@ -97,6 +97,8 @@ import app.metatron.discovery.domain.workbook.configurations.format.GeoFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoHashFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.LayerView;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
 
 import static app.metatron.discovery.domain.datasource.Field.FieldRole.MEASURE;
@@ -1916,7 +1918,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     List<Field> fields = Lists.newArrayList(geoDimensionField,
                                             new MeasureField("py", null, MeasureField.AggregationType.AVG),
                                             new MeasureField("amt", null, MeasureField.AggregationType.SUM));
-    GeoShelf.Layer layer1 = new GeoShelf.Layer("layer1", "estate", fields);
+    MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields, null);
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
@@ -1961,7 +1963,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     MeasureField measureField = new MeasureField("MEASURE_1", "user_defined");
 
     List<Field> fields = Lists.newArrayList(geoDimensionField, measureField);
-    GeoShelf.Layer layer1 = new GeoShelf.Layer("layer1", "estate", fields);
+    MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields, null);
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
@@ -2014,7 +2016,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     //    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()), new DimensionField("gu"), new MeasureField("py", null, MeasureField.AggregationType.NONE));
     List<Field> fields = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()), new DimensionField("gu_new", "user_defined"), new MeasureField("amt", null, MeasureField.AggregationType.NONE));
-    GeoShelf.Layer layer1 = new GeoShelf.Layer("layer1", "estate", fields);
+    MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields, null);
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
@@ -2050,12 +2052,10 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     List<Filter> filters = Lists.newArrayList();
 
-    GeoHashFormat hashFormat = new GeoHashFormat("geohex", 5);
-
-    //    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()), new DimensionField("gu"), new MeasureField("py", null, MeasureField.AggregationType.NONE));
-//    List<Field> layer1 = Lists.newArrayList(new DimensionField("location", null, new GeoFormat()), new TimestampField("OrderDate", null), new MeasureField("Sales", null, MeasureField.AggregationType.NONE));
-    List<Field> fields = Lists.newArrayList(new DimensionField("location", null, hashFormat), new MeasureField("Profit", null, MeasureField.AggregationType.AVG), new MeasureField("Sales", null, MeasureField.AggregationType.AVG));
-    GeoShelf.Layer layer1 = new GeoShelf.Layer("layer1", "sales_geo", fields);
+    //    List<Field> fields = Lists.newArrayList(new DimensionField("location", null, new GeoFormat()));
+    //    List<Field> fields = Lists.newArrayList(new DimensionField("location", null, new GeoPointFormat()), new TimestampField("OrderDate", null), new MeasureField("Sales", null, MeasureField.AggregationType.NONE));
+    List<Field> fields = Lists.newArrayList(new DimensionField("location", null, null), new MeasureField("Profit", null, MeasureField.AggregationType.AVG), new MeasureField("Sales", null, MeasureField.AggregationType.AVG));
+    MapViewLayer layer1 = new MapViewLayer("layer1", "sales_geo", fields, new LayerView.HashLayerView("h3", 5));
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
