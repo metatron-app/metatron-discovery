@@ -134,7 +134,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // Tooltip info
-  protected tooltipInfo = {
+  public tooltipInfo = {
     enable: false,
     geometryType: String(MapGeometryType.POINT),
     num: 1,
@@ -145,7 +145,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   };
 
   // Legend info
-  protected legendInfo = {
+  public legendInfo = {
     enable: true,
     position: String(UIPosition.RIGHT_BOTTOM),
     layer: [
