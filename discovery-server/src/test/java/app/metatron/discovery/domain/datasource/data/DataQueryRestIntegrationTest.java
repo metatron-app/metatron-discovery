@@ -2048,15 +2048,19 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Limit
     Limit limit = new Limit();
-    limit.setLimit(10);
+    limit.setLimit(500);
 
     List<Filter> filters = Lists.newArrayList();
 
     //    List<Field> fields = Lists.newArrayList(new DimensionField("location", null, new GeoFormat()));
     //    List<Field> fields = Lists.newArrayList(new DimensionField("location", null, new GeoPointFormat()), new TimestampField("OrderDate", null), new MeasureField("Sales", null, MeasureField.AggregationType.NONE));
-    List<Field> fields = Lists.newArrayList(new DimensionField("location", null, null), new MeasureField("Profit", null, MeasureField.AggregationType.AVG), new MeasureField("Sales", null, MeasureField.AggregationType.AVG));
-    MapViewLayer layer1 = new MapViewLayer("layer1", "sales_geo", fields, new LayerView.HashLayerView("h3", 5));
-    Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
+    //    List<Field> fields = Lists.newArrayList(new DimensionField("location", null, null), new MeasureField("Profit", null, MeasureField.AggregationType.AVG), new MeasureField("Sales", null, MeasureField.AggregationType.AVG));
+    //    MapViewLayer layer1 = new MapViewLayer("layer1", "sales_geo", fields, new LayerView.HashLayerView("h3", 5));
+
+    List<Field> fields2 = Lists.newArrayList(new DimensionField("location", null, null), new DimensionField("City"), new MeasureField("Profit", null, MeasureField.AggregationType.AVG));
+    MapViewLayer layer2 = new MapViewLayer("layer1", "sales_geo", fields2, new LayerView.ClusteringLayerView("h3", 5));
+
+    Shelf geoShelf = new GeoShelf(Arrays.asList(layer2));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
     ChartResultFormat format = new ChartResultFormat("map");
@@ -2071,8 +2075,9 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     .when()
       .post("/api/datasources/query/search")
     .then()
-      .statusCode(HttpStatus.SC_OK)
       .log().all();
+//      .statusCode(HttpStatus.SC_OK);
+
     // @formatter:on
 
   }

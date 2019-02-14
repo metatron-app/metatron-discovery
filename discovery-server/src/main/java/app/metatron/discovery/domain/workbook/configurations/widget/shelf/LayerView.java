@@ -15,8 +15,10 @@
 package app.metatron.discovery.domain.workbook.configurations.widget.shelf;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -27,6 +29,11 @@ import java.io.Serializable;
 import java.util.List;
 
 import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.query.druid.Aggregation;
+import app.metatron.discovery.query.druid.PostAggregation;
+import app.metatron.discovery.query.druid.aggregations.CountAggregation;
+import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
+import app.metatron.discovery.query.druid.postaggregations.ExprPostAggregator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
@@ -49,27 +56,6 @@ public interface LayerView extends Serializable {
     @Override
     public boolean needAggregation() {
       return false;
-    }
-  }
-
-  class ClusteringLayerView implements LayerView {
-    Integer precision;
-
-    public ClusteringLayerView() {
-    }
-
-    @JsonCreator
-    public ClusteringLayerView(@JsonProperty("precision") Integer precision) {
-      this.precision = precision;
-    }
-
-    @Override
-    public boolean needAggregation() {
-      return true;
-    }
-
-    public Integer getPrecision() {
-      return precision;
     }
   }
 
@@ -127,6 +113,43 @@ public interface LayerView extends Serializable {
     public Integer getPrecision() {
       return precision;
     }
+  }
+
+  class ClusteringLayerView extends HashLayerView implements LayerView {
+    String method;
+    Integer precision;
+
+    public ClusteringLayerView() {
+    }
+
+    @JsonCreator
+    public ClusteringLayerView(@JsonProperty("method") String method,
+                               @JsonProperty("precision") Integer precision) {
+      super(method, precision);
+    }
+
+    @JsonIgnore
+    public List<Aggregation> getClusteringAggregations(String fieldName) {
+      List<String> pointKeyList = LogicalType.GEO_POINT.getGeoPointKeys();
+
+      List<Aggregation> aggregations = Lists.newArrayList();
+      aggregations.add(new GenericSumAggregation("SUM_LAT", null, fieldName + "." + pointKeyList.get(0), "double"));
+      aggregations.add(new GenericSumAggregation("SUM_LON", null, fieldName + "." + pointKeyList.get(1), "double"));
+      aggregations.add(new CountAggregation("count"));
+
+      return aggregations;
+
+    }
+
+    @JsonIgnore
+    public List<PostAggregation> getClusteringPostAggregations(String geoName) {
+
+      String expr = geoName + " = concat(\'POINT(\', SUM_LON/count, \' \' , SUM_LAT/count, \')\')";
+
+      return Lists.newArrayList(new ExprPostAggregator(expr));
+
+    }
+
   }
 
 }
