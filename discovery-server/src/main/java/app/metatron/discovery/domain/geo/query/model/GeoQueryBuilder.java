@@ -242,7 +242,21 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
 
           LayerView layerView = mainLayer.getView();
 
-          if (layerView instanceof LayerView.HashLayerView) {
+          if (layerView instanceof LayerView.ClusteringLayerView) {
+            LayerView.ClusteringLayerView clusteringLayerView = (LayerView.ClusteringLayerView) layerView;
+
+            String dummyDimName = "__s" + dimensionCnt++;
+            String geoName = "__g" + geoCnt++;
+
+            virtualColumns.put(dummyDimName, new ExprVirtualColumn(clusteringLayerView.toHashExpression(field.getName()), dummyDimName));
+            dimensions.add(new DefaultDimension(dummyDimName));
+
+            projectionMapper.put("count", "count");
+
+            aggregations.addAll(clusteringLayerView.getClusteringAggregations(fieldName));
+            postAggregations.addAll(clusteringLayerView.getClusteringPostAggregations(geoName));
+
+          } else if (layerView instanceof LayerView.HashLayerView) {
             LayerView.HashLayerView hashLayerView = (LayerView.HashLayerView) layerView;
 
             String dummyDimName = "__s" + dimensionCnt++;
@@ -298,9 +312,15 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
             continue;
           }
 
-          propertyNames.add(new PropertyName(fieldName));
-          projectionMapper.put(fieldName, field.getAlias());
-          //dimensions.add(new DefaultDimension(fieldName, field.getAlias()));
+          if (enableAggrExtension) {
+            String dummyDimName = "__s" + dimensionCnt++;
+            dimensions.add(new DefaultDimension(fieldName, dummyDimName));
+            projectionMapper.put(dummyDimName, field.getAlias());
+          } else {
+            propertyNames.add(new PropertyName(fieldName));
+            projectionMapper.put(fieldName, field.getAlias());
+          }
+
         }
       } else if (datasourceField.getRole() == FieldRole.MEASURE) {
 

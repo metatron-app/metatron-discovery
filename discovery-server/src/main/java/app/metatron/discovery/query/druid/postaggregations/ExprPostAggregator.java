@@ -16,6 +16,6 @@ public class ExprPostAggregator implements PostAggregation {
 
   @Override
   public String getName() {
-    return expression;
+    return null;
   }
 }
