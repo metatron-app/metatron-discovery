@@ -19,16 +19,12 @@ import {
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
-//import { DatasetFile, FileType } from '../../../domain/data-preparation/dataset';
 import { PrDatasetFile, StorageType } from '../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../common/util/alert.util';
 import { DatasetService } from '../service/dataset.service';
-// import { CookieConstant } from '../../../common/constant/cookie.constant';
-// import { CommonConstant } from '../../../common/constant/common.constant';
 import { DomSanitizer } from '@angular/platform-browser';
 import { GridComponent } from '../../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
-//import { Field } from '../../../domain/datasource/datasource';
 import { GridOption } from '../../../common/component/grid/grid.option';
 
 import { isNullOrUndefined, isUndefined } from 'util';
@@ -94,8 +90,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   constructor(private popupService: PopupService,
               private datasetService: DatasetService,
               protected elementRef: ElementRef,
-              protected injector: Injector,
-              public sanitizer: DomSanitizer) {
+              protected injector: Injector) {
 
     super(elementRef, injector);
 
@@ -110,9 +105,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     super.ngOnInit();
 
-    //let fileType : string = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec( this.datasetFile.filename )[1];
     let fileType : string = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec( this.datasetFile.filenameBeforeUpload )[1];
-
 
     // need to add json type
     if (fileType === 'csv' || fileType === 'txt') {

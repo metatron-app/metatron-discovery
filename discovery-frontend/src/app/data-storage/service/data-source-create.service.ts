@@ -65,3 +65,14 @@ export interface FileDetail {
   isParsable: {valid: boolean, warning?: string};
   errorMessage?: string;
 }
+
+export interface QueryDataResult {
+  // result info
+  data?: any[];
+  fields?: any[];
+  totalRows?: number;
+  // error info
+  code?: string;
+  details?: string;
+  message?: string;
+}

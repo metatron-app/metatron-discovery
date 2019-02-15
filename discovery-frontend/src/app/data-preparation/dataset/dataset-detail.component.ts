@@ -736,6 +736,14 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         .Formatter(( row, cell, value, columnDef ) => {
           const colDescs = (this.dataset.gridResponse && this.dataset.gridResponse.colDescs) ? this.dataset.gridResponse.colDescs[cell] : {};
           value = PreparationCommonUtil.setFieldFormatter(value, columnDef.columnType, colDescs);
+
+          if (field.type === 'STRING') {
+            value = (value) ? value.toString().replace(/</gi, '&lt;') : value;
+            value = (value) ? value.toString().replace(/>/gi, '&gt;') : value;
+            value = (value) ? value.toString().replace(/\n/gi, '&crarr;') : value;
+            let tag = '<span style="color:#ff00ff; font-size: 9pt; letter-spacing: 0px">&middot;</span>';
+            value = (value) ? value.toString().replace(/\s/gi, tag) : value;
+          }
           if (isNull(value)) {
             return '<div style=\'position:absolute; top:0; left:0; right:0; bottom:0; line-height:30px; padding:0 10px; font-style: italic ; color:#b8bac2;\'>' + '(null)' + '</div>';
           } else {

@@ -167,7 +167,7 @@ public class PrepCsvUtil {
         int colCnt = csvRow.size();
         result.maxColCnt = Math.max(result.maxColCnt, colCnt);
 
-        String[] row = new String[colCnt];
+        String[] row = new String[result.maxColCnt];
         for (int i = 0; i < colCnt; i++) {
           row[i] = csvRow.get(i);
         }

@@ -21,6 +21,7 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.jdbc.PrepJdbcService;
+import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
 import app.metatron.discovery.domain.dataprep.teddy.*;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
@@ -30,6 +31,7 @@ import com.facebook.presto.jdbc.internal.guava.collect.Maps;
 import com.facebook.presto.jdbc.internal.joda.time.DateTime;
 import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormat;
 import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormatter;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -249,7 +251,15 @@ public class TeddyImpl {
 
   public DataFrame loadFileDataset(String dsId, String strUri, String delimiter, String dsName) {
     DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
-    df.setByGrid(PrepCsvUtil.parse(strUri, delimiter, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
+
+    String extensionType = FilenameUtils.getExtension(strUri);
+    switch (extensionType) {
+      case "json":
+        df.setByGridWithJson(PrepJsonUtil.parseJSON(strUri, delimiter, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
+        break;
+      default: // csv
+        df.setByGrid(PrepCsvUtil.parse(strUri, delimiter, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
+    }
 
     return createStage0(dsId, df);
   }
