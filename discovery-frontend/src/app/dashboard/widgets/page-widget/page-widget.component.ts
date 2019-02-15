@@ -72,6 +72,7 @@ import {header, SlickGridHeader} from "../../../common/component/grid/grid.heade
 import {GridOption} from "../../../common/component/grid/grid.option";
 import {Pivot} from "../../../domain/workbook/configurations/pivot";
 import {MapChartComponent} from '../../../common/component/chart/type/map-chart/map-chart.component';
+import {Shelf, ShelfLayers} from "../../../domain/workbook/configurations/shelf/shelf";
 
 declare let $;
 
@@ -1137,6 +1138,22 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
           // map - set shelf layers
           if (undefined !== this.widgetConfiguration.chart['layerNum'] && this.widgetConfiguration.chart['layerNum'] >= 0) {
+
+            const shelfLayers : any = this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']];
+
+            // 기존 스펙이 남아있을경우 변환
+            if( _.isUndefined( shelfLayers['fields'] ) ){
+              let tempShelf : Shelf = new Shelf();
+              for(let idx=0; idx<this.widgetConfiguration.shelf.layers.length; idx++) {
+                let tempLayer : any = _.cloneDeep(this.widgetConfiguration.shelf.layers[idx]);
+                if( _.isUndefined(tempShelf.layers[idx]) ){
+                  let shelfLayers : ShelfLayers = new ShelfLayers();
+                  tempShelf.layers.push( shelfLayers );
+                }
+                tempShelf.layers[idx].fields = tempLayer;
+              }
+              this.widgetConfiguration.shelf = tempShelf;
+            }
 
             this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']].fields
               .forEach((abstractField) => {

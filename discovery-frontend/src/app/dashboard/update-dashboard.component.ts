@@ -67,7 +67,7 @@ import {WidgetShowType} from '../domain/dashboard/dashboard.globalOptions';
 import {FilterUtil} from './util/filter.util';
 import {ChartType} from '../common/component/chart/option/define/common';
 import {UIMapOption} from '../common/component/chart/option/ui-option/map/ui-map-chart';
-import {Shelf} from '../domain/workbook/configurations/shelf/shelf';
+import {Shelf, ShelfLayers} from '../domain/workbook/configurations/shelf/shelf';
 
 @Component({
   selector: 'app-update-dashboard',
@@ -952,9 +952,25 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       const pivot: Pivot = widget.configuration['pivot'];
 
       // set shelf layers (map chart)
-      const shelf: Shelf = widget.configuration['shelf'];
+      let shelf: any = widget.configuration['shelf'];
       const layerNum: number = widget.configuration['chart'].layerNum;
-      if (shelf && undefined !== layerNum && shelf.layers[layerNum] && shelf.layers[layerNum].fields.length > 0) {
+      if (shelf && undefined !== layerNum && shelf.layers[layerNum] && ( shelf.layers[layerNum].length > 0 || shelf.layers[layerNum].fields.length > 0)) {
+
+        // 기존 스펙이 남아있을경우 변환
+        if( _.isUndefined( shelf.layers[layerNum].fields ) ){
+          let tempShelf : Shelf = new Shelf();
+          for(let idx=0; idx<shelf.layers.length; idx++) {
+            let tempLayer : any = _.cloneDeep(shelf.layers[idx]);
+            if( _.isUndefined(tempShelf.layers[idx]) ){
+              let shelfLayers : ShelfLayers = new ShelfLayers();
+              tempShelf.layers.push( shelfLayers );
+            }
+            tempShelf.layers[idx].fields = tempLayer;
+          }
+          widget.configuration['shelf'] = tempShelf;
+          shelf = widget.configuration['shelf'];
+        }
+
         arrFields = arrFields.concat(shelf.layers[layerNum].fields.map(item => {
           if (item.alias) {
             return item.alias;

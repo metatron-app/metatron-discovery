@@ -321,32 +321,45 @@ export class DatasourceService extends AbstractService {
           }
         }
 
-        // 레이어 별 필드값에 맞는 datasource 설정 추가
-        for(let Datasource of dataSourceList) {
-          if( Datasource.id == allPivotFields[0].field.dsId ){
+        if( !_.isUndefined( dataSourceList ) ) {
+          // 레이어 별 필드값에 맞는 datasource 설정 추가
+          for(let Datasource of dataSourceList) {
+            if( Datasource.id == allPivotFields[0].field.dsId ){
 
-            let searchQueryDataSource = _.cloneDeep( BoardDataSource.convertDsToMetaDs(Datasource) );
-            // let searchQueryDataSource = _.cloneDeep( pageConf.dataSource );
-            delete searchQueryDataSource['fields']; // 불필요 항목 제거
-            delete searchQueryDataSource['uiFields']; // 불필요 항목 제거
-            // EngineName 처리
-            searchQueryDataSource.name = searchQueryDataSource.engineName;
-            if( Datasource.id == pageConf.dataSource.id ) {
-              searchQueryDataSource.type = pageConf.dataSource.type;
-            } else {
-              searchQueryDataSource.type = 'default';
+              let searchQueryDataSource = _.cloneDeep( BoardDataSource.convertDsToMetaDs(Datasource) );
+              // let searchQueryDataSource = _.cloneDeep( pageConf.dataSource );
+              delete searchQueryDataSource['fields']; // 불필요 항목 제거
+              delete searchQueryDataSource['uiFields']; // 불필요 항목 제거
+              // EngineName 처리
+              searchQueryDataSource.name = searchQueryDataSource.engineName;
+              if( Datasource.id == pageConf.dataSource.id ) {
+                searchQueryDataSource.type = pageConf.dataSource.type;
+              } else {
+                searchQueryDataSource.type = 'default';
+              }
+
+              if( _.isUndefined( _.find(query.dataSource.dataSources, searchQueryDataSource) ) ) {
+                // datasource 추가
+                query.dataSource.dataSources.push( searchQueryDataSource );
+              }
+
+              // 선반에 datasource key 값 추가
+              layer.name = 'layer' + (layerNum);
+              layer.ref  = searchQueryDataSource.name;
             }
-
-            if( _.isUndefined( _.find(query.dataSource.dataSources, searchQueryDataSource) ) ) {
-              // datasource 추가
-              query.dataSource.dataSources.push( searchQueryDataSource );
-            }
-
-            // 선반에 datasource key 값 추가
-            layer.name = 'layer' + (layerNum);
-            layer.ref  = searchQueryDataSource.name;
           }
         }
+        else {  // 기존 스펙이 남아있을경우
+
+          // datasource 설정 추가
+          query.dataSource = _.cloneDeep(pageConf.dataSource);
+          delete query.dataSource['fields']; // 불필요 항목 제거
+          // EngineName 처리
+          query.dataSource.name = query.dataSource.engineName;
+
+        }
+
+
 
       } // end for - shelf.layers
 
