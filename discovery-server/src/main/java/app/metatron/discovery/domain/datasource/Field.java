@@ -67,6 +67,7 @@ import app.metatron.discovery.domain.CollectionPatch;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
 import app.metatron.discovery.domain.datasource.ingestion.rule.IngestionRule;
+import app.metatron.discovery.domain.mdm.MetadataColumn;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
@@ -124,10 +125,10 @@ public class Field implements MetatronDomain<Long> {
   private String name;
 
   /**
-   * Field alias
+   * Field logical name
    */
-  @Column(name = "field_alias")
-  private String alias;
+  @Column(name = "field_logical_name")
+  private String logicalName;
 
   /**
    * Field description
@@ -275,7 +276,7 @@ public class Field implements MetatronDomain<Long> {
 
   public Field(CollectionPatch patch) {
     this.name = patch.getValue("name");
-    this.alias = patch.getValue("alias");
+    this.logicalName = patch.getValue("logicalName");
     this.description = patch.getValue("description");
     this.type = SearchParamValidator.enumUpperValue(DataType.class, patch.getValue("type"), "type");
     this.role = SearchParamValidator.enumUpperValue(FieldRole.class, patch.getValue("role"), "role");
@@ -295,7 +296,7 @@ public class Field implements MetatronDomain<Long> {
 
   public void updateField(CollectionPatch patch) {
     // if(patch.hasProperty("name")) this.name = patch.getValue("name");
-    if (patch.hasProperty("alias")) this.alias = patch.getValue("alias");
+    if (patch.hasProperty("logicalName")) this.logicalName = patch.getValue("logicalName");
 
     if (patch.hasProperty("description")) this.description = patch.getValue("description");
 
@@ -317,6 +318,14 @@ public class Field implements MetatronDomain<Long> {
       this.filteringSeq = null;
     }
 
+  }
+
+  public void updateFromMetaColumn(MetadataColumn column) {
+    this.logicalName = column.getName();
+    this.logicalType = column.getType();
+    this.description = column.getDescription();
+    this.format = column.getFormat();
+    this.seq = column.getSeq();
   }
 
   /**
@@ -548,15 +557,6 @@ public class Field implements MetatronDomain<Long> {
     this.seq = seq;
   }
 
-  //  @JsonIgnore
-  @Deprecated
-  public BIType getBiType() {
-    if (role == null) {
-      return null;
-    }
-    return BIType.valueOf(role.name());
-  }
-
   public FieldRole getRole() {
     return role;
   }
@@ -573,15 +573,15 @@ public class Field implements MetatronDomain<Long> {
     this.aggrType = aggrType;
   }
 
-  public String getAlias() {
-    if (StringUtils.isEmpty(alias)) {
+  public String getLogicalName() {
+    if (StringUtils.isEmpty(logicalName)) {
       return name;
     }
-    return alias;
+    return logicalName;
   }
 
-  public void setAlias(String alias) {
-    this.alias = alias;
+  public void setLogicalName(String logicalName) {
+    this.logicalName = logicalName;
   }
 
   @JsonIgnore

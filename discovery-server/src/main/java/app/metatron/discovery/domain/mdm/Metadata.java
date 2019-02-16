@@ -18,12 +18,14 @@ import com.google.common.collect.Lists;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.NotBlank;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.*;
@@ -31,6 +33,8 @@ import javax.validation.constraints.Size;
 
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.MetatronDomain;
+import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.mdm.catalog.Catalog;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
 
@@ -93,6 +97,23 @@ public class Metadata extends AbstractHistoryEntity implements MetatronDomain<St
   public Metadata() {
   }
 
+  public Metadata(DataSource dataSource) {
+
+    MetadataSource metadataSource = new MetadataSource(SourceType.ENGINE, dataSource.getId(), dataSource.getName());
+
+    this.name = dataSource.getName();
+    this.description = dataSource.getName();
+    this.sourceType = SourceType.ENGINE;
+    this.source = metadataSource;
+
+    List<MetadataColumn> columns = Lists.newArrayList();
+    for (Field field : dataSource.getFields()) {
+      columns.add(new MetadataColumn(field, this));
+    }
+
+    this.columns = columns;
+  }
+
   @JsonIgnore
   public Map<Long, MetadataColumn> getColumnMap() {
     return columns.stream()
@@ -100,9 +121,48 @@ public class Metadata extends AbstractHistoryEntity implements MetatronDomain<St
   }
 
   @JsonIgnore
+  public Map<Long, MetadataColumn> getFieldRefMap() {
+    return columns.stream()
+                  .collect(Collectors.toMap(MetadataColumn::getFieldRef, column -> column));
+  }
+
+  @JsonIgnore
   public Map<String, MetadataColumn> getColumnMapByPhysicalName() {
     return columns.stream()
                   .collect(Collectors.toMap(MetadataColumn::getPhysicalName, column -> column));
+  }
+
+  public void updateFromDataSource(DataSource dataSource, boolean includeFields) {
+    this.name = dataSource.getName();
+    this.description = dataSource.getDescription();
+
+    this.source.setName(dataSource.getName());
+
+    if (includeFields) {
+      updateColumnFromField(dataSource);
+    }
+  }
+
+  public void updateColumnFromField(DataSource dataSource) {
+    Map<Long, Field> fieldMap = dataSource.getFieldMap();
+    Set<Long> unusedFieldId = fieldMap.keySet();
+
+    for (MetadataColumn column : this.columns) {
+      Long fieldId = column.getFieldRef();
+      if (fieldId == null || !fieldMap.containsKey(fieldId)) {
+        continue;
+      }
+
+      column.updateColumn(fieldMap.get(fieldId));
+      unusedFieldId.remove(fieldId);
+    }
+
+    if (CollectionUtils.isNotEmpty(unusedFieldId)) {
+      for (Long fieldId : unusedFieldId) {
+        Field field = fieldMap.get(fieldId);
+        this.columns.add(new MetadataColumn(field, this));
+      }
+    }
   }
 
   public void addColumn(MetadataColumn column) {
@@ -196,7 +256,7 @@ public class Metadata extends AbstractHistoryEntity implements MetatronDomain<St
   }
 
   public enum SourceType {
-    ENGINE, JDBC, STAGING
+    ENGINE, JDBC, STAGEDB
   }
 
 }

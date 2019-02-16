@@ -109,6 +109,7 @@ import static app.metatron.discovery.domain.datasource.DataSource.GranularityTyp
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.FILE;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HDFS;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HIVE;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.IMPORT;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.NONE;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.REALTIME;
@@ -1030,6 +1031,157 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
       .statusCode(HttpStatus.SC_OK)
       .log().all();
     // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  @Sql("/sql/test_datasource_field.sql")
+  public void patchDataSourceWithMetadata() throws JsonProcessingException {
+
+    String dataSourceId = "test_ds_id";
+
+    TestUtils.printTestTitle("1. update datasource column");
+
+    Map<String, Object> patchParams = Maps.newHashMap();
+    patchParams.put("name", "name->metadata");
+    patchParams.put("description", "desc->metadata");
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(patchParams)
+      .log().all()
+    .when()
+      .patch("/api/datasources/{id}", dataSourceId).
+    then()
+      .statusCode(HttpStatus.SC_OK)
+    .log().all();
+    // @formatter:on
+
+    TestUtils.printTestTitle("2. Check updated metadata column");
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .queryParam("projection", "forDetailView")
+    .when()
+      .post("/api/metadatas/metasources/{dataSourceId}", dataSourceId)
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+    .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  public void createDataSourceWithMetadata() throws JsonProcessingException {
+
+    TestUtils.printTestTitle("1. Created datasource(Import Type) with metadata");
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName("datasourceWith");
+    dataSource.setDescription("datasourceWithDescription");
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(DAY);
+    dataSource.setSegGranularity(MONTH);
+    dataSource.setSrcType(IMPORT);
+
+    List<Field> fields = Lists.newArrayList();
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
+    fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
+    fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
+    fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
+    fields.add(new Field("m2", DataType.DOUBLE, MEASURE, 4L));
+
+    dataSource.setFields(fields);
+
+    String reqBody = GlobalObjectMapper.writeValueAsString(dataSource);
+
+    // @formatter:off
+    Response dsRes =
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(reqBody)
+      .log().all()
+    .when()
+      .post("/api/datasources");
+    dsRes.then()
+      .statusCode(HttpStatus.SC_CREATED)
+    .log().all();
+    // @formatter:on
+
+    String dataSourceId = from(dsRes.asString()).get("id");
+
+    TestUtils.printTestTitle("2. Check created metadata related with datasource");
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .queryParam("projection", "forDetailView")
+    .when()
+      .post("/api/metadatas/metasources/{dataSourceId}", dataSourceId)
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+    .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  @Sql("/sql/test_datasource_field.sql")
+  public void patchDataSourceFieldWithMetadataColumn() throws JsonProcessingException {
+
+    String dataSourceId = "test_ds_id";
+
+    TestUtils.printTestTitle("1. update datasource column");
+
+    Map<String, Object> addField = Maps.newHashMap();
+    addField.put("op", "add");
+    addField.put("name", "add field name");
+    addField.put("type", "string");
+    addField.put("role", "DIMENSION");
+    addField.put("seq", 3);
+
+    Map<String, Object> updateField = Maps.newHashMap();
+    updateField.put("op", "replace");
+    updateField.put("id", 10037066);
+    updateField.put("logicalName", "sd->logicalName");
+    updateField.put("description", "sd description");
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(Lists.newArrayList(addField, updateField))
+      .log().all()
+    .when()
+      .patch("/api/datasources/{id}/fields", dataSourceId).
+    then()
+      .statusCode(HttpStatus.SC_NO_CONTENT)
+    .log().all();
+    // @formatter:on
+
+    TestUtils.printTestTitle("2. Check updated metadata column");
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .queryParam("projection", "forDetailView")
+    .when()
+      .post("/api/metadatas/metasources/{dataSourceId}", dataSourceId)
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+    .log().all();
+    // @formatter:on
+
   }
 
   @Test

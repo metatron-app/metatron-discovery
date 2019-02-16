@@ -44,7 +44,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 
-import app.metatron.discovery.domain.mdm.source.MetadataSource;
+import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.source.QMetadataSource;
 import app.metatron.discovery.domain.workbook.QDashBoard;
 
@@ -84,7 +84,7 @@ public class DataSourceRepositoryImpl extends QueryDslRepositorySupport implemen
 
       SubQueryExpression<String> subQueryExpr = JPAExpressions.selectFrom(metadataSource)
                                                               .select(metadataSource.sourceId)
-                                                              .where(metadataSource.type.eq(MetadataSource.MetadataSourceType.ENGINE));
+                                                              .where(metadataSource.type.eq(Metadata.SourceType.ENGINE));
 
       if (linkedMetadata) {
         query.where(dataSource.id.in(subQueryExpr));

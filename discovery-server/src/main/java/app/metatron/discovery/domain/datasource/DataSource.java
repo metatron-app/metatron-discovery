@@ -88,6 +88,8 @@ import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
+import app.metatron.discovery.domain.mdm.Metadata;
+import app.metatron.discovery.domain.mdm.MetadataColumn;
 import app.metatron.discovery.domain.workbook.DashBoard;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
@@ -340,6 +342,32 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
     }
 
     this.dashBoards.add(dashBoard);
+  }
+
+  public void updateFromMetadata(Metadata metadata, boolean includeColumns) {
+
+    this.name = metadata.getName();
+    this.description = metadata.getDescription();
+
+    if (includeColumns) {
+      updateFieldFromColumn(metadata);
+    }
+
+  }
+
+  public void updateFieldFromColumn(Metadata metadata) {
+    Map<Long, MetadataColumn> columnMap = metadata.getFieldRefMap();
+
+    for (Field field : this.fields) {
+      Long fieldId = field.getId();
+      if (!columnMap.containsKey(field.getId())) {
+        continue;
+      }
+
+      MetadataColumn metadataColumn = columnMap.get(fieldId);
+      field.updateFromMetaColumn(metadataColumn);
+    }
+
   }
 
   public void excludeUnloadedField() {

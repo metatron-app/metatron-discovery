@@ -80,6 +80,7 @@ import app.metatron.discovery.domain.datasource.ingestion.job.IngestionJobRunner
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineIngestionService;
 import app.metatron.discovery.domain.geo.GeoService;
+import app.metatron.discovery.domain.mdm.MetadataService;
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.PolarisUtils;
@@ -109,6 +110,9 @@ public class DataSourceEventHandler {
 
   @Autowired
   DataSourceService dataSourceService;
+
+  @Autowired
+  MetadataService metadataService;
 
   @Autowired
   GeoService geoService;
@@ -256,6 +260,12 @@ public class DataSourceEventHandler {
       ingestionHistoryRepository.save(histroy);
     }
 
+    // save context from domain
+    contextService.saveContextFromDomain(dataSource);
+
+    // create metadata from datasource
+    metadataService.saveFromDataSource(dataSource);
+
     // 수집 경로가 아닌 경우 Pass
     if (dataSource.getIngestion() == null) {
       return;
@@ -289,9 +299,6 @@ public class DataSourceEventHandler {
       }
       LOGGER.info("Successfully register batch ingestion : {}", dataSource.getName());
     }
-
-    // Context 정보 저장, ID 가 지정후 생성 필요
-    contextService.saveContextFromDomain(dataSource);
 
   }
 
@@ -375,20 +382,12 @@ public class DataSourceEventHandler {
           }
         }
       } else if (ingestionInfo instanceof RealtimeIngestionInfo) {
-        // 기존 동작하고 있는 적재 task 가 존재하는지 확인 (재정의 필요)
-        //        List<IngestionHistory> ingestionHistories = ingestionHistoryRepository
-        //            .findByDataSourceIdAndStatus(dataSource.getId(), IngestionHistory.IngestionStatus.RUNNING);
-        //
-        //        if (CollectionUtils.isNotEmpty(ingestionHistories)) {
-        //          // TODO: Excetpion 정의
-        //          throw new RuntimeException("Ingestion task already exist.");
-        //        }
-        //
-        //        engineIngestionService.realtimeIngestion(dataSource).ifPresent(
-        //            ingestionHistroy -> ingestionHistoryRepository.save(ingestionHistroy)
-        //        );
+        // TODO: 기존 동작하고 있는 적재 task 가 존재하는지 확인 (재정의 필요)
       }
     }
+
+    // update metadata from datasource
+    metadataService.updateFromDataSource(dataSource, false);
   }
 
   @HandleBeforeDelete

@@ -83,7 +83,19 @@ public class MetadataColumn implements MetatronDomain<Long>  {
    * The description of column
    */
   @Column(name = "column_desc", length = 1000)
-  String description;
+  private String description;
+
+  /**
+   * Reference field of datasource
+   */
+  @Column(name = "column_field_ref")
+  private Long fieldRef;
+
+  /**
+   * Sequence for column alignment
+   */
+  @Column(name = "column_seq")
+  private Long seq;
 
   /**
    * Linked Column Dictionary
@@ -109,6 +121,7 @@ public class MetadataColumn implements MetatronDomain<Long>  {
    */
   @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE })
   @JoinColumn(name = "meta_id")
+  @JsonBackReference("column_metadata")
   private Metadata metadata;
 
   /**
@@ -123,10 +136,16 @@ public class MetadataColumn implements MetatronDomain<Long>  {
   public MetadataColumn() {
   }
 
-  public MetadataColumn(Field field) {
+  public MetadataColumn(Field field, Metadata metadata) {
     this.physicalName = field.getName();
     this.physicalType = field.getType().name();
-    this.name = field.getName();
+    this.name = field.getLogicalName();
+    this.type = field.getLogicalType();
+    this.description = field.getDescription();
+    this.format = field.getFormat();
+    this.fieldRef = field.getId();
+    this.seq = field.getSeq();
+    this.metadata = metadata;
   }
 
   public MetadataColumn(CollectionPatch patch, DefaultFormattingConversionService defaultConversionService) {
@@ -196,6 +215,14 @@ public class MetadataColumn implements MetatronDomain<Long>  {
     }
   }
 
+  public void updateColumn(Field field) {
+    this.name = field.getLogicalName();
+    this.type = field.getLogicalType();
+    this.format = field.getFormat();
+    this.description = field.getDescription();
+    this.seq = field.getSeq();
+  }
+
   @Override
   public Long getId() {
     return id;
@@ -243,6 +270,22 @@ public class MetadataColumn implements MetatronDomain<Long>  {
 
   public void setPhysicalName(String physicalName) {
     this.physicalName = physicalName;
+  }
+
+  public Long getFieldRef() {
+    return fieldRef;
+  }
+
+  public void setFieldRef(Long fieldRef) {
+    this.fieldRef = fieldRef;
+  }
+
+  public Long getSeq() {
+    return seq;
+  }
+
+  public void setSeq(Long seq) {
+    this.seq = seq;
   }
 
   public ColumnDictionary getDictionary() {

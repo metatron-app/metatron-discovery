@@ -14,34 +14,10 @@
 
 package app.metatron.discovery.domain.datasource;
 
-import app.metatron.discovery.common.criteria.ListCriterion;
-import app.metatron.discovery.common.criteria.ListCriterionType;
-import app.metatron.discovery.common.criteria.ListFilter;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
-import app.metatron.discovery.domain.engine.EngineQueryService;
-import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
-import app.metatron.discovery.domain.storage.StorageProperties;
-import app.metatron.discovery.domain.user.DirectoryProfile;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.user.UserRepository;
-import app.metatron.discovery.domain.user.group.GroupMember;
-import app.metatron.discovery.domain.user.group.GroupMemberRepository;
-import app.metatron.discovery.domain.user.group.GroupService;
-import app.metatron.discovery.domain.user.role.RoleDirectory;
-import app.metatron.discovery.domain.user.role.RoleDirectoryRepository;
-import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.domain.workspace.Workspace;
-import app.metatron.discovery.domain.workspace.WorkspaceRepository;
-import app.metatron.discovery.domain.workspace.WorkspaceService;
-import app.metatron.discovery.query.druid.Granularity;
-import app.metatron.discovery.query.druid.granularities.DurationGranularity;
-import app.metatron.discovery.query.druid.granularities.PeriodGranularity;
-import app.metatron.discovery.query.druid.granularities.SimpleGranularity;
-import app.metatron.discovery.util.AuthUtils;
-import app.metatron.discovery.util.PolarisUtils;
 import com.google.common.collect.Lists;
+
 import com.querydsl.core.types.Predicate;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -62,6 +38,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import app.metatron.discovery.common.criteria.ListCriterion;
+import app.metatron.discovery.common.criteria.ListCriterionType;
+import app.metatron.discovery.common.criteria.ListFilter;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
+import app.metatron.discovery.domain.engine.EngineQueryService;
+import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
+import app.metatron.discovery.domain.mdm.Metadata;
+import app.metatron.discovery.domain.mdm.MetadataService;
+import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.domain.user.DirectoryProfile;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.user.UserRepository;
+import app.metatron.discovery.domain.user.group.GroupMember;
+import app.metatron.discovery.domain.user.group.GroupMemberRepository;
+import app.metatron.discovery.domain.user.group.GroupService;
+import app.metatron.discovery.domain.user.role.RoleDirectory;
+import app.metatron.discovery.domain.user.role.RoleDirectoryRepository;
+import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.domain.workspace.Workspace;
+import app.metatron.discovery.domain.workspace.WorkspaceRepository;
+import app.metatron.discovery.domain.workspace.WorkspaceService;
+import app.metatron.discovery.query.druid.Granularity;
+import app.metatron.discovery.query.druid.granularities.DurationGranularity;
+import app.metatron.discovery.query.druid.granularities.PeriodGranularity;
+import app.metatron.discovery.query.druid.granularities.SimpleGranularity;
+import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.PolarisUtils;
+
 import static app.metatron.discovery.domain.datasource.DataSourceTemporary.ID_PREFIX;
 
 /**
@@ -75,6 +80,9 @@ public class DataSourceService {
 
   @Autowired
   EngineQueryService queryService;
+
+  @Autowired
+  MetadataService metadataService;
 
   @Autowired
   DataSourceRepository dataSourceRepository;
@@ -133,7 +141,11 @@ public class DataSourceService {
     dataSource.setStatus(DataSource.Status.ENABLED);
     dataSource.setFields(segmentMetaData.getConvertedField(reqDataSource.getFields()));
 
-    return dataSourceRepository.saveAndFlush(dataSource);
+    // save datasource and metadata at the same time
+    DataSource importedDataSource = dataSourceRepository.saveAndFlush(dataSource);
+    metadataService.saveFromDataSource(importedDataSource);
+
+    return importedDataSource;
   }
 
   public DataSource.GranularityType getGranularityType(Granularity granularity) {
@@ -611,5 +623,17 @@ public class DataSourceService {
     return dataSources;
   }
 
+
+  public void updateFromMetadata(Metadata metadata, boolean includeColumns) {
+    if (metadata.getSource() == null) {
+      return;
+    }
+
+    DataSource dataSource = dataSourceRepository.findOne(metadata.getSource().getSourceId());
+
+    dataSource.updateFromMetadata(metadata, includeColumns);
+
+    dataSourceRepository.save(dataSource);
+  }
 
 }

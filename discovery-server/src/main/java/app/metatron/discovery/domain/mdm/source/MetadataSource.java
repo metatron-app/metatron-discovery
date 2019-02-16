@@ -31,6 +31,7 @@ import javax.persistence.Table;
 
 import app.metatron.discovery.common.KeepAsJsonDeserialzier;
 import app.metatron.discovery.domain.AbstractHistoryEntity;
+import app.metatron.discovery.domain.mdm.Metadata;
 
 @Entity
 @Table(name = "mdm_metadata_source")
@@ -44,7 +45,7 @@ public class MetadataSource extends AbstractHistoryEntity {
 
   @Column(name = "meta_source_type")
   @Enumerated(EnumType.STRING)
-  private MetadataSourceType type;
+  private Metadata.SourceType type;
 
   @Column(name = "meta_source_id")
   private String sourceId;
@@ -67,6 +68,12 @@ public class MetadataSource extends AbstractHistoryEntity {
   public MetadataSource() {
   }
 
+  public MetadataSource(Metadata.SourceType type, String sourceId, String name) {
+    this.type = type;
+    this.sourceId = sourceId;
+    this.name = name;
+  }
+
   public String getId() {
     return id;
   }
@@ -75,11 +82,11 @@ public class MetadataSource extends AbstractHistoryEntity {
     this.id = id;
   }
 
-  public MetadataSourceType getType() {
+  public Metadata.SourceType getType() {
     return type;
   }
 
-  public void setType(MetadataSourceType type) {
+  public void setType(Metadata.SourceType type) {
     this.type = type;
   }
 
@@ -133,7 +140,4 @@ public class MetadataSource extends AbstractHistoryEntity {
         "} " + super.toString();
   }
 
-  public enum MetadataSourceType {
-    ENGINE, JDBC, STAGE, DASHBOARD
-  }
 }

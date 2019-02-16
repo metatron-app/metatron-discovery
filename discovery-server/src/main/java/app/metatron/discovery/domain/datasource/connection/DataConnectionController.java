@@ -14,27 +14,11 @@
 
 package app.metatron.discovery.domain.datasource.connection;
 
-import app.metatron.discovery.common.criteria.ListCriterion;
-import app.metatron.discovery.common.criteria.ListFilter;
-import app.metatron.discovery.common.entity.SearchParamValidator;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.datasource.DataSourceProperties;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.jdbc.*;
-import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import app.metatron.discovery.domain.engine.EngineProperties;
-import app.metatron.discovery.domain.mdm.source.MetadataSource;
-import app.metatron.discovery.domain.mdm.source.MetadataSourceRepository;
-import app.metatron.discovery.domain.storage.StorageProperties;
-import app.metatron.discovery.domain.workbench.Workbench;
-import app.metatron.discovery.domain.workbench.WorkbenchRepository;
-import app.metatron.discovery.domain.workbench.hive.HiveNamingRule;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
-import app.metatron.discovery.util.PolarisUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
 import com.querydsl.core.types.Predicate;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -49,11 +33,47 @@ import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
-import java.util.*;
-import java.util.stream.Collectors;
+
+import app.metatron.discovery.common.criteria.ListCriterion;
+import app.metatron.discovery.common.criteria.ListFilter;
+import app.metatron.discovery.common.entity.SearchParamValidator;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.datasource.DataSourceProperties;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.HiveTableInformation;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnectionErrorCodes;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnectionException;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcQueryResultResponse;
+import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.engine.EngineProperties;
+import app.metatron.discovery.domain.mdm.Metadata;
+import app.metatron.discovery.domain.mdm.source.MetadataSource;
+import app.metatron.discovery.domain.mdm.source.MetadataSourceRepository;
+import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.domain.workbench.Workbench;
+import app.metatron.discovery.domain.workbench.WorkbenchRepository;
+import app.metatron.discovery.domain.workbench.hive.HiveNamingRule;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.util.PolarisUtils;
 
 /**
  * Created by kyungtaak on 2016. 6. 10..
@@ -537,9 +557,9 @@ public class DataConnectionController {
 
     //Staging MetaDataSource List
     Set<MetadataSource> metadataSourceList = metadataSourceRepository.findMetadataSourcesByTypeAndSchemaAndSourceId(
-            MetadataSource.MetadataSourceType.JDBC,
-            checkRequest.getDatabase(),
-            checkRequest.getConnection().getId()
+        Metadata.SourceType.JDBC,
+        checkRequest.getDatabase(),
+        checkRequest.getConnection().getId()
     );
 
     //extract table name
@@ -580,7 +600,7 @@ public class DataConnectionController {
     Map<String, Object> tables = connectionService.findTablesInDatabase(hiveConnection, checkRequest.getDatabase(), null);
 
     List<String> filteredTableNameList =
-            filterTableForMdm((List) tables.get("tables"), checkRequest, MetadataSource.MetadataSourceType.STAGE);
+        filterTableForMdm((List) tables.get("tables"), checkRequest, Metadata.SourceType.STAGEDB);
 
     Map<String, Object> returnMap = Maps.newHashMap();
     returnMap.put("tables", filteredTableNameList);
@@ -589,23 +609,23 @@ public class DataConnectionController {
 
   public List<String> filterTableForMdm(List<String> tableNameList,
                                         ConnectionRequest checkRequest,
-                                        MetadataSource.MetadataSourceType metadataSourceType){
+                                        Metadata.SourceType metadataSourceType) {
     //Staging MetaDataSource List
     Set<MetadataSource> metadataSourceList = null;
     switch ( metadataSourceType){
       case JDBC:
         metadataSourceList =
                 metadataSourceRepository.findMetadataSourcesByTypeAndSchemaAndSourceId(
-                        MetadataSource.MetadataSourceType.JDBC,
-                        checkRequest.getDatabase(),
-                        checkRequest.getConnection().getId()
+                    Metadata.SourceType.JDBC,
+                    checkRequest.getDatabase(),
+                    checkRequest.getConnection().getId()
                 );
         break;
-      case STAGE:
+      case STAGEDB:
         metadataSourceList =
                 metadataSourceRepository.findMetadataSourcesByTypeAndSchema(
-                        MetadataSource.MetadataSourceType.STAGE,
-                        checkRequest.getDatabase()
+                    Metadata.SourceType.STAGEDB,
+                    checkRequest.getDatabase()
                 );
         break;
     }

@@ -20,6 +20,7 @@ import com.querydsl.core.types.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
+import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.QCodeTable;
 
 public class MetadataSourcePredicate {
@@ -34,7 +35,7 @@ public class MetadataSourcePredicate {
    * @param to 검색 종료일자, yyyy-MM-ddThh:mm:ss.SSSZ
    * @return
    */
-  public static Predicate searchList(MetadataSource.MetadataSourceType type, String sourceId,
+  public static Predicate searchList(Metadata.SourceType type, String sourceId,
                                      String searchDateBy, DateTime from, DateTime to) {
 
     BooleanBuilder builder = new BooleanBuilder();

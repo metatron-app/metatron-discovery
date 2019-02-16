@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import app.metatron.discovery.common.entity.SearchParamValidator;
+import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataController;
 
 @RepositoryRestController
@@ -58,10 +59,10 @@ public class MetaSourceController {
                                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) DateTime to,
                                               Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
 
-    MetadataSource.MetadataSourceType metadataSourceType = null;
+    Metadata.SourceType metadataSourceType = null;
     if(StringUtils.isNotEmpty(type)) {
       metadataSourceType = SearchParamValidator
-          .enumUpperValue(MetadataSource.MetadataSourceType.class, type, "type");
+          .enumUpperValue(Metadata.SourceType.class, type, "type");
     }
 
     // Get Predicate

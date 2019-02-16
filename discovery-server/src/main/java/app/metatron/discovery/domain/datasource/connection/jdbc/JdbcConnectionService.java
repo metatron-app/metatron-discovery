@@ -1098,7 +1098,7 @@ public class JdbcConnectionService {
         if (field.isNotPhysicalField()) {
           continue;
         }
-        String fieldAlias = field.getAlias();
+        String fieldAlias = field.getLogicalName();
         String fieldName;
         if (StringUtils.contains(fieldAlias, ".")) {
           String[] splicedFieldAlias = StringUtils.split(fieldAlias, ".");
@@ -2074,7 +2074,7 @@ public class JdbcConnectionService {
 
       Field field = new Field();
       field.setName(uniqueFieldName);
-      field.setAlias(fieldName);
+      field.setLogicalName(fieldName);
       field.setType(DataType.jdbcToFieldType((metaData.getColumnType(i))));
       field.setRole(field.getType().toRole());
       fields.add(field);

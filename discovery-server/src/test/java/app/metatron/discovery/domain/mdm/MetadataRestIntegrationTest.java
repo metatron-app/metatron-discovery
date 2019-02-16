@@ -400,6 +400,85 @@ public class MetadataRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER"})
+  @Sql({"/sql/test_datasource_field.sql"})
+  public void patchMetadataWithDataSource() {
+
+    String patchMetadataId = "test_meta1";
+    String checkDataSourceId = "test_ds_id";
+
+    // Column 수정
+    Map<String, Object> updateMetadata = Maps.newHashMap();
+    updateMetadata.put("name", "metadata -> datasource name");
+    updateMetadata.put("description", "metadata -> desciption");
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(updateMetadata)
+      .log().all()
+    .when()
+      .patch("/api/metadatas/{metadataId}", patchMetadataId)
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .param("projection", "forDetailView")
+    .when()
+      .get("/api/datasources/{datasourceId}", checkDataSourceId)
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER"})
+  @Sql({"/sql/test_datasource_field.sql"})
+  public void patchColumnInMetadataWithDataSource() {
+
+    String patchMetadataId = "test_meta1";
+    String checkDataSourceId = "test_ds_id";
+
+    // Column 수정
+    Map<String, Object> updateColumnValue = Maps.newHashMap();
+    updateColumnValue.put("op", "replace");
+    updateColumnValue.put("id", 10003);
+    updateColumnValue.put("name", "sd->updated from metadata");
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(Lists.newArrayList(updateColumnValue))
+      .log().all()
+    .when()
+      .patch("/api/metadatas/{metadataId}/columns", patchMetadataId)
+    .then()
+      .statusCode(HttpStatus.SC_NO_CONTENT)
+      .log().all();
+    // @formatter:on
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .param("projection", "forDetailView")
+    .when()
+      .get("/api/datasources/{datasourceId}", checkDataSourceId)
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER"})
   @Sql({"/sql/test_mdm.sql"})
   public void linkMetadataWithCatalog() {
 
