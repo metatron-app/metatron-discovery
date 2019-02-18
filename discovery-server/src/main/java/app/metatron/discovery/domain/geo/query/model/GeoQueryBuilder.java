@@ -273,7 +273,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
 
           } else {
             for (String geoPointKey : LogicalType.GEO_POINT.getGeoPointKeys()) {
-              String propName = fieldName + "." + geoPointKey;
+              String propName = originalName + "." + geoPointKey;
               propertyNames.add(new PropertyName(propName));
             }
             //dimensions.add(new DefaultDimension(field.getColunm(), field.getAlias()));
@@ -282,10 +282,10 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
           if (fieldFormat instanceof GeoJoinFormat) {
             continue;  // ignore
           }
-          propertyNames.add(new PropertyName(fieldName));
+          propertyNames.add(new PropertyName(originalName));
 
         } else if (datasourceField.getLogicalType() == LogicalType.GEO_LINE) {
-          propertyNames.add(new PropertyName(fieldName));
+          propertyNames.add(new PropertyName(originalName));
 
         } else if (datasourceField.getLogicalType() == LogicalType.TIMESTAMP) {
 
