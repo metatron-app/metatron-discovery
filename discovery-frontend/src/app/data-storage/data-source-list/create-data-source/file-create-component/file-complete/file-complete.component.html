@@ -40,7 +40,7 @@
               {{'msg.storage.th.dsource.create.file' | translate}}
             </th>
             <td>
-              {{getFileData.datasourceFile.filename}}
+              {{getFileData.fileResult.fileName}}
             </td>
           </tr>
           <tr *ngIf="isExcelFile()">
@@ -48,7 +48,7 @@
               {{'msg.storage.th.dsource.create.sheet' | translate}}
             </th>
             <td>
-              {{getFileData.datasourceFile.selectedSheetName}}
+              {{getFileData.fileResult.selectedSheet.sheetName}}
             </td>
           </tr>
           <!-- granularity -->

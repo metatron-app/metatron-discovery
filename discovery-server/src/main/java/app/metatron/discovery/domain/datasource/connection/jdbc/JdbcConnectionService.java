@@ -1013,15 +1013,6 @@ public class JdbcConnectionService {
                                        JdbcIngestionInfo ingestionInfo,
                                        String dataSourceName,
                                        List<Field> fields) {
-
-    if (connection instanceof MySQLConnection
-        || connection instanceof HiveConnection
-        || connection instanceof PrestoConnection) {
-      if (ingestionInfo.getDatabase() != null && ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.QUERY) {
-        connection.setDatabase(ingestionInfo.getDatabase());
-      }
-    }
-
     return selectQueryToCsv(connection, ingestionInfo, dataSourceName, fields, null);
   }
 

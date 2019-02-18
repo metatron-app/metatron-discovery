@@ -19,22 +19,16 @@ import {
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
-//import { DatasetFile, FileType } from '../../../domain/data-preparation/dataset';
 import { PrDatasetFile, StorageType } from '../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../common/util/alert.util';
 import { DatasetService } from '../service/dataset.service';
-import { CookieConstant } from '../../../common/constant/cookie.constant';
-import { CommonConstant } from '../../../common/constant/common.constant';
 import { DomSanitizer } from '@angular/platform-browser';
 import { GridComponent } from '../../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
-import { Field } from '../../../domain/datasource/datasource';
 import { GridOption } from '../../../common/component/grid/grid.option';
 
 import { isNullOrUndefined, isUndefined } from 'util';
 import * as pixelWidth from 'string-pixel-width';
-
-declare let plupload: any;
 
 @Component({
   selector: 'app-create-dataset-selectsheet',
@@ -46,19 +40,10 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @ViewChild('pickfiles')
-  private pickfiles: ElementRef;
-
-  @ViewChild('drop_container')
-  private drop_container: ElementRef;
-
   @ViewChild(GridComponent)
   private gridComponent: GridComponent;
 
-  // @ViewChild('fileUploadChange')
-  // private fileUploadChange: ElementRef;
-
-  private interval : any;
+  //private interval : any;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -71,10 +56,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   public typeEmitter = new EventEmitter<string>();
 
   @Input()
-  //public datasetFile: DatasetFile;
   public datasetFile: PrDatasetFile;
 
   public isCSV: boolean = false;
+  public isJSON: boolean = false;
+  public isExcel: boolean = false;
 
   // Column Delimiter - default value is comma
   public columnDelimiter : string = ',';
@@ -82,7 +68,6 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   public uploadLocation: string = 'LOCAL';
   public uploadLocationList: any;
 
-  // 파일 업로드 결과
   public uploadResult;
 
   public isChanged : boolean = false; // tell if uploaded file is changed
@@ -105,8 +90,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   constructor(private popupService: PopupService,
               private datasetService: DatasetService,
               protected elementRef: ElementRef,
-              protected injector: Injector,
-              public sanitizer: DomSanitizer) {
+              protected injector: Injector) {
 
     super(elementRef, injector);
 
@@ -121,16 +105,15 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     super.ngOnInit();
 
-    //let fileType : string = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec( this.datasetFile.filename )[1];
     let fileType : string = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec( this.datasetFile.filenameBeforeUpload )[1];
-
 
     // need to add json type
     if (fileType === 'csv' || fileType === 'txt') {
       this.isCSV = true;
-      this.getDataFile();
-
+    } else if (fileType === 'json'){
+      this.isJSON = true;
     } else {
+      this.isExcel = true;
       this.datasetFile.sheetIndex = 0;
       if( isUndefined(this.datasetFile.sheets) ) {
         this.datasetFile.sheets = [];
@@ -143,9 +126,8 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       if(0 === this.datasetFile.selectedSheets.length) { // 벌써 선택된 sheet가 있다면 converting 필요 없다
         this.convertSheet();
       }
-      this.getDataFile();
     }
-
+    this.getDataFile();
     this.setUploadLcationList();
   }
 
@@ -161,20 +143,17 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
   // Convert array to object
   public convertSheet() {
-    // 초기화
     this.datasetFile.selectedSheets = [];
 
-    // 배열로 받아온 데이터를 오브젝트로 변환한다
     this.datasetFile.sheets.filter((item) => {
       let temp = {
         name :'',
-        selected : false // 처음엔 selected 된 것이 없기 떄문에
+        selected : false // first not selected
       };
       temp.name = item;
       this.datasetFile.selectedSheets.push(temp);
     });
   }
-
 
   // excel 시 sheet 아이디 세팅
   public setDataSetSheetIndex(event,sheetname, idx) {
@@ -188,7 +167,8 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     // this.getDataFile();
 
     if (!isNullOrUndefined(this.gridInfo) && this.gridInfo[this.defaultSheetIndex]) {
-      this.updateGrid(this.gridInfo[this.defaultSheetIndex].data, this.gridInfo[this.defaultSheetIndex].fields);
+      //this.updateGrid(this.gridInfo[this.defaultSheetIndex].data, this.gridInfo[this.defaultSheetIndex].fields);
+      this.updateGrid(this.gridInfo[this.defaultSheetIndex]);
     } else {
       this.clearGrid = true;
     }
@@ -299,56 +279,50 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
 
   public getGridStyle() {
-    //if( this.datasetFile.sheetname && ''!==this.datasetFile.sheetname) {
     if( this.datasetFile.sheetName && ''!==this.datasetFile.sheetName) {
       return null;
     }
     return {'top':'0px'};
   }
 
-  /**
-   * Check if uploaded
-   * @param response
-   */
-  public checkIfUploaded(response: any) {
-    let res = JSON.parse(response);
-    //this.fetchUploadStatus(res.filekey);
-    this.fetchUploadStatus(res.storedUri);
-    this.interval = setInterval(() => {
-      //this.fetchUploadStatus(res.filekey);
-      this.fetchUploadStatus(res.storedUri);
-    }, 1000)
-  }
+  // /**
+  //  * Check if uploaded
+  //  * @param response
+  //  */
+  // public checkIfUploaded(response: any) {
+  //   let res = JSON.parse(response);
+  //   this.fetchUploadStatus(res.storedUri);
+  //   this.interval = setInterval(() => {
+  //     this.fetchUploadStatus(res.storedUri);
+  //   }, 1000)
+  // }
 
-  /**
-   * Polling
-   * @param {string} fileKey
-   */
-  //public fetchUploadStatus(fileKey: string) {
-  public fetchUploadStatus(storedUri: string) {
-    //this.datasetService.checkFileUploadStatus(fileKey).then((result) => {
-    this.datasetService.checkFileUploadStatus(storedUri).then((result) => {
-
-      if (result.state === 'done'  && result.success) {
-        clearInterval(this.interval);
-        this.interval = undefined;
-        this.isChanged = true;
-        this.uploadResult.response = result;
-        this.getDataFile();
-      }  else if (result.success === false) { // upload failed
-
-        this.loadingHide();
-        Alert.error(this.translateService.instant('Failed to upload. Please select another file'));
-        clearInterval(this.interval);
-        this.interval = undefined;
-        return;
-      }
-    });
-  }
+  // /**
+  //  * Polling
+  //  * @param {string} fileKey
+  //  */
+  // public fetchUploadStatus(storedUri: string) {
+  //   this.datasetService.checkFileUploadStatus(storedUri).then((result) => {
+  //
+  //     if (result.state === 'done'  && result.success) {
+  //       clearInterval(this.interval);
+  //       this.interval = undefined;
+  //       this.isChanged = true;
+  //       this.uploadResult.response = result;
+  //       this.getDataFile();
+  //
+  //     }  else if (result.success === false) {
+  //       this.loadingHide();
+  //       Alert.error(this.translateService.instant('Failed to upload. Please select another file'));
+  //       clearInterval(this.interval);
+  //       this.interval = undefined;
+  //       return;
+  //     }
+  //   });
+  // }
 
   public setUploadLcationList(){
     this.uploadLocationList = [{ name:'Local', value:'LOCAL' }, { name: 'HDFS', value: 'HDFS'}];
-    //this.datasetFile.fileType = FileType.LOCAL;
     this.datasetFile.storageType = StorageType.LOCAL;
   }
 
@@ -356,16 +330,12 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     if($event.hasOwnProperty('name') && $event.hasOwnProperty('value')) {
       this.uploadLocation = $event['value'];
 
-      //this.uploader.setOptions({ additionalParameter: { dest: `${this.uploadLocation}`}});
-
       switch(this.uploadLocation ) {
         case 'HDFS':
-          //this.datasetFile.fileType = FileType.HDFS;
           this.datasetFile.storageType = StorageType.HDFS;
           break;
         case 'LOCAL':
         default:
-          //this.datasetFile.fileType = FileType.LOCAL;
           this.datasetFile.storageType = StorageType.LOCAL;
           break;
       }
@@ -380,6 +350,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * @returns {header[]}
    */
   private getHeaders(fields: Field[]) {
+
     return fields.map(
       (field: Field) => {
 
@@ -388,7 +359,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
         return new SlickGridHeader()
           .Id(field.name)
-          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + field.name + '</span>')
+          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type.toString()) + '"></em>' + field.name + '</span>')
           .Field(field.name)
           .Behavior('select')
           .Selectable(false)
@@ -403,26 +374,56 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     );
   }
 
+  // /**
+  //  * Find number of rows
+  //  * @param data
+  //  * @returns {any[]}
+  //  */
+  // private getRows(data: any) {
+  //   let rows: any[] = data;
+  //   if (data.length > 0 && !data[0].hasOwnProperty('id')) {
+  //     rows = rows.map((row: any, idx: number) => {
+  //       row.id = idx;
+  //       return row;
+  //     });
+  //   }
+  //   return rows;
+  // }
+
   /**
    * grid 정보 업데이트
    * @param data
-   * @param {Field[]} fields
+   * @param {any} data
    */
-  private updateGrid(data: any, fields: Field[]) {
+  private updateGrid(data : any) {
 
-    if (data.length > 0 && fields.length > 0) {
+    if ( !isUndefined(data)) {
       this.clearGrid = false;
+
+      let fields : Field[] =  data.colDescs.map(( item: object , idx:number)=>{
+        item["name"] = data.colNames[idx];
+        return item;
+      });
       // headers
       const headers: header[] = this.getHeaders(fields);
+
       // rows
-      const rows: any[] = this.getRows(data);
-      // grid 그리기
+      let rows = data.rows.map((item: Row, idx:number)=>{
+        let temp  = new Object();
+        item.objCols.forEach((val, idx:number)=>{
+          temp[data.colNames[idx]] =  val;
+        });
+        temp["id"]=idx;
+        return temp;
+      });
+
+      //const rows: any[] = this.getRows(data);
+
+      // grid
       this.drawGrid(headers, rows);
     } else {
       this.clearGrid = true;
     }
-
-
   }
 
   /**
@@ -441,22 +442,6 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     this.loadingHide();
   }
 
-  /**
-   * Find number of rows
-   * @param data
-   * @returns {any[]}
-   */
-  private getRows(data: any) {
-    let rows: any[] = data;
-    if (data.length > 0 && !data[0].hasOwnProperty('id')) {
-      rows = rows.map((row: any, idx: number) => {
-        row.id = idx;
-        return row;
-      });
-    }
-    return rows;
-  }
-
 
   /**
    * Get grid information
@@ -464,21 +449,19 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   private getGridInformation(param) {
 
     this.datasetService.getFileGridInfo(param).then((result) => {
-      if (result.sheets && result.sheets.length > 0) {
-        this.datasetFile.sheets = result.sheets;
-        this.datasetFile.sheetName = result.sheets[0];
+      if (result.sheetNames && result.sheetNames.length > 0) {
+        this.datasetFile.sheets = result.sheetNames;
+        this.datasetFile.sheetName = result.sheetNames[0];
         this.convertSheet();
       } else {
-        this.datasetFile.sheetName = '';
         this.datasetFile.sheets = [];
+        this.datasetFile.sheetName = '';
       }
 
-      if (result.grids.length > 0) {
+      if (result.gridResponses && result.gridResponses.length > 0) {
         this.clearGrid = false;
-        this.gridInfo = result.grids;
-        //this.datasetFile.sheetname = this.gridInfo[this.defaultSheetIndex].sheetName;
-        this.datasetFile.sheetName = this.gridInfo[this.defaultSheetIndex].sheetName;
-        this.updateGrid(this.gridInfo[this.defaultSheetIndex].data , this.gridInfo[this.defaultSheetIndex].fields);
+        this.gridInfo = result.gridResponses;
+        this.updateGrid(this.gridInfo[this.defaultSheetIndex]);
       } else {
         this.gridInfo = [];
         this.clearGrid = true;
@@ -523,4 +506,12 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
 
+}
+class Field {
+  name : string;
+  type : string;
+  timestampStyle?: string;
+}
+class Row{
+  objCols: string[];
 }

@@ -14,7 +14,7 @@
  */
 
 import {Injectable, Injector} from '@angular/core';
-import {TranslateService} from 'ng2-translate';
+import { TranslateService } from '@ngx-translate/core';
 import {FieldFormatType, FieldFormatUnit} from "../../domain/datasource/datasource";
 
 declare let moment: any;
@@ -104,7 +104,7 @@ export class GranularityService {
    */
   public getInitializedInterval(fieldDataList: any[], format: string, granularity: GranularityObject, type: FieldFormatType, unit: FieldFormatUnit): GranularityIntervalInfo {
     const firstMoment = this._getConvertedMoment(fieldDataList[0], format, type, unit);
-    const endMoment = this._getConvertedMoment(fieldDataList[fieldDataList.length-1], format, type, unit);
+    const endMoment = this._getConvertedMoment(this._getAvailableEndData(fieldDataList, fieldDataList.length-1), format, type, unit);
     // init
     const result: GranularityIntervalInfo = {
       startInterval: this.getInitInterval(firstMoment, granularity),
@@ -193,6 +193,17 @@ export class GranularityService {
    */
   private _isValidGranularityUnit(startInterval: string, endInterval: string, granularity: GranularityObject): boolean {
     return this._getGranularityUnit(startInterval, endInterval, granularity) <= 10000;
+  }
+
+  /**
+   * Get available End Data
+   * @param {any[]} dataList
+   * @param {number} startNumber
+   * @return {any}
+   * @private
+   */
+  private _getAvailableEndData(dataList: any[], startNumber: number): any {
+    return dataList[startNumber] || (startNumber === 0 ? moment() : this._getAvailableEndData(dataList, startNumber - 1));
   }
 
   /**

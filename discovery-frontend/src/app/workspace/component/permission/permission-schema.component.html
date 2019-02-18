@@ -15,11 +15,11 @@
 <table class="ddp-table-base" *ngIf="editRoleSet">
   <colgroup>
     <col width="*">
-    <col width="{{ editMode ? '95px' : '*'}}">
-    <col width="{{ editMode ? '156px' : '*'}}">
-    <col width="{{ editMode ? '156px' : '*'}}">
-    <col width="{{ editMode ? '156px' : '*'}}">
-    <col width="{{ editMode ? '104px' : '*'}}">
+    <col [ngStyle]="editMode ? {'width': '95px' }:{'width': '*'}">
+    <col [ngStyle]="editMode ? {'width': '156px' }:{'width': '*'}">
+    <col [ngStyle]="editMode ? {'width': '156px' }:{'width': '*'}">
+    <col [ngStyle]="editMode ? {'width': '156px' }:{'width': '*'}">
+    <col [ngStyle]="editMode ? {'width': '104px' }:{'width': '*'}">
     <col *ngIf="editMode" width="52px">
   </colgroup>
   <thead>

@@ -48,10 +48,14 @@
                   <!-- 검색 -->
                   <div class="ddp-form-search">
                     <em class="ddp-icon-search"></em>
-                    <!--<input type="text" placeholder="search"/>-->
-                    <input type="text" placeholder="{{'msg.page.ui.search.ph' | translate}}" [(ngModel)]="fieldSearchText"
-                           (keyup)="setFieldTotalPage()"
-                           (keyup.esc)="fieldSearchText=''"/>
+                    <component-input
+                      [compType]="'search'"
+                      [showClear]="true"
+                      [immediately]="true"
+                      [value]="fieldSearchText"
+                      [placeHolder]="'msg.page.ui.search.ph' | translate"
+                      (changeValue)="fieldSearchText = $event; setFieldTotalPage();">
+                    </component-input>
                   </div>
                   <!-- //검색 -->
                 </div>
@@ -636,12 +640,13 @@
                 </div>
                 <!-- 편집 input -->
                 <div class="ddp-wrap-input">
-                  <input #pageName
-                         class="ddp-input-navi" [(ngModel)]="editingPageName"
-                         (keyup.enter)="pageName.blur(); isPageNameEdit ? onNameChange() : null;"
-                         (clickOutside)="onNameEditCancel()"
-                         maxlength="50"
-                         type="text" />
+                  <component-input
+                    *ngIf="isPageNameEdit"
+                    [inputClass]="'ddp-input-navi'"
+                    [value]="editingPageName"
+                    [maxLen]="50"
+                    (changeValue)="editingPageName = $event; isPageNameEdit ? onNameChange() : null;">
+                  </component-input>
                   <span #pageNameCheck (click)="$event.stopPropagation(); onNameChange()" class="ddp-btn-check"></span>
                 </div>
                 <!-- //편집 input -->

@@ -28,6 +28,7 @@ import {MetadataService} from '../../../meta-data-management/metadata/service/me
 import {Metadata} from '../../../domain/meta-data-management/metadata';
 import {CookieConstant} from '../../../common/constant/cookie.constant';
 import {CommonConstant} from '../../../common/constant/common.constant';
+import { Message } from '@stomp/stompjs';
 
 @Component({
   selector: 'app-detail-datasource',
@@ -207,7 +208,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     super.ngOnDestroy();
     // if exist _subscribe
     if (this._subscribe) {
-      CommonConstant.stomp.unsubscribe(this._subscribe);
+      this._subscribe.unsubscribe();
     }
   }
 
@@ -240,48 +241,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
       .catch(error => this.commonExceptionHandler(error));
   }
 
-  /**
-   * 데이터소스 이름 수정
-   */
-  public renameDatasource() {
-    // 수정할 이름이 없다면
-    if (this.reName.trim() === '') {
-      Alert.warning(this.translateService.instant('msg.storage.alert.insert.name'));
-      return;
-    }
-    // 이름 길이 체크
-    if (CommonUtil.getByte(this.reName.trim()) > 150) {
-      Alert.warning(this.translateService.instant('msg.alert.edit.name.len'));
-      return;
-    }
-    const params = {
-      name : this.reName.trim()
-    };
-    this.nameFl = false;
-    // blur
-    this.nameElement.nativeElement.blur();
-    // update
-    this.updateDatasource(params);
-  }
 
-  /**
-   * 데이터소스 설명 수정
-   */
-  public redescDatasource() {
-    // 설명 길이 체크
-    if (CommonUtil.getByte(this.reDesc.trim()) > 450) {
-      Alert.warning(this.translateService.instant('msg.alert.edit.description.len'));
-      return;
-    }
-    const params = {
-      description : this.reDesc.trim()
-    };
-    this.descFl = false;
-    // blur
-    this.descElement.nativeElement.blur();
-    // update
-    this.updateDatasource(params);
-  }
 
   /**
    * 데이터소스 수정
@@ -379,6 +339,39 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     this._confirmModalComponent.init(modal);
   }
 
+  /**
+   * 데이터소스 이름 수정
+   */
+  public renameDatasource() {
+    // 수정할 이름이 없다면
+    if (this.reName.trim() === '') {
+      Alert.warning(this.translateService.instant('msg.storage.alert.insert.name'));
+      return;
+    }
+    // 이름 길이 체크
+    if (CommonUtil.getByte(this.reName.trim()) > 150) {
+      Alert.warning(this.translateService.instant('msg.alert.edit.name.len'));
+      return;
+    }
+    this.nameFl = false;
+    // update
+    this.updateDatasource({name : this.reName.trim()});
+  }
+
+  /**
+   * 데이터소스 설명 수정
+   */
+  public redescDatasource() {
+    // 설명 길이 체크
+    if (CommonUtil.getByte(this.reDesc.trim()) > 450) {
+      Alert.warning(this.translateService.instant('msg.alert.edit.description.len'));
+      return;
+    }
+    this.descFl = false;
+    // update
+    this.updateDatasource({description : this.reDesc.trim()});
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - event
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -405,6 +398,29 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   public onOpenLogModal(log: Log): void {
     this._logComponent.init(log);
   }
+
+  /**
+   * Changed datasource name event
+   * @param {string} text
+   */
+  public onChangedSourceName(text: string): void {
+    // set rename text
+    this.reName = text;
+    // rename
+    this.renameDatasource();
+  }
+
+  /**
+   * Changed datasource description event
+   * @param {string} text
+   */
+  public onChangedSourceDesc(text: string): void {
+    // set redesc text
+    this.reDesc = text;
+    // reDesc
+    this.redescDatasource();
+  }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - getter
@@ -530,8 +546,11 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     try {
       const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
       // 메세지 수신
-      this._subscribe = CommonConstant.stomp.subscribe(
-        `/topic/datasources/${datasourceId}/progress`, (data: { progress: number, message: string, results: any }) => {
+      this._subscribe = CommonConstant.stomp.watch( `/topic/datasources/${datasourceId}/progress` )
+        .subscribe((msg: Message) => {
+
+          const data: { progress: number, message: string, results: any } = JSON.parse( msg.body );
+
           console.log('process socket', data);
           // if has history
           if (data.results && data.results.history) {
@@ -555,12 +574,12 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
               };
             }
             // disconnect websocket
-            CommonConstant.stomp.unsubscribe(this._subscribe);
+            this._subscribe.unsubscribe();
           } else if (100 === data.progress) { // 성공시
             // set status
             this.datasource.status = Status.ENABLED;
             // disconnect websocket
-            CommonConstant.stomp.unsubscribe(this._subscribe);
+            this._subscribe.unsubscribe();
           }
         }, headers);
     } catch (e) {

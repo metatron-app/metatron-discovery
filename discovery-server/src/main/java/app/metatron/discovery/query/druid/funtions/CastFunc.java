@@ -32,8 +32,8 @@ public class CastFunc {
 
   public String toExpression() {
     StringBuilder sb = new StringBuilder();
-    sb.append(FUNC_NAME).append("(");
-    sb.append(fieldName).append(", '");
+    sb.append(FUNC_NAME).append("(\"");
+    sb.append(fieldName).append("\", '");
     sb.append(type.name());
     sb.append("')");
 

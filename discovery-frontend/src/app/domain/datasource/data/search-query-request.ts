@@ -23,6 +23,7 @@ import { UserDefinedField } from '../../workbook/configurations/field/user-defin
 import { Limit } from '../../workbook/configurations/limit';
 import { Analysis } from '../../../page/component/value/analysis';
 import { BoardDataSource } from '../../dashboard/dashboard';
+import * as _ from 'lodash';
 
 export class SearchQueryRequest {
 
@@ -37,6 +38,8 @@ export class SearchQueryRequest {
    * Filter 정보
    */
   filters: Filter[];
+
+  selectionFilters: Filter[];
 
   /**
    * Column/Row 관련 정보
@@ -109,6 +112,17 @@ export class SearchQueryRequest {
   // valueAliasRef: string;
 
   aliases: SearchQueryAlias[];
+
+  public getDownloadFilters(): Filter[]  {
+    let downloadFilters : Filter[];
+    if(this.filters) {
+      downloadFilters = _.cloneDeep(this.filters);
+    } else {
+      downloadFilters = [];
+    }
+
+    return this.selectionFilters ? downloadFilters.concat(this.selectionFilters) : downloadFilters;
+  }
 
 }
 

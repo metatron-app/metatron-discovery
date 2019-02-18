@@ -184,7 +184,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
             const shelveData = !_.isEmpty(cols) ? this.pivot.columns[idx] : this.pivot.aggregations[idx];
 
             // selectDataList에 해당 name의 값이 없을때
-            if (-1 === _.findIndex(selectDataList, {name: shelveData.name})) {
+            if (-1 === _.findIndex(selectDataList, (obj) => { return obj.name === shelveData.name; })) {
 
               // selectDataList에 추가
               selectDataList.push(shelveData);

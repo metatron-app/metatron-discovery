@@ -23,7 +23,7 @@ import { DataStorageModule } from '../data-storage/data-storage.module';
 import { DatasourceService } from '../datasource/service/datasource.service';
 import { WidgetService } from '../dashboard/service/widget.service';
 import { PageShareModule } from '../page/page-share.module';
-import { StompService } from 'ng2-stomp-service';
+import { StompService } from '@stomp/ng2-stompjs';
 import { DataconnectionService } from '../dataconnection/service/dataconnection.service';
 import { WorkbenchEditorModule } from './workbench.editor.module';
 import {AnalysisPredictionService} from "../page/component/analysis/service/analysis.prediction.service";

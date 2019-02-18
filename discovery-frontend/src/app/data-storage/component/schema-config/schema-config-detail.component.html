@@ -235,7 +235,7 @@
                 </div>
                 <div class="ddp-type-format ddp-fright" (click)="onChangeEnableUnixCodeInField(selectedField); $event.preventDefault()">
                   <label class="ddp-label-checkbox">
-                    <input type="checkbox" [checked]="selectedField.format && selectedField.format.type.toString() === 'time_unix'">
+                    <input type="checkbox" [checked]="isUnixTypeField(selectedField)">
                     <i class="ddp-icon-checkbox"></i>
                     <span class="ddp-txt-checkbox">{{'msg.storage.ui.enable.unix' | translate}}</span>
                   </label>
@@ -244,7 +244,7 @@
 
               <!-- edit format -->
               <div class="ddp-ui-option-in">
-                <div class="ddp-input-apply" *ngIf="selectedField.format && selectedField.format.type.toString() === 'time_format'">
+                <div class="ddp-input-apply" *ngIf="isTimeTypeField(selectedField)">
                   <input type="text" class="ddp-input-txt" placeholder="{{'msg.storage.ph.time.format' | translate}}"
                          [(ngModel)]="selectedField.format.format"
                          (ngModelChange)="initTimeFormatValid(selectedField); initIngestionRuleReplaceValid(selectedField)">
@@ -253,7 +253,7 @@
                 <div class="ddp-ui-error ddp-italic" *ngIf="selectedField.isValidTimeFormat === false">
                   <em class="ddp-icon-error"></em>{{selectedField.timeFormatValidMessage}}
                 </div>
-                <ul class="ddp-list-checktype" *ngIf="selectedField.format && selectedField.format.type.toString() === 'time_unix'">
+                <ul class="ddp-list-checktype" *ngIf="isUnixTypeField(selectedField)">
                   <li *ngFor="let unit of formatUnitList">
                     <label class="ddp-label-radio" (change)="onChangeFormatUnitInField(selectedField, unit)">
                       <input type="radio" [checked]="selectedField.format.unit === unit.value">
@@ -266,6 +266,40 @@
               <!-- //edit format -->
             </div>
             <!-- //Time display format -->
+            <!-- Timezone -->
+            <div class="ddp-wrap-edit3" *ngIf="isEnableTimezone(selectedField)">
+              <label class="ddp-ui-label-name">
+                {{'msg.storage.ui.timezone' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-option-in">
+                <!--
+                    클릭할때 : ddp-selected 추가
+                    결과 보여질때 : ddp-result 추가
+                -->
+                <div class="ddp-type-selectbox ddp-type-search-select ddp-result" [class.ddp-selected]="isShowTimezoneList" (click)="onChangeTimezoneSelectBoxShowFlag($event)" (clickOutside)="isShowTimezoneList = false">
+                  <!-- 선택시 자동 input display:block; -->
+                  <input type="text" class="ddp-input-selectbox" [ngModel]="searchTimezoneKeyword" (ngModelChange)="onChangeSearchTimezoneKeyword($event)">
+                  <span class="ddp-txt-selectbox">{{getSelectedTimezoneLabel(selectedField.format)}}</span>
+                  <div class="ddp-wrap-popup2">
+                    <ul class="ddp-list-popup">
+                      <li *ngIf="filteredTimezoneList.length === 0">
+                        <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
+                      </li>
+                      <li [class.ddp-selected]="item.momentName === selectedField.format.timeZone" *ngFor="let item of filteredTimezoneList" (click)="onChangeTimezoneInField(selectedField, item)">
+                        <a href="javascript:" title="{{item.label}}">
+                          {{item.label}}
+                          <em class="ddp-icon-check"></em>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //Timezone -->
             <!-- Null  -->
             <div class="ddp-wrap-edit3">
               <label class="ddp-ui-label-name">{{'msg.storage.ui.th.missing' | translate}}</label>

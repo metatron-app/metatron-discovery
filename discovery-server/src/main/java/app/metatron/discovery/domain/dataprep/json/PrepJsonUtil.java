@@ -1,15 +1,12 @@
 package app.metatron.discovery.domain.dataprep.json;
 
-import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.csv.*;
-import org.apache.commons.io.ByteOrderMark;
-import org.apache.commons.io.input.BOMInputStream;
-import org.apache.commons.lang3.StringEscapeUtils;
+import com.google.common.collect.Lists;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -25,8 +22,6 @@ import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
@@ -39,13 +34,12 @@ public class PrepJsonUtil {
    * @param strDelim    Delimiter as String (to be Char)
    * @param limitRows   Read not more than this
    * @param conf        Hadoop configuration which is mandatory when the url's protocol is hdfs
-   * @param header      If true, fill PrepCsvParseResult.colNames with the header line, then skip it
    *
    * @return PrepCsvParseResult: grid, header, maxColCnt
    *
    *  Sorry for so many try-catches. Sacrificed readability for end-users' usability.
    */
-  public static PrepJsonParseResult parseJSON(String strUri, String strDelim, int limitRows, Configuration conf, boolean header) {
+  public static PrepJsonParseResult parseJSON(String strUri, String strDelim, int limitRows, Configuration conf) {
     PrepJsonParseResult result = new PrepJsonParseResult();
     BufferedReader reader;
     URI uri;
@@ -108,19 +102,39 @@ public class PrepJsonUtil {
     int rowNo = 0;
 
     try {
+      result.colNames = Lists.newArrayList();
+      result.maxColCnt = 0;
+      StringBuffer sb = new StringBuffer();
       while((line = reader.readLine())!=null && rowNo <limitRows) {
-        Map<String, String> jsonRow = mapper.readValue(line, new TypeReference<Map<String, String>>(){});
-        if(rowNo==0) {
-          result.colNames = new ArrayList<>(jsonRow.keySet());
-          result.maxColCnt = jsonRow.size();
+        Map<String, Object> jsonRow = null;
+
+        try {
+          sb.append(line);
+          jsonRow = mapper.readValue(sb.toString(), new TypeReference<Map<String, Object>>() {
+          });
+          sb.delete(0,sb.length());
+        } catch (JsonParseException e) {
+          LOGGER.debug("Incomplete JSON string.", e);
+          continue;
         }
 
-        String[] row = jsonRow.values().toArray(new String[0]);
+        for(String jsonKey : jsonRow.keySet()) {
+          if( result.colNames.contains(jsonKey) == false ) {
+            result.colNames.add(jsonKey);
+            result.maxColCnt++;
+          }
+        }
+
+        String[] row = new String[result.maxColCnt];
+        for(int i=0; i<result.maxColCnt; i++ ) {
+          String colName = result.colNames.get(i);
+          if( jsonRow.containsKey(colName) == true ) {
+            row[i] = jsonRow.get(colName).toString();
+          }
+        }
         result.grid.add(row);
         rowNo++;
       }
-
-
     } catch (IOException e) {
       e.printStackTrace();
       throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_CSV,

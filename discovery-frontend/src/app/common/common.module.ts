@@ -14,10 +14,10 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule as AngularCommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
-import { TranslateModule } from 'ng2-translate';
+import { TranslateModule } from '@ngx-translate/core';
 import { SelectComponent } from './component/select/select.component';
 import { PagingSelectComponent } from './component/paging-select/paging-select.component';
 import { BaseFilter } from './pipe/base-filter';
@@ -40,7 +40,6 @@ import { MultiSelectComponent } from './component/multi-select/multi-select.comp
 import { CreateModalComponent } from './component/modal/create/create.component';
 import { LoadingComponent } from './component/loading/loading.component';
 import { ConfirmModalComponent } from './component/modal/confirm/confirm.component';
-import { StompService } from 'ng2-stomp-service';
 import { GridComponent } from './component/grid/grid.component';
 
 import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
@@ -58,8 +57,27 @@ import { ColorPickerComponent } from './component/color-picker/color.picker.comp
 import { GradationGeneratorComponent } from './component/gradation/gradation-generator.component';
 import { DashboardDatasourceComboComponent } from '../dashboard/component/dashboard-datasource-combo.component';
 import { ColorTemplateComponent } from './component/color-picker/color-template.component';
+import {InputComponent} from "./component/input/input.component";
 import {SvgIconComponent} from "./component/icon/svg-icon.component";
+import {CommonConstant} from "./constant/common.constant";
+import {CookieConstant} from "./constant/cookie.constant";
 
+import {StompConfig, StompService} from '@stomp/ng2-stompjs';
+import * as SockJS from 'sockjs-client';
+
+
+export function socketProvider() {
+  return new SockJS(CommonConstant.API_CONSTANT.URL + '/stomp');
+}
+
+const stompConfig: StompConfig = {
+  url: socketProvider,
+  headers: {'X-AUTH-TOKEN': CommonConstant.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)},
+  heartbeat_in: 1000,
+  heartbeat_out: 0,
+  reconnect_delay: 0,
+  debug: false
+};
 
 @NgModule({
   imports: [
@@ -105,13 +123,14 @@ import {SvgIconComponent} from "./component/icon/svg-icon.component";
     GradationGeneratorComponent,
     DashboardDatasourceComboComponent,
     ColorTemplateComponent,
-    SvgIconComponent
+    SvgIconComponent,
+    InputComponent
   ],
   exports: [
     AngularCommonModule,
     FormsModule,
     ClickOutsideModule,
-    HttpModule,
+    HttpClientModule,
     TranslateModule,
     BaseFilter,
     BaseSort,
@@ -149,14 +168,19 @@ import {SvgIconComponent} from "./component/icon/svg-icon.component";
     GradationGeneratorComponent,
     DashboardDatasourceComboComponent,
     ColorTemplateComponent,
-    SvgIconComponent
+    SvgIconComponent,
+    InputComponent
   ],
   providers: [
     {
       provide: COMPOSITION_BUFFER_MODE,
       useValue: false
     },
-    StompService
+    StompService,
+    {
+      provide: StompConfig,
+      useValue: stompConfig
+    }
   ]
 })
 export class CommonModule {

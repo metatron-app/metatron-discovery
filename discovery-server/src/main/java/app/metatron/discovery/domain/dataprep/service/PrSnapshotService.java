@@ -15,7 +15,7 @@
 package app.metatron.discovery.domain.dataprep.service;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.dataprep.PrepDatasetSparkHiveService;
+import app.metatron.discovery.domain.dataprep.PrepDatasetStagingDbService;
 import app.metatron.discovery.domain.dataprep.PrepHdfsService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
@@ -49,11 +49,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 
 @Service
 public class PrSnapshotService {
@@ -66,7 +63,7 @@ public class PrSnapshotService {
     PrDataflowRepository dataflowRepository;
 
     @Autowired
-    private PrepDatasetSparkHiveService datasetSparkHiveService;
+    private PrepDatasetStagingDbService datasetStagingDbService;
 
     @Autowired
     PrepHdfsService hdfsService;
@@ -185,7 +182,7 @@ public class PrSnapshotService {
                     if(Strings.isNullOrEmpty(fileType)) {
                         fileType = "csv";
                     }
-                    this.datasetSparkHiveService.writeSnapshot(response.getOutputStream(), dbName, sql, fileType);
+                    this.datasetStagingDbService.writeSnapshot(response.getOutputStream(), dbName, sql, fileType);
 
                     fileName = snapshot.getDsName() + "." + fileType;
                 }
@@ -221,20 +218,6 @@ public class PrSnapshotService {
             try {
                 PrSnapshot.SS_TYPE ss_type = snapshot.getSsType();
                 if( PrSnapshot.SS_TYPE.URI==ss_type ) {
-//                    PrSnapshot.URI_FILE_FORMAT uriFileFormat = snapshot.getUriFileFormat();
-//                    if (PrSnapshot.URI_FILE_FORMAT.CSV == uriFileFormat) {
-
-//                        String dirPath = snapshot.getHiveExtDir();
-//                        if(dirPath!=null) {
-//                            File dirSnapshot = new File(dirPath);
-//                            if (dirSnapshot.exists()) {
-//                                deleteFile(dirSnapshot);
-//                            } else {
-//                                LOGGER.info("deleteSnapshot(): the file does not exists");
-//                            }
-//                        } else {
-//                            LOGGER.info("deleteSnapshot(): the file does not exists");
-//                        }
 
                       String storedUri = snapshot.getStoredUri();
                       URI uri = new URI(storedUri);
@@ -279,10 +262,6 @@ public class PrSnapshotService {
                           default:
                               assert false : uri.getScheme();
                       }
-//                    } else if (PrSnapshot.URI_FILE_FORMAT.JSON == uriFileFormat) {
-//                        LOGGER.error("deleteSnapshot(): file not supported: JSON");
-//                        throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREP_FILE_TYPE_NOT_SUPPORTED);
-//                    }
 //                } else if( PrSnapshot.SS_TYPE.HDFS==ss_type ) {
 //                    Configuration conf = this.hdfsService.getConf();
 //                    FileSystem fs = FileSystem.get(conf);
@@ -305,10 +284,12 @@ public class PrSnapshotService {
 //                    LOGGER.error("deleteSnapshot(): file not supported: JDBC");
 //                    throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREP_FILE_TYPE_NOT_SUPPORTED);
                 } else if( PrSnapshot.SS_TYPE.STAGING_DB==ss_type ) {
+                    // FIXME: delete the files!!! (according to the Hive metadb)
+
                     String dbName = snapshot.getDbName();
                     String tblName = snapshot.getTblName();
                     String sql = "DROP TABLE IF EXISTS "+dbName+"."+tblName;
-                    this.datasetSparkHiveService.dropHiveSnapshotTable(sql);
+                    this.datasetStagingDbService.dropHiveSnapshotTable(sql);
                 }
             } catch (Exception e) {
                 throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);

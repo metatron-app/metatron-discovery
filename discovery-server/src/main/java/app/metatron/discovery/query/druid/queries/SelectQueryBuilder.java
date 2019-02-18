@@ -70,10 +70,10 @@ import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFor
 import app.metatron.discovery.query.druid.AbstractQueryBuilder;
 import app.metatron.discovery.query.druid.Dimension;
 import app.metatron.discovery.query.druid.dimensions.DefaultDimension;
+import app.metatron.discovery.query.druid.dimensions.ExpressionDimension;
 import app.metatron.discovery.query.druid.dimensions.ExtractionDimension;
 import app.metatron.discovery.query.druid.dimensions.LookupDimension;
 import app.metatron.discovery.query.druid.extractionfns.ExpressionFunction;
-import app.metatron.discovery.query.druid.extractionfns.TimeParsingFunction;
 import app.metatron.discovery.query.druid.filters.AndFilter;
 import app.metatron.discovery.query.druid.funtions.TimeFormatFunc;
 import app.metatron.discovery.query.druid.granularities.SimpleGranularity;
@@ -120,10 +120,9 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
     // 별도 forward context 추가시 Projection 항목 지정 위함
     projections = reqFields;
 
-    // 필드정보가 없을 경우 모든 필드를 대상으로 지정하는 것을 가정
+    // If fields are empty in the search query, it will get field information from datasource.
     if (CollectionUtils.isEmpty(reqFields)) {
-      reqFields = Lists.newArrayList();
-      reqFields.addAll(getAllFieldsByMapping());
+      reqFields = Lists.newArrayList(getAllFieldsByMapping());
     }
 
     for (Field reqField : reqFields) {
@@ -135,8 +134,8 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
 
       String aliasName = reqField.getAlias();
 
-      if(UserDefinedField.REF_NAME.equals(reqField.getRef())) {
-        if(reqField instanceof DimensionField) {
+      if (UserDefinedField.REF_NAME.equals(reqField.getRef())) {
+        if (reqField instanceof DimensionField) {
           dimensions.add(new DefaultDimension(fieldName, aliasName));
         } else {
           virtualColumns.put(aliasName, new ExprVirtualColumn(fieldName, aliasName));
@@ -149,11 +148,16 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
       if (reqField instanceof DimensionField) {
 
         DimensionField dimensionField = (DimensionField) reqField;
-        FieldFormat format = dimensionField.getFormat();
         app.metatron.discovery.domain.datasource.Field datasourceField = metaFieldMap.get(fieldName);
 
-        if(datasourceField == null) {
-          throw new QueryTimeExcetpion("'"+ fieldName +"' not found  in datasource ( " + dataSource.getName() + " )");
+        FieldFormat originalFormat = datasourceField.getFormatObject();
+        FieldFormat format = dimensionField.getFormat();
+        if (format == null) {
+          format = originalFormat;
+        }
+
+        if (datasourceField == null) {
+          throw new QueryTimeExcetpion("'" + fieldName + "' not found  in datasource ( " + dataSource.getName() + " )");
         }
 
         // In case of GEO Type, druid engine recognizes it as metric
@@ -178,19 +182,14 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
               dimensions.add(new ExtractionDimension(fieldName, aliasName,
                                                      new ExpressionFunction(((DefaultFormat) format).getFormat(), fieldName)));
               break;
-            case TIMESTAMP: // TODO: 추후 별도의 Timestamp 처리 확인 해볼것
+            case TIMESTAMP:
+              TimeFieldFormat originalTimeFormat = (TimeFieldFormat) originalFormat;
               TimeFieldFormat timeFormat = (TimeFieldFormat) format;
-              ExtractionDimension extractionDimension = new ExtractionDimension();
-              extractionDimension.setDimension(fieldName);
-              extractionDimension.setOutputName(aliasName);
 
-              extractionDimension.setExtractionFn(
-                  new TimeParsingFunction(datasourceField.getFormat(),
-                                          timeFormat.getFormat(),
-                                          timeFormat.getLocale(),
-                                          timeFormat.getTimeZone())
-              );
-              dimensions.add(extractionDimension);
+              TimeFormatFunc timeFormatFunc = createTimeFormatFunc(fieldName, originalTimeFormat, timeFormat);
+
+              dimensions.add(new ExpressionDimension(aliasName, timeFormatFunc.toExpression()));
+
               break;
             default:
               dimensions.add(new DefaultDimension(fieldName, aliasName,
@@ -215,31 +214,26 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
         //        dimensions.add(new DefaultDimension(vcName, aliasName));
 
       } else if (reqField instanceof TimestampField) {
+
         if (!this.metaFieldMap.containsKey(fieldName)) {
           continue;
         }
 
+        app.metatron.discovery.domain.datasource.Field datasourceField = metaFieldMap.get(fieldName);
+        TimeFieldFormat originalTimeFormat = (TimeFieldFormat) datasourceField.getFormatObject();
+
         TimestampField timestampField = (TimestampField) reqField;
         TimeFieldFormat timeFormat = (TimeFieldFormat) timestampField.getFormat();
-        TimeFormatFunc timeFormatFunc = null;
-        if (timeFormat != null) {
-          timeFormatFunc = new TimeFormatFunc(timestampField.getPredefinedColumn(dataSource instanceof MappingDataSource),
-                                              timeFormat.getFormat(),
-                                              timeFormat.getTimeZone(),
-                                              timeFormat.getLocale());
-        } else {
-          app.metatron.discovery.domain.datasource.Field datasourceField = metaFieldMap.get(fieldName);
-
-          timeFormatFunc = new TimeFormatFunc(timestampField.getPredefinedColumn(dataSource instanceof MappingDataSource),
-                                              datasourceField.getFormat() == null ?
-                                                  TimeFieldFormat.DEFAULT_DATETIME_FORMAT : datasourceField.getFormat(),
-                                              null,
-                                              null);
+        if (timeFormat == null) {
+          timeFormat = originalTimeFormat;
         }
 
-        ExprVirtualColumn exprVirtualColumn = new ExprVirtualColumn(timeFormatFunc.toExpression(), timestampField.getColunm());
-        virtualColumns.put(timestampField.getColunm(), exprVirtualColumn);
-        dimensions.add(new DefaultDimension(fieldName, aliasName));
+        TimeFormatFunc timeFormatFunc = new TimeFormatFunc(timestampField.getPredefinedColumn(dataSource instanceof MappingDataSource),
+                                                           timeFormat.getFormat(),
+                                                           timeFormat.selectTimezone(),
+                                                           timeFormat.getLocale());
+
+        dimensions.add(new ExpressionDimension(aliasName, timeFormatFunc.toExpression()));
       }
     }
 
@@ -261,9 +255,9 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
       pagingSpec.setThreshold(reqLimit.getLimit());
 
       for (Sort sort : reqLimit.getSort()) {
-        if(this.metaFieldMap.containsKey(sort.getField())) {
+        if (this.metaFieldMap.containsKey(sort.getField())) {
           app.metatron.discovery.domain.datasource.Field field = this.metaFieldMap.get(sort.getField());
-          if(field.getRole() == app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP) {
+          if (field.getRole() == app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP) {
             descending = sort.getDirection() == Sort.Direction.DESC ? true : false;
           } // Ignore any sorting on the rest of the field of timestamp role
         }

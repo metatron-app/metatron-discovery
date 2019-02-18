@@ -15,7 +15,6 @@
 import {AfterViewInit, Component, ElementRef, HostListener, Injector, ViewChild,} from '@angular/core';
 import {BaseChart, ChartSelectInfo} from '../../base-chart';
 import {Pivot} from '../../../../../domain/workbook/configurations/pivot';
-import * as ol from 'openlayers';
 import {UIMapOption} from '../../option/ui-option/map/ui-map-chart';
 import {
   HeatmapColorList,
@@ -56,6 +55,8 @@ import {UITileLayer} from '../../option/ui-option/map/ui-tile-layer';
 import {ColorOptionConverter} from '../../option/converter/color-option-converter';
 import {CommonConstant} from "../../../../constant/common.constant";
 
+declare let ol;
+
 @Component({
   selector: 'map-chart',
   templateUrl: 'map-chart.component.html'
@@ -91,14 +92,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // Map Object
-  public olmap: ol.Map = undefined;
+  public olmap: any = undefined;
 
   // OSM Layer
   public osmLayer = new ol.layer.Tile({
     source: new ol.source.OSM({
-      attributions: [new ol.Attribution({
-        html: this.attribution()
-      })],
+      attributions: this.attribution(),
       crossOrigin: 'anonymous'
     })
   });
@@ -106,9 +105,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   public cartoPositronLayer = new ol.layer.Tile({
     source: new ol.source.XYZ({
       url: 'http://{1-4}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-      attributions: [new ol.Attribution({
-        html: this.attribution()
-      })],
+      attributions: this.attribution(),
       crossOrigin: 'anonymous'
     })
   });
@@ -117,9 +114,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   public cartoDarkLayer = new ol.layer.Tile({
     source: new ol.source.XYZ({
       url: 'http://{1-4}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-      attributions: [new ol.Attribution({
-        html: this.attribution()
-      })],
+      attributions: this.attribution(),
       crossOrigin: 'anonymous'
     })
   });
@@ -208,9 +203,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             layer: new ol.layer.Tile({
               source: new ol.source.XYZ({
                 url: item.url,
-                attributions: [new ol.Attribution({
-                  html: this.attribution()
-                })],
+                attributions: this.attribution(),
                 crossOrigin: 'anonymous'
               })
             }),
@@ -1885,9 +1878,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   private attribution(): any {
 
     if (this.getUiMapOption()) {
-      return [new ol.Attribution({
-        html: this.getUiMapOption().licenseNotation
-      })];
+      return this.getUiMapOption().licenseNotation;
     } else {
       return "© OpenStreetMap contributors";
     }

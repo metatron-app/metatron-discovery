@@ -28,7 +28,7 @@
     <!-- dp connection -->
     <div class="ddp-ui-dbconnect">
 
-      <div class="ddp-edit-setting ddp-type">
+      <div class="ddp-edit-setting">
         <div class="ddp-wrap-edit3 ddp-type ddp-mgt0">
           <label class="ddp-label-type ddp-bold">{{'msg.storage.ui.db.connection' | translate}}</label>
           <!-- edit option -->
@@ -37,6 +37,7 @@
             <component-select
               [array]="connectionList"
               [viewKey]="'name'"
+              [isDataprep]="true"
               [defaultIndex]="defaultSelectedIndex"
               (onSelected)="selectConnection($event, true)">
             </component-select>
@@ -50,7 +51,9 @@
         <!-- edit option -->
         <div class="ddp-ui-edit-option ddp-type ddp-white-space">
           <ul class="ddp-list-dbtype">
-            <li *ngFor="let type of databaseTypeList" [class.ddp-selected]="selectedDatabase['value'] === type.value">
+            <li *ngFor="let type of databaseTypeList"
+                [class.ddp-selected]="selectedDatabase['value'] === type.value"
+                [class.ddp-disabled]="selectedDatabase['value'] !== type.value">
               <a href="javascript:" (click)="setDatabase(type)" class="ddp-label-dbtype type-{{type.label.toLowerCase()}}">
                 <em class="ddp-icon-db">
                   <svg-icon-component [name]="type.value"></svg-icon-component>

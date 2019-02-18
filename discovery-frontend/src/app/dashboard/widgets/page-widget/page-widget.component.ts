@@ -25,7 +25,7 @@ import {
   ViewChild
 } from '@angular/core';
 import * as _ from 'lodash';
-import * as Clipboard from 'clipboard';
+import { ClipboardService } from 'ngx-clipboard';
 import {
   BrushType,
   ChartMouseMode,
@@ -176,7 +176,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
   // is Origin data down
   public isOriginDown: boolean = false;
-  public srchText:string;
+  public srchText:string = '';
   public isCanNotDownAggr:boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -197,10 +197,11 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   constructor(private datasourceService: DatasourceService,
               private widgetService: WidgetService,
               private imageService: ImageService,
+              private analysisPredictionService: AnalysisPredictionService,
+              private _clipboardService: ClipboardService,
               protected broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
-              protected injector: Injector,
-              private analysisPredictionService: AnalysisPredictionService) {
+              protected injector: Injector) {
     super(broadCaster, elementRef, injector);
   }
 
@@ -310,6 +311,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         } else if (data.excludeWidgetId !== this.widget.id) {
           this._search(null, data.filters);
         }
+
+        this.query.selectionFilters = data.filters;
       })
     );
 
@@ -753,8 +756,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public copyWidgetIdToClipboard() {
     if (this.widget) {
-      const option = {text: () => this.widget.id};
-      new Clipboard(this.elementRef.nativeElement, option);
+      this._clipboardService.copyFromContent( this.widget.id );
     }
   } // function - copyWidgetIdToClipboard
 
@@ -972,7 +974,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @private
    */
   public drawDataGrid(isOriginal: boolean = false) {
-
     this.isOriginDown = isOriginal;
     this.isCanNotDownAggr = false;
 
@@ -989,7 +990,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     }
 
     this.loadingShow();
-    this.widgetService.previewWidget(this.widget.id, isOriginal, false).then(result => {
+    const param = this.query.getDownloadFilters();
+
+    this.widgetService.previewWidget(this.widget.id, isOriginal, false, param).then(result => {
 
       // 헤더정보 생성
       const headers: header[]
@@ -1059,22 +1062,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   } // function - drawDataGrid
 
   /**
-   * 그리드 검색
-   * @param event
+   * 검색어 설정 및 그리드 검색
+   * @param {string} srchText
    */
-  public searchKeyUp(event:KeyboardEvent) {
-    if( 13 === event.keyCode ) {
-      this._dataGridComp.search(this.srchText);
-    }
-  } // function - searchKeyUp
-
-  /**
-   * 검색 클리어
-   */
-  public clearSearch() {
-    this.srchText = '';
+  public setSearchText(srchText:string) {
+    this.srchText = srchText;
     this._dataGridComp.search(this.srchText);
-  } // function - clearSearch
+  } // function - setSearchText
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

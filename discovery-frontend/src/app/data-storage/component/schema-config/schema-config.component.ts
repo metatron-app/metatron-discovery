@@ -30,6 +30,7 @@ import * as _ from 'lodash';
 import { Alert } from '../../../common/util/alert.util';
 import { SchemaConfigActionBarComponent } from './schema-config-action-bar.component';
 import { SchemaConfigDetailComponent } from './schema-config-detail.component';
+import { TimezoneService } from "../../service/timezone.service";
 
 @Component({
   selector: 'schema-config-component',
@@ -156,6 +157,7 @@ export class SchemaConfigComponent extends AbstractComponent {
 
   // 생성자
   constructor(private _datasourceService: DatasourceService,
+              private _timezoneService: TimezoneService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -408,8 +410,11 @@ export class SchemaConfigComponent extends AbstractComponent {
 
   /**
    * Field search event
+   * @param {string} keyword
    */
-  public onChangedSearchText(): void {
+  public onChangedSearchText(keyword: string): void {
+    // set keyword
+    this.searchText = keyword;
     // filtered field list
     this._setFilteredFieldList();
   }
@@ -741,6 +746,13 @@ export class SchemaConfigComponent extends AbstractComponent {
             field.format.format = result.pattern;
             // set time format valid TRUE
             field.isValidTimeFormat = true;
+            // if enable timezone, set browser timezone at field
+            if (this._timezoneService.isEnableTimezoneInDateFormat(field.format)) {
+              !field.format.timeZone && (field.format.timeZone = this._timezoneService.browserTimezone.momentName);
+              field.format.locale = this._timezoneService.browserLocal;
+            } else { // if not enable timezone
+              field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
+            }
           }
           resolve(result);
         })

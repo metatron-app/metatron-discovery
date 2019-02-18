@@ -299,7 +299,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
                                                              null,
                                                              null,
                                                              timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
-                                                             timeFormat.getTimeZone(),
+                                                             timeFormat.selectTimezone(),
                                                              timeFormat.getLocale());
 
           ExprVirtualColumn exprVirtualColumn = new ExprVirtualColumn(timeFormatFunc.toExpression(), innerFieldName);
@@ -355,7 +355,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
 
         TimeFormatFunc timeFormatFunc = new TimeFormatFunc(predefinedFieldName,
                                                            timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
-                                                           timeFormat.getTimeZone(),
+                                                           timeFormat.selectTimezone(),
                                                            timeFormat.getLocale());
 
         ExprVirtualColumn exprVirtualColumn = new ExprVirtualColumn(timeFormatFunc.toExpression(), innerFieldName);
@@ -486,7 +486,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
 
     if (datasourceField.getRole() == TIMESTAMP && !(timeFilter instanceof TimeListFilter)) {
       OrOperator orOperator = new OrOperator();
-      for (String engineInterval : timeFilter.getEngineIntervals()) {
+      for (String engineInterval : timeFilter.getEngineIntervals(datasourceField)) {
         String[] spiltedTimes = StringUtils.split(engineInterval, "/");
         orOperator.addFilter(new PropertyIsBetween("__time", DateTime.parse(spiltedTimes[0]).getMillis() + "", DateTime.parse(spiltedTimes[1]).getMillis() + ""));
       }

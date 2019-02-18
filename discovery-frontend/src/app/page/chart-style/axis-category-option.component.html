@@ -56,7 +56,7 @@
     </div>
     <div class="ddp-divide2">
       <div class="ddp-list-label">{{'msg.page.chart.axis.label.max.length' | translate}}</div>
-      <input type="number" input-mask="number" (keyup.enter)="setMaxLength()" class="ddp-input-typebasic" [(ngModel)]="axis.label['maxLength']">
+      <input type="number" input-mask="number" (keyup.enter)="setMaxLength()" (focusout)="setMaxLength()" class="ddp-input-typebasic" [(ngModel)]="axis.label['maxLength']">
     </div>
   </div>
 </div>

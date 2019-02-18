@@ -48,9 +48,6 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
   private DIM_PAGE_SIZE: number = 10;
   private MEA_PAGE_SIZE: number = 7;
 
-  @ViewChild('srchText')
-  private _inputSrchText: ElementRef;
-
   // page data 하위의 context menu
   @ViewChild(PageDataContextComponent)
   private _dataContext: PageDataContextComponent;
@@ -195,11 +192,11 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
       this.boardDs = DashboardUtil.getBoardDataSourceFromDataSource( this.dashboard, dataSource );
 
       this.dsFields = _.cloneDeep( DashboardUtil.getFieldsForMainDataSource(boardConf, dataSource.engineName) );
+      this._totalFields = this.dsFields;
       if( boardConf.customFields ) {
         this.dsCustomFields = boardConf.customFields.filter( filter => filter.dataSource === this.boardDs.engineName );
-        this._totalFields = this.dsFields.concat(this.dsCustomFields);
-      } else {
-        this._totalFields = this.dsFields;
+        // this._totalFields = this.dsFields.concat(this.dsCustomFields);
+        this._totalFields = this._totalFields.concat(this.dsCustomFields);
       }
 
       this._setFields();
@@ -235,29 +232,12 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 검색 초기화
-   */
-  public clearSearch() {
-    this.searchText = '';
-    this._setFields();
-  } // function - clearSearch
-
-  /**
-   * 검색어 복구
-   */
-  public restoreSearch() {
-    this._inputSrchText.nativeElement.value = this.searchText;
-  } // function - restoreSearch
-
-  /**
    * 검색어에 따라 필드 검색
-   * @param {KeyboardEvent} event
+   * @param {string} inputText
    */
-  public searchField(event: KeyboardEvent) {
-    if (13 === event.keyCode) {
-      this.searchText = this._inputSrchText.nativeElement.value;
-      this._setFields(this.searchText);
-    }
+  public searchField(inputText: string) {
+    this.searchText = inputText;
+    this._setFields(this.searchText);
   } // function - searchField
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -602,7 +582,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     totalFields.forEach(field => {
       field.useChartFilter = false;
       field.useFilter = false;
-      field['isCustomMeasure'] = this.isCustomMeasureField(field);
+      field['isCustomMeasure'] = this.isCustomMeasureField(<Field>field);
     });
 
     // 필드로 필터 사용판단

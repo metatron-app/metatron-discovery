@@ -733,7 +733,10 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
           'line-height': '29px',
           'white-space': 'nowrap',
           'text-overflow': 'ellipsis',
-          'overflow': 'hidden'
+          'overflow': 'hidden',
+          'paddingLeft' : '9px',
+          'paddingRight' : '9px',
+          'box-sizing' :'border-box'
         })
         .appendTo(args.node);
 
@@ -1908,6 +1911,9 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
           value = this._setFieldFormatter(value, columnDef.columnType, colDescs);
 
           if (field.type === 'STRING') {
+            value = (value) ? value.toString().replace(/</gi, '&lt;') : value;
+            value = (value) ? value.toString().replace(/>/gi, '&gt;') : value;
+            value = (value) ? value.toString().replace(/\n/gi, '&crarr;') : value;
             let re = /\s/gi;
             let tag = '<span style="color:#ff00ff; font-size: 9pt; letter-spacing: 0px">' + this.spaceSymbol + '</span>';
             value = (value) ? value.toString().replace(re, tag) : value;

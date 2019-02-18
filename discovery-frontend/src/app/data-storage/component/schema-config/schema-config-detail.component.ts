@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, EventEmitter, Injector, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
 import {
   Field,
   FieldFormat,
@@ -26,7 +26,8 @@ import {
   IngestionRuleType,
   LogicalType
 } from '../../../domain/datasource/datasource';
-import { StringUtil } from '../../../common/util/string.util';
+import {StringUtil} from '../../../common/util/string.util';
+import {TimeZoneObject, TimezoneService} from "../../service/timezone.service";
 
 declare let moment: any;
 
@@ -171,11 +172,24 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   @Output()
   public changedFieldLogicalType: EventEmitter<any> = new EventEmitter();
 
+  // filtered timezone list
+  public filteredTimezoneList: TimeZoneObject[];
+  // search keyword
+  public searchTimezoneKeyword: string;
+  // timezone list show flag
+  public isShowTimezoneList: boolean;
+
   // 생성자
   constructor(private _datasourceService: DatasourceService,
+              private _timezoneService: TimezoneService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
+  }
+
+  ngOnInit() {
+    // set searched timezone list
+    this._setSearchedTimezoneList(this.searchTimezoneKeyword);
   }
 
   /**
@@ -287,6 +301,15 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
         console.error(this.translateService.instant('msg.common.ui.no.icon.type'), field.logicalType);
         break;
     }
+  }
+
+  /**
+   * Get selected timezone label
+   * @param {FieldFormat} format
+   * @return {string}
+   */
+  public getSelectedTimezoneLabel(format: FieldFormat): string {
+    return this._timezoneService.getTimezoneObject(format).label;
   }
 
   /**
@@ -420,6 +443,33 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   }
 
   /**
+   * Is unix type field
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isUnixTypeField(field: Field): boolean {
+    return field.format && field.format.type === FieldFormatType.UNIX_TIME;
+  }
+
+  /**
+   * Is time type field
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isTimeTypeField(field: Field): boolean {
+    return field.format && field.format.type === FieldFormatType.DATE_TIME;
+  }
+
+  /**
+   * Is enable timezone
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isEnableTimezone(field: Field): boolean {
+    return field.logicalType === LogicalType.TIMESTAMP && this.isTimeTypeField(field) && field.isValidTimeFormat && this._timezoneService.isEnableTimezoneInDateFormat(field.format);
+  }
+
+  /**
    * Logical type list show flag change event
    */
   public onChangeLogicalTypeListShowFlag(): void {
@@ -502,6 +552,13 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
                   field.format.format = result.pattern;
                   // set time format valid message
                   field.isValidTimeFormat = true;
+                  // if enable timezone, set browser timezone at field
+                  if (this._timezoneService.isEnableTimezoneInDateFormat(field.format)) {
+                    !field.format.timeZone && (field.format.timeZone = this._timezoneService.browserTimezone.momentName);
+                    field.format.locale = this._timezoneService.browserLocal;
+                  } else { // if not enable timezone
+                    field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
+                  }
                 }
               })
               .catch((error) => {
@@ -614,6 +671,39 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
   }
 
   /**
+   * Change timezone in field
+   * @param {Field} field
+   * @param {TimeZoneObject} timezoneObj
+   */
+  public onChangeTimezoneInField(field: Field, timezoneObj: TimeZoneObject): void {
+    // change timezone in field
+    field.format.timeZone = timezoneObj.momentName;
+    // close select box
+    this.isShowTimezoneList = false;
+  }
+
+  /**
+   * Change search timezone keyword
+   * @param {string} searchKeyword
+   */
+  public onChangeSearchTimezoneKeyword(searchKeyword: string): void {
+    // set search timezone keyword
+    this.searchTimezoneKeyword = searchKeyword;
+    // set searched timezone list
+    this._setSearchedTimezoneList(this.searchTimezoneKeyword);
+  }
+
+  /**
+   * Change timezone selectbox show flag
+   * @param {MouseEvent} event
+   */
+  public onChangeTimezoneSelectBoxShowFlag(event: MouseEvent): void {
+    if ($(event.target).hasClass('ddp-type-selectbox ddp-type-search-select') || $(event.target).hasClass('ddp-txt-selectbox')) {
+      this.isShowTimezoneList = !this.isShowTimezoneList
+    }
+  }
+
+  /**
    * Time format validation click event
    * @param {Field} field
    */
@@ -641,6 +731,13 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
         if (result.valid) {
           // set time format valid TRUE
           field.isValidTimeFormat = true;
+          // if enable timezone, set browser timezone at field
+          if (this._timezoneService.isEnableTimezoneInDateFormat(field.format)) {
+            !field.format.timeZone && (field.format.timeZone = this._timezoneService.browserTimezone.momentName);
+            field.format.locale = this._timezoneService.browserLocal;
+          } else { // if not enable timezone
+            field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
+          }
         } else {
           // set time format valid FALSE
           field.isValidTimeFormat = false;
@@ -676,6 +773,15 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
           reject(error);
         });
     });
+  }
+
+  /**
+   * Set searched timezone list
+   * @param {string} searchKeyword
+   * @private
+   */
+  private _setSearchedTimezoneList(searchKeyword: string): void {
+    this.filteredTimezoneList = this._timezoneService.getSearchedTimezoneList(searchKeyword);
   }
 
   /**

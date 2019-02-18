@@ -15,7 +15,6 @@
 package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.json.PrepJsonParseResult;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
@@ -389,7 +388,7 @@ public class DataFrame implements Serializable, Transformable {
     setByGrid(result.grid, result.colNames, result.maxColCnt);
   }
 
-  public void setByGridwithJson(PrepJsonParseResult result) {
+  public void setByGridWithJson(PrepJsonParseResult result) {
     setByGrid(result.grid, result.colNames, result.maxColCnt);
   }
 
@@ -1041,162 +1040,159 @@ public class DataFrame implements Serializable, Transformable {
       return str;
   }
 
-  protected void aggregate(DataFrame prevDf, List<String> groupByColNames, List<String> targetExprStrs) throws TeddyException, InterruptedException {
-    List<Integer> groupByColnos = new ArrayList<>();
-    List<Integer> targetAggrColnos = new ArrayList<>();   // 각 aggrValue는 1개의 target column을 가짐
-    List<AggrType> targetAggrTypes = new ArrayList<>();
+  protected String getColNameAndColnoFromFunc(Expr.FunctionExpr funcExpr, List<Integer> targetAggrColnos) throws ColumnNotFoundException, InvalidAggregationValueExpressionTypeException {
+    List<Expr> args = funcExpr.getArgs();
+    String funcName = funcExpr.getName();
+
+    if (args.size() == 1 || args.get(0) instanceof Identifier.IdentifierExpr) {
+      String origColName = ((Identifier.IdentifierExpr) args.get(0)).getValue();
+      targetAggrColnos.add(getColnoByColName(origColName));
+      return modifyDuplicatedColName(funcName + "_" + origColName);
+    }
+
+    throw new InvalidAggregationValueExpressionTypeException("aggregate(): invalid argument expression: " + funcExpr.toString());
+  }
+
+  private Map<String, Object> getAvgObj(List<Object> aggregatedValues, int targetExprIdx,
+                                        int targetColno, DataFrame prevDf, Row row) throws ColumnTypeShouldBeDoubleOrLongException {
+    Map<String, Object> avgObj = (Map<String, Object>) aggregatedValues.get(targetExprIdx);
+
+    avgObj.put("count", (Long) avgObj.get("count") + 1);
+    switch (prevDf.getColType(targetColno)) {
+      case LONG:
+        avgObj.put("sum", (Double) avgObj.get("sum") + ((Long) row.get(targetColno)).doubleValue());
+        break;
+      case DOUBLE:
+        avgObj.put("sum", (Double) avgObj.get("sum") + (Double) row.get(targetColno));
+        break;
+      default:
+        throw new ColumnTypeShouldBeDoubleOrLongException("getAvgObj(): wrong colType: " + prevDf.getColType(targetColno).toString());
+    }
+
+    return avgObj;
+  }
+
+  protected void aggregate(DataFrame prevDf, List<String> groupByColNames, List<Expr.FunctionExpr> funcExprs) throws TeddyException, InterruptedException {
+    List<Integer> targetColnos = new ArrayList<>();   // Each aggregation value has 1 target column. (except "count")
     List<String> resultColNames = new ArrayList<>();
     List<ColumnType> resultColTypes = new ArrayList<>();
     Map<Object, Object> groupByBuckets = new HashMap<>();
-    int rowno, colno;
+    int rowno;
 
-    // aggregation expression strings -> target aggregation types, target colnos, result colnames, result coltypes
-    for (int i = 0; i < targetExprStrs.size(); i++) {
-      String targetExprStr = stripSingleQuote(targetExprStrs.get(i));
-      AggrType aggrType;
-      String targetColName;
-      if (targetExprStr.toUpperCase().startsWith("COUNT")) {
-        aggrType = AggrType.COUNT;
-        resultColNames.add(modifyDuplicatedColName("count"));
-        resultColTypes.add(ColumnType.LONG);
-        targetAggrColnos.add(-1);
-      } else {
-        Pattern pattern = Pattern.compile("\\w+\\((\\w+)\\)");
-        Matcher matcher = pattern.matcher(targetExprStr);
-        if (matcher.find() == false) {
-          throw new IllegalAggregationFunctionExpression("doAggregateInternal(): invalid aggregation function expression: " + targetExprStr.toString());
-        }
+    // Prepare result colNames, colTypes
+    for (Expr.FunctionExpr funcExpr : funcExprs) {
+      List<Expr> args = funcExpr.getArgs();
+      String funcName = funcExpr.getName();
+      String resultColName = null;
+      ColumnType resultColType = null;
 
-        if (targetExprStr.toUpperCase().startsWith(AggrType.SUM.name())) {
-          aggrType = AggrType.SUM;
-        } else if (targetExprStr.toUpperCase().startsWith(AggrType.AVG.name())) {
-          aggrType = AggrType.AVG;
-        } else if (targetExprStr.toUpperCase().startsWith(AggrType.MIN.name())) {
-          aggrType = AggrType.MIN;
-        } else if (targetExprStr.toUpperCase().startsWith(AggrType.MAX.name())) {
-          aggrType = AggrType.MAX;
-        } else {
-          throw new ColumnNotFoundException("doAggregateInternal(): aggregation column not found: " + targetExprStr);
-        }
-
-        targetColName = matcher.group(1);
-        for (colno = 0; colno < prevDf.getColCnt(); colno++) {
-          String colName = prevDf.getColName(colno);
-          if (colName.equals(targetColName)) {
-            targetAggrColnos.add(colno);
-            resultColNames.add(modifyDuplicatedColName(aggrType.name().toLowerCase() + "_" + colName));
-            resultColTypes.add((aggrType == AggrType.AVG) ? ColumnType.DOUBLE : prevDf.getColType(colno));
-            break;
+      switch (funcName) {
+        case "count":
+          if (args == null || args.size() == 0) {   // I'm not sure what parser produces.
+            resultColName = modifyDuplicatedColName("row_count");
+            targetColnos.add(-1);
+          } else {
+            resultColName = prevDf.getColNameAndColnoFromFunc(funcExpr, targetColnos);
           }
-        }
-        if (colno == prevDf.getColCnt()) {
-          throw new TargetColumnNotFoundException("doAggregateInternal(): aggregation target column not found: " + targetColName);
-        }
-      }
-      targetAggrTypes.add(aggrType);
-    }
-
-    // Group-by 컬럼 먼저 추가
-    for (int i = 0; i < groupByColNames.size(); i++) {
-      String groupByColName = groupByColNames.get(i);
-      for (colno = 0; colno < prevDf.getColCnt(); colno++) {
-        if (prevDf.getColName(colno).equals(groupByColName)) {
-          groupByColnos.add(colno);
-          addColumnWithDf(prevDf, colno);
+          resultColType = ColumnType.LONG;
           break;
-        }
+
+        case "avg":
+          resultColName = prevDf.getColNameAndColnoFromFunc(funcExpr, targetColnos);
+          resultColType = ColumnType.DOUBLE;
+          break;
+
+        case "sum":
+        case "min":
+        case "max":
+          resultColName = prevDf.getColNameAndColnoFromFunc(funcExpr, targetColnos);
+          resultColType = prevDf.getColType(targetColnos.get(targetColnos.size() - 1));   // last appended colType
+          break;
+
+        default:
+          throw new UnsupportedAggregationFunctionExpressionException("aggregate(): unsupported aggregation function: " + funcExpr.toString());
       }
-      if (colno == prevDf.getColCnt()) {
-        throw new GroupByColumnNotFoundException("doAggregateInternal(): group by column not found: " + groupByColName);
-      }
+      resultColNames.add(resultColName);
+      resultColTypes.add(resultColType);
     }
 
-    // 그 다음에 aggregated 컬럼 추가
+    // Group-by columns go first
+    for (int i = 0; i < groupByColNames.size(); i++) {
+      addColumnWithDf(prevDf, prevDf.getColnoByColName(groupByColNames.get(i)));
+    }
+
+    // Next, aggregated value columns
     for (int i = 0; i < resultColNames.size(); i++) {
       addColumn(resultColNames.get(i), resultColTypes.get(i));
     }
 
+    // Build rows
     for (rowno = 0; rowno < prevDf.rows.size(); cancelCheck(rowno++)) {
       Row row = prevDf.rows.get(rowno);
-      List<Object> groupByKey = new ArrayList<>();
-      for (int i = 0; i < groupByColnos.size(); i++) {
-        groupByKey.add(row.get(groupByColnos.get(i)));
+      List<Object> groupByKey = new ArrayList<>(groupByColNames.size());
+      for (String groupByColName : groupByColNames) {
+        groupByKey.add(row.get(groupByColName));
       }
 
       if (groupByBuckets.containsKey(groupByKey)) {
         List<Object> aggregatedValues = (List<Object>) groupByBuckets.get(groupByKey);
-        for (int j = 0; j < targetAggrTypes.size(); j++) {
-          if (targetAggrTypes.get(j) == AggrType.AVG) {
-            Map<String, Object> avgObj = (Map<String, Object>) aggregatedValues.get(j);
-            avgObj.put("count", (Long)avgObj.get("count") + 1);
-            if (resultColTypes.get(j) == ColumnType.LONG) {
-              avgObj.put("sum", (Long)avgObj.get("sum") + (Long)row.get(targetAggrColnos.get(j)));
-            } else {
-              if (prevDf.getColType(targetAggrColnos.get(j)) == ColumnType.LONG) {
-                avgObj.put("sum", (Double)avgObj.get("sum") + Double.valueOf((Long)row.get(targetAggrColnos.get(j))));
+
+        for (int i = 0; i < funcExprs.size(); i++) {
+          Expr.FunctionExpr funcExpr = funcExprs.get(i);
+          int targetColno = targetColnos.get(i);
+
+          switch (funcExpr.getName()) {
+            case "avg":
+              aggregatedValues.set(i, getAvgObj(aggregatedValues, i, targetColno, prevDf, row));
+              break;
+            case "count":
+              aggregatedValues.set(i, (Long) aggregatedValues.get(i) + 1);
+              break;
+            case "sum":
+              if (resultColTypes.get(i) == ColumnType.LONG) {
+                aggregatedValues.set(i, (Long) aggregatedValues.get(i) + (Long) row.get(targetColno));
               } else {
-                avgObj.put("sum", (Double) avgObj.get("sum") + (Double) row.get(targetAggrColnos.get(j)));
+                aggregatedValues.set(i, (Double) aggregatedValues.get(i) + (Double) row.get(targetColno));
               }
-            }
-            aggregatedValues.set(j, avgObj);
-          }
-          else if (targetAggrTypes.get(j) == AggrType.COUNT) {
-            aggregatedValues.set(j, (Long)aggregatedValues.get(j) + 1);
-          }
-          else if (targetAggrTypes.get(j) == AggrType.SUM) {
-            if (resultColTypes.get(j) == ColumnType.LONG) {
-              aggregatedValues.set(j, (Long)aggregatedValues.get(j) + (Long)row.get(targetAggrColnos.get(j)));
-            } else {
-              aggregatedValues.set(j, (Double)aggregatedValues.get(j) + (Double)row.get(targetAggrColnos.get(j)));
-            }
-          }
-          else if (targetAggrTypes.get(j) == AggrType.MIN) {
-            if (resultColTypes.get(j) == ColumnType.LONG) {
-              Long newValue = (Long)row.get(targetAggrColnos.get(j));
-              if (newValue < (Long)aggregatedValues.get(j)) {
-                aggregatedValues.set(j, newValue);
+              break;
+            case "min":
+              if (resultColTypes.get(i) == ColumnType.LONG) {
+                aggregatedValues.set(i, Math.min((Long) aggregatedValues.get(i), (Long) row.get(targetColno)));
+              } else {
+                aggregatedValues.set(i, Math.min((Double) aggregatedValues.get(i), (Double) row.get(targetColno)));
               }
-            } else {
-              Double newValue = (Double)row.get(targetAggrColnos.get(j));
-              if (newValue < (Double)aggregatedValues.get(j)) {
-                aggregatedValues.set(j, newValue);
+              break;
+            case "max":
+              if (resultColTypes.get(i) == ColumnType.LONG) {
+                aggregatedValues.set(i, Math.max((Long) aggregatedValues.get(i), (Long) row.get(targetColno)));
+              } else {
+                aggregatedValues.set(i, Math.max((Double) aggregatedValues.get(i), (Double) row.get(targetColno)));
               }
-            }
-          }
-          else if (targetAggrTypes.get(j) == AggrType.MAX) {
-            if (resultColTypes.get(j) == ColumnType.LONG) {
-              Long newValue = (Long)row.get(targetAggrColnos.get(j));
-              if (newValue > (Long)aggregatedValues.get(j)) {
-                aggregatedValues.set(j, newValue);
-              }
-            } else {
-              Double newValue = (Double)row.get(targetAggrColnos.get(j));
-              if (newValue > (Double)aggregatedValues.get(j)) {
-                aggregatedValues.set(j, newValue);
-              }
-            }
+              break;
+            default:
+              throw new InvalidAggregationValueExpressionTypeException("aggregate(): invalid argument expression: " + funcExpr.toString());
           }
         }
         groupByBuckets.put(groupByKey, aggregatedValues);
       } // end of containes groupByKey
       else {  // belows are for new groupByKey
         List<Object> aggregatedValues = new ArrayList<>();
-        for (int j = 0; j < targetAggrTypes.size(); j++) {
-          if (targetAggrTypes.get(j) == AggrType.AVG) {
-            Map<String, Object> avgObj = new HashMap();
-            avgObj.put("count", Long.valueOf(1));
-            if (prevDf.getColType(targetAggrColnos.get(j)) == ColumnType.LONG) {
-              avgObj.put("sum", Double.valueOf((Long)row.get(targetAggrColnos.get(j))));
-            } else {
-              avgObj.put("sum", row.get(targetAggrColnos.get(j)));
-            }
-            aggregatedValues.add(avgObj);
-          }
-          else if (targetAggrTypes.get(j) == AggrType.COUNT) {
-            aggregatedValues.add(Long.valueOf(1));
-          }
-          else {
-            aggregatedValues.add(row.get(targetAggrColnos.get(j)));
+        for (int i = 0; i < funcExprs.size(); i++) {
+          Expr.FunctionExpr funcExpr = funcExprs.get(i);
+          int targetColno = targetColnos.get(i);
+
+          switch (funcExpr.getName()) {
+            case "avg":
+              Map<String, Object> avgObj = new HashMap();
+              avgObj.put("count", Long.valueOf(1));
+              avgObj.put("sum", Double.valueOf(row.get(targetColno).toString()));
+              aggregatedValues.add(avgObj);
+              break;
+            case "count":
+              aggregatedValues.add(Long.valueOf(1));
+              break;
+            default:
+              aggregatedValues.add(row.get(targetColno));
           }
         }
         groupByBuckets.put(groupByKey, aggregatedValues);
@@ -1205,22 +1201,26 @@ public class DataFrame implements Serializable, Transformable {
 
     for (Map.Entry<Object, Object> elem : groupByBuckets.entrySet()) {
       Row newRow = new Row();
-      List<Object> aggregatedValues = (List<Object>)elem.getValue();
+      List<Object> aggregatedValues = (List<Object>) elem.getValue();
 
       int i = 0;
       for (Object groupByValue : (List<Object>) elem.getKey()) {
         newRow.add(groupByColNames.get(i++), groupByValue);
       }
 
-      for (i = 0; i < aggregatedValues.size(); i++) {
-        if (targetAggrTypes.get(i) == AggrType.AVG) {
-          Map<String, Object> avgObj = (Map<String, Object>) aggregatedValues.get(i);
-          Double sum = (Double)avgObj.get("sum");
-          Long count = (Long)avgObj.get("count");
-          Double avg = BigDecimal.valueOf(sum / count).setScale(2, RoundingMode.HALF_UP).doubleValue();
-          newRow.add(resultColNames.get(i), avg);
-        } else {
-          newRow.add(resultColNames.get(i), aggregatedValues.get(i));
+      for (i = 0; i < funcExprs.size(); i++) {
+        Expr.FunctionExpr funcExpr = funcExprs.get(i);
+
+        switch (funcExpr.getName()) {
+          case "avg":
+            Map<String, Object> avgObj = (Map<String, Object>) aggregatedValues.get(i);
+            Double sum = (Double)avgObj.get("sum");
+            Long count = (Long)avgObj.get("count");
+            Double avg = BigDecimal.valueOf(sum / count).setScale(2, RoundingMode.HALF_UP).doubleValue();
+            newRow.add(resultColNames.get(i), avg);
+            break;
+          default:
+            newRow.add(resultColNames.get(i), aggregatedValues.get(i));
         }
       }
       rows.add(newRow);

@@ -51,7 +51,7 @@ export class CustomField extends UserDefinedField {
   filteringOptions: any;  // 필터링 옵션
   mappedField: Field[];   // 기존 물리적인 필드를 매핑하여 신규 필드를 구성할 경우 관련 필드 정보
   ingestionRule: IngestionRule;   // IngestionRule
-  format: string;   // format
+  // format: string;   // format
   description: string;  // description
   // for ui ( Spec 정리 후에 삭제 예정 ) - E
 

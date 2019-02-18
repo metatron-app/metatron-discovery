@@ -64,7 +64,7 @@
           <span class="ddp-label-txt">{{'msg.page.yaxis.grid.max' | translate}}</span>
         </div>
         <div class="ddp-col-7">
-          <input [(ngModel)]="axisTemp.grid.max" (keyup.enter)="changeMax()" type="text" class="ddp-input-typebasic"
+          <input [(ngModel)]="axisTemp.grid.max" (keyup.enter)="changeMax()" (focusout)="changeMax()" type="text" class="ddp-input-typebasic"
                  [attr.placeholder]="getDecimalRoundNumber(AxisOptionConverter.axisMinMax[(axis.mode == 'sub_column' ? 'subAxis' : axis.mode == 'row' ? 'xAxis' : 'yAxis')].max)"
                  [disabled]="axis?.grid?.autoScaled">
         </div>
@@ -75,7 +75,7 @@
         </div>
         <div class="ddp-col-7">
           <!-- error 일때 ddp-error 추가 -->
-          <input [(ngModel)]="axisTemp.grid.min" (keyup.enter)="changeMin()" type="text" class="ddp-input-typebasic"
+          <input [(ngModel)]="axisTemp.grid.min" (keyup.enter)="changeMin()" (focusout)="changeMin()" type="text" class="ddp-input-typebasic"
                  [attr.placeholder]="getDecimalRoundNumber(AxisOptionConverter.axisMinMax[(axis.mode == 'sub_column' ? 'subAxis' : axis.mode == 'row' ? 'xAxis' : 'yAxis')].min)"
                  [disabled]="axis?.grid?.autoScaled">
         </div>

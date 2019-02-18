@@ -70,8 +70,20 @@ public class ApacheCommonsCsvInputTest {
     df.setByGrid(result);
     df.show();
 
-    assertEquals(result.grid.size(), 6);
+    assertEquals(result.grid.size(), 5);
     assertTrue(result.grid.get(4)[7].contains("\"quote\""));
+  }
+
+  @Test
+  public void test_multi_line_unmatched() {
+    String strUri = buildStrUrlFromResourceDir("csv/multi_line_with_unmatched_bs_escape.csv");
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
+    DataFrame df = new DataFrame();
+    df.setByGrid(result);
+    df.show();
+
+    assertEquals(result.grid.size(), 6);
+    assertTrue(result.grid.get(4)[7].contains("\"quote\"\""));
   }
 
   @Test

@@ -31,7 +31,6 @@ import { AbstractFilterPanelComponent } from '../abstract-filter-panel.component
 import * as _ from 'lodash';
 import { Field } from '../../../domain/datasource/datasource';
 import { BoundFilterComponent } from './bound-filter.component';
-import { FilterUtil } from '../../util/filter.util';
 
 @Component({
   selector: 'bound-filter-panel',

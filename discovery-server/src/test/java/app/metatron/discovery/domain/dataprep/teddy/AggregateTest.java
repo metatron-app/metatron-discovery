@@ -55,7 +55,7 @@ public class AggregateTest extends  TeddyTest{
         multi = prepare_multi(multi);
         multi.show();
 
-        String ruleString = "aggregate value: 'count()','sum(measure)', 'avg(measure)' group: machine_code,module_code";
+        String ruleString = "aggregate value: count(), sum(measure), avg(measure) group: machine_code,module_code";
 
         DataFrame newDf = apply_rule(multi, ruleString);
         newDf.show();
@@ -75,12 +75,12 @@ public class AggregateTest extends  TeddyTest{
         multi = prepare_multi(multi);
         multi.show();
 
-        String ruleString = "aggregate value: 'count()','sum(measure)', 'avg(measure)' group: machine_code,module_code,measure";
+        String ruleString = "aggregate value: count(), sum(measure), avg(measure) group: machine_code,module_code,measure";
 
         DataFrame newDf = apply_rule(multi, ruleString);
         newDf.show();
 
-        ruleString = "sort order: count, module_code";
+        ruleString = "sort order: row_count, module_code";
 
         newDf = apply_rule(newDf, ruleString);
         newDf.show();
@@ -95,7 +95,7 @@ public class AggregateTest extends  TeddyTest{
         multi = prepare_multi(multi);
         multi.show();
 
-        String ruleString = "aggregate value: 'count()','sum(measure)', 'avg(measure)'";
+        String ruleString = "aggregate value: count(), sum(measure), avg(measure)";
 
         DataFrame newDf = apply_rule(multi, ruleString);
         newDf.show();

@@ -24,16 +24,19 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.query.druid.AbstractQueryBuilder;
 import app.metatron.discovery.query.druid.funtions.DateTimeMillisFunc;
 
@@ -41,10 +44,6 @@ import static app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP
 
 @JsonTypeName("time_range")
 public class TimeRangeFilter extends TimeFilter {
-
-  private static final DateTime MIN_DATETIME = DateTime.parse("1970-01-01T00:00:00.000Z");
-
-  private static final DateTime MAX_DATETIME = DateTime.parse("2051-01-01T00:00:00.000Z");
 
   private static final String LATEST_DATETIME = "LATEST_DATETIME";
 
@@ -63,8 +62,10 @@ public class TimeRangeFilter extends TimeFilter {
   public TimeRangeFilter(@JsonProperty(value = "field", required = true) String field,
                          @JsonProperty("ref") String ref,
                          @JsonProperty("timeUnit") String timeUnit,
-                         @JsonProperty("intervals") List<String> intervals) {
-    super(field, ref, timeUnit, null, null);
+                         @JsonProperty("intervals") List<String> intervals,
+                         @JsonProperty("timeZone") String timeZone,
+                         @JsonProperty("locale") String locale) {
+    super(field, ref, timeUnit, null, null, timeZone, locale);
 
     this.intervals = intervals;
   }
@@ -85,8 +86,11 @@ public class TimeRangeFilter extends TimeFilter {
       return false;
     }
 
-    List<String> originalIntervals = this.getEngineIntervals();
-    List<String> compareIntervals = compareFilter.getEngineIntervals();
+    // for backward compatibility of timezone
+    Field fakeField = Field.ofFakeTimestamp();
+
+    List<String> originalIntervals = this.getEngineIntervals(fakeField);
+    List<String> compareIntervals = compareFilter.getEngineIntervals(fakeField);
 
     if (CollectionUtils.isEqualCollection(originalIntervals, compareIntervals)) {
       return true;
@@ -103,7 +107,7 @@ public class TimeRangeFilter extends TimeFilter {
    * Engine 쿼리 활용
    */
   @Override
-  public List<String> getEngineIntervals() {
+  public List<String> getEngineIntervals(Field datasourceField) {
 
     if (CollectionUtils.isEmpty(intervals)) {
       return AbstractQueryBuilder.DEFAULT_INTERVALS;
@@ -111,7 +115,7 @@ public class TimeRangeFilter extends TimeFilter {
 
     return intervals.stream()
                     .map(interval -> {
-                      List<DateTime> parsedDateTimes = parseDateTimes(interval);
+                      List<DateTime> parsedDateTimes = parseDateTimes(interval, datasourceField.backwardTime());
                       return parsedDateTimes.get(0) + "/" + parsedDateTimes.get(1);
                     })
                     .collect(Collectors.toList());
@@ -126,15 +130,18 @@ public class TimeRangeFilter extends TimeFilter {
 
     StringJoiner joiner = new StringJoiner(" || ");
     for (String intervalText : intervals) {
-      List<DateTime> parsedDateTimes = parseDateTimes(intervalText);
+      List<DateTime> parsedDateTimes = parseDateTimes(intervalText, datasourceField.backwardTime());
 
       String field = null;
       if (datasourceField.getRole() == TIMESTAMP) {
         field = "__time";
       } else {
+        TimeFieldFormat fieldFormat = (TimeFieldFormat) datasourceField.getFormatObject();
+
         DateTimeMillisFunc millisFunc = new DateTimeMillisFunc(columnName,
-                                                               datasourceField.getTimeFormat(),
-                                                               null, null);
+                                                               fieldFormat.getFormat(),
+                                                               fieldFormat.selectTimezone(),
+                                                               fieldFormat.getLocale());
         field = millisFunc.toExpression();
       }
 
@@ -152,36 +159,47 @@ public class TimeRangeFilter extends TimeFilter {
    * @param text the interval to parse
    * @return the parsed interval string
    */
-  public List<DateTime> parseDateTimes(String text) {
-    final String[] parts = text.split("/");
-    DateTimeFormatter formatter = DateTimeFormat.forPattern(timeUnit.sortFormat())
-                                                .withZoneUTC();
+  public List<DateTime> parseDateTimes(String text, boolean backward) {
 
-    List<DateTime> resultDateTimes = null;
+    final String[] parts = text.split("/");
+
+    DateTimeFormatter formatter = DateTimeFormat.forPattern(timeUnit.sortFormat())
+                                                .withZone(DateTimeZone.forID(timeZone))
+                                                .withLocale(Locale.forLanguageTag(locale));
+
+    List<DateTime> resultDateTimes;
     if (parts.length == 3) {
       Period periodMinus = Period.parse(parts[0]);
       Period periodPlus = Period.parse(parts[2]);
       DateTime dateTime = DateTime.parse(parts[1], formatter);
-      return Lists.newArrayList(dateTime.minus(periodMinus), timeUnit.maxDateTime(dateTime.plus(periodPlus)));
+      resultDateTimes = Lists.newArrayList(dateTime.minus(periodMinus), timeUnit.maxDateTime(dateTime.plus(periodPlus)));
     } else if (parts.length != 2) {
       throw new DateTimeParseException("Text cannot be parsed to a Interval", text, 0);
     } else if (parts[0].startsWith(EARLIEST_DATETIME)) {
       DateTime dateTime = DateTime.parse(parts[1], formatter);
-      return Lists.newArrayList(MIN_DATETIME, timeUnit.maxDateTime(dateTime));
+      resultDateTimes = Lists.newArrayList(MIN_DATETIME, timeUnit.maxDateTime(dateTime));
     } else if (parts[0].startsWith("P")) {
       Period periodMinus = Period.parse(parts[0]);
       DateTime dateTime = DateTime.parse(parts[1], formatter);
-      return Lists.newArrayList(dateTime.minus(periodMinus), timeUnit.maxDateTime(dateTime));
+      resultDateTimes = Lists.newArrayList(dateTime.minus(periodMinus), timeUnit.maxDateTime(dateTime));
     } else if (parts[1].startsWith(LATEST_DATETIME)) {
       DateTime dateTime = DateTime.parse(parts[0], formatter);
-      return Lists.newArrayList(dateTime, MAX_DATETIME);
+      resultDateTimes = Lists.newArrayList(dateTime, MAX_DATETIME);
     } else if (parts[1].startsWith("P")) {
       DateTime dateTime = DateTime.parse(parts[0], formatter);
       Period periodPlus = Period.parse(parts[1]);
-      return Lists.newArrayList(dateTime, timeUnit.maxDateTime(dateTime.plus(periodPlus)));
+      resultDateTimes = Lists.newArrayList(dateTime, timeUnit.maxDateTime(dateTime.plus(periodPlus)));
     } else {
-      return Lists.newArrayList(DateTime.parse(parts[0], formatter), timeUnit.maxDateTime(DateTime.parse(parts[1], formatter)));
+      resultDateTimes = Lists.newArrayList(DateTime.parse(parts[0], formatter), timeUnit.maxDateTime(DateTime.parse(parts[1], formatter)));
     }
+
+    if (backward) {
+      resultDateTimes = resultDateTimes.stream()
+                                       .map(dateTime -> utcFakeDateTime(dateTime))
+                                       .collect(Collectors.toList());
+    }
+
+    return resultDateTimes;
   }
 
   public List<String> getIntervals() {

@@ -88,6 +88,7 @@ import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeListFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimestampFilter;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
 import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
@@ -107,6 +108,7 @@ import app.metatron.discovery.query.druid.filters.MathFilter;
 import app.metatron.discovery.query.druid.filters.OrFilter;
 import app.metatron.discovery.query.druid.filters.RegExpFilter;
 import app.metatron.discovery.query.druid.filters.SelectorFilter;
+import app.metatron.discovery.query.druid.funtions.CastFunc;
 import app.metatron.discovery.query.druid.funtions.DateTimeMillisFunc;
 import app.metatron.discovery.query.druid.funtions.InFunc;
 import app.metatron.discovery.query.druid.funtions.TimeFormatFunc;
@@ -122,6 +124,7 @@ import app.metatron.discovery.query.druid.virtualcolumns.IndexVirtualColumn;
 import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
 import app.metatron.discovery.query.polaris.ComputationalField;
 import app.metatron.discovery.util.PolarisUtils;
+import app.metatron.discovery.util.TimeUnits;
 
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.CONFUSING_FIELD_CODE;
 import static app.metatron.discovery.domain.datasource.Field.FieldRole.DIMENSION;
@@ -141,7 +144,7 @@ public abstract class AbstractQueryBuilder {
   /**
    * Default Intervals, Define if interval is null.
    */
-  public static final List<String> DEFAULT_INTERVALS = Lists.newArrayList("1970-01-01T00:00:00.0Z/2051-01-01T00:00:00.0Z");
+  public static final List<String> DEFAULT_INTERVALS = Lists.newArrayList("1900-01-01T00:00:00.0Z/2051-01-01T00:00:00.0Z");
 
   /**
    * Partition 관련 처리, 추후 지원여부 확인 필요
@@ -252,7 +255,7 @@ public abstract class AbstractQueryBuilder {
       mainMetaDataSource = dataSource.getMetaDataSource();
       metaFieldMap.putAll(mainMetaDataSource.getMetaFieldMap(false, ""));
 
-    } else if(dataSource instanceof MultiDataSource) {
+    } else if (dataSource instanceof MultiDataSource) {
       MultiDataSource multiDataSource = (MultiDataSource) dataSource;
       for (DataSource source : multiDataSource.getDataSources()) {
         metaFieldMap.putAll(source.getMetaDataSource().getMetaFieldMap(true, null));
@@ -346,6 +349,34 @@ public abstract class AbstractQueryBuilder {
       }
 
     }
+  }
+
+  protected TimeFormatFunc createTimeFormatFunc(String fieldName, TimeFieldFormat originalTimeFormat, TimeFieldFormat timeFormat) {
+    TimeFormatFunc timeFormatFunc;
+    if (originalTimeFormat instanceof UnixTimeFormat) {
+      CastFunc func = new CastFunc(fieldName, CastFunc.CastType.LONG);
+      String expr = func.toExpression();
+      if (((UnixTimeFormat) originalTimeFormat).getUnit() == TimeUnits.SECOND) {
+        expr += expr + "* 1000";
+      }
+
+      timeFormatFunc = new TimeFormatFunc(expr,
+                                          timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
+                                          timeFormat.selectTimezone(),
+                                          timeFormat.getLocale());
+
+    } else {
+      timeFormatFunc = new TimeFormatFunc("\"" + fieldName + "\"",
+                                          originalTimeFormat.getFormat(),
+                                          originalTimeFormat.selectTimezone(),
+                                          originalTimeFormat.getLocale(),
+                                          timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
+                                          timeFormat.selectTimezone(),
+                                          timeFormat.getLocale());
+
+    }
+
+    return timeFormatFunc;
   }
 
 
@@ -543,7 +574,7 @@ public abstract class AbstractQueryBuilder {
         TimeFieldFormat timeFormat = (TimeFieldFormat) timestampFilter.getTimeFormat();
         TimeFormatFunc timeFormatFunc = new TimeFormatFunc(field,
                                                            timeFormat.getFormat(),
-                                                           timeFormat.getTimeZone(),
+                                                           timeFormat.selectTimezone(),
                                                            timeFormat.getLocale());
 
         InFunc inFunc = new InFunc(timeFormatFunc.toExpression(), timestampFilter.getSelectedTimestamps());
@@ -566,7 +597,7 @@ public abstract class AbstractQueryBuilder {
     app.metatron.discovery.domain.datasource.Field datasourceField = this.metaFieldMap.get(columnName);
 
     if (datasourceField.getRole() == TIMESTAMP && !(timeFilter instanceof TimeListFilter)) {
-      intervals.addAll(timeFilter.getEngineIntervals());
+      intervals.addAll(timeFilter.getEngineIntervals(datasourceField));
     } else {
       String expr = timeFilter.getExpression(columnName, datasourceField);
       if (StringUtils.isNotEmpty(expr)) {
@@ -606,7 +637,7 @@ public abstract class AbstractQueryBuilder {
         String countField = measureField.getRef() == null ? "count" : measureField.getRef() + "." + "count";
         aggregations.add(new GenericSumAggregation(fieldName + "_sum", fieldName, dataType));
 
-        if(!(dataSource instanceof MultiDataSource)
+        if (!(dataSource instanceof MultiDataSource)
             && dataSource.getMetaDataSource().rollup()) {
           aggregations.add(new GenericSumAggregation("count", countField, dataType));
         } else {
@@ -715,8 +746,8 @@ public abstract class AbstractQueryBuilder {
 
     // TODO: 파라미터도 추가해야함, 일단 기존 로직 유지
     Map<String, String> exprMap = userFieldsMap.values().stream()
-        .filter(userDefinedField -> userDefinedField instanceof ExpressionField)
-        .collect(Collectors.toMap(UserDefinedField::getName, f -> ((ExpressionField) f).getExpr()));
+                                               .filter(userDefinedField -> userDefinedField instanceof ExpressionField)
+                                               .collect(Collectors.toMap(UserDefinedField::getName, f -> ((ExpressionField) f).getExpr()));
 
     ComputationalField.makeAggregationFunctionsIn(field.getAlias(), curExpr, aggregations
         , postAggregations, windowingSpecs, context, exprMap);
@@ -735,8 +766,8 @@ public abstract class AbstractQueryBuilder {
     Pattern pattern = Pattern.compile(String.format(PATTERN_FIELD_NAME_STRING, escapedName));
 
     List<String> validColumn = validColumnNames.parallelStream()
-                                                .filter(colName -> pattern.matcher(colName).matches())
-                                                .collect(Collectors.toList());
+                                               .filter(colName -> pattern.matcher(colName).matches())
+                                               .collect(Collectors.toList());
 
     if (validColumn.size() == 1) {
       return validColumn.get(0);

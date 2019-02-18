@@ -94,14 +94,14 @@ public class BoardConfigurationTest {
 
     List<Filter> filters = Lists.newArrayList(
         new TimeAllFilter("time1", null),
-        new TimeListFilter("time2", null, "DAY", null, false,
+        new TimeListFilter("time2", null, "DAY", null, false, null, null,
                            Lists.newArrayList("2018-05-18", "2018-05-19"),
                            Lists.newArrayList("2018-05-18", "2018-05-19", "2018-05-20")),
         new TimeRangeFilter("time3", null, "DAY",
                             Lists.newArrayList("EARLIEST_DATETIME/2018-05-18",
                                                "2018-05-19/2018-05-20",
-                                               "2018-05-22/LATEST_DATETIME")),
-        new TimeRelativeFilter("time4", "ref1", "DAY", null, "PREVIOUS", 2, "Asia/Seoul")
+                                               "2018-05-22/LATEST_DATETIME"), null, null),
+        new TimeRelativeFilter("time4", "ref1", "DAY", null, "PREVIOUS", 2, "Asia/Seoul", null)
     );
 
     InclusionFilter inFilter = new InclusionFilter();

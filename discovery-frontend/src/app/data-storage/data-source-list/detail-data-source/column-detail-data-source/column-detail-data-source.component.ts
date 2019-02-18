@@ -22,7 +22,13 @@ import { Alert } from '../../../../common/util/alert.util';
 import { DatasourceService } from '../../../../datasource/service/datasource.service';
 import * as _ from 'lodash';
 import { Covariance } from '../../../../domain/datasource/covariance';
-import { ConnectionType, Datasource, Field } from '../../../../domain/datasource/datasource';
+import {
+  ConnectionType,
+  Datasource,
+  Field,
+  FieldFormat,
+  FieldFormatType, LogicalType
+} from '../../../../domain/datasource/datasource';
 import { Metadata } from '../../../../domain/meta-data-management/metadata';
 import { MetadataColumn } from '../../../../domain/meta-data-management/metadata-column';
 import { isUndefined } from 'util';
@@ -30,6 +36,8 @@ import { AbstractComponent } from '../../../../common/component/abstract.compone
 import { EditFilterDataSourceComponent } from '../edit-filter-data-source.component';
 import { FilteringOptions, FilteringOptionType } from '../../../../domain/workbook/configurations/filter/filter';
 import { EditConfigSchemaComponent } from './edit-config-schema/edit-config-schema.component';
+import {TimezoneService} from "../../../service/timezone.service";
+import {FormatType} from "../../../../common/component/chart/option/define/common";
 
 declare let echarts: any;
 
@@ -102,6 +110,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
 
   // constructor
   constructor(private datasourceService: DatasourceService,
+              private _timezoneService: TimezoneService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -216,6 +225,15 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   }
 
   /**
+   * Is time type field
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isEnableTimezone(field: Field): boolean {
+    return field.format && (field.format.type === FieldFormatType.UNIX_TIME || this._timezoneService.isEnableTimezoneInDateFormat(field.format));
+  }
+
+  /**
    * Is tooltip class changed
    * @param columnList
    * @param {number} index
@@ -231,6 +249,19 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    */
   public getEnableChangePhysicalTypeList(): any {
     return this.physicalTypeList.filter(type => !type.derived);
+  }
+  
+  /**
+   * Get timezone label
+   * @param {FieldFormat} format
+   * @return {string}
+   */
+  public getTimezoneLabel(format: FieldFormat): string {
+    if (format.type === FieldFormatType.UNIX_TIME) {
+      return 'Unix time';
+    } else {
+      return this._timezoneService.getTimezoneObject(format).label;
+    }
   }
 
   /**
@@ -364,6 +395,14 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
         // if logical type is TIMESTAMP, delete format in column
         if (column.logicalType === 'TIMESTAMP') {
           delete result.format;
+        } else if (type.value === LogicalType.TIMESTAMP) {
+          // set default format
+          result['format'] = {
+            format: 'yyyy-MM-dd HH:mm:ss',
+            timeZone: this._timezoneService.browserTimezone.momentName,
+            locale: this._timezoneService.browserLocal,
+            type: FieldFormatType.DATE_TIME
+          };
         }
         // if exist filtering and filteringOptions in column
         if (column.filtering && column.filteringOptions) {
@@ -399,14 +438,6 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     this.selectedTypeFilter = this.typeFilterList[0];
     // update filtered column list
     this._updateFilteredColumnList();
-  }
-
-  /**
-   * Search text event
-   * @param {Event} event
-   */
-  public onSearchText(event: KeyboardEvent): void {
-    event.keyCode === 13 && this.searchText(event.target['value']);
   }
 
   /**

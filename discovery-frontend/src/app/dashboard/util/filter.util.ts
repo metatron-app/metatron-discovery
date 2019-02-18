@@ -49,6 +49,7 @@ import {
   IntervalSelectorType
 } from '../../domain/workbook/configurations/filter/interval-filter';
 import {DIRECTION} from '../../domain/workbook/configurations/sort';
+import {TimezoneService} from "../../data-storage/service/timezone.service";
 
 declare let moment;
 
@@ -124,12 +125,12 @@ export class FilterUtil {
    * @param {Dashboard} board
    * @param {Filter} filter
    */
-  public static getEssentialFilters(board: Dashboard, filter?:Filter): Filter[] {
+  public static getEssentialFilters(board: Dashboard, filter?: Filter): Filter[] {
     let essentialFilters: Filter[] = [];
     if (board.configuration.dataSource.temporary) {
       essentialFilters = board.configuration.filters.filter(item => {
         const filterField = DashboardUtil.getFieldByName(board, item.dataSource, item.field);
-        if( filter && filter.ui && filter.ui.filteringSeq) {
+        if (filter && filter.ui && filter.ui.filteringSeq) {
           return filter.ui.filteringSeq < filterField.filteringSeq;
         } else {
           return -1 < filterField.filteringSeq;
@@ -269,48 +270,6 @@ export class FilterUtil {
    * @return {Filter}
    */
   public static convertToServerSpec(filter: Filter): Filter {
-    // 불필요 속성 제거
-    let keyMap: string[];
-    switch (filter.type) {
-      case 'interval' :
-        keyMap = ['selector', 'startDate', 'endDate', 'intervals', 'timezone',
-          'locale', 'format', 'rrule', 'relValue', 'timeUnit'];
-        break;
-      case 'include' :
-        keyMap = ['selector', 'valueList', 'candidateValues', 'sort'];
-        break;
-      case 'timestamp' :
-        keyMap = ['selectedTimestamps', 'timeFormat'];
-        break;
-      case 'bound' :
-        keyMap = ['min', 'max'];
-        break;
-      case 'time_all' :
-        keyMap = [];
-        break;
-      case 'time_relative' :
-        keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous'];
-        break;
-      case 'time_range' :
-        keyMap = ['intervals', 'timeUnit', 'byTimeUnit', 'discontinuous'];
-        break;
-      case 'time_list' :
-        keyMap = ['valueList', 'candidateValues', 'timeUnit', 'byTimeUnit', 'discontinuous'];
-        break;
-      case 'wildcard' :
-        keyMap = ['contains', 'value'];
-        break;
-      case 'measure_inequality' :
-        keyMap = ['aggregation', 'inequality', 'value'];
-        break;
-      case 'measure_position' :
-        keyMap = ['aggregation', 'position', 'value'];
-        break;
-    }
-    keyMap = keyMap.concat(['type', 'field', 'ref', 'dataSource']);
-    for (let key of Object.keys(filter)) {
-      (keyMap.some(item => item === key)) || (delete filter[key]);
-    }
 
     // Time Range 필터의 타임 형식 설정
     if (FilterUtil.isTimeRangeFilter(filter)) {
@@ -334,28 +293,22 @@ export class FilterUtil {
     } // end if - time_range
     else if (FilterUtil.isTimeRelativeFilter(filter)) {
       const timeRelativeFilter: TimeRelativeFilter = <TimeRelativeFilter>filter;
-      (timeRelativeFilter.timezone) || (timeRelativeFilter.timezone = moment.tz.guess());
+      if (timeRelativeFilter.clzField && timeRelativeFilter.clzField.format && TimezoneService.DISABLE_TIMEZONE_KEY === timeRelativeFilter.clzField.format.timeZone) {
+        delete timeRelativeFilter.timezone;
+      } else {
+        (timeRelativeFilter.timezone) || (timeRelativeFilter.timezone = moment.tz.guess());
+      }
     } // end if - time_relative
 
-    return filter;
-  } // function - convertToServerSpec
-
-  /**
-   * Dashboard API 를 위해서 불필요한 속성 제거
-   * @param {Filter} filter
-   * @return {Filter}
-   */
-  public static convertToServerSpecForDashboard(filter: Filter): Filter {
     // 불필요 속성 제거
     let keyMap: string[];
     switch (filter.type) {
       case 'interval' :
         keyMap = ['selector', 'startDate', 'endDate', 'intervals', 'timezone',
-          'locale', 'format', 'rrule', 'relValue', 'timeUnitUI', 'timeUnit', 'byTimeUnit',
-          'minTime', 'maxTime', 'valueList', 'candidateValues', 'discontinuous', 'granularity'];
+          'locale', 'format', 'rrule', 'relValue', 'timeUnit'];
         break;
       case 'include' :
-        keyMap = ['selector', 'preFilters', 'valueList', 'candidateValues', 'definedValues', 'sort'];
+        keyMap = ['selector', 'valueList', 'candidateValues', 'sort'];
         break;
       case 'timestamp' :
         keyMap = ['selectedTimestamps', 'timeFormat'];
@@ -367,7 +320,7 @@ export class FilterUtil {
         keyMap = [];
         break;
       case 'time_relative' :
-        keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous'];
+        keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timezone'];
         break;
       case 'time_range' :
         keyMap = ['intervals', 'timeUnit', 'byTimeUnit', 'discontinuous'];
@@ -390,6 +343,16 @@ export class FilterUtil {
       (keyMap.some(item => item === key)) || (delete filter[key]);
     }
 
+    return filter;
+  } // function - convertToServerSpec
+
+  /**
+   * Dashboard API 를 위해서 불필요한 속성 제거
+   * @param {Filter} filter
+   * @return {Filter}
+   */
+  public static convertToServerSpecForDashboard(filter: Filter): Filter {
+
     // Time Range 필터의 타임 형식 설정
     if (FilterUtil.isTimeRangeFilter(filter)) {
       const timeRangeFilter = <TimeRangeFilter>filter;
@@ -410,8 +373,56 @@ export class FilterUtil {
     } // end if - time_range
     else if (FilterUtil.isTimeRelativeFilter(filter)) {
       const timeRelativeFilter: TimeRelativeFilter = <TimeRelativeFilter>filter;
-      (timeRelativeFilter.timezone) || (timeRelativeFilter.timezone = moment.tz.guess());
+      if (timeRelativeFilter.clzField && timeRelativeFilter.clzField.format && TimezoneService.DISABLE_TIMEZONE_KEY === timeRelativeFilter.clzField.format.timeZone) {
+        delete timeRelativeFilter.timezone;
+      } else {
+        (timeRelativeFilter.timezone) || (timeRelativeFilter.timezone = moment.tz.guess());
+      }
     } // end if - time_relative
+
+    // 불필요 속성 제거
+    let keyMap: string[];
+    switch (filter.type) {
+      case 'interval' :
+        keyMap = ['selector', 'startDate', 'endDate', 'intervals', 'timezone',
+          'locale', 'format', 'rrule', 'relValue', 'timeUnitUI', 'timeUnit', 'byTimeUnit',
+          'minTime', 'maxTime', 'valueList', 'candidateValues', 'discontinuous', 'granularity'];
+        break;
+      case 'include' :
+        keyMap = ['selector', 'preFilters', 'valueList', 'candidateValues', 'definedValues', 'sort'];
+        break;
+      case 'timestamp' :
+        keyMap = ['selectedTimestamps', 'timeFormat'];
+        break;
+      case 'bound' :
+        keyMap = ['min', 'max'];
+        break;
+      case 'time_all' :
+        keyMap = [];
+        break;
+      case 'time_relative' :
+        keyMap = ['relTimeUnit', 'tense', 'value', 'timeUnit', 'byTimeUnit', 'discontinuous', 'timezone'];
+        break;
+      case 'time_range' :
+        keyMap = ['intervals', 'timeUnit', 'byTimeUnit', 'discontinuous'];
+        break;
+      case 'time_list' :
+        keyMap = ['valueList', 'candidateValues', 'timeUnit', 'byTimeUnit', 'discontinuous'];
+        break;
+      case 'wildcard' :
+        keyMap = ['contains', 'value'];
+        break;
+      case 'measure_inequality' :
+        keyMap = ['aggregation', 'inequality', 'value'];
+        break;
+      case 'measure_position' :
+        keyMap = ['aggregation', 'position', 'value'];
+        break;
+    }
+    keyMap = keyMap.concat(['type', 'field', 'ref', 'dataSource']);
+    for (let key of Object.keys(filter)) {
+      (keyMap.some(item => item === key)) || (delete filter[key]);
+    }
 
     return filter;
   } // function - convertToServerSpecForDashboard

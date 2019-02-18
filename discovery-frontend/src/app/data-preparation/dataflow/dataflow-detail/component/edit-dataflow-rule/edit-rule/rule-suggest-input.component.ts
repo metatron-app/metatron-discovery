@@ -90,6 +90,16 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   @Input()
   public columnType = 'all'; /* all, no */
 
+  /** 컬럼 선택시 backtick을 붙일지 여부 */
+  @Input()
+  public isBackTick = true; 
+
+  /** 화살표 버튼이 눌러졌는지 여부 (한글 완전히 입력하지 않았을 경우 down arrow 검사용) */
+  public isArrowDown = false;
+
+  /** 아이템 높이 (화살표시 이동할 스크롤 바 ) */
+  public itemHeight = 25;
+
   /* 제안 화면에 표시할 아이템 */
   public suggestItems: any = [];
   
@@ -130,6 +140,8 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
    * 컴포넌트 초기 실행
    */
   public ngOnInit() {
+    super.ngOnInit();
+
     this.setBroadcast();
   } // function - ngOnInit
 
@@ -137,7 +149,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
    * 화면 초기화
    */
   public ngAfterViewInit() {
-    
+    super.ngAfterViewInit();
   } // function - ngAfterViewInit
 
   /**
@@ -161,7 +173,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
    * 컴포넌트 제거
    */
   public ngOnDestroy() {
-    
+    super.ngOnDestroy();
   } // function - ngOnDestroy
 
   /**
@@ -248,6 +260,8 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
       const keyCode = $event.keyCode;
 
       if( keyCode === 38 || keyCode == 40) {
+        this.isArrowDown = true; /* 한글 입력이 완료되지 않고 아래 화살표를 누르면 화살표 업 이벤트가 실행 된다. */
+
         // suggetion 이 있을 경우 하살표 위 아래의 동작이 맨앞으로 가거나 맨 뒤로 가지 않도록한다.
         if( this.isSuggestOpen && this.suggestItems && this.suggestItems.length > 0 ) {
           if( keyCode === 38 ) {
@@ -282,6 +296,18 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     }
   } 
 
+  public onClick( $event ) {
+
+    const input = $event.currentTarget;
+    if( this.isEmptyViewAll && input.value.trim().length < 1) {
+      // 아무 것도 입력 되지 않았을 경우 
+      this.setSuggetionInfoByType();
+    } else {
+      this.closeSuggest();
+    }
+    
+  }
+
   /**
    * 제안 정보 설정
    * @param ruleString 
@@ -297,7 +323,23 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
     let funcType = this.funcType ;
     let columnType = this.columnType;
-    
+
+    try{
+      // 부모가 함수 이름인지 
+      const parFuncName = this.ruleSuggest.getParentFuction(parseInfo.tokens, tokenPoz);
+
+      // 함수가 컬럼 이름만 파라마터로 취하는지 여부
+      if( this.ruleSuggest.isOnlyColumnName(parFuncName) ) {
+        funcType = 'no';
+      }
+
+      if( this.isFisrtFuncCommand(parseInfo.tokens.length) ){
+        columnType = 'no';
+      }
+    }catch(e) {
+      console.info('warn RuleSuggestInputComponent.setSuggetionInfo ',e);
+    }
+
     const itemList = this.ruleSuggest.getList(tokenInfo, tokenPoz, funcType, columnType );
     
     this.selectedTokenInfo = tokenInfo;
@@ -313,17 +355,48 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   }
 
   /**
+   * 첫번째는 함수 목록만 보여 주는 경우
+   * @param tokenLength 토큰의 개수가 <=4 
+   */
+  protected isFisrtFuncCommand(tokenLength: number = 3) {
+    if( !this.command ) {
+      return false;
+    }
+
+    const cmd = this.command.toLowerCase();
+
+    if( 'window' === cmd || 'pivot' === cmd || 'aggregate' === cmd ) {
+      // aggr, window 이면 , column 나오지 않게
+
+      if( tokenLength < 5) {
+        // token 개수가 4개보다 크면 함수이름이 아니고 파라미터 들이다.
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * 제안 정보 설정
    * @param ruleString 
    * @param poz 
    */
-  protected setSuggetionInfoAll( ) {
+  protected setSuggetionInfoByType( funcType?: string, columnType?:string) {
 
+    if( !funcType ) {
+      funcType = this.funcType ;
+    }
 
-    let funcType = this.funcType ;
-    let columnType = this.columnType;
-    
+    if( !columnType ) {
+      columnType = this.columnType ;
+    }
+
     const funcList = this.ruleSuggest.getFuncList('',funcType);
+
+    if( this.isFisrtFuncCommand() ) {
+      columnType = 'no';
+    }
     const columnList = this.ruleSuggest.getColumnList('',columnType);
     
     const itemList = funcList.concat(columnList);  
@@ -348,20 +421,6 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     
   }
 
-
-
-  public onClick( $event ) {
-
-    const input = $event.currentTarget;
-    if( this.isEmptyViewAll && input.value.trim().length < 1) {
-      // 아무 것도 입력 되지 않았을 경우 
-      this.setSuggetionInfoAll();
-    } else {
-      this.closeSuggest();
-    }
-    
-  }
-
   /**
    * 자동완성 아이템을 선택 했을 경우
    * @param item
@@ -373,7 +432,6 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     if (isUndefined(input) || !item ) {
       return;
     }
-
 
     let inputVal = input.value;
 
@@ -448,8 +506,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   protected prcessEvent($event) {
     const keyCode = $event.keyCode;
 
-    if( $event.metaKey === true || $event.ctrlKey === true || 
-        $event.altKey === true ){
+    if( $event.metaKey === true || $event.ctrlKey === true || $event.altKey === true ){
       return true;
     } else if ( 16 === keyCode && this.isSuggestOpen ) {
       // 대소문자 입력후 아무일도 하지 않는다.
@@ -457,8 +514,16 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     }
 
     if( keyCode === 38 || keyCode == 40) {
-      // 화살표 위 아래 처리
-      return this.processUpDown(keyCode, $event);
+
+      if( this.isArrowDown) {
+        // 이전에 화살표 Down Event가 아니면
+        // 화살표 위 아래 처리
+        this.isArrowDown = false;
+        return this.processUpDown(keyCode, $event);
+      } else {
+        this.isArrowDown = false;
+        return true;
+      }
     } else if (keyCode === 13 || keyCode === 108) {   
       // Enter
       return this.processEnter($event);
@@ -472,6 +537,17 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     } else if(keyCode === 39) {   
       // Arrow Left
       this.initSuggest();
+      return true;
+    } else if (keyCode === 8) {
+      // backspace
+      const input = $event.currentTarget;
+      if( this.isEmptyViewAll && input.value.trim().length < 1) {
+        // 아무 것도 입력 되지 않았을 경우 
+        this.setSuggetionInfoByType();
+      } else {
+        this.initSuggest();
+      }
+
       return true;
     }
     
@@ -551,11 +627,15 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
         this.selectedIndex++;
       }
 
-      if( this.selectedIndex < -1 ){
-        this.selectedIndex = -1;
-      } else if( this.selectedIndex > (length-1) ){
+      if( this.selectedIndex < 0 ){
         this.selectedIndex = length-1;
+      } else if( this.selectedIndex > (length-1) ){
+        this.selectedIndex = 0;
       }
+
+      // 화살표 움직임시 스크롤바 조정 
+      let sHeight = this.selectedIndex * this.itemHeight;
+      this.$element.find('.ddp-list-command').scrollTop(sHeight);
 
       if( $event &&  $event.preventDefault ) {
         $event.stopPropagation();
@@ -600,7 +680,9 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
     if( item.type === 'column') {
       // add backticks to column name ; 
-      value = '`' + value + '`';
+      if( this.isBackTick ) {
+        value = '`' + value + '`';
+      }
     }
 
     return value;

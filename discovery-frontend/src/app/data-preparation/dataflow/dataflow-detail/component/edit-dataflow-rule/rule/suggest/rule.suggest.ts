@@ -108,6 +108,18 @@ export class RuleSuggest  {
   }
 
   /**
+   * 함수가 parameter를 Column만 가지는 경우 (window, aggregate, pivot)
+   * @param funcName 함수 이름
+   */
+  public isColumnParamFunc( funcName: string) {
+    if( this.funcAggrNames.indexOf(funcName) !== -1 || this.funcWindowNames.indexOf(funcName) !== -1 ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
    * 파싱 정보를 가져온다.
    * @param source
    * @param poz 
@@ -157,6 +169,68 @@ export class RuleSuggest  {
       return funcList.concat(columnList);  
         
     }
+  }
+
+  /**
+   * 현재 포지션이 파라미터일때 앞의 function 이름
+   * @param parseInfo
+   * @param poz 
+   */
+  public getParentFuction( tokens: TokenInfo[], poz: number): string {
+
+    const length = tokens.length;
+    let index = -1;
+    for( let i = 0; i<length;i++) {
+      if( tokens[i].start <= poz && poz <= tokens[i].stop) {
+        // 커서 포지션이 있는 토큰 정보
+        index = i;
+        break;
+      }
+    }
+
+    if( index === -1) {
+      // -1 이면 에러로 마지막 문자열
+      index = length;
+    }
+
+    if( index - 2 < 0 ) {
+      // token의 개수가 2보다 적으면 
+      return '';
+    }
+      
+    const preToken = tokens[index-1];
+    if(preToken.text === '(') {
+      const funcToken = tokens[index-2];
+      if( funcToken.type === 11 ) {
+        // 함수 이름
+        return funcToken.text;
+      }
+    }
+
+    return '';    
+  }
+
+  /**
+   * 함수가 컬럼 이름만 파라미터로 취하는지 여부
+   * @param funcName 
+   */
+  public isOnlyColumnName( funcName: string): boolean {
+
+    if( !funcName ) {
+      return false;
+    }
+
+    const fName = funcName.toLocaleLowerCase();
+
+    if( this.funcAggrNames.indexOf(fName) !== -1 ) {
+      return true;
+    }
+
+    if( this.funcWindowNames.indexOf(fName) !== -1 ) {
+      return true;
+    }
+  
+    return false;
   }
 
   /**

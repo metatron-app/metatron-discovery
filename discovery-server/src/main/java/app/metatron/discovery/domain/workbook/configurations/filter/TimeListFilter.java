@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.query.druid.funtions.DateTimeMillisFunc;
 import app.metatron.discovery.query.druid.funtions.InFunc;
 import app.metatron.discovery.query.druid.funtions.TimeFormatFunc;
@@ -54,9 +55,12 @@ public class TimeListFilter extends TimeFilter {
                         @JsonProperty("timeUnit") String timeUnit,
                         @JsonProperty("byTimeUnit") String byTimeUnit,
                         @JsonProperty("discontinuous") Boolean discontinuous,
+                        @JsonProperty("timeZone") String timeZone,
+                        @JsonProperty("locale") String locale,
                         @JsonProperty("valueList") List<String> valueList,
                         @JsonProperty("candidateValues") List<String> candidateValues) {
-    super(field, ref, timeUnit, byTimeUnit, discontinuous);
+    super(field, ref, timeUnit, byTimeUnit, discontinuous, timeZone, locale);
+
     this.valueList = valueList;
     this.candidateValues = candidateValues;
   }
@@ -85,7 +89,7 @@ public class TimeListFilter extends TimeFilter {
   }
 
   @Override
-  public List<String> getEngineIntervals() {
+  public List<String> getEngineIntervals(Field datasourceField) {
     throw new UnsupportedOperationException();
   }
 
@@ -99,16 +103,19 @@ public class TimeListFilter extends TimeFilter {
     if (datasourceField.getRole() == TIMESTAMP) {
       field = "__time";
     } else {
+      TimeFieldFormat fieldFormat = (TimeFieldFormat) datasourceField.getFormatObject();
+
       DateTimeMillisFunc millisFunc = new DateTimeMillisFunc(columnName,
-                                                             datasourceField.getTimeFormat(),
-                                                             null, null);
+                                                             fieldFormat.getFormat(),
+                                                             fieldFormat.selectTimezone(),
+                                                             fieldFormat.getLocale());
       field = millisFunc.toExpression();
     }
 
     TimeFormatFunc timeFormatFunc = new TimeFormatFunc(field,
                                                        getTimeFormat(),
-                                                       "UTC",
-                                                       "en");
+                                                       timeZone,
+                                                       locale);
 
     InFunc inFunc = new InFunc(timeFormatFunc.toExpression(), valueList);
 

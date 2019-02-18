@@ -141,6 +141,13 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
   } // function - isSelectedItem
 
   /**
+   * Returns whether all item selected
+   */
+  public get isSelectedAll() {
+    return this.selectedArray && this.selectedArray.length > 0 && this.selectedArray.length === this.array.length;
+  } // function - isSelectedAll
+
+  /**
    * 아이템 선택
    * @param item
    * @param $event
@@ -153,12 +160,11 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
       return;
     }
 
-    if ($event.currentTarget.checked) {
-      this.selectedArray.push(item);
-    } else {
+    if (this.isSelectedItem( item )) {
       const idx = this.selectedArray.indexOf(item);
       this.selectedArray.splice(idx, 1);
-
+    } else {
+      this.selectedArray.push(item);
     }
 
     this.updateView(this.selectedArray);
@@ -176,16 +182,15 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
       return;
     }
 
-    const checked = $event.target ? $event.target.checked : $event.currentTarget.checked;
-    if (checked) {
+    if (this.isSelectedAll) {
       this.selectedArray = [];
-      this.array.forEach(item => this.selectedArray.push(item));
     } else {
       this.selectedArray = [];
+      this.array.forEach(item => this.selectedArray.push(item));
     }
 
     this.updateView(this.selectedArray);
-  }
+  } // function - checkAll
 
   /**
    * 외부영역 클릭

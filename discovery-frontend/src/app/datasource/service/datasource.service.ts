@@ -29,7 +29,7 @@ import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid
 import {FilterUtil} from '../../dashboard/util/filter.util';
 import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
 import {BoardDataSource, Dashboard} from '../../domain/dashboard/dashboard';
-import { Datasource, Field, LogicalType } from '../../domain/datasource/datasource';
+import {Datasource, Field, LogicalType} from '../../domain/datasource/datasource';
 import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
 import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
 import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
@@ -40,15 +40,16 @@ import {FilteringType} from '../../domain/workbook/configurations/field/timestam
 import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
 import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
-import { GeoBoundaryFormat, GeoHashFormat } from '../../domain/workbook/configurations/field/geo-field';
-import { UIMapOption } from '../../common/component/chart/option/ui-option/map/ui-map-chart';
-import { ChartUtil } from '../../common/component/chart/option/util/chart-util';
-import {Limit} from "../../domain/workbook/configurations/limit";
-import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
+import {GeoBoundaryFormat, GeoField, GeoHashFormat} from '../../domain/workbook/configurations/field/geo-field';
+import {UIMapOption} from '../../common/component/chart/option/ui-option/map/ui-map-chart';
+import {ChartUtil} from '../../common/component/chart/option/util/chart-util';
+import {CriterionKey, ListCriterion} from '../../domain/datasource/listCriterion';
 import {CommonConstant} from "../../common/constant/common.constant";
-import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
-import { UITileLayer } from '../../common/component/chart/option/ui-option/map/ui-tile-layer';
-import { MapLayerType } from '../../common/component/chart/option/define/map/map-common';
+import {CriteriaFilter} from '../../domain/datasource/criteriaFilter';
+import {UITileLayer} from '../../common/component/chart/option/ui-option/map/ui-tile-layer';
+import {MapLayerType} from '../../common/component/chart/option/define/map/map-common';
+import {Pivot} from "../../domain/workbook/configurations/pivot";
+import {TimezoneService} from "../../data-storage/service/timezone.service";
 import {Shelf} from "../../domain/workbook/configurations/shelf/shelf";
 
 @Injectable()
@@ -56,8 +57,11 @@ export class DatasourceService extends AbstractService {
 
   private _useMetaDataQuery: boolean = false;
 
+  private _timezoneSvc: TimezoneService;
+
   constructor(protected injector: Injector) {
     super(injector);
+    this._timezoneSvc = this.injector.get(TimezoneService);
   }
 
   /**
@@ -120,7 +124,7 @@ export class DatasourceService extends AbstractService {
    */
   public searchQuery(query: SearchQueryRequest): Promise<any> {
     // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '129.444 38.444', upperCorner: '129.888 38.999', dataSource: 'cei_m1_b'};
-      // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '38.444 129.444', upperCorner: '38.999 129.888', dataSource: 'cei_m1_b'};
+    // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '38.444 129.444', upperCorner: '38.999 129.888', dataSource: 'cei_m1_b'};
 
     // query.filters.push(params);
 
@@ -169,7 +173,7 @@ export class DatasourceService extends AbstractService {
     if (FilterUtil.isTimeFilter(filter)) {
       const timeFilter: TimeFilter = <TimeFilter>filter;
       if (CommonConstant.COL_NAME_CURRENT_DATETIME === timeFilter.field) {
-        param.targetField = { granularity: 'ALL', name: CommonConstant.COL_NAME_CURRENT_DATETIME, type: 'timestamp' };
+        param.targetField = {granularity: 'ALL', name: CommonConstant.COL_NAME_CURRENT_DATETIME, type: 'timestamp'};
       } else {
         param.targetField = {
           type: 'timestamp',
@@ -206,7 +210,7 @@ export class DatasourceService extends AbstractService {
         });
       }
 
-      param.targetField = { alias: field.alias, name: field.name };
+      param.targetField = {alias: field.alias, name: field.name};
       if ('user_expr' === field.type) {
         param.targetField.ref = 'user_defined';
       } else if (field.ref) {
@@ -222,12 +226,12 @@ export class DatasourceService extends AbstractService {
         (<InclusionFilter>filter).preFilters.filter((preFilter: AdvancedFilter) => {
           if (preFilter.type === 'measure_inequality') {
             const condition: MeasureInequalityFilter = <MeasureInequalityFilter>preFilter;
-            if( condition.inequality && condition.aggregation && condition.field && 0 < condition.value ) {
+            if (condition.inequality && condition.aggregation && condition.field && 0 < condition.value) {
               tempFilters.push(FilterUtil.convertToServerSpec(condition));
             }
           } else if (preFilter.type === 'measure_position') {
             const limitation: MeasurePositionFilter = <MeasurePositionFilter>preFilter;
-            if( limitation.position && limitation.aggregation && limitation.field && 0 < limitation.value ) {
+            if (limitation.position && limitation.aggregation && limitation.field && 0 < limitation.value) {
               tempFilters.push(FilterUtil.convertToServerSpec(limitation));
             }
           } else if (preFilter.type === 'wildcard') {
@@ -238,10 +242,10 @@ export class DatasourceService extends AbstractService {
           }
         });
         param.filters = param.filters.concat(tempFilters);
-        ( param.targetField ) && ( param.targetField.type = 'dimension' );
+        (param.targetField) && (param.targetField.type = 'dimension');
       } else if ('bound' === filter.type) {
         // Measure Filter
-        if( param.targetField ) {
+        if (param.targetField) {
           param.targetField.aggregationType = 'NONE';
           param.targetField.type = 'measure';
         }
@@ -270,7 +274,7 @@ export class DatasourceService extends AbstractService {
   public makeQuery(pageConf: PageWidgetConfiguration,
                    dataSourceFields: Field[],
                    context: { url: string, dashboardId: string, widgetId?: string },
-                   resultFormatOptions?: any, isChartData?: boolean, dataSourceList? : Datasource[]): SearchQueryRequest {
+                   resultFormatOptions?: any, isChartData?: boolean, dataSourceList?: Datasource[]): SearchQueryRequest {
     const query: SearchQueryRequest = new SearchQueryRequest();
 
     // 호출 추적 정보 등록
@@ -300,7 +304,7 @@ export class DatasourceService extends AbstractService {
       // alias 설정
       query.shelf = _.cloneDeep(pageConf.shelf);
 
-      let layerNum : number = 0;
+      let layerNum: number = 0;
       for (let layer of query.shelf.layers) {
         layerNum++;
 
@@ -321,48 +325,64 @@ export class DatasourceService extends AbstractService {
           }
         }
 
-        if( !_.isUndefined( dataSourceList ) ) {
+        if (!_.isUndefined(dataSourceList)) {
           // 레이어 별 필드값에 맞는 datasource 설정 추가
-          for(let Datasource of dataSourceList) {
-            if( Datasource.id == allPivotFields[0].field.dsId ){
+          for (let Datasource of dataSourceList) {
+            if (Datasource.id == allPivotFields[0].field.dsId) {
 
-              let searchQueryDataSource = _.cloneDeep( BoardDataSource.convertDsToMetaDs(Datasource) );
+              let searchQueryDataSource = _.cloneDeep(BoardDataSource.convertDsToMetaDs(Datasource));
               // let searchQueryDataSource = _.cloneDeep( pageConf.dataSource );
               delete searchQueryDataSource['fields']; // 불필요 항목 제거
               delete searchQueryDataSource['uiFields']; // 불필요 항목 제거
               // EngineName 처리
               searchQueryDataSource.name = searchQueryDataSource.engineName;
-              if( Datasource.id == pageConf.dataSource.id ) {
+              if (Datasource.id == pageConf.dataSource.id) {
                 searchQueryDataSource.type = pageConf.dataSource.type;
               } else {
                 searchQueryDataSource.type = 'default';
               }
 
-              if( _.isUndefined( _.find(query.dataSource.dataSources, searchQueryDataSource) ) ) {
+              if (_.isUndefined(_.find(query.dataSource.dataSources, searchQueryDataSource))) {
                 // datasource 추가
-                query.dataSource.dataSources.push( searchQueryDataSource );
+                query.dataSource.dataSources.push(searchQueryDataSource);
               }
 
               // 선반에 datasource key 값 추가
               layer.name = 'layer' + (layerNum);
-              layer.ref  = searchQueryDataSource.name;
+              layer.ref = searchQueryDataSource.name;
             }
           }
-        }
-        else {  // 기존 스펙이 남아있을경우
-
+        } else {  // 기존 스펙이 남아있을경우
           // datasource 설정 추가
           query.dataSource = _.cloneDeep(pageConf.dataSource);
           delete query.dataSource['fields']; // 불필요 항목 제거
           // EngineName 처리
           query.dataSource.name = query.dataSource.engineName;
-
         }
-
-
-
+        // timezone 처리 - S
+        {
+          const shelfConf: Shelf = query.shelf;
+          if (shelfConf.layers && 0 < shelfConf.layers.length) {
+            shelfConf.layers[layerNum].fields.forEach(field => {
+              if ((LogicalType.TIMESTAMP.toString() === field.type.toUpperCase()
+                || LogicalType.TIMESTAMP.toString() === field.subType
+                || LogicalType.TIMESTAMP.toString() === field.subRole) && field.format) {
+                const dsField: Field = dataSourceFields.find(item => item.name === field.name);
+                if (dsField && dsField.format && TimezoneService.DISABLE_TIMEZONE_KEY === dsField.format['timeZone']) {
+                  delete field.format['timeZone'];
+                  delete field.format['locale'];
+                } else {
+                  field.format['timeZone'] = this._timezoneSvc.browserTimezone.momentName;
+                  field.format['locale'] = this._timezoneSvc.browserLocal;
+                }
+              }
+            });
+          }
+        }
+        // timezone 처리 - E
       } // end for - shelf.layers
 
+      allPivotFields = _.concat(query.shelf.layers[(<UIMapOption>pageConf.chart).layerNum]);
     } else {
 
       // datasource 설정 추가
@@ -371,6 +391,43 @@ export class DatasourceService extends AbstractService {
       // EngineName 처리
       query.dataSource.name = query.dataSource.engineName;
 
+      // timezone 처리 - S
+      {
+        const pivotConf: Pivot = query.pivot;
+        if (pivotConf.columns && 0 < pivotConf.columns.length) {
+          pivotConf.columns.forEach(column => {
+            if ((LogicalType.TIMESTAMP.toString() === column.type.toUpperCase()
+              || LogicalType.TIMESTAMP.toString() === column.subType
+              || LogicalType.TIMESTAMP.toString() === column.subRole) && column.format) {
+              const dsField: Field = dataSourceFields.find(item => item.name === column.name);
+              if (dsField && dsField.format && TimezoneService.DISABLE_TIMEZONE_KEY === dsField.format['timeZone']) {
+                delete column.format['timeZone'];
+                delete column.format['locale'];
+              } else {
+                column.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
+                column.format.locale = this._timezoneSvc.browserLocal;
+              }
+            }
+          });
+        }
+        if (pivotConf.rows && 0 < pivotConf.rows.length) {
+          pivotConf.rows.forEach(row => {
+            if ((LogicalType.TIMESTAMP.toString() === row.type.toUpperCase()
+              || LogicalType.TIMESTAMP.toString() === row.subType
+              || LogicalType.TIMESTAMP.toString() === row.subRole) && row.format) {
+              const dsField: Field = dataSourceFields.find(item => item.name === row.name);
+              if (dsField && dsField.format && TimezoneService.DISABLE_TIMEZONE_KEY === dsField.format['timeZone']) {
+                delete row.format['timeZone'];
+                delete row.format['locale'];
+              } else {
+                row.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
+                row.format.locale = this._timezoneSvc.browserLocal;
+              }
+            }
+          });
+        }
+      }
+      // timezone 처리 - E
       // alias 설정
       allPivotFields = _.concat(query.pivot.columns, query.pivot.rows, query.pivot.aggregations);
       for (let field of allPivotFields) {
@@ -389,10 +446,7 @@ export class DatasourceService extends AbstractService {
       }
 
     }
-
-
-
-    if( 0 < pageConf.chart.limit ) {
+    if (0 < pageConf.chart.limit) {
       pageConf.limit.limit = pageConf.chart.limit;
     } else {
       pageConf.limit.limit = 100000;
@@ -493,11 +547,11 @@ export class DatasourceService extends AbstractService {
       let geoFieldArr: number[] = [];
 
       // check multiple geo type
-      for(let idx=0; idx<query.shelf.layers.length; idx++) {
+      for (let idx = 0; idx < query.shelf.layers.length; idx++) {
 
         let geoFieldCnt: number = 0;
-        for(let column of query.shelf.layers[idx].fields) {
-          if(column && column.field && column.field.logicalType && (-1 !== column.field.logicalType.toString().indexOf('GEO'))) {
+        for (let column of query.shelf.layers[idx].fields) {
+          if (column && column.field && column.field.logicalType && (-1 !== column.field.logicalType.toString().indexOf('GEO'))) {
             geoFieldCnt++;
           }
         }
@@ -506,8 +560,8 @@ export class DatasourceService extends AbstractService {
 
 
       // set current layer values
-      for(let idx=0; idx<query.shelf.layers.length; idx++){
-        for(let layer of query.shelf.layers[idx].fields) {
+      for (let idx = 0; idx < query.shelf.layers.length; idx++) {
+        for (let layer of query.shelf.layers[idx].fields) {
 
           // when it's measure
           if ('measure' === layer.type) {
@@ -535,14 +589,14 @@ export class DatasourceService extends AbstractService {
 
             if (layer.field && layer.field.logicalType) {
               // default geo format
-              if(layer.field.logicalType && layer.field.logicalType.toString().indexOf('GEO') > -1) {
+              if (layer.field.logicalType && layer.field.logicalType.toString().indexOf('GEO') > -1) {
                 layer.format = {
                   type: FormatType.GEO.toString()
                 }
               }
 
               // when logicalType => geo point
-              if(layer.field.logicalType === LogicalType.GEO_POINT) {
+              if (layer.field.logicalType === LogicalType.GEO_POINT) {
 
                 // geo_hash is only used in hexagon
                 if (MapLayerType.TILE === (<UIMapOption>pageConf.chart).layers[idx].type) {
@@ -554,7 +608,7 @@ export class DatasourceService extends AbstractService {
                 }
 
                 // when they have multiple geo values
-                if(geoFieldArr[idx] > 1) {
+                if (geoFieldArr[idx] > 1) {
                   layer.format = <GeoBoundaryFormat>{
                     type: FormatType.GEO_BOUNDARY.toString(),
                     geoColumn: query.pivot.columns[0].field.name,
@@ -563,9 +617,9 @@ export class DatasourceService extends AbstractService {
                 }
 
                 // when polygon, line type
-              } else if((layer.field.logicalType === LogicalType.GEO_POLYGON || layer.field.logicalType === LogicalType.GEO_LINE)) {
+              } else if ((layer.field.logicalType === LogicalType.GEO_POLYGON || layer.field.logicalType === LogicalType.GEO_LINE)) {
                 // when they have multiple geo values
-                if(geoFieldArr[idx] > 1) {
+                if (geoFieldArr[idx] > 1) {
                   layer.format = {
                     type: FormatType.GEO_JOIN.toString()
                   }
@@ -949,17 +1003,17 @@ export class DatasourceService extends AbstractService {
       // if (field['alias'] && field['alias'] !== field.name) {
       //   field['alias'] = field['alias'];
       // } else {
-        // aggregation type과 함께 alias 설정
-        // const alias: string = field['fieldAlias'] ? field['fieldAlias'] : ( field['logicalName'] ? field['logicalName'] : field['name'] );
-        // field['alias'] = field.aggregationType ? field.aggregationType + `(${alias})` : `${alias}`;
+      // aggregation type과 함께 alias 설정
+      // const alias: string = field['fieldAlias'] ? field['fieldAlias'] : ( field['logicalName'] ? field['logicalName'] : field['name'] );
+      // field['alias'] = field.aggregationType ? field.aggregationType + `(${alias})` : `${alias}`;
 
-        field['alias'] = ChartUtil.getAlias(field);
+      field['alias'] = ChartUtil.getAlias(field);
       // }
 
     } else if (ShelveFieldType.TIMESTAMP.toString() === field.type) {   // timestamp 일때
 
       // alias랑 name이 같지않은경우 (alias 변경시 => granularity Type을 alias에 설정하지 않음)
-      const alias: string = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : ( field['logicalName'] ? field['logicalName'] : field['name'] );
+      const alias: string = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : (field['logicalName'] ? field['logicalName'] : field['name']);
       if (alias === field.name) {
         // aggregation type과 함께 alias 설정
         if (field.format && field.format.unit) field['alias'] = (field.format && field.format.unit ? field.format.unit : 'NONE') + `(${alias})`;

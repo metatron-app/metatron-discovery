@@ -138,7 +138,7 @@ INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, fi
 (10047011, 'ds-gis-37', 11, 'Region', 'STRING', null, 'DIMENSION', null),
 (10047012, 'ds-gis-37', 12, 'Sales', 'DOUBLE', null, 'MEASURE', null),
 (10047013, 'ds-gis-37', 13, 'Segment', 'STRING', null, 'DIMENSION', null),
-(10047014, 'ds-gis-37', 14, 'ShipDate', 'STRING', 'TIMESTAMP', 'DIMENSION', '{"type":"time_format","format":"yyyy. MM. dd."}'),
+(10047014, 'ds-gis-37', 14, 'ShipDate', 'STRING', 'TIMESTAMP', 'DIMENSION', '{"type":"time_format","format":"yyyy. MM. dd.","timeZone":"DISABLE_ZONE"}'),
 (10047015, 'ds-gis-37', 15, 'ShipMode', 'STRING', null, 'DIMENSION', null),
 (10047016, 'ds-gis-37', 16, 'State', 'STRING', null, 'DIMENSION', null),
 (10047017, 'ds-gis-37', 17, 'Sub-Category', 'STRING', null, 'DIMENSION', null),

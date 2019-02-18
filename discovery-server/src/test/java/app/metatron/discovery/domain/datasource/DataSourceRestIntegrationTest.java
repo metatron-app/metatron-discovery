@@ -30,7 +30,6 @@ package app.metatron.discovery.domain.datasource;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.restassured.RestAssured;
@@ -381,7 +380,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     Field field4 = new Field("keyValue", DataType.ARRAY, DIMENSION, 4L);
     field4.setLogicalType(LogicalType.MAP_VALUE);
 
-    field2.setMappedField(Sets.newHashSet(field3, field4));
+    //field2.setMappedField(Sets.newHashSet(field3, field4));
 
     DataSource dataSource1 = new DataSourceBuilder()
         .name("datasource1")
@@ -1205,6 +1204,96 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
       .statusCode(HttpStatus.SC_CREATED)
     .log().all();
     // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  public void createDataSourceWithLocalCsvFileIngestion_Timezone() throws JsonProcessingException {
+
+    StompHeaders stompHeaders = new StompHeaders();
+    stompHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    StompSession session = null;
+    try {
+      session = stompClient
+          .connect("ws://localhost:{port}/stomp", webSocketHttpHeaders, stompHeaders, new StompSessionHandlerAdapter() {}, serverPort)
+          .get(3, SECONDS);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_timezone.csv").getPath();
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName("localFileIngestion_tz_" + PolarisUtils.randomString(5));
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(HOUR);
+    dataSource.setSegGranularity(HOUR);
+    dataSource.setSrcType(FILE);
+
+    List<Field> fields = Lists.newArrayList();
+
+    Field timestampField = new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L);
+    timestampField.setFormat(new CustomDateTimeFormat("yyyy-MM-dd HH:mm:ss", "Asia/Seoul", null, null));
+    fields.add(timestampField);
+
+    fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
+
+    Field field1 = new Field("sd", DataType.STRING, DIMENSION, 2L);
+    field1.setUnloaded(true);
+    fields.add(field1);
+
+    fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
+
+    Field field2 = new Field("m2", DataType.DOUBLE, MEASURE, 4L);
+    field2.setUnloaded(true);
+    fields.add(field2);
+
+    dataSource.setFields(fields);
+
+    LocalFileIngestionInfo localFileIngestionInfo = new LocalFileIngestionInfo();
+    localFileIngestionInfo.setPath(targetFile);
+    localFileIngestionInfo.setRemoveFirstRow(false);
+    localFileIngestionInfo.setFormat(new CsvFileFormat(",", "\n"));
+    localFileIngestionInfo.setIntervals(Lists.newArrayList("2017-01-01T00:00:00.000Z/2018-01-01T00:00:00.000Z"));
+
+    dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(localFileIngestionInfo));
+
+    String reqBody = GlobalObjectMapper.writeValueAsString(dataSource);
+
+    System.out.println(reqBody);
+
+    // @formatter:off
+    Response dsRes =
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(reqBody)
+      .log().all()
+    .when()
+      .post("/api/datasources");
+
+    dsRes.then()
+      .statusCode(HttpStatus.SC_CREATED)
+    .log().all();
+    // @formatter:on
+
+    String id = from(dsRes.asString()).get("id");
+
+    StompHeaders stompSubscribeHeaders = new StompHeaders();
+    stompSubscribeHeaders.setDestination("/topic/datasources/" + id + "/progress");
+    stompSubscribeHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    session.subscribe(stompSubscribeHeaders, new DefaultStompFrameHandler());
+
+    try {
+      System.out.println("Sleep!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      Thread.sleep(1000000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
 
   }
 

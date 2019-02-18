@@ -20,15 +20,13 @@
     <div class="ddp-ui-option ddp-clear">
       <div class="ddp-wrap-edit">
         <!-- search -->
-        <div class="ddp-form-search">
-          <em class="ddp-icon-search"></em>
-          <input type="text" placeholder="{{'msg.storage.ui.search.data'| translate}}"
-                 (keyup)="onSearchText($event)"
-                 (keyup.esc)="searchText('')"
-                 [ngModel]="searchTextKeyword">
-          <em class="ddp-btn-search-close" *ngIf="searchTextKeyword !== ''"
-              (click)="searchText('')"></em>
-        </div>
+        <component-input
+          [compType]="'search'"
+          [showClear]="true"
+          [value]="searchTextKeyword"
+          [placeHolder]="'msg.storage.ui.search.data' | translate"
+          (changeValue)="searchText($event)">
+        </component-input>
         <!-- //search -->
       </div>
       <!-- label -->
@@ -251,14 +249,24 @@
                 <col width="*">
               </colgroup>
               <tbody>
-              <tr *ngIf="selectedField.logicalType === 'TIMESTAMP'">
-                <th>
-                  {{'msg.storage.ui.th.display.format' | translate}}
-                </th>
-                <td>
-                  {{selectedField.format ? selectedField.format.format : selectedField.format}}
-                </td>
-              </tr>
+              <ng-container *ngIf="selectedField.logicalType === 'TIMESTAMP'">
+                <tr>
+                  <th>
+                    {{'msg.storage.ui.th.display.format' | translate}}
+                  </th>
+                  <td>
+                    {{selectedField.format ? selectedField.format.format : selectedField.format}}
+                  </td>
+                </tr>
+                <tr *ngIf="isEnableTimezone(selectedField)">
+                  <th>
+                    {{'msg.storage.ui.timezone' | translate}}
+                  </th>
+                  <td>
+                    {{getTimezoneLabel(selectedField.format)}}
+                  </td>
+                </tr>
+              </ng-container>
               <tr>
                 <th>
                   {{'msg.storage.ui.th.missing' | translate}}

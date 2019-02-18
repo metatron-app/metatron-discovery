@@ -212,7 +212,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       this.uiOption.layers[layerIndex] = this.setColorByShelf(false, layerIndex);
 
       // add color by dimension list
-      if (dimensionList.length > 0 && -1 === _.findIndex(this.colorByList, {'value' : MapBy.DIMENSION})) {
+      // if (dimensionList.length > 0 && -1 === _.findIndex(this.colorByList, {'value' : MapBy.DIMENSION})) {
+      if (dimensionList.length > 0 && -1 === _.findIndex(this.colorByList, ( item ) => { return item.value === MapBy.DIMENSION; })) {
         this.colorByList.splice(1, 0, {name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION});
       }
 
@@ -225,7 +226,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       this.uiOption.layers[layerIndex]['radius'] = 20;
 
       // remove color by dimension list
-      _.remove(this.colorByList, {'value' : MapBy.DIMENSION});
+      _.remove(this.colorByList, ( item ) => { return item.value === MapBy.DIMENSION; });
 
       // if( isNullOrUndefined(this.uiOption.layers[this.index]['coverage']) ) {
       //   this.uiOption.layers[this.index]['coverage'] = 0.9;

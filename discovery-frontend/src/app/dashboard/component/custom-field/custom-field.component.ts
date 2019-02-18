@@ -136,7 +136,6 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   // 펑션 성공 실패 (F, S, null)
   public isCalFuncSuccess: string;
 
-
   // 필터리스트 (컬럼 + 함수)
   public filters: any[];
 
@@ -244,7 +243,13 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
+  /**
+   * 검색어 설정
+   * @param {string} srchText
+   */
+  public setSearchText(srchText:string) {
+    this.calFuncSearchText = srchText;
+  } // function - setSearchText
 
   // 카테고리에 카테고리별 함수 추가
   public setFunctionsInCategory(init: boolean = false) {

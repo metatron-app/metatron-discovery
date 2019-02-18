@@ -160,10 +160,8 @@ public class TeddyExecutor {
 
             if (ssType.equals(PrSnapshot.SS_TYPE.URI.name())) {
                 result = createUriSnapshot(argv);
-//      } else if (snapshotInfo.get("ssType").equals(PrSnapshot.SS_TYPE.HDFS.name())) {
-//        result = createHdfsSnapshot(hadoopConfDir, argv);
             } else if (ssType.equals(PrSnapshot.SS_TYPE.STAGING_DB.name())) {
-                result = createHiveSnapshot(hadoopConfDir, datasetInfo, snapshotInfo);
+                result = createStagingDbSnapshot(hadoopConfDir, datasetInfo, snapshotInfo);
             } else {
                 updateAsFailed(ssId);
                 throw new IllegalArgumentException("run(): ssType not supported: ssType=" + ssType);
@@ -291,56 +289,23 @@ public class TeddyExecutor {
 
         DataFrame df = cache.get(masterFullDsId);
 
-//    String fileUri = (String) snapshotInfo.get("fileUri");
-//    if(fileUri == null) {
-//      String localBaseDir = (String) snapshotInfo.get("localBaseDir");
-//      String ssName = (String) snapshotInfo.get("ssName");
-//      fileUri = this.snapshotService.getSnapshotDir(localBaseDir, ssName);
-//      fileUri = this.snapshotService.escapeSsNameOfUri(fileUri);
-//      Files.createDirectories(Paths.get(fileUri));
-//
-//      fileUri = fileUri.replace(" ",  "%20");
-//    }
-//    String fullPath = fileUri + "/part-00000-" + masterTeddyDsId + ".csv";
-//    String strUri = "file://" + fullPath;
-//
-//    writeCsvForUriSnapshot(strUri, df, ssId);
+        String storedUri = (String) snapshotInfo.get("storedUri");
 
-//    String fileUri = ((String) snapshotInfo.get("fileUri")).replace(" ",  "%20");
-//    String storageType = (String) snapshotInfo.get("storageType");
-
-        // Currently, fileUri from UI for HDFS storage_type is the directory's URI of the destination of the snapshot.
-//    switch (storageType) {  // PrSnapshot.STORAGE_TYPE
-//      case "LOCAL":
-//        storedUri = fileUri;
-//        writeCsv(storedUri, df, ssId);
-//        break;
-//      case "HDFS":
-//        storedUri = fileUri + File.separator + "/part-00000-" + masterTeddyDsId + ".csv";;
-//        writeCsv(storedUri, df, ssId);
-//        break;
-//      default:
-//        assert false : storageType;
-//    }
-
-        String fileUri = (String) snapshotInfo.get("storedUri");
-        String dirUri = snapshotService.escapeUri(fileUri);
-        String storedUri = dirUri + File.separator + "part-00000-" + masterTeddyDsId;
-
-        if(snapshotInfo.get("uriFileFormat").equals("JSON")) {
-            storedUri = storedUri + ".json";
-            writeJSON(storedUri, df, ssId);
-        } else {
-            storedUri = storedUri + ".csv";
-            writeCsv(storedUri, df, ssId);
+        switch (PrSnapshot.getFileFormatByUri(storedUri)) {
+            case CSV:
+                writeCsv(storedUri, df, ssId);
+                break;
+            case JSON:
+                writeJSON(storedUri, df, ssId);
+                break;
+            default:
+                assert false : storedUri;
         }
 
         // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
         for (String fullDsId : reverseMap.keySet()) {
             cache.remove(fullDsId);
         }
-
-        updateSnapshot("storedUri", storedUri, ssId);
 
         LOGGER.info("createUriSnapshot() finished: totalLines={}", df.rows.size());
 
@@ -352,72 +317,9 @@ public class TeddyExecutor {
         return new AsyncResult<>("Success");
     }
 
-//  private Future<String> createHdfsSnapshot(String hadoopConfDir, String[] argv) throws Throwable {
-//    LOGGER.info("createHdfsSnapshot(): adding hadoop config files (if exists): " + hadoopConfDir);
-//
-//    Map<String, Object> datasetInfo = GlobalObjectMapper.readValue(argv[2], HashMap.class);
-//    Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
-//
-//    // master dataset 정보에 모든 upstream 정보도 포함되어있음.
-//    String ssId = (String) snapshotInfo.get("ssId");
-//    String masterTeddyDsId = ((String) datasetInfo.get("origTeddyDsId"));
-//    transformRecursive(datasetInfo, ssId);
-//    String masterFullDsId = replaceMap.get(masterTeddyDsId);
-//
-//    updateAsWriting(ssId);
-//
-//    String stagingBaseDir = (String) snapshotInfo.get("stagingBaseDir");
-//    String ssUri = (String) snapshotInfo.get("fileUri");
-//    if(null==ssUri) {
-//      String ssName = (String) snapshotInfo.get("ssName");
-//      ssUri = this.snapshotService.getSnapshotDir(stagingBaseDir, ssName);
-//    }
-//
-//    /* 변경됨.
-//    // 겹치지는 않을 것. garbage collection 필요. (주기적으로 참조되지 않는 snapshot 디렉토리 제거)
-//    Path ssDir = new Path(stagingBaseDir + "/snapshots/", ssId);
-//    */
-//    FileSystem fs = FileSystem.get(conf);
-//    ssUri = this.snapshotService.escapeUri(ssUri);
-//    Path ssDir = new Path(ssUri);
-//    if (fs.exists(ssDir)) {
-//      fs.delete(ssDir, true);
-//    }
-//
-//    Path file = new Path(ssDir.toString() + File.separator + "part-00000-" + ssId + ".csv"); // masterTeddyDsId 대신 ssId를 쓰고 있었음
-////    OutputStream os = fs.create(file);
-////    BufferedWriter br = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-////
-////    LOGGER.info("createHdfsSnapshot() path={}", file.toString());
-//
-//    DataFrame df = cache.get(masterFullDsId);
-////    int totalLines = writeCsvForUriSnapshot(ssId, df, br, df.colNames);
-//
-//    String strUri = ssUri + File.separator + "part-00000-" + ssId + ".csv";
-//
-//    LOGGER.info("createHdfsSnapshot() strUri={}", strUri);
-//    int totalLines = writeCsvForUriSnapshot(strUri, df, ssId);
-//
-//    // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
-//    for (String fullDsId : reverseMap.keySet()) {
-//      cache.remove(fullDsId);
-//    }
-//
-//    updateSnapshot("uri", this.snapshotService.unescapeSsNameOfUri(file.toString()), ssId);   // 필드명은 uri지만, hdfs full path가 들어간다.
-//
-//    LOGGER.info("createHdfsSnapshot() finished: totalLines={}", totalLines);
-//
-//    DateTime finishTime = DateTime.now(DateTimeZone.UTC);
-//    updateSnapshot("finishTime", finishTime.toString(), ssId);
-//    updateSnapshot("totalLines", String.valueOf(totalLines), ssId);
-//    updateAsSucceeded(ssId);
-//
-//    return new AsyncResult<>("Success");
-//  }
-
-    private Future<String> createHiveSnapshot(String hadoopConfDir,
-                                              Map<String, Object> datasetInfo,
-                                              Map<String, Object> snapshotInfo) throws Throwable {
+    private Future<String> createStagingDbSnapshot(String hadoopConfDir,
+                                                   Map<String, Object> datasetInfo,
+                                                   Map<String, Object> snapshotInfo) throws Throwable {
         LOGGER.info("hadoopConfDir={}", hadoopConfDir);
         LOGGER.info("hive: hostname={} port={} username={}", hiveHostname, hivePort, hiveUsername);
         LOGGER.info("callback: restAPIserverPort={} oauth_token={}", restAPIserverPort, oauth_token.substring(0, 10));
@@ -450,7 +352,7 @@ public class TeddyExecutor {
             cache.remove(fullDsId);
         }
 
-        LOGGER.info("createHiveSnapshot() finished");
+        LOGGER.info("createStagingDbSnapshot() finished");
 
         DateTime finishTime = DateTime.now(DateTimeZone.UTC);
         updateSnapshot("finishTime", finishTime.toString(), ssId);
@@ -586,6 +488,7 @@ public class TeddyExecutor {
                 LOGGER.error("applyRuleStrings(): rule syntax error: ", e);
                 throw PrepException.fromTeddyException(TeddyException.fromRuleException(e));
             } catch (ExecutionException e) {
+                e.getCause().printStackTrace();
                 LOGGER.error("applyRuleStrings(): execution error on " + ruleString, e);
             }
 
@@ -602,7 +505,7 @@ public class TeddyExecutor {
 
         LOGGER.info("loadCsvFile(): dsId={} strUri={} delemiter={}", dsId, strUri, delimiter);
 
-        PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", limitRows, conf, false);
+        PrepCsvParseResult result = PrepCsvUtil.parse(strUri, delimiter, limitRows, conf, false);
         df.setByGrid(result);
 
         LOGGER.info("loadCsvFile(): done");

@@ -14,23 +14,16 @@
 
 package app.metatron.discovery.domain.dataprep;
 
-import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.jdbc.PrepJdbcService;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
+import app.metatron.discovery.domain.dataprep.service.PrDatasetService;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +42,6 @@ import javax.sql.DataSource;
 import java.net.URI;
 import java.sql.*;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -60,22 +52,25 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class PrepDatasetJdbcService {
-    private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetJdbcService.class);
+public class PrepDatasetDatabaseService {
+    private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetDatabaseService.class);
 
     @Autowired
     PrDatasetRepository datasetRepository;
+
+    @Autowired
+    PrDatasetService datasetService;
 
     @Value("${server.port:8180}")
     private String restAPIserverPort;
 
     private String oauth_token;
 
-    public void setoAuthToekn(String token){
+    public void setoAuthToken(String token){
         this.oauth_token=token;
     }
 
-    public String getoAuthToekn(){
+    public String getoAuthToken(){
         return this.oauth_token;
     }
 
@@ -83,7 +78,7 @@ public class PrepDatasetJdbcService {
     Set<Future<Integer>> futures = null;
 
     public class PrepDatasetTotalLinesCallable implements Callable {
-        PrepDatasetJdbcService datasetJdbcService;
+        PrepDatasetDatabaseService datasetJdbcService;
 
         String dsId;
         String sql;
@@ -91,7 +86,7 @@ public class PrepDatasetJdbcService {
         String username;
         String password;
         String dbName;
-        public PrepDatasetTotalLinesCallable(PrepDatasetJdbcService datasetJdbcService, String dsId, String sql, String connectUrl, String username, String password, String dbName) {
+        public PrepDatasetTotalLinesCallable(PrepDatasetDatabaseService datasetJdbcService, String dsId, String sql, String connectUrl, String username, String password, String dbName) {
             this.datasetJdbcService = datasetJdbcService;
             this.dsId = dsId;
             this.sql = sql;
@@ -132,7 +127,7 @@ public class PrepDatasetJdbcService {
         }
     }
 
-    public PrepDatasetJdbcService() {
+    public PrepDatasetDatabaseService() {
         this.poolExecutorService = Executors.newCachedThreadPool();
         this.futures = Sets.newHashSet();
     }
@@ -174,46 +169,6 @@ public class PrepDatasetJdbcService {
     @Autowired(required=false)
     DataConnectionRepository connectionRepository;
 
-    private void createHeaderRow(Sheet sheet) {
-        sheet.shiftRows(0, sheet.getLastRowNum(), 1);
-
-        Row row = sheet.createRow(0);
-        for (int i = 0; i < sheet.getRow(1).getPhysicalNumberOfCells(); i++) {
-            Cell cell = row.createCell(i);
-            cell.setCellValue("Field " + (i + 1));
-        }
-    }
-    private Field makeField(int idx, String fieldKey, Cell dataCell) {
-        DataType fieldType;
-        Field.FieldRole fieldBIType;
-
-        switch (dataCell.getCellType()) {
-            case Cell.CELL_TYPE_STRING:
-                fieldType = DataType.STRING;
-                fieldBIType = Field.FieldRole.DIMENSION;
-                break;
-            case Cell.CELL_TYPE_NUMERIC:
-                if (DateUtil.isCellDateFormatted(dataCell)) {
-                    fieldType = DataType.TIMESTAMP;
-                    fieldBIType = Field.FieldRole.TIMESTAMP;
-                } else {
-                    fieldType = DataType.DOUBLE;
-                    fieldBIType = Field.FieldRole.MEASURE;
-                }
-                break;
-            case Cell.CELL_TYPE_BOOLEAN:
-                fieldType = DataType.BOOLEAN;
-                fieldBIType = Field.FieldRole.DIMENSION;
-                break;
-            case Cell.CELL_TYPE_FORMULA:
-            default:
-                fieldType = DataType.STRING;
-                fieldBIType = Field.FieldRole.DIMENSION;
-        }
-
-        return new Field(fieldKey, fieldType, fieldBIType, new Long(idx + 1));
-    }
-
     public DataFrame getPreviewLinesFromJdbcForDataFrame(PrDataset dataset, String size) throws SQLException {
 
         DataFrame dataFrame = new DataFrame();
@@ -222,7 +177,7 @@ public class PrepDatasetJdbcService {
             int limitSize = Integer.parseInt(size);
 
             String dcId = dataset.getDcId();
-            DataConnection connection = this.connectionRepository.findOne(dcId);
+            DataConnection connection = this.datasetService.findRealDataConnection(this.connectionRepository.findOne(dcId));
 
             String connectUrl = connection.getConnectUrl();
             String username = connection.getUsername();
@@ -313,6 +268,7 @@ public class PrepDatasetJdbcService {
         return dataFrame;
     }
 
+    /*
     public Map<String, Object> getPreviewJdbc(String dcId, String queryStmt, String dbName, String tblName, String size) throws SQLException {
 
         Map<String, Object> responseMap = Maps.newHashMap();
@@ -324,7 +280,7 @@ public class PrepDatasetJdbcService {
             List<Field> fields = Lists.newArrayList();
             List<Map<String, String>> headers = Lists.newArrayList();
 
-            DataConnection dataConnection = this.connectionRepository.findOne(dcId);
+            DataConnection dataConnection = this.datasetService.findRealDataConnection(this.connectionRepository.findOne(dcId));
             String connectUrl = dataConnection.getConnectUrl();
             String username = dataConnection.getUsername();
             String password = dataConnection.getPassword();
@@ -400,5 +356,6 @@ public class PrepDatasetJdbcService {
 
         return responseMap;
     }
+    */
 }
 

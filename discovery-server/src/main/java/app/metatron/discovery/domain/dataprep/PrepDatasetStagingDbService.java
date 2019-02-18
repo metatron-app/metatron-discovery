@@ -14,13 +14,12 @@
 
 package app.metatron.discovery.domain.dataprep;
 
-import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
-import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
-import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
+import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.datasource.Field;
@@ -32,10 +31,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.hive.jdbc.HiveConnection;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,8 +64,8 @@ import java.util.regex.Pattern;
 import static app.metatron.discovery.domain.dataprep.entity.PrDataset.RS_TYPE.QUERY;
 
 @Service
-public class PrepDatasetSparkHiveService {
-    private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetSparkHiveService.class);
+public class PrepDatasetStagingDbService {
+    private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetStagingDbService.class);
 
     private String hiveDefaultHDFSPath=null;
 
@@ -82,11 +77,11 @@ public class PrepDatasetSparkHiveService {
 
     private String oauth_token;
 
-    public void setoAuthToekn(String token){
+    public void setoAuthToken(String token){
         this.oauth_token=token;
     }
 
-    public String getoAuthToekn(){
+    public String getoAuthToken(){
         return this.oauth_token;
     }
 
@@ -100,7 +95,7 @@ public class PrepDatasetSparkHiveService {
     Set<Future<Integer>> futures = null;
 
     public class PrepDatasetTotalLinesCallable implements Callable {
-        PrepDatasetSparkHiveService datasetSparkHiveService;
+        PrepDatasetStagingDbService datasetStagingDbService;
 
         String dsId;
         String sql;
@@ -109,8 +104,8 @@ public class PrepDatasetSparkHiveService {
         String password;
         String customUrl;
         String dbName;
-        public PrepDatasetTotalLinesCallable(PrepDatasetSparkHiveService datasetSparkHiveService, String dsId, String sql, String connectUrl, String username, String password, String customUrl, String dbName) {
-            this.datasetSparkHiveService = datasetSparkHiveService;
+        public PrepDatasetTotalLinesCallable(PrepDatasetStagingDbService datasetStagingDbService, String dsId, String sql, String connectUrl, String username, String password, String customUrl, String dbName) {
+            this.datasetStagingDbService = datasetStagingDbService;
             this.dsId = dsId;
             this.sql = sql;
             this.connectUrl = connectUrl;
@@ -140,7 +135,7 @@ public class PrepDatasetSparkHiveService {
                     JdbcUtils.closeStatement(statement);
                     JdbcUtils.closeConnection(conn);
                 }
-                this.datasetSparkHiveService.setTotalLines(dsId,totalLines);
+                this.datasetStagingDbService.setTotalLines(dsId,totalLines);
             } catch(Exception e) {
                 e.printStackTrace();
             }
@@ -148,7 +143,7 @@ public class PrepDatasetSparkHiveService {
         }
     }
 
-    public PrepDatasetSparkHiveService() {
+    public PrepDatasetStagingDbService() {
         this.poolExecutorService = Executors.newCachedThreadPool();
         this.futures = Sets.newHashSet();
     }
@@ -196,71 +191,6 @@ public class PrepDatasetSparkHiveService {
 
     @Autowired(required=false)
     DataConnectionRepository connectionRepository;
-
-    private void createHeaderRow(Sheet sheet) {
-        sheet.shiftRows(0, sheet.getLastRowNum(), 1);
-
-        Row row = sheet.createRow(0);
-        for (int i = 0; i < sheet.getRow(1).getPhysicalNumberOfCells(); i++) {
-            Cell cell = row.createCell(i);
-            cell.setCellValue("Field " + (i + 1));
-        }
-    }
-    private Field makeField(int idx, String fieldKey, Cell dataCell) {
-        DataType fieldType;
-        Field.FieldRole fieldBIType;
-
-        switch (dataCell.getCellType()) {
-            case Cell.CELL_TYPE_STRING:
-                fieldType = DataType.STRING;
-                fieldBIType = Field.FieldRole.DIMENSION;
-                break;
-            case Cell.CELL_TYPE_NUMERIC:
-                if (DateUtil.isCellDateFormatted(dataCell)) {
-                    fieldType = DataType.TIMESTAMP;
-                    fieldBIType = Field.FieldRole.TIMESTAMP;
-                } else {
-                    fieldType = DataType.DOUBLE;
-                    fieldBIType = Field.FieldRole.MEASURE;
-                }
-                break;
-            case Cell.CELL_TYPE_BOOLEAN:
-                fieldType = DataType.BOOLEAN;
-                fieldBIType = Field.FieldRole.DIMENSION;
-                break;
-            case Cell.CELL_TYPE_FORMULA:
-            default:
-                fieldType = DataType.STRING;
-                fieldBIType = Field.FieldRole.DIMENSION;
-        }
-
-        return new Field(fieldKey, fieldType, fieldBIType, new Long(idx + 1));
-    }
-
-    private String getCellValue(Cell cell) {
-        String v = null;
-
-        switch (cell.getCellType()) {
-            case Cell.CELL_TYPE_STRING:
-                v = cell.getRichStringCellValue().getString();
-                break;
-            case Cell.CELL_TYPE_NUMERIC:
-                if (DateUtil.isCellDateFormatted(cell)) {
-                    v = new DateTime(cell.getDateCellValue().getTime()).toString();
-                } else {
-                    v = String.valueOf(cell.getNumericCellValue());
-                }
-                break;
-            case Cell.CELL_TYPE_BOOLEAN:
-                v = String.valueOf(cell.getBooleanCellValue());
-                break;
-            case Cell.CELL_TYPE_FORMULA:
-                v = cell.getCellFormula();
-                break;
-            default:
-        }
-        return v;
-    }
 
     public List<String> getQuerySchemas(PrepQueryRequest queryRequest) throws Exception {
         List<String> response;
@@ -520,7 +450,7 @@ public class PrepDatasetSparkHiveService {
     }
 
     // FIXME: connectUrl에 명시된 server에 hiveserver2가 돌고 있어야 한다.
-    public DataFrame getPreviewLinesFromStagedbForDataFrame(PrDataset dataset, String size) throws Exception {
+    public DataFrame getPreviewLinesFromStagedbForDataFrame(PrDataset dataset, String size) throws SQLException, IOException {
 
         DataFrame dataFrame = new DataFrame();
 
@@ -645,8 +575,13 @@ public class PrepDatasetSparkHiveService {
                 Callable<Integer> callable = new PrepDatasetTotalLinesCallable(this, dataset.getDsId(), queryStmt, connectUrl, username, password, customUrl, dbName);
                 this.futures.add( poolExecutorService.submit(callable) );
             }
-        } catch (Exception e) {
-            LOGGER.error("Failed to read hive : {}", e.getMessage());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            LOGGER.error("SQLException while read from staging db : {}", e.getMessage());
+            throw e;
+        } catch (IOException e) {
+            e.printStackTrace();
+            LOGGER.error("IOException while read from staging db : {}", e.getMessage());
             throw e;
         }
 

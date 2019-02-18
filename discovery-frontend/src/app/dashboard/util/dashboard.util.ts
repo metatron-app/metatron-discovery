@@ -563,7 +563,7 @@ export class DashboardUtil {
     if (field) {
       return field;
     } else {
-      idx = _.findIndex(customFields, {name: fieldName});
+      idx = _.findIndex(customFields, (obj) => { return obj.name === fieldName});
       return customFields[idx];
     }
   } // function - getFieldByName

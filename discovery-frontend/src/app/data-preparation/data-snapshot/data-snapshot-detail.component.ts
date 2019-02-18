@@ -74,6 +74,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
   private isFromDataflow : boolean = false;
 
+  private uiOffset : number = 0;
+  private uiSize : number = 100;
+
   @Output()
   public snapshotDetailCloseEvent = new EventEmitter();
 
@@ -123,7 +126,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   public snapshotUriFileFormat: string = '';
 
   public isSsNameEditing: boolean = false;
-  public sSInformationList: {label : String, value : string}[];
+  public sSInformationList: {label : String, value : string, isFileUri?: boolean}[] = [];
+
+  public ssType = SsType;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -166,6 +171,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
     this.selectedDataSnapshot = new PrDataSnapshot();
     this.originDsInfo = new OriginDsInfo();
+    this.sSInformationList = [];
 
     this.isFromDataflow = isFromDataflow;
     this.ssId = ssId;
@@ -196,39 +202,48 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     let rows = '0';
     if (Number.isInteger(this.selectedDataSnapshot.totalLines)) {
       rows = new Intl.NumberFormat().format(this.selectedDataSnapshot.totalLines);
-      return rows + ' rows';
+      return rows + ' row(s)';
     } else {
       //if (this.selectedDataSnapshot.status === 'FAILED') {
       if (this.selectedDataSnapshot.status === Status.FAILED) {
-        return 0 + ' rows';
+        return 0;
       }
       return '(counting rows)'
     }
+   }
 
-  }
-
+  /**
+   * Returns number of columns
+   */
   public getCols() {
     let cols = '0';
-    if(true==Number.isInteger(this.colCnt)) {
+    if (Number.isInteger(this.colCnt)) {
       cols = new Intl.NumberFormat().format(this.colCnt);
+      return cols + ' column(s)';
     }
     return cols;
   }
 
-  public getElapsedTime(item) {
-    if( true===isUndefined(item) || true===isUndefined(item.elapsedTime)
-      || true===isUndefined(item.elapsedTime.hours) || true===isUndefined(item.elapsedTime.minutes) || true===isUndefined(item.elapsedTime.seconds) || true===isUndefined(item.elapsedTime.milliseconds)
-    ) { return '--:--:--'; }
-    return this.padleft(item.elapsedTime.hours) + ':' + this.padleft(item.elapsedTime.minutes) + ':' +this.padleft(item.elapsedTime.seconds) + '.' + this.padleft(item.elapsedTime.milliseconds);
+
+  /**
+   * Returns formatted elapsed time
+   * hour:minute:second.millisecond
+   * @param item
+   */
+  public getElapsedTime(item: PrDataSnapshot) {
+
+    if (isUndefined(item) ||
+      isUndefined(item.elapsedTime) ||
+      isUndefined(item.elapsedTime.hours) ||
+      isUndefined(item.elapsedTime.minutes) ||
+      isUndefined(item.elapsedTime.seconds) ||
+      isUndefined(item.elapsedTime.milliseconds)
+    ) {
+      return '--:--:--';
+    }
+    return `${this.prepCommonUtil.padLeft(item.elapsedTime.hours)}:${this.prepCommonUtil.padLeft(item.elapsedTime.minutes)}:${this.prepCommonUtil.padLeft(item.elapsedTime.seconds)}.${this.prepCommonUtil.padLeft(item.elapsedTime.milliseconds)}`;
   }
 
-  /** Formatting number to 2 whole number digit */
-  public padleft(data) {
-
-    let z = '0';
-    let n = data + '';
-    return n.length >= 2 ? n : new Array(2 - n.length + 1).join(z) + n;
-  }
 
   /** Jump to selected dataflow */
   public navigateDataflow(dfId) {
@@ -349,7 +364,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     this.datasnapshotservice.cancelSnapshot(this.ssId)
       .then((result) => {
         this.loadingHide();
-        //console.log(result.result);
+
         if( result.result === 'OK')  {
           Alert.info(this.translateService.instant('msg.dp.alert.snapshot.cancel.success'));
           this.close();
@@ -431,8 +446,11 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
         this.selectedDataSnapshot.displayStatus = this._findDisplayStatus(this.selectedDataSnapshot.status);
 
+        // 실패해도 원본 데이터셋 정보 필요함
+        this.getOriginData();
+
         if (this.selectedDataSnapshot.displayStatus === 'SUCCESS') {
-          this.getOriginData();
+          // 성공했을경우에만 그리드 그림
           this.getGridData();
         }
 
@@ -451,6 +469,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           if(!isUndefined(this.selectedDataSnapshot.custom) && "fail_msg"==this.selectedDataSnapshot.custom.match("fail_msg")) {
             this.selectedDataSnapshot.custom = JSON.parse(this.selectedDataSnapshot.custom.replace(/\n/g, '<br>').replace(/'/g, '"'));
           }
+          this._setSnapshotInfo(this.selectedDataSnapshot);
         }
 
       }).catch((error) => {
@@ -554,7 +573,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   }
 
   /**
-   * Make grid response from grid data 
+   * Make grid response from grid data
    */
   private getGridData() {
 
@@ -612,14 +631,16 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    */
   private updateGrid(data) {
 
-    const maxDataLen: any = {};
-    const fields: Field[] = data.fields;
-
-    let rows: any[] = data.data;
-
-    if( 0 === fields.length || 0 === rows.length ) {
+    if( 0 === data.fields.length || 0 === data.data.length ) {
       return;
     }
+
+    const maxDataLen: any = {};
+    const fields: Field[] = data.fields;
+    let rows: any[];
+
+    this.uiOffset = 1;
+    rows = data.data.slice(0, (data.data.length > this.uiOffset*this.uiSize? this.uiOffset*this.uiSize -1 : data.data.length -1) );
 
     // Row 생성 및 컬럼별 최대 길이 측정
     if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
@@ -657,6 +678,13 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           .Sortable(false)
           .Formatter((function (scope) {
             return function (row, cell, value) {
+              if (field.type === 'STRING') {
+                value = (value) ? value.toString().replace(/</gi, '&lt;') : value;
+                value = (value) ? value.toString().replace(/>/gi, '&gt;') : value;
+                value = (value) ? value.toString().replace(/\n/gi, '&crarr;') : value;
+                let tag = '<span style="color:#ff00ff; font-size: 9pt; letter-spacing: 0px">&middot;</span>';
+                value = (value) ? value.toString().replace(/\s/gi, tag) : value;
+              }
               if (isNull(value)) {
                 return '<div  style=\'color:#b8bac2; font-style: italic ;line-height:30px;\'>' + '(null)' + '</div>';
               } else {
@@ -679,6 +707,15 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       .build()
     );
 
+    this.gridComponent.grid.onScroll.subscribe(() => {
+      let lastIdx = (this.selectedDataSnapshot.gridData.data.length > this.uiOffset*this.uiSize? this.uiOffset*this.uiSize: this.selectedDataSnapshot.gridData.data.length);
+      if ( this.gridComponent.grid.getViewport().bottom === lastIdx && this.selectedDataSnapshot.gridData.data.length > this.uiOffset*this.uiSize ){
+        this.uiOffset += 1;
+        this.gridComponent.grid.setData(data.data.slice(0,(data.data.length < this.uiOffset*this.uiSize? data.data.length -1: this.uiOffset*this.uiSize -1) ));
+        this.gridComponent.grid.updateRowCount();
+        this.gridComponent.grid.render();
+      }
+    });
   } // end of method updateGrid
 
 
@@ -691,25 +728,43 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
     this.sSInformationList = [];
 
-    this.sSInformationList.push(
-      {label: this.translateService.instant('msg.dp.th.ss-type'), value : this.prepCommonUtil.getSnapshotType(snapshot.ssType)},
-      {label: this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.getCols()} ${this.translateService.instant('msg.dp.th.ss.cols')}`});
+    // Staging db
+    if (!snapshot.storedUri) {
+      this.sSInformationList.push({label: this.translateService.instant('msg.dp.th.ss-type'),
+        value : this.prepCommonUtil.getSnapshotType(snapshot.ssType)});
+    }
+
+    // File type
+    if (snapshot.storedUri) {
+      const fileType : string[] = this.prepCommonUtil.getFileNameAndExtension(snapshot.storedUri);
+      this.sSInformationList.push({label: this.translateService.instant('msg.dp.th.ss-type'),
+        value : `${this.prepCommonUtil.getSnapshotType(snapshot.ssType)} (${fileType[1].toUpperCase()})`},
+        {label: this.translateService.instant('msg.dp.th.file.uri'),
+          value : snapshot.storedUri, isFileUri: true});
+    }
+
+    // Summary only when snapshot is successful
+    if (snapshot.displayStatus !== 'FAIL') {
+      this.sSInformationList.push(
+        {label: this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()}`},
+        {label: '', value : `${this.getCols()}`});
+    }
 
     if (snapshot.totalBytes) {
       this.sSInformationList.push({label: this.translateService.instant('msg.comm.detail.size'), value : this.getSize()});
     }
 
     if (snapshot.dbName) {
-      this.sSInformationList.push({label: 'Database', value : this.selectedDataSnapshot.dbName});
+      this.sSInformationList.push({label: this.translateService.instant('msg.dp.th.database'), value : this.selectedDataSnapshot.dbName});
     }
 
     if (snapshot.tblName) {
-      this.sSInformationList.push({label: 'Table', value : this.selectedDataSnapshot.tblName});
+      this.sSInformationList.push({label: this.translateService.instant('msg.dp.th.ss.table'), value : this.selectedDataSnapshot.tblName});
     }
 
     this.sSInformationList.push(
       {label: this.translateService.instant('msg.dp.th.et'), value : this.getElapsedTime(snapshot)},
-      {label: this.translateService.instant('msg.comm.th.created'), value : moment(snapshot.launchTime).format('YYYY-MM-DD HH:mm')});
+      {label: this.translateService.instant('msg.comm.th.created'), value : moment(snapshot.createdTime).format('YYYY-MM-DD HH:mm')});
   }
 
 
