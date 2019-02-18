@@ -317,8 +317,8 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
             dimensions.add(new DefaultDimension(fieldName, dummyDimName));
             projectionMapper.put(dummyDimName, field.getAlias());
           } else {
-            propertyNames.add(new PropertyName(fieldName));
-            projectionMapper.put(fieldName, field.getAlias());
+            propertyNames.add(new PropertyName(originalName));
+            projectionMapper.put(originalName, field.getAlias());
           }
 
         }
