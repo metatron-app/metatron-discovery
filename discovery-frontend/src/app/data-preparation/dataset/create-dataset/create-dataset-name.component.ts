@@ -78,7 +78,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   public nameErrors: string[] = [];
   public descriptionErrors: string[] = [];
   public currentIndex: number = 0;
-  public results: any[] = [];
+  public results: {dsId: string}[] = [];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -168,6 +168,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     if (this.type === 'FILE') {
 
+      // List of parameters used to make multiple dataSets
       const params = this.names.map((name:string,index:number) => {
         this.datasetFile.dsName = name;
         this.datasetFile.dsDesc = this.descriptions[index];
@@ -175,6 +176,8 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
         return this._getFileParams(this.datasetFile);
       });
 
+      // Make list of params into observable using from.
+      // used concatMap to send multiple sequential HTTP requests
       const streams = from(params).pipe(
         concatMap(stream => this._createFileDataset(stream)
         .catch(() => {
@@ -183,15 +186,18 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
       this.loadingShow();
       streams.subscribe((result) => {
-        console.info('result --> ', result);
         Alert.success(this.translateService.instant('msg.dp.alert.create-ds.success',{value:result.dsName}));
-        this.results.push(result);
+
+        // pushed all result into results because this information is required in
+        // complete() but no way to access them
+        this.results.push({dsId : result.dsId});
       },(error) => {
-        console.info('error -> ',error);
+
         let prep_error = this.dataprepExceptionHandler(error);
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       },() => {
-        console.info('complete');
+
+        // Close popup when all observables are subscribed
         this.loadingHide();
         if (this.datasetService.dataflowId) {
           sessionStorage.setItem('DATASET_ID', this.results[0].dsId);
