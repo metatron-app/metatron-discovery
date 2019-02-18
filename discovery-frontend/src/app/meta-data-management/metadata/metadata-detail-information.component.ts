@@ -28,6 +28,7 @@ import { MetadataService } from './service/metadata.service';
 import { Alert } from '../../common/util/alert.util';
 import { MetadataModelService } from './service/metadata.model.service';
 import {InputComponent} from "../../common/component/input/input.component";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-metadata-detail-information',
@@ -119,7 +120,6 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     this.openAddCataglog.emit();
   } // function - addCatalog
 
-
   /**
    * Get metadata tags
    */
@@ -187,7 +187,6 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   public setTagValue(tag) {
     this.tagValue = tag;
   } // function - setTagValue
-
 
   /**
    * 페이지명 에디터 모드 해제
@@ -275,7 +274,6 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     })
   }
 
-
   /**
    * Get description with line break
    * @param {string} description
@@ -288,6 +286,16 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
       return description.replace( /\r\n|\n/gi, '<br>' );
     }
   }
+
+  public gotoDatasource() {
+    const metadata = this.metadataModelService.getMetadata();
+    const datasourceId = metadata.source.source.id;
+    if (_.isNil(datasourceId)) {
+      return;
+    }
+    this.router.navigate([`/management/storage/datasource/${datasourceId}`]);
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -299,7 +307,6 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method - getter
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
 
 }
 
