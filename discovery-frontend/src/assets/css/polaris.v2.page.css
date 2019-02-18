@@ -6270,6 +6270,7 @@ table.ddp-table-detail td .ddp-data-permission span.ddp-data-name {color:#b7bac1
 .ddp-ui-datadetail:first-of-type {border-top:none;}
 .ddp-ui-datadetail .ddp-label-detail  {display:block; margin-bottom:15px;}
 .ddp-ui-datadetail .ddp-box-synch {position:absolute; top:0; left:0; right:0;}
+.ddp-ui-datadetail .ddp-btn-solid2.type-link {position:absolute; top:40px; right:60px;}
 table.ddp-table-detail tr td dl.ddp-dl-detail {margin-top:16px;}
 table.ddp-table-detail tr td dl.ddp-dl-detail:first-of-type {margin-top:0;}
 table.ddp-table-detail tr td dl.ddp-dl-detail:last-of-type {margin-bottom:30px;}
