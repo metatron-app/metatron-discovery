@@ -17,6 +17,11 @@ import { GranularityType } from '../workbook/configurations/field/timestamp-fiel
 import { Dataconnection } from '../dataconnection/dataconnection';
 import { MetadataColumn } from '../meta-data-management/metadata-column';
 import { CodeTable } from '../meta-data-management/code-table';
+import {
+  CreateSnapShotData,
+  CreateSourceCompleteData,
+  CreateSourceConfigureData
+} from "../../data-storage/service/data-source-create.service";
 
 export class Datasource extends AbstractHistoryEntity {
   id: string;             // ID
@@ -263,15 +268,18 @@ export class DatasourceInfo {
   public databaseData: any;
   // 2step 파일 정보
   public fileData: any;
+  // snapshot
+  public snapshotData: CreateSnapShotData;
 
   // 3step 스키마 정보
   public schemaData: any;
+  public configureData: CreateSourceConfigureData;
 
   // 4step
   public ingestionData: any;
 
   // 5step 생성정보
-  public createData: any;
+  public completeData: CreateSourceCompleteData;
 
   // 분기를 위한 플래그
   public workbenchFl: boolean;
@@ -331,17 +339,20 @@ export enum IngestionStatus {
   PASS = <any>'PASS'
 }
 
+// dsType
 export enum DataSourceType {
   MASTER = <any>'MASTER',
   JOIN = <any>'JOIN',
   VOLATILITY = <any>'VOLATILITY'
 }
 
+// connType
 export enum ConnectionType {
   ENGINE = <any>'ENGINE',
   LINK = <any>'LINK'
 }
 
+// srcType
 export enum SourceType {
   FILE = <any>'FILE',
   HDFS = <any>'HDFS',

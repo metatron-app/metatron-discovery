@@ -1898,6 +1898,7 @@
   "msg.storage.ui.dsource.create.title" : "Create datasource",
   "msg.storage.ui.dsource.create.file.title" : "My file",
   "msg.storage.ui.dsource.create.db.title" : "DB",
+  "msg.storage.ui.dsource.create.ss.title" : "Snapshot",
   "msg.storage.ui.dsource.create.staging.title" : "Staging DB",
   "msg.storage.ui.dsource.create.druid.title" : "Metatron Engine",
   "msg.storage.ui.dsource.create.search-db" : "Search database",
