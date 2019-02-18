@@ -740,10 +740,16 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 /**************************************************************
   synch
 **************************************************************/
-.ddp-wrap-tab-contents .ddp-ui-tab-contents .ddp-box-synch {margin-bottom:-10px;}
-.ddp-box-synch {position:relative; padding:10px 12px; border:1px solid #cdd8f4; background-color:#f0f3fc; color:#6174b3; font-size:13px; border-radius:2px;}
-.ddp-box-synch .ddp-icon-info {display:inline-block; width:11px; height:11px; margin-right:4px; background:url(../images/icon_info3.png) no-repeat; color:#6174b3; font-size:13px; vertical-align:middle;}
-.ddp-box-synch .ddp-btn-blue {position:absolute; top:50%; right:12px; margin-top:-16px; }
+.ddp-wrap-tab-contents .ddp-ui-tab-contents .ddp-box-message {margin-bottom:-10px;}
+.ddp-box-synch {display:table; width:100%; position:relative; padding:7px 12px; border:1px solid #cdd8f4; background-color:#f0f3fc; color:#6174b3; font-size:12px; border-radius:2px; overflow:hidden; box-sizing:border-box;}
+.ddp-box-synch + .ddp-box-synch {margin-top:4px;}
+.ddp-box-synch .ddp-txt-synch {display:table-cell; vertical-align:middle;}
+.ddp-box-synch .ddp-icon-info {display:inline-block; width:13px; height:12px; margin-right:4px; background:url(../images/icon_info3.png) no-repeat left -41px; vertical-align:middle;}
+.ddp-box-synch .ddp-btn-blue {float:right; margin:-4px 12px -4px 0;}
+.ddp-box-synch.type-info {border-color:#e7e7ea; background-color:#f6f6f7; color:#90969f;}
+.ddp-box-synch.type-info .ddp-icon-info {width:13px; height:13px; background-position:left -27px;}
+.ddp-box-synch.type-error {border-color:#ffcedb; background-color:#ffedf2; color:#dc494f;}
+.ddp-box-synch.type-error .ddp-icon-info {background-position:left -55px;}
 
 .ddp-btn-blue {padding:7px 17px 8px 17px; border-radius:2px; background-color:#6174b3; color:#fff; font-size:13px;}
 .ddp-btn-blue:hover {color:#fff;}
