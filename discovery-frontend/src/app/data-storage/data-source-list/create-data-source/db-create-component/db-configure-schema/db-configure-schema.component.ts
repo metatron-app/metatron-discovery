@@ -33,11 +33,11 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
   @Input('sourceData')
   public sourceData: DatasourceInfo;
 
-  @Input()
-  public step: string;
+  @Input('step')
+  private _step: string;
 
-  @Output()
-  public stepChange: EventEmitter<string> = new EventEmitter();
+  @Output('stepChange')
+  private _stepChange: EventEmitter<string> = new EventEmitter();
 
   // 생성자
   constructor(protected element: ElementRef,
@@ -68,24 +68,6 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
   }
 
   /**
-   * Move to previous page
-   * @private
-   */
-  private _moveToPrevPage() {
-    this.step = 'db-select-data';
-    this.stepChange.emit(this.step);
-  }
-
-  /**
-   * Move to next page
-   * @private
-   */
-  private _moveToNextPage() {
-    this.step = 'db-ingestion-permission';
-    this.stepChange.emit(this.step);
-  }
-
-  /**
    * Step change click event
    * @param {string} route
    */
@@ -98,6 +80,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @param {string} route
    */
   public onChangedStep(route: string): void {
-    route === 'prev' ? this._moveToPrevPage() : this._moveToNextPage();
+    this._step = route === 'prev' ? 'db-select-data' : 'db-ingestion-permission';
+    this._stepChange.emit(this._step);
   }
 }

@@ -34,7 +34,7 @@ export class CreateSnapshotSourceConfigureComponent extends AbstractPopupCompone
 
   // 생성될 데이터소스 정보
   @Input('sourceData')
-  private _sourceData: DatasourceInfo;
+  public sourceData: DatasourceInfo;
 
   @Input('step')
   private _step: string;
@@ -61,12 +61,7 @@ export class CreateSnapshotSourceConfigureComponent extends AbstractPopupCompone
    * @param {string} route
    */
   public onChangedStep(route: string): void {
-    if (route === 'prev') { // Move to previous page
-      this._step = 'snapshot-select';
-      this._stepChange.emit(this._step);
-    } else { // Move to next page
-      this._step = 'snapshot-ingestion';
-      this._stepChange.emit(this._step);
-    }
+    this._step = route === 'prev' ? 'snapshot-select' : 'snapshot-ingestion';
+    this._stepChange.emit(this._step);
   }
 }

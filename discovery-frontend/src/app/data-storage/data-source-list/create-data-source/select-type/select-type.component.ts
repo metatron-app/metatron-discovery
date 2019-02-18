@@ -87,6 +87,9 @@ export class SelectTypeComponent extends AbstractPopupComponent implements OnIni
       case 'druid':
         this.step = 'druid-select';
         break;
+      case 'snapshot':
+        this.step = 'snapshot-select';
+        break;
     }
     this.stepChange.emit(this.step);
   }

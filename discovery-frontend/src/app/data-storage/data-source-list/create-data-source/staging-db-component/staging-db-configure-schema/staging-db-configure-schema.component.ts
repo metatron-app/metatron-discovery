@@ -57,24 +57,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
   }
 
   /**
-   * Move to previous page
-   * @private
-   */
-  private _moveToPrevPage() {
-    this.step = 'staging-db-select';
-    this.stepChange.emit(this.step);
-  }
-
-  /**
-   * Move to next page
-   * @private
-   */
-  private _moveToNextPage() {
-    this.step = 'staging-db-ingestion';
-    this.stepChange.emit(this.step);
-  }
-
-  /**
    * Step change click event
    * @param {string} route
    */
@@ -87,6 +69,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    * @param {string} route
    */
   public onChangedStep(route: string): void {
-    route === 'prev' ? this._moveToPrevPage() : this._moveToNextPage();
+    this.step = route === 'prev' ? 'staging-db-select' : 'staging-db-ingestion';
+    this.stepChange.emit(this.step);
   }
 }
