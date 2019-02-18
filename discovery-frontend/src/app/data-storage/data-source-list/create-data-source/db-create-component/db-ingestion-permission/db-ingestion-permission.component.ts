@@ -35,11 +35,11 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
   @ViewChild(IngestionSettingComponent)
   private _ingestionSettingComponent: IngestionSettingComponent;
 
-  @Input()
-  public step: string;
+  @Input('step')
+  private _step: string;
 
-  @Output()
-  public stepChange: EventEmitter<string> = new EventEmitter();
+  @Output('stepChange')
+  private _stepChange: EventEmitter<string> = new EventEmitter();
 
   // Constructor
   constructor(protected elementRef: ElementRef,
@@ -80,19 +80,12 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
   }
 
   /**
-   * Move to previous step
+   * Changed page
+   * @param {string} step
    */
-  public prev(): void {
-    this.step = 'db-configure-schema';
-    this.stepChange.emit(this.step);
-  }
-
-  /**
-   * Move to next step
-   */
-  public next(): void {
-    this.step = 'db-complete';
-    this.stepChange.emit(this.step);
+  public onChangedPage(step: string): void {
+    this._step = step === 'NEXT' ? 'db-complete' : 'db-configure-schema';
+    this._stepChange.emit(this._step);
   }
 
   /**
@@ -100,6 +93,6 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
    * @param {string} route
    */
   public onClickPageChange(route: string): void {
-    route === 'prev' ? this._ingestionSettingComponent.onClickPrev() : this._ingestionSettingComponent.onClickNext();
+    route === 'PREV' ? this._ingestionSettingComponent.onClickPrev() : this._ingestionSettingComponent.onClickNext();
   }
 }

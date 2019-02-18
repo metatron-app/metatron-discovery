@@ -29,7 +29,7 @@ import { StringUtil } from '../../../common/util/string.util';
 import { Alert } from '../../../common/util/alert.util';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
 import { CommonUtil } from '../../../common/util/common.util';
-import { GranularityService } from '../../service/granularity.service';
+import {GranularityObject, GranularityService} from '../../service/granularity.service';
 
 declare let moment: any;
 /**
@@ -45,7 +45,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _sourceData: DatasourceInfo;
 
   // granularity list
-  private _granularityList: any[] = this._granularityService.granularityList;
+  private _granularityList: GranularityObject[] = this._granularityService.granularityList;
   // scope type list (only engine source type)
   private _scopeTypeList: any[] = [
     { label: this.translateService.instant('msg.storage.th.dsource.scope-incremental'), value: 'INCREMENTAL' },
@@ -85,16 +85,16 @@ export class IngestionSettingComponent extends AbstractComponent {
   public partitionKeyList: any[] = [];
 
   // segment granularity list
-  public segmentGranularityList: any[];
+  public segmentGranularityList: GranularityObject[];
   // selected segment granularity
-  public selectedSegmentGranularity: any;
+  public selectedSegmentGranularity: GranularityObject;
   // segment granularity list show flag
   public isShowSegmentGranularityList: boolean = false;
 
   // query granularity list
-  public queryGranularityList: any[];
+  public queryGranularityList: GranularityObject[];
   // selected query granularity
-  public selectedQueryGranularity: any;
+  public selectedQueryGranularity: GranularityObject;
   // query granularity list show flag
   public isShowQueryGranularityList: boolean = false;
 

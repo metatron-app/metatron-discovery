@@ -36,11 +36,11 @@ export class FileIngestionComponent extends AbstractPopupComponent implements On
   @ViewChild(IngestionSettingComponent)
   private _ingestionSettingComponent: IngestionSettingComponent;
 
-  @Input()
-  public step: string;
+  @Input('step')
+  private _step: string;
 
-  @Output()
-  public stepChange: EventEmitter<string> = new EventEmitter();
+  @Output('stepChange')
+  private _stepChange: EventEmitter<string> = new EventEmitter();
 
   // Constructor
   constructor(protected element: ElementRef,
@@ -80,21 +80,13 @@ export class FileIngestionComponent extends AbstractPopupComponent implements On
     }
   }
 
-
   /**
-   * Move to previous step
+   * Changed page
+   * @param {string} step
    */
-  public prev(): void {
-    this.step = 'file-configure-schema';
-    this.stepChange.emit(this.step);
-  }
-
-  /**
-   * Move to next step
-   */
-  public next(): void {
-    this.step = 'file-complete';
-    this.stepChange.emit(this.step);
+  public onChangedPage(step: string): void {
+    this._step = step === 'NEXT' ? 'file-complete' : 'file-configure-schema';
+    this._stepChange.emit(this._step);
   }
 
   /**
@@ -102,6 +94,6 @@ export class FileIngestionComponent extends AbstractPopupComponent implements On
    * @param {string} route
    */
   public onClickPageChange(route: string): void {
-    route === 'prev' ? this._ingestionSettingComponent.onClickPrev() : this._ingestionSettingComponent.onClickNext();
+    route === 'PREV' ? this._ingestionSettingComponent.onClickPrev() : this._ingestionSettingComponent.onClickNext();
   }
 }
