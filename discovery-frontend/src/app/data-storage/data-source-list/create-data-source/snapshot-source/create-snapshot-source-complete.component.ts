@@ -116,6 +116,18 @@ export class CreateSnapshotSourceCompleteComponent extends AbstractPopupComponen
     return this.datasourceCreateService.getPartitionLabel(this._convertedPartitionList);
   }
 
+  public getSelectedSnapshot(): any {
+    return this._sourceData.snapshotData.selectedSnapshot;
+  }
+
+  public getIngestionData(): any {
+    return this._sourceData.ingestionData;
+  }
+
+  public getSchemaData(): any {
+    return this._sourceData.schemaData;
+  }
+
   private _createDatasource(): void {
 
   }

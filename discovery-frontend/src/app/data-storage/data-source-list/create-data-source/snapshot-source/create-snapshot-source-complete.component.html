@@ -39,16 +39,16 @@
               Snapshot
             </th>
             <td>
-
+              {{getSelectedSnapshot().ssName}}
             </td>
           </tr>
           <!-- only stagingDB type snapshot -->
-          <tr>
+          <tr >
             <th>
               {{'msg.storage.ui.list.schema' | translate}} / {{'msg.lineage.ui.list.title.table' | translate}}
             </th>
             <td>
-              {{getDatabaseData.selectedDatabase}} / {{getDatabaseData.selectedTable}}
+
             </td>
           </tr>
           <!-- //only stagingDB type snapshot -->
@@ -68,15 +68,15 @@
                 <!-- //partition -->
                 <!-- granularity -->
                 <li>
-                  {{'msg.storage.th.query.gran' | translate}} : {{getIngestionData.selectedQueryGranularity.label}}
+                  {{'msg.storage.th.query.gran' | translate}} : {{getIngestionData().selectedQueryGranularity.label}}
                 </li>
                 <li>
-                  {{'msg.storage.th.segment.gran' | translate}} : {{getIngestionData.selectedSegmentGranularity.label}}
+                  {{'msg.storage.th.segment.gran' | translate}} : {{getIngestionData().selectedSegmentGranularity.label}}
                 </li>
                 <!-- //granularity -->
                 <!-- if not used current TIMESTAMP-->
-                <li *ngIf="getSchemaData.selectedTimestampType !== 'CURRENT'">
-                  {{'msg.storage.ui.intervals' | translate}} : {{getIngestionData.startIntervalText}} ~ {{getIngestionData.endIntervalText}}
+                <li *ngIf="getSchemaData().selectedTimestampType !== 'CURRENT'">
+                  {{'msg.storage.ui.intervals' | translate}} : {{getIngestionData().startIntervalText}} ~ {{getIngestionData().endIntervalText}}
                 </li>
                 <!-- //if not used current TIMESTAMP-->
               </ul>
@@ -89,7 +89,7 @@
               {{'msg.storage.th.rollup.settings' | translate}}
             </th>
             <td>
-              {{getIngestionData.selectedRollUpType.label}}
+              {{getIngestionData().selectedRollUpType.label}}
             </td>
           </tr>
           <!-- //roll up -->
