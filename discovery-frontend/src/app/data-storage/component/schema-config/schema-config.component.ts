@@ -19,7 +19,7 @@ import {
   Field,
   FieldFormat,
   FieldFormatType,
-  FieldRole, IngestionRuleType,
+  IngestionRuleType,
   LogicalType
 } from '../../../domain/datasource/datasource';
 import { AbstractComponent } from '../../../common/component/abstract.component';
@@ -31,6 +31,7 @@ import { Alert } from '../../../common/util/alert.util';
 import { SchemaConfigActionBarComponent } from './schema-config-action-bar.component';
 import { SchemaConfigDetailComponent } from './schema-config-detail.component';
 import { TimezoneService } from "../../service/timezone.service";
+import {DataSourceCreateService} from "../../service/data-source-create.service";
 
 @Component({
   selector: 'schema-config-component',
@@ -74,74 +75,13 @@ export class SchemaConfigComponent extends AbstractComponent {
   public searchText: string;
 
   // logical type filter list
-  public logicalTypeFilterList: any[] = [
-    {label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL'},
-    {
-      label: this.translateService.instant('msg.storage.ui.list.string'),
-      icon: 'ddp-icon-type-ab',
-      value: LogicalType.STRING
-    },
-    {
-      label: this.translateService.instant('msg.storage.ui.list.boolean'),
-      icon: 'ddp-icon-type-tf',
-      value: LogicalType.BOOLEAN
-    },
-    {
-      label: this.translateService.instant('msg.storage.ui.list.integer'),
-      icon: 'ddp-icon-type-int',
-      value: LogicalType.INTEGER
-    },
-    {
-      label: this.translateService.instant('msg.storage.ui.list.double'),
-      icon: 'ddp-icon-type-float',
-      value: LogicalType.DOUBLE
-    },
-    {
-      label: this.translateService.instant('msg.storage.ui.list.date'),
-      icon: 'ddp-icon-type-calen',
-      value: LogicalType.TIMESTAMP
-    },
-    {
-      label: this.translateService.instant('msg.storage.ui.list.lnt'),
-      icon: 'ddp-icon-type-latitude',
-      value: LogicalType.LNT
-    },
-    {
-      label: this.translateService.instant('msg.storage.ui.list.lng'),
-      icon: 'ddp-icon-type-longitude',
-      value: LogicalType.LNG
-    },
-    {
-      label: this.translateService.instant('msg.storage.ui.list.geo.point'),
-      icon: 'ddp-icon-type-point',
-      value: LogicalType.GEO_POINT
-    },
-    {
-      label: this.translateService.instant('msg.storage.ui.list.geo.line'),
-      icon: 'ddp-icon-type-line',
-      value: LogicalType.GEO_LINE
-    },
-    {
-      label: this.translateService.instant('msg.storage.ui.list.geo.polygon'),
-      icon: 'ddp-icon-type-polygon',
-      value: LogicalType.GEO_POLYGON
-    },
-    {
-      label: this.translateService.instant('msg.storage.ui.list.expression'),
-      icon: 'ddp-icon-type-expression',
-      value: LogicalType.USER_DEFINED
-    }
-  ];
+  public logicalTypeFilterList: any[] = this.datasourceCreateService.getLogicalTypeFilterList();
   // selected logical type filter
   public selectedLogicalTypeFilter: any;
   // logical type filter list show / hide flag
   public logicalTypeFilterListShowFlag: boolean;
   // role type filter list
-  public roleTypeFilterList: any[] = [
-    {label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL'},
-    {label: this.translateService.instant('msg.storage.ui.list.dimension'), value: FieldRole.DIMENSION},
-    {label: this.translateService.instant('msg.storage.ui.list.measure'), value: FieldRole.MEASURE}
-  ];
+  public roleTypeFilterList: any[] = this.datasourceCreateService.getRoleTypeFilterList();
   // selected role type filter
   public selectedRoleTypeFilter: any;
 
@@ -156,8 +96,9 @@ export class SchemaConfigComponent extends AbstractComponent {
   public changedStep: EventEmitter<string> = new EventEmitter();
 
   // 생성자
-  constructor(private _datasourceService: DatasourceService,
-              private _timezoneService: TimezoneService,
+  constructor(private datasourceCreateService: DataSourceCreateService,
+              private datasourceService: DatasourceService,
+              private timezoneService: TimezoneService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -738,7 +679,7 @@ export class SchemaConfigComponent extends AbstractComponent {
    */
   private _setTimestampFormatInField(field: Field, fieldDataList: any[]): Promise<any> {
     return new Promise((resolve, reject) => {
-      this._datasourceService.checkValidationDateTime({samples: fieldDataList})
+      this.datasourceService.checkValidationDateTime({samples: fieldDataList})
         .then((result: {pattern: string}) => {
           // if exist pattern
           if (result.pattern) {
@@ -747,9 +688,9 @@ export class SchemaConfigComponent extends AbstractComponent {
             // set time format valid TRUE
             field.isValidTimeFormat = true;
             // if enable timezone, set browser timezone at field
-            if (this._timezoneService.isEnableTimezoneInDateFormat(field.format)) {
-              !field.format.timeZone && (field.format.timeZone = this._timezoneService.browserTimezone.momentName);
-              field.format.locale = this._timezoneService.browserLocal;
+            if (this.timezoneService.isEnableTimezoneInDateFormat(field.format)) {
+              !field.format.timeZone && (field.format.timeZone = this.timezoneService.browserTimezone.momentName);
+              field.format.locale = this.timezoneService.browserLocal;
             } else { // if not enable timezone
               field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
             }
