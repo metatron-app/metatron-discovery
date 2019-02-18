@@ -36,7 +36,6 @@
     <table class="ddp-table-form ddp-table-type2 ddp-table-details ddp-type-input">
       <colgroup>
         <col width="160px">
-        <col width="100px">
         <col width="180px">
         <col width="180px">
         <col width="150px">
@@ -78,13 +77,6 @@
             <span class="ddp-th-txt" title="{{'msg.metadata.th.column.popularity' | translate}}">
               {{'msg.metadata.th.column.popularity' | translate}}
             </span>
-          </div>
-        </th>
-        <th>
-          <div class="ddp-th-long">
-            <div class="ddp-th-txt" title="{{'msg.metadata.th.physical.type' | translate}}">
-              {{'msg.metadata.th.physical.type' | translate}}
-            </div>
           </div>
         </th>
         <th class="ddp-cursor" (click)="onClickSort('physicalName')">
@@ -182,11 +174,6 @@
           </div>
         </td>
         <!-- //인기도 -->
-        <!-- 물리 타입 -->
-        <td class="ddp-disabled">
-          {{column.physicalType}}
-        </td>
-        <!-- //물리 타입 -->
         <!-- 물리 컬럼 명 -->
         <td class="ddp-disabled">
           {{column.physicalName}}
