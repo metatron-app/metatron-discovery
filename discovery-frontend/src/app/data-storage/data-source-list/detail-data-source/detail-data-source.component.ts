@@ -76,9 +76,6 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   @ViewChild('nameElement')
   public nameElement: ElementRef;
 
-  @ViewChild('descElement')
-  public descElement: ElementRef;
-
   // 데이터소스
   public datasource: Datasource;
   // 메타데이터 정보
@@ -86,11 +83,9 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
 
   // edit flag
   public nameFl: boolean = false;
-  public descFl: boolean = false;
 
   // name & desc
   public reName: string = '';
-  public reDesc: string = '';
 
   // more flag
   public moreFl: boolean = false;
@@ -220,12 +215,6 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   public changeNameMode() {
     this.nameFl = true;
     this.reName = this.datasource.name;
-  }
-
-  // 설명 변경 모드
-  public changeDescMode() {
-    this.descFl = true;
-    this.reDesc = this.datasource.description;
   }
 
   /**
@@ -358,20 +347,6 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     this.updateDatasource({name : this.reName.trim()});
   }
 
-  /**
-   * 데이터소스 설명 수정
-   */
-  public redescDatasource() {
-    // 설명 길이 체크
-    if (CommonUtil.getByte(this.reDesc.trim()) > 450) {
-      Alert.warning(this.translateService.instant('msg.alert.edit.description.len'));
-      return;
-    }
-    this.descFl = false;
-    // update
-    this.updateDatasource({description : this.reDesc.trim()});
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - event
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -409,18 +384,6 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     // rename
     this.renameDatasource();
   }
-
-  /**
-   * Changed datasource description event
-   * @param {string} text
-   */
-  public onChangedSourceDesc(text: string): void {
-    // set redesc text
-    this.reDesc = text;
-    // reDesc
-    this.redescDatasource();
-  }
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - getter

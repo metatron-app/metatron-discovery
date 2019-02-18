@@ -81,6 +81,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   @ViewChild(ConfirmModalComponent)
   private confirmModal: ConfirmModalComponent;
 
+  @Output('updateDatasource')
+  private _updateDatasource: EventEmitter<any> = new EventEmitter();
+
   @Output()
   public changeDatasource: EventEmitter<any> = new EventEmitter();
 
@@ -131,8 +134,8 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   @Input()
   public timestampColumn: Field;
 
-  // 리스트 flag
-  public detailFl: boolean = false;
+  // source description edit flag
+  public isEditSourceDescription: boolean = false;
   // advanced setting show flag
   public isShowAdvancedSetting: boolean = false;
 
@@ -141,6 +144,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
 
   // partitionKeyList
   public partitionKeyList: string[];
+
+  // description
+  public descriptionChangeText: string;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -199,6 +205,36 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * Enable edit datasource description
+   */
+  public enableEditDescription(): void {
+    this.isEditSourceDescription = true;
+    // set desc text
+    this.descriptionChangeText = this.datasource.description;
+  }
+
+  /**
+   * Get converted datasource description
+   * @return {string}
+   */
+  public getConvertedSourceDescription(): string {
+    return this.datasource.description && this.datasource.description.replace(/\r\n|\n/gi, '<br>');
+  }
+
+  /**
+   * Update datasource description
+   */
+  public updateSourceDescription(): void {
+    // 설명 길이 체크
+    if (CommonUtil.getByte(this.descriptionChangeText) > 450) {
+      Alert.warning(this.translateService.instant('msg.alert.edit.description.len'));
+      return;
+    }
+    this.isEditSourceDescription = false;
+    this._updateDatasource.emit({description: this.descriptionChangeText});
+  }
 
   /**
    * ingestion details click event

@@ -23,7 +23,44 @@
 
   <!-- datadetail -->
   <div class="ddp-ui-datadetail ddp-border-none">
+    <a href="javascript:" class="ddp-btn-solid2 ddp-dark type-link">Go to Meta data</a>
     <label class="ddp-label-detail">{{'msg.storage.ui.data.info' | translate}}</label>
+    <table class="ddp-table-detail">
+      <colgroup>
+        <col width="170px">
+        <col width="*">
+      </colgroup>
+      <tbody>
+      <tr>
+        <th>
+          {{'msg.comm.ui.description' | translate}}
+        </th>
+        <td>
+          <!--
+                 edit 클릭시 ddp-edit 추가
+                 2줄이상일때 ddp-line 추가
+             -->
+          <div class="ddp-edit-description ddp-line" [class.ddp-edit]="isEditSourceDescription" >
+            <!-- data -->
+            <div class="ddp-data-description" (click)="enableEditDescription()">
+              <div class="ddp-txt-description" [innerHTML]="getConvertedSourceDescription()">
+              </div>
+              <a href="javascript:" class="ddp-btn-edit"><em class="ddp-icon-edit"></em>{{'msg.comm.btn.edit' | translate}}</a>
+            </div>
+            <!-- //data -->
+            <div class="ddp-box-textarea">
+              <textarea [(ngModel)]="descriptionChangeText"></textarea>
+              <div class="ddp-textarea-buttons">
+                <a href="javascript:" class="ddp-box-btn" (click)="isEditSourceDescription = false"><em class="ddp-icon-cancel"></em></a>
+                <a href="javascript:" class="ddp-box-btn " (click)="updateSourceDescription()"><em class="ddp-icon-check"></em></a>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
     <!-- Data info -->
     <table class="ddp-table-detail">
       <colgroup>

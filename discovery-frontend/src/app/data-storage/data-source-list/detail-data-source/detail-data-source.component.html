@@ -63,24 +63,6 @@
             </div>
           </div>
           <!-- //name -->
-          <!-- description -->
-          <!-- 클릭시 ddp-selected 추가 -->
-          <div class="ddp-box-navidet" [ngClass]="{'ddp-selected' : descFl}" (clickOutside)="descFl = false">
-            <div class="ddp-wrap-navidet" (click)="changeDescMode()">
-              <span class="ddp-data-navidet">{{datasource.description || 'msg.comm.ui.create.desc' | translate}}
-              <em class="ddp-icon-edit2"></em></span>
-            </div>
-            <div class="ddp-wrap-input">
-              <component-input
-                [value]="datasource.description"
-                [inputClass]="'ddp-input-navi'"
-                [placeHolder]="'msg.comm.ui.create.desc' | translate"
-                (changeValue)="onChangedSourceDesc($event)">
-              </component-input>
-              <span class="ddp-btn-check" (click)="redescDatasource()"></span>
-            </div>
-          </div>
-          <!-- //description -->
         </div>
         <!-- //navi -->
       </div>
@@ -136,6 +118,7 @@
       <!-- Information -->
       <information-data-source *ngIf="mode === 'information'"
                                (changeDatasource)="changedDatasourceData($event)"
+                               (updateDatasource)="updateDatasource($event)"
                                [ingestionProcess]="ingestionProcess"
                                [isNotShowProgress]="isNotShowProgress"
                                [historyId]="historyId"
