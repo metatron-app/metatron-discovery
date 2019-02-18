@@ -88,6 +88,7 @@ import {LongUpdatePopupComponent} from "./component/long-update-popup.component"
 import {RadioSelectDatasetComponent} from "./component/radio-select-dataset.component";
 import {AddDatasetDataflowComponent} from "./dataset/add-dataset-dataflow.component";
 import {MultipleRenamePopupComponent} from "./dataflow/dataflow-detail/component/edit-dataflow-rule/multiple-rename-popup.component";
+import {DataPreparationShareModule} from "./data-preparation-share.module";
 
 const dataPreparationRoutes: Routes = [
   { path: '', component: DatasetComponent },
@@ -105,7 +106,8 @@ const dataPreparationRoutes: Routes = [
     FileModule,
     RouterModule.forChild(dataPreparationRoutes),
     SplitPaneModule,
-    WorkbenchEditorModule
+    WorkbenchEditorModule,
+    DataPreparationShareModule
   ],
   declarations: [
     DataPreparationComponent,
@@ -117,7 +119,6 @@ const dataPreparationRoutes: Routes = [
     CreateDatasetSelectsheetComponent,
     CreateDatasetStagingSelectdataComponent,
     DataSnapshotComponent,
-    DataSnapshotDetailComponent,
     CreateDatasetDbSelectComponent,
     CreateDatasetDbQueryComponent,
     DatasetDetailComponent,

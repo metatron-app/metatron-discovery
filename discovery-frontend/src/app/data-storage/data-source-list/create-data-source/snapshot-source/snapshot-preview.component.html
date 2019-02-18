@@ -1,0 +1,119 @@
+<!-- 설명 -->
+<div class="ddp-box-grid-detail" *ngIf="snapshotData">
+  <a href="javascript:" class="ddp-btn-close-s" (click)="closePreview()"></a>
+  <div class="ddp-data-detailinfo">
+    <span class="ddp-data-name">{{snapshotData.ssName}}</span>
+    <!-- detail -->
+    <div class="ddp-ui-detail">
+      <em class="ddp-icon-detail" (click)="onClickDetail()"></em>
+      <div class="ddp-ui-tooltip-info">
+        <em class="ddp-icon-view-top"></em>
+        Details
+      </div>
+    </div>
+    <!-- //detail -->
+  </div>
+  <!-- part -->
+  <div class="ddp-wrap-datadetail ">
+    <!-- detail -->
+    <dl class="ddp-dl-detail">
+      <dt>
+        Type
+      </dt>
+      <dd>
+        {{getSelectedSnapshotType(snapshotData.ssType)}}
+      </dd>
+    </dl>
+    <!-- //detail -->
+    <!-- only stagingDB -->
+    <ng-container *ngIf="snapshotData.ssType === snapshotType.STAGING_DB">
+      <dl class="ddp-dl-detail">
+        <dt>
+          Database
+        </dt>
+        <dd>
+          Database name
+        </dd>
+      </dl>
+      <dl class="ddp-dl-detail">
+        <dt>
+          Table
+        </dt>
+        <dd>
+          Tabhle name
+        </dd>
+      </dl>
+      <dl class="ddp-dl-detail">
+        <dt>
+          HDFS
+        </dt>
+        <dd>
+          HDFS
+        </dd>
+      </dl>
+    </ng-container>
+    <!-- //only stagingDB -->
+    <!-- detail -->
+    <dl class="ddp-dl-detail">
+      <dt>
+        Size
+      </dt>
+      <dd>
+        TODO
+      </dd>
+    </dl>
+    <!-- //detail -->
+    <!-- detail -->
+    <dl class="ddp-dl-detail">
+      <dt>
+        Created
+      </dt>
+      <dd>
+        {{snapshotData.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}
+      </dd>
+    </dl>
+    <!-- //detail -->
+    <!-- detail -->
+    <dl class="ddp-dl-detail">
+      <dt>
+        Rows
+      </dt>
+      <dd>
+        {{sourceData.fieldData.length}}
+      </dd>
+    </dl>
+    <!-- //detail -->
+    <!-- detail -->
+    <dl class="ddp-dl-detail">
+      <dt>
+        Columns
+      </dt>
+      <dd>
+        {{sourceData.fieldList.length}}
+      </dd>
+    </dl>
+    <!-- //detail -->
+
+  </div>
+  <div class="ddp-data-listview">
+
+    <table class="ddp-table-listview">
+      <colgroup>
+        <col width="10%">
+        <col width="*">
+      </colgroup>
+      <tbody>
+      <tr *ngFor="let field of sourceData.fieldList">
+        <td class="ddp-txt-center">
+          <em class="{{getFieldTypeIconClass(field.type)}}"></em>
+        </td>
+        <td>
+          {{field.name}}
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- //설명 -->
+<app-data-snapshot-detail></app-data-snapshot-detail>

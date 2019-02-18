@@ -71,6 +71,14 @@ import { GranularityService } from './service/granularity.service';
 import { TimezoneService } from "./service/timezone.service";
 import {DataSourceCreateService} from "./service/data-source-create.service";
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
+import {CreateSnapshotSourceSelectComponent} from "./data-source-list/create-data-source/snapshot-source/create-snapshot-source-select.component";
+import {DataSnapshotService} from "../data-preparation/data-snapshot/service/data-snapshot.service";
+import {SnapshotPreviewComponent} from "./data-source-list/create-data-source/snapshot-source/snapshot-preview.component";
+import {DataSnapshotDetailComponent} from "../data-preparation/data-snapshot/data-snapshot-detail.component";
+import {DataPreparationShareModule} from "../data-preparation/data-preparation-share.module";
+import {CreateSnapshotSourceConfigureComponent} from "./data-source-list/create-data-source/snapshot-source/create-snapshot-source-configure.component";
+import {CreateSnapshotSourceCompleteComponent} from "./data-source-list/create-data-source/snapshot-source/create-snapshot-source-complete.component";
+import {CreateSnapshotSourceIngestionComponent} from "./data-source-list/create-data-source/snapshot-source/create-snapshot-source-ingestion.component";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -86,6 +94,7 @@ const storageRoutes: Routes = [
     DataPreviewModule,
     WorkbenchEditorModule,
     FileModule,
+    DataPreparationShareModule,
     RouterModule.forChild(storageRoutes)
   ],
   declarations: [
@@ -120,6 +129,12 @@ const storageRoutes: Routes = [
     FileCompleteComponent,
     // data source - create_druid
     DruidSelectComponent,
+    // data source - create_snapshot
+    CreateSnapshotSourceSelectComponent,
+    CreateSnapshotSourceConfigureComponent,
+    CreateSnapshotSourceIngestionComponent,
+    CreateSnapshotSourceCompleteComponent,
+    SnapshotPreviewComponent,
     // data source - detail
     DetailDataSourceComponent,
     InformationDataSourceComponent,
@@ -167,7 +182,8 @@ const storageRoutes: Routes = [
     GranularityService,
     DataSourceCreateService,
     DataConnectionCreateService,
-    TimezoneService
+    TimezoneService,
+    DataSnapshotService
   ]
 })
 export class DataStorageModule {
