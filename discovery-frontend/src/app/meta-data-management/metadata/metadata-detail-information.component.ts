@@ -29,6 +29,7 @@ import { Alert } from '../../common/util/alert.util';
 import { MetadataModelService } from './service/metadata.model.service';
 import {InputComponent} from "../../common/component/input/input.component";
 import * as _ from 'lodash';
+import {MetadataSourceType, SourceType} from '../../domain/meta-data-management/metadata';
 
 @Component({
   selector: 'app-metadata-detail-information',
@@ -294,6 +295,10 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
       return;
     }
     this.router.navigate([`/management/storage/datasource/${datasourceId}`]);
+  }
+
+  public isEngine(sourceType: SourceType) {
+    return new MetadataSourceType(sourceType).isEngine();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

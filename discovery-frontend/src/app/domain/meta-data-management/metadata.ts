@@ -12,19 +12,19 @@
  * limitations under the License.
  */
 
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import { MetadataSource } from './metadata-source';
-import { MetadataColumn } from './metadata-column';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
+import {MetadataSource} from './metadata-source';
+import {MetadataColumn} from './metadata-column';
 
 export class Metadata extends AbstractHistoryEntity {
   public id: string;
-  public description : string;
-  public name : string;
-  public sourceType : SourceType;
-  public source : MetadataSource;
-  public catalogs : any;
-  public tags : any;
-  public popularity : number;
+  public description: string;
+  public name: string;
+  public sourceType: SourceType;
+  public source: MetadataSource;
+  public catalogs: any;
+  public tags: any;
+  public popularity: number;
   // 컬럼 목록
   public columns: MetadataColumn[];
 }
@@ -33,4 +33,28 @@ export enum SourceType {
   ENGINE = <any>'ENGINE',
   STAGING = <any>'STAGING',
   JDBC = <any>'JDBC'
+}
+
+export class MetadataSourceType {
+
+  constructor(private value: SourceType) {
+  }
+
+  public toString() {
+    return this.value;
+  }
+
+  private static readonly engine = new MetadataSourceType(SourceType.ENGINE);
+  private static readonly staging = new MetadataSourceType(SourceType.STAGING);
+  private static readonly jdbc = new MetadataSourceType(SourceType.JDBC);
+
+  public isEngine() {
+    return this.value === MetadataSourceType.engine.toString();
+  }
+  public isStaging() {
+    return this.value === MetadataSourceType.staging.toString();
+  }
+  public isJdbc() {
+    return this.value === MetadataSourceType.jdbc.toString();
+  }
 }
