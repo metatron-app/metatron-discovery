@@ -2881,7 +2881,7 @@
   "msg.metadata.ui.dictionary.create.description": "描述",
   "msg.metadata.ui.dictionary.create.code-table": "代码表",
   "msg.metadata.ui.dictionary.create.format.information": "格式信息",
-  "msg.metadata.ui.dictionary.create.type": "类型",
+  "msg.metadata.ui.dictionary.create.type": "類型",
   "msg.metadata.ui.dictionary.create.time.format": "时间格式",
   "msg.metadata.ui.dictionary.create.personal.information": "个人信息",
   "msg.metadata.ui.dictionary.create.valid.logical.name.required": "需要逻辑名",

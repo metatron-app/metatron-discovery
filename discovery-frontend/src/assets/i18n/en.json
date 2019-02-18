@@ -3833,7 +3833,7 @@
   "msg.metadata.ui.dictionary.create.description" : "Description",
   "msg.metadata.ui.dictionary.create.code-table" : "Code table",
   "msg.metadata.ui.dictionary.create.format.information" : "Format Information",
-  "msg.metadata.ui.dictionary.create.type" : "Logical Type",
+  "msg.metadata.ui.dictionary.create.type" : "Type",
   "msg.metadata.ui.dictionary.create.time.format" : "Time Format",
   "msg.metadata.ui.dictionary.create.personal.information" : "Personal Information",
   "msg.metadata.ui.dictionary.create.valid.logical.name.required" : "Column Name is required",
