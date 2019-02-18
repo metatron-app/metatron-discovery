@@ -12,7 +12,7 @@ import {
 } from "@angular/core";
 import {DataSnapshotService} from "../../../../data-preparation/data-snapshot/service/data-snapshot.service";
 import {DataSnapshotDetailComponent} from "../../../../data-preparation/data-snapshot/data-snapshot-detail.component";
-import {DatasourceInfo} from "../../../../domain/datasource/datasource";
+import {DatasourceInfo, FieldRole, LogicalType} from "../../../../domain/datasource/datasource";
 import {SsType} from "../../../../domain/data-preparation/pr-snapshot";
 import {DataSourceCreateService, TypeFilterObject} from "../../../service/data-source-create.service";
 
@@ -98,11 +98,13 @@ export class SnapshotPreviewComponent extends AbstractComponent implements OnCha
         // get snapshot grid data
         this.dataSnapshotService.getDataSnapshotGridData(snapshotId, 0, 10000)
           .then((content) => {
-            // set field list
+            // set field list #657
             for ( let idx = 0; idx < content.gridResponse.colCnt; idx++ ) {
               this.sourceData.fieldList.push({
                 name: content.gridResponse.colNames[idx],
                 type: content.gridResponse.colDescs[idx].type,
+                logicalType: this._getLogicalType(content.gridResponse.colDescs[idx].type),
+                role: this._getRoleType(content.gridResponse.colDescs[idx].type)
               });
             }
             // set data list
@@ -119,5 +121,42 @@ export class SnapshotPreviewComponent extends AbstractComponent implements OnCha
           .catch(error => this.commonExceptionHandler(error));
       })
       .catch(error => this.commonExceptionHandler(error));
+  }
+
+  /**
+   * Get logical type
+   * @param {string} type
+   * @return {LogicalType}
+   * @private
+   */
+  private _getLogicalType(type: string): LogicalType {
+    switch (type) {
+      case 'STRING':
+        return LogicalType.STRING;
+      case 'NUMBER':
+      case 'INTEGER':
+        return LogicalType.INTEGER;
+      case 'LONG':
+      case 'DOUBLE':
+        return LogicalType.DOUBLE;
+      case 'TIMESTAMP':
+        return LogicalType.TIMESTAMP;
+    }
+  }
+
+  /**
+   * Get role type
+   * @param {string} type
+   * @return {FieldRole}
+   * @private
+   */
+  private _getRoleType(type: string): FieldRole {
+    switch (type) {
+      case 'INTEGER':
+      case 'FLOAT':
+        return FieldRole.MEASURE;
+      default:
+        return FieldRole.DIMENSION;
+    }
   }
 }
