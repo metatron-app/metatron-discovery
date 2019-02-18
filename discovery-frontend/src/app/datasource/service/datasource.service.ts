@@ -363,7 +363,7 @@ export class DatasourceService extends AbstractService {
         {
           const shelfConf: Shelf = query.shelf;
           if (shelfConf.layers && 0 < shelfConf.layers.length) {
-            shelfConf.layers[layerNum].fields.forEach(field => {
+            shelfConf.layers[layerNum-1].fields.forEach(field => {
               if ((LogicalType.TIMESTAMP.toString() === field.type.toUpperCase()
                 || LogicalType.TIMESTAMP.toString() === field.subType
                 || LogicalType.TIMESTAMP.toString() === field.subRole) && field.format) {
