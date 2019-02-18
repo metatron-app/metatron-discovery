@@ -23,6 +23,8 @@ import {Alert} from '../../../common/util/alert.util';
 import {PreparationAlert} from '../../util/preparation-alert.util';
 import {PreparationCommonUtil} from "../../util/preparation-common.util";
 import * as _ from 'lodash';
+import { concatMap } from 'rxjs/operators';
+import { from} from "rxjs/observable/from";
 
 @Component({
   selector: 'app-create-dataset-name',
@@ -75,9 +77,8 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   public descriptions : string [] = [];
   public nameErrors: string[] = [];
   public descriptionErrors: string[] = [];
-  public isLast: boolean = false;
-  public fileParams: any[]=[];
   public currentIndex: number = 0;
+  public results: any[] = [];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -167,14 +168,42 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     if (this.type === 'FILE') {
 
-      this.names.forEach((item, index) => {
-        this.datasetFile.dsName = item;
+      const params = this.names.map((name:string,index:number) => {
+        this.datasetFile.dsName = name;
         this.datasetFile.dsDesc = this.descriptions[index];
-        params = this._getFileParams(this.datasetFile);
-        this.fileParams.push(params);
+        this.datasetFile.sheetName = this.datasetFile.selectedSheets[index];
+        return this._getFileParams(this.datasetFile);
       });
 
-      this._createDataset(this.fileParams[0]);
+      const streams = from(params).pipe(
+        concatMap(stream => this._createFileDataset(stream)
+        .catch(() => {
+          console.info('concat error')
+        })));
+
+      this.loadingShow();
+      streams.subscribe((result) => {
+        console.info('result --> ', result);
+        Alert.success(this.translateService.instant('msg.dp.alert.create-ds.success',{value:result.dsName}));
+        this.results.push(result);
+      },(error) => {
+        console.info('error -> ',error);
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      },() => {
+        console.info('complete');
+        this.loadingHide();
+        if (this.datasetService.dataflowId) {
+          sessionStorage.setItem('DATASET_ID', this.results[0].dsId);
+          this.router.navigate(['/management/datapreparation/dataflow/' + this.datasetService.dataflowId]);
+        }
+        this.close();
+        this.popupService.notiPopup({
+          name: 'complete-dataset-create',
+          data: this.results[0].dsId
+        });
+      })
+
     }
 
   }
@@ -252,21 +281,16 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     this.flag = false;
     Alert.success(this.translateService.instant('msg.dp.alert.create-ds.success',{value:result.dsName}));
 
-    // only close popup when all request is finished
-    if (this.type === "FILE" && this.isLast || (this.type == 'STAGING' || this.type === 'DB')) {
-      if (this.datasetService.dataflowId) {
-        sessionStorage.setItem('DATASET_ID', result.dsId);
-        this.router.navigate(['/management/datapreparation/dataflow/' + this.datasetService.dataflowId]);
-      }
-
-      this.close();
-      this.popupService.notiPopup({
-        name: 'complete-dataset-create',
-        data: result.dsId
-      });
-    } else {
-      this._createDataset(this.fileParams[this.currentIndex]);
+    if (this.datasetService.dataflowId) {
+      sessionStorage.setItem('DATASET_ID', result.dsId);
+      this.router.navigate(['/management/datapreparation/dataflow/' + this.datasetService.dataflowId]);
     }
+
+    this.close();
+    this.popupService.notiPopup({
+      name: 'complete-dataset-create',
+      data: result.dsId
+    });
 
   }
 
@@ -277,16 +301,9 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
    */
   public errorAction(error) {
     this.flag = false;
-
     let prep_error = this.dataprepExceptionHandler(error);
     PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-
-    if (this.type === "FILE" && this.isLast || (this.type == 'STAGING' || this.type === 'DB')) {
-      this.close();
-    } else {
-      this._createDataset(this.fileParams[this.currentIndex]);
-    }
-
+    this.close();
   }
 
 
@@ -542,6 +559,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   /**
    * Create dataset (call API)
    * @param {Object} params
+   * (staging and db)
    * @private
    */
   private _createDataset(params : object) {
@@ -555,22 +573,12 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     delete type.tableInfo;
     delete type.sqlInfo;
 
-
     // Error when creating dataflow with dataset with no querystmt
-    if (this.type !== 'FILE' && type.rsType === RsType.TABLE) {
+    if (type.rsType === RsType.TABLE) {
       params['queryStmt'] = `select * from ${tableInfo.databaseName}.${tableInfo.tableName}`;
     }
 
     this.datasetService.createDataSet(params).then((result) => {
-
-      if (this.type === 'FILE') {
-        if (this.fileParams.length-1 !== this.currentIndex) {
-          this.currentIndex +=1;
-        } else {
-          this.isLast = true;
-        }
-      }
-
       this.loadingHide();
       this.successAction(result);
 
@@ -580,22 +588,60 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       type.sqlInfo = sqlInfo;
 
       // Error when creating dataflow with dataset with no querystmt
-      if (this.type !== 'FILE' && type.rsType === RsType.TABLE) {
+      if (type.rsType === RsType.TABLE) {
         delete params['queryStmt'];
-      }
-
-      if (this.type === 'FILE') {
-        if (this.fileParams.length-1 !== this.currentIndex) {
-          this.currentIndex +=1;
-        } else {
-          this.isLast = true;
-        }
       }
 
       this.loadingHide();
       this.errorAction(error);
     })
   }
+
+
+  test() {
+
+    //concatMap
+    const getparams = this.names.map((item:string,index:number) => {
+      this.datasetFile.dsName = item;
+      this.datasetFile.dsDesc = this.descriptions[index];
+      return this._getFileParams(this.datasetFile);
+    });
+
+    const d = from(getparams).pipe(concatMap(result1 => this._createFileDataset(result1)
+      .catch(error => console.info('concat error'))));
+    d.subscribe((result) => {
+      console.info('result --> ', result);
+    },(error) => {
+      console.info('error -> ',error);
+    } )
+
+    // concat
+    // const getparam = this.names.map((item:string,index:number) => {
+    //   this.datasetFile.dsName = item;
+    //   this.datasetFile.dsDesc = this.descriptions[index];
+    //   return this.createSet(this._getFileParams(this.datasetFile),index);
+    // });
+    //
+    // const e = concat(from(getparam));
+    // e.subscribe((result) => {
+    //   console.info('result --< ', result);
+    // })
+
+  }
+
+  /**
+   * Create file type dataset
+   * @param param
+   * @private
+   */
+  private _createFileDataset(param): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.datasetService.createDataSet(param).
+      then(result => resolve(result)).
+      catch(error => resolve(error));
+    });
+  }
+
 
 }
 

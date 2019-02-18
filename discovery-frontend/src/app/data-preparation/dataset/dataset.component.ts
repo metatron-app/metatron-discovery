@@ -307,8 +307,8 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   private _initViewPage() {
 
     this.datasetTypes = [
-      {name : 'Imported dataset', value : DsType.IMPORTED, checked : true, class : 'ddp-imported' },
-      {name : 'Wrangled dataset', value : DsType.WRANGLED, checked : false, class : 'ddp-wargled' }
+      {name : 'IMPORTED', value : DsType.IMPORTED, checked : true, class : 'ddp-imported' },
+      {name : 'WRANGLED', value : DsType.WRANGLED, checked : false, class : 'ddp-wargled' }
     ];
     this.page.sort = 'createdTime,desc';
     this.getDatasets();

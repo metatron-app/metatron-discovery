@@ -37,7 +37,7 @@ export class SvgIconComponent extends AbstractComponent implements OnInit, OnDes
   public name: string;
 
   @Input()
-  public isBlackAndWhite?: boolean;
+  public isBlackAndWhite?: boolean = false;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -70,6 +70,43 @@ export class SvgIconComponent extends AbstractComponent implements OnInit, OnDes
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public getCss() : string {
+    if (this.name === 'HIVE') {
+      return this.isBlackAndWhite ? 'icon-db-hive-b' : 'icon-db-hive';
+    }
+
+    if (this.name === 'MYSQL') {
+      return this.isBlackAndWhite ? 'icon-db-mysql-b' : 'icon-db-mysql';
+    }
+
+    if (this.name === 'PRESTO') {
+      return this.isBlackAndWhite ? 'icon-db-presto-b' : 'icon-db-presto';
+    }
+
+    if (this.name === 'TIBERO') {
+      return this.isBlackAndWhite ? 'icon-db-tibero-b' : 'icon-db-tibero';
+    }
+
+    if (this.name === 'POSTGRE') {
+      return this.isBlackAndWhite ? 'icon-db-post-b' : 'icon-db-post';
+    }
+
+    if (this.name === 'ORACLE') {
+      return this.isBlackAndWhite ? 'icon-db-oracle-b' : 'icon-db-oracle';
+    }
+
+    if (this.name === 'PHOENIX') {
+      return this.isBlackAndWhite ? 'icon-db-phoenix-b' : 'icon-db-phoenix';
+    }
+
+    if (this.name === 'CSV') {
+      return this.isBlackAndWhite? 'icon-file-csv-b': 'icon-file-csv';
+    }
+
+    if (this.name === 'JSON') {
+      return this.isBlackAndWhite ? 'icon-file-json-b' : 'icon-file-json';
+    }
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

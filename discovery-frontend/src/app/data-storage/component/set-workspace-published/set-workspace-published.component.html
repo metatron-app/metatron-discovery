@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-index ddp-layout-popuptype" *ngIf="showFl">
+<div class="ddp-layout-popuptype" *ngIf="showFl">
   <em class="ddp-bg-popup"></em>
   <div class="ddp-ui-popup">
     <!-- title -->
@@ -34,7 +34,7 @@
     </div>
     <!-- //title -->
     <div class="ddp-ui-popup-contents">
-      <div class="ddp-wrap-permission">
+      <div class="ddp-wrap-permission ddp-type">
         <!-- tab -->
         <div class="ddp-wrap-tab">
           <ul class="ddp-ui-tab ddp-clear">
@@ -76,7 +76,7 @@
                   <colgroup>
                     <col width="51px">
                     <col width="*">
-                    <col width="20%">
+                    <col width="250px">
                   </colgroup>
                   <thead>
                   <tr>
@@ -92,7 +92,7 @@
                       <em class="ddp-icon-array-des2" *ngIf="personalWorkspaces.sort === 'name,desc'"></em>
                     </th>
                     <th>
-                      {{'msg.storage.th.owner' | translate}}
+                      {{'msg.storage.th.owner' | translate}} ({{'msg.storage.ui.username' | translate}})
                     </th>
                   </tr>
                   </thead>
@@ -107,12 +107,14 @@
                   <colgroup>
                     <col width="51px">
                     <col width="*">
-                    <col width="20%">
+                    <col width="250px">
                   </colgroup>
                   <tbody>
+                  <tr *ngIf="!personalWorkspaceList() || personalWorkspaceList().length === 0">
+                    <td class="ddp-data-none " colspan="5">{{'msg.comm.ui.no.rslt' | translate}}</td>
+                  </tr>
                   <!-- 체크시 상태 tr class="ddp-tr-select" 추가 -->
                   <tr *ngFor="let workspace of personalWorkspaceList()"
-                      [ngClass]="{'ddp-tr-select' : checkInWorkspaces(workspace)}"
                       (click)="onCheckedWorkspace(workspace, 'PRIVATE')">
                     <td class="ddp-txt-center">
                       <div class="ddp-ui-checkbox">
@@ -127,7 +129,8 @@
                       </div>
                     </td>
                     <td>
-                      {{workspace.owner.fullName}}
+                      <span class="ddp-txt-data">{{workspace.owner.fullName}}</span>
+                      <span class="ddp-data-owner">({{workspace.owner.username}})</span>
                     </td>
                   </tr>
                   </tbody>
@@ -174,9 +177,9 @@
                   <colgroup>
                     <col width="51px">
                     <col width="*">
-                    <col width="10%">
-                    <col width="10%">
-                    <col width="20%">
+                    <col width="70px">
+                    <col width="70px">
+                    <col width="250px">
                   </colgroup>
                   <thead>
                   <tr>
@@ -198,7 +201,7 @@
                       {{'msg.storage.th.group' | translate}}
                     </th>
                     <th>
-                      {{'msg.storage.th.owner' | translate}}
+                      {{'msg.storage.th.owner' | translate}} ({{'msg.storage.ui.username' | translate}})
                     </th>
                   </tr>
                   </thead>
@@ -213,13 +216,15 @@
                   <colgroup>
                     <col width="51px">
                     <col width="*">
-                    <col width="10%">
-                    <col width="10%">
-                    <col width="20%">
+                    <col width="70px">
+                    <col width="70px">
+                    <col width="250px">
                   </colgroup>
                   <tbody>
+                  <tr *ngIf="!publicWorkspaceList() || publicWorkspaceList().length === 0">
+                    <td class="ddp-data-none " colspan="5">{{'msg.comm.ui.no.rslt' | translate}}</td>
+                  </tr>
                   <tr *ngFor="let workspace of publicWorkspaceList()"
-                      [ngClass]="{'ddp-tr-select' : checkInWorkspaces(workspace)}"
                       (click)="onCheckedWorkspace(workspace, 'SHARED')">
                     <td class="ddp-txt-center">
                       <div class="ddp-ui-checkbox">
@@ -240,7 +245,8 @@
                       {{workspace.countByMemberType.group}}
                     </td>
                     <td>
-                      {{workspace.owner.fullName}}
+                      <span class="ddp-txt-data">{{workspace.owner.fullName}}</span>
+                      <span class="ddp-data-owner">({{workspace.owner.username}})</span>
                     </td>
                   </tr>
                   </tbody>
