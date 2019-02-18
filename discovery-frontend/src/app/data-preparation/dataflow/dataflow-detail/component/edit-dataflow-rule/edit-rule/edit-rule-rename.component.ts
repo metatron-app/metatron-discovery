@@ -117,7 +117,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
       command: 'rename',
       to: this.newFieldName,
       col: selectedFieldName,
-      ruleString: 'rename col: `' + selectedFieldName + '`' + `to: '${this.newFieldName}'`
+      ruleString: 'rename col: `' + selectedFieldName + '`' + ` to: '${this.newFieldName}'`
     };
 
   } // function - getRuleData

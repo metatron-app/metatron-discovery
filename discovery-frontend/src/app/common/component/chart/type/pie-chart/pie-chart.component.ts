@@ -602,9 +602,10 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
    * tooltip formatter
    *
    * @param params
+   * @param {Pivot} pivot
    * @returns {any}
    */
-  private tooltipFormatter(params, pivot): any {
+  private tooltipFormatter(params, pivot:Pivot): any {
 
     if (!this.uiOption.toolTip) this.uiOption.toolTip = {};
     if (!this.uiOption.toolTip.displayTypes) this.uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(this.uiOption.type);
@@ -616,7 +617,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
     if( -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME) ){
 
       const nameList = _.split(params.data.name, CHART_STRING_DELIMITER);
-      const dimensionList = _.filter(pivot.aggregations, (item) => {if ('dimension' == item.type) return item;});
+      const dimensionList = pivot.aggregations.filter((item) => {if ('dimension' == item.type) return item});
 
       result = FormatOptionConverter.getTooltipName(nameList, dimensionList, result, true);
     }

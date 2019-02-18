@@ -50,24 +50,25 @@ import {
 import {Field as AbstractField, Field} from '../../../domain/workbook/configurations/field/field';
 
 import * as _ from 'lodash';
-import {OptionGenerator} from './option/util/option-generator';
-import {Series} from './option/define/series';
-import {Observable} from 'rxjs';
-import {DataZoomType} from './option/define/datazoom';
-import {ColorOptionConverter} from './option/converter/color-option-converter';
-import {AxisOptionConverter} from './option/converter/axis-option-converter';
-import {LabelOptionConverter} from './option/converter/label-option-converter';
-import {FormatOptionConverter} from './option/converter/format-option-converter';
-import {CommonOptionConverter} from './option/converter/common-option-converter';
-import {ToolOptionConverter} from './option/converter/tool-option-converter';
-import {LegendOptionConverter} from './option/converter/legend-option-converter';
-import {analysis} from '../../../page/component/value/analysis';
-import {ColorRange, UIChartColorGradationByValue} from './option/ui-option/ui-color';
-import {UIScatterChart} from './option/ui-option/ui-scatter-chart';
+import { OptionGenerator } from './option/util/option-generator';
+import { Series } from './option/define/series';
+import { DataZoomType } from './option/define/datazoom';
+import { ColorOptionConverter } from './option/converter/color-option-converter';
+import { AxisOptionConverter } from './option/converter/axis-option-converter';
+import { LabelOptionConverter } from './option/converter/label-option-converter';
+import { FormatOptionConverter } from './option/converter/format-option-converter';
+import { CommonOptionConverter } from './option/converter/common-option-converter';
+import { ToolOptionConverter } from './option/converter/tool-option-converter';
+import { LegendOptionConverter } from './option/converter/legend-option-converter';
+import { analysis } from '../../../page/component/value/analysis';
+import { ColorRange, UIChartColorGradationByValue } from './option/ui-option/ui-color';
+import { UIScatterChart } from './option/ui-option/ui-scatter-chart';
 import UI = OptionGenerator.UI;
 import {UIChartAxisGrid} from "./option/ui-option/ui-axis";
-import {TooltipOptionConverter} from './option/converter/tooltip-option-converter';
-import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
+import { TooltipOptionConverter } from './option/converter/tooltip-option-converter';
+import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
+import { fromEvent } from 'rxjs';
+import { map, debounceTime } from 'rxjs/operators';
 
 declare let echarts: any;
 
@@ -699,11 +700,11 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     super.ngOnInit();
 
     // Resize
-    const resizeEvent$ = Observable
-      .fromEvent(window, 'resize', () => {
-        return document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight;
-      })
-      .debounceTime(500);
+    const resizeEvent$ = fromEvent(window, 'resize')
+      .pipe(
+        map( () => document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight ),
+        debounceTime(500)
+      );
 
     const windowResizeSubscribe = resizeEvent$.subscribe((data) => {
       try {
@@ -2514,7 +2515,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
             const shelveData = !_.isEmpty(data) ? data[idx] : dataAlter[idx];
 
             // selectDataList에 해당 name의 값이 없을때
-            if (-1 === _.findIndex(returnList, {name: shelveData.name})) {
+            if (-1 === _.findIndex(returnList, (obj) => { return obj.name === shelveData.name})) {
 
               // selectDataList에 추가
               returnList.push(shelveData);

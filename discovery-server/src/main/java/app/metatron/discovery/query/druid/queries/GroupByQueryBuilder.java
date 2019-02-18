@@ -242,39 +242,18 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
             TimeFieldFormat originalTimeFormat = (TimeFieldFormat) datasourceField.getFormatObject();
             TimeFieldFormat timeFormat = (TimeFieldFormat) format;
 
+            // set time format using function
             String innerFieldName = aliasName + Query.POSTFIX_INNER_FIELD;
 
             TimeFormatFunc timeFormatFunc = createTimeFormatFunc(fieldName, originalTimeFormat, timeFormat);
-
             ExprVirtualColumn exprVirtualColumn = new ExprVirtualColumn(timeFormatFunc.toExpression(), innerFieldName);
+
             virtualColumns.put(aliasName, exprVirtualColumn);
             dimensions.add(new DefaultDimension(innerFieldName, aliasName));
 
+            // for sorting time format
             sortFormatMap.put(aliasName, timeFormat.getFormat());
-
-            // PostProcessing 으로 본래 필드 Format 으로 변경
-            if (timeFormat.enableSortField()) {
-
-              if (postProcessor == null) {
-                postProcessor = new PostAggregationProcessor();
-              }
-
-              if (postProcessor instanceof PostAggregationProcessor) {
-                // Change date-time format that set from the query, after calculating date-time format for sort
-                TimeFormatFunc postFormatFunc = new TimeFormatFunc("\"" + aliasName + "\"",
-                                                                   timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
-                                                                   null,
-                                                                   null,
-                                                                   timeFormat.getFormat(),
-                                                                   null,
-                                                                   null);
-
-                ((PostAggregationProcessor) postProcessor)
-                    .addPostAggregation(
-                        new MathPostAggregator(aliasName, postFormatFunc.toExpression(), null)
-                    );
-              }
-            }
+            convertSortToOriginalFormat(aliasName, timeFormat);
 
             break;
           default:
@@ -284,7 +263,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
 
         if (UserDefinedField.REF_NAME.equals(refName) && virtualColumns.containsKey(fieldName)) {
           addUserDefinedAggregationFunction((MeasureField) field);
-          //
+
           virtualColumns.remove(fieldName);
           unUsedVirtualColumnName.remove(fieldName);
         } else {
@@ -295,43 +274,22 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
         TimestampField timestampField = (TimestampField) field;
         TimeFieldFormat timeFormat = (TimeFieldFormat) timestampField.getFormat();
 
+        // set time format using function
         String innerFieldName = aliasName + Query.POSTFIX_INNER_FIELD;
         String predefinedFieldName = timestampField.getPredefinedColumn(dataSource instanceof MappingDataSource);
 
         TimeFormatFunc timeFormatFunc = new TimeFormatFunc(predefinedFieldName,
                                                            timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
-                                                           timeFormat.getTimeZone(),
+                                                           timeFormat.selectTimezone(),
                                                            timeFormat.getLocale());
-
         ExprVirtualColumn exprVirtualColumn = new ExprVirtualColumn(timeFormatFunc.toExpression(), innerFieldName);
+
         virtualColumns.put(aliasName, exprVirtualColumn);
         dimensions.add(new DefaultDimension(innerFieldName, aliasName));
 
+        // for sorting time format
         sortFormatMap.put(aliasName, timeFormat.getFormat());
-
-        // PostProcessing 으로 본래 필드 Format 으로 변경
-        if (timeFormat.enableSortField()) {
-
-          if (postProcessor == null) {
-            postProcessor = new PostAggregationProcessor();
-          }
-
-          if (postProcessor instanceof PostAggregationProcessor) {
-            // Sort 를 위한 Format 으로 모든 연산 수행 후, 최종 클라이언트가 지정한 Format 으로 변경
-            TimeFormatFunc postFormatFunc = new TimeFormatFunc("\"" + aliasName + "\"",
-                                                               timeFormat.getSortFormat(),
-                                                               null,
-                                                               null,
-                                                               timeFormat.getFormat(),
-                                                               timeFormat.getTimeZone(),
-                                                               timeFormat.getLocale());
-
-            ((PostAggregationProcessor) postProcessor)
-                .addPostAggregation(
-                    new MathPostAggregator(aliasName, postFormatFunc.toExpression(), null)
-                );
-          }
-        }
+        convertSortToOriginalFormat(aliasName, timeFormat);
 
       }
 
@@ -367,6 +325,34 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     granularity = new SimpleGranularity("all");
 
     return this;
+  }
+
+  /**
+   * Convert sort time format to orignal time format
+   */
+  private void convertSortToOriginalFormat(String fieldName, TimeFieldFormat timeFormat) {
+
+    if (timeFormat.enableSortField()) {
+
+      if (postProcessor == null) {
+        postProcessor = new PostAggregationProcessor();
+      }
+
+      if (postProcessor instanceof PostAggregationProcessor) {
+        TimeFormatFunc postFormatFunc = new TimeFormatFunc("\"" + fieldName + "\"",
+                                                           timeFormat.getSortFormat(),
+                                                           null,
+                                                           null,
+                                                           timeFormat.getFormat(),
+                                                           null,
+                                                           null);
+
+        ((PostAggregationProcessor) postProcessor)
+            .addPostAggregation(
+                new MathPostAggregator(fieldName, postFormatFunc.toExpression(), null)
+            );
+      }
+    }
   }
 
   public GroupByQueryBuilder count(String name) {

@@ -12,11 +12,12 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { ElementRef, Injector } from '@angular/core';
-import { CommonConstant } from '../../common/constant/common.constant';
-import { CookieConstant } from '../../common/constant/cookie.constant';
-import { WorkbenchService } from '../service/workbench.service';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {ElementRef, Injector} from '@angular/core';
+import {CommonConstant} from '../../common/constant/common.constant';
+import {CookieConstant} from '../../common/constant/cookie.constant';
+import {WorkbenchService} from '../service/workbench.service';
+import {Message} from '@stomp/stompjs';
 
 export class AbstractWorkbenchComponent extends AbstractComponent {
 
@@ -50,7 +51,7 @@ export class AbstractWorkbenchComponent extends AbstractComponent {
 
   public ngOnDestroy() {
     super.ngOnDestroy();
-    (this._subscription) && (CommonConstant.stomp.unsubscribe(this._subscription));     // Socket 응답 해제
+    (this._subscription) && (this._subscription.unsubscribe());     // Socket 응답 해제
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -90,24 +91,31 @@ export class AbstractWorkbenchComponent extends AbstractComponent {
     WorkbenchService.websocketId = CommonConstant.websocketId;
     try {
       console.info('this.websocketId', WorkbenchService.websocketId);
-      const headers: any = {
-        'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
-      };
+      const headers: any = {'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)};
       // 메세지 수신
-      (this._subscription) && (CommonConstant.stomp.unsubscribe(this._subscription));     // Socket 응답 해제
+      (this._subscription) && (this._subscription.unsubscribe());     // Socket 응답 해제
       this._subscription
-        = CommonConstant.stomp.subscribe('/user/queue/workbench/' + WorkbenchService.workbenchId, (data) => {
-          if (data['connected'] === true) {
-            console.info('connected');
-          }
-          (callback) && (callback.call(this));
-        }, headers);
+        = CommonConstant.stomp.watch('/user/queue/workbench/' + WorkbenchService.workbenchId).subscribe((msg: Message) => {
+
+        const data = JSON.parse(msg.body);
+
+        if (data['connected'] === true) {
+          console.info('connected');
+        }
+        (callback) && (callback.call(this));
+      }, headers);
       // 메세지 발신
       const params = {
         username: WorkbenchService.webSocketLoginId || '',
         password: WorkbenchService.webSocketLoginPw || ''
       };
-      CommonConstant.stomp.send('/message/workbench/' + WorkbenchService.workbenchId + '/dataconnections/' + WorkbenchService.workbench.dataConnection.id + '/connect', params, headers);
+      CommonConstant.stomp.publish(
+        {
+          destination: '/message/workbench/' + WorkbenchService.workbenchId + '/dataconnections/' + WorkbenchService.workbench.dataConnection.id + '/connect',
+          headers: {'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)},
+          body: JSON.stringify(params)
+        }
+      );
     } catch (e) {
       console.info(e);
     }

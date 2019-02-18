@@ -298,9 +298,9 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
   public addTimestampFilter(field: Field | CustomField, unit?: TimeUnit, byUnit?: ByTimeUnit) {
     let timeFilter: TimeFilter;
     if (isNullOrUndefined(unit)) {
-      timeFilter = new TimeAllFilter(field);
+      timeFilter = new TimeAllFilter(<Field>field);
     } else {
-      timeFilter = new TimeListFilter(field);
+      timeFilter = new TimeListFilter(<Field>field);
       timeFilter.timeUnit = unit;
       (byUnit) && (timeFilter.byTimeUnit = byUnit);
     }

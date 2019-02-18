@@ -1,6 +1,6 @@
 import {Injectable, Injector} from "@angular/core";
 import {FileItem, ParsedResponseHeaders} from "ng2-file-upload";
-import {TranslateService} from "ng2-translate";
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
 export class DataSourceCreateService {
@@ -64,4 +64,15 @@ export interface FileDetail {
   totalRows?: number;
   isParsable: {valid: boolean, warning?: string};
   errorMessage?: string;
+}
+
+export interface QueryDataResult {
+  // result info
+  data?: any[];
+  fields?: any[];
+  totalRows?: number;
+  // error info
+  code?: string;
+  details?: string;
+  message?: string;
 }

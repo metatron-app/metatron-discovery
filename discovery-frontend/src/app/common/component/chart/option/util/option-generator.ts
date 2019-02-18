@@ -54,7 +54,7 @@ import {
 import { Title } from '../define/title';
 import { Legend } from '../define/legend';
 import { Grid } from '../define/grid';
-import { Axis, AxisLabel, AxisLine, AxisTick, Radar } from '../define/axis';
+import {Axis, AxisLabel, AxisLine, AxisTick, Radar, SplitLine} from '../define/axis';
 import { DataZoomType, InsideDataZoom, SliderDataZoom } from '../define/datazoom';
 import { Tooltip } from '../define/tooltip';
 import { Toolbox } from '../define/toolbox';
@@ -323,7 +323,7 @@ export namespace OptionGenerator {
     });
 
     // 축을 분리하는 구분선
-    const splitLine = ((): AxisLine => {
+    const splitLine = ((): SplitLine => {
       return {};
     });
 

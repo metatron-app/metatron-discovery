@@ -74,6 +74,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
   private isFromDataflow : boolean = false;
 
+  private uiOffset : number = 0;
+  private uiSize : number = 100;
+
   @Output()
   public snapshotDetailCloseEvent = new EventEmitter();
 
@@ -361,7 +364,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     this.datasnapshotservice.cancelSnapshot(this.ssId)
       .then((result) => {
         this.loadingHide();
-        //console.log(result.result);
+
         if( result.result === 'OK')  {
           Alert.info(this.translateService.instant('msg.dp.alert.snapshot.cancel.success'));
           this.close();
@@ -570,7 +573,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   }
 
   /**
-   * Make grid response from grid data 
+   * Make grid response from grid data
    */
   private getGridData() {
 
@@ -628,14 +631,16 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    */
   private updateGrid(data) {
 
-    const maxDataLen: any = {};
-    const fields: Field[] = data.fields;
-
-    let rows: any[] = data.data;
-
-    if( 0 === fields.length || 0 === rows.length ) {
+    if( 0 === data.fields.length || 0 === data.data.length ) {
       return;
     }
+
+    const maxDataLen: any = {};
+    const fields: Field[] = data.fields;
+    let rows: any[];
+
+    this.uiOffset = 1;
+    rows = data.data.slice(0, (data.data.length > this.uiOffset*this.uiSize? this.uiOffset*this.uiSize -1 : data.data.length -1) );
 
     // Row 생성 및 컬럼별 최대 길이 측정
     if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
@@ -673,6 +678,13 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           .Sortable(false)
           .Formatter((function (scope) {
             return function (row, cell, value) {
+              if (field.type === 'STRING') {
+                value = (value) ? value.toString().replace(/</gi, '&lt;') : value;
+                value = (value) ? value.toString().replace(/>/gi, '&gt;') : value;
+                value = (value) ? value.toString().replace(/\n/gi, '&crarr;') : value;
+                let tag = '<span style="color:#ff00ff; font-size: 9pt; letter-spacing: 0px">&middot;</span>';
+                value = (value) ? value.toString().replace(/\s/gi, tag) : value;
+              }
               if (isNull(value)) {
                 return '<div  style=\'color:#b8bac2; font-style: italic ;line-height:30px;\'>' + '(null)' + '</div>';
               } else {
@@ -695,6 +707,15 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       .build()
     );
 
+    this.gridComponent.grid.onScroll.subscribe(() => {
+      let lastIdx = (this.selectedDataSnapshot.gridData.data.length > this.uiOffset*this.uiSize? this.uiOffset*this.uiSize: this.selectedDataSnapshot.gridData.data.length);
+      if ( this.gridComponent.grid.getViewport().bottom === lastIdx && this.selectedDataSnapshot.gridData.data.length > this.uiOffset*this.uiSize ){
+        this.uiOffset += 1;
+        this.gridComponent.grid.setData(data.data.slice(0,(data.data.length < this.uiOffset*this.uiSize? data.data.length -1: this.uiOffset*this.uiSize -1) ));
+        this.gridComponent.grid.updateRowCount();
+        this.gridComponent.grid.render();
+      }
+    });
   } // end of method updateGrid
 
 

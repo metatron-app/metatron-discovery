@@ -51,6 +51,7 @@ import { WidgetService } from './service/widget.service';
 import { DashboardUtil } from './util/dashboard.util';
 import { EventBroadcaster } from '../common/event/event.broadcaster';
 import {isNullOrUndefined} from "util";
+import { Message } from '@stomp/stompjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -306,7 +307,10 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       // console.info('>>>> progressTopic', progressTopic);
       const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
       // 메세지 수신
-      const subscription = CommonConstant.stomp.subscribe(progressTopic, (data: { progress: number, message: string }) => {
+      const subscription = CommonConstant.stomp.watch(progressTopic).subscribe((msg: Message) => {
+
+        const data: { progress: number, message: string } = JSON.parse( msg.body );
+
         if (-1 === data.progress) {
           this.ingestionStatus = data;
           this.ingestionStatus.step = -1;
@@ -316,7 +320,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
           this.datasourceStatus = TempDsStatus.ENABLE;        // 데이터소스 상태 변경
           this.changeDetect.markForCheck();
           this._initViewPage();                               // 화면 재설정
-          CommonConstant.stomp.unsubscribe(subscription);     // Socket 응답 해제
+          subscription.unsubscribe();     // Socket 응답 해제
         } else {
           this.ingestionStatus = data;
           this.ingestionStatus.step = 2;

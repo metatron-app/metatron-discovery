@@ -16,7 +16,7 @@ import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@an
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import * as Clipboard from 'clipboard';
+import { ClipboardService } from 'ngx-clipboard';
 import {AbstractComponent} from '../common/component/abstract.component';
 import {ActivatedRoute} from '@angular/router';
 import {Workbook, WorkbookDetailProjections} from '../domain/workbook/workbook';
@@ -187,6 +187,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
               private widgetService: WidgetService,
               private popupService: PopupService,
               private broadCaster: EventBroadcaster,
+              private _clipboardService: ClipboardService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -857,8 +858,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   public copyBoardIdToClipboard() {
     if (this.selectedDashboard) {
-      const option = {text: () => this.selectedDashboard.id};
-      new Clipboard(this.elementRef.nativeElement, option);
+      this._clipboardService.copyFromContent( this.selectedDashboard.id );
     }
   } // function - copyBoardIdToClipboard
 

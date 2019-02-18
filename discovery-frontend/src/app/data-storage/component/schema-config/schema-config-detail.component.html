@@ -267,7 +267,7 @@
             </div>
             <!-- //Time display format -->
             <!-- Timezone -->
-            <div class="ddp-wrap-edit3" *ngIf="selectedField.logicalType.toString() === 'TIMESTAMP' && isTimeTypeField(selectedField)">
+            <div class="ddp-wrap-edit3" *ngIf="isEnableTimezone(selectedField)">
               <label class="ddp-ui-label-name">
                 {{'msg.storage.ui.timezone' | translate}}
               </label>

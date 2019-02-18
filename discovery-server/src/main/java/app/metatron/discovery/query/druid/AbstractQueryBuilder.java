@@ -362,16 +362,16 @@ public abstract class AbstractQueryBuilder {
 
       timeFormatFunc = new TimeFormatFunc(expr,
                                           timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
-                                          timeFormat.getTimeZone(),
+                                          timeFormat.selectTimezone(),
                                           timeFormat.getLocale());
 
     } else {
       timeFormatFunc = new TimeFormatFunc("\"" + fieldName + "\"",
                                           originalTimeFormat.getFormat(),
-                                          originalTimeFormat.getTimeZone(),
+                                          originalTimeFormat.selectTimezone(),
                                           originalTimeFormat.getLocale(),
                                           timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
-                                          timeFormat.getTimeZone(),
+                                          timeFormat.selectTimezone(),
                                           timeFormat.getLocale());
 
     }
@@ -574,7 +574,7 @@ public abstract class AbstractQueryBuilder {
         TimeFieldFormat timeFormat = (TimeFieldFormat) timestampFilter.getTimeFormat();
         TimeFormatFunc timeFormatFunc = new TimeFormatFunc(field,
                                                            timeFormat.getFormat(),
-                                                           timeFormat.getTimeZone(),
+                                                           timeFormat.selectTimezone(),
                                                            timeFormat.getLocale());
 
         InFunc inFunc = new InFunc(timeFormatFunc.toExpression(), timestampFilter.getSelectedTimestamps());

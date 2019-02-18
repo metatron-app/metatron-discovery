@@ -27,8 +27,6 @@ import { SYSTEM_PERMISSION } from '../../common/permission/permission';
 import { PermissionService } from '../../user/service/permission.service';
 import { RoleSet } from '../../domain/user/role/roleSet';
 import { saveAs } from 'file-saver';
-import { CookieConstant } from '../../common/constant/cookie.constant';
-import { Headers, ResponseContentType } from '@angular/http';
 
 @Injectable()
 export class WorkspaceService extends AbstractService {

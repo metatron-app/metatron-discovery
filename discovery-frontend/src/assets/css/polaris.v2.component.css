@@ -530,6 +530,8 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .ddp-null * {color:#b8bac2 !important; font-style:italic !important;;}
 .ddp-empty {background:blue !important; opacity:0.2 !important;}
 
+.ddp-space-pre {white-space:pre !important;}
+
 /**************************************************************
     Slick Grid 추가 스타일
 **************************************************************/

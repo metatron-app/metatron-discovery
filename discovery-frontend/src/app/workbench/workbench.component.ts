@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../common/component/abstract.component';
+import {AbstractComponent} from '../common/component/abstract.component';
 import {
   AfterViewInit,
   Component,
@@ -23,40 +23,41 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import { GridComponent } from '../common/component/grid/grid.component';
-import { header, SlickGridHeader } from '../common/component/grid/grid.header';
-import { GridOption } from '../common/component/grid/grid.option';
-import { ActivatedRoute } from '@angular/router';
-import { WorkbenchService } from './service/workbench.service';
-import { QueryEditor, Workbench } from '../domain/workbench/workbench';
-import { Alert } from '../common/util/alert.util';
-import { DetailWorkbenchTable } from './component/detail-workbench/detail-workbench-table/detail-workbench-table';
-import { CommonConstant } from '../common/constant/common.constant';
-import { DeleteModalComponent } from '../common/component/modal/delete/delete.component';
-import { Modal } from '../common/domain/modal';
-import { UserDetail } from '../domain/common/abstract-history-entity';
-import { StringUtil } from '../common/util/string.util';
-import { CookieConstant } from '../common/constant/cookie.constant';
-import { isNullOrUndefined, isUndefined } from 'util';
-import { LoadingComponent } from '../common/component/loading/loading.component';
-import { DatasourceService } from '../datasource/service/datasource.service';
-import { PageWidget } from '../domain/dashboard/widget/page-widget';
-import { Dashboard, BoardDataSource, BoardConfiguration } from '../domain/dashboard/dashboard';
+import {GridComponent} from '../common/component/grid/grid.component';
+import {header, SlickGridHeader} from '../common/component/grid/grid.header';
+import {GridOption} from '../common/component/grid/grid.option';
+import {ActivatedRoute} from '@angular/router';
+import {WorkbenchService} from './service/workbench.service';
+import {QueryEditor, Workbench} from '../domain/workbench/workbench';
+import {Alert} from '../common/util/alert.util';
+import {DetailWorkbenchTable} from './component/detail-workbench/detail-workbench-table/detail-workbench-table';
+import {CommonConstant} from '../common/constant/common.constant';
+import {DeleteModalComponent} from '../common/component/modal/delete/delete.component';
+import {Modal} from '../common/domain/modal';
+import {UserDetail} from '../domain/common/abstract-history-entity';
+import {StringUtil} from '../common/util/string.util';
+import {CookieConstant} from '../common/constant/cookie.constant';
+import {isNullOrUndefined, isUndefined} from 'util';
+import {LoadingComponent} from '../common/component/loading/loading.component';
+import {DatasourceService} from '../datasource/service/datasource.service';
+import {PageWidget} from '../domain/dashboard/widget/page-widget';
+import {Dashboard, BoardDataSource, BoardConfiguration} from '../domain/dashboard/dashboard';
 import {
   BIType, ConnectionType, Datasource, Field, IngestionRuleType,
   LogicalType
 } from '../domain/datasource/datasource';
-import { Workbook } from '../domain/workbook/workbook';
-import { DataconnectionService } from '../dataconnection/service/dataconnection.service';
-import { CommonUtil } from '../common/util/common.util';
+import {Workbook} from '../domain/workbook/workbook';
+import {DataconnectionService} from '../dataconnection/service/dataconnection.service';
+import {CommonUtil} from '../common/util/common.util';
 import * as _ from 'lodash';
-import { DetailWorkbenchSchemaBrowserComponent } from './component/detail-workbench/detail-workbench-schema-browser/detail-workbench-schema-browser.component';
-import { SYSTEM_PERMISSION } from '../common/permission/permission';
-import { PermissionChecker, Workspace } from '../domain/workspace/workspace';
-import { WorkspaceService } from '../workspace/service/workspace.service';
-import { CodemirrorComponent } from './component/editor-workbench/codemirror.component';
+import {DetailWorkbenchSchemaBrowserComponent} from './component/detail-workbench/detail-workbench-schema-browser/detail-workbench-schema-browser.component';
+import {SYSTEM_PERMISSION} from '../common/permission/permission';
+import {PermissionChecker, Workspace} from '../domain/workspace/workspace';
+import {WorkspaceService} from '../workspace/service/workspace.service';
+import {CodemirrorComponent} from './component/editor-workbench/codemirror.component';
 import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
 import {DetailWorkbenchDatabase} from "./component/detail-workbench/detail-workbench-database/detail-workbench-database";
+import { Message } from '@stomp/stompjs';
 
 declare let moment: any;
 declare let Split;
@@ -64,7 +65,7 @@ declare let Split;
 @Component({
   selector: 'app-workbench',
   templateUrl: './workbench.component.html',
-  styles:['.split, .gutter.gutter-horizontal { float: left; } .gutter.gutter-horizontal { cursor: ew-resize; }']
+  styles: ['.split, .gutter.gutter-horizontal { float: left; } .gutter.gutter-horizontal { cursor: ew-resize; }']
 })
 export class WorkbenchComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -153,7 +154,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   private _splitVertical: any;
   private _splitHorizontal: any;
 
-  private _workspaceId:string;
+  private _workspaceId: string;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -269,7 +270,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public mainViewShow: boolean = true;
 
   // 검색바 표시 여부
-  public isSearchLink:boolean = false;
+  public isSearchLink: boolean = false;
 
   // 데이터 메니저 여부
   public isDataManager: boolean = false;
@@ -326,21 +327,21 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public isFocusResultTooltip: boolean = false;
 
   // 접속한 사용자 OS 여부 (MAC, WINDOW)
-  public isAgentUserMacOs : boolean = false;
+  public isAgentUserMacOs: boolean = false;
 
-  public tableSchemaParams:any;   // table schema search parameter
-  public isOpenTableSchema:boolean = false;
+  public tableSchemaParams: any;   // table schema search parameter
+  public isOpenTableSchema: boolean = false;
 
   // 쿼리 히스토리 팝업
-  public isQueryHistoryLogPopup : boolean = false;
+  public isQueryHistoryLogPopup: boolean = false;
   // 쿼리 히스토리 item
-  public queryHistoryItem : any;
+  public queryHistoryItem: any;
   // 쿼리 히스토리 삭제 팝업
-  public isQueryHistoryDeletePopup : boolean = false;
+  public isQueryHistoryDeletePopup: boolean = false;
   // 쿼리 삭제 여부
-  public isQueryHistoryDelete : boolean = false;
+  public isQueryHistoryDelete: boolean = false;
   // 하단 팝업 닫힘 체크
-  public isFootAreaPopupCheck : boolean = false;
+  public isFootAreaPopupCheck: boolean = false;
 
   public saveAsLayer: boolean = false;
   public supportSaveAsHiveTable: boolean = false;
@@ -382,7 +383,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     });
 
     // 사용자 운영체제 확인
-    ( navigator.userAgent.replace(/ /g,'').toUpperCase().indexOf("MAC") == -1 ? this.isAgentUserMacOs = false : this.isAgentUserMacOs = true );
+    (navigator.userAgent.replace(/ /g, '').toUpperCase().indexOf("MAC") == -1 ? this.isAgentUserMacOs = false : this.isAgentUserMacOs = true);
   } // function - ngOnInit
 
   /**
@@ -403,7 +404,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
         this._splitVertical = Split(['.sys-workbench-top-panel', '.sys-workbench-bottom-panel'], {
           direction: 'vertical',
-          onDragEnd : () => {
+          onDragEnd: () => {
             this.isFootAreaPopupCheck = true;
             this.onEndedResizing();
           }
@@ -440,16 +441,18 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this._deactiveHorizontalSlider();
 
     // this.webSocketCheck(() => {});
-    (this._subscription) && (CommonConstant.stomp.unsubscribe(this._subscription));     // Socket 응답 해제
+    (this._subscription) && (this._subscription.unsubscribe());     // Socket 응답 해제
 
     // (this.timer) && (clearInterval(this.timer));
 
     // save info
     if (this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) !== '') {
-      const headers: any = {
-        'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
-      };
-      CommonConstant.stomp.send('/message/workbench/' + this.workbenchId + '/dataconnections/' + this.workbench.dataConnection.id + '/disconnect', '', headers);
+      CommonConstant.stomp.publish(
+        {
+          destination: '/message/workbench/' + this.workbenchId + '/dataconnections/' + this.workbench.dataConnection.id + '/disconnect',
+          headers: {'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)}
+        }
+      );
 
       // 이전에 선택된 Query tab 저장
       if (!isUndefined(this.selectedEditorId) && !StringUtil.isEmpty(this.getLocalStorageQuery(this.selectedEditorId))) {
@@ -493,14 +496,14 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * Open Table Schema
    * @param data
    */
-  public openTableSchema(data:{dataconnection: any, selectedTable: string, top: number, websocketId: string}) {
+  public openTableSchema(data: { dataconnection: any, selectedTable: string, top: number, websocketId: string }) {
     document.getElementById(`workbenchQuery`).className = 'ddp-ui-query ddp-tablepop';
     this.tableSchemaParams = data;
     this.isOpenTableSchema = true;
-    if( this._splitHorizontal ) {
-      const leftWidthRatio:number = ( 500 / $(document).width() ) * 100;
+    if (this._splitHorizontal) {
+      const leftWidthRatio: number = (500 / $(document).width()) * 100;
       const currSizes = this._splitHorizontal.getSizes();
-      if( leftWidthRatio > currSizes[0] ) {
+      if (leftWidthRatio > currSizes[0]) {
         this._splitHorizontal.setSizes([leftWidthRatio, 100 - leftWidthRatio]);
       }
     }
@@ -512,7 +515,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public closeTableSchema() {
     document.getElementById(`workbenchQuery`).className = 'ddp-ui-query';
     this.isOpenTableSchema = false;
-    const leftWidthRatio:number = ( $( '.ddp-view-benchlnb' ).width() / $(document).width() ) * 100;
+    const leftWidthRatio: number = ($('.ddp-view-benchlnb').width() / $(document).width()) * 100;
     this._splitHorizontal.setSizes([leftWidthRatio, 100 - leftWidthRatio]);
   } // function - closeTableSchema
 
@@ -617,9 +620,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     const cntEditorTabs: number = this.textList.length;
     const currMaxIndex =
-      this.textList.reduce( ( acc:number, curr:any ) => {
-        return _.max( [acc, isNullOrUndefined( curr.index ) ? 0 : curr.index ] );
-      }, cntEditorTabs );
+      this.textList.reduce((acc: number, curr: any) => {
+        return _.max([acc, isNullOrUndefined(curr.index) ? 0 : curr.index]);
+      }, cntEditorTabs);
 
     const queryEditor: QueryEditor = new QueryEditor();
     queryEditor.name = this.translateService.instant('msg.bench.ui.tab-prefix') + ' ' + (currMaxIndex + 1);
@@ -826,7 +829,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     if (!isUndefined(this.selectedEditorId) && deleteFlag === false) {
       // 로컬 스토리지에 선택된 tab 순번과 schema 저장
       const queryEditor: QueryEditor = new QueryEditor();
-      const selectedTabIndex = _.findIndex(this.textList, { selected: true });
+      const selectedTabIndex = _.findIndex(this.textList, (obj) => {
+        return obj.selected
+      });
       queryEditor.editorId = this.selectedEditorId;
       // queryEditor.name = this.textList[this.selectedTabNum]['name'];
       queryEditor.name = this.textList[selectedTabIndex]['name'];
@@ -906,22 +911,22 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * @param {MouseEvent} event
    * @param {number} idx
    */
-  public showResultTabTooltip(event:MouseEvent, idx: number) {
+  public showResultTabTooltip(event: MouseEvent, idx: number) {
     event.stopPropagation();
 
-    const resultTab = 'LI' === event.target['tagName'] ? $( event.target ) : $( event.target ).closest( 'li' );
-    ( this._tooltipTimer ) && ( clearTimeout( this._tooltipTimer ) );
+    const resultTab = 'LI' === event.target['tagName'] ? $(event.target) : $(event.target).closest('li');
+    (this._tooltipTimer) && (clearTimeout(this._tooltipTimer));
     if (resultTab.offset().left > $(window).outerWidth() / 2) {
-      this._tooltipTimer = setTimeout( () => {
+      this._tooltipTimer = setTimeout(() => {
         resultTab.find('.ddp-box-tabs-popup').show().css({
           'right': '-10px',
           'left': 'inherit'
         });
-      }, 1500 );
+      }, 1500);
     } else {
-      this._tooltipTimer = setTimeout( () => {
+      this._tooltipTimer = setTimeout(() => {
         resultTab.find('.ddp-box-tabs-popup').show();
-      }, 1500 );
+      }, 1500);
     }
 
   } // function - showResultTooltip
@@ -929,15 +934,15 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   /**
    * hideResultTabTooltip
    */
-  public hideResultTabTooltip(event:MouseEvent) {
+  public hideResultTabTooltip(event: MouseEvent) {
     event.stopPropagation();
-    if( this._tooltipTimer ) {
-      clearTimeout( this._tooltipTimer );
+    if (this._tooltipTimer) {
+      clearTimeout(this._tooltipTimer);
       this._tooltipTimer = null;
     }
-    setTimeout( () => {
-      ( this.isFocusResultTooltip ) || ( $( '.ddp-box-tabs-popup:visible' ).hide() );
-    }, 500 );
+    setTimeout(() => {
+      (this.isFocusResultTooltip) || ($('.ddp-box-tabs-popup:visible').hide());
+    }, 500);
   } // function - hideResultTabTooltip
 
   /**
@@ -1007,11 +1012,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
 
     // 현재 저장된 쿼리랑 다를때
-    const saveQuery:string = this.getLocalStorageQuery(this.selectedEditorId);
-    const currQuery:string = this.getSelectedTabText();
+    const saveQuery: string = this.getLocalStorageQuery(this.selectedEditorId);
+    const currQuery: string = this.getSelectedTabText();
     if (this.textList.length !== 0 && saveQuery !== currQuery) {
-      if( saveQuery && currQuery
-        && saveQuery.replace( /\s/gi, '' ) !== currQuery.replace( /\s/gi, '' ) ) {
+      if (saveQuery && currQuery
+        && saveQuery.replace(/\s/gi, '') !== currQuery.replace(/\s/gi, '')) {
         this.useUnloadConfirm = true;
       }
       // 쿼리 저장
@@ -1045,16 +1050,16 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   /**
    * open or cloe data connection info layer
    */
-  public dataConnectionInfoShow(event:MouseEvent) {
+  public dataConnectionInfoShow(event: MouseEvent) {
 
     this.isDataConnectionInfoShow = !this.isDataConnectionInfoShow;
     this.safelyDetectChanges();
 
-    const target = $( event.target );
-    let infoLeft : number = target.offset().left;
-    let infoTop : number = target.offset().top;
+    const target = $(event.target);
+    let infoLeft: number = target.offset().left;
+    let infoTop: number = target.offset().top;
     const element = document.getElementById(`dataConnectionInfo`);
-    $(element).css({'left':infoLeft-30, 'top': infoTop+17});
+    $(element).css({'left': infoLeft - 30, 'top': infoTop + 17});
 
   } // function - dataConnectionInfoShow
 
@@ -1087,7 +1092,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.setUserInfoTableParam();
 
     // 보고있는 schemalayer hide
-    this.closeEvent = { name: 'closeSchema' };
+    this.closeEvent = {name: 'closeSchema'};
   } // function - setInitDatabase
 
   /**
@@ -1106,7 +1111,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     this.saveLocalStorageGeneralSchema();
     // 보고있는 schemalayer hide
-    this.closeEvent = { name: 'closeSchema' };
+    this.closeEvent = {name: 'closeSchema'};
   } // function - setChangeDatabase
 
   /**
@@ -1156,7 +1161,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public checkFooterPopup() {
 
-    if( this.isFootAreaPopupCheck || this.isQueryHistoryLogPopup || this.isQueryHistoryDeletePopup ) {
+    if (this.isFootAreaPopupCheck || this.isQueryHistoryLogPopup || this.isQueryHistoryDeletePopup) {
       this.isFootAreaPopupCheck = false;
       return false;
     }
@@ -1296,7 +1301,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * run query
    * @param {string} resultTabId
    */
-  public runQueries(resultTabId: string, retry : boolean = false) {
+  public runQueries(resultTabId: string, retry: boolean = false) {
     const resultTab: ResultTab = this._getResultTab(resultTabId);
     const additionalParams = {
       runIndex: this.currentRunningIndex,
@@ -1326,9 +1331,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           this.loadingBar.hide();
           this.afterCancelQuery(false);
         } else {
-          resultTab.setResultStatus( 'FAIL' );
+          resultTab.setResultStatus('FAIL');
           resultTab.name = this._genResultTabName(resultTab.queryEditor.name, 'ERROR', resultTab.order);
-          if( error.message && error.details ) {
+          if (error.message && error.details) {
             resultTab.message = error.message + ' - ' + error.details;
           } else {
             resultTab.message = 'Workbench Error - Query is Fail';
@@ -1433,7 +1438,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.isQueryEditorFull = !this.isQueryEditorFull;
 
     const element = $('html');
-    ( this.isQueryEditorFull ? element.addClass('ddp-width-auto') : element.removeClass('ddp-width-auto') );
+    (this.isQueryEditorFull ? element.addClass('ddp-width-auto') : element.removeClass('ddp-width-auto'));
 
     this._toggleHorizontalSlider();
     this.onEndedResizing();
@@ -1596,7 +1601,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   /**
    * 쿼리 히스토리 로그 팝업 - fail 일 경우에만
    */
-  public sqlQueryPopupEvent(item : any){
+  public sqlQueryPopupEvent(item: any) {
 
     this.isQueryHistoryLogPopup = true;
     this.queryHistoryItem = item;
@@ -1606,7 +1611,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   /**
    * 쿼리 히스토리 삭제 팝업
    */
-  public deleteQueryHistory(){
+  public deleteQueryHistory() {
 
     this.isQueryHistoryDelete = true;
     this.isQueryHistoryDeletePopup = false;
@@ -1873,7 +1878,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           this.openAccessDeniedConfirm();
         }
 
-        this.restoreQueryResultPreviousState(data.queryEditors);
+        // this.restoreQueryResultPreviousState(data.queryEditors);
       });
 
     }).catch((error) => {
@@ -1892,7 +1897,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
   }
 
-  private createQueryResultRequests(queryEditors: any[]) : Promise<any>[] {
+  private createQueryResultRequests(queryEditors: any[]): Promise<any>[] {
     const queryResultPromises: Promise<any>[] = [];
     queryEditors.forEach((editor) => {
       if (editor.queryResults && Array.isArray(editor.queryResults)) {
@@ -1939,7 +1944,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           tab.showLog = false;
           tab.log = [];
 
-          if(result === undefined) {
+          if (result === undefined) {
             const queryResult: QueryResult = new QueryResult();
             tab.result = queryResult;
           } else {
@@ -2070,7 +2075,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   private setResultContents(data: any, resultTab: ResultTab) {
 
     resultTab.result = data;
-    resultTab.setResultStatus( data.queryResultStatus );
+    resultTab.setResultStatus(data.queryResultStatus);
 
     if (data.queryResultStatus === 'FAIL') {
       resultTab.name = this._genResultTabName(resultTab.queryEditor.name, 'ERROR', resultTab.order);
@@ -2146,7 +2151,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           index: editors[idx1].index,
           editorMode: false
         });
-        this.saveLocalStorage( editors[idx1].query, editors[idx1].id ); // 로컬 스토리지에 저장
+        this.saveLocalStorage(editors[idx1].query, editors[idx1].id); // 로컬 스토리지에 저장
 
         const generalConnection: any = this.getLocalStorageGeneral();
         if (generalConnection !== null) {
@@ -2196,9 +2201,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
       };
       // 메세지 수신
-      (this._subscription) && (CommonConstant.stomp.unsubscribe(this._subscription));     // Socket 응답 해제
+      (this._subscription) && (this._subscription.unsubscribe());     // Socket 응답 해제
       this._subscription
-        = CommonConstant.stomp.subscribe('/user/queue/workbench/' + this.workbenchId, (data) => {
+        = CommonConstant.stomp.watch( '/user/queue/workbench/' + this.workbenchId ).subscribe((msg: Message) => {
+
+        const data = JSON.parse(msg.body);
 
         (this.isCanceling) || (this.loadingBar.hide());
 
@@ -2208,7 +2215,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         }
 
         // console.info('>>>>>> socket data', data);
-
         // console.info('>>>>>> %s - command : %s', this.runningResultTabId, data.command);
 
         if (!isNullOrUndefined(data.queryIndex)) {
@@ -2255,17 +2261,24 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           };
         }
 
-        if( 'CONNECT' == data.command ){
+        if ('CONNECT' == data.command) {
           (callback) && (callback.call(this));
         }
 
       }, headers);
+
       // 메세지 발신
       const params = {
         username: this.webSocketLoginId,
         password: this.webSocketLoginPw
       };
-      CommonConstant.stomp.send('/message/workbench/' + this.workbenchId + '/dataconnections/' + this.workbenchTemp.dataConnection.id + '/connect', params, headers);
+      CommonConstant.stomp.publish(
+        {
+          destination: '/message/workbench/' + this.workbenchId + '/dataconnections/' + this.workbenchTemp.dataConnection.id + '/connect',
+          headers: headers,
+          body: JSON.stringify(params)
+        }
+      );
     } catch (e) {
       console.info(e);
     }
@@ -2522,7 +2535,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         clearInterval(this.intervalDownload);
       }
     }
-    const params = { query: '', webSocketId: this.websocketId };
+    const params = {query: '', webSocketId: this.websocketId};
     this.workbenchService.setQueryRunCancel(this.selectedEditorId, params)
       .then()
       .catch(() => {
@@ -2539,7 +2552,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public afterCancelQuery(isSuccess: boolean) {
 
-    if( ! this.isCanceled ) {
+    if (!this.isCanceled) {
       // console.info('>>>>>> %s - afterCancel', this.runningResultTabId);
 
       for (let idx = this.currentRunningIndex + 1; idx < this.executeTabIds.length; idx++) {
@@ -2552,7 +2565,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
       const runningResultTab: ResultTab = this._getResultTab(this.runningResultTabId);
       runningResultTab.showLog = true;
-      runningResultTab.setResultStatus( 'CANCEL' );
+      runningResultTab.setResultStatus('CANCEL');
       runningResultTab.doneTimer();
       if (isSuccess) {
         runningResultTab.name = this._genResultTabName(runningResultTab.queryEditor.name, 'RESULT', runningResultTab.order);
@@ -2642,9 +2655,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.connectionService.getDataconnectionDetail(this.workbench.dataConnection.id)
       .then((connection) => {
         const selectedSecurityType = [
-          { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
-          { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
-          { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
+          {label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL'},
+          {label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO'},
+          {label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG'}
         ].find(type => type.value === this.workbench.dataConnection.authenticationType) || {
           label: this.translateService.instant('msg.storage.li.connect.always'),
           value: 'MANUAL'
@@ -2669,10 +2682,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             isUsedConnectionPreset: true
           },
           databaseData: {
-            selectedType: 'QUERY',
-            selectedDatabaseQuery: this.workbench.dataConnection.database,
+            selectedTab: 'QUERY',
+            selectedDatabaseInQuery: this.workbench.dataConnection.database,
             queryText: currentResultTab.result.runQuery,
-            queryDetailData: {
+            queryResultData: {
               fields: currentResultTab.result.fields,
               data: currentResultTab.result.data
             }
@@ -2709,10 +2722,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * 결과 검색 레이어를 On/Off 한다.
    * @param {MouseEvent} event
    */
-  public toggleResultSearchLayer(event:MouseEvent) {
+  public toggleResultSearchLayer(event: MouseEvent) {
     event.stopPropagation();
-    const $evtTarget = $( event.target );
-    if( $evtTarget.hasClass( 'ddp-box-searching' ) || 0 < $evtTarget.closest( '.ddp-box-searching' ).length ) {
+    const $evtTarget = $(event.target);
+    if ($evtTarget.hasClass('ddp-box-searching') || 0 < $evtTarget.closest('.ddp-box-searching').length) {
       return;
     }
     this.isSearchLink = !this.isSearchLink;
@@ -2951,13 +2964,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     let connInfo: any = this.workbench;
 
     const selectedSecurityType = [
-        { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
-        { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
-        { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
-      ].find(type => type.value === this.workbench.dataConnection.authenticationType) || {
-        label: this.translateService.instant('msg.storage.li.connect.always'),
-        value: 'MANUAL'
-      };
+      {label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL'},
+      {label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO'},
+      {label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG'}
+    ].find(type => type.value === this.workbench.dataConnection.authenticationType) || {
+      label: this.translateService.instant('msg.storage.li.connect.always'),
+      value: 'MANUAL'
+    };
     connInfo.dataConnection.username = selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginId : connInfo.dataConnection.username;
     connInfo.dataConnection.password = selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginPw : connInfo.dataConnection.password;
 
@@ -3004,7 +3017,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * @private
    */
   private _toggleHorizontalSlider() {
-    if( this.isLeftMenuOpen && !this.isQueryEditorFull ) {
+    if (this.isLeftMenuOpen && !this.isQueryEditorFull) {
       this._activeHorizontalSlider();
     } else {
       this._deactiveHorizontalSlider();
@@ -3021,9 +3034,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       sizes: [20, 80],
       minSize: [260, 300],
       elementStyle: (dimension, size, gutterSize) => {
-        return { 'width': `${size}%` };
+        return {'width': `${size}%`};
       },
-      onDragEnd : () => {
+      onDragEnd: () => {
         this.onEndedResizing();
       }
     });
@@ -3034,7 +3047,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * @private
    */
   private _deactiveHorizontalSlider() {
-    if( this._splitHorizontal ) {
+    if (this._splitHorizontal) {
       this._splitHorizontal.destroy();
       this._splitHorizontal = undefined;
     }
@@ -3156,13 +3169,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   private setUserInfoTableParam() {
     const selectedSecurityType = [
-        { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
-        { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
-        { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
-      ].find(type => type.value === this.workbench.dataConnection.authenticationType) || {
-        label: this.translateService.instant('msg.storage.li.connect.always'),
-        value: 'MANUAL'
-      };
+      {label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL'},
+      {label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO'},
+      {label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG'}
+    ].find(type => type.value === this.workbench.dataConnection.authenticationType) || {
+      label: this.translateService.instant('msg.storage.li.connect.always'),
+      value: 'MANUAL'
+    };
     this.tableParam.dataconnection.username = selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginId : this.workbench.dataConnection.username;
     this.tableParam.dataconnection.password = selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginPw : this.workbench.dataConnection.password;
   }
@@ -3170,15 +3183,15 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   /**
    * 화면 쿼리 저장 여부
    */
-  private checkSaveQuery(){
-    const saveQuery:string = this.getLocalStorageQuery(this.selectedEditorId);
-    const currQuery:string = this.getSelectedTabText();
+  private checkSaveQuery() {
+    const saveQuery: string = this.getLocalStorageQuery(this.selectedEditorId);
+    const currQuery: string = this.getSelectedTabText();
     if (this.textList.length !== 0 && saveQuery !== currQuery) {
-      if( saveQuery == null && currQuery != null ){
+      if (saveQuery == null && currQuery != null) {
         this.useUnloadConfirm = true;
       }
-      if( saveQuery && currQuery
-        && saveQuery.replace( /\s/gi, '' ) !== currQuery.replace( /\s/gi, '' ) ) {
+      if (saveQuery && currQuery
+        && saveQuery.replace(/\s/gi, '') !== currQuery.replace(/\s/gi, '')) {
         this.useUnloadConfirm = true;
       }
       // 쿼리 저장
@@ -3218,7 +3231,7 @@ class ResultTab {
   public executeTime: number;
   public executeStatus: ('GET_CONNECTION' | 'CREATE_STATEMENT' | 'EXECUTE_QUERY' | 'LOG' | 'GET_RESULTSET' | 'DONE');
   public resultStatus: ('NONE' | 'SUCCESS' | 'FAIL' | 'CANCEL');
-  public errorStatus: ( 'GET_CONNECTION' | 'CREATE_STATEMENT' | 'EXECUTE_QUERY' | 'LOG' | 'GET_RESULTSET' | 'DONE' );
+  public errorStatus: ('GET_CONNECTION' | 'CREATE_STATEMENT' | 'EXECUTE_QUERY' | 'LOG' | 'GET_RESULTSET' | 'DONE');
   public result?: QueryResult;           // Result
   public pageNum: number = 0;
 
@@ -3266,9 +3279,9 @@ class ResultTab {
     this.finishDate = moment().format('YYYY-MM-DD HH:mm:ss');
   } // function - doneTimer
 
-  public setResultStatus(status: ('NONE' | 'SUCCESS' | 'FAIL' | 'CANCEL') ) {
+  public setResultStatus(status: ('NONE' | 'SUCCESS' | 'FAIL' | 'CANCEL')) {
     this.resultStatus = status;
-    if( 'FAIL' === status ) {
+    if ('FAIL' === status) {
       this.errorStatus = this.executeStatus;
       // console.info( '%c >>>>>> error status', 'color:#ff0000', this.errorStatus);
     }
@@ -3279,7 +3292,7 @@ class ResultTab {
     this.appendLog(this.getExecuteStatusMsg());
   } // function - setExecuteStatus
 
-  public getExecuteStatusMsg(status?:('GET_CONNECTION' | 'CREATE_STATEMENT' | 'EXECUTE_QUERY' | 'LOG' | 'GET_RESULTSET' | 'DONE')): string {
+  public getExecuteStatusMsg(status?: ('GET_CONNECTION' | 'CREATE_STATEMENT' | 'EXECUTE_QUERY' | 'LOG' | 'GET_RESULTSET' | 'DONE')): string {
     let msg: string = '';
     switch (status ? status : this.executeStatus) {
       case 'GET_CONNECTION' :
@@ -3313,11 +3326,11 @@ class ResultTab {
     }
   } // function - pushLog
 
-  public isShowPrevBtn():boolean {
+  public isShowPrevBtn(): boolean {
     return 0 !== this.pageNum;
   } // function - isShowPrevBtn
 
-  public isShowNextBtn( pageSize:number ):boolean {
+  public isShowNextBtn(pageSize: number): boolean {
     const currDataRows = this.result.data.length + (this.pageNum * pageSize);
     return currDataRows < this.result.numRows;
   } // function - isShowNextBtn

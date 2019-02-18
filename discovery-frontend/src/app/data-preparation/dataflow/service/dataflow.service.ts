@@ -27,7 +27,7 @@ import { Loading } from '../../../common/util/loading.util';
 import { isNullOrUndefined, isUndefined } from 'util';
 import { PreparationAlert } from '../../util/preparation-alert.util';
 import { PopupService } from '../../../common/service/popup.service';
-import { TranslateService } from 'ng2-translate';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
 export class DataflowService extends AbstractService {

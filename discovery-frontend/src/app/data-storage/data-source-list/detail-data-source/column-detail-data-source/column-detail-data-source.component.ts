@@ -225,21 +225,12 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   }
 
   /**
-   * Is unix type field
-   * @param {Field} field
-   * @return {boolean}
-   */
-  public isUnixTypeField(field: Field): boolean {
-    return field.format && field.format.type === FieldFormatType.UNIX_TIME;
-  }
-
-  /**
    * Is time type field
    * @param {Field} field
    * @return {boolean}
    */
-  public isTimeTypeField(field: Field): boolean {
-    return field.format && field.format.type === FieldFormatType.DATE_TIME;
+  public isEnableTimezone(field: Field): boolean {
+    return field.format && (field.format.type === FieldFormatType.UNIX_TIME || this._timezoneService.isEnableTimezoneInDateFormat(field.format));
   }
 
   /**
@@ -266,7 +257,11 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    * @return {string}
    */
   public getTimezoneLabel(format: FieldFormat): string {
-    return this._timezoneService.getTimezoneObject(format).label;
+    if (format.type === FieldFormatType.UNIX_TIME) {
+      return 'Unix time';
+    } else {
+      return this._timezoneService.getTimezoneObject(format).label;
+    }
   }
 
   /**

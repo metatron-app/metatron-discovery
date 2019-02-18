@@ -94,6 +94,9 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   @Input()
   public isBackTick = true; 
 
+  /** 화살표 버튼이 눌러졌는지 여부 (한글 완전히 입력하지 않았을 경우 down arrow 검사용) */
+  public isArrowDown = false;
+
   /** 아이템 높이 (화살표시 이동할 스크롤 바 ) */
   public itemHeight = 25;
 
@@ -257,6 +260,8 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
       const keyCode = $event.keyCode;
 
       if( keyCode === 38 || keyCode == 40) {
+        this.isArrowDown = true; /* 한글 입력이 완료되지 않고 아래 화살표를 누르면 화살표 업 이벤트가 실행 된다. */
+
         // suggetion 이 있을 경우 하살표 위 아래의 동작이 맨앞으로 가거나 맨 뒤로 가지 않도록한다.
         if( this.isSuggestOpen && this.suggestItems && this.suggestItems.length > 0 ) {
           if( keyCode === 38 ) {
@@ -501,8 +506,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   protected prcessEvent($event) {
     const keyCode = $event.keyCode;
 
-    if( $event.metaKey === true || $event.ctrlKey === true || 
-        $event.altKey === true ){
+    if( $event.metaKey === true || $event.ctrlKey === true || $event.altKey === true ){
       return true;
     } else if ( 16 === keyCode && this.isSuggestOpen ) {
       // 대소문자 입력후 아무일도 하지 않는다.
@@ -510,8 +514,16 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     }
 
     if( keyCode === 38 || keyCode == 40) {
-      // 화살표 위 아래 처리
-      return this.processUpDown(keyCode, $event);
+
+      if( this.isArrowDown) {
+        // 이전에 화살표 Down Event가 아니면
+        // 화살표 위 아래 처리
+        this.isArrowDown = false;
+        return this.processUpDown(keyCode, $event);
+      } else {
+        this.isArrowDown = false;
+        return true;
+      }
     } else if (keyCode === 13 || keyCode === 108) {   
       // Enter
       return this.processEnter($event);

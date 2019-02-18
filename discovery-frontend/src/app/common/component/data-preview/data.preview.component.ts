@@ -475,7 +475,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    * @private
    */
   private _getGridHeaderName(field: Field, headerName: string): string {
-    return field.logicalType === LogicalType.TIMESTAMP
+    return field.logicalType === LogicalType.TIMESTAMP && (this.timezoneService.isEnableTimezoneInDateFormat(field.format) || field.format && field.format.type === FieldFormatType.UNIX_TIME)
       ? `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(field.logicalType.toString())}"></em>${headerName}<div class="slick-column-det" title="${this._getTimezoneLabel(field.format)}">${this._getTimezoneLabel(field.format)}</div></span>`
       : `<span style="padding-left:20px;"><em class="${this.getFieldTypeIconClass(field.logicalType.toString())}"></em>${headerName}</span>`;
   }
@@ -544,7 +544,11 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    * @private
    */
   private _getTimezoneLabel(format: FieldFormat): string {
-    return (format && format.type === FieldFormatType.UNIX_TIME) ? 'Unix time' :this.timezoneService.getConvertedTimezoneUTCLabel(this.timezoneService.getTimezoneObject(format).utc);
+    if (format.type === FieldFormatType.UNIX_TIME) {
+      return 'Unix time';
+    } else {
+      return this.timezoneService.getConvertedTimezoneUTCLabel(this.timezoneService.getTimezoneObject(format).utc);
+    }
   }
 
   // ui init
@@ -1042,7 +1046,11 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    * @return {string}
    */
   public getTimezoneLabelInColumn(format: FieldFormat): string {
-    return this.timezoneService.getTimezoneObject(format).label;
+    if (format.type === FieldFormatType.UNIX_TIME) {
+      return 'Unix time';
+    } else {
+      return this.timezoneService.getTimezoneObject(format).label;
+    }
   }
 
   /**
@@ -1625,16 +1633,16 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    * @return {boolean}
    */
   public isExistTimestampField(): boolean {
-    return this.joinDataSources.some(source => source.fields.some(field => field.logicalType === LogicalType.TIMESTAMP));
+    return this.joinDataSources.some(source => source.fields.some(field => field.logicalType === LogicalType.TIMESTAMP && (this.timezoneService.isEnableTimezoneInDateFormat(field.format) || field.format && field.format.type === FieldFormatType.UNIX_TIME)));
   }
 
   /**
-   * Is unix type field
+   * Is time type field
    * @param {Field} field
    * @return {boolean}
    */
-  public isUnixTypeField(field: Field): boolean {
-    return field.format && field.format.type === FieldFormatType.UNIX_TIME;
+  public isEnableTimezone(field: Field): boolean {
+    return field.format && (field.format.type === FieldFormatType.UNIX_TIME || this.timezoneService.isEnableTimezoneInDateFormat(field.format));
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

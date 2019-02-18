@@ -13,13 +13,13 @@
  */
 
 import { Injectable, Injector } from '@angular/core';
+import { HttpHeaders } from '@angular/common/http';
 import { AbstractService } from '../../../common/service/abstract.service';
 //import { DataSnapshot, DataSnapshots } from '../../../domain/data-preparation/data-snapshot';
 import { PrDataSnapshot, DataSnapshots, SsType } from '../../../domain/data-preparation/pr-snapshot';
 import { Page } from '../../../domain/common/page';
 import { CommonUtil } from '../../../common/util/common.util';
 import { CookieConstant } from '../../../common/constant/cookie.constant';
-import { Headers, ResponseContentType } from '@angular/http';
 import { Observable } from 'rxjs';
 
 @Injectable()
@@ -98,7 +98,7 @@ export class DataSnapshotService extends AbstractService {
       mineType = 'application/json';
     }
 
-    let headers = new Headers({
+    let headers = new HttpHeaders({
       'Accept': mineType,
       'Content-Type': 'application/octet-binary',
       'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
@@ -106,12 +106,12 @@ export class DataSnapshotService extends AbstractService {
 
     let option: Object = {
       headers: headers,
-      responseType: ResponseContentType.Blob
+      responseType: 'blob'
     };
 
     return this.http.get(this.API_URL + `preparationsnapshots/${ssId}/download?fileType=`+fileFormat, option)
       .map((res) => {
-        return new Blob([res.blob()], { type: 'application/csv' })
+        return new Blob([res], { type: 'application/csv' })
       });
   }
   /** 처리 중 스냅샷 취소*/
