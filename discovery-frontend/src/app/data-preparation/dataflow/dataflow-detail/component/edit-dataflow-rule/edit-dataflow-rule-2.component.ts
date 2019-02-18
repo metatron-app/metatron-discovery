@@ -721,8 +721,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
             // });
 
             let cols = _.cloneDeep(this.ruleVO.col['value']);
-            this.multipleRenamePopupComponent.init({gridData: _.cloneDeep(gridData),
-              dsName: this.selectedDataSet.dsName, editInfo: {ruleCurIdx: this.ruleVO['ruleNo'],
+            this.multipleRenamePopupComponent.init({
+              gridData: _.cloneDeep(gridData),
+              dsName: this.selectedDataSet.dsName,
+              typeDesc: this.selectedDataSet.gridResponse.colDescs,
+              editInfo: {ruleCurIdx: this.ruleVO['ruleNo'],
                 cols: cols,
                 to: tos}
             });
@@ -1395,31 +1398,18 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * Multicolumn rename popup open
    */
   public onMultiColumnRenameClick() {
-    // let clonedGridData = _.cloneDeep(this.selectedDataSet.gridData);
-    // if ('UPDATE' === this.opString) {
-    //   this.multicolumnRenameComponent.init({
-    //     data: clonedGridData,
-    //     datasetName: this.selectedDataSet.dsName,
-    //     ruleCurIdx: this.ruleVO['ruleNo'],
-    //     cols: this.ruleVO.cols,
-    //     to: [this.ruleVO.to]
-    //   });
-    // } else {
-    //   this.multicolumnRenameComponent.init({
-    //     data: clonedGridData,
-    //     datasetName: this.selectedDataSet.dsName
-    //   });
-    // }
 
     if ('UPDATE' === this.opString) {
       this.multipleRenamePopupComponent.init({gridData: _.cloneDeep(this.selectedDataSet.gridData),
-        dsName: this.selectedDataSet.dsName, editInfo: {ruleCurIdx: this.ruleVO['ruleNo'],
+        dsName: this.selectedDataSet.dsName,
+        typeDesc: this.selectedDataSet.gridResponse.colDescs,
+        editInfo: {ruleCurIdx: this.ruleVO['ruleNo'],
           cols: this.ruleVO.cols,
           to: [this.ruleVO.to]}
       });
     } else {
       this.multipleRenamePopupComponent.init({gridData: _.cloneDeep(this.selectedDataSet.gridData),
-        dsName: this.selectedDataSet.dsName});
+        dsName: this.selectedDataSet.dsName, typeDesc: this.selectedDataSet.gridResponse.colDescs});
     }
   }
 
