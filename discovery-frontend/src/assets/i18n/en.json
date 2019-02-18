@@ -2030,7 +2030,7 @@
   "msg.storage.ui.conn.url.ph" : "Please enter URL",
   "msg.storage.ui.conn.sid.ph" : "Please enter SID",
   "msg.storage.ui.conn.catalog.ph" : "Please enter Catalog",
-  "msg.storage.ui.spaces.search.ph" : "Search by workspace",
+  "msg.storage.ui.spaces.search.ph" : "Search by workspace or owner name",
   "msg.storage.ui.action.delete" : "Do you want to delete?",
   "msg.storage.ui.action.data.detail" : "Data detail",
   "msg.storage.ui.server" : "Server",
@@ -2145,6 +2145,7 @@
   "msg.storage.ui.file.result.FV004": "Column names are allowed up to 50 characters.",
   "msg.storage.ui.file.result.FV005": "Empty column name is not allowed.",
   "msg.storage.ui.timezone": "Time zone",
+  "msg.storage.ui.username": "Username",
 
   "msg.storage.ui.timezone.country.zimbabwe": "Zimbabwe",
   "msg.storage.ui.timezone.country.zambia": "Zambia",

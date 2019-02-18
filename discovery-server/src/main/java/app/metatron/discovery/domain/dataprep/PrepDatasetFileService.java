@@ -365,6 +365,62 @@ public class PrepDatasetFileService {
     }
 
     public DataFrame getPreviewLinesFromFileForDataFrame(PrDataset dataset, String sheetindex, String size) throws IOException, TeddyException {
+        DataFrame dataFrame = null;
+
+        if (dataset == null) {
+            throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
+        }
+
+        assert dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD || dataset.getImportType() == PrDataset.IMPORT_TYPE.URI;
+
+        String storedUri = dataset.getStoredUri();
+
+        try {
+            String extensionType = FilenameUtils.getExtension(storedUri);
+            int limitRows = Integer.parseInt(size);
+            boolean autoTyping = true;
+
+            if(dataset.getDsType() == PrDataset.DS_TYPE.WRANGLED) {
+                autoTyping = false;
+            }
+
+            File theFile = new File(new URI(storedUri));
+            if(theFile.exists()==false) {
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, "No file : " + storedUri);
+            }
+
+            Map<String, Object> responseMap = null;
+            switch (extensionType) {
+                case "xlsx":
+                case "xls":
+                    // Excel files are treated as CSV
+                    break;
+                case "json":
+                    responseMap = getResponseMapFromJson(storedUri, limitRows, autoTyping);
+                    break;
+                default:
+                    String delimiterCol = dataset.getDelimiter();
+                    responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, autoTyping);
+            }
+
+            if(responseMap != null) {
+                List<DataFrame> gridResponses = (List<DataFrame>)responseMap.get("gridResponses");
+                if( gridResponses.isEmpty()==false ) {
+                    dataFrame = (DataFrame)gridResponses.get(0);
+                }
+            }
+        } catch (URISyntaxException e1) {
+            e1.printStackTrace();
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
+        } catch (Exception e) {
+            LOGGER.error("Failed to read file : {}", e.getMessage());
+            throw e;
+        }
+
+        return dataFrame;
+    }
+
+    public DataFrame getPreviewLinesFromFileForDataFrame_bak(PrDataset dataset, String sheetindex, String size) throws IOException, TeddyException {
         DataFrame dataFrame = new DataFrame();
         String strUri = null;
 
