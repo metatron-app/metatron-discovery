@@ -20,7 +20,6 @@ import {DatasetService} from '../service/dataset.service';
 import {isUndefined} from 'util';
 import {StringUtil} from '../../../common/util/string.util';
 import {Alert} from '../../../common/util/alert.util';
-import {PreparationAlert} from '../../util/preparation-alert.util';
 import {PreparationCommonUtil} from "../../util/preparation-common.util";
 import * as _ from 'lodash';
 import { concatMap } from 'rxjs/operators';
@@ -180,22 +179,27 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       // used concatMap to send multiple sequential HTTP requests
       const streams = from(params).pipe(
         concatMap(stream => this._createFileDataset(stream)
-        .catch(() => {
-          console.info('concat error')
+        .catch((error) => {
+          console.info(error)
         })));
 
       this.loadingShow();
       streams.subscribe((result) => {
-        Alert.success(this.translateService.instant('msg.dp.alert.create-ds.success',{value:result.dsName}));
 
-        // pushed all result into results because this information is required in
+        // push only successful result into an array
+        // because this information is required in
         // complete() but no way to access them
-        this.results.push({dsId : result.dsId});
-      },(error) => {
+        if (result) {
+          this.results.push({dsId : result.dsId});
+        }
 
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      },(error) => {
+        console.error(error);
       },() => {
+        const errorNum = this.names.length - this.results.length;
+        if (errorNum > 0) {
+          Alert.error(this.translateService.instant('msg.dp.alert.num.fail.dataset', {value : errorNum}));
+        }
 
         // Close popup when all observables are subscribed
         this.loadingHide();
@@ -204,10 +208,13 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
           this.router.navigate(['/management/datapreparation/dataflow/' + this.datasetService.dataflowId]);
         }
         this.close();
-        this.popupService.notiPopup({
-          name: 'complete-dataset-create',
-          data: this.results[0].dsId
-        });
+
+        if (this.results.length > 0) {
+          this.popupService.notiPopup({
+            name: 'complete-dataset-create',
+            data: this.results[0].dsId
+          });
+        }
       })
 
     }
@@ -285,8 +292,6 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   public successAction(result) {
 
     this.flag = false;
-    Alert.success(this.translateService.instant('msg.dp.alert.create-ds.success',{value:result.dsName}));
-
     if (this.datasetService.dataflowId) {
       sessionStorage.setItem('DATASET_ID', result.dsId);
       this.router.navigate(['/management/datapreparation/dataflow/' + this.datasetService.dataflowId]);
@@ -307,8 +312,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
    */
   public errorAction(error) {
     this.flag = false;
-    let prep_error = this.dataprepExceptionHandler(error);
-    PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+    Alert.error(this.translateService.instant('msg.dp.alert.num.fail.dataset', {value : 1}));
     this.close();
   }
 
@@ -556,7 +560,6 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     }
 
-
     return params
   }
 
@@ -604,37 +607,6 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   }
 
 
-  test() {
-
-    //concatMap
-    const getparams = this.names.map((item:string,index:number) => {
-      this.datasetFile.dsName = item;
-      this.datasetFile.dsDesc = this.descriptions[index];
-      return this._getFileParams(this.datasetFile);
-    });
-
-    const d = from(getparams).pipe(concatMap(result1 => this._createFileDataset(result1)
-      .catch(error => console.info('concat error'))));
-    d.subscribe((result) => {
-      console.info('result --> ', result);
-    },(error) => {
-      console.info('error -> ',error);
-    } )
-
-    // concat
-    // const getparam = this.names.map((item:string,index:number) => {
-    //   this.datasetFile.dsName = item;
-    //   this.datasetFile.dsDesc = this.descriptions[index];
-    //   return this.createSet(this._getFileParams(this.datasetFile),index);
-    // });
-    //
-    // const e = concat(from(getparam));
-    // e.subscribe((result) => {
-    //   console.info('result --< ', result);
-    // })
-
-  }
-
   /**
    * Create file type dataset
    * @param param
@@ -644,7 +616,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     return new Promise((resolve, reject) => {
       this.datasetService.createDataSet(param).
       then(result => resolve(result)).
-      catch(error => resolve(error));
+      catch(error => reject(error));
     });
   }
 
