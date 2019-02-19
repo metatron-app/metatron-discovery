@@ -350,8 +350,12 @@ export class DatasourceService extends AbstractService {
               // 선반에 datasource key 값 추가
               layer.name = 'layer' + (layerNum);
               layer.ref = searchQueryDataSource.name;
+              // 서버 요청사항 - 중복데이터일 경우
+              for (let field of layer.fields) {
+                field.ref = searchQueryDataSource.name;
+              }
             }
-          }
+          } // end for - datasource
         } else {  // 기존 스펙이 남아있을경우
           // datasource 설정 추가
           query.dataSource = _.cloneDeep(pageConf.dataSource);
@@ -597,6 +601,17 @@ export class DatasourceService extends AbstractService {
 
               // when logicalType => geo point
               if (layer.field.logicalType === LogicalType.GEO_POINT) {
+
+                // clustering
+                // let isClustering : boolean = (<UIMapOption>pageConf.chart).layers[idx]['clustering'];
+                // if( isClustering ) {
+                //   query.shelf.layers[idx].view = <GeoHashFormat>{
+                //     type: LayerViewType.CLUSTERING.toString(),
+                //     method: "h3",
+                //     // precision: (<UIMapOption>pageConf.chart).layers[idx]['coverage']
+                //     precision: 1
+                //   };
+                // }
 
                 // geo_hash is only used in hexagon
                 if (MapLayerType.TILE === (<UIMapOption>pageConf.chart).layers[idx].type) {

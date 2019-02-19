@@ -629,8 +629,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {Datasource} dataSource
    */
   public selectDataSource(dataSource: Datasource) {
-    // data source 변경 시 제거
-    // this.isChartShow = false;
+
     ( this.widget ) || ( this.widget = _.cloneDeep(this.originalWidget) );
 
     if( ChartType.MAP === this.widget.configuration.chart.type ) {
@@ -641,6 +640,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       // find geo type from dimension list
       this.geoType = this.getMapGeoType();
     } else {
+      this.isChartShow = false;
       this.dataSource = dataSource;
       let widgetName: string = null;
       if( this.widget && this.widget.name ) {
