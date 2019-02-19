@@ -264,8 +264,11 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     // Save table name -
     this.datasetHive.tableInfo.tableName = data.name;
 
-    this.datasetService.getStagingTableData(this.datasetHive.tableInfo.databaseName, data.name)
-      .then((result) => {
+    this._connectionService.getTableDataForHive({
+      database: this.datasetHive.tableInfo.databaseName,
+      type: 'TABLE',
+      query: data.name
+    }).then((result) => {
         this.loadingHide();
 
         if (result.fields.length > 0 ) {
@@ -396,7 +399,11 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
     this.queryErrorMsg = '';
 
 
-    this.datasetService.getResultWithStagingDBQuery(this.datasetHive.sqlInfo.queryStmt, this.datasetHive.sqlInfo.databaseName).then((result) => {
+    this._connectionService.getTableDataForHive({
+      database: this.datasetHive.sqlInfo.databaseName,
+      type: 'QUERY',
+      query: this.datasetHive.sqlInfo.queryStmt
+    }).then((result) => {
       this.loadingHide();
       if (result.hasOwnProperty('errorMsg')) {
         this.showQueryStatus = true;
