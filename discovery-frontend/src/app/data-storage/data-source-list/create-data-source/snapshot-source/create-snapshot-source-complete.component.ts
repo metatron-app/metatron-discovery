@@ -22,6 +22,10 @@ import {ConfirmModalComponent} from "../../../../common/component/modal/confirm/
 import {StringUtil} from "../../../../common/util/string.util";
 import {CommonUtil} from "../../../../common/util/common.util";
 import * as _ from 'lodash';
+import {SsType} from "../../../../domain/data-preparation/pr-snapshot";
+import {Alert} from "../../../../common/util/alert.util";
+import {CookieConstant} from "../../../../common/constant/cookie.constant";
+import {Modal} from "../../../../common/domain/modal";
 
 /**
  * Creating datasource with Snapshot - complete step
@@ -35,10 +39,6 @@ export class CreateSnapshotSourceCompleteComponent extends AbstractPopupComponen
   @ViewChild(ConfirmModalComponent)
   private _confirmModal: ConfirmModalComponent;
 
-  // datasource data
-  @Input('sourceData')
-  private _sourceData: DatasourceInfo;
-
   @Input('step')
   private _step: string;
 
@@ -50,6 +50,10 @@ export class CreateSnapshotSourceCompleteComponent extends AbstractPopupComponen
 
   // partition list
   private _convertedPartitionList: any;
+
+  // datasource data
+  @Input()
+  public sourceData: DatasourceInfo;
 
   // create complete data
   public createCompleteData: CreateSourceCompleteData;
@@ -67,9 +71,9 @@ export class CreateSnapshotSourceCompleteComponent extends AbstractPopupComponen
   ngOnInit() {
     super.ngOnInit();
     // set create complete data
-    this.createCompleteData = this._sourceData.completeData ? _.cloneDeep(this._sourceData.completeData) : new CreateSourceCompleteData();
+    this.createCompleteData = this.sourceData.completeData ? _.cloneDeep(this.sourceData.completeData) : new CreateSourceCompleteData();
     // set partition list
-    this._convertedPartitionList = this._sourceData.ingestionData.selectedPartitionType.value === 'ENABLE' ? this.datasourceCreateService.getConvertedPartitionList(this._sourceData.ingestionData.partitionKeyList) : [];
+    this.sourceData.snapshotData.selectedSnapshot.ssType === SsType.STAGING_DB && (this._convertedPartitionList = this.sourceData.ingestionData.selectedPartitionType.value === 'ENABLE' ? this.datasourceCreateService.getConvertedPartitionList(this.sourceData.ingestionData.partitionKeyList) : []);
   }
 
   /**
@@ -77,7 +81,7 @@ export class CreateSnapshotSourceCompleteComponent extends AbstractPopupComponen
    */
   public prev(): void {
     // set create complete data in source data
-    this._sourceData.completeData = this.createCompleteData;
+    this.sourceData.completeData = this.createCompleteData;
     // go prev step
     this._step = 'snapshot-ingestion';
     this._stepChange.emit(this._step);
@@ -104,6 +108,8 @@ export class CreateSnapshotSourceCompleteComponent extends AbstractPopupComponen
       this.createCompleteData.descInvalidMessage = this.translateService.instant('msg.alert.edit.description.len');
       return;
     }
+    // set complete data
+    this.sourceData.completeData = this.createCompleteData;
     // create datasource
     this._createDatasource();
   }
@@ -116,19 +122,50 @@ export class CreateSnapshotSourceCompleteComponent extends AbstractPopupComponen
     return this.datasourceCreateService.getPartitionLabel(this._convertedPartitionList);
   }
 
-  public getSelectedSnapshot(): any {
-    return this._sourceData.snapshotData.selectedSnapshot;
-  }
-
-  public getIngestionData(): any {
-    return this._sourceData.ingestionData;
-  }
-
-  public getSchemaData(): any {
-    return this._sourceData.schemaData;
-  }
-
+  /**
+   * Create datasource
+   * @private
+   */
   private _createDatasource(): void {
-
+    // loading show
+    this.loadingShow();
+    // create source
+    this.datasourceService.createDatasource(this.datasourceCreateService.getCreateSourceParams(this.sourceData))
+      .then((datasource) => {
+        // complete alert
+        Alert.success(`'${this.createCompleteData.sourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.create.success'));
+        // 개인 워크스페이스
+        const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
+        // 워크스페이스 매핑
+        this.datasourceService.addDatasourceWorkspaces(datasource.id, [workspace['id']])
+          .then(() => {
+            // link datasource detail (#505)
+            this.router.navigate(['/management/storage/datasource', datasource.id]);
+            // close
+            this._step = '';
+            this._completed.emit(this._step);
+          })
+          .catch(() => {
+            // link datasource detail (#505)
+            this.router.navigate(['/management/storage/datasource', datasource.id]);
+            // close
+            this._step = '';
+            this._completed.emit(this._step);
+          });
+      })
+      .catch((error) => {
+        // loading hide
+        this.loadingHide();
+        // modal
+        const modal: Modal = new Modal();
+        // show cancel disable
+        modal.isShowCancel = false;
+        // title
+        modal.name = this.translateService.instant('msg.storage.ui.source.create.fail.title');
+        // desc
+        modal.description = this.translateService.instant('msg.storage.ui.source.create.fail.description');
+        // show error modal
+        this._confirmModal.init(modal);
+      });
   }
 }

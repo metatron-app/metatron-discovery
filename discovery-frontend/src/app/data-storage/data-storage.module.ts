@@ -74,7 +74,6 @@ import {DataConnectionCreateService} from "./service/data-connection-create.serv
 import {CreateSnapshotSourceSelectComponent} from "./data-source-list/create-data-source/snapshot-source/create-snapshot-source-select.component";
 import {DataSnapshotService} from "../data-preparation/data-snapshot/service/data-snapshot.service";
 import {SnapshotPreviewComponent} from "./data-source-list/create-data-source/snapshot-source/snapshot-preview.component";
-import {DataSnapshotDetailComponent} from "../data-preparation/data-snapshot/data-snapshot-detail.component";
 import {DataPreparationShareModule} from "../data-preparation/data-preparation-share.module";
 import {CreateSnapshotSourceConfigureComponent} from "./data-source-list/create-data-source/snapshot-source/create-snapshot-source-configure.component";
 import {CreateSnapshotSourceCompleteComponent} from "./data-source-list/create-data-source/snapshot-source/create-snapshot-source-complete.component";

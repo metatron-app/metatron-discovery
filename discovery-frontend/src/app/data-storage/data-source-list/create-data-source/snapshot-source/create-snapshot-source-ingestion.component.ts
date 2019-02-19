@@ -12,6 +12,7 @@ import {
 } from "@angular/core";
 import {DatasourceInfo} from "../../../../domain/datasource/datasource";
 import {IngestionSettingComponent} from "../../component/ingestion-setting.component";
+import {SsType} from "../../../../domain/data-preparation/pr-snapshot";
 
 @Component({
   selector: 'create-snapshot-ingestion-select',
@@ -44,10 +45,8 @@ export class CreateSnapshotSourceIngestionComponent extends AbstractPopupCompone
   ngOnChanges(changes: SimpleChanges): void {
     // if changed source Data
     if (changes._sourceData) {
-      //TODO fix staging
       this._ingestionSettingComponent.init(
-        this._sourceData,
-        'STAGING',
+        this._sourceData, this._sourceData.snapshotData.selectedSnapshot.ssType === SsType.STAGING_DB ? 'SNAPSHOT-STAGING' : 'SNAPSHOT',
         this._sourceData.schemaData.selectedTimestampType === 'CURRENT' ? null :  this._sourceData.schemaData.selectedTimestampField,
         this._sourceData.schemaData.isChangedTimestampField
       );

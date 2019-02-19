@@ -14,6 +14,7 @@
 
 <!-- 생성 타입 선택 -->
 <select-type *ngIf="step == '' || step == 'complete-create'"
+             [sourceData]="sourceData"
              [(step)]="step"
              (close)="createClose()">
 </select-type>

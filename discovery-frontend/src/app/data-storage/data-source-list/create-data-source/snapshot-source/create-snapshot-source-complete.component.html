@@ -39,16 +39,16 @@
               Snapshot
             </th>
             <td>
-              {{getSelectedSnapshot().ssName}}
+              {{sourceData.snapshotData.selectedSnapshot.ssName}}
             </td>
           </tr>
           <!-- only stagingDB type snapshot -->
-          <tr >
+          <tr *ngIf="sourceData.snapshotData.selectedSnapshot.ssType === 'STAGING_DB'">
             <th>
               {{'msg.storage.ui.list.schema' | translate}} / {{'msg.lineage.ui.list.title.table' | translate}}
             </th>
             <td>
-
+              {{sourceData.snapshotData.selectedSnapshot.dbName}} / {{sourceData.snapshotData.selectedSnapshot.tblName}}
             </td>
           </tr>
           <!-- //only stagingDB type snapshot -->
@@ -60,7 +60,7 @@
             <td>
               <ul class="ddp-list-sub">
                 <!-- partition -->
-                <li>
+                <li *ngIf="sourceData.snapshotData.selectedSnapshot.ssType === 'STAGING_DB'">
                   {{'msg.storage.ui.dsource.create.partition.keys' | translate}}
                   <div class="ddp-sub" [innerHTML]="getPartitionKeys()">
                   </div>
@@ -68,15 +68,15 @@
                 <!-- //partition -->
                 <!-- granularity -->
                 <li>
-                  {{'msg.storage.th.query.gran' | translate}} : {{getIngestionData().selectedQueryGranularity.label}}
+                  {{'msg.storage.th.query.gran' | translate}} : {{sourceData.ingestionData.selectedQueryGranularity.label}}
                 </li>
                 <li>
-                  {{'msg.storage.th.segment.gran' | translate}} : {{getIngestionData().selectedSegmentGranularity.label}}
+                  {{'msg.storage.th.segment.gran' | translate}} : {{sourceData.ingestionData.selectedSegmentGranularity.label}}
                 </li>
                 <!-- //granularity -->
                 <!-- if not used current TIMESTAMP-->
-                <li *ngIf="getSchemaData().selectedTimestampType !== 'CURRENT'">
-                  {{'msg.storage.ui.intervals' | translate}} : {{getIngestionData().startIntervalText}} ~ {{getIngestionData().endIntervalText}}
+                <li *ngIf="sourceData.schemaData.selectedTimestampType !== 'CURRENT'">
+                  {{'msg.storage.ui.intervals' | translate}} : {{sourceData.ingestionData.startIntervalText}} ~ {{sourceData.ingestionData.endIntervalText}}
                 </li>
                 <!-- //if not used current TIMESTAMP-->
               </ul>
@@ -89,7 +89,7 @@
               {{'msg.storage.th.rollup.settings' | translate}}
             </th>
             <td>
-              {{getIngestionData().selectedRollUpType.label}}
+              {{sourceData.ingestionData.selectedRollUpType.label}}
             </td>
           </tr>
           <!-- //roll up -->
