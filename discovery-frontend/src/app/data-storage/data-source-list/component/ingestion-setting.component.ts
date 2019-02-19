@@ -258,8 +258,10 @@ export class IngestionSettingComponent extends AbstractComponent {
         this.partitionKeyList.push(_.cloneDeep(this._sourceData.databaseData.selectedTableDetail.partitionFields));
         // set enable partition
         this.selectedPartitionType = this.partitionTypeList[1];
-      } else if (this.createType === 'SNAPSHOT-STAGING') {
-
+      } else if (this.createType === 'SNAPSHOT-STAGING' && this._sourceData.snapshotData.selectedSnapshot.partitionColNames.length > 0) {
+        this.partitionKeyList.push(this._sourceData.snapshotData.selectedSnapshot.partitionColNames.map((item) => {
+          return {name: item};
+        }));
       }
     }
   }

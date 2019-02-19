@@ -106,7 +106,7 @@
               </ng-container>
               <!-- //stagingDB -->
               <!-- DB -->
-              <ng-container *ngIf="isFileType() || isJdbcType()">
+              <ng-container *ngIf="!isHiveType()">
                 <div class="ddp-list-status">
                   <!-- 데이터 이관 -->
                   <div class="ddp-status"

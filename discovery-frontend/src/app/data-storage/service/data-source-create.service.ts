@@ -55,9 +55,9 @@ export class DataSourceCreateService {
   /**
    * Get converted partition list
    * @param partitionList
-   * @return {object}
+   * @return {any[]}
    */
-  public getConvertedPartitionList(partitionList: any): object {
+  public getConvertedPartitionList(partitionList: any): any[] {
     // result
     const result = [];
     // loop
@@ -234,8 +234,8 @@ export class DataSourceCreateService {
     };
     // if exist tuning options
     sourceInfo.ingestionData.tuningConfig.some(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)) && (result.tuningOptions = this._toObject(sourceInfo.ingestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value))));
-
-    if (sourceInfo.type === SourceType.JDBC) { // DB
+    // DB
+    if (sourceInfo.type === SourceType.JDBC) {
     } else if (sourceInfo.type === SourceType.FILE) { // File
     } else if (sourceInfo.type === SourceType.HIVE) { // StagingDB
     } else if (sourceInfo.type === SourceType.SNAPSHOT) { // Snapshot
@@ -265,6 +265,7 @@ export class DataSourceCreateService {
       result.paths = [sourceInfo.snapshotData.selectedSnapshot.storedUri];
     } else if (result.type === 'hive') { // if StagingDB
       sourceInfo.ingestionData.jobProperties.some(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)) && (result.jobProperties = this._toObject(sourceInfo.ingestionData.jobProperties.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value))));
+      result.partitions = sourceInfo.ingestionData.selectedPartitionType.value === 'ENABLE' ? this.getConvertedPartitionList(sourceInfo.ingestionData.partitionKeyList) : [];
     }
   }
 
