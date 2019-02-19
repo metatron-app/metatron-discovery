@@ -2267,6 +2267,8 @@
   "msg.page.pivot.layout.condition.measure.desc": "{{value}}个的测定值",
   "msg.page.pivot.layout.condition.measure.desc.add": "并且 {{value}}个的测定值",
   "msg.page.pivot.layout.condition.measure.and.desc": "还有{{value}}个以上的测定值",
+  "msg.page.dt.column.name": "列名",
+  "msg.page.dt.type": "列名",
   "msg.page.btn.save": "保存",
   "msg.page.ui.panel.title": "数据",
   "msg.page.ui.num.dimensions.measures": "次元值{{dimensions}} / 测定值 {{measures}}",

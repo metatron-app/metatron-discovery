@@ -3205,6 +3205,8 @@
   "msg.page.pivot.layout.condition.measure.desc.add": "and {{value}} measure",
   "msg.page.pivot.layout.condition.measure.and.desc": " and more than {{value}} measure",
   "msg.page.pivot.layout.condition.measure.range": "Measure between {{valueFirst}} and {{valueSecond}}",
+  "msg.page.dt.column.name": "Column name",
+  "msg.page.dt.type": "Type",
   "msg.page.btn.save" : "Save",
   "msg.page.ui.panel.title" : "Data",
   "msg.page.ui.num.dimensions.measures" : "Dimension {{dimensions}} / Measure {{measures}}",

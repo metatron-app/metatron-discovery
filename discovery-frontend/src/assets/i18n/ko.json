@@ -3206,6 +3206,8 @@
   "msg.page.pivot.layout.condition.measure.desc.add": "그리고 {{value}}개의 측정값",
   "msg.page.pivot.layout.condition.measure.and.desc": "그리고 {{value}}개 이상의 측정값",
   "msg.page.pivot.layout.condition.measure.range": "{{valueFirst}}~{{valueSecond}}개 사이의 측정값",
+  "msg.page.dt.column.name": "컬럼 이름",
+  "msg.page.dt.type": "타입",
   "msg.page.btn.save" : "저장",
   "msg.page.ui.panel.title" : "데이터",
   "msg.page.ui.num.dimensions.measures" : "차원값 {{dimensions}} / 측정값 {{measures}}",

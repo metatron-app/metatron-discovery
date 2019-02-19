@@ -20,11 +20,11 @@
   <!-- MetaData -->
   <div *ngIf="isShowLayer" class="ddp-detail-more">
     <dl class="ddp-dl-more">
-      <dt>Logical column name</dt>
+      <dt>{{ 'msg.page.dt.column.name' | translate }}</dt>
       <dd>{{selectedField.uiMetaData?.name}}</dd>
     </dl>
     <dl class="ddp-dl-more">
-      <dt>Logical type</dt>
+      <dt>{{ 'msg.page.dt.type' | translate }}</dt>
       <dd>{{getMetaDataLogicalTypeName()}}</dd>
     </dl>
   </div>
