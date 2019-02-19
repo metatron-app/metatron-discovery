@@ -587,6 +587,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       params['queryStmt'] = `select * from ${tableInfo.databaseName}.${tableInfo.tableName}`;
     }
 
+    this.loadingShow();
     this.datasetService.createDataSet(params).then((result) => {
       this.loadingHide();
       this.successAction(result);
