@@ -15,7 +15,7 @@ import {
   SourceType
 } from "../../domain/datasource/datasource";
 import {PageResult} from "../../domain/common/page";
-import {GranularityObject} from "./granularity.service";
+import {GranularityObject, GranularityService} from "./granularity.service";
 import {PrDataSnapshot, SsType} from "../../domain/data-preparation/pr-snapshot";
 import * as _ from "lodash";
 import {CommonConstant} from "../../common/constant/common.constant";
@@ -28,8 +28,11 @@ export class DataSourceCreateService {
 
   private _translateService: TranslateService;
 
+  private _granularityService: GranularityService;
+
   constructor(injector: Injector) {
     this._translateService = injector.get(TranslateService);
+    this._granularityService = injector.get(GranularityService);
   }
 
   /**
@@ -234,14 +237,47 @@ export class DataSourceCreateService {
     };
     // if exist tuning options
     sourceInfo.ingestionData.tuningConfig.some(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)) && (result.tuningOptions = this._toObject(sourceInfo.ingestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value))));
+    // if not used current_time TIMESTAMP, set intervals
+    if (sourceInfo.schemaData.selectedTimestampType !== ConfigureTimestampType.CURRENT) {
+      result.intervals =  [this._granularityService.getIntervalUsedParam(sourceInfo.ingestionData.startIntervalText, sourceInfo.ingestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(sourceInfo.ingestionData.endIntervalText, sourceInfo.ingestionData.selectedSegmentGranularity)];
+    }
     // DB
     if (sourceInfo.type === SourceType.JDBC) {
     } else if (sourceInfo.type === SourceType.FILE) { // File
     } else if (sourceInfo.type === SourceType.HIVE) { // StagingDB
+      this._setStagingIngestionParams(result, sourceInfo);
     } else if (sourceInfo.type === SourceType.SNAPSHOT) { // Snapshot
       this._setSnapshotIngestionParams(result, sourceInfo);
     }
     return result;
+  }
+
+  /**
+   * Set file ingestion params
+   * @param {CreateSourceIngestionParams} result
+   * @param {DatasourceInfo} sourceInfo
+   * @private
+   */
+  private _setFileIngestionParams(result: CreateSourceIngestionParams, sourceInfo: DatasourceInfo): void {
+    result.type = 'local';
+    result.removeFirstRow = sourceInfo.fileData.isFirstHeaderRow;
+    result.path = sourceInfo.fileData.fileResult.filePath;
+    // result.format
+  }
+
+  /**
+   * Set staging ingestion params
+   * @param {CreateSourceIngestionParams} result
+   * @param {DatasourceInfo} sourceInfo
+   * @private
+   */
+  private _setStagingIngestionParams(result: CreateSourceIngestionParams, sourceInfo: DatasourceInfo): void {
+    result.type = 'hive';
+    result.format = _.cloneDeep(sourceInfo.databaseData.selectedTableDetail.fileFormat);
+    result.source = sourceInfo.databaseData.selectedDatabase + '.' + sourceInfo.databaseData.selectedTable;
+    result.partitions = sourceInfo.ingestionData.selectedPartitionType.value === 'ENABLE' ? this.getConvertedPartitionList(sourceInfo.ingestionData.partitionKeyList) : [];
+    sourceInfo.ingestionData.jobProperties.some(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)) && (result.jobProperties = this._toObject(sourceInfo.ingestionData.jobProperties.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value))));
+    sourceInfo.databaseData.selectedTableDetail.fileFormat.type === 'CSV' && (result.format.lineSeparator = '\n');
   }
 
   /**
