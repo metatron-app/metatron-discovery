@@ -258,8 +258,9 @@ export class IngestionSettingComponent extends AbstractComponent {
         this.partitionKeyList.push(_.cloneDeep(this._sourceData.databaseData.selectedTableDetail.partitionFields));
         // set enable partition
         this.selectedPartitionType = this.partitionTypeList[1];
-      } else if (this.createType === 'SNAPSHOT-STAGING' && this._sourceData.snapshotData.selectedSnapshot.partitionColNames.length > 0) {
-        this.partitionKeyList.push(this._sourceData.snapshotData.selectedSnapshot.partitionColNames.map((item) => {
+      } else if (this.createType === 'SNAPSHOT-STAGING') {
+        const partitionList = JSON.parse(this._sourceData.snapshotData.selectedSnapshot.partitionColNames.toString());
+        partitionList.length > 0 && this.partitionKeyList.push(partitionList.map((item) => {
           return {name: item};
         }));
       }
@@ -772,7 +773,7 @@ export class IngestionSettingComponent extends AbstractComponent {
       return false;
     }
     // If create type is StagingDB and strict mode
-    if (this.createType === 'STAGING' && this.isStrictMode && this.partitionKeyList.length !== 0 && !this.partitionValidationResult) {
+    if ((this.createType === 'STAGING' || this.createType === 'SNAPSHOT-STAGING') && this.isStrictMode && this.partitionKeyList.length !== 0 && !this.partitionValidationResult) {
       return false;
     }
     // valid interval granularity (only column TIMESTAMP)
@@ -986,7 +987,7 @@ export class IngestionSettingComponent extends AbstractComponent {
       this.cronText = ingestionData.cronText;
     }
     // if create type is StagingDB
-    if (this.createType === 'STAGING') {
+    if (this.createType === 'STAGING' || this.createType === 'SNAPSHOT-STAGING') {
       // load selected data range type
       // load selected partition type
       this.selectedPartitionType = ingestionData.selectedPartitionType;
@@ -1064,7 +1065,7 @@ export class IngestionSettingComponent extends AbstractComponent {
       sourceData['ingestionData'].cronText = this.cronText;
     }
     // if create type Staging
-    if (this.createType === 'STAGING') {
+    if (this.createType === 'STAGING' || this.createType === 'SNAPSHOT-STAGING') {
       // save selected partition type
       sourceData['ingestionData'].selectedPartitionType = this.selectedPartitionType;
       // selected job properties
