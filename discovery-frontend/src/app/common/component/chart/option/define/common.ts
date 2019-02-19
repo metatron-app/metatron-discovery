@@ -932,6 +932,15 @@ export enum ShelfType {
 }
 
 /**
+ * shelf layer view type
+ */
+export enum LayerViewType {
+  ORIGINAL = <any>'original',
+  HASH = <any>'hash',
+  CLUSTERING = <any>'clustering'
+}
+
+/**
  * field format type
  */
 export enum FormatType {

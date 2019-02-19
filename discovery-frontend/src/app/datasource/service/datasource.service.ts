@@ -21,7 +21,7 @@ import {MapDataSource, SearchQueryRequest} from '../../domain/datasource/data/se
 import * as _ from 'lodash';
 import {PageWidgetConfiguration} from '../../domain/dashboard/widget/page-widget';
 import {
-  ChartType, ShelveFieldType, GridViewType, LineMode, ShelfType, FormatType
+  ChartType, ShelveFieldType, GridViewType, LineMode, ShelfType, FormatType, LayerViewType
 } from '../../common/component/chart/option/define/common';
 import {Filter} from '../../domain/workbook/configurations/filter/filter';
 import {UILineChart} from '../../common/component/chart/option/ui-option/ui-line-chart';
@@ -600,11 +600,19 @@ export class DatasourceService extends AbstractService {
 
                 // geo_hash is only used in hexagon
                 if (MapLayerType.TILE === (<UIMapOption>pageConf.chart).layers[idx].type) {
-                  layer.format = <GeoHashFormat>{
-                    type: FormatType.GEO_HASH.toString(),
+
+                  // 기존 polygon 스펙
+                  // layer.format = <GeoHashFormat>{
+                  //   type: FormatType.GEO_HASH.toString(),
+                  //   method: "geohex",
+                  //   precision: precision
+                  // };
+
+                  query.shelf.layers[idx].view = <GeoHashFormat>{
+                    type: LayerViewType.HASH.toString(),
                     method: "geohex",
                     precision: precision
-                  }
+                  };
                 }
 
                 // when they have multiple geo values
