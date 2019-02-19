@@ -47,7 +47,8 @@ import java.util.Set;
     @JsonSubTypes.Type(value = PostgresqlConnection.class, name = "POSTGRESQL"),
     @JsonSubTypes.Type(value = MssqlConnection.class, name = "MSSQL"),
     @JsonSubTypes.Type(value = PrestoConnection.class, name = "PRESTO"),
-    @JsonSubTypes.Type(value = LocalFileConnection.class, name = "FILE")
+    @JsonSubTypes.Type(value = LocalFileConnection.class, name = "FILE"),
+    @JsonSubTypes.Type(value = DruidConnection.class, name = "DRUID")
 })
 public abstract class DataConnection extends AbstractHistoryEntity implements MetatronDomain<String> {
 
@@ -302,7 +303,7 @@ public abstract class DataConnection extends AbstractHistoryEntity implements Me
   }
 
   public enum Implementor {
-    H2, HIVE, ORACLE, TIBERO, MYSQL, MSSQL, PRESTO, FILE, POSTGRESQL, GENERAL;
+    H2, HIVE, ORACLE, TIBERO, MYSQL, MSSQL, PRESTO, FILE, POSTGRESQL, DRUID, GENERAL;
 
     public static Implementor getImplementor(DataConnection connection) {
       if (connection instanceof HiveConnection) {
@@ -321,6 +322,8 @@ public abstract class DataConnection extends AbstractHistoryEntity implements Me
         return POSTGRESQL;
       } else if (connection instanceof LocalFileConnection) {
         return FILE;
+      } else if (connection instanceof DruidConnection) {
+        return DRUID;
       } else
         return GENERAL;
     }

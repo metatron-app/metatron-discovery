@@ -346,5 +346,7 @@ export class DataconnectionService extends AbstractService {
     return this.post(this.API_URL + `connections/filter?projection=${projection}&page=${page}&size=${size}&sort=${sort}`, params);
   }
 
-
+  public getEnabledConnectionTypes(): Promise<any> {
+    return this.get(this.URL_CONNECTIONS + '/connections/types');
+  }
 }

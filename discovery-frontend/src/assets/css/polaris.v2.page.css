@@ -5152,6 +5152,7 @@ table.ddp-table-detail tbody tr td .ddp-wrap-alart .ddp-ui-tooltip-info {display
 table.ddp-table-detail tbody tr td .ddp-wrap-alart .ddp-ui-tooltip-info .ddp-icon-view-top {left:68px; right:inherit;}
 table.ddp-table-detail tbody tr td a.ddp-link-url {text-decoration: underline; font-style:italic;}
 table.ddp-table-detail tbody tr td a.ddp-link-url2 {text-decoration: underline; color:#4c92e0;}
+table.ddp-table-detail tbody tr td.ddp-link-url a {text-decoration: underline; color:#4c92e0;}
 table.ddp-table-detail tbody tr td a.ddp-btn-pop.ddp-type {min-width:178px; border:1px solid #90969f; background-color:#90969f;}
 
 table.ddp-table-detail tbody tr td a.ddp-btn-pop.ddp-type:hover {background-color:#4b515b;}

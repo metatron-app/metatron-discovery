@@ -139,8 +139,9 @@ public class LiveJdbcEngineRepository {
 
     DriverManagerDataSource driverManagerDataSource =
         new DriverManagerDataSource(connection.getConnectUrl(), connection.getUsername(), connection.getPassword());
-    driverManagerDataSource.setDriverClassName(connection.getDriverClass());
-
+    if (connection.getDriverClass() != null) {
+      driverManagerDataSource.setDriverClassName(connection.getDriverClass());
+    }
 //    DataSource dataSource = DataSourceBuilder.create()
 //            .url(connection.getConnectUrl())
 //            .driverClassName(connection.getDriverClass())
