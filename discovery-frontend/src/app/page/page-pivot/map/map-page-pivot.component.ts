@@ -38,6 +38,7 @@ import {UIOption} from '../../../common/component/chart/option/ui-option';
 import {Alert} from '../../../common/util/alert.util';
 import {ChartUtil} from '../../../common/component/chart/option/util/chart-util';
 import {OptionGenerator} from "../../../common/component/chart/option/util/option-generator";
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'map-page-pivot',
@@ -410,7 +411,9 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * map chart - add layer
    */
   public addLayer(index : number): void {
-    if( this.shelf.layers.length >= 2) {
+    if( this.shelf.layers.length  >= 2
+        || isNullOrUndefined(this.shelf.layers[0]) || isNullOrUndefined(this.shelf.layers[0].fields) || this.shelf.layers[0].fields.length <= 0 ) {
+      Alert.warning('Please select GEO dimension one or more');
       return;
     } else {
 

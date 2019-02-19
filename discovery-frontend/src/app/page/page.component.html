@@ -1449,6 +1449,7 @@
                     </gauge-chart>
                     <map-chart #chart
                                  [isPage]="true"
+                                 [needToRemoveMapLayer]="isChartShow"
                                  *ngIf="selectChart == 'map'"
                                  [uiOption]="uiOption"
                                  (uiOptionUpdated)="updateUIOption($event)"
