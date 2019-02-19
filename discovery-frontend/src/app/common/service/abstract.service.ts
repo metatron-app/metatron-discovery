@@ -23,7 +23,9 @@ import { NavigationExtras, Router } from '@angular/router';
 import { saveAs } from 'file-saver';
 import 'rxjs/add/operator/timeout';
 import { CommonUtil } from '../util/common.util';
-import {Observable} from "rxjs/Observable";
+import { Observable } from 'rxjs';
+import {map} from "rxjs/operators";
+import {catchError} from "rxjs/internal/operators";
 
 
 /*
@@ -274,12 +276,12 @@ export class AbstractService {
   }
 
   // subscribe post
-  protected postObservable(url: string, data: any): Observable<Response> {
+  protected postObservable(url: string, data: any): Observable<Object> {
     // this
-    // const scope: any = this;
+    const scope: any = this;
 
     // 헤더
-    const headers = new Headers({
+    const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
       + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
@@ -287,14 +289,13 @@ export class AbstractService {
     });
 
     // 호출
-    return this.http.post(url, data, { headers }).map((response:Response) => {
-      if (response.status >= 200 && response.status < 300) {
-        return response.json();
-      }
-      // 에러 발생
-      throw new Error(response.json().message);
-    });
-
+    return this.http.post(url, data, { headers }).pipe(
+      map(
+        (response) => {
+            return response;
+        }
+      ),catchError(error => scope.errorHandler(scope, error, httpMethod.POST, data))
+    );
   }
 
   // Un
