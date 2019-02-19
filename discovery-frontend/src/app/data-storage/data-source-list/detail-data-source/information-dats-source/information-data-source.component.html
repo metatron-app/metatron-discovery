@@ -49,7 +49,7 @@
             </div>
             <!-- //data -->
             <div class="ddp-box-textarea">
-              <textarea [(ngModel)]="descriptionChangeText"></textarea>
+              <textarea [(ngModel)]="descriptionChangeText" (blur)="onClickDescriptionOutside($event)"></textarea>
               <div class="ddp-textarea-buttons">
                 <a href="javascript:" class="ddp-box-btn" (click)="isEditSourceDescription = false"><em class="ddp-icon-cancel"></em></a>
                 <a href="javascript:" class="ddp-box-btn " (click)="updateSourceDescription()"><em class="ddp-icon-check"></em></a>

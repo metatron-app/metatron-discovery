@@ -237,6 +237,14 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   }
 
   /**
+   * Click description outside
+   * @param {MouseEvent} event
+   */
+  public onClickDescriptionOutside(event: MouseEvent): void {
+    !$(event.relatedTarget).hasClass('ddp-box-btn') && this.updateSourceDescription();
+  }
+
+  /**
    * ingestion details click event
    */
   public onClickIngestionDetails(): void {
