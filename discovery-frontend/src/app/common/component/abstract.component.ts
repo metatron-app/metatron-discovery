@@ -684,9 +684,12 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
           this.stomp.connected$.subscribe(() => {
             console.log('I will be called for each time connection is established.');
             this._webSocketReConnectCnt = 0;
-            const temp: string = CommonConstant.stomp['stompClient']['_webSocket']['_transport']['url'];
-            const tempArr = temp.split('/');
-            CommonConstant.websocketId = tempArr[5];
+            const webSocket = CommonConstant.stomp['stompClient']['_webSocket'];
+            if (webSocket && webSocket['_transport'] && webSocket['_transport']['url']) {
+              const temp: string = CommonConstant.stomp['stompClient']['_webSocket']['_transport']['url'];
+              const tempArr = temp.split('/');
+              CommonConstant.websocketId = tempArr[5];
+            }
             resolve('CONNECTED');
           })
         );
