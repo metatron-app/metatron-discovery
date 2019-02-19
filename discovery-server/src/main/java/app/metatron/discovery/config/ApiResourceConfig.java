@@ -328,7 +328,7 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
                                     DataSource.class, Field.class, DataSourceAlias.class, IngestionHistory.class,
                                     PhoenixConnection.class, PrestoConnection.class, H2Connection.class, MySQLConnection.class,
                                     HiveConnection.class, HawqConnection.class, OracleConnection.class, StageDataConnection.class,
-                                    TiberoConnection.class, LocalFileConnection.class, HdfsConnection.class, PostgresqlConnection.class,
+                                    TiberoConnection.class, LocalFileConnection.class, HdfsConnection.class, PostgresqlConnection.class, DruidConnection.class,
                                     Notebook.class, Workbench.class, Folder.class, NotebookModel.class, NotebookModelHistory.class, NotebookAPI.class,
                                     Widget.class, PageWidget.class, TextWidget.class, FilterWidget.class,
                                     QueryEditor.class, QueryHistory.class,
