@@ -199,7 +199,7 @@
               </tr>
               <tr>
                 <th>
-                  {{'msg.metadata.th.physical.role' | translate}}
+                  {{'msg.storage.ui.th.role' | translate}}
                 </th>
                 <td>
                   <span class="ddp-box-tag-value {{getFieldRoleTypeIconClass(selectedField.role.toString())}}">{{(selectedField.role === 'MEASURE' ? 'msg.comm.name.mea' : 'msg.comm.name.dim') | translate}}</span>
@@ -207,7 +207,7 @@
               </tr>
               <tr>
                 <th>
-                  {{'msg.metadata.th.physical.type' | translate}}
+                  {{'msg.storage.ui.type' | translate}}
                 </th>
                 <td>
                   <span class="ddp-icon-type-txt" *ngIf="selectedField.role === 'TIMESTAMP' || isDerivedColumn(selectedField)"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em>{{getColumnTypeLabel(selectedField.logicalType, physicalTypeList)}}</span>
@@ -318,14 +318,14 @@
                   {{selectedField.logicalName}}
                 </td>
               </tr>
-              <tr>
-                <th>
-                  {{'msg.storage.ui.th.logical.type'| translate}}
-                </th>
-                <td>
-                  <span class="ddp-icon-type-txt" *ngIf="selectedField['metaType']"> <em class="{{getFieldTypeIconClass(selectedField['metaType'])}}"></em> {{getColumnTypeLabel(selectedField['metaType'], typeFilterList)}}</span>
-                </td>
-              </tr>
+              <!--<tr>-->
+                <!--<th>-->
+                  <!--{{'msg.storage.ui.th.logical.type'| translate}}-->
+                <!--</th>-->
+                <!--<td>-->
+                  <!--<span class="ddp-icon-type-txt" *ngIf="selectedField['metaType']"> <em class="{{getFieldTypeIconClass(selectedField['metaType'])}}"></em> {{getColumnTypeLabel(selectedField['metaType'], typeFilterList)}}</span>-->
+                <!--</td>-->
+              <!--</tr>-->
               <tr>
                 <th>
                   {{'msg.metadata.th.dictionary' | translate}}
