@@ -25,7 +25,7 @@ import {
   ViewChild
 } from '@angular/core';
 import * as _ from 'lodash';
-import { ClipboardService } from 'ngx-clipboard';
+import {ClipboardService} from 'ngx-clipboard';
 import {
   BrushType,
   ChartMouseMode,
@@ -79,7 +79,7 @@ declare let $;
   selector: 'page-widget',
   templateUrl: 'page-widget.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles:[ '.ddp-pop-preview { position: fixed; width: 700px; height: 500px; top: 50%; left: 50%; margin-left: -350px; margin-top: -250px;}' ]
+  styles: ['.ddp-pop-preview { position: fixed; width: 700px; height: 500px; top: 50%; left: 50%; margin-left: -350px; margin-top: -250px;}']
 })
 export class PageWidgetComponent extends AbstractWidgetComponent implements OnInit, OnDestroy {
 
@@ -111,8 +111,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   // 현재 위젯에서 발생시킨 필터정보
   private _selectFilterList: any[] = [];
 
-  // Current Selection Filters
+  // Current Filters
   private _currentSelectionFilters: Filter[] = [];
+  private _currentSelectionFilterString: string = '';
+  private _currentGlobalFilterString: string = '';
 
   // child widget id list
   private _childWidgetIds: string[] = [];
@@ -140,7 +142,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isMaximize = false;                // 최대 여부
   public mouseMode: string = 'SINGLE';     // 차트 마우스 모드
 
-  public isSetChartData:boolean = false;          // 차트 데이터 설정 여부
+  public isSetChartData: boolean = false;          // 차트 데이터 설정 여부
   public isUpdateRedraw: boolean = true;          // 다시그리는 새로고침
   public isShowHierarchyView: boolean = false;    // 차트 계층 표시 여부
   public isInvalidPivot: boolean = false;          // 선반정보를 확인해야 하는 경우
@@ -150,7 +152,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public duringImageDown: boolean = false;        // 이미지 다운로드 진행 여부
 
   // Limit 정보
-  public limitInfo: ChartLimitInfo = { id: '', isShow: false, currentCnt: 0, maxCnt: 0 };
+  public limitInfo: ChartLimitInfo = {id: '', isShow: false, currentCnt: 0, maxCnt: 0};
 
   // Pivot 내 사용자 정의 컬럼 사용 여부
   public useCustomField: boolean = false;
@@ -175,8 +177,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
   // is Origin data down
   public isOriginDown: boolean = false;
-  public srchText:string = '';
-  public isCanNotDownAggr:boolean = false;
+  public srchText: string = '';
+  public isCanNotDownAggr: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables - Input & Output
@@ -431,14 +433,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           } else if (this.chart.uiOption.type === ChartType.LABEL) {
 
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
-            ( this.isSetChartData ) && ( (<NetworkChartComponent>this.chart).draw() );
+            (this.isSetChartData) && ((<NetworkChartComponent>this.chart).draw());
           } else if (this.chart.uiOption.type === ChartType.MAP) {
             (<MapChartComponent>this.chart).resize();
           } else {
             try {
               if (this.chart && this.chart.chart) this.chart.chart.resize();
-            }
-            catch (error) {
+            } catch (error) {
             }
           }
           // 변경 적용
@@ -496,8 +497,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       }
       if (selectData.length == 0 && !_.eq(data.mode, ChartSelectMode.CLEAR)) {
         return;
-      }
-      else {
+      } else {
         data.data = selectData;
       }
 
@@ -755,7 +755,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public copyWidgetIdToClipboard() {
     if (this.widget) {
-      this._clipboardService.copyFromContent( this.widget.id );
+      this._clipboardService.copyFromContent(this.widget.id);
     }
   } // function - copyWidgetIdToClipboard
 
@@ -982,7 +982,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     (clonePivot.columns) && (fields = fields.concat(clonePivot.columns));
     (clonePivot.aggregations) && (fields = fields.concat(clonePivot.aggregations));
 
-    if( isOriginal && fields.some((field: Field) => ( field['field'] && field['field'].aggregated ) ) ) {
+    if (isOriginal && fields.some((field: Field) => (field['field'] && field['field'].aggregated))) {
       this.isCanNotDownAggr = true;
       this.safelyDetectChanges();
       return false;
@@ -996,13 +996,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       // 헤더정보 생성
       const headers: header[]
         = fields.map((field: Field) => {
-        const logicalType:string = ( field['field'] && field['field'].logicalType ) ? field['field'].logicalType.toString() : '';
+        const logicalType: string = (field['field'] && field['field'].logicalType) ? field['field'].logicalType.toString() : '';
         let headerName: string = field.name;
-        if( field['aggregationType'] ) {
-          if( !isOriginal ) {
+        if (field['aggregationType']) {
+          if (!isOriginal) {
             headerName = field.alias ? field.alias : field['aggregationType'] + '(' + field.name + ')';
           }
-        } else if( field.alias ) {
+        } else if (field.alias) {
           headerName = field.alias;
         }
 
@@ -1052,7 +1052,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         this.loadingHide();
       }
     }).catch((err) => {
-      console.error( err );
+      console.error(err);
       this.loadingHide();
       // 변경 적용
       this.safelyDetectChanges();
@@ -1064,7 +1064,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * 검색어 설정 및 그리드 검색
    * @param {string} srchText
    */
-  public setSearchText(srchText:string) {
+  public setSearchText(srchText: string) {
     this.srchText = srchText;
     this._dataGridComp.search(this.srchText);
   } // function - setSearchText
@@ -1329,8 +1329,15 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       this.chart['setQuery'] = this.query;
     }
 
-    // 유효한 선택 필터 정보 저장
+    // 차트 클리어 여부 판단
+    const isClear: boolean = (this.chart && 'function' === typeof this.chart.clear
+      && (this._currentSelectionFilterString !== JSON.stringify(currentSelectionFilters)
+        || this._currentGlobalFilterString !== JSON.stringify(globalFilters)));
+
+    // 필터 정보 저장
     this._currentSelectionFilters = currentSelectionFilters;
+    this._currentSelectionFilterString = JSON.stringify(currentSelectionFilters);
+    this._currentGlobalFilterString = JSON.stringify(globalFilters);
 
     this.datasourceService.searchQuery(cloneQuery).then((data) => {
 
@@ -1359,6 +1366,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       }
 
       setTimeout(() => {
+
+        // 차트 클리어
+        (isClear) && (this.chart.clear());
+
         // line차트이면서 columns 데이터가 있는경우
         if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
           // 고급분석 예측선 API 호출
@@ -1369,8 +1380,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         }
 
         // Set Limit Info
-        this.limitInfo = DashboardUtil.getChartLimitInfo( this.widget.id, ChartType[this.chartType.toUpperCase()], data );
-        if (this.layoutMode === LayoutMode.EDIT ) {
+        this.limitInfo = DashboardUtil.getChartLimitInfo(this.widget.id, ChartType[this.chartType.toUpperCase()], data);
+        if (this.layoutMode === LayoutMode.EDIT) {
           this.broadCaster.broadcast('WIDGET_LIMIT_INFO', this.limitInfo);
         }
 
