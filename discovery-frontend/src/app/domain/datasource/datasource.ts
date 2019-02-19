@@ -260,7 +260,15 @@ export class Field {
 
 // 데이터소스 생성시 사용하는 정보
 export class DatasourceInfo {
-
+  // src type
+  public type: SourceType;
+  public dsType: DataSourceType;
+  // conn type
+  public connType: ConnectionType;
+  // field list data
+  public fieldList: any;
+  // field data
+  public fieldData: any;
   // 1step 커넥션 정보
   public connectionData: any;
 
@@ -283,11 +291,6 @@ export class DatasourceInfo {
 
   // 분기를 위한 플래그
   public workbenchFl: boolean;
-
-  // field list data
-  public fieldList: any;
-  // field data
-  public fieldData: any;
 }
 
 export class IngestionRule {

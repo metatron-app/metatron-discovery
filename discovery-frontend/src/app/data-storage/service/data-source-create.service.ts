@@ -1,19 +1,24 @@
 import {Injectable, Injector} from "@angular/core";
 import {FileItem, ParsedResponseHeaders} from "ng2-file-upload";
-import { TranslateService } from '@ngx-translate/core';
+import {TranslateService} from '@ngx-translate/core';
 import {StringUtil} from "../../common/util/string.util";
 import {GranularityType} from "../../domain/workbook/configurations/field/timestamp-field";
 import {
-  ConnectionType, DatasourceInfo,
+  ConnectionType,
+  DatasourceInfo,
   DataSourceType,
   Field,
+  FieldFormatType,
   FieldRole,
+  IngestionRuleType,
   LogicalType,
   SourceType
 } from "../../domain/datasource/datasource";
 import {PageResult} from "../../domain/common/page";
 import {GranularityObject} from "./granularity.service";
-import {SsType} from "../../domain/data-preparation/pr-snapshot";
+import {PrDataSnapshot, SsType} from "../../domain/data-preparation/pr-snapshot";
+import * as _ from "lodash";
+import {CommonConstant} from "../../common/constant/common.constant";
 
 @Injectable()
 export class DataSourceCreateService {
@@ -104,6 +109,10 @@ export class DataSourceCreateService {
     }
   }
 
+  /**
+   * Get snapshot type filter list
+   * @return {TypeFilterObject[]}
+   */
   public getSnapshotTypeList(): TypeFilterObject[] {
     return [
       {label: 'All', value: 'ALL'},
@@ -112,6 +121,10 @@ export class DataSourceCreateService {
     ];
   }
 
+  /**
+   * Get role type filter list
+   * @return {TypeFilterObject[]}
+   */
   public getRoleTypeFilterList(): TypeFilterObject[] {
     return [
       {label: this._translateService.instant('msg.comm.ui.list.all'), value: 'ALL'},
@@ -120,6 +133,10 @@ export class DataSourceCreateService {
     ];
   }
 
+  /**
+   * Get logical type filter list
+   * @return {TypeFilterObject[]}
+   */
   public getLogicalTypeFilterList(): TypeFilterObject[] {
     return [
       {label: this._translateService.instant('msg.comm.ui.list.all'), value: 'ALL'},
@@ -181,8 +198,184 @@ export class DataSourceCreateService {
     ];
   }
 
-  public getCreateSourceParams() {
+  /**
+   * Create source params
+   * @param {DatasourceInfo} sourceInfo
+   * @return {CreateSourceParams}
+   */
+  public getCreateSourceParams(sourceInfo: DatasourceInfo): CreateSourceParams {
+    const result: CreateSourceParams = {
+      name: sourceInfo.completeData.sourceName.trim(),
+      description: StringUtil.isEmpty(sourceInfo.completeData.sourceDescription) ? sourceInfo.completeData.sourceDescription : '',
+      granularity: sourceInfo.ingestionData.selectedQueryGranularity.value,
+      segGranularity: sourceInfo.ingestionData.selectedSegmentGranularity.value,
+      dsType: sourceInfo.dsType,
+      srcType: sourceInfo.type,
+      connType: sourceInfo.connType,
+      fields: this._getFieldParams(sourceInfo.schemaData),
+      ingestion: this.getIngestionParams(sourceInfo)
+    };
+    // if snapshot type
+    sourceInfo.type === SourceType.SNAPSHOT && (result.snapshot = `/api/preparationsnapshots/${sourceInfo.snapshotData.selectedSnapshot.ssId}`);
+    // if db type, is enable connection preset
+    sourceInfo.type === SourceType.JDBC && sourceInfo.connectionData.isUsedConnectionPreset && (result.connection = `/api/connections/${sourceInfo.connectionData.selectedConnectionPreset.id}`);
+    return result;
+  }
 
+  /**
+   * Get ingestion params
+   * @param {DatasourceInfo} sourceInfo
+   * @return {CreateSourceIngestionParams}
+   */
+  public getIngestionParams(sourceInfo: DatasourceInfo): CreateSourceIngestionParams {
+    const result: CreateSourceIngestionParams = {
+      type: undefined,
+      rollup: sourceInfo.ingestionData.selectedRollUpType.value
+    };
+    // if exist tuning options
+    sourceInfo.ingestionData.tuningConfig.some(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)) && (result.tuningOptions = this._toObject(sourceInfo.ingestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value))));
+
+    if (sourceInfo.type === SourceType.JDBC) { // DB
+    } else if (sourceInfo.type === SourceType.FILE) { // File
+    } else if (sourceInfo.type === SourceType.HIVE) { // StagingDB
+    } else if (sourceInfo.type === SourceType.SNAPSHOT) { // Snapshot
+      this._setSnapshotIngestionParams(result, sourceInfo);
+    }
+    return result;
+  }
+
+  /**
+   * Set snapshot ingestion params
+   * @param {CreateSourceIngestionParams} result
+   * @param {DatasourceInfo} sourceInfo
+   * @private
+   */
+  private _setSnapshotIngestionParams(result: CreateSourceIngestionParams, sourceInfo: DatasourceInfo): void {
+    result.type = 'local';
+    result.format = {
+      type: 'csv'
+    };
+    result.paths = [sourceInfo.snapshotData.selectedSnapshot.storedUri];
+    // if exist job properties
+    sourceInfo.ingestionData.jobProperties && sourceInfo.ingestionData.jobProperties.some(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)) && (result.jobProperties = this._toObject(sourceInfo.ingestionData.jobProperties.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value))));
+    // only hdfs type
+    result.type === 'hdfs' && (result.findRecursive = false);
+  }
+
+  /**
+   * Convert array to object
+   * @param array
+   * @returns {Object}
+   * @private
+   */
+  private _toObject(array: any): object {
+    const result = {};
+    array.forEach((item) => {
+      result[item.key] = item.value;
+    });
+    return result;
+  }
+
+
+  /**
+   * Get field params
+   * @param schemaData
+   * @return {Field[]}
+   * @private
+   */
+  private _getFieldParams(schemaData: any): Field[] {
+    // timestamp enable
+    const isCreateTimestamp = schemaData.selectedTimestampType === ConfigureTimestampType.CURRENT;
+    // fields param clone
+    let fields = _.cloneDeep(schemaData._originFieldList);
+    // seq number
+    let seq = 0;
+    // field 설정
+    fields.forEach((field: Field) => {
+      // set seq num and increase seq
+      field['seq'] = seq++;
+      // if you don't want to create a timestamp column
+      if (!isCreateTimestamp) {
+        // if specified as a timestamp column
+        if (field.name === schemaData.selectedTimestampField.name) {
+          field.role = FieldRole.TIMESTAMP;
+        } else if (field.name !== schemaData.selectedTimestampField.name) {
+          // this column is not timestamp column, but column role is timestamp, specified as Dimension
+          field.role = FieldRole.DIMENSION;
+        }
+      }
+      // remove unnecessary property
+      this._removeUnnecessaryPropertyInField(field);
+    });
+    // if no column is specified as timestamp
+    if (isCreateTimestamp) {
+      fields.push(this._createCurrentField(seq));
+    }
+    return fields;
+  }
+
+  /**
+   * Create current column
+   * @param {number} seq
+   * @returns {Object}
+   * @private
+   */
+  private _createCurrentField(seq: number): object {
+    return {
+      seq: seq,
+      name: CommonConstant.COL_NAME_CURRENT_DATETIME,
+      type: LogicalType.TIMESTAMP,
+      role: FieldRole.TIMESTAMP,
+      derived: true,
+      format: {
+        type: FieldFormatType.TEMPORARY_TIME,
+        format: 'yyyy-MM-dd HH:mm:ss'
+      }
+    };
+  }
+
+  /**
+   * Remove unnecessary property in field
+   * @param {Field} field
+   * @private
+   */
+  private _removeUnnecessaryPropertyInField(field: Field) {
+    delete field.biType;
+    // delete used UI
+    delete field.isValidTimeFormat;
+    delete field.isValidReplaceValue;
+    delete field.replaceValidMessage;
+    delete field.timeFormatValidMessage;
+    delete field.checked;
+    // if unloaded property is false, delete unloaded property
+    if (field.unloaded === false) {
+      delete field.unloaded;
+    }
+    // if exist ingestion rule property
+    if (field.hasOwnProperty('ingestionRule')) {
+      // ingestion type
+      const type = field.ingestionRule.type;
+      // if type is default
+      if (type === IngestionRuleType.DEFAULT) {
+        delete field.ingestionRule;
+      } else if (type === IngestionRuleType.DISCARD) {
+        delete field.ingestionRule.value;
+      }
+    }
+    // if not GEO types
+    if (field.logicalType.toString().indexOf('GEO_') === -1) {
+      if (field.logicalType !== LogicalType.TIMESTAMP && field.format) {
+        delete field.format;
+      } else if (field.logicalType === LogicalType.TIMESTAMP && field.format.type === FieldFormatType.UNIX_TIME) {
+        // remove format
+        delete field.format.format;
+        // remove timezone
+        delete field.format.timeZone;
+        delete field.format.locale;
+      } else if (field.logicalType === LogicalType.TIMESTAMP && field.format.type === FieldFormatType.DATE_TIME) {
+        delete field.format.unit;
+      }
+    }
   }
 }
 
@@ -253,15 +446,45 @@ export interface CreateSourceParams {
   segGranularity: GranularityType;
   fields: Field[];
   ingestion: CreateSourceIngestionParams;
+  // only SNAPSHOT
   snapshot?: string;
+  // only DB
+  connection?: string;
 }
 
 export interface CreateSourceIngestionParams {
   type: string;
-  paths?: string[];
+  rollup: boolean;
+  intervals?: string[];
+  tuningOptions?: object;
+  // DB
+  query?: string;
+  database?: string;
+  expired?: number;
+  period?: CreateSourceIngestionPeriodParams; //TODO
+  maxLimit?: number;
+  range?: number;
+  scope?: any;  //TODO
+  connection?: any;  //TODO
+  connectionUsername?: string;  //TODO
+  connectionPassword?: string;  //TODO
+  // file
+  removeFirstRow?: boolean;
+  // snapshot
   findRecursive?: boolean;
-  format: any;
+  // staging
+  source?: string;
   jobProperties?: object;
+  partitions?: any[];
+  paths?: string[];
+  format?: any; //TODO
+}
+
+export interface CreateSourceIngestionPeriodParams {
+  frequency: string;
+  time?: number;
+  weekDays?: string[];
+  value?: number;
 }
 
 // create data source stagingDB select step data
@@ -284,7 +507,7 @@ export class CreateSnapShotData {
   // snapshot list
   public snapshotList: any[];
   // selected snapshot
-  public selectedSnapshot: any;
+  public selectedSnapshot: PrDataSnapshot;
   // selected snapshot data
   public selectedSnapshotData: any;
   // search text
