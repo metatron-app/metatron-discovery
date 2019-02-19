@@ -62,10 +62,11 @@
     "@ngx-translate/http-loader": "3.0.1",
     "@stomp/ng2-stompjs": "7.2.0",
     "sockjs-client": "1.3.0",
-    "antlr4": "4.7.2"
+    "antlr4": "4.7.2",
+    "fast-text-encoding": "1.0.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "0.11.4",
+    "@angular-devkit/build-angular": "0.13.2",
     "@angular/cli": "6.2.8",
     "@angular/compiler-cli": "6.1.10",
     "@angular/language-service": "6.1.10",
