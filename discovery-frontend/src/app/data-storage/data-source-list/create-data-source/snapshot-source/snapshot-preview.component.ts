@@ -13,8 +13,12 @@ import {
 import {DataSnapshotService} from "../../../../data-preparation/data-snapshot/service/data-snapshot.service";
 import {DataSnapshotDetailComponent} from "../../../../data-preparation/data-snapshot/data-snapshot-detail.component";
 import {DatasourceInfo, FieldRole, LogicalType} from "../../../../domain/datasource/datasource";
-import {SsType} from "../../../../domain/data-preparation/pr-snapshot";
-import {DataSourceCreateService, TypeFilterObject} from "../../../service/data-source-create.service";
+import {PrDataSnapshot, SsType} from "../../../../domain/data-preparation/pr-snapshot";
+import {
+  CreateSnapShotData,
+  DataSourceCreateService,
+  TypeFilterObject
+} from "../../../service/data-source-create.service";
 
 @Component({
   selector: 'snapshot-preview',
@@ -28,22 +32,25 @@ export class SnapshotPreviewComponent extends AbstractComponent implements OnCha
   @Input('snapshotId')
   private _selectedSnapshotId: string;
 
-  private _snapshotTypeList: TypeFilterObject[] = this.dataSourceCreateService.getSnapshotTypeList();
+  @Input('createSnapshotData')
+  private _createSnapshotData: CreateSnapShotData;
 
   @Input('sourceData')
   public sourceData: DatasourceInfo;
 
   // snapshot data
-  public snapshotData: any;
+  public snapshotData: PrDataSnapshot;
 
   // snapshot type
   public snapshotType = SsType;
 
+  // is error snapshot
+  public isErrorSnapshot: boolean;
+
   @Output()
   public closedPreview: EventEmitter<any> = new EventEmitter();
 
-  constructor(private dataSourceCreateService: DataSourceCreateService,
-              private dataSnapshotService: DataSnapshotService,
+  constructor(private dataSnapshotService: DataSnapshotService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -65,12 +72,16 @@ export class SnapshotPreviewComponent extends AbstractComponent implements OnCha
   }
 
   /**
-   * Get selected snapshot type
-   * @param {SsType} snapshotType
+   * Get snapshot type label
+   * @param {PrDataSnapshot} snapshot
    * @return {string}
    */
-  public getSelectedSnapshotType(snapshotType: SsType): string {
-    return this._snapshotTypeList.find(type => type.value === snapshotType).label;
+  public getSnapshotTypeLabel(snapshot: PrDataSnapshot): string {
+    if (snapshot.ssType === SsType.STAGING_DB) {
+      return this.translateService.instant('msg.dp.ui.list.staging-db')
+    } else if (snapshot.ssType === SsType.URI) {
+      return `${this.translateService.instant('msg.dp.ui.list.file')} (${snapshot.storedUri.indexOf('.csv') !== -1 ? 'CSV' : 'JSON'})`;
+    }
   }
 
   /**
@@ -98,6 +109,8 @@ export class SnapshotPreviewComponent extends AbstractComponent implements OnCha
         // get snapshot grid data
         this.dataSnapshotService.getDataSnapshotGridData(snapshotId, 0, 10000)
           .then((content) => {
+            // set error flag
+            this.isErrorSnapshot = false;
             // set field list #657
             for ( let idx = 0; idx < content.gridResponse.colCnt; idx++ ) {
               this.sourceData.fieldList.push({
@@ -115,10 +128,18 @@ export class SnapshotPreviewComponent extends AbstractComponent implements OnCha
               }
               this.sourceData.fieldData.push(obj);
             });
+            // remove error id
+            this._createSnapshotData.errorSnapshotIdList.some(errorId => errorId === snapshotId) && this._createSnapshotData.errorSnapshotIdList.splice(this._createSnapshotData.errorSnapshotIdList.findIndex(errorId => errorId === snapshotId),1);
             // loading hide
             this.loadingHide();
           })
-          .catch(error => this.commonExceptionHandler(error));
+          .catch((error) => {
+            this.commonExceptionHandler(error);
+            // set error flag
+            this.isErrorSnapshot = true;
+            // set error id
+            this._createSnapshotData.errorSnapshotIdList.every(errorId => errorId !== snapshotId) && this._createSnapshotData.errorSnapshotIdList.push(snapshotId);
+          });
       })
       .catch(error => this.commonExceptionHandler(error));
   }

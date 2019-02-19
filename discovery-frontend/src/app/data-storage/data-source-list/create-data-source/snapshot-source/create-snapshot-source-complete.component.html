@@ -36,14 +36,14 @@
           <tbody>
           <tr>
             <th>
-              Snapshot
+              {{'msg.dp.th.ss' | translate}}
             </th>
             <td>
               {{sourceData.snapshotData.selectedSnapshot.ssName}}
             </td>
           </tr>
           <!-- only stagingDB type snapshot -->
-          <tr *ngIf="sourceData.snapshotData.selectedSnapshot.ssType === 'STAGING_DB'">
+          <tr *ngIf="sourceData.snapshotData.selectedSnapshot.ssType.toString() === 'STAGING_DB'">
             <th>
               {{'msg.storage.ui.list.schema' | translate}} / {{'msg.lineage.ui.list.title.table' | translate}}
             </th>
@@ -60,7 +60,7 @@
             <td>
               <ul class="ddp-list-sub">
                 <!-- partition -->
-                <li *ngIf="sourceData.snapshotData.selectedSnapshot.ssType === 'STAGING_DB'">
+                <li *ngIf="sourceData.snapshotData.selectedSnapshot.ssType.toString() === 'STAGING_DB'">
                   {{'msg.storage.ui.dsource.create.partition.keys' | translate}}
                   <div class="ddp-sub" [innerHTML]="getPartitionKeys()">
                   </div>

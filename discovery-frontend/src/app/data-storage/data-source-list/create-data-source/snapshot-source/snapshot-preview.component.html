@@ -8,7 +8,7 @@
       <em class="ddp-icon-detail" (click)="onClickDetail()"></em>
       <div class="ddp-ui-tooltip-info">
         <em class="ddp-icon-view-top"></em>
-        Details
+        {{'msg.comm.detail.details' | translate}}
       </div>
     </div>
     <!-- //detail -->
@@ -18,10 +18,10 @@
     <!-- detail -->
     <dl class="ddp-dl-detail">
       <dt>
-        Type
+        {{'msg.comm.detail.type' | translate}}
       </dt>
       <dd>
-        {{getSelectedSnapshotType(snapshotData.ssType)}}
+        {{getSnapshotTypeLabel(snapshotData)}}
       </dd>
     </dl>
     <!-- //detail -->
@@ -29,7 +29,7 @@
     <ng-container *ngIf="snapshotData.ssType === snapshotType.STAGING_DB">
       <dl class="ddp-dl-detail">
         <dt>
-          Database
+          {{'msg.storage.ui.list.schema' | translate}}
         </dt>
         <dd>
           {{snapshotData.dbName}}
@@ -37,67 +37,55 @@
       </dl>
       <dl class="ddp-dl-detail">
         <dt>
-          Table
+          {{'msg.lineage.ui.list.title.table' | translate}}
         </dt>
         <dd>
           {{snapshotData.tblName}}
         </dd>
       </dl>
-      <dl class="ddp-dl-detail">
-        <dt>
-          HDFS
-        </dt>
-        <dd>
-          HDFS
-        </dd>
-      </dl>
     </ng-container>
     <!-- //only stagingDB -->
-    <!-- detail -->
-    <dl class="ddp-dl-detail">
+    <!-- only file -->
+    <dl class="ddp-dl-detail" *ngIf="snapshotData.ssType === snapshotType.URI">
       <dt>
-        Size
+        {{'msg.dp.th.file.uri' | translate}}
       </dt>
       <dd>
-        TODO
+        {{snapshotData.storedUri}}
       </dd>
     </dl>
-    <!-- //detail -->
+    <!-- //only file -->
     <!-- detail -->
     <dl class="ddp-dl-detail">
       <dt>
-        Created
+        {{'msg.storage.ui.dsource.preview.summary' | translate}}
+      </dt>
+      <dd>
+        {{sourceData.fieldData.length}} {{'msg.comm.detail.rows' | translate}} <br/>
+        {{sourceData.fieldList.length}} {{'msg.comm.detail.columns' | translate}}
+      </dd>
+    </dl>
+    <dl class="ddp-dl-detail">
+      <dt>
+        {{'msg.storage.th.elapsed.time' | translate}}
+      </dt>
+      <dd>
+        afafeafaef
+      </dd>
+    </dl>
+    <dl class="ddp-dl-detail">
+      <dt>
+        {{'msg.comm.detail.created' | translate}}
       </dt>
       <dd>
         {{snapshotData.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}
       </dd>
     </dl>
     <!-- //detail -->
-    <!-- detail -->
-    <dl class="ddp-dl-detail">
-      <dt>
-        Rows
-      </dt>
-      <dd>
-        {{sourceData.fieldData.length}}
-      </dd>
-    </dl>
-    <!-- //detail -->
-    <!-- detail -->
-    <dl class="ddp-dl-detail">
-      <dt>
-        Columns
-      </dt>
-      <dd>
-        {{sourceData.fieldList.length}}
-      </dd>
-    </dl>
-    <!-- //detail -->
-
   </div>
-  <div class="ddp-data-listview">
-
-    <table class="ddp-table-listview">
+  <div class="ddp-script-preview">
+    <div class="ddp-txt-error3" *ngIf="isErrorSnapshot">{{'msg.storage.ui.cannot.load.data' | translate}}</div>
+    <table class="ddp-table-listview" *ngIf="!isErrorSnapshot">
       <colgroup>
         <col width="10%">
         <col width="*">

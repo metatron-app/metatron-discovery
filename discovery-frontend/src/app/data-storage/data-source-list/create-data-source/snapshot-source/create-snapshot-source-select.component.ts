@@ -1,5 +1,5 @@
 import {AbstractPopupComponent} from "../../../../common/component/abstract-popup.component";
-import {Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild} from "@angular/core";
+import {Component, ElementRef, EventEmitter, Injector, Input, Output} from "@angular/core";
 import {DatasourceInfo} from "../../../../domain/datasource/datasource";
 import {
   CreateSnapShotData,
@@ -9,7 +9,7 @@ import {
 import * as _ from 'lodash';
 import {DataSnapshotService} from "../../../../data-preparation/data-snapshot/service/data-snapshot.service";
 import {CommonConstant} from "../../../../common/constant/common.constant";
-import {SsType} from "../../../../domain/data-preparation/pr-snapshot";
+import {PrDataSnapshot, SsType} from "../../../../domain/data-preparation/pr-snapshot";
 
 @Component({
   selector: 'create-snapshot-source-select',
@@ -70,7 +70,11 @@ export class CreateSnapshotSourceSelectComponent extends AbstractPopupComponent 
     }
   }
 
-  public onSelectedSnapshot(snapshot: any): void {
+  /**
+   * Change selected snapshot
+   * @param {PrDataSnapshot} snapshot
+   */
+  public onSelectedSnapshot(snapshot: PrDataSnapshot): void {
     if (this.createSnapshotData.selectedSnapshot && this.createSnapshotData.selectedSnapshot.ssId === snapshot.ssId) {
       this.createSnapshotData.selectedSnapshot = undefined;
     } else {
@@ -119,15 +123,33 @@ export class CreateSnapshotSourceSelectComponent extends AbstractPopupComponent 
 
   /**
    * Get snapshot type label
-   * @param {SsType} snapshotType
+   * @param {PrDataSnapshot} snapshot
    * @return {string}
    */
-  public getSnapshotTypeLabel(snapshotType: SsType): string {
-    return this.snapshotTypeFilterList.find(type => snapshotType === type.value).label;
+  public getSnapshotTypeLabel(snapshot: PrDataSnapshot): string {
+    if (snapshot.ssType === SsType.STAGING_DB) {
+      return this.translateService.instant('msg.dp.ui.list.staging-db')
+    } else if (snapshot.ssType === SsType.URI) {
+      return `${this.translateService.instant('msg.dp.ui.list.file')} (${snapshot.storedUri.indexOf('.csv') !== -1 ? 'CSV' : 'JSON'})`;
+    }
+  }
+
+  /**
+   * Is error snapshot
+   * @param {string} snapshotId
+   * @return {boolean}
+   */
+  public isErrorSnapshot(snapshotId: string): boolean {
+    return this.createSnapshotData.errorSnapshotIdList.some(errorId => snapshotId === errorId);
   }
 
 
-  public isSelectedSnapshot(snapshot): boolean {
+  /**
+   * Is selected snapshot
+   * @param {PrDataSnapshot} snapshot
+   * @return {boolean}
+   */
+  public isSelectedSnapshot(snapshot: PrDataSnapshot): boolean {
     return this.createSnapshotData.selectedSnapshot && snapshot.ssId === this.createSnapshotData.selectedSnapshot.ssId;
   }
 

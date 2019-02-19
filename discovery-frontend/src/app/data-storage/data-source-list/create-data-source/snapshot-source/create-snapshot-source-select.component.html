@@ -67,13 +67,13 @@
                   <thead>
                   <tr>
                     <th>
-                      Name
+                      {{'msg.comm.ui.name' | translate}}
                     </th>
                     <th>
-                      Type
+                      {{'msg.comm.th.type' | translate}}
                     </th>
                     <th class="ddp-cursor" (click)="onChangedSort(createSnapshotData.sort)">
-                      Created
+                      {{'msg.comm.th.created' | translate}}
                       <em class="ddp-icon-array-asc2" *ngIf="createSnapshotData.sort === 'createdTime,asc'"></em>
                       <em class="ddp-icon-array-des2" *ngIf="createSnapshotData.sort === 'createdTime,desc'"></em>
                     </th>
@@ -99,15 +99,21 @@
                     <tr [class.ddp-selected]="isSelectedSnapshot(snapshot)" *ngFor="let snapshot of createSnapshotData.snapshotList" (click)="onSelectedSnapshot(snapshot)">
                       <!-- name -->
                       <td>
-                        <div class="ddp-txt-long">
+                        <div class="ddp-txt-long" *ngIf="!isErrorSnapshot(snapshot.ssId)">
                           {{snapshot.ssName}}
+                        </div>
+                        <div class="ddp-txt-error-type" *ngIf="isErrorSnapshot(snapshot.ssId)">
+                          <em class="ddp-icon-error2"></em>
+                          <span class="ddp-txt-data" >
+                            {{snapshot.ssName}}
+                            </span>
                         </div>
                       </td>
                       <!-- //name -->
                       <!-- type -->
                       <td>
                         <span calss="ddp-data-source">
-                            {{getSnapshotTypeLabel(snapshot.ssType)}}
+                            {{getSnapshotTypeLabel(snapshot)}}
                         </span>
                       </td>
                       <!-- //type -->
@@ -136,6 +142,7 @@
       <!-- Preview -->
       <snapshot-preview *ngIf="createSnapshotData.selectedSnapshot"
                         [sourceData]="sourceData"
+                        [createSnapshotData]="createSnapshotData"
                         [snapshotId]="createSnapshotData.selectedSnapshot.ssId"
                         (closedPreview)="createSnapshotData.selectedSnapshot = undefined">
       </snapshot-preview>

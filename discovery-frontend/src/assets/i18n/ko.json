@@ -2145,6 +2145,7 @@
   "msg.storage.ui.file.result.FV005": "빈 컬럼명은 허용되지 않습니다.",
   "msg.storage.ui.timezone": "타임존",
   "msg.storage.ui.username": "사용자이름",
+  "msg.storage.ui.cannot.load.data": "데이터를 불러올 수 없습니다",
 
   "msg.storage.ui.timezone.country.zimbabwe": "짐바브웨",
   "msg.storage.ui.timezone.country.zambia": "잠비아",

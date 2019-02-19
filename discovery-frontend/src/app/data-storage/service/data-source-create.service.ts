@@ -115,9 +115,9 @@ export class DataSourceCreateService {
    */
   public getSnapshotTypeList(): TypeFilterObject[] {
     return [
-      {label: 'All', value: 'ALL'},
-      {label: 'File', value: 'URI'},
-      {label: 'StagingDB', value: 'STAGING_DB'},
+      {label: this._translateService.instant('msg.comm.ui.list.all'), value: 'ALL'},
+      {label: this._translateService.instant('msg.dp.ui.list.file'), value: 'URI'},
+      {label: this._translateService.instant('msg.dp.ui.list.staging-db'), value: 'STAGING_DB'},
     ];
   }
 
@@ -251,15 +251,21 @@ export class DataSourceCreateService {
    * @private
    */
   private _setSnapshotIngestionParams(result: CreateSourceIngestionParams, sourceInfo: DatasourceInfo): void {
-    result.type = 'local';
+    result.type = sourceInfo.snapshotData.selectedSnapshot.storedUri ? (sourceInfo.snapshotData.selectedSnapshot.storedUri.indexOf('hdfs://') !== -1  ? 'hdfs' : 'local') : 'hive'; //TODO
     result.format = {
       type: 'csv'
     };
-    result.paths = [sourceInfo.snapshotData.selectedSnapshot.storedUri];
-    // if exist job properties
-    sourceInfo.ingestionData.jobProperties && sourceInfo.ingestionData.jobProperties.some(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)) && (result.jobProperties = this._toObject(sourceInfo.ingestionData.jobProperties.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value))));
-    // only hdfs type
-    result.type === 'hdfs' && (result.findRecursive = false);
+    // if File file
+    if (result.type === 'local') {
+      result.path = sourceInfo.snapshotData.selectedSnapshot.storedUri;
+      result.removeFirstRow = true;
+    } else if (result.type === 'hdfs') { // if HDFS type
+      result.findRecursive = false;
+      result.removeFirstRow = true;
+      result.paths = [sourceInfo.snapshotData.selectedSnapshot.storedUri];
+    } else if (result.type === 'hive') { // if StagingDB
+      sourceInfo.ingestionData.jobProperties.some(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)) && (result.jobProperties = this._toObject(sourceInfo.ingestionData.jobProperties.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value))));
+    }
   }
 
   /**
@@ -269,11 +275,10 @@ export class DataSourceCreateService {
    * @private
    */
   private _toObject(array: any): object {
-    const result = {};
-    array.forEach((item) => {
-      result[item.key] = item.value;
-    });
-    return result;
+    return array.reduce((acc, item) => {
+      acc[item.key] = item.value;
+      return acc;
+    }, {});
   }
 
 
@@ -295,14 +300,8 @@ export class DataSourceCreateService {
       // set seq num and increase seq
       field['seq'] = seq++;
       // if you don't want to create a timestamp column
-      if (!isCreateTimestamp) {
-        // if specified as a timestamp column
-        if (field.name === schemaData.selectedTimestampField.name) {
-          field.role = FieldRole.TIMESTAMP;
-        } else if (field.name !== schemaData.selectedTimestampField.name) {
-          // this column is not timestamp column, but column role is timestamp, specified as Dimension
-          field.role = FieldRole.DIMENSION;
-        }
+      if (!isCreateTimestamp && field.logicalType === LogicalType.TIMESTAMP && field.name === schemaData.selectedTimestampField.name) {
+        field.role = FieldRole.TIMESTAMP;
       }
       // remove unnecessary property
       this._removeUnnecessaryPropertyInField(field);
@@ -470,6 +469,7 @@ export interface CreateSourceIngestionParams {
   connectionPassword?: string;  //TODO
   // file
   removeFirstRow?: boolean;
+  path?: string;
   // snapshot
   findRecursive?: boolean;
   // staging
@@ -518,6 +518,8 @@ export class CreateSnapShotData {
   public pageResult: PageResult;
   // sort
   public sort: string = 'createdTime,desc';
+  // error snapshot id
+  public errorSnapshotIdList: string[] = [];
 }
 
 // create data source configure step data
