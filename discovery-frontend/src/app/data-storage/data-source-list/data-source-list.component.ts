@@ -323,6 +323,8 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
         return this.translateService.instant('msg.storage.li.hive');
       case SourceType.REALTIME:
         return this.translateService.instant('msg.storage.li.stream');
+      case SourceType.SNAPSHOT:
+        return this.translateService.instant('msg.storage.li.ss');
     }
   }
 
