@@ -635,7 +635,6 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
   /**
    * 전체 컨텍스트 메뉴 close
-   * @param event
    */
   public gridAllContextClose(): void {
     this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : false } );
@@ -945,6 +944,9 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
    * @private
    */
   private _applyChart(chart: any, option: any) {
+
+    // https://github.com/apache/incubator-echarts/issues/6202
+    chart.clear();
     chart.setOption(option);
   } // function - _applyChart
 
@@ -955,15 +957,12 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
    */
   private _getHistogramInfo(index): any {
     return this._apiGridData.colHists[index];
-    // return this.dataSet.histogram[index];
   } // function - _getHistogramInfo
 
   /**
    * get Histogram info with col widths
    * @param colWidths
    * @param fieldLength {number}
-   * @param isInitialLoad 처음 그리드 로드 여부
-   * @param isEditMode 편집 모드 여부
    * @private
    */
   private _getHistogramInfoByWidths(colWidths, fieldLength: number): Promise<any> {
@@ -982,9 +981,6 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     return this.dataflowService.getHistogramInfo(this.dataSetId, params).then((result) => {
       if (result.colHists) {
         this._apiGridData.colHists = result.colHists;
-
-        // Draw histogram
-        // this.drawChart();
       }
     }).catch((error) => {
       this.loadingHide();
@@ -1915,7 +1911,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
             value = (value) ? value.toString().replace(/>/gi, '&gt;') : value;
             value = (value) ? value.toString().replace(/\n/gi, '&crarr;') : value;
             let re = /\s/gi;
-            let tag = '<span style="color:#ff00ff; font-size: 9pt; letter-spacing: 0px">' + this.spaceSymbol + '</span>';
+            let tag = '<span style="color:#ff00ff; font-size: 9pt; letter-spacing: 0">' + this.spaceSymbol + '</span>';
             value = (value) ? value.toString().replace(re, tag) : value;
           }
 
@@ -2080,11 +2076,6 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     }
     return result;
 
-    // if (-1 > timestampStyle.indexOf('H')) {
-    //   // return moment(value + `+0000`).format(timestampStyle);
-    // } else {
-    //   return moment(value).format(timestampStyle);
-    // }
   } // function - _setTimeStampFormat
 
   /**
