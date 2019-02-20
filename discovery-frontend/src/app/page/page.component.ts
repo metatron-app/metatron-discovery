@@ -15,7 +15,6 @@
 import * as _ from 'lodash';
 
 import {
-  AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
@@ -26,12 +25,12 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { AbstractPopupComponent } from '../common/component/abstract-popup.component';
-import { PageWidget, PageWidgetConfiguration } from '../domain/dashboard/widget/page-widget';
-import { PopupService } from '../common/service/popup.service';
+import {AbstractPopupComponent} from '../common/component/abstract-popup.component';
+import {PageWidget, PageWidgetConfiguration} from '../domain/dashboard/widget/page-widget';
+import {PopupService} from '../common/service/popup.service';
 
-import { StringUtil } from '../common/util/string.util';
-import { Pivot } from '../domain/workbook/configurations/pivot';
+import {StringUtil} from '../common/util/string.util';
+import {Pivot} from '../domain/workbook/configurations/pivot';
 import {
   BIType,
   ConnectionType,
@@ -42,68 +41,67 @@ import {
   LogicalType
 } from '../domain/datasource/datasource';
 import {
-  BarMarkType, ChartColorType,
+  BarMarkType,
+  ChartColorType,
   ChartType,
   EventType,
   LegendConvertType,
   ShelveFieldType,
   SPEC_VERSION
 } from '../common/component/chart/option/define/common';
-import { Field as AbstractField } from '../domain/workbook/configurations/field/field';
-import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
+import {Field as AbstractField} from '../domain/workbook/configurations/field/field';
+import {ActivatedRoute} from '@angular/router';
+import {Subscription} from 'rxjs/Subscription';
 
-import { PagePivotComponent } from './page-pivot/page-pivot.component';
-import { SearchQueryRequest } from '../domain/datasource/data/search-query-request';
-import { DatasourceService } from '../datasource/service/datasource.service';
-import { BaseChart, ChartSelectInfo } from '../common/component/chart/base-chart';
-import { UIOption } from '../common/component/chart/option/ui-option';
-import { GridChartComponent } from '../common/component/chart/type/grid-chart/grid-chart.component';
-import { Subject } from 'rxjs/Subject';
-import { DIRECTION, Sort } from '../domain/workbook/configurations/sort';
-import { Filter } from '../domain/workbook/configurations/filter/filter';
-import { OptionGenerator } from '../common/component/chart/option/util/option-generator';
-import { Widget } from '../domain/dashboard/widget/widget';
-import { ImageService } from '../common/service/image.service';
-import { ExpressionField } from '../domain/workbook/configurations/field/expression-field';
-import { DashboardService } from '../dashboard/service/dashboard.service';
-import { Alert } from '../common/util/alert.util';
-import { WidgetService } from '../dashboard/service/widget.service';
-import { saveAs } from 'file-saver';
-import { Modal } from '../common/domain/modal';
-import { ConfirmModalComponent } from '../common/component/modal/confirm/confirm.component';
-import { DragulaService } from '../../lib/ng2-dragula';
-import { PageDataContextComponent } from './page-data/page-data-context.component';
-import { Format } from '../domain/workbook/configurations/format';
-import { FilterUtil } from '../dashboard/util/filter.util';
-import { Observable } from 'rxjs/Observable';
+import {PagePivotComponent} from './page-pivot/page-pivot.component';
+import {SearchQueryRequest} from '../domain/datasource/data/search-query-request';
+import {DatasourceService} from '../datasource/service/datasource.service';
+import {BaseChart, ChartSelectInfo} from '../common/component/chart/base-chart';
+import {UIOption} from '../common/component/chart/option/ui-option';
+import {GridChartComponent} from '../common/component/chart/type/grid-chart/grid-chart.component';
+import {Subject} from 'rxjs/Subject';
+import {DIRECTION, Sort} from '../domain/workbook/configurations/sort';
+import {Filter} from '../domain/workbook/configurations/filter/filter';
+import {OptionGenerator} from '../common/component/chart/option/util/option-generator';
+import {Widget} from '../domain/dashboard/widget/widget';
+import {ImageService} from '../common/service/image.service';
+import {ExpressionField} from '../domain/workbook/configurations/field/expression-field';
+import {DashboardService} from '../dashboard/service/dashboard.service';
+import {Alert} from '../common/util/alert.util';
+import {WidgetService} from '../dashboard/service/widget.service';
+import {saveAs} from 'file-saver';
+import {Modal} from '../common/domain/modal';
+import {ConfirmModalComponent} from '../common/component/modal/confirm/confirm.component';
+import {DragulaService} from '../../lib/ng2-dragula';
+import {PageDataContextComponent} from './page-data/page-data-context.component';
+import {Format} from '../domain/workbook/configurations/format';
+import {FilterUtil} from '../dashboard/util/filter.util';
 import {isNullOrUndefined, isUndefined} from 'util';
-import { AnalysisComponent } from './component/analysis/analysis.component';
-import { AnalysisPredictionService } from './component/analysis/service/analysis.prediction.service';
-import { CustomField } from '../domain/workbook/configurations/field/custom-field';
-import { CommonOptionComponent } from './chart-style/common-option.component';
-import { FormatOptionComponent } from './chart-style/format-option.component';
-import { BarChartComponent } from '../common/component/chart/type/bar-chart/bar-chart.component';
-import { LineChartComponent } from '../common/component/chart/type/line-chart/line-chart.component';
-import { NetworkChartComponent } from '../common/component/chart/type/network-chart/network-chart.component';
-import { HyperParameter } from './component/value/analysis';
-import { ColorOptionComponent } from './chart-style/color-option.component';
-import { ConfigureFiltersComponent } from '../dashboard/filters/configure-filters.component';
-import { PageFilterPanel } from './filter/filter-panel.component';
-import { SecondaryIndicatorComponent } from './chart-style/secondary-indicator.component';
-import { DataLabelOptionComponent } from './chart-style/datalabel-option.component';
+import {AnalysisComponent} from './component/analysis/analysis.component';
+import {AnalysisPredictionService} from './component/analysis/service/analysis.prediction.service';
+import {CustomField} from '../domain/workbook/configurations/field/custom-field';
+import {CommonOptionComponent} from './chart-style/common-option.component';
+import {FormatOptionComponent} from './chart-style/format-option.component';
+import {BarChartComponent} from '../common/component/chart/type/bar-chart/bar-chart.component';
+import {LineChartComponent} from '../common/component/chart/type/line-chart/line-chart.component';
+import {NetworkChartComponent} from '../common/component/chart/type/network-chart/network-chart.component';
+import {HyperParameter} from './component/value/analysis';
+import {ColorOptionComponent} from './chart-style/color-option.component';
+import {ConfigureFiltersComponent} from '../dashboard/filters/configure-filters.component';
+import {PageFilterPanel} from './filter/filter-panel.component';
+import {SecondaryIndicatorComponent} from './chart-style/secondary-indicator.component';
+import {DataLabelOptionComponent} from './chart-style/datalabel-option.component';
 import {ChartLimitInfo, DashboardUtil} from '../dashboard/util/dashboard.util';
-import {BoardConfiguration, LayoutMode} from '../domain/dashboard/dashboard';
-import { CommonUtil } from '../common/util/common.util';
-import { MapChartComponent } from '../common/component/chart/type/map-chart/map-chart.component';
+import {BoardConfiguration} from '../domain/dashboard/dashboard';
+import {CommonUtil} from '../common/util/common.util';
+import {MapChartComponent} from '../common/component/chart/type/map-chart/map-chart.component';
 import {MapFormatOptionComponent} from './chart-style/map/map-format-option.component';
-import { MapTooltipOptionComponent } from './chart-style/map/map-tooltip-option.component';
-import { MapLayerOptionComponent } from './chart-style/map/map-layer-option.component';
-import { Shelf } from '../domain/workbook/configurations/shelf/shelf';
-import { MapPagePivotComponent } from './page-pivot/map/map-page-pivot.component';
-import { UIMapOption } from '../common/component/chart/option/ui-option/map/ui-map-chart';
-import { MapLayerType } from '../common/component/chart/option/define/map/map-common';
-import { ChartUtil } from '../common/component/chart/option/util/chart-util';
+import {MapTooltipOptionComponent} from './chart-style/map/map-tooltip-option.component';
+import {MapLayerOptionComponent} from './chart-style/map/map-layer-option.component';
+import {Shelf} from '../domain/workbook/configurations/shelf/shelf';
+import {MapPagePivotComponent} from './page-pivot/map/map-page-pivot.component';
+import {UIMapOption} from '../common/component/chart/option/ui-option/map/ui-map-chart';
+import {MapLayerType} from '../common/component/chart/option/define/map/map-common';
 import {fromEvent} from "rxjs";
 import {debounceTime, map} from "rxjs/operators";
 
@@ -1626,6 +1624,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // 추천가능차트 설정
     this.recommendChart();
+
+    // 데이터 필드 설정 (data panel의 pivot 설정)
+    this.setDatasourceFields(true);
+
     // 선반변경시 drawChart 발생
     this.drawChart({ type: eventType });
   }
@@ -2364,6 +2366,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       let layerNum = (<UIMapOption>this.uiOption).layerNum;
       let currentMapLayer = this.shelf.layers[layerNum].fields;
 
+      // check is different database on the same shelf (do not need to loop because database checking)
+      if( !isNullOrUndefined(currentMapLayer) && !isNullOrUndefined(currentMapLayer[0]) && !isNullOrUndefined(currentMapLayer[0]['field'])
+          && targetField.dataSource != currentMapLayer[0].field.dataSource ) {
+        Alert.warning(this.translateService.instant('msg.page.layer.multi.datasource.same.shelf'));
+        return;
+      }
+
       let fieldPivot: FieldPivot;
 
       if ('MAP_LAYER' + layerNum === FieldPivot.MAP_LAYER0.toString()) {
@@ -2390,13 +2399,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       if (isDimension) {
         // add to shelf
         if (!isAlreadyPivot) {
-
           // push pivotField to layers
           this.shelf.layers[layerNum].fields.push(pivotFiled);
           this.mapPivot.convertField(targetField, 'layer' + layerNum);
-
-          // remove
         } else {
+          // remove
           this.mapPivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
         }
       // measure
@@ -3489,62 +3496,51 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // 선반에 올라간 필드 표시처리
     if (this.widgetConfiguration.pivot && fieldPivotSetFl) {
-      _.concat(this.dimensions, this.measures)
-        .forEach((field) => {
+      _.concat(this.dimensions, this.measures).forEach((field) => {
+        // Remove Pivot
+        field.pivot = [];
 
-
-          // Remove Pivot
-          field.pivot = [];
-
-          this.widgetConfiguration.pivot.rows
-            .forEach((abstractField) => {
-              if (String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
-                abstractField.field = field;
-                field.pivot = field.pivot ? field.pivot : [];
-                field.pivot.push(FieldPivot.ROWS);
-              }
-            });
-
-          this.widgetConfiguration.pivot.columns
-            .forEach((abstractField) => {
-              if (String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
-                abstractField.field = field;
-                field.pivot = field.pivot ? field.pivot : [];
-                field.pivot.push(FieldPivot.COLUMNS);
-              }
-            });
-
-          this.widgetConfiguration.pivot.aggregations
-            .forEach((abstractField) => {
-              if (String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
-                abstractField.field = field;
-                field.pivot = field.pivot ? field.pivot : [];
-                field.pivot.push(FieldPivot.AGGREGATIONS);
-              }
-            });
-
-          if (undefined !== this.widgetConfiguration.chart['layerNum'] && this.widgetConfiguration.chart['layerNum'] >= 0) {
-
-            // set map chart layers pivot
-            let fieldPivot : FieldPivot;
-            if (0 === this.widgetConfiguration.chart['layerNum']) {
-              fieldPivot = FieldPivot.MAP_LAYER0;
-            } else if (1 === this.widgetConfiguration.chart['layerNum']) {
-              fieldPivot = FieldPivot.MAP_LAYER1;
-            } else if (2 === this.widgetConfiguration.chart['layerNum']) {
-              fieldPivot = FieldPivot.MAP_LAYER2;
+        this.widgetConfiguration.pivot.rows
+          .forEach((abstractField) => {
+            if (String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+              abstractField.field = field;
+              field.pivot = field.pivot ? field.pivot : [];
+              field.pivot.push(FieldPivot.ROWS);
             }
+          });
 
-            this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']].fields
-              .forEach((abstractField) => {
-                if (String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
-                  abstractField.field = field;
-                  field.pivot = field.pivot ? field.pivot : [];
-                  field.pivot.push(fieldPivot);
-                }
-              });
+        this.widgetConfiguration.pivot.columns
+          .forEach((abstractField) => {
+            if (String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+              abstractField.field = field;
+              field.pivot = field.pivot ? field.pivot : [];
+              field.pivot.push(FieldPivot.COLUMNS);
+            }
+          });
+
+        this.widgetConfiguration.pivot.aggregations
+          .forEach((abstractField) => {
+            if (String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+              abstractField.field = field;
+              field.pivot = field.pivot ? field.pivot : [];
+              field.pivot.push(FieldPivot.AGGREGATIONS);
+            }
+          });
+
+        if (undefined !== this.widgetConfiguration.chart['layerNum'] && this.widgetConfiguration.chart['layerNum'] >= 0) {
+          for (let layerIndex = 0; layerIndex < this.widgetConfiguration.chart['layers'].length; layerIndex++) {
+            // set map chart layers pivot
+            let fieldPivot: FieldPivot = layerIndex == 1 ? FieldPivot.MAP_LAYER1 : layerIndex == 2 ? FieldPivot.MAP_LAYER2 : FieldPivot.MAP_LAYER0;
+            this.widgetConfiguration.shelf.layers[layerIndex].fields.forEach((abstractField) => {
+              if (String(field.biType) == abstractField.type.toUpperCase() && field.dataSource == abstractField.field.dataSource && field.name == abstractField.name) {
+                abstractField.field = field;
+                field.pivot = field.pivot ? field.pivot : [];
+                field.pivot.push(fieldPivot);
+              }
+            });
           }
-        });
+        }
+      });
     }
 
     // fields include custom fields

@@ -136,11 +136,11 @@ export class MapPagePivotComponent extends PagePivotComponent {
     let returnValue: boolean = true;
 
     let diffDataSourceFl: boolean = false;
-    // prevent another datasource is set in same shelf
-    currentMapLayer.forEach((item) => {
 
-      if ('user_expr' !== targetField.subType && 'user_expr' !== item.field.type &&
-        item.field.dataSource != targetField.field.dataSource) {
+    // prevent other datasource is set on the same shelf
+    currentMapLayer.forEach((item) => {
+      if ('user_expr' !== targetField.subType && 'user_expr' !== item.field.type
+            && item.field.dataSource != targetField.field.dataSource) {
         diffDataSourceFl = true;
         return;
       }
@@ -163,7 +163,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
       }
     }
 
-    // if another datasource is in a same shelf
+    // if other datasource is selected on the same shelf
     if (diffDataSourceFl) {
       Alert.warning(this.translateService.instant('msg.page.layer.multi.datasource.same.shelf'));
       returnValue = false;
