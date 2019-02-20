@@ -8601,6 +8601,12 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .icon-db-tibero-w .st0{fill:#B8B8B8;}
 .icon-db-tibero-w .st1{fill:#EBEBEB;}
 
+.icon-db-druid-w .st0{fill:none;stroke:#ECECEC;stroke-miterlimit:10;}
+
+.icon-db-custom-w .st0{fill:#ECECEC;}
+.icon-db-custom-w .st1{display:none;}
+.icon-db-custom-w .st2{display:inline;fill:none;stroke:#ECECEC;stroke-miterlimit:10;}
+
 .icon-db-hive .st0{fill:#FDEE21;}
 .icon-db-hive .st1{fill:#C8C037;}
 .icon-db-hive .st2{fill:#FCF6A0;}
@@ -8610,6 +8616,10 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .icon-db-mysql .st0{fill:#2D7397;}
 
 .icon-db-oracle .st0{fill:#EA1B22;}
+
+.icon-db-druid .st0{fill:none;stroke:#00B3C1;stroke-linecap:round;stroke-miterlimit:10;}
+
+.icon-db-custom .st0{fill:#A9B0C0;}
 
 .icon-db-phoenix .st0{fill:url(#SVGID_1_);}
 .icon-db-phoenix .st1{fill:url(#SVGID_2_);}

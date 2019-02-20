@@ -57,7 +57,8 @@ import {WorkspaceService} from '../workspace/service/workspace.service';
 import {CodemirrorComponent} from './component/editor-workbench/codemirror.component';
 import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
 import {DetailWorkbenchDatabase} from "./component/detail-workbench/detail-workbench-database/detail-workbench-database";
-import { Message } from '@stomp/stompjs';
+import {Message} from '@stomp/stompjs';
+import {ConnectionType as DataConnectionType} from "../domain/dataconnection/dataconnection";
 
 declare let moment: any;
 declare let Split;
@@ -345,6 +346,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public saveAsLayer: boolean = false;
   public supportSaveAsHiveTable: boolean = false;
+
+  public connTargetType:string = '';    // 커넥션 대상 타입
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -2195,6 +2198,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // connection database 정보
     this.workbench.dataConnection.connectionDatabase = this.workbenchTemp.dataConnection.database;
     this.websocketId = CommonConstant.websocketId;
+    this.connTargetType = this._getConnectionTargetType();
     try {
       console.info('this.websocketId', this.websocketId);
       const headers: any = {
@@ -2203,7 +2207,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       // 메세지 수신
       (this._subscription) && (this._subscription.unsubscribe());     // Socket 응답 해제
       this._subscription
-        = CommonConstant.stomp.watch( '/user/queue/workbench/' + this.workbenchId ).subscribe((msg: Message) => {
+        = CommonConstant.stomp.watch('/user/queue/workbench/' + this.workbenchId).subscribe((msg: Message) => {
 
         const data = JSON.parse(msg.body);
 
@@ -3156,13 +3160,34 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   } // function - _isEqualRunningVisibleTab
 
   /**
-   * DataConnection Type icon
-   * @param connType
-   * @returns {any}
+   * get connection target type
+   * @returns {string}
    */
-  public getConnectionType(connType: string) {
-    return DataConnectionType[connType];
-  }
+  private _getConnectionTargetType():string {
+    let strType: string = '';
+    if( this.workbench.dataConnection.implementor ) {
+      switch (this.workbench.dataConnection.implementor) {
+        case DataConnectionType.HIVE :
+          strType = 'HIVE';
+          break;
+        case DataConnectionType.MYSQL :
+          strType = 'MYSQL';
+          break;
+        case DataConnectionType.POSTGRESQL :
+          strType = 'POSTGRESQL';
+          break;
+        case DataConnectionType.PRESTO :
+          strType = 'PRESTO';
+          break;
+        case DataConnectionType.DRUID :
+          strType = 'DRUID';
+          break;
+        default :
+          strType = 'CUSTOM';
+      }
+    }
+    return strType;
+  } // function - _getConnectionTargetType
 
   /**
    * tableParam 사용자 정보 체크
@@ -3351,11 +3376,4 @@ class QueryResult {
   public tempTable: string;
   public defaultNumRows: number = 0;  // pageSize, 페이지당 호출 건 수
   public maxNumRows: number = 0;      // 최대 호출 가능 건 수
-}
-
-enum DataConnectionType {
-  MYSQL = <any>'MYSQL',
-  HIVE = <any>'HIVE',
-  POSTGRESQL = <any>'POSTGRESQL',
-  PRESTO = <any>'PRESTO'
 }
