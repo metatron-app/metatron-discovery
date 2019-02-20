@@ -386,7 +386,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
    */
   public candidateFromSearchText() {
     this.isSearchFocus = false;
-    this._candidate();
+      this._candidate(false);
   } // function - candidateFromSearchText
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -439,8 +439,10 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
 
   /**
    * 필터 목록 조회
+   * @param {boolean} isInit
+   * @private
    */
-  private _candidate() {
+  private _candidate(isInit:boolean = true) {
     if (this.filter && this.dashboard && this.field) {
       // 필터 데이터 후보 조회
       this.loadingShow();
@@ -484,7 +486,9 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
         }
 
         // 추가 데이터가 있는지 여부
-        this.isOverCandidateWarning = (FilterUtil.CANDIDATE_LIMIT <= result.length || result.length > this.candidateListSize);
+        if( isInit ) {
+          this.isOverCandidateWarning = (FilterUtil.CANDIDATE_LIMIT <= result.length || result.length > this.candidateListSize);
+        }
 
         // 정렬
         this.sortCandidateValues(this.filter);
