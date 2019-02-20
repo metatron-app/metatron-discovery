@@ -985,7 +985,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     // headers
     const headers: header[] = [];
     // Physical name
-    headers.push(this._createSlickGridHeader('physicalName', 'Physical Column Name', 300));
+    headers.push(this._createSlickGridHeader('physicalName', 'Column Name', 300));
     // Logical name
     enableMetaData && headers.push(this._createSlickGridHeader('LogicalName', 'Logical Column Name', 300));
     // Type
@@ -1029,7 +1029,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     // headers.push(this._createSlickGridHeader('type', 120));
     // headers.push(this._createSlickGridHeader('comment', 260));
 
-    headers.push(this._createSlickGridHeader('name', 'Physical Table Name', enableMetaData ? 230 : 460));
+    headers.push(this._createSlickGridHeader('name', 'Table Name', enableMetaData ? 230 : 460));
     // MetaData name
     enableMetaData && headers.push(this._createSlickGridHeader('metadataName', 'Metadata Name', 230));
 
