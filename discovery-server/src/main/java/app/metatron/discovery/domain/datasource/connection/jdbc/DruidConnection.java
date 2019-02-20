@@ -1,6 +1,7 @@
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 
@@ -183,9 +184,9 @@ public class DruidConnection extends JdbcDataConnection {
   @Override
   public String getTableName(String schema, String table) {
     if(StringUtils.isEmpty(schema) || schema.equals(database)) {
-      return "`" + table + "`";
+      return "\"" + table + "\"";
     }
-    return schema + ".`" + table + "`";
+    return schema + ".\"" + table + "\"";
   }
 
   @Override

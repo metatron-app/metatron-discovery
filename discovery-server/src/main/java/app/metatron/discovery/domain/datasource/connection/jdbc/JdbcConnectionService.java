@@ -974,10 +974,9 @@ public class JdbcConnectionService {
 
     if (type == JdbcIngestionInfo.DataType.TABLE) {
       NativeCriteria nativeCriteria = new NativeCriteria(DataConnection.Implementor.getImplementor(connection));
-      String database = schema;
-      String table = query;
-      String tableName = (!table.contains(".") && database != null) ? database + "." + table : table;
-      nativeCriteria.addTable(tableName, table);
+      String tableName = connection.getTableName(schema, query);
+      String tableAlias = connection.getTableName("", query);
+      nativeCriteria.addTable(tableName, tableAlias);
 
       //add projection for partition
       if (partitionList != null && !partitionList.isEmpty()) {
