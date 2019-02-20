@@ -456,4 +456,20 @@ export class PreparationCommonUtil {
     return n.length >= 2 ? n : new Array(2 - n.length + 1).join(z) + n;
   }
 
+  /**
+   * Return rows adapt for drawing slick grid
+   * @param data
+   * @returns {any[]}
+   */
+  public static getRows(data : any) {
+    let rows: any[] = data;
+    if (data.length > 0 && !data[0].hasOwnProperty('id')) {
+      rows = rows.map((row: any, idx: number) => {
+        row.id = idx;
+        return row;
+      });
+    }
+    return rows;
+  }
+
 }

@@ -1315,6 +1315,10 @@
   "msg.dp.alert.no.backtick.colname": "Cannot use back quotes in column name",
   "msg.dp.alert.duplicate.colname" : "Already in use",
   "msg.dp.alert.empty.column" : "Column name must not be empty",
+  "msg.dp.ui.list.my.file": "My file",
+  "msg.dp.th.sheet.name" : "sheet name",
+  "msg.dp.alert.dataset.fail.to.create" : "Failed to create dataset",
+  "msg.dp.alert.num.fail.dataset" : "{{value}} dataset generation failed",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",
