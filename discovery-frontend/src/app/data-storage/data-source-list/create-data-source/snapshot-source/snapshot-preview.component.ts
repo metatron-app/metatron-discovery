@@ -16,9 +16,9 @@ import {DatasourceInfo, FieldRole, LogicalType} from "../../../../domain/datasou
 import {PrDataSnapshot, SsType} from "../../../../domain/data-preparation/pr-snapshot";
 import {
   CreateSnapShotData,
-  DataSourceCreateService,
-  TypeFilterObject
 } from "../../../service/data-source-create.service";
+import {isUndefined} from "util";
+import {PreparationCommonUtil} from "../../../../data-preparation/util/preparation-common.util";
 
 @Component({
   selector: 'snapshot-preview',
@@ -72,6 +72,25 @@ export class SnapshotPreviewComponent extends AbstractComponent implements OnCha
   }
 
   /**
+   * Returns formatted elapsed time
+   * TODO 추후 변경 필요
+   * hour:minute:second.millisecond
+   * @param item
+   */
+  public getElapsedTime(item: PrDataSnapshot) {
+    if (isUndefined(item) ||
+      isUndefined(item.elapsedTime) ||
+      isUndefined(item.elapsedTime.hours) ||
+      isUndefined(item.elapsedTime.minutes) ||
+      isUndefined(item.elapsedTime.seconds) ||
+      isUndefined(item.elapsedTime.milliseconds)
+    ) {
+      return '--:--:--';
+    }
+    return `${PreparationCommonUtil.padLeft(item.elapsedTime.hours)}:${PreparationCommonUtil.padLeft(item.elapsedTime.minutes)}:${PreparationCommonUtil.padLeft(item.elapsedTime.seconds)}.${PreparationCommonUtil.padLeft(item.elapsedTime.milliseconds)}`;
+  }
+
+  /**
    * Get snapshot type label
    * @param {PrDataSnapshot} snapshot
    * @return {string}
@@ -80,8 +99,17 @@ export class SnapshotPreviewComponent extends AbstractComponent implements OnCha
     if (snapshot.ssType === SsType.STAGING_DB) {
       return this.translateService.instant('msg.dp.ui.list.staging-db')
     } else if (snapshot.ssType === SsType.URI) {
-      return `${this.translateService.instant('msg.dp.ui.list.file')} (${snapshot.storedUri.indexOf('.csv') !== -1 ? 'CSV' : 'JSON'})`;
+      return `${this.translateService.instant('msg.dp.ui.list.file')} (${snapshot.storedUri.match(/.csv$/) ? 'CSV' : 'JSON'})`;
     }
+  }
+
+  /**
+   * Get snapshot uri type
+   * @param {PrDataSnapshot} snapshot
+   * @return {string}
+   */
+  public getSnapshotUriType(snapshot: PrDataSnapshot): string {
+    return snapshot.storedUri.match(/^hdfs:/) ? 'HDFS' : 'FILE';
   }
 
   /**

@@ -51,7 +51,10 @@
         {{'msg.dp.th.file.uri' | translate}}
       </dt>
       <dd>
-        {{snapshotData.storedUri}}
+        {{getSnapshotUriType(snapshotData)}}
+        <div class="ddp-ui-link">
+          <a href="javascript:" class="ddp-link-url" title="{{snapshotData.storedUri}}">{{snapshotData.storedUri}}</a>
+        </div>
       </dd>
     </dl>
     <!-- //only file -->
@@ -70,7 +73,7 @@
         {{'msg.storage.th.elapsed.time' | translate}}
       </dt>
       <dd>
-        afafeafaef
+        {{getElapsedTime(snapshotData)}}
       </dd>
     </dl>
     <dl class="ddp-dl-detail">

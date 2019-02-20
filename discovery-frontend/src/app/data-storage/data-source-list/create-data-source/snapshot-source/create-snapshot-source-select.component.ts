@@ -130,7 +130,7 @@ export class CreateSnapshotSourceSelectComponent extends AbstractPopupComponent 
     if (snapshot.ssType === SsType.STAGING_DB) {
       return this.translateService.instant('msg.dp.ui.list.staging-db')
     } else if (snapshot.ssType === SsType.URI) {
-      return `${this.translateService.instant('msg.dp.ui.list.file')} (${snapshot.storedUri.indexOf('.csv') !== -1 ? 'CSV' : 'JSON'})`;
+      return `${this.translateService.instant('msg.dp.ui.list.file')} (${snapshot.storedUri.match(/.csv$/) ? 'CSV' : 'JSON'})`;
     }
   }
 

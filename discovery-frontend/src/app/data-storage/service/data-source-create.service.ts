@@ -16,7 +16,7 @@ import {
 } from "../../domain/datasource/datasource";
 import {PageResult} from "../../domain/common/page";
 import {GranularityObject, GranularityService} from "./granularity.service";
-import {PrDataSnapshot, SsType} from "../../domain/data-preparation/pr-snapshot";
+import {HiveFileFormat, PrDataSnapshot, SsType} from "../../domain/data-preparation/pr-snapshot";
 import * as _ from "lodash";
 import {CommonConstant} from "../../common/constant/common.constant";
 
@@ -253,6 +253,16 @@ export class DataSourceCreateService {
   }
 
   /**
+   * Is CSV file string
+   * @param {string} uri
+   * @return {boolean}
+   * @private
+   */
+  private _isCsvFile(uri: string): boolean {
+    return !!uri.match(/.csv$/);
+  }
+
+  /**
    * Set file ingestion params
    * @param {CreateSourceIngestionParams} result
    * @param {DatasourceInfo} sourceInfo
@@ -262,7 +272,16 @@ export class DataSourceCreateService {
     result.type = 'local';
     result.removeFirstRow = sourceInfo.fileData.isFirstHeaderRow;
     result.path = sourceInfo.fileData.fileResult.filePath;
-    // result.format
+    const isExcelType: boolean = sourceInfo.fileData.fileResult.sheets && sourceInfo.fileData.fileResult.sheets.length !== 0;
+    result.format = {
+      type: isExcelType ? 'excel' : 'csv'
+    };
+    if (isExcelType) {
+      result.format.delimiter = sourceInfo.fileData.delimiter;
+      result.format.lineSeparator = sourceInfo.fileData.separator;
+    } else {
+      result.format.sheetIndex = sourceInfo.fileData.fileResult.sheets.findIndex(sheet => sheet === sourceInfo.fileData.fileResult.selectedSheet);
+    }
   }
 
   /**
@@ -287,37 +306,36 @@ export class DataSourceCreateService {
    * @private
    */
   private _setSnapshotIngestionParams(result: CreateSourceIngestionParams, sourceInfo: DatasourceInfo): void {
-    result.type = sourceInfo.snapshotData.selectedSnapshot.storedUri ? (sourceInfo.snapshotData.selectedSnapshot.storedUri.indexOf('hdfs://') !== -1  ? 'hdfs' : 'local') : 'hive'; //TODO
-    result.format = {
-      type: 'csv'
-    };
-    // if File file
-    if (result.type === 'local') {
-      result.path = sourceInfo.snapshotData.selectedSnapshot.storedUri;
-      result.removeFirstRow = true;
-    } else if (result.type === 'hdfs') { // if HDFS type
-      result.findRecursive = false;
-      result.removeFirstRow = true;
-      result.paths = [sourceInfo.snapshotData.selectedSnapshot.storedUri];
-    } else if (result.type === 'hive') { // if StagingDB
+    result.format = {type: undefined};
+    // if StagingDB
+    if (!sourceInfo.snapshotData.selectedSnapshot.storedUri) {
+      result.type = 'hive';
       sourceInfo.ingestionData.jobProperties.some(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)) && (result.jobProperties = this._toObject(sourceInfo.ingestionData.jobProperties.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value))));
       result.partitions = sourceInfo.ingestionData.selectedPartitionType.value === 'ENABLE' ? this.getConvertedPartitionList(sourceInfo.ingestionData.partitionKeyList) : [];
+      result.format.type = sourceInfo.snapshotData.selectedSnapshot.hiveFileFormat === HiveFileFormat.CSV ? 'csv' : 'orc';
+    } else if (sourceInfo.snapshotData.selectedSnapshot.storedUri.match(/^file:/)) {  // if File file
+      result.type = 'local';
+      result.path = sourceInfo.snapshotData.selectedSnapshot.storedUri;
+      // if CSV file
+      if (this._isCsvFile(sourceInfo.snapshotData.selectedSnapshot.storedUri)) {
+        result.removeFirstRow = true;
+        result.format.type = 'csv';
+      } else {  // if JSON file
+        result.format.type = 'json';
+      }
+    } else if (sourceInfo.snapshotData.selectedSnapshot.storedUri.match(/^hdfs:/)) { // if HDFS type
+      result.type = 'hdfs';
+      result.findRecursive = false;
+      result.paths = [sourceInfo.snapshotData.selectedSnapshot.storedUri];
+      // if CSV file
+      if (this._isCsvFile(sourceInfo.snapshotData.selectedSnapshot.storedUri)) {
+        result.removeFirstRow = true;
+        result.format.type = 'csv';
+      } else {  // if JSON file
+        result.format.type = 'json';
+      }
     }
   }
-
-  /**
-   * Convert array to object
-   * @param array
-   * @returns {Object}
-   * @private
-   */
-  private _toObject(array: any): object {
-    return array.reduce((acc, item) => {
-      acc[item.key] = item.value;
-      return acc;
-    }, {});
-  }
-
 
   /**
    * Get field params
@@ -413,6 +431,20 @@ export class DataSourceCreateService {
       }
     }
   }
+
+  /**
+   * Convert array to object
+   * @param array
+   * @returns {Object}
+   * @private
+   */
+  private _toObject(array: any): object {
+    return array.reduce((acc, item) => {
+      acc[item.key] = item.value;
+      return acc;
+    }, {});
+  }
+
 }
 
 export enum ConfigureTimestampType {
@@ -497,13 +529,13 @@ export interface CreateSourceIngestionParams {
   query?: string;
   database?: string;
   expired?: number;
-  period?: CreateSourceIngestionPeriodParams; //TODO
+  period?: {frequency: string, time?: number, weekDays?: string[], value?: number};
   maxLimit?: number;
   range?: number;
   scope?: any;  //TODO
   connection?: any;  //TODO
-  connectionUsername?: string;  //TODO
-  connectionPassword?: string;  //TODO
+  connectionUsername?: string;
+  connectionPassword?: string;
   // file
   removeFirstRow?: boolean;
   path?: string;
@@ -514,14 +546,7 @@ export interface CreateSourceIngestionParams {
   jobProperties?: object;
   partitions?: any[];
   paths?: string[];
-  format?: any; //TODO
-}
-
-export interface CreateSourceIngestionPeriodParams {
-  frequency: string;
-  time?: number;
-  weekDays?: string[];
-  value?: number;
+  format?: {type: string, delimiter?: string, lineSeparator?: string, sheetIndex?: number};
 }
 
 // create data source stagingDB select step data
