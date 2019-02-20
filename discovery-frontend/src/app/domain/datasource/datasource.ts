@@ -269,6 +269,7 @@ export class DatasourceInfo {
   public fieldList: any;
   // field data
   public fieldData: any;
+
   // 1step 커넥션 정보
   public connectionData: any;
 
@@ -280,17 +281,21 @@ export class DatasourceInfo {
   public snapshotData: CreateSnapShotData;
 
   // 3step 스키마 정보
+  // TODO configureData로 변경
   public schemaData: any;
   public configureData: CreateSourceConfigureData;
 
   // 4step
+  // TODO CreateSourceIngestionData로 타입 변경
   public ingestionData: any;
 
   // 5step 생성정보
   public completeData: CreateSourceCompleteData;
 
   // 분기를 위한 플래그
+  // TODO isDisableDataSelect로 변경
   public workbenchFl: boolean;
+  public isDisableDataSelect: boolean;
 }
 
 export class IngestionRule {

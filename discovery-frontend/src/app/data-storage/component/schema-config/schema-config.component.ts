@@ -663,9 +663,8 @@ export class SchemaConfigComponent extends AbstractComponent {
    */
   private _getFieldDataList(field: Field): any {
     return this._originFieldData.reduce((acc, value) => {
-      if (value.hasOwnProperty(field.name)) {
-        acc.push(value[field.name]);
-      }
+      // if exist data (NOT NULL)
+      value[field.name] && acc.push(value[field.name]);
       return acc;
     }, []).slice(0, 50);
   }
