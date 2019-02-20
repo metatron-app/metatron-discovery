@@ -141,7 +141,6 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   public matcherTypeList: any[];
   private selectedMatcherType: any;
 
-
   @Output()
   public goToSelectField: EventEmitter<any> = new EventEmitter();
 
@@ -257,8 +256,8 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
 
     // 값 정보 설정
     if (targetFilter.valueList && 0 < targetFilter.valueList.length) {
-      this._selectedValues = targetFilter.valueList.map(item => this._stringToCandidate(item));
-      (1 < this._selectedValues.length) && (targetFilter.selector = InclusionSelectorType.MULTI_LIST);
+      this.selectedValues = targetFilter.valueList.map(item => this._stringToCandidate(item));
+      (1 < this.selectedValues.length) && (targetFilter.selector = InclusionSelectorType.MULTI_LIST);
     }
     if (targetFilter.candidateValues && 0 < targetFilter.candidateValues.length) {
       this._candidateValues = targetFilter.candidateValues.map(item => this._stringToCandidate(item));
