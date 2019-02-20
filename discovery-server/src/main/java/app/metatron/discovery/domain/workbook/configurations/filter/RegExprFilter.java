@@ -17,12 +17,20 @@ package app.metatron.discovery.domain.workbook.configurations.filter;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("regexpr")
-public class RegExprFilter extends Filter {
+public class RegExprFilter extends AdvancedFilter {
 
   String expr;
 
+  public RegExprFilter() {
+  }
+
   public RegExprFilter(String field, String expr) {
-    super(field);
+    super(field, null);
+    this.expr = expr;
+  }
+
+  public RegExprFilter(String field, String expr, String ref) {
+    super(field, ref);
     this.expr = expr;
   }
 

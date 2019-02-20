@@ -2915,4 +2915,54 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     assertThat(columns).extracting("name").containsExactly("Standard Class―SUM(Sales)", "Second Class―SUM(Sales)", "Same Day―SUM(Sales)", "First Class―SUM(Sales)");
   }
 
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void metaDataQuery_when_matcher_is_regular_expression() {
+    // given
+    final String requestBody = "{\n" +
+        "  \"dataSource\": {\n" +
+        "    \"connType\": \"ENGINE\",\n" +
+        "    \"engineName\": \"" + datasourceEngineName + "\",\n" +
+        "    \"id\": \"ds-gis-37\",\n" +
+        "    \"joins\": [],\n" +
+        "    \"name\": \"sales_geo\",\n" +
+        "    \"temporary\": false,\n" +
+        "    \"type\": \"default\",\n" +
+        "    \"uiDescription\": \"Sales data (2011~2014)\"\n" +
+        "  },\n" +
+        "  \"filters\": [\n" +
+        "    {\n" +
+        "      \"expr\": \"^Ab.*$\",\n" +
+        "      \"field\": \"City\",\n" +
+        "      \"type\": \"regexpr\"\n" +
+        "    }\n" +
+        "  ],\n" +
+        "  \"targetField\": {\n" +
+        "    \"alias\": \"City\",\n" +
+        "    \"name\": \"City\",\n" +
+        "    \"type\": \"dimension\"\n" +
+        "  }\n" +
+        "}";
+
+    // when
+    Response response =
+        given()
+            .auth().oauth2(oauth_token)
+            .contentType(ContentType.JSON)
+            .body(requestBody)
+            .log().all()
+        .when()
+            .post("/api/datasources/query/candidate")
+            .then()
+        .statusCode(HttpStatus.SC_OK)
+            .log().all()
+            .extract().response();
+
+    // then
+    List<Map<String, Object>> resList = response.jsonPath().get();
+
+    assertThat(resList).hasSize(2);
+    assertThat(resList).extracting("field").containsExactly("Aberdeen", "Abilene");
+  }
+
 }
