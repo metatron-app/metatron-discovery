@@ -237,8 +237,7 @@ dl.ddp-dl-detail dd br {display:block; margin-top:5px;}
 .ddp-box-grid-detail .ddp-wrap-datadetail .ddp-dl-detail th {width:auto;}
 .ddp-box-grid-detail .ddp-wrap-datadetail.ddp-size dl.ddp-dl-detail dt {width:120px;}
 .ddp-box-grid-detail .ddp-wrap-datadetail dl.ddp-dl-detail dd{display:block; padding:5px 5px; color:#4b515b; font-size:13px; overflow:hidden;}
-.ddp-box-grid-detail .ddp-wrap-datadetail dl.ddp-dl-detail dd .ddp-ui-link {display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
-.ddp-box-grid-detail .ddp-wrap-datadetail dl.ddp-dl-detail dd .ddp-link-url {color:#4c92e0; text-decoration:underline;}
+.ddp-box-grid-detail .ddp-wrap-datadetail dl.ddp-dl-detail dd .ddp-dl-sub-detail {display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; color:#b7bac1}
 .ddp-box-grid-detail .ddp-wrap-datadetail .ddp-dl-detail td {padding:5px 5px; color:#4b515b; font-size:13px; overflow:hidden;}
 .ddp-box-grid-detail .ddp-wrap-datadetail dl.ddp-dl-detail dd span.ddp-txt-det {display:block;}
 .ddp-box-grid-detail .ddp-wrap-datadetail dl.ddp-dl-detail dd span.ddp-txt-det + span.ddp-txt-det {padding-top:5px;}
