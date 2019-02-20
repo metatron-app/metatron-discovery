@@ -22,7 +22,6 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
-import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
@@ -37,16 +36,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.monitorjbl.xlsx.StreamingReader;
-import org.apache.commons.codec.binary.StringUtils;
-import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.input.BOMInputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.ContentSummary;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -62,9 +62,13 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.Future;
+
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 
 @Service
 public class PrepDatasetFileService {
@@ -361,6 +365,62 @@ public class PrepDatasetFileService {
     }
 
     public DataFrame getPreviewLinesFromFileForDataFrame(PrDataset dataset, String sheetindex, String size) throws IOException, TeddyException {
+        DataFrame dataFrame = null;
+
+        if (dataset == null) {
+            throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
+        }
+
+        assert dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD || dataset.getImportType() == PrDataset.IMPORT_TYPE.URI;
+
+        String storedUri = dataset.getStoredUri();
+
+        try {
+            String extensionType = FilenameUtils.getExtension(storedUri);
+            int limitRows = Integer.parseInt(size);
+            boolean autoTyping = true;
+
+            if(dataset.getDsType() == PrDataset.DS_TYPE.WRANGLED) {
+                autoTyping = false;
+            }
+
+            File theFile = new File(new URI(storedUri));
+            if(theFile.exists()==false) {
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, "No file : " + storedUri);
+            }
+
+            Map<String, Object> responseMap = null;
+            switch (extensionType) {
+                case "xlsx":
+                case "xls":
+                    // Excel files are treated as CSV
+                    break;
+                case "json":
+                    responseMap = getResponseMapFromJson(storedUri, limitRows, autoTyping);
+                    break;
+                default:
+                    String delimiterCol = dataset.getDelimiter();
+                    responseMap = getResponseMapFromCsv(storedUri, limitRows, delimiterCol, autoTyping);
+            }
+
+            if(responseMap != null) {
+                List<DataFrame> gridResponses = (List<DataFrame>)responseMap.get("gridResponses");
+                if( gridResponses.isEmpty()==false ) {
+                    dataFrame = (DataFrame)gridResponses.get(0);
+                }
+            }
+        } catch (URISyntaxException e1) {
+            e1.printStackTrace();
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
+        } catch (Exception e) {
+            LOGGER.error("Failed to read file : {}", e.getMessage());
+            throw e;
+        }
+
+        return dataFrame;
+    }
+
+    public DataFrame getPreviewLinesFromFileForDataFrame_bak(PrDataset dataset, String sheetindex, String size) throws IOException, TeddyException {
         DataFrame dataFrame = new DataFrame();
         String strUri = null;
 
@@ -801,5 +861,64 @@ public class PrepDatasetFileService {
         }
 
         return csvStrUri;
+    }
+
+    public InputStream getStream(String storedUri) {
+        InputStream is = null;
+        URI uri;
+
+        try {
+            uri = new URI(storedUri);
+        } catch( URISyntaxException e ) {
+            e.printStackTrace();
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, storedUri);
+        }
+
+        switch(uri.getScheme()) {
+            case "hdfs":
+                Configuration conf = hdfsService.getConf();
+                if (conf == null) {
+                    throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+                }
+                Path path = new Path(uri);
+
+                FileSystem hdfsFs;
+                try {
+                    hdfsFs = FileSystem.get(conf);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, storedUri);
+                }
+
+                FSDataInputStream his;
+                try {
+                    his = hdfsFs.open(path);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, storedUri);
+                }
+
+                is = his;
+                break;
+
+            case "file":
+                File file = new File(uri);
+
+                FileInputStream fis;
+                try {
+                    fis = new FileInputStream(file);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, storedUri);
+                }
+
+                is = fis;
+                break;
+
+            default:
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, storedUri);
+        }
+
+        return is;
     }
 }

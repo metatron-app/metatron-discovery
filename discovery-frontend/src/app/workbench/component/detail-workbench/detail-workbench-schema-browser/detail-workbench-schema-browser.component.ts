@@ -23,7 +23,10 @@ import { GridOption } from '../../../../common/component/grid/grid.option';
 import { CommonConstant } from '../../../../common/constant/common.constant';
 import { WorkbenchService } from '../../../service/workbench.service';
 import { ActivatedRoute } from '@angular/router';
-import { ConnectionType, Dataconnection } from '../../../../domain/dataconnection/dataconnection';
+import {
+  ConnectionType as DataConnectionType,
+  Dataconnection
+} from '../../../../domain/dataconnection/dataconnection';
 import { MetadataService } from '../../../../meta-data-management/metadata/service/metadata.service';
 import * as _ from 'lodash';
 import {isNullOrUndefined, isUndefined} from 'util';
@@ -139,6 +142,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   public isMetadataListNoData : boolean = false;
   public isDataListNoData : boolean = false;
 
+  public connTargetType: string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -566,6 +570,8 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @private
    */
   private _getDatabaseList(searchFl: boolean = false): void {
+    // 커넥션 대상 타입 조회
+    this.connTargetType = this._getConnectionTargetType();
     // 호출 횟수 증가
     this._getDatabaseListReconnectCount++;
     // 로딩 show
@@ -1236,12 +1242,33 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   }
 
   /**
-   * DataConnection Type icon
-   * @param connType
-   * @returns {any}
+   * get connection target type
+   * @returns {string}
    */
-  public getConnectionType(connType: string) {
-    return ConnectionType[connType];
-  }
+  private _getConnectionTargetType():string {
+    let strType: string = '';
+    if( this.dataConnection.implementor ) {
+      switch (this.dataConnection.implementor) {
+        case DataConnectionType.HIVE :
+          strType = 'HIVE';
+          break;
+        case DataConnectionType.MYSQL :
+          strType = 'MYSQL';
+          break;
+        case DataConnectionType.POSTGRESQL :
+          strType = 'POSTGRESQL';
+          break;
+        case DataConnectionType.PRESTO :
+          strType = 'PRESTO';
+          break;
+        case DataConnectionType.DRUID :
+          strType = 'DRUID';
+          break;
+        default :
+          strType = 'CUSTOM';
+      }
+    }
+    return strType;
+  } // function - _getConnectionTargetType
 
 }

@@ -14,14 +14,14 @@
 
 <!-- Multi Combo Box -->
 <div *ngIf="isMulti" class="ddp-type-selectbox ddp-selected" tabindex="tabIndex" [ngClass]="{'ddp-selected':isShowOptions}" (click)="showOptions($event)">
-  <span class="ddp-txt-selectbox">{{isEmptyCheckedItems() ? ('msg.comm.ui.please.select' | translate) : selectedItemsNameString() }}</span>
+  <span class="ddp-txt-selectbox ddp-space-pre">{{isEmptyCheckedItems() ? ('msg.comm.ui.please.select' | translate) : selectedItemsNameString() }}</span>
   <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isShowOptions" (clickOutside)="hideOptions($event)">
     <li *ngFor="let col of fields;trackBy:trackByFn">
       <a href="javascript:">
         <label class="ddp-label-checkbox">
           <input type="checkbox" [checked]="isItemChecked( col.uuid )"  (click)="checkItem(col.uuid)">
           <i class="ddp-icon-checkbox"></i>
-          <span class="ddp-txt-checkbox">{{col.name}}</span>
+          <span class="ddp-txt-checkbox ddp-space-pre">{{col.name}}</span>
         </label>
       </a>
     </li>
@@ -44,10 +44,10 @@
          placeholder="{{'msg.dp.ui.column.search.description' | translate}}"
          class="ddp-input-selectbox" >
   <span *ngIf="isEmptyCheckedItems()" class="ddp-txt-selectbox"> {{ 'msg.comm.ui.please.select' | translate }} </span>
-  <span *ngIf="!isEmptyCheckedItems()" class="ddp-txt-selectbox"> {{  selectedItemsNameString() }} </span>
+  <span *ngIf="!isEmptyCheckedItems()" class="ddp-txt-selectbox ddp-space-pre"> {{  selectedItemsNameString() }} </span>
   <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isShowOptions" (clickOutside)="hideOptions($event)">
     <li *ngFor="let col of filteredColumnList;trackBy:trackByFn;" (click)="$event.stopPropagation();checkItem(col.uuid);" >
-      <a href="javascript:"> {{col.name}} </a>
+      <a href="javascript:" class="ddp-space-pre"> {{col.name}} </a>
     </li>
     <li *ngIf="filteredColumnList.length === 0">
         <span class="ddp-noresult">

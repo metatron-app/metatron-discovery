@@ -51,6 +51,7 @@ import {MapLayerType} from '../../common/component/chart/option/define/map/map-c
 import {Pivot} from "../../domain/workbook/configurations/pivot";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
 import {Shelf} from "../../domain/workbook/configurations/shelf/shelf";
+import {RegExprFilter} from "../../domain/workbook/configurations/filter/reg-expr-filter";
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -239,6 +240,11 @@ export class DatasourceService extends AbstractService {
             const wildcard: WildCardFilter = <WildCardFilter>preFilter;
             if (wildcard.contains && wildcard.value && wildcard.value.length > 0) {
               tempFilters.push(FilterUtil.convertToServerSpec(wildcard));
+            }
+          } else if (preFilter.type === 'regexpr') {
+            const regExpr: RegExprFilter = <RegExprFilter>preFilter;
+            if (regExpr.expr) {
+              tempFilters.push(FilterUtil.convertToServerSpec(regExpr));
             }
           }
         });

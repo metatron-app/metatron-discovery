@@ -5208,6 +5208,7 @@ table.ddp-table-detail tbody tr td .ddp-wrap-alart .ddp-ui-tooltip-info {display
 table.ddp-table-detail tbody tr td .ddp-wrap-alart .ddp-ui-tooltip-info .ddp-icon-view-top {left:68px; right:inherit;}
 table.ddp-table-detail tbody tr td a.ddp-link-url {text-decoration: underline; font-style:italic;}
 table.ddp-table-detail tbody tr td a.ddp-link-url2 {text-decoration: underline; color:#4c92e0;}
+table.ddp-table-detail tbody tr td.ddp-link-url a {text-decoration: underline; color:#4c92e0;}
 table.ddp-table-detail tbody tr td a.ddp-btn-pop.ddp-type {min-width:178px; border:1px solid #90969f; background-color:#90969f;}
 
 table.ddp-table-detail tbody tr td a.ddp-btn-pop.ddp-type:hover {background-color:#4b515b;}
@@ -7284,10 +7285,14 @@ ul.ddp-ui-tab li em.ddp-icon-user-s2,
 ul.ddp-ui-tab li em.ddp-icon-group-s2 {margin-right:8px;}
 ul.ddp-ui-tab li.ddp-selected em.ddp-icon-user-s2,
 ul.ddp-ui-tab li.ddp-selected em.ddp-icon-group-s2 {opacity:1;}
+.ddp-wrap-permission.ddp-type {padding-top:0;}
+.ddp-wrap-permission.ddp-type .ddp-wrap-viewtable {top:98px;}
 .ddp-wrap-permission {position:relative; padding-top:42px; height:100%; box-sizing:border-box;}
 .ddp-wrap-permission .ddp-type-check {display:inline-block; position:absolute; top:0;}
 .ddp-wrap-permission .ddp-wrap-viewtable{position:absolute; top:140px; left:0; right:0; bottom:68px;}
 .ddp-wrap-permission .ddp-wrap-switch .ddp-form-search {width:270px;}
+.ddp-wrap-permission table.ddp-table-type2 tbody tr > td .ddp-data-owner {float:left; color:#b7b9c2;}
+.ddp-wrap-permission table.ddp-table-type2 tbody tr > td .ddp-txt-data {float:left; padding-right:4px;}
 
 .ddp-box-popupcontents2.ddp-setting-source {width:666px;}
 .ddp-box-popupcontents2.ddp-setting-source > .ddp-wrap-edit2:first-of-type {margin-top:0;}
@@ -8652,6 +8657,12 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .icon-db-tibero-w .st0{fill:#B8B8B8;}
 .icon-db-tibero-w .st1{fill:#EBEBEB;}
 
+.icon-db-druid-w .st0{fill:none;stroke:#ECECEC;stroke-miterlimit:10;}
+
+.icon-db-custom-w .st0{fill:#ECECEC;}
+.icon-db-custom-w .st1{display:none;}
+.icon-db-custom-w .st2{display:inline;fill:none;stroke:#ECECEC;stroke-miterlimit:10;}
+
 .icon-db-hive .st0{fill:#FDEE21;}
 .icon-db-hive .st1{fill:#C8C037;}
 .icon-db-hive .st2{fill:#FCF6A0;}
@@ -8661,6 +8672,10 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .icon-db-mysql .st0{fill:#2D7397;}
 
 .icon-db-oracle .st0{fill:#EA1B22;}
+
+.icon-db-druid .st0{fill:none;stroke:#00B3C1;stroke-linecap:round;stroke-miterlimit:10;}
+
+.icon-db-custom .st0{fill:#A9B0C0;}
 
 .icon-db-phoenix .st0{fill:url(#SVGID_1_);}
 .icon-db-phoenix .st1{fill:url(#SVGID_2_);}

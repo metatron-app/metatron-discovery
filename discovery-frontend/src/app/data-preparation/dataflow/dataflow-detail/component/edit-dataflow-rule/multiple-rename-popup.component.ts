@@ -30,6 +30,7 @@ import {GridComponent} from "../../../../../common/component/grid/grid.component
 import {ScrollLoadingGridComponent} from "./edit-rule-grid/scroll-loading-grid.component";
 import {ScrollLoadingGridModel} from "./edit-rule-grid/scroll-loading-grid.model";
 import {isNullOrUndefined} from "util";
+declare const moment: any;
 
 @Component({
   selector: 'multiple-rename-popup',
@@ -70,6 +71,8 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   // used when updating
   public currentIdx: number;
 
+  public typeDesc: any;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -96,7 +99,10 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    * Open rename component with init
    * @param dsInfo
    */
-  public init(dsInfo : { gridData : {data: any, fields: any}, dsName : string,
+  public init(dsInfo : {
+    gridData : {data: any, fields: any},
+    dsName : string,
+    typeDesc: any,
     editInfo? : {ruleCurIdx : number, cols: string[], to : string[]}}) {
 
     // open popup
@@ -109,6 +115,8 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
     this.gridData.data = this.gridData.data.splice(0,50);
 
     this.datasetName = dsInfo.dsName;
+
+    this.typeDesc = dsInfo.typeDesc;
 
     // Set column information (right side)
     if (dsInfo.editInfo) {
@@ -405,21 +413,6 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    */
   private _updateGrid(fields, rows) {
 
-
-    // object일 때 stringify 해야한다
-    if (rows.length > 0) {
-      rows = rows.map((row: any) => {
-        fields.forEach((field: Field) => {
-          if(field.type === 'ARRAY' ||field.type === 'MAP') {
-            if (typeof row[field.name] !== 'string') {
-              row[field.name] = JSON.stringify(row[field.name])
-            }
-          }
-        });
-        return row;
-      });
-    }
-
     // 헤더정보 생성
     const headers: header[] = fields.map((field: Field,index) => {
       return new SlickGridHeader()
@@ -435,6 +428,13 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
         .Resizable(true)
         .Unselectable(true)
         .Sortable(false)
+        .Formatter((row, cell, value) => {
+          const colDescs = (this.typeDesc) ? this.typeDesc[cell] : {};
+          if (!isNullOrUndefined(colDescs)) {
+            value = this._setFieldFormatter(value, colDescs.type, colDescs);
+          }
+          return value;
+        })
         .build();
     });
 
@@ -457,6 +457,86 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
       0
     );
   }
+
+
+  /**
+   * 문자열에 타임스탬프 포맷을 적용함
+   * @param {string} value
+   * @param {string} timestampStyle
+   * @return {string}
+   * @private
+   */
+  private _setTimeStampFormat(value: string, timestampStyle?: string): string {
+
+    (timestampStyle) || (timestampStyle = 'YYYY-MM-DDTHH:mm:ss');
+    let result = moment.utc(value).format(timestampStyle.replace(/y/g, 'Y').replace(/dd/g, 'DD').replace(/'/g, ''));
+    if (result === 'Invalid date') {
+      result = value;
+    }
+    return result;
+  }
+
+  /**
+   * 필드에 대한 형식 지정
+   * @param value
+   * @param {string} type
+   * @param {{timestampStyle: string, arrColDesc: any, mapColDesc: any}} colDescs
+   * @returns {string}
+   * @private
+   */
+  private _setFieldFormatter(value: any, type: string,
+                             colDescs: { timestampStyle?: string, arrColDesc?: any, mapColDesc?: any }): string {
+    let strFormatVal: string = '';
+    if (colDescs) {
+      if ('TIMESTAMP' === type) {
+        // 단일 데이터에 대한 타임 스템프 처리
+        strFormatVal = this._setTimeStampFormat(value, colDescs.timestampStyle);
+      } else if ('ARRAY' === type) {
+        // 배열 형식내 각 항목별 타임 스템프 처리
+        const arrColDescs = colDescs.arrColDesc ? colDescs.arrColDesc : {};
+        strFormatVal = JSON.stringify(
+          value.map((item: any, idx: number) => {
+            const colDesc = arrColDescs[idx] ? arrColDescs[idx] : {};
+            if ('TIMESTAMP' === colDesc['type']) {
+              return this._setTimeStampFormat(item, colDesc['timestampStyle']);
+            } else {
+              // 재귀 호출 부분
+              const tempResult: string = this._setFieldFormatter(item, colDesc['type'], colDesc);
+              // array, map 타임의 경우 stringify가 중복 적용되기에 parse 처리 해줌
+              return ('ARRAY' === colDesc['type'] || 'MAP' === colDesc['type']) ? JSON.parse(tempResult) : tempResult;
+            }
+          })
+        );
+      } else if ('MAP' === type) {
+        // 구조체내 각 항목별 타임 스템프 처리
+        const mapColDescs = colDescs.mapColDesc ? colDescs.mapColDesc : {};
+        let newMapValue = {};
+        for (let key in value) {
+          if (value.hasOwnProperty(key)) {
+            const colDesc = mapColDescs.hasOwnProperty(key) ? mapColDescs[key] : {};
+            if ('TIMESTAMP' === colDesc['type']) {
+              newMapValue[key] = this._setTimeStampFormat(value[key], colDesc['timestampStyle']);
+            } else {
+              // 재귀 호출 부분
+              const tempResult: string = this._setFieldFormatter(value[key], colDesc['type'], colDesc);
+              // array, map 타임의 경우 stringify가 중복 적용되기에 parse 처리 해줌
+              newMapValue[key]
+                = ('ARRAY' === colDesc['type'] || 'MAP' === colDesc['type']) ? JSON.parse(tempResult) : tempResult;
+            }
+          }
+        }
+        strFormatVal = JSON.stringify(newMapValue);
+      } else {
+        strFormatVal = <string>value;
+      }
+    } else {
+      strFormatVal = <string>value;
+    }
+
+    return strFormatVal;
+  } // function - _setFieldFormatter
+
+
 
 }
 
