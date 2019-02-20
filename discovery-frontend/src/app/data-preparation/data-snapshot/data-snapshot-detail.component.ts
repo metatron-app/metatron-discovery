@@ -31,6 +31,15 @@ import * as pixelWidth from 'string-pixel-width';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import * as $ from "jquery";
 import {PreparationCommonUtil} from "../util/preparation-common.util";
+import {
+  ConnectionType,
+  DatasourceInfo,
+  DataSourceType,
+  FieldRole,
+  LogicalType,
+  SourceType
+} from "../../domain/datasource/datasource";
+import {CreateSnapShotData} from "../../data-storage/service/data-source-create.service";
 declare let moment: any;
 
 @Component({
@@ -82,6 +91,10 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
   @Output()
   public navigateToDataflow = new EventEmitter();
+
+  public isUsedDatasource: boolean;
+
+  private _selectedGridResponse: any;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -167,7 +180,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    * @param ssId
    * @param isFromDataflow
    */
-  public init(ssId : string, isFromDataflow : boolean = false) {
+  public init(ssId : string, isFromDataflow : boolean = false, isUsedDatasource: boolean = false) {
 
     this.selectedDataSnapshot = new PrDataSnapshot();
     this.originDsInfo = new OriginDsInfo();
@@ -177,6 +190,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     this.ssId = ssId;
     this.isShow = true;
     this.colCnt = 0;
+    // set used datasource flag
+    this.isUsedDatasource = isUsedDatasource;
 
     $('body').removeClass('body-hidden').addClass('body-hidden');
 
@@ -196,7 +211,44 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     this.snapshotDetailCloseEvent.emit();
   } // end of method close
 
-
+  /**
+   * Create datasource
+   */
+  public createDatasource(): void {
+    const sourceData = new DatasourceInfo();
+    sourceData.isDisableDataSelect = true;
+    sourceData.snapshotData = new CreateSnapShotData();
+    sourceData.snapshotData.selectedSnapshot = this.selectedDataSnapshot;
+    // set snapshot data
+    // set field data
+    const fieldList = [];
+    const fieldData = [];
+    // set field list #657
+    for ( let idx = 0; idx < this._selectedGridResponse.colCnt; idx++ ) {
+      fieldList.push({
+        name: this._selectedGridResponse.colNames[idx],
+        type: this._selectedGridResponse.colDescs[idx].type,
+        logicalType: this._getLogicalType(this._selectedGridResponse.colDescs[idx].type),
+        role: this._getRoleType(this._selectedGridResponse.colDescs[idx].type)
+      });
+    }
+    // set data list
+    this._selectedGridResponse.rows.forEach((row) => {
+      const obj = {};
+      for ( let idx = 0; idx < this._selectedGridResponse.colCnt; idx++ ) {
+        obj[ this._selectedGridResponse.colNames[idx] ] = row.objCols[idx];
+      }
+      fieldData.push(obj);
+    });
+    sourceData.fieldList = fieldList;
+    sourceData.fieldData = fieldData;
+    sourceData.type = SourceType.SNAPSHOT;
+    sourceData.connType = ConnectionType.ENGINE;
+    sourceData.dsType = DataSourceType.MASTER;
+    // set datasourceInfo data in session storage
+    sessionStorage.setItem('SELECTED_SNAPSHOT_DATA_TO_DS_CREATE', JSON.stringify(sourceData));
+    this.router.navigate(['/management/storage/datasource']).then();
+  }
 
   public getRows() {
     let rows = '0';
@@ -256,6 +308,43 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       this.navigateToDataflow.emit();
     }
   } // function - navigateDataflow
+
+  /**
+   * Get logical type (only create source)
+   * @param {string} type
+   * @return {LogicalType}
+   * @private
+   */
+  private _getLogicalType(type: string): LogicalType {
+    switch (type) {
+      case 'STRING':
+        return LogicalType.STRING;
+      case 'NUMBER':
+      case 'INTEGER':
+        return LogicalType.INTEGER;
+      case 'LONG':
+      case 'DOUBLE':
+        return LogicalType.DOUBLE;
+      case 'TIMESTAMP':
+        return LogicalType.TIMESTAMP;
+    }
+  }
+
+  /**
+   * Get role type (only create source)
+   * @param {string} type
+   * @return {FieldRole}
+   * @private
+   */
+  private _getRoleType(type: string): FieldRole {
+    switch (type) {
+      case 'INTEGER':
+      case 'FLOAT':
+        return FieldRole.MEASURE;
+      default:
+        return FieldRole.DIMENSION;
+    }
+  }
 
   /**
    * 데이터셋 아이디 저장
@@ -586,6 +675,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           Alert.warning(this.translateService.instant('msg.dp.alert.no.grid'));
           return;
         }
+        this._selectedGridResponse = result.gridResponse;
 
         this.colCnt = result.gridResponse.colCnt;
         const colNames = result.gridResponse.colNames;

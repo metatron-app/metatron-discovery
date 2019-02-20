@@ -30,7 +30,7 @@
   <!-- //contents in  -->
   <!-- buttons -->
   <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="onClickPageChange('prev')">{{'msg.comm.btn.previous' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="onClickPageChange('prev')" *ngIf="!sourceData.isDisableDataSelect">{{'msg.comm.btn.previous' | translate}}</a>
     <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" (click)="onClickPageChange('next')">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->

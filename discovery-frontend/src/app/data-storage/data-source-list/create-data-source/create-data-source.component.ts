@@ -63,10 +63,15 @@ export class CreateDataSourceComponent extends AbstractComponent implements OnIn
 
   // Init
   public ngOnInit() {
-
     // Init
     super.ngOnInit();
-
+    if (sessionStorage.getItem('SELECTED_SNAPSHOT_DATA_TO_DS_CREATE')) {
+      // set configure step
+      this.step = 'snapshot-configure';
+      // set source data
+      this.sourceData = JSON.parse(sessionStorage.getItem('SELECTED_SNAPSHOT_DATA_TO_DS_CREATE'));
+      sessionStorage.removeItem('SELECTED_SNAPSHOT_DATA_TO_DS_CREATE');
+    }
   }
 
   public ngOnDestroy() {

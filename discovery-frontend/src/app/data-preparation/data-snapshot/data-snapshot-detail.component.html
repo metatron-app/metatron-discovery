@@ -250,10 +250,11 @@
         </div>
         <!-- //info -->
       </div>
-
+      <div class="ddp-view-buttons" *ngIf="!isUsedDatasource">
+        <a href="javascript:" class=" ddp-btn-pop ddp-bg-black" [class.ddp-disable]="!_selectedGridResponse" (click)="createDatasource()"><em class="ddp-icon-add2"></em>데이터소스 생성</a>
+      </div>
     </div>
     <!-- //right -->
-
   </div>
   <!-- //contents -->
 </div>
