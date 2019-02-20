@@ -1,0 +1,76 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--
+    클릭시 ddp-selected 추가
+    selectbox 클릭시 ddp-result
+-->
+<!--suppress NsUnresolvedStyleClassReference, HtmlFormInputWithoutLabel, Angular2Bindings -->
+<div class="ddp-type-selectbox ddp-type-search-select"
+     #componentWarpDivElement
+     [attr.id]="UUID"
+     [class.ddp-selected]="isSelected"
+     [class.ddp-result]="!isSelected"
+     (clickOutside)="clickOutside()">
+  <!-- 선택시 자동 input display:block; -->
+  <input type="text" class="ddp-input-selectbox"
+         #searchInputElement
+         [(ngModel)]="searchKey"
+         (keyup.escape)="toggleSelectBoxSelectedState(componentWarpDivElement)"
+         (focusout)="focusOutSearchInputElement()">
+
+  <span class="ddp-txt-selectbox" (click)="selectSelectBox(componentWarpDivElement, searchInputElement)">
+    {{ getCheckedSelectValueLabel() }}
+  </span>
+
+  <div class="ddp-wrap-popup2"
+       [ngStyle]="{ 'top': offsetY, 'left': offsetX }"
+       (mouseover)="mouseOverSelectBoxDatasLayerElement()"
+       (mouseleave)="mouseLeaveSelectBoxDatasLayerElement()">
+    <ul class="ddp-list-popup">
+      <!--
+        Element shown in case of No data
+      -->
+      <li *ngIf="(!selectValues || (selectValues | filter:{ label: searchKey }:false).length == 0)">
+        <!--suppress JSUnresolvedFunction -->
+        <span class="ddp-noresult">{{ 'msg.comm.ui.no.rslt' | translate }}</span>
+      </li>
+      <!--
+        Element shown if not No data
+      -->
+      <li *ngFor="let member of selectValues | filter:{ label: searchKey }:false"
+          [class.ddp-selected]="member.checked"
+          [class.ddp-disabled]="member.disabled">
+        <a href="javascript:" *ngIf="member.disabled">
+          {{ member.label }}
+          <span class="ddp-rank">({{ member.value.role }})</span>
+          <em class="ddp-icon-check"></em>
+        </a>
+        <a href="javascript:"
+           *ngIf="!member.disabled"
+           (click)="clickSelectValue(member)">
+          {{ member.label }}
+          <span class="ddp-rank">({{ member.value.role }})</span>
+          <em class="ddp-icon-check"></em>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+<!-- //search select -->
+
+<!--suppress JSUnresolvedFunction -->
+<div class="ddp-txt-error" *ngIf="isWorkspaceOwnerChanged">
+  <em class="ddp-icon-error-s"></em>{{ 'msg.comm.menu.admin.user.modal.change.owner.need.to.change' | translate }}
+</div>

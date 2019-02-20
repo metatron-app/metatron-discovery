@@ -12,15 +12,20 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input} from '@angular/core';
-import {AbstractComponent} from '../abstract.component';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '../../../../../common/component/abstract.component';
 import * as _ from 'lodash';
+import {PublicType, WorkspaceAdmin} from '../../../../../domain/workspace/workspace';
 
 @Component({
-  selector: 'user-information',
-  templateUrl: './user-information.component.html',
+  selector: '[workspace-detail]',
+  templateUrl: './workspace-detail.component.html',
+  host: {
+    '[class.ddp-ui-top]': 'true',
+    '[class.ddp-clear]': 'true',
+  },
 })
-export class UserInformationComponent extends AbstractComponent {
+export class WorkspaceDetailComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -34,46 +39,32 @@ export class UserInformationComponent extends AbstractComponent {
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public readonly UNKNOWN_USER = 'Unknown user';
-
-  @Input('name')
-  public userName: string;
-
-  @Input('id')
-  public userId: string;
-
-  @Input('email')
-  public userEmail: string;
-
-  @Input('left')
-  public isLeft: boolean = false;
+  @Input()
+  public readonly workspace: WorkspaceAdmin;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
   constructor(
-    protected element: ElementRef,
+    protected elementRef: ElementRef,
     protected injector: Injector) {
-    super(element, injector);
+    super(elementRef, injector);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Init
   public ngOnInit() {
-
-    // Init
     super.ngOnInit();
   }
 
-  // Destory
-  public ngOnDestroy() {
+  public ngAfterViewInit() {
+    super.ngAfterViewInit();
+  }
 
-    // Destory
+  public ngOnDestroy() {
     super.ngOnDestroy();
   }
 
@@ -81,26 +72,25 @@ export class UserInformationComponent extends AbstractComponent {
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /**
-   * 해당 사용자의 사용자 관리 상세피이지로 이동
-   */
-  public onClickViewDetail(): void {
-    // 쿠키서비스에 현재 url 저장
-    this._savePrevRouterUrl();
-    // 멤버 목록 페이지로 이동
-    this.router.navigate(['/admin/user/members', this.userId]);
+  public openNewWindowWorkspaceMainPageWithWorkspaceId(workspaceId: string): void {
+
+    if (_.isNil(workspaceId)) {
+      console.error(`Workspace ID is required.`);
+      return;
+    }
+
+    window.open(`workspace/${workspaceId}`);
   }
 
-  public invalidUserName() {
-    return _.isNil(this.userName) || this.userName === '';
+  public isSharedWorkspace() {
+    return this._isNotNil(this.workspace)
+      && this._isNotNil(this.workspace.publicType)
+      && _.eq(this.workspace.publicType, PublicType.SHARED);
   }
 
-  public validUserName() {
-    return !this.invalidUserName();
-  }
-
-  public invalidUserId() {
-    return _.isNil(this.userId) || this.userId === '';
+  // noinspection JSMethodCanBeStatic
+  public getWorkspaceId(): string {
+    return this.workspace.id;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -111,11 +101,8 @@ export class UserInformationComponent extends AbstractComponent {
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /**
-   * 현재 url을 쿠키서비스에 저장
-   * @private
-   */
-  private _savePrevRouterUrl(): void {
-    this.cookieService.set('PREV_ROUTER_URL', this.router.url);
+  // noinspection JSMethodCanBeStatic
+  private _isNotNil(data) {
+    return _.negate(_.isNil)(data);
   }
 }

@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.workspace;
 
+import app.metatron.discovery.domain.user.User;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -380,6 +381,16 @@ public class Workspace extends AbstractHistoryEntity implements MetatronDomain<S
 
     roleSet.minusLink();
     this.roleSets.remove(roleSet);
+  }
+
+  /**
+   * Checks whether any workspace member has the same user name and member ID
+   *
+   * @param user User
+   * @return boolean
+   */
+  public boolean checkMemberExistByUserName(final User user) {
+    return this.members.stream().anyMatch(member -> member.memberId.equals(user.getUsername()));
   }
 
   @Override
