@@ -338,6 +338,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public changeClustering(obj: any, $event: any, index: number) {
     this.uiOption.layers[index]['coverage']= $event.from;
     this.applyLayers();
+    // todo : cluster 서버 사용일 경우 변경
+    // this.applyLayers({type : EventType.MAP_CHANGE_OPTION});
   }
 
   public changeClusteringText($event: any, index: number) {

@@ -337,6 +337,9 @@ export class FilterUtil {
       case 'measure_position' :
         keyMap = ['aggregation', 'position', 'value'];
         break;
+      case 'spatial_bbox' :
+        keyMap = ['lowerCorner', 'upperCorner'];
+        break;
     }
     keyMap = keyMap.concat(['type', 'field', 'ref', 'dataSource']);
     for (let key of Object.keys(filter)) {

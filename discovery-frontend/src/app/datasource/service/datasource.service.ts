@@ -51,6 +51,7 @@ import {MapLayerType} from '../../common/component/chart/option/define/map/map-c
 import {Pivot} from "../../domain/workbook/configurations/pivot";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
 import {Shelf} from "../../domain/workbook/configurations/shelf/shelf";
+import {SpatialFilter} from "../../domain/workbook/configurations/filter/spatial-filter";
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -597,21 +598,32 @@ export class DatasourceService extends AbstractService {
                 layer.format = {
                   type: FormatType.GEO.toString()
                 }
+
+                // todo : cluster 서버 사용일 경우 변경
+                // // clustering
+                // let chart = (<UIMapOption>pageConf.chart);
+                // if( chart.layers[idx]['clustering'] ) {
+                //   query.shelf.layers[idx].view = <GeoHashFormat>{
+                //     type: LayerViewType.CLUSTERING.toString(),
+                //     method: "h3",
+                //     // 0~99 퍼센트 값 변환 체크
+                //     // precision: chart.layers[idx]['coverage']
+                //     precision: 7
+                //   };
+                //
+                //   let spatialFilter = new SpatialFilter();
+                //   spatialFilter.dataSource = layer.ref;
+                //   spatialFilter.ref = layer.ref;
+                //   spatialFilter.field = layer.field.name;
+                //   // TODO : 최초 default 값 체크 (빈값일 경우 에러리턴)
+                //   spatialFilter.lowerCorner = _.isUndefined(chart['lowerCorner']) ? '-123.0998 25.4766' : chart['lowerCorner'];
+                //   spatialFilter.upperCorner = _.isUndefined(chart['upperCorner']) ? '-68.7918 48.7974' : chart['upperCorner'];
+                //   query.filters.push( spatialFilter );
+                // }
               }
 
               // when logicalType => geo point
               if (layer.field.logicalType === LogicalType.GEO_POINT) {
-
-                // clustering
-                // let isClustering : boolean = (<UIMapOption>pageConf.chart).layers[idx]['clustering'];
-                // if( isClustering ) {
-                //   query.shelf.layers[idx].view = <GeoHashFormat>{
-                //     type: LayerViewType.CLUSTERING.toString(),
-                //     method: "h3",
-                //     // precision: (<UIMapOption>pageConf.chart).layers[idx]['coverage']
-                //     precision: 1
-                //   };
-                // }
 
                 // geo_hash is only used in hexagon
                 if (MapLayerType.TILE === (<UIMapOption>pageConf.chart).layers[idx].type) {

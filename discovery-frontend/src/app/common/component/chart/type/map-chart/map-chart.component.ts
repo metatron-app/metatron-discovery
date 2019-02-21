@@ -411,6 +411,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Creation legend
     this.createLegend();
 
+    // map ui lat, lng
+    this.setUiExtent();
+
     ////////////////////////////////////////////////////////
     // Apply
     ////////////////////////////////////////////////////////
@@ -2720,6 +2723,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   private zoomFunction = (event) => {
     // save current chartzoom
     this.uiOption.chartZooms = this.additionalSaveDataZoomRange();
+    this.setUiExtent();
 
     // TODO selection (drag end)
     if (!this.isPage) {
@@ -3014,6 +3018,20 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       }
     });
     this.layerMap.splice(layerNumber, 1);
+  }
+
+  /**
+   * current map ui lat, lng setting
+   */
+  private setUiExtent(){
+    let mapUIOption = (<UIMapOption>this.uiOption);
+    if( this.olmap ){
+      let mapExtent = this.olmap.getView().calculateExtent(this.olmap.getSize());
+      // 우측 하단
+      mapUIOption.lowerCorner = mapExtent[0] + ' ' + mapExtent[3];
+      // 좌측 상단
+      mapUIOption.upperCorner = mapExtent[1] + ' ' + mapExtent[2];
+    }
   }
 
 }
