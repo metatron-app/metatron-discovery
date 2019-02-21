@@ -632,9 +632,14 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    */
   private _setFileType(fileName: string) {
     let fileType : string = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName)[1].toUpperCase();
-    this.isCSV = fileType === ('CSV' || 'TXT');
-    this.isExcel = fileType === ('XLSX' || 'XLS');
-    this.isJSON = fileType === 'JSON';
+
+    this.isCSV = (fileType === 'CSV' || fileType === 'TXT');
+
+    this.isExcel = (fileType === 'XLSX' || fileType === 'XLS');
+
+    if (fileType === 'JSON') {
+      this.isJSON = true;
+    }
   }
 
   private _isNextBtnDisable(): boolean {
