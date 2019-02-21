@@ -21,8 +21,6 @@ import { GridOption } from '../../../common/component/grid/grid.option';
 import { GridComponent } from '../../../common/component/grid/grid.component';
 import * as pixelWidth from 'string-pixel-width';
 import { Field } from '../../../domain/datasource/datasource';
-import {switchMap} from "rxjs/operators";
-import {logger} from "codelyzer/util/logger";
 
 /**
  * Creating metadata with Hive - schema step
@@ -35,10 +33,6 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
 
   @ViewChild(GridComponent)
   private _gridComponent: GridComponent;
-
-  // loadingPart div
-  @ViewChild('loadingPart')
-  private loadingPart: ElementRef;
 
   // database search text
   public searchTextDatabase: string = '';
@@ -59,9 +53,6 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
 
   // not exist table show flag
   public resultTableErrorShowFl: boolean = false;
-
-  // loading part flag
-  public isLoading: boolean = false;
 
 
   // constructor
@@ -89,7 +80,6 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-    console.info('destroy');
   }
 
   /**
@@ -300,32 +290,20 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
 
   /**
    * Get database list
-H   * @private
+   * @private
    */
   private _getDatabaseList(): void {
     // loading show
-    this.isLoading = true;
-
+    this.loadingShow();
     // get database list
-    console.info("getDatabase");
-    const sub = this._connectionService.getDatabasesWithoutIdWithCancel(this._getConnectionParams())
-      .subscribe(
-        res => {
-          console.info('success data');
-          this.databaseList = res['databases'];
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false
-        },
-        err => {
-          console.info('error');
-          this.commonExceptionHandler(err);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false
-        }
-      );
-    this.subscriptions.push(sub);
-
-
+    this._connectionService.getDatabasesWithoutId(this._getConnectionParams())
+      .then((result) => {
+        // set database list
+        this.databaseList = result['databases'];
+        // loading hide
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -335,29 +313,20 @@ H   * @private
    */
   private _getTableList(databaseName: string): void {
     // loading show
-    this.isLoading = true;
-
+    this.loadingShow();
+    // error message hide
     this.resultTableErrorShowFl = false;
     // get database list
-    const sub = this._connectionService.getTableListForHiveInMetadataWithCancel(this._getConnectionParams(databaseName))
-      .subscribe(
-        res => {
-          console.info('success data');
-          // set table list
-          this.tableList = res['tables'] || [];
-          // if not exist table list, error message show
-          res['tables'].length === 0 && (this.resultTableErrorShowFl = true);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false
-        },
-        err => {
-          console.info('error');
-          this.commonExceptionHandler(err);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false
-        }
-      );
-    this.subscriptions.push(sub);
+    this._connectionService.getTableListForHiveInMetadata(this._getConnectionParams(databaseName))
+      .then((result) => {
+        // set table list
+        this.tableList = result['tables'] || [];
+        // if not exist table list, error message show
+        result['tables'].length === 0 && (this.resultTableErrorShowFl = true);
+        // loading hide
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -368,32 +337,23 @@ H   * @private
    */
   private _getDetailData(databaseName: string, tableName: string): void {
     // loading show
-    this.isLoading = true;
+    this.loadingShow();
     // get detail data
-    const sub = this._connectionService.getTableDetailWitoutIdWithCancel(this._getConnectionParams(databaseName, tableName))
-      .subscribe(
-        res => {
-          console.info('success data');
-          // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
-          res['data'] = this._getReplacedDataList(res['data']);
-          res['fields'] = this._getReplacedFieldList(res['fields']);
-          // set detail data
-          this.detailData = res;
-          // grid show flag true
-          this.clearGrid = false;
-          // update grid
-          this._updateGrid(res['data'], res['fields']);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false;
-        },
-        err => {
-          console.info('error');
-          this.commonExceptionHandler(err);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false;
-        }
-      );
-      this.subscriptions.push(sub);
+    this._connectionService.getTableDetailWitoutId(this._getConnectionParams(databaseName, tableName))
+      .then((result) => {
+        // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
+        result['data'] = this._getReplacedDataList(result['data']);
+        result['fields'] = this._getReplacedFieldList(result['fields']);
+        // set detail data
+        this.detailData = result;
+        // grid show flag true
+        this.clearGrid = false;
+        // update grid
+        this._updateGrid(result['data'], result['fields']);
+        // loading hide
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**

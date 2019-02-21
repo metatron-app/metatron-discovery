@@ -19,7 +19,6 @@ import {Page} from '../../domain/common/page';
 import {isNullOrUndefined} from "util";
 import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
 import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
-import {Observable} from "rxjs/Observable";
 
 @Injectable()
 export class DataconnectionService extends AbstractService {
@@ -167,11 +166,6 @@ export class DataconnectionService extends AbstractService {
     return this.post(this.API_URL + 'connections/query/databases', param);
   }
 
-  // 커넥션 정보로만 데이터베이스 조회 취소가능
-  public getDatabasesWithoutIdWithCancel(param: any): Observable<any> {
-    return this.postObservable(this.API_URL + 'connections/query/databases', param);
-  }
-
   // 데이터 테이블 조회
   public getTables(connectionId: string, databaseName: string, page?:Page): Promise<any> {
     let url:string = this.API_URL + `connections/${connectionId}/databases/${databaseName}/tables`;
@@ -197,11 +191,6 @@ export class DataconnectionService extends AbstractService {
   // 테이블 상세조회
   public getTableDetailWitoutId(param: any, extractColumnName: boolean = false): Promise<any>  {
     return this.post(this.API_URL + 'connections/query/data?extractColumnName=' + extractColumnName, param);
-  }
-
-  // 테이블 상세조회
-  public getTableDetailWitoutIdWithCancel(param: any, extractColumnName: boolean = false): Observable<any>  {
-    return this.postObservable(this.API_URL + 'connections/query/data?extractColumnName=' + extractColumnName, param);
   }
 
   // 커넥션 상태 조회
@@ -272,15 +261,6 @@ export class DataconnectionService extends AbstractService {
   }
 
   /**
-   * stageDB 생성시 데이터베이스 조회
-   * @returns {Promise<any>}
-   */
-  public getDatabaseForHiveWithCancel(): Observable<any> {
-    return this.postObservable(this.API_URL + 'connections/query/hive/databases', null);
-  }
-
-
-  /**
    * stageDB 생성시 테이블 조회
    * @param {string} databaseName
    * @returns {Promise<any>}
@@ -299,15 +279,6 @@ export class DataconnectionService extends AbstractService {
    */
   public getTableDataForHive(params: any, extractColumnName: boolean = false): Promise<any> {
     return this.post(this.API_URL + 'connections/query/hive/data?extractColumnName=' + extractColumnName, params);
-  }
-
-  /**
-   * Get detail data in stagingDB with cancel
-   * @param params
-   * @param {boolean} extractColumnName
-   */
-  public getTableDataForHiveWithCancel(params: any, extractColumnName: boolean = false): Observable<any> {
-    return this.postObservable(this.API_URL + 'connections/query/hive/data?extractColumnName=' + extractColumnName, params);
   }
 
   /**
@@ -337,15 +308,6 @@ export class DataconnectionService extends AbstractService {
   }
 
   /**
-   * 메타데이터 내에서 stageDB로 생성시 테이블 목록 조회 with Cancel
-   * @param {string} databaseName
-   * @returns {Promise<any>}
-   */
-  public getTableListForStageInMetadataWithCancel(databaseName: string): Observable<any> {
-    return this.postObservable(this.URL_CONNECTIONS + '/metadata/tables/stage', {database: databaseName})
-  }
-
-  /**
    * 메타데이터 내에서 HIVE로 생성시 테이블 목록 조회
    * @param {Object} params
    * @returns {Promise<any>}
@@ -353,16 +315,6 @@ export class DataconnectionService extends AbstractService {
   public getTableListForHiveInMetadata(params: object): Promise<any> {
     return this.post(this.URL_CONNECTIONS + '/metadata/tables/jdbc', params);
   }
-
-  /**
-   * 메타데이터 내에서 HIVE로 생성시 테이블 목록 조회 취소 가능
-   * @param {Object} params
-   * @returns {Promise<any>}
-   */
-  public getTableListForHiveInMetadataWithCancel(params: object): Observable<any> {
-    return this.postObservable(this.URL_CONNECTIONS + '/metadata/tables/jdbc', params);
-  }
-
 
   /**
    * Get criterion list in connection

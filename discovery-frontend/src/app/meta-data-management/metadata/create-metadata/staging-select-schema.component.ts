@@ -35,10 +35,6 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
   @ViewChild(GridComponent)
   private _gridComponent: GridComponent;
 
-  // loadingPart div
-  @ViewChild('loadingPart')
-  private loadingPart: ElementRef;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -67,10 +63,6 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
   // 조회 result message
   public resultTableErrorShowFl: boolean = false;
 
-  // loading part flag
-  public isLoading: boolean = false;
-
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -97,14 +89,12 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
     this.databaseList.length === 0 && this._getDatabaseList();
   }
 
-  /**
-   * ngOnDestroy
-   */
+  // Destory
   public ngOnDestroy() {
-    super.ngOnDestroy();
-    console.info('destroy');
-  }
 
+    // Destory
+    super.ngOnDestroy();
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
@@ -333,24 +323,16 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
    */
   private _getDatabaseList(): void {
     // 로딩 show
-    this.isLoading = true;
+    this.loadingShow();
     // 데이터 베이스 목록 조회
-    const sub = this._connectionService.getDatabaseForHiveWithCancel()
-      .subscribe(
-        res => {
-          // 데이터베이스 목록 저장
-          this.databaseList = res['databases'];
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false;
-        },
-        err => {
-          console.info('error');
-          this.commonExceptionHandler(err)
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false;
-        }
-      );
-    this.subscriptions.push(sub);
+    this._connectionService.getDatabaseForHive()
+      .then((result) => {
+        // 데이터베이스 목록 저장
+        this.databaseList = result['databases'];
+        // 로딩 hide
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -360,28 +342,20 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
    */
   private _getTableList(databaseName: string): void {
     // 로딩 show
-    this.isLoading = true;
+    this.loadingShow();
     // resultShowFl
     this.resultTableErrorShowFl = false;
     // 데이터 베이스 목록 조회
-    const sub = this._connectionService.getTableListForStageInMetadataWithCancel(databaseName)
-      .subscribe(
-        res => {
-          // 테이블 목록 저장
-          this.tableList = res['tables'] || [];
-          // table이 없다면
-          res['tables'].length === 0 && (this.resultTableErrorShowFl = true);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false;
-        },
-        err => {
-          console.info('error');
-          this.commonExceptionHandler(err);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false;
-        }
-      );
-    this.subscriptions.push(sub);
+    this._connectionService.getTableListForStageInMetadata(databaseName)
+      .then((result) => {
+        // 테이블 목록 저장
+        this.tableList = result['tables'] || [];
+        // table이 없다면
+        result['tables'].length === 0 && (this.resultTableErrorShowFl = true);
+        // 로딩 hide
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -392,34 +366,27 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
    */
   private _getDetailData(databaseName: string, tableName: string): void {
     // 로딩 show
-    this.isLoading = true;
+    this.loadingShow();
     // 상세 데이터 조회
-    const sub = this._connectionService.getTableDataForHiveWithCancel({
+    this._connectionService.getTableDataForHive({
       database: databaseName,
       type: 'TABLE',
       query: tableName
     })
-      .subscribe(
-        res => {
-          // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
-          res['data'] = this._getReplacedDataList(res['data']);
-          res['fields'] = this._getReplacedFieldList(res['fields']);
-          // 상세 데이터 저장
-          this.detailData = res;
-          // 그리드 show
-          this.clearGrid = false;
-          // 그리드 업데이트
-          this._updateGrid(res['data'], res['fields']);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false;
-        },
-        err => {
-          this.commonExceptionHandler(err);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false;
-        }
-      );
-    this.subscriptions.push(sub);
+      .then((result) => {
+        // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
+        result['data'] = this._getReplacedDataList(result['data']);
+        result['fields'] = this._getReplacedFieldList(result['fields']);
+        // 상세 데이터 저장
+        this.detailData = result;
+        // 그리드 show
+        this.clearGrid = false;
+        // 그리드 업데이트
+        this._updateGrid(result['data'], result['fields']);
+        // 로딩 hide
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**

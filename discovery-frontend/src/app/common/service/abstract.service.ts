@@ -23,10 +23,6 @@ import { NavigationExtras, Router } from '@angular/router';
 import { saveAs } from 'file-saver';
 import 'rxjs/add/operator/timeout';
 import { CommonUtil } from '../util/common.util';
-import { Observable } from 'rxjs';
-import {map} from "rxjs/operators";
-import {catchError} from "rxjs/internal/operators";
-
 
 /*
 * AbstractService
@@ -53,8 +49,6 @@ export class AbstractService {
   protected cookieService: CookieService;
 
   protected router: Router;
-
-
 
 
   // 생성자
@@ -274,31 +268,6 @@ export class AbstractService {
       .then(response => scope.resultDownHandler(scope, response))
       .catch(error => scope.errorHandler(scope, error, httpMethod.POST, data));
   }
-
-  // subscribe post
-  protected postObservable(url: string, data: any): Observable<Object> {
-    // this
-    const scope: any = this;
-
-    // 헤더
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
-      + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
-
-    });
-
-    // 호출
-    return this.http.post(url, data, { headers }).pipe(
-      map(
-        (response) => {
-            return response;
-        }
-      ),catchError(error => scope.errorHandler(scope, error, httpMethod.POST, data))
-    );
-  }
-
-  // Un
 
   // Patch 방식
   protected patch(url: string, data: any, contentType: string = 'application/json'): Promise<any> {
