@@ -157,10 +157,11 @@ export class DatasourceService extends AbstractService {
    * @param {Filter[]} filters
    * @param {Field | CustomField} field
    * @param {string} sortBy
+   * @param {string} searchWord
    * @returns {Promise<any>}
    */
   public getCandidateForFilter(filter: Filter, board: Dashboard,
-                               filters?: Filter[], field?: (Field | CustomField), sortBy?: string): Promise<any> {
+                               filters?: Filter[], field?: (Field | CustomField), sortBy?: string, searchWord?:string ): Promise<any> {
 
     const param: any = {};
     param.dataSource = DashboardUtil.getDataSourceForApi(
@@ -248,7 +249,12 @@ export class DatasourceService extends AbstractService {
           }
         });
         param.filters = param.filters.concat(tempFilters);
-        (param.targetField) && (param.targetField.type = 'dimension');
+        ( param.targetField ) && ( param.targetField.type = 'dimension' );
+
+        param.sortBy = (sortBy) ? sortBy : 'COUNT';
+        param.searchWord = (searchWord) ? searchWord : '';
+        param.limit = FilterUtil.CANDIDATE_LIMIT;
+
       } else if ('bound' === filter.type) {
         // Measure Filter
         if (param.targetField) {

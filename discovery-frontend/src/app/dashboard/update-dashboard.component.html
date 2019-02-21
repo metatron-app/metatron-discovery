@@ -302,45 +302,48 @@
             </div>
             <!-- // Title -->
             <!-- Filter List Contents -->
-            <div class="ddp-box-down" >
-              <div *ngFor="let item of boardUtil.getFilterWidgets(dashboard);trackBy:filterListTrackByFn"
-                   class="ddp-wrap-divide">
-                <time-filter-panel
-                  *ngIf="filterUtil.isTimeFilter(getFilterForFilterWidget(item))"
-                  [filter]="getFilterForFilterWidget(item)"
-                  [dashboard]="dashboard"
-                  [isWidgetInLayout]="isWidgetInLayout(item.id)"
-                  [isDraggable]="isDraggableFilterWidget(item)"
-                  (openUpdateFilterPopupEvent)="openUpdateFilterPopup($event)"
-                  (updateFilterEvent)="updateFilter($event)"
-                  (deleteFilterEvent)="deleteFilter($event)"
-                  (changeChartToGlobalEvent)="openChangeFilterConfirm($event)"
-                  (invoke)="setDragFilterWidget($event, item)" >
-                </time-filter-panel>
-                <inclusion-filter-panel
-                  *ngIf="getFilterForFilterWidget(item).type === 'include'"
-                  [filter]="getFilterForFilterWidget(item)"
-                  [dashboard]="dashboard"
-                  [isWidgetInLayout]="isWidgetInLayout(item.id)"
-                  [isDraggable]="isDraggableFilterWidget(item)"
-                  (openUpdateFilterPopupEvent)="openUpdateFilterPopup($event)"
-                  (updateFilterEvent)="updateFilter($event)"
-                  (deleteFilterEvent)="deleteFilter($event)"
-                  (changeChartToGlobalEvent)="openChangeFilterConfirm($event)"
-                  (invoke)="setDragFilterWidget($event, item)" >
-                </inclusion-filter-panel>
-                <bound-filter-panel
-                  *ngIf="getFilterForFilterWidget(item).type === 'bound'"
-                  [filter]="getFilterForFilterWidget(item)"
-                  [dashboard]="dashboard"
-                  [isWidgetInLayout]="isWidgetInLayout(item.id)"
-                  [isDraggable]="isDraggableFilterWidget(item)"
-                  (openUpdateFilterPopupEvent)="openUpdateFilterPopup($event)"
-                  (updateFilterEvent)="updateFilter($event)"
-                  (deleteFilterEvent)="deleteFilter($event)"
-                  (changeChartToGlobalEvent)="openChangeFilterConfirm($event)"
-                  (invoke)="setDragFilterWidget($event, item)" >
-                </bound-filter-panel>
+            <div class="ddp-ui-boardside-scroll">
+              <div class="ddp-box-down" >
+                <div *ngFor="let item of boardUtil.getFilterWidgets(dashboard);trackBy:filterListTrackByFn;let idx = index"
+                     (click)="openIndexFilterPanel = idx" [class.ddp-selected]="idx === openIndexFilterPanel"
+                     class="ddp-wrap-divide ddp-dropdown" >
+                  <time-filter-panel
+                    *ngIf="filterUtil.isTimeFilter(getFilterForFilterWidget(item))"
+                    [filter]="getFilterForFilterWidget(item)"
+                    [dashboard]="dashboard"
+                    [isWidgetInLayout]="isWidgetInLayout(item.id)"
+                    [isDraggable]="isDraggableFilterWidget(item)"
+                    (openUpdateFilterPopupEvent)="openUpdateFilterPopup($event)"
+                    (updateFilterEvent)="updateFilter($event)"
+                    (deleteFilterEvent)="deleteFilter($event)"
+                    (changeChartToGlobalEvent)="openChangeFilterConfirm($event)"
+                    (invoke)="setDragFilterWidget($event, item)" >
+                  </time-filter-panel>
+                  <inclusion-filter-panel
+                    *ngIf="getFilterForFilterWidget(item).type === 'include'"
+                    [filter]="getFilterForFilterWidget(item)"
+                    [dashboard]="dashboard"
+                    [isWidgetInLayout]="isWidgetInLayout(item.id)"
+                    [isDraggable]="isDraggableFilterWidget(item)"
+                    (openUpdateFilterPopupEvent)="openUpdateFilterPopup($event)"
+                    (updateFilterEvent)="updateFilter($event)"
+                    (deleteFilterEvent)="deleteFilter($event)"
+                    (changeChartToGlobalEvent)="openChangeFilterConfirm($event)"
+                    (invoke)="setDragFilterWidget($event, item)" >
+                  </inclusion-filter-panel>
+                  <bound-filter-panel
+                    *ngIf="getFilterForFilterWidget(item).type === 'bound'"
+                    [filter]="getFilterForFilterWidget(item)"
+                    [dashboard]="dashboard"
+                    [isWidgetInLayout]="isWidgetInLayout(item.id)"
+                    [isDraggable]="isDraggableFilterWidget(item)"
+                    (openUpdateFilterPopupEvent)="openUpdateFilterPopup($event)"
+                    (updateFilterEvent)="updateFilter($event)"
+                    (deleteFilterEvent)="deleteFilter($event)"
+                    (changeChartToGlobalEvent)="openChangeFilterConfirm($event)"
+                    (invoke)="setDragFilterWidget($event, item)" >
+                  </bound-filter-panel>
+                </div>
               </div>
             </div>
             <!-- // Filter List Contents -->

@@ -2487,6 +2487,42 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void candidateQueryForSaleWithSearchWord() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("sales");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(50000);
+
+    List<Filter> filters = Lists.newArrayList(
+        //        new InclusionFilter("State", Lists.newArrayList("Texas"))
+    );
+
+    DimensionField targetField = new DimensionField("Category");
+
+    CandidateQueryRequest request = new CandidateQueryRequest();
+    request.setDataSource(dataSource1);
+    request.setFilters(filters);
+    request.setTargetField(targetField);
+    request.setSearchWord("Off su");
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/candidate")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void candidateQueryForUserDefined() throws JsonProcessingException {
 
     DataSource dataSource1 = new DefaultDataSource("sales");

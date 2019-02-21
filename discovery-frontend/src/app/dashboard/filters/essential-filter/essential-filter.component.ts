@@ -215,7 +215,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
     if ('include' === filter.type) {
       let confFilterCompFactory = this.componentFactoryResolver.resolveComponentFactory(ConfigureFiltersInclusionComponent);
       let inclusionComp = this.appRef.bootstrap(confFilterCompFactory, elm.nativeElement).instance;
-      inclusionComp.showComponent(this._pseudoDashboard, <InclusionFilter>filter, field);
+      inclusionComp.showComponent(this._pseudoDashboard, <InclusionFilter>filter, field, false);
       this._compMap[filter.field] = inclusionComp;
     } else if (FilterUtil.isTimeFilter(filter)) {
       let confFilterCompFactory = this.componentFactoryResolver.resolveComponentFactory(ConfigureFiltersTimeComponent);

@@ -21,14 +21,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.List;
 import java.util.Map;
 
-import javax.validation.constraints.NotNull;
-
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.query.druid.Dimension;
 import app.metatron.discovery.query.druid.Filter;
 import app.metatron.discovery.query.druid.Granularity;
 import app.metatron.discovery.query.druid.Query;
-import app.metatron.discovery.query.druid.Search;
+import app.metatron.discovery.query.druid.SearchQuerySpec;
 import app.metatron.discovery.query.druid.serializers.GranularitySerializer;
 import app.metatron.discovery.query.druid.sorts.SearchHitSort;
 import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
@@ -38,23 +36,22 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonTypeName("search")
 public class SearchQuery extends Query {
 
-  @NotNull
   Granularity granularity;
 
   @JsonInclude(Include.NON_NULL)
   Filter filter;
 
-  @NotNull
   List<String> intervals;
 
   List<Dimension> searchDimensions;
 
   List<VirtualColumn> virtualColumns;
 
-  @NotNull
-  Search query;
+  SearchQuerySpec query;
 
   SearchHitSort sort;
+
+  Integer limit;
 
   Map<String, Object> context;
 
@@ -62,7 +59,7 @@ public class SearchQuery extends Query {
     super();
   }
 
-  @JsonSerialize(using = GranularitySerializer.class, typing= JsonSerialize.Typing.DYNAMIC)
+  @JsonSerialize(using = GranularitySerializer.class, typing = JsonSerialize.Typing.DYNAMIC)
   public Granularity getGranularity() {
     return granularity;
   }
@@ -103,11 +100,11 @@ public class SearchQuery extends Query {
     this.virtualColumns = virtualColumns;
   }
 
-  public Search getQuery() {
+  public SearchQuerySpec getQuery() {
     return query;
   }
 
-  public void setQuery(Search query) {
+  public void setQuery(SearchQuerySpec query) {
     this.query = query;
   }
 
@@ -117,6 +114,14 @@ public class SearchQuery extends Query {
 
   public void setSort(SearchHitSort sort) {
     this.sort = sort;
+  }
+
+  public Integer getLimit() {
+    return limit;
+  }
+
+  public void setLimit(Integer limit) {
+    this.limit = limit;
   }
 
   public Map<String, Object> getContext() {
