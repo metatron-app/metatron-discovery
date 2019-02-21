@@ -76,6 +76,8 @@ export class UserManagementComponent extends AbstractComponent {
 
     // Init
     super.ngOnInit();
+
+    this.removeBodyScrollHidden();
   }
 
   // Destory
