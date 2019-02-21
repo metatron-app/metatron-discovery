@@ -36,6 +36,9 @@ export class InclusionFilter extends Filter {
   // Sort condition (Optional, for UI)
   public sort:InclusionItemSort;
 
+  // Only show selected item (Optional, for UI)
+  public showSelectedItem:boolean;
+
   constructor(field: string, valueList: string[] = []) {
     super();
     this.type = 'include';

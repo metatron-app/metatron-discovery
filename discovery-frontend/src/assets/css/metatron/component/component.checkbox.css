@@ -3,7 +3,7 @@
 /**************************************************************
     체크박스 폼
 **************************************************************/
-.ddp-list-checktype.ddp-list-padd li {padding:7px 0 7px 0; font-size:0px;}
+.ddp-list-checktype.ddp-list-padd li {padding:5px 0 5px 0; font-size:0px;}
 .ddp-list-checktype.ddp-list-padd li .ddp-label-checkbox span.ddp-txt-checkbox {font-size:13px;}
 .ddp-list-checktype.ddp-list-padd li .ddp-label-checkbox span.ddp-txt-checkbox span.ddp-data-valuenum {position:relative; top:-1px; margin-left:5px; color:#90969f; font-size:12px;}
 
@@ -35,6 +35,13 @@
 .ddp-label-checkbox.ddp-check-disabled:after {display:inline-block; position:absolute; top:0; left:0; right:0; bottom:0; cursor: no-drop; background-color:rgba(255,255,255,0.5); content:'';}
 .ddp-label-checkbox.ddp-form span.ddp-txt-checkbox {color:#b7b9c2; font-size:12px;}
 .ddp-label-checkbox.ddp-form input[type="checkbox"]:checked + i.ddp-icon-checkbox + .ddp-txt-checkbox {color:#90969f; font-weight:normal;}
+.ddp-label-check-value {cursor:pointer;}
+.ddp-label-check-value input {display:none;}
+.ddp-label-check-value i {display:inline-block; width:22px; height:14px; background:url(../../../images/icon_checkvalue.png) no-repeat;}
+.ddp-label-check-value input[type=checkbox]:checked + i {background-position:left -15px;}
+
+
+
 .ddp-num-checkbox {display:inline-block; cursor:pointer;}
 .ddp-num-checkbox i {display:inline-block; position:relative; width:31px; height:21px; padding:2px 0; color:#fff; font-size:14px; font-weight:bold;text-align:center; font-style:normal; text-indent:-300000px; border-radius:2px; background-color:#d0d1d8; box-sizing:border-box; vertical-align:middle; }
 .ddp-num-checkbox i:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-6px 0 0 -7px; width:14px; height:10px; background:url(../../../images/icon_select2.png) no-repeat;  content:'';}

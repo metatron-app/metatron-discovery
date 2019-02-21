@@ -202,6 +202,12 @@ a.ddp-btn-popup-close:hover {background-position:left -17px;}
 .ddp-list-buttons li.ddp-disabled { opacity:0.5; cursor:no-drop;}
 .ddp-list-buttons li.ddp-disabled:hover {cursor:no-drop; background:#e7e7ea;}
 
+.ddp-list-buttons.ddp-table {display:table;margin-bottom:6px;}
+.ddp-list-buttons.ddp-table li {display:table-cell; float:inherit; padding:0 10px; height:30px; vertical-align:middle; max-width:112px; box-sizing:Border-box;}
+.ddp-list-buttons.ddp-table li:before {display:none;}
+.ddp-list-buttons.ddp-table li .ddp-txt-check {display:inline-block; position:relative; font-size:12px; white-space:normal;}
+.ddp-list-buttons.ddp-table li.ddp-selected .ddp-txt-check {padding-left:20px;}
+.ddp-list-buttons.ddp-table li.ddp-selected .ddp-txt-check:before  {position:absolute; top:50%; left:0; display:inline-block; width:14px; height:10px; margin:-5px 0 0 0; background:url(../../../images/icon_select2.png) no-repeat; vertical-align: middle; content:'';}
 
 /**************************************************************
     link

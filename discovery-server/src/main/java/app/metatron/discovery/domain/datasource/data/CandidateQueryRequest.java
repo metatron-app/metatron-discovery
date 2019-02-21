@@ -68,9 +68,19 @@ public class CandidateQueryRequest extends AbstractQueryRequest implements Query
   List<UserDefinedField> userFields;
 
   /**
+   * Search word
+   */
+  String searchWord;
+
+  /**
    * Candidate 대상 field 정보 (Dimension/Timestamp/Measure Field)
    */
   Field targetField;
+
+  /**
+   * value of limitation
+   */
+  Integer limit;
 
   /**
    * Dementaion Field 일 경우 정렬 기준 정의, 기본값은 Value Count 순
@@ -86,12 +96,19 @@ public class CandidateQueryRequest extends AbstractQueryRequest implements Query
       @JsonProperty("filters") List<Filter> filters,
       @JsonProperty("userFields") List<UserDefinedField> userFields,
       @JsonProperty("targetField") Field targetField,
+      @JsonProperty("searchWord") String searchWord,
       @JsonProperty("sortBy") String sortBy,
+      @JsonProperty("limit") Integer limit,
       @JsonProperty("context") Map<String, Object> context) {
+
     super(dataSource, context);
+
     this.filters = filters;
     this.userFields = userFields;
+
+    this.searchWord = searchWord;
     this.sortBy = EnumUtils.getCaseEnum(SortCreteria.class, sortBy, COUNT);
+    this.limit = limit;
 
     this.targetField = targetField;
     this.targetField.setAlias(RESULT_KEY_NAME);
@@ -102,7 +119,7 @@ public class CandidateQueryRequest extends AbstractQueryRequest implements Query
   }
 
   public CandidateQueryRequest(DataSource dataSource, List<Filter> filters, List<UserDefinedField> userFields, Field targetField) {
-    this(dataSource, filters, userFields, targetField, null, null);
+    this(dataSource, filters, userFields, targetField, null, null, null, null);
   }
 
   @JsonIgnore
@@ -147,6 +164,22 @@ public class CandidateQueryRequest extends AbstractQueryRequest implements Query
 
   public void setSortBy(SortCreteria sortBy) {
     this.sortBy = sortBy;
+  }
+
+  public String getSearchWord() {
+    return searchWord;
+  }
+
+  public void setSearchWord(String searchWord) {
+    this.searchWord = searchWord;
+  }
+
+  public Integer getLimit() {
+    return limit;
+  }
+
+  public void setLimit(Integer limit) {
+    this.limit = limit;
   }
 
   public JsonNode makeResult(JsonNode root) {

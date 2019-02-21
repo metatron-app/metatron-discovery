@@ -33,12 +33,15 @@ import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedFi
 import app.metatron.discovery.query.druid.AbstractQueryBuilder;
 import app.metatron.discovery.query.druid.Dimension;
 import app.metatron.discovery.query.druid.Granularity;
+import app.metatron.discovery.query.druid.SearchQuerySpec;
 import app.metatron.discovery.query.druid.dimensions.DefaultDimension;
 import app.metatron.discovery.query.druid.dimensions.LookupDimension;
 import app.metatron.discovery.query.druid.filters.AndFilter;
 import app.metatron.discovery.query.druid.granularities.SimpleGranularity;
 import app.metatron.discovery.query.druid.lookup.MapLookupExtractor;
-import app.metatron.discovery.query.druid.searches.AllSearch;
+import app.metatron.discovery.query.druid.searches.AllSearchQuerySpec;
+import app.metatron.discovery.query.druid.searches.FragmentSearchQuerySpec;
+import app.metatron.discovery.query.druid.searches.InsensitiveContainsSearchQuerySpec;
 import app.metatron.discovery.query.druid.sorts.SearchHitSort;
 import app.metatron.discovery.query.druid.virtualcolumns.IndexVirtualColumn;
 import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
@@ -46,7 +49,7 @@ import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
 import static app.metatron.discovery.domain.workbook.configurations.field.Field.FIELD_NAMESPACE_SEP;
 
 /**
- * Created by hsp on 2016. 7. 18..
+ *
  */
 public class SearchQueryBuilder extends AbstractQueryBuilder {
 
@@ -56,9 +59,11 @@ public class SearchQueryBuilder extends AbstractQueryBuilder {
 
   private List<Dimension> dimensions = Lists.newArrayList();
 
+  private SearchQuerySpec query;
+
   private Granularity granularity;
 
-  private int limit = -1;
+  private Integer limit = 1000;
 
   private List<String> intervals = Lists.newArrayList();
 
@@ -82,7 +87,7 @@ public class SearchQueryBuilder extends AbstractQueryBuilder {
     for (Field field : reqFields) {
 
       String fieldName = checkColumnName(field.getColunm());
-      if(!fieldName.equals(field.getColunm())) {
+      if (!fieldName.equals(field.getColunm())) {
         field.setRef(StringUtils.substringBeforeLast(fieldName, FIELD_NAMESPACE_SEP));
       }
 
@@ -100,7 +105,7 @@ public class SearchQueryBuilder extends AbstractQueryBuilder {
           unUsedVirtualColumnName.remove(fieldName);
         } else if (metaFieldMap.containsKey(fieldName)) {     // from datasource
           // ValueAlias 처리
-          if(MapUtils.isNotEmpty(field.getValuePair())) {
+          if (MapUtils.isNotEmpty(field.getValuePair())) {
             dimensions.add(new LookupDimension(fieldName,
                                                alias,
                                                new MapLookupExtractor(field.getValuePair())));
@@ -126,13 +131,33 @@ public class SearchQueryBuilder extends AbstractQueryBuilder {
   }
 
 
-  public SearchQueryBuilder limit(int reqLimit) {
-    limit = reqLimit;
+  public SearchQueryBuilder limit(Integer reqLimit) {
+    if (reqLimit != null) {
+      limit = reqLimit;
+    }
     return this;
   }
 
   public SearchQueryBuilder sort(CandidateQueryRequest.SortCreteria sortCreteria) {
     sort = SearchHitSort.searchSort(sortCreteria);
+    return this;
+  }
+
+  public SearchQueryBuilder query(String searchWord) {
+
+    if (StringUtils.isEmpty(searchWord)) {
+      query = new AllSearchQuerySpec();
+    }
+
+    String[] splitedWords = StringUtils.split(searchWord, " ");
+    if (splitedWords.length > 1) {
+      query = new FragmentSearchQuerySpec(false, Lists.newArrayList(splitedWords));
+    } else if (splitedWords.length == 1) {
+      query = new InsensitiveContainsSearchQuerySpec(splitedWords[0]);
+    } else {
+      query = new AllSearchQuerySpec();
+    }
+
     return this;
   }
 
@@ -165,11 +190,13 @@ public class SearchQueryBuilder extends AbstractQueryBuilder {
       searchQuery.setIntervals(intervals);
     }
 
-    searchQuery.setQuery(new AllSearch());
+    searchQuery.setQuery(query);
 
-    if(sort != null) {
+    if (sort != null) {
       searchQuery.setSort(sort);
     }
+
+    searchQuery.setLimit(limit);
 
     if (StringUtils.isNotEmpty(queryId)) {
       addQueryId(queryId);
