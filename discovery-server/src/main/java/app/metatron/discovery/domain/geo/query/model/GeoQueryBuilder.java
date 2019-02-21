@@ -231,7 +231,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
         if (MapUtils.isNotEmpty(field.getValuePair())) {
           String dummyDimName = "__s" + dimensionCnt++;
 
-          dimensions.add(new LookupDimension(fieldName,
+          dimensions.add(new LookupDimension(originalName,
                                              dummyDimName,
                                              new MapLookupExtractor(field.getValuePair())));
           projectionMapper.put(dummyDimName, alias);
@@ -248,12 +248,12 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
             String dummyDimName = "__s" + dimensionCnt++;
             String geoName = "__g" + geoCnt++;
 
-            virtualColumns.put(dummyDimName, new ExprVirtualColumn(clusteringLayerView.toHashExpression(field.getName()), dummyDimName));
+            virtualColumns.put(dummyDimName, new ExprVirtualColumn(clusteringLayerView.toHashExpression(originalName), dummyDimName));
             dimensions.add(new DefaultDimension(dummyDimName));
 
             projectionMapper.put("count", "count");
 
-            aggregations.addAll(clusteringLayerView.getClusteringAggregations(fieldName));
+            aggregations.addAll(clusteringLayerView.getClusteringAggregations(originalName));
             postAggregations.addAll(clusteringLayerView.getClusteringPostAggregations(geoName));
 
           } else if (layerView instanceof LayerView.HashLayerView) {
@@ -262,7 +262,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
             String dummyDimName = "__s" + dimensionCnt++;
             String geoName = "__g" + geoCnt++;
 
-            virtualColumns.put(dummyDimName, new ExprVirtualColumn(hashLayerView.toHashExpression(field.getName()), dummyDimName));
+            virtualColumns.put(dummyDimName, new ExprVirtualColumn(hashLayerView.toHashExpression(originalName), dummyDimName));
             dimensions.add(new DefaultDimension(dummyDimName));
             postAggregations.add(new ExprPostAggregator(hashLayerView.toWktExpression(dummyDimName, geoName)));
 
@@ -294,7 +294,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
           String dummyDimName = "__s" + dimensionCnt++;
           String innerFieldName = alias + Query.POSTFIX_INNER_FIELD;
 
-          TimeFormatFunc timeFormatFunc = new TimeFormatFunc("\"" + fieldName + "\"",
+          TimeFormatFunc timeFormatFunc = new TimeFormatFunc("\"" + originalName + "\"",
                                                              datasourceField.getTimeFormat(),
                                                              null,
                                                              null,
@@ -314,7 +314,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
 
           if (enableAggrExtension) {
             String dummyDimName = "__s" + dimensionCnt++;
-            dimensions.add(new DefaultDimension(fieldName, dummyDimName));
+            dimensions.add(new DefaultDimension(originalName, dummyDimName));
             projectionMapper.put(dummyDimName, field.getAlias());
           } else {
             propertyNames.add(new PropertyName(originalName));

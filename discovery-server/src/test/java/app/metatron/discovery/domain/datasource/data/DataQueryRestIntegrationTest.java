@@ -57,6 +57,7 @@ import app.metatron.discovery.domain.workbook.configurations.datasource.DataSour
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.JoinMapping;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MappingDataSource;
+import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
@@ -69,6 +70,7 @@ import app.metatron.discovery.domain.workbook.configurations.format.GeoFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoHashFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.LayerView;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
 
@@ -2030,11 +2032,57 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         //    List<Field> fields = Lists.newArrayList(new DimensionField("location", null, null), new MeasureField("Profit", null, MeasureField.AggregationType.AVG), new MeasureField("Sales", null, MeasureField.AggregationType.AVG));
         //    MapViewLayer layer1 = new MapViewLayer("layer1", "sales_geo", fields, new LayerView.HashLayerView("h3", 5));
 
-        List<Field> fields2 = Lists.newArrayList(new DimensionField("location", null, null), new DimensionField("City"), new MeasureField("Profit", null, MeasureField.AggregationType.AVG));
-        MapViewLayer layer2 = new MapViewLayer("layer1", "sales_geo", fields2, null);
-        //        MapViewLayer layer2 = new MapViewLayer("layer1", "sales_geo", fields2, new LayerView.ClusteringLayerView("h3", 5));
+      //        List<Field> fields2 = Lists.newArrayList(new DimensionField("location", null, null), new DimensionField("City"), new MeasureField("Profit", null, MeasureField.AggregationType.AVG));
+      //        MapViewLayer layer2 = new MapViewLayer("layer1", "sales_geo", fields2, null);
+      //        MapViewLayer layer2 = new MapViewLayer("layer1", "sales_geo", fields2, new LayerView.ClusteringLayerView("h3", 5));
 
-        Shelf geoShelf = new GeoShelf(Arrays.asList(layer2));
+      List<Field> fields1 = Lists.newArrayList(new DimensionField("location", null, null), new DimensionField("City"), new MeasureField("Profit", null, MeasureField.AggregationType.AVG));
+      MapViewLayer layer1 = new MapViewLayer("layer1", "sales_geo", fields1, new LayerView.ClusteringLayerView("h3", 5));
+
+      Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
+
+      SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
+      ChartResultFormat format = new ChartResultFormat("map");
+      request.setResultFormat(format);
+
+      // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .log().all();
+//      .statusCode(HttpStatus.SC_OK);
+
+    // @formatter:on
+
+    }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_gis_datasource.sql")
+  public void searchQueryMultiLayerEstateSaleGeoWithMapChart() throws JsonProcessingException {
+
+    DataSource dataSource1 = new MultiDataSource(Lists.newArrayList(new DefaultDataSource("sales_geo"),
+                                                                    new DefaultDataSource("estate")),
+                                                 null);
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(10);
+
+    List<Filter> filters = Lists.newArrayList();
+
+    List<Field> fields1 = Lists.newArrayList(new DimensionField("location", null, null), new DimensionField("City"), new MeasureField("Profit", null, MeasureField.AggregationType.AVG));
+    MapViewLayer layer1 = new MapViewLayer("layer1", "sales_geo", fields1, new LayerView.ClusteringLayerView("h3", 5));
+
+    List<Field> fields2 = Lists.newArrayList(new DimensionField("gis", null, null), new DimensionField("gu"), new MeasureField("amt", null, MeasureField.AggregationType.NONE));
+    MapViewLayer layer2 = new MapViewLayer("layer2", "estate", fields2, null);
+
+    Shelf geoShelf = new GeoShelf(Arrays.asList(layer1, layer2));
 
         SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
         ChartResultFormat format = new ChartResultFormat("map");
