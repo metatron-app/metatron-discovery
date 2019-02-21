@@ -6192,9 +6192,10 @@ ul.ddp-list-dbtype li .ddp-label-dbtype.type-pache {padding:10px 30px 10px 44px;
 	page : 데이터 프리퍼레이션 데이터소스 상세
 **********************************************************************************/
 .ddp-wrap-detail.ddp-type label.ddp-label-detail {font-weight:bold; font-size:13px;}
-.ddp-wrap-datadetail label.ddp-label-detail {color:#4c515a; font-size:16px;}
+.ddp-wrap-datadetail label.ddp-label-detail {color:#4c515a; font-size:16px; font-weight:bold;}
 .ddp-wrap-datadetail label.ddp-label-detail.ddp-font-weight {font-weight:300;}
-.ddp-wrap-datadetail label.ddp-label-detail .ddp-btn-line {margin-left:17px;}
+.ddp-wrap-datadetail label.ddp-label-detail [class*="ddp-btn"]{margin-left:4px; font-weight:normal;}
+
 table.ddp-table-detail .ddp-box-histogram {position:relative; height:118px; padding:10px; border:1px solid #dddde2; box-sizing:border-box;}
 table.ddp-table-detail .ddp-box-histogram .ddp-box-graph {width:100%; height:100%;}
 table.ddp-table-detail .ddp-box-histogram .ddp-wrap-link-detail {position:absolute; top:-19px; right:5px;}
