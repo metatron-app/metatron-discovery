@@ -1947,7 +1947,7 @@
   "msg.storage.ui.dsource.create.job.properties" : "적재 환경 설정",
   "msg.storage.th.dsource.create.file" : "파일",
   "msg.storage.th.dsource.create.sheet" : "시트",
-  "msg.storage.ui.dsource.create.file.import.description" : "xls, xlsx, csv와 같은 쉼표로 분리된 파일만 허용됩니다.",
+  "msg.storage.ui.dsource.create.file.import.description" : ".xls, .xlsx, .csv 형식이 허용됩니다.",
   "msg.storage.ui.dsource.create.file.column.head.description" : "첫번째 행은 병합된 셀을 포함합니다. 새 열은 헤드 열로 사용됩니다.",
   "msg.storage.ui.dsource.create.file.column.head.enable" : "첫번째 행을 헤더로 사용합니다. (선택하지 않은 경우 새 행이 생성되고 헤더로 사용됨)",
   "msg.storage.ui.dsource.create.file.line.separator" : "라인 구분자",

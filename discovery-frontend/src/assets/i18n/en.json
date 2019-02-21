@@ -1949,7 +1949,7 @@
   "msg.storage.ui.dsource.create.job.properties" : "Job properties(Opt.)",
   "msg.storage.th.dsource.create.file" : "File",
   "msg.storage.th.dsource.create.sheet" : "Sheet",
-  "msg.storage.ui.dsource.create.file.import.description" : "Only files with comma-separated values such as xls, xlsx, csv are allowed",
+  "msg.storage.ui.dsource.create.file.import.description" : ".xls, .xlsx, .csv formats are allowed.",
   "msg.storage.ui.dsource.create.file.column.head.description" : "The first row contains merged cells. New row is used as the head column.",
   "msg.storage.ui.dsource.create.file.column.head.enable" : "Use the first row as the head column. (If not checked, a new row is created and is used as the head column)",
   "msg.storage.ui.dsource.create.file.line.separator" : "Line separator",
