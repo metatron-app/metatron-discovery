@@ -12,7 +12,10 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, ElementRef, HostListener, Injector, Input, ViewChild,} from '@angular/core';
+import {
+  AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output,
+  ViewChild,
+} from '@angular/core';
 import {BaseChart, ChartSelectInfo} from '../../base-chart';
 import {Pivot} from '../../../../../domain/workbook/configurations/pivot';
 import {UIMapOption} from '../../option/ui-option/map/ui-map-chart';
@@ -167,6 +170,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // click legend (show / hide)
     showFl: true
   };
+
+  // 화면을 다시 그려줄 경우
+  @Output('changeDraw')
+  public changeDrawEvent: EventEmitter<any> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -351,11 +358,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       this.removeLayer(this.getUiMapOption().layerNum);
     }
 
-    // Test!
-    // if( this.data[0].features && this.data[0].features.length > 500 ) {
-    //   this.data[0].features = this.data[0].features.splice(0, 500);
-    // }
-    // this.data[0].features = [this.data[0].features[0]];
+
+    // this.isCreateZoom = true;
 
     ////////////////////////////////////////////////////////
     // set min / max
@@ -410,9 +414,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     // Creation legend
     this.createLegend();
-
-    // map ui lat, lng
-    this.setUiExtent();
 
     ////////////////////////////////////////////////////////
     // Apply
@@ -2723,7 +2724,25 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   private zoomFunction = (event) => {
     // save current chartzoom
     this.uiOption.chartZooms = this.additionalSaveDataZoomRange();
-    this.setUiExtent();
+
+    // todo : cluster 서버 사용일 경우 변경
+    // let mapUIOption = (<UIMapOption>this.uiOption);
+    // if( _.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner) ){
+    //   this.setUiExtent();
+    //   return;
+    // }
+    //
+    // let preLowerCorner = mapUIOption.lowerCorner.split(' ');
+    // let preUpperCorner = mapUIOption.upperCorner.split(' ');
+    // let currentMapExtent = this.olmap.getView().calculateExtent(this.olmap.getSize());
+    //
+    // // 이전 좌표와 다를 경우에만 다시 호출
+    // if( Number(preLowerCorner[0]).toFixed(10) != currentMapExtent[0].toFixed(10) && Number(preLowerCorner[1]).toFixed(10) != currentMapExtent[3].toFixed(10)
+    //   && Number(preUpperCorner[0]).toFixed(10) != currentMapExtent[1].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) != currentMapExtent[2].toFixed(10) ){
+    //   // map ui lat, lng
+    //   this.setUiExtent();
+    //   this.changeDrawEvent.emit();
+    // }
 
     // TODO selection (drag end)
     if (!this.isPage) {

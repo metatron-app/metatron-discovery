@@ -600,15 +600,20 @@ export class DatasourceService extends AbstractService {
                 }
 
                 // todo : cluster 서버 사용일 경우 변경
-                // // clustering
+                // // // clustering
                 // let chart = (<UIMapOption>pageConf.chart);
-                // if( chart.layers[idx]['clustering'] ) {
+                // if( chart.layers[idx].type == MapLayerType.SYMBOL && chart.layers[idx]['clustering'] ) {
+                //
+                //   // cluster 값 변경
+                //   let precision = Math.round((chart.layers[idx]['coverage']) / 8.33);
+                //   if (precision > 12) precision = 12;
+                //   if (precision < 1) precision = 1;
+                //
                 //   query.shelf.layers[idx].view = <GeoHashFormat>{
                 //     type: LayerViewType.CLUSTERING.toString(),
                 //     method: "h3",
-                //     // 0~99 퍼센트 값 변환 체크
-                //     // precision: chart.layers[idx]['coverage']
-                //     precision: 7
+                //     // 0~99 퍼센트 값 변환
+                //     precision: precision
                 //   };
                 //
                 //   let spatialFilter = new SpatialFilter();
