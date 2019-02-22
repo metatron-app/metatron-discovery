@@ -1232,17 +1232,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * Cluster style function
    */
   private clusterStyleFunction = (layerNum, data, selectMode?: ChartSelectMode) => {
-
     let scope: any = this;
     let styleOption: UIMapOption = this.getUiMapOption();
     let styleLayer: UILayers = styleOption.layers[layerNum];
     let styleData = data[layerNum];
-
     return function (feature, resolution) {
       ////////////////////////////////////////////////////////
       // Style options
       ////////////////////////////////////////////////////////
-
       let symbolLayer: UISymbolLayer = <UISymbolLayer>styleLayer;
       let layerType = styleLayer.type;
       let featureColor = styleLayer.color.schema;
@@ -1254,57 +1251,21 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       let featureSizeType = symbolLayer.size.by;
       let style = null;
       let alias = ChartUtil.getFieldAlias(styleLayer.color.column, scope.shelf.layers[layerNum].fields, styleLayer.color.aggregationType);
-
       ////////////////////////////////////////////////////////
       // Cluster size
       ////////////////////////////////////////////////////////
       let size: number = 0;
       let isClustering: boolean = false;
-      let features = feature.get('features');
 
       if (!_.isUndefined(feature.getProperties()) && !_.isUndefined(feature.getProperties()['isClustering']) && feature.getProperties()['isClustering'] == true ) {
-        console.log('###111', feature.getProperties().count);
         isClustering = true;
         size = feature.getProperties().count;
       }
 
-      // // Only cluster off
-      // if (_.isUndefined(features)) {
-      //   size = 1;
-      //   features = [feature];
-      // } else {
-      //   console.log('####1',features.length);
-      //   console.log('###', features);
-      // }
-
-
-      // let getUiOptionVal = scope.getUiMapOption().layers[layerNum];
-      // let getDataVal = scope.data[layerNum];
-      // // cluster on
-      // if( (!_.isUndefined(getUiOptionVal)
-      //       && !_.isUndefined(getUiOptionVal.clustering) && getUiOptionVal.clustering)
-      //     && (!_.isUndefined(getDataVal) && !_.isUndefined(getDataVal.features)
-      //       && !_.isUndefined(getDataVal.features[0])
-      //       && !_.isUndefined(getDataVal.features[0].properties)
-      //       && !_.isUndefined(getDataVal.features[0].properties.count)
-      //       && getDataVal.features[0].properties.count > 0) ) {
-      //   size = getDataVal.features[0].properties.count;
-      // } else {
-      //   size = 1;
-      //   features = [feature];
-      // }
-
-      ////////////////////////////////////////////////////////
-      // Point Style
-      ////////////////////////////////////////////////////////
-      if (isClustering == false) {
-
-        // let feature = features[0];
-
+      if (isClustering == false || size <= 1) {
         ////////////////////////////////////////////////////////
         // Color
         ////////////////////////////////////////////////////////
-
         if (_.eq(featureColorType, MapBy.MEASURE)) {
           if (styleLayer.color['ranges']) {
             for (let range of styleLayer.color['ranges']) {
@@ -1318,14 +1279,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
                 }
               } else {
                 if (rangeMin === null) {
-
                   // let minValue = styleData.valueRange[alias].minValue;
                   let minValue = 0;
-
                   if (styleData.valueRange[alias]) {
                     minValue = styleData.valueRange[alias].minValue;
                   }
-
                   if (minValue >= 0) {
                     rangeMin = 0;
                     // when minValue is negative, set minValue to range min
@@ -1333,7 +1291,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
                     rangeMin = minValue;
                   }
                 }
-
                 if (feature.getProperties()[alias] >= rangeMin &&
                   feature.getProperties()[alias] <= rangeMax) {
                   featureColor = range.color;
@@ -1342,22 +1299,18 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             }
           } else {
             const ranges = ColorOptionConverter.setMapMeasureColorRange(styleOption, styleData, scope.getColorList(styleLayer), layerNum, scope.shelf.layers[layerNum].fields);
-
             // set decimal value
             const formatValue = ((value) => {
               return parseFloat((Number(value) * (Math.pow(10, styleOption.valueFormat.decimal)) / Math.pow(10, styleOption.valueFormat.decimal)).toFixed(styleOption.valueFormat.decimal));
             });
-
             for (let range of ranges) {
               let rangeMax = range.fixMax;
               let rangeMin = range.fixMin;
-
               if (rangeMax === null) {
                 // if feature value is bigger than max value, set max color
                 if (feature.getProperties()[alias] > rangeMin) {
                   featureColor = range.color;
                 }
-
               } else {
                 if (rangeMin === null) {
                   let minValue = styleData.valueRange[alias].minValue;
@@ -1378,10 +1331,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
               }
             }
           }
-
-
         } else if (_.eq(featureColorType, MapBy.DIMENSION)) {
-
           // Get dimension color
           const ranges = scope.setDimensionColorRange(styleLayer, styleData, scope.getColorList(styleLayer), []);
           _.each(ranges, (range) => {
@@ -1393,13 +1343,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         } else if (_.eq(featureColorType, MapBy.NONE)) {
           featureColor = styleLayer.color.schema;
         }
-
         featureColor = scope.hexToRgbA(featureColor, 1 - (styleLayer.color.transparency * 0.01));
-
         ////////////////////////////////////////////////////////
         // Outline
         ////////////////////////////////////////////////////////
-
         let outlineWidth = 0.00000001;
         if (_.eq(outlineType, MapThickness.THIN)) {
           outlineWidth = 1;
@@ -1408,11 +1355,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         } else if (_.eq(outlineType, MapThickness.THICK)) {
           outlineWidth = 3;
         }
-
         ////////////////////////////////////////////////////////
         // Size
         ////////////////////////////////////////////////////////
-
         let featureSize = 5;
         try {
           if (_.eq(featureSizeType, MapBy.MEASURE)) {
@@ -1423,7 +1368,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           }
         } catch (error) {
         }
-
         let lineThickness = 2;
         try {
           if (_.eq(featureSizeType, MapBy.MEASURE)) {
@@ -1434,7 +1378,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           }
         } catch (error) {
         }
-
         ////////////////////////////////////////////////////////
         // Selection filter
         ////////////////////////////////////////////////////////
@@ -1460,11 +1403,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             outlineColor = SelectionColor.OUTLINE_LIGHT.toString();
           }
         }
-
         ////////////////////////////////////////////////////////
         // Creation style
         ////////////////////////////////////////////////////////
-
         style = new ol.style.Style({
           image: new ol.style.Circle({
             radius: 4,
@@ -1671,7 +1612,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         featureColor = '#7E94DE';
         //featureColor = scope.hexToRgbA(featureColor, styleLayer.color.transparency * 0.01);
 
-
         // ////////////////////////////////////////////////////////
         // // Outline
         // ////////////////////////////////////////////////////////
@@ -1705,7 +1645,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         //     })
         //   })
         // });
-
         let canvas = scope.featureEl.nativeElement;
 
         style = new ol.style.Style({
@@ -2006,7 +1945,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // console.log(this.olmap.hasFeatureAtPixel(event.pixel));
 
     // feature check
-    if (!feature) {
+    if (!feature
+          ||
+        (!_.isUndefined(feature.getProperties())
+          && !_.isUndefined(feature.getProperties()['isClustering'])
+          && feature.getProperties()['isClustering'] == true
+          && !_.isUndefined(feature.getProperties()['count'])
+          && feature.getProperties()['count'] > 1) ) {
       // Disable tooltip
       this.tooltipInfo.enable = false;
       this.tooltipLayer.setPosition(undefined);
@@ -2750,23 +2695,23 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.uiOption.chartZooms = this.additionalSaveDataZoomRange();
 
     // todo : cluster 서버 사용일 경우 변경
-    // let mapUIOption = (<UIMapOption>this.uiOption);
-    // if( _.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner) ){
-    //   this.setUiExtent();
-    //   return;
-    // }
-    //
-    // let preLowerCorner = mapUIOption.lowerCorner.split(' ');
-    // let preUpperCorner = mapUIOption.upperCorner.split(' ');
-    // let currentMapExtent = this.olmap.getView().calculateExtent(this.olmap.getSize());
-    //
-    // // 이전 좌표와 다를 경우에만 다시 호출
-    // if( Number(preLowerCorner[0]).toFixed(10) != currentMapExtent[0].toFixed(10) && Number(preLowerCorner[1]).toFixed(10) != currentMapExtent[3].toFixed(10)
-    //   && Number(preUpperCorner[0]).toFixed(10) != currentMapExtent[1].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) != currentMapExtent[2].toFixed(10) ){
-    //   // map ui lat, lng
-    //   this.setUiExtent();
-    //   this.changeDrawEvent.emit();
-    // }
+    let mapUIOption = (<UIMapOption>this.uiOption);
+    if( _.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner) ){
+      this.setUiExtent();
+      return;
+    }
+
+    let preLowerCorner = mapUIOption.lowerCorner.split(' ');
+    let preUpperCorner = mapUIOption.upperCorner.split(' ');
+    let currentMapExtent = this.olmap.getView().calculateExtent(this.olmap.getSize());
+
+    // 이전 좌표와 다를 경우에만 다시 호출
+    if( Number(preLowerCorner[0]).toFixed(10) != currentMapExtent[0].toFixed(10) && Number(preLowerCorner[1]).toFixed(10) != currentMapExtent[3].toFixed(10)
+      && Number(preUpperCorner[0]).toFixed(10) != currentMapExtent[1].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) != currentMapExtent[2].toFixed(10) ){
+      // map ui lat, lng
+      this.setUiExtent();
+      this.changeDrawEvent.emit();
+    }
 
     // TODO selection (drag end)
     if (!this.isPage) {
