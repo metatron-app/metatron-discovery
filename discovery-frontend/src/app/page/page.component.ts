@@ -3286,6 +3286,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.panelZIndex = value;
   }
 
+  /**
+   * redraw chart
+   */
+  public changeDraw() {
+    this.drawChart();
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
