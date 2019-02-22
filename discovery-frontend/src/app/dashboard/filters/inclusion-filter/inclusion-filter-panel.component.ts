@@ -354,6 +354,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
 
       // 마지막 페이지 계산
       this.lastPage = (this.totalCount % this.pageSize === 0) ? (this.totalCount / this.pageSize) : Math.floor(this.totalCount / this.pageSize) + 1;
+      (1 > this.lastPage) && (this.lastPage = 1);
 
       start = (page * this.pageSize) - this.pageSize;
       end = page * this.pageSize;
@@ -386,7 +387,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
    */
   public candidateFromSearchText() {
     this.isSearchFocus = false;
-      this._candidate(false);
+    this._candidate(false);
   } // function - candidateFromSearchText
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -442,7 +443,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
    * @param {boolean} isInit
    * @private
    */
-  private _candidate(isInit:boolean = true) {
+  private _candidate(isInit: boolean = true) {
     if (this.filter && this.dashboard && this.field) {
       // 필터 데이터 후보 조회
       this.loadingShow();
@@ -486,7 +487,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
         }
 
         // 추가 데이터가 있는지 여부
-        if( isInit ) {
+        if (isInit) {
           this.isOverCandidateWarning = (FilterUtil.CANDIDATE_LIMIT <= result.length || result.length > this.candidateListSize);
         }
 
