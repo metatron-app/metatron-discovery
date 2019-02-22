@@ -92,9 +92,13 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   @Output()
   public navigateToDataflow = new EventEmitter();
 
+  // is used datasource flag
   public isUsedDatasource: boolean;
+  // source data
+  public sourceData: DatasourceInfo;
+  // is create source flag
+  public isCreateSourceMode: boolean;
 
-  private _selectedGridResponse: any;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -215,39 +219,47 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    * Create datasource
    */
   public createDatasource(): void {
-    const sourceData = new DatasourceInfo();
-    sourceData.isDisableDataSelect = true;
-    sourceData.snapshotData = new CreateSnapShotData();
-    sourceData.snapshotData.selectedSnapshot = this.selectedDataSnapshot;
+    this.sourceData = new DatasourceInfo();
+    this.sourceData.isDisableDataSelect = true;
+    this.sourceData.snapshotData = new CreateSnapShotData();
+    this.sourceData.snapshotData.selectedSnapshot = this.selectedDataSnapshot;
     // set snapshot data
-    // set field data
-    const fieldList = [];
-    const fieldData = [];
     // set field list #657
-    for ( let idx = 0; idx < this._selectedGridResponse.colCnt; idx++ ) {
-      fieldList.push({
-        name: this._selectedGridResponse.colNames[idx],
-        type: this._selectedGridResponse.colDescs[idx].type,
-        logicalType: this._getLogicalType(this._selectedGridResponse.colDescs[idx].type),
-        role: this._getRoleType(this._selectedGridResponse.colDescs[idx].type)
-      });
-    }
-    // set data list
-    this._selectedGridResponse.rows.forEach((row) => {
-      const obj = {};
-      for ( let idx = 0; idx < this._selectedGridResponse.colCnt; idx++ ) {
-        obj[ this._selectedGridResponse.colNames[idx] ] = row.objCols[idx];
-      }
-      fieldData.push(obj);
-    });
-    sourceData.fieldList = fieldList;
-    sourceData.fieldData = fieldData;
-    sourceData.type = SourceType.SNAPSHOT;
-    sourceData.connType = ConnectionType.ENGINE;
-    sourceData.dsType = DataSourceType.MASTER;
-    // set datasourceInfo data in session storage
-    sessionStorage.setItem('SELECTED_SNAPSHOT_DATA_TO_DS_CREATE', JSON.stringify(sourceData));
-    this.router.navigate(['/management/storage/datasource']).then();
+    // for ( let idx = 0; idx < this._selectedGridResponse.colCnt; idx++ ) {
+    //   fieldList.push({
+    //     name: this._selectedGridResponse.colNames[idx],
+    //     type: this._selectedGridResponse.colDescs[idx].type,
+    //     logicalType: this._getLogicalType(this._selectedGridResponse.colDescs[idx].type),
+    //     role: this._getRoleType(this._selectedGridResponse.colDescs[idx].type)
+    //   });
+    // }
+    // // set data list
+    // this._selectedGridResponse.rows.slice(0,50).forEach((row) => {
+    //   const obj = {};
+    //   for ( let idx = 0; idx < this._selectedGridResponse.colCnt; idx++ ) {
+    //     obj[ this._selectedGridResponse.colNames[idx] ] = row.objCols[idx];
+    //   }
+    //   fieldData.push(obj);
+    // });
+    this.sourceData.fieldList = this.selectedDataSnapshot.gridData.fields;
+    this.sourceData.fieldData = this.selectedDataSnapshot.gridData.data.slice(0,50);
+    this.sourceData.type = SourceType.SNAPSHOT;
+    this.sourceData.connType = ConnectionType.ENGINE;
+    this.sourceData.dsType = DataSourceType.MASTER;
+    // show create datasource popup
+    this.isCreateSourceMode = true;
+  }
+
+  /**
+   * Closed source create popup
+   */
+  public closedSourceCreate(): void {
+    // close source
+    this.isCreateSourceMode = false;
+    // detect
+    this.safelyDetectChanges();
+    // update grid
+    this.updateGrid(this.selectedDataSnapshot.gridData);
   }
 
   public getRows() {
@@ -675,7 +687,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           Alert.warning(this.translateService.instant('msg.dp.alert.no.grid'));
           return;
         }
-        this._selectedGridResponse = result.gridResponse;
 
         this.colCnt = result.gridResponse.colCnt;
         const colNames = result.gridResponse.colNames;
@@ -687,11 +698,12 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           data: [],
           fields: []
         };
-
         for ( let idx = 0; idx < this.colCnt; idx++ ) {
           griddata.fields.push({
             name: colNames[idx],
             type: colTypes[idx].type,
+            logicalType: this._getLogicalType(colTypes[idx].type),
+            role: this._getRoleType(colTypes[idx].type),
             seq: idx
           });
         }

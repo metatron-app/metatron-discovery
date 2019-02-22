@@ -98,10 +98,6 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
         // set datasource list
         this._setDatasourceList();
       }).catch(reason => this.commonExceptionHandler(reason));
-    // if exist selected snapshot data in session storage
-    if (sessionStorage.getItem('SELECTED_SNAPSHOT_DATA_TO_DS_CREATE')) {
-      this.changeMode('create-data-source');
-    }
   }
 
   /**

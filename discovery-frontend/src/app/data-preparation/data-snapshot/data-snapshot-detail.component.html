@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-pop-preview ddp-type popup-prep-snapshot" *ngIf="isShow">
+<div class="ddp-pop-preview ddp-type popup-prep-snapshot" *ngIf="isShow && !isCreateSourceMode">
   <!-- top -->
   <div class="ddp-ui-top">
     <div class="ddp-data-name">
@@ -251,10 +251,15 @@
         <!-- //info -->
       </div>
       <div class="ddp-view-buttons" *ngIf="!isUsedDatasource">
-        <a href="javascript:" class=" ddp-btn-pop ddp-bg-black" [class.ddp-disable]="!_selectedGridResponse" (click)="createDatasource()"><em class="ddp-icon-add2"></em>데이터소스 생성</a>
+        <a href="javascript:" class=" ddp-btn-pop ddp-bg-black" (click)="createDatasource()"><em class="ddp-icon-add2"></em>{{'msg.storage.btn.create.source' | translate}}</a>
       </div>
     </div>
     <!-- //right -->
   </div>
   <!-- //contents -->
 </div>
+<!-- create data source popup -->
+<app-create-data-source *ngIf="isCreateSourceMode"
+                        [step]="'snapshot-configure'"
+                        [sourceData]="sourceData"
+                        (sourceCreateClose)="closedSourceCreate()"></app-create-data-source>

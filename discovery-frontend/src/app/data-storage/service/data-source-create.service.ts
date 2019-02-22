@@ -26,9 +26,6 @@ export class DataSourceCreateService {
   // TODO 데이터소스 개선 할때 사용 (INPUT으로 넣어주고 있던 것을 여기에 넣기)
   public createData: DatasourceInfo;
 
-  // selected snapshot data
-  public SELECTED_SNAPSHOT_DATA: string = 'SELECTED_SNAPSHOT_DATA';
-
   private _translateService: TranslateService;
 
   private _granularityService: GranularityService;
