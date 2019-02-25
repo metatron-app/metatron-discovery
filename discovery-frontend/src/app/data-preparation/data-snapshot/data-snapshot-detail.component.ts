@@ -219,28 +219,11 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    * Create datasource
    */
   public createDatasource(): void {
+    // set source data
     this.sourceData = new DatasourceInfo();
     this.sourceData.isDisableDataSelect = true;
     this.sourceData.snapshotData = new CreateSnapShotData();
     this.sourceData.snapshotData.selectedSnapshot = this.selectedDataSnapshot;
-    // set snapshot data
-    // set field list #657
-    // for ( let idx = 0; idx < this._selectedGridResponse.colCnt; idx++ ) {
-    //   fieldList.push({
-    //     name: this._selectedGridResponse.colNames[idx],
-    //     type: this._selectedGridResponse.colDescs[idx].type,
-    //     logicalType: this._getLogicalType(this._selectedGridResponse.colDescs[idx].type),
-    //     role: this._getRoleType(this._selectedGridResponse.colDescs[idx].type)
-    //   });
-    // }
-    // // set data list
-    // this._selectedGridResponse.rows.slice(0,50).forEach((row) => {
-    //   const obj = {};
-    //   for ( let idx = 0; idx < this._selectedGridResponse.colCnt; idx++ ) {
-    //     obj[ this._selectedGridResponse.colNames[idx] ] = row.objCols[idx];
-    //   }
-    //   fieldData.push(obj);
-    // });
     this.sourceData.fieldList = this.selectedDataSnapshot.gridData.fields;
     this.sourceData.fieldData = this.selectedDataSnapshot.gridData.data.slice(0,50);
     this.sourceData.type = SourceType.SNAPSHOT;
