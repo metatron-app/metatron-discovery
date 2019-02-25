@@ -2706,8 +2706,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let currentMapExtent = this.olmap.getView().calculateExtent(this.olmap.getSize());
 
     // 이전 좌표와 다를 경우에만 다시 호출
-    if( Number(preLowerCorner[0]).toFixed(10) != currentMapExtent[0].toFixed(10) && Number(preLowerCorner[1]).toFixed(10) != currentMapExtent[3].toFixed(10)
-      && Number(preUpperCorner[0]).toFixed(10) != currentMapExtent[1].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) != currentMapExtent[2].toFixed(10) ){
+    if( Number(preLowerCorner[0]).toFixed(10) != currentMapExtent[0].toFixed(10) && Number(preLowerCorner[1]).toFixed(10) != currentMapExtent[1].toFixed(10)
+      && Number(preUpperCorner[0]).toFixed(10) != currentMapExtent[2].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) != currentMapExtent[3].toFixed(10) ){
       // map ui lat, lng
       this.setUiExtent();
       this.changeDrawEvent.emit();
@@ -3015,10 +3015,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let mapUIOption = (<UIMapOption>this.uiOption);
     if( this.olmap ){
       let mapExtent = this.olmap.getView().calculateExtent(this.olmap.getSize());
-      // 우측 하단
-      mapUIOption.lowerCorner = mapExtent[0] + ' ' + mapExtent[3];
-      // 좌측 상단
-      mapUIOption.upperCorner = mapExtent[1] + ' ' + mapExtent[2];
+      // 좌표가 좌측 상단  upperCorner (1,2), 우측하단일 경우 lowerCorner (0,3)
+      // 샘플과 동일하게 변경
+      // 우측 상단
+      mapUIOption.upperCorner = mapExtent[2] + ' ' + mapExtent[3];
+      // 좌측 하단
+      mapUIOption.lowerCorner = mapExtent[0] + ' ' + mapExtent[1];
     }
   }
 
