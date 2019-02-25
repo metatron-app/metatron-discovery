@@ -60,11 +60,8 @@ import 'core-js/es6/set';
 import 'core-js/es6/reflect';
 import 'core-js/es7/reflect';
 
-
 /** ALL Firefox browsers require the following to support `@angular/animation`. **/
 // import 'web-animations-js';  // Run `npm install --save web-animations-js`.
-
-
 
 /***************************************************************************************************
  * Zone JS is required by Angular itself.
@@ -72,8 +69,6 @@ import 'core-js/es7/reflect';
  * https://stackoverflow.com/a/44584015/1971710
  */
 // import 'zone.js/dist/zone';  // Included with Angular CLI.
-
-
 
 /***************************************************************************************************
  * APPLICATION IMPORTS
@@ -88,3 +83,8 @@ import 'core-js/es7/reflect';
  * Need to import at least one locale-data with intl.
  */
 // import 'intl/locale-data/jsonp/en';
+
+/***************************************************************************************************
+ * TextEncoder
+ */
+import 'fast-text-encoding';

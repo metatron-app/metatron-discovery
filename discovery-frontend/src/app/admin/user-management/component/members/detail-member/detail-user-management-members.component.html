@@ -55,14 +55,14 @@
       <!-- //edit -->
       <!-- edit -->
       <!--<div class="ddp-wrap-edit">-->
-        <!--<label class="ddp-label-type">{{'msg.mem.ui.last.access' | translate}}</label>-->
-        <!--&lt;!&ndash; edit option &ndash;&gt;-->
-        <!--<div class="ddp-ui-edit-option">-->
-          <!--<div class="ddp-data-txt">-->
-            <!--2011.01.01 00:00:00-->
-          <!--</div>-->
-        <!--</div>-->
-        <!--&lt;!&ndash; //edit option &ndash;&gt;-->
+      <!--<label class="ddp-label-type">{{'msg.mem.ui.last.access' | translate}}</label>-->
+      <!--&lt;!&ndash; edit option &ndash;&gt;-->
+      <!--<div class="ddp-ui-edit-option">-->
+      <!--<div class="ddp-data-txt">-->
+      <!--2011.01.01 00:00:00-->
+      <!--</div>-->
+      <!--</div>-->
+      <!--&lt;!&ndash; //edit option &ndash;&gt;-->
       <!--</div>-->
       <!-- //edit -->
 
@@ -93,9 +93,11 @@
           <!-- //edit option -->
         </div>
         <!-- //edit -->
-        <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickResetPassword()"><em class="ddp-icon-key"></em>{{'msg.mem.btn.reset.pw' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickResetPassword()"><em
+          class="ddp-icon-key"></em>{{'msg.mem.btn.reset.pw' | translate}}</a>
         <!--<a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickLoginUser()"><em class="ddp-icon-view"></em>{{'msg.mem.btn.login.usr' | translate}}</a>-->
-        <a href="javascript:" class="ddp-btn-selection ddp-reject" (click)="onClickDeleteUser()"><em class="ddp-icon-delete"></em>{{'msg.mem.btn.delete.usr' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-selection ddp-reject" (click)="onClickDeleteUser()"><em
+          class="ddp-icon-delete"></em>{{'msg.mem.btn.delete.usr' | translate}}</a>
 
       </div>
       <!-- //right -->
@@ -174,10 +176,11 @@
           <tbody>
           <tr *ngFor="let group of getGroupList()">
             <td>
-              <a href="javascript:" class="ddp-link-info ddp-group" (click)="onClickLinkGroup(group.id)">{{group.name}} <em class="ddp-icon-window"></em>
+              <a href="javascript:" class="ddp-link-info ddp-group" (click)="onClickLinkGroup(group.id)">{{group.name}}
+                <em class="ddp-icon-window"></em>
               </a>
             </td>
-            <td >{{getRoleNames(group.roleNames)}}</td>
+            <td>{{getRoleNames(group.roleNames)}}</td>
           </tr>
           </tbody>
         </table>
@@ -200,3 +203,7 @@
 <!-- group component -->
 <app-update-user-management-members (groupComplete)="getUserDetail()"></app-update-user-management-members>
 <!-- //group component -->
+
+<!-- change-workspace-owner modal -->
+<change-workspace-owner-modal (onComplete)="showDeleteUserConfirm($event);"></change-workspace-owner-modal>
+<!-- //change-workspace-owner modal -->

@@ -819,31 +819,34 @@ public class TeddyExecutor {
 
     private Statement getJdbcStatement(String implementor, String connectUri, String username, String password) throws SQLException, ClassNotFoundException {
 
-        JdbcDataConnection jdbcDataConnection = null;
-        switch(implementor) {
-            case "ORACLE": jdbcDataConnection = new OracleConnection(); break;
-            case "MYSQL": jdbcDataConnection = new MySQLConnection(); break;
-            case "POSTGRESQL": jdbcDataConnection = new PostgresqlConnection(); break;
-            case "HIVE": jdbcDataConnection = new HiveConnection(); break;
-            case "PRESTO": jdbcDataConnection = new PrestoConnection(); break;
-            case "TIBERO": jdbcDataConnection = new TiberoConnection(); break;
-        }
-        jdbcDataConnection.setUsername(username);
-        jdbcDataConnection.setPassword(password);
-
-        try {
-            Class.forName(jdbcDataConnection.getDriverClass());
-            Connection conn = DriverManager.getConnection(connectUri, jdbcDataConnection.getUsername(), jdbcDataConnection.getPassword());
-            return conn.createStatement();
-        } catch (ClassNotFoundException e) {
-            LOGGER.error(String.format("getJdbcStatement(): ClassNotFoundException occurred: driver-class-name=%s", jdbcDataConnection.getDriverClass()), e);
-            throw e;
-        } catch (SQLException e) {
-            LOGGER.error(String.format("getJdbcStatement(): SQLException occurred: connStr=%s username=%s password=%s",
-                    connectUri, jdbcDataConnection.getUsername(), jdbcDataConnection.getPassword()), e);
-            throw e;
-        }
+    JdbcDataConnection jdbcDataConnection = null;
+    switch(implementor) {
+      case "ORACLE": jdbcDataConnection = new OracleConnection(); break;
+      case "MYSQL": jdbcDataConnection = new MySQLConnection(); break;
+      case "POSTGRESQL": jdbcDataConnection = new PostgresqlConnection(); break;
+      case "HIVE": jdbcDataConnection = new HiveConnection(); break;
+      case "PRESTO": jdbcDataConnection = new PrestoConnection(); break;
+      case "TIBERO": jdbcDataConnection = new TiberoConnection(); break;
+      case "DRUID": jdbcDataConnection = new DruidConnection(); break;
     }
+    jdbcDataConnection.setUsername(username);
+    jdbcDataConnection.setPassword(password);
+
+    try {
+      if (jdbcDataConnection.getDriverClass() != null) {
+        Class.forName(jdbcDataConnection.getDriverClass());
+      }
+      Connection conn = DriverManager.getConnection(connectUri, jdbcDataConnection.getUsername(), jdbcDataConnection.getPassword());
+      return conn.createStatement();
+    } catch (ClassNotFoundException e) {
+      LOGGER.error(String.format("getJdbcStatement(): ClassNotFoundException occurred: driver-class-name=%s", jdbcDataConnection.getDriverClass()), e);
+      throw e;
+    } catch (SQLException e) {
+      LOGGER.error(String.format("getJdbcStatement(): SQLException occurred: connStr=%s username=%s password=%s",
+              connectUri, jdbcDataConnection.getUsername(), jdbcDataConnection.getPassword()), e);
+      throw e;
+    }
+  }
 
     private Statement getHiveStatement() throws SQLException, ClassNotFoundException {
         HiveConnection hiveConn = new HiveConnection();

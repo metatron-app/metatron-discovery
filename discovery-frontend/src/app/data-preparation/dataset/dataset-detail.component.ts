@@ -33,6 +33,7 @@ import { PreparationCommonUtil } from "../util/preparation-common.util";
 
 import { isNull, isNullOrUndefined } from "util";
 import * as pixelWidth from 'string-pixel-width';
+import { saveAs } from 'file-saver';
 
 declare let moment: any;
 
@@ -567,6 +568,29 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   public createSnapshot() {
     this.createSnapshotPopup.init({id : this.dataset.dsId , name : this.dataset.dsName, fields : this.fields});
   } // function - createSnapshot
+
+  /**
+   * Download Imported Dataset (only Upload Uri type)
+   */
+  public downloadDataset() {
+    let fileFormat: string;
+    let downloadFileName: string;
+
+    if (this.dataset.dsType === DsType.IMPORTED && this.dataset.importType === ImportType.UPLOAD) {
+
+      if (this.dataset.fileFormat.toString().toLowerCase() === 'excel') {
+        fileFormat = 'csv'
+        downloadFileName = this.dataset.dsName + '.csv';
+      } else {
+        fileFormat = this.dataset.fileFormat.toString().toLowerCase();
+        downloadFileName = this.dataset.filenameBeforeUpload;
+      }
+
+      this.datasetService.downloadDataset(this.dataset.dsId, fileFormat).subscribe((datasetFile) => {
+        saveAs(datasetFile, downloadFileName);
+      });
+    }
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

@@ -42,6 +42,7 @@
 
 package app.metatron.discovery.query.druid;
 
+import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -78,15 +79,6 @@ import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.MapField;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
-import app.metatron.discovery.domain.workbook.configurations.filter.BoundFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.ExpressionFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.LikeFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.TimeAllFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.TimeListFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.TimestampFilter;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
 import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
@@ -521,7 +513,13 @@ public abstract class AbstractQueryBuilder {
 
         filter.addField(new RegExpFilter(column, PolarisUtils.convertSqlLikeToRegex(likeFilter.getExpr(), false)));
 
-      } else if (reqFilter instanceof IntervalFilter) {
+      } else if (reqFilter instanceof RegExprFilter) {
+
+        RegExprFilter regExprFilter = (RegExprFilter)reqFilter;
+
+        filter.addField(new RegExpFilter(column, regExprFilter.getExpr()));
+
+      } if (reqFilter instanceof IntervalFilter) {
 
         IntervalFilter intervalFilter = (IntervalFilter) reqFilter;
 
