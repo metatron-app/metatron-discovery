@@ -72,6 +72,7 @@ import {TimeFilter} from '../../../domain/workbook/configurations/filter/time-fi
 import {IntervalFilter} from '../../../domain/workbook/configurations/filter/interval-filter';
 import {TimeUnit} from '../../../domain/workbook/configurations/field/timestamp-field';
 import {CommonConstant} from "../../../common/constant/common.constant";
+import {ChartType} from "../../../common/component/chart/option/define/common";
 
 declare let GoldenLayout: any;
 
@@ -1228,6 +1229,19 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
       // Data migration
       {
+        // convert map old spec
+        boardInfo.widgets.forEach(widget => {
+          if ('page' === widget.type && ChartType.MAP === (<PageWidgetConfiguration>widget.configuration).chart.type) {
+            const widgetConf: PageWidgetConfiguration = <PageWidgetConfiguration>widget.configuration;
+            widgetConf.dataSource = boardInfo.configuration.dataSource;
+            widgetConf.shelf.layers.forEach(layer => {
+              if ('' === layer.ref) {
+                layer.ref = boardInfo.configuration.fields.find(field => field.name === layer.fields[0].name).dataSource;
+              }
+            });
+          }
+        });
+
         // remove duplicate filters
         let filters: Filter[] = boardInfo.configuration.filters;
         if (filters) {
@@ -1286,10 +1300,10 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         if (boardInfo.configuration.filters) {
           // remove current_time timestamp filter - S
           boardInfo.configuration.filters
-            = boardInfo.configuration.filters.filter( (filter:Filter) => {
-            if( FilterUtil.isTimeFilter(filter) && (<TimeFilter>filter).clzField ) {
-              const filterField:Field = (<TimeFilter>filter).clzField;
-              if( FieldRole.TIMESTAMP === filterField.role && CommonConstant.COL_NAME_CURRENT_DATETIME === filterField.name ) {
+            = boardInfo.configuration.filters.filter((filter: Filter) => {
+            if (FilterUtil.isTimeFilter(filter) && (<TimeFilter>filter).clzField) {
+              const filterField: Field = (<TimeFilter>filter).clzField;
+              if (FieldRole.TIMESTAMP === filterField.role && CommonConstant.COL_NAME_CURRENT_DATETIME === filterField.name) {
                 const filterId: string = filter.dataSource + '_' + filter.field;
                 const filterWidgets: Widget[] = boardInfo.widgets.filter(widget => {
                   if ('filter' === widget.type) {
@@ -1302,7 +1316,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
                   promises.push(new Promise((res) => {
                     this.widgetService.deleteWidget(item.id)
                       .then(() => {
-                        console.info( '+=+=+=+=+=+=+=+=+=+=+=+=+=+=+= remove current_time filter' );
+                        console.info('+=+=+=+=+=+=+=+=+=+=+=+=+=+=+= remove current_time filter');
                         boardInfo.widgets = boardInfo.widgets.filter(widgetItem => widgetItem.id !== item.id);
                         res();
                       });

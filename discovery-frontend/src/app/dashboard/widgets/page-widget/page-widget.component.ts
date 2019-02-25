@@ -25,7 +25,7 @@ import {
   ViewChild
 } from '@angular/core';
 import * as _ from 'lodash';
-import { ClipboardService } from 'ngx-clipboard';
+import {ClipboardService} from 'ngx-clipboard';
 import {
   BrushType,
   ChartMouseMode,
@@ -80,7 +80,7 @@ declare let $;
   selector: 'page-widget',
   templateUrl: 'page-widget.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles:[ '.ddp-pop-preview { position: fixed; width: 700px; height: 500px; top: 50%; left: 50%; margin-left: -350px; margin-top: -250px;}' ]
+  styles: ['.ddp-pop-preview { position: fixed; width: 700px; height: 500px; top: 50%; left: 50%; margin-left: -350px; margin-top: -250px;}']
 })
 export class PageWidgetComponent extends AbstractWidgetComponent implements OnInit, OnDestroy {
 
@@ -141,7 +141,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isMaximize = false;                // 최대 여부
   public mouseMode: string = 'SINGLE';     // 차트 마우스 모드
 
-  public isSetChartData:boolean = false;          // 차트 데이터 설정 여부
+  public isSetChartData: boolean = false;          // 차트 데이터 설정 여부
   public isUpdateRedraw: boolean = true;          // 다시그리는 새로고침
   public isShowHierarchyView: boolean = false;    // 차트 계층 표시 여부
   public isInvalidPivot: boolean = false;          // 선반정보를 확인해야 하는 경우
@@ -151,7 +151,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public duringImageDown: boolean = false;        // 이미지 다운로드 진행 여부
 
   // Limit 정보
-  public limitInfo: ChartLimitInfo = { id: '', isShow: false, currentCnt: 0, maxCnt: 0 };
+  public limitInfo: ChartLimitInfo = {id: '', isShow: false, currentCnt: 0, maxCnt: 0};
 
   // Pivot 내 사용자 정의 컬럼 사용 여부
   public useCustomField: boolean = false;
@@ -176,8 +176,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
   // is Origin data down
   public isOriginDown: boolean = false;
-  public srchText:string = '';
-  public isCanNotDownAggr:boolean = false;
+  public srchText: string = '';
+  public isCanNotDownAggr: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables - Input & Output
@@ -432,14 +432,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           } else if (this.chart.uiOption.type === ChartType.LABEL) {
 
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
-            ( this.isSetChartData ) && ( (<NetworkChartComponent>this.chart).draw() );
+            (this.isSetChartData) && ((<NetworkChartComponent>this.chart).draw());
           } else if (this.chart.uiOption.type === ChartType.MAP) {
             (<MapChartComponent>this.chart).resize();
           } else {
             try {
               if (this.chart && this.chart.chart) this.chart.chart.resize();
-            }
-            catch (error) {
+            } catch (error) {
             }
           }
           // 변경 적용
@@ -497,8 +496,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       }
       if (selectData.length == 0 && !_.eq(data.mode, ChartSelectMode.CLEAR)) {
         return;
-      }
-      else {
+      } else {
         data.data = selectData;
       }
 
@@ -756,7 +754,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public copyWidgetIdToClipboard() {
     if (this.widget) {
-      this._clipboardService.copyFromContent( this.widget.id );
+      this._clipboardService.copyFromContent(this.widget.id);
     }
   } // function - copyWidgetIdToClipboard
 
@@ -983,7 +981,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     (clonePivot.columns) && (fields = fields.concat(clonePivot.columns));
     (clonePivot.aggregations) && (fields = fields.concat(clonePivot.aggregations));
 
-    if( isOriginal && fields.some((field: Field) => ( field['field'] && field['field'].aggregated ) ) ) {
+    if (isOriginal && fields.some((field: Field) => (field['field'] && field['field'].aggregated))) {
       this.isCanNotDownAggr = true;
       this.safelyDetectChanges();
       return false;
@@ -997,13 +995,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       // 헤더정보 생성
       const headers: header[]
         = fields.map((field: Field) => {
-        const logicalType:string = ( field['field'] && field['field'].logicalType ) ? field['field'].logicalType.toString() : '';
+        const logicalType: string = (field['field'] && field['field'].logicalType) ? field['field'].logicalType.toString() : '';
         let headerName: string = field.name;
-        if( field['aggregationType'] ) {
-          if( !isOriginal ) {
+        if (field['aggregationType']) {
+          if (!isOriginal) {
             headerName = field.alias ? field.alias : field['aggregationType'] + '(' + field.name + ')';
           }
-        } else if( field.alias ) {
+        } else if (field.alias) {
           headerName = field.alias;
         }
 
@@ -1053,7 +1051,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         this.loadingHide();
       }
     }).catch((err) => {
-      console.error( err );
+      console.error(err);
       this.loadingHide();
       // 변경 적용
       this.safelyDetectChanges();
@@ -1065,7 +1063,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * 검색어 설정 및 그리드 검색
    * @param {string} srchText
    */
-  public setSearchText(srchText:string) {
+  public setSearchText(srchText: string) {
     this.srchText = srchText;
     this._dataGridComp.search(this.srchText);
   } // function - setSearchText
@@ -1086,109 +1084,137 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this.chartType = this.widgetConfiguration.chart.type.toString();
     this.parentWidget = null;
     if (widget.dashBoard.configuration) {
-      const boardConf: BoardConfiguration = widget.dashBoard.configuration;
 
-      // Pivot 내 누락된 필드 정보 설정
-      const widgetDataSource: Datasource
-        = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
+      if (ChartType.MAP === (<PageWidgetConfiguration>this.widget.configuration).chart.type) {
 
-      if (isNullOrUndefined(widgetDataSource)) {
-        // If the widget does not have a data source
-        this.processStart();
-        this._isDuringProcess = true;
-        this.isMissingDataSource = true;
-        this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.missing-datasource')});
-        this.updateComplete();
-      } else {
-        // If the widget has a data source
+        if( 'default' === this.widgetConfiguration.dataSource.type ) {
+          // Pivot 내 누락된 필드 정보 설정
+          const widgetDataSource: Datasource
+            = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
+          const fields: Field[] = DashboardUtil.getFieldsForMainDataSource(this.widget.dashBoard.configuration, widgetDataSource.engineName);
+          fields.forEach((field) => {
 
-        this.isMissingDataSource = false;
+            // map - set shelf layers
+            if (undefined !== this.widgetConfiguration.chart['layerNum'] && this.widgetConfiguration.chart['layerNum'] >= 0) {
 
-        const fields: Field[] = DashboardUtil.getFieldsForMainDataSource(this.widget.dashBoard.configuration, widgetDataSource.engineName);
-        fields.forEach((field) => {
-          this.widgetConfiguration.pivot.rows
-            .forEach((abstractField) => {
-              if (isNullOrUndefined(abstractField.field)
-                && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
-                abstractField.field = field;
-              }
-            });
+              const shelfLayers: any = this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']];
 
-          this.widgetConfiguration.pivot.columns
-            .forEach((abstractField) => {
-              if (isNullOrUndefined(abstractField.field)
-                && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
-                abstractField.field = field;
-              }
-            });
-
-          this.widgetConfiguration.pivot.aggregations
-            .forEach((abstractField) => {
-              if (isNullOrUndefined(abstractField.field)
-                && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
-                abstractField.field = field;
-              }
-            });
-
-          // map - set shelf layers
-          if (undefined !== this.widgetConfiguration.chart['layerNum'] && this.widgetConfiguration.chart['layerNum'] >= 0) {
-
-            const shelfLayers : any = this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']];
-
-            // 기존 스펙이 남아있을경우 변환
-            if( _.isUndefined( shelfLayers['fields'] ) ){
-              let tempShelf : Shelf = new Shelf();
-              for(let idx=0; idx<this.widgetConfiguration.shelf.layers.length; idx++) {
-                let tempLayer : any = _.cloneDeep(this.widgetConfiguration.shelf.layers[idx]);
-                if( _.isUndefined(tempShelf.layers[idx]) ){
-                  let shelfLayers : ShelfLayers = new ShelfLayers();
-                  tempShelf.layers.push( shelfLayers );
+              // 기존 스펙이 남아있을경우 변환
+              if (_.isUndefined(shelfLayers['fields'])) {
+                let tempShelf: Shelf = new Shelf();
+                for (let idx = 0; idx < this.widgetConfiguration.shelf.layers.length; idx++) {
+                  let tempLayer: any = _.cloneDeep(this.widgetConfiguration.shelf.layers[idx]);
+                  if (_.isUndefined(tempShelf.layers[idx])) {
+                    let shelfLayers: ShelfLayers = new ShelfLayers();
+                    tempShelf.layers.push(shelfLayers);
+                  }
+                  tempShelf.layers[idx].fields = tempLayer;
                 }
-                tempShelf.layers[idx].fields = tempLayer;
+                this.widgetConfiguration.shelf = tempShelf;
               }
-              this.widgetConfiguration.shelf = tempShelf;
-            }
 
-            this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']].fields
+              this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']].fields
+                .forEach((abstractField) => {
+                  if (isNullOrUndefined(abstractField.field)
+                    && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                    abstractField.field = field;
+                  }
+                });
+            }
+          });
+        } else {
+
+        }
+
+        // 맵 차트
+        this._setCommonConfig(this.widget);
+      } else {
+        // 일반 차트
+
+        // Pivot 내 누락된 필드 정보 설정
+        const widgetDataSource: Datasource
+          = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
+
+        if (isNullOrUndefined(widgetDataSource)) {
+          // If the widget does not have a data source
+          this.processStart();
+          this._isDuringProcess = true;
+          this.isMissingDataSource = true;
+          this._showError({
+            code: 'GB0000',
+            details: this.translateService.instant('msg.board.error.missing-datasource')
+          });
+          this.updateComplete();
+        } else {
+          // If the widget has a data source
+
+          const fields: Field[] = DashboardUtil.getFieldsForMainDataSource(this.widget.dashBoard.configuration, widgetDataSource.engineName);
+          fields.forEach((field) => {
+            this.widgetConfiguration.pivot.rows
               .forEach((abstractField) => {
                 if (isNullOrUndefined(abstractField.field)
                   && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
                   abstractField.field = field;
                 }
               });
-          }
-        });
 
-        // Hierarchy 설정
-        if (boardConf.relations) {
-          const relations: DashboardPageRelation[] = boardConf.relations;
-          const parentWidgetId: string = this._findParentWidgetId(this.widget.id, relations);
-          if (parentWidgetId) {
-            this.parentWidget = widget.dashBoard.widgets.find(item => item.id === parentWidgetId);
-            this.isShowHierarchyView = true;
-          }
+            this.widgetConfiguration.pivot.columns
+              .forEach((abstractField) => {
+                if (isNullOrUndefined(abstractField.field)
+                  && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                  abstractField.field = field;
+                }
+              });
 
-          this._childWidgetIds = this._findChildWidgetIds(this.widget.id, relations);
-        }
+            this.widgetConfiguration.pivot.aggregations
+              .forEach((abstractField) => {
+                if (isNullOrUndefined(abstractField.field)
+                  && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                  abstractField.field = field;
+                }
+              });
+          });
 
-        // RealTime 데이터갱신 설정
-        if (this.layoutMode !== LayoutMode.EDIT && boardConf.options.sync && boardConf.options.sync.enabled) {
-          const syncOpts: BoardSyncOptions = boardConf.options.sync;
-          this._interval = setInterval(() => {
-            this.safelyDetectChanges();
-            if (this.parentWidget) {
-              // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
-              this.processStart();
-              this._isDuringProcess = true;
-              this.updateComplete();
-            } else {
-              this._search();
-            }
-          }, syncOpts.interval * 1000);
-        }
+          this._setCommonConfig(this.widget);
+        } // end of - widgetDataSource
 
+      } // end of - char type not Map
+
+    } // end if - dashboard.configuration
+
+    this.safelyDetectChanges();
+    this.isInvalidPivot = !this.chart.isValid(this.widgetConfiguration.pivot, this.widgetConfiguration.shelf);
+
+  } // function - _setWidget
+
+  /**
+   * 공통 설정
+   * @param {PageWidget} widget
+   * @private
+   */
+  private _setCommonConfig(widget: PageWidget) {
+
+    this.isMissingDataSource = false;
+
+    const boardConf: BoardConfiguration = widget.dashBoard.configuration;
+
+    // Hierarchy 설정
+    if (boardConf.relations) {
+      const relations: DashboardPageRelation[] = boardConf.relations;
+      const parentWidgetId: string = this._findParentWidgetId(widget.id, relations);
+      if (parentWidgetId) {
+        this.parentWidget = widget.dashBoard.widgets.find(item => item.id === parentWidgetId);
+        this.isShowHierarchyView = true;
+      }
+
+      this._childWidgetIds = this._findChildWidgetIds(widget.id, relations);
+    }
+
+    // RealTime 데이터갱신 설정
+    if (this.layoutMode !== LayoutMode.EDIT && boardConf.options.sync && boardConf.options.sync.enabled) {
+      const syncOpts: BoardSyncOptions = boardConf.options.sync;
+      this._interval = setInterval(() => {
         this.safelyDetectChanges();
-
         if (this.parentWidget) {
           // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
           this.processStart();
@@ -1197,14 +1223,20 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         } else {
           this._search();
         }
-      } // end of - widgetDataSource
-
-    } // end if - dashboard.configuration
+      }, syncOpts.interval * 1000);
+    }
 
     this.safelyDetectChanges();
-    this.isInvalidPivot = !this.chart.isValid(this.widgetConfiguration.pivot, this.widgetConfiguration.shelf);
 
-  } // function - _setWidget
+    if (this.parentWidget) {
+      // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
+      this.processStart();
+      this._isDuringProcess = true;
+      this.updateComplete();
+    } else {
+      this._search();
+    }
+  } // function - _setCommonConfig
 
   /**
    * 데이터 검색
@@ -1288,27 +1320,35 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     const uiCloneQuery = _.cloneDeep(query);
 
-    // 필터 설정
-    const widgetDataSource: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
+    if( 'default' === this.widgetConfiguration.dataSource.type ) {
+      // General or Single Layer Map Chart
 
-    if (isNullOrUndefined(widgetDataSource)) {
-      this.isMissingDataSource = true;
-      this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.missing-datasource')});
-      this.updateComplete();
-      return;
+      // 필터 설정
+      const widgetDataSource: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
+
+      if (isNullOrUndefined(widgetDataSource)) {
+        this.isMissingDataSource = true;
+        this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.missing-datasource')});
+        this.updateComplete();
+        return;
+      }
+
+      // 외부필터가 없고 글로벌 필터가 있을 경우 추가 (초기 진입시)
+      if (isNullOrUndefined(globalFilters)) {
+        globalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName);
+      }
+
+      // 외부 필터 ( 글로벌 필터 + Selection Filter )
+      {
+        let externalFilters = currentSelectionFilters ? globalFilters.concat(currentSelectionFilters) : globalFilters;
+        externalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName, externalFilters);
+        uiCloneQuery.filters = externalFilters.concat(uiCloneQuery.filters);
+      }
+
+    } else {
+
     }
 
-    // 외부필터가 없고 글로벌 필터가 있을 경우 추가 (초기 진입시)
-    if (isNullOrUndefined(globalFilters)) {
-      globalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName);
-    }
-
-    // 외부 필터 ( 글로벌 필터 + Selection Filter )
-    {
-      let externalFilters = currentSelectionFilters ? globalFilters.concat(currentSelectionFilters) : globalFilters;
-      externalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName, externalFilters);
-      uiCloneQuery.filters = externalFilters.concat(uiCloneQuery.filters);
-    }
 
     this.isShowNoData = false;
     this._hideError();
@@ -1386,8 +1426,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         }
 
         // Set Limit Info
-        this.limitInfo = DashboardUtil.getChartLimitInfo( this.widget.id, ChartType[this.chartType.toUpperCase()], data );
-        if (this.layoutMode === LayoutMode.EDIT ) {
+        this.limitInfo = DashboardUtil.getChartLimitInfo(this.widget.id, ChartType[this.chartType.toUpperCase()], data);
+        if (this.layoutMode === LayoutMode.EDIT) {
           this.broadCaster.broadcast('WIDGET_LIMIT_INFO', this.limitInfo);
         }
 
