@@ -358,9 +358,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       this.removeLayer(this.getUiMapOption().layerNum);
     }
 
-
-    // this.isCreateZoom = true;
-
     ////////////////////////////////////////////////////////
     // set min / max
     ////////////////////////////////////////////////////////
@@ -2694,7 +2691,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // save current chartzoom
     this.uiOption.chartZooms = this.additionalSaveDataZoomRange();
 
-    // todo : cluster 서버 사용일 경우 변경
     let mapUIOption = (<UIMapOption>this.uiOption);
     if( _.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner) ){
       this.setUiExtent();

@@ -239,15 +239,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // set measure, dimension list by layer type
     this.setMeasureDimensions(this.shelf);
 
-    if ((MapLayerType.TILE === cloneLayerType || MapLayerType.TILE === layerType) && cloneLayerType !== layerType) {
-
-      // call search api (for precision setting)
-      this.applyLayers({type : EventType.MAP_CHANGE_OPTION});
-      return;
-    }
-
     // apply layer ui option
-    this.applyLayers();
+    this.applyLayers({type : EventType.MAP_CHANGE_OPTION});
   }
 
   /**
@@ -332,13 +325,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public isEnableClustering(layerIndex : number) {
     (<UISymbolLayer>this.uiOption.layers[layerIndex]).clustering = !(<UISymbolLayer>this.uiOption.layers[layerIndex]).clustering;
-    this.applyLayers();
+    this.applyLayers({type : EventType.MAP_CHANGE_OPTION});
   }
 
   public changeClustering(obj: any, $event: any, index: number) {
     this.uiOption.layers[index]['coverage']= $event.from;
-    // this.applyLayers();
-    // todo : cluster 서버 사용일 경우 변경
     this.applyLayers({type : EventType.MAP_CHANGE_OPTION});
   }
 
