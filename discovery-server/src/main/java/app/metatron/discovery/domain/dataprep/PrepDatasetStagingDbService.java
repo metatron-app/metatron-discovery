@@ -27,6 +27,8 @@ import app.metatron.discovery.domain.datasource.connection.DataConnectionReposit
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.StageDataConnection;
+import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -71,6 +73,9 @@ public class PrepDatasetStagingDbService {
 
     @Autowired(required = false)
     PrepProperties prepProperties;
+
+    @Autowired
+    StorageProperties storageProperties;
 
     @Value("${server.port:8180}")
     private String restAPIserverPort;
@@ -265,12 +270,12 @@ public class PrepDatasetStagingDbService {
             List<Map<String, String>> headers = Lists.newArrayList();
 
             StageDataConnection stageDataConnection = new StageDataConnection();
-            stageDataConnection.setHostname(    prepProperties.getHiveHostname(true));
-            stageDataConnection.setPort(        prepProperties.getHivePort(true));
-            stageDataConnection.setUsername(    prepProperties.getHiveUsername(true));
-            stageDataConnection.setPassword(    prepProperties.getHivePassword(true));
-            stageDataConnection.setUrl(         prepProperties.getHiveCustomUrl(true));
-            stageDataConnection.setMetastoreUrl(prepProperties.getHiveMetastoreUris(true));     // FIXME: metastore는 spark에서만 필요
+            StageDBConnection stageDB = storageProperties.getStagedb();
+            stageDataConnection.setHostname(    stageDB.getHostname());
+            stageDataConnection.setPort(        stageDB.getPort());
+            stageDataConnection.setUsername(    stageDB.getUsername());
+            stageDataConnection.setPassword(    stageDB.getPassword());
+            stageDataConnection.setUrl(         stageDB.getUrl());
             stageDataConnection.setDatabase(dbName);
 
             String connectUrl = stageDataConnection.getConnectUrl();
@@ -369,12 +374,12 @@ public class PrepDatasetStagingDbService {
             }
 
             StageDataConnection stageDataConnection = new StageDataConnection();
-            stageDataConnection.setHostname(    prepProperties.getHiveHostname(true));
-            stageDataConnection.setPort(        prepProperties.getHivePort(true));
-            stageDataConnection.setUsername(    prepProperties.getHiveUsername(true));
-            stageDataConnection.setPassword(    prepProperties.getHivePassword(true));
-            stageDataConnection.setUrl(         prepProperties.getHiveCustomUrl(true));
-            stageDataConnection.setMetastoreUrl(prepProperties.getHiveMetastoreUris(true));     // FIXME: metastore는 spark에서만 필요
+            StageDBConnection stageDB = storageProperties.getStagedb();
+            stageDataConnection.setHostname(    stageDB.getHostname());
+            stageDataConnection.setPort(        stageDB.getPort());
+            stageDataConnection.setUsername(    stageDB.getUsername());
+            stageDataConnection.setPassword(    stageDB.getPassword());
+            stageDataConnection.setUrl(         stageDB.getUrl());
             stageDataConnection.setDatabase(dbName);
 
             String connectUrl = stageDataConnection.getConnectUrl();
@@ -485,12 +490,12 @@ public class PrepDatasetStagingDbService {
             }
 
             StageDataConnection stageDataConnection = new StageDataConnection();
-            stageDataConnection.setHostname(    prepProperties.getHiveHostname(true));
-            stageDataConnection.setPort(        prepProperties.getHivePort(true));
-            stageDataConnection.setUsername(    prepProperties.getHiveUsername(true));
-            stageDataConnection.setPassword(    prepProperties.getHivePassword(true));
-            stageDataConnection.setUrl(         prepProperties.getHiveCustomUrl(true));
-            stageDataConnection.setMetastoreUrl(prepProperties.getHiveMetastoreUris(true));     // FIXME: metastore는 spark에서만 필요
+            StageDBConnection stageDB = storageProperties.getStagedb();
+            stageDataConnection.setHostname(    stageDB.getHostname());
+            stageDataConnection.setPort(        stageDB.getPort());
+            stageDataConnection.setUsername(    stageDB.getUsername());
+            stageDataConnection.setPassword(    stageDB.getPassword());
+            stageDataConnection.setUrl(         stageDB.getUrl());
             stageDataConnection.setDatabase(dbName);
 
             String connectUrl = stageDataConnection.getConnectUrl();
@@ -608,12 +613,12 @@ public class PrepDatasetStagingDbService {
     public void writeSnapshot(ServletOutputStream outputStream, String dbName, String sql, String fileType) throws PrepException {
         try {
             StageDataConnection stageDataConnection = new StageDataConnection();
-            stageDataConnection.setHostname(    prepProperties.getHiveHostname(true));
-            stageDataConnection.setPort(        prepProperties.getHivePort(true));
-            stageDataConnection.setUsername(    prepProperties.getHiveUsername(true));
-            stageDataConnection.setPassword(    prepProperties.getHivePassword(true));
-            stageDataConnection.setUrl(         prepProperties.getHiveCustomUrl(true));
-            stageDataConnection.setMetastoreUrl(prepProperties.getHiveMetastoreUris(true));     // FIXME: metastore는 spark에서만 필요
+            StageDBConnection stageDB = storageProperties.getStagedb();
+            stageDataConnection.setHostname(    stageDB.getHostname());
+            stageDataConnection.setPort(        stageDB.getPort());
+            stageDataConnection.setUsername(    stageDB.getUsername());
+            stageDataConnection.setPassword(    stageDB.getPassword());
+            stageDataConnection.setUrl(         stageDB.getUrl());
 
             String connectUrl = stageDataConnection.getConnectUrl();
             String username = stageDataConnection.getUsername();
@@ -651,12 +656,12 @@ public class PrepDatasetStagingDbService {
     public void dropHiveSnapshotTable(String sql) throws PrepException {
         try {
             StageDataConnection stageDataConnection = new StageDataConnection();
-            stageDataConnection.setHostname(    prepProperties.getHiveHostname(true));
-            stageDataConnection.setPort(        prepProperties.getHivePort(true));
-            stageDataConnection.setUsername(    prepProperties.getHiveUsername(true));
-            stageDataConnection.setPassword(    prepProperties.getHivePassword(true));
-            stageDataConnection.setUrl(         prepProperties.getHiveCustomUrl(true));
-            stageDataConnection.setMetastoreUrl(prepProperties.getHiveMetastoreUris(true));     // FIXME: metastore는 spark에서만 필요
+            StageDBConnection stageDB = storageProperties.getStagedb();
+            stageDataConnection.setHostname(    stageDB.getHostname());
+            stageDataConnection.setPort(        stageDB.getPort());
+            stageDataConnection.setUsername(    stageDB.getUsername());
+            stageDataConnection.setPassword(    stageDB.getPassword());
+            stageDataConnection.setUrl(         stageDB.getUrl());
 
             String connectUrl = stageDataConnection.getConnectUrl();
             String username = stageDataConnection.getUsername();
