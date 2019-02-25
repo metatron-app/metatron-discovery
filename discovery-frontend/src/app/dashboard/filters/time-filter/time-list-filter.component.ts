@@ -117,7 +117,7 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
   public ngOnChanges(changes: SimpleChanges) {
     const filterChanges: SimpleChange = changes.inputFilter;
     if (filterChanges) {
-      this.setData(filterChanges.currentValue, true );
+      this.setData(filterChanges.currentValue, !filterChanges.firstChange );
     }
   } // function - ngOnChanges
 
