@@ -49,11 +49,14 @@ import {
   IntervalSelectorType
 } from '../../domain/workbook/configurations/filter/interval-filter';
 import {DIRECTION} from '../../domain/workbook/configurations/sort';
+import {RegExprFilter} from "../../domain/workbook/configurations/filter/reg-expr-filter";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
 
 declare let moment;
 
 export class FilterUtil {
+
+  public static CANDIDATE_LIMIT:number = 1000;
 
   /**
    * 필터 패널 내용 목록 조회
@@ -168,6 +171,7 @@ export class FilterUtil {
     inclusionFilter.preFilters.push(this.getBasicInequalityFilter(preFilterData));
     inclusionFilter.preFilters.push(this.getBasicPositionFilter(preFilterData));
     inclusionFilter.preFilters.push(this.getBasicWildCardFilter(field.name, preFilterData));
+    inclusionFilter.preFilters.push(this.getBasicRegExprFilter(field.name, preFilterData));
 
     inclusionFilter.sort = new InclusionItemSort(InclusionSortBy.TEXT, DIRECTION.ASC);
 
@@ -265,6 +269,20 @@ export class FilterUtil {
   } // function getBasicwildCardFilter
 
   /**
+   * 기본 정규식 필터 생성
+   * @param {string} fieldName
+   * @param preFilterData
+   * @return {RegExprFilter}
+   */
+  public static getBasicRegExprFilter(fieldName: string, preFilterData: any): RegExprFilter {
+    const regExprFilter = new RegExprFilter();
+    regExprFilter.field = fieldName;
+    regExprFilter.expr = '';
+
+    return regExprFilter;
+  }
+
+  /**
    * API 를 위해서 불필요한 속성 제거
    * @param {Filter} filter
    * @return {Filter}
@@ -336,6 +354,9 @@ export class FilterUtil {
         break;
       case 'measure_position' :
         keyMap = ['aggregation', 'position', 'value'];
+        break;
+      case 'regexpr' :
+        keyMap = ['expr'];
         break;
     }
     keyMap = keyMap.concat(['type', 'field', 'ref', 'dataSource']);

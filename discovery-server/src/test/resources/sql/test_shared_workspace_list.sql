@@ -3,7 +3,8 @@ INSERT INTO workspace(id, ws_name, ws_owner_id, ws_pub_type, ws_desc, ws_publish
 ('ws-0002', 'Shared Workspace12', 'admin', 'SHARED', '', NULL, NULL, 1.0, NOW(), 'admin',  NOW(), 'admin'),
 ('ws-0003', 'Shared Workspace23', 'admin', 'SHARED', '', NULL, NULL, 1.0, NOW(), 'admin',  NOW(), 'admin'),
 ('ws-0004', 'Shared Workspace24', 'polaris', 'SHARED', '', true, NULL, 1.0, NOW(), 'admin',  NOW(), 'admin'),
-('ws-0005', 'Shared Workspace25', 'polaris', 'SHARED', '', NULL, false, 1.0, NOW(), 'admin',  NOW(), 'admin');
+('ws-0005', 'Shared Workspace25', 'polaris', 'SHARED', '', NULL, false, 1.0, NOW(), 'admin',  NOW(), 'admin'),
+('ws-0006', 'Shared Workspace26', 'guest', 'SHARED', '', NULL, false, 1.0, NOW(), 'admin',  NOW(), 'admin');
 
 INSERT INTO workspace_member(id, member_id, member_type, member_role, ws_id) VALUES
 (500011, 'polaris', 'USER', 'WORKSPACE_EDITOR', 'ws-0001'),

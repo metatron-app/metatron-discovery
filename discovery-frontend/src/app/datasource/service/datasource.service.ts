@@ -52,6 +52,7 @@ import {Pivot} from "../../domain/workbook/configurations/pivot";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
 import {Shelf} from "../../domain/workbook/configurations/shelf/shelf";
 import {TypeFilterObject} from "../../data-storage/service/data-source-create.service";
+import {RegExprFilter} from "../../domain/workbook/configurations/filter/reg-expr-filter";
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -157,10 +158,11 @@ export class DatasourceService extends AbstractService {
    * @param {Filter[]} filters
    * @param {Field | CustomField} field
    * @param {string} sortBy
+   * @param {string} searchWord
    * @returns {Promise<any>}
    */
   public getCandidateForFilter(filter: Filter, board: Dashboard,
-                               filters?: Filter[], field?: (Field | CustomField), sortBy?: string): Promise<any> {
+                               filters?: Filter[], field?: (Field | CustomField), sortBy?: string, searchWord?:string ): Promise<any> {
 
     const param: any = {};
     param.dataSource = DashboardUtil.getDataSourceForApi(
@@ -240,10 +242,20 @@ export class DatasourceService extends AbstractService {
             if (wildcard.contains && wildcard.value && wildcard.value.length > 0) {
               tempFilters.push(FilterUtil.convertToServerSpec(wildcard));
             }
+          } else if (preFilter.type === 'regexpr') {
+            const regExpr: RegExprFilter = <RegExprFilter>preFilter;
+            if (regExpr.expr) {
+              tempFilters.push(FilterUtil.convertToServerSpec(regExpr));
+            }
           }
         });
         param.filters = param.filters.concat(tempFilters);
-        (param.targetField) && (param.targetField.type = 'dimension');
+        ( param.targetField ) && ( param.targetField.type = 'dimension' );
+
+        param.sortBy = (sortBy) ? sortBy : 'COUNT';
+        param.searchWord = (searchWord) ? searchWord : '';
+        param.limit = FilterUtil.CANDIDATE_LIMIT;
+
       } else if ('bound' === filter.type) {
         // Measure Filter
         if (param.targetField) {

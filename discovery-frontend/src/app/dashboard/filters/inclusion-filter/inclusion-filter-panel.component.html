@@ -81,7 +81,7 @@
               </a>
             </li>
             <li *ngIf="isEditable">
-              <a href="javascript:" (click)="openUpdateFilterPopup(originalFilter)">
+              <a href="javascript:" (click)="editFilterByPopup(originalFilter)">
                 <em class="ddp-icon-drop-editmodify" ></em>
                 {{'msg.board.filter.ui.edit' | translate}}
               </a>
@@ -123,6 +123,27 @@
 <!-- 컨텐츠 영역 -->
 <div *ngIf="isShowFilter" class="ddp-contents-divide ddp-type" >
   <div class="ddp-ui-divide" >
+    <!-- 검색 영여 -->
+    <div (clickOutside)="inactiveSearchInput()"
+         [class.ddp-search]="'' !== searchText" [class.ddp-focus]="isSearchFocus"
+         [class.ddp-warning]="isOverCandidateWarning"
+         class="ddp-search-value" >
+      <a (click)="candidateFromSearchText()" href="javascript:" class="ddp-btn-line">{{'msg.comm.ui.search-all' | translate}}</a>
+      <div class="ddp-data-value">
+        <em class="icon-search"></em>
+        <input #inputSearch
+               [(ngModel)]="searchText"
+               (focus)="isSearchFocus = true"
+               (keyup)="setCandidatePage(1, true)"
+               type="text" placeholder="Search for values" >
+        <a *ngIf="searchText" (click)="searchText = '';candidateFromSearchText();" href="javascript:" class="ddp-btn-del"></a>
+        <em class="icon-warning"></em>
+        <!-- popup -->
+        <div class="ddp-pop-warning" [innerHTML]="'msg.board.filter.limmited-alert' | translate : { value : candidateListSize }"></div>
+        <!-- //popup -->
+      </div>
+    </div>
+    <!-- // 검색 영여 -->
     <!-- 목록 영역 -->
     <ul class="ddp-list-checktype ddp-list-padd" *ngIf="isMultiSelector" >
       <li *ngIf="filter.ui.importanceType === 'general'">
@@ -166,17 +187,36 @@
       </li>
     </ul>
     <!-- // 목록 영역 -->
-    <!-- 페이징 영역 -->
-    <div class="ddp-ui-page ddp-center">
-      <a (click)="setCandidatePage(currentPage-1)"
-         [class.ddp-disabled]="1 === currentPage"
-         href="javascript:" class="ddp-btn-prev"></a>
-      <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
-      <a (click)="setCandidatePage(currentPage+1)"
-         [class.ddp-disabled]="lastPage === currentPage"
-         href="javascript:" class="ddp-btn-next"></a>
+    <!-- 목록 제한 및 페이징 영역 -->
+    <div class="ddp-ui-values">
+      <div class="ddp-data-values">
+        <label class="ddp-label-check-value">
+          <input (click)="filter.showSelectedItem = !filter.showSelectedItem;setCandidatePage(1, true);"
+                 [checked]="filter.showSelectedItem"
+                 type="checkbox" >
+          <i></i>
+        </label>
+        <ng-container *ngIf="filter.showSelectedItem">
+          {{ 'msg.board.filter.selected-values' | translate : { value : filter.valueList.length } }}
+        </ng-container>
+        <ng-container *ngIf="!filter.showSelectedItem">
+          {{ 'msg.board.filter.all-values' | translate : { value : candidateListSize } }}
+        </ng-container>
+
+      </div>
+      <!-- 페이징 영역 -->
+      <div class="ddp-ui-page">
+        <a (click)="setCandidatePage(currentPage-1)"
+           [class.ddp-disabled]="1 === currentPage"
+           href="javascript:" class="ddp-btn-prev"></a>
+        <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
+        <a (click)="setCandidatePage(currentPage+1)"
+           [class.ddp-disabled]="lastPage === currentPage"
+           href="javascript:" class="ddp-btn-next"></a>
+      </div>
+      <!-- // 페이징 영역 -->
     </div>
-    <!-- // 페이징 영역 -->
+    <!-- // 목록 제한 및 페이징 영역 -->
   </div>
 </div>
 <!-- // 컨텐츠 영역 -->

@@ -25,19 +25,19 @@
   <div class="ddp-ui-preview-contents ddp-type-preview">
 
     <!-- tab SUCCESS, PREPARING-->
-    <div class="ddp-type-top-option" *ngIf="selectedDataSnapshot.displayStatus==='SUCCESS' || selectedDataSnapshot.displayStatus==='PREPARING'">
-      <ul class="ddp-ui-tab ddp-type">
-        <li [ngClass]="{'ddp-selected' : currentTab === 0 }" (click)="onTabClick(0)">
-          <a href="javascript:">{{'msg.dp.ui.detail' | translate }}</a>
-        </li>
-        <!--<li [ngClass]="{'ddp-selected' : currentTab === 1 }" (click)="onTabClick(1)">-->
-        <!--<a href="javascript:">log</a>-->
+    <!--<div class="ddp-type-top-option" *ngIf="selectedDataSnapshot.displayStatus==='SUCCESS' || selectedDataSnapshot.displayStatus==='PREPARING'">-->
+      <!--<ul class="ddp-ui-tab ddp-type">-->
+        <!--<li [ngClass]="{'ddp-selected' : currentTab === 0 }" (click)="onTabClick(0)">-->
+          <!--<a href="javascript:">{{'msg.dp.ui.detail' | translate }}</a>-->
         <!--</li>-->
-      </ul>
-    </div>
+        <!--&lt;!&ndash;<li [ngClass]="{'ddp-selected' : currentTab === 1 }" (click)="onTabClick(1)">&ndash;&gt;-->
+        <!--&lt;!&ndash;<a href="javascript:">log</a>&ndash;&gt;-->
+        <!--&lt;!&ndash;</li>&ndash;&gt;-->
+      <!--</ul>-->
+    <!--</div>-->
     <!-- //tab -->
 
-    <div class="ddp-layout-pop-contents ddp-wrap-snapshot" *ngIf="selectedDataSnapshot.displayStatus==='SUCCESS'">
+    <div class="ddp-layout-pop-contents ddp-wrap-snapshot ddp-padt0" *ngIf="selectedDataSnapshot.displayStatus==='SUCCESS'">
 
       <div class="ddp-wrap-tab-contents" [hidden]= "currentTab !== 0" >
         <!-- 요약 valid,mismatched,missing-->
@@ -97,7 +97,7 @@
       </div>
     </div>
 
-    <div class="ddp-layout-pop-contents ddp-wrap-snapshot" *ngIf="selectedDataSnapshot.displayStatus==='PREPARING'">
+    <div class="ddp-layout-pop-contents ddp-wrap-snapshot ddp-padt0" *ngIf="selectedDataSnapshot.displayStatus==='PREPARING'">
       <div class="ddp-wrap-tab-contents">
         <!-- progress (진행중) -->
         <div class="ddp-wrap-progress">

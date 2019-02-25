@@ -39,6 +39,8 @@
 /****************************************************************************
    Popup
 *************************************************************************/
+/* 01_워크스페이스_07changeOwner_popup */
+@import url('popup/metatron.popup.01Workspace_changeOwner.css');
 /* 02_워크북_03차트_map */
 @import url('popup/metatron.popup.02Workbook_ChartMap.css');
 /* 02_워크북_02대시보드_05데이터보기(데이터그리드,컬럼)_popup */

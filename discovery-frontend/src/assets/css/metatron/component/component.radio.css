@@ -4,7 +4,7 @@
 /**************************************************************
 	라디오버튼 폼
 **************************************************************/
-.ddp-label-radio {display:inline-block; position:relative; padding-left:16px;  cursor:pointer;}
+.ddp-label-radio {display:inline-block; position:relative; padding-left:19px;  cursor:pointer;}
 .ddp-label-radio span.ddp-txt-radio,
 .ddp-label-radio span.ddp-txt-checkbox {font-size:13px; color:#4b515b; vertical-align:bottom;}
 .ddp-label-radio span.ddp-txt-radio span.ddp-data-valuenum,
@@ -17,12 +17,12 @@
 
 
 .ddp-label-radio input[type="radio"] {position:absolute; top:50%; left:0; margin-top:-6px; opacity:0;}
-.ddp-label-radio i.ddp-icon-radio {display:inline-block; position:absolute;top:50%; left:0; margin-top:-6px; width:11px; height:11px; background:url(../../../images/icon_radio.png) no-repeat;}
+.ddp-label-radio i.ddp-icon-radio {display:inline-block; position:absolute;top:50%; left:0; margin-top:-6px; width:12px; height:12px; background:url(../../../images/icon_radio.png) no-repeat; background-position:left -24px;}
 .ddp-label-radio input[type="radio"]:checked + i.ddp-icon-radio,
-.ddp-label-radio.ddp-radiotype input[type="radio"]:checked + i.ddp-icon-radio {background-position:-12px top;}
+.ddp-label-radio.ddp-radiotype input[type="radio"]:checked + i.ddp-icon-radio {background-position:-13px -24px;}
 .ddp-label-radio input[type="radio"]:checked + i.ddp-icon-radio + .ddp-txt-radio {font-weight:bold;}
 .ddp-label-radio input[type="radio"]:checked + i.ddp-icon-radio + .ddp-txt-radio .ddp-txt-det {font-weight:normal;}
-.ddp-label-radio input[type="radio"]:disabled + i.ddp-icon-radio {background-position:-24px top;}
+.ddp-label-radio input[type="radio"]:disabled + i.ddp-icon-radio {background-position:-26px -24px;}
 .ddp-label-radio input[type="radio"]:disabled + i.ddp-icon-radio + .ddp-txt-radio,
 .ddp-label-radio.ddp-radiotype input[type="radio"]:disabled + i.ddp-icon-radio {color:#d0d1d8; cursor: no-drop;}
 .ddp-label-radio.ddp-radiotype input[type="radio"] + i.ddp-icon-radio {background-position:-36px top;}

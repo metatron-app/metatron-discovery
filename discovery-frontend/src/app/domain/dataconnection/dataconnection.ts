@@ -66,6 +66,7 @@ export enum ConnectionType {
   PHOENIX = <any>'PHOENIX',
   NVACCEL = <any>'NVACCEL',
   STAGE = <any>'STAGE',
+  DRUID = <any>'DRUID',
   FILE = <any>'FILE'
 }
 

@@ -2487,6 +2487,42 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void candidateQueryForSaleWithSearchWord() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("sales");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(50000);
+
+    List<Filter> filters = Lists.newArrayList(
+        //        new InclusionFilter("State", Lists.newArrayList("Texas"))
+    );
+
+    DimensionField targetField = new DimensionField("Category");
+
+    CandidateQueryRequest request = new CandidateQueryRequest();
+    request.setDataSource(dataSource1);
+    request.setFilters(filters);
+    request.setTargetField(targetField);
+    request.setSearchWord("Off su");
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/candidate")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void candidateQueryForUserDefined() throws JsonProcessingException {
 
     DataSource dataSource1 = new DefaultDataSource("sales");
@@ -2913,6 +2949,56 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     List<Map<String, Object>> columns = (List<Map<String, Object>>) resMap.get("columns");
     assertThat(columns).hasSize(4);
     assertThat(columns).extracting("name").containsExactly("Standard Class―SUM(Sales)", "Second Class―SUM(Sales)", "Same Day―SUM(Sales)", "First Class―SUM(Sales)");
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void metaDataQuery_when_matcher_is_regular_expression() {
+    // given
+    final String requestBody = "{\n" +
+        "  \"dataSource\": {\n" +
+        "    \"connType\": \"ENGINE\",\n" +
+        "    \"engineName\": \"" + datasourceEngineName + "\",\n" +
+        "    \"id\": \"ds-gis-37\",\n" +
+        "    \"joins\": [],\n" +
+        "    \"name\": \"sales_geo\",\n" +
+        "    \"temporary\": false,\n" +
+        "    \"type\": \"default\",\n" +
+        "    \"uiDescription\": \"Sales data (2011~2014)\"\n" +
+        "  },\n" +
+        "  \"filters\": [\n" +
+        "    {\n" +
+        "      \"expr\": \"^Ab.*$\",\n" +
+        "      \"field\": \"City\",\n" +
+        "      \"type\": \"regexpr\"\n" +
+        "    }\n" +
+        "  ],\n" +
+        "  \"targetField\": {\n" +
+        "    \"alias\": \"City\",\n" +
+        "    \"name\": \"City\",\n" +
+        "    \"type\": \"dimension\"\n" +
+        "  }\n" +
+        "}";
+
+    // when
+    Response response =
+        given()
+            .auth().oauth2(oauth_token)
+            .contentType(ContentType.JSON)
+            .body(requestBody)
+            .log().all()
+        .when()
+            .post("/api/datasources/query/candidate")
+            .then()
+        .statusCode(HttpStatus.SC_OK)
+            .log().all()
+            .extract().response();
+
+    // then
+    List<Map<String, Object>> resList = response.jsonPath().get();
+
+    assertThat(resList).hasSize(2);
+    assertThat(resList).extracting("field").containsExactly("Aberdeen", "Abilene");
   }
 
 }

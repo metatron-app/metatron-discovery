@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-prep-fileupload">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
@@ -27,15 +27,27 @@
   <div class="ddp-type-contents-in ddp-sheet-resize">
     <div class="ddp-box-popupcontents ddp-wrap-file-create">
 
-      <div class="ddp-wrap-variable">
+      <div class="ddp-wrap-variable ddp-type">
         <!-- wrap sheet -->
         <!-- ddp-full 추가 -->
-        <div class="ddp-wrap-sheet" [ngClass]="{'ddp-full': isCSV || isJSON}">
+        <div class="ddp-wrap-sheet" [ngClass]="{'ddp-full': !isMultiSheet}">
           <!-- sheet list -->
-          <div class="ddp-ui-sheet-list" *ngIf="isExcel">
-            <ul class="ddp-list-sheet"  *ngFor="let item of datasetFile.selectedSheets; let idx = index">
-              <li [ngClass]="{'ddp-selected' : item.name === datasetFile.sheetName}" (click)="setDataSetSheetIndex($event,item.name, idx)">
-                <span class="ddp-txt-checkbox">{{item.name}}</span>
+          <div class="ddp-ui-sheet-list" *ngIf="isMultiSheet">
+            <div class="ddp-select-all">
+              <label class="ddp-label-checkbox" (click)="checkAll($event)" [ngClass]="{'ddp-checkboxtype' : partialChecked()}">
+                <input type="checkbox" [checked]="isCheckAll">
+                <i class="ddp-icon-checkbox"></i>
+                <span class="ddp-txt-checkbox"><strong>{{getTotal()}}</strong> Selection(s)</span>
+              </label>
+            </div>
+            <ul class="ddp-list-sheet"  *ngFor="let item of datasetFile.sheetInfo; let idx = index">
+              <li [ngClass]="{'ddp-selected' : item.sheetName === datasetFile.sheetName}"
+                  (click)="selectSheet($event, item.sheetName, idx)">
+                <label class="ddp-label-checkbox" (click)="check($event, item);">
+                  <input type="checkbox" [checked]="item.selected">
+                  <i class="ddp-icon-checkbox"></i>
+                </label>
+                <span class="ddp-txt-checkbox">{{item.sheetName}}</span>
               </li>
             </ul>
 
@@ -84,6 +96,7 @@
                   [array]="uploadLocationList"
                   [viewKey]="'name'"
                   [defaultIndex]="0"
+                  [isUpSelect]="true"
                   (onSelected)="onChangeUploadLocation($event)">
                 </component-select>
               </div>
@@ -98,9 +111,9 @@
   <!-- //contents in  -->
   <!-- buttons -->
   <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" [ngClass]="{'ddp-disabled':clearGrid}" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    <a href="javascript:" [ngClass]="{'ddp-disabled': isDisable}" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->
 

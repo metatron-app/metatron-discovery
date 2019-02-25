@@ -12,12 +12,13 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input } from '@angular/core';
-import { AbstractComponent } from '../abstract.component';
+import {Component, ElementRef, Injector, Input} from '@angular/core';
+import {AbstractComponent} from '../abstract.component';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'user-information',
-  templateUrl: './user-information.component.html'
+  templateUrl: './user-information.component.html',
 })
 export class UserInformationComponent extends AbstractComponent {
 
@@ -32,6 +33,8 @@ export class UserInformationComponent extends AbstractComponent {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  public readonly UNKNOWN_USER = 'Unknown user';
 
   @Input('name')
   public userName: string;
@@ -50,8 +53,9 @@ export class UserInformationComponent extends AbstractComponent {
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -85,6 +89,18 @@ export class UserInformationComponent extends AbstractComponent {
     this._savePrevRouterUrl();
     // 멤버 목록 페이지로 이동
     this.router.navigate(['/admin/user/members', this.userId]);
+  }
+
+  public invalidUserName() {
+    return _.isNil(this.userName) || this.userName === '';
+  }
+
+  public validUserName() {
+    return !this.invalidUserName();
+  }
+
+  public invalidUserId() {
+    return _.isNil(this.userId) || this.userId === '';
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
