@@ -363,8 +363,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         rows = '(counting)';
       } else {
         rows = new Intl.NumberFormat().format(this.dataset.totalLines) + ' row(s)';
-        clearInterval(this.interval);
-        this.interval = undefined;
       }
     }
     return rows;
@@ -663,6 +661,13 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         }
 
         this.loadingHide();
+
+        clearInterval(this.interval);
+        this.interval = undefined;
+
+        if (!isNullOrUndefined(this.dataset.totalLines) && this.dataset.totalLines === -1) {
+          this.interval = setInterval(()=> {this._getDsDetail();},3000);
+        }
 
       }).catch((error) => {
         this.loadingHide();

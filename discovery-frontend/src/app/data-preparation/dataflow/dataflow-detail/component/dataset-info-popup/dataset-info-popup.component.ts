@@ -294,6 +294,8 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
         rows = new Intl.NumberFormat().format(this.selectedDataSet.totalLines) + ' row(s)';
         this.clearExistingInterval();
       }
+    } else {
+      this.clearExistingInterval();
     }
     return rows;
   }
