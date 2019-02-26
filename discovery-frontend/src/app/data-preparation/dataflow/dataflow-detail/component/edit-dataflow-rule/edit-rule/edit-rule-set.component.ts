@@ -15,13 +15,11 @@
 import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild
 } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 import {isNullOrUndefined, isUndefined} from 'util';
-import { StringUtil } from '../../../../../../common/util/string.util';
 import * as _ from 'lodash';
 
 @Component({
@@ -33,11 +31,11 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @ViewChild('set_value_input')
-  private valueInput : RuleSuggestInputComponent; 
-  
+  private valueInput : RuleSuggestInputComponent;
+
   @ViewChild('set_row_input')
-  private rowInput : RuleSuggestInputComponent; 
-  
+  private rowInput : RuleSuggestInputComponent;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -52,7 +50,6 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
 
   public inputValue: string;
   public condition: string = '';
-//  public forceCondition : string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -85,7 +82,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * Returns rule string
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, col: string, ruleString: string } {
+  public getRuleData(): { command: string, col: string, ruleString: string, uiRuleString: Object } {
 
     
     // column
@@ -93,10 +90,6 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined
     }
-
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
 
     // val
     this.inputValue = this.valueInput.getFormula();
@@ -107,22 +100,17 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
       return undefined;
     }
 
-    /*  validation 
-    if (!isUndefined(val)) {
-      let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
-      if (check[0] === false) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.check.expression'));
-        return undefined;
-      } else {
-        val = check[1];
-      }
-    }
-    */
-
     let rules =  {
       command: 'set',
-      col: columnsStr,
-      ruleString: `set col: ${columnsStr} value: ${val}`
+      col: this.getColumnNamesInArray(this.selectedFields, true).toString(),
+      ruleString: `set col: ${this.getColumnNamesInArray(this.selectedFields, true).toString()} value: ${val}`,
+      uiRuleString: {
+        command: 'set',
+        col: this.getColumnNamesInArray(this.selectedFields),
+        value: this.valueInput.getFormula(),
+        condition: this.rowInput.getFormula(),
+        isBuilder: true
+      }
     };
 
     this.condition = this.rowInput.getFormula();
@@ -199,7 +187,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
     if( this.valueInput ){
       this.valueInput.setFocus();
     }
-    
+
     if( this.rowInput ) {
       this.rowInput.setFormula(this.condition);
     }

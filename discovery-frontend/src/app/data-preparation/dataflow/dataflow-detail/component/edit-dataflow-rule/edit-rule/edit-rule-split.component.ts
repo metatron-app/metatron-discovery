@@ -14,7 +14,6 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
@@ -95,7 +94,7 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
 
     // Column (must select more than one)
     if (0 === this.selectedFields.length) {
@@ -122,11 +121,7 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
       return undefined;
     }
 
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
-
-    let ruleString = `split col: ${columnsStr} on: ${clonedPattern} limit: ${this.limit} ignoreCase: ${this.isIgnoreCase}`;
+    let ruleString = `split col: ${this.getColumnNamesInArray(this.selectedFields,true).toString()} on: ${clonedPattern} limit: ${this.limit} ignoreCase: ${this.isIgnoreCase}`;
 
     // 다음 문자 사이 무시
     if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {
@@ -141,7 +136,16 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
 
     return {
       command : 'split',
-      ruleString: ruleString
+      ruleString: ruleString,
+      uiRuleString: {
+        command: 'split',
+        col: this.getColumnNamesInArray(this.selectedFields),
+        on: this.pattern,
+        limit : this.limit,
+        ignoreCase: this.isIgnoreCase,
+        quote: this.ignore,
+        isBuilder: true
+      }
     };
 
   } // function - getRuleData

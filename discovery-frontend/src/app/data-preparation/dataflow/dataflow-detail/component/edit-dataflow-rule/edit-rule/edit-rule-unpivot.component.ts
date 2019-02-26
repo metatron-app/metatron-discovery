@@ -16,7 +16,6 @@ import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
@@ -91,18 +90,12 @@ export class EditRuleUnpivotComponent extends EditRuleComponent implements OnIni
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, col: string, ruleString: string } {
+  public getRuleData(): { command: string, col: string, ruleString: string, uiRuleString: Object } {
 
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined
     }
-
-    // TODO : condition validation
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
-
 
     // limit
     if (isNullOrUndefined(this.inputValue) || this.inputValue.toString() === '') {
@@ -113,8 +106,14 @@ export class EditRuleUnpivotComponent extends EditRuleComponent implements OnIni
 
     return {
       command: 'unpivot',
-      col: columnsStr,
-      ruleString: `unpivot col: ${columnsStr} groupEvery: ${this.inputValue}`
+      col: this.getColumnNamesInArray(this.selectedFields, true).toString(),
+      ruleString: `unpivot col: ${this.getColumnNamesInArray(this.selectedFields, true).toString()} groupEvery: ${this.inputValue}`,
+      uiRuleString: {
+        command: 'unpivot',
+        groupEvery: this.inputValue,
+        col: this.getColumnNamesInArray(this.selectedFields),
+        isBuilder: true
+      }
     };
 
   } // function - getRuleData

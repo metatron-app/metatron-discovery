@@ -29,8 +29,6 @@ import { StringUtil } from '../../../../../../common/util/string.util';
 import { header, SlickGridHeader } from '../../../../../../common/component/grid/grid.header';
 import { GridOption } from '../../../../../../common/component/grid/grid.option';
 import { isNull, isNullOrUndefined } from 'util';
-declare let moment: any;
-
 
 class JoinInfo {
   public leftJoinKey: string;
@@ -686,11 +684,26 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
 
     // 이벤트
     if (this.joinButtonText !== 'Join') { // 편집
-      const rule = { command: 'join', op: 'UPDATE', ruleString: ruleStr[1] , ruleIdx : this.serverSyncIndex};
+      const rule = {
+        command: 'join',
+        op: 'UPDATE',
+        ruleString: ruleStr[1] ,
+        ruleIdx : this.serverSyncIndex,
+        uiRuleString: ruleStr[2]
+      };
       this.joinComplete.emit({ event: 'ruleJoinComplete', ruleInfo: rule });
     } else { // 생성
-      const rule = { command: 'join', op: 'APPEND', ruleString: ruleStr[1] };
-      this.joinComplete.emit({ event: 'ruleJoinComplete', ruleInfo: rule, ruleIdx : this.serverSyncIndex });
+      const rule = {
+        command: 'join',
+        op: 'APPEND',
+        ruleString: ruleStr[1],
+        uiRuleString: ruleStr[2]
+      };
+      this.joinComplete.emit(
+        { event: 'ruleJoinComplete',
+          ruleInfo: rule,
+          ruleIdx : this.serverSyncIndex
+        });
     }
 
 
@@ -788,25 +801,25 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   /**
    * 룰 문자열을 생성한다.
    */
-  public generateRuleString(): [boolean, string] {
+  public generateRuleString(): [boolean, string, Object] {
     if (0 === this.leftSelCols.length) {
-      return [false, this.translateService.instant('msg.dp.alert.sel.left.col')];
+      return [false, this.translateService.instant('msg.dp.alert.sel.left.col'), null];
     }
     if (0 === this.rightSelCols.length) {
-      return [false, this.translateService.instant('msg.dp.alert.sel.right.col')];
+      return [false, this.translateService.instant('msg.dp.alert.sel.right.col'), null];
     }
     if ('' === this.selectedJoinType) {
-      return [false, this.translateService.instant('msg.dp.alert.sel.join.type')];
+      return [false, this.translateService.instant('msg.dp.alert.sel.join.type'), null];
     }
     if (0 === this.joinList.length) {
-      return [false, this.translateService.instant('msg.dp.alert.sel.join.key')];
+      return [false, this.translateService.instant('msg.dp.alert.sel.join.key'), null];
     }
     for(let joinKey of this.joinList) {
       if( false==this.leftSelCols.includes(joinKey.leftJoinKey) ) {
-        return [false, this.translateService.instant('msg.dp.alert.left.joinkey.error', {leftJoinKey : joinKey.leftJoinKey})];
+        return [false, this.translateService.instant('msg.dp.alert.left.joinkey.error', {leftJoinKey : joinKey.leftJoinKey}), null];
       }
       if( false==this.rightSelCols.includes(joinKey.rightJoinKey) ) {
-        return [false, this.translateService.instant('msg.dp.alert.right.joinkey.error', {rightJoinKey : joinKey.rightJoinKey})];
+        return [false, this.translateService.instant('msg.dp.alert.right.joinkey.error', {rightJoinKey : joinKey.rightJoinKey}), null];
       }
     }
 
@@ -814,33 +827,23 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       return ('`' + joinInfo.leftJoinKey + '`') + '=' + ('`' + joinInfo.rightJoinKey + '`')
     }).join(' && ');
 
-    let ruleStr: string = 'join leftSelectCol: ';
-    if (this.leftSelCols.constructor === Array) {
-
-      const leftStr: string = this.leftSelCols.map((item) => {
-        return '`' + item + '`';
-      }).join(', ');
-
-      ruleStr += leftStr
-    } else {
-      ruleStr += '`' + this.leftSelCols + '`';
-    }
-    ruleStr += ' rightSelectCol: ';
-
-    const rightStr: string = this.rightSelCols.map((item) => {
-      return '`' + item + '`';
-    }).join(', ');
-
-
-    if (this.rightSelCols.constructor === Array) {
-      ruleStr += rightStr
-    } else {
-      ruleStr += '`' + this.rightSelCols + '`';
-    }
-
+    let ruleStr: string = '';
+    ruleStr += `join leftSelectCol: ${this.getColumnNamesInArray(this.leftSelCols, '', '`').toString()}`;
+    ruleStr += ` rightSelectCol: ${this.getColumnNamesInArray(this.rightSelCols, '', '`').toString()}`;
     ruleStr += ' condition: ' + conditions + ' joinType: \'' + this.selectedJoinType.toLowerCase() + '\' dataset2: \'' + this.rightDataset.dsId + '\'';
 
-    return [true, ruleStr];
+    const uiRuleString = {
+      command :'join',
+      isBuilder: true,
+      leftJoinKey:this.getColumnNamesInArray(this.joinList,'leftJoinKey'),
+      rightJoinKey:this.getColumnNamesInArray(this.joinList,'rightJoinKey'),
+      joinType: this.selectedJoinType,
+      dataset2 : this.rightDataset.dsId,
+      rightCol: this.getColumnNamesInArray(this.rightSelCols, ''),
+      leftCol:this.getColumnNamesInArray(this.leftSelCols, '')
+    };
+
+    return [true, ruleStr, uiRuleString];
   } // function - generateRuleString
 
   /**
@@ -1216,4 +1219,32 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     }
 
   } // function - setJoinKeys
+
+
+  /**
+   *
+   * @param fields
+   * @param label
+   * @param wrapChar
+   */
+  protected getColumnNamesInArray(fields: any, label:string, wrapChar?:string) :string[] {
+    return fields.map((item) => {
+      if (label !== '' && wrapChar) {
+        return wrapChar + item[label] + wrapChar
+      }
+
+      if (label !== '' && !wrapChar) {
+        return item[label]
+      }
+
+      if (label === '' && wrapChar) {
+        return wrapChar + item[label] + wrapChar
+      }
+
+      if (label === '' && !wrapChar) {
+        return item
+      }
+
+    });
+  }
 }

@@ -80,7 +80,7 @@ export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit
    * Rule 형식 정의 및 반환
    * @return {{command: string, rownum: number, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString:string} {
+  public getRuleData(): { command: string, ruleString:string, uiRuleString: Object} {
     if (isUndefined(this.rowNum) || isNaN(this.rowNum)) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.row'));
       return undefined
@@ -92,8 +92,9 @@ export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit
     }
 
     return {
-        command: 'header',
-        ruleString: 'header rownum: ' + this.rowNum
+      command: 'header',
+      ruleString: 'header rownum: ' + this.rowNum,
+      uiRuleString: {command : 'header', isBuilder:true, rowNum: this.rowNum}
     };
   } // function - getRuleData
 

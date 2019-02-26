@@ -14,7 +14,6 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
@@ -77,7 +76,7 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
    * returns rule String
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
 
     // column
     if (0 === this.selectedFields.length) {
@@ -109,14 +108,22 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
       clonedDelimiter = check[1];
     }
 
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
+    let ruleString =
+      'merge col: ' + this.getColumnNamesInArray(this.selectedFields, true).toString()
+      + ' with: ' + clonedDelimiter
+      + ' as: ' + newVal;
 
-    let ruleString = 'merge col: ' + columnsStr
-      + ' with: ' + clonedDelimiter + ' as: ' + newVal;
-
-    return { command : 'merge', ruleString: ruleString };
+    return {
+      command : 'merge',
+      ruleString: ruleString,
+      uiRuleString: {
+        command: 'merge',
+        col: this.getColumnNamesInArray(this.selectedFields),
+        with: this.delimiter,
+        as: this.newValue,
+        isBuilder: true
+      }
+    };
 
   } // function - getRuleData
 

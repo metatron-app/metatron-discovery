@@ -16,7 +16,6 @@ import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
@@ -97,7 +96,7 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, col: string, ruleString: string } {
+  public getRuleData(): { command: string, col: string, ruleString: string, uiRuleString: Object } {
 
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
@@ -117,14 +116,24 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
       inputVal = '`' + inputVal + '`';
     }
 
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
+    const columns: string[] = [];
+    const columnsWithBackTick :string[] = [];
+    this.selectedFields.forEach((item) => {
+      columns.push(item.name);
+      columnsWithBackTick.push('`' + item.name + '`');
+    });
 
     return {
       command: 'nest',
-      col: columnsStr,
-      ruleString: `nest col: ${columnsStr} into: ${this.selectedType} as: ${inputVal}`
+      col: this.getColumnNamesInArray(this.selectedFields, true).toString(),
+      ruleString: `nest col: ${columnsWithBackTick.toString()} into: ${this.selectedType} as: ${inputVal}`,
+      uiRuleString: {
+        command: 'nest',
+        isBuilder: true,
+        col: columns,
+        into: this.selectedType,
+        as: this.inputValue
+      }
     };
 
   } // function - getRuleData

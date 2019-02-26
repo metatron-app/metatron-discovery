@@ -17,7 +17,6 @@ import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
@@ -93,7 +92,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
    * Returns rulestring
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
 
     // col
     if (0 === this.selectedFields.length) {
@@ -128,11 +127,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
       clonedNewValue = '\'\'';
     }
 
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`'
-    }).join(', ');
-
-    let ruleString = `replace col: ${columnsStr} with: ${clonedNewValue} on: ${clonedPattern} global: ${this.isGlobal} ignoreCase: ${this.isIgnoreCase}`;
+    let ruleString = `replace col: ${this.getColumnNamesInArray(this.selectedFields,true).toString()} with: ${clonedNewValue} on: ${clonedPattern} global: ${this.isGlobal} ignoreCase: ${this.isIgnoreCase}`;
 
     // Ignore between characters
     if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {
@@ -160,7 +155,19 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
 
     return{
       command : 'replace',
-      ruleString: ruleString
+      ruleString: ruleString,
+      uiRuleString: {
+        command: 'replace',
+        col: this.getColumnNamesInArray(this.selectedFields),
+        with: this.newValue,
+        on: this.pattern,
+        global: this.isGlobal,
+        ignoreCase: this.isIgnoreCase,
+        quote: this.ignore,
+        row: this.condition,
+        isBuilder: true
+
+      }
     };
 
   } // function - getRuleData

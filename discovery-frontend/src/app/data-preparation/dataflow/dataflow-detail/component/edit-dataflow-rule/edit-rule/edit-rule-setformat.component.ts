@@ -16,7 +16,6 @@ import { EditRuleComponent } from './edit-rule.component';
 import {
   AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild
 } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
@@ -155,10 +154,8 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
 
   /**
    * Set selected timestamp index in select box
-   * @param {string} selectedTimestamp
    */
   private setSelectedTimestamp() {
-    // console.info('# final selectedTimestamp', this.selectedTimestamp);
     let tempnum: number = -1;
     if(this.selectedTimestamp !==null && this.selectedTimestamp !== '' && -1 !== this._timestampValueArray().indexOf(this.selectedTimestamp)) {
       tempnum = this._timestampValueArray().indexOf(this.tempTimetampValue);
@@ -172,7 +169,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
 
     // 선택된 컬럼
     if (0 === this.selectedFields.length) {
@@ -185,11 +182,10 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
       return undefined;
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
+    let ruleString = 'setformat col: '
+      + this.getColumnNamesInArray(this.selectedFields, true).toString()
+      + ' format: ';
 
-    let ruleString = 'setformat col: ' + columnsStr + ' format: ';
     let val: any = this.selectedTimestamp === 'Custom format' ?  this.customTimestamp : this.selectedTimestamp;
     let check = StringUtil.checkSingleQuote(val, { isPairQuote: false, isWrapQuote: true });
     if (check[0] === false) {
@@ -202,7 +198,13 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
 
     return {
       command : 'setformat',
-      ruleString: ruleString
+      ruleString: ruleString,
+      uiRuleString: {
+        command : 'setformat',
+        col : this.getColumnNamesInArray(this.selectedFields),
+        format: this.selectedTimestamp === 'Custom format' ?  this.customTimestamp : this.selectedTimestamp,
+        isBuilder: true
+      }
     };
 
   } // function - getRuleData

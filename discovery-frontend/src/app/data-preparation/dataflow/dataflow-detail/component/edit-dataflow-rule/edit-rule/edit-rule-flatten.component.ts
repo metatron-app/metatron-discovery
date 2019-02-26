@@ -14,7 +14,6 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
@@ -86,7 +85,7 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
 
     // 선택된 컬럼
     if (0 === this.selectedFields.length) {
@@ -94,15 +93,16 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
       return undefined
     }
 
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
-
-    let ruleString = 'flatten col: ' + columnsStr;
+    let ruleString = 'flatten col: ' + this.getColumnNamesInArray(this.selectedFields, true).toString();
 
     return {
       command : 'flatten',
-      ruleString: ruleString
+      ruleString: ruleString,
+      uiRuleString: {
+        command: 'flatten',
+        isBuilder: true,
+        col: this.getColumnNamesInArray(this.selectedFields)
+      }
     };
 
   } // function - getRuleData

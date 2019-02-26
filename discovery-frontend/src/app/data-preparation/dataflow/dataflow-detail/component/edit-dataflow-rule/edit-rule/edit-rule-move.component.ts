@@ -16,7 +16,6 @@ import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
@@ -96,16 +95,12 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, col: string, ruleString: string } {
+  public getRuleData(): { command: string, col: string, ruleString: string, uiRuleString: Object } {
 
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined
     }
-
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
 
     if (isNullOrUndefined(this.beforeOrAfter) || this.beforeOrAfter === '') {
       Alert.warning(this.translateService.instant('msg.dp.alert.before.after'));
@@ -122,10 +117,23 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
       return undefined
     }
 
+    const columns: string[] = [];
+    const columnsWithBackTick :string[] = [];
+    this.selectedFields.forEach((item) => {
+      columns.push(item.name);
+      columnsWithBackTick.push('`' + item.name + '`');
+    });
+
     return {
       command: 'move',
-      col: columnsStr,
-      ruleString: `move col: ${columnsStr} ${this.beforeOrAfter}: ${'`' + this.selectedStandardField + '`'}`
+      col: columnsWithBackTick.toString(),
+      ruleString: `move col: ${columnsWithBackTick.toString()} ${this.beforeOrAfter}: ${'`' + this.selectedStandardField + '`'}`,
+      uiRuleString : {
+        command: 'move',
+        col: columns,
+        refColumn: this.selectedStandardField,
+        beforeOrAfter: this.beforeOrAfter
+      }
     };
 
   } // function - getRuleData

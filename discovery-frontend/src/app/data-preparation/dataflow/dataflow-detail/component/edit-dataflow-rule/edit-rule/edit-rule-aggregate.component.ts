@@ -13,14 +13,10 @@
  */
 
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren, QueryList} from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { StringUtil } from '../../../../../../common/util/string.util';
-import {RuleConditionInputComponent} from "./rule-condition-input.component";
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
-import * as _ from 'lodash';
 import {isUndefined} from "util";
 
 interface formula {
@@ -39,10 +35,6 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
   @ViewChildren(RuleSuggestInputComponent)
   private ruleSuggestInput : QueryList<RuleSuggestInputComponent>;
 
-  /*
-  @ViewChildren(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
-  */
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -69,28 +61,20 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 컴포넌트 초기 실행
-   */
   public ngOnInit() {
     super.ngOnInit();
     this.formulas = [ {id:0, value:''} ];
-  } // function - ngOnInit
+  }
 
-  /**
-   * 화면 초기화
-   */
+
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-  } // function - ngAfterViewInit
+  }
 
-  /**
-   * 컴포넌트 제거
-   */
+
   public ngOnDestroy() {
     super.ngOnDestroy();
-  } // function - ngOnDestroy
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
@@ -100,7 +84,7 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
    * Rule 형식 정의 및 반환
    * @return {{command: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
 
     // 수식
     const formulaValueList = this.ruleSuggestInput
@@ -120,13 +104,15 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
       return undefined;
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
-
     return {
       command: 'aggregate',
-      ruleString: `aggregate value: ${value} group: ${columnsStr}`
+      ruleString: `aggregate value: ${value} group: ${this.getColumnNamesInArray(this.selectedFields, true).toString()}`,
+      uiRuleString: {
+        command: 'aggregate',
+        value: formulaValueList,
+        col: this.getColumnNamesInArray(this.selectedFields),
+        isBuilder: true
+      }
     };
 
   } // function - getRuleData

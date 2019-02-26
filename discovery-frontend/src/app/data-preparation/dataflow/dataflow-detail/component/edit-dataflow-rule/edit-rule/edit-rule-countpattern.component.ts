@@ -14,7 +14,6 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
@@ -81,7 +80,7 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
    * returns rule string
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
 
     // column
     if (0 === this.selectedFields.length) {
@@ -101,12 +100,8 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
       return undefined;
     }
 
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
-
     // rule string
-    let ruleString = 'countpattern col: ' + columnsStr
+    let ruleString = 'countpattern col: ' + this.getColumnNamesInArray(this.selectedFields, true).toString()
       + ' on: ' + patternResult[1] + ' ignoreCase: ' + this.isIgnoreCase;
 
     // Ignore between characters
@@ -120,7 +115,18 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
       }
     }
 
-    return { command : 'countpattern', ruleString: ruleString };
+    return {
+      command : 'countpattern',
+      ruleString: ruleString,
+      uiRuleString: {
+        command: 'countpattern',
+        quote: this.ignore,
+        col: this.getColumnNamesInArray(this.selectedFields),
+        on: this.pattern,
+        ignoreCase: this.isIgnoreCase,
+        isBuilder: true
+      }
+    };
 
   } // function - getRuleData
 

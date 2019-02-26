@@ -13,7 +13,6 @@
  */
 
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
@@ -53,10 +52,6 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 컴포넌트 초기 실행
-   */
   public ngOnInit() {
     super.ngOnInit();
 
@@ -65,22 +60,18 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
       { type: '\'desc\'', name: 'desc', selected: false }
     ];
 
-  } // function - ngOnInit
+  }
 
-  /**
-   * 화면 초기화
-   */
+
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-  } // function - ngAfterViewInit
+  }
 
-  /**
-   * 컴포넌트 제거
-   */
+
   public ngOnDestroy() {
     super.ngOnDestroy();
 
-  } // function - ngOnDestroy
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
@@ -90,25 +81,30 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
-
-    const invalidResult = undefined;
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
 
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return invalidResult
+      return undefined
     }
-
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
 
     let rule =  {
       command: 'sort',
-      ruleString: 'sort order: ' + columnsStr
+      ruleString: 'sort order: ' + this.getColumnNamesInArray(this.selectedFields, true).toString(),
+      uiRuleString : {
+        command : 'sort',
+        col: this.getColumnNamesInArray(this.selectedFields),
+        type: 0,
+        sortBy:'asc',
+        isBuilder: true
+      }
     };
+
     if (this.sortBy !== '') {
       rule.ruleString += ' type: '+ this.sortBy
+    } else {
+      rule.uiRuleString.type = 1;
+      rule.uiRuleString.sortBy = 'desc';
     }
 
     return rule

@@ -14,7 +14,6 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
@@ -95,7 +94,7 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
 
     // Column (must select more than one)
     if (0 === this.selectedFields.length) {
@@ -122,11 +121,8 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
       return undefined;
     }
 
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
 
-    let ruleString = 'extract col: ' + columnsStr
+    let ruleString = 'extract col: ' + this.getColumnNamesInArray(this.selectedFields, true).toString()
       + ' on: ' + clonedPattern + ' limit : ' + this.limit + ' ignoreCase: ' + this.isIgnoreCase;
 
     // 다음 문자 사이 무시
@@ -142,7 +138,15 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
 
     return {
       command : 'extract',
-      ruleString: ruleString
+      ruleString: ruleString,
+      uiRuleString: {
+        command: 'extract',
+        col: this.getColumnNamesInArray(this.selectedFields),
+        on : this.pattern,
+        limit: this.limit,
+        quote: this.ignore,
+        isBuilder: true
+      }
     };
 
   } // function - getRuleData

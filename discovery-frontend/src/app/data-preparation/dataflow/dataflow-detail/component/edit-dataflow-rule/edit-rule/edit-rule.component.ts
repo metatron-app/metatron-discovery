@@ -187,6 +187,17 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
     return ( parsingResult ) ? parsingResult[1] : '';
   } // function - getAttrValueInRuleString
 
+
+  protected getColumnNamesInArray(fields: Field[], isWrap:boolean = false) :string[] {
+    return fields.map((item) => {
+      if (isWrap) {
+        return '`' + item.name + '`'
+      } else {
+        return item.name
+      }
+    });
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

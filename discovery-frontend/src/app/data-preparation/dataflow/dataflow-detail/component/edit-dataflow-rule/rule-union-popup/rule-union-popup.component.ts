@@ -14,7 +14,6 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../../common/component/abstract-popup.component';
-//import { Dataset, DsType } from '../../../../../../domain/data-preparation/dataset';
 import { PrDataset, DsType } from '../../../../../../domain/data-preparation/pr-dataset';
 import { PopupService } from '../../../../../../common/service/popup.service';
 import { DataflowService } from '../../../../service/dataflow.service';
@@ -74,9 +73,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
   // Result column rename
   public editResultColumnName: string;
 
-  //public datasets: Dataset[] = [];        // 전체 데이터 셋
   public datasets: PrDataset[] = [];        // 전체 데이터 셋
-  //public unionDatasets: Dataset[] = [];   // 유니온 될 데이터 셋
   public unionDatasets: PrDataset[] = [];   // 유니온 될 데이터 셋
   public resultFields: Field[] = [];        // 유니온 된 결과 컬럼 목록
 
@@ -180,7 +177,13 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
       return;
     }
 
-    const rule = { command: 'union', op: 'APPEND', ruleString: ruleStr[1], ruleIdx : this.serverSyncIndex };
+    const rule = {
+      command: 'union',
+      op: 'APPEND',
+      ruleString: ruleStr[1],
+      ruleIdx : this.serverSyncIndex,
+      uiRuleString:ruleStr[2]
+    };
     if (this.editRuleStr) {
       // for edit
       rule.op = 'UPDATE';
@@ -240,19 +243,15 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
   /**
    * 룰 문자열을 생성한다.
    */
-  private generateRuleString(): [boolean, string] {
+  private generateRuleString(): [boolean, string, Object] {
     if (0 === this.resultFields.length) {
-      return [false, this.translateService.instant('msp.dp.alert.no.union.result')];
+      return [false, this.translateService.instant('msp.dp.alert.no.union.result'), null];
     }
     if (0 === this.unionDatasets.length) {
-      return [false, this.translateService.instant('msg.dp.alert.no.data.union')];
+      return [false, this.translateService.instant('msg.dp.alert.no.data.union'), null];
     }
 
-    const columnsStr: string = this.resultFields.map((item) => {
-      return  '`' + item.name + '`';
-    }).join(', ');
-
-    let ruleStr: string = 'union masterCol: ' + columnsStr
+    let ruleStr: string = 'union masterCol: ' + this.getColumnNamesInArray(this.resultFields,'name', '`').toString()
       + ' dataset2: ';
 
     // 유니온 가능한 dataset id 만 필요하기 때문에 ...
@@ -261,9 +260,15 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
       return item.validCount === item.gridData.fields.length;
     });
 
-    ruleStr += list.map(item => '\'' + item.dsId + '\'').join(', ');
+    ruleStr += this.getColumnNamesInArray(list, 'dsId', "'").toString()
 
-    return [true, ruleStr];
+    const uiRuleString = {
+      command: 'union',
+      dsId: this.getColumnNamesInArray(list, 'dsId'),
+      isBuilder: true
+    };
+
+    return [true, ruleStr, uiRuleString];
   } // function - generateRuleString
 
   /**
@@ -373,10 +378,9 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
 
   /**
    * 데이터 셋 조회
-   * @param {Dataset} dsInfo 데이터셋
-   * @returns {Promise<Dataset>} callback 콜백
+   * @param {PrDataset} dsInfo 데이터셋
+   * @returns {Promise<PrDataset>} callback 콜백
    */
-  //private getDataset(dsInfo: Dataset): Promise<Dataset> {
   private getDataset(dsInfo: PrDataset): Promise<PrDataset> {
     return new Promise((resolve) => {
       if (dsInfo.gridData) {
@@ -401,5 +405,22 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
     });
 
   } // function - getDataset
+
+
+  /**
+   *
+   * @param fields
+   * @param label
+   * @param wrapChar
+   */
+  protected getColumnNamesInArray(fields: any, label:string, wrapChar?:string) :string[] {
+    return fields.map((item) => {
+      if (wrapChar) {
+        return wrapChar + item[label] + wrapChar
+      } else {
+        return item[label]
+      }
+    });
+  }
 
 }

@@ -14,7 +14,6 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
@@ -58,7 +57,6 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
   public typeList : string [] = ['long', 'double', 'string', 'boolean', 'timestamp'];
 
   public defaultIndex : number = -1;
-  public defaultTimestampIndex : number = -1;
 
   @ViewChild(PrepSelectBoxComponent)
   protected prepSelectBoxComponent : PrepSelectBoxComponent;
@@ -214,7 +212,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * Set rule string and returns it
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): {command: string, ruleString: string, uiRuleString: Object} {
 
     // selected column
     if (0 === this.selectedFields.length) {
@@ -228,11 +226,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
       return undefined;
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
-
-    let ruleString = 'settype col: ' + columnsStr + ` type: ${this.selectedType}`;
+    let ruleString = 'settype col: ' + this.getColumnNamesInArray(this.selectedFields, true).toString() + ` type: ${this.selectedType}`;
 
     // Timestamp
     if (this.isTimestamp && '' !== this.selectedTimestamp) {
@@ -260,7 +254,12 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
     return {
       command : 'settype',
-      ruleString: ruleString
+      ruleString: ruleString,
+      uiRuleString: {command: 'settype',
+      col : this.getColumnNamesInArray(this.selectedFields),
+      type: this.selectedType,
+      format: 'Custom format' === this.selectedTimestamp ? this.customTimestamp : this.selectedTimestamp,
+      isBuilder: true}
     };
 
   } // function - getRuleData

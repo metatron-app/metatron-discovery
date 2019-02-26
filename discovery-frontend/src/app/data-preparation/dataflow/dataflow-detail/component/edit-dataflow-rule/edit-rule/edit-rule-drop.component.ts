@@ -82,7 +82,7 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, col: string, ruleString: string } {
+  public getRuleData(): { command: string, col: string, ruleString: string, uiRuleString: Object } {
 
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
@@ -92,14 +92,11 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
       return undefined
     }
 
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
-
     return {
       command: 'drop',
-      col: columnsStr,
-      ruleString: 'drop col: ' + columnsStr
+      col: this.getColumnNamesInArray(this.selectedFields, true).toString(),
+      ruleString: 'drop col: ' + this.getColumnNamesInArray(this.selectedFields, true).toString(),
+      uiRuleString: {command:'drop', col: this.getColumnNamesInArray(this.selectedFields), isBuilder: true}
     };
 
   } // function - getRuleData

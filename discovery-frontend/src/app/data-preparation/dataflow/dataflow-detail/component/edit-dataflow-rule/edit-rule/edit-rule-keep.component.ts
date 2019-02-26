@@ -41,7 +41,6 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public keepRow:string = '';
-//  public forceCondition : string = '';
 
   @Output()
   public advancedEditorClickEvent = new EventEmitter();
@@ -49,8 +48,6 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(
     protected elementRef: ElementRef,
     protected injector: Injector) {
@@ -91,7 +88,7 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
    * Rule 형식 정의 및 반환
    * @return
    */
-  public getRuleData(): { command: string, ruleString:string} {
+  public getRuleData(): { command: string, ruleString:string, uiRuleString: Object} {
     
       this.keepRow = this.rowInput.getFormula();
       let val = _.cloneDeep(this.keepRow);
@@ -102,7 +99,12 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
 
       return {
         command: 'keep',
-        ruleString: 'keep row: ' + val
+        ruleString: 'keep row: ' + val,
+        uiRuleString: {
+          command: 'keep',
+          row: this.keepRow,
+          isBuilder: true
+        }
       };
   } // function - getRuleData
 

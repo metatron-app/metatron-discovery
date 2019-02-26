@@ -41,11 +41,6 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @ViewChild('delete_row_input')
   private rowInput : RuleSuggestInputComponent;
-
-  /*
-  @ViewChild(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
-  */
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -54,7 +49,6 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public rowNum : string = '';
-//  public forceCondition : string = '';
 
   @Output()
   public advancedEditorClickEvent = new EventEmitter();
@@ -101,7 +95,7 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
    * Rule 형식 정의 및 반환
    * @return
    */
-  public getRuleData(): { command: string, ruleString:string} {
+  public getRuleData(): { command: string, ruleString:string, uiRuleString: Object} {
 
     this.rowNum = this.rowInput.getFormula();
     let val = _.cloneDeep(this.rowNum);
@@ -112,7 +106,12 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
 
     return {
       command: 'delete',
-      ruleString: 'delete row: ' + val
+      ruleString: 'delete row: ' + val,
+      uiRuleString: {
+        command: 'delete',
+        row: this.rowNum,
+        isBuilder: true
+      }
     };
     
   } // function - getRuleData

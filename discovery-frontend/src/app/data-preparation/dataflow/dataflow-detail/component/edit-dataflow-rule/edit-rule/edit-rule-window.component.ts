@@ -13,14 +13,10 @@
  */
 
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren, QueryList} from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
-import {StringUtil} from "../../../../../../common/util/string.util";
 import {isNullOrUndefined,isUndefined} from "util";
-import * as _ from 'lodash';
-import {RuleConditionInputComponent} from "./rule-condition-input.component";
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 
 interface formula {
@@ -41,10 +37,6 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   @ViewChildren(RuleSuggestInputComponent)
   private ruleSuggestInput : QueryList<RuleSuggestInputComponent>;
 
-  /*
-  @ViewChildren(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
-  */
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -52,8 +44,6 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  // public formulaList:string[] = [''];
-  // public selectedGroupFields: Field[] = [];
   public selectedSortFields: Field[] = [];
   public sortList : any [];
   public defaultIndex : number = 0;
@@ -63,8 +53,6 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(
     protected elementRef: ElementRef,
     protected injector: Injector) {
@@ -146,7 +134,7 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, col: string, ruleString: string } {
+  public getRuleData(): {command: string, col: string, ruleString: string, uiRuleString: Object} {
     
     // 수식
     const formulaValueList = this.ruleSuggestInput
@@ -163,17 +151,13 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     // 그룹
     let groupStr: string = '';
     if (this.selectedFields.length !== 0) {
-      groupStr = this.selectedFields.map((item) => {
-        return '`' + item.name + '`';
-      }).join(', ');
+      groupStr = this.getColumnNamesInArray(this.selectedFields, true).toString()
     }
 
     // 정렬
     let sortStr: string = '';
     if (this.selectedSortFields.length !== 0) {
-      sortStr = this.selectedSortFields.map((item) => {
-        return '`' + item.name + '`';
-      }).join(', ');
+      sortStr = this.getColumnNamesInArray(this.selectedSortFields, true).toString()
     }
 
     let resultRuleString : string = `window value: ${value}`;
@@ -188,7 +172,14 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     return {
       command: 'window',
       col: groupStr,
-      ruleString: resultRuleString
+      ruleString: resultRuleString,
+      uiRuleString: {
+        command: 'window',
+        value: formulaValueList,
+        col: this.getColumnNamesInArray(this.selectedFields),
+        order: this.getColumnNamesInArray(this.selectedSortFields),
+        isBuilder: true
+      }
     };
 
   } // function - getRuleData

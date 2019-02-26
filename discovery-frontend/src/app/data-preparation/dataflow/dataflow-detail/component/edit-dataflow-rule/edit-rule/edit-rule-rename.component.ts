@@ -84,7 +84,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
    * Rule 형식 정의 및 반환
    * @return {{command: string, to: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, to: string, col: string, ruleString: string } {
+  public getRuleData(): { command: string, to: string, col: string, ruleString: string, uiRuleString: Object } {
 
 
     // Check if at least one column is selected
@@ -117,7 +117,13 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
       command: 'rename',
       to: this.newFieldName,
       col: selectedFieldName,
-      ruleString: 'rename col: `' + selectedFieldName + '`' + ` to: '${this.newFieldName}'`
+      ruleString: 'rename col: `' + selectedFieldName + '`' + ` to: '${this.newFieldName}'`,
+      uiRuleString: {
+        command: 'rename',
+        col: this.getColumnNamesInArray(this.selectedFields),
+        to: this.newFieldName,
+        isBuilder: true
+      }
     };
 
   } // function - getRuleData

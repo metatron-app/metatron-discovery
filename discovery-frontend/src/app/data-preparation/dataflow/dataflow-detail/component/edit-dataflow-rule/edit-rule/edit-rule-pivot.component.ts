@@ -13,12 +13,9 @@
  */
 
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren, QueryList} from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { StringUtil } from '../../../../../../common/util/string.util';
-import * as _ from 'lodash';
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 import {isUndefined} from "util";
 
@@ -95,26 +92,22 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    * Rule 형식 정의 및 반환
    * @return {{command: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
 
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined;
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
-
     // 수식
     const formulaValueList = this.ruleSuggestInput
-                                 .map(el => el.getFormula())
-                                 .filter( v => (!isUndefined(v) && v.trim().length > 0) );
-    
+      .map(el => el.getFormula())
+      .filter( v => (!isUndefined(v) && v.trim().length > 0) );
+
     if ( !formulaValueList || formulaValueList.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.expression'));
       return undefined;
-    }  
+    }
 
     const value = formulaValueList.join(',');
 
@@ -123,14 +116,17 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
       Alert.warning(this.translateService.instant('msg.dp.alert.enter.groupby'));
       return undefined;
     }
-    
-    const groupStr: string = this.selectedGroupFields.map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
-    
+
     return {
       command: 'pivot',
-      ruleString: `pivot col: ${columnsStr} value: ${value} group: ${groupStr}`
+      ruleString: `pivot col: ${this.getColumnNamesInArray(this.selectedFields, true).toString()} value: ${value} group: ${this.getColumnNamesInArray(this.selectedGroupFields, true).toString()}`,
+      uiRuleString: {
+        command: 'pivot',
+        value: formulaValueList,
+        col: this.getColumnNamesInArray(this.selectedFields),
+        group: this.getColumnNamesInArray(this.selectedGroupFields),
+        isBuilder: true
+      }
     };
 
   } // function - getRuleData

@@ -95,7 +95,7 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    * Rule 형식 정의 및 반환
    * @return
    */
-  public getRuleData(): { command: string, ruleString:string} {
+  public getRuleData(): { command: string, ruleString:string, uiRuleString: Object} {
     
     this.deriveVal = this.valueInput.getFormula();
     let val = _.cloneDeep(this.deriveVal);
@@ -119,7 +119,13 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
 
     return {
       command: 'derive',
-      ruleString: 'derive value: ' + val + ' as: ' + deriveAs
+      ruleString: 'derive value: ' + val + ' as: ' + deriveAs,
+      uiRuleString: {
+        command: 'derive',
+        value: this.deriveVal,
+        as: this.deriveAs,
+        isBuilder: true
+      }
     }
     
   } // function - getRuleData

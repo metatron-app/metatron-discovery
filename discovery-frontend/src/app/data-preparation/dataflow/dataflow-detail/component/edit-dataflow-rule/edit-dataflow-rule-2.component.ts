@@ -612,6 +612,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
       // get rule string from individual components
       rule = this._editRuleComp.getRuleData();
+      console.info('rule --> ', rule);
       if (isUndefined(rule)) {
         this._isExecAddRule = false;
         return;
@@ -631,7 +632,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         command: this.inputRuleCmd.substring(0, this.inputRuleCmd.indexOf(' ')),
         op: this.opString,
         rownum: this.opString === 'APPEND' ? this.ruleList.length + 1 : this.ruleVO.rownum,
-        ruleString: this.inputRuleCmd
+        ruleString: this.inputRuleCmd,
+        uiRuleString: rule['uiRuleString']
       };
     }
     if (!isUndefined(rule)) {
@@ -1965,7 +1967,17 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this.opString = rule['op'];
 
-    this._setEditRuleInfo({op: this.opString, ruleIdx : this.serverSyncIndex, count: 100, ruleString : rule['ruleString'] }).then((data: { apiData: any, gridData: any }) => {
+    const param = {
+      op: this.opString,
+      ruleIdx : this.serverSyncIndex,
+      count: 100,
+      ruleString : rule['ruleString'],
+      uiRuleString : JSON.stringify(rule['uiRuleString'])
+    };
+
+    console.info('uiString --', rule['uiRuleString'])
+
+    this._setEditRuleInfo(param).then((data: { apiData: any, gridData: any }) => {
 
       this._isExecAddRule = false;
 

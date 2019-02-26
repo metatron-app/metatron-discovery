@@ -14,7 +14,6 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
@@ -58,27 +57,19 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 컴포넌트 초기 실행
-   */
   public ngOnInit() {
     super.ngOnInit();
-  } // function - ngOnInit
+  }
 
-  /**
-   * 화면 초기화
-   */
+
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-  } // function - ngAfterViewInit
+  }
 
-  /**
-   * 컴포넌트 제거
-   */
+
   public ngOnDestroy() {
     super.ngOnDestroy();
-  } // function - ngOnDestroy
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
@@ -88,7 +79,7 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
    * Returns rules tring when add/update button in pressed
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
 
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
@@ -96,8 +87,8 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
     }
 
     // surround idx with single quotation
-    let clonedSelVal = this.selVal;
-    let check = StringUtil.checkSingleQuote(clonedSelVal, { isWrapQuote: true });
+    let clonedSelVal:string;
+    let check = StringUtil.checkSingleQuote(this.selVal, { isWrapQuote: true });
     if (check[0] === false) {
       Alert.warning(this.translateService.instant('Check element value'));
       return undefined;
@@ -105,16 +96,15 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
       clonedSelVal = check[1];
     }
 
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
-
-    let ruleString = 'unnest col: ' + columnsStr;
-    ruleString += ` into: ${this.selectedFields[0].type} idx: ${clonedSelVal}`;
-
     return{
       command : 'unnest',
-      ruleString: ruleString
+      ruleString: `unnest col: ${this.getColumnNamesInArray(this.selectedFields, true).toString()} into: ${this.selectedFields[0].type} idx: ${clonedSelVal}`,
+      uiRuleString: {
+        command: 'unnest',
+        col: this.getColumnNamesInArray(this.selectedFields),
+        idx: this.selVal,
+        isBuilder: true
+      }
     };
 
   } // function - getRuleData
