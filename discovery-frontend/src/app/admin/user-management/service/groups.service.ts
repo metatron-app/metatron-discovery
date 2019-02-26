@@ -15,12 +15,10 @@
 /**
  * Created by juheeko on 21/09/2017.
  */
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../../common/service/abstract.service';
 import 'rxjs/add/operator/toPromise';
-import { CommonUtil } from '../../../common/util/common.util';
-import { Role } from '../../../domain/user/role/role';
-import { User } from '../../../domain/user/user';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '../../../common/service/abstract.service';
+import {CommonUtil} from '../../../common/util/common.util';
 
 @Injectable()
 export class GroupsService extends AbstractService {
@@ -116,13 +114,17 @@ export class GroupsService extends AbstractService {
   }
 
   /**
-   * 그룹내 구성원 조회 (
+   * 그룹내 구성원 조회
    * @returns {Promise<any>}
    */
-  public getGroupUsers(groupId: string, projection: string = 'forListView'): Promise<any> {
+  public getGroupUsers(groupId: string, pageParam: { size: number, page: number }, projection: string = 'forListView'): Promise<any> {
 
     // URL
-    const url: string = this.API_URL + this.path + '/' + groupId + `/members?projection=${projection}`;
+    let url: string = this.API_URL + this.path + '/' + groupId + `/members?projection=${projection}`;
+
+    if (pageParam) {
+      url += '&' + CommonUtil.objectToUrlString(pageParam);
+    }
 
     return this.get(url);
   }
