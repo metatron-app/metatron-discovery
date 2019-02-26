@@ -700,6 +700,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           }
           griddata.data.push(obj);
         });
+        // if not exist griddata
+        (griddata.fields.length === 0 || griddata.data.length === 0) && (this.isEnableCreateDatasource = false);
 
         this.selectedDataSnapshot.gridData = griddata;
         this.updateGrid(this.selectedDataSnapshot.gridData);
@@ -708,6 +710,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       .catch((error) => {
         this.loadingHide();
         Alert.error(error.details);
+        // set disable create datasource
+        this.isEnableCreateDatasource = false;
       });
   } // end of method getGridData
 

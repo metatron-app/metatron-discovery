@@ -22,6 +22,7 @@ import {
   CreateSourceCompleteData,
   CreateSourceConfigureData
 } from "../../data-storage/service/data-source-create.service";
+import {PrDataSnapshot} from "../data-preparation/pr-snapshot";
 
 export class Datasource extends AbstractHistoryEntity {
   id: string;             // ID
@@ -41,6 +42,7 @@ export class Datasource extends AbstractHistoryEntity {
   linkedWorkspaces: number;   // 연결된 workspaces 개수
   ingestion: any;             // 데이터 소스 적재 정보
   fields: Field[];            // 데이터 소스 필드 정보
+  snapshot?: PrDataSnapshot;
   // workspaces
   // dashBoards
   connection: Dataconnection;
