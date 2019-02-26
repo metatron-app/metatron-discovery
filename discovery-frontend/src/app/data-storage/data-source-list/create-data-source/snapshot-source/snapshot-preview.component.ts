@@ -116,7 +116,7 @@ export class SnapshotPreviewComponent extends AbstractComponent implements OnCha
    * Click snapshot detail
    */
   public onClickDetail(): void {
-    this._snapshotDetailComponent.init(this._selectedSnapshotId, false, true);
+    this._snapshotDetailComponent.init(this._selectedSnapshotId, false, false);
   }
 
   /**

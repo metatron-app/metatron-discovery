@@ -93,7 +93,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   public navigateToDataflow = new EventEmitter();
 
   // is used datasource flag
-  public isUsedDatasource: boolean;
+  public isEnableCreateDatasource: boolean;
   // source data
   public sourceData: DatasourceInfo;
   // is create source flag
@@ -184,7 +184,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    * @param ssId
    * @param isFromDataflow
    */
-  public init(ssId : string, isFromDataflow : boolean = false, isUsedDatasource: boolean = false) {
+  public init(ssId : string, isFromDataflow : boolean = false, isEnableCreateDatasource?: boolean) {
 
     this.selectedDataSnapshot = new PrDataSnapshot();
     this.originDsInfo = new OriginDsInfo();
@@ -195,7 +195,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     this.isShow = true;
     this.colCnt = 0;
     // set used datasource flag
-    this.isUsedDatasource = isUsedDatasource;
+    this.isEnableCreateDatasource = isEnableCreateDatasource;
 
     $('body').removeClass('body-hidden').addClass('body-hidden');
 
@@ -496,6 +496,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         this.loadingHide();
 
         this.selectedDataSnapshot = snapshot;
+        // set Only success enable create datasource
+        this.isEnableCreateDatasource !== false && (this.isEnableCreateDatasource = snapshot.status === Status.SUCCEEDED);
 
         // clear interval
         this._clearSnapshotInterval();

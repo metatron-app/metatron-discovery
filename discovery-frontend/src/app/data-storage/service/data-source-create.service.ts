@@ -209,7 +209,7 @@ export class DataSourceCreateService {
   public getCreateSourceParams(sourceInfo: DatasourceInfo): CreateSourceParams {
     const result: CreateSourceParams = {
       name: sourceInfo.completeData.sourceName.trim(),
-      description: StringUtil.isEmpty(sourceInfo.completeData.sourceDescription) ? sourceInfo.completeData.sourceDescription : '',
+      description: StringUtil.isEmpty(sourceInfo.completeData.sourceDescription) ? '' : sourceInfo.completeData.sourceDescription,
       granularity: sourceInfo.ingestionData.selectedQueryGranularity.value,
       segGranularity: sourceInfo.ingestionData.selectedSegmentGranularity.value,
       dsType: sourceInfo.dsType,
@@ -313,6 +313,7 @@ export class DataSourceCreateService {
       sourceInfo.ingestionData.jobProperties.some(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)) && (result.jobProperties = this._toObject(sourceInfo.ingestionData.jobProperties.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value))));
       result.partitions = sourceInfo.ingestionData.selectedPartitionType.value === 'ENABLE' ? this.getConvertedPartitionList(sourceInfo.ingestionData.partitionKeyList) : [];
       result.format.type = sourceInfo.snapshotData.selectedSnapshot.hiveFileFormat === HiveFileFormat.CSV ? 'csv' : 'orc';
+      result.source = `${sourceInfo.snapshotData.selectedSnapshot.dbName}.${sourceInfo.snapshotData.selectedSnapshot.tblName}`;
     } else if (sourceInfo.snapshotData.selectedSnapshot.storedUri.match(/^file:/)) {  // if File file
       result.type = 'local';
       result.path = sourceInfo.snapshotData.selectedSnapshot.storedUri;
