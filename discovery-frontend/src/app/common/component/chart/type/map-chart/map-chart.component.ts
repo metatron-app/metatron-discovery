@@ -392,15 +392,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // Creation feature
       this.createFeature(source, layerIndex);
 
-      // // Cluster source
-      // let clusterSource = new ol.source.Cluster({
-      //   distance: this.getUiMapOption().layers[layerIndex]['coverage'],
-      //   source: source,
-      //   crossOrigin: 'anonymous'
-      // });
-
       // Creation layer
-      // this.createLayer(source, clusterSource, emptySource, isMapCreation, layerIndex);
       this.createLayer(source, emptySource, isMapCreation, layerIndex);
     }
 
@@ -917,10 +909,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     }
     this.changeDetect.detectChanges();
 
-    let sourceExtent = source.getExtent().filter(function(item){if(typeof(item)==='number')return item});
     // Map data place fit
-    if (this.drawByType && !source && !sourceExtent && Array.isArray(sourceExtent) ) {
-      this.olmap.getView().fit(sourceExtent);
+    if (this.drawByType) {
+      if('Infinity'.indexOf(source.getExtent()[0]) == -1){
+        this.olmap.getView().fit(source.getExtent());
+      }
     } else {      // set saved data zoom
       if (this.uiOption.chartZooms && this.uiOption.chartZooms.length > 0) {
         this.olmap.getView().setCenter([this.uiOption.chartZooms[0].startValue, this.uiOption.chartZooms[0].endValue]);
