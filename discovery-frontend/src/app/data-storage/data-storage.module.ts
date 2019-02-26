@@ -51,7 +51,6 @@ import { FileIngestionComponent } from './data-source-list/create-data-source/fi
 import { FileSelectComponent } from './data-source-list/create-data-source/file-create-component/file-select/file-select.component';
 import { CanDeactivateGuard } from '../common/gaurd/can.deactivate.guard';
 import { DruidSelectComponent } from './data-source-list/create-data-source/druid-create-component/druid-select/druid-select.component';
-import { DataGridDataSourceComponent } from './data-source-list/detail-data-source/data-grid-data-source/data-grid-data-source.component';
 import { ColumnDetailDataSourceComponent } from './data-source-list/detail-data-source/column-detail-data-source/column-detail-data-source.component';
 import { EditConfigSchemaComponent } from './data-source-list/detail-data-source/column-detail-data-source/edit-config-schema/edit-config-schema.component';
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
@@ -71,6 +70,7 @@ import { GranularityService } from './service/granularity.service';
 import { TimezoneService } from "./service/timezone.service";
 import {DataSourceCreateService} from "./service/data-source-create.service";
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
+import {DataSourceShareModule} from "./data-source-list/data-source-share.module";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -86,6 +86,7 @@ const storageRoutes: Routes = [
     DataPreviewModule,
     WorkbenchEditorModule,
     FileModule,
+    DataSourceShareModule,
     RouterModule.forChild(storageRoutes)
   ],
   declarations: [
@@ -123,7 +124,6 @@ const storageRoutes: Routes = [
     // data source - detail
     DetailDataSourceComponent,
     InformationDataSourceComponent,
-    DataGridDataSourceComponent,
     ColumnDetailDataSourceComponent,
     MonitoringDataSourceComponent,
     SetWorkspacePublishedComponent,
