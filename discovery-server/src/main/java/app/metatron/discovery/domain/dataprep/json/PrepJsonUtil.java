@@ -129,7 +129,8 @@ public class PrepJsonUtil {
         for(int i=0; i<result.maxColCnt; i++ ) {
           String colName = result.colNames.get(i);
           if( jsonRow.containsKey(colName) == true ) {
-            row[i] = jsonRow.get(colName).toString();
+            Object obj = jsonRow.get(colName);
+            row[i] = (obj==null)?null:obj.toString();
           }
         }
         result.grid.add(row);
