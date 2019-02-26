@@ -305,7 +305,7 @@ export class DatasourceService extends AbstractService {
       // alias 설정
       query.shelf = _.cloneDeep(pageConf.shelf);
 
-      let layerNum: number = 0;
+      let layerNum: number = -1;
       for (let layer of query.shelf.layers) {
         layerNum++;
 
@@ -329,8 +329,9 @@ export class DatasourceService extends AbstractService {
         if (!_.isUndefined(dataSourceList)) {
           // 레이어 별 필드값에 맞는 datasource 설정 추가
           for (let Datasource of dataSourceList) {
-            if( allPivotFields.length == 0 )
+            if( allPivotFields.length == 0 ){
               continue;
+            }
 
             if (Datasource.id == allPivotFields[0].field.dsId) {
 
@@ -352,7 +353,7 @@ export class DatasourceService extends AbstractService {
               }
 
               // 선반에 datasource key 값 추가
-              layer.name = 'layer' + (layerNum);
+              layer.name = 'layer' + (layerNum+1);
               layer.ref = searchQueryDataSource.name;
               // 서버 요청사항 - 중복데이터일 경우
               for (let field of layer.fields) {
@@ -362,7 +363,7 @@ export class DatasourceService extends AbstractService {
           } // end for - datasource
         } else {  // 기존 스펙이 남아있을경우
 
-          let index : number = layerNum-1;
+          let index : number = layerNum;
 
           // datasource 설정 추가
           query.dataSource = _.cloneDeep(pageConf.dataSource);
@@ -376,11 +377,15 @@ export class DatasourceService extends AbstractService {
           }
 
         }
+
+        if( allPivotFields.length == 0 ){
+          continue;
+        }
         // timezone 처리 - S
         {
           const shelfConf: Shelf = query.shelf;
           if (shelfConf.layers && 0 < shelfConf.layers.length) {
-            shelfConf.layers[layerNum-1].fields.forEach(field => {
+            shelfConf.layers[layerNum].fields.forEach(field => {
               if ((LogicalType.TIMESTAMP.toString() === field.type.toUpperCase()
                 || LogicalType.TIMESTAMP.toString() === field.subType
                 || LogicalType.TIMESTAMP.toString() === field.subRole) && field.format) {

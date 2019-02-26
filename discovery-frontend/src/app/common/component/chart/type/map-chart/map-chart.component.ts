@@ -541,7 +541,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     let layerNum = (<UIMapOption>this.uiOption).layerNum ? (<UIMapOption>this.uiOption).layerNum : 0;
 
-    let shelve: any = !this.shelf ? [] : _.cloneDeep(this.shelf.layers[layerNum].fields);
+    let shelve: any = [];
+    if( !this.shelf || _.isUndefined(this.shelf.layers[layerNum]) ) {
+      shelve = [];
+    } else {
+      shelve = _.cloneDeep(this.shelf.layers[layerNum].fields);
+    }
 
     // undefined shelf layer can be existed because of adding removing layers
     if (shelve == null) return;
@@ -588,7 +593,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     let layerNum = (<UIMapOption>this.uiOption).layerNum ? (<UIMapOption>this.uiOption).layerNum : 0;
 
-    let shelve: any = !this.shelf ? [] : _.cloneDeep(this.shelf.layers[layerNum].fields);
+    let shelve: any = [];
+    if( !this.shelf || _.isUndefined(this.shelf.layers[layerNum]) ) {
+      shelve = [];
+    } else {
+      shelve = _.cloneDeep(this.shelf.layers[layerNum].fields);
+    }
 
     // 선반값에서 해당 타입에 해당하는값만 field값으로 리턴
     const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
@@ -2948,6 +2958,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     if (!_.isEmpty(layer.color.column) && this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal && this.data && this.data.length > 0) {
 
       let alias = ChartUtil.getFieldAlias(layer.color.column, shelf, layer.color.aggregationType);
+
+      if( _.isUndefined( this.data[this.getUiMapOption().layerNum] ) ){
+        return;
+      }
 
       let valueRange = _.cloneDeep(this.data[this.getUiMapOption().layerNum]['valueRange'][alias]);
       if (valueRange) {

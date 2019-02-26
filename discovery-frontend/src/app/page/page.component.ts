@@ -4074,6 +4074,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // map - set shelf layers
     if (cloneQuery.shelf && cloneQuery.shelf.layers && cloneQuery.shelf.layers.length > 0) {
+
+      cloneQuery.shelf.layers = _.remove(cloneQuery.shelf.layers, function(layer) {
+        return layer['fields'].length != 0;
+      });
+
       for (let layers of cloneQuery.shelf.layers) {
         for (let layer of layers.fields) {
           delete layer['field'];
