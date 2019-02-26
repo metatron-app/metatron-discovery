@@ -329,6 +329,9 @@ export class DatasourceService extends AbstractService {
         if (!_.isUndefined(dataSourceList)) {
           // 레이어 별 필드값에 맞는 datasource 설정 추가
           for (let Datasource of dataSourceList) {
+            if( allPivotFields.length == 0 )
+              continue;
+
             if (Datasource.id == allPivotFields[0].field.dsId) {
 
               let searchQueryDataSource = _.cloneDeep(BoardDataSource.convertDsToMetaDs(Datasource));
@@ -358,11 +361,20 @@ export class DatasourceService extends AbstractService {
             }
           } // end for - datasource
         } else {  // 기존 스펙이 남아있을경우
+
+          let index : number = layerNum-1;
+
           // datasource 설정 추가
           query.dataSource = _.cloneDeep(pageConf.dataSource);
-          delete query.dataSource['fields']; // 불필요 항목 제거
+          delete query.dataSource.dataSources[index]['fields']; // 불필요 항목 제거
           // EngineName 처리
-          query.dataSource.name = query.dataSource.engineName;
+          query.dataSource.dataSources[index].name = query.dataSource.dataSources[index].engineName;
+
+          // 서버 요청사항 - 중복데이터일 경우
+          for (let field of layer.fields) {
+            field.ref = query.dataSource.dataSources[index].name;
+          }
+
         }
         // timezone 처리 - S
         {
@@ -609,12 +621,12 @@ export class DatasourceService extends AbstractService {
                   if (clusterPrecision > 12) clusterPrecision = 12;
                   if (clusterPrecision < 1) clusterPrecision = 1;
 
-                  query.shelf.layers[idx].view = <GeoHashFormat>{
-                    type: LayerViewType.CLUSTERING.toString(),
-                    method: "h3",
-                    // 0~99 퍼센트 값 변환
-                    precision: clusterPrecision
-                  };
+                    query.shelf.layers[idx].view = <GeoHashFormat>{
+                      type: LayerViewType.CLUSTERING.toString(),
+                      method: "h3",
+                      // 0~99 퍼센트 값을 1~12값으로 변환
+                      precision: clusterPrecision
+                    };
 
                   let spatialFilter = new SpatialFilter();
                   spatialFilter.dataSource = layer.ref;
