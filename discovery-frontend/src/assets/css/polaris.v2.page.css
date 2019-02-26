@@ -4989,7 +4989,9 @@ ul.ddp-list-rule2 li.ddp-disabled2 .ddp-wrap-line-add {display:block;}
 .ddp-wrap-flow .ddp-wrap-addrule {position:absolute; bottom:0; left:0; right:0; min-height:207px; background-color:#fff; box-sizing:border-box; z-index:10;}
 
 /****	데이터셋 팝업	  *****/
-.ddp-ui-popup-contents {height:100%; margin-top:-120px; padding:120px 50px 0 50px; box-sizing: border-box;}
+.ddp-ui-popup-contents {position:relative; height:100%; margin-top:-120px; padding:120px 50px 0 50px; box-sizing: border-box;}
+.ddp-ui-popup-contents.ddp-info {padding-top:134px;}
+.ddp-ui-popup-contents .ddp-box-message {position:absolute; top:84px; left:50px; right:50px;}
 .ddp-ui-popup-contents .ddp-popup-viewtable {position:absolute; top:170px; left:50px; right:50px; bottom:90px;}
 .ddp-ui-popup-contents .ddp-popup-viewtable .ddp-box-add-link {position:absolute; bottom:0; left:0; right:0; bottom:0;}
 .ddp-ui-popup-contents .ddp-box-viewtable {height:100%; box-sizing:Border-box;}
