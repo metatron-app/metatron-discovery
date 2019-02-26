@@ -2693,7 +2693,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     let mapUIOption = (<UIMapOption>this.uiOption);
     if( _.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner) ){
-      this.setUiExtent();
+      this.setUiExtent(event);
       return;
     }
 
@@ -2705,7 +2705,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     if( Number(preLowerCorner[0]).toFixed(10) != currentMapExtent[0].toFixed(10) && Number(preLowerCorner[1]).toFixed(10) != currentMapExtent[1].toFixed(10)
       && Number(preUpperCorner[0]).toFixed(10) != currentMapExtent[2].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) != currentMapExtent[3].toFixed(10) ){
       // map ui lat, lng
-      this.setUiExtent();
+      this.setUiExtent(event);
       this.changeDrawEvent.emit();
     }
 
@@ -3007,17 +3007,38 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   /**
    * current map ui lat, lng setting
    */
-  private setUiExtent(){
+  private setUiExtent(event){
     let mapUIOption = (<UIMapOption>this.uiOption);
-    if( this.olmap ){
-      let mapExtent = this.olmap.getView().calculateExtent(this.olmap.getSize());
-      // 좌표가 좌측 상단  upperCorner (1,2), 우측하단일 경우 lowerCorner (0,3)
-      // 샘플과 동일하게 변경
+    if( event ){
+      let map = event.map;
+      let mapExtent = map.getView().calculateExtent(map.getSize());
+
+      // projection 값 체크
+      mapExtent = new ol.proj.transformExtent( mapExtent, new ol.proj.get('EPSG:4326'), new ol.proj.get('EPSG:3857') );
+
+      let bottomLeft = new ol.proj.toLonLat(new ol.extent.getBottomLeft(mapExtent));
+      let topRight = new ol.proj.toLonLat(new ol.extent.getTopRight(mapExtent));
+
+      // console.info('left', this.wrapLon(bottomLeft[0]));
+      // console.info('bottom', bottomLeft[1].toFixed(2));
+      // console.info('right', this.wrapLon(topRight[0]));
+      // console.info('top', topRight[1].toFixed(2));
+
       // 우측 상단
-      mapUIOption.upperCorner = mapExtent[2] + ' ' + mapExtent[3];
+      mapUIOption.upperCorner = this.wrapLon(topRight[0]) + ' ' + topRight[1];
       // 좌측 하단
-      mapUIOption.lowerCorner = mapExtent[0] + ' ' + mapExtent[1];
+      mapUIOption.lowerCorner = this.wrapLon(bottomLeft[0]) + ' ' + bottomLeft[1];
     }
+  }
+
+  /**
+   * extent to lng
+   * @param value
+   * @returns {number}
+   */
+  private wrapLon(value) {
+    let lon = Math.floor((value + 180) / 360);
+    return value - (lon * 360);
   }
 
 }
