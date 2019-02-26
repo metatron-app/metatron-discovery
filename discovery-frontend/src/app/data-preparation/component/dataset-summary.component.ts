@@ -139,18 +139,13 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
 
   /** get rows */
   public get getRows() {
-    let rows = '0';
+    let rows = '0 row(s)';
 
-    if(true==Number.isInteger(this.dataset.totalLines)) {
+    if(!isNullOrUndefined(this.dataset.totalLines) && Number.isInteger(this.dataset.totalLines)) {
       if (this.dataset.totalLines === -1) {
         rows = '(counting)';
       } else {
-        rows = new Intl.NumberFormat().format(this.dataset.totalLines);
-        if (rows === '0' || rows === '1') {
-          rows = rows + ` row`;
-        } else {
-          rows = rows + ` rows`;
-        }
+        rows = new Intl.NumberFormat().format(this.dataset.totalLines) + ' row(s)';
       }
     }
     return rows;
@@ -166,18 +161,6 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
     this.closeEvent.emit();
   } // function - closeBtn
 
-  /**
-   * get total bytes
-   * @param bytes
-   */
-  public getTotalBytes(bytes) {
-
-    let size = 0;
-    if(true==Number.isInteger(bytes)) {
-      size = bytes;
-    }
-    return this._formatBytes(size,1);
-  } // function - getTotalBytes
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -339,13 +322,28 @@ export class DatasetSummaryComponent extends AbstractComponent implements OnInit
 
     if (dataset.dcType !== 'JDBC') {
       this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.size')
-        , value : this.getTotalBytes(dataset.totalBytes)});
+        , value : this._getTotalBytes(dataset.totalBytes)});
     }
 
     this.dsInformationList.push({label : this.translateService.instant('msg.comm.detail.rows')
       , value : this.getRows });
 
   }
+
+
+  /**
+   * get total bytes
+   * @param bytes
+   */
+  private _getTotalBytes(bytes) {
+
+    let size = -1;
+    if(!isNullOrUndefined(bytes) && Number.isInteger(bytes)) {
+      size = bytes;
+    }
+    return this._formatBytes(size,1);
+  }
+
 }
 
 

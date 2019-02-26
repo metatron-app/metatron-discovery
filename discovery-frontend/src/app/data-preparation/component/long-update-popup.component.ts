@@ -38,7 +38,7 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
   @ViewChild('inputSearch')
   private _inputSearch: ElementRef;
 
-  private swappingDatasetId : string;
+  public swappingDatasetId : string;
 
   private popupSubscription: Subscription;
 
