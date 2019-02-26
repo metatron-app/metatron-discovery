@@ -907,11 +907,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     }
     this.changeDetect.detectChanges();
 
+    let sourceExtent = source.getExtent().filter(function(item){if(typeof(item)==='number')return item});
     // Map data place fit
-    if (this.drawByType) {
-      this.olmap.getView().fit(source.getExtent());
-    } else {
-      // set saved data zoom
+    if (this.drawByType && !source && !sourceExtent && Array.isArray(sourceExtent) ) {
+      this.olmap.getView().fit(sourceExtent);
+    } else {      // set saved data zoom
       if (this.uiOption.chartZooms && this.uiOption.chartZooms.length > 0) {
         this.olmap.getView().setCenter([this.uiOption.chartZooms[0].startValue, this.uiOption.chartZooms[0].endValue]);
         this.olmap.getView().setZoom(this.uiOption.chartZooms[0].count);
