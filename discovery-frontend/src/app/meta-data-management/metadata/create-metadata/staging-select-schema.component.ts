@@ -431,8 +431,8 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
     return fields.map((item) => {
       // name
       item.name = this._sliceTableName(item.name);
-      // alias
-      item.alias = this._sliceTableName(item.alias);
+      // if exist alias, convert alias
+      item.alias && (item.alias = this._sliceTableName(item.alias));
       return item;
     });
   }
