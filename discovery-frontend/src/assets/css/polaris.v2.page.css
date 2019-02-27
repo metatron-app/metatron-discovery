@@ -8185,7 +8185,7 @@ table.ddp-table-form.ddp-table-details tr th:nth-child(1) .ddp-box-layout4,
 table.ddp-table-form.ddp-table-details tr th:nth-child(2) .ddp-box-layout4,
 table.ddp-table-form.ddp-table-details tr th:nth-child(3) .ddp-box-layout4,
 table.ddp-table-form.ddp-table-details tr th:nth-child(4) .ddp-box-layout4 {right:inherit; left:-30px;}
-.ddp-wrap-datadetail.ddp-wrap-datacolumn .ddp-data-details.ddp-ui-preview-contents {position:fixed; left:65px; right:65px; bottom:20px; top:246px; height:inherit;}
+.ddp-wrap-datadetail.ddp-wrap-datacolumn .ddp-data-details.ddp-ui-preview-contents {position:fixed; left:45px; right:45px; bottom:20px; top:246px; height:inherit;}
 .ddp-wrap-datadetail.ddp-wrap-datacolumn .ddp-data-details.ddp-ui-preview-contents.ddp-info {top:265px;}
 .ddp-page-catalog {position:relative; box-sizing:border-box; border-top:1px solid #e7e7ea;}
 .ddp-page-catalog .ddp-ui-root {padding:8px 0;}

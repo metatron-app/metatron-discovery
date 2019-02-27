@@ -14,6 +14,16 @@
 
 <!-- tab contents -->
 <div class="ddp-ui-tab-contents">
+  <div class="ddp-box-message">
+    <!-- synch -->
+    <div class="ddp-box-synch type-info">
+      <div class="ddp-txt-synch">
+        <em class="ddp-icon-info"></em>
+        {{ 'msg.metadata.ui.description' | translate }}
+      </div>
+    </div>
+    <!-- //synch -->
+  </div>
   <!-- column option -->
   <div class="ddp-option-column">
 
@@ -31,7 +41,7 @@
     <a href="javascript:" class="ddp-btn-pop ddp-bg-black" [class.ddp-disabled]="!isEnableSave()" (click)="onClickSave()">{{'msg.comm.btn.save' | translate}}</a>
   </div>
   <!-- //column option -->
-  <div class="ddp-data-details ddp-ui-preview-contents" (scroll)="onScrollColumnView()">
+  <div class="ddp-data-details ddp-ui-preview-contents ddp-info" (scroll)="onScrollColumnView()">
     <!-- header -->
     <table class="ddp-table-form ddp-table-type2 ddp-table-details ddp-type-input">
       <colgroup>
