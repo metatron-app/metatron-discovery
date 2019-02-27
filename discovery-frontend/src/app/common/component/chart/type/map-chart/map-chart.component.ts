@@ -2096,11 +2096,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           this.changeDetect.detectChanges();
 
           if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
-            let extent = feature.getGeometry().getExtent();
+            let extent = event.map.getView().calculateExtent(event.map.getSize());
             coords = ol.extent.getCenter(extent);
             this.tooltipLayer.setPosition(coords);
           } else {
-            this.tooltipLayer.setPosition(coords);
+            this.tooltipLayer.setPosition(event.coordinate);
 
           }
         }
@@ -3028,7 +3028,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       let mapExtent = map.getView().calculateExtent(map.getSize());
 
       // projection 값 체크
-      // mapExtent = new ol.proj.transformExtent( mapExtent, new ol.proj.get('EPSG:4326'), new ol.proj.get('EPSG:3857') );
+      mapExtent = new ol.proj.transformExtent( mapExtent, new ol.proj.get('EPSG:4326'), new ol.proj.get('EPSG:3857') );
 
       let bottomLeft = new ol.proj.toLonLat(new ol.extent.getBottomLeft(mapExtent));
       let topRight = new ol.proj.toLonLat(new ol.extent.getTopRight(mapExtent));
@@ -3040,11 +3040,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       // EPSG 타입 확인
       // 우측 상단
-      // mapUIOption.upperCorner = this.wrapLon(topRight[0]) + ' ' + topRight[1];
-      mapUIOption.upperCorner = mapExtent[2] + ' ' + mapExtent[3];
+      mapUIOption.upperCorner = this.wrapLon(topRight[0]) + ' ' + topRight[1];
+      // mapUIOption.upperCorner = mapExtent[2] + ' ' + mapExtent[3]; // EPSG 4326 좌표
       // 좌측 하단
-      // mapUIOption.lowerCorner = this.wrapLon(bottomLeft[0]) + ' ' + bottomLeft[1];
-      mapUIOption.lowerCorner = mapExtent[0] + ' ' + bottomLeft[1];
+      mapUIOption.lowerCorner = this.wrapLon(bottomLeft[0]) + ' ' + bottomLeft[1];
+      // mapUIOption.lowerCorner = mapExtent[0] + ' ' + bottomLeft[1];  // EPSG 4326 좌표
     }
   }
 
