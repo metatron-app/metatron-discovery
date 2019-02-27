@@ -382,12 +382,20 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Is map creation
     let isMapCreation: boolean = this.createMap();
 
-    for (let layerIndex = 0; layerIndex < this.getUiMapOption().layers.length; layerIndex++) {
-      // Source
-      let source = new ol.source.Vector({crossOrigin: 'anonymous'});
+    // Source
+    let source = new ol.source.Vector({crossOrigin: 'anonymous'});
 
-      // Line & Polygon Source
-      let emptySource = new ol.source.Vector();
+    // Line & Polygon Source
+    let emptySource = new ol.source.Vector();
+
+    for (let layerIndex = 0; layerIndex < this.getUiMapOption().layers.length; layerIndex++) {
+
+      // 데이터가 없는경우 dummy data 추가
+      if( this.data.length != this.getUiMapOption().layers.length && !this.isGeoFieldCheck(this.shelf.layers, layerIndex) ){
+        if( layerIndex == 0 ){
+          this.data = _.concat( {features : []}, this.data[0] );
+        }
+      }
 
       // Creation feature
       this.createFeature(source, layerIndex);
@@ -910,10 +918,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.changeDetect.detectChanges();
 
     // Map data place fit
-    if (this.drawByType) {
-      if('Infinity'.indexOf(source.getExtent()[0]) == -1){
-        this.olmap.getView().fit(source.getExtent());
-      }
+    if (this.drawByType && 'Infinity'.indexOf(source.getExtent()[0]) == -1) {
+      this.olmap.getView().fit(source.getExtent());
     } else {      // set saved data zoom
       if (this.uiOption.chartZooms && this.uiOption.chartZooms.length > 0) {
         this.olmap.getView().setCenter([this.uiOption.chartZooms[0].startValue, this.uiOption.chartZooms[0].endValue]);
@@ -2095,6 +2101,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
             this.tooltipLayer.setPosition(coords);
           } else {
             this.tooltipLayer.setPosition(coords);
+
           }
         }
       }
@@ -3021,7 +3028,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       let mapExtent = map.getView().calculateExtent(map.getSize());
 
       // projection 값 체크
-      mapExtent = new ol.proj.transformExtent( mapExtent, new ol.proj.get('EPSG:4326'), new ol.proj.get('EPSG:3857') );
+      // mapExtent = new ol.proj.transformExtent( mapExtent, new ol.proj.get('EPSG:4326'), new ol.proj.get('EPSG:3857') );
 
       let bottomLeft = new ol.proj.toLonLat(new ol.extent.getBottomLeft(mapExtent));
       let topRight = new ol.proj.toLonLat(new ol.extent.getTopRight(mapExtent));
@@ -3031,10 +3038,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // console.info('right', this.wrapLon(topRight[0]));
       // console.info('top', topRight[1].toFixed(2));
 
+      // EPSG 타입 확인
       // 우측 상단
-      mapUIOption.upperCorner = this.wrapLon(topRight[0]) + ' ' + topRight[1];
+      // mapUIOption.upperCorner = this.wrapLon(topRight[0]) + ' ' + topRight[1];
+      mapUIOption.upperCorner = mapExtent[2] + ' ' + mapExtent[3];
       // 좌측 하단
-      mapUIOption.lowerCorner = this.wrapLon(bottomLeft[0]) + ' ' + bottomLeft[1];
+      // mapUIOption.lowerCorner = this.wrapLon(bottomLeft[0]) + ' ' + bottomLeft[1];
+      mapUIOption.lowerCorner = mapExtent[0] + ' ' + bottomLeft[1];
     }
   }
 
@@ -3046,6 +3056,28 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   private wrapLon(value) {
     let lon = Math.floor((value + 180) / 360);
     return value - (lon * 360);
+  }
+
+  /**
+   * geo field check
+   * @param layers
+   * @param index
+   * @returns {boolean}
+   */
+  private isGeoFieldCheck(layers: any, index): boolean {
+
+    let valid: boolean = false;
+
+    let fields: Field[] = layers[index].fields;
+
+    if (fields) {
+      for (let layer of fields) {
+        if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
+          valid = true;
+        }
+      }
+    }
+    return valid;
   }
 
 }
