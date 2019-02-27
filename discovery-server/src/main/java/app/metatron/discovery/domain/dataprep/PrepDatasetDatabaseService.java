@@ -28,21 +28,12 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.sql.DataSource;
-import java.net.URI;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -61,34 +52,23 @@ public class PrepDatasetDatabaseService {
     @Autowired
     PrDatasetService datasetService;
 
-    @Value("${server.port:8180}")
-    private String restAPIserverPort;
-
-    private String oauth_token;
-
-    public void setoAuthToken(String token){
-        this.oauth_token=token;
-    }
-
-    public String getoAuthToken(){
-        return this.oauth_token;
-    }
-
     ExecutorService poolExecutorService = null;
     Set<Future<Integer>> futures = null;
 
     public class PrepDatasetTotalLinesCallable implements Callable {
-        PrepDatasetDatabaseService datasetJdbcService;
 
-        String dsId;
+        PrDatasetRepository datasetRepository;
+
+        PrDataset dataset;
+
         String sql;
         String connectUrl;
         String username;
         String password;
         String dbName;
-        public PrepDatasetTotalLinesCallable(PrepDatasetDatabaseService datasetJdbcService, String dsId, String sql, String connectUrl, String username, String password, String dbName) {
-            this.datasetJdbcService = datasetJdbcService;
-            this.dsId = dsId;
+        public PrepDatasetTotalLinesCallable( PrDatasetRepository datasetRepository, PrDataset dataset, String sql, String connectUrl, String username, String password, String dbName) {
+            this.datasetRepository = datasetRepository;
+            this.dataset = dataset;
             this.sql = sql;
             this.connectUrl = connectUrl;
             this.username = username;
@@ -96,10 +76,11 @@ public class PrepDatasetDatabaseService {
             this.dbName = dbName;
         }
 
-        @Transactional
         public Integer call() {
             Integer totalLines = 0;
             try {
+                Thread.sleep(500);
+
                 Connection conn = DriverManager.getConnection(connectUrl, username, password);
                 if (conn != null) {
                     if (dbName != null && false == dbName.isEmpty()) {
@@ -117,7 +98,11 @@ public class PrepDatasetDatabaseService {
                     JdbcUtils.closeStatement(statement);
                     JdbcUtils.closeConnection(conn);
                 }
-                this.datasetJdbcService.setTotalLines(dsId, totalLines);
+
+                if(totalLines!=null) {
+                    dataset.setTotalLines(totalLines.longValue());
+                    datasetRepository.saveAndFlush(dataset);
+                }
             } catch (ObjectOptimisticLockingFailureException e) {
                 e.printStackTrace();
             } catch(Exception e) {
@@ -130,40 +115,6 @@ public class PrepDatasetDatabaseService {
     public PrepDatasetDatabaseService() {
         this.poolExecutorService = Executors.newCachedThreadPool();
         this.futures = Sets.newHashSet();
-    }
-
-    public void setTotalLines(String dsId, Integer totalLines) {
-        URI snapshot_uri = UriComponentsBuilder.newInstance()
-                .scheme("http")
-                .host("localhost")
-                .port(restAPIserverPort)
-                .path("/api/preparationdatasets/")
-                .path(dsId)
-                .build().encode().toUri();
-
-        LOGGER.info("setTotalLines(): REST URI=" + snapshot_uri);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("Accept", "application/json, text/plain, */*");
-        headers.add("Authorization", oauth_token);
-
-
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-        RestTemplate restTemplate = new RestTemplate(requestFactory);
-
-        Map<String, String> patchItems = new HashMap<>();
-        patchItems.put("totalLines", totalLines.toString());
-
-        LOGGER.info("setTotalLines(): update totalLines" + " as " + totalLines);
-
-        HttpEntity<Map<String, String>> entity2 = new HttpEntity<>(patchItems, headers);
-        ResponseEntity<String> responseEntity;
-        responseEntity = restTemplate.exchange(snapshot_uri, HttpMethod.PATCH, entity2, String.class);
-
-        LOGGER.info("setTotalLines(): done with statusCode " + responseEntity.getStatusCode());
-
-        return;
     }
 
     @Autowired(required=false)
@@ -252,13 +203,15 @@ public class PrepDatasetDatabaseService {
                 dataFrame.rows.add(readRows++,row);
                 if( limitSize < readRows ) { break; }
             }
-            dataset.setTotalLines(-1L);
-            dataset.setTotalBytes(-1L);
 
             JdbcUtils.closeResultSet(rs);
             JdbcUtils.closeStatement(stmt);
 
-            Callable<Integer> callable = new PrepDatasetTotalLinesCallable(this, dataset.getDsId(), queryStmt, connectUrl, username, password, dbName);
+            dataset.setTotalLines(-1L);
+            dataset.setTotalBytes(-1L);
+            datasetRepository.saveAndFlush(dataset);
+
+            Callable<Integer> callable = new PrepDatasetTotalLinesCallable(datasetRepository, dataset, queryStmt, connectUrl, username, password, dbName);
             this.futures.add( poolExecutorService.submit(callable) );
         } catch (Exception e) {
             LOGGER.error("Failed to read JDBC : {}", e.getMessage());

@@ -22,6 +22,7 @@ import { CreateUserManagementMembersComponent } from './create-member/create-use
 import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
 import { Modal } from '../../../../common/domain/modal';
 import { Alert } from '../../../../common/util/alert.util';
+import {ChangeWorkspaceOwnerModalComponent} from './change-workspace-owner-modal/change-workspace-owner-modal.component';
 
 declare let moment: any;
 
@@ -41,6 +42,11 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
 
   @ViewChild(ConfirmModalComponent)
   private _confirmModalComponent: ConfirmModalComponent;
+
+  @ViewChild(ChangeWorkspaceOwnerModalComponent)
+  private changeWorkspaceOwnerModal: ChangeWorkspaceOwnerModalComponent;
+
+  private _selectedUser: User;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -192,21 +198,31 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
   }
 
   /**
+   * 사용자 삭제 컨펌 보여주기
+   */
+  public showDeleteUserConfirm(event: { byPass: boolean }) {
+    if (this.isDeleteUserConfirmPass(event)) {
+      this.executeDeleteUser();
+    } else {
+      // 팝업 창 오픈
+      this._confirmModalComponent.init(this._deleteUserModalDataGenerator(this._selectedUser));
+    }
+  }
+
+  public executeDeleteUser() {
+    this.confirmHandler(this._deleteUserModalDataGenerator(this._selectedUser));
+  }
+
+  /**
    * 사용자 제거 클릭 이벤트
    * @param {User} user
    */
   public onClickDeleteUser(user: User): void {
     // 이벤트 전파 stop
     event.stopImmediatePropagation();
-    const modal = new Modal();
-    modal.data = 'DELETE';
-    modal.name = this.translateService.instant('msg.mem.ui.delete.usr.title', {value: user.fullName});
-    modal.description = this.translateService.instant('msg.mem.ui.delete.usr.description');
-    modal.btnName = this.translateService.instant('msg.mem.btn.delete.usr');
-    // 유저 아이디
-    modal['userId'] = user.id;
-    // 팝업 창 오픈
-    this._confirmModalComponent.init(modal);
+
+    this._selectedUser = user;
+    this.changeWorkspaceOwnerModal.show(this._selectedUser.id);
   }
 
   /**
@@ -495,6 +511,26 @@ export class UserManagementMembersComponent extends AbstractUserManagementCompon
     }
 
     return params;
+  }
+
+  /**
+   * Create data for deleting user
+   *
+   * @private
+   */
+  private _deleteUserModalDataGenerator(user: User) {
+    const modal = new Modal();
+    modal.data = 'DELETE';
+    modal.name = this.translateService.instant('msg.mem.ui.delete.usr.title', {value: user.fullName});
+    modal.description = this.translateService.instant('msg.mem.ui.delete.usr.description');
+    modal.btnName = this.translateService.instant('msg.mem.btn.delete.usr');
+    modal['userId'] = user.id;
+    return modal;
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private isDeleteUserConfirmPass($event: { byPass: boolean }): boolean {
+    return $event.byPass;
   }
 }
 

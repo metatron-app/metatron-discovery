@@ -175,6 +175,7 @@ const dataPreparationRoutes: Routes = [
     MultipleRenamePopupComponent
   ],
   providers: [
+    DataconnectionService,
     DataPreparationService,
     DataflowService,
     DatasetService,

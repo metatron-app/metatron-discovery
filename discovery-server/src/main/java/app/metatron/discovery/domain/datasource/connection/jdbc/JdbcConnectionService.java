@@ -42,34 +42,12 @@
 
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.datasource.LogicalType;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.ConnectionRequest;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.NativeCriteria;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.*;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.utils.VarGenerator;
-import app.metatron.discovery.domain.datasource.data.CandidateQueryRequest;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.SelectQueryBuilder;
-import app.metatron.discovery.domain.engine.EngineProperties;
-import app.metatron.discovery.domain.user.CachedUserService;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
-import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
-import app.metatron.discovery.util.AuthUtils;
-import app.metatron.discovery.util.PolarisUtils;
-import com.facebook.presto.jdbc.PrestoArray;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import com.facebook.presto.jdbc.PrestoArray;
+
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.Expression;
@@ -81,10 +59,15 @@ import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.statement.select.Limit;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SelectItem;
 import net.sf.jsqlparser.util.SelectUtils;
 import net.sf.jsqlparser.util.cnfexpression.MultiAndExpression;
 import net.sf.jsqlparser.util.cnfexpression.MultiOrExpression;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -103,14 +86,56 @@ import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Component;
 import org.supercsv.prefs.CsvPreference;
 
-import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
 import java.sql.Date;
-import java.util.*;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
+
+import javax.sql.DataSource;
+
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.ConnectionRequest;
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.NativeCriteria;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeBetweenExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeCurrentDatetimeExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeDateFormatExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeDisjunctionExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeEqExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeOrderExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeProjection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.utils.VarGenerator;
+import app.metatron.discovery.domain.datasource.data.CandidateQueryRequest;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.SelectQueryBuilder;
+import app.metatron.discovery.domain.engine.EngineProperties;
+import app.metatron.discovery.domain.user.CachedUserService;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
+import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.PolarisUtils;
 
 import static app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection.CURRENT_DATE_FORMAT;
 import static java.util.stream.Collectors.toList;
@@ -518,7 +543,11 @@ public class JdbcConnectionService {
         rowMap.put("columnName", resultSet.getString(4));
         rowMap.put("columnType", resultSet.getString(6));
         rowMap.put("columnComment", resultSet.getString(12));
-        rowMap.put("columnSize", resultSet.getInt(7));
+
+        int columnSize = resultSet.getInt(7);
+        if(columnSize > 0){
+          rowMap.put("columnSize", columnSize);
+        }
         columns.add(rowMap);
       }
     } catch (Exception e) {
@@ -945,10 +974,9 @@ public class JdbcConnectionService {
 
     if (type == JdbcIngestionInfo.DataType.TABLE) {
       NativeCriteria nativeCriteria = new NativeCriteria(DataConnection.Implementor.getImplementor(connection));
-      String database = schema;
-      String table = query;
-      String tableName = (!table.contains(".") && database != null) ? database + "." + table : table;
-      nativeCriteria.addTable(tableName, table);
+      String tableName = connection.getTableName(schema, query);
+      String tableAlias = connection.getTableName("", query);
+      nativeCriteria.addTable(tableName, tableAlias);
 
       //add projection for partition
       if (partitionList != null && !partitionList.isEmpty()) {

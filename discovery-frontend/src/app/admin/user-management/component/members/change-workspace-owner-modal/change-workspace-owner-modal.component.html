@@ -1,0 +1,71 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--suppress NsUnresolvedStyleClassReference, HtmlFormInputWithoutLabel -->
+<div *ngIf="isShow" class="ddp-wrap-layout-popup">
+  <div class="ddp-ui-layout-popup">
+    <div class="ddp-box-popup3">
+      <a href="javascript:" class="ddp-btn-close" (click)="selfHide()"></a>
+      <!-- title -->
+      <div class="ddp-pop-title">
+        {{ 'msg.comm.menu.admin.user.modal.title' | translate }}
+        <div class="ddp-txt-pop-info" *ngIf="translateService.getBrowserLang() === 'ko'">
+          <strong>{{ workspaces.length | number: '1.0-3' }}</strong>{{ 'msg.comm.menu.admin.user.modal.description.last' | translate }}
+        </div>
+        <div class="ddp-txt-pop-info" *ngIf="translateService.getBrowserLang() === 'en'">
+          {{ 'msg.comm.menu.admin.user.modal.description.first' | translate }} <strong>{{ workspaces.length | number: '1.0-3' }}</strong> {{ 'msg.comm.menu.admin.user.modal.description.last' | translate }}
+        </div>
+        <div class="ddp-txt-pop-info" *ngIf="translateService.getBrowserLang() === 'zh'">
+          {{ 'msg.comm.menu.admin.user.modal.description.first' | translate }}<strong>{{ workspaces.length | number: '1.0-3' }}</strong>{{ 'msg.comm.menu.admin.user.modal.description.last' | translate }}
+        </div>
+      </div>
+
+      <!-- box -->
+      <div class="pop-box-owner" (scroll)="workspacesScrollEvent()">
+        <!-- division -->
+        <div class="ddp-ui-division" *ngFor="let workspace of workspaces; let index = index;">
+          <div workspace-detail [workspace]="workspace"></div>
+          <div class="ddp-data-description" *ngIf="workspace.description && workspace.description.length > 0">
+            {{ workspace.description }}
+          </div>
+          <!-- edit -->
+          <div class="ddp-wrap-edit3">
+            <label class="ddp-label-type">{{ 'msg.comm.menu.admin.user.modal.new.owner' | translate }}</label>
+            <div workspace-members-select-box
+                 [workspace]="workspace"
+                 [member]="members[index]">
+            </div>
+          </div>
+          <!-- //edit -->
+        </div>
+        <!-- //division -->
+      </div>
+      <!-- //box -->
+
+      <!-- button -->
+      <div class="ddp-ui-buttons">
+        <!--suppress JSUnresolvedFunction -->
+        <a href="javascript:" class="ddp-btn-type-popup" (click)="selfHide()">
+          {{ 'msg.comm.btn.cancl' | translate }}
+        </a>
+        <!-- disabled 시 ddp-disabled 추가 -->
+        <!--suppress JSUnresolvedFunction -->
+        <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="complete()">
+          {{ 'msg.comm.btn.modal.done' | translate }}
+        </a>
+      </div>
+      <!-- //button -->
+    </div>
+  </div>
+</div>

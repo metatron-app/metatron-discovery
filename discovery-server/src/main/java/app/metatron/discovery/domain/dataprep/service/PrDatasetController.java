@@ -352,26 +352,6 @@ public class PrDatasetController {
         return ResponseEntity.status(HttpStatus.SC_OK).body(deletedDsIds);
     }
 
-    @RequestMapping(value = "/getStagingConnection", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> getStagingConnection() {
-        Map<String, Object> response = Maps.newHashMap();
-        try {
-            response.put("implementor","HIVE");
-            response.put("hostname", prepProperties.getHiveHostname(true));
-            response.put("port",     String.valueOf(prepProperties.getHivePort(true)));
-            response.put("username", prepProperties.getHiveUsername(true));
-            response.put("password", prepProperties.getHivePassword(true));
-            response.put("url",      prepProperties.getHiveCustomUrl(true));
-        } catch (PrepException pe) {
-            LOGGER.error("getStaingConnection(): caught an preparation exception: ", pe);
-            throw pe;
-        } catch (Exception e) {
-            LOGGER.error("getStaingConnection(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
-        }
-        return ResponseEntity.ok(response);
-    }
-
     /*
     @RequestMapping(value = "/jdbc", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> previewJdbc(
