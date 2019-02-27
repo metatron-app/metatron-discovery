@@ -144,7 +144,7 @@ export class SnapshotPreviewComponent extends AbstractComponent implements OnCha
               this.sourceData.fieldList.push({
                 name: content.gridResponse.colNames[idx],
                 type: content.gridResponse.colDescs[idx].type,
-                logicalType: this._getLogicalType(content.gridResponse.colDescs[idx].type),
+                logicalType: this.dataSnapshotService.getConvertTypeToLogicalType(content.gridResponse.colDescs[idx].type),
                 role: this._getRoleType(content.gridResponse.colDescs[idx].type)
               });
             }
@@ -170,27 +170,6 @@ export class SnapshotPreviewComponent extends AbstractComponent implements OnCha
           });
       })
       .catch(error => this.commonExceptionHandler(error));
-  }
-
-  /**
-   * Get logical type
-   * @param {string} type
-   * @return {LogicalType}
-   * @private
-   */
-  private _getLogicalType(type: string): LogicalType {
-    switch (type) {
-      case 'STRING':
-        return LogicalType.STRING;
-      case 'NUMBER':
-      case 'INTEGER':
-        return LogicalType.INTEGER;
-      case 'LONG':
-      case 'DOUBLE':
-        return LogicalType.DOUBLE;
-      case 'TIMESTAMP':
-        return LogicalType.TIMESTAMP;
-    }
   }
 
   /**

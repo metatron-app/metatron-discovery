@@ -13,22 +13,29 @@
  */
 
 import {
-  Component, ElementRef, Injector, OnInit, ViewChild, OnDestroy, Output,
-  HostListener, EventEmitter
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
 } from '@angular/core';
-import { PrDataSnapshot, Status, OriginDsInfo, SsType } from '../../domain/data-preparation/pr-snapshot';
-import { DataSnapshotService } from './service/data-snapshot.service';
-import { PopupService } from '../../common/service/popup.service';
-import { GridComponent } from '../../common/component/grid/grid.component';
-import { header, SlickGridHeader } from '../../common/component/grid/grid.header';
-import { Field } from '../../domain/data-preparation/pr-dataset';
-import { GridOption } from '../../common/component/grid/grid.option';
-import { Alert } from '../../common/util/alert.util';
-import { PreparationAlert } from '../util/preparation-alert.util';
-import { isNull, isUndefined, isNullOrUndefined } from 'util';
-import { saveAs } from 'file-saver';
+import {OriginDsInfo, PrDataSnapshot, SsType, Status} from '../../domain/data-preparation/pr-snapshot';
+import {DataSnapshotService} from './service/data-snapshot.service';
+import {PopupService} from '../../common/service/popup.service';
+import {GridComponent} from '../../common/component/grid/grid.component';
+import {header, SlickGridHeader} from '../../common/component/grid/grid.header';
+import {Field} from '../../domain/data-preparation/pr-dataset';
+import {GridOption} from '../../common/component/grid/grid.option';
+import {Alert} from '../../common/util/alert.util';
+import {PreparationAlert} from '../util/preparation-alert.util';
+import {isNull, isNullOrUndefined, isUndefined} from 'util';
+import {saveAs} from 'file-saver';
 import * as pixelWidth from 'string-pixel-width';
-import { AbstractComponent } from '../../common/component/abstract.component';
+import {AbstractComponent} from '../../common/component/abstract.component';
 import * as $ from "jquery";
 import {PreparationCommonUtil} from "../util/preparation-common.util";
 import {
@@ -40,6 +47,7 @@ import {
   SourceType
 } from "../../domain/datasource/datasource";
 import {CreateSnapShotData} from "../../data-storage/service/data-source-create.service";
+
 declare let moment: any;
 
 @Component({
@@ -303,27 +311,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       this.navigateToDataflow.emit();
     }
   } // function - navigateDataflow
-
-  /**
-   * Get logical type (only create source)
-   * @param {string} type
-   * @return {LogicalType}
-   * @private
-   */
-  private _getLogicalType(type: string): LogicalType {
-    switch (type) {
-      case 'STRING':
-        return LogicalType.STRING;
-      case 'NUMBER':
-      case 'INTEGER':
-        return LogicalType.INTEGER;
-      case 'LONG':
-      case 'DOUBLE':
-        return LogicalType.DOUBLE;
-      case 'TIMESTAMP':
-        return LogicalType.TIMESTAMP;
-    }
-  }
 
   /**
    * Get role type (only create source)
@@ -687,7 +674,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           griddata.fields.push({
             name: colNames[idx],
             type: colTypes[idx].type,
-            logicalType: this._getLogicalType(colTypes[idx].type),
+            logicalType: this.datasnapshotservice.getConvertTypeToLogicalType(colTypes[idx].type),
             role: this._getRoleType(colTypes[idx].type),
             seq: idx
           });
