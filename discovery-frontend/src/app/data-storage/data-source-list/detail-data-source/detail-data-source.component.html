@@ -29,6 +29,7 @@
           <a href="javascript:" class="ddp-icon-more"></a>
           <!-- popup -->
           <div class="ddp-data-box">
+            <a href="javascript:" class="ddp-list-link" (click)="reuploadFileModalOpen()" *ngIf="isFileType()"><em class="ddp-icon-upload"></em> {{'msg.storage.ui.dsource.file-reupload.title' | translate}}</a>
             <a href="javascript:" class="ddp-list-link" (click)="reIngestion()" *ngIf="isShowReingestion"><em class="ddp-icon-drop-re"></em>{{'msg.storage.btn.dsource.reingestion' | translate}}</a>
             <a href="javascript:" class="ddp-list-link" (click)="deleteModalOpen()"><em class="ddp-icon-delete"></em>{{'msg.storage.btn.del.dsource' | translate}}</a>
             <span class="ddp-data-by" *ngIf="datasource.createdBy">
@@ -166,3 +167,6 @@
 <app-confirm-modal (confirm)="updateDatasource({published: !datasource.published})"></app-confirm-modal>
 <!-- 로그 컴포넌트 -->
 <app-log-component></app-log-component>
+
+<app-reupload-file *ngIf="reUploadFile" [datasource]="datasource"
+                 (close)="reUploadFile = false"></app-reupload-file>

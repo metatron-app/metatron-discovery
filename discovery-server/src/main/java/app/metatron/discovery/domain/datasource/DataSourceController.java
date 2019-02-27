@@ -497,6 +497,9 @@ public class DataSourceController {
 
     // TODO: 기존 적재 작업과 비교하여 제한이 필요한 경우 제한 필요
     dataSource.setIngestionInfo(ingestionInfo);
+    dataSource.setStatus(DataSource.Status.PREPARING);
+
+    dataSourceRepository.flush();
 
     // 기존 진행중인 적재 작업 ShutDown
     if (BooleanUtils.isTrue(singleMode)) {

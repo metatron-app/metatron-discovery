@@ -3084,6 +3084,10 @@
   "msg.storage.ui.timezone.city.zaporozhye": "자포리자",
   "msg.storage.ui.timezone.city.zulu": "줄루",
   "msg.storage.ui.timezone.city.zurich": "취리히",
+  "msg.storage.ui.dsource.file-reupload.title" : "파일 재 업로드",
+  "msg.storage.ui.dsource.file-reupload.invalid.field" : "업로드 데이터 {{number}}번 열 {{fieldName}} 컬럼을 찾을 수 없습니다.",
+  "msg.storage.ui.dsource.file-reupload.invalid.field.detail" : "컬럼 순서와 컬럼명이 아래와 동일해야 합니다.",
+  "msg.storage.ui.dsource.file-reupload.invalid.datetime-format" : "{{fieldName}} 컬럼 데이터가 날짜/시간 포멧({{dateTimeFormat}})에 일치하지 않습니다.",
 
   "msg.log.th.status": "상태",
   "msg.log.ui.search.description" : "잡 이름, 어플리케이션 ID 및 사용자별로 검색",

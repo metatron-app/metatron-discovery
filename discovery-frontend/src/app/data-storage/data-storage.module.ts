@@ -37,6 +37,8 @@ import { EditFilterDataSourceComponent } from './data-source-list/detail-data-so
 import { IngestionLogComponent } from './data-source-list/detail-data-source/information-dats-source/component/ingestion-log/ingestion-log.component';
 import { CriterionCheckboxListComponent } from './component/criterion/criterion-checkbox-list.component';
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
+import {ImportFileComponent} from "../workbench/component/import-file/import-file.component";
+import {ReUploadFileDataSource} from "./data-source-list/detail-data-source/reupload-file-data-source/reupload-file-data-source";
 import {DataSourceCreateModule} from "./data-source-list/create-data-source/data-source-create.module";
 import {FieldConfigService} from "./service/field-config.service";
 import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/datasource-metadata-shared.module";
@@ -90,6 +92,9 @@ const storageRoutes: Routes = [
     CriterionFilterBoxComponent,
     CriterionCheckboxListComponent,
     CriterionTimeRadioboxListComponent,
+    // criterion time radiobox
+    ReUploadFileDataSource
+    CriterionTimeRadioboxComponent,
   ],
   exports: [
     // 워크벤치에서 사용하기 위해

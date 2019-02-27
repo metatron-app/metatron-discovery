@@ -3085,6 +3085,10 @@
   "msg.storage.ui.timezone.city.zaporozhye": "Zaporozhye",
   "msg.storage.ui.timezone.city.zulu": "Zulu",
   "msg.storage.ui.timezone.city.zurich": "Zurich",
+  "msg.storage.ui.dsource.file-reupload.title" : "Reupload file",
+  "msg.storage.ui.dsource.file-reupload.invalid.field" : "Could not find {{fieldName}} column (# {{number}}).",
+  "msg.storage.ui.dsource.file-reupload.invalid.field.detail" : "Column order and name should be the same as below.",
+  "msg.storage.ui.dsource.file-reupload.invalid.datetime-format" : "The {{fieldName}} column data does not match the date/time format ({{dateTimeFormat}}).",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job name, application ID, and User",
