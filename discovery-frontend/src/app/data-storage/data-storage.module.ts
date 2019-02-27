@@ -71,6 +71,7 @@ import { TimezoneService } from "./service/timezone.service";
 import {DataSourceCreateService} from "./service/data-source-create.service";
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
 import {DataSourceShareModule} from "./data-source-list/data-source-share.module";
+import {StorageFilterSelectBoxComponent} from "./data-source-list/component/storage-filter-select-box.component";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -92,6 +93,7 @@ const storageRoutes: Routes = [
   declarations: [
     // common
     TimeComponent,
+    StorageFilterSelectBoxComponent,
     // schema config component
     SchemaConfigComponent,
     // schema config detail component

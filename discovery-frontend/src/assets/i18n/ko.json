@@ -2160,6 +2160,7 @@
   "msg.storage.ui.file.result.FV005": "빈 컬럼명은 허용되지 않습니다.",
   "msg.storage.ui.timezone": "타임존",
   "msg.storage.ui.username": "사용자이름",
+  "msg.storage.ui.guide.meta.modified": "메타데이터도 수정 시 업데이트됩니다.",
 
   "msg.storage.ui.timezone.country.zimbabwe": "짐바브웨",
   "msg.storage.ui.timezone.country.zambia": "잠비아",

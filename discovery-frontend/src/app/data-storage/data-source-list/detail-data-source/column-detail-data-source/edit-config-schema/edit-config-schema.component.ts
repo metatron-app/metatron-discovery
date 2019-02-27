@@ -12,46 +12,60 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import {
-  Field, FieldFormat, FieldFormatType, FieldRole,
-  LogicalType
-} from '../../../../../domain/datasource/datasource';
+import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
+import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {Field, FieldFormat, FieldFormatType, FieldRole, LogicalType} from '../../../../../domain/datasource/datasource';
 
 import * as _ from 'lodash';
-import { DatasourceService } from '../../../../../datasource/service/datasource.service';
-import { Alert } from '../../../../../common/util/alert.util';
+import {DatasourceService} from '../../../../../datasource/service/datasource.service';
+import {Alert} from '../../../../../common/util/alert.util';
+import {StringUtil} from "../../../../../common/util/string.util";
 
 @Component({
   selector: 'edit-config-schema',
   templateUrl: './edit-config-schema.component.html'
 })
-export class EditConfigSchemaComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+export class EditConfigSchemaComponent extends AbstractPopupComponent {
 
   // 데이터소스 아이디
   private _sourceId: string;
+  // origin field list
+  private _originFieldList: Field[];
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // field list
-  public fields: Field[];
+  // search keyword
+  public searchTextKeyword: string;
+  // filtered field list
+  public filteredFieldList: Field[];
+  // role type filter list
+  public roleTypeFilterList: any[];
+  // selected role type filter
+  public selectedRoleTypeFilter: any;
+  // type filter list
+  public typeFilterList: any[];
+  // selected type filter
+  public selectedTypeFilter: any;
+  // convertible type list
+  public convertibleTypeList: any;
 
   // show flag
   public isShowFl: boolean = false;
 
+  // Field role
+  public fieldRole: any = FieldRole;
+
   // logical type list
-  public logicalTypes: any[];
+  public logicalTypes: any[] = [
+    { label: this.translateService.instant('msg.storage.ui.list.string'), value: 'STRING' },
+    { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
+    { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER', measure: true },
+    { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', measure: true  },
+    { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
+    { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
+    { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' },
+    { label: this.translateService.instant('msg.storage.ui.list.geo.point'), value: 'GEO_POINT', derived: true },
+    { label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), value: 'GEO_POLYGON', derived: true },
+    { label: this.translateService.instant('msg.storage.ui.list.geo.line'), value: 'GEO_LINE', derived: true },
+  ];
 
   @Output()
   public updatedSchema: EventEmitter<any> = new EventEmitter();
@@ -67,48 +81,35 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
     super(element, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
-  public ngOnInit() {
-
-    // Init
-    super.ngOnInit();
-  }
-
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
    * init
+   * @param {string} datasourceId
    * @param {Field[]} fields
+   * @param {any[]} roleTypeFilterList
+   * @param {any[]} typeFilterList
    */
-  public init(datasourceId: string, fields: Field[]): void {
-    // init view
-    this._initView();
+  public init(datasourceId: string, fields: Field[], roleTypeFilterList: any[], typeFilterList: any[]): void {
     // 데이터소스 아이디
     this._sourceId = datasourceId;
-    // 필드 리스트 복사
-    this.fields = _.cloneDeep(fields);
-    this.fields.forEach((column) => {
+    // set filter list
+    this.typeFilterList = typeFilterList;
+    this.selectedTypeFilter = this.typeFilterList[0];
+    this.roleTypeFilterList = roleTypeFilterList;
+    this.selectedRoleTypeFilter = this.roleTypeFilterList[0];
+    // set origin field list
+    this._originFieldList = _.cloneDeep(fields);
+    this._originFieldList.forEach((column) => {
       // 타임스탬프인데 format이 없는경우 init
       if (column.logicalType === LogicalType.TIMESTAMP && !column.format) {
         column.format = new FieldFormat();
       }
     });
+    // init filtered field list
+    this._updateFilteredFieldList();
     // flag
     this.isShowFl = true;
   }
+
 
   /**
    * save
@@ -122,33 +123,59 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
    */
   public cancel(): void {
     this.isShowFl = false;
+    this.selectedTypeFilter = undefined;
+    this.selectedRoleTypeFilter = undefined;
+    this._sourceId = undefined;
+    this.searchTextKeyword = undefined;
+
+    this._originFieldList = undefined;
+    this.roleTypeFilterList = undefined;
+    this.typeFilterList = undefined;
+    this.filteredFieldList = undefined;
+    this.convertibleTypeList = undefined;
   }
 
   /**
-   * 현재 필드의 logical Type label
+   * Search text
+   * @param {string} keyword
+   */
+  public searchText(keyword: string): void {
+    // set search text keyword
+    this.searchTextKeyword = keyword;
+    // update filtered field list
+    this._updateFilteredFieldList();
+  }
+
+  /**
+   * Get selected logical type label
    * @param {Field} field
    * @returns {string}
    */
   public getSelectedLogicalTypeLabel(field: Field): string {
-    return this.logicalTypes.filter((type) => {
-      return type.value === field.logicalType;
-    })[0].label;
+    return (this.typeFilterList.find(type => type.value === field.logicalType) || this.typeFilterList[1]).label;
   }
 
   /**
-   * logical type list
-   * @param {Field} field
-   * @returns {any[]}
+   * Changed role type filter
+   * @param type
    */
-  public getLogicalTypeList(field: Field) {
-    return field.role === FieldRole.MEASURE
-      ? this.logicalTypes.filter(type => !type.derived && type.measure)
-      : this.logicalTypes.filter(type => !type.derived);
+  public onChangedRoleTypeFilter(type: any): void {
+    // set selected role type filter
+    this.selectedRoleTypeFilter = type;
+    // update filtered field list
+    this._updateFilteredFieldList();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - event
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Changed type filter
+   * @param type
+   */
+  public onChangedTypeFilter(type: any): void {
+    // set selected type filter
+    this.selectedTypeFilter = type;
+    // update filtered field list
+    this._updateFilteredFieldList();
+  }
 
   /**
    * logical type 변경 이벤트
@@ -181,67 +208,31 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * logical type list show
+   * Change type list show flag
    * @param {Field} field
    */
-  public onShowLogicalTypeList(field: Field): void {
-    field['typeListFl'] = !field['typeListFl'];
+  public onChangeTypeListShowFlag(field: Field): void {
+    // if not derived and TIMESTAMP
+    if (!field.derived && field.role !== FieldRole.TIMESTAMP) {
+      !field['isShowTypeList'] && this._setConvertedTypeList(field);
+      field['isShowTypeList'] = !field['isShowTypeList'];
+    }
   }
 
   /**
-   * Is GEO type column
-   * @param column
-   * @returns {boolean}
-   */
-  public isGeoType(column: any): boolean {
-    return column.logicalType.indexOf('GEO_') !== -1;
-  }
-
-  /**
-   * Is derived column
-   * @param {Field} column
-   * @returns {boolean}
-   */
-  public isDerivedColumn(column: Field): boolean {
-    return column.derived;
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * ui init
+   * Update filtered field list
    * @private
    */
-  private _initView(): void {
-    // id
-    this._sourceId = '';
-    // fields
-    this.fields = [];
-    // flag
-    this.isShowFl = false;
-    // logicalType
-    this.logicalTypes = [
-      { label: this.translateService.instant('msg.storage.ui.list.string'), value: 'STRING' },
-      { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
-      { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER', measure: true },
-      { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', measure: true  },
-      { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
-      { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
-      { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' },
-      { label: this.translateService.instant('msg.storage.ui.list.geo.point'), value: 'GEO_POINT', derived: true },
-      { label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), value: 'GEO_POLYGON', derived: true },
-      { label: this.translateService.instant('msg.storage.ui.list.geo.line'), value: 'GEO_LINE', derived: true },
-    ];
+  private _updateFilteredFieldList(): void {
+    // set filtered field list
+    this.filteredFieldList = this._originFieldList.filter(field =>
+      (this.selectedRoleTypeFilter.value === 'ALL' ? true : (FieldRole.DIMENSION === this.selectedRoleTypeFilter.value && FieldRole.TIMESTAMP === field.role ? field : this.selectedRoleTypeFilter.value === field.role))
+      && (this.selectedTypeFilter.value === 'ALL' ? true : this.selectedTypeFilter.value === field.logicalType)
+      && (StringUtil.isEmpty(this.searchTextKeyword) ? true : field.name.toUpperCase().includes(this.searchTextKeyword.toUpperCase().trim())));
   }
 
   /**
-   * 변경된 필드정보 업데이트
+   * Update schema
    * @private
    */
   private _updateSchema(): void {
@@ -266,19 +257,30 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * 변경에 사용될 필드
-   * @returns {any}
+   * Get update field params
+   * @return {Field[]}
    * @private
    */
-  private _getUpdateFieldParams(): any {
-    const result = this.fields.filter((field) => {
-      return field['replaceFl'];
-    });
-    result.forEach((item) => {
-      item['op'] = 'replace';
-      delete item['replaceFl'];
-      delete item['typeListFl'];
-    });
-    return result;
+  private _getUpdateFieldParams(): Field[] {
+    return this._originFieldList.reduce((acc, field) => {
+      if (field['replaceFl']) {
+        field['op'] = 'replace';
+        delete field['replaceFl'];
+        delete field['isShowTypeList'];
+        acc.push(field);
+      }
+      return acc;
+    }, []);
+  }
+
+  /**
+   * Set converted type list
+   * @param {Field} field
+   * @private
+   */
+  private _setConvertedTypeList(field: Field): void {
+    this.convertibleTypeList = field.role === FieldRole.MEASURE
+      ? this.logicalTypes.filter(type => !type.derived && type.measure)
+      : this.logicalTypes.filter(type => !type.derived);
   }
 }
