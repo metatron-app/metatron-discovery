@@ -12,27 +12,25 @@
  * limitations under the License.
  */
 
-import {ChangeDetectorRef, Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
+import {Datasource, DatasourceInfo, Field, FieldRole, LogicalType} from '../../../../domain/datasource/datasource';
+import {FileLikeObject, FileUploader} from 'ng2-file-upload';
+import {Alert} from '../../../../common/util/alert.util';
+import {CookieConstant} from '../../../../common/constant/cookie.constant';
+import {CommonConstant} from '../../../../common/constant/common.constant';
+import {DatasourceService} from '../../../../datasource/service/datasource.service';
+import {header, SlickGridHeader} from '../../../../common/component/grid/grid.header';
+import {GridOption} from '../../../../common/component/grid/grid.option';
+import {GridComponent} from '../../../../common/component/grid/grid.component';
 import * as pixelWidth from 'string-pixel-width';
-import {AbstractPopupComponent} from "../../../../common/component/abstract-popup.component";
-import {GridComponent} from "../../../../common/component/grid/grid.component";
-import {FileLikeObject, FileUploader} from "ng2-file-upload";
-import {CommonConstant} from "../../../../common/constant/common.constant";
-import {CookieConstant} from "../../../../common/constant/cookie.constant";
-import {Alert} from "../../../../common/util/alert.util";
-import {isUndefined} from "util";
-import {GridOption} from "../../../../common/component/grid/grid.option";
-import {header, SlickGridHeader} from "../../../../common/component/grid/grid.header";
 import {
-  Datasource,
-  DatasourceFile,
-  DatasourceInfo,
-  Field,
-  FieldRole,
-  File,
-  LogicalType
-} from "../../../../domain/datasource/datasource";
-import {DatasourceService} from "../../../../datasource/service/datasource.service";
+  DataSourceCreateService,
+  FileDetail,
+  FileResult,
+  Sheet,
+  UploadResult
+} from "../../../service/data-source-create.service";
 
 
 @Component({
@@ -44,36 +42,20 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성될 데이터소스 정보
-  private sourceData: DatasourceInfo;
-
   @ViewChild(GridComponent)
   private gridComponent: GridComponent;
 
-  // 업로드 결과
-  private uploadResult: any;
+  // file uploaded results
+  private _uploadResult: UploadResult;
 
-  // file data
-  private datasourceFile: DatasourceFile = new DatasourceFile;
+  // file results
+  public fileResult: FileResult;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Change Detect
-  public changeDetect: ChangeDetectorRef;
-
-  @Input()
-  public datasource: Datasource;
+  // selected file detail data
+  public selectedFileDetailData: FileDetail;
 
   // 파일 업로드
   public uploader: FileUploader;
-  // 파일 업로드 가능한 확장자 명
-  public allowFileType: string[];
 
   // 그리드 row
   public rowNum: number = 100;
@@ -82,8 +64,8 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
   public delimiter: string = ',';
   // csv 파일 줄바꿈자
   public separator: string = '\\n';
-  // 임의의 헤드컬럼 생성여부
-  public createHeadColumnFl: boolean = false;
+  // Use the first row as the head column
+  public isFirstHeaderRow: boolean = true;
 
   // flag
   public typeShowFl: boolean = false;
@@ -91,12 +73,20 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
   // grid hide
   public clearGrid = true;
 
+  @Input()
+  public datasource: Datasource;
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Constructor
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
   constructor(private datasourceService: DatasourceService,
+              private _dataSourceCreateService: DataSourceCreateService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -105,26 +95,20 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
     this.uploader = new FileUploader(
       {
         url: CommonConstant.API_CONSTANT.API_URL + 'datasources/file/upload',
-        //allowedFileType: this.allowFileType
       }
     );
     // post
     this.uploader.onBeforeUploadItem = (item) => {
       item.method = 'POST';
     };
-    // set option
+    // set uploader option
     this.uploader.setOptions({
-      url: CommonConstant.API_CONSTANT.API_URL
-      + 'datasources/file/upload',
+      url: CommonConstant.API_CONSTANT.API_URL + 'datasources/file/upload',
       headers: [
         { name: 'Accept', value: 'application/json, text/plain, */*' },
-        {
-          name: 'Authorization',
-          value: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
-        }
+        { name: 'Authorization', value: `${this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)} ${this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)}` }
       ],
     });
-
     // 지원하지 않는 파일 형식일 경우
     this.uploader.onWhenAddingFileFailed = (item: FileLikeObject, filter: any, options: any) => {
       Alert.error(this.translateService.instant('msg.storage.alert.file.import.error'));
@@ -133,15 +117,17 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
     // 업로드 성공
     this.uploader.onSuccessItem = (item, response, status, headers) => {
       const success = true;
-      this.uploadResult = { success, item, response, status, headers };
+      this._uploadResult = { success, item, response, status, headers };
+      // loading hide
+      this.loadingHide();
     };
     // 업로드 완료후 작동
     this.uploader.onCompleteAll = () => {
-      if (this.uploadResult && this.uploadResult.success) {
+      if (this._uploadResult && this._uploadResult.success) {
         // 업로드한 파일 정보 세팅
-        this.setDatasourceFile(this.uploadResult);
-        // 파일 데이터 가져오기
-        this.getFileData();
+        this._setFileResult(this._uploadResult);
+        // set file detail data
+        this._setFileDetail();
       }
     };
 
@@ -150,8 +136,9 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
       // response 데이터
       const result: any = JSON.parse(response);
       // 데이터 초기화
-      this.datasourceFile = new DatasourceFile;
-      this.uploadResult = null;
+      this.fileResult = undefined;
+      // init upload result
+      this._uploadResult = undefined;
       // 파일 업로드 에러 처리
       Alert.error(result.details);
       // loading hide
@@ -171,12 +158,8 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
 
   // Init
   public ngOnInit() {
-
     // Init
     super.ngOnInit();
-
-    // init view
-    this.initView();
   }
 
   // Destory
@@ -190,6 +173,9 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  /**
+   * 다음화면으로 이동
+   */
   public done() {
     try {
       this.checkCompatibilityOfUploadFileFieldsAndDatasouceFields();
@@ -198,72 +184,17 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
         this.reIngestion();
       });
     } catch(e) {
-        Alert.errorDetail(e.message,
-          this.translateService.instant("msg.storage.ui.dsource.file-reupload.invalid.field.detail")
-          + " <br />"
-          + this.datasource.fields.map(field => field.name).join(" | "));
+      Alert.errorDetail(e.message,
+        this.translateService.instant("msg.storage.ui.dsource.file-reupload.invalid.field.detail")
+        + " <br />"
+        + this.datasource.fields.map(field => field.name).join(" | "));
     }
   }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - getter
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 파일 이름
-   * @returns {string}
-   */
-  public get getFileName(): string {
-    return this.datasourceFile.filename;
-  }
-
-  /**
-   * 파일 size
-   * @returns {number}
-   */
-  public get getFileSize(): number {
-    return this.datasourceFile.fileSize;
-  }
-
-  /**
-   * 시트 데이터
-   * @returns {any[]}
-   */
-  public get getSheets(): any[] {
-    return this.datasourceFile.sheets;
-  }
-
-  /**
-   * 필드 데이터
-   * @returns {any[]}
-   */
-  public getFields(): any[] {
-    return this.datasourceFile.hasOwnProperty('selectedFile') && this.datasourceFile.selectedFile.fields;
-  }
-
-  /**
-   * 선택한 시트 이름
-   * @returns {string}
-   */
-  public get getSelectedSheetName(): string {
-    return this.datasourceFile.selectedSheetName;
-  }
-
-  /**
-   * 컬럼 length
-   * @returns {number}
-   */
-  public get getColumnLength() {
-    return this.getFields().length;
-  }
-
-  /**
-   * row length
-   * @returns {number}
-   */
-  public getRowLength() {
-    return this.datasourceFile.hasOwnProperty('selectedFile') && this.datasourceFile.selectedFile.totalRows;
-  }
 
   /**
    * logical Types
@@ -271,7 +202,7 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
    */
   public getLogicalTypes() {
     const result = {};
-    this.getFields().forEach((field) => {
+    this.selectedFileDetailData.fields.forEach((field) => {
       // result 에 해당 타입이 있다면
       if (result.hasOwnProperty(field.logicalType)) {
         result[field.logicalType] += 1;
@@ -294,87 +225,45 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
 
 
   /**
-   * validation
-   * @returns {boolean}
-   */
-  public getDoneValidation(): boolean {
-    // 선택한 파일이 존재하는지
-    // if (this.datasourceFile.hasOwnProperty('selectedFile')
-    //   && this.datasourceFile.selectedFile.hasOwnProperty('fields')
-    //   && !this.clearGrid
-    //   && (!this.isCsvFile() || (this.isCsvFile() && this.delimiter !== '' && this.separator !== ''))){
-    //   return true;
-    // }
-    if (this.datasourceFile.hasOwnProperty('selectedFile')
-      && this.datasourceFile.selectedFile.hasOwnProperty('fields')
-      && !this.clearGrid) {
-      return true;
-    }
-    return false;
-  }
-
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method - validation
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 파일이 CSV 파일인지 확인
+   * Is CSV type file
    * @returns {boolean}
    */
   public isCsvFile(): boolean {
-    return (!this.datasourceFile.hasOwnProperty('sheets'));
+    return !this.fileResult.sheets;
   }
 
   /**
-   * 파일이 엑셀 파일인지 확인
-   * @returns {boolean}
+   * Is enable next
+   * @return {boolean}
    */
-  public isExcelFile(): boolean {
-    return this.datasourceFile.hasOwnProperty('sheets') && this.datasourceFile.sheets.length !== 0;
+  public isEnableNext(): boolean {
+    // exist selectedFileDetailData
+    // exist fields in selectedFileDetailData
+    // enable grid
+    return !this.clearGrid && this.selectedFileDetailData && this.selectedFileDetailData.fields && this.selectedFileDetailData.isParsable.valid;
   }
 
   /**
-   * 선택한 시트인지 확인
-   * @param sheetName
-   * @returns {boolean}
+   * Change selected sheet
+   * @param {Sheet} sheet
    */
-  public isSelectedSheet(sheetName): boolean {
-    return this.datasourceFile.selectedSheetName === sheetName;
+  public onChangeSelectedSheet(sheet: Sheet): void {
+    if (this.fileResult.selectedSheet !== sheet) {
+      // change selected sheet
+      this.fileResult.selectedSheet = sheet;
+      // set file detail
+      this._setFileDetail();
+    }
   }
 
   /**
-   * 파일 업로드 성공여부
-   * @returns {boolean}
+   * Change first header row
    */
-  public isSuccessFileUpload(): boolean {
-    return (this.datasourceFile.hasOwnProperty('filekey')
-      && !isUndefined(this.datasourceFile.filekey));
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method - event
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 시트 선택 이벤트
-   * @param sheetName
-   */
-  public onSelectedSheet(sheetName) {
-    // 시트이름 저장
-    this.datasourceFile.selectedSheetName = sheetName;
-    // file data 조회
-    this.getFileData();
-  }
-
-  /**
-   * 헤드컬럼 선택이벤트
-   */
-  public onClickCreateHeadColumn() {
-    // 헤드컬럼 플래그 변경
-    this.createHeadColumnFl = !this.createHeadColumnFl;
-    // file data 조회
-    this.getFileData();
+  public onChangeIsFirstHeaderRowFlag(): void {
+    // change first header row flag
+    this.isFirstHeaderRow = !this.isFirstHeaderRow;
+    // set file detail
+    this._setFileDetail();
   }
 
   /**
@@ -382,12 +271,11 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
    */
   public onChangeRowNum() {
     // row num이 총 row 보다 클경우 변경
-    if (this.rowNum > this.getRowLength()) {
-      this.rowNum = this.getRowLength();
+    if (this.rowNum > this.selectedFileDetailData.totalRows) {
+      this.rowNum = this.selectedFileDetailData.totalRows;
     }
-
     // file data 조회
-    this.getFileData();
+    this._setFileDetail();
   }
 
   /**
@@ -400,7 +288,7 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
       return;
     }
     // file data 조회
-    this.getFileData();
+    this._setFileDetail();
   }
 
   /**
@@ -413,24 +301,18 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
       return;
     }
     // file data 조회
-    this.getFileData();
+    this._setFileDetail();
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
 
   /**
    * 그리드 출력
    * @param {any[]} headers
    * @param {any[]} rows
+   * @private
    */
-  private drawGrid(headers: any[], rows: any[]) {
+  private _drawGrid(headers: any[], rows: any[]) {
+    // grid show
+    this.clearGrid = false;
     this.changeDetect.detectChanges();
     // 그리드 옵션은 선택
     this.gridComponent.create(headers, rows, new GridOption()
@@ -445,28 +327,28 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
    * grid 정보 업데이트
    * @param data
    * @param {Field[]} fields
+   * @private
    */
-  private updateGrid(data: any, fields: Field[]) {
+  private _updateGrid(data: any, fields: Field[]) {
     // headers
-    const headers: header[] = this.getHeaders(fields);
+    const headers: header[] = this._getHeaders(fields);
     // rows
-    const rows: any[] = this.getRows(data);
+    const rows: any[] = this._getRows(data);
     // grid 그리기
-    this.drawGrid(headers, rows);
+    headers && headers.length > 0 && this._drawGrid(headers, rows);
   }
 
   /**
    * 헤더정보 얻기
    * @param {Field[]} fields
    * @returns {header[]}
+   * @private
    */
-  private getHeaders(fields: Field[]) {
+  private _getHeaders(fields: Field[]): header[] {
     return fields.map(
       (field: Field) => {
-
         /* 70 는 CSS 상의 padding 수치의 합산임 */
         const headerWidth:number = Math.floor(pixelWidth(field.name, { size: 12 })) + 70;
-
         return new SlickGridHeader()
           .Id(field.name)
           .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + field.name + '</span>')
@@ -488,8 +370,9 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
    * rows 얻기
    * @param data
    * @returns {any[]}
+   * @private
    */
-  private getRows(data: any) {
+  private _getRows(data: any): any[] {
     let rows: any[] = data;
     if (data.length > 0 && !data[0].hasOwnProperty('id')) {
       rows = rows.map((row: any, idx: number) => {
@@ -500,56 +383,58 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
     return rows;
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method - getter
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-
   /**
-   * 파일 데이터 가져오기
+   * Set file detail data
+   * @private
    */
-  private getFileData() {
+  private _setFileDetail(): void {
+    // init selected file detail data
+    this.selectedFileDetailData = undefined;
     // grid hide
     this.clearGrid = true;
-
+    // if excel invalid file
+    if (!this.isCsvFile() && !this.fileResult.selectedSheet.valid) {
+      return;
+    }
     // 로딩 show
     this.loadingShow();
     // 파일 조회
-    this.datasourceService.getDatasourceFile(this.datasourceFile.filekey, this.getDatasourceFileParams(this.isCsvFile()))
-      .then((result) => {
+    this.datasourceService.getDatasourceFile(this.fileResult.fileKey, this._getFileParams())
+      .then((result: FileDetail) => {
         // 로딩 hide
         this.loadingHide();
-
-        if (result['success'] === false) {
+        // if SUCCESS
+        if (result.success === false) {
           Alert.warning(this.translateService.instant('msg.storage.alert.file.import.error'));
           return;
         }
-        // file data
-        this.setSelectedFile(result);
-        // grid show
-        this.clearGrid = false;
-        // grid 출력
-        this.updateGrid(this.datasourceFile.selectedFile.data, this.datasourceFile.selectedFile.fields);
+        // set file detail data
+        this.selectedFileDetailData = result;
+        // if result is parsable
+        if (result.isParsable && result.isParsable.valid) {
+          // grid 출력
+          this._updateGrid(this.selectedFileDetailData.data, this.selectedFileDetailData.fields);
+        } else if (result.isParsable) { // if result is not parsable
+          // set error message
+          this.selectedFileDetailData.errorMessage = this._dataSourceCreateService.getFileErrorMessage(result.isParsable.warning);
+        }
       })
-      .catch((error) => {
-        // 로딩 hide
-        this.loadingHide();
-      });
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
-   * 파일 조회 파라메터
-   * @param {boolean} isCsvFile
-   * @returns {{limit: number; firstHeaderRow: boolean}}
+   * Get file params
+   * @return {any}
+   * @private
    */
-  private getDatasourceFileParams(isCsvFile:boolean) {
+  private _getFileParams(): any {
     const params = {
       limit: this.rowNum,
-      firstHeaderRow: !this.createHeadColumnFl,
+      firstHeaderRow: this.isFirstHeaderRow,
     };
-
-    if (!isCsvFile) {
-      params['sheet'] = this.datasourceFile.selectedSheetName;
+    // if excel file
+    if (!this.isCsvFile()) {
+      params['sheet'] = this.fileResult.selectedSheet.sheetName;
     } else {
       params['lineSep'] = this.separator;
       params['delimiter'] = this.delimiter;
@@ -557,50 +442,34 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
     return params;
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method - setter
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 선택한 file data 저장
-   * @param sheet
+   * Set file result
+   * @param {UploadResult} uploadResult
+   * @private
    */
-  private setSelectedFile(file) {
-    // 선택한 sheet data 저장
-    this.datasourceFile.selectedFile = new File();
-    // 데이터
-    this.datasourceFile.selectedFile = file;
-  }
-
-  /**
-   * 데이터소스 업로드 된 파일 세팅
-   * @param uploadResult
-   */
-  private setDatasourceFile(uploadResult) {
-    this.datasourceFile = new DatasourceFile;
+  private _setFileResult(uploadResult: UploadResult) {
     // response 데이터
     const response: any = JSON.parse(uploadResult.response);
-    // 파일 이름
-    this.datasourceFile.filename = uploadResult.item.file.name;
-    // 파일 크기
-    this.datasourceFile.fileSize = uploadResult.item.file.size;
-    // 파일 path
-    this.datasourceFile.filepath = response.filePath;
-    // 파일 key
-    this.datasourceFile.filekey = response.filekey;
+    this.fileResult = {
+      fileKey: response.filekey,
+      filePath: response.filePath,
+      fileSize: uploadResult.item.file.size,
+      fileName:  uploadResult.item.file.name
+    };
     // sheet 가 존재한다면
-    if (response.hasOwnProperty('sheets') && response.sheets.length !== 0) {
+    if (response.sheets && response.sheets.length !== 0) {
       // sheet
-      this.datasourceFile.sheets = response.sheets;
-      // 초기 선택한 파일명 선택
-      this.datasourceFile.selectedSheetName = response.sheets[0];
+      this.fileResult.sheets = this._dataSourceCreateService.getConvertSheets(response.sheets);
+      // initial selected sheet
+      this.fileResult.selectedSheet = this.fileResult.sheets[0];
     }
   }
 
   private checkCompatibilityOfUploadFileFieldsAndDatasouceFields() {
     this.datasource.fields.forEach(datasourceField => {
       const comparingFieldSeq = datasourceField.seq + 1;
-      const findIndex = this.datasourceFile.selectedFile.fields.findIndex(
+      const findIndex = this.selectedFileDetailData.fields.findIndex(
         fileField => comparingFieldSeq === fileField.seq && datasourceField.name === fileField.name
       );
 
@@ -618,7 +487,7 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
       if(datasourceField.role === FieldRole.TIMESTAMP || datasourceField.logicalType === LogicalType.TIMESTAMP) {
         const param = {
           format: datasourceField.format.format,
-          samples: this.datasourceFile.selectedFile.data.map(data => data[datasourceField.name])
+          samples: this.selectedFileDetailData.data.map(data => data[datasourceField.name])
         };
 
         const promise: Promise<any> = this.datasourceService.checkValidationDateTime(param);
@@ -676,16 +545,16 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
     } else {
       format = {
         type: "excel",
-        sheetIndex: this.datasourceFile.sheets.findIndex(item => item === this.datasourceFile.selectedSheetName)
+        sheetIndex: this.fileResult.sheets.findIndex(item => item.sheetName === this.fileResult.selectedSheet.sheetName)
       };
     }
 
     const param = {
       type: "local",
       rollup: this.datasource.ingestion.rollup,
-      path: this.datasourceFile.filepath,
+      path: this.fileResult.filePath,
       format: format,
-      removeFirstRow: !this.createHeadColumnFl
+      removeFirstRow: this.isFirstHeaderRow
     };
 
     this.datasourceService.appendDataToDatasource(this.datasource.id, param)
@@ -698,13 +567,4 @@ export class ReUploadFileDataSource extends AbstractPopupComponent implements On
         this.commonExceptionHandler(error);
       });
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method - init
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  private initView() {
-    this.allowFileType = ['csv', 'text/csv', 'xls', 'xlsx', 'application/vnd.ms-excel'];
-  }
 }
-

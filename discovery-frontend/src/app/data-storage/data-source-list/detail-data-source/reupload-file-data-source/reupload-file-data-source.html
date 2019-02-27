@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-datasource">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
@@ -23,9 +23,9 @@
     </div>
   </div>
   <!-- contents in  -->
-  <div class="ddp-type-contents-in ddp-full">
+  <div class="ddp-type-contents-in" [class.ddp-full]="!fileResult" [class.ddp-sheet-resize]="fileResult">
     <!-- 파일 선택하기전 -->
-    <div class="ddp-box-popupcontents" *ngIf="!isSuccessFileUpload()">
+    <div class="ddp-box-popupcontents" *ngIf="!fileResult">
       <!-- file create -->
       <div class="ddp-box-file-create" ng2FileDrop [uploader]="uploader">
         <!-- default -->
@@ -47,13 +47,13 @@
     </div>
     <!-- //파일 선택하기전 -->
     <!-- 파일 선택한 후 -->
-    <div class="ddp-box-popupcontents ddp-wrap-file-create" *ngIf="isSuccessFileUpload()">
+    <div class="ddp-box-popupcontents ddp-wrap-file-create" *ngIf="fileResult">
 
       <!-- upload box -->
       <div class="ddp-box-upload" ng2FileDrop [uploader]="uploader">
         <!-- name -->
         <div class="ddp-data-load-name">
-          <em class="ddp-icon-file2"></em>{{getFileName}}
+          <em class="ddp-icon-file2"></em>{{fileResult.fileName}}
         </div>
         <!-- //name -->
         <div class="ddp-txt-file-info">
@@ -65,86 +65,91 @@
         </div>
       </div>
       <!-- //upload box -->
-      <!-- wrap sheet -->
-      <div class="ddp-wrap-sheet">
+      <div class="ddp-wrap-variable">
+        <!-- wrap sheet -->
+        <div class="ddp-wrap-sheet">
 
-        <!-- sheet list -->
-        <div class="ddp-ui-sheet-list" [ngStyle]="isCsvFile() ? {'display': 'none'} : {}">
-          <ul class="ddp-list-sheet">
-            <li *ngFor="let sheet of getSheets"
-                [ngClass]="{'ddp-selected' : isSelectedSheet(sheet)}"
-                (click)="onSelectedSheet(sheet)">
-              <label class="ddp-label-radio">
-                <input type="radio" [checked]="isSelectedSheet(sheet)">
-                <i class="ddp-icon-radio"></i>
-              </label>
-              <span class="ddp-txt-radio">{{sheet}}</span>
-            </li>
-          </ul>
+          <!-- sheet list -->
+          <div class="ddp-ui-sheet-list" [ngStyle]="isCsvFile() ? {'display': 'none'} : {}">
+            <ul class="ddp-list-sheet">
+              <li *ngFor="let sheet of fileResult.sheets"
+                  [class.ddp-selected]="sheet === fileResult.selectedSheet"
+                  (click)="onChangeSelectedSheet(sheet)">
+                <label class="ddp-label-radio">
+                  <input type="radio" [checked]="sheet === fileResult.selectedSheet">
+                  <i class="ddp-icon-radio"></i>
+                </label>
+                <span class="ddp-txt-radio">{{sheet.sheetName}}<em *ngIf="!sheet.valid" class="ddp-icon-error2"></em></span>
+              </li>
+            </ul>
 
-        </div>
-        <!-- //sheet list -->
-        <!-- sheet view -->
-        <div class="ddp-view-sheet" [ngClass]="{'ddp-full' : isCsvFile()}">
-          <div class="ddp-wrap-grid-option ddp-data-name">
-            {{getSelectedSheetName}}
-            <div class="ddp-part-right">
-              <div class="ddp-data-form">
-                <strong>{{getFileSize}}</strong>
-                {{'msg.storage.ui.dsource.create.file.byte' | translate}}
-              </div>
-              <div class="ddp-data-form" *ngIf="getFields()">
-                <strong>{{getColumnLength}}</strong>
-                {{'msg.storage.ui.dsource.create.file.columns' | translate}}
-              </div>
-              <div class="ddp-data-form">
-                <input type="text" class="ddp-data-input"
-                       input-mask="number"
-                       [(ngModel)]="rowNum"
-                       (keyup.enter)="onChangeRowNum()">
-                <strong>/ {{getRowLength()}}</strong>
-                {{'msg.storage.ui.dsource.create.file.row' | translate}}
-              </div>
-              <div class="ddp-data-form"
-                   *ngIf="getFields()">
-                <strong class="ddp-cursor"
-                        (click)="typeShowFl = !typeShowFl"
-                        (clickOutside)="typeShowFl = false">{{getLogicalTypes().length}}</strong>
-                {{'msg.storage.ui.dsource.create.file.types' | translate}}
-                <!-- 팝업 -->
-                <div class="ddp-wrap-popup2 ddp-types" *ngIf="typeShowFl">
-                  <ul class="ddp-list-popup">
-                    <li *ngFor="let type of getLogicalTypes()">
-                      <a href="javascript:">
-                        <em class="{{getFieldTypeIconClass(type.label)}}"></em>
-                        {{type.value}} {{'msg.storage.th.row' | translate}}
-                      </a>
-                    </li>
-                  </ul>
+          </div>
+          <!-- //sheet list -->
+          <!-- sheet view -->
+          <div class="ddp-view-sheet" [class.ddp-full]="isCsvFile()">
+            <div class="ddp-wrap-grid-option ddp-data-name">
+              {{isCsvFile() ? '' : fileResult.selectedSheet.sheetName}}
+              <!-- error icon (only sheet) -->
+              <em class="ddp-icon-error2" *ngIf="!isCsvFile() && !fileResult.selectedSheet.valid"></em>
+              <!-- //error icon (only sheet) -->
+              <div class="ddp-part-right">
+                <div class="ddp-data-form">
+                  <strong>{{fileResult.fileSize}}</strong>
+                  {{'msg.storage.ui.dsource.create.file.byte' | translate}}
                 </div>
-                <!-- //팝업 -->
+                <ng-container *ngIf="selectedFileDetailData">
+                  <div class="ddp-data-form" *ngIf="selectedFileDetailData.fields">
+                    <strong>{{selectedFileDetailData.fields.length}}</strong>
+                    {{'msg.storage.ui.dsource.create.file.columns' | translate}}
+                  </div>
+                  <div class="ddp-data-form">
+                    <input type="text" class="ddp-data-input"
+                           input-mask="number"
+                           [(ngModel)]="rowNum"
+                           (keyup.enter)="onChangeRowNum()">
+                    <strong>/ {{selectedFileDetailData.totalRows}}</strong>
+                    {{'msg.storage.ui.dsource.create.file.row' | translate}}
+                  </div>
+                  <div class="ddp-data-form"
+                       *ngIf="selectedFileDetailData.fields">
+                    <strong class="ddp-cursor"
+                            (click)="typeShowFl = !typeShowFl"
+                            (clickOutside)="typeShowFl = false">{{getLogicalTypes().length}}</strong>
+                    {{'msg.storage.ui.dsource.create.file.types' | translate}}
+                    <!-- 팝업 -->
+                    <div class="ddp-wrap-popup2 ddp-types" *ngIf="typeShowFl">
+                      <ul class="ddp-list-popup">
+                        <li *ngFor="let type of getLogicalTypes()">
+                          <a href="javascript:">
+                            <em class="{{getFieldTypeIconClass(type.label)}}"></em>
+                            {{type.value}} {{'msg.storage.th.row' | translate}}
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                    <!-- //팝업 -->
+                  </div>
+                </ng-container>
               </div>
             </div>
-
-
-          </div>
-          <!-- 그리드 영역 -->
-          <div class="ddp-wrap-grid">
-            <!-- 데이터 없는경우 -->
-            <div class="ddp-ui-empty" *ngIf="clearGrid">
-              {{'msg.storage.ui.dsource.create.preview.no.data' | translate}}
+            <!-- 그리드 영역 -->
+            <div class="ddp-wrap-grid">
+              <!-- 데이터 없는경우 -->
+              <div class="ddp-ui-empty" *ngIf="clearGrid">
+                {{'msg.storage.ui.dsource.create.preview.no.data' | translate}}
+              </div>
+              <!-- //데이터 없는경우 -->
+              <!-- 데이터 있는경우 -->
+              <div grid-component [hidden]="clearGrid" style="width:100%; height:100%;"></div>
+              <!-- //데이터 있는경우 -->
             </div>
-            <!-- //데이터 없는경우 -->
-            <!-- 데이터 있는경우 -->
-            <div grid-component [hidden]="clearGrid" style="width:100%; height:100%;"></div>
-            <!-- //데이터 있는경우 -->
-          </div>
-          <!-- //그리드 영역 -->
+            <!-- //그리드 영역 -->
 
+          </div>
+          <!-- //sheet view -->
         </div>
-        <!-- //sheet view -->
+        <!-- //wrap sheet -->
       </div>
-      <!-- //wrap sheet -->
       <div class="ddp-wrap-edit-form">
         <div class="ddp-wrap-edit3 ddp-type" *ngIf="isCsvFile()">
           <label class="ddp-label-type">{{'msg.storage.ui.dsource.create.file.column.delimiter' | translate}}</label>
@@ -181,11 +186,16 @@
         </div>
         <!-- 헤드컬럼 설정 -->
         <div class="ddp-wrap-edit3 ddp-type">
-          <label class="ddp-label-checkbox" (click)="onClickCreateHeadColumn(); $event.preventDefault()">
-            <input type="checkbox" [checked]="!createHeadColumnFl">
+          <label class="ddp-label-checkbox" (click)="onChangeIsFirstHeaderRowFlag(); $event.preventDefault()">
+            <input type="checkbox" [checked]="isFirstHeaderRow">
             <i class="ddp-icon-checkbox"></i>
             <span class="ddp-txt-checkbox">{{'msg.storage.ui.dsource.create.file.column.head.enable' | translate}}</span>
           </label>
+          <!-- if exist error sheet -->
+          <div class="ddp-txt-error ddp-clear ddp-data-error" *ngIf="isCsvFile() ? (selectedFileDetailData && selectedFileDetailData.isParsable && !selectedFileDetailData.isParsable.valid) : !fileResult.selectedSheet.valid">
+            <em class="ddp-icon-error-s"></em>{{isCsvFile() ? selectedFileDetailData.errorMessage : fileResult.selectedSheet.errorMessage}}
+          </div>
+          <!-- //if exist error sheet -->
         </div>
         <!-- //헤드컬럼 설정 -->
         <!--<div class="ddp-wrap-edit3 ddp-type">-->
@@ -202,7 +212,7 @@
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [ngClass]="{'ddp-disabled' : !getDoneValidation()}" (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [class.ddp-disabled]="!isEnableNext()" (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
   </div>
   <!-- //buttons -->
 
