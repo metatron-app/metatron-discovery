@@ -15,6 +15,8 @@
 package app.metatron.discovery.domain.dataprep;
 
 
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
@@ -38,6 +40,29 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.monitorjbl.xlsx.StreamingReader;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.ContentSummary;
@@ -57,20 +82,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 
 @Service
 public class PrepDatasetFileService {
@@ -111,7 +122,7 @@ public class PrepDatasetFileService {
 
                 String storedUri = dataset.getStoredUri();
 
-                int limitRows = -1;
+                int limitRows = Integer.MAX_VALUE;
                 String extensionType = FilenameUtils.getExtension(storedUri).toLowerCase();
                 switch (extensionType) {
                     case "xlsx":
@@ -119,7 +130,7 @@ public class PrepDatasetFileService {
                         // Excel files are treated as CSV
                         break;
                     case "json":
-                        result = PrepJsonUtil.countJSON(storedUri, ",", limitRows, hdfsService.getConf());
+                        result = PrepJsonUtil.countJson(storedUri, limitRows, hdfsService.getConf());
                         break;
                     default:
                         String delimiterCol = dataset.getDelimiter();
@@ -331,7 +342,7 @@ public class PrepDatasetFileService {
         List<DataFrame> gridResponses = Lists.newArrayList();
 
         DataFrame df = new DataFrame("df_for_preview");
-        df.setByGridWithJson(PrepJsonUtil.parseJSON(storedUri, ",", limitRows, hdfsService.getConf()));
+        df.setByGridWithJson(PrepJsonUtil.parseJson(storedUri, limitRows, hdfsService.getConf()));
 
         if (autoTyping) {
             df = teddyImpl.applyAutoTyping(df);

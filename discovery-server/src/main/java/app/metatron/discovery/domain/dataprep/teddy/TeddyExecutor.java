@@ -517,12 +517,12 @@ public class TeddyExecutor {
         cache.put(dsId, df);
     }
 
-    private void loadJsonFile(String dsId, String strUri, String delimiter) throws URISyntaxException {
+    private void loadJsonFile(String dsId, String strUri) throws URISyntaxException {
         DataFrame df = new DataFrame();
 
-        LOGGER.info("loadJsonFile(): dsId={} strUri={} delemiter={}", dsId, strUri, delimiter);
+        LOGGER.info("loadJsonFile(): dsId={} strUri={}", dsId, strUri);
 
-        PrepJsonParseResult result = PrepJsonUtil.parseJSON(strUri, delimiter, limitRows, conf);
+        PrepJsonParseResult result = PrepJsonUtil.parseJson(strUri, limitRows, conf);
         df.setByGridWithJson(result);
 
         LOGGER.info("loadJsonFile(): done");
@@ -543,10 +543,10 @@ public class TeddyExecutor {
             case "UPLOAD":
                 String storedUri = (String) datasetInfo.get("storedUri");
                 String extensionType = FilenameUtils.getExtension(storedUri).toLowerCase();
-                String delimiter = (String) datasetInfo.get("delimiter");
                 if(extensionType.equals("json")) {
-                    loadJsonFile(newFullDsId, storedUri, delimiter);
+                    loadJsonFile(newFullDsId, storedUri);
                 } else {
+                    String delimiter = (String) datasetInfo.get("delimiter");
                     loadCsvFile(newFullDsId, storedUri, delimiter);
                 }
                 break;
