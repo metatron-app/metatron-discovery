@@ -90,6 +90,7 @@ import {AddDatasetDataflowComponent} from "./dataset/add-dataset-dataflow.compon
 import {MultipleRenamePopupComponent} from "./dataflow/dataflow-detail/component/edit-dataflow-rule/multiple-rename-popup.component";
 import {DataSourceCreateModule} from "../data-storage/data-source-list/create-data-source/data-source-create.module";
 
+
 const dataPreparationRoutes: Routes = [
   { path: '', component: DatasetComponent },
   { path: 'dataflow', component: DataflowComponent },
@@ -175,6 +176,7 @@ const dataPreparationRoutes: Routes = [
     MultipleRenamePopupComponent
   ],
   providers: [
+    DataconnectionService,
     DataPreparationService,
     DataflowService,
     DatasetService,

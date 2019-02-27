@@ -36,6 +36,8 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnName
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
+import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.*;
@@ -70,6 +72,11 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_URL;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
 import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
 import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
 
@@ -113,6 +120,9 @@ public class PrepTransformService {
 
   @Autowired(required = false)
   PrepProperties prepProperties;
+
+  @Autowired
+  StorageProperties storageProperties;
 
   @Value("${server.port:8180}")
   private String serverPort;
@@ -163,17 +173,15 @@ public class PrepTransformService {
       prepProperties.getStagingBaseDir(true);
     }
 
-    // check polaris.dataprep.hive
-    if (dsStagingDb || ssStagingDb) {
-      prepProperties.getHiveHostname(true);
-    }
+    Map<String, Object> mapEveryForEtl = prepProperties.getEveryForEtl();
+    StageDBConnection stageDB = storageProperties.getStagedb();
+    mapEveryForEtl.put(STAGEDB_HOSTNAME, stageDB.getHostname());
+    mapEveryForEtl.put(STAGEDB_PORT,     stageDB.getPort());
+    mapEveryForEtl.put(STAGEDB_USERNAME, stageDB.getUsername());
+    mapEveryForEtl.put(STAGEDB_PASSWORD, stageDB.getPassword());
+    mapEveryForEtl.put(STAGEDB_URL,      stageDB.getUrl());
 
-    // check polaris.dataprep.etl.jar
-    if (engine == PrSnapshot.ENGINE.TWINKLE) {
-      prepProperties.getEtlJar();
-    }
-
-    return GlobalObjectMapper.getDefaultMapper().writeValueAsString(prepProperties.getEveryForEtl());
+    return GlobalObjectMapper.getDefaultMapper().writeValueAsString(mapEveryForEtl);
   }
 
   private String getJsonSnapshotInfo(PrepSnapshotRequestPost requestPost, String ssId) throws JsonProcessingException {
@@ -1252,7 +1260,7 @@ public class PrepTransformService {
         if (queryStmt.charAt(queryStmt.length() - 1) == ';')
           queryStmt = queryStmt.substring(0, queryStmt.length() - 1);
 
-        gridResponse = teddyImpl.loadHiveDataset(wrangledDsId, queryStmt, wrangledDataset.getDsName());
+        gridResponse = teddyImpl.loadStageDBDataset(wrangledDsId, queryStmt, wrangledDataset.getDsName());
         break;
 
       default:
@@ -1305,18 +1313,6 @@ public class PrepTransformService {
           // MSG_DP_ALERT_STAGING_DIR_NOT_CONFIGURED is suppressed
         }
         configuration.put("file_uri", fileUri);
-      }
-
-      if(true == prepProperties.isHiveSnapshotEnabled()) {
-        Map<String,Object> hive = Maps.newHashMap();
-        hive.put("hostname",       prepProperties.getHiveHostname(false));
-        hive.put("port",           prepProperties.getHivePort(false));
-        hive.put("username",       prepProperties.getHiveUsername(false));
-        hive.put("password",       prepProperties.getHivePassword(false));
-        hive.put("custom_url",     prepProperties.getHiveCustomUrl(false));
-        hive.put("metastore_uris", prepProperties.getHiveMetastoreUris(false));
-
-        configuration.put("hive_info", hive);
       }
     } catch (Exception e) {
       throw e;

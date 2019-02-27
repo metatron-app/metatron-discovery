@@ -32,17 +32,16 @@ public class PrepProperties {
   public static final String HADOOP_CONF_DIR      = "polaris.dataprep.hadoopConfDir";
   public static final String STAGING_BASE_DIR     = "polaris.dataprep.stagingBaseDir";
 
-  public static final String HIVE_HOSTNAME        = "polaris.dataprep.hive.hostname";
-  public static final String HIVE_PORT            = "polaris.dataprep.hive.port";
-  public static final String HIVE_USERNAME        = "polaris.dataprep.hive.username";
-  public static final String HIVE_PASSWORD        = "polaris.dataprep.hive.password";
-  public static final String HIVE_CUSTOM_URL      = "polaris.dataprep.hive.customUrl";
-  public static final String HIVE_METASTORE_URIS  = "polaris.dataprep.hive.metastoreUris";
-
   public static final String SAMPLING_CORES       = "polaris.dataprep.sampling.cores";
   public static final String SAMPLING_TIMEOUT     = "polaris.dataprep.sampling.timeout";
   public static final String SAMPLING_LIMIT_ROWS  = "polaris.dataprep.sampling.limitRows";
   public static final String SAMPLING_AUTO_TYPING = "polaris.dataprep.sampling.autoTyping";
+
+  public static final String STAGEDB_HOSTNAME     = "polaris.storage.stagedb.hostname";
+  public static final String STAGEDB_PORT         = "polaris.storage.stagedb.port";
+  public static final String STAGEDB_USERNAME     = "polaris.storage.stagedb.username";
+  public static final String STAGEDB_PASSWORD     = "polaris.storage.stagedb.password";
+  public static final String STAGEDB_URL          = "polaris.storage.stagedb.url";
 
   public static final String ETL_CORES            = "polaris.dataprep.etl.cores";
   public static final String ETL_TIMEOUT          = "polaris.dataprep.etl.timeout";
@@ -58,7 +57,6 @@ public class PrepProperties {
   public String localBaseDir;
   public String stagingBaseDir;
   public String hadoopConfDir;
-  public HiveInfo hive;
   public SamplingInfo sampling;
   public EtlInfo etl;
 
@@ -99,20 +97,6 @@ public class PrepProperties {
     return stagingBaseDir;
   }
 
-  private HiveInfo getHive(boolean mandatory) {
-    if (mandatory && hive == null) {
-      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_HIVE_NOT_CONFIGURED, "Hive not configured");
-    }
-    return hive;
-  }
-
-  public String  getHiveHostname(boolean mandatory)      { return getHive(mandatory) == null ? null : getHive(mandatory).getHostname(); }
-  public Integer getHivePort(boolean mandatory)          { return getHive(mandatory) == null ? null : getHive(mandatory).getPort(); }
-  public String  getHiveUsername(boolean mandatory)      { return getHive(mandatory) == null ? null : getHive(mandatory).getUsername(); }
-  public String  getHivePassword(boolean mandatory)      { return getHive(mandatory) == null ? null : getHive(mandatory).getPassword(); }
-  public String  getHiveCustomUrl(boolean mandatory)     { return getHive(mandatory) == null ? null : getHive(mandatory).getCustomUrl(); }
-  public String  getHiveMetastoreUris(boolean mandatory) { return getHive(mandatory) == null ? null : getHive(mandatory).getMetastoreUris(); }
-
   // sampling, etl cannot be null (see init())
   public Integer getSamplingCores()      { return sampling.getCores(); }
   public Integer getSamplingTimeout()    { return sampling.getTimeout(); }
@@ -128,8 +112,6 @@ public class PrepProperties {
   // wrapper functions
   public boolean isHDFSConfigured()      { return (hadoopConfDir != null && stagingBaseDir != null); }
   public boolean isFileSnapshotEnabled() { return (true); } // always true
-  public boolean isHiveSnapshotEnabled() { return (isHDFSConfigured() && hive != null); }
-  public boolean isHiveDatasetEnabled()  { return (hadoopConfDir != null && hive != null); }
   public boolean isAutoTypingEnabled()   { return sampling.getAutoTyping(); }
 
   // Everything for ETL
@@ -137,13 +119,6 @@ public class PrepProperties {
     Map<String, Object> map = new HashMap();
 
     map.put(HADOOP_CONF_DIR,     getHadoopConfDir(false));
-
-    map.put(HIVE_HOSTNAME,       getHiveHostname(false));
-    map.put(HIVE_PORT,           getHivePort(false));
-    map.put(HIVE_USERNAME,       getHiveUsername(false));
-    map.put(HIVE_PASSWORD,       getHivePassword(false));
-    map.put(HIVE_CUSTOM_URL,     getHiveCustomUrl(false));
-    map.put(HIVE_METASTORE_URIS, getHiveMetastoreUris(false));
 
     map.put(ETL_CORES,           getEtlCores());
     map.put(ETL_TIMEOUT,         getEtlTimeout());
@@ -164,87 +139,6 @@ public class PrepProperties {
 
     if (etl == null) {
       etl = new EtlInfo();
-    }
-  }
-
-  public static class HiveInfo {
-    public String hostname;
-    public Integer port;
-    public String username;
-    public String password;
-    public String customUrl;
-    public String metastoreUris;
-
-    public HiveInfo() {
-    }
-
-    public String getHostname() {
-      if (hostname == null) {
-        hostname = "localhost";
-      }
-      return hostname;
-    }
-
-    public Integer getPort() {
-      if (port == null) {
-        port = 10000;
-      }
-      return port;
-    }
-
-    public String getUsername() {
-      if (username == null) {
-        username = "hadoop";
-      }
-      return username;
-    }
-
-    public String getPassword() {
-      if (password == null) {
-        password = "hadoop";
-      }
-      return password;
-    }
-
-    public String getCustomUrl() {
-      return customUrl;
-    }
-
-    public String getMetastoreUris() {
-      if (metastoreUris == null) {
-        metastoreUris = "thrift://" + getHostname() + ":9083";
-      }
-      return metastoreUris;
-    }
-
-    public void setHostname(String hostname) {
-      this.hostname = hostname;
-    }
-
-    public void setPort(Integer port) {
-      this.port = port;
-    }
-
-    public void setUsername(String username) {
-      this.username = username;
-    }
-
-    public void setPassword(String password) {
-      this.password = password;
-    }
-
-    public void setCustomUrl(String customUrl) {
-      this.customUrl = customUrl;
-    }
-
-    public void setMetastoreUris(String metastoreUris) {
-      this.metastoreUris = metastoreUris;
-    }
-
-    @Override
-    public String toString() {
-      return String.format("HiveInfo{hostname=%s port=%d username=%s password=%s customUrl=%s metastoreUris=%s}",
-                                     hostname, port, username, password, customUrl, metastoreUris);
     }
   }
 
@@ -404,10 +298,6 @@ public class PrepProperties {
     return hadoopConfDir;
   }
 
-  public HiveInfo getHive() {
-    return hive;
-  }
-
   public SamplingInfo getSampling() {
     return sampling;
   }
@@ -436,10 +326,6 @@ public class PrepProperties {
     this.hadoopConfDir = hadoopConfDir;
   }
 
-  public void setHive(HiveInfo hive) {
-    this.hive = hive;
-  }
-
   public void setSampling(SamplingInfo sampling) {
     this.sampling = sampling;
   }
@@ -450,7 +336,7 @@ public class PrepProperties {
 
   @Override
   public String toString() {
-    return String.format("PrepProperties{localBaseDir=%s stagingBaseDir=%s hadoopConfDir=%s hive=%s sampling=%s etl=%s}",
-                                         localBaseDir, stagingBaseDir, hadoopConfDir, hive, sampling, etl);
+    return String.format("PrepProperties{localBaseDir=%s stagingBaseDir=%s hadoopConfDir=%s sampling=%s etl=%s}",
+                                         localBaseDir, stagingBaseDir, hadoopConfDir, sampling, etl);
   }
 }

@@ -17,7 +17,6 @@ package app.metatron.discovery.domain.dataprep.teddy;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
-import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_COMPRESSION;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot.HIVE_FILE_FORMAT;
@@ -25,6 +24,8 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.jdbc.PrepJdbcService;
+import app.metatron.discovery.domain.dataprep.json.PrepJsonParseResult;
+import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
 import app.metatron.discovery.domain.dataprep.service.PrSnapshotService;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedException;
@@ -37,6 +38,7 @@ import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -55,7 +57,10 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.sql.DataSource;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -118,11 +123,11 @@ public class TeddyExecutor {
     private void setPrepPropertiesInfo(Map<String, Object> prepPropertiesInfo) {
         hadoopConfDir = (String)  prepPropertiesInfo.get(HADOOP_CONF_DIR);
 
-        hiveHostname  = (String)  prepPropertiesInfo.get(HIVE_HOSTNAME);
-        hivePort      = (Integer) prepPropertiesInfo.get(HIVE_PORT);
-        hiveUsername  = (String)  prepPropertiesInfo.get(HIVE_USERNAME);
-        hivePassword  = (String)  prepPropertiesInfo.get(HIVE_PASSWORD);
-        hiveCustomUrl = (String)  prepPropertiesInfo.get(HIVE_CUSTOM_URL);
+        hiveHostname  = (String)  prepPropertiesInfo.get(STAGEDB_HOSTNAME);
+        hivePort      = (Integer) prepPropertiesInfo.get(STAGEDB_PORT);
+        hiveUsername  = (String)  prepPropertiesInfo.get(STAGEDB_USERNAME);
+        hivePassword  = (String)  prepPropertiesInfo.get(STAGEDB_PASSWORD);
+        hiveCustomUrl = (String)  prepPropertiesInfo.get(STAGEDB_URL);
 
         cores         = (Integer) prepPropertiesInfo.get(ETL_CORES);
         timeout       = (Integer) prepPropertiesInfo.get(ETL_TIMEOUT);
@@ -512,6 +517,18 @@ public class TeddyExecutor {
         cache.put(dsId, df);
     }
 
+    private void loadJsonFile(String dsId, String strUri, String delimiter) throws URISyntaxException {
+        DataFrame df = new DataFrame();
+
+        LOGGER.info("loadJsonFile(): dsId={} strUri={} delemiter={}", dsId, strUri, delimiter);
+
+        PrepJsonParseResult result = PrepJsonUtil.parseJSON(strUri, delimiter, limitRows, conf);
+        df.setByGridWithJson(result);
+
+        LOGGER.info("loadJsonFile(): done");
+        cache.put(dsId, df);
+    }
+
     public String createStage0(Map<String, Object> datasetInfo) throws Throwable {
         String newFullDsId = UUID.randomUUID().toString();
 
@@ -524,7 +541,14 @@ public class TeddyExecutor {
         String importType = (String) datasetInfo.get("importType");
         switch (importType) {
             case "UPLOAD":
-                loadCsvFile(newFullDsId, (String) datasetInfo.get("storedUri"), (String) datasetInfo.get("delimiter"));
+                String storedUri = (String) datasetInfo.get("storedUri");
+                String extensionType = FilenameUtils.getExtension(storedUri).toLowerCase();
+                String delimiter = (String) datasetInfo.get("delimiter");
+                if(extensionType.equals("json")) {
+                    loadJsonFile(newFullDsId, storedUri, delimiter);
+                } else {
+                    loadCsvFile(newFullDsId, storedUri, delimiter);
+                }
                 break;
 
             case "DATABASE":
