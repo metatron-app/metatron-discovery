@@ -2163,6 +2163,7 @@
   "msg.storage.ui.username": "Username",
   "msg.storage.ui.cannot.load.data": "Cannot load data",
   "msg.storage.btn.create.source": "Create datasource",
+  "msg.storage.ph.search.snapshot": "Search snapshot",
 
   "msg.storage.ui.timezone.country.zimbabwe": "Zimbabwe",
   "msg.storage.ui.timezone.country.zambia": "Zambia",
