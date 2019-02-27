@@ -26,7 +26,10 @@
           <label class="ddp-label-type">{{ 'msg.dp.ui.ss-name' | translate }}</label>
           <!-- edit option -->
           <div class="ddp-ui-edit-option">
-            <input type="text" class="ddp-input-typebasic" placeholder="{{ 'msg.dp.ui.ss-name' | translate }}" (keyup)="chnageSSUri()" [(ngModel)]="snapshot.ssName" #snapshotName>
+            <input type="text" class="ddp-input-typebasic prep-snapshot-name-input"
+                   placeholder="{{ 'msg.dp.ui.ss-name' | translate }}"
+                   (keyup)="changeSSUri()"
+                   [(ngModel)]="snapshot.ssName">
           </div>
           <!-- //edit option -->
         </div>
@@ -42,9 +45,9 @@
               <span class="ddp-txt-radio">{{'msg.dp.ui.file-system' | translate }}</span>
             </label>
             <label class="ddp-label-radio ddp-inline" *ngIf="isStagingEnabled()">
-              <input type="radio" name="snapshotFormatRadio" (change)="changeSsType(SsType.STAGING_DB)" [attr.disabled]="isHiveDisable ? true : null">
+              <input type="radio" name="snapshotFormatRadio" (change)="changeSsType(SsType.STAGING_DB)">
               <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{ 'msg.dp.th.hive' | translate }}</span> <span style="color:#d0d1d8 ; cursor: no-drop" *ngIf="isHiveDisable" [innerHTML]="'<i>(No hive connections)</i>'"></span>
+              <span class="ddp-txt-radio">{{ 'msg.dp.th.hive' | translate }}</span>
             </label>
           </div>
           <!-- //edit option -->
@@ -59,7 +62,6 @@
               [isUpSelect]="false"
               [isFull]="true"
               [viewKey]="'label'"
-              [defaultIndex]="fileLocationDefaultIdx"
               (onSelected)="onSelected($event,'location')"
             >
             </component-select>
@@ -83,7 +85,7 @@
           <!-- ddplink-high 클릭시 ddp-selected 추가 -->
           <div class="ddp-wrap-high" [ngClass]="{ 'ddp-selected' : isAdvancedPrefOpen }">
             <div class="ddp-ui-high-option">
-              <a href="javascript:" class="ddp-link-high" (click)="openAdvancedPref()">{{'msg.dp.btn.advanced.settings' | translate }}<em class="ddp-icon-view"></em></a>
+              <a href="javascript:" class="ddp-link-high" (click)="toggleAdvancedSettingBtn()">{{'msg.dp.btn.advanced.settings' | translate }}<em class="ddp-icon-view"></em></a>
             </div>
             <div class="ddp-high-setting">
               <div class="ddp-wrap-edit3 ddp-type">
@@ -116,9 +118,11 @@
             <label class="ddp-label-type">{{'msg.dp.th.tbl-name' | translate}}</label>
             <!-- edit option -->
             <div class="ddp-ui-edit-option">
-              <input type="text" class="ddp-input-typebasic" id="tableName" placeholder="{{'msg.dp.th.tbl-name.ph' | translate}}" [(ngModel)]="snapshot.tblName">
-              <span *ngIf="hiveTblUntested===true">Testing the tablename...</span>
-              <span *ngIf="hiveTblUntested===false && hiveTblExist===true">{{snapshot.dbName}}.{{this.snapshot.tblName}} exists.</span>
+              <input type="text"
+                     class="ddp-input-typebasic"
+                     id="tableName"
+                     placeholder="{{'msg.dp.th.tbl-name.ph' | translate}}"
+                     [(ngModel)]="snapshot.tblName">
             </div>
             <!-- //edit option -->
           </div>
@@ -126,7 +130,7 @@
           <!-- ddplink-high 클릭시 ddp-selected 추가 -->
           <div class="ddp-wrap-high" [ngClass]="{ 'ddp-selected' : isAdvancedPrefOpen }">
             <div class="ddp-ui-high-option">
-              <a href="javascript:" class="ddp-link-high" (click)="openAdvancedPref()">{{'msg.dp.btn.advanced.settings' | translate }}<em class="ddp-icon-view"></em></a>
+              <a href="javascript:" class="ddp-link-high" (click)="toggleAdvancedSettingBtn()">{{'msg.dp.btn.advanced.settings' | translate }}<em class="ddp-icon-view"></em></a>
             </div>
             <div class="ddp-high-setting">
               <!-- edit -->
@@ -147,7 +151,7 @@
                 <label class="ddp-label-type">{{'msg.dp.th.file-format' | translate}}</label>
                 <!-- selectbox -->
                 <component-select
-                  [array]="snapshot.engine === 'TWINKLE' ? hiveTwinkleFormat : hiveEmbeddedFormat"
+                  [array]="hiveEmbeddedFormat"
                   [isUpSelect]="false"
                   [isFull]="true"
                   [viewKey]="'label'"

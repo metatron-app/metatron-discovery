@@ -977,6 +977,8 @@
   "msg.dp.th.ss.rows": "Rows",
   "msg.dp.th.ss.table": "表",
   "msg.dp.th.ss.valid": "Valid",
+  "msg.dp.ui.ss.select.db" : "Please select database",
+  "msg.dp.alert.ss.table.name" : "Only numbers, alphabet and _ can be used.",
   "msg.dp.th.status": "状态",
   "msg.dp.th.string": "string",
   "msg.dp.th.summary": "概括",
