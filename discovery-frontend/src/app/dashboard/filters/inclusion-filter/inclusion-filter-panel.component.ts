@@ -310,7 +310,6 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
     this.setCandidatePage(1, true);
 
     this.safelyDetectChanges();
-    this.updateFilterEvent.emit(this.filter);
   } // function - sortCandidateValues
 
   /**
