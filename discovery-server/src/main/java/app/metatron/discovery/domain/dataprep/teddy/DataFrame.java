@@ -1346,7 +1346,7 @@ public class DataFrame implements Serializable, Transformable {
     });
   }
 
-  protected List<Row> filter2(DataFrame prevDf, Expression condExpr, boolean keep, int offset, int length) throws NoAssignmentStatementIsAllowedException, ColumnNotFoundException {
+  protected List<Row> filter(DataFrame prevDf, Expression condExpr, boolean keep, int offset, int length) throws NoAssignmentStatementIsAllowedException, TypeMismatchException {
     List<Row> rows = new ArrayList<>();
 
     if(condExpr instanceof Expr.BinAsExpr) {
@@ -1358,8 +1358,8 @@ public class DataFrame implements Serializable, Transformable {
         if (((Expr) condExpr).eval(prevDf.rows.get(rowno)).asLong() == ((keep) ? 1 : 0)) {
           rows.add(prevDf.rows.get(rowno));
         }
-      } catch (Exception e) {
-        throw new ColumnNotFoundException(e.getMessage());    // FIXME: throw a better exception based on e
+      } catch (ClassCastException e) {
+        throw new TypeMismatchException(e.getMessage());
       }
     }
 

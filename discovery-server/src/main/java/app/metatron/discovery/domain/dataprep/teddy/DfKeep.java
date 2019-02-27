@@ -50,7 +50,7 @@ public class DfKeep extends DataFrame {
 
     LOGGER.trace("DfKeep.gather(): start: offset={} length={} condExpr={}", offset, length, condExpr);
 
-    List<Row> rows = filter2(prevDf, condExpr, true, offset, length);
+    List<Row> rows = filter(prevDf, condExpr, true, offset, length);
 
     LOGGER.trace("DfKeep.gather(): done: offset={} length={} condExpr={}", offset, length, condExpr);
     return rows;
