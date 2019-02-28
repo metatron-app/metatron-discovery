@@ -361,23 +361,21 @@ export class DatasourceService extends AbstractService {
               }
             }
           } // end for - datasource
-        } else {  // 기존 스펙이 남아있을경우
-
+        } else {
+          // 기존 스펙이 남아있을경우
           let index : number = layerNum;
-
           // datasource 설정 추가
           query.dataSource = _.cloneDeep(pageConf.dataSource);
-          delete query.dataSource.dataSources[index]['fields']; // 불필요 항목 제거
-          // EngineName 처리
-          query.dataSource.dataSources[index].name = query.dataSource.dataSources[index].engineName;
-
-          // 서버 요청사항 - 중복데이터일 경우
-          for (let field of layer.fields) {
-            field.ref = query.dataSource.dataSources[index].name;
+          if( !_.isUndefined(query.dataSource.dataSources) && query.dataSource.dataSources.length > 0 ) {
+            delete query.dataSource.dataSources[index]['fields']; // 불필요 항목 제거
+            // EngineName 처리
+            query.dataSource.dataSources[index].name = query.dataSource.dataSources[index].engineName;
+            // 서버 요청사항 - 중복데이터일 경우
+            for (let field of layer.fields) {
+              field.ref = query.dataSource.dataSources[index].name;
+            }
           }
-
         }
-
         if( allPivotFields.length == 0 ){
           continue;
         }
