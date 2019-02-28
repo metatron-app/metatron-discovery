@@ -15,7 +15,7 @@
 <!-- tab contents -->
 <!--suppress NsUnresolvedStyleClassReference -->
 <div class="ddp-ui-tab-contents" *ngIf="metadataModelService.getMetadata()">
-  <div top-info *ngIf="isSourceTypeDatasource()"></div>
+  <div top-info *ngIf="isSourceTypeDatasource() && isDescEdit"></div>
   <!-- datadetail -->
   <div class="ddp-ui-datadetail ddp-border-none">
     <a href="javascript:" class="ddp-btn-solid2 ddp-dark type-link"
