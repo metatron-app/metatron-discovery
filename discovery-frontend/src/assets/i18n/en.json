@@ -2162,7 +2162,7 @@
   "msg.storage.ui.timezone": "Time zone",
   "msg.storage.ui.username": "Username",
   "msg.storage.ui.guide.meta.modified": "Metadata is also updated when modified.",
-  "msg.storage.btn.master.data.link": "Go to Master data",
+  "msg.storage.btn.master.data.link": "Go to Metadata",
 
   "msg.storage.ui.timezone.country.zimbabwe": "Zimbabwe",
   "msg.storage.ui.timezone.country.zambia": "Zambia",
