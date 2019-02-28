@@ -12,19 +12,19 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { MetadataModelService } from '../service/metadata.model.service';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
+import {MetadataModelService} from '../service/metadata.model.service';
 import * as pixelWidth from 'string-pixel-width';
-import { Field } from '../../../domain/datasource/datasource';
-import { GridComponent } from '../../../common/component/grid/grid.component';
-import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
-import { GridOption } from '../../../common/component/grid/grid.option';
-import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
+import {Field} from '../../../domain/datasource/datasource';
+import {GridComponent} from '../../../common/component/grid/grid.component';
+import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
+import {GridOption} from '../../../common/component/grid/grid.option';
+import {header, SlickGridHeader} from '../../../common/component/grid/grid.header';
 
 @Component({
   selector: 'app-staging-select-schema',
-  templateUrl: './staging-select-schema.component.html'
+  templateUrl: './staging-select-schema.component.html',
 })
 export class StagingSelectSchemaComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
@@ -70,16 +70,16 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
   // loading part flag
   public isLoading: boolean = false;
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private _connectionService: DataconnectionService,
-              public metaDataModelService: MetadataModelService,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    private _connectionService: DataconnectionService,
+    public metaDataModelService: MetadataModelService,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -92,7 +92,8 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
     // Init
     super.ngOnInit();
     // 데이터 로드
-    this.metaDataModelService.getCreateData()['schemaStep'] && this._loadData(this.metaDataModelService.getCreateData()['schemaStep']);
+    this.metaDataModelService.getCreateData()['schemaStep'] &&
+    this._loadData(this.metaDataModelService.getCreateData()['schemaStep']);
     // 데이터베이스 목록이 없다면 데이터베이스 목록 조회
     this.databaseList.length === 0 && this._getDatabaseList();
   }
@@ -105,11 +106,9 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
     console.info('destroy');
   }
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
 
   /**
    * 선택된 데이터베이스 index
@@ -250,7 +249,7 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
       // 상세데이터
       detailData: this.detailData,
       // 그리드 flag
-      clearGrid: this.clearGrid
+      clearGrid: this.clearGrid,
     };
     this.metaDataModelService.patchCreateData('schemaStep', schemaStep);
   }
@@ -288,7 +287,7 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
    */
   private _sliceTableName(key): string {
     // return key.replace(this.selectedTable + '.', '');
-    return key.substr(key.indexOf('.')+1);
+    return key.substr(key.indexOf('.') + 1);
   }
 
   /**
@@ -300,11 +299,8 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
   private _drawGrid(headers: any[], rows: any[]) {
     this.changeDetect.detectChanges();
     // 그리드 옵션은 선택
-    this._gridComponent.create(headers, rows, new GridOption()
-      .SyncColumnCellResize(true)
-      .MultiColumnSort(true)
-      .RowHeight(32)
-      .build()
+    this._gridComponent.create(headers, rows,
+      new GridOption().SyncColumnCellResize(true).MultiColumnSort(true).RowHeight(32).build(),
     );
   }
 
@@ -335,21 +331,20 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
     // 로딩 show
     this.isLoading = true;
     // 데이터 베이스 목록 조회
-    const sub = this._connectionService.getDatabaseForHiveWithCancel()
-      .subscribe(
-        res => {
-          // 데이터베이스 목록 저장
-          this.databaseList = res['databases'];
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false;
-        },
-        err => {
-          console.info('error');
-          this.commonExceptionHandler(err)
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false;
-        }
-      );
+    const sub = this._connectionService.getDatabaseForHiveWithCancel().subscribe(
+      res => {
+        // 데이터베이스 목록 저장
+        this.databaseList = res['databases'];
+        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.isLoading = false;
+      },
+      err => {
+        console.info('error');
+        this.commonExceptionHandler(err);
+        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.isLoading = false;
+      },
+    );
     this.subscriptions.push(sub);
   }
 
@@ -364,23 +359,22 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
     // resultShowFl
     this.resultTableErrorShowFl = false;
     // 데이터 베이스 목록 조회
-    const sub = this._connectionService.getTableListForStageInMetadataWithCancel(databaseName)
-      .subscribe(
-        res => {
-          // 테이블 목록 저장
-          this.tableList = res['tables'] || [];
-          // table이 없다면
-          res['tables'].length === 0 && (this.resultTableErrorShowFl = true);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false;
-        },
-        err => {
-          console.info('error');
-          this.commonExceptionHandler(err);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false;
-        }
-      );
+    const sub = this._connectionService.getTableListForStageInMetadataWithCancel(databaseName).subscribe(
+      res => {
+        // 테이블 목록 저장
+        this.tableList = res['tables'] || [];
+        // table이 없다면
+        res['tables'].length === 0 && (this.resultTableErrorShowFl = true);
+        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.isLoading = false;
+      },
+      err => {
+        console.info('error');
+        this.commonExceptionHandler(err);
+        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.isLoading = false;
+      },
+    );
     this.subscriptions.push(sub);
   }
 
@@ -397,28 +391,27 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
     const sub = this._connectionService.getTableDataForHiveWithCancel({
       database: databaseName,
       type: 'TABLE',
-      query: tableName
-    })
-      .subscribe(
-        res => {
-          // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
-          res['data'] = this._getReplacedDataList(res['data']);
-          res['fields'] = this._getReplacedFieldList(res['fields']);
-          // 상세 데이터 저장
-          this.detailData = res;
-          // 그리드 show
-          this.clearGrid = false;
-          // 그리드 업데이트
-          this._updateGrid(res['data'], res['fields']);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false;
-        },
-        err => {
-          this.commonExceptionHandler(err);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false;
-        }
-      );
+      query: tableName,
+    }).subscribe(
+      res => {
+        // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
+        res['data'] = this._getReplacedDataList(res['data']);
+        res['fields'] = this._getReplacedFieldList(res['fields']);
+        // 상세 데이터 저장
+        this.detailData = res;
+        // 그리드 show
+        this.clearGrid = false;
+        // 그리드 업데이트
+        this._updateGrid(res['data'], res['fields']);
+        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.isLoading = false;
+      },
+      err => {
+        this.commonExceptionHandler(err);
+        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.isLoading = false;
+      },
+    );
     this.subscriptions.push(sub);
   }
 
@@ -468,22 +461,23 @@ export class StagingSelectSchemaComponent extends AbstractPopupComponent impleme
     return fields.map(
       (field: Field) => {
         /* 62 는 CSS 상의 padding 수치의 합산임 */
-        const headerWidth:number = Math.floor(pixelWidth(field.name, { size: 12 })) + 62;
+        const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 62;
 
-        return new SlickGridHeader()
-          .Id(field.name)
-          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + field.name + '</span>')
-          .Field(field.name)
-          .Behavior('select')
-          .Selectable(false)
-          .CssClass('cell-selection')
-          .Width(headerWidth)
-          .CannotTriggerInsert(true)
-          .Resizable(true)
-          .Unselectable(true)
-          .Sortable(true)
-          .build();
-      }
+        return new SlickGridHeader().Id(field.name).
+          Name(
+            '<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) +
+            '"></em>' + field.name + '</span>').
+          Field(field.name).
+          Behavior('select').
+          Selectable(false).
+          CssClass('cell-selection').
+          Width(headerWidth).
+          CannotTriggerInsert(true).
+          Resizable(true).
+          Unselectable(true).
+          Sortable(true).
+          build();
+      },
     );
   }
 

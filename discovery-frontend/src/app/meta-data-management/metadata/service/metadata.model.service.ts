@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../../common/service/abstract.service';
-import { Metadata } from '../../../domain/meta-data-management/metadata';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '../../../common/service/abstract.service';
+import {Metadata} from '../../../domain/meta-data-management/metadata';
 
 @Injectable()
 export class MetadataModelService extends AbstractService {
@@ -41,7 +41,7 @@ export class MetadataModelService extends AbstractService {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public selectedMetadata : Metadata;
+  public selectedMetadata: Metadata;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor

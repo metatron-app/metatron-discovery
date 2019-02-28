@@ -45,11 +45,7 @@
       <!-- //검색 -->
       <!-- right -->
       <div class="ddp-ui-rightoption">
-        <span class="ddp-data-total"  [innerHTML]="'msg.metadata.ui.dictionary.lists' | translate : { value : getTotalContentsCount }"></span>
-        <!--<span class="ddp-list-option">-->
-          <!--<a href="#" class="ddp-btn-line-s"><em class="ddp-icon-upload"></em>Upload</a>-->
-          <!--<a href="#" class="ddp-btn-line-s"><em class="ddp-icon-download"></em>Download</a>-->
-        <!--</span>-->
+        <span class="ddp-data-total" [innerHTML]="'msg.metadata.ui.dictionary.lists' | translate : { value : getTotalContentsCount }"></span>
         <a href="javascript:" class="ddp-btn-link" (click)="onClickCreateColumnDictionary()"><em class="ddp-icon-link-add"></em>{{'msg.metadata.ui.dictionary.create.btn'| translate}}</a>
       </div>
       <!-- //right -->
@@ -93,9 +89,6 @@
       <td>
         {{dictionary.logicalType}}
       </td>
-      <!--<td>-->
-        <!--0-->
-      <!--</td>-->
       <td>
         {{dictionary.createdTime | mdate:'YYYY-MM-DD HH:mm'}}
         <div class="ddp-btn-control" (click)="onClickDeleteColumnDictionary(dictionary)">

@@ -12,19 +12,18 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnChanges, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { CatalogService } from './service/catalog.service';
-import { PeriodComponent } from '../../common/component/period/period.component';
-import { Alert } from '../../common/util/alert.util';
-import { isUndefined } from "util";
-import { Modal } from '../../common/domain/modal';
-import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {CatalogService} from './service/catalog.service';
+import {Alert} from '../../common/util/alert.util';
+import {isUndefined} from 'util';
+import {Modal} from '../../common/domain/modal';
+import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
 import * as _ from 'lodash';
 
 @Component({
   selector: 'app-catalog',
-  templateUrl: './catalog.component.html'
+  templateUrl: './catalog.component.html',
 })
 export class CatalogComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -35,7 +34,7 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
   private catalogInput: ElementRef;
 
   @ViewChild('newCatalogName')
-  private newCatalogName : ElementRef;
+  private newCatalogName: ElementRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -52,42 +51,43 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
   public searchInput: ElementRef;
 
   // 카타로그, 메타데이터 리스트
-  public catalogs : Catalog[];
-  public metadatas : any;
+  public catalogs: Catalog[];
+  public metadatas: any;
 
   // 정렬
   public selectedContentSort: Order = new Order();
 
   // 선택된 카타로그 한개
-  public selectedCatalog : Catalog;
+  public selectedCatalog: Catalog;
 
   // 검색어
-  public searchText : string;
+  public searchText: string;
 
   // 뒤로가기를 하기 위한 path 저장
-  public catalogPath : any = [{name : 'Root', id : 'ROOT'}];
+  public catalogPath: any = [{name: 'Root', id: 'ROOT'}];
 
   // 현재 보고있는 root
-  public currentRoot :any =  {name : 'Root', id : 'ROOT'};
+  public currentRoot: any = {name: 'Root', id: 'ROOT'};
 
   // 새로만드냐
-  public isCreateCatalog : boolean = false;
+  public isCreateCatalog: boolean = false;
 
   // 편집중이냐
-  public isEditCatalogName : boolean = false;
+  public isEditCatalogName: boolean = false;
 
   // 카타로그 리스트가 페이징이 있는 상태인지 확인
-  public isCatalogPaging : boolean = false;
+  public isCatalogPaging: boolean = false;
 
-  public inProcess : boolean = false;
+  public inProcess: boolean = false;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected element: ElementRef,
-              protected catalogService : CatalogService,
-              protected injector: Injector) {
+  constructor(
+    protected element: ElementRef,
+    protected catalogService: CatalogService,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -114,7 +114,6 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-
   /**
    * 카타로그 검색 및 날짜로 검색
    */
@@ -126,7 +125,7 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
     }).catch((error) => {
       this.loadingHide();
       Alert.error(error);
-    })
+    });
   }
 
   /**
@@ -143,7 +142,7 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
    * 루트 폴더인지 확인
    */
   public isRoot() {
-    if(this.isCreateCatalog) {
+    if (this.isCreateCatalog) {
       return true;
     } else {
       return this.catalogPath.length !== 1;
@@ -163,7 +162,7 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
     }).catch((error) => {
       Alert.error(error);
       this.loadingHide();
-    })
+    });
   }
 
   /**
@@ -176,8 +175,8 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
     }
 
     if (!this.deleteModalComponent.isShow) {
-      if(!this.isEditCatalogName) {
-        this.currentRoot = {name : catalog.name, id : catalog.id};
+      if (!this.isEditCatalogName) {
+        this.currentRoot = {name: catalog.name, id: catalog.id};
         this.catalogPath.push(this.currentRoot);
 
         if (this.searchText) {
@@ -194,20 +193,20 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
    * @param catalog
    * @param index
    */
-  public updateCatalog(catalog,index) {
+  public updateCatalog(catalog, index) {
     if (!isUndefined(this.catalogInput.nativeElement.value) && this.catalogInput.nativeElement.value.trim() !== '') {
 
-      let idx = this.catalogs.map((catalog,idx) => {
-        if(idx !== index) {
-          return catalog.name
+      let idx = this.catalogs.map((catalog, idx) => {
+        if (idx !== index) {
+          return catalog.name;
         }
       }).indexOf(this.catalogInput.nativeElement.value);
-      if(idx === -1) {
+      if (idx === -1) {
         this.catalogService.updateCatalog(catalog.id, this.catalogInput.nativeElement.value).then(() => {
           this.initView();
         }).catch((error) => {
           Alert.error(error);
-        })
+        });
       } else {
         Alert.warning(this.translateService.instant('msg.catalog.alert.catalog.already.exists'));
         return;
@@ -217,12 +216,11 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
     }
   } // function - updateCatalog
 
-
   /**
    * new catalog 버튼 클릭시 새로운 카타로그를 만들수 있는 input box show
    */
   public createCatalog() {
-    if(this.catalogPath.length === 4 || this.isCreateCatalog) {
+    if (this.catalogPath.length === 4 || this.isCreateCatalog) {
       return;
     } else {
       this.isCreateCatalog = true;
@@ -241,15 +239,15 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
 
       if (this.catalogPath.length > 1) {
 
-        let ids = []
+        let ids = [];
         this.catalogPath.forEach((item) => {
           ids.push(item.id);
         });
 
         let currentRootId = ids.indexOf(this.currentRoot.id);
 
-        this.currentRoot = this.catalogPath[currentRootId-1];
-        this.catalogPath.splice(currentRootId,1);
+        this.currentRoot = this.catalogPath[currentRootId - 1];
+        this.catalogPath.splice(currentRootId, 1);
 
         if (this.searchText) {
           this.searchCatalog();
@@ -257,12 +255,9 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
           this.getCatalogList();
         }
 
-
       }
 
     }
-
-
 
   }
 
@@ -274,18 +269,18 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
     this.selectedCatalog = _.cloneDeep(catalog);
     this.getMetadataInCatalog().then((result) => {
       const modal = new Modal();
-      modal.name = `${this.translateService.instant('msg.metadata.catalog.delete.header',{catalogName : catalog.name})}`;
+      modal.name = `${this.translateService.instant('msg.metadata.catalog.delete.header', {catalogName: catalog.name})}`;
       if (result.length > 0) {
         modal.name += ' ' + this.translateService.instant('msg.metadata.catalog.delete.header-plural');
       }
 
       // 데이터가 1개 ~ 3개일때
       if (result.length > 1 && result.length < 4) {
-        this.metadatas =`${result.join(', ')}`;
+        this.metadatas = `${result.join(', ')}`;
       }
       // 데이터가 3개 이상일 때
       else if (result.length > 3) {
-        this.metadatas =`${result.splice(0,3).join(', ')} ...`;
+        this.metadatas = `${result.splice(0, 3).join(', ')} ...`;
       }
 
       modal.description = `${this.metadatas}`;
@@ -298,22 +293,22 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
     this.selectedCatalog = new Catalog();
   }
 
-  public getMetadataInCatalog() : Promise<any> {
-    return new Promise<any>((resolve,reject) => {
-      this.catalogService.getMetadataInCatalog(this.selectedCatalog.id,this._getMetadataParams()).then((result) => {
+  public getMetadataInCatalog(): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
+      this.catalogService.getMetadataInCatalog(this.selectedCatalog.id, this._getMetadataParams()).then((result) => {
         this.pageResult.number === 0 && (this.metadatas = []);
         // page 객체
         this.pageResult = result.page;
         // 컬럼 사전 리스트
         this.metadatas = result['_embedded'] ? this.metadatas.concat(result['_embedded']['metadatas']) : [];
         this.metadatas = this.metadatas.map((item) => {
-          return item.name
+          return item.name;
         });
         resolve(this.metadatas);
-      }).catch((error)=> {
-        reject(error)
-      })
-    })
+      }).catch((error) => {
+        reject(error);
+      });
+    });
   }
 
   /**
@@ -329,7 +324,7 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
     }).catch((error) => {
       this.loadingHide();
       Alert.error(error);
-    })
+    });
   }
 
   /**
@@ -347,31 +342,30 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
 
     setTimeout(() => {
       this.catalogInput.nativeElement.value = catalog.name;
-    })
+    });
 
   }
-
 
   /**
    * 새로운 카타로그 생성 API 호출
    */
   public createCatalogDone() {
-    if(!isUndefined(this.newCatalogName.nativeElement.value) && this.newCatalogName.nativeElement.value.trim() !== '') {
+    if (!isUndefined(this.newCatalogName.nativeElement.value) && this.newCatalogName.nativeElement.value.trim() !== '') {
 
-      let params = {name : this.newCatalogName.nativeElement.value};
-      this.currentRoot.id  !== 'ROOT' ? params['parentId'] = this.currentRoot.id : null;
+      let params = {name: this.newCatalogName.nativeElement.value};
+      this.currentRoot.id !== 'ROOT' ? params['parentId'] = this.currentRoot.id : null;
       if (this.inProcess === false) {
         this.inProcess = true;
         this.catalogService.createCatalog(params).then((result) => {
           this.initView();
           this.inProcess = false;
-          Alert.success(this.translateService.instant('msg.catalog.alert.catalog.create.success',{value : result.name}));
+          Alert.success(this.translateService.instant('msg.catalog.alert.catalog.create.success', {value: result.name}));
         }).catch((error) => {
-          if( error && error.message ) {
+          if (error && error.message) {
             Alert.warning(error.message);
           }
           this.inProcess = false;
-        })
+        });
       }
     } else {
       this.inProcess = false;
@@ -432,14 +426,13 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
     // this.getMetadataInCatalog();
   }
 
-
   public refreshFilter() {
     // 정렬
     this.selectedContentSort = new Order();
     // 검색조건 초기화
     this.searchText = '';
     // 페이지 초기화
-    this.pageResult.number  = 0;
+    this.pageResult.number = 0;
     this.searchCatalog();
 
   }
@@ -456,20 +449,20 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
    * @returns object
    * @private
    */
-  private _getMetadataParams() : Object {
+  private _getMetadataParams(): Object {
 
     return {
       size: this.pageResult.size,
       page: this.pageResult.number,
-      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
-    }
+      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,
+    };
   }
 
-  private _getCatalogParams() : Object {
+  private _getCatalogParams(): Object {
     let params = {
       size: this.pageResult.size,
       page: this.pageResult.number,
-      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
+      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,
     };
 
     // 검색어
@@ -480,13 +473,12 @@ export class CatalogComponent extends AbstractComponent implements OnInit, OnDes
     params['parentId'] = this.currentRoot.id;
     return params;
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method - getter
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-
 }
-
 
 class Order {
   key: string = 'createdTime';

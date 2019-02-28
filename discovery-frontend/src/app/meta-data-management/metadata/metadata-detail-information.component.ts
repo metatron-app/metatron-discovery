@@ -12,29 +12,19 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  OnDestroy,
-  OnInit,
-  Output,
-  ViewChild,
-  ViewChildren
-} from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { MetadataService } from './service/metadata.service';
-import { Alert } from '../../common/util/alert.util';
-import { MetadataModelService } from './service/metadata.model.service';
-import {InputComponent} from "../../common/component/input/input.component";
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild, ViewChildren} from '@angular/core';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {MetadataService} from './service/metadata.service';
+import {Alert} from '../../common/util/alert.util';
+import {MetadataModelService} from './service/metadata.model.service';
+import {InputComponent} from '../../common/component/input/input.component';
 import * as _ from 'lodash';
 import {MetadataSourceType, SourceType} from '../../domain/meta-data-management/metadata';
-import {Datasource, SourceType as DatasourceSourceType } from '../../domain/datasource/datasource';
+import {Datasource, SourceType as DatasourceSourceType} from '../../domain/datasource/datasource';
 
 @Component({
   selector: 'app-metadata-detail-information',
-  templateUrl: './metadata-detail-information.component.html'
+  templateUrl: './metadata-detail-information.component.html',
 })
 export class MetadataDetailInformationComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -46,7 +36,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   private metadataDesc: ElementRef;
 
   @ViewChildren(InputComponent)
-  private tagInput : InputComponent;
+  private tagInput: InputComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -57,13 +47,13 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
 
   public isDescEdit: boolean = false;
   public editingDesc: string;
-  public desc : string;
-  public isAddTag : boolean = false;
+  public desc: string;
+  public isAddTag: boolean = false;
 
-  public tagFlag : boolean = false; // only call attach tag API one at a time
+  public tagFlag: boolean = false; // only call attach tag API one at a time
 
-  public tagValue : string = '';
-  public tagsList : any = [];
+  public tagValue: string = '';
+  public tagsList: any = [];
 
   @Output()
   public openAddCataglog = new EventEmitter();
@@ -72,10 +62,11 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected element: ElementRef,
-              protected metadataService : MetadataService,
-              public metadataModelService : MetadataModelService,
-              protected injector: Injector) {
+  constructor(
+    protected element: ElementRef,
+    protected metadataService: MetadataService,
+    public metadataModelService: MetadataModelService,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -108,9 +99,9 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     if (this.tagsList.length > 0 && '' !== this.tagValue) {
       this.tagsList.forEach((tag) => {
         if (tag.name.indexOf(this.tagValue) !== -1) {
-          list.push(tag.name)
+          list.push(tag.name);
         }
-      })
+      });
     }
     return list;
   }
@@ -134,7 +125,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
       }
     }).catch((error) => {
       console.error(error);
-    })
+    });
   } // function - getMetadataTags
 
   /**
@@ -142,11 +133,11 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
    * @param tag
    */
   public deleteTag(tag) {
-    this.metadataService.deleteTagFromMetadata(this.metadataModelService.getMetadata().id,[tag.name]).then(() => {
+    this.metadataService.deleteTagFromMetadata(this.metadataModelService.getMetadata().id, [tag.name]).then(() => {
       this.getMetadataDetail();
-    }).catch((err) =>  {
+    }).catch((err) => {
       console.info('error -> ', err);
-    })
+    });
   }
 
   /**
@@ -155,7 +146,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
   public addTag() {
 
     let idx = this.metadataModelService.getMetadata().tags.map((item) => {
-      return item.name
+      return item.name;
     }).indexOf(this.tagValue);
 
     if (this.tagValue === '' || idx !== -1) {
@@ -163,15 +154,15 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     }
     if (!this.tagFlag) {
       this.tagFlag = true;
-      this.metadataService.addTagToMetadata(this.metadataModelService.getMetadata().id,[this.tagValue]).then(() => {
+      this.metadataService.addTagToMetadata(this.metadataModelService.getMetadata().id, [this.tagValue]).then(() => {
         this.tagValue = '';
         this.isAddTag = false;
         this.getMetadataDetail();
         this.tagFlag = false;
-      }).catch((err) =>  {
+      }).catch((err) => {
         console.info('error -> ', err);
         this.tagFlag = false;
-      })
+      });
     }
   } // function - addTag
 
@@ -221,16 +212,17 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     // Set
     this.editingDesc ? this.desc = this.editingDesc.trim() : this.desc = '';
 
-
-    this.metadataService.updateMetadata(this.metadataModelService.getMetadata().id, {description : this.desc}).then((result) => {
-      this.loadingHide();
-      if(result) {
-        this.getMetadataDetail();
-      }
-    }).catch((error) => {
-      this.loadingHide();
-      Alert.warning(error);
-    })
+    this.metadataService.updateMetadata(this.metadataModelService.getMetadata().id, {description: this.desc}).
+      then((result) => {
+        this.loadingHide();
+        if (result) {
+          this.getMetadataDetail();
+        }
+      }).
+      catch((error) => {
+        this.loadingHide();
+        Alert.warning(error);
+      });
   } // function - onDescChange
 
   /**
@@ -251,12 +243,14 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
    * Metadata에 연결된 카타로그를 지운다
    * @param catalogId
    */
-  public deleteCatalogFromMetadata(catalogId){
-    this.metadataService.deleteCatalogLinkFromMetadata(this.metadataModelService.getMetadata().id, catalogId).then(() => {
-      this.getMetadataDetail();
-    }).catch((error) => {
-      Alert.error(error);
-    })
+  public deleteCatalogFromMetadata(catalogId) {
+    this.metadataService.deleteCatalogLinkFromMetadata(this.metadataModelService.getMetadata().id, catalogId).
+      then(() => {
+        this.getMetadataDetail();
+      }).
+      catch((error) => {
+        Alert.error(error);
+      });
   }
 
   /**
@@ -273,7 +267,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     }).catch((error) => {
       Alert.error(error);
       this.loadingHide();
-    })
+    });
   }
 
   /**
@@ -281,11 +275,11 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
    * @param {string} description
    * @returns {any}
    */
-  public getDescription(description : string) {
+  public getDescription(description: string) {
     if (description === '') {
       return this.translateService.instant('msg.metadata.ui.no.description');
     } else {
-      return description.replace( /\r\n|\n/gi, '<br>' );
+      return description.replace(/\r\n|\n/gi, '<br>');
     }
   }
 

@@ -12,24 +12,22 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MetadataModelService } from '../service/metadata.model.service';
-import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
-import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
-import { GridOption } from '../../../common/component/grid/grid.option';
-import { GridComponent } from '../../../common/component/grid/grid.component';
+import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {MetadataModelService} from '../service/metadata.model.service';
+import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
+import {header, SlickGridHeader} from '../../../common/component/grid/grid.header';
+import {GridOption} from '../../../common/component/grid/grid.option';
+import {GridComponent} from '../../../common/component/grid/grid.component';
 import * as pixelWidth from 'string-pixel-width';
-import { Field } from '../../../domain/datasource/datasource';
-import {switchMap} from "rxjs/operators";
-import {logger} from "codelyzer/util/logger";
+import {Field} from '../../../domain/datasource/datasource';
 
 /**
  * Creating metadata with Hive - schema step
  */
 @Component({
   selector: 'app-hive-select-schema',
-  templateUrl: './hive-select-schema.component.html'
+  templateUrl: './hive-select-schema.component.html',
 })
 export class HiveSelectSchemaComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
@@ -63,15 +61,14 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
   // loading part flag
   public isLoading: boolean = false;
 
-
   // constructor
-  constructor(public metaDataModelService: MetadataModelService,
-              private _connectionService: DataconnectionService,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    public metaDataModelService: MetadataModelService,
+    private _connectionService: DataconnectionService,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
-
 
   /**
    * ngOnInit
@@ -79,7 +76,8 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
   public ngOnInit() {
     super.ngOnInit();
     // if exist schemaStep, load data
-    this.metaDataModelService.getCreateData()['schemaStep'] && this._loadData(this.metaDataModelService.getCreateData()['schemaStep']);
+    this.metaDataModelService.getCreateData()['schemaStep'] &&
+    this._loadData(this.metaDataModelService.getCreateData()['schemaStep']);
     // if not exist database list, get database list
     this.databaseList.length === 0 && this._getDatabaseList();
   }
@@ -225,7 +223,7 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
       // detail data
       detailData: this.detailData,
       // grid show flag
-      clearGrid: this.clearGrid
+      clearGrid: this.clearGrid,
     };
     this.metaDataModelService.patchCreateData('schemaStep', schemaStep);
   }
@@ -263,7 +261,7 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
    */
   private _sliceTableName(key): string {
     // return key.replace(this.selectedTable + '.', '');
-    return key.substr(key.indexOf('.')+1);
+    return key.substr(key.indexOf('.') + 1);
   }
 
   /**
@@ -275,11 +273,8 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
   private _drawGrid(headers: any[], rows: any[]) {
     this.changeDetect.detectChanges();
     // 그리드 옵션은 선택
-    this._gridComponent.create(headers, rows, new GridOption()
-      .SyncColumnCellResize(true)
-      .MultiColumnSort(true)
-      .RowHeight(32)
-      .build()
+    this._gridComponent.create(headers, rows,
+      new GridOption().SyncColumnCellResize(true).MultiColumnSort(true).RowHeight(32).build(),
     );
   }
 
@@ -300,31 +295,29 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
 
   /**
    * Get database list
-H   * @private
+   H   * @private
    */
   private _getDatabaseList(): void {
     // loading show
     this.isLoading = true;
 
     // get database list
-    console.info("getDatabase");
-    const sub = this._connectionService.getDatabasesWithoutIdWithCancel(this._getConnectionParams())
-      .subscribe(
-        res => {
-          console.info('success data');
-          this.databaseList = res['databases'];
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false
-        },
-        err => {
-          console.info('error');
-          this.commonExceptionHandler(err);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false
-        }
-      );
+    console.info('getDatabase');
+    const sub = this._connectionService.getDatabasesWithoutIdWithCancel(this._getConnectionParams()).subscribe(
+      res => {
+        console.info('success data');
+        this.databaseList = res['databases'];
+        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.isLoading = false;
+      },
+      err => {
+        console.info('error');
+        this.commonExceptionHandler(err);
+        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.isLoading = false;
+      },
+    );
     this.subscriptions.push(sub);
-
 
   }
 
@@ -339,24 +332,24 @@ H   * @private
 
     this.resultTableErrorShowFl = false;
     // get database list
-    const sub = this._connectionService.getTableListForHiveInMetadataWithCancel(this._getConnectionParams(databaseName))
-      .subscribe(
-        res => {
-          console.info('success data');
-          // set table list
-          this.tableList = res['tables'] || [];
-          // if not exist table list, error message show
-          res['tables'].length === 0 && (this.resultTableErrorShowFl = true);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false
-        },
-        err => {
-          console.info('error');
-          this.commonExceptionHandler(err);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false
-        }
-      );
+    const sub = this._connectionService.getTableListForHiveInMetadataWithCancel(
+      this._getConnectionParams(databaseName)).subscribe(
+      res => {
+        console.info('success data');
+        // set table list
+        this.tableList = res['tables'] || [];
+        // if not exist table list, error message show
+        res['tables'].length === 0 && (this.resultTableErrorShowFl = true);
+        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.isLoading = false;
+      },
+      err => {
+        console.info('error');
+        this.commonExceptionHandler(err);
+        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.isLoading = false;
+      },
+    );
     this.subscriptions.push(sub);
   }
 
@@ -370,30 +363,30 @@ H   * @private
     // loading show
     this.isLoading = true;
     // get detail data
-    const sub = this._connectionService.getTableDetailWitoutIdWithCancel(this._getConnectionParams(databaseName, tableName))
-      .subscribe(
-        res => {
-          console.info('success data');
-          // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
-          res['data'] = this._getReplacedDataList(res['data']);
-          res['fields'] = this._getReplacedFieldList(res['fields']);
-          // set detail data
-          this.detailData = res;
-          // grid show flag true
-          this.clearGrid = false;
-          // update grid
-          this._updateGrid(res['data'], res['fields']);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false;
-        },
-        err => {
-          console.info('error');
-          this.commonExceptionHandler(err);
-          this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
-          this.isLoading = false;
-        }
-      );
-      this.subscriptions.push(sub);
+    const sub = this._connectionService.getTableDetailWitoutIdWithCancel(
+      this._getConnectionParams(databaseName, tableName)).subscribe(
+      res => {
+        console.info('success data');
+        // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
+        res['data'] = this._getReplacedDataList(res['data']);
+        res['fields'] = this._getReplacedFieldList(res['fields']);
+        // set detail data
+        this.detailData = res;
+        // grid show flag true
+        this.clearGrid = false;
+        // update grid
+        this._updateGrid(res['data'], res['fields']);
+        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.isLoading = false;
+      },
+      err => {
+        console.info('error');
+        this.commonExceptionHandler(err);
+        this.subscriptions = this.subscriptions.filter(item => !this.subscriptions.includes(sub));
+        this.isLoading = false;
+      },
+    );
+    this.subscriptions.push(sub);
   }
 
   /**
@@ -410,9 +403,9 @@ H   * @private
       connection: {
         id: connectionData['selectedConnectionPreset'].id,
         implementor: connectionData['selectedDbType'].value,
-        authenticationType: connectionData.selectedSecurityType.value
+        authenticationType: connectionData.selectedSecurityType.value,
       },
-      type: 'TABLE'
+      type: 'TABLE',
     };
     // if security type is not USERINFO, add username and password in connection
     if (connectionData.selectedSecurityType.value !== 'USERINFO') {
@@ -478,21 +471,22 @@ H   * @private
   private _getHeaders(fields: Field[]) {
     return fields.map(
       (field: Field) => {
-        const headerWidth:number = Math.floor(pixelWidth(field.name, { size: 12 })) + 62;
-        return new SlickGridHeader()
-          .Id(field.name)
-          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + field.name + '</span>')
-          .Field(field.name)
-          .Behavior('select')
-          .Selectable(false)
-          .CssClass('cell-selection')
-          .Width(headerWidth)
-          .CannotTriggerInsert(true)
-          .Resizable(true)
-          .Unselectable(true)
-          .Sortable(true)
-          .build();
-      }
+        const headerWidth: number = Math.floor(pixelWidth(field.name, {size: 12})) + 62;
+        return new SlickGridHeader().Id(field.name).
+          Name(
+            '<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) +
+            '"></em>' + field.name + '</span>').
+          Field(field.name).
+          Behavior('select').
+          Selectable(false).
+          CssClass('cell-selection').
+          Width(headerWidth).
+          CannotTriggerInsert(true).
+          Resizable(true).
+          Unselectable(true).
+          Sortable(true).
+          build();
+      },
     );
   }
 

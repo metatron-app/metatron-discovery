@@ -12,16 +12,15 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ColumnDictionaryService } from '../../column-dictionary/service/column-dictionary.service';
-import { ConfirmModalComponent } from '../../../common/component/modal/confirm/confirm.component';
-import { Modal } from '../../../common/domain/modal';
-import { LinkedMetaDataColumn, MetadataColumn } from '../../../domain/meta-data-management/metadata-column';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ColumnDictionaryService} from '../../column-dictionary/service/column-dictionary.service';
+import {ConfirmModalComponent} from '../../../common/component/modal/confirm/confirm.component';
+import {LinkedMetaDataColumn} from '../../../domain/meta-data-management/metadata-column';
 
 @Component({
   selector: 'app-linked-metadata',
-  templateUrl: './linked-metadata.component.html'
+  templateUrl: './linked-metadata.component.html',
 })
 export class LinkedMetadataComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -58,9 +57,10 @@ export class LinkedMetadataComponent extends AbstractComponent implements OnInit
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private _columnDictionaryService: ColumnDictionaryService,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    private _columnDictionaryService: ColumnDictionaryService,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -106,7 +106,7 @@ export class LinkedMetadataComponent extends AbstractComponent implements OnInit
    * @returns {boolean}
    */
   public isMoreContents(): boolean {
-    return (this.pageResult.number < this.pageResult.totalPages -1);
+    return (this.pageResult.number < this.pageResult.totalPages - 1);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -194,18 +194,18 @@ export class LinkedMetadataComponent extends AbstractComponent implements OnInit
     // 로딩 show
     this.loadingShow();
     // 컬럼 목록 조회
-    this._columnDictionaryService.getMetadataInColumnDictionary(this._dictionaryId, this._getMetadataListParams())
-      .then((result) => {
+    this._columnDictionaryService.getMetadataInColumnDictionary(this._dictionaryId, this._getMetadataListParams()).
+      then((result) => {
         // 전달 받은 page number가 0 이면 연결된 메타데이터 컬럼 목록 초기화
         this.pageResult.number === 0 && (this.metaDataList = []);
         // page
         this.pageResult = result['page'];
         // 연결된 메타데이터 컬럼 목록
-        this.metaDataList = result['_embedded']? this.metaDataList.concat(result['_embedded'].metacolumns) : [];
+        this.metaDataList = result['_embedded'] ? this.metaDataList.concat(result['_embedded'].metacolumns) : [];
         // 로딩 hide
         this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+      }).
+      catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -228,7 +228,7 @@ export class LinkedMetadataComponent extends AbstractComponent implements OnInit
     const params = {
       size: this.pageResult.size,
       page: this.pageResult.number,
-      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
+      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,
     };
 
     return params;

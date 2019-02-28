@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '../../../common/component/abstract.component';
 
 @Component({
   selector: 'app-select-dictionary',
-  templateUrl: './select-dictionary.component.html'
+  templateUrl: './select-dictionary.component.html',
 })
 export class SelectDictionaryComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -38,8 +38,9 @@ export class SelectDictionaryComponent extends AbstractComponent implements OnIn
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -75,7 +76,6 @@ export class SelectDictionaryComponent extends AbstractComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method - getter
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
 
 }
 

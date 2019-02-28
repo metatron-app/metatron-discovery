@@ -12,22 +12,22 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../common/component/abstract.component';
+import {AbstractComponent} from '../../common/component/abstract.component';
 import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { isUndefined } from 'util';
-import { Modal } from '../../common/domain/modal';
-import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
-import { CodeTableService } from './service/code-table.service';
-import { CodeTable } from '../../domain/meta-data-management/code-table';
-import { PeriodComponent } from '../../common/component/period/period.component';
-import { Alert } from '../../common/util/alert.util';
-import { CreateCodeTableComponent } from './create-code-table/create-code-table.component';
+import {isUndefined} from 'util';
+import {Modal} from '../../common/domain/modal';
+import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {CodeTableService} from './service/code-table.service';
+import {CodeTable} from '../../domain/meta-data-management/code-table';
+import {PeriodComponent} from '../../common/component/period/period.component';
+import {Alert} from '../../common/util/alert.util';
+import {CreateCodeTableComponent} from './create-code-table/create-code-table.component';
 
 declare let moment: any;
 
 @Component({
   selector: 'app-code-table',
-  templateUrl: './code-table.component.html'
+  templateUrl: './code-table.component.html',
 })
 export class CodeTableComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -70,9 +70,10 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private _codeTableService: CodeTableService,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    private _codeTableService: CodeTableService,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -106,7 +107,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
    * @returns {boolean}
    */
   public isMoreContents(): boolean {
-    return (this.pageResult.number < this.pageResult.totalPages -1);
+    return (this.pageResult.number < this.pageResult.totalPages - 1);
   }
 
   /**
@@ -117,18 +118,17 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     // 로딩 show
     this.loadingShow();
     // 코드 테이블 제거
-    this._codeTableService.deleteCodeTable(modal['codeTableId'])
-      .then((result) => {
-        // alert
-        Alert.success(this.translateService.instant('msg.metadata.ui.codetable.delete.success', {value: modal['codeTableName']}));
-        // 재조회
-        this.getCodeTableListPageInit();
-      })
-      .catch((error) => {
+    this._codeTableService.deleteCodeTable(modal['codeTableId']).then((result) => {
+      // alert
+      Alert.success(
+        this.translateService.instant('msg.metadata.ui.codetable.delete.success', {value: modal['codeTableName']}));
+      // 재조회
+      this.getCodeTableListPageInit();
+    }).catch((error) => {
 
-        // 로딩 hide
-        this.loadingHide();
-      });
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**
@@ -148,7 +148,6 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     // 재조회
     this._getCodeTableList();
   }
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - event
@@ -180,7 +179,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
 
     const modal = new Modal();
     modal.name = this.translateService.instant('msg.metadata.ui.codetable.delete.title');
-    modal.description =  codeTable.name;
+    modal.description = codeTable.name;
     modal.btnName = this.translateService.instant('msg.comm.ui.del');
     modal['codeTableId'] = codeTable.id;
     modal['codeTableName'] = codeTable.name;
@@ -200,7 +199,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     // 검색조건 초기화
     this.searchText = '';
     // 페이지 초기화
-    this.pageResult.number  = 0;
+    this.pageResult.number = 0;
     // date 필터 init
     this.periodComponent.setAll();
   }
@@ -306,8 +305,6 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
   | Private Method - getter
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-
-
   /**
    * 코드 테이블 리스트 조회
    * @private
@@ -316,22 +313,20 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     // 로딩 show
     this.loadingShow();
     // 코드 테이블 리스트 조회
-    this._codeTableService.getCodeTableList(this._getCodeTableListParams())
-      .then((result) => {
-        // 전달 받은 page number가 0 이면 코드 테이블 리스트 초기화
-        this.pageResult.number === 0 && (this.codeTableList = []);
-        // page 객체
-        this.pageResult = result.page;
-        // 코드 테이블 리스트
-        this.codeTableList = result['_embedded'] ? this.codeTableList.concat(result['_embedded'].codetables) : [];
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch((error) => {
+    this._codeTableService.getCodeTableList(this._getCodeTableListParams()).then((result) => {
+      // 전달 받은 page number가 0 이면 코드 테이블 리스트 초기화
+      this.pageResult.number === 0 && (this.codeTableList = []);
+      // page 객체
+      this.pageResult = result.page;
+      // 코드 테이블 리스트
+      this.codeTableList = result['_embedded'] ? this.codeTableList.concat(result['_embedded'].codetables) : [];
+      // 로딩 hide
+      this.loadingHide();
+    }).catch((error) => {
 
-        // 로딩 hide
-        this.loadingHide();
-      });
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**
@@ -343,7 +338,7 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     const params = {
       size: this.pageResult.size,
       page: this.pageResult.number,
-      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
+      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,
     };
     // 검색어
     if (!isUndefined(this.searchText) && this.searchText.trim() !== '') {

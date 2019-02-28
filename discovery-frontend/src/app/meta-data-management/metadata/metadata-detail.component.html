@@ -17,17 +17,17 @@
     <div class="ddp-top-flow">
       <!-- 수정 data -->
       <div class="ddp-data-form">
-        <span class="ddp-txt-date">{{'msg.common.ui.updated' | translate: { modifiedTime : metadataModelService.getMetadata().modifiedTime | mdate:'YYYY-MM-DD HH:mm', fullName : metadataModelService.getMetadata().modifiedBy.username || metadataModelService.getMetadata().modifiedBy } }}</span>
+        <span class="ddp-txt-date">{{'msg.common.ui.updated' | translate: {modifiedTime: metadataModelService.getMetadata().modifiedTime | mdate:'YYYY-MM-DD HH:mm', fullName: metadataModelService.getMetadata().modifiedBy.username || metadataModelService.getMetadata().modifiedBy} }}</span>
         <!--<a href="javascript:" class="ddp-btn-return" (click)="openVersionHistory()"></a>-->
         <!-- more -->
         <!-- more 버튼 클릭시 ddp-selected 추가 -->
         <div class="ddp-ui-more" [class.ddp-selected]="isContextMenuShow">
-          <a href="javascript:" class="ddp-icon-more" (click)="showContextMenu($event)" ></a>
+          <a href="javascript:" class="ddp-icon-more" (click)="showContextMenu($event)"></a>
           <!-- popup -->
-          <div class="ddp-data-box" *ngIf="isContextMenuShow" (clickOutside)="isContextMenuShow = false" >
+          <div class="ddp-data-box" *ngIf="isContextMenuShow" (clickOutside)="isContextMenuShow = false">
 
             <a href="javascript:" class="ddp-list-link" (click)="confirmDelete($event)"><em class="ddp-icon-delete"></em>{{'msg.metadata.btn.delete.md' | translate}}</a>
-            <span class="ddp-data-by">{{ 'msg.common.ui.created' | translate : { createdTime : metadataModelService.getMetadata().createdTime | mdate:'YYYY-MM-DD HH:mm', fullName : metadataModelService.getMetadata().createdBy.username || metadataModelService.getMetadata().createdBy } }}</span>
+            <span class="ddp-data-by">{{ 'msg.common.ui.created' | translate : {createdTime: metadataModelService.getMetadata().createdTime | mdate:'YYYY-MM-DD HH:mm', fullName: metadataModelService.getMetadata().createdBy.username || metadataModelService.getMetadata().createdBy} }}</span>
           </div>
           <!-- //popup -->
         </div>

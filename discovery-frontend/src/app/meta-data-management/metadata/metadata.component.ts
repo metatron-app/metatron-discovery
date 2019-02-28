@@ -12,24 +12,25 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { SelectDatatypeComponent } from './create-metadata/select-datatype.component';
-import { isUndefined } from 'util';
-import { MetadataService } from './service/metadata.service';
-import { Metadata, SourceType } from '../../domain/meta-data-management/metadata';
-import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
-import { Modal } from '../../common/domain/modal';
-import { Alert } from '../../common/util/alert.util';
-import { CatalogService } from '../catalog/service/catalog.service';
-declare let $;
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {SelectDatatypeComponent} from './create-metadata/select-datatype.component';
+import {isUndefined} from 'util';
+import {MetadataService} from './service/metadata.service';
+import {Metadata, SourceType} from '../../domain/meta-data-management/metadata';
+import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {Modal} from '../../common/domain/modal';
+import {Alert} from '../../common/util/alert.util';
+import {CatalogService} from '../catalog/service/catalog.service';
 import * as _ from 'lodash';
-import { DomSanitizer } from '@angular/platform-browser';
-import {StorageService} from "../../data-storage/service/storage.service";
+import {DomSanitizer} from '@angular/platform-browser';
+import {StorageService} from '../../data-storage/service/storage.service';
+
+declare let $;
 
 @Component({
   selector: 'app-metadata',
-  templateUrl: './metadata.component.html'
+  templateUrl: './metadata.component.html',
 })
 export class MetadataComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -49,36 +50,37 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   public deleteModalComponent: DeleteModalComponent;
 
   // 리스트, 카달로그 검색어
-  public listSearchText : string;
-  public catalogSearchText : string;
+  public listSearchText: string;
+  public catalogSearchText: string;
 
-  public selectedMetadata : SelectedMetadata;
-  public metadatas : Metadata[];
+  public selectedMetadata: SelectedMetadata;
+  public metadatas: Metadata[];
 
-  public sourceTypeList : any = [];
+  public sourceTypeList: any = [];
   public sourceType: string;
 
-  public tagsList : any = [];
-  public tag : string;
+  public tagsList: any = [];
+  public tag: string;
 
-  public selectedCatalogId : string;
-  public catalogs : any;
+  public selectedCatalogId: string;
+  public catalogs: any;
 
   public selectedContentSort: Order = new Order();
 
   // Unclassified 선택 여부
-  public isUnclassifiedSelected : boolean = false;
+  public isUnclassifiedSelected: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected element: ElementRef,
-              protected metadataService : MetadataService,
-              protected catalogService : CatalogService,
-              public sanitizer: DomSanitizer,
-              protected injector: Injector) {
+  constructor(
+    protected element: ElementRef,
+    protected metadataService: MetadataService,
+    protected catalogService: CatalogService,
+    public sanitizer: DomSanitizer,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -108,6 +110,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   public init() {
     this._initView();
   }
+
   /**
    * When data type list is changed
    * @param event
@@ -151,10 +154,10 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * @param event
    * @param catalog
    */
-  public getChildren(event,catalog) {
+  public getChildren(event, catalog) {
     event.stopImmediatePropagation();
-    if(!this.catalogSearchText) {
-      if(catalog.hasChild) {
+    if (!this.catalogSearchText) {
+      if (catalog.hasChild) {
         catalog.isOpen = !catalog.isOpen;
         this.showChildren(catalog);
       }
@@ -217,7 +220,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     return this.pageResult.totalElements;
   }
 
-
   /**
    * 메타 데이터 리스트 조회
    */
@@ -236,7 +238,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
 
     }).catch((error) => {
       this.loadingHide();
-    })
+    });
 
   }
 
@@ -246,9 +248,9 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    */
   public getCatalogList() {
     this.loadingShow();
-    this.catalogService.getTreeCatalogs('ROOT',).then((result) => {
+    this.catalogService.getTreeCatalogs('ROOT').then((result) => {
       this.loadingHide();
-      if(result.length > 0) {
+      if (result.length > 0) {
         this.catalogs = result;
 
         // if catalog exists, the first catalog on the list is selected and gets metadata in that catalog
@@ -268,9 +270,8 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     }).catch((error) => {
       this.loadingHide();
 
-    })
+    });
   }
-
 
   /**
    * 하위 데이터 불러오기
@@ -283,7 +284,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
       catalog.children = result;
     }).catch((error) => {
       this.loadingHide();
-    })
+    });
   }
 
   /**
@@ -301,7 +302,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * @returns {boolean}
    */
   public isMoreContents(): boolean {
-    return (this.pageResult.number < this.pageResult.totalPages -1);
+    return (this.pageResult.number < this.pageResult.totalPages - 1);
   }
 
   /**
@@ -322,7 +323,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     const modal = new Modal();
     modal.name = this.translateService.instant('msg.metadata.md.ui.delete.header');
     modal.description = metadata.name;
-    this.selectedMetadata = {id : metadata.id, name : metadata.name};
+    this.selectedMetadata = {id: metadata.id, name: metadata.name};
     this.deleteModalComponent.init(modal);
   }
 
@@ -331,15 +332,15 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    */
   public deleteMetadata() {
     this.metadataService.deleteMetaData(this.selectedMetadata.id).then((result) => {
-      Alert.success(this.translateService.instant('msg.metadata.alert.md-deleted', { value : this.selectedMetadata.name }));
+      Alert.success(
+        this.translateService.instant('msg.metadata.alert.md-deleted', {value: this.selectedMetadata.name}));
       this.getMetadataListPageInit();
     }).catch((error) => {
       Alert.fail(this.translateService.instant('msg.metadata.alert.md-delete.fail'));
-    })
+    });
 
     // 다시 페이지  로드
   }
-
 
   /**
    * 카달로그 내 메타데이터 불러오기
@@ -358,21 +359,19 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * 선택된 카달로그에 포함된 메타데이터 불러오기
    */
   public getMetadataInCatalog() {
-    this.catalogService.getMetadataInCatalog(this.selectedCatalogId, this._getMetadataParams())
-      .then((result) => {
-        // 전달 받은 page number가 0 이면 컬럼 사전 리스트 초기화
-        this.pageResult.number === 0 && (this.metadatas = []);
-        // page 객체
-        this.pageResult = result.page;
-        // 컬럼 사전 리스트
-        this.metadatas = result['_embedded'] ? this.metadatas.concat(result['_embedded']['metadatas']) : [];
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch((error) => {
-        // 로딩 hide
-        this.loadingHide();
-      });
+    this.catalogService.getMetadataInCatalog(this.selectedCatalogId, this._getMetadataParams()).then((result) => {
+      // 전달 받은 page number가 0 이면 컬럼 사전 리스트 초기화
+      this.pageResult.number === 0 && (this.metadatas = []);
+      // page 객체
+      this.pageResult = result.page;
+      // 컬럼 사전 리스트
+      this.metadatas = result['_embedded'] ? this.metadatas.concat(result['_embedded']['metadatas']) : [];
+      // 로딩 hide
+      this.loadingHide();
+    }).catch((error) => {
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**
@@ -410,7 +409,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     this.metadataService.getMetadataTags().then((result) => {
       this.tagsList = this.tagsList.concat(result);
 
-    })
+    });
   }
 
   /**
@@ -418,14 +417,15 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * @param metadata
    * @returns {string}
    */
-  public getTooltipValue(metadata) : string {
+  public getTooltipValue(metadata): string {
 
     let result = metadata.name;
     if (metadata.description) {
       result += ` - ${metadata.description}`;
     }
-    return result
+    return result;
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -441,15 +441,15 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   private _initView() {
     this.sourceTypeList = StorageService.isEnableStageDB
       ? [
-          {label : 'All', value : ''},
-          {label : 'Datasource', value : SourceType.ENGINE},
-          {label : 'Hive', value : SourceType.JDBC},
-          {label : 'Staging DB', value : SourceType.STAGING},
-        ]
+        {label: 'All', value: ''},
+        {label: 'Datasource', value: SourceType.ENGINE},
+        {label: 'Hive', value: SourceType.JDBC},
+        {label: 'Staging DB', value: SourceType.STAGING},
+      ]
       : [
-        {label : 'All', value : ''},
-        {label : 'Datasource', value : SourceType.ENGINE},
-        {label : 'Hive', value : SourceType.JDBC},
+        {label: 'All', value: ''},
+        {label: 'Datasource', value: SourceType.ENGINE},
+        {label: 'Hive', value: SourceType.JDBC},
       ];
 
     this.sourceType = '';
@@ -463,7 +463,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     this.pageResult.number = 0;
     this.selectedContentSort.key = 'createdTime';
     this.selectedContentSort.sort = 'desc';
-    this.tagsList = [{name : 'All', id : ''}];
+    this.tagsList = [{name: 'All', id: ''}];
 
     // 카달로그를 다시 불러오기
     // if (getCatalogList !== false) {
@@ -480,17 +480,17 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   private _refreshSelectedCatalog() {
     this.catalogs.forEach((catalog) => {
       catalog.selected = false;
-      if(catalog.children) {
+      if (catalog.children) {
         catalog.children.forEach((child) => {
           child.selected = false;
-          if(child.children) {
+          if (child.children) {
             child.children.forEach((last) => {
               last.selected = false;
             });
           }
-        })
+        });
       }
-    })
+    });
   }
 
   /**
@@ -505,7 +505,6 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
     this.getMetadataListPageInit();
   }
 
-
   /**
    * 검색어로 카달로그 이름 검색
    * @param {string} keyword
@@ -519,23 +518,22 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
 
   }
 
-
   /**
    * 검색어로 카달로그 검색
    * @private
    */
   private _searchCatalog() {
     this.catalogService.getCatalogs(this._getCatalogParams()).then((result) => {
-      if(result) {
+      if (result) {
         this._setCatalogHierarchies(result).then((result1) => {
           this.catalogs = [];
-          result1.forEach((item,index) => {
-            item.forEach((item1) =>{
-              if(!item1.hasOwnProperty('parentId')) {
-                this.catalogs.push(item1)
+          result1.forEach((item, index) => {
+            item.forEach((item1) => {
+              if (!item1.hasOwnProperty('parentId')) {
+                this.catalogs.push(item1);
               } else {
-                let list = result1[index-1].map((catalog) => {
-                  return catalog.id
+                let list = result1[index - 1].map((catalog) => {
+                  return catalog.id;
                 });
                 if (!this.catalogs[list.indexOf(item1.parentId)].children) {
                   this.catalogs[list.indexOf(item1.parentId)].children = [];
@@ -547,19 +545,19 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
             });
 
           });
-          this.catalogs =_.sortBy(this.catalogs, o => o.name)
-          this.catalogs.forEach((item,index) => {
+          this.catalogs = _.sortBy(this.catalogs, o => o.name);
+          this.catalogs.forEach((item, index) => {
             if (item.children) {
-              item.children =_.sortBy(item.children, o => o.name)
+              item.children = _.sortBy(item.children, o => o.name);
             }
-          })
+          });
         });
         this.metadatas = [];
         this.isUnclassifiedSelected = false;
       }
     }).catch((error) => {
 
-    })
+    });
   }
 
   /**
@@ -568,8 +566,9 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * @returns string
    * @private
    */
-  private _surroundSearchTextWithTag(name) : any {
-    return name.replace( new RegExp(this.catalogSearchText, "gi"),`<span class="ddp-txt-search">${this.catalogSearchText}</span>`)
+  private _surroundSearchTextWithTag(name): any {
+    return name.replace(new RegExp(this.catalogSearchText, 'gi'),
+      `<span class="ddp-txt-search">${this.catalogSearchText}</span>`);
   }
 
   /**
@@ -578,33 +577,45 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * @returns promise object
    * @private
    */
-  private _setCatalogHierarchies(results) : Promise<any> {
-    return new Promise((resolve, reject)=> {
+  private _setCatalogHierarchies(results): Promise<any> {
+    return new Promise((resolve, reject) => {
       this.catalogs = [];
 
       results.forEach((result) => {
-        result['hierarchies'].forEach((hierarchy,index) => {
+        result['hierarchies'].forEach((hierarchy, index) => {
 
-          if(!this.catalogs[index]) {
+          if (!this.catalogs[index]) {
             this.catalogs.push([]);
           }
-          if (this.catalogs[index !== 0 ? index-1 : 0].length > 0) {
-            let list = this.catalogs[index].map((c)=> {return c.id});
-            if(list.indexOf(hierarchy.id) === -1){
-              if(index !== 0 ) {
-                this.catalogs[index].push({parentId : result['hierarchies'][index-1].id, id : hierarchy.id, name : this._surroundSearchTextWithTag(hierarchy.name), hasChild : hierarchy.hasChild })
+          if (this.catalogs[index !== 0 ? index - 1 : 0].length > 0) {
+            let list = this.catalogs[index].map((c) => {
+              return c.id;
+            });
+            if (list.indexOf(hierarchy.id) === -1) {
+              if (index !== 0) {
+                this.catalogs[index].push({
+                  parentId: result['hierarchies'][index - 1].id,
+                  id: hierarchy.id,
+                  name: this._surroundSearchTextWithTag(hierarchy.name),
+                  hasChild: hierarchy.hasChild,
+                });
               } else {
 
-                this.catalogs[index].push({id : hierarchy.id, name : this._surroundSearchTextWithTag(hierarchy.name), hasChild : hierarchy.hasChild })
+                this.catalogs[index].push({
+                  id: hierarchy.id,
+                  name: this._surroundSearchTextWithTag(hierarchy.name),
+                  hasChild: hierarchy.hasChild,
+                });
               }
             }
           } else {
-            this.catalogs[index].push({id : hierarchy.id, name : this._surroundSearchTextWithTag(hierarchy.name), hasChild : hierarchy.hasChild })
+            this.catalogs[index].push(
+              {id: hierarchy.id, name: this._surroundSearchTextWithTag(hierarchy.name), hasChild: hierarchy.hasChild});
           }
-        })
+        });
       });
       resolve(this.catalogs);
-    })
+    });
   }
 
   /**
@@ -612,12 +623,12 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * @returns object
    * @private
    */
-  private _getCatalogParams() : Object {
+  private _getCatalogParams(): Object {
 
     const params = {
       size: this.pageResult.size,
       page: this.pageResult.number,
-      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
+      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,
     };
 
     // 검색어
@@ -633,12 +644,12 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * @returns object
    * @private
    */
-  private _getMetadataParams() : Object {
+  private _getMetadataParams(): Object {
 
     const params = {
       size: this.pageResult.size,
       page: this.pageResult.number,
-      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
+      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,
     };
 
     // 검색어
@@ -668,9 +679,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   | Private Method - getter
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-
 }
-
 
 class Order {
   key: string = 'logicalName';
@@ -678,6 +687,6 @@ class Order {
 }
 
 class SelectedMetadata {
-  id: string ;
-  name: string ;
+  id: string;
+  name: string;
 }

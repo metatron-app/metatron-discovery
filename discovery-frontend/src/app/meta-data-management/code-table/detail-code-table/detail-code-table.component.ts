@@ -29,7 +29,7 @@ import {ColumnDictionary} from '../../../domain/meta-data-management/column-dict
 
 @Component({
   selector: 'app-detail-code-table',
-  templateUrl: './detail-code-table.component.html'
+  templateUrl: './detail-code-table.component.html',
 })
 export class DetailCodeTableComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -90,10 +90,11 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private _codeTableService: CodeTableService,
-              private _activatedRoute: ActivatedRoute,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    private _codeTableService: CodeTableService,
+    private _activatedRoute: ActivatedRoute,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -135,18 +136,17 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 코드 테이블 제거
-    this._codeTableService.deleteCodeTable(this._codeTableId)
-      .then((result) => {
-        // alert
-        Alert.success(this.translateService.instant('msg.metadata.ui.codetable.delete.success', {value: this._originCodeTable.name}));
-        // 코드테이블 목록으로 돌아가기
-        this.router.navigate(['/management/metadata/code-table']);
-      })
-      .catch((error) => {
+    this._codeTableService.deleteCodeTable(this._codeTableId).then((result) => {
+      // alert
+      Alert.success(
+        this.translateService.instant('msg.metadata.ui.codetable.delete.success', {value: this._originCodeTable.name}));
+      // 코드테이블 목록으로 돌아가기
+      this.router.navigate(['/management/metadata/code-table']);
+    }).catch((error) => {
 
-        // 로딩 hide
-        this.loadingHide();
-      });
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**
@@ -362,14 +362,14 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
 
-    this._codeTableService.updateCodeTable(this._codeTableId, params ? params : this._getUpdateCodeTableParams())
-      .then((result) => {
+    this._codeTableService.updateCodeTable(this._codeTableId, params ? params : this._getUpdateCodeTableParams()).
+      then((result) => {
         // alert
         Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
         // 재조회
         this._getDetailCodeTable();
-      })
-      .catch((error) => {
+      }).
+      catch((error) => {
         // 로딩 hide
         this.loadingHide();
       });
@@ -383,17 +383,15 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 코드와 값 업데이트
-    this._codeTableService.updateCodeValueInCodeTable(this._codeTableId, this._getUpdateCodeParams())
-      .then((result) => {
-        // alert
-        Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
-        // 재조회
-        this._getDetailCodeTable();
-      })
-      .catch((error) => {
-        // 로딩 hide
-        this.loadingHide();
-      });
+    this._codeTableService.updateCodeValueInCodeTable(this._codeTableId, this._getUpdateCodeParams()).then((result) => {
+      // alert
+      Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
+      // 재조회
+      this._getDetailCodeTable();
+    }).catch((error) => {
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**
@@ -404,32 +402,30 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 테이블 이름이 중복인지 확인
-    this._codeTableService.getDuplicateTableNameInCodeTable(this.reName.trim())
-      .then((result) => {
-        // 중복
-        if (result['duplicated']) {
-          // alert
-          Alert.warning(
-            this.translateService.instant(
-              'msg.metadata.ui.codetable.create.valid.table.name.duplicated',
-              {value: this.reName.trim()}
-            )
-          );
-          // 로딩 hide
-          this.loadingHide();
-        } else {
-          // edit flag
-          this.nameEditFl = false;
-          // blur
-          // this.nameElement.nativeElement.blur();
-          // 테이블 업데이트
-          this._updateCodeTable({name: this.reName.trim()});
-        }
-      })
-      .catch((error) => {
+    this._codeTableService.getDuplicateTableNameInCodeTable(this.reName.trim()).then((result) => {
+      // 중복
+      if (result['duplicated']) {
+        // alert
+        Alert.warning(
+          this.translateService.instant(
+            'msg.metadata.ui.codetable.create.valid.table.name.duplicated',
+            {value: this.reName.trim()},
+          ),
+        );
         // 로딩 hide
         this.loadingHide();
-      });
+      } else {
+        // edit flag
+        this.nameEditFl = false;
+        // blur
+        // this.nameElement.nativeElement.blur();
+        // 테이블 업데이트
+        this._updateCodeTable({name: this.reName.trim()});
+      }
+    }).catch((error) => {
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**
@@ -440,7 +436,8 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
   private _codeListValidation(): boolean {
     for (let i = 0; i < this.codeList.length; i++) {
       // code나 value 둘 중 하나가 비어있으면 validation message 표시
-      if (this.codeList[i].code && this.codeList[i].value && this.codeList[i].code.trim() !== '' && this.codeList[i].value.trim() !== '') {
+      if (this.codeList[i].code && this.codeList[i].value && this.codeList[i].code.trim() !== '' &&
+        this.codeList[i].value.trim() !== '') {
         this.codeList[i]['invalid'] = false;
       } else {
         this.codeList[i]['invalid'] = true;
@@ -462,23 +459,21 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 코드 테이블 상세조회
-    this._codeTableService.getCodeTableDetail(this._codeTableId)
-      .then((result) => {
-        // 코드 테이블 상세조회 데이터
-        this.codeTable = result;
-        // origin 테이블 데이터
-        this._originCodeTable = _.cloneDeep(result);
-        // 연결된 코드 리스트
-        this.codeList = result['codes'];
-        // origin 연결된 코드 리스트
-        this._originCodeList = _.cloneDeep(result['codes']);
-        // 연결된 컬럼 사전 목록 조회
-        this._getColumnDictionaryList();
-      })
-      .catch((error) => {
-        // 로딩 hide
-        this.loadingHide();
-      });
+    this._codeTableService.getCodeTableDetail(this._codeTableId).then((result) => {
+      // 코드 테이블 상세조회 데이터
+      this.codeTable = result;
+      // origin 테이블 데이터
+      this._originCodeTable = _.cloneDeep(result);
+      // 연결된 코드 리스트
+      this.codeList = result['codes'];
+      // origin 연결된 코드 리스트
+      this._originCodeList = _.cloneDeep(result['codes']);
+      // 연결된 컬럼 사전 목록 조회
+      this._getColumnDictionaryList();
+    }).catch((error) => {
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**
@@ -492,20 +487,18 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
     this._codeTableService.getColumnDictionaryInCodeTable(this._codeTableId, {
       size: 15,
       page: 0,
-      sort: 'logicalName,asc'
-    })
-      .then((result) => {
-        // 수
-        this.linkedDictionaryTotalCount = result['page'].totalElements;
-        // 목록
-        this.linkedDictionaryList = result['_embedded'] ? result['_embedded'].dictionaries : [];
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch((error) => {
-        // 로딩 hide
-        this.loadingHide();
-      });
+      sort: 'logicalName,asc',
+    }).then((result) => {
+      // 수
+      this.linkedDictionaryTotalCount = result['page'].totalElements;
+      // 목록
+      this.linkedDictionaryList = result['_embedded'] ? result['_embedded'].dictionaries : [];
+      // 로딩 hide
+      this.loadingHide();
+    }).catch((error) => {
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**
@@ -516,7 +509,7 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
   private _getUpdateCodeTableParams(): object {
     const params = {
       name: this.codeTable.name.trim(),
-      description: this.codeTable.description.trim()
+      description: this.codeTable.description.trim(),
     };
     return params;
   }
@@ -544,7 +537,8 @@ export class DetailCodeTableComponent extends AbstractComponent implements OnIni
       if (originIndex === -1) {
         // add
         params.push({op: 'add', code: code.code, value: code.value});
-      } else if (code.code !== this._originCodeList[originIndex].code || code.value !== this._originCodeList[originIndex].value) {
+      } else if (code.code !== this._originCodeList[originIndex].code || code.value !==
+        this._originCodeList[originIndex].value) {
         // replace
         params.push({op: 'replace', code: code.code, value: code.value, id: code.id});
       }

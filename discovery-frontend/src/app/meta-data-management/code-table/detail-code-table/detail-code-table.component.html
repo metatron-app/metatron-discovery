@@ -11,6 +11,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
 <div class="ddp-type-contents2">
   <div class="ddp-top-flow">
     <!-- navi wrap -->
@@ -131,17 +132,11 @@
               <!-- data -->
               <span class="ddp-data-name" (click)="onChangeDescMode()">
               {{codeTable.description}}
-              <em class="ddp-icon-edit2"></em>
+                <em class="ddp-icon-edit2"></em>
             </span>
               <!-- //data -->
               <!-- edit -->
               <div class="ddp-wrap-input">
-                <!--<input #descElement type="text" class="ddp-input-edit"-->
-                       <!--[(ngModel)]="reDesc"-->
-                       <!--[focus]="descEditFl"-->
-                       <!--(keyup.enter)="onClickUpdateDesc()"-->
-                       <!--placeholder="{{'msg.comm.ui.create.desc' | translate}}">-->
-
 
                 <component-input
                   [compType]="'default'"
@@ -212,10 +207,7 @@
 
           <label class="ddp-label-detail">{{'msg.metadata.ui.codetable.create.code-table' | translate}}</label>
           <!-- option -->
-          <span class="ddp-list-option">
-          <!--<a href="#" class="ddp-btn-line-s"><em class="ddp-icon-upload"></em>Upload</a>-->
-            <!--<a href="#" class="ddp-btn-line-s"><em class="ddp-icon-download"></em>Download</a>-->
-        </span>
+          <span class="ddp-list-option"></span>
           <!-- //option -->
           <!-- box -->
           <div class="ddp-box-code">

@@ -30,7 +30,6 @@
       <div class="ddp-page-catalog">
         <!-- root -->
         <div class="ddp-ui-root">
-          <!--<a href="javascript:" class="ddp-btn-bg" [ngClass]="{'ddp-disabled':isCreateAllowed()}" (click)="createCatalog()"><em class="ddp-icon-add"></em>{{'msg.metadata.cat.btn.new-cat' | translate}}</a>-->
           <!-- create -->
           <div class="ddp-data-create">
             <a href="javascript:" class="ddp-btn-back" *ngIf="isRoot()" (click)="goBack()"></a>
@@ -84,25 +83,7 @@
                 </div>
                 <!-- //편집 -->
 
-                <div class="ddp-btn-control">
-                  <!--<em class="ddp-icon-control-edit2 ddp-hover-tooltip" (click)="$event.stopImmediatePropagation(); editCatalog(catalog, index)">-->
-                    <!-- 툴팁 -->
-                    <!--<div class="ddp-ui-tooltip-info ddp-down">-->
-                      <!--<em class="ddp-icon-view-top" ></em>-->
-                      <!--{{'msg.comm.ui.edit' | translate}}-->
-                    <!--</div>-->
-                    <!--&lt;!&ndash; //툴팁 &ndash;&gt;-->
-                  <!--</em>-->
-                  <!--<em class="ddp-icon-control-cut ddp-hover-tooltip"  (click)="$event.stopImmediatePropagation(); confirmDelete(catalog)">-->
-
-                    <!-- 툴팁 -->
-                    <!--<div class="ddp-ui-tooltip-info ddp-down">-->
-                      <!--<em class="ddp-icon-view-top"></em>-->
-                      <!--{{'msg.comm.ui.del' | translate}}-->
-                    <!--</div>-->
-                    <!-- //툴팁 -->
-                  <!--</em>-->
-                </div>
+                <div class="ddp-btn-control"></div>
                 <em class="ddp-view" (click)="catalogDetail(catalog)"></em>
               </a>
             </li>
@@ -110,7 +91,6 @@
         </div>
 
         <!-- no data -->
-        <!--<div class="ddp-nodata" *ngIf="isCreateCatalog">{{'msg.metadata.cat.create.root' | translate : { value : selectedCatalog.name || currentRoot.name} }}</div>-->
         <div class="ddp-nodata" *ngIf="0 === catalogs.length && !isCreateCatalog && 'Root' === currentRoot.name">{{'msg.metadata.catalog.ui.no.cat' | translate }}</div>
         <!-- //no data -->
       </div>

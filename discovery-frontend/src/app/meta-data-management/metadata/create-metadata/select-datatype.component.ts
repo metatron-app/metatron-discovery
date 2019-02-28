@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { MetadataModelService } from '../service/metadata.model.service';
-import {StorageService} from "../../../data-storage/service/storage.service";
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {MetadataModelService} from '../service/metadata.model.service';
+import {StorageService} from '../../../data-storage/service/storage.service';
 
 @Component({
   selector: 'app-select-datatype',
-  templateUrl: './select-datatype.component.html'
+  templateUrl: './select-datatype.component.html',
 })
 export class SelectDatatypeComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -46,9 +46,10 @@ export class SelectDatatypeComponent extends AbstractComponent implements OnInit
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(public metaDataModelService: MetadataModelService,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    public metaDataModelService: MetadataModelService,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 

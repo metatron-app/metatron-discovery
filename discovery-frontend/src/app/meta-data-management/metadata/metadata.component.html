@@ -76,8 +76,8 @@
       <!-- //검색 -->
       <!-- right -->
       <div class="ddp-ui-rightoption">
-        <span *ngIf="getTotalContentsCount > 1" class="ddp-data-total"  [innerHTML]="'msg.metadata.ui.lists' | translate : { value : getTotalContentsCount }"></span>
-        <span *ngIf="getTotalContentsCount <= 1" class="ddp-data-total"  [innerHTML]="'msg.metadata.ui.list' | translate : { value : getTotalContentsCount }"></span>
+        <span *ngIf="getTotalContentsCount > 1" class="ddp-data-total" [innerHTML]="'msg.metadata.ui.lists' | translate : { value : getTotalContentsCount }"></span>
+        <span *ngIf="getTotalContentsCount <= 1" class="ddp-data-total" [innerHTML]="'msg.metadata.ui.list' | translate : { value : getTotalContentsCount }"></span>
         <a href="javascript:" class="ddp-btn-link" (click)="createNewMetadata()"><em class="ddp-icon-link-add"></em>{{'msg.metadata.md.btn.create.md' | translate}}</a>
 
       </div>
@@ -144,7 +144,7 @@
     <tr *ngFor="let metadata of metadatas" (click)="onClickMetadataDetail(metadata)">
       <td>
         <span class="ddp-box-tag-value" [ngClass]="{'ddp-datasource':metadata.sourceType.toString() === 'ENGINE', 'ddp-hive': 'JDBC' == metadata.sourceType.toString(), 'ddp-stagingdb' : 'STAGEDB' == metadata.sourceType.toString()}">
-          {{ 'ENGINE' == metadata.sourceType.toString() ? 'Datasource' : 'STAGEDB' == metadata.sourceType.toString() ? 'Staging DB' : 'JDBC' == metadata.sourceType.toString() ? 'HIVE'  :  metadata.sourceType }}
+          {{ 'ENGINE' == metadata.sourceType.toString() ? 'Datasource' : 'STAGEDB' == metadata.sourceType.toString() ? 'Staging DB' : 'JDBC' == metadata.sourceType.toString() ? 'HIVE' : metadata.sourceType }}
         </span>
       </td>
       <td>
@@ -163,7 +163,7 @@
           <span [style.width]="metadata.popularity ? metadata.popularity + '%' : 0 + '%'"></span>
         </div>
       </td>
-      <td >
+      <td>
         {{ metadata.modifiedTime | mdate:'YYYY-MM-DD HH:mm' }} by {{ metadata.modifiedBy.fullName }}
       </td>
       <td>

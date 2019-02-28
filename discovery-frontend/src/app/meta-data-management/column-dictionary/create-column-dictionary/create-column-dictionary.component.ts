@@ -12,18 +12,18 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { ColumnDictionaryService } from '../service/column-dictionary.service';
-import { Alert } from '../../../common/util/alert.util';
-import { CommonUtil } from '../../../common/util/common.util';
-import { ChooseCodeTableComponent } from '../../component/choose-code-table/choose-code-table.component';
-import { CodeTable } from '../../../domain/meta-data-management/code-table';
-import { FieldFormat, FieldFormatType } from '../../../domain/datasource/datasource';
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {ColumnDictionaryService} from '../service/column-dictionary.service';
+import {Alert} from '../../../common/util/alert.util';
+import {CommonUtil} from '../../../common/util/common.util';
+import {ChooseCodeTableComponent} from '../../component/choose-code-table/choose-code-table.component';
+import {CodeTable} from '../../../domain/meta-data-management/code-table';
+import {FieldFormat, FieldFormatType} from '../../../domain/datasource/datasource';
+import {AbstractComponent} from '../../../common/component/abstract.component';
 
 @Component({
   selector: 'app-create-column-dictionary',
-  templateUrl: './create-column-dictionary.component.html'
+  templateUrl: './create-column-dictionary.component.html',
 })
 export class CreateColumnDictionaryComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -85,9 +85,10 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private _columnDictionaryService: ColumnDictionaryService,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    private _columnDictionaryService: ColumnDictionaryService,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -265,42 +266,48 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
     // 논리명 비어있는지 확인
     if (this.logicalName.trim() === '') {
       // message
-      this.logicalNameValidationMsg = this.translateService.instant('msg.metadata.ui.dictionary.create.valid.logical.name.required');
+      this.logicalNameValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.dictionary.create.valid.logical.name.required');
       // return
       return false;
     }
     // 논리명 자리수 계산
     if (CommonUtil.getByte(this.logicalName.trim()) > 150) {
       // message
-      this.logicalNameValidationMsg = this.translateService.instant('msg.metadata.ui.dictionary.create.valid.logical.name.length');
+      this.logicalNameValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.dictionary.create.valid.logical.name.length');
       // return
       return false;
     }
     // 컬럼명 비어있는지 확인
     if (this.columnName.trim() === '') {
       // message
-      this.columnNameValidationMsg = this.translateService.instant('msg.metadata.ui.dictionary.create.valid.column.name.required');
+      this.columnNameValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.dictionary.create.valid.column.name.required');
       // return
       return false;
     }
     // 컬럼명 자리수 계산
     if (CommonUtil.getByte(this.columnName.trim()) > 150) {
       // message
-      this.columnNameValidationMsg = this.translateService.instant('msg.metadata.ui.dictionary.create.valid.column.name.length');
+      this.columnNameValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.dictionary.create.valid.column.name.length');
       // return
       return false;
     }
     // 약어가 자리수 계산
     if (CommonUtil.getByte(this.shortName.trim()) > 150) {
       // message
-      this.shortNameValidationMsg = this.translateService.instant('msg.metadata.ui.dictionary.create.valid.short.name.length');
+      this.shortNameValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.dictionary.create.valid.short.name.length');
       // return
       return false;
     }
     // 설명 자리수 계산
     if (CommonUtil.getByte(this.description.trim()) > 150) {
       // message
-      this.descriptionValidationMsg = this.translateService.instant('msg.metadata.ui.dictionary.create.valid.desc.length');
+      this.descriptionValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.dictionary.create.valid.desc.length');
       // return
       return false;
     }
@@ -315,20 +322,19 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
     // 로딩 show
     this.loadingShow();
     // 논리명이 중복인지 확인
-    this._columnDictionaryService.getDuplicateLogicalNameInColumnDictionary(this.logicalName.trim())
-      .then((result) => {
-        // 중복
-        if (result['duplicated']) {
-          // message
-          this.logicalNameValidationMsg = this.translateService.instant('msg.metadata.ui.dictionary.create.valid.logical.name.duplicated', {value: this.logicalName.trim()});
-          // 로딩 hide
-          this.loadingHide();
-        } else {
-          // 컬럼사전 생성
-          this._createColumnDictionary();
-        }
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._columnDictionaryService.getDuplicateLogicalNameInColumnDictionary(this.logicalName.trim()).then((result) => {
+      // 중복
+      if (result['duplicated']) {
+        // message
+        this.logicalNameValidationMsg = this.translateService.instant(
+          'msg.metadata.ui.dictionary.create.valid.logical.name.duplicated', {value: this.logicalName.trim()});
+        // 로딩 hide
+        this.loadingHide();
+      } else {
+        // 컬럼사전 생성
+        this._createColumnDictionary();
+      }
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -339,17 +345,16 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
     // 로딩 show
     this.loadingShow();
     // 컬럼 사전 생성
-    this._columnDictionaryService.createColumnDictionary(this._getCreateColumnDictionaryParams())
-      .then((result) => {
-        // alert
-        Alert.success(this.translateService.instant('msg.metadata.ui.dictionary.create.success', {value: this.logicalName.trim()}));
-        // 로딩 hide
-        this.loadingHide();
-        // close
-        this.createComplete.emit();
-        this.onClickCancel();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._columnDictionaryService.createColumnDictionary(this._getCreateColumnDictionaryParams()).then((result) => {
+      // alert
+      Alert.success(
+        this.translateService.instant('msg.metadata.ui.dictionary.create.success', {value: this.logicalName.trim()}));
+      // 로딩 hide
+      this.loadingHide();
+      // close
+      this.createComplete.emit();
+      this.onClickCancel();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -364,7 +369,7 @@ export class CreateColumnDictionaryComponent extends AbstractComponent implement
       logicalName: this.logicalName.trim(),
       description: this.description.trim(),
       logicalType: this.selectedType,
-      dataType: 'STRING'
+      dataType: 'STRING',
     };
     // 타입이 시간인경우 format 추가
     if (this.selectedType === 'TIMESTAMP') {
