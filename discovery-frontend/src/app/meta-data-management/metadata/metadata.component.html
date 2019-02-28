@@ -12,58 +12,6 @@
   ~ limitations under the License.
   -->
 
-<!-- catalogs -->
-<!--<div class="ddp-wrap-catalogs">-->
-  <!--<div class="ddp-type-label">{{'msg.metadata.ui.catalog' | translate}}</div>-->
-  <!--&lt;!&ndash; search &ndash;&gt;-->
-  <!--<div class="ddp-ui-searching">-->
-    <!--<em class="ddp-icon-search"></em>-->
-    <!--<input type="text" placeholder="Search" [(ngModel)]="catalogSearchText" (keyup.esc)="onCatalogSearchTextInit()"-->
-           <!--(keypress)="onCatalogSearchText($event)">-->
-    <!--<em class="ddp-btn-search-close" (click)="onCatalogSearchTextInit()" *ngIf="catalogSearchText"></em>-->
-  <!--</div>-->
-  <!--&lt;!&ndash; //search &ndash;&gt;-->
-  <!--&lt;!&ndash; tree &ndash;&gt;-->
-  <!--<div class="ddp-ui-tree">-->
-    <!--<ul class="ddp-list-tree">-->
-      <!--<li *ngFor="let catalog of catalogs"  [ngClass]="{'ddp-open':catalog.isOpen,'ddp-selected':catalog.selected}">-->
-        <!--<a href="javascript:" [ngClass]="{'ddp-depth' : catalog.hasChild}" >-->
-          <!--<em class="ddp-view" (click)="getChildren($event,catalog)"></em>-->
-          <!--<em class="ddp-icon-folder"></em>-->
-          <!--<div class="ddp-txt-link" (click)="setSelectedCatalog(catalog)" [innerHTML]="sanitizer.bypassSecurityTrustHtml(catalog.name)">-->
-          <!--</div>-->
-        <!--</a>-->
-        <!--<ul *ngIf="catalog.children">-->
-          <!--<li *ngFor="let child of catalog.children"  [ngClass]="{'ddp-open':child.isOpen,'ddp-selected':child.selected}">-->
-            <!--<a href="javascript:" [ngClass]="{'ddp-depth' : child.hasChild}">-->
-              <!--<em class="ddp-view" (click)="getChildren($event,child)"></em>-->
-              <!--<em class="ddp-icon-folder"></em>-->
-              <!--<div class="ddp-txt-link" (click)="setSelectedCatalog(child)" [innerHTML]="sanitizer.bypassSecurityTrustHtml(child.name)">-->
-              <!--</div>-->
-            <!--</a>-->
-            <!--<ul *ngIf="child.children" >-->
-              <!--<li *ngFor="let last of child.children" [ngClass]="{'ddp-open':last.isOpen,'ddp-selected':last.selected}">-->
-                <!--<a href="javascript:" [ngClass]="{'ddp-depth' : last.hasChild}">-->
-                  <!--<em class="ddp-view" (click)="getChildren($event,last)"></em>-->
-                  <!--<em class="ddp-icon-folder"></em>-->
-                  <!--<div class="ddp-txt-link" (click)="setSelectedCatalog(last)" [innerHTML]="sanitizer.bypassSecurityTrustHtml(last.name)"></div>-->
-                <!--</a>-->
-              <!--</li>-->
-            <!--</ul>-->
-          <!--</li>-->
-        <!--</ul>-->
-      <!--</li>-->
-      <!--<li [ngClass]="{'ddp-selected':isUnclassifiedSelected}" (click)="getUnclassifiedMetadata()">-->
-        <!--<a href="javascript:">-->
-          <!--<em class="ddp-icon-question"></em>-->
-          <!--{{ 'msg.metadata.ui.unclassified' | translate }}</a>-->
-      <!--</li>-->
-    <!--</ul>-->
-  <!--</div>-->
-  <!--&lt;!&ndash; //tree &ndash;&gt;-->
-<!--</div>-->
-<!-- //catalogs -->
-
 <div class="ddp-ui-contents-list">
   <div class="ddp-wrap-option">
     <!-- option -->
