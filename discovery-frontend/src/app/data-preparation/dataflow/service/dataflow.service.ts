@@ -25,6 +25,7 @@ import { isNullOrUndefined, isUndefined } from 'util';
 import { PreparationAlert } from '../../util/preparation-alert.util';
 import { PopupService } from '../../../common/service/popup.service';
 import { TranslateService } from '@ngx-translate/core';
+import {SnapShotCreateDomain} from "../../component/create-snapshot-popup.component";
 
 @Injectable()
 export class DataflowService extends AbstractService {
@@ -211,7 +212,7 @@ export class DataflowService extends AbstractService {
   }
 
   // 데이터 스냅샷 생성
-  public createDataSnapshot(datasetId: string, datasnapshot: PrDataSnapshot): Promise<any> {
+  public createDataSnapshot(datasetId: string, datasnapshot: SnapShotCreateDomain): Promise<any> {
     let popupService = this.popupService;
     return this.post(this.API_URL + `preparationdatasets/${datasetId}/transform/snapshot`, datasnapshot)
       .catch((error) => {

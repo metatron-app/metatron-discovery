@@ -23,7 +23,7 @@ import {AbstractPopupComponent} from '../../common/component/abstract-popup.comp
 import {DatasetService} from '../dataset/service/dataset.service';
 import {DataflowService} from '../dataflow/service/dataflow.service';
 import {PopupService} from '../../common/service/popup.service';
-import {HiveFileCompression, Engine, PrDataSnapshot, SsType, UriFileFormat, AppendMode, HiveFileFormat} from '../../domain/data-preparation/pr-snapshot';
+import {HiveFileCompression, Engine, SsType, UriFileFormat, AppendMode, HiveFileFormat} from '../../domain/data-preparation/pr-snapshot';
 import {Field} from '../../domain/data-preparation/pr-dataset';
 import {DataconnectionService} from "../../dataconnection/service/dataconnection.service";
 import {StorageService} from "../../data-storage/service/storage.service";
@@ -52,7 +52,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
   public isShow : boolean = false;
 
-  public snapshot: PrDataSnapshot;
+  public snapshot: SnapShotCreateDomain;
 
   public SsType = SsType;
 
@@ -173,9 +173,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     }
 
     if (SsType.URI === this.snapshot.ssType) {
-      this.snapshot.hiveFileCompression = HiveFileCompression.NONE;
       this.snapshot.engine = Engine.EMBEDDED;
-
       if (this.snapshot.storedUri.length < 1){
         Alert.warning(this.translateService.instant('msg.dp.alert.ss.require.file-uri'));
         return;
@@ -190,7 +188,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
 
   /**
-   * When snapshot Name change, modfiy file type uris
+   * When snapshot Name change, modify file type uris
    * */
   public changeSSUri(){
     if(this.snapshot.storedUri && this.snapshot.storedUri.lastIndexOf("/") > 0) {
@@ -267,7 +265,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    */
   public changeSsType(ssType : SsType) {
 
-    this.snapshot = new PrDataSnapshot();
+    this.snapshot = new SnapShotCreateDomain();
     this.snapshot.ssName = this.ssName;
     this.snapshot.ssType = ssType;
 
@@ -281,13 +279,10 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
     } else if (ssType === SsType.URI) {
 
-      delete this.snapshot.elapsedTime;
-      delete this.snapshot.dbName;
-
       // Default file format is CSV
       this.uriFileFormat = this.fileFormat[0].value;
 
-      this._getDefaultStoredUri();
+      this.snapshot.storedUri = this._getDefaultStoredUri();
     }
 
     // Select snapshot name
@@ -354,7 +349,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    */
   private _initialiseValues() {
 
-    this.snapshot = new PrDataSnapshot();
+    this.snapshot = new SnapShotCreateDomain();
 
     // -------------------
     // File system
@@ -489,7 +484,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * @param snapshot
    * @private
    */
-  private _createSnapshot(dsId: string, snapshot: PrDataSnapshot) {
+  private _createSnapshot(dsId: string, snapshot: SnapShotCreateDomain) {
 
     this.dataflowService.createDataSnapshot(dsId, snapshot).then((result) => {
       this.loadingHide();
@@ -509,5 +504,17 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     });
   }
 
+}
 
+export class SnapShotCreateDomain {
+  public engine: Engine;
+  public ssName: string;
+  public ssType: SsType;
+  public hiveFileCompression?: HiveFileCompression;
+  public storedUri?: string;
+  public dbName?: string;
+  public tblName?: string;
+  public hiveFileFormat?: HiveFileFormat;
+  public appendMode?: AppendMode;
+  public partitionColNames?: String[];
 }
