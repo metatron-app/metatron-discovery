@@ -31,7 +31,7 @@ export class Metadata extends AbstractHistoryEntity {
 
 export enum SourceType {
   ENGINE = <any>'ENGINE',
-  STAGING = <any>'STAGING',
+  STAGING = <any>'STAGEDB',
   JDBC = <any>'JDBC'
 }
 

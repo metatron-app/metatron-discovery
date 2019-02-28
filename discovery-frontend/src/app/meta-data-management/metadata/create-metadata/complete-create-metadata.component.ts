@@ -316,12 +316,12 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
       // staging DB
       const source = {
         name: 'Stage DB',
-        type: 'STAGE',
+        type: 'STAGEDB',
         sourceId: 'STAGE',
         schema: this.getSchemaStep()['selectedDatabase'],
         table: this.getSchemaStep()['selectedTable']
       };
-      params['sourceType'] = 'STAGING';
+      params['sourceType'] = 'STAGEDB';
       params['source'] = source;
     }
     return params;
