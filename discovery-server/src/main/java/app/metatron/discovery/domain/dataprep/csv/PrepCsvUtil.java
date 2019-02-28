@@ -37,7 +37,7 @@ public class PrepCsvUtil {
     BOMInputStream bis = new BOMInputStream(is, true, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
 
     try {
-      if (bis.hasBOM() == false) {
+      if (bis.hasBOM() == false || bis.hasBOM(ByteOrderMark.UTF_8)) {
         charset = "UTF-8";
       } else if (bis.hasBOM(ByteOrderMark.UTF_16LE) || bis.hasBOM(ByteOrderMark.UTF_16BE)) {
         charset = "UTF-16";
