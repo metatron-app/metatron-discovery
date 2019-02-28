@@ -162,10 +162,12 @@ export class MetadataService extends AbstractService {
   /**
    * 데이터 소스에 대한 메타데이터 조회
    * @param {string} sourceId
+   * @param projection
    * @returns {Promise<any>}
    */
-  public getMetadataForDataSource(sourceId:string):Promise<any> {
-    return this.post(this.URL_METADATA + `/metasources/${sourceId}?projection=forItemView`, {});
+  public getMetadataForDataSource(
+    sourceId: string, projection: 'forItemView' | 'forDetailView' = 'forItemView'): Promise<any> {
+    return this.post(this.URL_METADATA + `/metasources/${sourceId}?projection=${projection}`, {});
   } // function - getMetadataForDataSource
 
   /**
