@@ -45,6 +45,7 @@ import {Modal} from "../../../../common/domain/modal";
 import {Alert} from "../../../../common/util/alert.util";
 import { IngestionLogComponent } from './component/ingestion-log/ingestion-log.component';
 import { CommonUtil } from '../../../../common/util/common.util';
+import {Metadata} from "../../../../domain/meta-data-management/metadata";
 
 declare let echarts: any;
 
@@ -133,6 +134,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
 
   @Input()
   public timestampColumn: Field;
+
+  @Input()
+  public metaData: Metadata;
 
   // source description edit flag
   public isEditSourceDescription: boolean = false;
@@ -249,6 +253,13 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    */
   public onClickIngestionDetails(): void {
     this._ingestionLogComp.init(this.datasource.id, this.historyId, this._ingestionProgress.message, this._ingestionProgress.failResults);
+  }
+
+  /**
+   * Link master data click event
+   */
+  public onClickLinkMasterData(): void {
+    this.router.navigate([`/management/metadata/metadata/${this.metaData.id}`]).then();
   }
 
   /**

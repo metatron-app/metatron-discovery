@@ -2161,6 +2161,7 @@
   "msg.storage.ui.timezone": "타임존",
   "msg.storage.ui.username": "사용자이름",
   "msg.storage.ui.guide.meta.modified": "메타데이터도 수정 시 업데이트됩니다.",
+  "msg.storage.btn.master.data.link": "마스터 데이터로 이동",
 
   "msg.storage.ui.timezone.country.zimbabwe": "짐바브웨",
   "msg.storage.ui.timezone.country.zambia": "잠비아",
