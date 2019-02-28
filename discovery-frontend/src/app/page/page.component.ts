@@ -3865,7 +3865,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         url: this.router.url,
         dashboardId: this.widget.dashBoard.id,
         widgetId: this.widget.id
-      }, params.resultFormatOptions, null, this.dataSourceList
+      }, params.resultFormatOptions
     );
 
     const uiCloneQuery = _.cloneDeep(query);
