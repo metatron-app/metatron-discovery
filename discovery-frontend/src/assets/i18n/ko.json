@@ -737,6 +737,7 @@
   "msg.dp.alert.failed.to.parse.csv": "CSV 파일을 파싱하는 도중 IOException이 발생했습니다.",
   "msg.dp.alert.failed.to.write.csv": "CSV 파일을 write하는 도중 IOException이 발생했습니다.",
   "msg.dp.alert.failed.to.close.csv": "CSV 파일을 닫는 도중 IOException이 발생했습니다.",
+  "msg.dp.alert.failed.to.parse.json": "JSON 파일을 파싱하는 도중 IOException이 발생했습니다.",
   "msg.dp.alert.failed.to.delete.snapshot": "Snapshot을 지우는 도중 IOException이 발생했습니다.",
   "msg.dp.alert.invalid.snapshot.name": "잘못된 스냅샷 이름입니다. (null 또는 빈 문자열)",
   "msg.dp.alert.snapshot.type.not.supported.yet": "아직 지원하지 않는 스냅샷 형식입니다.",

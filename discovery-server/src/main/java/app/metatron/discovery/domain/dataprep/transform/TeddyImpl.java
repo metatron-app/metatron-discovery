@@ -260,7 +260,7 @@ public class TeddyImpl {
     String extensionType = FilenameUtils.getExtension(strUri);
     switch (extensionType) {
       case "json":
-        df.setByGridWithJson(PrepJsonUtil.parseJSON(strUri, delimiter, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
+        df.setByGridWithJson(PrepJsonUtil.parseJson(strUri, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
         break;
       default: // csv
         df.setByGrid(PrepCsvUtil.parse(strUri, delimiter, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
