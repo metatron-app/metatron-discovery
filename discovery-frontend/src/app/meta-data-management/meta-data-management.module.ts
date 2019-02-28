@@ -51,6 +51,7 @@ import { HiveSelectSchemaComponent } from './metadata/create-metadata/hive-selec
 import { ChooseColumnDictionaryComponent } from './component/choose-column-dictionary/choose-column-dictionary.component';
 import { CatalogComponent } from './catalog/catalog.component';
 import { MetadataManagementGuard } from '../common/gaurd/metadata-management.guard';
+import {TopInfoComponent} from './metadata/component/top-info.component';
 
 @NgModule({
   imports: [
@@ -103,7 +104,8 @@ import { MetadataManagementGuard } from '../common/gaurd/metadata-management.gua
     SelectDictionaryComponent,
     MetadataDetailInformationComponent,
     MetadataDetailColumnschemaComponent,
-    CatalogComponent
+    CatalogComponent,
+    TopInfoComponent,
   ],
   providers: [
     // 코드 테이블 서비스
