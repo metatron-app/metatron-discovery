@@ -26,7 +26,8 @@ import java.io.Serializable;
 @JsonSubTypes({
     @JsonSubTypes.Type(value = PredictionAnalysis.class, name = "prediction"),
     @JsonSubTypes.Type(value = TrendAnalysis.class, name = "trend"),
-    @JsonSubTypes.Type(value = ClusterAnalysis.class, name = "cluster")
+    @JsonSubTypes.Type(value = ClusterAnalysis.class, name = "cluster"),
+    @JsonSubTypes.Type(value = GeoSpatialAnalysis.class, name = "geo")
 })
 public interface Analysis extends Serializable {
   String getVersionKey();

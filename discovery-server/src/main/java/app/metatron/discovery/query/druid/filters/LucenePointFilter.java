@@ -1,0 +1,87 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+package app.metatron.discovery.query.druid.filters;
+
+import com.google.common.base.Preconditions;
+
+import app.metatron.discovery.domain.workbook.configurations.filter.SpatialBboxFilter;
+import app.metatron.discovery.query.druid.Filter;
+
+public class LucenePointFilter implements Filter {
+
+  String field;
+
+  PointQueryType queryType;
+
+  double[] latitudes;
+
+  double[] longitudes;
+
+  double radiusMeters;
+
+  public LucenePointFilter() {
+  }
+
+  public LucenePointFilter(String field,
+                           PointQueryType queryType,
+                           double[] latitudes,
+                           double[] longitudes,
+                           double radiusMeters) {
+
+    this.field = Preconditions.checkNotNull(field, "field can not be null");
+    this.queryType = Preconditions.checkNotNull(queryType, "type can not be null");
+    this.latitudes = latitudes;
+    this.longitudes = longitudes;
+    this.radiusMeters = queryType == PointQueryType.DISTANCE ? radiusMeters : 0;
+
+    Preconditions.checkArgument(getLatitudes().length == getLongitudes().length, "invalid coordinates");
+  }
+
+  public LucenePointFilter(SpatialBboxFilter filter) {
+    this.field = filter.getField();
+    this.queryType = PointQueryType.BBOX;
+    this.latitudes = filter.findLatitudes();
+    this.longitudes = filter.findLongitudes();
+    this.radiusMeters = 0.0f;
+  }
+
+  public String getField() {
+    return field;
+  }
+
+  public void setField(String field) {
+    this.field = field;
+  }
+
+  public PointQueryType getQueryType() {
+    return queryType;
+  }
+
+  public double[] getLatitudes() {
+    return latitudes;
+  }
+
+  public double[] getLongitudes() {
+    return longitudes;
+  }
+
+  public double getRadiusMeters() {
+    return radiusMeters;
+  }
+
+  public enum PointQueryType {
+    DISTANCE, BBOX, POLYGON
+  }
+}

@@ -55,7 +55,7 @@ public class MapViewLayer implements Serializable {
     this.name = name;
     this.ref = ref;
     this.fields = fields;
-    this.view = view;
+    this.view = (view == null) ? new LayerView.OriginalLayerView() : view;
   }
 
   public String getName() {

@@ -60,6 +60,22 @@ public class SelectQuery extends Query {
   public SelectQuery() {
   }
 
+  //  public SelectStreamQuery ofStreamQuery() {
+  //    SelectStreamQuery selectStreamQuery = new SelectStreamQuery();
+  //    selectStreamQuery.setDataSource(super.getDataSource());
+  //    selectStreamQuery.setDimensions(dimensions);
+  //    selectStreamQuery.setMetrics(metrics);
+  //    selectStreamQuery.setFilter(filter);
+  //    selectStreamQuery.setVirtualColumns(virtualColumns);
+  //    selectStreamQuery.setGranularity(granularity);
+  //    selectStreamQuery.setIntervals(intervals);
+  //    selectStreamQuery.setPagingSpec(pagingSpec);
+  //    selectStreamQuery.setDescending(descending);
+  //    selectStreamQuery.setContext(context);
+  //
+  //    return selectStreamQuery;
+  //  }
+
   public List<String> getIntervals() {
     return intervals;
   }

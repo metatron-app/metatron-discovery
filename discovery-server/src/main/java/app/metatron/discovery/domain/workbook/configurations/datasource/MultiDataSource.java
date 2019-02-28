@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.workbook.configurations.datasource;
 import com.google.common.base.Preconditions;
 
 import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonTypeName;
 
@@ -24,6 +25,14 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import app.metatron.discovery.domain.datasource.data.QueryRequest;
+import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
+import app.metatron.discovery.domain.workbook.configurations.analysis.Analysis;
+import app.metatron.discovery.domain.workbook.configurations.analysis.GeoSpatialAnalysis;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
 
 /**
  *
@@ -40,6 +49,9 @@ public class MultiDataSource extends DataSource {
    * association with datasources
    */
   List<Association> associations;
+
+  @JsonIgnore
+  DataSource mainDataSource;
 
   public MultiDataSource() {
   }
@@ -65,12 +77,53 @@ public class MultiDataSource extends DataSource {
     return Optional.empty();
   }
 
+  /**
+   * Elect main datasource from search request
+   */
+  public void electMainDataSource(QueryRequest queryRequest) {
+
+    if (queryRequest != null && queryRequest instanceof SearchQueryRequest) {
+      SearchQueryRequest searchQueryRequest = (SearchQueryRequest) queryRequest;
+      Shelf shelf = searchQueryRequest.getShelf();
+      Analysis analysis = searchQueryRequest.getAnalysis();
+
+      if (shelf != null && shelf instanceof GeoShelf) {
+        GeoShelf geoShelf = (GeoShelf) shelf;
+        MapViewLayer mainLayer;
+        if (analysis != null && analysis instanceof GeoSpatialAnalysis) {
+          String mainLayerName = ((GeoSpatialAnalysis) analysis).getMainLayer();
+          mainLayer = geoShelf.getLayerByName(mainLayerName)
+                              .orElseThrow(() -> new IllegalArgumentException("layer({}) in shelf not found"));
+        } else {
+          mainLayer = geoShelf.getLayers().get(0);
+        }
+        mainDataSource = this.getDatasourceByName(mainLayer.getRef())
+                             .orElseThrow(() -> new IllegalArgumentException("'ref' value in layer doesn't include multi-datasource"));
+      } else {
+        mainDataSource = this.getDataSources().get(0);
+      }
+    } else {
+      mainDataSource = this.getDataSources().get(0);
+    }
+  }
+
+  public app.metatron.discovery.domain.datasource.DataSource getMetaDataSource() {
+    if (mainDataSource == null) {
+      return dataSources.get(0).getMetaDataSource();
+    }
+    return mainDataSource.getMetaDataSource();
+  }
+
   public List<DataSource> getDataSources() {
     return dataSources;
   }
 
   public List<Association> getAssociations() {
     return associations;
+  }
+
+  public DataSource getMainDataSource() {
+    return mainDataSource;
   }
 
   @Override
