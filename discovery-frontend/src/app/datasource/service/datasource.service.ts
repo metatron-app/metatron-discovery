@@ -226,29 +226,31 @@ export class DatasourceService extends AbstractService {
       if ('include' === filter.type) {
         // Dimension Filter
         const tempFilters: Filter[] = [];
-        (<InclusionFilter>filter).preFilters.filter((preFilter: AdvancedFilter) => {
-          if (preFilter.type === 'measure_inequality') {
-            const condition: MeasureInequalityFilter = <MeasureInequalityFilter>preFilter;
-            if (condition.inequality && condition.aggregation && condition.field && 0 < condition.value) {
-              tempFilters.push(FilterUtil.convertToServerSpec(condition));
+        if (((<InclusionFilter>filter).preFilters)) {
+          (<InclusionFilter>filter).preFilters.filter((preFilter: AdvancedFilter) => {
+            if (preFilter.type === 'measure_inequality') {
+              const condition: MeasureInequalityFilter = <MeasureInequalityFilter>preFilter;
+              if (condition.inequality && condition.aggregation && condition.field && 0 < condition.value) {
+                tempFilters.push(FilterUtil.convertToServerSpec(condition));
+              }
+            } else if (preFilter.type === 'measure_position') {
+              const limitation: MeasurePositionFilter = <MeasurePositionFilter>preFilter;
+              if (limitation.position && limitation.aggregation && limitation.field && 0 < limitation.value) {
+                tempFilters.push(FilterUtil.convertToServerSpec(limitation));
+              }
+            } else if (preFilter.type === 'wildcard') {
+              const wildcard: WildCardFilter = <WildCardFilter>preFilter;
+              if (wildcard.contains && wildcard.value && wildcard.value.length > 0) {
+                tempFilters.push(FilterUtil.convertToServerSpec(wildcard));
+              }
+            } else if (preFilter.type === 'regexpr') {
+              const regExpr: RegExprFilter = <RegExprFilter>preFilter;
+              if (regExpr.expr) {
+                tempFilters.push(FilterUtil.convertToServerSpec(regExpr));
+              }
             }
-          } else if (preFilter.type === 'measure_position') {
-            const limitation: MeasurePositionFilter = <MeasurePositionFilter>preFilter;
-            if (limitation.position && limitation.aggregation && limitation.field && 0 < limitation.value) {
-              tempFilters.push(FilterUtil.convertToServerSpec(limitation));
-            }
-          } else if (preFilter.type === 'wildcard') {
-            const wildcard: WildCardFilter = <WildCardFilter>preFilter;
-            if (wildcard.contains && wildcard.value && wildcard.value.length > 0) {
-              tempFilters.push(FilterUtil.convertToServerSpec(wildcard));
-            }
-          } else if (preFilter.type === 'regexpr') {
-            const regExpr: RegExprFilter = <RegExprFilter>preFilter;
-            if (regExpr.expr) {
-              tempFilters.push(FilterUtil.convertToServerSpec(regExpr));
-            }
-          }
-        });
+          });
+        }
         param.filters = param.filters.concat(tempFilters);
         ( param.targetField ) && ( param.targetField.type = 'dimension' );
 
@@ -287,7 +289,7 @@ export class DatasourceService extends AbstractService {
   public makeQuery(pageConf: PageWidgetConfiguration,
                    dataSourceFields: Field[],
                    context: { url: string, dashboardId: string, widgetId?: string },
-                   resultFormatOptions?: any, isChartData?: boolean, dataSourceList?: Datasource[]): SearchQueryRequest {
+                   resultFormatOptions?: any, isChartData?: boolean): SearchQueryRequest {
     const query: SearchQueryRequest = new SearchQueryRequest();
 
     // 호출 추적 정보 등록
@@ -305,14 +307,16 @@ export class DatasourceService extends AbstractService {
     query.pivot = _.cloneDeep(pageConf.pivot);
 
     let allPivotFields = [];
+
+    // datasource 설정 추가
+    query.dataSource = _.cloneDeep(pageConf.dataSource);
+    delete query.dataSource['fields']; // 불필요 항목 제거
+    // EngineName 처리
+    query.dataSource.name = query.dataSource.engineName;
+
     // 파라미터 치환
     // set alias list by pivot or shelf list, Datasource setting
     if (_.eq(pageConf.chart.type, ChartType.MAP)) {
-
-      // data source
-      query.dataSource = new MapDataSource();
-      query.dataSource.type = 'multi';
-      query.dataSource.dataSources = [];
 
       // alias 설정
       query.shelf = _.cloneDeep(pageConf.shelf);
@@ -336,58 +340,6 @@ export class DatasourceService extends AbstractService {
           if (_.eq(pageConf.chart.type, 'grid') && (<UIGridChart>pageConf.chart).dataType == GridViewType.MASTER) {
             field['aggregationType'] = 'NONE';
           }
-        }
-
-        if (!_.isUndefined(dataSourceList)) {
-          // 레이어 별 필드값에 맞는 datasource 설정 추가
-          for (let Datasource of dataSourceList) {
-            if( allPivotFields.length == 0 ){
-              continue;
-            }
-
-            if (Datasource.id == allPivotFields[0].field.dsId) {
-
-              let searchQueryDataSource = _.cloneDeep(BoardDataSource.convertDsToMetaDs(Datasource));
-              // let searchQueryDataSource = _.cloneDeep( pageConf.dataSource );
-              delete searchQueryDataSource['fields']; // 불필요 항목 제거
-              delete searchQueryDataSource['uiFields']; // 불필요 항목 제거
-              // EngineName 처리
-              searchQueryDataSource.name = searchQueryDataSource.engineName;
-              if (Datasource.id == pageConf.dataSource.id) {
-                searchQueryDataSource.type = pageConf.dataSource.type;
-              } else {
-                searchQueryDataSource.type = 'default';
-              }
-
-              if (_.isUndefined(_.find(query.dataSource.dataSources, searchQueryDataSource))) {
-                // datasource 추가
-                query.dataSource.dataSources.push(searchQueryDataSource);
-              }
-
-              // 선반에 datasource key 값 추가
-              layer.name = 'layer' + (layerNum+1);
-              layer.ref = searchQueryDataSource.name;
-              // 서버 요청사항 - 중복데이터일 경우
-              for (let field of layer.fields) {
-                field.ref = searchQueryDataSource.name;
-              }
-            }
-          } // end for - datasource
-        } else {  // 기존 스펙이 남아있을경우
-
-          let index : number = layerNum;
-
-          // datasource 설정 추가
-          query.dataSource = _.cloneDeep(pageConf.dataSource);
-          delete query.dataSource.dataSources[index]['fields']; // 불필요 항목 제거
-          // EngineName 처리
-          query.dataSource.dataSources[index].name = query.dataSource.dataSources[index].engineName;
-
-          // 서버 요청사항 - 중복데이터일 경우
-          for (let field of layer.fields) {
-            field.ref = query.dataSource.dataSources[index].name;
-          }
-
         }
 
         if( allPivotFields.length == 0 ){
@@ -418,12 +370,6 @@ export class DatasourceService extends AbstractService {
 
       allPivotFields = _.concat(query.shelf.layers[(<UIMapOption>pageConf.chart).layerNum]);
     } else {
-
-      // datasource 설정 추가
-      query.dataSource = _.cloneDeep(pageConf.dataSource);
-      delete query.dataSource['fields']; // 불필요 항목 제거
-      // EngineName 처리
-      query.dataSource.name = query.dataSource.engineName;
 
       // timezone 처리 - S
       {
@@ -737,7 +683,7 @@ export class DatasourceService extends AbstractService {
     // query.valueAliasRef = context.dashboardId;
 
     return query;
-  }
+  } // function - makeQuery
 
   // 데이터스토리지 데이터소스 조회
   public getAllDatasource(param: any, projection: string = 'forListView'): Promise<any> {
