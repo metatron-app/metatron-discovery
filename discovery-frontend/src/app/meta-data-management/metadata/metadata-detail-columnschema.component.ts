@@ -17,7 +17,7 @@ import {
   ViewChildren
 } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
-import { FieldFormat, FieldFormatType, LogicalType } from '../../domain/datasource/datasource';
+import {Datasource, FieldFormat, FieldFormatType, LogicalType, SourceType} from '../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { MetadataService } from './service/metadata.service';
 import { MetadataModelService } from './service/metadata.model.service';
@@ -156,6 +156,15 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
    */
   public getColumnPopularity(column: MetadataColumn): string {
     return (column.popularity || 0) + '%';
+  }
+
+  public isSourceTypeDatasource() {
+
+    if (_.isNil(this.metaDataModelService.getMetadata().source.source)) {
+      return false;
+    }
+
+    return (this.metaDataModelService.getMetadata().source.source as Datasource).srcType === SourceType.JDBC;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

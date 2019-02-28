@@ -30,6 +30,7 @@ import { MetadataModelService } from './service/metadata.model.service';
 import {InputComponent} from "../../common/component/input/input.component";
 import * as _ from 'lodash';
 import {MetadataSourceType, SourceType} from '../../domain/meta-data-management/metadata';
+import {Datasource, SourceType as DatasourceSourceType } from '../../domain/datasource/datasource';
 
 @Component({
   selector: 'app-metadata-detail-information',
@@ -299,6 +300,15 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
 
   public isEngine(sourceType: SourceType) {
     return new MetadataSourceType(sourceType).isEngine();
+  }
+
+  public isSourceTypeDatasource() {
+
+    if (_.isNil(this.metadataModelService.getMetadata().source.source)) {
+      return false;
+    }
+
+    return (this.metadataModelService.getMetadata().source.source as Datasource).srcType === DatasourceSourceType.JDBC;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

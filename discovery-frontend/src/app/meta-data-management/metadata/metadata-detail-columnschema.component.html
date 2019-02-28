@@ -14,7 +14,7 @@
 
 <!-- tab contents -->
 <div class="ddp-ui-tab-contents">
-  <div top-info></div>
+  <div top-info *ngIf="isSourceTypeDatasource()"></div>
   <!-- column option -->
   <div class="ddp-option-column">
 
@@ -32,7 +32,9 @@
     <a href="javascript:" class="ddp-btn-pop ddp-bg-black" [class.ddp-disabled]="!isEnableSave()" (click)="onClickSave()">{{'msg.comm.btn.save' | translate}}</a>
   </div>
   <!-- //column option -->
-  <div class="ddp-data-details ddp-ui-preview-contents ddp-info" (scroll)="onScrollColumnView()">
+  <div class="ddp-data-details ddp-ui-preview-contents"
+       [class.ddp-info]="isSourceTypeDatasource()"
+       (scroll)="onScrollColumnView()">
     <!-- header -->
     <table class="ddp-table-form ddp-table-type2 ddp-table-details ddp-type-input">
       <colgroup>
