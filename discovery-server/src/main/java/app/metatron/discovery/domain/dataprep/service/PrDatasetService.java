@@ -38,11 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -98,7 +94,7 @@ public class PrDatasetService {
     }
 
     // This function is only for imported datasets!
-    public void savePreview(PrDataset dataset, String oAuthToken) throws Exception {
+    public void savePreview(PrDataset dataset) throws Exception {
         DataFrame dataFrame = null;
 
         assert dataset.getDsType() == PrDataset.DS_TYPE.IMPORTED : dataset.getDsType();
@@ -107,10 +103,8 @@ public class PrDatasetService {
         if(importType == PrDataset.IMPORT_TYPE.UPLOAD || importType == PrDataset.IMPORT_TYPE.URI) {
             dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, "0", this.filePreviewSize);
         } else if(importType == PrDataset.IMPORT_TYPE.DATABASE) {
-            this.datasetJdbcPreviewService.setoAuthToken(oAuthToken);
             dataFrame = this.datasetJdbcPreviewService.getPreviewLinesFromJdbcForDataFrame(dataset, this.jdbcPreviewSize);
         } else if(importType == PrDataset.IMPORT_TYPE.STAGING_DB) {
-            this.datasetStagingDbPreviewService.setoAuthToken(oAuthToken);
             dataFrame = this.datasetStagingDbPreviewService.getPreviewLinesFromStagedbForDataFrame(dataset, this.hivePreviewSize);
         } else {
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_IMPORT_TYPE_IS_WRONG, importType.name());
@@ -238,16 +232,6 @@ public class PrDatasetService {
     public void afterCreate(PrDataset dataset, String storageType) throws PrepException {
         try {
 
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-            String oAuthToken = "bearer ";
-            Cookie[] cookies = request.getCookies();
-            if(cookies!=null) {
-                for (int i = 0; i < cookies.length; i++) {
-                    if (cookies[i].getName().equals("LOGIN_TOKEN"))
-                        oAuthToken = oAuthToken + cookies[i].getValue();
-                }
-            }
-
             // excel to csv
             // below the file format is always csv
             if(dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD || dataset.getImportType() == PrDataset.IMPORT_TYPE.URI) {
@@ -259,7 +243,7 @@ public class PrDatasetService {
                 this.uploadFileToStorage(dataset, storageType);
             }
 
-            this.savePreview(dataset, oAuthToken);
+            this.savePreview(dataset);
 
         } catch (Exception e) {
             LOGGER.error("afterCreate(): caught an exception: ", e);

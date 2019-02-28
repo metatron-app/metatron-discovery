@@ -123,9 +123,15 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
     private static Logger LOGGER = LoggerFactory.getLogger(ApiResourceConfig.class);
 
     private static final String RESOURCE_PATH = "/resource/";
-    private static final String CHUNK_JS = RESOURCE_PATH + "*.*.chunk.js";
-    private static final String BUNDLE_JS = RESOURCE_PATH + "*.*.bundle.js";
-    private static final String BUNDLE_CSS = RESOURCE_PATH + "*.*.bundle.css";
+    private static final String COMMON_JS = RESOURCE_PATH + "common.*.js";
+    private static final String RUNTIME_JS = RESOURCE_PATH + "runtime.*.js";
+    private static final String MAIN_JS = RESOURCE_PATH + "main.*.js";
+    private static final String POLYFILLS_JS = RESOURCE_PATH + "polyfills.*.js";
+    private static final String SCRIPTS_JS = RESOURCE_PATH + "scripts.*.js";
+    private static final String OTHER_JS = RESOURCE_PATH + "*.*.js";
+
+    private static final String STYLES_CSS = RESOURCE_PATH + "styles.*.css";
+
     private static final String PNG = RESOURCE_PATH + "*.*.png";
     private static final String JPG = RESOURCE_PATH + "*.*.jpg";
     private static final String WOFF = RESOURCE_PATH + "*.*.woff";
@@ -180,7 +186,7 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
 
         ofNullable(cacheControlMaxAge).ifPresent(value -> {
             try {
-                registry.addResourceHandler(CHUNK_JS, BUNDLE_JS, BUNDLE_CSS, PNG, JPG, WOFF, EOF, TTF)
+                registry.addResourceHandler(COMMON_JS, RUNTIME_JS, MAIN_JS, POLYFILLS_JS, SCRIPTS_JS, OTHER_JS, STYLES_CSS, PNG, JPG, WOFF, EOF, TTF)
                     .addResourceLocations("classpath:resource/")
                     .setCacheControl(CacheControl.maxAge(value, TimeUnit.SECONDS).cachePublic());
             } catch (Exception e) {
@@ -328,7 +334,7 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
                                     DataSource.class, Field.class, DataSourceAlias.class, IngestionHistory.class,
                                     PhoenixConnection.class, PrestoConnection.class, H2Connection.class, MySQLConnection.class,
                                     HiveConnection.class, HawqConnection.class, OracleConnection.class, StageDataConnection.class,
-                                    TiberoConnection.class, LocalFileConnection.class, HdfsConnection.class, PostgresqlConnection.class,
+                                    TiberoConnection.class, LocalFileConnection.class, HdfsConnection.class, PostgresqlConnection.class, DruidConnection.class,
                                     Notebook.class, Workbench.class, Folder.class, NotebookModel.class, NotebookModelHistory.class, NotebookAPI.class,
                                     Widget.class, PageWidget.class, TextWidget.class, FilterWidget.class,
                                     QueryEditor.class, QueryHistory.class,

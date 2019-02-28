@@ -12,11 +12,18 @@ public class InclusionFilterTest {
   @Test
   public void de_serialize() throws IOException {
 
-    InclusionFilter inFilter = new InclusionFilter();
-    inFilter.setDataSource("datasource1");
-    inFilter.setField("field1");
-    inFilter.setValueList(Lists.newArrayList("value"));
-    inFilter.setSort(new InclusionFilter.ItemSort("count", "desc"));
+    InclusionFilter inFilter = new InclusionFilter("datasource",
+                                                   "field",
+                                                   null,
+                                                   null,
+                                                   Lists.newArrayList("value1", "value2"),
+                                                   "",
+                                                   Lists.newArrayList("candidateValues1", "candidateValues2"),
+                                                   Lists.newArrayList("definedValues1", "definedValues2"),
+                                                   null,
+                                                   new InclusionFilter.ItemSort("count", "desc"),
+                                                   true,
+                                                   null);
 
     String specStr = GlobalObjectMapper.writeValueAsString(inFilter);
     System.out.println(specStr);

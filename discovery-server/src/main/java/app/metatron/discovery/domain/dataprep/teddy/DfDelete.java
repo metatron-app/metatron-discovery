@@ -52,7 +52,7 @@ public class DfDelete extends DataFrame {
 
     LOGGER.trace("DfDelete.gather(): start: offset={} length={} condExpr={}", offset, length, condExpr);
 
-    List<Row> rows = filter2(prevDf, condExpr, false, offset, length);
+    List<Row> rows = filter(prevDf, condExpr, false, offset, length);
 
     LOGGER.trace("DfDelete.gather(): done: offset={} length={} condExpr={}", offset, length, condExpr);
     return rows;

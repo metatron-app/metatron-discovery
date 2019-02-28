@@ -13,28 +13,29 @@
  */
 
 import * as _ from 'lodash';
-import { AbstractFilterPopupComponent } from 'app/dashboard/filters/abstract-filter-popup.component';
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { BoardConfiguration } from '../../domain/dashboard/dashboard';
-import { CustomField } from '../../domain/workbook/configurations/field/custom-field';
-import { Datasource, Field, FieldRole, LogicalType } from '../../domain/datasource/datasource';
-import { Filter } from '../../domain/workbook/configurations/filter/filter';
-import { FilterUtil } from '../util/filter.util';
-import { ByTimeUnit, GranularityType, TimeUnit } from '../../domain/workbook/configurations/field/timestamp-field';
-import { Widget } from '../../domain/dashboard/widget/widget';
-import { BoundFilter } from '../../domain/workbook/configurations/filter/bound-filter';
-import { Modal } from '../../common/domain/modal';
-import { ConfirmModalComponent } from '../../common/component/modal/confirm/confirm.component';
-import { TimeFilter } from '../../domain/workbook/configurations/filter/time-filter';
-import { TimeAllFilter } from '../../domain/workbook/configurations/filter/time-all-filter';
-import { TimeListFilter } from '../../domain/workbook/configurations/filter/time-list-filter';
-import { isNullOrUndefined, isUndefined } from 'util';
-import { DashboardUtil } from '../util/dashboard.util';
-import { Alert } from '../../common/util/alert.util';
+import {AbstractFilterPopupComponent} from 'app/dashboard/filters/abstract-filter-popup.component';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {BoardConfiguration} from '../../domain/dashboard/dashboard';
+import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
+import {Datasource, Field, FieldRole, LogicalType} from '../../domain/datasource/datasource';
+import {Filter} from '../../domain/workbook/configurations/filter/filter';
+import {FilterUtil} from '../util/filter.util';
+import {ByTimeUnit, GranularityType, TimeUnit} from '../../domain/workbook/configurations/field/timestamp-field';
+import {Widget} from '../../domain/dashboard/widget/widget';
+import {BoundFilter} from '../../domain/workbook/configurations/filter/bound-filter';
+import {Modal} from '../../common/domain/modal';
+import {ConfirmModalComponent} from '../../common/component/modal/confirm/confirm.component';
+import {TimeFilter} from '../../domain/workbook/configurations/filter/time-filter';
+import {TimeAllFilter} from '../../domain/workbook/configurations/filter/time-all-filter';
+import {TimeListFilter} from '../../domain/workbook/configurations/filter/time-list-filter';
+import {isNullOrUndefined, isUndefined} from 'util';
+import {DashboardUtil} from '../util/dashboard.util';
+import {Alert} from '../../common/util/alert.util';
 
 @Component({
   selector: 'app-config-filter-select',
-  templateUrl: './configure-filters-select.component.html'
+  templateUrl: './configure-filters-select.component.html',
+  styles: ['.ddp-pop-filter .ddp-filter0 .ddp-list-filter { top : 0px !important;} ']
 })
 export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponent implements OnInit, OnDestroy {
 
@@ -54,22 +55,22 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
   private _allContinuousList: string[] = ['Minute', 'Hour', 'Day', 'Week', 'Month', 'Quarter', 'Year', 'None'];
   private _allDiscontinuousList = {
     'DAY': [
-      { name: 'Day by week', unit: 'DAY', byUnit: 'WEEK' },
-      { name: 'Day by month', unit: 'DAY', byUnit: 'MONTH' },
-      { name: 'Day by year', unit: 'DAY', byUnit: 'YEAR' }
+      {name: 'Day by week', unit: 'DAY', byUnit: 'WEEK'},
+      {name: 'Day by month', unit: 'DAY', byUnit: 'MONTH'},
+      {name: 'Day by year', unit: 'DAY', byUnit: 'YEAR'}
     ],
     'WEEK': [
-      { name: 'Week by month', unit: 'WEEK', byUnit: 'MONTH' },
-      { name: 'Week by year', unit: 'WEEK', byUnit: 'YEAR' }
+      {name: 'Week by month', unit: 'WEEK', byUnit: 'MONTH'},
+      {name: 'Week by year', unit: 'WEEK', byUnit: 'YEAR'}
     ],
     'MONTH': [
-      { name: 'Month by year', unit: 'MONTH', byUnit: 'YEAR' }
+      {name: 'Month by year', unit: 'MONTH', byUnit: 'YEAR'}
     ],
     'QUARTER': [
-      { name: 'Quarter', unit: 'QUARTER' }
+      {name: 'Quarter', unit: 'QUARTER'}
     ],
     'YEAR': [
-      { name: 'Year', unit: 'YEAR' }
+      {name: 'Year', unit: 'YEAR'}
     ]
   };
 
@@ -271,7 +272,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
       // 측정값 필터
       const boundFilter: BoundFilter = FilterUtil.getBasicBoundFilter(<Field>field);
       (this.widget) && (boundFilter.ui.widgetId = this.widget.id);
-      this.setFilterEvent.emit({ key: 'ADD', filter: boundFilter });
+      this.setFilterEvent.emit({key: 'ADD', filter: boundFilter});
     } else {
       // Inclusion 필터
       const preFilterData = {
@@ -285,7 +286,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
         inclusionFilter.ref = 'user_defined';
       }
       (this.widget) && (inclusionFilter.ui.widgetId = this.widget.id);
-      this.setFilterEvent.emit({ key: 'ADD', filter: inclusionFilter });
+      this.setFilterEvent.emit({key: 'ADD', filter: inclusionFilter});
     }
   } // function - addFilter
 
@@ -305,7 +306,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
       (byUnit) && (timeFilter.byTimeUnit = byUnit);
     }
     (this.widget) && (timeFilter.ui.widgetId = this.widget.id);
-    this.setFilterEvent.emit({ key: 'ADD', filter: timeFilter });
+    this.setFilterEvent.emit({key: 'ADD', filter: timeFilter});
   } // function - addTimestampFilter
 
   /**
@@ -314,9 +315,9 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
    */
   public editFilter(field: Field | CustomField) {
 
-    if( this.widget
-      && ( 'recommended' === field['importanceType'] || 'timestamp' === field['importanceType'] ) ) {
-      Alert.warning( this.translateService.instant('msg.board.filter.alert.change.chart.warning-recommend') );
+    if (this.widget
+      && ('recommended' === field['importanceType'] || 'timestamp' === field['importanceType'])) {
+      Alert.warning(this.translateService.instant('msg.board.filter.alert.change.chart.warning-recommend'));
       return;
     }
 
@@ -328,7 +329,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
         // 보드 필터를 차트 필터로 변경
         this._openConfirmToChartFilter(field['filter']);
       } else {
-        this.setFilterEvent.emit({ key: 'EDIT', filter: field['filter'] });
+        this.setFilterEvent.emit({key: 'EDIT', filter: field['filter']});
       }
     }
   } // function - editFilter
@@ -341,16 +342,16 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
    */
   public editTimestampFilter(field: Field | CustomField, unit?: TimeUnit, byUnit?: ByTimeUnit) {
 
-    if( this.widget
-      && ( 'recommended' === field['importanceType'] || 'timestamp' === field['importanceType'] ) ) {
-      Alert.warning( this.translateService.instant('msg.board.filter.alert.change.chart.warning-recommend') );
+    if (this.widget
+      && ('recommended' === field['importanceType'] || 'timestamp' === field['importanceType'])) {
+      Alert.warning(this.translateService.instant('msg.board.filter.alert.change.chart.warning-recommend'));
       return;
     }
 
     // 필터 설정
     const isToBoardFilter: boolean = (field.hasOwnProperty('someChartFilter'));
     const timeFilter: TimeFilter = (isToBoardFilter) ? field['someChartFilter'] : field['filter'];
-    if (isNullOrUndefined(unit) || TimeUnit.NONE === unit ) {
+    if (isNullOrUndefined(unit) || TimeUnit.NONE === unit) {
       timeFilter.type = 'time_all';
     } else {
       timeFilter.type = 'time_list';
@@ -366,7 +367,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
         // 보드 필터를 차트 필터로 변경
         this._openConfirmToChartFilter(timeFilter);
       } else {
-        this.setFilterEvent.emit({ key: 'EDIT', filter: timeFilter });
+        this.setFilterEvent.emit({key: 'EDIT', filter: timeFilter});
       }
     }
 
@@ -376,7 +377,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
    * 검색 조회
    * @param {string} searchText
    */
-  public searchEvent(searchText:string) {
+  public searchEvent(searchText: string) {
     // 검색어 설정
     this.searchText = searchText;
     if (this.isShowDimTab) {
@@ -418,7 +419,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
     modal.data = {
       afterConfirm: () => {
         delete filter.ui.widgetId;
-        this.setFilterEvent.emit({ key: 'EDIT', filter: filter });
+        this.setFilterEvent.emit({key: 'EDIT', filter: filter});
       }
     };
     this._confirmModalComp.init(modal);
@@ -436,7 +437,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
     modal.data = {
       afterConfirm: () => {
         filter.ui.widgetId = this.widget.id;
-        this.setFilterEvent.emit({ key: 'EDIT', filter: filter });
+        this.setFilterEvent.emit({key: 'EDIT', filter: filter});
       }
     };
     this._confirmModalComp.init(modal);

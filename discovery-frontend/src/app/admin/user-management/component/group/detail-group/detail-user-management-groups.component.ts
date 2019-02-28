@@ -393,8 +393,11 @@ export class DetailUserManagementGroupsComponent extends AbstractUserManagementC
   private _getMembersInGroup(groupId: string): void {
     // 로딩 show
     this.loadingShow();
+
+    const pageParam = { size : 10000, page : 0 };
+
     // 상세정보 조회
-    this.groupsService.getGroupUsers(groupId)
+    this.groupsService.getGroupUsers(groupId, pageParam)
       .then((result) => {
         // 멤버목록 초기화
         this.members = [];

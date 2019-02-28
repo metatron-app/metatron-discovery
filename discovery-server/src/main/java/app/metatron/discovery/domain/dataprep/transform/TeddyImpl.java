@@ -27,6 +27,8 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
+import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
 import com.facebook.presto.jdbc.internal.guava.collect.Maps;
 import com.facebook.presto.jdbc.internal.joda.time.DateTime;
 import com.facebook.presto.jdbc.internal.joda.time.format.DateTimeFormat;
@@ -59,6 +61,9 @@ public class TeddyImpl {
 
   @Autowired
   PrepProperties prepProperties;
+
+  @Autowired
+  StorageProperties storageProperties;
 
   public void checkNonAlphaNumericalColNames(String dsId) throws IllegalColumnNameForHiveException {
     Revision rev = getCurRev(dsId);
@@ -255,7 +260,7 @@ public class TeddyImpl {
     String extensionType = FilenameUtils.getExtension(strUri);
     switch (extensionType) {
       case "json":
-        df.setByGridWithJson(PrepJsonUtil.parseJSON(strUri, delimiter, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
+        df.setByGridWithJson(PrepJsonUtil.parseJson(strUri, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
         break;
       default: // csv
         df.setByGrid(PrepCsvUtil.parse(strUri, delimiter, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
@@ -271,15 +276,16 @@ public class TeddyImpl {
     return df;
   }
 
-  public DataFrame loadHiveDataset(String dsId, String sql, String dsName) throws PrepException {
+  public DataFrame loadStageDBDataset(String dsId, String sql, String dsName) throws PrepException {
 
     HiveConnection hiveConnection = new HiveConnection();
+    StageDBConnection stageDB = storageProperties.getStagedb();
 
-    hiveConnection.setHostname(prepProperties.getHiveHostname(true));
-    hiveConnection.setPort(    prepProperties.getHivePort(true));
-    hiveConnection.setUsername(prepProperties.getHiveUsername(true));
-    hiveConnection.setPassword(prepProperties.getHivePassword(true));
-    hiveConnection.setUrl(     prepProperties.getHiveCustomUrl(true));
+    hiveConnection.setHostname(stageDB.getHostname());
+    hiveConnection.setPort(    stageDB.getPort());
+    hiveConnection.setUsername(stageDB.getUsername());
+    hiveConnection.setPassword(stageDB.getPassword());
+    hiveConnection.setUrl(     stageDB.getUrl());
 
     PrepJdbcService jdbcConnectionService = new PrepJdbcService();
     DataSource dataSource = jdbcConnectionService.getDataSource(hiveConnection, true);

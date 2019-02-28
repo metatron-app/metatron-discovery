@@ -24,11 +24,10 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
-import app.metatron.discovery.domain.dataprep.transform.TeddyImpl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.http.HttpStatus;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -44,6 +43,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -350,26 +352,6 @@ public class PrDatasetController {
         return ResponseEntity.status(HttpStatus.SC_OK).body(deletedDsIds);
     }
 
-    @RequestMapping(value = "/getStagingConnection", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> getStagingConnection() {
-        Map<String, Object> response = Maps.newHashMap();
-        try {
-            response.put("implementor","HIVE");
-            response.put("hostname", prepProperties.getHiveHostname(true));
-            response.put("port",     String.valueOf(prepProperties.getHivePort(true)));
-            response.put("username", prepProperties.getHiveUsername(true));
-            response.put("password", prepProperties.getHivePassword(true));
-            response.put("url",      prepProperties.getHiveCustomUrl(true));
-        } catch (PrepException pe) {
-            LOGGER.error("getStaingConnection(): caught an preparation exception: ", pe);
-            throw pe;
-        } catch (Exception e) {
-            LOGGER.error("getStaingConnection(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
-        }
-        return ResponseEntity.ok(response);
-    }
-
     /*
     @RequestMapping(value = "/jdbc", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> previewJdbc(
@@ -644,5 +626,45 @@ public class PrDatasetController {
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
         }
         return ResponseEntity.status(HttpStatus.SC_OK).body(response);
+    }
+
+    @RequestMapping(value="/{dsId}/download",method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<?> getDownload(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @PathVariable("dsId") String dsId,
+            @RequestParam(value = "fileType", required = false, defaultValue = "0") String fileType
+    ) {
+        PrDataset dataset = null;
+        Resource<PrDatasetProjections.DefaultProjection> projectedDataset = null;
+        try {
+            dataset = this.datasetRepository.findOne(dsId);
+            if(dataset!=null) {
+                if( dataset.getDsType() == PrDataset.DS_TYPE.IMPORTED ) {
+                    String storedUri = dataset.getStoredUri();
+                    String downloadFileName = FilenameUtils.getName(storedUri);
+                    InputStream is = datasetFileService.getStream(storedUri);
+
+                    int len;
+                    byte[] buf = new byte[8192];
+                    while ((len = is.read(buf)) != -1) {
+                        response.getOutputStream().write(buf, 0, len);
+                    }
+                    is.close();
+
+                    response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", downloadFileName));
+                } else {
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET, dsId);
+                }
+            } else {
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET, dsId);
+            }
+        } catch (Exception e) {
+            LOGGER.error("getDownload(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
+        }
+
+        return null;
     }
 }

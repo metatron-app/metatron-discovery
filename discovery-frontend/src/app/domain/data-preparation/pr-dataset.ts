@@ -152,37 +152,13 @@ export class Field {
 
 // add KJ
 export class PrDatasetFile extends PrDataset {
-  /*
-  public fileType: FileType;
-  public filename: string;
-  public filepath: string;
-  public filekey: string;
-  public sheets: string[];
-  public sheetname: string;
-  public sheetIndex: number;
-  public name: string;
-  public desc: string;
-  public selectedSheets: any[] = [];
-  public delimiter: string;
-  public totalLines: number;
-  public totalBytes: number;
-  */
   public sheets: string[];
   public sheetIndex: number;
   public selectedSheets: any[] = [];
+  public sheetInfo: SheetInfo[];
 }
 
 export class PrDatasetHive extends PrDataset {
-  /*
-  public queryStmt: string;
-  public tableName: string;
-  public databaseName: string;
-  public rsType: RsType;
-  public rsType: RsType;
-  public dsName: string;
-  public dsDesc: string;
-  */
-
   public sqlInfo? : QueryInfo;
   public tableInfo? : TableInfo;
 
@@ -191,16 +167,6 @@ export class PrDatasetHive extends PrDataset {
 
 export class PrDatasetJdbc extends PrDataset {
   public dcId: string;
-  /*
-  public queryStmt: string;
-  public tableName: string;
-  public databaseName: string;
-  public rsType: RsType;
-  public rsType: RsType;
-  public dsName: string;
-  public dsDesc: string;
-  */
-
   public sqlInfo? : QueryInfo;
   public tableInfo? : TableInfo;
 
@@ -261,10 +227,11 @@ export class TableInfo {
 
 }
 
-export class SelectedInfo {
-  public headers : header[];
-  public rows : any[];
-  public database? : string;
-  public table? : string;
-  public query? : string;
+export class SheetInfo {
+  selected : boolean;
+  data : any;
+  fields : any;
+  totalRows? : number;
+  valid: boolean;
+  sheetName?: string;
 }

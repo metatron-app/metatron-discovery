@@ -16,7 +16,9 @@ import { Injectable, Injector } from '@angular/core';
 import { AbstractService } from '../../../common/service/abstract.service';
 import { Datasets } from '../../../domain/data-preparation/pr-dataset';
 import { CommonUtil } from '../../../common/util/common.util';
-import { ConnectionRequest } from '../../../domain/dataconnection/connectionrequest';
+import {Observable} from "rxjs/Rx";
+import {CookieConstant} from "../../../common/constant/cookie.constant";
+import {HttpHeaders} from "@angular/common/http";
 
 @Injectable()
 export class DatasetService extends AbstractService {
@@ -78,14 +80,12 @@ export class DatasetService extends AbstractService {
    * @param param {storedUri :string, fileType : string, delimiter? : string}
    * @returns {Promise<any>}
    */
-  public getFileGridInfo(param : {storedUri :string, fileType : string, delimiter? : string}) {
+  public getFileGridInfo(param : {storedUri :string, delimiter? : string}) {
 
     let url = this.API_URL + 'preparationdatasets/file_grid?storedUri=' + encodeURI(param.storedUri);
 
-    if (param.fileType === 'csv' || param.fileType === 'txt') {
-      if (param.delimiter) {
-        url += `&delimiterCol=${encodeURI(param.delimiter)}`;
-      }
+    if (param.delimiter) {
+      url += `&delimiterCol=${encodeURI(param.delimiter)}`;
     }
 
     return this.get(url);
@@ -133,42 +133,6 @@ export class DatasetService extends AbstractService {
   }
 
 
-  // staging connection info 가져오기
-  public getStagingConnectionInfo() {
-    return this.get(this.API_URL + 'preparationdatasets/getStagingConnection');
-  }
-
-  public setConnInfo(info:any) {
-    this.connInfo = info;
-  }
-
-  /**
-   * Staging : Get database list
-   * @returns {Promise<any>}
-   */
-  public getStagingSchemas() {
-    const params:any = {};
-    params.connection = this.connInfo;
-
-    return this.post(this.API_URL + 'preparationdatasets/query/schemas', params);
-  } // function - getStagingSchemas
-
-
-  /**
-   * Staging : Get tables from selected database
-   * @param {string} schema
-   * @returns {Promise<any>}
-   */
-  public getStagingTables(schema:string) {
-    const params:any = {};
-    params.connection = this.connInfo;
-    params.schema = schema;
-
-    return this.post(this.API_URL + 'preparationdatasets/query/tables', params);
-  } // function - getStagingTables
-
-
-
   public getStagingTableData(schema:string, table:string) {
 
     const query = 'select * from '+ table;
@@ -187,15 +151,6 @@ export class DatasetService extends AbstractService {
   } // function - getResultWithStagingDBQuery
 
 
-
-  /**
-   * Check asynchronously if file is uploaded
-   * @param {string} storedUri
-   */
-  public checkFileUploadStatus(storedUri: string) {
-    return this.post(this.API_URL + 'preparationdatasets/upload_async_poll', storedUri);
-  }
-
   /**
    * Create dataset
    * @param param
@@ -211,5 +166,32 @@ export class DatasetService extends AbstractService {
   public getFileUploadNegotiation() {
     let url = this.API_URL + 'preparationdatasets/file_upload';
     return this.get(url);
+  }
+
+  /**
+   * Download Imported Dataset (only Upload Uri type)
+   */
+  public downloadDataset(dsId: string, fileFormat: string): Observable<any> {
+    let mineType: string;
+    if (fileFormat === 'csv') {
+      mineType = 'application/csv';
+    } else if (fileFormat === 'json') {
+      mineType = 'application/json';
+    }
+    let headers = new HttpHeaders({
+      'Accept': mineType,
+      'Content-Type': 'application/octet-binary',
+      'Authorization': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE) + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN)
+    });
+
+    let option: Object = {
+      headers: headers,
+      responseType: 'blob'
+    };
+
+    return this.http.get(this.API_URL + `preparationdatasets/${dsId}/download?fileType=`+fileFormat, option)
+      .map((res) => {
+        return new Blob([res], {type: mineType})
+      });
   }
 }

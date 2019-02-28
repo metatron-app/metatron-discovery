@@ -104,7 +104,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
       const prevFilter:TimeRangeFilter = filterChanges.previousValue;
       const currFilter:TimeRangeFilter = filterChanges.currentValue;
       if( !prevFilter || prevFilter.field !== currFilter.field ) {
-        this.setData(filterChanges.currentValue, true);
+        this.setData(filterChanges.currentValue, !filterChanges.firstChange);
       }
     }
   } // function - ngOnChanges

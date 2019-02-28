@@ -50,25 +50,25 @@ import {
 import {Field as AbstractField, Field} from '../../../domain/workbook/configurations/field/field';
 
 import * as _ from 'lodash';
-import { OptionGenerator } from './option/util/option-generator';
-import { Series } from './option/define/series';
-import { DataZoomType } from './option/define/datazoom';
-import { ColorOptionConverter } from './option/converter/color-option-converter';
-import { AxisOptionConverter } from './option/converter/axis-option-converter';
-import { LabelOptionConverter } from './option/converter/label-option-converter';
-import { FormatOptionConverter } from './option/converter/format-option-converter';
-import { CommonOptionConverter } from './option/converter/common-option-converter';
-import { ToolOptionConverter } from './option/converter/tool-option-converter';
-import { LegendOptionConverter } from './option/converter/legend-option-converter';
-import { analysis } from '../../../page/component/value/analysis';
-import { ColorRange, UIChartColorGradationByValue } from './option/ui-option/ui-color';
-import { UIScatterChart } from './option/ui-option/ui-scatter-chart';
+import {OptionGenerator} from './option/util/option-generator';
+import {Series} from './option/define/series';
+import {DataZoomType} from './option/define/datazoom';
+import {ColorOptionConverter} from './option/converter/color-option-converter';
+import {AxisOptionConverter} from './option/converter/axis-option-converter';
+import {LabelOptionConverter} from './option/converter/label-option-converter';
+import {FormatOptionConverter} from './option/converter/format-option-converter';
+import {CommonOptionConverter} from './option/converter/common-option-converter';
+import {ToolOptionConverter} from './option/converter/tool-option-converter';
+import {LegendOptionConverter} from './option/converter/legend-option-converter';
+import {analysis} from '../../../page/component/value/analysis';
+import {ColorRange, UIChartColorGradationByValue} from './option/ui-option/ui-color';
+import {UIScatterChart} from './option/ui-option/ui-scatter-chart';
 import UI = OptionGenerator.UI;
 import {UIChartAxisGrid} from "./option/ui-option/ui-axis";
-import { TooltipOptionConverter } from './option/converter/tooltip-option-converter';
-import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
-import { fromEvent } from 'rxjs';
-import { map, debounceTime } from 'rxjs/operators';
+import {TooltipOptionConverter} from './option/converter/tooltip-option-converter';
+import {Shelf} from '../../../domain/workbook/configurations/shelf/shelf';
+import {fromEvent} from 'rxjs';
+import {map, debounceTime} from 'rxjs/operators';
 
 declare let echarts: any;
 
@@ -608,37 +608,37 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       return list;
     });
-/*
-    _.each(this.data.columns, (data, index) => {
-      data.categoryName = _.cloneDeep(this.data.rows); // 해당 dataIndex걸로 넣어주면됨
+    /*
+        _.each(this.data.columns, (data, index) => {
+          data.categoryName = _.cloneDeep(this.data.rows); // 해당 dataIndex걸로 넣어주면됨
 
-      data.categoryValue = [];
-      data.categoryPercent = [];
+          data.categoryValue = [];
+          data.categoryPercent = [];
 
-      // 해당 dataIndex걸로 넣어주면됨
-      // 단일 series인 경우
-      if (!this.data.categories || (this.data.categories && this.data.categories.length == 0)) {
+          // 해당 dataIndex걸로 넣어주면됨
+          // 단일 series인 경우
+          if (!this.data.categories || (this.data.categories && this.data.categories.length == 0)) {
 
-        data.categoryValue = addAllValues(_.cloneDeep(this.originalData.columns), 'value');
-        data.categoryPercent = addAllValues(_.cloneDeep(this.data.columns), 'percentage');
-        data.seriesName = _.cloneDeep(this.data.rows);
-        // 멀티 series인 경우
-      } else {
-        if (this.data.categories) {
-          for (const category of this.data.categories) {
-            data.categoryValue = _.cloneDeep(category.value);
-            data.categoryPercent = _.cloneDeep(category.percentage);
+            data.categoryValue = addAllValues(_.cloneDeep(this.originalData.columns), 'value');
+            data.categoryPercent = addAllValues(_.cloneDeep(this.data.columns), 'percentage');
+            data.seriesName = _.cloneDeep(this.data.rows);
+            // 멀티 series인 경우
+          } else {
+            if (this.data.categories) {
+              for (const category of this.data.categories) {
+                data.categoryValue = _.cloneDeep(category.value);
+                data.categoryPercent = _.cloneDeep(category.percentage);
+              }
+            }
+
+            data.seriesName = _.split(data.name, CHART_STRING_DELIMITER)[0];
           }
-        }
 
-        data.seriesName = _.split(data.name, CHART_STRING_DELIMITER)[0];
-      }
-
-      // 해당 dataIndex로 설정
-      data.seriesValue = _.cloneDeep(this.originalData.columns[index].value);
-      data.seriesPercent = _.cloneDeep(data.percentage);
-    });
-*/
+          // 해당 dataIndex로 설정
+          data.seriesValue = _.cloneDeep(this.originalData.columns[index].value);
+          data.seriesPercent = _.cloneDeep(data.percentage);
+        });
+    */
 
     // rows 축의 개수만큼 넣어줌
     const copyOfData = JSON.parse(JSON.stringify(this.data));
@@ -702,7 +702,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // Resize
     const resizeEvent$ = fromEvent(window, 'resize')
       .pipe(
-        map( () => document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight ),
+        map(() => document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight),
         debounceTime(500)
       );
 
@@ -711,7 +711,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         if (this.chart && this.chart.resize) {
           this.chart.resize();
         }
-      } catch (error) {}
+      } catch (error) {
+      }
     });
 
     this.subscriptions.push(windowResizeSubscribe);
@@ -745,6 +746,12 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 차트 클리어
+   */
+  public clear(): void {
+    ('function' === typeof this.chart.clear) && (this.chart.clear());
+  } // function - clear
 
   /**
    * 차트에 설정된 옵션으로 차트를 그린다.
@@ -2515,7 +2522,9 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
             const shelveData = !_.isEmpty(data) ? data[idx] : dataAlter[idx];
 
             // selectDataList에 해당 name의 값이 없을때
-            if (-1 === _.findIndex(returnList, (obj) => { return obj.name === shelveData.name})) {
+            if (-1 === _.findIndex(returnList, (obj) => {
+              return obj.name === shelveData.name
+            })) {
 
               // selectDataList에 추가
               returnList.push(shelveData);

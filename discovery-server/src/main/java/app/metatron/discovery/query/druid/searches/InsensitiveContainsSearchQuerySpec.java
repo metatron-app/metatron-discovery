@@ -14,18 +14,22 @@
 
 package app.metatron.discovery.query.druid.searches;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import app.metatron.discovery.query.druid.Search;
+import app.metatron.discovery.query.druid.SearchQuerySpec;
 
 @JsonTypeName("insensitive_contains")
-public class Insensitive implements Search {
+public class InsensitiveContainsSearchQuerySpec implements SearchQuerySpec {
+
   String value;
 
-  public Insensitive() {
+  public InsensitiveContainsSearchQuerySpec() {
   }
 
-  public Insensitive(String value) {
+  @JsonCreator
+  public InsensitiveContainsSearchQuerySpec(@JsonProperty("value") String value) {
     this.value = value;
   }
 
@@ -33,7 +37,4 @@ public class Insensitive implements Search {
     return value;
   }
 
-  public void setValue(String value) {
-    this.value = value;
-  }
 }

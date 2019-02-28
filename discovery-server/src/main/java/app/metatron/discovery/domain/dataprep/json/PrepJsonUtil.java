@@ -1,5 +1,7 @@
 package app.metatron.discovery.domain.dataprep.json;
 
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
@@ -7,7 +9,26 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Types;
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.ServletOutputStream;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -15,36 +36,25 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletOutputStream;
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Types;
-import java.util.Map;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-
 public class PrepJsonUtil {
   private static Logger LOGGER = LoggerFactory.getLogger(PrepJsonUtil.class);
 
   /**
    * @param strUri      URI as String (to be java.net.URI)
-   * @param strDelim    Delimiter as String (to be Char)
    * @param limitRows   Read not more than this
    * @param conf        Hadoop configuration which is mandatory when the url's protocol is hdfs
+   * @param onlyCount   If true, just fill result.totalRows and result.totalBytes
    *
    * @return PrepCsvParseResult: grid, header, maxColCnt
    *
    *  Sorry for so many try-catches. Sacrificed readability for end-users' usability.
    */
-  public static PrepJsonParseResult parseJSON(String strUri, String strDelim, int limitRows, Configuration conf) {
+  public static PrepJsonParseResult parseJson(String strUri, int limitRows, Configuration conf, boolean onlyCount) {
     PrepJsonParseResult result = new PrepJsonParseResult();
     BufferedReader reader;
     URI uri;
 
-    LOGGER.debug("PrepSnapshotService.parseJSON(): strUri={} strDelim={} conf={}", strUri, strDelim, conf);
+    LOGGER.debug("PrepSnapshotService.parseJson(): strUri={} conf={}", strUri, conf);
 
     try {
       uri = new URI(strUri);
@@ -70,6 +80,11 @@ public class PrepJsonUtil {
 
         FSDataInputStream his;
         try {
+          if (onlyCount) {
+            ContentSummary cSummary = hdfsFs.getContentSummary(path);
+            result.totalBytes = cSummary.getLength();
+          }
+
           his = hdfsFs.open(path);
         } catch (IOException e) {
           e.printStackTrace();
@@ -81,6 +96,9 @@ public class PrepJsonUtil {
 
       case "file":
         File file = new File(uri);
+        if (onlyCount) {
+          result.totalBytes = file.length();
+        }
 
         FileInputStream fis;
         try {
@@ -99,13 +117,12 @@ public class PrepJsonUtil {
 
     ObjectMapper mapper = new ObjectMapper();
     String line = "";
-    int rowNo = 0;
 
     try {
       result.colNames = Lists.newArrayList();
       result.maxColCnt = 0;
       StringBuffer sb = new StringBuffer();
-      while((line = reader.readLine())!=null && rowNo <limitRows) {
+      while((line = reader.readLine())!=null && result.totalRows <limitRows) {
         Map<String, Object> jsonRow = null;
 
         try {
@@ -115,6 +132,11 @@ public class PrepJsonUtil {
           sb.delete(0,sb.length());
         } catch (JsonParseException e) {
           LOGGER.debug("Incomplete JSON string.", e);
+          continue;
+        }
+
+        if (onlyCount) {
+          result.totalRows++;
           continue;
         }
 
@@ -129,19 +151,39 @@ public class PrepJsonUtil {
         for(int i=0; i<result.maxColCnt; i++ ) {
           String colName = result.colNames.get(i);
           if( jsonRow.containsKey(colName) == true ) {
-            row[i] = jsonRow.get(colName).toString();
+            Object obj = jsonRow.get(colName);
+            row[i] = (obj==null)?null:obj.toString();
           }
         }
         result.grid.add(row);
-        rowNo++;
       }
     } catch (IOException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_CSV,
-              String.format("%s (delimiter: %s)", strUri, strDelim));
+      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_JSON, strUri);
     }
 
     return result;
+  }
+
+  public static PrepJsonParseResult parseJson(String strUri, int limitRows, Configuration conf) {
+    return parseJson(strUri, limitRows, conf, false);
+  }
+
+  /**
+   * @param strUri      URI as String (to be java.net.URI)
+   * @param limitRows   Read not more than this
+   * @param conf        Hadoop configuration which is mandatory when the url's protocol is hdfs
+   *
+   * @return Long: total Row count
+   *
+   *  Sorry for so many try-catches. Sacrificed readability for end-users' usability.
+   */
+  public static Map<String, Long> countJson(String strUri, int limitRows, Configuration conf) {
+    Map<String, Long> mapTotal = new HashMap();
+    PrepJsonParseResult result = parseJson(strUri, limitRows, conf, true);
+    mapTotal.put("totalRows", result.totalRows);
+    mapTotal.put("totalBytes", result.totalBytes);
+    return mapTotal;
   }
 
   /**

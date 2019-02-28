@@ -1,5 +1,17 @@
 package app.metatron.discovery.domain.datasource.connection;
 
+import com.querydsl.core.types.Predicate;
+
+import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import app.metatron.discovery.common.criteria.ListCriterion;
 import app.metatron.discovery.common.criteria.ListCriterionType;
 import app.metatron.discovery.common.criteria.ListFilter;
@@ -16,16 +28,6 @@ import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.domain.workspace.WorkspaceRepository;
 import app.metatron.discovery.domain.workspace.WorkspaceService;
 import app.metatron.discovery.util.AuthUtils;
-import com.querydsl.core.types.Predicate;
-import org.joda.time.DateTime;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Project : metatron-discovery
@@ -110,6 +112,7 @@ public class DataConnectionFilterService {
         criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.POSTGRESQL.toString(), "PostgreSQL"));
         criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.HIVE.toString(), "Hive"));
         criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.PRESTO.toString(), "Presto"));
+        criterion.addFilter(new ListFilter(criterionKey, "implementor", DataConnection.Implementor.DRUID.toString(), "Druid"));
         break;
       case AUTH_TYPE:
         criterion.addFilter(new ListFilter(criterionKey, "authenticationType", DataConnection.AuthenticationType.MANUAL.toString(), "msg.storage.li.connect.always"));

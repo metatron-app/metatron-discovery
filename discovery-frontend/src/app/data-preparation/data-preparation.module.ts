@@ -88,6 +88,7 @@ import {LongUpdatePopupComponent} from "./component/long-update-popup.component"
 import {RadioSelectDatasetComponent} from "./component/radio-select-dataset.component";
 import {AddDatasetDataflowComponent} from "./dataset/add-dataset-dataflow.component";
 import {MultipleRenamePopupComponent} from "./dataflow/dataflow-detail/component/edit-dataflow-rule/multiple-rename-popup.component";
+import {DataconnectionService} from "../dataconnection/service/dataconnection.service";
 
 const dataPreparationRoutes: Routes = [
   { path: '', component: DatasetComponent },
@@ -174,6 +175,7 @@ const dataPreparationRoutes: Routes = [
     MultipleRenamePopupComponent
   ],
   providers: [
+    DataconnectionService,
     DataPreparationService,
     DataflowService,
     DatasetService,

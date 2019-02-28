@@ -483,6 +483,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
       {label: 'PostgreSQL', value: 'POSTGRESQL', icon: 'type-postgre'},
       {label: 'Hive', value: 'HIVE', icon: 'type-hive'},
       {label: 'Presto', value: 'PRESTO', icon: 'type-presto'},
+      {label: 'Druid', value: 'DRUID', icon: 'type-druid'}
       // { label: 'Apache Phoenix', value: 'PHOENIX', icon: 'type-pache' },
       // { label: 'Tibero', value: 'TIBERO', icon: 'type-tibero' }
     ];
@@ -683,9 +684,12 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
           this.stomp.connected$.subscribe(() => {
             console.log('I will be called for each time connection is established.');
             this._webSocketReConnectCnt = 0;
-            const temp: string = CommonConstant.stomp['stompClient']['_webSocket']['_transport']['url'];
-            const tempArr = temp.split('/');
-            CommonConstant.websocketId = tempArr[5];
+            const webSocket = CommonConstant.stomp['stompClient']['_webSocket'];
+            if (webSocket && webSocket['_transport'] && webSocket['_transport']['url']) {
+              const temp: string = webSocket['_transport']['url'];
+              const tempArr = temp.split('/');
+              CommonConstant.websocketId = tempArr[5];
+            }
             resolve('CONNECTED');
           })
         );

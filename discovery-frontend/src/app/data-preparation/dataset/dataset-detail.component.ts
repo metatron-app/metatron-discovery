@@ -33,6 +33,7 @@ import { PreparationCommonUtil } from "../util/preparation-common.util";
 
 import { isNull, isNullOrUndefined } from "util";
 import * as pixelWidth from 'string-pixel-width';
+import { saveAs } from 'file-saver';
 
 declare let moment: any;
 
@@ -345,8 +346,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       this.dataset.rsType!==RsType.TABLE)  || this.dataset.importType===ImportType.DATABASE) {
       return null
     } else {
-      let size = 0;
-      if(true==Number.isInteger(this.dataset.totalBytes)) {
+      let size = -1;
+      if(Number.isInteger(this.dataset.totalBytes)) {
         size = this.dataset.totalBytes;
       }
       return this._formatBytes(size,1);
@@ -356,14 +357,12 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
   /** get row count */
   public get getRows() {
-    let rows = '0';
-    if(true==Number.isInteger(this.dataset.totalLines)) {
+    let rows = '0 row(s)';
+    if(!isNullOrUndefined(this.dataset.totalLines) && Number.isInteger(this.dataset.totalLines)) {
       if (this.dataset.totalLines === -1) {
         rows = '(counting)';
       } else {
         rows = new Intl.NumberFormat().format(this.dataset.totalLines) + ' row(s)';
-        clearInterval(this.interval);
-        this.interval = undefined;
       }
     }
     return rows;
@@ -548,6 +547,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     return result;
   }
 
+
   /**
    * get names of sheet
    */
@@ -558,15 +558,39 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       result = this.dataset.sheetName;
     }
     return result;
-
   }
+
 
   /**
    * Create snapshot (only wrangled)
    */
   public createSnapshot() {
     this.createSnapshotPopup.init({id : this.dataset.dsId , name : this.dataset.dsName, fields : this.fields});
-  } // function - createSnapshot
+  }
+
+
+  /**
+   * Download Imported Dataset (only Upload Uri type)
+   */
+  public downloadDataset() {
+    let fileFormat: string;
+    let downloadFileName: string;
+
+    if (this.dataset.dsType === DsType.IMPORTED && this.dataset.importType === ImportType.UPLOAD) {
+
+      if (this.dataset.fileFormat.toString().toLowerCase() === 'excel') {
+        fileFormat = 'csv';
+        downloadFileName = this.dataset.dsName + '.csv';
+      } else {
+        fileFormat = this.dataset.fileFormat.toString().toLowerCase();
+        downloadFileName = this.dataset.filenameBeforeUpload;
+      }
+
+      this.datasetService.downloadDataset(this.dataset.dsId, fileFormat).subscribe((datasetFile) => {
+        saveAs(datasetFile, downloadFileName);
+      });
+    }
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
@@ -579,8 +603,18 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     this.cookieService.set('SELECTED_DATASET_TYPE', this.dataset.dsType.toString());
   }
 
-  private _formatBytes(a,b) { // a=크기 , b=소숫점자릿
-    if(0==a) return "0 Bytes";
+
+  /**
+   * Format bytes
+   * @param a 크기
+   * @param b 소숫점 자릿
+   * @private
+   */
+  private _formatBytes(a,b) {
+    if (-1 === a)  {
+      return "0 Bytes";
+    }
+
     let c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));
     return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]
   }
@@ -627,6 +661,13 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         }
 
         this.loadingHide();
+
+        clearInterval(this.interval);
+        this.interval = undefined;
+
+        if (!isNullOrUndefined(this.dataset.totalLines) && this.dataset.totalLines === -1) {
+          this.interval = setInterval(()=> {this._getDsDetail();},3000);
+        }
 
       }).catch((error) => {
         this.loadingHide();

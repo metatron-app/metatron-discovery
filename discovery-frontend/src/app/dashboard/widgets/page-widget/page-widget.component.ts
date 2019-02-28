@@ -112,8 +112,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   // 현재 위젯에서 발생시킨 필터정보
   private _selectFilterList: any[] = [];
 
-  // Current Selection Filters
+  // Current Filters
   private _currentSelectionFilters: Filter[] = [];
+  private _currentSelectionFilterString: string = '';
+  private _currentGlobalFilterString: string = '';
 
   // child widget id list
   private _childWidgetIds: string[] = [];
@@ -1386,8 +1388,15 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       this.chart['setQuery'] = this.query;
     }
 
-    // 유효한 선택 필터 정보 저장
+    // 차트 클리어 여부 판단
+    const isClear: boolean = (this.chart && 'function' === typeof this.chart.clear
+      && (this._currentSelectionFilterString !== JSON.stringify(currentSelectionFilters)
+        || this._currentGlobalFilterString !== JSON.stringify(globalFilters)));
+
+    // 필터 정보 저장
     this._currentSelectionFilters = currentSelectionFilters;
+    this._currentSelectionFilterString = JSON.stringify(currentSelectionFilters);
+    this._currentGlobalFilterString = JSON.stringify(globalFilters);
 
     this.datasourceService.searchQuery(cloneQuery).then((data) => {
 
@@ -1416,6 +1425,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       }
 
       setTimeout(() => {
+
+        // 차트 클리어
+        (isClear) && (this.chart.clear());
+
         // line차트이면서 columns 데이터가 있는경우
         if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
           // 고급분석 예측선 API 호출
