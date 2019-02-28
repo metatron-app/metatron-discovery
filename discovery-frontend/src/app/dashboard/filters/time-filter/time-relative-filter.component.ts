@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { AbstractFilterPopupComponent } from '../abstract-filter-popup.component';
+import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
 import {
   ElementRef,
   OnDestroy,
@@ -24,14 +24,13 @@ import {
   SimpleChange,
   EventEmitter, Output, ViewChild, AfterViewInit
 } from '@angular/core';
-import { TimeUnit } from '../../../domain/workbook/configurations/field/timestamp-field';
+import {TimeUnit} from '../../../domain/workbook/configurations/field/timestamp-field';
 import {
   TimeRelativeFilter,
   TimeRelativeTense
 } from '../../../domain/workbook/configurations/filter/time-relative-filter';
-import { isNullOrUndefined } from 'util';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import {TimeRangeFilter} from "../../../domain/workbook/configurations/filter/time-range-filter";
+import {isNullOrUndefined} from 'util';
+import {EventBroadcaster} from '../../../common/event/event.broadcaster';
 
 declare let moment;
 
@@ -45,7 +44,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @ViewChild('filterArea')
-  private _filterArea:ElementRef;
+  private _filterArea: ElementRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -58,13 +57,13 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   public isShowNextComboOpts: boolean = false;    // 미래 시점 입력 콤보박스 옵션 표시 여부
   public timeUnitComboList = [
     /* { name: this.translateService.instant('msg.board.filter.ui.timeunit.seconds'), value: TimeUnit.SECOND }, */
-    { name: this.translateService.instant('msg.board.filter.ui.timeunit.minutes'), value: TimeUnit.MINUTE },
-    { name: this.translateService.instant('msg.board.filter.ui.timeunit.hours'), value: TimeUnit.HOUR },
-    { name: this.translateService.instant('msg.board.filter.ui.timeunit.days'), value: TimeUnit.DAY },
-    { name: this.translateService.instant('msg.board.filter.ui.timeunit.weeks'), value: TimeUnit.WEEK },
-    { name: this.translateService.instant('msg.board.filter.ui.timeunit.months'), value: TimeUnit.MONTH },
+    {name: this.translateService.instant('msg.board.filter.ui.timeunit.minutes'), value: TimeUnit.MINUTE},
+    {name: this.translateService.instant('msg.board.filter.ui.timeunit.hours'), value: TimeUnit.HOUR},
+    {name: this.translateService.instant('msg.board.filter.ui.timeunit.days'), value: TimeUnit.DAY},
+    {name: this.translateService.instant('msg.board.filter.ui.timeunit.weeks'), value: TimeUnit.WEEK},
+    {name: this.translateService.instant('msg.board.filter.ui.timeunit.months'), value: TimeUnit.MONTH},
     /* { name: this.translateService.instant('msg.board.filter.ui.timeunit.quarters'), value: TimeUnit.QUARTER }, */
-    { name: this.translateService.instant('msg.board.filter.ui.timeunit.years'), value: TimeUnit.YEAR }
+    {name: this.translateService.instant('msg.board.filter.ui.timeunit.years'), value: TimeUnit.YEAR}
   ];
   public selectedTimeUnitItem;
 
@@ -81,7 +80,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   @Output('change')
   public changeEvent: EventEmitter<TimeRelativeFilter> = new EventEmitter();
 
-  public isShortLabel:boolean = false;
+  public isShortLabel: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -89,8 +88,8 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
 
   // 생성자
   constructor(protected broadCaster: EventBroadcaster,
-    protected elementRef: ElementRef,
-    protected injector: Injector) {
+              protected elementRef: ElementRef,
+              protected injector: Injector) {
     super(elementRef, injector);
   }
 
@@ -111,8 +110,8 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
    */
   public ngOnChanges(changes: SimpleChanges) {
     const filterChanges: SimpleChange = changes.inputFilter;
-    if (filterChanges) {
-      this.setData(filterChanges.currentValue, true);
+    if (filterChanges && filterChanges.currentValue) {
+      this.setData(filterChanges.currentValue, !filterChanges.firstChange);
     }
   } // function - ngOnChanges
 
@@ -123,15 +122,15 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   public ngAfterViewInit() {
 
     // Set whether short labels
-    this.isShortLabel = ( 'PANEL' === this.mode );
+    this.isShortLabel = ('PANEL' === this.mode);
     this.safelyDetectChanges();
 
     // Widget Resize Event
-    const $filterArea = $( this._filterArea.nativeElement );
+    const $filterArea = $(this._filterArea.nativeElement);
     this.subscriptions.push(
       this.broadCaster.on<any>('RESIZE_WIDGET').subscribe(() => {
         if ('WIDGET' === this.mode) {
-          this.isShortLabel = ( 320 > $filterArea.width() );
+          this.isShortLabel = (320 > $filterArea.width());
           this.safelyDetectChanges();
         }
       })
@@ -153,7 +152,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
    * @param {TimeRelativeFilter} filter
    * @param {boolean} isBroadcast
    */
-  public setData(filter: TimeRelativeFilter, isBroadcast:boolean = false ) {
+  public setData(filter: TimeRelativeFilter, isBroadcast: boolean = false) {
     let tempFilter: TimeRelativeFilter = filter;
 
     {
@@ -168,7 +167,7 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
 
     this.targetFilter = tempFilter;
 
-    ( isBroadcast ) && ( this.changeEvent.emit(this.targetFilter) );
+    (isBroadcast) && (this.changeEvent.emit(this.targetFilter));
 
     this.safelyDetectChanges();
   } // function - setData

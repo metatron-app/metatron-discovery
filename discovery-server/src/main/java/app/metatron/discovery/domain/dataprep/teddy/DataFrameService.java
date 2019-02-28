@@ -143,6 +143,10 @@ public class DataFrameService {
       LOGGER.error(msg, e);
       throw new TransformTimeoutException(msg);
     }
+    catch (TeddyException e) {
+      LOGGER.error("applyRule(): teddy error occurred.", e);
+      throw e;
+    }
 
     LOGGER.trace("applyRule(): end (parallel)");
     return newDf;

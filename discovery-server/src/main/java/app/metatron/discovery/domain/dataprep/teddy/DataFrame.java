@@ -51,20 +51,21 @@ public class DataFrame implements Serializable, Transformable {
   public List<Histogram> colHists;
   public List<Row> rows;
 
-  public Map<String, Integer> mapColno;
-  public List<String> newColNames;            // 자동 생성된 컬럼이름 리스트 (countpattern, split, unnest, extract)
+  public Map<String, Integer> mapColno;       // TODO: colNameInvertedMap
+  public List<String> newColNames;            // 자동 생성된 컬럼이름 리스트 (countpattern, split, unnest, extract)   // TODO: if possible, use as local variable
   public List<String> interestedColNames;     // target 컬럼, 새로 생긴 컬럼 등을 모두 추가해서 반환 (컬럼 선택/반전을 위해)
 
   public String dsName;
-  public Map<String, String> slaveDsNameMap;  // slaveDsId -> slaveDsName (join, union의 경우 룰 축약시 계속해서 필요)
-  public String ruleString;   // debugging purpose
+  public Map<String, String> slaveDsNameMap;  // slaveDsId -> slaveDsName (join, union의 경우 룰 축약시 계속해서 필요)   // FIXME: delete
 
-  @JsonIgnore
-  public List<String> ruleColumns;
-
+  public String ruleString;
   public boolean valid;
 
-  // copy the references to all members (to avoid deep copy, but make a non-identical object)
+  @JsonIgnore
+  public List<String> ruleColumns;            // TODO: if possible, use as local variable
+
+
+  // copy the references to all members (to avoid deep copy, but make a non-identical object)   // TODO: find out why we do deep-copy like this
   public DataFrame(DataFrame df) {
     colCnt             = df.colCnt;
     colNames           = df.colNames;
@@ -258,7 +259,7 @@ public class DataFrame implements Serializable, Transformable {
     return getColTimestampStyle(getColnoByColName(colName));
   }
 
-  // 대소문자 구분 없이 unique해야 함 (Hive, Druid 제약 때문에, DataFrame도 그렇게 함)
+  // 대소문자 구분 없이 unique해야 함 (Hive, Druid 제약 때문에, DataFrame도 그렇게 함)   // FIXME: 주석 수정
   boolean colsContains(String colName) {
     return colsContains(colNames, colName);
   }
@@ -1033,13 +1034,6 @@ public class DataFrame implements Serializable, Transformable {
     return patternStr + "(?=([^" + quoteStr + "]*" + quoteStr + "[^" + quoteStr + "]*" + quoteStr + ")*[^" + quoteStr + "]*$)";
   }
 
-  protected String stripSingleQuote(String str) {
-    if(str.indexOf("'") == 0)
-      return str.substring(str.indexOf("'") + 1, str.lastIndexOf("'"));
-    else
-      return str;
-  }
-
   protected String getColNameAndColnoFromFunc(Expr.FunctionExpr funcExpr, List<Integer> targetAggrColnos) throws ColumnNotFoundException, InvalidAggregationValueExpressionTypeException {
     List<Expr> args = funcExpr.getArgs();
     String funcName = funcExpr.getName();
@@ -1346,7 +1340,7 @@ public class DataFrame implements Serializable, Transformable {
     });
   }
 
-  protected List<Row> filter2(DataFrame prevDf, Expression condExpr, boolean keep, int offset, int length) throws NoAssignmentStatementIsAllowedException, ColumnNotFoundException {
+  protected List<Row> filter(DataFrame prevDf, Expression condExpr, boolean keep, int offset, int length) throws NoAssignmentStatementIsAllowedException, TypeMismatchException {
     List<Row> rows = new ArrayList<>();
 
     if(condExpr instanceof Expr.BinAsExpr) {
@@ -1358,8 +1352,8 @@ public class DataFrame implements Serializable, Transformable {
         if (((Expr) condExpr).eval(prevDf.rows.get(rowno)).asLong() == ((keep) ? 1 : 0)) {
           rows.add(prevDf.rows.get(rowno));
         }
-      } catch (Exception e) {
-        throw new ColumnNotFoundException(e.getMessage());    // FIXME: throw a better exception based on e
+      } catch (ClassCastException e) {
+        throw new TypeMismatchException(e.getMessage());
       }
     }
 

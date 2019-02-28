@@ -1251,7 +1251,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    * @returns {boolean}
    */
   public isLinkedTypeSource(source: Datasource): boolean {
-    return source.connType.toString() === 'LINK';
+    return (source && source.connType) ? source.connType.toString() === 'LINK' : true;
   }
 
   /**

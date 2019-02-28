@@ -15,8 +15,8 @@
 import * as $ from "jquery";
 import * as pixelWidth from 'string-pixel-width';
 import {isNull, isNullOrUndefined, isUndefined} from 'util';
-declare const moment: any;
 declare let Split;
+import * as _ from 'lodash';
 
 import {
   ChangeDetectorRef,
@@ -264,47 +264,43 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     if( this.selectedDataSet.importType===ImportType.STAGING_DB && this.selectedDataSet.rsType!==RsType.TABLE ) {
       return null;
     } else {
-      let size = 0;
-      if(true==Number.isInteger(this.selectedDataSet.totalBytes)) {
+      let size = -1;
+      if(!_.isNil(this.selectedDataSet.totalBytes)) {
         size = this.selectedDataSet.totalBytes;
       }
       return this.formatBytes(size,1);
     }
   }
 
-  /** get colCnt */
-  public get getColCnt() {
-    let colCnt = '0';
 
-    if( this.selectedDataSet && this.selectedDataSet.gridResponse && this.selectedDataSet.gridResponse.colCnt ) {
-      if(Number.isInteger(this.selectedDataSet.gridResponse.colCnt)) {
-        colCnt = new Intl.NumberFormat().format(this.selectedDataSet.gridResponse.colCnt);
-        if (colCnt === '0' || colCnt === '1') {
-          colCnt = colCnt + ' column';
-        } else {
-          colCnt = colCnt + ' columns';
-        }
-      }
+  /**
+   * Get column number
+   */
+  public getCols(): string {
+    let result = `0 column(s)`;
+    if (this.selectedDataSet.gridData.fields && this.selectedDataSet.gridData.fields.length > 0) {
+      result = this.selectedDataSet.gridData.fields.length + ` column(s)`;
     }
-    return colCnt;
+    return result;
   }
 
   /** get rows */
   public get getRows() {
-    let rows = '0';
-    if(Number.isInteger(this.selectedDataSet.totalLines)) {
+    let rows: string = `0 row(s)`;
+    if(!_.isNil(this.selectedDataSet.totalLines)) {
       if (this.selectedDataSet.totalLines === -1) {
         rows = '(counting)';
       } else {
         rows = new Intl.NumberFormat().format(this.selectedDataSet.totalLines) + ' row(s)';
         this.clearExistingInterval();
       }
+    } else {
+      this.clearExistingInterval();
     }
     return rows;
   }
 
   public get getHost() {
-    //if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB && !isNullOrUndefined(this.selectedDataSet.dcHostname)) {
     if( this.selectedDataSet.importType===ImportType.DATABASE && !isNullOrUndefined(this.selectedDataSet.dcHostname)) {
       return this.selectedDataSet.dcHostname;
     } else {
@@ -313,7 +309,6 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   }
 
   public get getPort() {
-    //if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB && !isNullOrUndefined(this.selectedDataSet.dcPort)) {
     if( this.selectedDataSet.importType===ImportType.DATABASE && !isNullOrUndefined(this.selectedDataSet.dcPort)) {
       return this.selectedDataSet.dcPort;
     } else {
@@ -347,9 +342,8 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
   /**
    * Set dataset information
-   * @param data {Dataset}
+   * @param data
    */
-  //public setDataset(data?: Dataset) {
   public setDataset(data?: PrDataset) {
     this.loadingShow();
     if(data) {
@@ -364,7 +358,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     this.interval = setInterval(() => {
       this.getDatasetInfo(this.selectedDataSet);
     },2000);
-  } // function - setDataset
+  }
 
 
   /**
@@ -377,9 +371,10 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     this.clearExistingInterval();
   }
 
+
   /**
    * Fetch dataset info from server
-   * @param {Dataset} selectedDatset
+   * @param {PrDataset} selectedDatset
    */
   public getDatasetInfo(selectedDatset : PrDataset) {
     this.dataflowService.getDataset(selectedDatset.dsId).then((dataset: any) => {
@@ -653,6 +648,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     this.interval = undefined;
   }
 
+
   /**
    * Returns type
    * @param {ImportType} type
@@ -676,21 +672,19 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   }
 
 
-
   /**
-   * 데이터셋 information을 타입별로 정리
+   * Set dataset information according to dataset type
    * @param dataset
    */
   public getDatasetInformationList(dataset) {
     this.datasetInformationList = [];
-    let cols = this.selectedDataSet.gridData.fields && this.selectedDataSet.gridData.fields.length;
 
     // WRANGLED
     if (dataset.dsType === DsType.WRANGLED) {
       this.datasetInformationList = [
         { name : this.translateService.instant('msg.comm.th.type') , value : dataset.dsType },
         {name : this.translateService.instant('msg.dp.th.summary'), value :this.getRows},
-        {name : '', value : cols + ' column(s)'}
+        {name : '', value : this.getCols()}
       ];
 
       // FILE
@@ -712,7 +706,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
       this.datasetInformationList.push(
         {name : this.translateService.instant('msg.dp.th.summary'), value :this.getRows},
-        {name : '', value : cols + ' column(s)'}
+        {name : '', value : this.getCols()}
         )
 
 
@@ -747,7 +741,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
       this.datasetInformationList.push(
         {name : this.translateService.instant('msg.dp.th.summary'), value :this.getRows},
-        {name : '', value : cols + ' column(s)'})
+        {name : '', value : this.getCols()})
 
     }
   }
@@ -755,6 +749,10 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Make grid data from grid response
+   * @param gridResponse
+   */
   private getGridDataFromGridResponse(gridResponse: any) {
     let colCnt = gridResponse.colCnt;
     let colNames = gridResponse.colNames;
@@ -782,9 +780,13 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     });
 
     return gridData;
-  } // function - getGridDataFromGridResponse
+  }
 
-  /** 그리드 데이터 가공 */
+
+  /**
+   * Set grid Data
+   * @param data
+   */
   private setGridData(data: any) {
     this.selectedDataSet.gridData = this.getGridDataFromGridResponse(data);
 
@@ -793,7 +795,11 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     }
   }
 
-  /** 데이터 미리보기 */
+
+  /**
+   * Update grid
+   * @param data
+   */
   private updateGrid(data: any) {
 
     const maxDataLen: any = {};

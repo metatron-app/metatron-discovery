@@ -38,22 +38,26 @@
           <!-- 정렬 버튼 목록 -->
           <ul class="ddp-list-popup ddp-type">
             <li [class.ddp-selected]="sortBy.COUNT === filter.sort.by && sortDirection.ASC === filter.sort.direction">
-              <a href="javascript:" (click)="sortCandidateValues(filter, sortBy.COUNT, sortDirection.ASC );">
+              <a (click)="sortCandidateValues(filter, sortBy.COUNT, sortDirection.ASC );updateFilterEvent.emit(filter);"
+                 href="javascript:" >
                 {{'msg.comm.ui.soring.frequency.asc' | translate}} <em class="ddp-icon-check"></em>
               </a>
             </li>
             <li [class.ddp-selected]="sortBy.COUNT === filter.sort.by && sortDirection.DESC === filter.sort.direction">
-              <a href="javascript:" (click)="sortCandidateValues(filter, sortBy.COUNT, sortDirection.DESC);">
+              <a (click)="sortCandidateValues(filter, sortBy.COUNT, sortDirection.DESC);updateFilterEvent.emit(filter);"
+                 href="javascript:" >
                 {{'msg.comm.ui.soring.frequency.desc' | translate}} <em class="ddp-icon-check"></em>
               </a>
             </li>
             <li [class.ddp-selected]="sortBy.TEXT === filter.sort.by && sortDirection.ASC === filter.sort.direction">
-              <a href="javascript:" (click)="sortCandidateValues(filter, sortBy.TEXT, sortDirection.ASC );">
+              <a (click)="sortCandidateValues(filter, sortBy.TEXT, sortDirection.ASC );updateFilterEvent.emit(filter);"
+                 href="javascript:" >
                 {{'msg.comm.ui.soring.alphnumeric.asc' | translate}} <em class="ddp-icon-check"></em>
               </a>
             </li>
             <li [class.ddp-selected]="sortBy.TEXT === filter.sort.by && sortDirection.DESC === filter.sort.direction">
-              <a href="javascript:" (click)="sortCandidateValues(filter, sortBy.TEXT, sortDirection.DESC);">
+              <a (click)="sortCandidateValues(filter, sortBy.TEXT, sortDirection.DESC);updateFilterEvent.emit(filter);"
+                 href="javascript:" >
                 {{'msg.comm.ui.soring.alphnumeric.desc' | translate}} <em class="ddp-icon-check"></em>
               </a>
             </li>

@@ -725,6 +725,7 @@
   "msg.dp.alert.failed.to.parse.csv": "解析CSV文件时，发生IOException",
   "msg.dp.alert.failed.to.write.csv": "write CSV文件时，发生IOException",
   "msg.dp.alert.failed.to.close.csv": "关闭CSV文件时，发生IOException",
+  "msg.dp.alert.failed.to.parse.json": "解析JSON文件时，发生IOException",
   "msg.dp.alert.unsupported.charset": "不支持的编码 (Charset)",
   "msg.dp.alert.unknown.bom": "已找出不支持的byte-order mark (BOM)",
   "msg.dp.alert.has.no.creator.dataflow": "无法找到Creator Dataflow",
