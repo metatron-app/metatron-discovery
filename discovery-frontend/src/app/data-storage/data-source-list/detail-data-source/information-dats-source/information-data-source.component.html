@@ -20,7 +20,12 @@
       <em class="ddp-icon-btn-sync"></em>{{'msg.storage.ui.dsource.synchronization.btn' | translate}}
     </a>
   </div>
-
+  <div class="ddp-box-synch type-info" *ngIf="isShowModifiedGuideMessage">
+    <div class="ddp-txt-synch">
+      <em class="ddp-icon-info"></em>
+      {{'msg.storage.ui.guide.meta.modified' | translate}}
+    </div>
+  </div>
   <!-- datadetail -->
   <div class="ddp-ui-datadetail ddp-border-none">
     <a href="javascript:" class="ddp-btn-solid2 ddp-dark type-link" (click)="onClickLinkMasterData()" *ngIf="metaData">{{'msg.storage.btn.master.data.link' | translate}}</a>
@@ -51,7 +56,7 @@
             <div class="ddp-box-textarea">
               <textarea [(ngModel)]="descriptionChangeText" (blur)="onClickDescriptionOutside($event)"></textarea>
               <div class="ddp-textarea-buttons">
-                <a href="javascript:" class="ddp-box-btn" (click)="isEditSourceDescription = false"><em class="ddp-icon-cancel"></em></a>
+                <a href="javascript:" class="ddp-box-btn" (click)="isEditSourceDescription = false; isShowModifiedGuideMessage = false"><em class="ddp-icon-cancel"></em></a>
                 <a href="javascript:" class="ddp-box-btn " (click)="updateSourceDescription()"><em class="ddp-icon-check"></em></a>
               </div>
             </div>

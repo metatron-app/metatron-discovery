@@ -88,6 +88,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   @Output()
   public changeDatasource: EventEmitter<any> = new EventEmitter();
 
+  @Input()
+  public isShowModifiedGuideMessage: boolean;
+
   // scope types
   private ingestionScopeTypeList: any[];
   // batch types
@@ -204,6 +207,10 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
         }
       }
     }
+    // when hide source name edit, if edit desc mode, set show modified guide message
+    if (changes.isShowModifiedGuideMessage && !changes.isShowModifiedGuideMessage.currentValue && this.isEditSourceDescription) {
+      this.isShowModifiedGuideMessage = true;
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -215,6 +222,8 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    */
   public enableEditDescription(): void {
     this.isEditSourceDescription = true;
+    // set show modified guide message
+    this.isShowModifiedGuideMessage = true;
     // set desc text
     this.descriptionChangeText = this.datasource.description;
   }
@@ -237,6 +246,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
       return;
     }
     this.isEditSourceDescription = false;
+    // set hide modified guide message
+    this.isShowModifiedGuideMessage = false;
+    // update
     this._updateDatasource.emit({description: this.descriptionChangeText});
   }
 
