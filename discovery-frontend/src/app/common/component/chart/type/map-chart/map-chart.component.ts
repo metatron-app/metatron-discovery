@@ -399,13 +399,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // Is map creation
     let isMapCreation: boolean = this.createMap();
 
-    // Source
-    let source = new ol.source.Vector({crossOrigin: 'anonymous'});
-
-    // Line & Polygon Source
-    let emptySource = new ol.source.Vector();
-
     for (let layerIndex = 0; layerIndex < this.getUiMapOption().layers.length; layerIndex++) {
+
+      // Source
+      let source = new ol.source.Vector({crossOrigin: 'anonymous'});
+
+      // Line & Polygon Source
+      let emptySource = new ol.source.Vector();
 
       // 데이터가 없는경우 dummy data 추가
       if( this.data.length != this.getUiMapOption().layers.length && !this.isGeoFieldCheck(this.shelf.layers, layerIndex) ){
