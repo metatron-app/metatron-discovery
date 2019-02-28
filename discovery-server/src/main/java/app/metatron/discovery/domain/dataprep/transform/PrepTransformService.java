@@ -267,32 +267,26 @@ public class PrepTransformService {
 
   public PrepTransformService() { }
 
-  private List<String> getTargetDsIds(String jsonRuleString) throws IOException {
-    List<String> targetDsIds = new ArrayList<>();
-    Map<String,Object> dataset2;
-
-    Map<String, Object> jsonObj = GlobalObjectMapper.getDefaultMapper().readValue(jsonRuleString, Map.class);
-    switch ((String) jsonObj.get("name")) {
-      case "join":
-        dataset2 = (Map<String, Object>) jsonObj.get("dataset2");
-        targetDsIds.add((String) dataset2.get("escapedValue"));
-        break;
-      case "union":
-        dataset2 = (Map<String, Object>) jsonObj.get("dataset2");
-        Object value = dataset2.get("value");
-        if (value instanceof List) {
-          for (String unionDsId : (List<String>) value) {
-            targetDsIds.add(unionDsId.replace("'", "").trim());
-          }
-        } else if (value instanceof String) {
-          targetDsIds.add(((String) value).replace("'", "").trim());
-        }
-        break;
-      default:
-    }
-
-    return targetDsIds;
-  }
+//  private List<String> getTargetDsIds(String jsonRuleString) throws IOException {
+//    List<String> targetDsIds = new ArrayList<>();
+//
+//    Map<String, Object> jsonObj = GlobalObjectMapper.getDefaultMapper().readValue(jsonRuleString, Map.class);
+//    switch ((String) jsonObj.get("name")) {
+//      case "join":
+//        targetDsIds.add(((String) jsonObj.get("dataset2")).replaceAll("'", ""));
+//        break;
+//      case "union":
+//        List<String> arrDataset2 = GlobalObjectMapper.readValue(((String) jsonObj.get("dataset2")), List.class);
+//        if (arrDataset2 != null) {
+//          targetDsIds = arrDataset2;
+//        } else {
+//          targetDsIds.add(((String) jsonObj.get("dataset2")).replaceAll("'", ""));
+//        }
+//      default:
+//    }
+//
+//    return targetDsIds;
+//  }
 
   // skips the last rule for UPDATE purpose
   public List<String> getUpstreamDsIds(String dsId, boolean forUpdate) throws IOException, CannotSerializeIntoJsonException {
@@ -312,10 +306,10 @@ public class PrepTransformService {
 
     for (int i = 0; i < until; i++) {
       PrTransformRule rule = rules.get(i);
-      String jsonRuleString = rule.getJsonRuleString();
-      assert jsonRuleString != null : dsId;
+//      String jsonRuleString = rule.getJsonRuleString();
+//      assert jsonRuleString != null : dsId;
 
-      upstreamDsIds.addAll(getTargetDsIds(jsonRuleString));
+      upstreamDsIds.addAll(transformRuleService.getUpstreamDsIds(rule.getRuleString()));
     }
     return upstreamDsIds;
   }
@@ -350,7 +344,7 @@ public class PrepTransformService {
     // This could be either an imported dataset or another wrangled dataset.
     String createRuleString = transformRuleService.getCreateRuleString(importedDsId);
     String jsonRuleString = transformRuleService.jsonizeRuleString(createRuleString);
-    String shortRuleString = transformRuleService.shortenRuleString(jsonRuleString);
+    String shortRuleString = transformRuleService.shortenRuleString(createRuleString);
     PrTransformRule rule = new PrTransformRule(wrangledDataset, 0, createRuleString, jsonRuleString, shortRuleString);
     transformRuleRepository.saveAndFlush(rule);
 
@@ -415,7 +409,7 @@ public class PrepTransformService {
       if (ruleString.contains(oldDsId)) {
         String newRuleString = ruleString.replace(oldDsId, newDsId);
         String newJsonRuleString = transformRuleService.jsonizeRuleString(newRuleString);
-        String newShortRuleString = transformRuleService.shortenRuleString(newJsonRuleString);
+        String newShortRuleString = transformRuleService.shortenRuleString(newRuleString);
 
         rule.setRuleString(newRuleString);
         rule.setJsonRuleString(newJsonRuleString);
@@ -483,7 +477,7 @@ public class PrepTransformService {
 
       String newRuleString = transformRuleService.getCreateRuleString(newDsId);
       String newJsonRuleString = transformRuleService.jsonizeRuleString(newRuleString);
-      String newShortRuleString = transformRuleService.shortenRuleString(newJsonRuleString);
+      String newShortRuleString = transformRuleService.shortenRuleString(newRuleString);
 
       rule.setRuleString(newRuleString);
       rule.setJsonRuleString(newJsonRuleString);
@@ -560,33 +554,32 @@ public class PrepTransformService {
     // 이하 코드는 dataset이 PLM cache에 존재하지 않거나, transition을 처음부터 다시 적용해야 하는 경우
     teddyImpl.remove(dsId);
 
-    String upstreamDsId = getFirstUpstreamDsId(dsId);
-    PrDataset upstreamDataset = datasetRepository.findRealOne(datasetRepository.findOne(upstreamDsId));
+    PrDataset upstreamDataset = datasetRepository.findRealOne(datasetRepository.findOne(getFirstUpstreamDsId(dsId)));
     gridResponse = createStage0(dsId, upstreamDataset);
     teddyImpl.reset(dsId);
 
     List<String> ruleStrings = new ArrayList<>();
-    ArrayList<String> totalTargetDsIds = new ArrayList<>();
-    ArrayList<PrDataset> totalTargetDatasets = new ArrayList<>();
+    ArrayList<String> totalTargetDsIds = new ArrayList<>();           // What is this for?
+    ArrayList<PrDataset> totalTargetDatasets = new ArrayList<>();     // What is this for?
 
     prepareTransformRules(dsId);
 
     for (PrTransformRule transformRule : getRulesInOrder(dsId)) {
       String ruleString = transformRule.getRuleString();
-      String jsonRuleString = transformRule.getJsonRuleString();
+//      String jsonRuleString = transformRule.getJsonRuleString();
       datasetRepository.save(dataset);
 
       // add to the rule string array
       ruleStrings.add(ruleString);
 
       // gather slave datasets (load and apply, too)
-      List<String> targetDsIds = getTargetDsIds(jsonRuleString);
+      List<String> upstreamDsIds = transformRuleService.getUpstreamDsIds(ruleString);
 
-      for (String targetDsId : targetDsIds) {
-        load_internal(targetDsId);
-        totalTargetDsIds.add(targetDsId);
+      for (String upstreamDsId : upstreamDsIds) {
+        load_internal(upstreamDsId);
+        totalTargetDsIds.add(upstreamDsId);
 
-        PrDataset targetDataset = datasetRepository.findRealOne(datasetRepository.findOne(targetDsId));
+        PrDataset targetDataset = datasetRepository.findRealOne(datasetRepository.findOne(upstreamDsId));
         totalTargetDatasets.add(targetDataset);
       }
     }
@@ -660,7 +653,8 @@ public class PrepTransformService {
 
       // Check in advance, or a severe inconsistency between stages and rules can happen,
       // when these functions fail at that time, after all works done for the stages successfully.
-      transformRuleService.shortenRuleString(transformRuleService.jsonizeRuleString(ruleString));
+      transformRuleService.jsonizeRuleString(ruleString);
+      transformRuleService.shortenRuleString(ruleString);
     }
 
     PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
@@ -674,9 +668,9 @@ public class PrepTransformService {
 
     // join이나 union의 경우, 대상 dataset들도 loading
     if (ruleString != null) {
-      String jsonRuleString = transformRuleService.jsonizeRuleString(ruleString);
-      for (String targetDsId : getTargetDsIds(jsonRuleString)) {
-          load_internal(targetDsId);
+//      String jsonRuleString = transformRuleService.jsonizeRuleString(ruleString);
+      for (String upstreamDsId : transformRuleService.getUpstreamDsIds(ruleString)) {
+        load_internal(upstreamDsId);
       }
     }
 
@@ -750,7 +744,8 @@ public class PrepTransformService {
     return response;
   }
 
-  private void updateTransformRules(String dsId) throws CannotSerializeIntoJsonException {
+  private void updateTransformRules(String dsId)
+      throws CannotSerializeIntoJsonException, JsonProcessingException {
     for (PrTransformRule rule : getRulesInOrder(dsId)) {
       transformRuleRepository.delete(rule);
     }
@@ -763,7 +758,7 @@ public class PrepTransformService {
     for (int i = 0; i < ruleStrings.size(); i++) {
       String ruleString = ruleStrings.get(i);
       String jsonRuleString = transformRuleService.jsonizeRuleString(ruleString);
-      String shortRuleString = transformRuleService.shortenRuleString(jsonRuleString);
+      String shortRuleString = transformRuleService.shortenRuleString(ruleString);
       PrTransformRule rule = new PrTransformRule(dataset, i, ruleStrings.get(i), jsonRuleString, shortRuleString);
       rule.setValid(valids.get(i));
       transformRuleRepository.save(rule);
@@ -1011,7 +1006,8 @@ public class PrepTransformService {
     }
   }
 
-  private void prepareTransformRules(String dsId) throws CannotSerializeIntoJsonException {
+  private void prepareTransformRules(String dsId)
+      throws CannotSerializeIntoJsonException, JsonProcessingException {
     PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     List<PrTransformRule> transformRules = dataset.getTransformRules();
 
@@ -1023,8 +1019,7 @@ public class PrepTransformService {
           transformRule.setJsonRuleString(jsonRuleString);
         }
         if (transformRule.getShortRuleString() == null) {
-          String jsonRuleString = transformRule.getJsonRuleString();
-          String shortRuleString = transformRuleService.shortenRuleString(jsonRuleString);
+          String shortRuleString = transformRuleService.shortenRuleString(transformRule.getRuleString());
           transformRule.setShortRuleString(shortRuleString);
         }
       }
