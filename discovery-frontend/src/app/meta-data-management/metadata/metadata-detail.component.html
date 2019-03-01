@@ -11,6 +11,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
 <div class="ddp-type-contents2">
   <div class="ddp-top-flow" *ngIf="metadataModelService.getMetadata()">
     <!-- navi wrap -->
@@ -18,14 +19,12 @@
       <!-- 수정 data -->
       <div class="ddp-data-form">
         <span class="ddp-txt-date">{{'msg.common.ui.updated' | translate: {modifiedTime: metadataModelService.getMetadata().modifiedTime | mdate:'YYYY-MM-DD HH:mm', fullName: metadataModelService.getMetadata().modifiedBy.username || metadataModelService.getMetadata().modifiedBy} }}</span>
-        <!--<a href="javascript:" class="ddp-btn-return" (click)="openVersionHistory()"></a>-->
         <!-- more -->
         <!-- more 버튼 클릭시 ddp-selected 추가 -->
         <div class="ddp-ui-more" [class.ddp-selected]="isContextMenuShow">
           <a href="javascript:" class="ddp-icon-more" (click)="showContextMenu($event)"></a>
           <!-- popup -->
           <div class="ddp-data-box" *ngIf="isContextMenuShow" (clickOutside)="isContextMenuShow = false">
-
             <a href="javascript:" class="ddp-list-link" (click)="confirmDelete($event)"><em class="ddp-icon-delete"></em>{{'msg.metadata.btn.delete.md' | translate}}</a>
             <span class="ddp-data-by">{{ 'msg.common.ui.created' | translate : {createdTime: metadataModelService.getMetadata().createdTime | mdate:'YYYY-MM-DD HH:mm', fullName: metadataModelService.getMetadata().createdBy.username || metadataModelService.getMetadata().createdBy} }}</span>
           </div>
@@ -59,20 +58,14 @@
               <span class="ddp-btn-check" (click)="onNameChange()"></span>
             </div>
             <!-- //편집 input -->
-
           </div>
           <!-- //name -->
-
         </div>
         <!-- //navi -->
-
       </div>
       <!-- //navi wrap -->
-
-
     </div>
     <!-- //navi wrap -->
-
   </div>
   <div class="ddp-wrap-datadetail ddp-wrap-datacolumn">
     <!-- tab -->
@@ -84,17 +77,16 @@
         <li (click)="tab = 'columnSchema'" [ngClass]="{'ddp-selected': tab === 'columnSchema'}">
           <a href="javascript:">{{'msg.metadata.th.col-schema' | translate}}</a>
         </li>
-
       </ul>
     </div>
     <!-- //tab -->
-
     <div class="ddp-wrap-tab-contents">
       <app-metadata-detail-information *ngIf="tab === 'information'" (openAddCataglog)="openCatalog()"></app-metadata-detail-information>
       <app-metadata-detail-columnschema *ngIf="tab === 'columnSchema'" (chooseCodeTableEvent)="openCodeTable($event)" (chooseDictionaryEvent)="openDictionary($event)"></app-metadata-detail-columnschema>
     </div>
   </div>
 </div>
+
 <app-delete-modal (deleteConfirm)="deleteMetadata()"></app-delete-modal>
 
 <!-- Add catalog component -->
@@ -104,7 +96,6 @@
 <!-- Code table component -->
 <app-choose-code-table (chooseComplete)="codeTableCompleteEvent($event)"></app-choose-code-table>
 <!-- //Code table component -->
-
 
 <!-- Column dictionary component -->
 <app-choose-column-dictionary (chooseComplete)="dictionaryCompleteEvent($event)"></app-choose-column-dictionary>

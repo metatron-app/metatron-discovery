@@ -28,13 +28,11 @@
           </div>
         </div>
         <!-- //name -->
-
       </div>
       <!-- //navi -->
     </div>
     <!-- //navi wrap -->
   </div>
-
   <!-- 상세 -->
   <div class="ddp-wrap-datadetail ddp-meta">
     <!-- option -->
@@ -77,7 +75,6 @@
         <!-- //edit option -->
       </div>
       <!-- //edit -->
-
       <!-- right -->
       <div class="ddp-ui-rightoption">
         <a href="javascript:" class="ddp-btn-selection ddp-reject" (click)="onClickDeleteCodeTable()"><em class="ddp-icon-delete"></em>{{'msg.metadata.ui.codetable.detail.delete.code.table' | translate}}</a>
@@ -85,7 +82,6 @@
       <!-- //right -->
     </div>
     <!-- //option -->
-
     <div class="ddp-ui-datadetail">
       <label class="ddp-label-detail">{{'msg.metadata.ui.codetable.create.table.information' | translate}}</label>
       <table class="ddp-table-detail">
@@ -107,7 +103,6 @@
                 <em class="ddp-icon-edit2"></em>
             </span>
               <!-- //data -->
-
               <!-- edit -->
               <div class="ddp-wrap-input">
                 <component-input
@@ -150,10 +145,8 @@
             </div>
           </td>
         </tr>
-
         </tbody>
       </table>
-
       <!-- table detail -->
       <div class="ddp-wrap-table-detail">
         <div class="ddp-type-plan">
@@ -242,12 +235,15 @@
   </div>
   <!-- //상세 -->
 </div>
+
 <!-- 코드 테이블 삭제 모달 -->
 <app-delete-modal (deleteConfirm)="deleteCodeTable()"></app-delete-modal>
 <!-- //코드 테이블 삭제 모달 -->
+
 <!-- 코드 테이블 변경 확인 모달 -->
 <app-confirm-modal (confirm)="confirmHandler($event)"></app-confirm-modal>
 <!-- //코드 테이블 변경 확인 모달 -->
+
 <!-- 연결된 컬럼 사전 목록 -->
 <app-linked-column-dictionary></app-linked-column-dictionary>
 <!-- //연결된 컬럼 사전 목록 -->

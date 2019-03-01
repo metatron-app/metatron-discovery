@@ -154,9 +154,7 @@
                           <em class="ddp-icon-check"></em>
                         </a>
                       </li>
-
                     </ul>
-
                     <ul class="ddp-list-popup">
                       <li [class.ddp-selected]="isSelectedLogicalType('LNT')">
                         <a href="javascript:" (click)="onChangeType('LNT')">
@@ -204,6 +202,7 @@
   </div>
   <!-- //buttons -->
 </div>
+
 <!-- 코드테이블 선택 컴포넌트 -->
 <app-choose-code-table (chooseComplete)="onChangeSelectCodeTable($event)"></app-choose-code-table>
 <!-- //코드테이블 선택 컴포넌트 -->

@@ -16,7 +16,6 @@
   <div class="ddp-wrap-option">
     <!-- option -->
     <div class="ddp-ui-option ddp-clear">
-
       <!-- edit -->
       <div class="ddp-wrap-edit">
         <label class="ddp-label-type">{{'msg.metadata.md.ui.data.type' | translate}}</label>
@@ -51,15 +50,11 @@
         <!-- //edit option -->
       </div>
       <!-- //edit -->
-
       <div class="ddp-ui-rightoption">
         <a href="javascript:" class="ddp-link-reset" (click)="refreshFilter() "><em class="ddp-btn-reset3"></em>{{'msg.mem.btn.refresh' | translate}}</a>
-
       </div>
     </div>
     <!-- //option -->
-
-
     <!-- option -->
     <div class="ddp-ui-option ddp-optiontype ddp-clear">
       <!-- 검색 -->
@@ -79,7 +74,6 @@
         <span *ngIf="getTotalContentsCount > 1" class="ddp-data-total" [innerHTML]="'msg.metadata.ui.lists' | translate : { value : getTotalContentsCount }"></span>
         <span *ngIf="getTotalContentsCount <= 1" class="ddp-data-total" [innerHTML]="'msg.metadata.ui.list' | translate : { value : getTotalContentsCount }"></span>
         <a href="javascript:" class="ddp-btn-link" (click)="createNewMetadata()"><em class="ddp-icon-link-add"></em>{{'msg.metadata.md.btn.create.md' | translate}}</a>
-
       </div>
       <!-- //right -->
     </div>
@@ -136,11 +130,9 @@
         <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
         <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
       </th>
-
     </tr>
     </thead>
     <tbody>
-
     <tr *ngFor="let metadata of metadatas" (click)="onClickMetadataDetail(metadata)">
       <td>
         <span class="ddp-box-tag-value" [ngClass]="{'ddp-datasource':metadata.sourceType.toString() === 'ENGINE', 'ddp-hive': 'JDBC' == metadata.sourceType.toString(), 'ddp-stagingdb' : 'STAGEDB' == metadata.sourceType.toString()}">
@@ -174,9 +166,7 @@
       </td>
     </tr>
     </tbody>
-
   </table>
-
   <div class="ddp-data-source-none" *ngIf="metadatas && metadatas.length === 0">
     {{'msg.metadata.ui.no.metadata' | translate }}
   </div>
@@ -184,6 +174,7 @@
     <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
   </div>
 </div>
+
 <app-select-datatype (createdEmit)="init()"></app-select-datatype>
 <app-select-catalog></app-select-catalog>
 <app-delete-modal (deleteConfirm)="deleteMetadata()"></app-delete-modal>
