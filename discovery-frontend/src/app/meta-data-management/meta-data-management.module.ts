@@ -32,7 +32,6 @@ import {MetadataComponent} from './metadata/metadata.component';
 import {MetadataService} from './metadata/service/metadata.service';
 import {MetadataDetailComponent} from './metadata/metadata-detail.component';
 import {SelectCatalogComponent} from './metadata/component/select-catalog.component';
-import {SelectDictionaryComponent} from './metadata/component/select-dictionary.component';
 import {SelectDatatypeComponent} from './metadata/create-metadata/select-datatype.component';
 import {CompleteCreateMetadataComponent} from './metadata/create-metadata/complete-create-metadata.component';
 import {MetadataDetailInformationComponent} from './metadata/metadata-detail-information.component';
@@ -102,7 +101,6 @@ import {TopInfoComponent} from './metadata/component/top-info.component';
     ChooseColumnDictionaryComponent,
 
     SelectCatalogComponent,
-    SelectDictionaryComponent,
     MetadataDetailInformationComponent,
     MetadataDetailColumnschemaComponent,
     CatalogComponent,
