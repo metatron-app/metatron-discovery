@@ -14,7 +14,7 @@
 
 import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChildren} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
-import {Datasource, FieldFormat, FieldFormatType, SourceType} from '../../domain/datasource/datasource';
+import {Datasource, FieldFormat, FieldFormatType, LogicalType, SourceType} from '../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import {MetadataService} from './service/metadata.service';
 import {MetadataModelService} from './service/metadata.model.service';
@@ -102,6 +102,11 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
    */
   public readonly selectedContentSort: Order = new Order();
 
+  /**
+   * Datasource LogicalType Enum
+   */
+  public readonly DATASOURCE_LOGICAL_TYPE = LogicalType;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -143,18 +148,22 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 현재 필드의 logical Type label
+   * Current field logical type label
+   *
    * @param {MetadataColumn} column
    * @returns {string}
    */
   public getSelectedLogicalTypeLabel(column: MetadataColumn): string {
-    return column.type ? this.logicalTypeList.filter((type) => {
-      return type.value === column.type;
-    })[0].label : 'Select';
+    return column.type
+      ? this.logicalTypeList.filter((type) => {
+        return type.value === column.type;
+      })[0].label
+      : 'Select';
   }
 
   /**
-   * 코드 미리보기 데이터
+   * Code Preview Data
+   *
    * @param {string} codeTableId
    * @returns {CodeValuePair[]}
    */
@@ -166,7 +175,8 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * 컬럼 인기도
+   * Column popularity
+   *
    * @param {MetadataColumn} column
    * @returns {string}
    */
@@ -188,7 +198,8 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 컬럼 사전이 선택되어있는지 여부
+   * Whether column dictionary is selected
+   *
    * @param {MetadataColumn} column
    * @returns {boolean}
    */
@@ -197,7 +208,8 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * 해당 컬럼의 타입이 시간인지 확인
+   * Check if the type of the column is time
+   *
    * @param {MetadataColumn} column
    * @returns {boolean}
    */
@@ -206,7 +218,8 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * save validation
+   * Save validation
+   *
    * @returns {boolean}
    */
   public isEnableSave(): boolean {
@@ -214,14 +227,13 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * 현재 선택된 logical 타입인지
-   * @param {MetadataColumn} column
-   * @param {any} type
-   * @returns {boolean}
+   * If the column of the currently selected type is the logical type
+   *
+   * @param column
+   * @param logicalType
    */
-  public isSelectedLogicalType(column: MetadataColumn, type: any): boolean {
-    // 데이터소스 타입 메타데이터이고 기본타입 이외에 다른 값이라면 Etc
-    return column.type === type;
+  public isSelectedColumnLogicalType(column: MetadataColumn, logicalType: LogicalType): boolean {
+    return column.type === logicalType;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -229,7 +241,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * scroll이 발생한경우 show창 닫기
+   * Close column view in case scroll occurs
    */
   public onScrollColumnView(): void {
     this.columnList && this.columnList.forEach((column) => {
@@ -239,14 +251,14 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * 필드 원상복구 클릭 이벤트
+   * When the field source recovery event is clicked
    */
   public onClickRestore(): void {
     this.columnList = _.cloneDeep(this._originColumnList);
   }
 
   /**
-   * 변경된 필드 저장 클릭 이벤트
+   * Save changed fields click event
    */
   public onClickSave(): void {
     // 변경사항이 있을때만 on
@@ -254,7 +266,8 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * logical type list show
+   * Logical type list show
+   *
    * @param {MetadataColumn} column
    * @param {number} index
    */
@@ -276,15 +289,16 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * logical type 변경 이벤트
+   * Logical type change event
+   *
    * @param {MetadataColumn} column
    * @param logicalType
    */
-  public onChangeLogicalType(column: MetadataColumn, logicalType: any): void {
+  public onChangeLogicalType(column: MetadataColumn, logicalType: LogicalType): void {
     // 변경이벤트 체크
     this.onChangedValue(column);
     // 만약 변경될 타입이 logicalType이라면 format init
-    if (logicalType === 'TIMESTAMP') {
+    if (logicalType === LogicalType.TIMESTAMP) {
       column.format = new FieldFormat();
       column.format.type = FieldFormatType.DATE_TIME;
     }
