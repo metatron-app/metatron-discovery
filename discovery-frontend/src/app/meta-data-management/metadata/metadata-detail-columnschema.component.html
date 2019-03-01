@@ -31,7 +31,7 @@
   </div>
   <!-- //column option -->
   <div class="ddp-data-details ddp-ui-preview-contents"
-       [class.ddp-info]="isSourceTypeDatasource()"
+       [class.ddp-info]="isSourceTypeDatasource() && isEnableSave()"
        (scroll)="onScrollColumnView()">
     <!-- header -->
     <table class="ddp-table-form ddp-table-type2 ddp-table-details ddp-type-input">
