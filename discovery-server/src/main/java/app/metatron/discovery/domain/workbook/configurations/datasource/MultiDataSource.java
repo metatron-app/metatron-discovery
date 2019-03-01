@@ -107,6 +107,14 @@ public class MultiDataSource extends DataSource {
     }
   }
 
+  /**
+   * Elect main datasource from map view layer
+   */
+  public void electMainDataSource(MapViewLayer layer) {
+    this.mainDataSource = getDatasourceByName(layer.getRef())
+        .orElseThrow(() -> new IllegalArgumentException("Invalid datasource name in layer"));
+  }
+
   public app.metatron.discovery.domain.datasource.DataSource getMetaDataSource() {
     if (mainDataSource == null) {
       return dataSources.get(0).getMetaDataSource();

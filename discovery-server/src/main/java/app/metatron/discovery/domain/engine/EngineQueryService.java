@@ -83,6 +83,7 @@ import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
 import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.Sort;
+import app.metatron.discovery.domain.workbook.configurations.analysis.GeoSpatialAnalysis;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
@@ -99,6 +100,7 @@ import app.metatron.discovery.query.druid.queries.*;
 
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 import static app.metatron.discovery.domain.datasource.DataSourceQueryHistory.EngineQueryType.*;
+import static app.metatron.discovery.query.druid.AbstractQueryBuilder.GEOMETRY_BOUNDARY_COLUMN_NAME;
 import static app.metatron.discovery.query.druid.meta.AnalysisType.CARDINALITY;
 import static app.metatron.discovery.query.druid.meta.AnalysisType.INGESTED_NUMROW;
 import static app.metatron.discovery.query.druid.meta.AnalysisType.QUERYGRANULARITY;
@@ -285,37 +287,78 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
     StringJoiner resultJoiner = new StringJoiner(",", "[", "]");
     String queryString = null;
-    for (MapViewLayer layer : geoShelf.getLayers()) {
-      if (layer.getView().needAggregation()) {
-        GroupByQuery groupByQuery = GroupByQuery.builder(request.getDataSource())
-                                                .layer(layer.getView())
-                                                .initVirtualColumns(request.getUserFields())
-                                                .fields(layer.getFields())
-                                                .filters(request.getFilters())
-                                                .limit(request.getLimits())
-                                                .build();
 
-        queryString = GlobalObjectMapper.writeValueAsString(groupByQuery);
+    if (request.getAnalysis() != null && request.getAnalysis() instanceof GeoSpatialAnalysis) {
+      GeoSpatialAnalysis geoSpatialAnalysis = (GeoSpatialAnalysis) request.getAnalysis();
+      MapViewLayer mainLayer = geoShelf.getLayerByName(geoSpatialAnalysis.getMainLayer())
+                                       .orElseThrow(() -> new IllegalArgumentException("Invalid name of main layer"));
+      MapViewLayer compareLayer = geoShelf.getLayerByName(geoSpatialAnalysis.getCompareLayer())
+                                          .orElseThrow(() -> new IllegalArgumentException("Invalid name of compare layer"));
 
-      } else {
-        SelectStreamQuery streamQuery = SelectStreamQuery.builder(request.getDataSource())
-                                                         .geoJsonFormat()
-                                                         .initVirtualColumns(request.getUserFields())
-                                                         .fields(layer.getFields())
-                                                         .filters(request.getFilters())
-                                                         .limit(request.getLimits())
-                                                         .build();
+      SelectStreamQuery mainLayerQuery = SelectStreamQuery.builder(request.getDataSource())
+                                                          .layer(mainLayer)
+                                                          .fields(mainLayer.getFields())
+                                                          .filters(request.getFilters())
+                                                          .limit(request.getLimits())
+                                                          .build();
 
-        request.setResultFieldMapper(streamQuery.getFieldMapper());
+      SelectStreamQuery compareLayerQuery = SelectStreamQuery.builder(request.getDataSource())
+                                                             .layer(compareLayer)
+                                                             .filters(request.getFilters())
+                                                             .compareLayer(compareLayer.getFields(), geoSpatialAnalysis.getOperation())
+                                                             .build();
 
-        queryString = GlobalObjectMapper.writeValueAsString(streamQuery);
-      }
+      GeoBoundaryFilterQuery geoBoundaryQuery = GeoBoundaryFilterQuery.builder()
+                                                                      .query(mainLayerQuery)
+                                                                      .geometry(mainLayerQuery.getGeometry())
+                                                                      .boundary(compareLayerQuery, GEOMETRY_BOUNDARY_COLUMN_NAME)
+                                                                      .build();
+
+      request.setResultFieldMapper(mainLayerQuery.getFieldMapper());
+
+      queryString = GlobalObjectMapper.writeValueAsString(geoBoundaryQuery);
 
       LOGGER.info("[{}] Generated Druid Query : {}", CommonLocalVariable.getQueryId(), queryString);
 
       Optional<JsonNode> engineResult = engineRepository.query(queryString, JsonNode.class);
       Object geoJsonResult = request.getResultFormat().makeResult(request.makeResult(engineResult.get()));
       resultJoiner.add(GlobalObjectMapper.writeValueAsString(geoJsonResult));
+
+    } else {
+
+
+      for (MapViewLayer layer : geoShelf.getLayers()) {
+        if (layer.getView().needAggregation()) {
+          GroupByQuery groupByQuery = GroupByQuery.builder(request.getDataSource())
+                                                  .layer(layer)
+                                                  .initVirtualColumns(request.getUserFields())
+                                                  .fields(layer.getFields())
+                                                  .filters(request.getFilters())
+                                                  .limit(request.getLimits())
+                                                  .build();
+
+          queryString = GlobalObjectMapper.writeValueAsString(groupByQuery);
+
+        } else {
+          SelectStreamQuery streamQuery = SelectStreamQuery.builder(request.getDataSource())
+                                                           .layer(layer)
+                                                           .initVirtualColumns(request.getUserFields())
+                                                           .fields(layer.getFields())
+                                                           .filters(request.getFilters())
+                                                           .limit(request.getLimits())
+                                                           .build();
+
+          request.setResultFieldMapper(streamQuery.getFieldMapper());
+
+          queryString = GlobalObjectMapper.writeValueAsString(streamQuery);
+        }
+
+        LOGGER.info("[{}] Generated Druid Query : {}", CommonLocalVariable.getQueryId(), queryString);
+
+        Optional<JsonNode> engineResult = engineRepository.query(queryString, JsonNode.class);
+        Object geoJsonResult = request.getResultFormat().makeResult(request.makeResult(engineResult.get()));
+        resultJoiner.add(GlobalObjectMapper.writeValueAsString(geoJsonResult));
+      }
     }
 
     return new RawJsonString(resultJoiner.toString());

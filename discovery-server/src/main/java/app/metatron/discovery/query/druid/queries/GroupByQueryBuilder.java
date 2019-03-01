@@ -86,6 +86,7 @@ import app.metatron.discovery.domain.workbook.configurations.format.DefaultForma
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.LayerView;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
 import app.metatron.discovery.query.druid.AbstractQueryBuilder;
 import app.metatron.discovery.query.druid.Aggregation;
 import app.metatron.discovery.query.druid.Dimension;
@@ -187,9 +188,8 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
   /**
    * Set Layer view for geo column
    */
-  public GroupByQueryBuilder layer(LayerView layerView) {
-    this.layerView = layerView;
-    this.geoJsonFormat = true;
+  public GroupByQueryBuilder layer(MapViewLayer layer) {
+    enableMapLayer(layer);
     return this;
   }
 

@@ -18,6 +18,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -29,6 +30,7 @@ import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
 import app.metatron.discovery.domain.datasource.data.forward.ResultForward;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.Sort;
+import app.metatron.discovery.domain.workbook.configurations.analysis.GeoSpatialOperation;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MappingDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
@@ -38,8 +40,13 @@ import app.metatron.discovery.domain.workbook.configurations.field.TimestampFiel
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
 import app.metatron.discovery.query.druid.AbstractQueryBuilder;
 import app.metatron.discovery.query.druid.filters.AndFilter;
+import app.metatron.discovery.query.druid.funtions.LookupMapFunc;
+import app.metatron.discovery.query.druid.funtions.ShapeBufferFunc;
+import app.metatron.discovery.query.druid.funtions.ShapeFromWktFunc;
+import app.metatron.discovery.query.druid.funtions.ShapeToWktFunc;
 import app.metatron.discovery.query.druid.funtions.TimeFormatFunc;
 import app.metatron.discovery.query.druid.limits.OrderByColumn;
 import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
@@ -67,21 +74,21 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
 
   private Map<String, String> fieldMapper = Maps.newLinkedHashMap();
 
-  private boolean geoJsonFormat;
 
   public SelectStreamQueryBuilder(DataSource dataSource) {
     super(dataSource);
   }
 
-  public SelectStreamQueryBuilder geoJsonFormat() {
-    geoJsonFormat = true;
+  /**
+   * Set Layer view for geo column
+   */
+  public SelectStreamQueryBuilder layer(MapViewLayer mapViewLayer) {
+    enableMapLayer(mapViewLayer);
     return this;
   }
 
   public SelectStreamQueryBuilder initVirtualColumns(List<UserDefinedField> userDefinedFields) {
-
     setVirtualColumns(userDefinedFields);
-
     return this;
   }
 
@@ -130,9 +137,7 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
         }
 
         // In case of GEO Type
-        if (datasourceField.getLogicalType() == LogicalType.GEO_POINT
-            || datasourceField.getLogicalType() == LogicalType.GEO_LINE
-            || datasourceField.getLogicalType() == LogicalType.GEO_POLYGON) {
+        if (datasourceField.getLogicalType().isGeoType()) {
 
           String geoColumnName = geoJsonFormat ? GEOMETRY_COLUMN_NAME : aliasName;
 
@@ -149,17 +154,22 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
             fieldMapper.put(engineColumnName, geoColumnName);
           }
 
+          // set geometry
+          geometry = datasourceField;
+
           continue;
         }
 
         // ValueAlias Part, Processing by existing format or type is ignored
-        // TODO: use lookupfunction
-        //        if (MapUtils.isNotEmpty(dimensionField.getValuePair())) {
-        //          dimensions.add(new LookupDimension(fieldName,
-        //                                             aliasName,
-        //                                             new MapLookupExtractor(dimensionField.getValuePair())));
-        //          continue;
-        //        }
+        if (MapUtils.isNotEmpty(dimensionField.getValuePair())) {
+          String lookupColumn = engineColumnName + ".lookup.vc";
+          LookupMapFunc lookupMapFunc = new LookupMapFunc(engineColumnName, dimensionField.getValuePair(), false, null);
+          virtualColumns.put(lookupColumn, new ExprVirtualColumn(lookupMapFunc.toExpression(), lookupColumn));
+
+          columns.add(lookupColumn);
+          fieldMapper.put(lookupColumn, aliasName);
+          continue;
+        }
 
         FieldFormat format = dimensionField.getFormat();
         if (format != null || datasourceField.getLogicalType() == LogicalType.TIMESTAMP) {
@@ -209,6 +219,36 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
         columns.add(formatColumnName);
         fieldMapper.put(formatColumnName, aliasName);
       }
+    }
+
+    return this;
+  }
+
+  public SelectStreamQueryBuilder compareLayer(List<Field> fields, GeoSpatialOperation operation) {
+
+    for (Field field : fields) {
+      String fieldName = checkColumnName(field.getColunm());
+      String engineColumnName = engineColumnName(fieldName);
+      if (metaFieldMap.get(fieldName).getLogicalType().isGeoType()) {
+        geometry = metaFieldMap.get(fieldName);
+      } else {
+        columns.add(engineColumnName);
+      }
+    }
+
+    if (operation instanceof GeoSpatialOperation.DistanceWithin) {
+
+      GeoSpatialOperation.DistanceWithin dWithin = (GeoSpatialOperation.DistanceWithin) operation;
+
+      String fromWktName = "__shapeFromWKT";
+      virtualColumns.put(fromWktName, new ExprVirtualColumn(new ShapeFromWktFunc(geometry.getName()).toExpression(), fromWktName));
+
+      ShapeBufferFunc bufferFunc = new ShapeBufferFunc(fromWktName, dWithin.getDistance(), ShapeBufferFunc.EndCapStyle.FLAT);
+      virtualColumns.put(GEOMETRY_BOUNDARY_COLUMN_NAME, new ExprVirtualColumn(new ShapeToWktFunc(bufferFunc.toExpression()).toExpression(), GEOMETRY_BOUNDARY_COLUMN_NAME));
+
+      columns.add(GEOMETRY_BOUNDARY_COLUMN_NAME);
+    } else {
+      throw new IllegalArgumentException("Not support operation");
     }
 
     return this;
@@ -277,6 +317,7 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
 
     streamQuery.setDataSource(getDataSourceSpec(dataSource));
     streamQuery.setColumns(columns);
+    streamQuery.setGeometry(geometry);
 
     if (filter.isEmpty()) {
       streamQuery.setFilter(null);
@@ -311,5 +352,4 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
     return streamQuery;
 
   }
-
 }

@@ -10,7 +10,7 @@ INSERT INTO field (id, pre_aggr_type, field_format, field_logical_type, field_na
 (10090006, 'NONE', null, 'DOUBLE', 'py', null, 'MEASURE', 5, 'FLOAT', null, 'gis_01');
 
 INSERT INTO datasource (id, created_by, created_time, modified_by, modified_time, version, ds_conn_type, datasource_contexts, ds_desc, ds_type, ds_engine_name, ds_granularity, ingestion_conf, ds_linked_workspaces, ds_name, ds_owner_id, ds_seg_granularity, ds_src_type, ds_status) VALUES
-('gis_02', 'admin', NOW(), 'unknown', NOW(), 0, 'ENGINE', null, null, 'MASTER', 'seoul_loads', 'NONE', null, 0, 'seoul roads', null, 'NONE', 'IMPORT', 'ENABLED');
+('gis_02', 'admin', NOW(), 'unknown', NOW(), 0, 'ENGINE', null, null, 'MASTER', 'seoul_roads', 'NONE', null, 0, 'seoul roads', null, 'NONE', 'IMPORT', 'ENABLED');
 
 INSERT INTO field (id, pre_aggr_type, field_format, field_logical_type, field_name, field_partitioned, field_role, seq, field_type, ref_id, ds_id) VALUES
 (10090021, 'NONE', null, 'TIMESTAMP', 'event_time', null, 'TIMESTAMP', 0, 'TIMESTAMP', null, 'gis_02'),

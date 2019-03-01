@@ -52,6 +52,8 @@ import app.metatron.discovery.domain.datasource.data.result.PivotResultFormat;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.Pivot;
 import app.metatron.discovery.domain.workbook.configurations.Sort;
+import app.metatron.discovery.domain.workbook.configurations.analysis.GeoSpatialAnalysis;
+import app.metatron.discovery.domain.workbook.configurations.analysis.GeoSpatialOperation;
 import app.metatron.discovery.domain.workbook.configurations.analysis.PredictionAnalysis;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
@@ -256,7 +258,36 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql(value = {"/sql/test_workbook.sql", "/sql/test_mdm.sql"})
   public void searchQuerySelectForSalesForStream() throws JsonProcessingException {
+
+    String dataSourceId = "ds-gis-37";
+    String dashboardId = "db-005";
+    String fieldName = "Category";
+
+    DataSourceAlias createAlias = new DataSourceAlias();
+    createAlias.setDataSourceId(dataSourceId);
+    createAlias.setDashBoardId(dashboardId);
+    createAlias.setFieldName(fieldName);
+    Map<String, Object> valueMap = TestUtils.makeMap("Furniture", "가구",
+                                                     "Office Supplies", "사무용품",
+                                                     "Technology", "가전");
+    createAlias.setValueAlias(GlobalObjectMapper.writeValueAsString(valueMap));
+
+    // @formatter:off
+    Response createResponse =
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(createAlias)
+      .log().all()
+    .when()
+      .post("/api/datasources/aliases");
+
+    createResponse.then()
+      .statusCode(HttpStatus.SC_CREATED)
+    .log().all();
+    // @formatter:on
 
     DataSource dataSource1 = new DefaultDataSource("sales_geo");
 
@@ -268,9 +299,11 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     ));
 
     List<Filter> filters = Lists.newArrayList(
-        //        new IntervalFilter("OrderDate", "2011-01-04T00:00:00.000", "2012-05-19T00:00:00.000"),
-        //        new LikeFilter("Category", "T_chnology")
+        new IntervalFilter("OrderDate", "2011-01-04T00:00:00.000", "2012-05-19T00:00:00.000"),
+        new LikeFilter("Category", "T_chnology")
     );
+
+    DimensionField dimAliasField = new DimensionField("Category");
 
     List<Field> projections = Lists.newArrayList(
         new TimestampField("OrderDate"),
@@ -281,6 +314,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     );
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, projections, limit);
+    request.setValueAliasRef("db-005");
     request.setContext(TestUtils.makeMap(SearchQueryRequest.CXT_KEY_USE_STREAM, true));
 
     System.out.println(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request));
@@ -2131,6 +2165,53 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
     ChartResultFormat format = new ChartResultFormat("map");
     request.setResultFormat(format);
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .log().all();
+//      .statusCode(HttpStatus.SC_OK);
+
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_gis_datasource.sql")
+  public void searchQueryDistanceWithinEstateRoadWithMapChart() throws JsonProcessingException {
+
+    DataSource dataSource1 = new MultiDataSource(Lists.newArrayList(new DefaultDataSource("estate"),
+                                                                    new DefaultDataSource("seoul_roads")),
+                                                 null);
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(10);
+
+    List<Filter> filters = Lists.newArrayList();
+
+    List<Field> fields1 = Lists.newArrayList(new DimensionField("gis", null, null), new DimensionField("gu"), new MeasureField("amt", null, MeasureField.AggregationType.NONE));
+    MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields1, null);
+
+    List<Field> fields2 = Lists.newArrayList(new DimensionField("geom", null, null));
+    MapViewLayer layer2 = new MapViewLayer("layer2", "seoul_roads", fields2, null);
+
+    Shelf geoShelf = new GeoShelf(Arrays.asList(layer1, layer2));
+
+    GeoSpatialOperation operation = new GeoSpatialOperation.DistanceWithin(100);
+    GeoSpatialAnalysis geoSpatialAnalysis = new GeoSpatialAnalysis("layer1", "layer2", operation);
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
+    ChartResultFormat format = new ChartResultFormat("map");
+    request.setResultFormat(format);
+    request.setAnalysis(geoSpatialAnalysis);
 
     // @formatter:off
     given()

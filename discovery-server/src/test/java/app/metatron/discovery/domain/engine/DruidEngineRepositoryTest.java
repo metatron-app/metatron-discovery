@@ -49,7 +49,7 @@ public class DruidEngineRepositoryTest extends AbstractIntegrationTest {
 
     SelectStreamQuery selectStreamQuery1 = SelectStreamQuery.builder(new DefaultDataSource("estate"))
                                                             .virtualColumns(new ExprVirtualColumn("concat('POINT (', \"gis.lon\", ' ', \"gis.lat\",')')", "__geom.vc"))
-                                                            .columns("__geom.vc")
+                                                            .columns("gu", "__geom.vc")
                                                             .build();
 
     String strStreamQuery1 = GlobalObjectMapper.writeValueAsString(selectStreamQuery1);

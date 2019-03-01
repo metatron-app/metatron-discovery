@@ -54,7 +54,7 @@ public interface GeoSpatialOperation extends Serializable {
     }
 
     @JsonCreator
-    public Intersect(String aggrColumn) {
+    public Intersect(@JsonProperty("aggrColumn") String aggrColumn) {
       this.aggrColumn = aggrColumn;
     }
 

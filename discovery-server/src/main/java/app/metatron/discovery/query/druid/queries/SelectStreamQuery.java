@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.List;
 import java.util.Map;
 
+import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.query.druid.Filter;
 import app.metatron.discovery.query.druid.Query;
@@ -55,6 +56,9 @@ public class SelectStreamQuery extends Query {
    */
   @JsonIgnore
   private Map<String, String> fieldMapper;
+
+  @JsonIgnore
+  private Field geometry;
 
   public SelectStreamQuery() {
   }
@@ -133,6 +137,14 @@ public class SelectStreamQuery extends Query {
 
   public Map<String, String> getFieldMapper() {
     return fieldMapper;
+  }
+
+  public Field getGeometry() {
+    return geometry;
+  }
+
+  public void setGeometry(Field geometry) {
+    this.geometry = geometry;
   }
 
   public void setFieldMapper(Map<String, String> fieldMapper) {

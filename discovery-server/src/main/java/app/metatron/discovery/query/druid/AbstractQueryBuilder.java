@@ -81,6 +81,7 @@ import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedFi
 import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
 import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
@@ -142,6 +143,8 @@ public abstract class AbstractQueryBuilder {
   public static final String VC_COLUMN_GEO_COORD = "__geom.vc";
 
   public static final String GEOMETRY_COLUMN_NAME = "__geometry";
+
+  public static final String GEOMETRY_BOUNDARY_COLUMN_NAME = "__geomBoundary";
 
   /**
    * Partition 관련 처리, 추후 지원여부 확인 필요
@@ -227,6 +230,21 @@ public abstract class AbstractQueryBuilder {
    * process min/max
    */
   protected List<String> minMaxFields = Lists.newArrayList();
+
+  /**
+   * Target map view layer
+   */
+  protected MapViewLayer mapViewLayer;
+
+  /**
+   * Geometry Field
+   */
+  protected app.metatron.discovery.domain.datasource.Field geometry;
+
+  /**
+   * need to geojson format
+   */
+  protected boolean geoJsonFormat;
 
   /**
    * 엔진에 질의할 때 필요한 추가 정보
@@ -358,6 +376,17 @@ public abstract class AbstractQueryBuilder {
 
       }
 
+    }
+  }
+
+  protected void enableMapLayer(MapViewLayer mapViewLayer) {
+    this.mapViewLayer = mapViewLayer;
+    this.geoJsonFormat = true;
+
+    if (dataSource instanceof MultiDataSource) {
+      MultiDataSource multiDataSource = (MultiDataSource) dataSource;
+      multiDataSource.electMainDataSource(mapViewLayer);
+      mainMetaDataSource = multiDataSource.getMetaDataSource();
     }
   }
 

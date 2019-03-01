@@ -18,6 +18,8 @@ import com.google.common.collect.Maps;
 
 import java.util.Map;
 
+import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.query.druid.Query;
 import app.metatron.discovery.query.druid.SpatialOperations;
 
@@ -66,8 +68,18 @@ public class GeoBoundaryFilterQueryBuilder {
     return this;
   }
 
+  public GeoBoundaryFilterQueryBuilder geometry(Field geometry) {
+    if (geometry.getLogicalType() == LogicalType.GEO_POINT) {
+      this.pointColumn = geometry.getName() + ".coord";
+    } else {
+      this.shapeColumn = geometry.getName();
+    }
+
+    return this;
+  }
+
   public GeoBoundaryFilterQueryBuilder point(String pointColumn) {
-    this.pointColumn = pointColumn;
+    this.pointColumn = pointColumn + ".coord";
     return this;
   }
 

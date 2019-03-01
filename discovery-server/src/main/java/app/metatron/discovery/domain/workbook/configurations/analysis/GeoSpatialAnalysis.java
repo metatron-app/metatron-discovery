@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.workbook.configurations.analysis;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GeoSpatialAnalysis implements Analysis {
 
@@ -24,8 +25,13 @@ public class GeoSpatialAnalysis implements Analysis {
 
   GeoSpatialOperation operation;
 
+  public GeoSpatialAnalysis() {
+  }
+
   @JsonCreator
-  public GeoSpatialAnalysis(String mainLayer, String compareLayer, GeoSpatialOperation operation) {
+  public GeoSpatialAnalysis(@JsonProperty("mainLayer") String mainLayer,
+                            @JsonProperty("compareLayer") String compareLayer,
+                            @JsonProperty("operation") GeoSpatialOperation operation) {
     this.mainLayer = mainLayer;
     this.compareLayer = compareLayer;
     this.operation = operation;
