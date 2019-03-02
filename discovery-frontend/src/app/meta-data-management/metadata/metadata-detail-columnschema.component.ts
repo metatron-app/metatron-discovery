@@ -162,7 +162,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * Code Preview Data
+   * Code preview data
    *
    * @param {string} codeTableId
    * @returns {CodeValuePair[]}
@@ -204,7 +204,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
    * @returns {boolean}
    */
   public isSelectedDictionary(column: MetadataColumn): boolean {
-    return !(column.dictionary === undefined || column.dictionary === null);
+    return !_.isNil(column.dictionary);
   }
 
   /**
@@ -214,7 +214,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
    * @returns {boolean}
    */
   public isTimeType(column: MetadataColumn): boolean {
-    return column.type && column.type.toString() === 'TIMESTAMP';
+    return column.type && column.type === LogicalType.TIMESTAMP;
   }
 
   /**
@@ -361,42 +361,57 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * 코드 테이블 디테일 클릭 이벤트
+   * Code table detail click event
+   *
    * @param {CodeTable} codeTable
    */
   public onClickCodeTableDetails(codeTable: CodeTable): void {
-    // event bubbling stop
     event.stopImmediatePropagation();
-    // 해당 코드 테이블 상세화면으로 이동
+    this._gotoCodeTableDetailView(codeTable);
+  }
+
+  private _gotoCodeTableDetailView(codeTable: CodeTable) {
     this.router.navigate(['management/metadata/code-table', codeTable.id]);
   }
 
   /**
-   * 사전 이름 클릭 이벤트
+   * Dictionary name click event
+   *
    * @param {ColumnDictionary} dictionary
    */
   public onClickDictionary(dictionary: ColumnDictionary): void {
-    // event bubbling stop
     event.stopImmediatePropagation();
-    // 해당 사전 상세화면으로 이동
+    this._gotoDictionaryDetailView(dictionary);
+  }
+
+  private _gotoDictionaryDetailView(dictionary: ColumnDictionary) {
     dictionary && this.router.navigate(['management/metadata/column-dictionary', dictionary.id]);
   }
 
   /**
-   * 컬럼 사전 검색 클릭 이벤트
+   * Click on column dictionary search event
+   *
    * @param {MetadataColumn} column
    */
   public onClickSearchDictionary(column: MetadataColumn): void {
-    // event bubbling stop
     event.stopImmediatePropagation();
-    // 현재 선택한 컬럼 저장₩
-    this._selectedColumn = column;
-    // 컬럼 사전 선택 컴포넌트
-    this.chooseDictionaryEvent.emit({name: 'CREATE', dictionary: column.dictionary});
+    this._saveCurrentlySelectedColumn(column);
+    this.chooseDictionaryEvent.emit({name: 'CREATE', dictionary: column.dictionary}); // 컬럼 사전 선택 컴포넌트
   }
 
   /**
-   * 코드 테이블 검색 클릭 이벤트
+   * Save the currently selected column
+   *
+   * @param column
+   * @private
+   */
+  private _saveCurrentlySelectedColumn(column: MetadataColumn) {
+    this._selectedColumn = column;
+  }
+
+  /**
+   * Code table search click event
+   *
    * @param {MetadataColumn} column
    */
   public onClickSearchCodeTable(column: MetadataColumn): void {
@@ -412,7 +427,8 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * 컬럼 정렬 클릭 이벤트
+   * Column alignment click event
+   *
    * @param {string} key
    */
   public onClickSort(key: string): void {
@@ -433,8 +449,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
           break;
       }
     }
-    this.columnList = _.orderBy(this.columnList, this.selectedContentSort.key,
-      'asc' === this.selectedContentSort.sort ? 'asc' : 'desc');
+    this.columnList = _.orderBy(this.columnList, this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc');
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -448,6 +463,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   // noinspection JSMethodCanBeStatic
   /**
    * Change event in column occurred
+   *
    * @param column
    */
   private onChangedValue(column: MetadataColumn): void {
@@ -456,22 +472,20 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * View Initialization
+   * View initialization
+   *
    * @private
    */
   private _initView(): void {
-    // column list
     this.columnList = [];
-    // logicalType
     this.logicalTypeList = this.getMetaDataLogicalTypeList();
-    // logical etc type
     this.logicalTypeEtcList = this.getMetaDataLogicalTypeEtcList();
-    // 코드 테이블 조직 상세정보 목록 초기화
     this._codeTableDetailList = [];
   }
 
   /**
-   * Column Schema List Lookup
+   * Column schema list lookup
+   *
    * @private
    */
   private _getColumnSchemas(): void {
@@ -484,9 +498,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   private _hideCurrentTime(result) {
-    this.columnList = result.filter((item) => {
-      return item.physicalName !== CommonConstant.COL_NAME_CURRENT_DATETIME && item.physicalType !== 'TIMESTAMP';
-    });
+    this.columnList = result.filter((item) => item.physicalName !== CommonConstant.COL_NAME_CURRENT_DATETIME && item.physicalType !== 'TIMESTAMP');
   }
 
   /**
@@ -499,7 +511,8 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * 컬럼 스키마 수정
+   * Modify column schema
+   *
    * @private
    */
   private _updateColumnSchema(): void {
@@ -517,7 +530,8 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * 변경에 사용될 필드
+   * Fields to be used for the change
+   *
    * @returns {any}
    * @private
    */
@@ -525,23 +539,11 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
     // 변경이 일어난 컬럼 목록
     const result = _.cloneDeep(this._getReplaceColumns());
     result.forEach((item: any) => {
-      // id 강제 형변환 ( string -> int )
-      (item['id']) && (item['id'] = (item['id'] * 1));
-      // op 설정
-      item['op'] = 'replace';
-      // 필요없는 변수들 제거
-      delete item['replaceFl'];
-      delete item['nameChangeFl'];
-      delete item['typeListFl'];
-      delete item['codeTableShowFl'];
-      // name이 있고 255자가 넘어간다면
-      if (item.name && item.name.length > 255) {
-        item.name = item.name.substr(0, 254);
-      }
-      // description이 있고 1000자가 넘어간다면
-      if (item.description && item.description.length > 1000) {
-        item.description = item.description.substr(0, 999);
-      }
+      this._convertIdFromStringTypeToNumeric(item);
+      this._operationSetting(item);
+      this._removeUnnecessaryVariables(item);
+      if (this._isNameExistsAndExceeds255Characters(item)) item.name = item.name.substr(0, 254);
+      if (this._isDescriptionExistsAndExceeds1000Characters(item)) item.description = item.description.substr(0, 999);
       // format이 있고 255자가 넘어간다면
       if (item.type === 'TIMESTAMP' && item.format && item.format.format && item.format.format.length > 255) {
         item.format = {
@@ -554,6 +556,62 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
       item.codeTable && (item['codeTable'] = `/api/codetables/${item.codeTable.id}`);
     });
     return result;
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _convertIdFromStringTypeToNumeric(item: any) {
+    (item['id']) && (item['id'] = (item['id'] * 1));
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _operationSetting(item: any) {
+    item['op'] = 'replace';
+  }
+
+  private _isDescriptionExistsAndExceeds1000Characters(item: any) {
+    return !_.isNull(item.description) && this._isDescriptioneOver1000CharactersLong(item);
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _isDescriptioneOver1000CharactersLong(item: any) {
+    return item.description.length > 1000;
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _removeUnnecessaryVariables(item: any) {
+    this._removeReplaceFl(item);
+    this._removeNameChangeFl(item);
+    this._removeTypeListFl(item);
+    this._removeCodeTableShowFl(item);
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _removeCodeTableShowFl(item: any) {
+    delete item['codeTableShowFl'];
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _removeTypeListFl(item: any) {
+    delete item['typeListFl'];
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _removeNameChangeFl(item: any) {
+    delete item['nameChangeFl'];
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _removeReplaceFl(item: any) {
+    delete item['replaceFl'];
+  }
+
+  private _isNameExistsAndExceeds255Characters(item: any) {
+    return !_.isNull(item.name) && this._isNameOver255CharactersLong(item);
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _isNameOver255CharactersLong(item: any) {
+    return item.name.length > 255;
   }
 
   /**
@@ -620,6 +678,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   // noinspection JSMethodCanBeStatic
   /**
    * If the column dictionary has a linked code table
+   *
    * @param result
    */
   private _hasCodeTableConnectedToColumnDictionary(result) {
@@ -657,6 +716,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
 
   /**
    * Set code table in selected column
+   *
    * @param result
    * @private
    */
