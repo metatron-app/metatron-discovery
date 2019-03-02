@@ -569,7 +569,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   private _isDescriptionExistsAndExceeds1000Characters(item: any) {
-    return !_.isNull(item.description) && this._isDescriptioneOver1000CharactersLong(item);
+    return !_.isNil(item.description) && this._isDescriptioneOver1000CharactersLong(item);
   }
 
   // noinspection JSMethodCanBeStatic
@@ -606,7 +606,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   private _isNameExistsAndExceeds255Characters(item: any) {
-    return !_.isNull(item.name) && this._isNameOver255CharactersLong(item);
+    return !_.isNil(item.name) && this._isNameOver255CharactersLong(item);
   }
 
   // noinspection JSMethodCanBeStatic
