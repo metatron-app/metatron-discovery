@@ -625,11 +625,17 @@ public class DataSourceService {
 
 
   public void updateFromMetadata(Metadata metadata, boolean includeColumns) {
+
     if (metadata.getSource() == null) {
       return;
     }
 
     DataSource dataSource = dataSourceRepository.findOne(metadata.getSource().getSourceId());
+
+    // check whether datasource exists
+    if (dataSource == null) {
+      return;
+    }
 
     dataSource.updateFromMetadata(metadata, includeColumns);
 
