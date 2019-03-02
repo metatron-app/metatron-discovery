@@ -13,18 +13,21 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit,
+  Component, ElementRef, EventEmitter, Injector, Input,
   Output, ViewChild
 } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
-import { SchemaConfigComponent } from '../../../../component/schema-config/schema-config.component';
+import {SchemaConfigComponent} from "../../../component/schema-config/schema-config.component";
+import {AbstractPopupComponent} from "../../../../common/component/abstract-popup.component";
+import {DatasourceInfo} from "../../../../domain/datasource/datasource";
 
+/**
+ * Creating datasource with Snapshot - configure step
+ */
 @Component({
-  selector: 'db-configure-schema',
-  templateUrl: './db-configure-schema.component.html'
+  selector: 'create-snapshot-source-configure',
+  templateUrl: './create-snapshot-source-configure.component.html'
 })
-export class DbConfigureSchemaComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+export class CreateSnapshotSourceConfigureComponent extends AbstractPopupComponent {
 
   @ViewChild(SchemaConfigComponent)
   private _schemaConfigComponent: SchemaConfigComponent;
@@ -45,28 +48,6 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
     super(element, injector);
   }
 
-
-  // Init
-  public ngOnInit() {
-    // Init
-    super.ngOnInit();
-  }
-
-  // Destory
-  public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
-  }
-
-  /**
-   * 워크벤치에서 접근했는지 확인
-   * @returns {boolean}
-   */
-  public get isWorkbenchCreate(): boolean {
-    return this.sourceData.workbenchFl;
-  }
-
   /**
    * Step change click event
    * @param {string} route
@@ -80,7 +61,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @param {string} route
    */
   public onChangedStep(route: string): void {
-    this._step = route === 'prev' ? 'db-select-data' : 'db-ingestion-permission';
+    this._step = route === 'prev' ? 'snapshot-select' : 'snapshot-ingestion';
     this._stepChange.emit(this._step);
   }
 }

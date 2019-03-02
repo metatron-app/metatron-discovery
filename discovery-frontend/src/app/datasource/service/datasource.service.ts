@@ -51,6 +51,7 @@ import {MapLayerType} from '../../common/component/chart/option/define/map/map-c
 import {Pivot} from "../../domain/workbook/configurations/pivot";
 import {TimezoneService} from "../../data-storage/service/timezone.service";
 import {Shelf} from "../../domain/workbook/configurations/shelf/shelf";
+import {TypeFilterObject} from "../../data-storage/service/data-source-create.service";
 import {RegExprFilter} from "../../domain/workbook/configurations/filter/reg-expr-filter";
 
 @Injectable()

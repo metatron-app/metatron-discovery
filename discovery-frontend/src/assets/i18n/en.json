@@ -1913,6 +1913,7 @@
   "msg.storage.ui.dsource.create.title" : "Create datasource",
   "msg.storage.ui.dsource.create.file.title" : "My file",
   "msg.storage.ui.dsource.create.db.title" : "DB",
+  "msg.storage.ui.dsource.create.ss.title" : "Snapshot",
   "msg.storage.ui.dsource.create.staging.title" : "Staging DB",
   "msg.storage.ui.dsource.create.druid.title" : "Metatron Engine",
   "msg.storage.ui.dsource.create.search-db" : "Search database",
@@ -2161,6 +2162,9 @@
   "msg.storage.ui.file.result.FV005": "Empty column name is not allowed.",
   "msg.storage.ui.timezone": "Time zone",
   "msg.storage.ui.username": "Username",
+  "msg.storage.ui.cannot.load.data": "Cannot load data",
+  "msg.storage.btn.create.source": "Create datasource",
+  "msg.storage.ph.search.snapshot": "Search snapshot",
 
   "msg.storage.ui.timezone.country.zimbabwe": "Zimbabwe",
   "msg.storage.ui.timezone.country.zambia": "Zambia",

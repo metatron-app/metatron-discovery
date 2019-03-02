@@ -196,7 +196,7 @@
     <div class="ddp-wrap-edit2 ddp-type">
       <label class="ddp-label-type ddp-bold">{{'msg.storage.th.gran.settings' | translate}}</label>
       <!-- Partition (staging) -->
-      <div class="ddp-ui-option-sub" *ngIf="createType === 'STAGING' && partitionKeyList.length !== 0">
+      <div class="ddp-ui-option-sub" *ngIf="(createType === 'STAGING' || createType === 'SNAPSHOT-STAGING') && partitionKeyList.length !== 0">
         <label class="ddp-ui-label-name">
           {{'msg.storage.ui.dsource.create.partition.keys' | translate}}
           <!-- info -->
