@@ -162,7 +162,7 @@ export class DatasourceService extends AbstractService {
    * @returns {Promise<any>}
    */
   public getCandidateForFilter(filter: Filter, board: Dashboard,
-                               filters?: Filter[], field?: (Field | CustomField), sortBy?: string, searchWord?:string ): Promise<any> {
+                               filters?: Filter[], field?: (Field | CustomField), sortBy?: string, searchWord?: string): Promise<any> {
 
     const param: any = {};
     param.dataSource = DashboardUtil.getDataSourceForApi(
@@ -226,31 +226,33 @@ export class DatasourceService extends AbstractService {
       if ('include' === filter.type) {
         // Dimension Filter
         const tempFilters: Filter[] = [];
-        (<InclusionFilter>filter).preFilters.filter((preFilter: AdvancedFilter) => {
-          if (preFilter.type === 'measure_inequality') {
-            const condition: MeasureInequalityFilter = <MeasureInequalityFilter>preFilter;
-            if (condition.inequality && condition.aggregation && condition.field && 0 < condition.value) {
-              tempFilters.push(FilterUtil.convertToServerSpec(condition));
+        if (((<InclusionFilter>filter).preFilters)) {
+          (<InclusionFilter>filter).preFilters.filter((preFilter: AdvancedFilter) => {
+            if (preFilter.type === 'measure_inequality') {
+              const condition: MeasureInequalityFilter = <MeasureInequalityFilter>preFilter;
+              if (condition.inequality && condition.aggregation && condition.field && 0 < condition.value) {
+                tempFilters.push(FilterUtil.convertToServerSpec(condition));
+              }
+            } else if (preFilter.type === 'measure_position') {
+              const limitation: MeasurePositionFilter = <MeasurePositionFilter>preFilter;
+              if (limitation.position && limitation.aggregation && limitation.field && 0 < limitation.value) {
+                tempFilters.push(FilterUtil.convertToServerSpec(limitation));
+              }
+            } else if (preFilter.type === 'wildcard') {
+              const wildcard: WildCardFilter = <WildCardFilter>preFilter;
+              if (wildcard.contains && wildcard.value && wildcard.value.length > 0) {
+                tempFilters.push(FilterUtil.convertToServerSpec(wildcard));
+              }
+            } else if (preFilter.type === 'regexpr') {
+              const regExpr: RegExprFilter = <RegExprFilter>preFilter;
+              if (regExpr.expr) {
+                tempFilters.push(FilterUtil.convertToServerSpec(regExpr));
+              }
             }
-          } else if (preFilter.type === 'measure_position') {
-            const limitation: MeasurePositionFilter = <MeasurePositionFilter>preFilter;
-            if (limitation.position && limitation.aggregation && limitation.field && 0 < limitation.value) {
-              tempFilters.push(FilterUtil.convertToServerSpec(limitation));
-            }
-          } else if (preFilter.type === 'wildcard') {
-            const wildcard: WildCardFilter = <WildCardFilter>preFilter;
-            if (wildcard.contains && wildcard.value && wildcard.value.length > 0) {
-              tempFilters.push(FilterUtil.convertToServerSpec(wildcard));
-            }
-          } else if (preFilter.type === 'regexpr') {
-            const regExpr: RegExprFilter = <RegExprFilter>preFilter;
-            if (regExpr.expr) {
-              tempFilters.push(FilterUtil.convertToServerSpec(regExpr));
-            }
-          }
-        });
+          });
+        }
         param.filters = param.filters.concat(tempFilters);
-        ( param.targetField ) && ( param.targetField.type = 'dimension' );
+        (param.targetField) && (param.targetField.type = 'dimension');
 
         param.sortBy = (sortBy) ? sortBy : 'COUNT';
         param.searchWord = (searchWord) ? searchWord : '';
@@ -324,8 +326,8 @@ export class DatasourceService extends AbstractService {
               if ((LogicalType.TIMESTAMP.toString() === field.type.toUpperCase()
                 || LogicalType.TIMESTAMP.toString() === field.subType
                 || LogicalType.TIMESTAMP.toString() === field.subRole) && field.format) {
-                const dsField:Field = dataSourceFields.find( item => item.name === field.name );
-                if( dsField && dsField.format && TimezoneService.DISABLE_TIMEZONE_KEY === dsField.format['timeZone'] ) {
+                const dsField: Field = dataSourceFields.find(item => item.name === field.name);
+                if (dsField && dsField.format && TimezoneService.DISABLE_TIMEZONE_KEY === dsField.format['timeZone']) {
                   delete field.format['timeZone'];
                   delete field.format['locale'];
                 } else {
@@ -350,8 +352,8 @@ export class DatasourceService extends AbstractService {
             if ((LogicalType.TIMESTAMP.toString() === column.type.toUpperCase()
               || LogicalType.TIMESTAMP.toString() === column.subType
               || LogicalType.TIMESTAMP.toString() === column.subRole) && column.format) {
-              const dsField:Field = dataSourceFields.find( item => item.name === column.name );
-              if( dsField && dsField.format && TimezoneService.DISABLE_TIMEZONE_KEY === dsField.format['timeZone'] ) {
+              const dsField: Field = dataSourceFields.find(item => item.name === column.name);
+              if (dsField && dsField.format && TimezoneService.DISABLE_TIMEZONE_KEY === dsField.format['timeZone']) {
                 delete column.format['timeZone'];
                 delete column.format['locale'];
               } else {
@@ -366,8 +368,8 @@ export class DatasourceService extends AbstractService {
             if ((LogicalType.TIMESTAMP.toString() === row.type.toUpperCase()
               || LogicalType.TIMESTAMP.toString() === row.subType
               || LogicalType.TIMESTAMP.toString() === row.subRole) && row.format) {
-              const dsField:Field = dataSourceFields.find( item => item.name === row.name );
-              if( dsField && dsField.format && TimezoneService.DISABLE_TIMEZONE_KEY === dsField.format['timeZone'] ) {
+              const dsField: Field = dataSourceFields.find(item => item.name === row.name);
+              if (dsField && dsField.format && TimezoneService.DISABLE_TIMEZONE_KEY === dsField.format['timeZone']) {
                 delete row.format['timeZone'];
                 delete row.format['locale'];
               } else {

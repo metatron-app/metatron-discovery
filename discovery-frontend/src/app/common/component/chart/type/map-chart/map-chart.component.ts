@@ -373,7 +373,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     ////////////////////////////////////////////////////////
 
     // 엘리먼트 반영
-    this.changeDetect.detectChanges();
+    this.safelyDetectChanges();
 
     // Show data
     this.data.show = true;
@@ -2100,7 +2100,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     } else this.tooltipInfo.enable = true;
 
     // Element apply
-    this.changeDetect.detectChanges();
+    this.safelyDetectChanges();
 
     if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
       let extent = feature.getGeometry().getExtent();
