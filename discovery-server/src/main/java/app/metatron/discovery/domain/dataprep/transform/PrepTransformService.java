@@ -267,27 +267,6 @@ public class PrepTransformService {
 
   public PrepTransformService() { }
 
-//  private List<String> getTargetDsIds(String jsonRuleString) throws IOException {
-//    List<String> targetDsIds = new ArrayList<>();
-//
-//    Map<String, Object> jsonObj = GlobalObjectMapper.getDefaultMapper().readValue(jsonRuleString, Map.class);
-//    switch ((String) jsonObj.get("name")) {
-//      case "join":
-//        targetDsIds.add(((String) jsonObj.get("dataset2")).replaceAll("'", ""));
-//        break;
-//      case "union":
-//        List<String> arrDataset2 = GlobalObjectMapper.readValue(((String) jsonObj.get("dataset2")), List.class);
-//        if (arrDataset2 != null) {
-//          targetDsIds = arrDataset2;
-//        } else {
-//          targetDsIds.add(((String) jsonObj.get("dataset2")).replaceAll("'", ""));
-//        }
-//      default:
-//    }
-//
-//    return targetDsIds;
-//  }
-
   // skips the last rule for UPDATE purpose
   public List<String> getUpstreamDsIds(String dsId, boolean forUpdate) throws IOException, CannotSerializeIntoJsonException {
     List<String> upstreamDsIds = new ArrayList<>();
@@ -306,9 +285,6 @@ public class PrepTransformService {
 
     for (int i = 0; i < until; i++) {
       PrTransformRule rule = rules.get(i);
-//      String jsonRuleString = rule.getJsonRuleString();
-//      assert jsonRuleString != null : dsId;
-
       upstreamDsIds.addAll(transformRuleService.getUpstreamDsIds(rule.getRuleString()));
     }
     return upstreamDsIds;

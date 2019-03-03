@@ -111,6 +111,10 @@ public class PrepTransformRuleService {
   }
 
   private StrExpResult strip(StrExpResult strExpResult) {
+    if (strExpResult == null) {
+      return new StrExpResult("");
+    }
+
     for (int i = 0; i < strExpResult.arrStr.size(); i++) {
       strExpResult.arrStr.set(i, strip(strExpResult.arrStr.get(i)));
     }
@@ -275,7 +279,6 @@ public class PrepTransformRuleService {
     }
 
     Rule rule = ruleVisitorParser.parse(ruleString);
-
     mapStrExp.put("name", new StrExpResult(rule.getName()));
 
     switch (rule.getName()) {
@@ -299,7 +302,7 @@ public class PrepTransformRuleService {
       case "rename":
         Rename rename = (Rename) rule;
         putIfExists(mapStrExp, "col", stringifyExpr(rename.getCol()));
-        putIfExists(mapStrExp, "to", wrapIdentifier(stringifyExpr(rename.getTo())));  // literal -> identifier
+        putIfExists(mapStrExp, "to", wrapIdentifier(strip(stringifyExpr(rename.getTo()))));  // literal -> identifier
         break;
       case "set":
         Set set = (Set) rule;
@@ -398,8 +401,9 @@ public class PrepTransformRuleService {
         break;
       case "sort":
         Sort sort = (Sort) rule;
+        String type = sort.getType() != null && strip(sort.getType().toString()).equalsIgnoreCase("desc") ? "desc" : "asc";
         putIfExists(mapStrExp, "order", stringifyExpr(sort.getOrder()));
-        putIfExists(mapStrExp, "type", sort.getType().toString().replaceAll("'", ""));
+        putIfExists(mapStrExp, "type", new StrExpResult(type));
         break;
       case "move":
         Move move = (Move) rule;
@@ -422,109 +426,10 @@ public class PrepTransformRuleService {
         putIfExists(mapStrExp, "order", stringifyExpr(window.getOrder()));
         putIfExists(mapStrExp, "group", stringifyExpr(window.getGroup()));
         break;
-
       default:
     }
-
     return mapStrExp;
   }
-
-//  public String jsonizeRuleString2(String ruleString) throws CannotSerializeIntoJsonException, JsonProcessingException {
-//    String jsonRuleString;
-//    Map<String, Object> mapRule = null;
-//    Map<String, Object> mapStrExp = new HashMap();
-//
-//    if (ruleString.startsWith(CREATE_RULE_PREFIX)) {
-//      return getCreateJsonRuleString(ruleString);
-//    }
-//
-//    if (ruleVisitorParser == null) {
-//      ruleVisitorParser = new RuleVisitorParser();
-//    }
-//
-//    Rule rule = ruleVisitorParser.parse(ruleString);
-//
-//    try {
-//      jsonRuleString = GlobalObjectMapper.getDefaultMapper().writeValueAsString(rule);
-//    } catch (JsonProcessingException e) {
-//      throw new CannotSerializeIntoJsonException(e.getMessage());
-//    }
-//
-//    // TODO: nodeToString for expressions
-//    try {
-//      mapRule = (Map<String, Object>) GlobalObjectMapper.getDefaultMapper().readValue(jsonRuleString, Map.class);
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//      // suppressed. this is impossible because the input is just from a JSON writer.
-//    }
-//
-//    switch ((String) mapRule.get("name")) {
-//      case "keep":
-//        String row = nodeToString(mapRule.get("row"));
-//        mapStrExp.put("row", row);
-//        mapRule.put("strExpr", mapStrExp);
-//      default:
-//        // do nothing
-//    }
-//
-//    jsonRuleString = GlobalObjectMapper.getDefaultMapper().writeValueAsString(mapRule);
-//
-//    return jsonRuleString;
-//  }
-
-  // Expression -> String (especially for numeric binary operations and functions
-//  private String nodeToString(Object node) {
-//    if (node instanceof Map) {
-//      Map map = (Map) node;
-//      Object op = map.get("op");
-//      if (op != null) {
-//        return String.format("%s %s %s", nodeToString(map.get("left")), op, nodeToString(map.get("right")));
-//      }
-//
-//      Object name = map.get("name");
-//      if (name != null) {
-//        assert map.containsKey("args");
-//        return String.format("%s(%s)", name, nodeToString(map.get("args")));
-//      }
-//
-//      Object val = map.get("value");
-//      if (val instanceof List) {
-//        return Strings.join((List) val, ", ");
-//      }
-//
-//      Object func = map.get("functions");
-//      if(func instanceof List) {
-//        return nodeToString(func);
-//      }
-//
-//      // TODO: Is it absolutely an identifier now?
-//
-//      String strExpr = map.get("value").toString();
-//      if (!strExpr.matches("^'.*'$") &&                                             // not literal
-//          !strExpr.matches("[_a-zA-Z\u0080-\uFFFF]+[_a-zA-Z0-9\u0080-\uFFFF]*")) {  // has odd characters
-//        strExpr = "`" + strExpr + "`";
-//      }
-//      return strExpr;
-//    }
-//
-//    if (node instanceof List) {
-//      List list = (List) node;
-//      List<String> strElem = new ArrayList();
-//
-//      for (Object elem : list) {
-//        strElem.add(nodeToString(elem));
-//      }
-//
-//      return Strings.join(strElem, ", ");
-//    }
-//
-//    String strExpr = node.toString();
-//    if (!strExpr.matches("^'.*'$") &&                                             // not literal
-//        !strExpr.matches("[_a-zA-Z\u0080-\uFFFF]+[_a-zA-Z0-9\u0080-\uFFFF]*")) {  // has odd characters
-//      strExpr = "`" + strExpr + "`";
-//    }
-//    return strExpr;
-//  }
 
   /**
    * Returns a string that represents the dataset
@@ -584,23 +489,7 @@ public class PrepTransformRuleService {
   private final String FMTSTR_DROP         = "Drop %s";                                 // col
   private final String FMTSTR_WINDOW       = "Create %s from %s%s%s";                   // N columns, value, order, group
 
-  public String shortenRuleString(String ruleString)
-      throws CannotSerializeIntoJsonException, JsonProcessingException {
-//    String jsonRuleString = jsonizeRuleString2(ruleString);
-
-//    Map<String, Object> mapRule = null;
-//    Object col, to, on, val, order, type, with, group;
-//    String before, after, strCount, dsId, dsName;
-//    int limit;
-
-//    try {
-//      mapRule = (Map<String, Object>) GlobalObjectMapper.getDefaultMapper().readValue(jsonRuleString, Map.class);
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//      // suppressed. this is impossible because the input is just from a JSON writer.
-//    }
-
-//    String ruleCommand = (String) mapRule.get("name");
+  public String shortenRuleString(String ruleString) throws CannotSerializeIntoJsonException, JsonProcessingException {
     String shortRuleString;
 
     Map<String, StrExpResult> mapStrExp = stringifyRuleString(ruleString);
@@ -689,13 +578,6 @@ public class PrepTransformRuleService {
         shortRuleString = String.format(FMTSTR_AGGREGATE, mapStrExp.get("value"), mapStrExp.get("group").toColList());
         break;
       case "sort":
-//        String sortType = "ASC";
-//        StrExpResult type = mapStrExp.get("type");
-//        if (type != null) {
-//          if ((((Map) type).get("escapedValue")).toString().equalsIgnoreCase("DESC")) {
-//            sortType = "DESC";
-//          }
-//        }
         shortRuleString = String.format(FMTSTR_SORT, mapStrExp.get("order"), mapStrExp.get("type"));
         break;
       case "move":
