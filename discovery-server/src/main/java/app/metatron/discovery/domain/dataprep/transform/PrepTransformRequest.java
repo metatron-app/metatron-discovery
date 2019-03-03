@@ -21,6 +21,7 @@ public class PrepTransformRequest implements Serializable {
   private PrepTransformService.OP_TYPE op;
   private Integer ruleIdx;
   private String ruleString;
+  private String uiRuleString;
 
   private Integer count;
 
@@ -38,6 +39,10 @@ public class PrepTransformRequest implements Serializable {
 
   public String getRuleString() {
     return ruleString;
+  }
+
+  public String getUIRuleString() {
+    return uiRuleString;
   }
 
   public Integer getCount() {

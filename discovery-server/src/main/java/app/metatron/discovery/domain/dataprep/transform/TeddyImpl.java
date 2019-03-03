@@ -134,12 +134,14 @@ public class TeddyImpl {
     for (int i = startIdx; i < rev.size(); i++) {
       DataFrame nextDf;
       String ruleString = rev.get(i).ruleString;
+      String jsonRuleString = rev.get(i).jsonRuleString;
 
       try {
         nextDf = apply(newRev.get(-1), ruleString);   // apply trailing rules of the original revision into the new revision.
       } catch (Exception e) {
         nextDf = new DataFrame(newRev.get(-1));
         nextDf.setRuleString(ruleString);
+        nextDf.setJsonRuleString(jsonRuleString);
         nextDf.setValid(false);
       }
       newRev.add(nextDf);
@@ -147,7 +149,7 @@ public class TeddyImpl {
   }
 
   // APPEND *AFTER* stageIdx
-  public DataFrame append(String dsId, int stageIdx, String ruleString, boolean suppress) {
+  public DataFrame append(String dsId, int stageIdx, String ruleString, String jsonRuleString, boolean suppress) {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
     Revision newRev = new Revision(rev, stageIdx + 1);
     DataFrame newDf = null;
@@ -155,6 +157,7 @@ public class TeddyImpl {
 
     try {
       newDf = apply(rev.get(stageIdx), ruleString);
+      newDf.setJsonRuleString(jsonRuleString);
     } catch (TeddyException te) {
       if (suppress == false) {
         throw PrepException.fromTeddyException(te);   // RuntimeException
@@ -166,6 +169,7 @@ public class TeddyImpl {
     if (suppressed) {
       newDf = new DataFrame(rev.get(stageIdx));
       newDf.setRuleString(ruleString);
+      newDf.setJsonRuleString(jsonRuleString);
       newDf.setValid(false);
     }
 
@@ -239,12 +243,13 @@ public class TeddyImpl {
     addRev(dsId, newRev);
   }
 
-  public void update(String dsId, int stageIdx, String ruleString) throws TeddyException {    // used in DELETE only
+  public void update(String dsId, int stageIdx, String ruleString, String jsonRuleString) throws TeddyException {    // used in DELETE only
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
     Revision newRev = new Revision(rev, stageIdx);   // apply previous rules until the update target.
 
     // replace with the new, updated DF
     DataFrame newDf = apply(rev.get(stageIdx - 1), ruleString);
+    newDf.setJsonRuleString(jsonRuleString);
     newRev.add(newDf);
 
     appendNewDfs(newRev, rev, stageIdx + 1);
@@ -354,6 +359,15 @@ public class TeddyImpl {
       ruleStrings.add(df.getRuleString());
     }
     return ruleStrings;
+  }
+
+  public List<String> getJsonRuleStrings(String dsId) {
+    List<String> jsonRuleStrings = new ArrayList<>();
+    Revision rev = getCurRev(dsId);
+    for (DataFrame df : rev.dfs) {
+      jsonRuleStrings.add(df.getJsonRuleString());
+    }
+    return jsonRuleStrings;
   }
 
   public List<Boolean> getValids(String dsId) {

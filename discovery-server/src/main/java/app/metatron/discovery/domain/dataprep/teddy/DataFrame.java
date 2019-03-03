@@ -59,6 +59,7 @@ public class DataFrame implements Serializable, Transformable {
   public Map<String, String> slaveDsNameMap;  // slaveDsId -> slaveDsName (join, union의 경우 룰 축약시 계속해서 필요)   // FIXME: delete
 
   public String ruleString;
+  public String jsonRuleString;
   public boolean valid;
 
   @JsonIgnore
@@ -78,8 +79,9 @@ public class DataFrame implements Serializable, Transformable {
     dsName             = df.dsName;
     slaveDsNameMap     = df.slaveDsNameMap;
     ruleString         = df.ruleString;
-    ruleColumns        = df.ruleColumns;
+    jsonRuleString     = df.jsonRuleString;
     valid              = df.valid;
+    ruleColumns        = df.ruleColumns;
   }
 
   // Constructor
@@ -97,7 +99,8 @@ public class DataFrame implements Serializable, Transformable {
     dsName = null;
     slaveDsNameMap = new HashMap<>();
 
-    ruleString = "ORIGINAL";
+    ruleString = "MUST_NOT_BE_SHOWN";
+    jsonRuleString = "MUST_NOT_BE_SHOWN";
 
     ruleColumns = new ArrayList<>();
     valid = true;
@@ -117,8 +120,16 @@ public class DataFrame implements Serializable, Transformable {
     this.ruleString = ruleString;
   }
 
+  public void setJsonRuleString(String jsonRuleString) {
+    this.jsonRuleString = jsonRuleString;
+  }
+
   public String getRuleString() {
     return ruleString;
+  }
+
+  public String getJsonRuleString() {
+    return jsonRuleString;
   }
 
   public boolean isValid() {

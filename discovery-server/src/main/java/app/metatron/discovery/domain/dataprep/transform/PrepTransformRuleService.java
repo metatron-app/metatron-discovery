@@ -56,6 +56,7 @@ import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier.IdentifierArrayExpr;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -85,22 +86,6 @@ public class PrepTransformRuleService {
 
   public String getUpstreamDsIdFromCreateRule(String ruleString) {
     return ruleString.substring(CREATE_RULE_PREFIX.length());
-  }
-
-  public String getCreateJsonRuleString(String ruleString) {
-    Map<String, Object> map = new HashMap();
-    String jsonRuleString = null;
-
-    map.put("name", "create");
-    map.put("with", ruleString.substring(CREATE_RULE_PREFIX.length()));
-
-    try {
-      jsonRuleString = GlobalObjectMapper.getDefaultMapper().writeValueAsString(map);
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-    }
-
-    return jsonRuleString;
   }
 
   private String strip(String str) {
@@ -219,10 +204,6 @@ public class PrepTransformRuleService {
     mapStrExp.put(key, new StrExpResult(obj.toString()));
   }
 
-  public String jsonizeRuleString(String ruleString) throws CannotSerializeIntoJsonException, JsonProcessingException {
-    return GlobalObjectMapper.getDefaultMapper().writeValueAsString(stringifyRuleString(ruleString));
-  }
-
   private class StrExpResult {
     public String str;
     public List<String> arrStr;
@@ -263,6 +244,37 @@ public class PrepTransformRuleService {
     }
 
     return upstreamDsIds;
+  }
+
+  // If there's no uiRuleString from UI (like auto-generated rules), server makes the uiRuleString.
+  // Of course it has to be as same as if UI had sent. (Actually, the UI should code according to the server's)
+  public String jsonizeRuleString(String ruleString) throws CannotSerializeIntoJsonException, JsonProcessingException {
+    Map<String, StrExpResult> mapStrExp = stringifyRuleString(ruleString);
+    Map<String, String> mapJsonStr = new HashMap();
+
+    String ruleCommand = mapStrExp.get("name").toString();
+
+    mapJsonStr.put("name", ruleCommand);
+
+    switch (ruleCommand) {
+      case "create":
+        String dsId = mapStrExp.get("with").toString();
+        String dsName = datasetRepository.findRealOne(datasetRepository.findOne(dsId)).getDsName();
+        mapJsonStr.put("with", dsName);
+        break;
+      case "header":
+        mapJsonStr.put("rownum", mapStrExp.get("rownum").toString());
+        break;
+      case "settype":
+        mapJsonStr.put("col", mapStrExp.get("col").toString());
+        mapJsonStr.put("type", mapStrExp.get("type").toString());
+        mapJsonStr.put("format", mapStrExp.get("format").toString());
+        break;
+      default:
+        assert false : ruleCommand;
+    }
+
+    return GlobalObjectMapper.getDefaultMapper().writeValueAsString(mapJsonStr);
   }
 
   public Map<String, StrExpResult> stringifyRuleString(String ruleString) throws CannotSerializeIntoJsonException, JsonProcessingException {
@@ -461,33 +473,33 @@ public class PrepTransformRuleService {
     return String.format("%d %ss", count, unit);
   }
 
-  private final String FMTSTR_CREATE       = "Create with %s";                          // with
-  private final String FMTSTR_HEADER       = "Convert row %d to header";                // rownum
-  private final String FMTSTR_KEEP         = "Keep rows where %s";                      // row
-  private final String FMTSTR_RENAME       = "Rename %s to %s";                         // col, to
-  private final String FMTSTR_RENAMES      = "Rename %s";                               // col
-  private final String FMTSTR_NEST         = "Convert %s into %s";                      // col, into
-  private final String FMTSTR_UNNEST       = "Create a new column from %s";             // col
+  private final String FMTSTR_CREATE       = "create with %s";                          // with
+  private final String FMTSTR_HEADER       = "convert row %d to header";                // rownum
+  private final String FMTSTR_KEEP         = "keep rows where %s";                      // row
+  private final String FMTSTR_RENAME       = "rename %s to %s";                         // col, to
+  private final String FMTSTR_RENAMES      = "rename %s";                               // col
+  private final String FMTSTR_NEST         = "convert %s into %s";                      // col, into
+  private final String FMTSTR_UNNEST       = "create a new column from %s";             // col
   private final String FMTSTR_SETTYPE      = "set type %s to %s";                       // col, type
   private final String FMTSTR_SETFORMAT    = "set format %s to %s";                     // col, format
-  private final String FMTSTR_DERIVE       = "Create %s from %s";                       // as, value
-  private final String FMTSTR_DELETE       = "Delete rows where %s";                    // row
-  private final String FMTSTR_SET          = "Set %s to %s";                            // col, value
-  private final String FMTSTR_SPLIT        = "Split %s into %s on %s";                  // col, limit, on
-  private final String FMTSTR_EXTRACT      = "Extract %s %s from %s";                   // on, limit, col
-  private final String FMTSTR_FLATTEN      = "Convert arrays in %s to rows";            // col
-  private final String FMTSTR_COUNTPATTERN = "Count occurrences of %s in %s";           // value, col
-  private final String FMTSTR_SORT         = "Sort rows by %s %s";                      // order, type
-  private final String FMTSTR_REPLACE      = "Replace %s from %s with %s";              // on, col, with
-  private final String FMTSTR_REPLACES     = "Replace %s";                              // col
-  private final String FMTSTR_MERGE        = "Concatenate %s separated by %s";          // col, with
-  private final String FMTSTR_AGGREGATE    = "Aggregate with %s grouped by %s";         // value, group
-  private final String FMTSTR_MOVE         = "Move %s %s";                              // col, before/after
+  private final String FMTSTR_DERIVE       = "create %s from %s";                       // as, value
+  private final String FMTSTR_DELETE       = "delete rows where %s";                    // row
+  private final String FMTSTR_SET          = "set %s to %s";                            // col, value
+  private final String FMTSTR_SPLIT        = "split %s into %s on %s";                  // col, limit, on
+  private final String FMTSTR_EXTRACT      = "extract %s %s from %s";                   // on, limit, col
+  private final String FMTSTR_FLATTEN      = "convert arrays in %s to rows";            // col
+  private final String FMTSTR_COUNTPATTERN = "count occurrences of %s in %s";           // value, col
+  private final String FMTSTR_SORT         = "sort rows by %s %s";                      // order, type
+  private final String FMTSTR_REPLACE      = "replace %s from %s with %s";              // on, col, with
+  private final String FMTSTR_REPLACES     = "replace %s";                              // col
+  private final String FMTSTR_MERGE        = "concatenate %s separated by %s";          // col, with
+  private final String FMTSTR_AGGREGATE    = "aggregate with %s grouped by %s";         // value, group
+  private final String FMTSTR_MOVE         = "move %s %s";                              // col, before/after
   private final String FMTSTR_JOIN_UNION   = "%s with %s";                              // command, strDsNames
-  private final String FMTSTR_PIVOT        = "Pivot %s and compute %s grouped by %s";   // col, value, group
-  private final String FMTSTR_UNPIVOT      = "Convert %s into rows";                    // col
-  private final String FMTSTR_DROP         = "Drop %s";                                 // col
-  private final String FMTSTR_WINDOW       = "Create %s from %s%s%s";                   // N columns, value, order, group
+  private final String FMTSTR_PIVOT        = "pivot %s and compute %s grouped by %s";   // col, value, group
+  private final String FMTSTR_UNPIVOT      = "convert %s into rows";                    // col
+  private final String FMTSTR_DROP         = "drop %s";                                 // col
+  private final String FMTSTR_WINDOW       = "create %s from %s%s%s";                   // N columns, value, order, group
 
   public String shortenRuleString(String ruleString) throws CannotSerializeIntoJsonException, JsonProcessingException {
     String shortRuleString;
