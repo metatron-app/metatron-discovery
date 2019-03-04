@@ -610,26 +610,47 @@ public class PrepTransformService {
 
   private List<Histogram> createHistsWithColWidths(DataFrame df, List<Integer> colnos, List<Integer> colWidths) {
     LOGGER.debug("createHistsWithColWidths(): df.colCnt={}, colnos={} colWidths={}", df.getColCnt(), colnos, colWidths);
+
     df.colHists = new ArrayList<>();
     List<Future<Histogram>> futures = new ArrayList<>();
+    List<Histogram> colHists = new ArrayList<>();
 
     assert colnos.size() == colWidths.size() : String.format("colnos.size()=%d colWidths.size()=%d", colnos.size(), colWidths.size());
+
+    int dop = 16;
+    int issued = 0;
 
     for (int i = 0; i < colnos.size(); i++) {
       int colno = colnos.get(i);
       int colWidth = colWidths.get(i);
       futures.add(prepHistogramService.updateHistWithColWidth(df.getColName(colno), df.getColType(colno), df.rows, colno, colWidth));
+
+      if (++issued == dop) {
+        for (int j = 0; j < issued; j++) {
+          try {
+            colHists.add(futures.get(j).get());
+          } catch (InterruptedException e) {
+            LOGGER.error("createHistsWithColWidths(): interrupted", e);
+          } catch (ExecutionException e) {
+            e.getCause().printStackTrace();
+            LOGGER.error("createHistsWithColWidths(): execution error on " + df.dsName, e);
+          }
+        }
+        issued = 0;
+        futures.clear();
+      }
     }
 
-    List<Histogram> colHists = new ArrayList<>();
-    for (int colno = 0; colno < colnos.size(); colno++) {
-      try {
-        colHists.add(futures.get(colno).get());
-      } catch (InterruptedException e) {
-        LOGGER.error("createHistsWithColWidths(): interrupted", e);
-      } catch (ExecutionException e) {
-        e.getCause().printStackTrace();
-        LOGGER.error("createHistsWithColWidths(): execution error on " + df.dsName, e);
+    if (issued > 0) {
+      for (int j = 0; j < issued; j++) {
+        try {
+          colHists.add(futures.get(j).get());
+        } catch (InterruptedException e) {
+          LOGGER.error("createHistsWithColWidths(): interrupted", e);
+        } catch (ExecutionException e) {
+          e.getCause().printStackTrace();
+          LOGGER.error("createHistsWithColWidths(): execution error on " + df.dsName, e);
+        }
       }
     }
 
