@@ -644,7 +644,8 @@ em.ddp-icon-menu-secondary,
 em.ddp-icon-menu-parameters,
 em.ddp-icon-menu-mapview1,
 em.ddp-icon-menu-mapview2,
-em.ddp-icon-menu-mapview3 {display:inline-block; background:url(../../../images/icon_sidemenu.png) no-repeat;}
+em.ddp-icon-menu-mapview3,
+em.ddp-icon-menu-analysis {display:inline-block; background:url(../../../images/icon_sidemenu.png) no-repeat;}
 
 em.ddp-icon-menu-calculated {width:18px; height:22px; margin:-9px 0 0 -11px; background-position:left -337px;}
 em.ddp-icon-menu-general {width:22px; height:19px; margin:-9px 0 0 -11px; background-position:left -297px;}
@@ -669,7 +670,7 @@ em.ddp-icon-menu-parameters { width:20px; height:18px; margin:-9px 0 0 -10px; ba
 em.ddp-icon-menu-mapview1 {width:21px; height:20px; margin:-10px 0 0 -10px; background-position:left -396px;}
 em.ddp-icon-menu-mapview2 {width:21px; height:20px; margin:-10px 0 0 -10px;background-position:left -417px;}
 em.ddp-icon-menu-mapview3 {width:21px; height:20px; margin:-10px 0 0 -10px;background-position:left -438px;}
-
+em.ddp-icon-menu-analysis{width:22px; height:16px; margin:-8px 0 0 -11px;background-position:left -459px;}
 /*상태 아이콘*/
 em.ddp-icon-status-success,
 em.ddp-icon-status-error,

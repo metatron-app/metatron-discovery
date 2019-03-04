@@ -1,0 +1,79 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {
+  AfterViewInit,
+  Component,
+  ElementRef, EventEmitter,
+  Injector, Input,
+  OnChanges,
+  OnDestroy,
+  OnInit, Output,
+  SimpleChanges
+} from '@angular/core';
+import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {Shelf} from "../../../../domain/workbook/configurations/shelf/shelf";
+
+@Component({
+  selector: 'map-spatial',
+  templateUrl: './map-spatial.component.html'
+})
+export class MapSpatialComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
+
+  public shelf: Shelf;
+
+  @Input('shelf')
+  set setShelf(shelf: Shelf) {
+    this.shelf = shelf;
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Constructor
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성자
+  constructor(protected elementRef: ElementRef,
+              protected injector: Injector) {
+
+    super(elementRef, injector);
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Override Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // Init
+  public ngOnInit() {
+    // Init
+    super.ngOnInit();
+  }
+
+  // onChanges
+  public ngOnChanges(changes: SimpleChanges): void {
+    console.log('###', this.shelf);
+  }
+
+  // afterInit
+  public ngAfterViewInit(): void {
+    console.log('###', this.shelf);
+  }
+
+  // Destory
+  public ngOnDestroy() {
+    // Destory
+    super.ngOnDestroy();
+  }
+
+
+}

@@ -15,9 +15,12 @@
 <div class="ddp-wrap-shelf ddp-mapview">
   <!-- shelf -->
   <div *ngFor="let item of shelf.layers; let index = index" id="layer{{index}}" class="ddp-ui-shelf" (click)="selectedLayer(index)" [ngClass]="{'ddp-add-self' : index==uiOption.layerNum}">
-    <em class="ddp-icon-mapview{{index + 1}}"></em>
+    <em *ngIf="index<2" class="ddp-icon-mapview{{index + 1}}"></em>
+    <!--analysis-icon to show-->
+    <em *ngIf="index===2" class="ddp-icon-analysis"></em>
+
     <!-- drag slide -->
-    <div class="ddp-ui-drag-slide">
+    <div *ngIf="index<2" class="ddp-ui-drag-slide">
       <a (mouseover)="mouseOverPrev($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-prev"><em class="ddp-icon-prev"></em></a>
       <div class="ddp-slide-control">
         <a (mouseover)="mouseOverNext($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-next"><em class="ddp-icon-next"></em></a>
@@ -84,6 +87,33 @@
       </div>
     </div>
     <!-- //drag slide -->
+    <!--analysis drag slide-->
+    <div *ngIf="index===2" class="ddp-ui-drag-slide">
+      <!-- analysis -->
+      <div class="ddp-ui-analysis">
+        공간 연산 결과 =
+        <span class="ddp-tag-layer">기준 레이어</span>
+        <span class="ddp-txt-data">
+            <em class="ddp-icon-layer1"></em>
+            Layer1
+        </span>
+        <span class="ddp-tag-layer2">비교 레이어</span>
+        <span class="ddp-txt-data">
+            <em class="ddp-icon-layer2"></em>
+            Layer2
+        </span>
+        <span class="ddp-tag-analysis">Instrsection</span>
+        <span class="ddp-tag-analysis">Symmetrical difference</span>
+        <span class="ddp-tag-analysis">Distance within</span>
+        <span class="ddp-txt-data">100,Meters</span>
+      </div>
+      <!-- //analysis -->
+      <div class="ddp-slide-control">
+        <a href="#" class="ddp-btn-next"><em class="ddp-icon-next"></em></a>
+        <a href="javascript:" class="ddp-btn-minus"></a>
+      </div>
+    </div>
+    <!-- //analysis drag slide -->
   </div>
   <!-- //shelf -->
 </div>
