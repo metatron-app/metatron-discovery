@@ -99,9 +99,8 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
     };
 
     if (this.sortBy !== '') {
-      rule.ruleString += ' type: '+ this.sortBy
-    } else {
-      rule.uiRuleString.sortBy = 'desc';
+      rule.ruleString += ' type: '+ this.sortBy;
+      rule.uiRuleString.sortBy = this.sortBy;
     }
 
     return rule
@@ -153,7 +152,7 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
    * parse ruleString
    * @param data ({ruleString : string, jsonRuleString : SortRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : SortRule}) {
+  protected parsingRuleString(data: {jsonRuleString : SortRule}) {
 
     // COLUMN
     let arrFields:string[] = data.jsonRuleString.col;

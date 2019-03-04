@@ -46,7 +46,7 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
 
   // Rule 에 대한 입력 값들
   public pattern:string = '';
-  public limit:number;
+  public limit:number; 
   public ignore:string = '';
   public isIgnoreCase:boolean = false;
 

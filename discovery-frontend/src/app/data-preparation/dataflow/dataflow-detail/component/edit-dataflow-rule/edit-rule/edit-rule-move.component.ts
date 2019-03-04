@@ -122,7 +122,7 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
     return {
       command: 'move',
       col: columnsWithBackTick.toString(),
-      ruleString: `move col: ${columnsWithBackTick.toString()} ${this.beforeOrAfter}: ${'`' + this.selectedStandardField + '`'}`,
+      ruleString: `move col: ${columnsWithBackTick.join(', ')} ${this.beforeOrAfter}: ${'`' + this.selectedStandardField + '`'}`,
       uiRuleString : {
         name: 'move',
         col: columns,
@@ -178,7 +178,7 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
    * rule string 을 분석한다.
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : MoveRule}) {
+  protected parsingRuleString(data: {jsonRuleString : MoveRule}) {
 
     // COLUMN
     let arrFields:string[] = data.jsonRuleString.col;

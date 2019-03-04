@@ -122,7 +122,7 @@ export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit
    * parse ruleString
    * @param data ({ruleString : string, jsonRuleString : HeaderRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : HeaderRule}) {
+  protected parsingRuleString(data: {jsonRuleString : HeaderRule}) {
 
     // ROW NUMBER
     this.rowNum = data.jsonRuleString.rownum;

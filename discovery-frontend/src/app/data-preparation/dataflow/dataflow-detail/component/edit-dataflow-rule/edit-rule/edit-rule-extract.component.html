@@ -66,8 +66,8 @@
     {{'msg.dp.th.on.num.matches' | translate}}<em class="ddp-icon-essential"></em>
   </div>
   <div class="ddp-wrap-datainput">
-    <input [(ngModel)]="limit" [input-mask]="'number'"
-          tabindex="4" class="ddp-input-typebasic"
+    <input [(ngModel)]="limit" type="number"
+           tabindex="4" class="ddp-input-typebasic"
            placeholder="{{'msg.dp.ui.extract.ph' | translate}}">
   </div>
 </div>
@@ -77,13 +77,12 @@
 <div *ngIf="isShow" class="ddp-box-part ddp-box-s" >
   <div class="ddp-box-title"> {{'msg.dp.th.quote' | translate}} </div>
   <div class="ddp-wrap-datainput">
-    <input [(ngModel)]="ignore"
+    <input type="text" [(ngModel)]="ignore"
            class="ddp-input-typebasic"
            tabindex="5" placeholder="{{'msg.dp.ui.enter.value' | translate}}">
   </div>
 </div>
 <!--//part-->
-
 <!-- part : ignoreCase -->
 <div *ngIf="isShow" class="ddp-box-part ddp-box-s" >
   <div class="ddp-box-title"> {{'msg.dp.th.ignore.case' | translate}} </div>

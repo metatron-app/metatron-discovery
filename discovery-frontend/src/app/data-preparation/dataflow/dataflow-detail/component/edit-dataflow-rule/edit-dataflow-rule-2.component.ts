@@ -1713,7 +1713,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     });
 
     // ruleStringInfos
-    const jsonRule = {};
     rules.forEach((rule) => {
       rule['ruleVO'] = JSON.parse(rule['jsonRuleString']);
       rule['ruleVO']['command'] = rule['ruleVO']['name'];

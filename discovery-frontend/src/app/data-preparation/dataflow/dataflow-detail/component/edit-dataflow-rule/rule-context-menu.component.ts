@@ -271,11 +271,11 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
             case 'duplicate':
               let newCol = `${this.contextInfo.columnName}_1`;
               rule.ruleString = `derive value: ${selCol} as: \`${newCol}\``;
-              rule.uiRuleString = {command: 'derive', expression: this.contextInfo.columnName ,newCol: newCol };
+              rule.uiRuleString = {name: 'derive', expression: this.contextInfo.columnName ,newCol: newCol };
               break;
             case 'flatten':
               rule.ruleString = 'flatten col: ' + selCol;
-              rule.uiRuleString = {command: 'flatten', col: [this.contextInfo.columnName]};
+              rule.uiRuleString = {name: 'flatten', col: [this.contextInfo.columnName]};
               break;
             default:
               rule['more'] = { command : command.value, col : { value : this.originalSelectedColIds}};
@@ -293,7 +293,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               });
 
               rule.ruleString += res.join(' || ');
-              rule.uiRuleString = {command: 'delete', expression : res.join(' || ')};
+              rule.uiRuleString = {name: 'delete', expression : res.join(' || ')};
               break;
             case 'direct-missing':
               // delete row: isnull(c) || isnull(`space col`)
@@ -302,7 +302,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               });
 
               rule.ruleString += res.join(' || ');
-              rule.uiRuleString = {command: 'delete', expression : res.join(' || ')};
+              rule.uiRuleString = {name: 'delete', expression : res.join(' || ')};
               break;
 
             case 'mismatch':
@@ -341,7 +341,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
       return undefined;
     }
     rule.ruleString = `drop col: ${colStr}`;
-    rule.uiRuleString = {command:'drop', col: colNames, isBuilder: true}
+    rule.uiRuleString = {name:'drop', col: colNames, isBuilder: true}
     return rule;
   }
 
@@ -363,7 +363,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
       rule.more = { command : 'settype', col :  {value : this.originalSelectedColIds}, type : type};
     } else {
       rule.ruleString = 'settype col: ' + columnStr + ' type: ' + type;
-      rule.uiRuleString = {command: 'settype', col:columnNames, type: type}
+      rule.uiRuleString = {name: 'settype', col:columnNames, type: type}
     }
 
     return rule;
@@ -382,7 +382,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
   private _setSortParam(isDesc: boolean, rule: ContextMenuParam, columnStr: string, columnNames: string[]) {
 
     rule.ruleString = 'sort order: ' + columnStr;
-    rule.uiRuleString = {command: 'sort', col: columnNames, sortBy: 'asc'};
+    rule.uiRuleString = {name: 'sort', col: columnNames, sortBy: 'asc'};
     if (isDesc) {
       rule.ruleString += ' type:\'desc\'';
       rule.uiRuleString['sortBy'] = 'desc';
@@ -421,7 +421,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
     }
 
     if (rule.uiRuleString && rule.uiRuleString.beforeAfter) {
-      rule.uiRuleString.command =  'move';
+      rule.uiRuleString.name =  'move';
       rule.uiRuleString.col =  columnNames;
       rule.uiRuleString.isBuilder = true;
     }
@@ -474,7 +474,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
     }
 
     rule.ruleString = `${command} row: ${result}`;
-    rule.uiRuleString = {command: command, condition: result, isBuilder: true};
+    rule.uiRuleString = {name: command, condition: result, isBuilder: true};
     return rule;
   }
 

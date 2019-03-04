@@ -4913,7 +4913,7 @@ ul.ddp-list-rule2 li.ddp-disabled2 .ddp-wrap-line-add {display:block;}
 
 .ddp-box-contents .ddp-box-part .ddp-box-title {position:relative; padding:0 0 5px 0; z-index:2;}
 .ddp-box-contents .ddp-box-part .ddp-list-buttons {width:100%;}
-.ddp-box-contents .ddp-box-part .ddp-list-buttons li {width:50%; box-sizing:border-box;}
+.ddp-box-contents .ddp-box-part .ddp-list-buttons li {width:50%; box-sizing:border-box; min-width: auto}
 
 .ddp-box-contents .ddp-box-part:hover .ddp-ui-info {display:block;}
 .ddp-box-contents .ddp-box-part .ddp-ui-info {display:none; position:absolute; top:0; right:0;}
