@@ -28,8 +28,6 @@ import { CreateDatasetSelectfileComponent } from './dataset/create-dataset/creat
 import { CreateDatasetSelectsheetComponent } from './dataset/create-dataset/create-dataset-selectsheet.component';
 import { CreateDatasetStagingSelectdataComponent } from './dataset/create-dataset/create-dataset-staging-selectdata.component';
 import { DatasetService } from './dataset/service/dataset.service';
-import { DataSnapshotDetailComponent } from './data-snapshot/data-snapshot-detail.component';
-import { DataSnapshotService } from './data-snapshot/service/data-snapshot.service';
 import { FileModule } from '../common/file.module';
 import { CreateDatasetDbSelectComponent } from './dataset/create-dataset/create-dataset-db-select.component';
 import { CreateDatasetDbQueryComponent } from './dataset/create-dataset/create-dataset-db-query.component';
@@ -89,6 +87,7 @@ import {RadioSelectDatasetComponent} from "./component/radio-select-dataset.comp
 import {AddDatasetDataflowComponent} from "./dataset/add-dataset-dataflow.component";
 import {MultipleRenamePopupComponent} from "./dataflow/dataflow-detail/component/edit-dataflow-rule/multiple-rename-popup.component";
 import {DataSourceCreateModule} from "../data-storage/data-source-list/create-data-source/data-source-create.module";
+import {DataconnectionService} from "../dataconnection/service/dataconnection.service";
 
 
 const dataPreparationRoutes: Routes = [
