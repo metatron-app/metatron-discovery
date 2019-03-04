@@ -35,6 +35,7 @@ import {CommonUtil} from '../../common/util/common.util';
 import {ChartType} from '../../common/component/chart/option/define/common';
 import {CommonConstant} from "../../common/constant/common.constant";
 import {ChartUtil} from "../../common/component/chart/option/util/chart-util";
+import {FilterUtil} from "./filter.util";
 
 export class DashboardUtil {
 
@@ -194,7 +195,7 @@ export class DashboardUtil {
 
   /**
    * 페이지위젯 스펙을 서버 스펙으로 변경함
-   * @param configuration
+   * @param {any} configuration
    * @return {any}
    */
   public static convertPageWidgetSpecToServer(configuration: any): any {
@@ -217,6 +218,13 @@ export class DashboardUtil {
     if (configuration.customFields) {
       configuration['fields'] = _.cloneDeep(configuration.customFields);
       delete configuration.customFields;
+    }
+
+    // 필터 설정
+    if( configuration.filters ) {
+      for (let filter of configuration.filters) {
+        filter = FilterUtil.convertToServerSpecForDashboard(filter);
+      }
     }
 
     return configuration;

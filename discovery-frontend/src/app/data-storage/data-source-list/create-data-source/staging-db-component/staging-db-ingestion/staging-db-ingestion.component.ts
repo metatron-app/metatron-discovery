@@ -36,11 +36,11 @@ export class StagingDbIngestionComponent extends AbstractPopupComponent implemen
   @ViewChild(IngestionSettingComponent)
   private _ingestionSettingComponent: IngestionSettingComponent;
 
-  @Input()
-  public step: string;
+  @Input('step')
+  private _step: string;
 
-  @Output()
-  public stepChange: EventEmitter<string> = new EventEmitter();
+  @Output('stepChange')
+  private _stepChange: EventEmitter<string> = new EventEmitter();
 
 
   // Constructor
@@ -92,19 +92,12 @@ export class StagingDbIngestionComponent extends AbstractPopupComponent implemen
   }
 
   /**
-   * Move to previous step
+   * Changed page
+   * @param {string} step
    */
-  public prev(): void {
-    this.step = 'staging-db-configure-schema';
-    this.stepChange.emit(this.step);
-  }
-
-  /**
-   * Move to next step
-   */
-  public next(): void {
-    this.step = 'staging-db-complete';
-    this.stepChange.emit(this.step);
+  public onChangedPage(step: string): void {
+    this._step = step === 'NEXT' ? 'staging-db-complete' : 'staging-db-configure-schema';
+    this._stepChange.emit(this._step);
   }
 
   /**
@@ -112,6 +105,6 @@ export class StagingDbIngestionComponent extends AbstractPopupComponent implemen
    * @param {string} route
    */
   public onClickPageChange(route: string): void {
-    route === 'prev' ? this._ingestionSettingComponent.onClickPrev() : this._ingestionSettingComponent.onClickNext();
+    route === 'PREV' ? this._ingestionSettingComponent.onClickPrev() : this._ingestionSettingComponent.onClickNext();
   }
 }

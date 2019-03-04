@@ -741,11 +741,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       // 서버에 저장될필요 없는 파라미터 제거
       param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);
 
-      // 필터 설정
-      for (let filter of param.configuration.filters) {
-        filter = FilterUtil.convertToServerSpecForDashboard(filter);
-      }
-
       const pageConf: PageWidgetConfiguration = param.configuration as PageWidgetConfiguration;
       // 미니맵 범위 저장
       if (!_.isEmpty(this.chart.saveDataZoomRange())) pageConf.chart.chartZooms = this.chart.saveDataZoomRange();
@@ -804,11 +799,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       // 서버에 저장될필요 없는 파라미터 제거
       param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);
-
-      // 필터 설정
-      for (let filter of param.configuration.filters) {
-        filter = FilterUtil.convertToServerSpecForDashboard(filter);
-      }
 
       const pageConf: PageWidgetConfiguration = param.configuration as PageWidgetConfiguration;
       // 미니맵 범위 저장
@@ -1950,10 +1940,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       // 스펙 변경
       widget.configuration = DashboardUtil.convertPageWidgetSpecToServer(widget.configuration);
-      // 필터 설정
-      for (let filter of widget.configuration.filters) {
-        filter = FilterUtil.convertToServerSpecForDashboard(filter);
-      }
 
       this.loadingShow();
       this.widgetService.updateWidget(this.widget.id, widget).then((page: Widget) => {
