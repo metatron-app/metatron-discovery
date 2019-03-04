@@ -21,6 +21,7 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 import {isNullOrUndefined, isUndefined} from 'util';
 import * as _ from 'lodash';
+import {SetRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector: 'edit-rule-set',
@@ -82,7 +83,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * Returns rule string
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, col: string, ruleString: string, uiRuleString: Object } {
+  public getRuleData(): { command: string, col: string, ruleString: string, uiRuleString: SetRule } {
 
     
     // column
@@ -105,11 +106,11 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
       col: this.getColumnNamesInArray(this.selectedFields, true).toString(),
       ruleString: `set col: ${this.getColumnNamesInArray(this.selectedFields, true).toString()} value: ${val}`,
       uiRuleString: {
-        command: 'set',
+        name: 'set',
         col: this.getColumnNamesInArray(this.selectedFields),
-        value: this.valueInput.getFormula(),
-        condition: this.rowInput.getFormula(),
-        isBuilder: true
+        expression: this.valueInput.getFormula(),
+        isBuilder: true,
+        condition: this.condition
       }
     };
 
@@ -198,21 +199,24 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * parse rule string
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : SetRule}) {
 
 
     if (!data.jsonRuleString.hasOwnProperty('contextMenu')) {
       // COLUMN
-      let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+      let arrFields:string[] = data.jsonRuleString.col;
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+      this.condition = data.jsonRuleString.condition;
+      this.inputValue = data.jsonRuleString.expression;
 
-      if (data.jsonRuleString.row) {
-        let row = data.ruleString.split('row: ');
-        this.condition = row[1];
-        this.inputValue = row[0].split('value: ')[1];
-      } else {
-        this.inputValue = data.ruleString.split('value: ')[1];
-      }
+      // TODO : context menu
+      // if (data.jsonRuleString.row) {
+      //   let row = data.ruleString.split('row: ');
+      //   this.condition = row[1];
+      //   this.inputValue = row[0].split('value: ')[1];
+      // } else {
+      //   this.inputValue = data.ruleString.split('value: ')[1];
+      // }
     } else {
       if (data.jsonRuleString.condition) {
         this.condition = data.jsonRuleString.condition;

@@ -18,6 +18,7 @@ import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 import {isUndefined} from "util";
+import {PivotRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 interface formula {
   id: number;
@@ -92,7 +93,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    * Rule 형식 정의 및 반환
    * @return {{command: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: PivotRule } {
 
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
@@ -121,8 +122,8 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
       command: 'pivot',
       ruleString: `pivot col: ${this.getColumnNamesInArray(this.selectedFields, true).toString()} value: ${value} group: ${this.getColumnNamesInArray(this.selectedGroupFields, true).toString()}`,
       uiRuleString: {
-        command: 'pivot',
-        value: formulaValueList,
+        name: 'pivot',
+        expression: formulaValueList,
         col: this.getColumnNamesInArray(this.selectedFields),
         group: this.getColumnNamesInArray(this.selectedGroupFields),
         isBuilder: true
@@ -130,10 +131,6 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
     };
 
   } // function - getRuleData
-
-  public getRuleDataWithoutValidation() {
-
-  } // function - getRuleDataWithoutValidation
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
@@ -195,29 +192,20 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
 
   /**
    * parse rule string
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * @param data ({ruleString : string, jsonRuleString : PivotRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : PivotRule}) {
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     // GROUP FIELDS
-    let groupFields:string[] = typeof data.jsonRuleString.group.value === 'string' ? [data.jsonRuleString.group.value] : data.jsonRuleString.group.value;
+    let groupFields:string[] = data.jsonRuleString.group;
     this.selectedGroupFields = groupFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     // EXPRESSION
-    this.formulas = [];
-    let strFormulaList:string = this.getAttrValueInRuleString( 'value', data.ruleString );
-    if( '' !== strFormulaList) {
-      this.formulaList = strFormulaList.split( ',' ).map( item => item.replace( /'/g, '' ) );
-      this.formulaList.forEach((item,idx)=>{
-        this.formulas.push({id:idx, value: item});
-      })
-    }
-
-
+    this.formulaList = data.jsonRuleString.expression;
 
   } // function - parsingRuleString
 

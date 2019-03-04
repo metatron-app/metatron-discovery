@@ -14,14 +14,12 @@
 
 import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
-  ViewChild
 } from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { RuleConditionInputComponent } from './rule-condition-input.component';
 import { isNullOrUndefined } from 'util';
-import * as _ from 'lodash';
+import {MoveRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector: 'edit-rule-move',
@@ -31,11 +29,7 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
 
-  @Output()
-  public advancedEditorClickEvent = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -43,6 +37,9 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @Output()
+  public advancedEditorClickEvent = new EventEmitter();
+
   public inputValue:string;
   public defaultIndex : number = -1;
   public defaultColIndex : number = -1;
@@ -53,8 +50,6 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(
     protected elementRef: ElementRef,
     protected injector: Injector) {
@@ -95,7 +90,7 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, col: string, ruleString: string, uiRuleString: Object } {
+  public getRuleData(): { command: string, col: string, ruleString: string, uiRuleString: MoveRule } {
 
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
@@ -129,10 +124,11 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
       col: columnsWithBackTick.toString(),
       ruleString: `move col: ${columnsWithBackTick.toString()} ${this.beforeOrAfter}: ${'`' + this.selectedStandardField + '`'}`,
       uiRuleString : {
-        command: 'move',
+        name: 'move',
         col: columns,
         refColumn: this.selectedStandardField,
-        beforeOrAfter: this.beforeOrAfter
+        beforeAfter: this.beforeOrAfter,
+        isBuilder: true
       }
     };
 
@@ -182,23 +178,17 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
    * rule string 을 분석한다.
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : MoveRule}) {
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-    // BEFORE OR AFTER
-    if (data.jsonRuleString.hasOwnProperty('before')) {
-      this.beforeOrAfter = 'before';
-      this.defaultIndex = 0;
-    } else {
-      this.beforeOrAfter = 'after';
-      this.defaultIndex = 1;
-    }
+    this.beforeOrAfter = data.jsonRuleString.beforeAfter;
+    this.defaultIndex = data.jsonRuleString.beforeAfter === 'before'? 0 : 1;
 
     // REFERENCE COLUMN
-    this.selectedStandardField = data.jsonRuleString[this.beforeOrAfter];
+    this.selectedStandardField = data.jsonRuleString.refColumn;
     this.defaultColIndex = this.fields.findIndex((item) => {
       return item.name === this.selectedStandardField
     });

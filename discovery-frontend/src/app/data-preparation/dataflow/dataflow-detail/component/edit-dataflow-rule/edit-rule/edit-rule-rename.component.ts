@@ -17,6 +17,7 @@ import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, View
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import {isNullOrUndefined, isUndefined} from 'util';
+import {RenameRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector: 'edit-rule-rename',
@@ -119,9 +120,9 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
       col: selectedFieldName,
       ruleString: 'rename col: `' + selectedFieldName + '`' + ` to: '${this.newFieldName}'`,
       uiRuleString: {
-        command: 'rename',
+        name: 'rename',
         col: this.getColumnNamesInArray(this.selectedFields),
-        to: this.newFieldName,
+        to: [this.newFieldName],
         isBuilder: true
       }
     };
@@ -171,20 +172,16 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
 
   /**
    * parse ruleString
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * @param data ({ruleString : string, jsonRuleString : RenameRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : RenameRule}) {
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     // NEW COLUMN NAME
-    if (data.jsonRuleString.to.escapedValue) {
-      this.newFieldName = data.jsonRuleString.to.escapedValue;
-    } else {
-      this.newFieldName = '';
-    }
+    this.newFieldName = data.jsonRuleString.to[0];
 
   } // function - _parsingRuleString
 

@@ -14,14 +14,12 @@
 
 import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
-  ViewChild
 } from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { RuleConditionInputComponent } from './rule-condition-input.component';
-import * as _ from 'lodash';
 import {isNullOrUndefined} from "util";
+import {UnpivotRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector: 'edit-rule-unpivot',
@@ -31,11 +29,7 @@ export class EditRuleUnpivotComponent extends EditRuleComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
 
-  @Output()
-  public advancedEditorClickEvent = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -43,13 +37,14 @@ export class EditRuleUnpivotComponent extends EditRuleComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @Output()
+  public advancedEditorClickEvent = new EventEmitter();
+
   public inputValue:string;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(
     protected elementRef: ElementRef,
     protected injector: Injector) {
@@ -90,7 +85,7 @@ export class EditRuleUnpivotComponent extends EditRuleComponent implements OnIni
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, col: string, ruleString: string, uiRuleString: Object } {
+  public getRuleData(): { command: string, col: string, ruleString: string, uiRuleString: UnpivotRule } {
 
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
@@ -109,7 +104,7 @@ export class EditRuleUnpivotComponent extends EditRuleComponent implements OnIni
       col: this.getColumnNamesInArray(this.selectedFields, true).toString(),
       ruleString: `unpivot col: ${this.getColumnNamesInArray(this.selectedFields, true).toString()} groupEvery: ${this.inputValue}`,
       uiRuleString: {
-        command: 'unpivot',
+        name: 'unpivot',
         groupEvery: this.inputValue,
         col: this.getColumnNamesInArray(this.selectedFields),
         isBuilder: true
@@ -149,10 +144,10 @@ export class EditRuleUnpivotComponent extends EditRuleComponent implements OnIni
    * parse rulestring
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : UnpivotRule}) {
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     this.inputValue = data.jsonRuleString.groupEvery;

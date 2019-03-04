@@ -204,7 +204,10 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
     }
 
     const originals: string[] = [];
+    const originalsWithBackTick: string[] = [];
     const renamed: string[] = [];
+    const renamedWithQuote: string[] = [];
+
 
     // wrap original columns with back ticks,
     // wrap renamed columns with single quotation
@@ -212,15 +215,19 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
 
       if (this.op === 'UPDATE') {
         if (item.renamedAs.trim() !== '' && (item.editOriginalName !== item.renamedAs) || item.original !== item.renamedAs) {
-          originals.push('`' + item.original + '`');
-          renamed.push("'" + item.renamedAs + "'");
+          originals.push(item.original);
+          originalsWithBackTick.push('`' + item.original + '`');
+          renamed.push(item.renamedAs);
+          renamedWithQuote.push("'" + item.renamedAs + "'");
         }
       }
 
       if (this.op === 'APPEND') {
         if (item.renamedAs.trim() !== '' && item.original !== item.renamedAs) {
-          originals.push('`' + item.original + '`');
-          renamed.push("'" + item.renamedAs + "'");
+          originals.push(item.original);
+          originalsWithBackTick.push('`' + item.original + '`');
+          renamed.push(item.renamedAs);
+          renamedWithQuote.push("'" + item.renamedAs + "'");
         }
       }
     });
@@ -232,7 +239,8 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
     // If nothing is changed, returns null
     this.renameMultiColumns.emit(originals.length > 0 ? {
       op: this.op,
-      ruleString: `rename col: ${originals.toString()} to: ${renamed.toString()}`
+      ruleString: `rename col: ${originalsWithBackTick.toString()} to: ${renamedWithQuote.toString()}`,
+      uiRuleString: {command: 'rename', col:originals, to: renamed}
     } : null );
 
   }

@@ -18,6 +18,7 @@ import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import {isNullOrUndefined,isUndefined} from "util";
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
+import {WindowRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 interface formula {
   id: number;
@@ -50,6 +51,7 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   public sortBy : string;
 
   public formulas: formula[];
+  public formulaList:string[] = [''];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -134,7 +136,7 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): {command: string, col: string, ruleString: string, uiRuleString: Object} {
+  public getRuleData(): {command: string, col: string, ruleString: string, uiRuleString: WindowRule} {
     
     // 수식
     const formulaValueList = this.ruleSuggestInput
@@ -174,10 +176,10 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
       col: groupStr,
       ruleString: resultRuleString,
       uiRuleString: {
-        command: 'window',
-        value: formulaValueList,
-        col: this.getColumnNamesInArray(this.selectedFields),
-        order: this.getColumnNamesInArray(this.selectedSortFields),
+        name: 'window',
+        expression: formulaValueList,
+        groupBy: this.getColumnNamesInArray(this.selectedFields),
+        sortBy: this.getColumnNamesInArray(this.selectedSortFields),
         isBuilder: true
       }
     };
@@ -187,6 +189,15 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Sort by 선택
+   * @param data
+   */
+  public selectItem(data) {
+    this.sortBy = data.type;
+
+  } // function - selectItem
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -206,65 +217,26 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
 
   /**
    * rule string 을 분석한다.
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * @param data ({ruleString : string, jsonRuleString : WindowRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : WindowRule}) {
 
-    // Group - can be null
-    if (!isNullOrUndefined(data.jsonRuleString.group)) {
-      let groupFields:string[] = typeof data.jsonRuleString.group.value === 'string' ? [data.jsonRuleString.group.value] : data.jsonRuleString.group.value;
+    // col
+    if (!isNullOrUndefined(data.jsonRuleString.groupBy)) {
+      let groupFields:string[] = data.jsonRuleString.groupBy;
       this.selectedFields = groupFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
     // Order
-    if (!isNullOrUndefined(data.jsonRuleString.order)) {
-      let orderFields: string[] = typeof data.jsonRuleString.order.value === 'string' ? [data.jsonRuleString.order.value] : data.jsonRuleString.order.value;
+    if (!isNullOrUndefined(data.jsonRuleString.sortBy)) {
+      let orderFields: string[] = data.jsonRuleString.sortBy;
       this.selectedSortFields = orderFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
     // Formula
-    this.formulas = [];
-    if (data.jsonRuleString.value.hasOwnProperty('functions')) {
-      data.jsonRuleString.value.functions.forEach((item, idx) => {
-        this.formulas.push({id:idx, value: this.getJoinedExpression(item)});
-      })
-    } else {
-      this.formulas.push({id:0, value: this.getJoinedExpression(data.jsonRuleString.value) });
-    }
+    this.formulaList = data.jsonRuleString.expression;
 
   } // function - _parsingRuleString
-
-  /**
-   * Returns joined Expression
-   * @param value
-   * @returns {string}
-   */
-  public getJoinedExpression(value:any) : string {
-
-    let result = value.name;
-    if (value.args.length !== 0) {
-      let list = value.args.map((item) => {
-        if (item.value.toString().indexOf(' ') !== -1) {
-          return '`' + item.value + '`'
-        } else {
-          return item.value
-        }
-      });
-      result += `(${list.join(',')})`;
-    } else {
-      result += '()';
-    }
-    return result;
-  }
-
-  /**
-   * Sort by 선택
-   * @param data
-   */
-  public selectItem(data) {
-    this.sortBy = data.type;
-
-  } // function - selectItem
 
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

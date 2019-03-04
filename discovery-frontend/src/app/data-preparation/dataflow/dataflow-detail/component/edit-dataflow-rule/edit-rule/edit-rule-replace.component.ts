@@ -22,8 +22,8 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import * as _ from 'lodash';
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
+import {ReplaceRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector : 'edit-rule-replace',
@@ -92,7 +92,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
    * Returns rulestring
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: ReplaceRule } {
 
     // col
     if (0 === this.selectedFields.length) {
@@ -157,16 +157,15 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
       command : 'replace',
       ruleString: ruleString,
       uiRuleString: {
-        command: 'replace',
+        name: 'replace',
         col: this.getColumnNamesInArray(this.selectedFields),
-        with: this.newValue,
-        on: this.pattern,
-        global: this.isGlobal,
+        newVal: this.newValue,
+        pattern: this.pattern,
+        matchOccurrence: this.isGlobal,
         ignoreCase: this.isIgnoreCase,
-        quote: this.ignore,
-        row: this.condition,
+        ignore: this.ignore,
+        condition: this.condition,
         isBuilder: true
-
       }
     };
 
@@ -233,35 +232,27 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
 
   /**
    * Returns rule string
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * @param data ({ruleString : string, jsonRuleString : ReplaceRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : ReplaceRule}) {
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-    this.newValue = data.jsonRuleString.with.escapedValue;
+    this.newValue = data.jsonRuleString.newVal;
 
-    if (data.jsonRuleString.on.value.startsWith('/') && data.jsonRuleString.on.value.endsWith('/')) {
-      this.pattern = data.jsonRuleString.on.value;
-    }  else {
-      this.pattern = data.jsonRuleString.on.escapedValue;
-    }
+    this.pattern = data.jsonRuleString.pattern;
 
-    this.isGlobal = Boolean(data.jsonRuleString.global);
+    this.isGlobal = Boolean(data.jsonRuleString.matchOccurrence);
 
     this.isIgnoreCase = Boolean(data.jsonRuleString.ignoreCase);
 
-    if (data.jsonRuleString.quote) {
-      this.ignore = data.jsonRuleString.quote.escapedValue;
-    }
+    this.ignore = data.jsonRuleString.ignore;
 
-    if (data.jsonRuleString.row) {
-      this.condition = data.ruleString.split('row: ')[1];
-    }
+    this.condition = data.jsonRuleString.condition;
 
-  } // function - _parsingRuleString
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method

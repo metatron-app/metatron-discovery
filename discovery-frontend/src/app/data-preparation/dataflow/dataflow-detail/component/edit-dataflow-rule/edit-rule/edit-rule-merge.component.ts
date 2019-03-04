@@ -19,8 +19,7 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import {isNullOrUndefined, isUndefined} from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
-import * as _ from 'lodash';
+import {MergeRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector : 'edit-rule-merge',
@@ -76,7 +75,7 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
    * returns rule String
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: MergeRule } {
 
     // column
     if (0 === this.selectedFields.length) {
@@ -117,10 +116,10 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
       command : 'merge',
       ruleString: ruleString,
       uiRuleString: {
-        command: 'merge',
+        name: 'merge',
         col: this.getColumnNamesInArray(this.selectedFields),
-        with: this.delimiter,
-        as: this.newValue,
+        delimiter: this.delimiter,
+        newCol: this.newValue,
         isBuilder: true
       }
     };
@@ -172,21 +171,19 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
 
   /**
    * Parse rule string
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * @param data ({ruleString : string, jsonRuleString : MergeRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : MergeRule}) {
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     // NEW COLUMN NAME
-    this.newValue = data.jsonRuleString.as;
-    this.newValue = PreparationCommonUtil.removeQuotation(this.newValue);
+    this.newValue = data.jsonRuleString.newCol;
 
     // DELIMITER
-    this.delimiter = data.jsonRuleString.with;
-    this.delimiter = PreparationCommonUtil.removeQuotation(this.delimiter);
+    this.delimiter = data.jsonRuleString.delimiter;
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

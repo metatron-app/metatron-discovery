@@ -19,10 +19,8 @@ import {
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { RuleConditionInputComponent } from './rule-condition-input.component';
 import {isNullOrUndefined, isUndefined} from "util";
-import {PreparationCommonUtil} from "../../../../../util/preparation-common.util";
-import * as _ from 'lodash';
+import {NestRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector: 'edit-rule-nest',
@@ -32,11 +30,6 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
-
-  @Output()
-  public advancedEditorClickEvent = new EventEmitter();
 
   @ViewChild('newColName')
   private _newColName: ElementRef;
@@ -47,15 +40,18 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @Output()
+  public advancedEditorClickEvent = new EventEmitter();
+
   public inputValue:string;
   public defaultIndex : number = 0;
   public selectedType : string = '';
   public nestList : string[] = ['map', 'array'];
+
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(
     protected elementRef: ElementRef,
     protected injector: Injector) {
@@ -96,7 +92,7 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, col: string, ruleString: string, uiRuleString: Object } {
+  public getRuleData(): { command: string, col: string, ruleString: string, uiRuleString: NestRule } {
 
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
@@ -128,11 +124,11 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
       col: this.getColumnNamesInArray(this.selectedFields, true).toString(),
       ruleString: `nest col: ${columnsWithBackTick.toString()} into: ${this.selectedType} as: ${inputVal}`,
       uiRuleString: {
-        command: 'nest',
+        name: 'nest',
         isBuilder: true,
         col: columns,
-        into: this.selectedType,
-        as: this.inputValue
+        type: this.selectedType,
+        newCol: this.inputValue
       }
     };
 
@@ -181,26 +177,24 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
    * rule string 을 분석한다.
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString: NestRule}) {
+
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     // TYPE
-    this.selectedType = data.jsonRuleString.into;
-    if (this.selectedType.toUpperCase() === 'ARRAY') {
-      this.defaultIndex = 1;
-    } else {
-      this.defaultIndex = 0;
-    }
+    this.selectedType = data.jsonRuleString.type;
+    this.defaultIndex = data.jsonRuleString.type === 'map' ? 0 : 1;
 
     // NEW COLUMN NAME
-    this.inputValue = data.jsonRuleString.as;
-    this.inputValue = PreparationCommonUtil.removeQuotation(this.inputValue);
-  } // function - _parsingRuleString
+    this.inputValue = data.jsonRuleString.newCol;
+
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
 }
+

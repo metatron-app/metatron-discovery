@@ -23,6 +23,7 @@ import { DataflowService } from '../../../../service/dataflow.service';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isNullOrUndefined } from "util";
 import { PrepSelectBoxCustomComponent } from '../../../../../util/prep-select-box-custom.component';
+import {SetFormatRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector : 'edit-rule-setformat',
@@ -169,7 +170,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: SetFormatRule } {
 
     // 선택된 컬럼
     if (0 === this.selectedFields.length) {
@@ -200,7 +201,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
       command : 'setformat',
       ruleString: ruleString,
       uiRuleString: {
-        command : 'setformat',
+        name : 'setformat',
         col : this.getColumnNamesInArray(this.selectedFields),
         format: this.selectedTimestamp === 'Custom format' ?  this.customTimestamp : this.selectedTimestamp,
         isBuilder: true
@@ -261,13 +262,14 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
    * Rule string parse
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : SetFormatRule}) {
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
 
+    // TODO :
     // FORMAT
     if (!isNullOrUndefined(data.jsonRuleString.format)) {
       this.selectedTimestamp = data.jsonRuleString.format;

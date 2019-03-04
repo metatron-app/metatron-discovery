@@ -13,11 +13,10 @@
  */
 
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
-import * as _ from 'lodash';
+import {DropRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector: 'edit-rule-drop',
@@ -40,8 +39,6 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(
     protected elementRef: ElementRef,
     protected injector: Injector) {
@@ -82,7 +79,7 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, col: string, ruleString: string, uiRuleString: Object } {
+  public getRuleData(): { command: string, col: string, ruleString: string, uiRuleString: DropRule } {
 
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
@@ -96,7 +93,7 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
       command: 'drop',
       col: this.getColumnNamesInArray(this.selectedFields, true).toString(),
       ruleString: 'drop col: ' + this.getColumnNamesInArray(this.selectedFields, true).toString(),
-      uiRuleString: {command:'drop', col: this.getColumnNamesInArray(this.selectedFields), isBuilder: true}
+      uiRuleString: {name:'drop', col: this.getColumnNamesInArray(this.selectedFields), isBuilder: true}
     };
 
   } // function - getRuleData
@@ -132,10 +129,10 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
    * rule string 을 분석한다.
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : DropRule}) {
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
   } // function - parsingRuleString

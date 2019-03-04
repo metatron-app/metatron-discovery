@@ -18,7 +18,7 @@ import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import { StringUtil } from '../../../../../../common/util/string.util';
-import * as _ from 'lodash';
+import {UnnestRule} from "../../../../../../domain/data-preparation/prep-rules";
 @Component({
   selector : 'edit-rule-unnest',
   templateUrl : './edit-rule-unnest.component.html'
@@ -79,7 +79,7 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
    * Returns rules tring when add/update button in pressed
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: UnnestRule } {
 
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
@@ -100,9 +100,9 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
       command : 'unnest',
       ruleString: `unnest col: ${this.getColumnNamesInArray(this.selectedFields, true).toString()} into: ${this.selectedFields[0].type} idx: ${clonedSelVal}`,
       uiRuleString: {
-        command: 'unnest',
+        name: 'unnest',
         col: this.getColumnNamesInArray(this.selectedFields),
-        idx: this.selVal,
+        element: this.selVal,
         isBuilder: true
       }
     };
@@ -155,13 +155,13 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
    * rule string 을 분석한다.
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : UnnestRule}) {
 
     // COLUMN
-    let arrFields:string[] = [data.jsonRuleString.col];
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-    this.selVal = data.jsonRuleString.idx.escapedValue;
+    this.selVal = data.jsonRuleString.element;
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

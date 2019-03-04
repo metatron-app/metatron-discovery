@@ -16,7 +16,7 @@ import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } fro
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
-import * as _ from 'lodash';
+import {SortRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector: 'edit-rule-sort',
@@ -38,11 +38,10 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
   public sortList : any [];
   public defaultIndex : number = 0;
   public sortBy : string;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(
     protected elementRef: ElementRef,
     protected injector: Injector) {
@@ -81,7 +80,7 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: SortRule } {
 
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
@@ -92,9 +91,8 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
       command: 'sort',
       ruleString: 'sort order: ' + this.getColumnNamesInArray(this.selectedFields, true).toString(),
       uiRuleString : {
-        command : 'sort',
+        name : 'sort',
         col: this.getColumnNamesInArray(this.selectedFields),
-        type: 0,
         sortBy:'asc',
         isBuilder: true
       }
@@ -103,7 +101,6 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
     if (this.sortBy !== '') {
       rule.ruleString += ' type: '+ this.sortBy
     } else {
-      rule.uiRuleString.type = 1;
       rule.uiRuleString.sortBy = 'desc';
     }
 
@@ -151,19 +148,21 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
     this.sortBy = this.sortList[0].type;
   } // function - afterShowComp
 
+
   /**
    * parse ruleString
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * @param data ({ruleString : string, jsonRuleString : SortRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : SortRule}) {
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.order.value === 'string' ? [data.jsonRuleString.order.value] : data.jsonRuleString.order.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     // SORT BY
-    this.sortBy = data.jsonRuleString.type;
-    this.defaultIndex = this.sortBy ? 1 : 0;
+    this.sortBy = data.jsonRuleString.sortBy;
+
+    this.defaultIndex = this.sortBy === 'asc' ? 0 : 1;
 
   } // function - parsingRuleString
 

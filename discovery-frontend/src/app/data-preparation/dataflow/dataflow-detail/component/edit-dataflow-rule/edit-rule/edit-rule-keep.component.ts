@@ -20,7 +20,7 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { isUndefined } from "util";
 import * as _ from 'lodash';
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
-import {PreparationCommonUtil} from "../../../../../util/preparation-common.util";
+import {KeepRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector : 'edit-rule-keep',
@@ -88,24 +88,24 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
    * Rule 형식 정의 및 반환
    * @return
    */
-  public getRuleData(): { command: string, ruleString:string, uiRuleString: Object} {
-    
-      this.keepRow = this.rowInput.getFormula();
-      let val = _.cloneDeep(this.keepRow);
-      if (isUndefined(val) || '' === val || '\'\'' === val) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.keep.warn'));
-        return undefined
-      }
+  public getRuleData(): { command: string, ruleString:string, uiRuleString: KeepRule} {
 
-      return {
-        command: 'keep',
-        ruleString: 'keep row: ' + val,
-        uiRuleString: {
-          command: 'keep',
-          row: this.keepRow,
-          isBuilder: true
-        }
-      };
+    this.keepRow = this.rowInput.getFormula();
+    let val = _.cloneDeep(this.keepRow);
+    if (isUndefined(val) || '' === val || '\'\'' === val) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.keep.warn'));
+      return undefined
+    }
+
+    return {
+      command: 'keep',
+      ruleString: 'keep row: ' + val,
+      uiRuleString: {
+        name: 'keep',
+        condition: this.keepRow,
+        isBuilder: true
+      }
+    };
   } // function - getRuleData
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -147,15 +147,11 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
 
   /**
    * rule string 을 분석한다.
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * @param data ({ruleString : string, jsonRuleString : KeepRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : KeepRule}) {
 
-    let targetStr  = data.ruleString.split('keep ')[1];
-    let regex = /(row *: {1})/gi;
-
-    const ruleStr = PreparationCommonUtil.getRuleString(targetStr, regex);
-    this.keepRow = ruleStr['row: '];
+    this.keepRow = data.jsonRuleString.condition;
 
   } // function - parsingRuleString
 

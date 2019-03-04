@@ -27,7 +27,6 @@ import { Alert } from '../../../../../common/util/alert.util';
 import { PreparationAlert } from '../../../../util/preparation-alert.util';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
 import { DataflowService } from '../../../service/dataflow.service';
-import { MulticolumnRenameComponent } from './multicolumn-rename.component';
 import { ExtendInputFormulaComponent } from './extend-input-formula.component';
 import { EditRuleGridComponent } from './edit-rule-grid/edit-rule-grid.component';
 import { EditRuleComponent } from './edit-rule/edit-rule.component';
@@ -51,9 +50,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @ViewChild(EditRuleGridComponent)
   private _editRuleGridComp: EditRuleGridComponent;
-
-  @ViewChild(MulticolumnRenameComponent)
-  private multicolumnRenameComponent: MulticolumnRenameComponent;
 
   @ViewChild(MultipleRenamePopupComponent)
   private multipleRenamePopupComponent: MultipleRenamePopupComponent;
@@ -612,7 +608,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
       // get rule string from individual components
       rule = this._editRuleComp.getRuleData();
-      console.info('rule --> ', rule);
       if (isUndefined(rule)) {
         this._isExecAddRule = false;
         return;
@@ -1436,7 +1431,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * Context Menu Rule 적용 이벤트
    * @param data
    */
-  public applyRuleFromContextMenu(data) {
+  public onContextMenuInfo(data) {
 
     if (data.more) {
       this.ruleVO.command = data.more.command;
@@ -1657,50 +1652,51 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         2.3. 설명레이어 : 관계 없이 동작
         2.4. 팝업 : 동작 안함
      */
-    if( !isNullOrUndefined( this.ruleVO.command ) && ( 'BODY' === event.target['tagName'] || 0 < $( event.target ).closest( '.ddp-wrap-addrule' ).length )  ) {
-      // enter key only works when there is not popup or selectbox opened
-
-      const openComboList = $( '.ddp-list-selectbox:visible' );
-
-      if( 0 < openComboList.length ) {
-        const isAutoComple:boolean = 0 < openComboList.closest( 'rule-condition-input' ).length;
-        if( isAutoComple ) {
-          // 자동완성 : 레이어가 열려있음
-
-          let isPrevBackColor:string = '';
-          let isFocus:boolean = false;
-          $( '.ddp-list-selectbox:visible' ).find( 'li a' ).each( ( idx, val ) => {
-            const $listItem = $( val );
-            if( 0 === idx ) {
-              isPrevBackColor = $listItem.css( 'background-color' );
-            } else {
-              if( isPrevBackColor !== $listItem.css( 'background-color' ) ) {
-                isFocus = true;
-                return;
-              } else {
-                isPrevBackColor = $listItem.css( 'background-color' );
-              }
-            }
-          });
-
-          if( isFocus ) {
-            // 포커스가 된 상태 - 동작 안함
-            return;
-          } else {
-            // 포커스가 안 된 상태 - 동작
-            this.addRule();
-          }
-        } else {
-          // 콤보박스 : 열림 상태 - 동작 안함
-          return;
-        }
-      } else if( 0 < $( '.ddp-bg-popup:visible' ).length ) {
-        // 팝업 : 열림 상태 - 동작 안함
-        return;
-      } else {
-        this.addRule();
-      }
-    }
+    // if( !isNullOrUndefined( this.ruleVO.command ) && ( 'BODY' === event.target['tagName'] || 0 < $( event.target ).closest( '.ddp-wrap-addrule' ).length )  ) {
+    //   // enter key only works when there is not popup or selectbox opened
+    //
+    //   const openComboList = $( '.ddp-list-selectbox:visible' );
+    //
+    //   if( 0 < openComboList.length ) {
+    //     const isAutoComple:boolean = 0 < openComboList.closest( 'rule-condition-input' ).length;
+    //     if( isAutoComple ) {
+    //       // 자동완성 : 레이어가 열려있음
+    //
+    //       let isPrevBackColor:string = '';
+    //       let isFocus:boolean = false;
+    //       $( '.ddp-list-selectbox:visible' ).find( 'li a' ).each( ( idx, val ) => {
+    //         const $listItem = $( val );
+    //         if( 0 === idx ) {
+    //           isPrevBackColor = $listItem.css( 'background-color' );
+    //         } else {
+    //           if( isPrevBackColor !== $listItem.css( 'background-color' ) ) {
+    //             isFocus = true;
+    //             return;
+    //           } else {
+    //             isPrevBackColor = $listItem.css( 'background-color' );
+    //           }
+    //         }
+    //       });
+    //
+    //       if( isFocus ) {
+    //         // 포커스가 된 상태 - 동작 안함
+    //         return;
+    //       } else {
+    //         // 포커스가 안 된 상태 - 동작
+    //         this.addRule();
+    //       }
+    //     } else {
+    //       // 콤보박스 : 열림 상태 - 동작 안함
+    //       return;
+    //     }
+    //   } else if( 0 < $( '.ddp-bg-popup:visible' ).length ) {
+    //     // 팝업 : 열림 상태 - 동작 안함
+    //     return;
+    //   } else {
+    //     this.addRule();
+    //   }
+    // }
+    this.addRule();
 
   } // function - onEnterKeydownHandler
 
@@ -1717,6 +1713,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     });
 
     // ruleStringInfos
+    const jsonRule = {};
     rules.forEach((rule) => {
       rule['ruleVO'] = JSON.parse(rule['jsonRuleString']);
       rule['ruleVO']['command'] = rule['ruleVO']['name'];
@@ -1957,13 +1954,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this.changeDetect.detectChanges();
 
-    // TODO : Check if necessary - Unselect all columns
-    // this.selectedRows = [];
-    // this.editColumnList = [];
-
     this.isJumped = false;
-    (command === 'multipleRename') && (this.multicolumnRenameComponent.showFlag = false);
-
 
     this.opString = rule['op'];
 
@@ -1974,8 +1965,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       ruleString : rule['ruleString'],
       uiRuleString : JSON.stringify(rule['uiRuleString'])
     };
-
-    console.info('uiString --', rule['uiRuleString'])
 
     this._setEditRuleInfo(param).then((data: { apiData: any, gridData: any }) => {
 

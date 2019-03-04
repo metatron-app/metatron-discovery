@@ -176,17 +176,6 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
    */
   protected abstract parsingRuleString(ruleString:any);
 
-  /**
-   * rule String 내 특정 속성에 대한 값을 얻는다.
-   * @param attr
-   * @param ruleString
-   * @protected
-   */
-  protected getAttrValueInRuleString( attr:string, ruleString:string ) {
-    const parsingResult:string[] = (new RegExp( attr + '\\s?:\\s?(\\S*)' )).exec( ruleString );
-    return ( parsingResult ) ? parsingResult[1] : '';
-  } // function - getAttrValueInRuleString
-
 
   protected getColumnNamesInArray(fields: Field[], isWrap:boolean = false) :string[] {
     return fields.map((item) => {

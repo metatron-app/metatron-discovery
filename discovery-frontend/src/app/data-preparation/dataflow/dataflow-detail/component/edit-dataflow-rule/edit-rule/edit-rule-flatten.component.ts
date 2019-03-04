@@ -17,7 +17,7 @@ import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } fro
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import * as _ from 'lodash';
+import {FlattenRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector : 'edit-rule-flatten',
@@ -85,7 +85,7 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: FlattenRule } {
 
     // 선택된 컬럼
     if (0 === this.selectedFields.length) {
@@ -99,7 +99,7 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
       command : 'flatten',
       ruleString: ruleString,
       uiRuleString: {
-        command: 'flatten',
+        name: 'flatten',
         isBuilder: true,
         col: this.getColumnNamesInArray(this.selectedFields)
       }
@@ -150,9 +150,9 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
    * parse ruleString
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : FlattenRule}) {
 
-    let arrFields:string[] = [data.jsonRuleString.col];
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
   } // function - _parsingRuleString

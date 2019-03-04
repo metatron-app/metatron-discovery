@@ -22,6 +22,7 @@ import { StringUtil } from '../../../../../../common/util/string.util';
 import { isNullOrUndefined } from 'util';
 import { PrepSelectBoxComponent } from "../../../../../util/prep-select-box.component";
 import { PrepSelectBoxCustomComponent } from '../../../../../util/prep-select-box-custom.component';
+import {SetTypeRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector : 'edit-rule-settype',
@@ -146,7 +147,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
     for (let key in result) {
       // if (result.hasOwnProperty(key)) {
-        keyList.push(key);
+      keyList.push(key);
       // }
     }
 
@@ -255,11 +256,12 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
     return {
       command : 'settype',
       ruleString: ruleString,
-      uiRuleString: {command: 'settype',
-      col : this.getColumnNamesInArray(this.selectedFields),
-      type: this.selectedType,
-      format: 'Custom format' === this.selectedTimestamp ? this.customTimestamp : this.selectedTimestamp,
-      isBuilder: true}
+      uiRuleString: {
+        name: 'settype',
+        col : this.getColumnNamesInArray(this.selectedFields),
+        type: this.selectedType,
+        format: 'Custom format' === this.selectedTimestamp ? this.customTimestamp : this.selectedTimestamp,
+        isBuilder: true}
     };
 
   } // function - getRuleData
@@ -317,7 +319,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
       this.isTimestamp = false;
     }
   }
- 
+
   /**
    * Show/hide pattern tooltip
    * @param {boolean} isShow
@@ -373,14 +375,16 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * parse rule string (When editing)
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : SetTypeRule}) {
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     // TYPE
-    this.selectedType = data.jsonRuleString.type.toLowerCase();
+    this.selectedType = data.jsonRuleString.type;
+
+    // TODO :
     this.defaultIndex = this.typeList.indexOf(this.selectedType);
 
     // FORMAT

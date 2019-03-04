@@ -18,6 +18,7 @@ import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 import {isUndefined} from "util";
+import {AggregateRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 interface formula {
   id: number;
@@ -50,8 +51,6 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(
     protected elementRef: ElementRef,
     protected injector: Injector) {
@@ -84,7 +83,7 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
    * Rule 형식 정의 및 반환
    * @return {{command: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string, uiRuleString: Object } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: AggregateRule } {
 
     // 수식
     const formulaValueList = this.ruleSuggestInput
@@ -108,18 +107,14 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
       command: 'aggregate',
       ruleString: `aggregate value: ${value} group: ${this.getColumnNamesInArray(this.selectedFields, true).toString()}`,
       uiRuleString: {
-        command: 'aggregate',
-        value: formulaValueList,
+        name: 'aggregate',
+        expression: formulaValueList,
         col: this.getColumnNamesInArray(this.selectedFields),
         isBuilder: true
       }
     };
 
   } // function - getRuleData
-
-  public getRuleDataWithoutValidation() {
-
-  } // function - getRuleDataWithoutValidation
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
@@ -177,21 +172,14 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
 
   /**
    * rule string 을 분석한다.
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * @param data ({ruleString : string, jsonRuleString : AggregateRule})
    */
-  protected parsingRuleString(data : {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data : {ruleString : string, jsonRuleString : AggregateRule}) {
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.group.value === 'string' ? [data.jsonRuleString.group.value] : data.jsonRuleString.group.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-    this.formulas = [];
-    let strFormulaList:string = this.getAttrValueInRuleString( 'value', data.ruleString );
-    if( '' !== strFormulaList) {
-      this.formulaList = strFormulaList.split( ',' ).map( item => item.replace( /'/g, '' ) );
-      this.formulaList.forEach((item,idx)=>{
-        this.formulas.push({id:idx, value: item});
-      })
-    }
+    this.formulaList = data.jsonRuleString.expression;
 
   } // function - parsingRuleString
 
