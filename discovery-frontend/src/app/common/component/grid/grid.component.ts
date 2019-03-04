@@ -1069,16 +1069,12 @@ export class GridComponent implements AfterViewInit, OnDestroy {
                   const field = cols[index].sortCol.field;
                   const sign = cols[index].sortAsc ? 1 : -1;
 
-                  if (_.isNil(row1[field])) {
-                    row1[field] = "";
-                  } else {
-                    row1[field].replace("", " ");
+                  if (_.isNil(row1[field]) || row1[field] === '') {
+                    row1[field] = " ";
                   }
 
-                  if (_.isNil(row2[field])) {
-                    row2[field] = "";
-                  } else {
-                    row2[field].replace("", " ");
+                  if (_.isNil(row2[field]) || row2[field] === '') {
+                    row2[field] = " ";
                   }
 
                   const value1 = row1[field];
