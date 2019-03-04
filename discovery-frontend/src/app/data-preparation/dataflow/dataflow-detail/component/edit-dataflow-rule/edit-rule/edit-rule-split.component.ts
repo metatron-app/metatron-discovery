@@ -192,7 +192,7 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
    * parse jsonRuleString
    * @param data ({ruleString : string, jsonRuleString : SplitRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : SplitRule}) {
+  protected parsingRuleString(data: {jsonRuleString : SplitRule}) {
 
     // COLUMN
     let arrFields:string[] = data.jsonRuleString.col;

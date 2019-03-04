@@ -174,7 +174,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
    * parse ruleString
    * @param data ({ruleString : string, jsonRuleString : RenameRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : RenameRule}) {
+  protected parsingRuleString(data: {jsonRuleString : RenameRule}) {
 
     // COLUMN
     let arrFields:string[] = data.jsonRuleString.col;

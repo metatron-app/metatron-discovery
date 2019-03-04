@@ -119,7 +119,7 @@ export class PivotRule extends AbstractPrepRule {
 
 export class UnpivotRule extends AbstractPrepRule {
   public col: string[];
-  public groupEvery: string;
+  public groupEvery: number;
 }
 
 export class WindowRule extends AbstractPrepRule {

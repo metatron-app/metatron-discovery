@@ -234,7 +234,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
    * Returns rule string
    * @param data ({ruleString : string, jsonRuleString : ReplaceRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : ReplaceRule}) {
+  protected parsingRuleString(data: {jsonRuleString : ReplaceRule}) {
 
     // COLUMN
     let arrFields:string[] = data.jsonRuleString.col;

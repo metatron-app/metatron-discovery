@@ -149,7 +149,7 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
    * rule string 을 분석한다.
    * @param data ({ruleString : string, jsonRuleString : KeepRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : KeepRule}) {
+  protected parsingRuleString(data: {jsonRuleString : KeepRule}) {
 
     this.keepRow = data.jsonRuleString.condition;
 

@@ -46,7 +46,7 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
 
   // Rule 에 대한 입력 값들
   public pattern:string = '';
-  public limit:number; 
+  public limit:number;
   public ignore:string = '';
   public isIgnoreCase:boolean = false;
 
@@ -192,9 +192,9 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
 
   /**
    * Parse rule string
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * @param data ({jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : ExtractRule}) {
+  protected parsingRuleString(data: {jsonRuleString : ExtractRule}) {
 
     // COLUMN
     let arrFields:string[] = data.jsonRuleString.col;

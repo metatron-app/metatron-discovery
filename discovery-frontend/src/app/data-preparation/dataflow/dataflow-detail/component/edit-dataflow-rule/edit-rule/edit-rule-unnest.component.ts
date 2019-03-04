@@ -155,7 +155,7 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
    * rule string 을 분석한다.
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : UnnestRule}) {
+  protected parsingRuleString(data: {jsonRuleString : UnnestRule}) {
 
     // COLUMN
     let arrFields:string[] = data.jsonRuleString.col;

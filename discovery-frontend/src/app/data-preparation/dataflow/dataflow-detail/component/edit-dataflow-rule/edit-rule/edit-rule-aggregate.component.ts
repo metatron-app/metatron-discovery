@@ -172,9 +172,9 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
 
   /**
    * rule string 을 분석한다.
-   * @param data ({ruleString : string, jsonRuleString : AggregateRule})
+   * @param data ({jsonRuleString : AggregateRule})
    */
-  protected parsingRuleString(data : {ruleString : string, jsonRuleString : AggregateRule}) {
+  protected parsingRuleString(data : {jsonRuleString : AggregateRule}) {
     // COLUMN
     let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);

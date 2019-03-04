@@ -170,14 +170,13 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
 
   /**
    * parse rule string
-   * @param data ({ruleString : string, jsonRuleString : CountPatternRule})
+   * @param data ({jsonRuleString : CountPatternRule})
    */
-  protected parsingRuleString(data : {ruleString : string, jsonRuleString : CountPatternRule}) {
+  protected parsingRuleString(data : {jsonRuleString : CountPatternRule}) {
 
     // COLUMN
     let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
-
 
     this.pattern = data.jsonRuleString.pattern;
 

@@ -156,9 +156,9 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
 
   /**
    * parse rule string
-   * @param data ({ruleString : string, jsonRuleString : DeleteRule})
+   * @param data ({jsonRuleString : DeleteRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : DeleteRule}) {
+  protected parsingRuleString(data: {jsonRuleString : DeleteRule}) {
 
     this.rowNum = data.jsonRuleString.condition;
 

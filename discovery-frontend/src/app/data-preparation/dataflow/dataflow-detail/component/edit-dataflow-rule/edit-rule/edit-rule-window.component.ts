@@ -219,7 +219,7 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
    * rule string 을 분석한다.
    * @param data ({ruleString : string, jsonRuleString : WindowRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : WindowRule}) {
+  protected parsingRuleString(data: {jsonRuleString : WindowRule}) {
 
     // col
     if (!isNullOrUndefined(data.jsonRuleString.groupBy)) {

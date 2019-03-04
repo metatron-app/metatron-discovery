@@ -200,8 +200,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * parse rule string
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : SetRule}) {
-
+  protected parsingRuleString(data: {jsonRuleString : SetRule}) {
 
     if (!data.jsonRuleString.hasOwnProperty('contextMenu')) {
       // COLUMN
@@ -210,14 +209,6 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
       this.condition = data.jsonRuleString.condition;
       this.inputValue = data.jsonRuleString.expression;
 
-      // TODO : context menu
-      // if (data.jsonRuleString.row) {
-      //   let row = data.ruleString.split('row: ');
-      //   this.condition = row[1];
-      //   this.inputValue = row[0].split('value: ')[1];
-      // } else {
-      //   this.inputValue = data.ruleString.split('value: ')[1];
-      // }
     } else {
       if (data.jsonRuleString.condition) {
         this.condition = data.jsonRuleString.condition;

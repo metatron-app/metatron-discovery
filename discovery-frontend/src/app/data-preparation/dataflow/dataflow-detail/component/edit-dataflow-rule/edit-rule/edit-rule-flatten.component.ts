@@ -150,7 +150,7 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
    * parse ruleString
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : FlattenRule}) {
+  protected parsingRuleString(data: {jsonRuleString : FlattenRule}) {
 
     let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);

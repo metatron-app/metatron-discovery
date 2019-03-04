@@ -54,7 +54,6 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
   public selectedTimestamp : string = '';
   public selectedType : string = '';
-  public customTimestamp: string; // custom format
   public typeList : string [] = ['long', 'double', 'string', 'boolean', 'timestamp'];
 
   public defaultIndex : number = -1;
@@ -229,28 +228,20 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
     let ruleString = 'settype col: ' + this.getColumnNamesInArray(this.selectedFields, true).toString() + ` type: ${this.selectedType}`;
 
+
+    let copiedTimestamp: string = this.selectedTimestamp;
+
     // Timestamp
-    if (this.isTimestamp && '' !== this.selectedTimestamp) {
+    if (this.isTimestamp && '' !== copiedTimestamp) {
       ruleString += ' format: ';
-      if ('Custom format' === this.selectedTimestamp) {
-        let check:any = StringUtil.checkSingleQuote(this.customTimestamp, { isPairQuote: true, isWrapQuote: true });
-        if (check[0] === false) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
-          return undefined;
-        } else {
-          this.customTimestamp = check[1];
-        }
-        ruleString += this.customTimestamp
+      let check:any = StringUtil.checkSingleQuote(this.selectedTimestamp, { isPairQuote: true, isWrapQuote: true });
+      if (check[0] === false) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
+        return undefined;
       } else {
-        let check:any = StringUtil.checkSingleQuote(this.selectedTimestamp, { isPairQuote: true, isWrapQuote: true });
-        if (check[0] === false) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
-          return undefined;
-        } else {
-          this.selectedTimestamp = check[1];
-        }
-        ruleString += this.selectedTimestamp;
+        this.selectedTimestamp = check[1];
       }
+      ruleString += this.selectedTimestamp;
     }
 
     return {
@@ -260,7 +251,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
         name: 'settype',
         col : this.getColumnNamesInArray(this.selectedFields),
         type: this.selectedType,
-        format: 'Custom format' === this.selectedTimestamp ? this.customTimestamp : this.selectedTimestamp,
+        format: copiedTimestamp,
         isBuilder: true}
     };
 

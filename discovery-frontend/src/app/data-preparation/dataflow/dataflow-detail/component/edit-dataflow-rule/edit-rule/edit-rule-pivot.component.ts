@@ -194,7 +194,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    * parse rule string
    * @param data ({ruleString : string, jsonRuleString : PivotRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : PivotRule}) {
+  protected parsingRuleString(data: {ruleString? : string, jsonRuleString : PivotRule}) {
 
     // COLUMN
     let arrFields:string[] = data.jsonRuleString.col;

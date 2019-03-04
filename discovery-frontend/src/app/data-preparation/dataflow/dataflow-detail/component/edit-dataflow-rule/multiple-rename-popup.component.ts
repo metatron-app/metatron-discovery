@@ -240,7 +240,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
     this.renameMultiColumns.emit(originals.length > 0 ? {
       op: this.op,
       ruleString: `rename col: ${originalsWithBackTick.toString()} to: ${renamedWithQuote.toString()}`,
-      uiRuleString: {command: 'rename', col:originals, to: renamed}
+      uiRuleString: {name: 'rename', col:originals, to: renamed}
     } : null );
 
   }

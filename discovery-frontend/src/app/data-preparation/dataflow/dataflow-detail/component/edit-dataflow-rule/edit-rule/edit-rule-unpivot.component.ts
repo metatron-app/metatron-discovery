@@ -40,7 +40,7 @@ export class EditRuleUnpivotComponent extends EditRuleComponent implements OnIni
   @Output()
   public advancedEditorClickEvent = new EventEmitter();
 
-  public inputValue:string;
+  public inputValue: number;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -140,11 +140,12 @@ export class EditRuleUnpivotComponent extends EditRuleComponent implements OnIni
    */
   protected afterShowComp() {} // function - _afterShowComp
 
+
   /**
-   * parse rulestring
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * parse rule string
+   * @param data ({ruleString : string, jsonRuleString : UnpivotRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : UnpivotRule}) {
+  protected parsingRuleString(data: {jsonRuleString : UnpivotRule}) {
 
     // COLUMN
     let arrFields:string[] = data.jsonRuleString.col;

@@ -173,9 +173,9 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
 
   /**
    * parse rule string
-   * @param data ({ruleString : string, jsonRuleString : DeriveRule})
+   * @param data ({jsonRuleString : DeriveRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : DeriveRule}) {
+  protected parsingRuleString(data: {jsonRuleString : DeriveRule}) {
 
     this.deriveVal = data.jsonRuleString.expression;
     this.deriveAs = data.jsonRuleString.newCol;

@@ -262,14 +262,12 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
    * Rule string parse
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : SetFormatRule}) {
+  protected parsingRuleString(data: {jsonRuleString : SetFormatRule}) {
 
     // COLUMN
     let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-
-    // TODO :
     // FORMAT
     if (!isNullOrUndefined(data.jsonRuleString.format)) {
       this.selectedTimestamp = data.jsonRuleString.format;

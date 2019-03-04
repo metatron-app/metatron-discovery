@@ -127,9 +127,9 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
 
   /**
    * rule string 을 분석한다.
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * @param data ({jsonRuleString : DropRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : DropRule}) {
+  protected parsingRuleString(data: {jsonRuleString : DropRule}) {
 
     // COLUMN
     let arrFields:string[] = data.jsonRuleString.col;
