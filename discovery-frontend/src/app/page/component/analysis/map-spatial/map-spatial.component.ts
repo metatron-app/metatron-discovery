@@ -31,12 +31,8 @@ import {Shelf} from "../../../../domain/workbook/configurations/shelf/shelf";
 })
 export class MapSpatialComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
 
-  public shelf: Shelf;
-
-  @Input('shelf')
-  set setShelf(shelf: Shelf) {
-    this.shelf = shelf;
-  }
+  @Input('uiOption')
+  public uiOption: UIOption;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -61,12 +57,11 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
 
   // onChanges
   public ngOnChanges(changes: SimpleChanges): void {
-    console.log('###', this.shelf);
+    console.log('###', changes);
   }
 
   // afterInit
   public ngAfterViewInit(): void {
-    console.log('###', this.shelf);
   }
 
   // Destory

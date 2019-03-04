@@ -28,7 +28,6 @@ import { HyperParameter } from '../value/analysis';
 import { LineChartComponent } from '../../../common/component/chart/type/line-chart/line-chart.component';
 import { AnalysisPredictionService } from './service/analysis.prediction.service';
 import {fromEvent} from "rxjs";
-import {Shelf} from "../../../domain/workbook/configurations/shelf/shelf";
 
 @Component({
   selector: 'analysis-component',
@@ -74,9 +73,6 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   @Output('changeConfidenceNoti')
   private changeConfidence = new EventEmitter();
 
-  @Output('changeShelf')
-  public changeShelfEvent: EventEmitter<any> = new EventEmitter();
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -87,9 +83,8 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
 
   public dataSubLayerKey: string = '';
 
-  public shelf: Shelf;
-
-  public tempShelf: Shelf;
+  @Input('uiOption')
+  public uiOption: UIOption;
 
   // ---------------------------------------
   // @Input
@@ -107,12 +102,6 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   @Input('dataLayerKey')
   public dataLayerKey: string;
 
-  // layer에 따라서 해당 index에 설정하기
-  @Input('shelf')
-  set setShelf(shelf: Shelf) {
-    this.tempShelf = shelf;
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -129,8 +118,6 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public ngOnChanges(changes: SimpleChanges): void {
-
-    console.log('###', this.shelf);
 
     if (!_.isUndefined(changes['dataLayerKey'])) {
       if (changes['dataLayerKey'].currentValue !== 'analysis') {
