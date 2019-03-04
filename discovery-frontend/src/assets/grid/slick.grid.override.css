@@ -77,7 +77,6 @@
 
 :host /deep/ .slick-sort-indicator {
   float: inherit;
-  margin: 0;
   width: 7px;
   height: 4px;
   display: inline-block;
@@ -93,18 +92,15 @@
 
 :host /deep/ .slick-sort-indicator-asc {
   position: absolute;
-  top: 10px;
-  right: 9px;
   width: 7px;
   height: 4px;
 }
 
 :host /deep/ .slick-sort-indicator-desc {
   position: absolute;
-  top: 15px;
-  right: 9px;
   width: 7px;
   height: 4px;
+  margin-top:0;
   background-position: left -5px;
 }
 
