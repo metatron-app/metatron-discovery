@@ -17,6 +17,12 @@ import { GranularityType } from '../workbook/configurations/field/timestamp-fiel
 import { Dataconnection } from '../dataconnection/dataconnection';
 import { MetadataColumn } from '../meta-data-management/metadata-column';
 import { CodeTable } from '../meta-data-management/code-table';
+import {
+  CreateSnapShotData,
+  CreateSourceCompleteData,
+  CreateSourceConfigureData
+} from "../../data-storage/service/data-source-create.service";
+import {PrDataSnapshot} from "../data-preparation/pr-snapshot";
 
 export class Datasource extends AbstractHistoryEntity {
   id: string;             // ID
@@ -36,6 +42,7 @@ export class Datasource extends AbstractHistoryEntity {
   linkedWorkspaces: number;   // 연결된 workspaces 개수
   ingestion: any;             // 데이터 소스 적재 정보
   fields: Field[];            // 데이터 소스 필드 정보
+  snapshot?: PrDataSnapshot;
   // workspaces
   // dashBoards
   connection: Dataconnection;
@@ -255,6 +262,15 @@ export class Field {
 
 // 데이터소스 생성시 사용하는 정보
 export class DatasourceInfo {
+  // src type
+  public type: SourceType;
+  public dsType: DataSourceType;
+  // conn type
+  public connType: ConnectionType;
+  // field list data
+  public fieldList: any;
+  // field data
+  public fieldData: any;
 
   // 1step 커넥션 정보
   public connectionData: any;
@@ -263,23 +279,25 @@ export class DatasourceInfo {
   public databaseData: any;
   // 2step 파일 정보
   public fileData: any;
+  // snapshot
+  public snapshotData: CreateSnapShotData;
 
   // 3step 스키마 정보
+  // TODO configureData로 변경
   public schemaData: any;
+  public configureData: CreateSourceConfigureData;
 
   // 4step
+  // TODO CreateSourceIngestionData로 타입 변경
   public ingestionData: any;
 
   // 5step 생성정보
-  public createData: any;
+  public completeData: CreateSourceCompleteData;
 
   // 분기를 위한 플래그
+  // TODO isDisableDataSelect로 변경
   public workbenchFl: boolean;
-
-  // field list data
-  public fieldList: any;
-  // field data
-  public fieldData: any;
+  public isDisableDataSelect: boolean;
 }
 
 export class IngestionRule {
@@ -331,17 +349,20 @@ export enum IngestionStatus {
   PASS = <any>'PASS'
 }
 
+// dsType
 export enum DataSourceType {
   MASTER = <any>'MASTER',
   JOIN = <any>'JOIN',
   VOLATILITY = <any>'VOLATILITY'
 }
 
+// connType
 export enum ConnectionType {
   ENGINE = <any>'ENGINE',
   LINK = <any>'LINK'
 }
 
+// srcType
 export enum SourceType {
   FILE = <any>'FILE',
   HDFS = <any>'HDFS',

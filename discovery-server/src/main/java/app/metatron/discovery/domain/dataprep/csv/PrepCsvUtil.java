@@ -1,30 +1,46 @@
 package app.metatron.discovery.domain.dataprep.csv;
 
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import com.google.common.collect.Maps;
-import org.apache.commons.csv.*;
-import org.apache.commons.io.ByteOrderMark;
-import org.apache.commons.io.input.BOMInputStream;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.*;
-import org.apache.hadoop.fs.FileSystem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletOutputStream;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+import javax.servlet.ServletOutputStream;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.csv.QuoteMode;
+import org.apache.commons.io.ByteOrderMark;
+import org.apache.commons.io.input.BOMInputStream;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.ContentSummary;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PrepCsvUtil {
   private static Logger LOGGER = LoggerFactory.getLogger(PrepCsvUtil.class);
@@ -37,7 +53,7 @@ public class PrepCsvUtil {
     BOMInputStream bis = new BOMInputStream(is, true, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
 
     try {
-      if (bis.hasBOM() == false) {
+      if (bis.hasBOM() == false || bis.hasBOM(ByteOrderMark.UTF_8)) {
         charset = "UTF-8";
       } else if (bis.hasBOM(ByteOrderMark.UTF_16LE) || bis.hasBOM(ByteOrderMark.UTF_16BE)) {
         charset = "UTF-16";
@@ -83,13 +99,13 @@ public class PrepCsvUtil {
    * @param strDelim    Delimiter as String (to be Char)
    * @param limitRows   Read not more than this
    * @param conf        Hadoop configuration which is mandatory when the url's protocol is hdfs
-   * @param header      If true, fill PrepCsvParseResult.colNames with the header line, then skip it
+   * @param onlyCount   If true, just fill result.totalRows and result.totalBytes
    *
    * @return PrepCsvParseResult: grid, header, maxColCnt
    *
    *  Sorry for so many try-catches. Sacrificed readability for end-users' usability.
    */
-  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf, boolean header) {
+  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf, boolean onlyCount) {
     PrepCsvParseResult result = new PrepCsvParseResult();
     Reader reader;
     URI uri;
@@ -122,6 +138,11 @@ public class PrepCsvUtil {
 
         FSDataInputStream his;
         try {
+          if (onlyCount) {
+            ContentSummary cSummary = hdfsFs.getContentSummary(path);
+            result.totalBytes = cSummary.getLength();
+          }
+
           his = hdfsFs.open(path);
         } catch (IOException e) {
           e.printStackTrace();
@@ -133,6 +154,9 @@ public class PrepCsvUtil {
 
       case "file":
         File file = new File(uri);
+        if (onlyCount) {
+          result.totalBytes = file.length();
+        }
 
         FileInputStream fis;
         try {
@@ -159,35 +183,46 @@ public class PrepCsvUtil {
                                  String.format("%s (delimiter: %s)", strUri, strDelim));
     }
 
-    // We stop gathering rows when any exception comes out.
-    // I could do skipping each row that has problem suppressing each exception, but it's not the major case.
-    // So I decided to stop at the first exception and we'll continue by the contents until then.
-    try {
-      for (CSVRecord csvRow : parser) {
-        int colCnt = csvRow.size();
-        result.maxColCnt = Math.max(result.maxColCnt, colCnt);
+    Iterator<CSVRecord> iter = parser.iterator();
 
-        String[] row = new String[result.maxColCnt];
-        for (int i = 0; i < colCnt; i++) {
-          row[i] = csvRow.get(i);
-        }
+    while (true) {
+      CSVRecord csvRow;
 
-        if (header) {
-          result.colNames = new ArrayList();
-          result.colNames.addAll(Arrays.asList(row));
-          header = false;
-          continue;
-        }
-
-        result.grid.add(row);
-
-        if (result.grid.size() == limitRows) {
+      try {
+        if (!iter.hasNext()) {
           break;
         }
+      } catch (IllegalStateException e) {
+        e.printStackTrace();
+        // suppress
       }
-    } catch (IllegalStateException e) {
-      e.printStackTrace();
-      // suppressed
+
+      try {
+        csvRow = iter.next();
+      } catch (IllegalStateException e) {
+        e.printStackTrace();
+        // suppress
+        continue;
+      }
+
+      int colCnt = csvRow.size();
+      result.maxColCnt = Math.max(result.maxColCnt, colCnt);
+
+      String[] row = new String[colCnt];
+      for (int i = 0; i < colCnt; i++) {
+        row[i] = csvRow.get(i);
+      }
+
+      if (onlyCount) {
+        result.totalRows++;
+        continue;
+      }
+
+      result.grid.add(row);
+
+      if (result.grid.size() == limitRows) {
+        break;
+      }
     }
 
     return result;
@@ -197,122 +232,12 @@ public class PrepCsvUtil {
     return parse(strUri, strDelim, limitRows, conf, false);
   }
 
-  /**
-   * @param strUri      URI as String (to be java.net.URI)
-   * @param strDelim    Delimiter as String (to be Char)
-   * @param limitRows   Read not more than this
-   * @param conf        Hadoop configuration which is mandatory when the url's protocol is hdfs
-   * @param header      If true, fill PrepCsvParseResult.colNames with the header line, then skip it
-   *
-   * @return Long: total Row count
-   *
-   *  Sorry for so many try-catches. Sacrificed readability for end-users' usability.
-   */
-  public static Map<String,Long> countCsv(String strUri, String strDelim, int limitRows, Configuration conf, boolean header) {
-    Long totalRows = 0L;
-    Long totalBytes = 0L;
-    Reader reader;
-    URI uri;
-
-    LOGGER.debug("PrepCsvUtil.parse(): strUri={} strDelim={} conf={}", strUri, strDelim, conf);
-
-    char delim = getUnescapedDelimiter(strDelim);
-
-    try {
-      uri = new URI(strUri);
-    } catch (URISyntaxException e) {
-      e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strUri);
-    }
-
-    switch (uri.getScheme()) {
-      case "hdfs":
-        if (conf == null) {
-          throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
-        }
-        Path path = new Path(uri);
-
-        FileSystem hdfsFs;
-        try {
-          hdfsFs = FileSystem.get(conf);
-        } catch (IOException e) {
-          e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, strUri);
-        }
-
-        FSDataInputStream his;
-        try {
-          ContentSummary cSummary = hdfsFs.getContentSummary(path);
-          totalBytes = cSummary.getLength();
-
-          his = hdfsFs.open(path);
-        } catch (IOException e) {
-          e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, strUri);
-        }
-
-        reader = getReaderAfterDetectingCharset(his, strUri);
-        break;
-
-      case "file":
-        File file = new File(uri);
-        totalBytes = file.length();
-
-        FileInputStream fis;
-        try {
-          fis = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-          e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strUri);
-        }
-
-        reader = getReaderAfterDetectingCharset(fis, strUri);
-        break;
-
-      default:
-        throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, strUri);
-    }
-
-    // get colNames
-    CSVParser parser;
-    try {
-      parser = CSVParser.parse(reader, CSVFormat.DEFAULT.withDelimiter(delim).withEscape('\\'));  // \", "" both become " by default
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_CSV,
-              String.format("%s (delimiter: %s)", strUri, strDelim));
-    }
-
-    // We stop gathering rows when any exception comes out.
-    // I could do skipping each row that has problem suppressing each exception, but it's not the major case.
-    // So I decided to stop at the first exception and we'll continue by the contents until then.
-    try {
-      for (CSVRecord csvRow : parser) {
-
-        if (header) {
-          header = false;
-          continue;
-        }
-
-        totalRows++;
-
-        if (totalRows==limitRows && limitRows>=0) {
-          break;
-        }
-      }
-    } catch (IllegalStateException e) {
-      e.printStackTrace();
-      // suppressed
-    }
-
-    Map<String,Long> result = Maps.newHashMap();
-    result.put("totalRows",totalRows);
-    result.put("totalBytes",totalBytes);
-    return result;
-  }
-
   public static Map<String,Long> countCsv(String strUri, String strDelim, int limitRows, Configuration conf) {
-    return countCsv(strUri, strDelim, limitRows, conf, false);
+    Map<String, Long> mapTotal = new HashMap();
+    PrepCsvParseResult result = parse(strUri, strDelim, limitRows, conf, true);
+    mapTotal.put("totalRows", result.totalRows);
+    mapTotal.put("totalBytes", result.totalBytes);
+    return mapTotal;
   }
 
   // public for tests

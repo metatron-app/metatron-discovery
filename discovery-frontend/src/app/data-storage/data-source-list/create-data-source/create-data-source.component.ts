@@ -45,7 +45,7 @@ export class CreateDataSourceComponent extends AbstractComponent implements OnIn
 
   // 새로 생성될 데이터소스 정보
   @Input()
-  public sourceData: DatasourceInfo;
+  public sourceData: DatasourceInfo = new DatasourceInfo();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -54,10 +54,7 @@ export class CreateDataSourceComponent extends AbstractComponent implements OnIn
   // 생성자
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
-
     super(elementRef, injector);
-
-    this.init();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -66,10 +63,8 @@ export class CreateDataSourceComponent extends AbstractComponent implements OnIn
 
   // Init
   public ngOnInit() {
-
     // Init
     super.ngOnInit();
-
   }
 
   public ngOnDestroy() {
@@ -105,10 +100,5 @@ export class CreateDataSourceComponent extends AbstractComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 초기화
-  private init() {
-    this.sourceData = new DatasourceInfo();
-  }
 }
 

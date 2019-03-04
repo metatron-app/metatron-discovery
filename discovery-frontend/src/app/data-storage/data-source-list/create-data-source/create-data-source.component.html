@@ -14,6 +14,7 @@
 
 <!-- 생성 타입 선택 -->
 <select-type *ngIf="step == '' || step == 'complete-create'"
+             [sourceData]="sourceData"
              [(step)]="step"
              (close)="createClose()">
 </select-type>
@@ -122,3 +123,31 @@
               [(step)]="step"
               (druidComplete)="createComplete()"
               (close)="createClose()"></druid-select>
+
+<!-- snap shot select 1/4 -->
+<create-snapshot-source-select *ngIf="step === 'snapshot-select'"
+                               [sourceData]="sourceData"
+                               [(step)]="step"
+                               (close)="createClose()">
+</create-snapshot-source-select>
+
+<!-- snap shot select 2/4 -->
+<create-snapshot-source-configure *ngIf="step === 'snapshot-configure'"
+                                  [sourceData]="sourceData"
+                                  [(step)]="step"
+                                  (close)="createClose()">
+</create-snapshot-source-configure>
+
+<!-- snap shot select 3/4 -->
+<create-snapshot-ingestion-select *ngIf="step==='snapshot-ingestion'"
+                                  [sourceData]="sourceData"
+                                  [(step)]="step"
+                                  (close)="createClose()">
+</create-snapshot-ingestion-select>
+<!-- snap shot select 4/4 -->
+<create-snapshot-source-complete *ngIf="step==='snapshot-complete'"
+               [sourceData]="sourceData"
+               [(step)]="step"
+               (completed)="createComplete()"
+               (close)="createClose()">
+</create-snapshot-source-complete>

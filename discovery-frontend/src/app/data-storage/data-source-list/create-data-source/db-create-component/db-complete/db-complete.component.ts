@@ -34,6 +34,7 @@ import { Modal } from '../../../../../common/domain/modal';
 import { CookieConstant } from '../../../../../common/constant/cookie.constant';
 import {CommonConstant} from "../../../../../common/constant/common.constant";
 import {GranularityService} from "../../../../service/granularity.service";
+import {CreateSourceCompleteData} from "../../../../service/data-source-create.service";
 
 /**
  * Creating datasource with Database - complete step
@@ -44,16 +45,12 @@ import {GranularityService} from "../../../../service/granularity.service";
 })
 export class DbCompleteComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
-  // datasource data
+  // datasource dat
+  @Input('sourceData')
   private _sourceData: DatasourceInfo;
 
   @ViewChild(ConfirmModalComponent)
   private _confirmModal: ConfirmModalComponent;
-
-  @Input('sourceData')
-  public set setSourceData(sourceData: DatasourceInfo) {
-    this._sourceData = sourceData;
-  }
 
   @Input()
   public step: string;
@@ -64,21 +61,8 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
   @Output('dbComplete')
   public dbComplete = new EventEmitter();
 
-  // the name of the datasource to create
-  public datasourceName: string = '';
-
-  // the name of the datasource to description
-  public datasourceDesc: string = '';
-
-  // is invalid name
-  public isInvalidName: boolean = false;
-  // name validation message
-  public errMsgName: string = '';
-
-  // is invalid description
-  public isInvalidDesc: boolean = false;
-  // description validation message
-  public errMsgDesc: string = '';
+  // create complete data
+  public createCompleteData: CreateSourceCompleteData;
 
   // Constructor
   constructor(private datasourceService: DatasourceService,
@@ -93,12 +77,8 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
    */
   public ngOnInit() {
     super.ngOnInit();
-    // init ui
-    this._initView();
-    // if createData is exist, load createData
-    if (this._sourceData.hasOwnProperty('createData')) {
-      this._loadData(this._sourceData.createData);
-    }
+    // set create complete data
+    this.createCompleteData = this._sourceData.completeData ? _.cloneDeep(this._sourceData.completeData) : new CreateSourceCompleteData();
   }
 
   /**
@@ -113,12 +93,8 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
    * Prev button click event
    */
   public prev(): void {
-    // if createData is exist, delete createData
-    if (this._sourceData.hasOwnProperty('createData')) {
-      delete this._sourceData.createData;
-    }
-    // save createData
-    this._saveCreateData(this._sourceData);
+    // set create complete data in source data
+    this._sourceData.completeData = this.createCompleteData;
     // move to previous step
     this.step = 'db-ingestion-permission';
     this.stepChange.emit(this.step);
@@ -129,29 +105,24 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
    */
   public done(): void {
     // datasource name is empty
-    if (StringUtil.isEmpty(this.datasourceName)) {
-      this.isInvalidName = true;
-      this.errMsgName = this.translateService.instant('msg.alert.edit.name.empty');
+    if (StringUtil.isEmpty(this.createCompleteData.sourceName)) {
+      this.createCompleteData.isInvalidName = true;
+      this.createCompleteData.nameInvalidMessage = this.translateService.instant('msg.alert.edit.name.empty');
       return;
-    }
-    // check datasource name length
-    if (CommonUtil.getByte(this.datasourceName.trim()) > 150) {
-      this.isInvalidName = true;
-      this.errMsgName = this.translateService.instant('msg.alert.edit.name.len');
+    } else if (CommonUtil.getByte(this.createCompleteData.sourceName.trim()) > 150) { // check datasource name length
+      this.createCompleteData.isInvalidName = true;
+      this.createCompleteData.nameInvalidMessage = this.translateService.instant('msg.alert.edit.name.len');
       return;
     }
     // check datasource description length
-    if (this.datasourceDesc.trim() !== ''
-      && CommonUtil.getByte(this.datasourceDesc.trim()) > 450) {
-      this.isInvalidDesc = true;
-      this.errMsgDesc = this.translateService.instant('msg.alert.edit.description.len');
+    if (StringUtil.isNotEmpty(this.createCompleteData.sourceDescription)
+      && CommonUtil.getByte(this.createCompleteData.sourceDescription.trim()) > 450) {
+      this.createCompleteData.isInvalidDesc = true;
+      this.createCompleteData.descInvalidMessage = this.translateService.instant('msg.alert.edit.description.len');
       return;
     }
-    // validation
-    if (this.isEnableDone()) {
-      // create datasource
-      this._createDatasource();
-    }
+    // create datasource
+    this._createDatasource();
   }
 
   /**
@@ -213,15 +184,6 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
   }
 
   /**
-   * Get validation done
-   * @returns {boolean}
-   */
-  public isEnableDone(): boolean {
-    // datasource name is not empty
-    return StringUtil.isNotEmpty(this.datasourceName);
-  }
-
-  /**
    * Is database required
    * @returns {boolean}
    */
@@ -254,28 +216,6 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
   }
 
   /**
-   * Load createData
-   * @param createData
-   * @private
-   */
-  private _loadData(createData: any): void {
-    this.datasourceName = createData.datasourceName;
-    this.datasourceDesc = createData.datasourceDesc;
-  }
-
-  /**
-   * Save createData
-   * @param {DatasourceInfo} sourceData
-   * @private
-   */
-  private _saveCreateData(sourceData: DatasourceInfo): void {
-    sourceData['createData'] = {
-      datasourceName: this.datasourceName,
-      datasourceDesc: this.datasourceDesc
-    };
-  }
-
-  /**
    * Create datasource
    * @private
    */
@@ -286,7 +226,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
     this.datasourceService.createDatasource(this._getCreateDatasourceParams())
       .then((result) => {
         // complete alert
-        Alert.success(`'${this.datasourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.create.success'));
+        Alert.success(`'${this.createCompleteData.sourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.create.success'));
         // 개인 워크스페이스
         const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
         // 워크스페이스 매핑
@@ -488,8 +428,8 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       connType: this.getConnectionData.selectedIngestionType.value,
       granularity: this.getIngestionData.selectedQueryGranularity.value,
       segGranularity: this.getIngestionData.selectedSegmentGranularity.value,
-      name: this.datasourceName.trim(),
-      description: this.datasourceDesc.trim(),
+      name: this.createCompleteData.sourceName.trim(),
+      description: this.createCompleteData.sourceDescription ? this.createCompleteData.sourceDescription.trim() : '',
       ingestion: this._getIngestionParams(),
       fields: this._getFieldsParams()
     };
@@ -630,14 +570,5 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
    */
   private get _isCreateInWorkbench(): boolean {
     return this._sourceData.workbenchFl;
-  }
-
-  /**
-   * ui init
-   * @private
-   */
-  private _initView(): void {
-    this.datasourceName = '';
-    this.datasourceDesc = '';
   }
 }

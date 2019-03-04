@@ -18,7 +18,7 @@
   <!-- //닫기 버튼 -->
   <div class="ddp-icon-name">
     <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.staging.title' | translate}})
+      {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.ss.title' | translate}})
       <span class="ddp-txt-info">{{'msg.storage.create.complete.description' | translate}}</span>
       <em class="ddp-bg-order-line4-type4"></em>
     </div>
@@ -36,12 +36,22 @@
           <tbody>
           <tr>
             <th>
+              {{'msg.dp.th.ss' | translate}}
+            </th>
+            <td>
+              {{sourceData.snapshotData.selectedSnapshot.ssName}}
+            </td>
+          </tr>
+          <!-- only stagingDB type snapshot -->
+          <tr *ngIf="sourceData.snapshotData.selectedSnapshot.ssType.toString() === 'STAGING_DB'">
+            <th>
               {{'msg.storage.ui.list.schema' | translate}} / {{'msg.lineage.ui.list.title.table' | translate}}
             </th>
             <td>
-              {{getDatabaseData.selectedDatabase}} / {{getDatabaseData.selectedTable}}
+              {{sourceData.snapshotData.selectedSnapshot.dbName}} / {{sourceData.snapshotData.selectedSnapshot.tblName}}
             </td>
           </tr>
+          <!-- //only stagingDB type snapshot -->
           <!-- granularity -->
           <tr>
             <th>
@@ -50,7 +60,7 @@
             <td>
               <ul class="ddp-list-sub">
                 <!-- partition -->
-                <li>
+                <li *ngIf="sourceData.snapshotData.selectedSnapshot.ssType.toString() === 'STAGING_DB'">
                   {{'msg.storage.ui.dsource.create.partition.keys' | translate}}
                   <div class="ddp-sub" [innerHTML]="getPartitionKeys()">
                   </div>
@@ -58,15 +68,15 @@
                 <!-- //partition -->
                 <!-- granularity -->
                 <li>
-                  {{'msg.storage.th.segment.gran' | translate}} : {{getIngestionData.selectedSegmentGranularity.label}}
+                  {{'msg.storage.th.query.gran' | translate}} : {{sourceData.ingestionData.selectedQueryGranularity.label}}
                 </li>
                 <li>
-                  {{'msg.storage.th.query.gran' | translate}} : {{getIngestionData.selectedQueryGranularity.label}}
+                  {{'msg.storage.th.segment.gran' | translate}} : {{sourceData.ingestionData.selectedSegmentGranularity.label}}
                 </li>
                 <!-- //granularity -->
                 <!-- if not used current TIMESTAMP-->
-                <li *ngIf="getSchemaData.selectedTimestampType !== 'CURRENT'">
-                  {{'msg.storage.ui.intervals' | translate}} : {{getIngestionData.startIntervalText}} ~ {{getIngestionData.endIntervalText}}
+                <li *ngIf="sourceData.schemaData.selectedTimestampType !== 'CURRENT'">
+                  {{'msg.storage.ui.intervals' | translate}} : {{sourceData.ingestionData.startIntervalText}} ~ {{sourceData.ingestionData.endIntervalText}}
                 </li>
                 <!-- //if not used current TIMESTAMP-->
               </ul>
@@ -79,7 +89,7 @@
               {{'msg.storage.th.rollup.settings' | translate}}
             </th>
             <td>
-              {{getIngestionData.selectedRollUpType.label}}
+              {{sourceData.ingestionData.selectedRollUpType.label}}
             </td>
           </tr>
           <!-- //roll up -->
@@ -92,8 +102,8 @@
         <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
         <input type="text" class="ddp-input-type"
                maxlength="50"
-               placeholder="{{'msg.comm.ui.create.name' | translate}}"
                [(ngModel)]="createCompleteData.sourceName"
+               placeholder="{{'msg.comm.ui.create.name' | translate}}"
                (focus)="createCompleteData.isInvalidName = false"/>
         <!-- error -->
         <span class="ddp-ui-error">{{createCompleteData.nameInvalidMessage}}</span>
@@ -105,9 +115,9 @@
         <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
         <input type="text" class="ddp-input-type"
                maxlength="150"
-               placeholder="{{'msg.comm.ui.create.desc' | translate}}"
                [(ngModel)]="createCompleteData.sourceDescription"
-               (focus)="createCompleteData.isInvalidDesc=false"/>
+               placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+               (focus)="createCompleteData.isInvalidDesc = false"/>
         <!-- error -->
         <span class="ddp-ui-error">{{createCompleteData.descInvalidMessage}}</span>
         <!-- error -->

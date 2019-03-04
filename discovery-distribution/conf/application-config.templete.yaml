@@ -40,9 +40,4 @@ polaris:
 #    localBaseDir: ${METATRON_HOME}/dataprep
 #    hadoopConfDir: /etc/hadoop
 #    stagingBaseDir: hdfs://hadoop-cluster/user/hive/dataprep
-#    hive:
-#      hostname: hive_hostname
-#      port: 10000
-#      username: hive
-#      password: hive
 

@@ -8,6 +8,10 @@ public class PrepJsonParseResult {
   public List<String> colNames;
   public int maxColCnt;
 
+  // Used only in PrepJsonUtil.parse() when onlyCount is true
+  public long totalRows;
+  public long totalBytes;
+
   public PrepJsonParseResult() {
     grid = new ArrayList();
     colNames = null;

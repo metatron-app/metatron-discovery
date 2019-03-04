@@ -12,13 +12,13 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-datasource">
+<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-datasource" (scroll)="onWindowScroll()">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
-  <!-- //닫기 버튼 -->
+  <!-- //close -->
   <div class="ddp-icon-name">
     <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.storage.ui.dsource.create.title' | translate}}  ({{'msg.storage.ui.dsource.create.file.title' | translate}})
+      {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.ss.title' | translate}})
       <span class="ddp-txt-info ddp-type">{{'msg.storage.create.ingesting.description' | translate}}</span>
       <em class="ddp-bg-order-line4-type3"></em>
     </div>

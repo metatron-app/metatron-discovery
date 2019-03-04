@@ -19,6 +19,7 @@ import { PrDataSnapshot, SsType } from '../../../domain/data-preparation/pr-snap
 import { CommonUtil } from '../../../common/util/common.util';
 import { CookieConstant } from '../../../common/constant/cookie.constant';
 import { Observable } from 'rxjs';
+import {LogicalType} from "../../../domain/datasource/datasource";
 
 @Injectable()
 export class DataSnapshotService extends AbstractService {
@@ -145,4 +146,31 @@ export class DataSnapshotService extends AbstractService {
     return this.patch(url,{ssName : data.ssName});
   }
 
+  /**
+   * Get logical type (only create source)
+   * @param {string} type
+   * @return {LogicalType}
+   * @private
+   */
+  public getConvertTypeToLogicalType(type: string): LogicalType {
+    switch (type) {
+      case 'STRING':
+        return LogicalType.STRING;
+      case 'INTEGER':
+      case 'LONG':
+        return LogicalType.INTEGER;
+      case 'DOUBLE':
+        return LogicalType.DOUBLE;
+      case 'TIMESTAMP':
+        return LogicalType.TIMESTAMP;
+      case 'BOOLEAN':
+        return LogicalType.BOOLEAN;
+      case 'ARRAY':
+        return LogicalType.ARRAY;
+      case 'MAP':
+        return LogicalType.MAP;
+      default:
+        return LogicalType.STRING;
+    }
+  }
 }

@@ -19,7 +19,6 @@ import { WorkbenchShareModule } from './workbench-share.module';
 import { WorkbenchComponent } from './workbench.component';
 import { SplitPaneModule } from 'ng2-split-pane/lib/ng2-split-pane';
 import { WorkbenchService } from './service/workbench.service';
-import { DataStorageModule } from '../data-storage/data-storage.module';
 import { DatasourceService } from '../datasource/service/datasource.service';
 import { WidgetService } from '../dashboard/service/widget.service';
 import { PageShareModule } from '../page/page-share.module';
@@ -32,6 +31,7 @@ import { CodemirrorComponent } from '../workbench/component/editor-workbench/cod
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
 import { CanDeactivateGuard } from '../common/gaurd/can.deactivate.guard';
 import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
+import {DataSourceCreateModule} from "../data-storage/data-source-list/create-data-source/data-source-create.module";
 
 // 라우트
 const workbenchRoutes: Routes = [
@@ -46,7 +46,7 @@ const workbenchRoutes: Routes = [
     WorkbenchShareModule,
     WorkbenchEditorModule,
     SplitPaneModule,
-    DataStorageModule,
+    DataSourceCreateModule,
     PageShareModule,
     RouterModule.forChild(workbenchRoutes),
   ],

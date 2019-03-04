@@ -1286,10 +1286,10 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         if (boardInfo.configuration.filters) {
           // remove current_time timestamp filter - S
           boardInfo.configuration.filters
-            = boardInfo.configuration.filters.filter( (filter:Filter) => {
-            if( FilterUtil.isTimeFilter(filter) && (<TimeFilter>filter).clzField ) {
-              const filterField:Field = (<TimeFilter>filter).clzField;
-              if( FieldRole.TIMESTAMP === filterField.role && CommonConstant.COL_NAME_CURRENT_DATETIME === filterField.name ) {
+            = boardInfo.configuration.filters.filter((filter: Filter) => {
+            if (FilterUtil.isTimeFilter(filter) && (<TimeFilter>filter).clzField) {
+              const filterField: Field = (<TimeFilter>filter).clzField;
+              if (FieldRole.TIMESTAMP === filterField.role && CommonConstant.COL_NAME_CURRENT_DATETIME === filterField.name) {
                 const filterId: string = filter.dataSource + '_' + filter.field;
                 const filterWidgets: Widget[] = boardInfo.widgets.filter(widget => {
                   if ('filter' === widget.type) {
@@ -1302,7 +1302,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
                   promises.push(new Promise((res) => {
                     this.widgetService.deleteWidget(item.id)
                       .then(() => {
-                        console.info( '+=+=+=+=+=+=+=+=+=+=+=+=+=+=+= remove current_time filter' );
+                        console.info('+=+=+=+=+=+=+=+=+=+=+=+=+=+=+= remove current_time filter');
                         boardInfo.widgets = boardInfo.widgets.filter(widgetItem => widgetItem.id !== item.id);
                         res();
                       });

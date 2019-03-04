@@ -46,9 +46,7 @@ public class DfSetFormat extends DataFrame {
     if (targetColExpr instanceof Identifier.IdentifierExpr) {
       String targetColName = ((Identifier.IdentifierExpr) targetColExpr).getValue();
       Integer colno = prevDf.getColnoByColName(targetColName);
-      if (colno == null) {
-        throw new ColumnNotFoundException("DfSetFormt.prepare(): column not found: " + targetColName);
-      }
+
       if (prevDf.getColType(colno) != ColumnType.TIMESTAMP) {
         throw new WorksOnlyOnTimestampException("DfSetFormt.prepare(): This column is not timestamp type: " + targetColName);
       }
@@ -59,9 +57,7 @@ public class DfSetFormat extends DataFrame {
       List<String> targetColNames = ((Identifier.IdentifierArrayExpr) targetColExpr).getValue();
       for (String targetColName : targetColNames) {
         Integer colno = prevDf.getColnoByColName(targetColName);
-        if (colno == null) {
-          throw new ColumnNotFoundException("DfSetFormt.prepare(): column not found: " + targetColName);
-        }
+
         if (prevDf.getColType(colno) != ColumnType.TIMESTAMP) {
           throw new WorksOnlyOnTimestampException("DfSetFormt.prepare(): This column is not timestamp type: " + targetColName);
         }
