@@ -267,7 +267,16 @@ public class PrepTransformRuleService {
         mapJsonStr.put("isBuilder", true);
         break;
       case "settype":
-        mapJsonStr.put("col", mapStrExp.get("col").str);
+        StrExpResult col = mapStrExp.get("col");
+        if (col.getArrSize() > 1) {
+          List<String> colList = new ArrayList();
+          for (String colName : col.arrStr) {
+            colList.add(colName);
+          }
+          mapJsonStr.put("col", colList);
+        } else {
+          mapJsonStr.put("col", mapStrExp.get("col").str);
+        }
         mapJsonStr.put("type", mapStrExp.get("type").str);
         mapJsonStr.put("format", mapStrExp.get("format").str);
         mapJsonStr.put("isBuilder", true);
