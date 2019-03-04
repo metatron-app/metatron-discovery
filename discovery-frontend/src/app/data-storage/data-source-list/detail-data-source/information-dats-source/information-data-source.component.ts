@@ -21,25 +21,20 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Output, SimpleChanges,
+  Output,
+  SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import {
-  ConnectionType,
-  Datasource,
-  Field,
-  SourceType,
-  Status
-} from '../../../../domain/datasource/datasource';
-import { SetWorkspacePublishedComponent } from '../../../component/set-workspace-published/set-workspace-published.component';
-import { DatasourceService } from '../../../../datasource/service/datasource.service';
-import { QueryDetailComponent } from './component/query-detail/query-detail.component';
-import { BatchHistoryComponent } from './component/batch-history/batch-history.component';
-import { MomentDatePipe } from '../../../../common/pipe/moment.date.pipe';
+import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
+import {ConnectionType, Datasource, Field, SourceType, Status} from '../../../../domain/datasource/datasource';
+import {SetWorkspacePublishedComponent} from '../../../component/set-workspace-published/set-workspace-published.component';
+import {DatasourceService} from '../../../../datasource/service/datasource.service';
+import {QueryDetailComponent} from './component/query-detail/query-detail.component';
+import {BatchHistoryComponent} from './component/batch-history/batch-history.component';
+import {MomentDatePipe} from '../../../../common/pipe/moment.date.pipe';
 import * as _ from 'lodash';
-import { GranularityType } from '../../../../domain/workbook/configurations/field/timestamp-field';
-import { StringUtil } from '../../../../common/util/string.util';
+import {GranularityType} from '../../../../domain/workbook/configurations/field/timestamp-field';
+import {StringUtil} from '../../../../common/util/string.util';
 import {ConfirmModalComponent} from "../../../../common/component/modal/confirm/confirm.component";
 import {Modal} from "../../../../common/domain/modal";
 import {Alert} from "../../../../common/util/alert.util";
@@ -338,6 +333,8 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
         return this.translateService.instant('msg.storage.li.hive');
       case SourceType.REALTIME:
         return this.translateService.instant('msg.storage.li.stream');
+      case SourceType.SNAPSHOT:
+        return this.translateService.instant('msg.storage.li.ss');
     }
   }
 

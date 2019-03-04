@@ -12,9 +12,10 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output} from '@angular/core';
+import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
 import {StorageService} from "../../../service/storage.service";
+import {ConnectionType, DatasourceInfo, DataSourceType, SourceType} from "../../../../domain/datasource/datasource";
 
 @Component({
   selector: 'select-type',
@@ -22,27 +23,14 @@ import {StorageService} from "../../../service/storage.service";
 })
 export class SelectTypeComponent extends AbstractPopupComponent implements OnInit {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   @Input()
   public step: string;
 
   @Output()
   public stepChange: EventEmitter<string> = new EventEmitter();
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Constructor
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @Input('sourceData')
+  private _sourceData: DatasourceInfo;
 
   // 생성자
   constructor(protected elementRef: ElementRef,
@@ -51,9 +39,6 @@ export class SelectTypeComponent extends AbstractPopupComponent implements OnIni
     super(elementRef, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Override Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // Init
   public ngOnInit() {
@@ -76,18 +61,30 @@ export class SelectTypeComponent extends AbstractPopupComponent implements OnIni
   public selectType(selectType: string) {
     switch (selectType) {
       case 'file':
+        this._sourceData.type = SourceType.FILE;
         this.step = 'file-select';
         break;
       case 'database':
+        this._sourceData.type = SourceType.JDBC;
         this.step = 'db-data-connection';
         break;
       case 'staging':
-        this.isEnableStageDB() && (this.step = 'staging-db-select');
+        if (this.isEnableStageDB()) {
+          this._sourceData.type = SourceType.HIVE;
+          this.step = 'staging-db-select';
+        }
         break;
       case 'druid':
+        this._sourceData.type = SourceType.IMPORT;
         this.step = 'druid-select';
         break;
+      case 'snapshot':
+        this._sourceData.type = SourceType.SNAPSHOT;
+        this.step = 'snapshot-select';
+        break;
     }
+    this._sourceData.connType = ConnectionType.ENGINE;
+    this._sourceData.dsType = DataSourceType.MASTER;
     this.stepChange.emit(this.step);
   }
 

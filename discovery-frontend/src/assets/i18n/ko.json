@@ -1912,6 +1912,7 @@
   "msg.storage.ui.dsource.create.title" : "데이터소스 생성하기",
   "msg.storage.ui.dsource.create.file.title" : "파일",
   "msg.storage.ui.dsource.create.db.title" : "DB",
+  "msg.storage.ui.dsource.create.ss.title" : "스냅샷",
   "msg.storage.ui.dsource.create.staging.title" : "Staging DB",
   "msg.storage.ui.dsource.create.druid.title" : "메타트론 엔진",
   "msg.storage.ui.dsource.create.search-db" : "데이터베이스 검색",
@@ -2162,6 +2163,9 @@
   "msg.storage.ui.username": "사용자이름",
   "msg.storage.ui.guide.meta.modified": "메타데이터도 수정 시 업데이트됩니다.",
   "msg.storage.btn.master.data.link": "메타데이터로 이동",
+  "msg.storage.ui.cannot.load.data": "데이터를 불러올 수 없습니다",
+  "msg.storage.btn.create.source": "데이터소스 생성",
+  "msg.storage.ph.search.snapshot": "스냅샷 검색",
 
   "msg.storage.ui.timezone.country.zimbabwe": "짐바브웨",
   "msg.storage.ui.timezone.country.zambia": "잠비아",

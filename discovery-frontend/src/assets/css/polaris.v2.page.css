@@ -236,6 +236,7 @@ dl.ddp-dl-detail dd br {display:block; margin-top:5px;}
 .ddp-box-grid-detail .ddp-wrap-datadetail .ddp-dl-detail th {width:auto;}
 .ddp-box-grid-detail .ddp-wrap-datadetail.ddp-size dl.ddp-dl-detail dt {width:120px;}
 .ddp-box-grid-detail .ddp-wrap-datadetail dl.ddp-dl-detail dd{display:block; padding:5px 5px; color:#4b515b; font-size:13px; overflow:hidden;}
+.ddp-box-grid-detail .ddp-wrap-datadetail dl.ddp-dl-detail dd .ddp-dl-sub-detail {display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; color:#b7bac1}
 .ddp-box-grid-detail .ddp-wrap-datadetail .ddp-dl-detail td {padding:5px 5px; color:#4b515b; font-size:13px; overflow:hidden;}
 .ddp-box-grid-detail .ddp-wrap-datadetail dl.ddp-dl-detail dd span.ddp-txt-det {display:block;}
 .ddp-box-grid-detail .ddp-wrap-datadetail dl.ddp-dl-detail dd span.ddp-txt-det + span.ddp-txt-det {padding-top:5px;}
@@ -7098,6 +7099,13 @@ table.ddp-table-form tbody tr td .ddp-txt-edit .ddp-wrap-input.ddp-type {bottom:
 table.ddp-table-form tbody tr td .ddp-txt-edit.ddp-selected .ddp-wrap-input {display:block;}
 
 table.ddp-table-form tbody tr td em.ddp-icon-error2 {position:absolute; right:0; top:1px; }
+
+table.ddp-table-form tbody tr td .ddp-txt-error-type {display:inline-block; max-width:100%;
+  white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+table.ddp-table-form tbody tr td .ddp-txt-error-type .ddp-icon-error2 {position:relative; top:0; left:0;float:right; margin-left:4px;}
+table.ddp-table-form tbody tr td .ddp-txt-error-type .ddp-txt-data {}
+
+
 table.ddp-table-view thead tr th {position:relative; border-top:1px solid #e7e7e7; border-bottom:1px solid #e7e7e7;}
 table.ddp-table-view thead tr th a.ddp-link-filter {position:absolute; top:4px; right:3px; display:inline-block; padding:3px 4px; color:#4c515a; font-size:12px; font-style:italic; background-color:#f3f3f4;}
 table.ddp-table-view thead tr th a.ddp-link-filter:hover {background-color:#e7e7ea;}
@@ -7321,6 +7329,9 @@ ul.ddp-ui-tab li.ddp-selected em.ddp-icon-group-s2 {opacity:1;}
 .ddp-wrap-datadetail .ddp-wrap-datapreview {padding:20px 0px 20px 0px;}
 .ddp-wrap-datadetail .ddp-wrap-datapreview .ddp-label-name {padding:25px 15px 8px 15px;}
 .ddp-wrap-datadetail .ddp-wrap-datapreview .ddp-box-preview {height:293px; margin-bottom:10px; overflow:auto; border-top:1px solid #eaeaed; }
+.ddp-box-grid-detail .ddp-script-preview {border-top:1px solid #eaeaed;overflow:auto; }
+.ddp-box-grid-detail .ddp-script-preview .ddp-txt-error3 {padding:10px; color:#ca4b4b; font-size:12px;}
+
 .ddp-box-grid-detail .ddp-script-preview {border-top:1px solid #eaeaed;overflow:auto;}
 .ddp-wrap-datadetail .ddp-label-name {display:block; padding:0 0 5px 0; color:#4b515b; font-size:12px; }
 .ddp-datagrid .ddp-ui-option .ddp-wrap-edit {padding-left:30px;}

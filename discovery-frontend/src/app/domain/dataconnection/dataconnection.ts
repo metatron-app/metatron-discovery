@@ -52,6 +52,7 @@ export class Dataconnection extends AbstractHistoryEntity {
   public num:number;
 }
 
+//TODO 데이터소스의 ConnectionType 과 이름이 겹치므로 추후 ImplementorType으로 변경 필요
 export enum ConnectionType {
   H2 = <any>'H2',
   MYSQL = <any>'MYSQL',
