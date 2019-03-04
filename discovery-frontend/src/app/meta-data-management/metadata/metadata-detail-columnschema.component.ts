@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChildren} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChildren} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {Datasource, FieldFormat, FieldFormatType, LogicalType, SourceType} from '../../domain/datasource/datasource';
 import * as _ from 'lodash';
@@ -106,6 +106,9 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
    * Datasource LogicalType Enum
    */
   public readonly DATASOURCE_LOGICAL_TYPE = LogicalType;
+
+  @Input()
+  public isNameEdit: boolean;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor

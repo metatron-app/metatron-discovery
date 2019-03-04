@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild, ViewChildren} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild, ViewChildren} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
 import {MetadataService} from './service/metadata.service';
 import {Alert} from '../../common/util/alert.util';
@@ -37,6 +37,7 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
 
   @ViewChildren(InputComponent)
   private tagInput: InputComponent;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -57,6 +58,10 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
 
   @Output()
   public openAddCataglog = new EventEmitter();
+
+  @Input()
+  public isNameEdit: boolean;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
