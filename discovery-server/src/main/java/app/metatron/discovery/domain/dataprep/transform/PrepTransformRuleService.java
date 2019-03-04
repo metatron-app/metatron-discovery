@@ -89,7 +89,7 @@ public class PrepTransformRuleService {
   }
 
   private String strip(String str) {
-    if (str.length() >= 2 && str.startsWith("'") && str.endsWith("'")) {
+    if (str != null && str.length() >= 2 && str.startsWith("'") && str.endsWith("'")) {
       return str.substring(1, str.length() - 1);
     }
     return str;
@@ -422,8 +422,8 @@ public class PrepTransformRuleService {
       case "move":
         Move move = (Move) rule;
         putIfExists(mapStrExp, "col", stringifyExpr(move.getCol()));
-        putIfExists(mapStrExp, "after", wrapIdentifier(strip(move.getAfter())));     // string -> identifier
-        putIfExists(mapStrExp, "before", wrapIdentifier(strip(move.getBefore())));   // string -> identifier
+        putIfExists(mapStrExp, "after", move.getAfter());             // after, before could be null,
+        putIfExists(mapStrExp, "before", move.getBefore());           // shortenRuleString() takes care of them.
         break;
       case "union":
         Union union = (Union) rule;
@@ -597,7 +597,8 @@ public class PrepTransformRuleService {
       case "move":
         StrExpResult before = mapStrExp.get("before");
         StrExpResult after = mapStrExp.get("after");
-        String strTo = (before != null) ? "before " + mapStrExp.get("before").toString() : "after " + mapStrExp.get("after").toString();
+        String strTo = (before != null) ? "before " + wrapIdentifier(strip(before.str))
+                                        : "after " + wrapIdentifier(strip(after.str));
         shortRuleString = String.format(FMTSTR_MOVE, mapStrExp.get("col").toColList(), strTo);
         break;
       case "setformat":
