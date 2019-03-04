@@ -250,7 +250,7 @@ public class PrepTransformRuleService {
   // Of course it has to be as same as if UI had sent. (Actually, the UI should code according to the server's)
   public String jsonizeRuleString(String ruleString) throws CannotSerializeIntoJsonException, JsonProcessingException {
     Map<String, StrExpResult> mapStrExp = stringifyRuleString(ruleString);
-    Map<String, String> mapJsonStr = new HashMap();
+    Map<String, Object> mapJsonStr = new HashMap();
 
     String ruleCommand = mapStrExp.get("name").toString();
 
@@ -263,12 +263,14 @@ public class PrepTransformRuleService {
         mapJsonStr.put("with", dsName);
         break;
       case "header":
-        mapJsonStr.put("rownum", mapStrExp.get("rownum").toString());
+        mapJsonStr.put("rownum", Integer.valueOf(mapStrExp.get("rownum").str));
+        mapJsonStr.put("isBuilder", true);
         break;
       case "settype":
-        mapJsonStr.put("col", mapStrExp.get("col").toString());
-        mapJsonStr.put("type", mapStrExp.get("type").toString());
-        mapJsonStr.put("format", mapStrExp.get("format").toString());
+        mapJsonStr.put("col", mapStrExp.get("col").str);
+        mapJsonStr.put("type", mapStrExp.get("type").str);
+        mapJsonStr.put("format", mapStrExp.get("format").str);
+        mapJsonStr.put("isBuilder", true);
         break;
       default:
         assert false : ruleCommand;
@@ -474,7 +476,7 @@ public class PrepTransformRuleService {
   }
 
   private final String FMTSTR_CREATE       = "create with %s";                          // with
-  private final String FMTSTR_HEADER       = "convert row %d to header";                // rownum
+  private final String FMTSTR_HEADER       = "convert row %s to header";                // rownum
   private final String FMTSTR_KEEP         = "keep rows where %s";                      // row
   private final String FMTSTR_RENAME       = "rename %s to %s";                         // col, to
   private final String FMTSTR_RENAMES      = "rename %s";                               // col
