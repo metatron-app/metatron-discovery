@@ -99,13 +99,14 @@ public class PrepCsvUtil {
    * @param strDelim    Delimiter as String (to be Char)
    * @param limitRows   Read not more than this
    * @param conf        Hadoop configuration which is mandatory when the url's protocol is hdfs
+   * @param skipHeader  If true, skip the first line
    * @param onlyCount   If true, just fill result.totalRows and result.totalBytes
    *
    * @return PrepCsvParseResult: grid, header, maxColCnt
    *
    *  Sorry for so many try-catches. Sacrificed readability for end-users' usability.
    */
-  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf, boolean onlyCount) {
+  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf, boolean skipHeader, boolean onlyCount) {
     PrepCsvParseResult result = new PrepCsvParseResult();
     Reader reader;
     URI uri;
@@ -208,6 +209,11 @@ public class PrepCsvUtil {
       int colCnt = csvRow.size();
       result.maxColCnt = Math.max(result.maxColCnt, colCnt);
 
+      if (skipHeader) {
+        skipHeader = false;
+        continue;
+      }
+
       String[] row = new String[colCnt];
       for (int i = 0; i < colCnt; i++) {
         row[i] = csvRow.get(i);
@@ -229,12 +235,16 @@ public class PrepCsvUtil {
   }
 
   public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf) {
-    return parse(strUri, strDelim, limitRows, conf, false);
+    return parse(strUri, strDelim, limitRows, conf, false, false);
+  }
+
+  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf, boolean header) {
+    return parse(strUri, strDelim, limitRows, conf, header, false);
   }
 
   public static Map<String,Long> countCsv(String strUri, String strDelim, int limitRows, Configuration conf) {
     Map<String, Long> mapTotal = new HashMap();
-    PrepCsvParseResult result = parse(strUri, strDelim, limitRows, conf, true);
+    PrepCsvParseResult result = parse(strUri, strDelim, limitRows, conf, false, true);
     mapTotal.put("totalRows", result.totalRows);
     mapTotal.put("totalBytes", result.totalBytes);
     return mapTotal;
