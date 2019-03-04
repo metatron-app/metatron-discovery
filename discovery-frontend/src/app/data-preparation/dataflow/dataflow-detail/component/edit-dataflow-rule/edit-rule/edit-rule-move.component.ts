@@ -190,7 +190,7 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
     // REFERENCE COLUMN
     this.selectedStandardField = data.jsonRuleString.refColumn;
     this.defaultColIndex = this.fields.findIndex((item) => {
-      return item.name === this.selectedStandardField
+      return item.name === this.selectedStandardField[0];
     });
 
   } // function - _parsingRuleString

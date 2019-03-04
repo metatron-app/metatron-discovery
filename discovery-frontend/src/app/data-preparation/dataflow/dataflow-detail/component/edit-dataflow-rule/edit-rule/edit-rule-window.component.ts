@@ -234,7 +234,12 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     }
 
     // Formula
+    this.formulaList = [];
     this.formulaList = data.jsonRuleString.expression;
+    this.formulas = [];
+    this.formulaList.forEach((item,index) => {
+      this.formulas.push({id:index, value: item});
+    });
 
   } // function - _parsingRuleString
 

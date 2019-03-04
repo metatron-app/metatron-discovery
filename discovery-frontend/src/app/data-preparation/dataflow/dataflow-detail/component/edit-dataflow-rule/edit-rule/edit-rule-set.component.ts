@@ -110,13 +110,14 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
         col: this.getColumnNamesInArray(this.selectedFields),
         expression: this.valueInput.getFormula(),
         isBuilder: true,
-        condition: this.condition
+        condition: ''
       }
     };
 
     this.condition = this.rowInput.getFormula();
     if ('' !== this.condition && !isNullOrUndefined(this.condition)) {
       rules.ruleString += ` row: ${this.condition}`;
+      rules.uiRuleString.condition = this.condition;
     }
 
     return rules;

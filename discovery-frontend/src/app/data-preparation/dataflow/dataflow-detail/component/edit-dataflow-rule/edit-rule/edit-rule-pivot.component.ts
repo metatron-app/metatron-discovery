@@ -206,6 +206,12 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
 
     // EXPRESSION
     this.formulaList = data.jsonRuleString.expression;
+    this.formulaList = [];
+    this.formulas = [];
+    this.formulaList = data.jsonRuleString.expression;
+    this.formulaList.forEach((item,index) => {
+      this.formulas.push({id:index, value: item});
+    });
 
   } // function - parsingRuleString
 

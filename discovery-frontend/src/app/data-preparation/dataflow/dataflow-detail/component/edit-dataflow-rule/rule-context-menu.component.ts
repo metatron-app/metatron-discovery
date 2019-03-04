@@ -293,7 +293,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               });
 
               rule.ruleString += res.join(' || ');
-              rule.uiRuleString = {name: 'delete', expression : res.join(' || ')};
+              rule.uiRuleString = {name: 'delete', condition : res.join(' || ')};
               break;
             case 'direct-missing':
               // delete row: isnull(c) || isnull(`space col`)
@@ -302,7 +302,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               });
 
               rule.ruleString += res.join(' || ');
-              rule.uiRuleString = {name: 'delete', expression : res.join(' || ')};
+              rule.uiRuleString = {name: 'delete', condition : res.join(' || ')};
               break;
 
             case 'mismatch':
