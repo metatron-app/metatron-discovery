@@ -14,11 +14,8 @@
 
 import { Injectable, Injector } from '@angular/core';
 import { AbstractService } from '../../../common/service/abstract.service';
-//import { Dataflow, Dataflows } from '../../../domain/data-preparation/dataflow';
 import { PrDataflow, Dataflows } from '../../../domain/data-preparation/pr-dataflow';
-//import { Dataset, Datasets } from '../../../domain/data-preparation/dataset';
 import { PrDataset, Datasets } from '../../../domain/data-preparation/pr-dataset';
-//import { DataSnapshot } from '../../../domain/data-preparation/data-snapshot';
 import { PrDataSnapshot } from '../../../domain/data-preparation/pr-snapshot';
 import { Page } from '../../../domain/common/page';
 import { CommonUtil } from '../../../common/util/common.util';
@@ -28,6 +25,7 @@ import { isNullOrUndefined, isUndefined } from 'util';
 import { PreparationAlert } from '../../util/preparation-alert.util';
 import { PopupService } from '../../../common/service/popup.service';
 import { TranslateService } from '@ngx-translate/core';
+import {SnapShotCreateDomain} from "../../component/create-snapshot-popup.component";
 
 @Injectable()
 export class DataflowService extends AbstractService {
@@ -48,7 +46,6 @@ export class DataflowService extends AbstractService {
   }
 
   // 데이터 플로우 상세조회
-  //public getDataflow(dfId: string): Promise<Dataflow> {
   public getDataflow(dfId: string): Promise<PrDataflow> {
     const url = this.API_URL + 'preparationdataflows/' + dfId + '?projection=detail';
     return this.get(url);
@@ -215,8 +212,7 @@ export class DataflowService extends AbstractService {
   }
 
   // 데이터 스냅샷 생성
-  //public createDataSnapshot(datasetId: string, datasnapshot: DataSnapshot): Promise<any> {
-  public createDataSnapshot(datasetId: string, datasnapshot: PrDataSnapshot): Promise<any> {
+  public createDataSnapshot(datasetId: string, datasnapshot: SnapShotCreateDomain): Promise<any> {
     let popupService = this.popupService;
     return this.post(this.API_URL + `preparationdatasets/${datasetId}/transform/snapshot`, datasnapshot)
       .catch((error) => {
@@ -232,17 +228,6 @@ export class DataflowService extends AbstractService {
 
   // 룰 적용
   public applyRules(datasetId: string, param: any): Promise<any> {
-    // if( isUndefined(rule['ruleIdx']) ) {
-    //   if( isUndefined(rule['ruleCurIdx']) ) {
-    //     rule['ruleIdx'] = -1; // -1 means curIdx
-    //   } else {
-    //     rule['ruleIdx'] = rule['ruleCurIdx'];
-    //     delete rule['ruleCurIdx'];
-    //   }
-    // }
-    // if( isUndefined(rule['ruleCurIdx']) ) {
-    //   delete rule['ruleCurIdx'];
-    // }
     let popupService = this.popupService;
     param['count'] = 100;
     return this.put(this.API_URL + `preparationdatasets/${datasetId}/transform`, param)
@@ -318,6 +303,8 @@ export class DataflowService extends AbstractService {
     return this.post(this.API_URL + `preparationdatasets/${dsId}/clone`, params);
   }
 
+
+
   public autoComplete(ruleString: string, ruleCommand: string, rulePart: string): Promise<any> {
     let params = {
       'ruleString': ruleString,
@@ -327,13 +314,15 @@ export class DataflowService extends AbstractService {
     return this.post(this.API_URL + `preparationdatasets/autocomplete`, params);
   }
 
-  public parseRule(ruleString: string): Promise<any> {
-    return this.post(this.API_URL + `preparationdatasets/parse_rule`, ruleString);
-  }
 
+  /**
+   * Validate expression from advanced input popup
+   * @param exprString
+   */
   public validateExpr(exprString: string): Promise<any> {
     return this.post(this.API_URL + `preparationdatasets/validate_expr`, exprString);
   }
+
 
   /**
    * 각 컬럼별 히스토그램 정보 조회
@@ -360,11 +349,11 @@ export class DataflowService extends AbstractService {
   public getTimestampFormatSuggestions(datasetId : string, colNames : any ) : Promise<any> {
     let url = this.API_URL + `preparationdatasets/${datasetId}/transform/timestampFormat`;
     return this.post(url,colNames);
-  } // function - getTimestampFormatSuggestions
+  }
+
 
   /**
    * 룰 편집 화면에서 스냅샷 탭 목록 불러오기
-   * @param {string} dsId
    * @return {Promise<any>}
    */
   public getWorkList(params): Promise<any> {
@@ -378,28 +367,14 @@ export class DataflowService extends AbstractService {
    * @returns {Promise<any>}
    */
   public getFunctionList(): Promise<any> {
-
     let url = this.API_URL + `preparationdatasets/function_list`;
     return this.get(url);
   }
 
 
-  /**
-   * Dataset swap
-   * @param {String} oldId
-   * @param {string} newId
-   * @returns {Promise<any>}
-   */
-  public datasetSwap(oldId: String, newId: string) : Promise<any> {
-    let url = this.API_URL + `preparationdatasets/${oldId}/swap/${newId}`;
-    return this.post(url,{});
-  }
-
   public swapDataset(param : any): Promise<any> {
     let url = this.API_URL + `preparationdataflows/${param.dfId}/swap_upstream`;
-
     delete param.dfId;
-
     return this.post(url, param);
   }
 

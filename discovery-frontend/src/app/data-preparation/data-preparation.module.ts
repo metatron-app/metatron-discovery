@@ -176,7 +176,8 @@ const dataPreparationRoutes: Routes = [
     DataflowService,
     DatasetService,
     DataPreparationGuard,
-    DataflowModelService
+    DataflowModelService,
+    DataconnectionService
   ],
   exports: [
   ]
