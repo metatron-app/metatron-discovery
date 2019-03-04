@@ -584,22 +584,22 @@ export class DatasourceService extends AbstractService {
                   if (clusterPrecision > 12) clusterPrecision = 12;
                   if (clusterPrecision < 1) clusterPrecision = 1;
 
-                    query.shelf.layers[idx].view = <GeoHashFormat>{
-                      type: LayerViewType.CLUSTERING.toString(),
-                      method: "h3",
-                      // 0~99 퍼센트 값을 1~12값으로 변환
-                      precision: clusterPrecision
-                    };
-
-                  let spatialFilter = new SpatialFilter();
-                  spatialFilter.dataSource = layer.ref;
-                  spatialFilter.ref = layer.ref;
-                  spatialFilter.field = layer.field.name;
-                  // TODO : 최초 default 값 체크 (빈값일 경우 에러리턴)
-                  spatialFilter.lowerCorner = _.isUndefined(chart['lowerCorner']) ? '-123.0998 25.4766' : chart['lowerCorner'];
-                  spatialFilter.upperCorner = _.isUndefined(chart['upperCorner']) ? '-68.7918 48.7974' : chart['upperCorner'];
-                  query.filters.push( spatialFilter );
+                  query.shelf.layers[idx].view = <GeoHashFormat>{
+                    type: LayerViewType.CLUSTERING.toString(),
+                    method: "h3",
+                    // 0~99 퍼센트 값을 1~12값으로 변환
+                    precision: clusterPrecision
+                  };
                 }
+
+                let spatialFilter = new SpatialFilter();
+                spatialFilter.dataSource = layer.ref;
+                spatialFilter.ref = layer.ref;
+                spatialFilter.field = layer.field.name;
+                // TODO : 최초 default 값 체크 (빈값일 경우 에러리턴)
+                spatialFilter.lowerCorner = _.isUndefined(chart['lowerCorner']) ? '-123.0998 25.4766' : chart['lowerCorner'];
+                spatialFilter.upperCorner = _.isUndefined(chart['upperCorner']) ? '-68.7918 48.7974' : chart['upperCorner'];
+                query.filters.push( spatialFilter );
               }
 
               // when logicalType => geo point
