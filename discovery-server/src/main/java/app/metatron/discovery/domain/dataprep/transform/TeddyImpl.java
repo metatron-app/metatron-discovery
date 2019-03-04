@@ -137,13 +137,13 @@ public class TeddyImpl {
       String jsonRuleString = rev.get(i).jsonRuleString;
 
       try {
-        nextDf = apply(newRev.get(-1), ruleString);   // apply trailing rules of the original revision into the new revision.
+        nextDf = apply(newRev.get(-1), ruleString, jsonRuleString);   // apply trailing rules of the original revision into the new revision.
       } catch (Exception e) {
         nextDf = new DataFrame(newRev.get(-1));
         nextDf.setRuleString(ruleString);
-        nextDf.setJsonRuleString(jsonRuleString);
         nextDf.setValid(false);
       }
+      nextDf.setJsonRuleString(jsonRuleString);
       newRev.add(nextDf);
     }
   }
@@ -156,8 +156,7 @@ public class TeddyImpl {
     boolean suppressed = false;
 
     try {
-      newDf = apply(rev.get(stageIdx), ruleString);
-      newDf.setJsonRuleString(jsonRuleString);
+      newDf = apply(rev.get(stageIdx), ruleString, jsonRuleString);
     } catch (TeddyException te) {
       if (suppress == false) {
         throw PrepException.fromTeddyException(te);   // RuntimeException
@@ -186,7 +185,7 @@ public class TeddyImpl {
 
   public DataFrame preview(String dsId, int stageIdx, String ruleString) throws TeddyException {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
-    return apply(rev.get(stageIdx), ruleString);
+    return apply(rev.get(stageIdx), ruleString, null);
   }
 
   public DataFrame fetch(String dsId, Integer stageIdx) {
@@ -194,7 +193,7 @@ public class TeddyImpl {
     return rev.get(stageIdx); // if null, get curStage
   }
 
-  private DataFrame apply(DataFrame df, String ruleString) throws TeddyException {
+  private DataFrame apply(DataFrame df, String ruleString, String jsonRuleString) throws TeddyException {
     List<DataFrame> slaveDfs = null;
 
     List<String> slaveDsIds = DataFrameService.getSlaveDsIds(ruleString);
@@ -207,7 +206,9 @@ public class TeddyImpl {
       }
     }
 
-    return dataFrameService.applyRule(df, ruleString, slaveDfs);
+    DataFrame newDf = dataFrameService.applyRule(df, ruleString, slaveDfs);
+    newDf.setJsonRuleString(jsonRuleString);
+    return newDf;
   }
 
   public DataFrame undo(String dsId) {
@@ -248,8 +249,7 @@ public class TeddyImpl {
     Revision newRev = new Revision(rev, stageIdx);   // apply previous rules until the update target.
 
     // replace with the new, updated DF
-    DataFrame newDf = apply(rev.get(stageIdx - 1), ruleString);
-    newDf.setJsonRuleString(jsonRuleString);
+    DataFrame newDf = apply(rev.get(stageIdx - 1), ruleString, jsonRuleString);
     newRev.add(newDf);
 
     appendNewDfs(newRev, rev, stageIdx + 1);
