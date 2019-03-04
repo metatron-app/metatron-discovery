@@ -12,16 +12,16 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
-import { Alert } from '../../../../common/util/alert.util';
-import { Candidate } from '../../../../domain/workbook/configurations/filter/inclusion-filter';
-import { isNullOrUndefined } from 'util';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {Alert} from '../../../../common/util/alert.util';
+import {Candidate} from '../../../../domain/workbook/configurations/filter/inclusion-filter';
+import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'component-filter-multi-select',
   templateUrl: './filter-multi-select.component.html',
-  host: { '(document:click)': 'onClickHost($event)' }
+  host: {'(document:click)': 'onClickHost($event)'}
 })
 export class FilterMultiSelectComponent extends AbstractComponent implements OnInit {
 
@@ -54,7 +54,7 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
 
   // 기본 메시지
   @Input()
-  public unselectedMessage = this.translateService.instant( 'msg.comm.ui.list.all' );
+  public unselectedMessage = this.translateService.instant('msg.comm.ui.list.all');
 
   // 비활성화 여부
   @Input()
@@ -119,7 +119,7 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
     super.ngOnInit();
 
     // array check
-    ( isNullOrUndefined( this.selectedArray ) )  && ( this.selectedArray = [] );
+    (isNullOrUndefined(this.selectedArray)) && (this.selectedArray = []);
 
     this.updateView(this.selectedArray);
   }
@@ -136,8 +136,8 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
    * Returns whether Item is selected.
    * @param targetItem
    */
-  public isSelectedItem( targetItem:any ) {
-    return this.selectedArray && this.selectedArray.some(item => item.name === targetItem.name );
+  public isSelectedItem(targetItem: any) {
+    return this.selectedArray && this.selectedArray.some(item => item.name === targetItem.name);
   } // function - isSelectedItem
 
   /**
@@ -155,13 +155,13 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
   public selected(item: any, $event: any) {
 
     // 모형 모드일 때는 기능 동작을 하지 않는다
-    if( this.isMockup ) {
+    if (this.isMockup) {
       Alert.info(this.translateService.instant('msg.board.alert.not-select-editmode'));
       return;
     }
 
-    if (this.isSelectedItem( item )) {
-      const idx = this.selectedArray.indexOf(item);
+    if (this.isSelectedItem(item)) {
+      const idx = this.selectedArray.findIndex(arrItem => arrItem.name === item.name);
       this.selectedArray.splice(idx, 1);
     } else {
       this.selectedArray.push(item);
@@ -177,7 +177,7 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
   public checkAll($event?) {
 
     // 모형 모드일 때는 기능 동작을 하지 않는다
-    if( this.isMockup ) {
+    if (this.isMockup) {
       Alert.info(this.translateService.instant('msg.board.alert.not-select-editmode'));
       return;
     }
@@ -196,7 +196,7 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
    * 외부영역 클릭
    * @param {MouseEvent} event
    */
-  public onClickHost(event:MouseEvent) {
+  public onClickHost(event: MouseEvent) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
     if (!this.elementRef.nativeElement.contains(event.target)) {
       if (this.isShowSelectList && this.array && this.array.length) {
@@ -234,12 +234,12 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
    * @param selectedArray
    */
   public updateView(selectedArray: any) {
-    if (selectedArray == null || selectedArray.length === 0)  {
+    if (selectedArray == null || selectedArray.length === 0) {
       this.viewText = this.unselectedMessage;
-    } else if ( selectedArray.length === this.array.length ) {
-      this.viewText = this.translateService.instant( 'msg.comm.ui.list.all' );
+    } else if (selectedArray.length === this.array.length) {
+      this.viewText = this.translateService.instant('msg.comm.ui.list.all');
     } else {
-      this.viewText = selectedArray.map( item => item.name ).join(',');
+      this.viewText = selectedArray.map(item => item.name).join(',');
     }
   } // function - updateView
 
@@ -274,9 +274,9 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
       const $dropboxTop = $ddpOffSetEl.offset();
       const $dropboxWidth = $ddpOffSetEl.width();
       $ddpOffSetEl.find('.ddp-drop').css({
-        top : $dropboxTop.top,
-        left : $dropboxTop.left,
-        width : $dropboxWidth
+        top: $dropboxTop.top,
+        left: $dropboxTop.left,
+        width: $dropboxWidth
       });
     }
   } // function - _setViewListPosition
