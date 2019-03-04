@@ -41,7 +41,7 @@ public class PrepTransformRequest implements Serializable {
     return ruleString;
   }
 
-  public String getUIRuleString() {
+  public String getUiRuleString() {
     return uiRuleString;
   }
 
