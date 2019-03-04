@@ -221,7 +221,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
 
         case 'rename':
 
-          rule.more = { command : 'rename', col : {value : this.contextInfo.columnId}};
+          rule.more = { command : 'rename', col : [this.contextInfo.columnId]};
           break;
 
         case 'drop':
@@ -239,7 +239,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
 
         case 'setformat':
 
-          rule.more = { command : 'setformat', col : {value : this.originalSelectedColIds}, type : command.value};
+          rule.more = { command : 'setformat', col : this.originalSelectedColIds, type : command.value};
           break;
 
         case 'sort':
@@ -255,7 +255,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
         case 'edit':
 
           if (command.value === 'replace' || command.value === 'set') {
-            rule['more'] = { command : command.value, col : {value :  this.originalSelectedColIds}};
+            rule['more'] = { command : command.value, col : this.originalSelectedColIds};
           }
 
           if (command.value === 'keep' || command.value === 'delete') {
@@ -266,7 +266,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
         case 'generate':
           switch(command.value) {
             case 'derive':
-              rule['more'] = { command : 'derive'};
+              rule['more'] = { command : 'derive', col: []};
               break;
             case 'duplicate':
               let newCol = `${this.contextInfo.columnName}_1`;
@@ -278,7 +278,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               rule.uiRuleString = {name: 'flatten', col: [this.contextInfo.columnName]};
               break;
             default:
-              rule['more'] = { command : command.value, col : { value : this.originalSelectedColIds}};
+              rule['more'] = { command : command.value, col : this.originalSelectedColIds};
               break;
           }
           break;
@@ -306,10 +306,10 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               break;
 
             case 'mismatch':
-              rule['more'] = {contextMenu : true,  command : 'set', col : {value : this.originalSelectedColIds}, condition : `ismismatched(${selCol},'${this.contextInfo.columnType}')`};
+              rule['more'] = {contextMenu : true,  command : 'set', col : this.originalSelectedColIds, condition : `ismismatched(${selCol},'${this.contextInfo.columnType}')`};
               break;
             case 'missing':
-              rule['more'] = {contextMenu : true, command : 'set', col : {value : this.originalSelectedColIds}, condition : `ismissing(${selCol})`};
+              rule['more'] = {contextMenu : true, command : 'set', col : this.originalSelectedColIds, condition : `ismissing(${selCol})`};
               break;
           }
           break;
@@ -360,9 +360,9 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
       (type === 'String' && this.contextInfo.columnType.toUpperCase() === 'TIMESTAMP')
       || 'Timestamp' === type
     ) {
-      rule.more = { command : 'settype', col :  {value : this.originalSelectedColIds}, type : type};
+      rule.more = { command : 'settype', col : this.originalSelectedColIds, type : type};
     } else {
-      rule.ruleString = 'settype col: ' + columnStr + ' type: ' + type;
+      rule.ruleString = 'settype col: ' + columnStr + ' type: ' + type.toLowerCase();
       rule.uiRuleString = {name: 'settype', col:columnNames, type: type}
     }
 
@@ -407,7 +407,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
       rule.ruleString = `move col: ${columnStr} before: \`${first}\``;
       rule.uiRuleString = {
         beforeAfter: 'before',
-        refColumn: [first],
+        refColumn: first,
       }
     }
 
@@ -416,7 +416,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
       rule.ruleString = `move col: ${columnStr} after: \`${last}\``;
       rule.uiRuleString = {
         beforeAfter: 'after',
-        refColumn: [last],
+        refColumn: last,
       }
     }
 
@@ -427,8 +427,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
     }
 
     if (type === 'before' || type === 'after') {
-      rule['more'] = {command : 'move', col : columnNames};
-      rule['more'][type] = '';
+      rule['more'] = {command : 'move', col : columnNames, beforeAfter: type};
     }
 
     return rule;

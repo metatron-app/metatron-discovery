@@ -366,14 +366,14 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * parse rule string (When editing)
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : SetTypeRule}) {
+  protected parsingRuleString(data: {jsonRuleString : SetTypeRule}) {
 
     // COLUMN
     let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     // TYPE
-    this.selectedType = data.jsonRuleString.type;
+    this.selectedType = data.jsonRuleString.type.toLowerCase();
 
     // TODO :
     this.defaultIndex = this.typeList.indexOf(this.selectedType);

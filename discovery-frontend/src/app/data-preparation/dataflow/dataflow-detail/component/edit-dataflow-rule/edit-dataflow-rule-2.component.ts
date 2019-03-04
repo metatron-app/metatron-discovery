@@ -257,7 +257,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this._split = [];
     this._split.push(Split(['.rule-left', '.rule-right'], {
         sizes: [80, 20],
-      minSize: [300, 300],
+        minSize: [300, 300],
         onDragEnd: (() => {
           this._editRuleGridComp.resizeGrid();
         }),
@@ -1136,65 +1136,66 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     if (data.more) {
       this.ruleVO.command = data.more.command;
       this.safelyDetectChanges();
-      switch (data.more.command) {
-        case 'nest':
-        case 'merge':
-        case 'replace':
-        case 'countpattern':
-        case 'split':
-        case 'extract':
-        case 'rename':
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ));
-          break;
-        case 'unnest':
-          let unnestList = this.selectedDataSet.gridData.fields.filter((item) => {
-            return item.type === 'ARRAY' || item.type === 'MAP'
-          });
-          let selectedUnnestList =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ).filter((item) => {
-            return item.type === 'ARRAY' || item.type === 'MAP'
-          });
-          this._editRuleComp.init(unnestList, selectedUnnestList);
-          break;
-        case 'setformat':
-          let setformatList = this.selectedDataSet.gridData.fields.filter((item) => {
-            return item.type === 'TIMESTAMP'
-          });
-          let setformatSel =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ).filter((item) => {
-            return item.type === 'TIMESTAMP'
-          });
-          let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
-            return item.type === 'TIMESTAMP'
-          });
-          this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
-          this._editRuleComp.setValue('colTypes', colDescs);
-          this._editRuleComp.init(setformatList, setformatSel);
-          break;
-        case 'move':
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ), {ruleString : '', jsonRuleString : data.more});
-          break;
-        case 'set':
 
-          if (data.more.contextMenu) {
-            this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ), {ruleString : '', jsonRuleString : data.more});
-          } else {
-            this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ));
-          }
+      const selCols = this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.uuid ) );
 
-          break;
-        case 'derive':
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, []);
-          break;
-        case 'settype':
-          this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
-          this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
-          this._editRuleComp.setValue('selectedType', data.more.type);
-          let idx = this.selectedDataSet.gridResponse.colDescs.findIndex((item) => {
-            return item.type === data.more.type.toUpperCase();
-          });
-          this._editRuleComp.setValue('defaultIndex', idx);
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ));
-          break;
+      if (data.more.command === 'unnest') {
+        let unnestList = this.selectedDataSet.gridData.fields.filter((item) => {
+          return item.type === 'ARRAY' || item.type === 'MAP'
+        });
+        let selectedUnnestList =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.uuid ) ).filter((item) => {
+          return item.type === 'ARRAY' || item.type === 'MAP'
+        });
+        this._editRuleComp.init(unnestList, selectedUnnestList);
       }
+
+      if (data.more.command === 'setformat') {
+        let setformatList = this.selectedDataSet.gridData.fields.filter((item) => {
+          return item.type === 'TIMESTAMP'
+        });
+        let setformatSel =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.uuid ) ).filter((item) => {
+          return item.type === 'TIMESTAMP'
+        });
+        let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
+          return item.type === 'TIMESTAMP'
+        });
+        this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
+        this._editRuleComp.setValue('colTypes', colDescs);
+        this._editRuleComp.init(setformatList, setformatSel);
+      }
+
+      if (data.more.command === 'move') {
+        this._editRuleComp.init(this.selectedDataSet.gridData.fields, selCols, {jsonRuleString : data.more});
+      }
+
+      if (data.more.command === 'set') {
+
+        if (data.more.contextMenu) {
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, selCols, {jsonRuleString : data.more});
+        } else {
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, selCols);
+        }
+      }
+
+
+      if (data.more.command === 'settype') {
+
+        this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
+        this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
+        this._editRuleComp.setValue('selectedType', data.more.type);
+        let idx = this.selectedDataSet.gridResponse.colDescs.findIndex((item) => {
+          return item.type === data.more.type.toUpperCase();
+        });
+        this._editRuleComp.setValue('defaultIndex', idx);
+        this._editRuleComp.init(this.selectedDataSet.gridData.fields, selCols);
+      }
+
+      const ruleNames : string[] = ['nest','merge','replace','countpattern','split','extract','rename', 'derive'];
+      if (-1 !== ruleNames.indexOf(data.more.command)) {
+        this._editRuleComp.init(this.selectedDataSet.gridData.fields, selCols);
+      }
+
+
     } else {
 
       data['ruleCurIdx'] = this.opString === 'UPDATE' ? this.serverSyncIndex-1 : this.serverSyncIndex;

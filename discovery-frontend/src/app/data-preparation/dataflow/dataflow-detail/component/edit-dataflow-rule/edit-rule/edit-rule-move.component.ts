@@ -188,10 +188,14 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
     this.defaultIndex = data.jsonRuleString.beforeAfter === 'before'? 0 : 1;
 
     // REFERENCE COLUMN
-    this.selectedStandardField = data.jsonRuleString.refColumn;
-    this.defaultColIndex = this.fields.findIndex((item) => {
-      return item.name === this.selectedStandardField[0];
-    });
+    if (data.jsonRuleString.refColumn) {
+      this.selectedStandardField = data.jsonRuleString.refColumn;
+      this.defaultColIndex = this.fields.findIndex((item) => {
+        return item.name === this.selectedStandardField;
+      });
+    }
+
+
 
   } // function - _parsingRuleString
 
