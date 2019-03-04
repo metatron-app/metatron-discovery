@@ -13,21 +13,30 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { PageWidget, PageWidgetConfiguration } from '../../../domain/dashboard/widget/page-widget';
-import { AnalysisPredictionComponent } from './prediction/analysis-prediction.component';
-import { TrendLineComponent } from './trend.line/trend.line.component';
-import { Observable } from 'rxjs/Observable';
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import {PageWidgetConfiguration} from '../../../domain/dashboard/widget/page-widget';
+import {AnalysisPredictionComponent} from './prediction/analysis-prediction.component';
+import {TrendLineComponent} from './trend.line/trend.line.component';
+import {AbstractComponent} from '../../../common/component/abstract.component';
 import * as _ from 'lodash';
-import { UIOption } from '../../../common/component/chart/option/ui-option';
-import { EventType } from '../../../common/component/chart/option/define/common';
-import { HyperParameter } from '../value/analysis';
-import { LineChartComponent } from '../../../common/component/chart/type/line-chart/line-chart.component';
-import { AnalysisPredictionService } from './service/analysis.prediction.service';
+import {UIOption} from '../../../common/component/chart/option/ui-option';
+import {EventType} from '../../../common/component/chart/option/define/common';
+import {AnalysisPredictionService} from './service/analysis.prediction.service';
 import {fromEvent} from "rxjs";
+import {Shelf} from "../../../domain/workbook/configurations/shelf/shelf";
+import {Pivot} from "../../../domain/workbook/configurations/pivot";
+import {MapSpatialComponent} from "./map-spatial/map-spatial.component";
 
 @Component({
   selector: 'analysis-component',
@@ -57,6 +66,9 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   @ViewChild(TrendLineComponent)
   private trendLineComponent: TrendLineComponent;
 
+  @ViewChild(MapSpatialComponent)
+  private mapSpatialComponent: MapSpatialComponent;
+
   // ---------------------------------------
   // @Output
   // ---------------------------------------
@@ -82,9 +94,6 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public dataSubLayerKey: string = '';
-
-  @Input('uiOption')
-  public uiOption: UIOption;
 
   // ---------------------------------------
   // @Input
@@ -118,7 +127,6 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public ngOnChanges(changes: SimpleChanges): void {
-
     if (!_.isUndefined(changes['dataLayerKey'])) {
       if (changes['dataLayerKey'].currentValue !== 'analysis') {
         this.dataSubLayerKey = '';
@@ -174,8 +182,15 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
     return this.analysisPredictionComponent.isValid();
   }
 
-  public changePredictionLineDisabled() : void {
+  public changePredictionLineDisabled(): void {
     this.analysisPredictionComponent.changePredictionLineDisabled();
+  }
+
+  public mapSpatialChanges(uiOption, shelf) {
+    if( _.isUndefined(this.mapSpatialComponent) ) {
+      return;
+    }
+    this.mapSpatialComponent.mapSpatialChanges(uiOption, shelf);
   }
 
   // ------------------------------------

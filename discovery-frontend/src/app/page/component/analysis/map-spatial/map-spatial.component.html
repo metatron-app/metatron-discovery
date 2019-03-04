@@ -16,106 +16,51 @@
 
     <div class="ddp-divide2">
       <div class="ddp-list-label">기준 레이어</div>
-      <!-- 클릭시 ddp-selected 추가 -->
-      <div class="ddp-type-selectbox">
-        <span class="ddp-txt-selectbox">Layer2</span>
-        <ul class="ddp-list-selectbox ddp-selectdown">
-          <li>
-            <a href="#">
-              1
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              2
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              3
-            </a>
-          </li>
-        </ul>
-      </div>
+      <!-- select box -->
+      <component-select #selectComponent
+                        [array]="basisList.layers"
+                        [(defaultIndex)]="basisIndex"
+                        (onSelected)="onSelectBasis($event)">
+      </component-select>
+      <!-- //select box -->
     </div>
     <div class="ddp-divide2">
       <div class="ddp-list-label">비교 레이어</div>
-      <!-- 클릭시 ddp-selected 추가 -->
-      <div class="ddp-type-selectbox">
-        <span class="ddp-txt-selectbox">Layer2</span>
-        <ul class="ddp-list-selectbox ddp-selectdown">
-          <li>
-            <a href="#">
-              1
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              2
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              3
-            </a>
-          </li>
-        </ul>
-      </div>
+      <!-- select box -->
+      <component-select #selectComponent
+                        [array]="compareList.layers"
+                        [(defaultIndex)]="compareIndex"
+                        (onSelected)="onSelectCompare($event)">
+      </component-select>
+      <!-- //select box -->
     </div>
     <div class="ddp-divide2">
       <div class="ddp-list-label">공간 연산</div>
-      <!-- 클릭시 ddp-selected 추가 -->
-      <div class="ddp-type-selectbox">
-        <span class="ddp-txt-selectbox">Layer2</span>
-        <ul class="ddp-list-selectbox ddp-selectdown">
-          <li>
-            <a href="#">
-              1
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              2
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              3
-            </a>
-          </li>
-        </ul>
-      </div>
+      <!-- select box -->
+      <component-select #selectComponent
+                        [array]="calSpatialList"
+                        [(defaultIndex)]="calSpatialIndex"
+                        (onSelected)="onSelectSpatial($event)">
+      </component-select>
+      <!-- //select box -->
     </div>
-    <div class="ddp-divide2 ddp-form ddp-clear">
 
+
+    <div class="ddp-divide2 ddp-form ddp-clear">
       <div class="ddp-col-6">
         <input type="text" class="ddp-input-typebasic ddp-txt-right" value="100">
       </div>
       <div class="ddp-col-6">
-        <!-- 클릭시 ddp-selected 추가 -->
-        <div class="ddp-type-selectbox">
-          <span class="ddp-txt-selectbox">Meters</span>
-          <ul class="ddp-list-selectbox ddp-selectdown">
-            <li>
-              <a href="#">
-                1
-              </a>
-            </li>
-            <li>
-              <a href="#">
-                2
-              </a>
-            </li>
-            <li>
-              <a href="#">
-                3
-              </a>
-            </li>
-          </ul>
-        </div>
+        <!-- select box -->
+        <component-select #selectComponent
+                          [array]="unitList"
+                          [(defaultIndex)]="unitIndex"
+                          (onSelected)="onSelectUnit($event)">
+        </component-select>
+        <!-- //select box -->
       </div>
     </div>
-    <div class="ddp-form-buttons ddp-clear">
+    <div class="ddp-form-buttons ddp-clear" (click)="analysisBtn()">
       <a href="javascript:" class="ddp-btn-blue">Analysis</a>
     </div>
   </div>

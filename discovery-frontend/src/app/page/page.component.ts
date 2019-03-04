@@ -1640,7 +1640,12 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // 데이터 필드 설정 (data panel의 pivot 설정)
     this.setDatasourceFields(true);
 
-    // 선반변경시 drawChart 발생
+    // 공간연산 data 전달
+    if(this.selectChart==='map') {
+      this.analysisComponent.mapSpatialChanges(this.uiOption, this.shelf);
+    }
+
+    // 선반변경시 drawChart
     this.drawChart({type: eventType});
   }
 
