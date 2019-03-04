@@ -2114,7 +2114,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     //        MapViewLayer layer2 = new MapViewLayer("layer1", "sales_geo", fields2, null);
     //        MapViewLayer layer2 = new MapViewLayer("layer1", "sales_geo", fields2, new LayerView.ClusteringLayerView("h3", 5));
 
-    List<Field> fields1 = Lists.newArrayList(new DimensionField("location", null, null), new DimensionField("City"), new MeasureField("Profit", null, MeasureField.AggregationType.AVG));
+    List<Field> fields1 = Lists.newArrayList(new DimensionField("location", null, null), new MeasureField("Profit", null, MeasureField.AggregationType.AVG));
     MapViewLayer layer1 = new MapViewLayer("layer1", "sales_geo", fields1, new LayerView.ClusteringLayerView("h3", 5));
 
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
