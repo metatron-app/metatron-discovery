@@ -642,24 +642,10 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    */
   private _setMetaDataField(field: Field): void {
     const fieldMetaData: MetadataColumn = _.find(this.metaData.columns, {'physicalName': field.name});
-    // logical name
-    field['logicalName'] = fieldMetaData.name;
     // code table
     field['codeTable'] = fieldMetaData.codeTable;
     // dictionary
     field['dictionary'] = fieldMetaData.dictionary;
-    // type
-    if (fieldMetaData.type) {
-      field['metaType'] = fieldMetaData.type;
-    }
-    // description
-    if (fieldMetaData.description) {
-      field['description'] = fieldMetaData.description;
-    }
-    // format
-    if (fieldMetaData.format) {
-      field['format'] = fieldMetaData.format;
-    }
   }
 
   /**
