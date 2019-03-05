@@ -217,8 +217,8 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
     this.clickDataPanelNoti.emit(dataLayerKey);
   }
 
-  public changeAnalysisNoti(): void {
-    this.changeAnalysis.emit();
+  public changeAnalysisNoti(value) {
+    this.changeAnalysis.emit(value);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

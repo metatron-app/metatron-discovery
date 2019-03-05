@@ -120,7 +120,6 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
               if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption.layers)
                 && this.uiOption.layers.length > 0 && !_.isUndefined(this.uiOption.layers[shelfIndex].name)) {
                 this.baseList.layers.push(this.uiOption.layers[shelfIndex].name);
-                this.baseList['selectedNum'] = shelfIndex;
               }
             }
           });
@@ -130,27 +129,23 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       this.compareList.layers = [];
       if (this.baseList.layers.length > 1) {
         this.compareList.layers = _.cloneDeep(this.baseList.layers);
-        this.compareList.layers = this.compareList.layers.splice(this.baseList['selectedNum'], 1);
+        this.compareList.layers.splice(this.baseIndex, 1);
         this.compareIndex = 0;
       }
     }
   }
 
   public onSelectBase(value) {
-    this.baseList['selectedNum'] = this.baseList.layers.findIndex((baseItem) => baseItem === value);
-    this.baseIndex = this.baseList['selectedNum'];
+    this.baseIndex = this.baseList.layers.findIndex((baseItem) => baseItem === value);
     this.compareList.layers = [];
     this.compareList.layers = _.cloneDeep(this.baseList.layers);
-    this.compareList.layers = _.remove(this.compareList.layers, function (layer) {
-      return layer != value;
-    });
+    this.compareList.layers = _.remove(this.compareList.layers, function (layer) {return layer != value;});
     this.compareIndex = 0;
     this.changeDetect.detectChanges();
   }
 
   public onSelectCompare(value) {
-    this.compareList['selectedNum'] = this.compareList.layers.findIndex((compareItem) => compareItem === value);
-    this.compareIndex = this.compareList['selectedNum'];
+    this.compareIndex = this.compareList.layers.findIndex((compareItem) => compareItem === value);
   }
 
   public onSelectSpatial(value) {
@@ -192,19 +187,18 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       return;
     }
     let unitInputData: number = Number(this.unitInput);
-
     let mapUIOption = (<UIMapOption>this.uiOption);
     mapUIOption.analysis = {
-      use      : true,
-      mainLayer : baseData,
-      compareLayer : compareData,
-      operation : {
-        type      :  unitData,
-        distance  :  this.unitInput
+      use: true,
+      layerNum : this.baseIndex,
+      mainLayer: baseData,
+      compareLayer: compareData,
+      operation: {
+        type: spatialData,
+        distance: unitInputData,
+        unit: unitData
       }
     };
-    this.changeAnalysis.emit();
-
+    this.changeAnalysis.emit(mapUIOption);
   }
-
 }

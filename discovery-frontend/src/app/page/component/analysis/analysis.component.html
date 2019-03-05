@@ -56,7 +56,7 @@
       <!--map-spatial-->
       <map-spatial *ngIf="selectChart==='map'"
                    [uiOption]="uiOption"
-                   (changeAnalysisNoti)="changeAnalysisNoti();">
+                   (changeAnalysisNoti)="changeAnalysisNoti($event);">
       </map-spatial>
       <!-- // map-spatial-->
     </div>

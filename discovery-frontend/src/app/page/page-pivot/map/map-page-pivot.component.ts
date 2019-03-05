@@ -314,7 +314,9 @@ export class MapPagePivotComponent extends PagePivotComponent {
     }
 
     // template 에서 생성한 경우 추가된 선반필드는 적용이 되지 않음 그래서 처리
-    this.editFieldLayerDirective.exclude = '.ddp-icon-layer';
+    if( !_.isUndefined(this.editFieldLayerDirective) ) {
+      this.editFieldLayerDirective.exclude = '.ddp-icon-layer';
+    }
   }
 
   /**
@@ -767,5 +769,12 @@ export class MapPagePivotComponent extends PagePivotComponent {
       this.uiOption.layerNum = index;
       // this.selectLayerEvent.emit(index);
     }
+  }
+
+  /**
+   * 공간연산 버튼 클릭시
+   */
+  public spatialAnalysisBtnClicked(value) {
+    this.uiOption = value;
   }
 }

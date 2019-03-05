@@ -76,7 +76,6 @@ import {DragulaService} from '../../lib/ng2-dragula';
 import {PageDataContextComponent} from './page-data/page-data-context.component';
 import {Format} from '../domain/workbook/configurations/format';
 import {FilterUtil} from '../dashboard/util/filter.util';
-import {Observable} from 'rxjs/Observable';
 import {isNullOrUndefined, isUndefined} from 'util';
 import {AnalysisComponent} from './component/analysis/analysis.component';
 import {AnalysisPredictionService} from './component/analysis/service/analysis.prediction.service';
@@ -642,7 +641,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.widget.configuration.dataSource = this.widget.dashBoard.configuration.dataSource;
 
       // Shelf 내 타겟 데이터소스 설정
-      if( this.widget.configuration.shelf ) {
+      if (this.widget.configuration.shelf) {
         const currentLayer: ShelfLayers = this.widget.configuration.shelf.layers[(<UIMapOption>this.uiOption).layerNum];
         if (0 === currentLayer.fields.length) {
           currentLayer.ref = this.dataSource.engineName;
@@ -1427,9 +1426,17 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // 차트가 그려지지 않은경우 설정
     if (!this.isChartShow) {
       const offsetTop = event.target.offsetTop;
-
       $(event.target).find('.ddp-ui-tooltip-info').css('top', offsetTop + 106);
     }
+
+    // 공간연산 tooltip이 제대로 적용이 되지 않을 경우
+    if(uiOption['analysis'] != null && uiOption['analysis']['use'] == true) {
+      $('.ddp-wrap-chart-menu a').mouseover(function(){
+        let $tooltipTop = $(this).offset().top;
+        $(this).find('.ddp-ui-tooltip-info').css('top',$tooltipTop+15)
+      });
+    }
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1641,7 +1648,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.setDatasourceFields(true);
 
     // 공간연산 data 전달
-    if(this.selectChart==='map') {
+    if (this.selectChart === 'map') {
       this.analysisComponent.mapSpatialChanges(this.uiOption, this.shelf);
     }
 
@@ -2382,8 +2389,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       let currentMapLayer = this.shelf.layers[layerNum].fields;
 
       // check is different database on the same shelf (do not need to loop because database checking)
-      if( !isNullOrUndefined(currentMapLayer) && !isNullOrUndefined(currentMapLayer[0]) && !isNullOrUndefined(currentMapLayer[0]['field'])
-          && targetField.dataSource != currentMapLayer[0].field.dataSource ) {
+      if (!isNullOrUndefined(currentMapLayer) && !isNullOrUndefined(currentMapLayer[0]) && !isNullOrUndefined(currentMapLayer[0]['field'])
+        && targetField.dataSource != currentMapLayer[0].field.dataSource) {
         Alert.warning(this.translateService.instant('msg.page.layer.multi.datasource.same.shelf'));
         return;
       }
@@ -3263,8 +3270,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   public setDisableShelf(layerNum: number): boolean {
 
     let valid: boolean = true;
-    let layers = this.shelf.layers[layerNum].fields;
 
+    // 공간연산 실행시 disable
+    if('map' == this.selectChart && this.uiOption['analysis'] != null && this.uiOption['analysis']['use'] == true) {
+      return valid;
+    }
+
+    let layers = this.shelf.layers[layerNum].fields;
     if (layers) {
       for (let layer of layers) {
         if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
@@ -3301,7 +3313,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   /**
    * redraw chart
    */
-  public changeDraw() {
+  public changeDraw(value?: any) {
+
+    // 공간연산 analysis btn 클릭시 layer 추가
+    if (!_.isUndefined(value)) {
+      this.mapPivot.spatialAnalysisBtnClicked(value);
+    }
+
     this.drawChart();
   }
 
@@ -4080,7 +4098,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // map - set shelf layers
     if (cloneQuery.shelf && cloneQuery.shelf.layers && cloneQuery.shelf.layers.length > 0) {
 
-      cloneQuery.shelf.layers = _.remove(cloneQuery.shelf.layers, function(layer) {
+      cloneQuery.shelf.layers = _.remove(cloneQuery.shelf.layers, function (layer) {
         return layer['fields'].length != 0;
       });
 

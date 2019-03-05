@@ -14,7 +14,7 @@
 
 <!-- 레이어 설정 -->
 <div *ngFor="let item of shelf.layers; let layerIndex = index">
-  <div class="ddp-ui-chart-side" [ngClass]="{'ddp-show': rnbMenu == ('mapLayer'+(layerIndex+1)) }" >
+  <div class="ddp-ui-chart-side" [ngClass]="{'ddp-show': rnbMenu == ('mapLayer'+(layerIndex+1)) }">
     <div class="ddp-filter">
       <!-- title -->
       <div class="ddp-ui-side-title">
@@ -28,20 +28,23 @@
             <!-- divide -->
             <div class="ddp-divide2 ">
               <div class="ddp-list-label">{{'msg.page.layer.map.name' | translate}}</div>
-              <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.layers[layerIndex].name"
+              <input type="text" class="ddp-input-typebasic" placeholder=""
+                     [(ngModel)]="uiOption.layers[layerIndex].name"
                      (keyup.enter)="changeLayerName(uiOption.layers[layerIndex].name, layerIndex)">
             </div>
             <!-- //divide -->
             <!-- [point, heatmap, hexagon, line, polygon] -->
             <div class="ddp-type-map-chart">
               <!-- TODO layer type divide -->
-              <div *ngIf="'line' !== uiOption.layers[layerIndex].type.toString() && 'polygon' !== uiOption.layers[layerIndex].type.toString()" class="ddp-divide2 ">
+              <div
+                *ngIf="'line' !== uiOption.layers[layerIndex].type.toString() && 'polygon' !== uiOption.layers[layerIndex].type.toString()"
+                class="ddp-divide2 ">
                 <div class="ddp-list-label">{{'msg.page.layer.map.type' | translate}}</div>
                 <div class="ddp-wrap-tab-type2">
                   <ul class="ddp-list-tab-type2 ddp-clear">
                     <li *ngFor="let item of symbolLayerTypes"
                         [ngClass]="{'ddp-selected' : item.value == uiOption.layers[layerIndex].type}"
-                        (click)="changeSymbolLayerType(item.value, layerIndex)">
+                        (click)="changeSymbolLayerType(item['value'], layerIndex)">
                       <a href="javascript:">
                         <em [ngClass]="{'ddp-icon-map-sign' : 'symbol' === item.value.toString(),
                                         'ddp-icon-map-heatmap': 'heatmap' === item.value.toString(),
@@ -50,9 +53,12 @@
                       <!-- tooltip -->
                       <div class="ddp-ui-tooltip-info">
                         <em class="ddp-icon-view-top"></em>
-                        <span *ngIf="'symbol' === item.value.toString()" class="ddp-txt-tooltip">{{'msg.page.layer.map.type.point' | translate}}</span>
-                        <span *ngIf="'heatmap' === item.value.toString()" class="ddp-txt-tooltip">{{'msg.page.layer.map.type.heatmap' | translate}}</span>
-                        <span *ngIf="'tile' === item.value.toString()" class="ddp-txt-tooltip">{{'msg.page.layer.map.type.tile' | translate}}</span>
+                        <span *ngIf="'symbol' === item['value'].toString()"
+                              class="ddp-txt-tooltip">{{'msg.page.layer.map.type.point' | translate}}</span>
+                        <span *ngIf="'heatmap' === item['value'].toString()"
+                              class="ddp-txt-tooltip">{{'msg.page.layer.map.type.heatmap' | translate}}</span>
+                        <span *ngIf="'tile' === item['value'].toString()"
+                              class="ddp-txt-tooltip">{{'msg.page.layer.map.type.tile' | translate}}</span>
                       </div>
                       <!-- //tooltip -->
                     </li>
@@ -71,7 +77,7 @@
                       <ul class="ddp-list-express ddp-tab6 ddp-type2">
                         <li *ngFor="let item of symbolLayerSymbols"
                             [ngClass]="{'ddp-selected' : uiOption.layers[layerIndex].symbol === item.value}"
-                            (click)="changeSymbolType(item.value, layerIndex)">
+                            (click)="changeSymbolType(item['value'], layerIndex)">
                           <em [ngClass]="{'ddp-icon-circle' : 'CIRCLE' === item.value.toString(),
                                           'ddp-icon-square' : 'SQUARE' === item.value.toString(),
                                           'ddp-icon-triangle' : 'TRIANGLE' === item.value.toString()}"></em> {{item.name}}
@@ -84,7 +90,8 @@
                     <div class="ddp-divide2 ">
                       <div class="ddp-list-label">{{'msg.page.layer.map.color' | translate}}</div>
                       <div [ngClass]="{'ddp-list-sub2' : 'heatmap' !== uiOption.layers[layerIndex].type.toString()}">
-                        <div [ngClass]="{'ddp-wrap-disabled' : 'MEASURE' === uiOption.layers[layerIndex].color.by.toString() && uiOption.layers[layerIndex].color['settingUseFl']}">
+                        <div
+                          [ngClass]="{'ddp-wrap-disabled' : 'MEASURE' === uiOption.layers[layerIndex].color.by.toString() && uiOption.layers[layerIndex].color['settingUseFl']}">
                           <div *ngIf="'heatmap' !== uiOption.layers[layerIndex].type.toString()" class="ddp-divide2">
                             <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
                             <!-- SELECTBOX -->
@@ -146,7 +153,8 @@
                               *ngIf="'heatmap' === uiOption.layers[layerIndex].type.toString() || ('heatmap' !== uiOption.layers[layerIndex].type.toString() && 'NONE' !== uiOption.layers[layerIndex].color.by.toString())"
                               class="ddp-ui-colorby">
                               <!-- colorby button -->
-                              <div class="ddp-wrap-colorby-button" (click)="$event.stopPropagation(); toggleColorPalette(true)"
+                              <div class="ddp-wrap-colorby-button"
+                                   (click)="$event.stopPropagation(); toggleColorPalette(true)"
                                    (clickOutside)="toggleColorPalette(false)">
                                 <em class="ddp-icon-colorby"></em>
                                 <!-- 클릭시 ddp-selected 추가 -->
@@ -173,11 +181,13 @@
                         </div>
 
                         <!-- custom color setting -->
-                        <ng-container *ngIf="'heatmap' !== uiOption.layers[layerIndex].type.toString() && 'MEASURE' === uiOption.layers[layerIndex].color.by.toString()">
+                        <ng-container
+                          *ngIf="'heatmap' !== uiOption.layers[layerIndex].type.toString() && 'MEASURE' === uiOption.layers[layerIndex].color.by.toString()">
 
                           <!-- on/off custom color setting -->
                           <div class="ddp-wrap-option-slider">
-                          <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
+                            <span
+                              class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
                             <!-- Slide THREE -->
                             <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
                               <input type="checkbox" [checked]="uiOption.layers[layerIndex].color['settingUseFl']"
@@ -193,23 +203,30 @@
 
                             <div *ngFor="let item of rangesViewList; let rangeIndex = index" class="ddp-wrap-usercolor">
                               <!-- blank -->
-                              <div *ngIf="0 !== rangeIndex" (click)="addNewRange(rangeIndex, layerIndex)" class="ddp-list-blank">
+                              <div *ngIf="0 !== rangeIndex" (click)="addNewRange(rangeIndex, layerIndex)"
+                                   class="ddp-list-blank">
                                 {{'msg.page.chart.color.measure.new.range.add.description' | translate}}
                               </div>
                               <!-- //blank -->
                               <!-- list usercolor -->
                               <div class="ddp-list-usercolor">
                                 <div class="ddp-box-color">
-                                  <color-picker [showAlpha]="true" [color]="item.color" [showInitial]="true"
-                                                [showInput]="true" [showUserColor]="true" #colorPicker (selected)="colorPaletteSelected(layerIndex, $event, item)"></color-picker>
+                                  <color-picker [showAlpha]="true" [color]="item['color']" [showInitial]="true"
+                                                [showInput]="true" [showUserColor]="true" #colorPicker
+                                                (selected)="colorPaletteSelected(layerIndex, $event, item)"></color-picker>
                                 </div>
                                 <div class="ddp-data-range ddp-clear">
                                   <div class="ddp-input-range">
                                     <!-- 말줄임 -->
                                     <!-- 클릭시 is-selected 추가 -->
                                     <div class="ddp-ng-ellipsis" [ngClass]="{'ddp-selected' : item['minInputShow']}">
-                                      <span [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}" class="ddp-data-ellipsis ddp-txt-right" (click)="showMinInputColorRange(item, true, minInput, rangeIndex)"> {{item.gt}}</span>
-                                      <input #minInput [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.gt"
+                                      <span [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}"
+                                            class="ddp-data-ellipsis ddp-txt-right"
+                                            (click)="showMinInputColorRange(item, true, minInput, rangeIndex)"> {{item['gt']}}</span>
+                                      <input #minInput
+                                             [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}"
+                                             type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right"
+                                             [(ngModel)]="item['gt']"
                                              (keyup.enter)="changeRangeMinInput(item, rangeIndex, layerIndex)"
                                              (focusout)="showMinInputColorRange(item, false, minInput)">
                                       <!-- tooltip -->
@@ -228,8 +245,13 @@
                                     <!-- 말줄임 -->
                                     <!-- 클릭시 is-selected 추가 -->
                                     <div class="ddp-ng-ellipsis" [ngClass]="{'ddp-selected' : item['maxInputShow']}">
-                                      <span [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}" class="ddp-data-ellipsis ddp-txt-right" (click)="showMaxInputColorRange(item, true, maxInput, rangeIndex)">{{item.lte}}</span>
-                                      <input #maxInput [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.lte"
+                                      <span [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}"
+                                            class="ddp-data-ellipsis ddp-txt-right"
+                                            (click)="showMaxInputColorRange(item, true, maxInput, rangeIndex)">{{item['lte']}}</span>
+                                      <input #maxInput
+                                             [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}"
+                                             type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right"
+                                             [(ngModel)]="item['lte']"
                                              (keyup.enter)="changeRangeMaxInput(item, rangeIndex, layerIndex)"
                                              (focusout)="showMaxInputColorRange(item, false, maxInput)">
                                       <!-- tooltip -->
@@ -243,7 +265,10 @@
                                   </div>
                                 </div>
 
-                                <em *ngIf="uiOption.layers[layerIndex].color['ranges']?.length - 1 !== rangeIndex && 0 !== rangeIndex && uiOption.layers[layerIndex].color['ranges']?.length > 3" (click)="removeColorRange(item, rangeIndex, layerIndex)" class="ddp-icon-listdelete"></em>
+                                <em
+                                  *ngIf="uiOption.layers[layerIndex].color['ranges']?.length - 1 !== rangeIndex && 0 !== rangeIndex && uiOption.layers[layerIndex].color['ranges']?.length > 3"
+                                  (click)="removeColorRange(item, rangeIndex, layerIndex)"
+                                  class="ddp-icon-listdelete"></em>
                               </div>
                             </div>
                             <!-- //list usercolor -->
@@ -251,9 +276,11 @@
                           </div>
 
                           <div *ngIf="uiOption.layers[layerIndex].color['settingUseFl']" class="ddp-data-sum">
-                            {{'msg.page.chart.color.measure.new.range.min' | translate}} : {{minValue}} ~ {{'msg.page.chart.color.measure.new.range.max' | translate}} : {{maxValue}}
+                            {{'msg.page.chart.color.measure.new.range.min' | translate}} : {{minValue}}
+                            ~ {{'msg.page.chart.color.measure.new.range.max' | translate}} : {{maxValue}}
                           </div>
-                          <a *ngIf="uiOption.layers[layerIndex].color['settingUseFl']" (click)="equalColorRange(layerIndex)" href="javascript:" class="ddp-btn-set">
+                          <a *ngIf="uiOption.layers[layerIndex].color['settingUseFl']"
+                             (click)="equalColorRange(layerIndex)" href="javascript:" class="ddp-btn-set">
                             {{'msg.page.chart.color.measure.new.range.split.equal' | translate}}
                           </a>
                           <!-- //color by measure custom color setting -->
@@ -279,7 +306,8 @@
                             <div class="ddp-box-option-input ddp-type ddp-inline">
                               <span class="ddp-txt-input">%</span>
                               <span class="ddp-txt-input"></span>
-                              <input type="number" input-mask="number" [ngModel]="uiOption.layers[layerIndex].color.transparency"
+                              <input type="number" input-mask="number"
+                                     [ngModel]="uiOption.layers[layerIndex].color.transparency"
                                      (keyup.enter)="changeTransparencyText($event, layerIndex);">
                             </div>
                           </div>
@@ -321,57 +349,57 @@
 
                         <!-- TODO radius range by none -->
                         <!--<div *ngIf="false && uiOption.layers[layerIndex].size.radiusRange?.length > 0" class="ddp-divide2">-->
-                          <!--<div class="ddp-form-slider">-->
-                            <!--<div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">-->
-                              <!--<range-slider-component [hideFromTo]="false"-->
-                                                      <!--[hideMinMax]="true"-->
-                                                      <!--[keyboard]="false"-->
-                                                      <!--[min]="1"-->
-                                                      <!--[max]="100"-->
-                                                      <!--[from]="uiOption.layers[layerIndex].size.radiusRange[0]"-->
-                                                      <!--[type]="'single'"-->
-                                                      <!--[step]="1"-->
-                                                      <!--(onFinish)="changeNoneRadiusRange({}, $event, layerIndex)">-->
-                              <!--</range-slider-component>-->
-                            <!--</div>-->
-                            <!--<div class="ddp-box-option-input ddp-type ddp-inline">-->
-                              <!--<span class="ddp-txt-input">px</span>-->
-                              <!--<span class="ddp-txt-input"></span>-->
-                              <!--<input type="number" input-mask="number" [ngModel]="uiOption.layers[layerIndex].size.radiusRange[0]"-->
-                                     <!--(keyup.enter)="changeNoneRadiusRangeText($event, layerIndex);">-->
-                            <!--</div>-->
-                          <!--</div>-->
+                        <!--<div class="ddp-form-slider">-->
+                        <!--<div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">-->
+                        <!--<range-slider-component [hideFromTo]="false"-->
+                        <!--[hideMinMax]="true"-->
+                        <!--[keyboard]="false"-->
+                        <!--[min]="1"-->
+                        <!--[max]="100"-->
+                        <!--[from]="uiOption.layers[layerIndex].size.radiusRange[0]"-->
+                        <!--[type]="'single'"-->
+                        <!--[step]="1"-->
+                        <!--(onFinish)="changeNoneRadiusRange({}, $event, layerIndex)">-->
+                        <!--</range-slider-component>-->
+                        <!--</div>-->
+                        <!--<div class="ddp-box-option-input ddp-type ddp-inline">-->
+                        <!--<span class="ddp-txt-input">px</span>-->
+                        <!--<span class="ddp-txt-input"></span>-->
+                        <!--<input type="number" input-mask="number" [ngModel]="uiOption.layers[layerIndex].size.radiusRange[0]"-->
+                        <!--(keyup.enter)="changeNoneRadiusRangeText($event, layerIndex);">-->
+                        <!--</div>-->
+                        <!--</div>-->
                         <!--</div>-->
                         <!--// radius range by none -->
                         <!-- TODO radius range by measure -->
                         <!--<div *ngIf="false && uiOption.layers[layerIndex].size.radiusRange?.length > 1" class="ddp-divide2">-->
-                          <!--<div class="ddp-list-label">{{'msg.page.layer.map.size.by.radius.range' | translate}}</div>-->
+                        <!--<div class="ddp-list-label">{{'msg.page.layer.map.size.by.radius.range' | translate}}</div>-->
 
-                          <!--<div class="ddp-wrap-range">-->
-                            <!--<div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">-->
-                              <!--<range-slider-component [hideFromTo]="false"-->
-                                                      <!--[hideMinMax]="true"-->
-                                                      <!--[keyboard]="false"-->
-                                                      <!--[min]="1"-->
-                                                      <!--[max]="100"-->
-                                                      <!--[from]="uiOption.layers[layerIndex].size.radiusRange[0]"-->
-                                                      <!--[to]="uiOption.layers[layerIndex].size.radiusRange[1]"-->
-                                                      <!--[type]="'double'"-->
-                                                      <!--[step]="1"-->
-                                                      <!--(onFinish)="changeMeasureRadiusRange({}, $event, layerIndex)">-->
-                              <!--</range-slider-component>-->
-                            <!--</div>-->
+                        <!--<div class="ddp-wrap-range">-->
+                        <!--<div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">-->
+                        <!--<range-slider-component [hideFromTo]="false"-->
+                        <!--[hideMinMax]="true"-->
+                        <!--[keyboard]="false"-->
+                        <!--[min]="1"-->
+                        <!--[max]="100"-->
+                        <!--[from]="uiOption.layers[layerIndex].size.radiusRange[0]"-->
+                        <!--[to]="uiOption.layers[layerIndex].size.radiusRange[1]"-->
+                        <!--[type]="'double'"-->
+                        <!--[step]="1"-->
+                        <!--(onFinish)="changeMeasureRadiusRange({}, $event, layerIndex)">-->
+                        <!--</range-slider-component>-->
+                        <!--</div>-->
 
-                            <!--<div class="ddp-data-range ddp-clear">-->
-                              <!--<input type="number" class="ddp-input-typebasic ddp-txt-center" (key.enter)="changeMeasureRadiusRangeText($event, 0, layerIndex)"-->
-                                     <!--[ngModel]="uiOption.layers[layerIndex].size.radiusRange[0]">-->
-                              <!--<div class="ddp-bar ">-->
-                                <!--~-->
-                              <!--</div>-->
-                              <!--<input type="number" class="ddp-input-typebasic ddp-txt-center" (key.enter)="changeMeasureRadiusRangeText($event, 1, layerIndex)"-->
-                                     <!--[ngModel]="uiOption.layers[layerIndex].size.radiusRange[1]">-->
-                            <!--</div>-->
-                          <!--</div>-->
+                        <!--<div class="ddp-data-range ddp-clear">-->
+                        <!--<input type="number" class="ddp-input-typebasic ddp-txt-center" (key.enter)="changeMeasureRadiusRangeText($event, 0, layerIndex)"-->
+                        <!--[ngModel]="uiOption.layers[layerIndex].size.radiusRange[0]">-->
+                        <!--<div class="ddp-bar ">-->
+                        <!--~-->
+                        <!--</div>-->
+                        <!--<input type="number" class="ddp-input-typebasic ddp-txt-center" (key.enter)="changeMeasureRadiusRangeText($event, 1, layerIndex)"-->
+                        <!--[ngModel]="uiOption.layers[layerIndex].size.radiusRange[1]">-->
+                        <!--</div>-->
+                        <!--</div>-->
                         <!--</div>-->
                         <!-- //radius range by measure -->
                       </div>
@@ -423,7 +451,7 @@
                           <ul class="ddp-list-express ddp-tab3 ddp-type">
                             <li *ngFor="let item of thicknessList"
                                 [ngClass]="{'ddp-selected' : uiOption.layers[layerIndex].outline.thickness === item.value}"
-                                (click)="changeThick(item.value, layerIndex)">
+                                (click)="changeThick(item['value'], layerIndex)">
                               <em [ngClass]="{'ddp-line-bold1' : 'THIN' === item.value.toString(),
                                               'ddp-line-bold2' : 'NORMAL' === item.value.toString(),
                                               'ddp-line-bold3' : 'THICK' === item.value.toString()}"></em>
@@ -444,7 +472,9 @@
                         <span class="ddp-label-slider">{{'msg.page.layer.map.cluster' | translate}}</span>
                         <!-- Slide THREE -->
                         <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-                          <input type="checkbox" value="None" id="check2" name="check" [ngModel]="uiOption.layers[layerIndex]['clustering']" (click)="isEnableClustering(layerIndex);">
+                          <input type="checkbox" value="None" id="check2" name="check"
+                                 [ngModel]="uiOption.layers[layerIndex]['clustering']"
+                                 (click)="isEnableClustering(layerIndex);">
                           <label for="check2"><span class="ddp-slide"></span></label>
                         </div>
                         <!-- //Slide THREE -->
@@ -474,7 +504,9 @@
                               </div>
                               <div class="ddp-box-option-input ddp-type ddp-inline">
                                 <span class="ddp-txt-input">%</span>
-                                <input type="number" input-mask="number" [ngModel]="uiOption.layers[layerIndex]['coverage']" (keyup.enter)="changeClusteringText($event, layerIndex);">
+                                <input type="number" input-mask="number"
+                                       [ngModel]="uiOption.layers[layerIndex]['coverage']"
+                                       (keyup.enter)="changeClusteringText($event, layerIndex);">
                               </div>
                             </div>
                           </div>
@@ -586,26 +618,26 @@
                     <!-- //hexagon : radius -->
                     <!-- hexagon : coverage -->
                     <!--<div class="ddp-divide2">-->
-                      <!--<div class="ddp-list-label">{{'msg.page.layer.map.coverage' | translate}}</div>-->
-                      <!--<div class="ddp-form-slider">-->
-                        <!--<div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">-->
-                          <!--<range-slider-component [hideFromTo]="false"-->
-                                                  <!--[hideMinMax]="true"-->
-                                                  <!--[keyboard]="false"-->
-                                                  <!--[min]="0.1"-->
-                                                  <!--[max]="1"-->
-                                                  <!--[from]="uiOption.layers[layerIndex]['coverage']"-->
-                                                  <!--[type]="'single'"-->
-                                                  <!--[step]="0.1"-->
-                                                  <!--(onFinish)="changeCoverage({}, $event, layerIndex)">-->
-                          <!--</range-slider-component>-->
-                        <!--</div>-->
-                        <!--<div class="ddp-box-option-input ddp-type ddp-inline">-->
-                          <!--<span class="ddp-txt-input"></span>-->
-                          <!--<input type="number" input-mask="number" [ngModel]="uiOption.layers[layerIndex]['coverage']"-->
-                                 <!--(keyup.enter)="changeCoverageText($event,layerIndex)">-->
-                        <!--</div>-->
-                      <!--</div>-->
+                    <!--<div class="ddp-list-label">{{'msg.page.layer.map.coverage' | translate}}</div>-->
+                    <!--<div class="ddp-form-slider">-->
+                    <!--<div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">-->
+                    <!--<range-slider-component [hideFromTo]="false"-->
+                    <!--[hideMinMax]="true"-->
+                    <!--[keyboard]="false"-->
+                    <!--[min]="0.1"-->
+                    <!--[max]="1"-->
+                    <!--[from]="uiOption.layers[layerIndex]['coverage']"-->
+                    <!--[type]="'single'"-->
+                    <!--[step]="0.1"-->
+                    <!--(onFinish)="changeCoverage({}, $event, layerIndex)">-->
+                    <!--</range-slider-component>-->
+                    <!--</div>-->
+                    <!--<div class="ddp-box-option-input ddp-type ddp-inline">-->
+                    <!--<span class="ddp-txt-input"></span>-->
+                    <!--<input type="number" input-mask="number" [ngModel]="uiOption.layers[layerIndex]['coverage']"-->
+                    <!--(keyup.enter)="changeCoverageText($event,layerIndex)">-->
+                    <!--</div>-->
+                    <!--</div>-->
                     <!--</div>-->
                     <!-- //hexagon : coverage -->
                   </div>
@@ -629,7 +661,8 @@
                             ></component-select>
                             <!-- //SELECTBOX -->
                           </div>
-                          <div *ngIf="'MEASURE' === uiOption.layers[layerIndex].thickness?.by?.toString()" class="ddp-divide2">
+                          <div *ngIf="'MEASURE' === uiOption.layers[layerIndex].thickness?.by?.toString()"
+                               class="ddp-divide2">
                             <!-- SELECTBOX -->
                             <component-select
                               [array]="fieldList[layerIndex].measureList"
@@ -643,7 +676,8 @@
                             <div class="ddp-wrap-option-multy ddp-clear">
                               <div class="ddp-col-8">
                                 <span
-                                  class="ddp-label-txt">{{'msg.page.layer.map.stroke.max.width' | translate}} (pt)</span>
+                                  class="ddp-label-txt">{{'msg.page.layer.map.stroke.max.width' | translate}}
+                                  (pt)</span>
                               </div>
                               <div class="ddp-col-4">
                                 <input type="number" input-mask="number" class="ddp-input-typebasic ddp-txt-right"
@@ -668,7 +702,7 @@
                           </div>
                           <div class="ddp-col-6 ddp-txt-right">
                             <ul class="ddp-list-express ddp-tab3 ddp-type">
-                              <li *ngFor="let item of lineStyleList" (click)="changeLineStyle(item.value, layerIndex)"
+                              <li *ngFor="let item of lineStyleList" (click)="changeLineStyle(item['value'], layerIndex)"
                                   [ngClass]="{'ddp-selected' : item.value === uiOption.layers[layerIndex].lineStyle}">
                                 <em [ngClass]="{'ddp-line-bold1' : 'SOLID' === item.value,
                                               'ddp-line-dotted' : 'DOTTED' === item.value,

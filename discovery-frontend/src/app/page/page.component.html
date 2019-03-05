@@ -693,7 +693,7 @@
                                 (changeForecastNoti)="changeForecast();"
                                 (changeConfidenceNoti)="changeConfidence();"
                                 [uiOption]="uiOption"
-                                (changeAnalysisNoti)="changeDraw();">
+                                (changeAnalysisNoti)="changeDraw($event);">
             </analysis-component>
             <!-- //down menu -->
           </div>
@@ -809,9 +809,10 @@
             <!--(selectLayer)="onSelectLayer($event)">-->
           </map-page-pivot>
           <!-- //선반 -->
-          <div class="ddp-ui-chart-contents"
-               [ngClass]="{'ddp-map-chart' : 'map' == selectChart, 'ddp-shelf1' : 'map' == selectChart && 0 == shelf.layers.length-1,
-            'ddp-shelf2' : 'map' == selectChart && 1 == shelf.layers.length-1, 'ddp-shelf3' : 'map' == selectChart && 2 == shelf.layers.length-1}">
+          <div class="ddp-ui-chart-contents" [ngClass]="{'ddp-map-chart' : 'map' == selectChart,
+                                                          'ddp-shelf1' : 'map' == selectChart && 0 == shelf.layers.length-1,
+                                                          'ddp-shelf2' : 'map' == selectChart && 1 == shelf.layers.length-1,
+                                                          'ddp-shelf3' : 'map' == selectChart && uiOption.analysis != null && uiOption.analysis['use'] == true}">
             <div class="ddp-wrap-chart-layout">
               <!-- 차트 기본 선택 화면 -->
               <div class="ddp-ui-chart-basic" *ngIf="selectChart==''">
@@ -1896,7 +1897,7 @@
             <div *ngIf="selectChart == 'map'">
               <a *ngFor="let item of shelf.layers; let index = index" href="javascript:"
                  (click)="toggleMapLayer('mapLayer'+(index+1), index)"
-                 [ngClass]="{'ddp-disabled': !isChartShow || setDisableShelf(index)}"
+                 [ngClass]="{'ddp-disabled': !isChartShow || setDisableShelf(index) || 'map' == selectChart && uiOption['analysis'] != null && uiOption['analysis']['use'] == true}"
                  [class.ddp-selected]="isChartShow && rnbMenu=='mapLayer'+(index+1) && !setDisableShelf(index)">
                 <em *ngIf="index == 0" class="ddp-icon-menu-mapview1"></em>
                 <em *ngIf="index == 1" class="ddp-icon-menu-mapview2"></em>
@@ -1907,6 +1908,17 @@
                 </div>
                 <!-- //툴팁 -->
               </a>
+              <!-- 공간연산 option -->
+              <a *ngIf="'map' == selectChart && uiOption['analysis'] != null && uiOption['analysis']['use'] == true">
+                <em class="ddp-icon-menu-analysis"></em>
+                <!-- 툴팁 -->
+                <div class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-right"></em>
+                  Analysis
+                </div>
+                <!-- //툴팁 -->
+              </a>
+              <!-- // 공간연산 option-->
             </div>
           <!-- //맵뷰: 레이어 설정 -->
           <!-- 맵뷰: 범례 설정 -->
