@@ -357,7 +357,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     this.clearExistingInterval();
     this.interval = setInterval(() => {
       this.getDatasetInfo(this.selectedDataSet);
-    },2000);
+    },5000);
   }
 
 
@@ -380,11 +380,16 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     this.dataflowService.getDataset(selectedDatset.dsId).then((dataset: any) => {
       this.loadingHide();
 
-      //this.previewData = dataset; //  preview 를 위한 데이터 저장
       this.selectedDataSet = $.extend(selectedDatset, dataset);
 
-      this.setDatasetName();
-      this.setDatasetDescription();
+      // 편집 중 interval 을 타면 편집창이 닫히는걸 방지
+      if (!this.isDatasetNameEdit) {
+        this.datasetName = this.selectedDataSet.dsName;
+      }
+
+      if (!this.isDatasetDescEdit) {
+        this.datasetDesc = this.selectedDataSet.dsDesc;
+      }
 
       setTimeout(() => {
 
@@ -738,6 +743,18 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
         {name : this.translateService.instant('msg.dp.th.summary'), value :this.getRows},
         {name : '', value : this.getCols()})
 
+    }
+  }
+
+  /**
+   * Returns description with new line replaced with <br>
+   * @param description
+   */
+  public getDescriptionWithBR(description: string) {
+    if (description) {
+      return description.replace( /\r\n|\n/gi, '<br>' );
+    } else {
+      return this.translateService.instant('msg.groups.ui.create.ph.desc');
     }
   }
 
