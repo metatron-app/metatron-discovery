@@ -637,6 +637,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       if (jsonRuleString.name === 'settype') {
         this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
         this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
+
+
+        // Server sends col with string when there's only one column
+        if (typeof jsonRuleString.col === 'string') {
+          jsonRuleString.col = [jsonRuleString.col];
+        }
         this._editRuleComp.init(gridData.fields, [], {jsonRuleString : jsonRuleString});
       }
 
