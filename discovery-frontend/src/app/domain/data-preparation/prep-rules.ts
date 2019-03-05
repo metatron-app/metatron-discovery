@@ -67,7 +67,7 @@ export class SetFormatRule extends AbstractPrepRule {
 }
 
 export class SetTypeRule extends AbstractPrepRule {
-  public col: string[];
+  public col: string[] | string;
   public type: string;
   public format?: string;
 }

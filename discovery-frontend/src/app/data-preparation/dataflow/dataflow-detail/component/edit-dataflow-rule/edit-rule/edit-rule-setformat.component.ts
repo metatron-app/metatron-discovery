@@ -248,6 +248,15 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
    * @protected
    */
   protected beforeShowComp() {
+
+    this.fields = this.fields.filter((item) => {
+      return item.type === 'TIMESTAMP'
+    });
+
+    this.selectedFields = this.selectedFields.filter((item) => {
+      return item.type === 'TIMESTAMP'
+    });
+
   } // function - _beforeShowComp
 
   /**

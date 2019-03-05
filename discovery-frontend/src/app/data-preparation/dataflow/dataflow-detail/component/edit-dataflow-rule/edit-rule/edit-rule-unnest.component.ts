@@ -141,7 +141,16 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
    * 컴포넌트 표시 전 실행
    * @protected
    */
-  protected beforeShowComp() {} // function - _beforeShowComp
+  protected beforeShowComp() {
+    this.fields = this.fields.filter((item) => {
+      return item.type === 'ARRAY' || item.type === 'MAP'
+    });
+
+    this.selectedFields = this.selectedFields.filter((item) => {
+      return item.type === 'ARRAY' || item.type === 'MAP'
+    });
+
+  } // function - _beforeShowComp
 
   /**
    * 컴포넌트 표시 후 실행

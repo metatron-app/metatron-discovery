@@ -154,8 +154,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   // tell if union is updating or just adding
   public isUpdate: boolean = false;
 
-  // select box 에서 선택됐는지 여부
-  public selectboxFlag: boolean = false;
 
   // Histogram
   public charts: any = [];
@@ -443,42 +441,15 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     switch (this.ruleVO.command) {
       case 'setformat':
-        let setformatList = this.selectedDataSet.gridData.fields.filter((item) => {
-          return item.type === 'TIMESTAMP'
-        });
-        let selectedsetformatList = selectedFields.filter((item) => {
-          return item.type === 'TIMESTAMP'
-        });
         let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
           return item.type === 'TIMESTAMP'
         });
         this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
         this._editRuleComp.setValue('colTypes', colDescs);
-        this._editRuleComp.init(setformatList, selectedsetformatList);
         break;
       case 'settype':
         this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
         this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
-        this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields);
-
-        break;
-      case 'flatten' :
-        let flattenList = this.selectedDataSet.gridData.fields.filter((item) => {
-          return item.type === 'ARRAY'
-        });
-        let selectedFlattenList = selectedFields.filter((item) => {
-          return item.type === 'ARRAY'
-        });
-        this._editRuleComp.init(flattenList, selectedFlattenList);
-        break;
-      case 'unnest':
-        let unnestList = this.selectedDataSet.gridData.fields.filter((item) => {
-          return item.type === 'ARRAY' || item.type === 'MAP'
-        });
-        let selectedUnnestList = selectedFields.filter((item) => {
-          return item.type === 'ARRAY' || item.type === 'MAP'
-        });
-        this._editRuleComp.init(unnestList, selectedUnnestList);
         break;
       case 'join':
         this.rightDataset = new PrDataset();
@@ -489,10 +460,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         this.editJoinOrUnionRuleStr = '';
         this.isRuleUnionModalShow = true;
         break;
-      default:
-        this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields );
-        break;
     }
+
+    if (command.command !== 'join' && command.command !== 'union') {
+      this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields);
+    }
+
     this.initSelectedCommand(this.filteredCommandList);
   }
 
@@ -586,11 +559,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         return;
       }
       rule = {
-        command: this.inputRuleCmd.substring(0, this.inputRuleCmd.indexOf(' ')),
         op: this.opString,
-        rownum: this.opString === 'APPEND' ? this.ruleList.length + 1 : this.ruleVO.rownum,
+        ruleIdx: this.serverSyncIndex,
         ruleString: this.inputRuleCmd,
-        uiRuleString: rule['uiRuleString']
+        uiRuleString: {isBuilder: false}
       };
     }
     if (!isUndefined(rule)) {
@@ -623,12 +595,17 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
       const jsonRuleString = JSON.parse(rule.jsonRuleString);
 
-      // Set rulestring for builder
+      // Set ruleString for editor
       this.inputRuleCmd = rule.ruleString;
 
-      this.selectboxFlag = true;
-      this.initRule();
+      // If editor
+      if (!jsonRuleString.isBuilder) {
+        this.editorUseFlag = true;
+        return;
+      }
 
+      // TODO : eventually remove ruleVO
+      // this.initRule(); --> Check if this is necessary here
       this.ruleVO = rule['ruleVO'];
       ('' === this.ruleVO.command) && (this.ruleVO.command = this.ruleVO['name']);
 
@@ -637,39 +614,14 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       if (jsonRuleString.name === 'settype') {
         this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
         this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
-
-
-        // Server sends col with string when there's only one column
-        if (typeof jsonRuleString.col === 'string') {
-          jsonRuleString.col = [jsonRuleString.col];
-        }
-        this._editRuleComp.init(gridData.fields, [], {jsonRuleString : jsonRuleString});
       }
 
       if (jsonRuleString.name === 'setformat') {
-        let setformatList = gridData.fields.filter((item) => {
-          return item.type === 'TIMESTAMP'
-        });
         let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
           return item.type === 'TIMESTAMP'
         });
         this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
         this._editRuleComp.setValue('colTypes', colDescs);
-        this._editRuleComp.init(setformatList, [],{jsonRuleString : jsonRuleString});
-      }
-
-      if (jsonRuleString.name === 'flatten') {
-        let flattenList = gridData.fields.filter((item) => {
-          return item.type === 'ARRAY'
-        });
-        this._editRuleComp.init(flattenList, [], {ruleString : rule.ruleString, jsonRuleString : jsonRuleString});
-      }
-
-      if (jsonRuleString.name === 'unnest') {
-        let unnest = gridData.fields.filter((item) => {
-          return item.type === 'ARRAY' || item.type === 'MAP'
-        });
-        this._editRuleComp.init(unnest, [], {ruleString : rule.ruleString, jsonRuleString : JSON.parse(rule.jsonRuleString)});
       }
 
       if (jsonRuleString.name === 'rename') {
@@ -683,7 +635,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
               to: jsonRuleString.to}
           });
         }
-        this._editRuleComp.init(gridData.fields, [], {jsonRuleString : jsonRuleString});
       }
 
       if (jsonRuleString.name === 'join') {
@@ -705,7 +656,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         }
       }
 
-      const ruleNames : string[] = ['settype', 'setformat', 'flatten', 'union', 'join', 'rename', 'unnest'];
+      const ruleNames : string[] = ['union', 'join'];
 
       if (-1 === ruleNames.indexOf(jsonRuleString.name)) {
         this._editRuleComp.init(gridData.fields, [], {jsonRuleString : jsonRuleString});

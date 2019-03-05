@@ -136,6 +136,13 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
    * @protected
    */
   protected beforeShowComp() {
+    this.fields = this.fields.filter((item) => {
+      return item.type === 'ARRAY'
+    });
+
+    this.selectedFields = this.selectedFields.filter((item) => {
+      return item.type === 'ARRAY'
+    });
   } // function - _beforeShowComp
 
   /**
