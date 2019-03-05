@@ -112,6 +112,9 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   @Input('dataLayerKey')
   public dataLayerKey: string;
 
+  @Input('uiOption')
+  public uiOption: UIOption;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -188,7 +191,7 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   }
 
   public mapSpatialChanges(uiOption, shelf) {
-    if( _.isUndefined(this.mapSpatialComponent) ) {
+    if (_.isUndefined(this.mapSpatialComponent)) {
       return;
     }
     this.mapSpatialComponent.mapSpatialChanges(uiOption, shelf);

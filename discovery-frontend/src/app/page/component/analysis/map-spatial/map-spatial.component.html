@@ -17,18 +17,16 @@
     <div class="ddp-divide2">
       <div class="ddp-list-label">기준 레이어</div>
       <!-- select box -->
-      <component-select #selectComponent
-                        [array]="basisList.layers"
-                        [(defaultIndex)]="basisIndex"
-                        (onSelected)="onSelectBasis($event)">
+      <component-select [array]="baseList.layers"
+                        [(defaultIndex)]="baseIndex"
+                        (onSelected)="onSelectBase($event)">
       </component-select>
       <!-- //select box -->
     </div>
     <div class="ddp-divide2">
       <div class="ddp-list-label">비교 레이어</div>
       <!-- select box -->
-      <component-select #selectComponent
-                        [array]="compareList.layers"
+      <component-select [array]="compareList.layers"
                         [(defaultIndex)]="compareIndex"
                         (onSelected)="onSelectCompare($event)">
       </component-select>
@@ -37,8 +35,7 @@
     <div class="ddp-divide2">
       <div class="ddp-list-label">공간 연산</div>
       <!-- select box -->
-      <component-select #selectComponent
-                        [array]="calSpatialList"
+      <component-select [array]="calSpatialList"
                         [(defaultIndex)]="calSpatialIndex"
                         (onSelected)="onSelectSpatial($event)">
       </component-select>
@@ -48,12 +45,11 @@
 
     <div class="ddp-divide2 ddp-form ddp-clear">
       <div class="ddp-col-6">
-        <input type="text" class="ddp-input-typebasic ddp-txt-right" value="100">
+        <input type="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="unitInput">
       </div>
       <div class="ddp-col-6">
         <!-- select box -->
-        <component-select #selectComponent
-                          [array]="unitList"
+        <component-select [array]="unitList"
                           [(defaultIndex)]="unitIndex"
                           (onSelected)="onSelectUnit($event)">
         </component-select>
