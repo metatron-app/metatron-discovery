@@ -27,7 +27,7 @@ import {MetadataDetailColumnschemaComponent} from './metadata-detail-columnschem
 import {ChooseColumnDictionaryComponent} from '../component/choose-column-dictionary/choose-column-dictionary.component';
 import {ColumnDictionary} from '../../domain/meta-data-management/column-dictionary';
 import {CodeTable} from '../../domain/meta-data-management/code-table';
-import {Metadata} from '../../domain/meta-data-management/metadata';
+import {Metadata, SourceType} from '../../domain/meta-data-management/metadata';
 
 @Component({
   selector: 'app-metadata-detail',
@@ -83,6 +83,11 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
 
   public name: string;
   public desc: string;
+
+  /**
+   * Metadata SourceType Enum
+   */
+  public readonly METADATA_SOURCE_TYPE = SourceType;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor

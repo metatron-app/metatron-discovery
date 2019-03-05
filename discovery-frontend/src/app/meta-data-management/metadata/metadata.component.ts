@@ -70,6 +70,11 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   // Unclassified 선택 여부
   public isUnclassifiedSelected: boolean = false;
 
+  /**
+   * Metadata SourceType Enum
+   */
+  public readonly METADATA_SOURCE_TYPE = SourceType;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
