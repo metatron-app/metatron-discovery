@@ -59,7 +59,7 @@ Screenshots
 <kbd><img title="query-monitoring" src="https://user-images.githubusercontent.com/8841220/53787073-f917af00-3f60-11e9-9e11-a9dfe82a99da.png"><br /></kbd>
 
 ### Metatron in Chinese
-<kbd><img title="query-monitoring" src="https://user-images.githubusercontent.com/8841220/53787845-6cbabb80-3f63-11e9-871a-2ccd4205dd56.png"><br /></kbd>
+<kbd><img title="query-monitoring" src="https://user-images.githubusercontent.com/8841220/53789753-8f030800-3f68-11e9-9642-266243c7f3db.png"><br /></kbd>
 
 Installation
 ----------------------------
