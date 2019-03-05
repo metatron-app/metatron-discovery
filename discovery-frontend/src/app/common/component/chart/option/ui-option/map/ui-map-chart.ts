@@ -59,4 +59,7 @@ export interface UIMapOption extends UIOption {
   // map current lat, lng
   lowerCorner? : string;
   upperCorner? : string;
+
+  // spatial analysis
+  analysis : {};
 }

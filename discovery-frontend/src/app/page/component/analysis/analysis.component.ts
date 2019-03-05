@@ -34,8 +34,6 @@ import {UIOption} from '../../../common/component/chart/option/ui-option';
 import {EventType} from '../../../common/component/chart/option/define/common';
 import {AnalysisPredictionService} from './service/analysis.prediction.service';
 import {fromEvent} from "rxjs";
-import {Shelf} from "../../../domain/workbook/configurations/shelf/shelf";
-import {Pivot} from "../../../domain/workbook/configurations/pivot";
 import {MapSpatialComponent} from "./map-spatial/map-spatial.component";
 
 @Component({
@@ -84,6 +82,9 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
 
   @Output('changeConfidenceNoti')
   private changeConfidence = new EventEmitter();
+
+  @Output('changeAnalysisNoti')
+  private changeAnalysis = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -211,6 +212,10 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
 
   public clickDataPanel(dataLayerKey: string): void {
     this.clickDataPanelNoti.emit(dataLayerKey);
+  }
+
+  public changeAnalysisNoti(): void {
+    this.changeAnalysis.emit();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -20,6 +20,8 @@ import {
   OnChanges,
   OnDestroy,
   OnInit,
+  Output,
+  EventEmitter,
   SimpleChanges
 } from '@angular/core';
 import {AbstractComponent} from '../../../../common/component/abstract.component';
@@ -36,6 +38,10 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  @Output('changeAnalysisNoti')
+  private changeAnalysis = new EventEmitter();
+
   public shelf: Shelf;
   public uiOption: UIMapOption;
 
@@ -148,7 +154,17 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   }
 
   public analysisBtn() {
-    console.log('button');
+    let mapUIOption = (<UIMapOption>this.uiOption);
+    mapUIOption.analysis = {
+      use      : true,
+      mainLayer : this.basisList.layers[0],
+      compareLayer : this.compareList.layers[0],
+      operation : {
+        type      :  this.unitList[0],
+        distance  :  100
+      }
+    };
+    this.changeAnalysis.emit();
   }
 
 }
