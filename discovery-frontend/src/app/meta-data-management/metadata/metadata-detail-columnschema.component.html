@@ -14,7 +14,7 @@
 
 <!-- tab contents -->
 <div class="ddp-ui-tab-contents">
-  <div top-info *ngIf="isSourceTypeDatasource() && (isEnableSave() || isNameEdit)"></div>
+  <div top-info *ngIf="isSourceTypeDatasource() && isEngine() && (isEnableSave() || isNameEdit)"></div>
   <!-- column option -->
   <div class="ddp-option-column">
     <a href="javascript:" class="ddp-reset" (click)="onClickRestore()">
@@ -31,7 +31,7 @@
   </div>
   <!-- //column option -->
   <div class="ddp-data-details ddp-ui-preview-contents"
-       [class.ddp-info]="isSourceTypeDatasource() && (isEnableSave() || isNameEdit)"
+       [class.ddp-info]="isSourceTypeDatasource() && isEngine() && (isEnableSave() || isNameEdit)"
        (scroll)="onScrollColumnView()">
     <!-- header -->
     <table class="ddp-table-form ddp-table-type2 ddp-table-details ddp-type-input">

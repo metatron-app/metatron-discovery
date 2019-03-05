@@ -26,6 +26,7 @@ import {CodeValuePair} from '../../domain/meta-data-management/code-value-pair';
 import {ColumnDictionaryService} from '../column-dictionary/service/column-dictionary.service';
 import {Alert} from '../../common/util/alert.util';
 import {CommonConstant} from '../../common/constant/common.constant';
+import {MetadataSourceType} from '../../domain/meta-data-management/metadata';
 
 class Order {
   key: string = 'physicalName';
@@ -237,6 +238,10 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
    */
   public isSelectedColumnLogicalType(column: MetadataColumn, logicalType: LogicalType): boolean {
     return column.type === logicalType;
+  }
+
+  public isEngine() {
+    return new MetadataSourceType(this.metaDataModelService.getMetadata().sourceType).isEngine();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

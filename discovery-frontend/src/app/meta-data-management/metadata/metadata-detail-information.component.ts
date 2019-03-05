@@ -297,8 +297,8 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     this.router.navigate([`/management/storage/datasource/${datasourceId}`]);
   }
 
-  public isEngine(sourceType: SourceType) {
-    return new MetadataSourceType(sourceType).isEngine();
+  public isEngine() {
+    return new MetadataSourceType(this.metadataModelService.getMetadata().sourceType).isEngine();
   }
 
   public isSourceTypeDatasource() {
