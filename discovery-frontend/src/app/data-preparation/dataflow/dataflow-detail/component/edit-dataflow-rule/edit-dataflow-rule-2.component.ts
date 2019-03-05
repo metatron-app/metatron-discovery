@@ -480,13 +480,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         });
         this._editRuleComp.init(unnestList, selectedUnnestList);
         break;
-      case 'Join':
-        //this.rightDataset = new Dataset();
+      case 'join':
         this.rightDataset = new PrDataset();
         this.rightDataset.dsId = '';
         this.isRuleJoinModalShow = true;
         break;
-      case 'Union':
+      case 'union':
         this.editJoinOrUnionRuleStr = '';
         this.isRuleUnionModalShow = true;
         break;
@@ -1368,12 +1367,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       rule['ruleVO']['command'] = rule['ruleVO']['name'];
       rule['ruleVO']['ruleNo'] = rule['ruleNo'];
 
-      if (rule['ruleVO'].command === 'join') {
-        rule['ruleVO'].command = 'Join'
-      } else if (rule['ruleVO'].command === 'union') {
-        rule['ruleVO'].command = 'Union'
-      }
-
       const idx = commandNames.indexOf(rule['ruleVO'].command);
       if (idx > -1) {
         rule['command'] = this.commandList[idx].command;
@@ -1491,7 +1484,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         isHover: false,
         command_h: ['ㅕㅜ','ㅕㅞㅑ','ㅕㅞㅑㅍ','ㅕㅞㅑ패','ㅕㅞㅑ팻']
       },
-      { command: 'Join',
+      { command: 'join',
         alias: 'Jo',
         desc: this.translateService.instant('msg.dp.li.jo.description'),
         isHover: false,
@@ -1553,7 +1546,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         command_h: ['ㅡㅐㅍㄷ']
       },
       {
-        command: 'Union',
+        command: 'union',
         alias: 'Ui',
         desc: this.translateService.instant('msg.dp.li.ui.description'),
         isHover: false,
@@ -1663,6 +1656,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param rule
    */
   private setJoinEditInfo(rule) {
+
+    const jsonRuleString = JSON.parse(rule['jsonRuleString']);
+
     //this.rightDataset = new Dataset();
     this.rightDataset = new PrDataset();
 
@@ -1673,42 +1669,19 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.rightDataset.ruleNo = rule['ruleNo'];
 
     // dataset id
-    this.rightDataset.dsId = this.ruleVO['dataset2']['escapedValue'];
+    this.rightDataset.dsId = jsonRuleString.dataset2;
+    this.rightDataset.selectedJoinType = jsonRuleString.joinType;
+    this.rightDataset.rightSelectCol = jsonRuleString.rightCol;
+    this.rightDataset.leftSelectCol = jsonRuleString.leftCol;
 
-    //  join type
-    this.rightDataset.selectedJoinType = this.ruleVO['joinType'].substring(1, this.ruleVO['joinType'].length - 1);
+    this.rightDataset.joinRuleList = [];
 
-    let rlist = []; // container for rightcolumns
-    let llist = []; // container for leftcolumns
-    typeof this.ruleVO['rightSelectCol'].value === 'string' ? (rlist[0] = this.ruleVO['rightSelectCol'].value)
-      : this.rightDataset.rightSelectCol = this.ruleVO['rightSelectCol'].value;
-    typeof this.ruleVO['leftSelectCol'].value === 'string' ? (llist[0] = this.ruleVO['leftSelectCol'].value)
-      : this.rightDataset.leftSelectCol = this.ruleVO['leftSelectCol'].value;
-
-    rlist.length > 0 ? this.rightDataset.rightSelectCol = rlist : null;
-    llist.length > 0 ? this.rightDataset.leftSelectCol = llist : null;
-    let list = [];
-
-    if (this.ruleVO['condition'].hasOwnProperty('children')) {
-      list = this.ruleVO['condition']['children'];
-      this.rightDataset.joinRuleList = [];
-      list.forEach((item) => {
-        const info = new JoinInfo();
-        info.leftJoinKey = item['left'].value;
-        info.rightJoinKey = item['right'].value;
-        this.rightDataset.joinRuleList.push(info);
-
-      });
-    } else {
-
-      list = this.ruleVO['condition'];
-      this.rightDataset.joinRuleList = [];
+    jsonRuleString.leftJoinKey.forEach((item,index) => {
       const info = new JoinInfo();
-      info.leftJoinKey = list['left'].value;
-      info.rightJoinKey = list['right'].value;
+      info.leftJoinKey = item;
+      info.rightJoinKey = jsonRuleString.rightJoinKey[index];
       this.rightDataset.joinRuleList.push(info);
-    }
-
+    });
     this.isRuleJoinModalShow = true;
     this.changeDetect.detectChanges();
   }

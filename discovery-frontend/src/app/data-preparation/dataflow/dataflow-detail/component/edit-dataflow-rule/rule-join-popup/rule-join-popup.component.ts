@@ -833,7 +833,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
     ruleStr += ' condition: ' + conditions + ' joinType: \'' + this.selectedJoinType.toLowerCase() + '\' dataset2: \'' + this.rightDataset.dsId + '\'';
 
     const uiRuleString = {
-      command :'join',
+      name :'join',
       isBuilder: true,
       leftJoinKey:this.getColumnNamesInArray(this.joinList,'leftJoinKey'),
       rightJoinKey:this.getColumnNamesInArray(this.joinList,'rightJoinKey'),
@@ -1238,7 +1238,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       }
 
       if (label === '' && wrapChar) {
-        return wrapChar + item[label] + wrapChar
+        return wrapChar + item + wrapChar
       }
 
       if (label === '' && !wrapChar) {

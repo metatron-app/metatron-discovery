@@ -265,8 +265,8 @@ export class PreparationCommonUtil {
           result = `Move ${column}`;
           result += `${rule.before ? ' before ' + rule.before : ' after ' + rule.after }`;
           break;
-        case 'Union':
-        case 'Join':
+        case 'union':
+        case 'join':
           result = `${rule.command} with `;
 
           let datasetIds = [];
