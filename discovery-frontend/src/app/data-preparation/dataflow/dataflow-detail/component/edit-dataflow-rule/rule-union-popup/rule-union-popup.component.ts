@@ -115,30 +115,19 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
     // 수정 정보가 있을 경우 설정해줌
     if (this.editRuleStr) {
       this.isUpdate = true;
-      let dsIdList: string[] = [];
-      let temp = JSON.parse(this.editRuleStr)['dataset2']['value'];
-      if (typeof temp === 'string') {
-        dsIdList.push(temp.replace(/'|\s/gi, ''));
-      } else {
-        temp.forEach((item) => {
-          dsIdList.push(item.replace(/'|\s/gi, ''));
-        })
-      }
-      //const dsInfoList: Dataset[] = dsIdList.map((dsId: string) => {
-      const dsInfoList: PrDataset[] = dsIdList.map((dsId: string) => {
-        //const ds = new Dataset();
+
+      const jsonRuleString = JSON.parse(this.editRuleStr);
+      let dsIdList: string[] = jsonRuleString.dsId;
+      let dsNameList: string[] = jsonRuleString.dsName;
+
+      const dsInfoList: PrDataset[] = dsIdList.map((dsId: string, index: number) => {
         const ds = new PrDataset();
         ds.dsId = dsId;
         ds.dsType = DsType.WRANGLED;
+        ds.dsName = dsNameList[index];
         return ds;
       });
 
-      // 이름이 없어서 찾아서 넣어준다
-      dsInfoList.map((item) => {
-        this.dataflowService.getDataset(item.dsId).then((obj) => {
-          return item.dsName = obj.dsName;
-        })
-      });
       this.editInfo = dsInfoList;
       this.unionDatasets = this.unionDatasets.concat(dsInfoList);
     }
@@ -255,16 +244,16 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
       + ' dataset2: ';
 
     // 유니온 가능한 dataset id 만 필요하기 때문에 ...
-    // this.unionDatasets.map(item => '\'' + item.dsId + '\'').join(', ');
     let list = this.unionDatasets.filter((item) => {
       return item.validCount === item.gridData.fields.length;
     });
 
-    ruleStr += this.getColumnNamesInArray(list, 'dsId', "'").toString()
+    ruleStr += this.getColumnNamesInArray(list, 'dsId', "'").toString();
 
     const uiRuleString = {
-      command: 'union',
+      name: 'union',
       dsId: this.getColumnNamesInArray(list, 'dsId'),
+      dsName: this.getColumnNamesInArray(list, 'dsName'),
       isBuilder: true
     };
 
@@ -418,7 +407,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
       if (wrapChar) {
         return wrapChar + item[label] + wrapChar
       } else {
-        return item[label]
+        return label === '' ? item.name : item[label]
       }
     });
   }
