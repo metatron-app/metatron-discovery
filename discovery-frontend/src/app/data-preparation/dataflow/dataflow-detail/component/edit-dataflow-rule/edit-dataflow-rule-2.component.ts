@@ -82,18 +82,15 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public isInitDataLoaded: boolean = false;
 
   @Input()
-  //public dataflow: Dataflow;
   public dataflow: PrDataflow;
 
   @Input()
-  //public selectedDataSet: Dataset;
   public selectedDataSet: PrDataset;
 
   @Output()
   public closeEditRule = new EventEmitter();
 
   @Output()
-  //public changeDataset = new EventEmitter<Dataset>();
   public changeDataset = new EventEmitter<PrDataset>();
 
   @Input()
@@ -103,7 +100,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public commandSearchText: string = '';
 
   // 조인 편집시 필요한 데이터
-  //public rightDataset: Dataset;
   public rightDataset: PrDataset;
 
   // Layer show/hide
@@ -527,11 +523,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this._isExecAddRule = true;
 
-    // // When no command is selected
-    // if (this.ruleVO.command === '' || isNullOrUndefined(this.ruleVO.command)) {
-    //   return;
-    // }
-    //
     let rule: any = {};
     if (this.editorUseFlag === false) {
 
@@ -588,9 +579,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   public setEditInfo(rule, gridData:any) {
 
-    // 선택된 컬럼이 있다면 클리어 한다.
-    this._editRuleGridComp.unSelectionAll('COL');
-
     try {
 
       const jsonRuleString = JSON.parse(rule.jsonRuleString);
@@ -606,6 +594,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
       // TODO : eventually remove ruleVO
       // this.initRule(); --> Check if this is necessary here
+
       this.ruleVO = rule['ruleVO'];
       ('' === this.ruleVO.command) && (this.ruleVO.command = this.ruleVO['name']);
 
@@ -674,8 +663,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   public setEditData(editInfo) {
 
-    // unselect all columns in current grid
-    this._editRuleGridComp.unSelectionAll('COL');
+    this._editRuleGridComp.unSelectionAll('COL'); // unselect all columns in current grid
+    this.ruleVO.command = '';  // remove currently selected rule component (set선택된 상태에서 set을 edit하면 에러나는 문제 해결)
 
     // set current index (when editing subtract 1 from index)
     let ruleIdx = editInfo.ruleNo-1;
@@ -730,9 +719,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     delete this.selectedDataSet;
     this.selectedDataSet = dataset;
 
-    // if (!this.selectedDataSet['_embedded']) {
-    //   this.selectedDataSet['_embedded'] = {};
-    // }
     if (!this.selectedDataSet.dataflows && null != dataflows) {
       this.selectedDataSet.dataflows = dataflows;
     }
@@ -1095,29 +1081,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
       const selCols = this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.uuid ) );
 
-      if (data.more.command === 'unnest') {
-        let unnestList = this.selectedDataSet.gridData.fields.filter((item) => {
-          return item.type === 'ARRAY' || item.type === 'MAP'
-        });
-        let selectedUnnestList =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.uuid ) ).filter((item) => {
-          return item.type === 'ARRAY' || item.type === 'MAP'
-        });
-        this._editRuleComp.init(unnestList, selectedUnnestList);
-      }
-
       if (data.more.command === 'setformat') {
-        let setformatList = this.selectedDataSet.gridData.fields.filter((item) => {
-          return item.type === 'TIMESTAMP'
-        });
-        let setformatSel =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.uuid ) ).filter((item) => {
-          return item.type === 'TIMESTAMP'
-        });
         let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
           return item.type === 'TIMESTAMP'
         });
         this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
         this._editRuleComp.setValue('colTypes', colDescs);
-        this._editRuleComp.init(setformatList, setformatSel);
       }
 
       if (data.more.command === 'move') {
@@ -1143,11 +1112,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           return item.type === data.more.type.toUpperCase();
         });
         this._editRuleComp.setValue('defaultIndex', idx);
-        this._editRuleComp.init(this.selectedDataSet.gridData.fields, selCols);
       }
 
-      const ruleNames : string[] = ['nest','merge','replace','countpattern','split','extract','rename', 'derive'];
-      if (-1 !== ruleNames.indexOf(data.more.command)) {
+      const ruleNames : string[] = ['move', 'set'];
+      if (-1 === ruleNames.indexOf(data.more.command)) {
         this._editRuleComp.init(this.selectedDataSet.gridData.fields, selCols);
       }
 
@@ -1299,6 +1267,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   @HostListener('document:keydown.enter', ['$event'])
   private onEnterKeydownHandler(event: KeyboardEvent) {
+
+    if (this.multipleRenamePopupComponent.isPopupOpen
+      || this.createSnapshotPopup.isShow
+      || this.extendInputFormulaComponent.isShow) {
+      return;
+    }
 
     if (event.keyCode === 13) {
       this.addRule();
