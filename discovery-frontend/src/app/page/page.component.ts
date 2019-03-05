@@ -1429,7 +1429,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       $(event.target).find('.ddp-ui-tooltip-info').css('top', offsetTop + 106);
     }
 
-    // 공간연산 tooltip이 제대로 적용이 되지 않을 경우
+    // // 공간연산 tooltip이 제대로 적용이 되지 않을 경우
     if(this.uiOption['analysis'] != null && this.uiOption['analysis']['use'] == true) {
       $('.ddp-wrap-chart-menu a').mouseover(function(){
         let $tooltipTop = $(this).offset().top;
@@ -4092,6 +4092,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           delete layer['granularity'];
           delete layer['segGranularity'];
         }
+      }
+
+      // spatial analysis
+      if( !_.isUndefined(cloneQuery.analysis) ) {
+        delete cloneQuery.analysis.layerNum;
+        delete cloneQuery.analysis.operation.unit;
+        delete cloneQuery.analysis.use;
       }
     }
 
