@@ -2758,6 +2758,7 @@ ul.ddp-ui-tab li.ddp-selected a em.ddp-icon-zepplin {background-position:left -1
 .ddp-layout-chart .ddp-layout-contents2 {width:100%; height:100%; margin-top:0px; padding:0px; z-index:31; background-color:#fff; box-sizing:border-box;}
 .ddp-wrap-chart {width:100%; height:100%; padding-bottom:59px; overflow:hidden; box-sizing:border-box; box-sizing:Border-box;}
 .ddp-wrap-chart .ddp-ui-buttons2 {position:absolute; bottom:0; left:0; right:0; padding:10px 0;text-align:center; border-top:1px solid #e7e7ea; background-color:#f7f7f8; z-index:70;}
+.ddp-wrap-chart .ddp-ui-buttons2 .ddp-btn-type-popup {margin:0 2px;}
 .ddp-wrap-chart .ddp-wrap-chart-lnb {float:left; width:288px; height:100%; background-color:#35393f; vertical-align: top;}
 .ddp-wrap-chart .ddp-view-chart-lnb {position:relative; height:100%; }
 .ddp-wrap-chart .ddp-ui-chart-lnb {position:absolute; top:0; left:0; right:0; bottom:0; overflow:hidden; overflow-x:hidden;}
@@ -5866,6 +5867,8 @@ table.ddp-table-column tr td .ddp-txt-column {line-height:30px;}
 	box-shadow: 0 0 20px rgba(0,0,0,.3); /* drop shadow */
 	z-index:91;}
 .ddp-ui-pop-buttons {position:absolute; top:49px; right:47px;}
+.ddp-ui-pop-buttons .ddp-btn-pop {float:left;}
+.ddp-ui-pop-buttons .ddp-btn-pop + .ddp-btn-pop {margin-left:4px;}
 
 .ddp-box-pop-contents {position:absolute; top:104px; left:50px; right:50px; bottom:35px; background-color:#fafafa;}
 
@@ -7259,7 +7262,7 @@ ul.ddp-list-value li.ddp-total {color:#b7b9c2;}
 .ddp-box-viewtable.ddp-selected .ddp-box-action.ddp-type {display:block;}
 .ddp-box-action.ddp-type {display:none; height:45px;}
 .ddp-box-action.ddp-type .ddp-box-button {clear:both; padding:17px 0 13px 0;text-align:center;}
-.ddp-box-action.ddp-type .ddp-box-button [class*="ddp-btn-"] {position:relative; top:0; right:0;}
+.ddp-box-action.ddp-type .ddp-box-button [class*="ddp-btn-"] {position:relative; top:0; right:0; margin:0 2px; vertical-align:middle;}
 .ddp-box-action.ddp-type .ddp-type-button {position:absolute; top:0; right:0;}
 .ddp-box-action.ddp-type .ddp-change-type {float:left;}
 .ddp-box-action.ddp-type a.ddp-btn-change {display:inline-block; padding:13px 12px 15px 12px; height:43px; color:#666eb2; box-sizing:border-box; }
