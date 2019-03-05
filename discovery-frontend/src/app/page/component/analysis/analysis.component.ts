@@ -34,8 +34,6 @@ import {UIOption} from '../../../common/component/chart/option/ui-option';
 import {EventType} from '../../../common/component/chart/option/define/common';
 import {AnalysisPredictionService} from './service/analysis.prediction.service';
 import {fromEvent} from "rxjs";
-import {Shelf} from "../../../domain/workbook/configurations/shelf/shelf";
-import {Pivot} from "../../../domain/workbook/configurations/pivot";
 import {MapSpatialComponent} from "./map-spatial/map-spatial.component";
 
 @Component({
@@ -110,6 +108,9 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
 
   @Input('dataLayerKey')
   public dataLayerKey: string;
+
+  @Input('uiOption')
+  public uiOption: UIOption;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -187,7 +188,7 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   }
 
   public mapSpatialChanges(uiOption, shelf) {
-    if( _.isUndefined(this.mapSpatialComponent) ) {
+    if (_.isUndefined(this.mapSpatialComponent)) {
       return;
     }
     this.mapSpatialComponent.mapSpatialChanges(uiOption, shelf);
