@@ -55,7 +55,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
 
   public calSpatialList: any = [
     'Intersection'
-    , 'Symmetrical difference'
+    // , 'Symmetrical difference' // 서버상에 현재 키 값이 없음
     , 'Distance within'
   ];
   public calSpatialIndex: number = 0;
@@ -186,21 +186,27 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       Alert.warning('공간 연산 범위를 입력 또는 숫자만 가능합니다.');
       return;
     }
-    if (_.isUndefined(unitData)) {
-      // Alert.warning(this.translateService.instant('msg'));
-      Alert.warning('공간 연산 단위를 선택해주세요.');
-      return;
+    let unitInputData: number = Number(this.unitInput.trim());
+
+    if( unitData == 'Kilometers' ){
+      unitInputData = unitInputData * 1000;
     }
-    let unitInputData: number = Number(this.unitInput);
+
+    let spatialDataValue : string = '';
+    if( spatialData == 'Intersection' ){
+      spatialDataValue = 'intersects';
+    } else if( spatialData == 'Distance within' ){
+      spatialDataValue = 'dwithin';
+    }
 
     let mapUIOption = (<UIMapOption>this.uiOption);
     mapUIOption.analysis = {
-      use      : true,
-      mainLayer : baseData,
-      compareLayer : compareData,
-      operation : {
-        type      :  unitData,
-        distance  :  this.unitInput
+      type          : 'geo',
+      mainLayer     : baseData,
+      compareLayer  : compareData,
+      operation   : {
+        type      : spatialDataValue,
+        distance  : unitInputData
       }
     };
     this.changeAnalysis.emit();

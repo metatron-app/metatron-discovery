@@ -318,12 +318,18 @@ export class DatasourceService extends AbstractService {
     // set alias list by pivot or shelf list, Datasource setting
     if (_.eq(pageConf.chart.type, ChartType.MAP)) {
 
+      // spatial analysis
+      query.analysis = _.cloneDeep((<UIMapOption>pageConf.chart).analysis);
+
       // alias 설정
       query.shelf = _.cloneDeep(pageConf.shelf);
 
       let layerNum: number = -1;
       for (let layer of query.shelf.layers) {
         layerNum++;
+
+        // layer name
+        query.shelf.layers[layerNum].name = (<UIMapOption>pageConf.chart).layers[layerNum].name;
 
         allPivotFields = _.concat(layer.fields);
         for (let field of allPivotFields) {
