@@ -399,7 +399,21 @@ export class DashboardUtil {
    */
   public static getDataSourceFromBoardDataSource(board: Dashboard, boardDataSource: BoardDataSource): Datasource {
     if (boardDataSource) {
-      return board.dataSources.find(item => DashboardUtil.isSameDataSource(boardDataSource, item));
+      if ('multi' === boardDataSource.type) {
+        let dataSource = undefined;
+        boardDataSource.dataSources.forEach(data => {
+          dataSource.push( board.dataSources.find(item =>
+            DashboardUtil.isSameDataSource(data, item)
+          ));
+        });
+        return dataSource;
+      }
+      else {
+        return board.dataSources.find(item =>
+          DashboardUtil.isSameDataSource(boardDataSource, item)
+        );
+      }
+      // return board.dataSources.find(item => DashboardUtil.isSameDataSource(boardDataSource, item));
     } else {
       return undefined;
     }

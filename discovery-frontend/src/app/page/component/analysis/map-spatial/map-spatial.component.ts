@@ -28,6 +28,7 @@ import {AbstractComponent} from '../../../../common/component/abstract.component
 import {Shelf} from "../../../../domain/workbook/configurations/shelf/shelf";
 import {UIMapOption} from "../../../../common/component/chart/option/ui-option/map/ui-map-chart";
 import {LogicalType} from "../../../../domain/datasource/datasource";
+import {Alert} from "../../../../common/util/alert.util";
 
 @Component({
   selector: 'map-spatial',
@@ -38,6 +39,10 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  @Output('changeAnalysisNoti')
+  private changeAnalysis = new EventEmitter();
+
   @Input('uiOption')
   public uiOption: UIMapOption;
 
@@ -188,19 +193,17 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     }
     let unitInputData: number = Number(this.unitInput);
 
-
     let mapUIOption = (<UIMapOption>this.uiOption);
     mapUIOption.analysis = {
       use      : true,
-      mainLayer : this.basisList.layers[0],
-      compareLayer : this.compareList.layers[0],
+      mainLayer : baseData,
+      compareLayer : compareData,
       operation : {
-        type      :  this.unitList[0],
-        distance  :  100
+        type      :  unitData,
+        distance  :  this.unitInput
       }
     };
     this.changeAnalysis.emit();
-
 
   }
 
