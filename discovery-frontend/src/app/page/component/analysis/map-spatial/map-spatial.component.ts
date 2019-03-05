@@ -54,9 +54,9 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   public compareIndex: number = 0;
 
   public calSpatialList: any = [
-    'Intersection'
-    , 'Symmetrical difference'
-    , 'Distance within'
+    // 'Intersection' // 서버 미구현
+    // , 'Symmetrical difference' // 서버상에 현재 키 값이 없음
+    'Distance within'
   ];
   public calSpatialIndex: number = 0;
 
@@ -120,6 +120,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
               if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption.layers)
                 && this.uiOption.layers.length > 0 && !_.isUndefined(this.uiOption.layers[shelfIndex].name)) {
                 this.baseList.layers.push(this.uiOption.layers[shelfIndex].name);
+                this.baseList['selectedNum'] = shelfIndex;
               }
             }
           });
@@ -129,23 +130,27 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       this.compareList.layers = [];
       if (this.baseList.layers.length > 1) {
         this.compareList.layers = _.cloneDeep(this.baseList.layers);
-        this.compareList.layers.splice(this.baseIndex, 1);
+        this.compareList.layers = this.compareList.layers.splice(this.baseList['selectedNum'], 1);
         this.compareIndex = 0;
       }
     }
   }
 
   public onSelectBase(value) {
-    this.baseIndex = this.baseList.layers.findIndex((baseItem) => baseItem === value);
+    this.baseList['selectedNum'] = this.baseList.layers.findIndex((baseItem) => baseItem === value);
+    this.baseIndex = this.baseList['selectedNum'];
     this.compareList.layers = [];
     this.compareList.layers = _.cloneDeep(this.baseList.layers);
-    this.compareList.layers = _.remove(this.compareList.layers, function (layer) {return layer != value;});
+    this.compareList.layers = _.remove(this.compareList.layers, function (layer) {
+      return layer != value;
+    });
     this.compareIndex = 0;
     this.changeDetect.detectChanges();
   }
 
   public onSelectCompare(value) {
-    this.compareIndex = this.compareList.layers.findIndex((compareItem) => compareItem === value);
+    this.compareList['selectedNum'] = this.compareList.layers.findIndex((compareItem) => compareItem === value);
+    this.compareIndex = this.compareList['selectedNum'];
   }
 
   public onSelectSpatial(value) {
@@ -181,24 +186,30 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       Alert.warning('공간 연산 범위를 입력 또는 숫자만 가능합니다.');
       return;
     }
-    if (_.isUndefined(unitData)) {
-      // Alert.warning(this.translateService.instant('msg'));
-      Alert.warning('공간 연산 단위를 선택해주세요.');
-      return;
+    let unitInputData: number = Number(this.unitInput.trim());
+    if( unitData == 'Kilometers' ){
+      unitInputData = unitInputData * 1000;
     }
-    let unitInputData: number = Number(this.unitInput);
+    let spatialDataValue : string = '';
+    if( spatialData == 'Intersection' ){
+      spatialDataValue = 'intersects';
+    } else if( spatialData == 'Distance within' ){
+      spatialDataValue = 'dwithin';
+    }
     let mapUIOption = (<UIMapOption>this.uiOption);
     mapUIOption.analysis = {
-      use: true,
-      layerNum : this.baseIndex,
-      mainLayer: baseData,
-      compareLayer: compareData,
-      operation: {
-        type: spatialData,
+      use           : true,
+      type          : 'geo',
+      layerNum      : this.baseIndex,
+      mainLayer     : baseData,
+      compareLayer  : compareData,
+      operation   : {
+        type: spatialDataValue,
         distance: unitInputData,
         unit: unitData
       }
     };
     this.changeAnalysis.emit(mapUIOption);
   }
+
 }
