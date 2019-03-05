@@ -1,7 +1,7 @@
 <img title="logo-metatron" src="https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png" alt="metatron-discovery-logo" width="400px">
 
 **Metatron Discovery** is an end-to-end big data self discovery solution.
-To learn more about metatron discovery, visit our web site [https://metatron.app](https://metatron.app)
+To learn more about it, visit our [web site](https://metatron.app). Check [our blog](https://metatron.app/index.php/blog/) for upcoming events and development news.
 
 Strengths
 ------------------
@@ -22,38 +22,44 @@ Metatron provides:
 - Fine grain access control of users and workspaces.
 - Overcomes Druid weaknesses (e.g. no data join function) without performance degradation using [Metatron optimized Druid](https://metatron.app/index.php/2018/06/15/skt-druid-features/)
 - Full API support, enabling easy integration into your environment/software
-- Available on AWS, Azure('19.3Q).
-- Docker support for distributed version deploy('19.3Q).
+- Available on AWS, Azure('19.3Q)
+- Docker support for distributed version deploy('19.3Q)
+- Monitoring Metatron engine performance('19.3Q)
 
 Screenshots
 ------------------
 ### Create Dashboards
-<kbd><img title="Dashboard" src="https://user-images.githubusercontent.com/6300003/44020367-a32bf09a-9f1c-11e8-9915-f62a789b3d07.png"></kbd><br />
+<kbd><img title="Metatron-dashboard" src="https://user-images.githubusercontent.com/8841220/53786832-3d567f80-3f60-11e9-8be0-090e7e97f591.png"></kbd><br />
 
 ### Create Charts
-<kbd><img title="Chart" src="https://user-images.githubusercontent.com/6300003/44201180-98bb4e80-a183-11e8-81da-54dd59d14330.png"></kbd><br />
+<kbd><img title="Metatron-chart" src="https://user-images.githubusercontent.com/6300003/44201180-98bb4e80-a183-11e8-81da-54dd59d14330.png"></kbd><br />
 
-### Map Analysis
-<kbd><img title="Map" src="https://metatron.app/wp-content/uploads/2018/10/map.png"></kbd><br />
-<kbd><img title="Map New" src="https://user-images.githubusercontent.com/6300003/53152149-35115280-35f8-11e9-9911-7b99277aeab9.png"></kbd><br />
+### Analyze with Geospatial Data
+<kbd><img title="Metatron-map" src="https://user-images.githubusercontent.com/6300003/53152149-35115280-35f8-11e9-9911-7b99277aeab9.png"></kbd><br />
 
 ### Use Datasources
-<kbd><img title="Use-Datasource" src="https://user-images.githubusercontent.com/6300003/44200744-51808e00-a182-11e8-8fc6-d30d56b4ab26.png"></kbd><br />
+<kbd><img title="Use-datasource" src="https://user-images.githubusercontent.com/6300003/44200744-51808e00-a182-11e8-8fc6-d30d56b4ab26.png"></kbd><br />
 
 ### Manage Datasources
 <kbd><img title="Datasource-detail" src="https://user-images.githubusercontent.com/6300003/44200028-95729380-a180-11e8-95fb-070d7ed0d260.png"></kbd><br />
 
-### Engine Monitoring (Comming Soon)
-<kbd><img title="Engine Monitoring" src="https://user-images.githubusercontent.com/6300003/53152270-73a70d00-35f8-11e9-8412-096e6099adab.png"></kbd><br />
+### Manage Engine Performance (Comming Soon)
+<kbd><img title="Metatron-engine-monitoring" src="https://user-images.githubusercontent.com/6300003/53152270-73a70d00-35f8-11e9-8412-096e6099adab.png"></kbd><br />
 
 ### Connect Database
 <kbd><img title="Create-connection" src="https://user-images.githubusercontent.com/6300003/44200666-1bdba500-a182-11e8-8b2b-43dfdfe30bf4.png"></kbd><br />
 
 ### Prepare Origin Data
-<kbd><img title="Data-preparation" src="https://user-images.githubusercontent.com/6300003/44019798-d02e8348-9f1a-11e8-958e-4e95802bd5de.png"></kbd><br />
+<kbd><img title="Data-preparation" src="https://user-images.githubusercontent.com/8841220/53787835-688e9e00-3f63-11e9-94db-078dc5add109.png"></kbd><br />
 
 ### Query Monitoring
 <kbd><img title="query-monitoring" src="https://metatron.app/wp-content/uploads/2018/10/screencapture-discovery-metatron-app-app-v2-management-monitoring-statistics-2018-10-29-15_38_15-1.png"><br /></kbd>
+
+### SQL in Druid
+<kbd><img title="query-monitoring" src="https://user-images.githubusercontent.com/8841220/53787073-f917af00-3f60-11e9-9e11-a9dfe82a99da.png"><br /></kbd>
+
+### Metatron in Chinese
+<kbd><img title="query-monitoring" src="https://user-images.githubusercontent.com/8841220/53787845-6cbabb80-3f63-11e9-871a-2ccd4205dd56.png"><br /></kbd>
 
 Installation
 ----------------------------
