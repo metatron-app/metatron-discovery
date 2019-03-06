@@ -14,13 +14,12 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isNullOrUndefined, isUndefined} from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import * as _ from 'lodash';
+import {SplitRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector : 'edit-rule-split',
@@ -95,7 +94,7 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: SplitRule } {
 
     // Column (must select more than one)
     if (0 === this.selectedFields.length) {
@@ -122,11 +121,7 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
       return undefined;
     }
 
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
-
-    let ruleString = `split col: ${columnsStr} on: ${clonedPattern} limit: ${this.limit} ignoreCase: ${this.isIgnoreCase}`;
+    let ruleString = `split col: ${this.getColumnNamesInArray(this.selectedFields,true).toString()} on: ${clonedPattern} limit: ${this.limit} ignoreCase: ${this.isIgnoreCase}`;
 
     // 다음 문자 사이 무시
     if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {
@@ -141,7 +136,16 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
 
     return {
       command : 'split',
-      ruleString: ruleString
+      ruleString: ruleString,
+      uiRuleString: {
+        name: 'split',
+        col: this.getColumnNamesInArray(this.selectedFields),
+        pattern: this.pattern,
+        limit : this.limit,
+        ignoreCase: this.isIgnoreCase,
+        ignore: this.ignore,
+        isBuilder: true
+      }
     };
 
   } // function - getRuleData
@@ -185,27 +189,23 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
   } // function - _afterShowComp
 
   /**
-   * parse rulestring
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * parse jsonRuleString
+   * @param data ({ruleString : string, jsonRuleString : SplitRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {jsonRuleString : SplitRule}) {
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-    if (data.jsonRuleString.on.value.startsWith('/') && data.jsonRuleString.on.value.endsWith('/')) {
-      this.pattern = data.jsonRuleString.on.value;
-    }  else {
-      this.pattern = data.jsonRuleString.on.escapedValue;
-    }
+    this.pattern = data.jsonRuleString.pattern;
 
     this.limit = Number(data.jsonRuleString.limit);
 
     this.isIgnoreCase = Boolean(data.jsonRuleString.ignoreCase);
 
-    if (data.jsonRuleString.quote) {
-      this.ignore = data.jsonRuleString.quote.escapedValue;
+    if (data.jsonRuleString.ignore) {
+      this.ignore = data.jsonRuleString.ignore;
     }
 
   } // function - _parsingRuleString

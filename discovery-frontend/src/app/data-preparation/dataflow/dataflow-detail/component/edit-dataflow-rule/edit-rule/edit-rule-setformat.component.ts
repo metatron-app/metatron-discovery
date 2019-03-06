@@ -16,7 +16,6 @@ import { EditRuleComponent } from './edit-rule.component';
 import {
   AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild
 } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
@@ -24,6 +23,7 @@ import { DataflowService } from '../../../../service/dataflow.service';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isNullOrUndefined } from "util";
 import { PrepSelectBoxCustomComponent } from '../../../../../util/prep-select-box-custom.component';
+import {SetFormatRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector : 'edit-rule-setformat',
@@ -155,10 +155,8 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
 
   /**
    * Set selected timestamp index in select box
-   * @param {string} selectedTimestamp
    */
   private setSelectedTimestamp() {
-    // console.info('# final selectedTimestamp', this.selectedTimestamp);
     let tempnum: number = -1;
     if(this.selectedTimestamp !==null && this.selectedTimestamp !== '' && -1 !== this._timestampValueArray().indexOf(this.selectedTimestamp)) {
       tempnum = this._timestampValueArray().indexOf(this.tempTimetampValue);
@@ -172,7 +170,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: SetFormatRule } {
 
     // 선택된 컬럼
     if (0 === this.selectedFields.length) {
@@ -185,11 +183,10 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
       return undefined;
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
+    let ruleString = 'setformat col: '
+      + this.getColumnNamesInArray(this.selectedFields, true).toString()
+      + ' format: ';
 
-    let ruleString = 'setformat col: ' + columnsStr + ' format: ';
     let val: any = this.selectedTimestamp === 'Custom format' ?  this.customTimestamp : this.selectedTimestamp;
     let check = StringUtil.checkSingleQuote(val, { isPairQuote: false, isWrapQuote: true });
     if (check[0] === false) {
@@ -202,7 +199,13 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
 
     return {
       command : 'setformat',
-      ruleString: ruleString
+      ruleString: ruleString,
+      uiRuleString: {
+        name : 'setformat',
+        col : this.getColumnNamesInArray(this.selectedFields),
+        format: this.selectedTimestamp === 'Custom format' ?  this.customTimestamp : this.selectedTimestamp,
+        isBuilder: true
+      }
     };
 
   } // function - getRuleData
@@ -245,6 +248,15 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
    * @protected
    */
   protected beforeShowComp() {
+
+    this.fields = this.fields.filter((item) => {
+      return item.type === 'TIMESTAMP'
+    });
+
+    this.selectedFields = this.selectedFields.filter((item) => {
+      return item.type === 'TIMESTAMP'
+    });
+
   } // function - _beforeShowComp
 
   /**
@@ -259,12 +271,11 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
    * Rule string parse
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {jsonRuleString : SetFormatRule}) {
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
-
 
     // FORMAT
     if (!isNullOrUndefined(data.jsonRuleString.format)) {

@@ -31,7 +31,7 @@
         <a href="javascript:" class="ddp-btn-plus" (click)="addFormula();"></a>
     </span>
   </div>
-  <div class="ddp-wrap-box-info" [ngClass]="{'ddp-selected':isFocus}">
+  <div class="ddp-wrap-box-info">
     <!--box scroll -->
     <div class="ddp-wrap-boxwrap">
       <div class="ddp-wrap-boxadd" *ngFor="let item of formulas;trackBy:trackByFn;let idx = index;">
@@ -42,12 +42,6 @@
             [tabIndex]="3" [placeholder]="'msg.dp.th.expression.ph' | translate"
             [fields]="fields"
             (onChange)="item.value = $event" ></rule-suggest-input>
-          <!--
-          <rule-condition-input
-            [placeholder]="'msg.dp.th.expression.ph' | translate"
-            [formula]="item.value" [command]="'pivot'" [fields]="fields" [tabIndex]="3"
-            (onChange)="item.value = $event"></rule-condition-input>
-          -->  
         </div>
         <div class="ddp-ui-buttons">
           <a href="javascript:" [ngClass]="(formulas.length==1)?'ddp-btn-minus ddp-disabled':'ddp-btn-minus'" (click)="deleteFormula(item.id)"></a>

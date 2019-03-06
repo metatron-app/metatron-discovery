@@ -267,33 +267,6 @@ public class PrepTransformService {
 
   public PrepTransformService() { }
 
-  private List<String> getTargetDsIds(String jsonRuleString) throws IOException {
-    List<String> targetDsIds = new ArrayList<>();
-    Map<String,Object> dataset2;
-
-    Map<String, Object> jsonObj = GlobalObjectMapper.getDefaultMapper().readValue(jsonRuleString, Map.class);
-    switch ((String) jsonObj.get("name")) {
-      case "join":
-        dataset2 = (Map<String, Object>) jsonObj.get("dataset2");
-        targetDsIds.add((String) dataset2.get("escapedValue"));
-        break;
-      case "union":
-        dataset2 = (Map<String, Object>) jsonObj.get("dataset2");
-        Object value = dataset2.get("value");
-        if (value instanceof List) {
-          for (String unionDsId : (List<String>) value) {
-            targetDsIds.add(unionDsId.replace("'", "").trim());
-          }
-        } else if (value instanceof String) {
-          targetDsIds.add(((String) value).replace("'", "").trim());
-        }
-        break;
-      default:
-    }
-
-    return targetDsIds;
-  }
-
   // skips the last rule for UPDATE purpose
   public List<String> getUpstreamDsIds(String dsId, boolean forUpdate) throws IOException, CannotSerializeIntoJsonException {
     List<String> upstreamDsIds = new ArrayList<>();
@@ -312,10 +285,7 @@ public class PrepTransformService {
 
     for (int i = 0; i < until; i++) {
       PrTransformRule rule = rules.get(i);
-      String jsonRuleString = rule.getJsonRuleString();
-      assert jsonRuleString != null : dsId;
-
-      upstreamDsIds.addAll(getTargetDsIds(jsonRuleString));
+      upstreamDsIds.addAll(transformRuleService.getUpstreamDsIds(rule.getRuleString()));
     }
     return upstreamDsIds;
   }
@@ -338,7 +308,7 @@ public class PrepTransformService {
 
     // We need to save into the repository to get an ID.
     String wrangledDsId = wrangledDataset.getDsId();
-    DataFrame gridResponse = createStage0(wrangledDsId, importedDataset);
+    createStage0(wrangledDsId, importedDataset);
 
     wrangledDataset.addDataflow(dataflow);
     dataflow.addDataset(wrangledDataset);
@@ -349,9 +319,9 @@ public class PrepTransformService {
     // The 1st rule string is the master upstream dsId.
     // This could be either an imported dataset or another wrangled dataset.
     String createRuleString = transformRuleService.getCreateRuleString(importedDsId);
-    String jsonRuleString = transformRuleService.jsonizeRuleString(createRuleString);
-    String shortRuleString = transformRuleService.shortenRuleString(jsonRuleString);
-    PrTransformRule rule = new PrTransformRule(wrangledDataset, 0, createRuleString, jsonRuleString, shortRuleString);
+    String createJsonRuleString = transformRuleService.jsonizeRuleString(createRuleString);
+    String shortRuleString = transformRuleService.shortenRuleString(createRuleString);
+    PrTransformRule rule = new PrTransformRule(wrangledDataset, 0, createRuleString, createJsonRuleString, shortRuleString);
     transformRuleRepository.saveAndFlush(rule);
 
     PrepTransformResponse response = new PrepTransformResponse(wrangledDsId);
@@ -366,7 +336,8 @@ public class PrepTransformService {
           List<String> ruleStrings = teddyImpl.getAutoTypingRules(teddyImpl.getCurDf(wrangledDsId));
           for (int i = 0; i < ruleStrings.size(); i++) {
             String ruleString = ruleStrings.get(i);
-            transform(wrangledDsId, OP_TYPE.APPEND, i, ruleString, true);
+            String jsonRuleString = transformRuleService.jsonizeRuleString(ruleString);
+            transform(wrangledDsId, OP_TYPE.APPEND, i, ruleString, jsonRuleString, true);
           }
           break;
         case DATABASE:
@@ -396,8 +367,9 @@ public class PrepTransformService {
     List<PrTransformRule> transformRules = getRulesInOrder(wrangledDsId);
     for (int i = 1; i < transformRules.size(); i++) {
       String ruleString = transformRules.get(i).getRuleString();
+      String jsonRuleString = transformRules.get(i).getJsonRuleString();
       try {
-        response = transform(cloneDsId, OP_TYPE.APPEND, i - 1, ruleString, true);
+        response = transform(cloneDsId, OP_TYPE.APPEND, i - 1, ruleString, jsonRuleString, true);
       } catch (TeddyException te) {
         LOGGER.info("clone(): A TeddyException is suppressed: {}", te.getMessage());
       }
@@ -414,8 +386,8 @@ public class PrepTransformService {
       String ruleString = rule.getRuleString();
       if (ruleString.contains(oldDsId)) {
         String newRuleString = ruleString.replace(oldDsId, newDsId);
-        String newJsonRuleString = transformRuleService.jsonizeRuleString(newRuleString);
-        String newShortRuleString = transformRuleService.shortenRuleString(newJsonRuleString);
+        String newJsonRuleString = rule.getJsonRuleString().replaceAll(oldDsId, newDsId);
+        String newShortRuleString = transformRuleService.shortenRuleString(newRuleString);
 
         rule.setRuleString(newRuleString);
         rule.setJsonRuleString(newJsonRuleString);
@@ -479,11 +451,10 @@ public class PrepTransformService {
       if (!ruleString.contains(oldDsId)) {
         continue;
       }
-      assert ruleString.startsWith(transformRuleService.CREATE_RULE_PREFIX) : ruleString;
 
       String newRuleString = transformRuleService.getCreateRuleString(newDsId);
-      String newJsonRuleString = transformRuleService.jsonizeRuleString(newRuleString);
-      String newShortRuleString = transformRuleService.shortenRuleString(newJsonRuleString);
+      String newJsonRuleString = rule.getJsonRuleString().replaceAll(oldDsId, newDsId);
+      String newShortRuleString = transformRuleService.shortenRuleString(newRuleString);
 
       rule.setRuleString(newRuleString);
       rule.setJsonRuleString(newJsonRuleString);
@@ -560,33 +531,32 @@ public class PrepTransformService {
     // 이하 코드는 dataset이 PLM cache에 존재하지 않거나, transition을 처음부터 다시 적용해야 하는 경우
     teddyImpl.remove(dsId);
 
-    String upstreamDsId = getFirstUpstreamDsId(dsId);
-    PrDataset upstreamDataset = datasetRepository.findRealOne(datasetRepository.findOne(upstreamDsId));
+    PrDataset upstreamDataset = datasetRepository.findRealOne(datasetRepository.findOne(getFirstUpstreamDsId(dsId)));
     gridResponse = createStage0(dsId, upstreamDataset);
     teddyImpl.reset(dsId);
 
     List<String> ruleStrings = new ArrayList<>();
-    ArrayList<String> totalTargetDsIds = new ArrayList<>();
-    ArrayList<PrDataset> totalTargetDatasets = new ArrayList<>();
+    List<String> jsonRuleStrings = new ArrayList<>();
+    ArrayList<String> totalTargetDsIds = new ArrayList<>();           // What is this for?
+    ArrayList<PrDataset> totalTargetDatasets = new ArrayList<>();     // What is this for?
 
     prepareTransformRules(dsId);
 
     for (PrTransformRule transformRule : getRulesInOrder(dsId)) {
       String ruleString = transformRule.getRuleString();
-      String jsonRuleString = transformRule.getJsonRuleString();
-      datasetRepository.save(dataset);
 
       // add to the rule string array
       ruleStrings.add(ruleString);
+      jsonRuleStrings.add(transformRule.getJsonRuleString());
 
       // gather slave datasets (load and apply, too)
-      List<String> targetDsIds = getTargetDsIds(jsonRuleString);
+      List<String> upstreamDsIds = transformRuleService.getUpstreamDsIds(ruleString);
 
-      for (String targetDsId : targetDsIds) {
-        load_internal(targetDsId);
-        totalTargetDsIds.add(targetDsId);
+      for (String upstreamDsId : upstreamDsIds) {
+        load_internal(upstreamDsId);
+        totalTargetDsIds.add(upstreamDsId);
 
-        PrDataset targetDataset = datasetRepository.findRealOne(datasetRepository.findOne(targetDsId));
+        PrDataset targetDataset = datasetRepository.findRealOne(datasetRepository.findOne(upstreamDsId));
         totalTargetDatasets.add(targetDataset);
       }
     }
@@ -599,7 +569,8 @@ public class PrepTransformService {
 
     for (int i = 1; i < ruleStrings.size(); i++) {
       String ruleString = ruleStrings.get(i);
-      gridResponse = teddyImpl.append(dsId, i - 1, ruleString, true);
+      String jsonRuleString = jsonRuleStrings.get(i);
+      gridResponse = teddyImpl.append(dsId, i - 1, ruleString, jsonRuleString, true);
     }
     updateTransformRules(dsId);
     adjustStageIdx(dsId, ruleStrings.size() - 1, true);
@@ -673,15 +644,16 @@ public class PrepTransformService {
 
   // transform (PUT)
   @Transactional(rollbackFor = Exception.class)
-  public PrepTransformResponse transform(String dsId, OP_TYPE op, Integer stageIdx, String ruleString, boolean suppress) throws Exception {
-    LOGGER.trace("transform(): start: dsId={} op={} stageIdx={} ruleString={}", dsId, op, stageIdx, ruleString);
+  public PrepTransformResponse transform(String dsId, OP_TYPE op, Integer stageIdx, String ruleString, String jsonRuleString, boolean suppress) throws Exception {
+    LOGGER.trace("transform(): start: dsId={} op={} stageIdx={} ruleString={} jsonRuleString={}",
+        dsId, op, stageIdx, ruleString, jsonRuleString);
 
     if(op==OP_TYPE.APPEND || op==OP_TYPE.UPDATE || op==OP_TYPE.PREVIEW) {
       confirmRuleStringForException(ruleString);
 
       // Check in advance, or a severe inconsistency between stages and rules can happen,
       // when these functions fail at that time, after all works done for the stages successfully.
-      transformRuleService.shortenRuleString(transformRuleService.jsonizeRuleString(ruleString));
+      transformRuleService.shortenRuleString(ruleString);
     }
 
     PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
@@ -695,9 +667,8 @@ public class PrepTransformService {
 
     // join이나 union의 경우, 대상 dataset들도 loading
     if (ruleString != null) {
-      String jsonRuleString = transformRuleService.jsonizeRuleString(ruleString);
-      for (String targetDsId : getTargetDsIds(jsonRuleString)) {
-          load_internal(targetDsId);
+      for (String upstreamDsId : transformRuleService.getUpstreamDsIds(ruleString)) {
+        load_internal(upstreamDsId);
       }
     }
 
@@ -705,7 +676,7 @@ public class PrepTransformService {
     // rule list는 transform()을 마칠 때에 채움. 모든 op에 대해 동일하기 때문에.
     switch (op) {
       case APPEND:
-        teddyImpl.append(dsId, stageIdx, ruleString, suppress);
+        teddyImpl.append(dsId, stageIdx, ruleString, jsonRuleString, suppress);
         if (stageIdx >= origStageIdx) {
           adjustStageIdx(dsId, stageIdx + 1, true);
         } else {
@@ -721,7 +692,7 @@ public class PrepTransformService {
         }
         break;
       case UPDATE:
-        teddyImpl.update(dsId, stageIdx, ruleString);
+        teddyImpl.update(dsId, stageIdx, ruleString, jsonRuleString);
         break;
       case UNDO:
         assert stageIdx == null;
@@ -771,20 +742,21 @@ public class PrepTransformService {
     return response;
   }
 
-  private void updateTransformRules(String dsId) throws CannotSerializeIntoJsonException {
+  private void updateTransformRules(String dsId) throws CannotSerializeIntoJsonException, JsonProcessingException {
     for (PrTransformRule rule : getRulesInOrder(dsId)) {
       transformRuleRepository.delete(rule);
     }
     transformRuleRepository.flush();
 
     List<String> ruleStrings = teddyImpl.getRuleStrings(dsId);
+    List<String> jsonRuleStrings = teddyImpl.getJsonRuleStrings(dsId);
     List<Boolean> valids = teddyImpl.getValids(dsId);
 
     PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     for (int i = 0; i < ruleStrings.size(); i++) {
       String ruleString = ruleStrings.get(i);
-      String jsonRuleString = transformRuleService.jsonizeRuleString(ruleString);
-      String shortRuleString = transformRuleService.shortenRuleString(jsonRuleString);
+      String jsonRuleString = jsonRuleStrings.get(i);
+      String shortRuleString = transformRuleService.shortenRuleString(ruleString);
       PrTransformRule rule = new PrTransformRule(dataset, i, ruleStrings.get(i), jsonRuleString, shortRuleString);
       rule.setValid(valids.get(i));
       transformRuleRepository.save(rule);
@@ -1032,20 +1004,20 @@ public class PrepTransformService {
     }
   }
 
-  private void prepareTransformRules(String dsId) throws CannotSerializeIntoJsonException {
+  // FIXME: What is this functions for?
+  private void prepareTransformRules(String dsId)
+      throws CannotSerializeIntoJsonException, JsonProcessingException {
     PrDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     List<PrTransformRule> transformRules = dataset.getTransformRules();
 
     if (transformRules !=null && transformRules.size() > 0) {
       for (PrTransformRule transformRule : transformRules) {
         if (transformRule.getJsonRuleString() == null) {
-          String ruleString = transformRule.getRuleString();
-          String jsonRuleString = transformRuleService.jsonizeRuleString(ruleString);
+          String jsonRuleString = transformRule.getJsonRuleString();
           transformRule.setJsonRuleString(jsonRuleString);
         }
         if (transformRule.getShortRuleString() == null) {
-          String jsonRuleString = transformRule.getJsonRuleString();
-          String shortRuleString = transformRuleService.shortenRuleString(jsonRuleString);
+          String shortRuleString = transformRuleService.shortenRuleString(transformRule.getRuleString());
           transformRule.setShortRuleString(shortRuleString);
         }
       }
@@ -1275,7 +1247,8 @@ public class PrepTransformService {
     }
   }
 
-  private DataFrame createStage0(String wrangledDsId, PrDataset importedDataset) {
+  private DataFrame createStage0(String wrangledDsId, PrDataset importedDataset)
+      throws CannotSerializeIntoJsonException, JsonProcessingException {
     PrDataset wrangledDataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
     DataFrame gridResponse;
 
@@ -1330,7 +1303,9 @@ public class PrepTransformService {
     assert gridResponse != null : wrangledDsId;
     wrangledDataset.setTotalLines((long) gridResponse.rows.size());
 
-    teddyImpl.getCurDf(wrangledDsId).setRuleString(transformRuleService.getCreateRuleString(importedDataset.getDsId()));
+    String createRuleString = transformRuleService.getCreateRuleString(importedDataset.getDsId());
+    teddyImpl.getCurDf(wrangledDsId).setRuleString(createRuleString);
+    teddyImpl.getCurDf(wrangledDsId).setJsonRuleString(transformRuleService.jsonizeRuleString(createRuleString));
 
     LOGGER.trace("createStage0(): end");
     return gridResponse;

@@ -76,7 +76,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     { command: 'drop', alias: 'Dp'},
     { command: 'pivot', alias: 'Pv'},
     { command: 'unpivot', alias: 'Up'},
-    { command: 'Join', alias: 'Jo'},
+    { command: 'join', alias: 'Jo'},
     { command: 'extract', alias: 'Ex'},
     { command: 'flatten', alias: 'Fl'},
     { command: 'merge', alias: 'Me'},
@@ -85,7 +85,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     { command: 'aggregate', alias: 'Ag'},
     { command: 'sort', alias: 'So'},
     { command: 'move', alias: 'Mv'},
-    { command: 'Union', alias: 'Ui'},
+    { command: 'union', alias: 'Ui'},
     { command: 'window', alias: 'Wn'},
     { command: 'setformat', alias: 'Sf'}];
 
@@ -593,11 +593,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       rule['ruleVO']['command'] = rule['ruleVO']['name'];
       rule['ruleVO']['ruleNo'] = rule['ruleNo'];
 
-      if (rule['ruleVO'].command === 'join') {
-        rule['ruleVO'].command = 'Join'
-      } else if (rule['ruleVO'].command === 'union') {
-        rule['ruleVO'].command = 'Union'
-      }
 
       const idx = commandNames.indexOf(rule['ruleVO'].command);
       if (idx > -1) {
