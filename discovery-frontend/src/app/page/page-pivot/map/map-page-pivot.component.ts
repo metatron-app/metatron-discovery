@@ -212,6 +212,13 @@ export class MapPagePivotComponent extends PagePivotComponent {
     //   fieldPivot = FieldPivot.MAP_LAYER2;
     // }
 
+    // change default logical type
+    if( targetField.logicalType == LogicalType.GEO_LINE ) {
+      this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.LINE;
+    } else  if( targetField.logicalType == LogicalType.GEO_POLYGON ) {
+      this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.POLYGON;
+    }
+
     const idx = shelf.findIndex((field) => {
       return field.name === targetField.name && targetField.biType === field.biType;
     });

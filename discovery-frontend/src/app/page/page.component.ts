@@ -3956,6 +3956,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.chart['setQuery'] = this.query;
     }
 
+    //TODO temp removing bbox if multi layer (for line)
+    // if( cloneQuery.shelf.layers.length == 2 ){
+    //   cloneQuery.filters.splice(0,1);
+    // }
+
     this.datasourceService.searchQuery(cloneQuery).then(
       (data) => {
 
