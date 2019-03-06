@@ -419,8 +419,7 @@ public class WorkspaceController {
                                                @RequestParam(value = "type", required = false) String type,
                                                @RequestParam(value = "implementor", required = false) String implementor,
                                                @RequestParam(value = "authenticationType", required = false) String authenticationType,
-                                               Pageable pageable,
-                                               PersistentEntityResourceAssembler resourceAssembler) {
+                                               Pageable pageable) {
 
     LOGGER.debug("name = {}", name);
     LOGGER.debug("implementor = {}", implementor);
@@ -453,7 +452,7 @@ public class WorkspaceController {
     }
     Page<DataConnection> connections = dataConnectionRepository.findAll(searchPredicated, pageable);
 
-    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(connections, resourceAssembler));
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(connections));
   }
 
   /**
