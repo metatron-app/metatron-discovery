@@ -580,8 +580,7 @@ export class DatasourceService extends AbstractService {
                   type: FormatType.GEO.toString()
                 }
 
-                // todo : cluster 서버 사용일 경우 변경
-                // // clustering
+                // clustering
                 let chart = (<UIMapOption>pageConf.chart);
                 if( chart.layers[idx].type == MapLayerType.SYMBOL && chart.layers[idx]['clustering'] ) {
 
@@ -602,7 +601,7 @@ export class DatasourceService extends AbstractService {
                 spatialFilter.dataSource = layer.ref;
                 spatialFilter.ref = layer.ref;
                 spatialFilter.field = layer.field.name;
-                // TODO : 최초 default 값 체크 (빈값일 경우 에러리턴)
+                // 최초 default 값 sales-geo 초기값으로 고정 (빈값일 경우 에러리턴)
                 spatialFilter.lowerCorner = _.isUndefined(chart['lowerCorner']) ? '-123.0998 25.4766' : chart['lowerCorner'];
                 spatialFilter.upperCorner = _.isUndefined(chart['upperCorner']) ? '-68.7918 48.7974' : chart['upperCorner'];
                 query.filters.push( spatialFilter );
