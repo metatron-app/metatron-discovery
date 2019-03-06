@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.Map;
 
-import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
 import app.metatron.discovery.domain.datasource.data.forward.ResultForward;
@@ -141,7 +140,7 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
 
           String geoColumnName = geoJsonFormat ? GEOMETRY_COLUMN_NAME : aliasName;
 
-          if (datasourceField.getType() == DataType.STRUCT) {
+          if (datasourceField.getLogicalType() == LogicalType.GEO_POINT) {
             String lat = engineColumnName + "." + LogicalType.GEO_POINT.getGeoPointKeys().get(0);
             String lon = engineColumnName + "." + LogicalType.GEO_POINT.getGeoPointKeys().get(1);
             String concatExpr = "concat('POINT (', \"" + lon + "\", ' ', \"" + lat + "\",')')";
