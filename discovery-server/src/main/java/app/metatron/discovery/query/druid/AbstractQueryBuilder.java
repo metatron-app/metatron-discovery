@@ -503,6 +503,10 @@ public abstract class AbstractQueryBuilder {
 
     for (app.metatron.discovery.domain.workbook.configurations.filter.Filter reqFilter : reqFilters) {
 
+      if (isNotMainDataSourceColumn(reqFilter)) {
+        continue;
+      }
+
       String fieldName = checkColumnName(reqFilter.getColumn());
       String engineColumnName = engineColumnName(fieldName);
       if (!fieldName.equals(reqFilter.getColumn())) {
@@ -661,6 +665,17 @@ public abstract class AbstractQueryBuilder {
     }
 
   }
+
+  private boolean isNotMainDataSourceColumn(app.metatron.discovery.domain.workbook.configurations.filter.Filter filter) {
+
+    if (dataSource instanceof MultiDataSource
+        && mainMetaDataSource.getEngineName().equals(filter.getDataSource())) {
+      return false;
+    }
+
+    return true;
+  }
+
 
   protected void addAggregationFunction(MeasureField measureField) {
 

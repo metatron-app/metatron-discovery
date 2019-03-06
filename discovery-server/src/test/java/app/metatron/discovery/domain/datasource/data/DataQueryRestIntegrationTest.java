@@ -310,6 +310,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         new DimensionField("City"),
         new DimensionField("Sub-Category"),
         new DimensionField("Category"),
+        new DimensionField("location"),
         new MeasureField("Sales", MeasureField.AggregationType.NONE)
     );
 
@@ -2152,7 +2153,10 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     Limit limit = new Limit();
     limit.setLimit(10);
 
-    List<Filter> filters = Lists.newArrayList();
+    List<Filter> filters = Lists.newArrayList(
+        new SpatialBboxFilter("sales_geo", "location", null, "-123.52115624999999 23.439926562500006", "-68.32584374999999 51.125473437500006"),
+        new SpatialBboxFilter("estate", "gis", null, "-123.52115624999999 23.439926562500006", "-68.32584374999999 51.125473437500006")
+    );
 
     List<Field> fields1 = Lists.newArrayList(new DimensionField("location", null, null), new DimensionField("City"), new MeasureField("Profit", null, MeasureField.AggregationType.AVG));
     MapViewLayer layer1 = new MapViewLayer("layer1", "sales_geo", fields1, new LayerView.ClusteringLayerView("h3", 5));
