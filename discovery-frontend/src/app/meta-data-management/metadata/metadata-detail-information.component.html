@@ -37,7 +37,8 @@
             <!-- data -->
             <div class="ddp-data-description">
               <div class="ddp-txt-description"
-                   [innerHtml]="getDescription(metadataModelService.getMetadata().description)">
+                   [innerHtml]="getDescription(metadataModelService.getMetadata().description)"
+                   (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();">
               </div>
               <a href="javascript:" class="ddp-btn-edit"
                  (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();" [ngClass]="{'ddp-data-none' : metadataModelService.getMetadata().description === ''}"><em class="ddp-icon-edit"></em>Edit</a>
