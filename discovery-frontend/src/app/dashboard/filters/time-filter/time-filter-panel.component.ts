@@ -21,7 +21,7 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import { BIType, Field, FieldRole } from '../../../domain/datasource/datasource';
+import {Field, FieldRole, LogicalType} from '../../../domain/datasource/datasource';
 import { AbstractFilterPanelComponent } from '../abstract-filter-panel.component';
 import { ByTimeUnit, TimeUnit } from '../../../domain/workbook/configurations/field/timestamp-field';
 import { TimeListFilterComponent } from './time-list-filter.component';
@@ -309,8 +309,7 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
     if( this.dataSource )  {
 
       // 타임스탬프인지 판단
-      if (this.field && this.field.biType === BIType.TIMESTAMP
-        && this.field.role === FieldRole.TIMESTAMP) {
+      if (this.field && this.field.type === 'TIMESTAMP' && this.field.role === FieldRole.TIMESTAMP) {
         this.isTimeStamp = true;
       } else if (this.field == null && filter.field === CommonConstant.COL_NAME_CURRENT_DATETIME) {
         this.isTimeStamp = true;

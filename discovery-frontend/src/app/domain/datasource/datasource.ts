@@ -157,8 +157,6 @@ export class Field {
 
   // Field 별칭
   alias: string;
-  // BI 타입
-  biType: BIType;
 
   // for UI
   seq: number;
@@ -363,12 +361,6 @@ export enum SourceType {
   IMPORT = <any>'IMPORT',
   SNAPSHOT = <any>'SNAPSHOT',
   NONE = <any>'NONE'
-}
-
-export enum BIType {
-  DIMENSION = <any>'DIMENSION',
-  MEASURE = <any>'MEASURE',
-  TIMESTAMP = <any>'TIMESTAMP'
 }
 
 export enum Status {
