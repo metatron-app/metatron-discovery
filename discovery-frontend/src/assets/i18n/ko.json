@@ -1327,6 +1327,7 @@
   "msg.dp.th.sheet.name" : "시트 이름",
   "msg.dp.alert.dataset.fail.to.create" : "데이터셋 생성 실패",
   "msg.dp.alert.num.fail.dataset" : "{{value}}개의 데이터셋 생성이 실패하였습니다",
+  "msg.dp.ss.check.error" : "에러 항목을 확인해 주세요.",
 
   "msg.board.create.add-ds" : "데이터소스 추가",
   "msg.board.create.add-ds.desc" : "시각화 할 데이터소스를 추가하고 관계를 설정해 주세요",

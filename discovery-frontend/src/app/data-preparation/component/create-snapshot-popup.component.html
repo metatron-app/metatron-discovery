@@ -25,11 +25,13 @@
         <div class="ddp-wrap-edit3 ddp-type">
           <label class="ddp-label-type">{{ 'msg.dp.ui.ss-name' | translate }}</label>
           <!-- edit option -->
-          <div class="ddp-ui-edit-option">
-            <input type="text" class="ddp-input-typebasic prep-snapshot-name-input"
+          <div class="ddp-ui-edit-option" [ngClass]="{'ddp-error': ssNameErrorMsg !== ''}">
+            <input type="text" class="prep-snapshot-name-input ddp-input-typebasic"
                    placeholder="{{ 'msg.dp.ui.ss-name' | translate }}"
                    (keyup)="changeSSUri()"
+                   (keydown)="ssNameKeyDown()"
                    [(ngModel)]="snapshot.ssName">
+            <span class="ddp-data-error" *ngIf="ssNameErrorMsg !== ''"> {{ssNameErrorMsg}}</span>
           </div>
           <!-- //edit option -->
         </div>
@@ -91,8 +93,12 @@
               <div class="ddp-wrap-edit3 ddp-type">
                 <label class="ddp-label-type">{{ 'msg.dp.ui.file-url' | translate }}</label>
                 <!-- edit option -->
-                <div class="ddp-ui-edit-option">
-                  <input type="text" class="ddp-input-typebasic" [(ngModel)]="snapshot.storedUri">
+                <div class="ddp-ui-edit-option" [ngClass]="{'ddp-error': fileUrlErrorMsg !== ''}">
+                  <input type="text"
+                         class="ddp-input-typebasic"
+                         [(ngModel)]="snapshot.storedUri"
+                         (keydown)="fileUriKeyDown()">
+                  <span class="ddp-data-error" *ngIf="fileUrlErrorMsg !== ''"> {{fileUrlErrorMsg}}</span>
                 </div>
                 <!-- //edit option -->
               </div>
@@ -107,7 +113,6 @@
               [isUpSelect]="false"
               [array]="dbList"
               [isFull]="true"
-              [unselectedMessage]="'Please select db name'"
               (onSelected)="onSelectedDBName( $event, dbList )">
             </component-select>
             <!-- //edit option -->
@@ -117,12 +122,14 @@
           <div class="ddp-wrap-edit3 ddp-type">
             <label class="ddp-label-type">{{'msg.dp.th.tbl-name' | translate}}</label>
             <!-- edit option -->
-            <div class="ddp-ui-edit-option">
+            <div class="ddp-ui-edit-option" [ngClass]="{'ddp-error': tblErrorMsg !== ''}">
               <input type="text"
                      class="ddp-input-typebasic"
                      id="tableName"
                      placeholder="{{'msg.dp.th.tbl-name.ph' | translate}}"
+                     (keydown)="tblNameKeyDown()"
                      [(ngModel)]="snapshot.tblName">
+              <span class="ddp-data-error" *ngIf="tblErrorMsg !== ''"> {{tblErrorMsg}}</span>
             </div>
             <!-- //edit option -->
           </div>
@@ -210,6 +217,14 @@
               </div>
               <!-- //edit -->
               <!-- 고급설정 -->
+            </div>
+          </div>
+        </div>
+        <div class="ddp-ui-message" *ngIf="isErrorShow">
+          <div class="ddp-box-synch type-error">
+            <div class="ddp-txt-synch">
+              <em class="ddp-icon-info"></em>
+              {{'msg.dp.ss.check.error' | translate }}
             </div>
           </div>
         </div>
