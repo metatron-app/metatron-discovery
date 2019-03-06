@@ -154,7 +154,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     // Snapshot name cannot be empty
     if (this.snapshot.ssName.trim() === '') {
       this.isErrorShow = true;
-      this.ssNameErrorMsg = this.translateService.instant('msg.dp.ss.name.required');
+      this.ssNameErrorMsg = this.translateService.instant('msg.common.ui.required');
       return;
     }
 
@@ -162,7 +162,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
       // table name cannot be empty
       if (isUndefined(this.snapshot.tblName) || this.snapshot.tblName === '') {
-        this.tblErrorMsg = this.translateService.instant('msg.dp.alert.ss.require.table-name');
+        this.tblErrorMsg = this.translateService.instant('msg.common.ui.required');
         this.isErrorShow = true;
         return;
       }
@@ -184,7 +184,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     if (SsType.URI === this.snapshot.ssType) {
       this.snapshot.engine = Engine.EMBEDDED;
       if (this.snapshot.storedUri.length < 1){
-        this.fileUrlErrorMsg = this.translateService.instant('msg.dp.alert.ss.require.file-uri');
+        this.fileUrlErrorMsg = this.translateService.instant('msg.common.ui.required');
         this.isErrorShow = true;
         return;
       }
