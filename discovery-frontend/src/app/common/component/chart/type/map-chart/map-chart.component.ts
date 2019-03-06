@@ -65,8 +65,7 @@ import {UITileLayer} from '../../option/ui-option/map/ui-tile-layer';
 import {ColorOptionConverter} from '../../option/converter/color-option-converter';
 import {CommonConstant} from "../../../../constant/common.constant";
 import proj4 from 'proj4';
-
-declare let ol;
+import * as ol from 'openlayers';
 
 @Component({
   selector: 'map-chart',
