@@ -137,6 +137,18 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
     let diffDataSourceFl: boolean = false;
 
+    // 같은 선반에 동일한 필드가 있을경우
+    let cnt : number = 0;
+    currentMapLayer.forEach((item) => {
+      if ( item.field.dsId == targetField.field.dsId && item.field.name == targetField.field.name ){
+        cnt++;
+      }
+      if( cnt > 1 ){
+        returnValue = false;
+        return;
+      }
+    });
+
     // prevent other datasource is set on the same shelf
     currentMapLayer.forEach((item) => {
       if ('user_expr' !== targetField.subType && 'user_expr' !== item.field.type
