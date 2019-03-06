@@ -152,7 +152,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // prevent other datasource is set on the same shelf
     currentMapLayer.forEach((item) => {
       if ('user_expr' !== targetField.subType && 'user_expr' !== item.field.type
-            && item.field.dataSource != targetField.field.dataSource) {
+        && item.field.dataSource != targetField.field.dataSource) {
         diffDataSourceFl = true;
         return;
       }
@@ -224,11 +224,13 @@ export class MapPagePivotComponent extends PagePivotComponent {
     //   fieldPivot = FieldPivot.MAP_LAYER2;
     // }
 
-    // change default logical type
-    if( targetField.logicalType == LogicalType.GEO_LINE ) {
+    // change logical type
+    if (targetField.logicalType == LogicalType.GEO_LINE) {
       this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.LINE;
-    } else  if( targetField.logicalType == LogicalType.GEO_POLYGON ) {
+    } else if (targetField.logicalType == LogicalType.GEO_POLYGON) {
       this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.POLYGON;
+    } else if (targetField.logicalType == LogicalType.GEO_POINT) {
+      this.uiOption.layers[this.uiOption.layerNum].type = MapLayerType.SYMBOL;
     }
 
     const idx = shelf.findIndex((field) => {
@@ -245,8 +247,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
         // 타입필드로 설정
         const timeField = new TimestampField();
         field = timeField;
-      }
-      else if (targetField.biType === BIType.DIMENSION) {
+      } else if (targetField.biType === BIType.DIMENSION) {
         field = new DimensionField();
       } else if (targetField.biType === BIType.MEASURE) {
 
@@ -261,16 +262,15 @@ export class MapPagePivotComponent extends PagePivotComponent {
       field.field = targetField;
 
       if (targetField.name !== targetField.alias
-        && ( !targetField.nameAlias || targetField.nameAlias.nameAlias !== targetField.alias )) {
+        && (!targetField.nameAlias || targetField.nameAlias.nameAlias !== targetField.alias)) {
         field.alias = targetField.alias;
       }
-      ( targetField.nameAlias ) && ( field.fieldAlias = targetField.nameAlias.nameAlias );
+      (targetField.nameAlias) && (field.fieldAlias = targetField.nameAlias.nameAlias);
       field.granularity = targetField.granularity;
       field.segGranularity = targetField.segGranularity;
       if (!_.isUndefined(targetField.ref)) {
         field.ref = targetField.ref;
-      }
-      else if (targetField.type == 'user_expr') {
+      } else if (targetField.type == 'user_expr') {
         field.ref = 'user_defined';
       }
 
@@ -333,7 +333,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     }
 
     // template 에서 생성한 경우 추가된 선반필드는 적용이 되지 않음 그래서 처리
-    if( !_.isUndefined(this.editFieldLayerDirective) ) {
+    if (!_.isUndefined(this.editFieldLayerDirective)) {
       this.editFieldLayerDirective.exclude = '.ddp-icon-layer';
     }
   }
@@ -397,7 +397,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
             pivotField.currentPivot = fieldPivot;
           }
         }
-      // 타임스탬프가 아닐때
+        // 타임스탬프가 아닐때
       } else {
 
         // 기존의 피봇값 제거
@@ -416,37 +416,37 @@ export class MapPagePivotComponent extends PagePivotComponent {
     if (shelfElement) this.onShelveAnimation();
   }
 
-   /**
-    * 선반정보 변경시
-    */
-   public changePivot(eventType?: EventType) {
+  /**
+   * 선반정보 변경시
+   */
+  public changePivot(eventType?: EventType) {
 
-     // set layer alias
-     this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkAlias);
+    // set layer alias
+    this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkAlias);
 
-     // emit
-     this.changeShelfEvent.emit({ shelf: this.shelf, eventType: eventType });
-   }
+    // emit
+    this.changeShelfEvent.emit({shelf: this.shelf, eventType: eventType});
+  }
 
   /**
    * map chart - add layer
    */
-  public addLayer(index : number): void {
-    if( this.shelf.layers.length  >= 2
-        || isNullOrUndefined(this.shelf.layers[0]) || isNullOrUndefined(this.shelf.layers[0].fields) || this.shelf.layers[0].fields.length <= 0 ) {
+  public addLayer(index: number): void {
+    if (this.shelf.layers.length >= 2
+      || isNullOrUndefined(this.shelf.layers[0]) || isNullOrUndefined(this.shelf.layers[0].fields) || this.shelf.layers[0].fields.length <= 0) {
       Alert.warning('Please select GEO dimension one or more');
       return;
     } else {
 
       let layers = {
-        name : '',
-        ref : '',
+        name: '',
+        ref: '',
         // view : {
         //   "type": "hash",
         //   "method": "h3",
         //   "precision": 5
         // },
-        fields : []
+        fields: []
       };
 
       // add empty layer
@@ -462,7 +462,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
       let addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
 
       // layer name setting
-      addUiOptionLayer.name = this.uiOption.layers[index].name == ('Layer' + (index+1)) ? 'Layer' + (index+2) : 'Layer' + (index+1);
+      addUiOptionLayer.name = this.uiOption.layers[index].name == ('Layer' + (index + 1)) ? 'Layer' + (index + 2) : 'Layer' + (index + 1);
 
       this.uiOption.layers.push(addUiOptionLayer);
 
@@ -474,20 +474,20 @@ export class MapPagePivotComponent extends PagePivotComponent {
   /**
    * map chart - remove layer
    */
-  public removeLayer(index : number): void {
+  public removeLayer(index: number): void {
 
-    if( this.shelf.layers.length <= 1) {
+    if (this.shelf.layers.length <= 1) {
       return;
     }
 
     // remove layer
-    this.shelf.layers.splice( index, 1 );
+    this.shelf.layers.splice(index, 1);
 
     // 필드의 선반정보 제거
-    for( let idx=0; idx < this.shelf.layers.length; idx++ ) {
+    for (let idx = 0; idx < this.shelf.layers.length; idx++) {
       let item = this.shelf.layers[idx].fields;
-      for( let idx2=0; idx2 < item.length; idx2++ ) {
-        item[idx2].field.pivot.splice( item[idx2].field.pivot.indexOf(index), 1);
+      for (let idx2 = 0; idx2 < item.length; idx2++) {
+        item[idx2].field.pivot.splice(item[idx2].field.pivot.indexOf(index), 1);
       }
     }
 
@@ -496,9 +496,9 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // set layer alias
     this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkAlias);
     // uiOption layer 제거
-    this.uiOption.layers.splice( index, 1 );
+    this.uiOption.layers.splice(index, 1);
     // emit
-    this.changeShelfEvent.emit({ shelf: this.shelf });
+    this.changeShelfEvent.emit({shelf: this.shelf});
     // remove 일경우 재적용
     this.changePivot(EventType.CHANGE_PIVOT);
   }
@@ -509,20 +509,20 @@ export class MapPagePivotComponent extends PagePivotComponent {
    */
   public isGuide(): boolean {
 
-     // before selecting chart, return false
-     if (this.chartType == '') {
-       return false;
-     }
+    // before selecting chart, return false
+    if (this.chartType == '') {
+      return false;
+    }
 
-     // when geo dimension on shelf, hide guide
-     for (let field of this.shelf.layers[this.uiOption.layerNum].fields) {
-       if (field && field.field && field.field.logicalType && -1 !== field.field.logicalType.toString().indexOf("GEO")) {
-         return false;
-       }
-     }
+    // when geo dimension on shelf, hide guide
+    for (let field of this.shelf.layers[this.uiOption.layerNum].fields) {
+      if (field && field.field && field.field.logicalType && -1 !== field.field.logicalType.toString().indexOf("GEO")) {
+        return false;
+      }
+    }
 
-     return true;
-   }
+    return true;
+  }
 
   /**
    * toggle shelf context menu
@@ -552,7 +552,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * emit change shelf
    */
   public changeShelf(eventType?: EventType) {
-    this.changeShelfEvent.emit({ shelf: this.shelf, eventType: eventType });
+    this.changeShelfEvent.emit({shelf: this.shelf, eventType: eventType});
   }
 
   /**
@@ -560,7 +560,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * @param {string} type
    * @returns {boolean}
    */
-  public getMapGuideText(index : number, type?: string): boolean {
+  public getMapGuideText(index: number, type?: string): boolean {
 
     if (!this.shelf.layers) return;
 
@@ -644,7 +644,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     const $wrapDefault = $(event.currentTarget.parentElement.parentElement).find('.ddp-wrap-default');
 
     // 선반에 animation 설정
-    $wrapDefault.animate({ marginLeft: 0 }, {
+    $wrapDefault.animate({marginLeft: 0}, {
       duration: 1500, step: function () {
 
         if (scope.animationPause) {
@@ -674,8 +674,8 @@ export class MapPagePivotComponent extends PagePivotComponent {
     let moveWidth = totalWidth - $currentShelve.find('.ddp-ui-drag-slide-in').width();
 
     // 선반에 animation 설정
-    $wrapDefault.animate({ marginLeft: -moveWidth - 40}, {
-    // $wrapDefault.animate({ marginLeft: -moveWidth - 80 }, {
+    $wrapDefault.animate({marginLeft: -moveWidth - 40}, {
+      // $wrapDefault.animate({ marginLeft: -moveWidth - 80 }, {
       duration: 1500, step: function () {
 
         if (scope.animationPause) {
@@ -714,7 +714,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * @param {Field} targetField
    * @returns {boolean}
    */
-  public blockCustomField(targetField: Field, uiOption : UIOption) {
+  public blockCustomField(targetField: Field, uiOption: UIOption) {
 
     // when chart is map, target field is custom field
     if (ChartType.MAP === uiOption.type && 'user_expr' === targetField.type) {
@@ -783,8 +783,8 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * layer 변경
    * @param index
    */
-  public selectedLayer( index: number ){
-    if( this.uiOption.layerNum != index ) {
+  public selectedLayer(index: number) {
+    if (this.uiOption.layerNum != index) {
       this.uiOption.layerNum = index;
       // this.selectLayerEvent.emit(index);
     }
@@ -795,5 +795,19 @@ export class MapPagePivotComponent extends PagePivotComponent {
    */
   public spatialAnalysisBtnClicked(value) {
     this.uiOption = value;
+  }
+
+  /**
+   * delete analysis 옵션
+   */
+  public stopAnalysisBtn() {
+    // Map Chart spatial analysis delete
+    if (!_.isUndefined(this.uiOption.analysis) && this.uiOption['analysis']['use'] == true) {
+      delete this.uiOption.analysis.operation;
+      delete this.uiOption.analysis.mainLayer;
+      delete this.uiOption.analysis.compareLayer;
+      delete this.uiOption.analysis.type;
+      this.uiOption['analysis']['use'] = false;
+    }
   }
 }
