@@ -14,21 +14,8 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_URL;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
-import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
-import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
-
 import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
-import app.metatron.discovery.domain.dataprep.PrepHdfsService;
-import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
-import app.metatron.discovery.domain.dataprep.PrepProperties;
-import app.metatron.discovery.domain.dataprep.PrepSnapshotRequestPost;
-import app.metatron.discovery.domain.dataprep.PrepSwapRequest;
+import app.metatron.discovery.domain.dataprep.*;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
@@ -43,11 +30,7 @@ import app.metatron.discovery.domain.dataprep.repository.PrTransformRuleReposito
 import app.metatron.discovery.domain.dataprep.rule.ExprFunction;
 import app.metatron.discovery.domain.dataprep.rule.ExprFunctionCategory;
 import app.metatron.discovery.domain.dataprep.service.PrSnapshotService;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
-import app.metatron.discovery.domain.dataprep.teddy.Histogram;
-import app.metatron.discovery.domain.dataprep.teddy.Row;
-import app.metatron.discovery.domain.dataprep.teddy.TeddyExecutor;
+import app.metatron.discovery.domain.dataprep.teddy.*;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
@@ -57,31 +40,8 @@ import app.metatron.discovery.domain.storage.StorageProperties;
 import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
-import app.metatron.discovery.prep.parser.preparation.rule.Aggregate;
-import app.metatron.discovery.prep.parser.preparation.rule.CountPattern;
-import app.metatron.discovery.prep.parser.preparation.rule.Delete;
-import app.metatron.discovery.prep.parser.preparation.rule.Derive;
-import app.metatron.discovery.prep.parser.preparation.rule.Drop;
-import app.metatron.discovery.prep.parser.preparation.rule.Extract;
-import app.metatron.discovery.prep.parser.preparation.rule.Flatten;
-import app.metatron.discovery.prep.parser.preparation.rule.Header;
-import app.metatron.discovery.prep.parser.preparation.rule.Join;
-import app.metatron.discovery.prep.parser.preparation.rule.Keep;
-import app.metatron.discovery.prep.parser.preparation.rule.Merge;
-import app.metatron.discovery.prep.parser.preparation.rule.Move;
-import app.metatron.discovery.prep.parser.preparation.rule.Nest;
-import app.metatron.discovery.prep.parser.preparation.rule.Pivot;
-import app.metatron.discovery.prep.parser.preparation.rule.Rename;
-import app.metatron.discovery.prep.parser.preparation.rule.Replace;
-import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+import app.metatron.discovery.prep.parser.preparation.rule.*;
 import app.metatron.discovery.prep.parser.preparation.rule.Set;
-import app.metatron.discovery.prep.parser.preparation.rule.SetFormat;
-import app.metatron.discovery.prep.parser.preparation.rule.SetType;
-import app.metatron.discovery.prep.parser.preparation.rule.Sort;
-import app.metatron.discovery.prep.parser.preparation.rule.Split;
-import app.metatron.discovery.prep.parser.preparation.rule.Unnest;
-import app.metatron.discovery.prep.parser.preparation.rule.Unpivot;
-import app.metatron.discovery.prep.parser.preparation.rule.Window;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
@@ -89,19 +49,6 @@ import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import com.facebook.presto.jdbc.internal.guava.collect.Lists;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Maps;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import javax.annotation.PostConstruct;
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 import org.joda.time.DateTime;
@@ -116,6 +63,18 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
+import static app.metatron.discovery.domain.dataprep.PrepProperties.*;
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.IMPORTED;
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WRANGLED;
 
 @Service
 public class PrepTransformService {
@@ -212,11 +171,13 @@ public class PrepTransformService {
 
     Map<String, Object> mapEveryForEtl = prepProperties.getEveryForEtl();
     StageDBConnection stageDB = storageProperties.getStagedb();
-    mapEveryForEtl.put(STAGEDB_HOSTNAME, stageDB.getHostname());
-    mapEveryForEtl.put(STAGEDB_PORT,     stageDB.getPort());
-    mapEveryForEtl.put(STAGEDB_USERNAME, stageDB.getUsername());
-    mapEveryForEtl.put(STAGEDB_PASSWORD, stageDB.getPassword());
-    mapEveryForEtl.put(STAGEDB_URL,      stageDB.getUrl());
+    if(stageDB!=null) { // if the value is null, that means storage.stagedb is not in a yaml. NOT using STAGING_DB
+      mapEveryForEtl.put(STAGEDB_HOSTNAME, stageDB.getHostname());
+      mapEveryForEtl.put(STAGEDB_PORT, stageDB.getPort());
+      mapEveryForEtl.put(STAGEDB_USERNAME, stageDB.getUsername());
+      mapEveryForEtl.put(STAGEDB_PASSWORD, stageDB.getPassword());
+      mapEveryForEtl.put(STAGEDB_URL, stageDB.getUrl());
+    }
 
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(mapEveryForEtl);
   }

@@ -74,6 +74,12 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
   public dbList : string[];
 
+  public isErrorShow: boolean = false;
+  public fileUrlErrorMsg: string = '';
+  public ssNameErrorMsg: string = '';
+  public tblErrorMsg: string = '';
+
+
   @Output()
   public snapshotCreateFinishEvent = new EventEmitter();
 
@@ -141,22 +147,23 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    */
   public complete() {
 
-    if ( (this.snapshot.ssType===SsType.URI && isUndefined(this.uriFileFormat))
-      || (this.snapshot.ssType===SsType.STAGING_DB && isUndefined(this.snapshot.hiveFileFormat))
-    ) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.ss.sel.format'));
+    if (this.isErrorShow) {
+      return;
+  }
+
+    // Snapshot name cannot be empty
+    if (this.snapshot.ssName.trim() === '') {
+      this.isErrorShow = true;
+      this.ssNameErrorMsg = this.translateService.instant('msg.common.ui.required');
       return;
     }
 
     if (this.snapshot.ssType === SsType.STAGING_DB) {
 
-      if (isUndefined(this.snapshot.dbName)) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.ss.require.db-name'));
-        return;
-      }
-
+      // table name cannot be empty
       if (isUndefined(this.snapshot.tblName) || this.snapshot.tblName === '') {
-        Alert.warning(this.translateService.instant('msg.dp.alert.ss.require.table-name'));
+        this.tblErrorMsg = this.translateService.instant('msg.common.ui.required');
+        this.isErrorShow = true;
         return;
       }
 
@@ -164,22 +171,25 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         this.snapshot.partitionColNames = [];
       }
 
-      // 테이블 이름 validation
+      // table name validation
       const reg = /^[a-zA-Z0-9_]*$/;
       if(!reg.test(this.snapshot.tblName)){
-        Alert.warning(this.translateService.instant('msg.dp.alert.ss.table.name'));
+        this.tblErrorMsg = this.translateService.instant('msg.dp.alert.ss.table.name');
+        this.isErrorShow = true;
         return;
       }
     }
 
+    // file uri cannot be empty
     if (SsType.URI === this.snapshot.ssType) {
       this.snapshot.engine = Engine.EMBEDDED;
       if (this.snapshot.storedUri.length < 1){
-        Alert.warning(this.translateService.instant('msg.dp.alert.ss.require.file-uri'));
+        this.fileUrlErrorMsg = this.translateService.instant('msg.common.ui.required');
+        this.isErrorShow = true;
         return;
       }
-
     }
+
 
     this.loadingShow();
     this._createSnapshot(this.datasetId, this.snapshot);
@@ -310,6 +320,42 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   }
 
 
+  /**
+   * Remove error msg when keydown in ssName
+   */
+  public ssNameKeyDown() {
+    if (this.ssNameErrorMsg === '') {
+      return;
+    }
+
+    this.ssNameErrorMsg = '';
+    this.isErrorShow = false
+  }
+
+
+  /**
+   * Remove error msg when keydown in table name
+   */
+  public tblNameKeyDown() {
+    if (this.tblErrorMsg === '') {
+      return;
+    }
+
+    this.tblErrorMsg = '';
+    this.isErrorShow = false
+  }
+
+
+  /**
+   * Remove error msg when keydown in file uri
+   */
+  public fileUriKeyDown() {
+    if (this.fileUrlErrorMsg === '') {
+      return;
+    }
+    this.fileUrlErrorMsg = '';
+    this.isErrorShow = false
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

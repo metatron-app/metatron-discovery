@@ -489,7 +489,7 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 
 .ddp-box-popup3 .ddp-pop-scroll {margin:17px 0 5px 0; max-height:333px; overflow:auto;}
 .ddp-box-popup3 .ddp-btn-close {display:inline-block; position:absolute; top:20px; right:20px; width:23px; height:23px; background:url(../images/btn_popclose.png) no-repeat;}
-.ddp-box-popup3 .ddp-box-detail {display:inline-block; width:464px; padding:20px 0; text-align:left;}
+.ddp-box-popup3 .ddp-box-detail {position:relative; display:inline-block; width:464px; padding:20px 0; text-align:left;}
 .ddp-box-popup3 .ddp-box-detail.ddp-type [class*="ddp-wrap-edit"] {margin-top:20px;}
 .ddp-box-popup3 .ddp-box-detail.ddp-type [class*="ddp-wrap-edit"]:first-of-type {margin-top:0;}
 .ddp-box-popup3 .ddp-box-detail .ddp-ui-high-option {padding:20px 0; text-align:right;}
@@ -498,6 +498,7 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 .ddp-box-popup3 .ddp-box-detail .ddp-wrap-high.ddp-selected .ddp-link-high .ddp-icon-view {transform:rotate(180deg);}
 .ddp-box-popup3 .ddp-box-detail .ddp-wrap-high .ddp-high-setting {display:none;}
 .ddp-box-popup3 .ddp-box-detail .ddp-wrap-high.ddp-selected .ddp-high-setting {display:block;}
+.ddp-box-popup3 .ddp-box-detail .ddp-ui-message {margin-top:20px; margin-bottom:-30px;}
 
 
 .ddp-box-popup3 .ddp-ui-buttons {padding:20px 0 80px 0;}
