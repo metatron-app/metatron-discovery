@@ -972,39 +972,53 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       ////////////////////////////////////////////////////////
       let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[layerIndex].fields);
       this.checkFieldList(shelf);
+
+      // line string type
+      let lines =  new ol.geom.MultiLineString([]);
+
       // Data set
       for (let i = 0; i < data.features.length; i++) {
-        let feature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
         // geo type
         if (data.features[i].geometry.type.toString().toLowerCase().indexOf('point') != -1) {
           // point
+          let pointFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
           if (_.eq(geomType, LogicalType.GEO_POINT)) {
-            let featureCenter = feature.getGeometry().getCoordinates();
+            let featureCenter = pointFeature.getGeometry().getCoordinates();
             if (featureCenter.length === 1) {
-              let extent = feature.getGeometry().getExtent();
+              let extent = pointFeature.getGeometry().getExtent();
               featureCenter = ol.extent.getCenter(extent);
-              feature.setGeometry(new ol.geom.Point(featureCenter));
+              pointFeature.setGeometry(new ol.geom.Point(featureCenter));
             }
             if (this.uiOption.fieldMeasureList.length > 0) {
               const alias = ChartUtil.getFieldAlias(this.getUiMapOption().layers[layerIndex].color.column, this.shelf.layers[layerIndex].fields, this.getUiMapOption().layers[layerIndex].color.aggregationType);
               //히트맵 weight 설정
               if (data.valueRange[alias]) {
-                feature.set('weight', feature.getProperties()[alias] / data.valueRange[alias].maxValue);
+                pointFeature.set('weight', pointFeature.getProperties()[alias] / data.valueRange[alias].maxValue);
               }
             }
           }
-          feature.set('layerNum', layerIndex);
-          feature.set('isClustering', this.getUiMapOption().layers[layerIndex]['clustering']);
-          features[i] = feature;
-          // features.push(feature);
+          pointFeature.set('layerNum', layerIndex);
+          pointFeature.set('isClustering', this.getUiMapOption().layers[layerIndex]['clustering']);
+          features[i] = pointFeature;
+          source.addFeature(features[i]);
         } else if (data.features[i].geometry.type.toString().toLowerCase().indexOf('polygon') != -1) {
           // polygon
-          feature.set('layerNum', layerIndex);
-          features[i] = feature;
-          // features.push(feature);
+          let polygonFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
+          polygonFeature.set('layerNum', layerIndex);
+          features[i] = polygonFeature;
+          source.addFeature(features[i]);
+        } else if (data!=null && data.features[i] != null && data.features[i].geometry != null&&  data.features[i].geometry.type.toString().toLowerCase().indexOf('line') != -1) {
+          let line = new ol.geom.LineString(data.features[i].geometry.coordinates);
+          lines.appendLineString(line);
         }
-        source.addFeatures(features);
       } // end - features for
+      // adding line features
+      if( !_.isUndefined(lines) && lines.getLineStrings().length>0) {
+        let lineFeature = new ol.Feature({geometry: lines});
+        lineFeature.set('layerNum', layerIndex);
+        features.push(lineFeature)
+        source.addFeature(lineFeature);
+      }
     }
   }
 
