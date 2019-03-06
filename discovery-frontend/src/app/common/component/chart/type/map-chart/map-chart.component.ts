@@ -2726,13 +2726,18 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     let preLowerCorner = mapUIOption.lowerCorner.split(' ');
     let preUpperCorner = mapUIOption.upperCorner.split(' ');
-    let currentMapExtent = this.olmap.getView().calculateExtent(this.olmap.getSize());
+    let currentMapExtent = this.olmap.getView().calculateExtent(event.map.getSize());
 
     // 이전 좌표와 다를 경우에만 다시 호출
     if( Number(preLowerCorner[0]).toFixed(10) != currentMapExtent[0].toFixed(10) && Number(preLowerCorner[1]).toFixed(10) != currentMapExtent[1].toFixed(10)
       && Number(preUpperCorner[0]).toFixed(10) != currentMapExtent[2].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) != currentMapExtent[3].toFixed(10) ){
+
       // map ui lat, lng
       this.setUiExtent(event);
+      if( mapUIOption.upperCorner.indexOf('NaN') != -1 || mapUIOption.lowerCorner.indexOf('NaN') != -1 ) {
+        return;
+      }
+
       this.changeDrawEvent.emit();
     }
 
@@ -3050,10 +3055,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       let bottomLeft = new ol.proj.toLonLat(new ol.extent.getBottomLeft(mapExtent));
       let topRight = new ol.proj.toLonLat(new ol.extent.getTopRight(mapExtent));
 
-      // console.info('left', this.wrapLon(bottomLeft[0]));
-      // console.info('bottom', bottomLeft[1].toFixed(2));
-      // console.info('right', this.wrapLon(topRight[0]));
-      // console.info('top', topRight[1].toFixed(2));
+      // console.info('left : ', this.wrapLon(bottomLeft[0]), ' bottom : ', bottomLeft[1]);
+      // console.info('right : ', this.wrapLon(topRight[0]), ' top : ', topRight[1]);
 
       // EPSG 타입 확인
       // 우측 상단
