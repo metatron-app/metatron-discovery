@@ -19,7 +19,7 @@ import {Alert} from '../../common/util/alert.util';
 import {MetadataModelService} from './service/metadata.model.service';
 import {InputComponent} from '../../common/component/input/input.component';
 import * as _ from 'lodash';
-import {MetadataSourceType, SourceType} from '../../domain/meta-data-management/metadata';
+import {MetadataSourceType} from '../../domain/meta-data-management/metadata';
 import {Datasource, SourceType as DatasourceSourceType} from '../../domain/datasource/datasource';
 
 @Component({
