@@ -154,7 +154,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     // Snapshot name cannot be empty
     if (this.snapshot.ssName.trim() === '') {
       this.isErrorShow = true;
-      this.ssNameErrorMsg = 'snapshot name required';
+      this.ssNameErrorMsg = this.translateService.instant('msg.dp.ss.name.required');
       return;
     }
 
