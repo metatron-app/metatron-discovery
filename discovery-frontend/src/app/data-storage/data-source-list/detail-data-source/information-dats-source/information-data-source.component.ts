@@ -228,7 +228,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    * @return {string}
    */
   public getConvertedSourceDescription(): string {
-    return this.datasource.description && this.datasource.description.replace(/\r\n|\n/gi, '<br>');
+    return StringUtil.isEmpty(this.datasource.description) ? this.translateService.instant('msg.storage.ui.none.source.desc') : this.datasource.description.replace(/\r\n|\n/gi, '<br>');
   }
 
   /**

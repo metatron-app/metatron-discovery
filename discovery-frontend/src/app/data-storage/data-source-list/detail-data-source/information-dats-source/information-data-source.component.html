@@ -41,10 +41,6 @@
           {{'msg.comm.ui.description' | translate}}
         </th>
         <td>
-          <!--
-                 edit 클릭시 ddp-edit 추가
-                 2줄이상일때 ddp-line 추가
-             -->
           <div class="ddp-edit-description ddp-line" [class.ddp-edit]="isEditSourceDescription" >
             <!-- data -->
             <div class="ddp-data-description" (click)="enableEditDescription()">
@@ -54,7 +50,7 @@
             </div>
             <!-- //data -->
             <div class="ddp-box-textarea">
-              <textarea [(ngModel)]="descriptionChangeText" (blur)="onClickDescriptionOutside($event)"></textarea>
+              <textarea [(ngModel)]="descriptionChangeText" (blur)="onClickDescriptionOutside($event)" maxlength="150" placeholder="{{'msg.storage.ph.source.desc' | translate}}"></textarea>
               <div class="ddp-textarea-buttons">
                 <a href="javascript:" class="ddp-box-btn" (click)="isEditSourceDescription = false; isShowModifiedGuideMessage = false"><em class="ddp-icon-cancel"></em></a>
                 <a href="javascript:" class="ddp-box-btn " (click)="updateSourceDescription()"><em class="ddp-icon-check"></em></a>
