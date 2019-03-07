@@ -34,6 +34,7 @@ public class CsvTemplate {
     CsvParserSettings settings = new CsvParserSettings();
     settings.getFormat().setLineSeparator(lineSep);
     settings.getFormat().setDelimiter(delimiter.charAt(0));
+    settings.setMaxCharsPerColumn(1024 * 12);
 
     RowListProcessor rowProcessor = new RowListProcessor();
     settings.setProcessor(rowProcessor);

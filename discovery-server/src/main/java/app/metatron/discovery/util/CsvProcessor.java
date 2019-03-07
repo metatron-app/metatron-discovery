@@ -64,6 +64,7 @@ public class CsvProcessor {
     settings.getFormat().setLineSeparator(lineSep);
     settings.getFormat().setDelimiter(delimiter.charAt(0));
     settings.setHeaderExtractionEnabled(firstHeaderRow);
+    settings.setMaxCharsPerColumn(1024 * 12);
 
     RowListProcessor rowProcessor = new RowListProcessor();
     settings.setProcessor(rowProcessor);

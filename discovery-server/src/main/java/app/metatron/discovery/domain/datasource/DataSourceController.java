@@ -19,6 +19,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+
+import com.univocity.parsers.common.TextParsingException;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -902,6 +905,13 @@ public class DataSourceController {
         throw new BadRequestException("Invalid temporary file.");
       }
 
+    } catch (TextParsingException e) {
+      LOGGER.error("Failed to parse csv file ({}) : {}", fileKey, e.getMessage());
+      throw new DataSourceIngestionException("Fail to parse csv file. \n" +
+                                                 "Line Index : " + e.getLineIndex() + ",\n" +
+                                                 "Column Index : " + e.getColumnIndex() + ",\n" +
+                                                 "Char Index : " + e.getCharIndex()
+          , e.getCause());
     } catch (Exception e) {
       LOGGER.error("Failed to parse file ({}) : {}", fileKey, e.getMessage());
       throw new DataSourceIngestionException("Fail to parse file.", e.getCause());
