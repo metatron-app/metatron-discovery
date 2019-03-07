@@ -62,4 +62,7 @@ export interface UIMapOption extends UIOption {
 
   // spatial analysis
   analysis : any;
+
+  // zoom size
+  zoomSize? : number;
 }

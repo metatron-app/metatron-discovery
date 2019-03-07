@@ -585,7 +585,16 @@ export class DatasourceService extends AbstractService {
                 if( chart.layers[idx].type == MapLayerType.SYMBOL && chart.layers[idx]['clustering'] ) {
 
                   // cluster 값 변경
-                  let clusterPrecision = Math.round((100 - chart.layers[idx]['coverage']) / 8.33);
+                  let clusterPrecision : number = 6;
+                  if(chart['layers'][idx]['changeCoverage']){
+                    // cluster coverage 값 변경
+                    clusterPrecision = Math.round((100 - chart.layers[idx]['coverage']) / 8.33);
+                  } else {
+                    // zoom size 변경
+                    let zoomSize = chart.zoomSize - 2;
+                    clusterPrecision = Math.round((18 + (zoomSize-18)) / 1.5);
+                  }
+
                   if (clusterPrecision > 12) clusterPrecision = 12;
                   if (clusterPrecision < 1) clusterPrecision = 1;
 

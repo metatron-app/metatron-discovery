@@ -373,6 +373,19 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // 선반의 위치가 다른선반으로 이동시에만 설정
     if (pivotField.currentPivot !== fieldPivot) {
 
+      // 다른 선반으로 이동 시, 데이터 소스가 다를 경우 제거
+      if( shelf.length > 0 ) {
+        let targetDsId : string = '';
+        shelf.forEach((item) => {
+          if ( item.field.logicalType == LogicalType.GEO_POINT || item.field.logicalType == LogicalType.GEO_LINE || item.field.logicalType == LogicalType.GEO_POLYGON ) {
+            targetDsId = item.field.dsId;
+          }
+        });
+        shelf = _.remove(shelf, function(item) {
+          return item['field']['dsId'] != targetDsId;
+        });
+      }
+
       // 타임스탬프일때
       if (targetField.biType === BIType.TIMESTAMP ||
         (targetField.biType === BIType.DIMENSION && targetField.logicalType === LogicalType.TIMESTAMP)) {

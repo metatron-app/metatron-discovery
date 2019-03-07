@@ -935,15 +935,15 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.changeDetect.detectChanges();
 
     // Map data place fit
-    if (this.drawByType && 'Infinity'.indexOf(source.getExtent()[0]) == -1) {
+    if (this.drawByType && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&  (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'] == true) ) {
       this.olmap.getView().fit(source.getExtent());
-    } else {      // set saved data zoom
+    } else {
+      // set saved data zoom
       if (this.uiOption.chartZooms && this.uiOption.chartZooms.length > 0) {
         this.olmap.getView().setCenter([this.uiOption.chartZooms[0].startValue, this.uiOption.chartZooms[0].endValue]);
         this.olmap.getView().setZoom(this.uiOption.chartZooms[0].count);
       }
     }
-
   }
 
   /**
@@ -2729,6 +2729,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * @param event
    */
   private zoomFunction = (event) => {
+
+    // console.info("zoom =======>> : " + event.frameState.viewState.zoom );
+
     // save current chartzoom
     this.uiOption.chartZooms = this.additionalSaveDataZoomRange();
 
@@ -2751,6 +2754,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       if( mapUIOption.upperCorner.indexOf('NaN') != -1 || mapUIOption.lowerCorner.indexOf('NaN') != -1 ) {
         return;
       }
+
+      // coverage value reset
+      mapUIOption.layers.forEach( (layer) => {
+        if(!_.isUndefined(layer['changeCoverage'])){
+          layer['changeCoverage'] = false;
+        }
+      });
+
+      // zoom size
+      mapUIOption.zoomSize = Math.round(event.frameState.viewState.zoom);
 
       this.changeDrawEvent.emit();
     }
