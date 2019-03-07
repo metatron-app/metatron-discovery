@@ -1154,6 +1154,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     updateField.put("id", 10037066);
     updateField.put("logicalName", "sd->logicalName");
     updateField.put("description", "sd description");
+    updateField.put("seq", 10);
 
     // @formatter:off
     given()

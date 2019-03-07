@@ -14,9 +14,9 @@ INSERT INTO mdm_metadata_source(id, meta_source_type, meta_source_name, meta_sou
 INSERT INTO mdm_metadata(id, meta_name, meta_desc, meta_source_type, source_id, created_by, created_time, modified_by, modified_time, version) values
 ('test_meta1', 'test_datasource', 'meta description1', 'ENGINE', 'test_engine_source_01', 'admin', NOW(),'admin', NOW(), 1.0);
 
-INSERT INTO mdm_metadata_column(id, meta_id, column_physical_type, column_physical_name, dictionary_id, column_type, column_name, column_format, column_field_ref) values
-(10001, 'test_meta1', 'TIMESTAMP', 'time', null, 'TIMESTAMP', 'TIME', '{"type":"time_format","format":"yyyy-MM-dd"}', 10037064),
-(10002, 'test_meta1', 'STRING', 'd', null, 'STRING', 'D', null, 10037065),
-(10003, 'test_meta1', 'STRING', 'sd', null, 'STRING', 'SD', null, 10037066),
-(10004, 'test_meta1', 'INTEGER', 'm1', null, 'INTEGER', 'ME1', null, 10037067),
-(10005, 'test_meta1', 'INTEGER', 'm2', null, 'INTEGER', 'ME2', null, 10037068);
+INSERT INTO mdm_metadata_column(id, meta_id, column_physical_type, column_physical_name, dictionary_id, column_type, column_name, column_format, column_field_ref, column_seq) values
+(10001, 'test_meta1', 'TIMESTAMP', 'time', null, 'TIMESTAMP', 'TIME', '{"type":"time_format","format":"yyyy-MM-dd"}', 10037064, 0),
+(10002, 'test_meta1', 'STRING', 'd', null, 'STRING', 'D', null, 10037065, 1),
+(10003, 'test_meta1', 'STRING', 'sd', null, 'STRING', 'SD', null, 10037066, 2),
+(10004, 'test_meta1', 'INTEGER', 'm1', null, 'INTEGER', 'ME1', null, 10037067, 3),
+(10005, 'test_meta1', 'INTEGER', 'm2', null, 'INTEGER', 'ME2', null, 10037068, 4);

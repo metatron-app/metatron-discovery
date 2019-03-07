@@ -152,6 +152,7 @@ public class MetadataColumn implements MetatronDomain<Long>  {
     if(patch.hasProperty("physicalType")) this.physicalType = patch.getValue("physicalType");
     if(patch.hasProperty("physicalName")) this.physicalName = patch.getValue("physicalName");
     if(patch.hasProperty("name")) this.name = patch.getValue("name");
+    if (patch.hasProperty("seq")) this.seq = patch.getLongValue("seq");
     if(patch.hasProperty("type")) {
       this.type = SearchParamValidator.enumUpperValue(LogicalType.class, patch.getValue("type"), "type");
     }
@@ -178,6 +179,7 @@ public class MetadataColumn implements MetatronDomain<Long>  {
     if(patch.hasProperty("physicalType")) this.physicalType = patch.getValue("physicalType");
     if(patch.hasProperty("physicalName")) this.physicalName = patch.getValue("physicalName");
     if(patch.hasProperty("name")) this.name = patch.getValue("name");
+    if (patch.hasProperty("seq")) this.seq = patch.getLongValue("seq");
     if(patch.hasProperty("type")) {
       this.type = SearchParamValidator.enumUpperValue(LogicalType.class, patch.getValue("type"), "type");
     }

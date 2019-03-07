@@ -450,6 +450,7 @@ public class MetadataRestIntegrationTest extends AbstractRestIntegrationTest {
     updateColumnValue.put("op", "replace");
     updateColumnValue.put("id", 10003);
     updateColumnValue.put("name", "sd->updated from metadata");
+    updateColumnValue.put("seq", 5);
 
     // @formatter:off
     given()

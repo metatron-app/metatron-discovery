@@ -78,6 +78,7 @@ public class Metadata extends AbstractHistoryEntity implements MetatronDomain<St
    *
    */
   @OneToMany(mappedBy = "metadata", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @OrderBy("seq ASC")
   @BatchSize(size = 50)
   private List<MetadataColumn> columns;
 
