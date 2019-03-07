@@ -713,7 +713,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     let rows: any[];
 
     this.uiOffset = 1;
-    rows = data.data.slice(0, (data.data.length > this.uiOffset*this.uiSize? this.uiOffset*this.uiSize -1 : data.data.length -1) );
+    rows = data.data.slice(0, (data.data.length > this.uiOffset*this.uiSize? this.uiOffset*this.uiSize : data.data.length) );
 
     // Row 생성 및 컬럼별 최대 길이 측정
     if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
@@ -784,7 +784,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       let lastIdx = (this.selectedDataSnapshot.gridData.data.length > this.uiOffset*this.uiSize? this.uiOffset*this.uiSize: this.selectedDataSnapshot.gridData.data.length);
       if ( this.gridComponent.grid.getViewport().bottom === lastIdx && this.selectedDataSnapshot.gridData.data.length > this.uiOffset*this.uiSize ){
         this.uiOffset += 1;
-        this.gridComponent.grid.setData(data.data.slice(0,(data.data.length < this.uiOffset*this.uiSize? data.data.length -1: this.uiOffset*this.uiSize -1) ));
+        this.gridComponent.grid.setData(data.data.slice(0,(data.data.length < this.uiOffset*this.uiSize? data.data.length : this.uiOffset*this.uiSize ) ));
         this.gridComponent.grid.updateRowCount();
         this.gridComponent.grid.render();
       }
