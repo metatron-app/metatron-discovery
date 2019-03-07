@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-wrap-layout-popup" *ngIf="getShowFlag">
+<div class="ddp-wrap-layout-popup" *ngIf="isShowPopup">
   <div class="ddp-ui-layout-popup">
     <div class="ddp-box-popup3">
       <a href="javascript:" class="ddp-btn-close" (click)="createCancel()"></a>
@@ -22,33 +22,33 @@
       <!-- detail -->
       <div class="ddp-box-detail">
         <!-- error 시 ddp-type-error 추가 -->
-        <div class="ddp-ui-input-form" [class.ddp-type-error]="resultName === false">
+        <div class="ddp-ui-input-form" [class.ddp-type-error]="isValidName === false">
           <label class="ddp-label-type">{{'msg.groups.ui.create.name' | translate}}</label>
           <div class="ddp-input-check">
             <input type="text" class="ddp-input-type" placeholder="{{'msg.groups.ui.create.ph.name' | translate}}"
                    [(ngModel)]="groupName"
-                   (keyup)="initNameValidation()"
+                   (keyup)="isValidName = undefined"
                    (blur)="nameValidation()">
-            <em class="ddp-icon-ok" *ngIf="resultName"></em>
-            <em class="ddp-icon-error" (click)="groupName = ''; initNameValidation()"></em>
+            <em class="ddp-icon-ok" *ngIf="isValidName"></em>
+            <em class="ddp-icon-error"></em>
           </div>
           <!-- error 메시지 -->
-          <span class="ddp-ui-error">{{nameMessage}}</span>
+          <span class="ddp-ui-error">{{nameValidMessage}}</span>
           <!-- //error 메시지 -->
         </div>
         <!-- error 시 ddp-type-error 추가 -->
-        <div class="ddp-ui-input-form" [class.ddp-type-error]="resultDesc === false">
+        <div class="ddp-ui-input-form" [class.ddp-type-error]="isValidDesc === false">
           <label class="ddp-label-type">{{'msg.groups.ui.create.desc' | translate}}</label>
           <div class="ddp-input-check">
             <input type="text" class="ddp-input-type" placeholder="{{'msg.groups.ui.create.ph.desc' | translate}}"
                    [(ngModel)]="groupDesc"
-                   (keyup)="initDescValidation()"
+                   (keyup)="isValidDesc = undefined"
                    (blur)="descValidation()">
-            <em class="ddp-icon-ok" *ngIf="resultDesc"></em>
-            <em class="ddp-icon-error" (click)="groupDesc = ''; initDescValidation()"></em>
+            <em class="ddp-icon-ok" *ngIf="isValidDesc"></em>
+            <em class="ddp-icon-error"></em>
           </div>
           <!-- error 메시지 -->
-          <span class="ddp-ui-error">{{descMessage}}</span>
+          <span class="ddp-ui-error">{{descValidMessage}}</span>
           <!-- //error 메시지 -->
         </div>
       </div>

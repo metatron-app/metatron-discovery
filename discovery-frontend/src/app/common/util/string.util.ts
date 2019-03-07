@@ -458,6 +458,15 @@ export class StringUtil {
       return true;
     }
   }
+
+  /**
+   * Replace query string
+   * @param {string} str
+   * @return {string}
+   */
+  public static replaceURIEncodingInQueryString(str: string): string {
+    return str.replace(/#|\?|%|;/g, encodeURIComponent);
+  }
 }
 
 
