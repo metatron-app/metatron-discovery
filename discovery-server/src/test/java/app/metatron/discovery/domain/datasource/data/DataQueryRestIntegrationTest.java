@@ -2235,6 +2235,52 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_gis_datasource.sql")
+  public void searchQueryEstateRoadWithMapChart() throws JsonProcessingException {
+
+    DataSource dataSource1 = new MultiDataSource(Lists.newArrayList(new DefaultDataSource("estate"),
+                                                                    new DefaultDataSource("seoul_roads")),
+                                                 null);
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(10);
+
+    List<Filter> filters = Lists.newArrayList(
+        new SpatialBboxFilter("estate", "gis", null, "127.00702944992682 37.46699154436034", "127.09886828659677 37.524326444262684"),
+        new SpatialBboxFilter("seoul_roads", "geom", null, "127.00702944992682 37.46699154436034", "127.09886828659677 37.524326444262684")
+    );
+
+    List<Field> fields1 = Lists.newArrayList(new DimensionField("gis", null, null), new DimensionField("gu"), new MeasureField("amt", null, MeasureField.AggregationType.NONE));
+    MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields1, null);
+
+    List<Field> fields2 = Lists.newArrayList(new DimensionField("geom", null, null));
+    MapViewLayer layer2 = new MapViewLayer("layer2", "seoul_roads", fields2, null);
+
+    Shelf geoShelf = new GeoShelf(Arrays.asList(layer2, layer1));
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
+    ChartResultFormat format = new ChartResultFormat("map");
+    request.setResultFormat(format);
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .log().all();
+//      .statusCode(HttpStatus.SC_OK);
+
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   @Sql("/scripts/default_join_datasource.sql")
   public void searchQueryForSalesJoinedSelect() throws JsonProcessingException {
 

@@ -98,6 +98,7 @@ import app.metatron.discovery.query.druid.filters.AndFilter;
 import app.metatron.discovery.query.druid.filters.ExprFilter;
 import app.metatron.discovery.query.druid.filters.InFilter;
 import app.metatron.discovery.query.druid.filters.LucenePointFilter;
+import app.metatron.discovery.query.druid.filters.LuceneSpatialFilter;
 import app.metatron.discovery.query.druid.filters.MathFilter;
 import app.metatron.discovery.query.druid.filters.OrFilter;
 import app.metatron.discovery.query.druid.filters.RegExpFilter;
@@ -631,12 +632,14 @@ public abstract class AbstractQueryBuilder {
           return;
         }
 
-        LucenePointFilter bboxFilter = new LucenePointFilter(reqBboxFilter);
+        Filter spatialFilter = null;
         if (datasourceField.getLogicalType() == LogicalType.GEO_POINT) {
-          bboxFilter.setField(engineColumnName + ".coord");
+          spatialFilter = new LucenePointFilter(reqBboxFilter);
+        } else {
+          spatialFilter = new LuceneSpatialFilter(reqBboxFilter);
         }
 
-        filter.addField(bboxFilter);
+        filter.addField(spatialFilter);
 
       } else if (reqFilter instanceof TimeFilter) {
         addTimeFilter(filter, (TimeFilter) reqFilter, intervals);
