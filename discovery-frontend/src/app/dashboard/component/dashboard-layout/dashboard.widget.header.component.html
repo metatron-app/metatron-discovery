@@ -224,7 +224,7 @@
         <div class="ddp-ui-buttons" *ngIf="isMiniHeader" >
           <div class="ddp-wrap-morebutton ddp-hover-tooltip"
                [class.ddp-selected]="isShowMore"
-               (click)="isShowMore=!isShowMore" >
+               (click)="toggleDisplayMoreLayer()" >
             <em class="ddp-icon-more"></em>
             <div class="ddp-ui-tooltip-info ddp-down">
               <em class="ddp-icon-view-top"></em> {{ 'msg.comm.ui.more' | translate }}

@@ -29,7 +29,7 @@
     <!-- // Title -->
     <!-- Text Widget List Contents -->
     <div class="ddp-wrap-downmenu">
-      <div class="ddp-box-down">
+      <div class="ddp-box-down" [class.ddp-border-none]="0 === widgets.length">
         <ul class="ddp-list-text">
           <li *ngFor="let widget of widgets">
             <a href="javascript:"
