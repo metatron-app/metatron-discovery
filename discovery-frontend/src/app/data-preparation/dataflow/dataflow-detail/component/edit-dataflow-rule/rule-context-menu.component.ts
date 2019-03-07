@@ -448,27 +448,27 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
       let list = [];
       this.histogramData.forEach((item) => {
         if ('matched' === item) {
-          list.push(`!ismismatched(${colName},'${colType}')`)
+          list.push(`!ismismatched(\`${colName}\`,'${colType}') && !isNull(\`${colName}\`)`)
         } else if ('missing' === item) {
-          list.push( `ismissing(${colName})`)
+          list.push( `ismissing(\`${colName}\`)`)
         } else if ('mismatched' === item) {
-          list.push(`ismismatched(${colName},'${colType}')`)
+          list.push(`ismismatched(\`${colName}\`,'${colType}')`)
         }
       });
       result = list.join(' && ');
     } else if (colType === 'DOUBLE' || colType === 'LONG') {
       this.histogramData.forEach((item,index) => {
         let idx = this.labelsForNumbers.indexOf(item);
-        result += this.histogramData.length-1 !== index ? `${colName} >= ${item} && ${colName} < ${this.labelsForNumbers[idx+1]} || ` : `${colName} >= ${item} && ${colName} < ${this.labelsForNumbers[idx+1]}`;
+        result += this.histogramData.length-1 !== index ? `\`${colName}\` >= ${item} && \`${colName}\` < ${this.labelsForNumbers[idx+1]} || ` : `\`${colName}\` >= ${item} && \`${colName}\` < ${this.labelsForNumbers[idx+1]}`;
       })
     } else if (colType === 'TIMESTAMP') {
       this.histogramData.forEach((item,index) => {
         let idx = this.labelsForNumbers.indexOf(item);
-        result += this.histogramData.length-1 !== index ? `time_between(${colName},'${this.contextInfo.timestampStyle[idx]}','${this.contextInfo.timestampStyle[idx+1]}') || ` : `time_between(${colName},'${this.contextInfo.timestampStyle[idx]}','${this.contextInfo.timestampStyle[idx+1]}')`;
+        result += this.histogramData.length-1 !== index ? `time_between(\`${colName}\`,'${this.contextInfo.timestampStyle[idx]}','${this.contextInfo.timestampStyle[idx+1]}') || ` : `time_between(\`${colName}\`,'${this.contextInfo.timestampStyle[idx]}','${this.contextInfo.timestampStyle[idx+1]}')`;
       });
     } else {
       this.histogramData.forEach((item,index) => {
-        result += this.histogramData.length-1 !== index ? colName + ' == ' +'\''+ item +'\''+ ' || ' : colName + ' == ' +'\''+ item +'\'';
+        result += this.histogramData.length-1 !== index ? '`'+ colName + '`' + ' == ' +'\''+ item +'\''+ ' || ' : '`' + colName + '`' + ' == ' +'\''+ item +'\'';
       })
     }
 
