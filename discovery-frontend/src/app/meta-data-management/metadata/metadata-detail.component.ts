@@ -12,26 +12,26 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
-import { Modal } from '../../common/domain/modal';
-import { Alert } from '../../common/util/alert.util';
-import { StringUtil } from '../../common/util/string.util';
-import { MetadataService } from './service/metadata.service';
-import { ActivatedRoute } from '@angular/router';
-import { MetadataModelService } from './service/metadata.model.service';
-import { SelectCatalogComponent } from "./component/select-catalog.component";
-import {ChooseCodeTableComponent} from "../component/choose-code-table/choose-code-table.component";
-import {MetadataDetailColumnschemaComponent} from "./metadata-detail-columnschema.component";
-import {ChooseColumnDictionaryComponent} from "../component/choose-column-dictionary/choose-column-dictionary.component";
-import {ColumnDictionary} from "../../domain/meta-data-management/column-dictionary";
-import {CodeTable} from "../../domain/meta-data-management/code-table";
-import {Metadata} from "../../domain/meta-data-management/metadata";
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {Modal} from '../../common/domain/modal';
+import {Alert} from '../../common/util/alert.util';
+import {StringUtil} from '../../common/util/string.util';
+import {MetadataService} from './service/metadata.service';
+import {ActivatedRoute} from '@angular/router';
+import {MetadataModelService} from './service/metadata.model.service';
+import {SelectCatalogComponent} from './component/select-catalog.component';
+import {ChooseCodeTableComponent} from '../component/choose-code-table/choose-code-table.component';
+import {MetadataDetailColumnschemaComponent} from './metadata-detail-columnschema.component';
+import {ChooseColumnDictionaryComponent} from '../component/choose-column-dictionary/choose-column-dictionary.component';
+import {ColumnDictionary} from '../../domain/meta-data-management/column-dictionary';
+import {CodeTable} from '../../domain/meta-data-management/code-table';
+import {Metadata, SourceType} from '../../domain/meta-data-management/metadata';
 
 @Component({
   selector: 'app-metadata-detail',
-  templateUrl: './metadata-detail.component.html'
+  templateUrl: './metadata-detail.component.html',
 })
 export class MetadataDetailComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -68,11 +68,11 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   @ViewChild(DeleteModalComponent)
   public deleteModalComponent: DeleteModalComponent;
 
-  public tab : string = 'information';
+  public tab: string = 'information';
 
-  public isContextMenuShow : boolean = false;
+  public isContextMenuShow: boolean = false;
 
-  public selectedMetadataId : string;
+  public selectedMetadataId: string;
 
   // 이름 에디팅여부
   public isNameEdit: boolean = false;
@@ -81,17 +81,23 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   // 에디팅중인 이름
   public editingName: string;
 
-  public name : string;
-  public desc : string;
+  public name: string;
+  public desc: string;
+
+  /**
+   * Metadata SourceType Enum
+   */
+  public readonly METADATA_SOURCE_TYPE = SourceType;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  constructor(protected element: ElementRef,
-              protected metadataService  : MetadataService,
-              public metadataModelService : MetadataModelService,
-              protected activatedRoute : ActivatedRoute,
-              protected injector: Injector) {
+  constructor(
+    protected element: ElementRef,
+    protected metadataService: MetadataService,
+    public metadataModelService: MetadataModelService,
+    protected activatedRoute: ActivatedRoute,
+    protected injector: Injector) {
     super(element, injector);
 
     // path variable
@@ -136,7 +142,7 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
       }
     }).catch(() => {
       this.loadingHide();
-    })
+    });
   } // function - getMetadataDetail
 
   /**
@@ -170,9 +176,8 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     }).catch(() => {
       this.loadingHide();
       Alert.fail('Failed to delete metadata');
-    })
+    });
   } // function - deleteMetadata
-
 
   /**
    * 이름 에디터 모드로 변경
@@ -196,19 +201,19 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     if (StringUtil.isEmpty(this.editingName.trim())) {
 
       Alert.warning(this.translateService.instant('msg.metadata.ui.name.ph'));
-       return;
+      return;
     }
 
     // Set
     this.name = this.editingName.trim();
 
     // TODO : server 호출
-    this.metadataService.updateMetadata(this.selectedMetadataId, {name : this.name}).then((result:Metadata) => {
+    this.metadataService.updateMetadata(this.selectedMetadataId, {name: this.name}).then((result: Metadata) => {
       this.metadataModelService.updateMetadataName(result.name);
     }).catch((error) => {
       console.info(error);
       Alert.error('Failed to modify metadata name');
-    })
+    });
   } // function - onNameChange
 
   /**
@@ -228,7 +233,6 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     this.isNameEdit = !this.isNameEdit;
   } // function - onNameEditCancel
 
-
   /**
    * Open catalog popup
    */
@@ -236,21 +240,19 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
     this._selectCatalogComponent.init();
   }
 
-
   /**
    * Open code table popup
    * @param {{name: string, codeTable: CodeTable}} data
    */
-  public openCodeTable(data : {name : string, codeTable : CodeTable}) {
+  public openCodeTable(data: { name: string, codeTable: CodeTable }) {
     this._chooseCodeTableComp.init(data.name, data.codeTable);
   }
-
 
   /**
    * Open dictionary popup
    * @param {{name: string, dictionary: ColumnDictionary}} data
    */
-  public openDictionary(data : {name : string, dictionary : ColumnDictionary}) {
+  public openDictionary(data: { name: string, dictionary: ColumnDictionary }) {
     this._chooseColumnDictionaryComp.init(data.name, data.dictionary);
   }
 
@@ -261,6 +263,7 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   public dictionaryCompleteEvent(data) {
     this._detailColumnSchemaComp.onChangedColumnDictionary(data);
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -272,7 +275,6 @@ export class MetadataDetailComponent extends AbstractComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method - getter
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
 
 }
 

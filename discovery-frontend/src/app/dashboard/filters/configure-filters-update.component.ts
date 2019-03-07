@@ -13,21 +13,21 @@
  */
 
 import * as _ from 'lodash';
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { AbstractFilterPopupComponent } from 'app/dashboard/filters/abstract-filter-popup.component';
-import { Filter } from '../../domain/workbook/configurations/filter/filter';
-import { Dashboard } from '../../domain/dashboard/dashboard';
-import { Field, FieldRole, BIType, ConnectionType, Datasource } from '../../domain/datasource/datasource';
-import { CustomField } from '../../domain/workbook/configurations/field/custom-field';
-import { InclusionFilter } from '../../domain/workbook/configurations/filter/inclusion-filter';
-import { ConfigureFiltersInclusionComponent } from './inclusion-filter/configure-filters-inclusion.component';
-import { BoundFilter } from '../../domain/workbook/configurations/filter/bound-filter';
-import { ConfigureFiltersBoundComponent } from './bound-filter/configure-filters-bound.component';
-import { Widget } from '../../domain/dashboard/widget/widget';
-import { StringUtil } from '../../common/util/string.util';
-import { TimeFilter } from '../../domain/workbook/configurations/filter/time-filter';
-import { ConfigureFiltersTimeComponent } from './time-filter/configure-filters-time.component';
-import { FilterUtil } from '../util/filter.util';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {AbstractFilterPopupComponent} from 'app/dashboard/filters/abstract-filter-popup.component';
+import {Filter} from '../../domain/workbook/configurations/filter/filter';
+import {Dashboard} from '../../domain/dashboard/dashboard';
+import {ConnectionType, Datasource, Field, FieldRole, LogicalType} from '../../domain/datasource/datasource';
+import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
+import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
+import {ConfigureFiltersInclusionComponent} from './inclusion-filter/configure-filters-inclusion.component';
+import {BoundFilter} from '../../domain/workbook/configurations/filter/bound-filter';
+import {ConfigureFiltersBoundComponent} from './bound-filter/configure-filters-bound.component';
+import {Widget} from '../../domain/dashboard/widget/widget';
+import {StringUtil} from '../../common/util/string.util';
+import {TimeFilter} from '../../domain/workbook/configurations/filter/time-filter';
+import {ConfigureFiltersTimeComponent} from './time-filter/configure-filters-time.component';
+import {FilterUtil} from '../util/filter.util';
 import {CommonConstant} from "../../common/constant/common.constant";
 
 @Component({
@@ -200,7 +200,7 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
   public isTimestamp(): boolean {
     return (
       this.targetField
-      && (<Field>this.targetField).biType === BIType.TIMESTAMP
+      && this.targetField.type === 'TIMESTAMP'
       && this.targetField.role === FieldRole.TIMESTAMP
     ) || (
       this.targetField == null && this.targetFilter.field === CommonConstant.COL_NAME_CURRENT_DATETIME
@@ -278,7 +278,7 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
 
     this._dashboard = _.cloneDeep(board);
     this.targetFilter = targetFilter;
-    ( this.targetFilter.ui ) || ( this.targetFilter.ui = {} );
+    (this.targetFilter.ui) || (this.targetFilter.ui = {});
     this.targetField = this._getTargetField(targetFilter, board.configuration.fields, board.configuration.customFields);
 
     this.dataSource = FilterUtil.getDataSourceForFilter(targetFilter, board);
@@ -316,7 +316,7 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
 
     // 글로벌 필터
     if (fieldList && 0 < fieldList.length) {
-      return fieldList.find((field: Field | CustomField) => field.name === filter.field && field.dataSource === filter.dataSource );
+      return fieldList.find((field: Field | CustomField) => field.name === filter.field && field.dataSource === filter.dataSource);
     } else {
       return null;
     }

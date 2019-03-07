@@ -28,39 +28,11 @@
 
 package app.metatron.discovery.domain.datasource;
 
-import app.metatron.discovery.common.CommonLocalVariable;
-import app.metatron.discovery.common.criteria.ListCriterion;
-import app.metatron.discovery.common.criteria.ListFilter;
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.entity.SearchParamValidator;
-import app.metatron.discovery.common.exception.BadRequestException;
-import app.metatron.discovery.common.exception.MetatronException;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.CollectionPatch;
-import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.data.DataSourceValidator;
-import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
-import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
-import app.metatron.discovery.domain.datasource.format.DateTimeFormatChecker;
-import app.metatron.discovery.domain.datasource.ingestion.*;
-import app.metatron.discovery.domain.datasource.ingestion.job.IngestionJobRunner;
-import app.metatron.discovery.domain.engine.EngineIngestionService;
-import app.metatron.discovery.domain.engine.EngineLoadService;
-import app.metatron.discovery.domain.engine.EngineQueryService;
-import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
-import app.metatron.discovery.domain.workbench.WorkbenchProperties;
-import app.metatron.discovery.domain.workbook.configurations.Limit;
-import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
-import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.util.CsvProcessor;
-import app.metatron.discovery.util.ExcelProcessor;
-import app.metatron.discovery.util.PolarisUtils;
-import app.metatron.discovery.util.ProjectionUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -82,18 +54,65 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
+
+import app.metatron.discovery.common.CommonLocalVariable;
+import app.metatron.discovery.common.criteria.ListCriterion;
+import app.metatron.discovery.common.criteria.ListFilter;
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.entity.SearchParamValidator;
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.CollectionPatch;
+import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.datasource.data.DataSourceValidator;
+import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
+import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
+import app.metatron.discovery.domain.datasource.format.DateTimeFormatChecker;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionDataResultResponse;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionOption;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionProjections;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionService;
+import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.job.IngestionJobRunner;
+import app.metatron.discovery.domain.engine.EngineIngestionService;
+import app.metatron.discovery.domain.engine.EngineLoadService;
+import app.metatron.discovery.domain.engine.EngineQueryService;
+import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
+import app.metatron.discovery.domain.mdm.MetadataService;
+import app.metatron.discovery.domain.workbench.WorkbenchProperties;
+import app.metatron.discovery.domain.workbook.configurations.Limit;
+import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
+import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.util.CsvProcessor;
+import app.metatron.discovery.util.ExcelProcessor;
+import app.metatron.discovery.util.PolarisUtils;
+import app.metatron.discovery.util.ProjectionUtils;
 
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_COMMON_ERROR;
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_ENGINE_GET_TASK_LOG_ERROR;
@@ -108,16 +127,34 @@ public class DataSourceController {
   private static Logger LOGGER = LoggerFactory.getLogger(DataSourceController.class);
 
   @Autowired
-  IngestionHistoryRepository ingestionHistoryRepository;
+  DataSourceService dataSourceService;
 
   @Autowired
-  DataSourceValidator dataSourceValidator;
+  MetadataService metadataService;
+
+  @Autowired
+  JdbcConnectionService jdbcConnectionService;
+
+  @Autowired
+  EngineLoadService engineLoadService;
+
+  @Autowired
+  EngineIngestionService engineIngestionService;
 
   @Autowired
   EngineQueryService engineQueryService;
 
   @Autowired
-  EngineIngestionService engineIngestionService;
+  IngestionOptionService ingestionOptionService;
+
+  @Autowired
+  DataSourceValidator dataSourceValidator;
+
+  @Autowired
+  IngestionJobRunner jobRunner;
+
+  @Autowired
+  IngestionHistoryRepository ingestionHistoryRepository;
 
   @Autowired
   DataSourceRepository dataSourceRepository;
@@ -127,21 +164,6 @@ public class DataSourceController {
 
   @Autowired
   DataConnectionRepository dataConnectionRepository;
-
-  @Autowired
-  DataSourceService dataSourceService;
-
-  @Autowired
-  JdbcConnectionService jdbcConnectionService;
-
-  @Autowired
-  EngineLoadService engineLoadService;
-
-  @Autowired
-  IngestionJobRunner jobRunner;
-
-  @Autowired
-  IngestionOptionService ingestionOptionService;
 
   @Autowired
   PagedResourcesAssembler pagedResourcesAssembler;
@@ -513,7 +535,8 @@ public class DataSourceController {
       }
     }
 
-    dataSourceRepository.save(dataSource);
+    dataSourceRepository.saveAndFlush(dataSource);
+    metadataService.updateFromDataSource(dataSource, true);
 
     return ResponseEntity.noContent().build();
   }
@@ -548,7 +571,6 @@ public class DataSourceController {
 
                               Field field = new Field();
                               field.setName(entry.getKey());
-                              field.setAlias(entry.getKey());
                               field.setType(value.getType().startsWith("dimension.") ? DataType.STRING : DataType.INTEGER);
                               field.setRole(value.getType().startsWith("dimension.") ? Field.FieldRole.DIMENSION : Field.FieldRole.MEASURE);
 

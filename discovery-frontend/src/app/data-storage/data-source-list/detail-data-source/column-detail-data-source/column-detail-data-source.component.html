@@ -157,7 +157,7 @@
                 <div class="ddp-td-schema">
                   <!-- name -->
                   <div class="ddp-form-name ddp-type">
-                    <span class="ddp-data-name" title="{{field['logicalName']}}"> {{field['logicalName']}}</span>
+                    <span class="ddp-data-name" title="{{field.logicalName}}"> {{field.logicalName}}</span>
                   </div>
                   <!-- //name -->
                 </div>
@@ -323,7 +323,7 @@
                   {{'msg.metadata.th.dictionary' | translate}}
                 </th>
                 <td>
-                  {{selectedField.dictionary?.name}}
+                  {{selectedField.dictionary?.logicalName}}
                 </td>
               </tr>
               <tr>

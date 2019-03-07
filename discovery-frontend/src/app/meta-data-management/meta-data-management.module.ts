@@ -12,57 +12,59 @@
  * limitations under the License.
  */
 
-import { EventBroadcaster } from '../common/event/event.broadcaster';
-import { NgModule } from '@angular/core';
-import { MetaDataManagementComponent } from './meta-data-management.component';
-import { RouterModule } from '@angular/router';
-import { CommonModule } from '../common/common.module';
-import { ColumnDictionaryComponent } from './column-dictionary/column-dictionary.component';
-import { DetailColumnDictionaryComponent } from './column-dictionary/detail-column-dictionary/detail-column-dictionary.component';
-import { CreateColumnDictionaryComponent } from './column-dictionary/create-column-dictionary/create-column-dictionary.component';
-import { CodeTableComponent } from './code-table/code-table.component';
-import { DetailCodeTableComponent } from './code-table/detail-code-table/detail-code-table.component';
-import { CreateCodeTableComponent } from './code-table/create-code-table/create-code-table.component';
-import { CodeTableService } from './code-table/service/code-table.service';
-import { ColumnDictionaryService } from './column-dictionary/service/column-dictionary.service';
-import { LinkedColumnDictionaryComponent } from './component/linked-column-dictionary/linked-column-dictionary.component';
-import { LinkedMetadataComponent } from './component/linked-metadata-columns/linked-metadata.component';
-import { ChooseCodeTableComponent } from './component/choose-code-table/choose-code-table.component';
-import { MetadataComponent } from './metadata/metadata.component';
-import { MetadataService } from './metadata/service/metadata.service';
-import { MetadataDetailComponent } from './metadata/metadata-detail.component';
-import { SelectCatalogComponent } from './metadata/component/select-catalog.component';
-import { SelectDictionaryComponent } from './metadata/component/select-dictionary.component';
-import { SelectDatatypeComponent } from './metadata/create-metadata/select-datatype.component';
-import {
-  CompleteCreateMetadataComponent
-} from './metadata/create-metadata/complete-create-metadata.component';
-import { MetadataDetailInformationComponent } from './metadata/metadata-detail-information.component';
-import { MetadataDetailColumnschemaComponent } from './metadata/metadata-detail-columnschema.component';
-import { DatasourceService } from '../datasource/service/datasource.service';
-import { DatasourceShareModule } from '../datasource/datasource-share.module';
-import { DsSelectDatasourceComponent } from './metadata/create-metadata/ds-select-datasource.component';
-import { MetadataModelService } from './metadata/service/metadata.model.service';
-import { HiveSetConnectionComponent } from './metadata/create-metadata/hive-set-connection.component';
-import { DataconnectionService } from '../dataconnection/service/dataconnection.service';
-import { StagingSelectSchemaComponent } from './metadata/create-metadata/staging-select-schema.component';
-import { CatalogService } from './catalog/service/catalog.service';
-import { HiveSelectSchemaComponent } from './metadata/create-metadata/hive-select-schema.component';
-import { ChooseColumnDictionaryComponent } from './component/choose-column-dictionary/choose-column-dictionary.component';
-import { CatalogComponent } from './catalog/catalog.component';
-import { MetadataManagementGuard } from '../common/gaurd/metadata-management.guard';
+import {EventBroadcaster} from '../common/event/event.broadcaster';
+import {NgModule} from '@angular/core';
+import {MetaDataManagementComponent} from './meta-data-management.component';
+import {RouterModule} from '@angular/router';
+import {CommonModule} from '../common/common.module';
+import {ColumnDictionaryComponent} from './column-dictionary/column-dictionary.component';
+import {DetailColumnDictionaryComponent} from './column-dictionary/detail-column-dictionary/detail-column-dictionary.component';
+import {CreateColumnDictionaryComponent} from './column-dictionary/create-column-dictionary/create-column-dictionary.component';
+import {CodeTableComponent} from './code-table/code-table.component';
+import {DetailCodeTableComponent} from './code-table/detail-code-table/detail-code-table.component';
+import {CreateCodeTableComponent} from './code-table/create-code-table/create-code-table.component';
+import {CodeTableService} from './code-table/service/code-table.service';
+import {ColumnDictionaryService} from './column-dictionary/service/column-dictionary.service';
+import {LinkedColumnDictionaryComponent} from './component/linked-column-dictionary/linked-column-dictionary.component';
+import {LinkedMetadataComponent} from './component/linked-metadata-columns/linked-metadata.component';
+import {ChooseCodeTableComponent} from './component/choose-code-table/choose-code-table.component';
+import {MetadataComponent} from './metadata/metadata.component';
+import {MetadataService} from './metadata/service/metadata.service';
+import {MetadataDetailComponent} from './metadata/metadata-detail.component';
+import {SelectCatalogComponent} from './metadata/component/select-catalog.component';
+import {SelectDatatypeComponent} from './metadata/create-metadata/select-datatype.component';
+import {CompleteCreateMetadataComponent} from './metadata/create-metadata/complete-create-metadata.component';
+import {MetadataDetailInformationComponent} from './metadata/metadata-detail-information.component';
+import {MetadataDetailColumnschemaComponent} from './metadata/metadata-detail-columnschema.component';
+import {DatasourceService} from '../datasource/service/datasource.service';
+import {DatasourceShareModule} from '../datasource/datasource-share.module';
+import {DsSelectDatasourceComponent} from './metadata/create-metadata/ds-select-datasource.component';
+import {MetadataModelService} from './metadata/service/metadata.model.service';
+import {HiveSetConnectionComponent} from './metadata/create-metadata/hive-set-connection.component';
+import {DataconnectionService} from '../dataconnection/service/dataconnection.service';
+import {StagingSelectSchemaComponent} from './metadata/create-metadata/staging-select-schema.component';
+import {CatalogService} from './catalog/service/catalog.service';
+import {HiveSelectSchemaComponent} from './metadata/create-metadata/hive-select-schema.component';
+import {ChooseColumnDictionaryComponent} from './component/choose-column-dictionary/choose-column-dictionary.component';
+import {CatalogComponent} from './catalog/catalog.component';
+import {MetadataManagementGuard} from '../common/gaurd/metadata-management.guard';
+import {TopInfoComponent} from './metadata/component/top-info.component';
 
 @NgModule({
   imports: [
     CommonModule,
     DatasourceShareModule,
     RouterModule.forChild([
-      { path: '', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard] },
-      { path: ':tabId', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard] },
-      { path: 'metadata/:metadataId', component: MetadataDetailComponent, canActivate: [MetadataManagementGuard] },
-      { path: 'column-dictionary/:dictionaryId', component: DetailColumnDictionaryComponent, canActivate: [MetadataManagementGuard] },
-      { path: 'code-table/:codeTableId', component: DetailCodeTableComponent, canActivate: [MetadataManagementGuard] }
-    ])
+      {path: '', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard]},
+      {path: ':tabId', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard]},
+      {path: 'metadata/:metadataId', component: MetadataDetailComponent, canActivate: [MetadataManagementGuard]},
+      {
+        path: 'column-dictionary/:dictionaryId',
+        component: DetailColumnDictionaryComponent,
+        canActivate: [MetadataManagementGuard],
+      },
+      {path: 'code-table/:codeTableId', component: DetailCodeTableComponent, canActivate: [MetadataManagementGuard]},
+    ]),
   ],
   declarations: [
     // 메타데이터 매니지먼트
@@ -98,12 +100,11 @@ import { MetadataManagementGuard } from '../common/gaurd/metadata-management.gua
     // 컬럼 사전 선택 텀포넌트
     ChooseColumnDictionaryComponent,
 
-
     SelectCatalogComponent,
-    SelectDictionaryComponent,
     MetadataDetailInformationComponent,
     MetadataDetailColumnschemaComponent,
-    CatalogComponent
+    CatalogComponent,
+    TopInfoComponent,
   ],
   providers: [
     // 코드 테이블 서비스
@@ -119,8 +120,8 @@ import { MetadataManagementGuard } from '../common/gaurd/metadata-management.gua
     // 매니지먼트 가드
     MetadataManagementGuard,
     MetadataModelService,
-    CatalogService
-  ]
+    CatalogService,
+  ],
 })
 export class MetaDataManagementModule {
   constructor(private broadCaster: EventBroadcaster) {

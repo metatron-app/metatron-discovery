@@ -1108,7 +1108,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           this.widgetConfiguration.pivot.rows
             .forEach((abstractField) => {
               if (isNullOrUndefined(abstractField.field)
-                && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                && String(field.type) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
                 abstractField.field = field;
               }
             });
@@ -1116,7 +1116,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           this.widgetConfiguration.pivot.columns
             .forEach((abstractField) => {
               if (isNullOrUndefined(abstractField.field)
-                && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                && String(field.type) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
                 abstractField.field = field;
               }
             });
@@ -1124,7 +1124,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           this.widgetConfiguration.pivot.aggregations
             .forEach((abstractField) => {
               if (isNullOrUndefined(abstractField.field)
-                && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                && String(field.type) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
                 abstractField.field = field;
               }
             });
@@ -1135,7 +1135,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']]
               .forEach((abstractField) => {
                 if (isNullOrUndefined(abstractField.field)
-                  && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                  && String(field.type) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
                   abstractField.field = field;
                 }
               });

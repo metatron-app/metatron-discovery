@@ -20,7 +20,7 @@ import {
 } from '@angular/core';
 import { DashboardService } from '../../service/dashboard.service';
 import { CommonCode } from '../../../domain/code/common-code';
-import { BIType, Field, FieldRole } from '../../../domain/datasource/datasource';
+import { Field, FieldRole } from '../../../domain/datasource/datasource';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { Alert } from '../../../common/util/alert.util';
 import { BoardDataSource } from '../../../domain/dashboard/dashboard';
@@ -372,7 +372,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     } else {
 
       let color = '#439fe5';
-      if (data.biType === BIType.DIMENSION) {
+      if (data.role === FieldRole.DIMENSION) {
         color = '#5fd7a5';
       }
 
@@ -506,7 +506,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   // 컬럼 클릭
   public selecteColumn(column: Field) {
     let color = '#439fe5';
-    if (column.biType === BIType.DIMENSION) {
+    if (column.role === FieldRole.DIMENSION) {
       color = '#5fd7a5';
     }
     let inserColumn = '<span style="color: ' + color + '">';

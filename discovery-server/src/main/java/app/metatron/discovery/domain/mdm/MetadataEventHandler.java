@@ -14,14 +14,13 @@
 
 package app.metatron.discovery.domain.mdm;
 
-import app.metatron.discovery.domain.storage.StorageProperties;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
+import org.springframework.data.rest.core.annotation.HandleAfterSave;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
-import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 
 import java.util.HashMap;
@@ -31,6 +30,7 @@ import java.util.Map;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.DataSourceService;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.HiveTableInformation;
@@ -39,6 +39,7 @@ import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnecti
 import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.mdm.source.MetaSourceService;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
+import app.metatron.discovery.domain.storage.StorageProperties;
 
 /**
  * Created by kyungtaak on 2016. 5. 13..
@@ -48,6 +49,9 @@ public class MetadataEventHandler {
 
   @Autowired
   MetaSourceService metaSourceService;
+
+  @Autowired
+  DataSourceService dataSourceService;
 
   @Autowired
   JdbcConnectionService jdbcConnectionService;
@@ -63,7 +67,7 @@ public class MetadataEventHandler {
 
     MetadataSource metadataSource = metadata.getSource();
 
-    if (metadataSource.getType() == MetadataSource.MetadataSourceType.ENGINE) {
+    if (metadataSource.getType() == Metadata.SourceType.ENGINE) {
 
       // Check engine datasource info.
       if (StringUtils.isEmpty(metadataSource.getSourceId())) {
@@ -93,13 +97,11 @@ public class MetadataEventHandler {
       } else {
         // 자동으로 데이터 소스내 필드 정보를 column 정보로 매핑함
         for (Field field : originalDataSource.getFields()) {
-          MetadataColumn metadataColumn = new MetadataColumn(field);
-          metadataColumn.setMetadata(metadata);
-          metadata.addColumn(metadataColumn);
+          metadata.addColumn(new MetadataColumn(field, metadata));
         }
       }
 
-    } else if (metadataSource.getType() == MetadataSource.MetadataSourceType.JDBC) {
+    } else if (metadataSource.getType() == Metadata.SourceType.JDBC) {
 
       // Check jdbc connection info.
       if (StringUtils.isEmpty(metadataSource.getSourceId())) {
@@ -118,9 +120,7 @@ public class MetadataEventHandler {
 
         //Column 목록 저장하기
         for (Field field : hiveTableInformation.getFields()) {
-          MetadataColumn metadataColumn = new MetadataColumn(field);
-          metadataColumn.setMetadata(metadata);
-          metadata.addColumn(metadataColumn);
+          metadata.addColumn(new MetadataColumn(field, metadata));
         }
 
         //Detail 정보 저장하기
@@ -143,7 +143,7 @@ public class MetadataEventHandler {
           metadata.addColumn(metadataColumn);
         }
       }
-    } else if (metadataSource.getType() == MetadataSource.MetadataSourceType.STAGE) {
+    } else if (metadataSource.getType() == Metadata.SourceType.STAGEDB) {
 
       String schema = metadataSource.getSchema();
       String tableName = metadataSource.getTable();
@@ -167,9 +167,7 @@ public class MetadataEventHandler {
 
       //Column 목록 저장하기
       for (Field field : hiveTableInformation.getFields()) {
-        MetadataColumn metadataColumn = new MetadataColumn(field);
-        metadataColumn.setMetadata(metadata);
-        metadata.addColumn(metadataColumn);
+        metadata.addColumn(new MetadataColumn(field, metadata));
       }
 
       //Detail 정보 저장하기
@@ -190,8 +188,13 @@ public class MetadataEventHandler {
   public void handleAfterCreate(Metadata metadata) {
   }
 
-  @HandleBeforeSave
-  public void handleBeforeSave(Metadata metadata) {
+  @HandleAfterSave
+  public void handleAfterSave(Metadata metadata) {
+
+    // Sync with datasource
+    if (metadata.getSourceType() == Metadata.SourceType.ENGINE) {
+      dataSourceService.updateFromMetadata(metadata, false);
+    }
   }
 
   @HandleBeforeDelete

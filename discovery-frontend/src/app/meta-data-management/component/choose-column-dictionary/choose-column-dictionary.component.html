@@ -42,7 +42,6 @@
           </div>
           <!-- //검색 -->
         </div>
-
         <div class="ddp-wrap-viewtable ">
           <!-- 테이블 -->
           <div class="ddp-box-viewtable">
@@ -73,11 +72,9 @@
                   </th>
                 </tr>
                 </thead>
-
               </table>
             </div>
             <!--// gridhead -->
-
             <!-- gridbody -->
             <div class="ddp-ui-gridbody">
               <table class="ddp-table-form ddp-table-type2 ddp-cursor ddp-inherit">
@@ -86,7 +83,6 @@
                   <col width="20%">
                   <col width="*">
                 </colgroup>
-
                 <tbody>
                 <tr [class.ddp-selected]="selectedColumnDictionary && dictionary.id === selectedColumnDictionary.id"
                     (click)="onSelectColumnDictionary(dictionary)"
@@ -100,7 +96,6 @@
                   <td>
                     {{dictionary.name}}
                   </td>
-
                   <td>
                     <div class=" ddp-txt-long">
                       {{dictionary.description}}
@@ -109,7 +104,6 @@
                 </tr>
                 </tbody>
               </table>
-
             </div>
             <!--// gridbody -->
           </div>
@@ -122,6 +116,5 @@
         </div>
       </div>
     </div>
-
   </div>
 </div>

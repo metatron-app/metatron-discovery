@@ -12,19 +12,19 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
-import { PageResult } from '../../../domain/common/page';
-import { StringUtil } from '../../../common/util/string.util';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { MetadataModelService } from '../service/metadata.model.service';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
+import {PageResult} from '../../../domain/common/page';
+import {StringUtil} from '../../../common/util/string.util';
+import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
+import {MetadataModelService} from '../service/metadata.model.service';
 
 /**
  * Creating metadata with Hive - connection step
  */
 @Component({
   selector: 'app-hive-set-connection',
-  templateUrl: './hive-set-connection.component.html'
+  templateUrl: './hive-set-connection.component.html',
 })
 export class HiveSetConnectionComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
@@ -71,13 +71,13 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
   public isShowPasswordRequired: boolean;
 
   // constructor
-  constructor(public metaDataModelService: MetadataModelService,
-              private _dataconnectionService: DataconnectionService,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    public metaDataModelService: MetadataModelService,
+    private _dataconnectionService: DataconnectionService,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
-
 
   /**
    * ngOnInit
@@ -88,7 +88,8 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
     // ui init
     this._initView();
     // if exist connectionStep, load data
-    this.metaDataModelService.getCreateData()['connectionStep'] && this._loadData(this.metaDataModelService.getCreateData()['connectionStep']);
+    this.metaDataModelService.getCreateData()['connectionStep'] &&
+    this._loadData(this.metaDataModelService.getCreateData()['connectionStep']);
     // if not exist preset list, get preset list
     this.connectionPresetList.length === 0 && this._getConnectionPresetList();
   }
@@ -116,7 +117,7 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
    * Is enable connection validation
    * @returns {boolean}
    */
-  public isEnabledConnectionValidation() : boolean {
+  public isEnabledConnectionValidation(): boolean {
     let result: boolean = true;
     // if disable URL
     if (!this.isEnableUrl) {
@@ -212,9 +213,9 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
     this.dbTypeList = this.getEnabledConnectionTypes(true);
     this.selectedDbType = this.dbTypeList.find(type => type.value === 'HIVE');
     this.securityTypeList = [
-      { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
-      { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
-      { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
+      {label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL'},
+      {label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO'},
+      {label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG'},
     ];
     this.selectedSecurityType = this.securityTypeList[0];
     // page result
@@ -302,7 +303,8 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
     // preset list
     connectionStep['connectionPresetList'] && (this.connectionPresetList = connectionStep['connectionPresetList']);
     // selected preset
-    connectionStep['selectedConnectionPreset'] && (this.selectedConnectionPreset = connectionStep['selectedConnectionPreset']);
+    connectionStep['selectedConnectionPreset'] &&
+    (this.selectedConnectionPreset = connectionStep['selectedConnectionPreset']);
     // host
     connectionStep['hostname'] && (this.hostname = connectionStep['hostname']);
     // port
@@ -339,7 +341,8 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
     // port
     StringUtil.isNotEmpty(connection.port) && (this.port = connection.port);
     // security
-    this.selectedSecurityType = this.securityTypeList.find(type => type.value === connection.authenticationType) || this.securityTypeList[0];
+    this.selectedSecurityType = this.securityTypeList.find(type => type.value === connection.authenticationType) ||
+      this.securityTypeList[0];
     // if security type is MANUAL, add password and username
     if (this.selectedSecurityType.value === 'MANUAL') {
       this.password = connection.password;
@@ -352,7 +355,8 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
    * @private
    */
   private _deleteSchemaStep(): void {
-    this.metaDataModelService.getCreateData().hasOwnProperty('schemaStep') && (this.metaDataModelService.patchCreateData('schemaStep' , null));
+    this.metaDataModelService.getCreateData().hasOwnProperty('schemaStep') &&
+    (this.metaDataModelService.patchCreateData('schemaStep', null));
   }
 
   /**
@@ -363,19 +367,17 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
     // loading show
     this.loadingShow();
     // connection test
-    this._dataconnectionService.checkConnection(this._getConnectionTestParams())
-      .then((result) => {
-        // set connection result flag
-        this.connectionResultFl = result['connected'];
-        // loading hide
-        this.loadingHide();
-      })
-      .catch((error) => {
-        // set connection result fail
-        this.connectionResultFl = false;
-        // loading hide
-        this.commonExceptionHandler(error);
-      });
+    this._dataconnectionService.checkConnection(this._getConnectionTestParams()).then((result) => {
+      // set connection result flag
+      this.connectionResultFl = result['connected'];
+      // loading hide
+      this.loadingHide();
+    }).catch((error) => {
+      // set connection result fail
+      this.connectionResultFl = false;
+      // loading hide
+      this.commonExceptionHandler(error);
+    });
   }
 
   /**
@@ -386,16 +388,16 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
     // loading show
     this.loadingShow();
     // get preset list
-    this._dataconnectionService.getAllDataconnections(this._getConnectionPresetListParams(this.pageResult), 'forSimpleListView')
-      .then((result) => {
-        // if exist _embedded, update preset list
-        result['_embedded'] && (this.connectionPresetList = this.connectionPresetList.concat(result['_embedded'].connections));
-        // set page object
-        this.pageResult = result['page'];
-        // loading hide
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._dataconnectionService.getAllDataconnections(this._getConnectionPresetListParams(this.pageResult),
+      'forSimpleListView').then((result) => {
+      // if exist _embedded, update preset list
+      result['_embedded'] &&
+      (this.connectionPresetList = this.connectionPresetList.concat(result['_embedded'].connections));
+      // set page object
+      this.pageResult = result['page'];
+      // loading hide
+      this.loadingHide();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -407,16 +409,14 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
     // loading show
     this.loadingShow();
     // get detail data
-    this._dataconnectionService.getDataconnectionDetail(preset.id)
-      .then((result) => {
-        // init connection data
-        this._initConnectionData();
-        // set connection
-        this._setConnection(result);
-        // loading hide
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._dataconnectionService.getDataconnectionDetail(preset.id).then((result) => {
+      // init connection data
+      this._initConnectionData();
+      // set connection
+      this._setConnection(result);
+      // loading hide
+      this.loadingHide();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -430,7 +430,7 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
       size: pageResult.size,
       page: pageResult.number,
       implementor: this.selectedDbType.value,
-      type: 'jdbc'
+      type: 'jdbc',
     };
   }
 
@@ -456,7 +456,7 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
       connection['hostname'] = this.hostname;
       connection['port'] = this.port;
     }
-    return { connection: connection };
+    return {connection: connection};
   }
 }
 

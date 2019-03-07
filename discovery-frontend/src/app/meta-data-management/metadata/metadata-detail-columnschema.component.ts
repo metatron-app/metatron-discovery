@@ -12,27 +12,30 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
-  ViewChildren
-} from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { FieldFormat, FieldFormatType, LogicalType } from '../../domain/datasource/datasource';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChildren} from '@angular/core';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {Datasource, FieldFormat, FieldFormatType, LogicalType, SourceType} from '../../domain/datasource/datasource';
 import * as _ from 'lodash';
-import { MetadataService } from './service/metadata.service';
-import { MetadataModelService } from './service/metadata.model.service';
-import { MetadataColumn } from '../../domain/meta-data-management/metadata-column';
-import { CodeTable } from '../../domain/meta-data-management/code-table';
-import { ColumnDictionary } from '../../domain/meta-data-management/column-dictionary';
-import { CodeTableService } from '../code-table/service/code-table.service';
-import { CodeValuePair } from '../../domain/meta-data-management/code-value-pair';
-import { ColumnDictionaryService } from '../column-dictionary/service/column-dictionary.service';
-import { Alert } from '../../common/util/alert.util';
-import {CommonConstant} from "../../common/constant/common.constant";
+import {MetadataService} from './service/metadata.service';
+import {MetadataModelService} from './service/metadata.model.service';
+import {MetadataColumn} from '../../domain/meta-data-management/metadata-column';
+import {CodeTable} from '../../domain/meta-data-management/code-table';
+import {ColumnDictionary} from '../../domain/meta-data-management/column-dictionary';
+import {CodeTableService} from '../code-table/service/code-table.service';
+import {CodeValuePair} from '../../domain/meta-data-management/code-value-pair';
+import {ColumnDictionaryService} from '../column-dictionary/service/column-dictionary.service';
+import {Alert} from '../../common/util/alert.util';
+import {CommonConstant} from '../../common/constant/common.constant';
+import {MetadataSourceType} from '../../domain/meta-data-management/metadata';
+
+class Order {
+  key: string = 'physicalName';
+  sort: string = 'asc';
+}
 
 @Component({
   selector: 'app-metadata-detail-columnschema',
-  templateUrl: './metadata-detail-columnschema.component.html'
+  templateUrl: './metadata-detail-columnschema.component.html',
 })
 export class MetadataDetailColumnschemaComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -40,32 +43,41 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 필드 목록 원본
+  /**
+   * Code Table Preview Layer
+   */
+  @ViewChildren('codeTablePreview')
+  private readonly _codeTablePreview: ElementRef;
+  @ViewChildren('codeTable')
+  private readonly _codeTable: ElementRef;
+
+  /**
+   * Logical Type Layer
+   */
+  @ViewChildren('logicalType')
+  private readonly _logicalType: ElementRef;
+  @ViewChildren('logicalTypeList')
+  private readonly _logicalTypeList: ElementRef;
+
+  @Output()
+  private readonly chooseCodeTableEvent = new EventEmitter();
+  @Output()
+  private readonly chooseDictionaryEvent = new EventEmitter();
+
+  /**
+   * Field List Original
+   */
   private _originColumnList: MetadataColumn[];
 
-  // 코드 테이블 프리뷰 레이어
-  @ViewChildren('codeTablePreview')
-  private _codeTablePreview: ElementRef;
-  @ViewChildren('codeTable')
-  private _codeTable: ElementRef;
-
-  // logical type 레이어
-  @ViewChildren('logicalType')
-  private _logicalType: ElementRef;
-  @ViewChildren('logicalTypeList')
-  private _logicalTypeList: ElementRef;
-
-  // 현재 선택한 컬럼
+  /**
+   * Current Selected Columns
+   */
   private _selectedColumn: MetadataColumn;
 
-  // 코드 테이블의 조직 상세정보
+  /**
+   * Organizational details of code tables
+   */
   private _codeTableDetailList: CodeTable[];
-
-  @Output()
-  private chooseCodeTableEvent = new EventEmitter();
-
-  @Output()
-  private chooseDictionaryEvent = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -75,29 +87,42 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 필드 목록
+  /**
+   * List Of Fields
+   */
   public columnList: MetadataColumn[];
 
-  // logical type list
+  /**
+   * Logical Type List
+   */
   public logicalTypeList: any[];
   public logicalTypeEtcList: any[];
 
-  // 정렬
-  public selectedContentSort: Order = new Order();
+  /**
+   * Sort
+   */
+  public readonly selectedContentSort: Order = new Order();
+
+  /**
+   * Datasource LogicalType Enum
+   */
+  public readonly DATASOURCE_LOGICAL_TYPE = LogicalType;
+
+  @Input()
+  public isNameEdit: boolean;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
-  constructor(private _columnDictionaryService: ColumnDictionaryService,
-              private _codeTableService: CodeTableService,
-              private _metaDataService: MetadataService,
-              public metaDataModelService: MetadataModelService,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    private _columnDictionaryService: ColumnDictionaryService,
+    private _codeTableService: CodeTableService,
+    private _metaDataService: MetadataService,
+    public metaDataModelService: MetadataModelService,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
-    // ui 초기화
     this._initView();
   }
 
@@ -112,7 +137,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
     // ui 초기화
     this._initView();
     // 컬럼 조회
-    this._getColumnSchemaList();
+    this._getColumnSchemas();
   }
 
   // Destory
@@ -127,18 +152,22 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 현재 필드의 logical Type label
+   * Current field logical type label
+   *
    * @param {MetadataColumn} column
    * @returns {string}
    */
   public getSelectedLogicalTypeLabel(column: MetadataColumn): string {
-    return column.type ? this.logicalTypeList.filter((type) => {
-      return type.value === column.type;
-    })[0].label : 'Select';
+    return column.type
+      ? this.logicalTypeList.filter((type) => {
+        return type.value === column.type;
+      })[0].label
+      : 'Select';
   }
 
   /**
-   * 코드 미리보기 데이터
+   * Code preview data
+   *
    * @param {string} codeTableId
    * @returns {CodeValuePair[]}
    */
@@ -150,7 +179,8 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * 컬럼 인기도
+   * Column popularity
+   *
    * @param {MetadataColumn} column
    * @returns {string}
    */
@@ -158,31 +188,42 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
     return (column.popularity || 0) + '%';
   }
 
+  public isSourceTypeDatasource() {
+
+    if (_.isNil(this.metaDataModelService.getMetadata().source.source)) {
+      return false;
+    }
+
+    return (this.metaDataModelService.getMetadata().source.source as Datasource).srcType === SourceType.JDBC;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - validation
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-
   /**
-   * 컬럼 사전이 선택되어있는지 여부
+   * Whether column dictionary is selected
+   *
    * @param {MetadataColumn} column
    * @returns {boolean}
    */
   public isSelectedDictionary(column: MetadataColumn): boolean {
-    return !(column.dictionary === undefined || column.dictionary === null);
+    return !_.isNil(column.dictionary);
   }
 
   /**
-   * 해당 컬럼의 타입이 시간인지 확인
+   * Check if the type of the column is time
+   *
    * @param {MetadataColumn} column
    * @returns {boolean}
    */
   public isTimeType(column: MetadataColumn): boolean {
-    return column.type && column.type.toString() === 'TIMESTAMP';
+    return column.type && column.type === LogicalType.TIMESTAMP;
   }
 
   /**
-   * save validation
+   * Save validation
+   *
    * @returns {boolean}
    */
   public isEnableSave(): boolean {
@@ -190,33 +231,17 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * 현재 선택된 logical 타입인지
-   * @param {MetadataColumn} column
-   * @param {any} type
-   * @returns {boolean}
+   * If the column of the currently selected type is the logical type
+   *
+   * @param column
+   * @param logicalType
    */
-  public isSelectedLogicalType(column: MetadataColumn, type: any): boolean {
-    // 데이터소스 타입 메타데이터이고 기본타입 이외에 다른 값이라면 Etc
-    return column.type === type;
+  public isSelectedColumnLogicalType(column: MetadataColumn, logicalType: LogicalType): boolean {
+    return column.type === logicalType;
   }
 
-  /**
-   * 기타 선택 타입인지
-   * @param {MetadataColumn} column
-   * @returns {boolean}
-   */
-  public isEtcLogicalType(column: MetadataColumn): boolean {
-    return column.type === LogicalType.ETC || this.logicalTypeEtcList.findIndex((item) => {
-      return item.value === column.type;
-    }) !== -1;
-  }
-
-  /**
-   * 메타데이터 타입이 데이터소스 인지
-   * @returns {boolean}
-   */
-  public isDataSourceMetaDataType(): boolean {
-    return this.metaDataModelService.getMetadata().sourceType.toString() === 'ENGINE';
+  public isEngine() {
+    return new MetadataSourceType(this.metaDataModelService.getMetadata().sourceType).isEngine();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -224,7 +249,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * scroll이 발생한경우 show창 닫기
+   * Close column view in case scroll occurs
    */
   public onScrollColumnView(): void {
     this.columnList && this.columnList.forEach((column) => {
@@ -234,14 +259,14 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * 필드 원상복구 클릭 이벤트
+   * When the field source recovery event is clicked
    */
   public onClickRestore(): void {
     this.columnList = _.cloneDeep(this._originColumnList);
   }
 
   /**
-   * 변경된 필드 저장 클릭 이벤트
+   * Save changed fields click event
    */
   public onClickSave(): void {
     // 변경사항이 있을때만 on
@@ -249,16 +274,8 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * column 의 변경이벤트 발생
-   * @param {MetadataColumn} column
-   */
-  public onChangedValue(column: MetadataColumn): void {
-    // 변경이벤트 체크
-    column['replaceFl'] = true;
-  }
-
-  /**
-   * logical type list show
+   * Logical type list show
+   *
    * @param {MetadataColumn} column
    * @param {number} index
    */
@@ -280,15 +297,16 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * logical type 변경 이벤트
+   * Logical type change event
+   *
    * @param {MetadataColumn} column
    * @param logicalType
    */
-  public onChangeLogicalType(column: MetadataColumn, logicalType: any): void {
+  public onChangeLogicalType(column: MetadataColumn, logicalType: LogicalType): void {
     // 변경이벤트 체크
     this.onChangedValue(column);
     // 만약 변경될 타입이 logicalType이라면 format init
-    if (logicalType === 'TIMESTAMP') {
+    if (logicalType === LogicalType.TIMESTAMP) {
       column.format = new FieldFormat();
       column.format.type = FieldFormatType.DATE_TIME;
     }
@@ -316,10 +334,8 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   public onChangedCodeTable(codeTable: CodeTable): void {
     // 변경 on
     this._selectedColumn['replaceFl'] = true;
-    // 현재 선택한 컬럼의 코드 테이블 변경
-    this._selectedColumn.codeTable = codeTable;
-    // 현재 선택한 컬럼 해제
-    this._selectedColumn = null;
+    this._setCodeTableForSelectedColumn(codeTable);
+    this._releaseSelectedColumn();
   }
 
   /**
@@ -353,42 +369,57 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * 코드 테이블 디테일 클릭 이벤트
+   * Code table detail click event
+   *
    * @param {CodeTable} codeTable
    */
   public onClickCodeTableDetails(codeTable: CodeTable): void {
-    // event bubbling stop
     event.stopImmediatePropagation();
-    // 해당 코드 테이블 상세화면으로 이동
-    this.router.navigate(['management/metadata/code-table', codeTable.id])
+    this._gotoCodeTableDetailView(codeTable);
+  }
+
+  private _gotoCodeTableDetailView(codeTable: CodeTable) {
+    this.router.navigate(['management/metadata/code-table', codeTable.id]);
   }
 
   /**
-   * 사전 이름 클릭 이벤트
+   * Dictionary name click event
+   *
    * @param {ColumnDictionary} dictionary
    */
   public onClickDictionary(dictionary: ColumnDictionary): void {
-    // event bubbling stop
     event.stopImmediatePropagation();
-    // 해당 사전 상세화면으로 이동
+    this._gotoDictionaryDetailView(dictionary);
+  }
+
+  private _gotoDictionaryDetailView(dictionary: ColumnDictionary) {
     dictionary && this.router.navigate(['management/metadata/column-dictionary', dictionary.id]);
   }
 
   /**
-   * 컬럼 사전 검색 클릭 이벤트
+   * Click on column dictionary search event
+   *
    * @param {MetadataColumn} column
    */
   public onClickSearchDictionary(column: MetadataColumn): void {
-    // event bubbling stop
     event.stopImmediatePropagation();
-    // 현재 선택한 컬럼 저장₩
-    this._selectedColumn = column;
-    // 컬럼 사전 선택 컴포넌트
-    this.chooseDictionaryEvent.emit({name : 'CREATE', dictionary : column.dictionary});
+    this._saveCurrentlySelectedColumn(column);
+    this.chooseDictionaryEvent.emit({name: 'CREATE', dictionary: column.dictionary}); // 컬럼 사전 선택 컴포넌트
   }
 
   /**
-   * 코드 테이블 검색 클릭 이벤트
+   * Save the currently selected column
+   *
+   * @param column
+   * @private
+   */
+  private _saveCurrentlySelectedColumn(column: MetadataColumn) {
+    this._selectedColumn = column;
+  }
+
+  /**
+   * Code table search click event
+   *
    * @param {MetadataColumn} column
    */
   public onClickSearchCodeTable(column: MetadataColumn): void {
@@ -399,12 +430,13 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
       // 현재 선택한 컬럼 저장
       this._selectedColumn = column;
       // 코드 테이블 선택 컴포넌트
-      this.chooseCodeTableEvent.emit({name : 'CREATE', codeTable : column.codeTable})
+      this.chooseCodeTableEvent.emit({name: 'CREATE', codeTable: column.codeTable});
     }
   }
 
   /**
-   * 컬럼 정렬 클릭 이벤트
+   * Column alignment click event
+   *
    * @param {string} key
    */
   public onClickSort(key: string): void {
@@ -425,7 +457,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
           break;
       }
     }
-    this.columnList = _.orderBy(this.columnList, this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc' );
+    this.columnList = _.orderBy(this.columnList, this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc');
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -436,96 +468,95 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  // noinspection JSMethodCanBeStatic
   /**
-   * ui 초기화
+   * Change event in column occurred
+   *
+   * @param column
+   */
+  private onChangedValue(column: MetadataColumn): void {
+    // 변경이벤트 체크
+    column['replaceFl'] = true;
+  }
+
+  /**
+   * View initialization
+   *
    * @private
    */
   private _initView(): void {
-    // column list
     this.columnList = [];
-    // logicalType
     this.logicalTypeList = this.getMetaDataLogicalTypeList();
-    // logical etc type
     this.logicalTypeEtcList = this.getMetaDataLogicalTypeEtcList();
-    // 코드 테이블 조직 상세정보 목록 초기화
     this._codeTableDetailList = [];
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method - getter
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 컬럼 스키마 목록 조회
+   * Column schema list lookup
+   *
    * @private
    */
-  private _getColumnSchemaList(): void {
-    // 로딩 show
+  private _getColumnSchemas(): void {
     this.loadingShow();
-    // 컬럼 조회
-    this._metaDataService.getColumnSchemaListInMetaData(this.metaDataModelService.getMetadata().id)
-      .then((result) => {
-        // Hide current time
-        this.columnList = result.filter((item) => {
-          return item.physicalName !== CommonConstant.COL_NAME_CURRENT_DATETIME && item.physicalType !== 'TIMESTAMP';
-        });
-        // 컬럼 데이터 원본 저장
-        this._originColumnList = _.cloneDeep(this.columnList);
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._metaDataService.getColumnSchemaListInMetaData(this.metaDataModelService.getMetadata().id).then((result) => {
+      this._hideCurrentTime(result);
+      this._saveColumnDataOriginal();
+      this.loadingHide();
+    }).catch(error => this.commonExceptionHandler(error));
+  }
+
+  private _hideCurrentTime(result) {
+    this.columnList = result.filter((item) => item.physicalName !== CommonConstant.COL_NAME_CURRENT_DATETIME && item.physicalType !== 'TIMESTAMP');
   }
 
   /**
-   * 컬럼 스키마 수정
+   * Saving column data original
+   *
+   * @private
+   */
+  private _saveColumnDataOriginal() {
+    this._originColumnList = _.cloneDeep(this.columnList);
+  }
+
+  /**
+   * Modify column schema
+   *
    * @private
    */
   private _updateColumnSchema(): void {
-    // 로딩 show
     this.loadingShow();
-    // 컬럼 수정
-    this._metaDataService.updateColumnSchema(this.metaDataModelService.getMetadata().id, this._getUpdateColumnParams())
-      .then((result) => {
-        // alert
+    this._metaDataService.updateColumnSchema(this.metaDataModelService.getMetadata().id, this._getUpdateColumnParams()).
+      then(() => {
         Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
-        // 재조회
-        this._getColumnSchemaList();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+        this._refreshColumnSchemas();
+      }).
+      catch(error => this.commonExceptionHandler(error));
+  }
+
+  private _refreshColumnSchemas() {
+    this._getColumnSchemas();
   }
 
   /**
-   * 변경에 사용될 필드
+   * Fields to be used for the change
+   *
    * @returns {any}
    * @private
    */
-  private _getUpdateColumnParams(): any {
+  private _getUpdateColumnParams() {
     // 변경이 일어난 컬럼 목록
-    const result: any = _.cloneDeep(this._getReplaceColumns());
+    const result = _.cloneDeep(this._getReplaceColumns());
     result.forEach((item: any) => {
-      // id 강제 형변환 ( string -> int )
-      ( item['id'] ) && ( item['id'] = ( item['id'] * 1 ) );
-      // op 설정
-      item['op'] = 'replace';
-      // 필요없는 변수들 제거
-      delete item['replaceFl'];
-      delete item['nameChangeFl'];
-      delete item['typeListFl'];
-      delete item['codeTableShowFl'];
-      // name이 있고 255자가 넘어간다면
-      if (item.name && item.name.length > 255) {
-        item.name = item.name.substr(0, 254);
-      }
-      // description이 있고 1000자가 넘어간다면
-      if (item.description && item.description.length > 1000) {
-        item.description = item.description.substr(0, 999);
-      }
+      this._convertIdFromStringTypeToNumeric(item);
+      this._operationSetting(item);
+      this._removeUnnecessaryVariables(item);
+      if (this._isNameExistsAndExceeds255Characters(item)) item.name = item.name.substr(0, 254);
+      if (this._isDescriptionExistsAndExceeds1000Characters(item)) item.description = item.description.substr(0, 999);
       // format이 있고 255자가 넘어간다면
       if (item.type === 'TIMESTAMP' && item.format && item.format.format && item.format.format.length > 255) {
         item.format = {
-          format : item.format.format.substr(0, 254)
-        }
+          format: item.format.format.substr(0, 254),
+        };
       }
       // dictionary가 있다면
       item.dictionary && (item['dictionary'] = `/api/dictionaries/${item.dictionary.id}`);
@@ -535,9 +566,65 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
     return result;
   }
 
+  // noinspection JSMethodCanBeStatic
+  private _convertIdFromStringTypeToNumeric(item: any) {
+    (item['id']) && (item['id'] = (item['id'] * 1));
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _operationSetting(item: any) {
+    item['op'] = 'replace';
+  }
+
+  private _isDescriptionExistsAndExceeds1000Characters(item: any) {
+    return !_.isNil(item.description) && this._isDescriptioneOver1000CharactersLong(item);
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _isDescriptioneOver1000CharactersLong(item: any) {
+    return item.description.length > 1000;
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _removeUnnecessaryVariables(item: any) {
+    this._removeReplaceFl(item);
+    this._removeNameChangeFl(item);
+    this._removeTypeListFl(item);
+    this._removeCodeTableShowFl(item);
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _removeCodeTableShowFl(item: any) {
+    delete item['codeTableShowFl'];
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _removeTypeListFl(item: any) {
+    delete item['typeListFl'];
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _removeNameChangeFl(item: any) {
+    delete item['nameChangeFl'];
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _removeReplaceFl(item: any) {
+    delete item['replaceFl'];
+  }
+
+  private _isNameExistsAndExceeds255Characters(item: any) {
+    return !_.isNil(item.name) && this._isNameOver255CharactersLong(item);
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _isNameOver255CharactersLong(item: any) {
+    return item.name.length > 255;
+  }
+
   /**
-   * 변경되는 컬럼 목록
-   * @returns {MetadataColumn[]}
+   * List of columns being changed
+   *
    * @private
    */
   private _getReplaceColumns(): MetadataColumn[] {
@@ -547,77 +634,101 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   /**
-   * 코드 테이블 상세정보 조회
+   * Get code table details
+   *
    * @param {string} codeTableId
    * @private
    */
   private _getDetailCodeTable(codeTableId: string): void {
-    // 로딩 show
     this.loadingShow();
-    // 코드 테이블 상세조회
-    this._codeTableService.getCodeTableDetail(codeTableId)
-      .then((result) => {
-        // 코드 테이블 상세조회 데이터
-        this._codeTableDetailList.push(result);
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._codeTableService.getCodeTableDetail(codeTableId).then((result) => {
+      this._addCodeTableDetailDataToCodeTableDetails(result);
+      this.loadingHide();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
-   * 컬럼 사전 상세정보 조회
+   * Add code table data to code tables
+   *
+   * @param result
+   * @private
+   */
+  private _addCodeTableDetailDataToCodeTableDetails(result) {
+    this._codeTableDetailList.push(result);
+  }
+
+  /**
+   * Get column dictionary detail
+   *
    * @param {string} dictionaryId
    * @private
    */
   private _getDetailColumnDictionary(dictionaryId: string): void {
-    // 로딩 show
     this.loadingShow();
-    // 컬럼 사전 상세조회
-    this._columnDictionaryService.getColumnDictionaryDetail(dictionaryId)
-      .then((result) => {
-        // 변경된 컬럼의 사전정보로 logicalType, Format, CodeTable, Description 적용
-        this._selectedColumn.type = result.logicalType || null;
-        this._selectedColumn.format = result.format || new FieldFormat();
-        this._selectedColumn.description = result.description || null;
-        // 이름이 사용자에 의해 변경되지 않았다면 컬럼 사전의 이름을 name으로 지정함
-        !this._selectedColumn['nameChangeFl'] && (this._selectedColumn.name = result.logicalName);
-        // 컬럼 사전에 연결된 코드 테이블이 있는경우
-        if (result.linkCodeTable) {
-          // 코드 테이블 조회
-          this._getCodeTableInColumnDictionary(dictionaryId);
-        } else {
-          // 컬럼의 코드 테이블 제거
-          this._selectedColumn.codeTable = null;
-          // 로딩 hide
-          this.loadingHide();
-        }
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._columnDictionaryService.getColumnDictionaryDetail(dictionaryId).then((result) => {
+      // 변경된 컬럼의 사전정보로 logicalType, Format, CodeTable, Description 적용
+      this._selectedColumn.type = result.logicalType || null;
+      this._selectedColumn.format = result.format || new FieldFormat();
+      this._selectedColumn.description = result.description || null;
+
+      // 이름이 사용자에 의해 변경되지 않았다면 컬럼 사전의 이름을 name으로 지정함
+      !this._selectedColumn['nameChangeFl'] && (this._selectedColumn.name = result.logicalName);
+
+      if (this._hasCodeTableConnectedToColumnDictionary(result)) {
+        this._getCodeTableInColumnDictionary(dictionaryId);
+      } else {
+        this._removeCodeTableForSelectedColumn();
+        this.loadingHide();
+      }
+    }).catch(error => this.commonExceptionHandler(error));
+  }
+
+  // noinspection JSMethodCanBeStatic
+  /**
+   * If the column dictionary has a linked code table
+   *
+   * @param result
+   */
+  private _hasCodeTableConnectedToColumnDictionary(result) {
+    return result.linkCodeTable;
   }
 
   /**
-   * 컬럼 사전에 연결된 코드 테이블 조회
+   * Remove code table for the selected column
+   */
+  private _removeCodeTableForSelectedColumn() {
+    this._selectedColumn.codeTable = null;
+  }
+
+  /**
+   * Get code table connected to column dictionary
+   *
+   * @param dictionaryId
    * @private
    */
   private _getCodeTableInColumnDictionary(dictionaryId: string): void {
-    // 로딩 show
     this.loadingShow();
-    // 코드 테이블 조회
-    this._columnDictionaryService.getCodeTableInColumnDictionary(dictionaryId)
-      .then((result) => {
-        // 코드테이블
-        this._selectedColumn.codeTable = result;
-        // 현재 선택한 컬럼 해제
-        this._selectedColumn = null;
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._columnDictionaryService.getCodeTableInColumnDictionary(dictionaryId).then((result) => {
+      this._setCodeTableForSelectedColumn(result);
+      this._releaseSelectedColumn();
+      this.loadingHide();
+    }).catch(error => this.commonExceptionHandler(error));
   }
-}
 
-class Order {
-  key: string = 'physicalName';
-  sort: string = 'asc';
+  /**
+   * Release selected column
+   */
+  private _releaseSelectedColumn() {
+    this._selectedColumn = null;
+  }
+
+  /**
+   * Set code table in selected column
+   *
+   * @param result
+   * @private
+   */
+  private _setCodeTableForSelectedColumn(result) {
+    this._selectedColumn.codeTable = result;
+  }
 }

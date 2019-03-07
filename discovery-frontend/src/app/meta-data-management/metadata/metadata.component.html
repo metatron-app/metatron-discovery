@@ -12,63 +12,10 @@
   ~ limitations under the License.
   -->
 
-<!-- catalogs -->
-<!--<div class="ddp-wrap-catalogs">-->
-  <!--<div class="ddp-type-label">{{'msg.metadata.ui.catalog' | translate}}</div>-->
-  <!--&lt;!&ndash; search &ndash;&gt;-->
-  <!--<div class="ddp-ui-searching">-->
-    <!--<em class="ddp-icon-search"></em>-->
-    <!--<input type="text" placeholder="Search" [(ngModel)]="catalogSearchText" (keyup.esc)="onCatalogSearchTextInit()"-->
-           <!--(keypress)="onCatalogSearchText($event)">-->
-    <!--<em class="ddp-btn-search-close" (click)="onCatalogSearchTextInit()" *ngIf="catalogSearchText"></em>-->
-  <!--</div>-->
-  <!--&lt;!&ndash; //search &ndash;&gt;-->
-  <!--&lt;!&ndash; tree &ndash;&gt;-->
-  <!--<div class="ddp-ui-tree">-->
-    <!--<ul class="ddp-list-tree">-->
-      <!--<li *ngFor="let catalog of catalogs"  [ngClass]="{'ddp-open':catalog.isOpen,'ddp-selected':catalog.selected}">-->
-        <!--<a href="javascript:" [ngClass]="{'ddp-depth' : catalog.hasChild}" >-->
-          <!--<em class="ddp-view" (click)="getChildren($event,catalog)"></em>-->
-          <!--<em class="ddp-icon-folder"></em>-->
-          <!--<div class="ddp-txt-link" (click)="setSelectedCatalog(catalog)" [innerHTML]="sanitizer.bypassSecurityTrustHtml(catalog.name)">-->
-          <!--</div>-->
-        <!--</a>-->
-        <!--<ul *ngIf="catalog.children">-->
-          <!--<li *ngFor="let child of catalog.children"  [ngClass]="{'ddp-open':child.isOpen,'ddp-selected':child.selected}">-->
-            <!--<a href="javascript:" [ngClass]="{'ddp-depth' : child.hasChild}">-->
-              <!--<em class="ddp-view" (click)="getChildren($event,child)"></em>-->
-              <!--<em class="ddp-icon-folder"></em>-->
-              <!--<div class="ddp-txt-link" (click)="setSelectedCatalog(child)" [innerHTML]="sanitizer.bypassSecurityTrustHtml(child.name)">-->
-              <!--</div>-->
-            <!--</a>-->
-            <!--<ul *ngIf="child.children" >-->
-              <!--<li *ngFor="let last of child.children" [ngClass]="{'ddp-open':last.isOpen,'ddp-selected':last.selected}">-->
-                <!--<a href="javascript:" [ngClass]="{'ddp-depth' : last.hasChild}">-->
-                  <!--<em class="ddp-view" (click)="getChildren($event,last)"></em>-->
-                  <!--<em class="ddp-icon-folder"></em>-->
-                  <!--<div class="ddp-txt-link" (click)="setSelectedCatalog(last)" [innerHTML]="sanitizer.bypassSecurityTrustHtml(last.name)"></div>-->
-                <!--</a>-->
-              <!--</li>-->
-            <!--</ul>-->
-          <!--</li>-->
-        <!--</ul>-->
-      <!--</li>-->
-      <!--<li [ngClass]="{'ddp-selected':isUnclassifiedSelected}" (click)="getUnclassifiedMetadata()">-->
-        <!--<a href="javascript:">-->
-          <!--<em class="ddp-icon-question"></em>-->
-          <!--{{ 'msg.metadata.ui.unclassified' | translate }}</a>-->
-      <!--</li>-->
-    <!--</ul>-->
-  <!--</div>-->
-  <!--&lt;!&ndash; //tree &ndash;&gt;-->
-<!--</div>-->
-<!-- //catalogs -->
-
 <div class="ddp-ui-contents-list">
   <div class="ddp-wrap-option">
     <!-- option -->
     <div class="ddp-ui-option ddp-clear">
-
       <!-- edit -->
       <div class="ddp-wrap-edit">
         <label class="ddp-label-type">{{'msg.metadata.md.ui.data.type' | translate}}</label>
@@ -103,15 +50,11 @@
         <!-- //edit option -->
       </div>
       <!-- //edit -->
-
       <div class="ddp-ui-rightoption">
         <a href="javascript:" class="ddp-link-reset" (click)="refreshFilter() "><em class="ddp-btn-reset3"></em>{{'msg.mem.btn.refresh' | translate}}</a>
-
       </div>
     </div>
     <!-- //option -->
-
-
     <!-- option -->
     <div class="ddp-ui-option ddp-optiontype ddp-clear">
       <!-- 검색 -->
@@ -128,10 +71,9 @@
       <!-- //검색 -->
       <!-- right -->
       <div class="ddp-ui-rightoption">
-        <span *ngIf="getTotalContentsCount > 1" class="ddp-data-total"  [innerHTML]="'msg.metadata.ui.lists' | translate : { value : getTotalContentsCount }"></span>
-        <span *ngIf="getTotalContentsCount <= 1" class="ddp-data-total"  [innerHTML]="'msg.metadata.ui.list' | translate : { value : getTotalContentsCount }"></span>
+        <span *ngIf="getTotalContentsCount > 1" class="ddp-data-total" [innerHTML]="'msg.metadata.ui.lists' | translate : { value : getTotalContentsCount }"></span>
+        <span *ngIf="getTotalContentsCount <= 1" class="ddp-data-total" [innerHTML]="'msg.metadata.ui.list' | translate : { value : getTotalContentsCount }"></span>
         <a href="javascript:" class="ddp-btn-link" (click)="createNewMetadata()"><em class="ddp-icon-link-add"></em>{{'msg.metadata.md.btn.create.md' | translate}}</a>
-
       </div>
       <!-- //right -->
     </div>
@@ -188,15 +130,13 @@
         <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
         <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
       </th>
-
     </tr>
     </thead>
     <tbody>
-
     <tr *ngFor="let metadata of metadatas" (click)="onClickMetadataDetail(metadata)">
       <td>
-        <span class="ddp-box-tag-value" [ngClass]="{'ddp-datasource':metadata.sourceType.toString() === 'ENGINE', 'ddp-hive': 'JDBC' == metadata.sourceType.toString(), 'ddp-stagingdb' : 'STAGING' == metadata.sourceType.toString()}">
-          {{ 'ENGINE' == metadata.sourceType.toString() ? 'Datasource' : 'STAGING' == metadata.sourceType.toString() ? 'Staging DB' : 'JDBC' == metadata.sourceType.toString() ? 'HIVE'  :  metadata.sourceType }}
+        <span class="ddp-box-tag-value" [ngClass]="{'ddp-datasource':metadata.sourceType.toString() === 'ENGINE', 'ddp-hive': 'JDBC' == metadata.sourceType.toString(), 'ddp-stagingdb' : 'STAGEDB' == metadata.sourceType.toString()}">
+          {{ 'ENGINE' == metadata.sourceType.toString() ? 'Datasource' : 'STAGEDB' == metadata.sourceType.toString() ? 'Staging DB' : 'JDBC' == metadata.sourceType.toString() ? 'HIVE' : metadata.sourceType }}
         </span>
       </td>
       <td>
@@ -215,20 +155,18 @@
           <span [style.width]="metadata.popularity ? metadata.popularity + '%' : 0 + '%'"></span>
         </div>
       </td>
-      <td >
+      <td>
         {{ metadata.modifiedTime | mdate:'YYYY-MM-DD HH:mm' }} by {{ metadata.modifiedBy.fullName }}
       </td>
       <td>
         {{ metadata.createdTime | mdate:'YYYY-MM-DD HH:mm' }} by {{ metadata.createdBy.fullName }}
-        <div class="ddp-btn-control">
+        <div class="ddp-btn-control" *ngIf="METADATA_SOURCE_TYPE.ENGINE !== metadata.sourceType">
           <em class="ddp-icon-control-cut" (click)="confirmDelete($event,metadata)"></em>
         </div>
       </td>
     </tr>
     </tbody>
-
   </table>
-
   <div class="ddp-data-source-none" *ngIf="metadatas && metadatas.length === 0">
     {{'msg.metadata.ui.no.metadata' | translate }}
   </div>
@@ -236,6 +174,7 @@
     <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
   </div>
 </div>
+
 <app-select-datatype (createdEmit)="init()"></app-select-datatype>
 <app-select-catalog></app-select-catalog>
 <app-delete-modal (deleteConfirm)="deleteMetadata()"></app-delete-modal>

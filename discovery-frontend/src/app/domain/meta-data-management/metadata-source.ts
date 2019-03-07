@@ -13,6 +13,8 @@
  */
 
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
+import {Datasource} from '../datasource/datasource';
+import {Dataconnection} from '../dataconnection/dataconnection';
 
 export class MetadataSource extends AbstractHistoryEntity {
   // id
@@ -29,6 +31,8 @@ export class MetadataSource extends AbstractHistoryEntity {
   public table: string;
   // metadata source detail
   public sourceInfo: string;
+  // Datasource
+  public source: Datasource | Dataconnection;
 }
 
 export enum MetadataSourceType {

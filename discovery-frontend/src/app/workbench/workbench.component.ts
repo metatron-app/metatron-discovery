@@ -43,7 +43,7 @@ import {DatasourceService} from '../datasource/service/datasource.service';
 import {PageWidget} from '../domain/dashboard/widget/page-widget';
 import {Dashboard, BoardDataSource, BoardConfiguration} from '../domain/dashboard/dashboard';
 import {
-  BIType, ConnectionType, Datasource, Field, IngestionRuleType,
+  ConnectionType, Datasource, Field, FieldRole, IngestionRuleType,
   LogicalType
 } from '../domain/datasource/datasource';
 import {Workbook} from '../domain/workbook/workbook';
@@ -2864,7 +2864,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
       const currentDateTimeField: Field = new Field();
       currentDateTimeField.name = CommonConstant.COL_NAME_CURRENT_DATETIME;
-      currentDateTimeField.biType = BIType.TIMESTAMP;
+      currentDateTimeField.role = FieldRole.TIMESTAMP;
+      currentDateTimeField.type = 'TIMESTAMP';
       currentDateTimeField.logicalType = LogicalType.TIMESTAMP;
       currentDateTimeField.dataSource = boardDataSource.engineName;
       // fields = [currentDateTimeField].concat( fields );

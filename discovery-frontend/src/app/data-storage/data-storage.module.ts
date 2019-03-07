@@ -42,6 +42,7 @@ import { CriterionCheckboxComponent } from './component/criterion/criterion-chec
 import { CriterionTimeRadioboxComponent } from './component/criterion/criterion-time-radiobox.component';
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
 import {DataSourceCreateModule} from "./data-source-list/create-data-source/data-source-create.module";
+import {StorageFilterSelectBoxComponent} from "./data-source-list/component/storage-filter-select-box.component";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -59,6 +60,8 @@ const storageRoutes: Routes = [
     RouterModule.forChild(storageRoutes)
   ],
   declarations: [
+    // common
+    StorageFilterSelectBoxComponent,
     // data source
     DataSourceListComponent,
     // data source - detail

@@ -395,7 +395,7 @@ export class DataSourceCreateService {
    * @private
    */
   private _removeUnnecessaryPropertyInField(field: Field) {
-    delete field.biType;
+    delete field['biType'];
     // delete used UI
     delete field.isValidTimeFormat;
     delete field.isValidReplaceValue;

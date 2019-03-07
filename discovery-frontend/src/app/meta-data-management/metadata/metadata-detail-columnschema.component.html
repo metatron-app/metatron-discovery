@@ -14,24 +14,25 @@
 
 <!-- tab contents -->
 <div class="ddp-ui-tab-contents">
+  <div top-info *ngIf="isSourceTypeDatasource() && isEngine() && (isEnableSave() || isNameEdit)"></div>
   <!-- column option -->
   <div class="ddp-option-column">
-
     <a href="javascript:" class="ddp-reset" (click)="onClickRestore()">
       <em class="ddp-btn-reset3"> </em>
       {{'msg.metadata.ui.codetable.detail.restore.btn' | translate}}
       <!-- tooltip -->
-      <div class="ddp-ui-tooltip-info" >
+      <div class="ddp-ui-tooltip-info">
         <em class="ddp-icon-view-top"></em>
         {{'msg.metadata.ui.codetable.detail.restore.btn' | translate}}
       </div>
       <!-- //tooltip -->
     </a>
-
     <a href="javascript:" class="ddp-btn-pop ddp-bg-black" [class.ddp-disabled]="!isEnableSave()" (click)="onClickSave()">{{'msg.comm.btn.save' | translate}}</a>
   </div>
   <!-- //column option -->
-  <div class="ddp-data-details ddp-ui-preview-contents" (scroll)="onScrollColumnView()">
+  <div class="ddp-data-details ddp-ui-preview-contents"
+       [class.ddp-info]="isSourceTypeDatasource() && isEngine() && (isEnableSave() || isNameEdit)"
+       (scroll)="onScrollColumnView()">
     <!-- header -->
     <table class="ddp-table-form ddp-table-type2 ddp-table-details ddp-type-input">
       <colgroup>
@@ -201,36 +202,36 @@
                 </span>
             <div class="ddp-wrap-popup2 ddp-types ddp-scroll-none ddp-pop-fix" #logicalTypeList>
               <ul class="ddp-list-popup">
-                <li [class.ddp-selected]="isSelectedLogicalType(column, 'STRING')">
-                  <a href="javascript:" (click)="onChangeLogicalType(column, 'STRING')">
+                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, DATASOURCE_LOGICAL_TYPE.STRING)">
+                  <a href="javascript:" (click)="onChangeLogicalType(column, DATASOURCE_LOGICAL_TYPE.STRING)">
                     <em class="ddp-icon-type-ab"></em>
                     {{'msg.metadata.ui.dictionary.type.string' | translate}}
                     <em class="ddp-icon-check"></em>
                   </a>
                 </li>
-                <li [class.ddp-selected]="isSelectedLogicalType(column, 'BOOLEAN')">
-                  <a href="javascript:" (click)="onChangeLogicalType(column,  'BOOLEAN')">
+                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, DATASOURCE_LOGICAL_TYPE.BOOLEAN)">
+                  <a href="javascript:" (click)="onChangeLogicalType(column,  DATASOURCE_LOGICAL_TYPE.BOOLEAN)">
                     <em class="ddp-icon-type-tf"></em>
                     {{'msg.metadata.ui.dictionary.type.boolean' | translate}}
                     <em class="ddp-icon-check"></em>
                   </a>
                 </li>
-                <li [class.ddp-selected]="isSelectedLogicalType(column, 'INTEGER')">
-                  <a href="javascript:" (click)="onChangeLogicalType(column, 'INTEGER')">
+                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, DATASOURCE_LOGICAL_TYPE.INTEGER)">
+                  <a href="javascript:" (click)="onChangeLogicalType(column, DATASOURCE_LOGICAL_TYPE.INTEGER)">
                     <em class="ddp-icon-type-int"></em>
                     {{'msg.metadata.ui.dictionary.type.integer' | translate}}
                     <em class="ddp-icon-check"></em>
                   </a>
                 </li>
-                <li [class.ddp-selected]="isSelectedLogicalType(column, 'DOUBLE')">
-                  <a href="javascript:" (click)="onChangeLogicalType(column, 'DOUBLE')">
+                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, DATASOURCE_LOGICAL_TYPE.DOUBLE)">
+                  <a href="javascript:" (click)="onChangeLogicalType(column, DATASOURCE_LOGICAL_TYPE.DOUBLE)">
                     <em class="ddp-icon-type-float"></em>
                     {{'msg.metadata.ui.dictionary.type.double' | translate}}
                     <em class="ddp-icon-check"></em>
                   </a>
                 </li>
-                <li [class.ddp-selected]="isSelectedLogicalType(column, 'TIMESTAMP')">
-                  <a href="javascript:" (click)="onChangeLogicalType(column, 'TIMESTAMP')">
+                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, DATASOURCE_LOGICAL_TYPE.TIMESTAMP)">
+                  <a href="javascript:" (click)="onChangeLogicalType(column, DATASOURCE_LOGICAL_TYPE.TIMESTAMP)">
                     <em class="ddp-icon-type-calen"></em>
                     {{'msg.metadata.ui.dictionary.type.timestamp' | translate}}
                     <em class="ddp-icon-check"></em>
@@ -238,15 +239,15 @@
                 </li>
               </ul>
               <ul class="ddp-list-popup">
-                <li [class.ddp-selected]="isSelectedLogicalType(column, 'LNT')">
-                  <a href="javascript:" (click)="onChangeLogicalType(column, 'LNT')">
+                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, DATASOURCE_LOGICAL_TYPE.LNT)">
+                  <a href="javascript:" (click)="onChangeLogicalType(column, DATASOURCE_LOGICAL_TYPE.LNT)">
                     <em class="ddp-icon-type-latitude"></em>
                     {{'msg.metadata.ui.dictionary.type.latitude' | translate}}
                     <em class="ddp-icon-check"></em>
                   </a>
                 </li>
-                <li [class.ddp-selected]="isSelectedLogicalType(column, 'LNG')">
-                  <a href="javascript:" (click)="onChangeLogicalType(column, 'LNG')">
+                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, DATASOURCE_LOGICAL_TYPE.LNG)">
+                  <a href="javascript:" (click)="onChangeLogicalType(column, DATASOURCE_LOGICAL_TYPE.LNG)">
                     <em class="ddp-icon-type-longitude"></em>
                     {{'msg.metadata.ui.dictionary.type.longitude' | translate}}
                     <em class="ddp-icon-check"></em>

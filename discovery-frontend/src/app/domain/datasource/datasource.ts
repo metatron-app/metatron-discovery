@@ -113,63 +113,53 @@ export class DatasourceHive {
 
 // package com.metatron.discovery.domain.datasource.Field
 export class Field {
-
-  // Field 별칭
-  alias: string;
-
-  // BI 타입
-  biType: BIType;
-
   // 필드 아이디
   id: string;
-
-  // logical type
-  logicalType: LogicalType;
-
   // Field 명
   name: string;
+  // logical name
+  logicalName?: string;
+  // description
+  description: string;
 
+  // Physical data type on engine
+  type: string;
+  // logical type
+  logicalType: LogicalType;
   // 필드 타입
   role: FieldRole;
-
-  seq: number;
-
-  // 데이터 타입
-  type: string;
-
   // Partition 대상 필드 인지 여부
   partitioned: boolean;
 
   // 필수적으로 필터링을 수행해야하는 필드인지 여부
   filtering: boolean;
-
   // 필수 필터링 순서 지정
   filteringSeq: number;
-
   // 필터링 옵션
   filteringOptions: any;
 
-  // 기존 물리적인 필드를 매핑하여 신규 필드를 구성할 경우 관련 필드 정보
-  mappedField: Field[];
-
+  // is create field (optional)
+  derived?: boolean;
+  // Whether to exclude what to load to engine
+  unloaded?: boolean;
+  // derivationRule
+  derivationRule?: DerivationRule;
   // IngestionRule
   ingestionRule: IngestionRule;
 
-  // derivationRule
-  derivationRule?: DerivationRule;
+  // 기존 물리적인 필드를 매핑하여 신규 필드를 구성할 경우 관련 필드 정보
+  mappedField: Field[];
 
   // format
   // TODO 추후 FieldFormat으로 변환
   // format: FieldFormat;
   format: any;
 
-  // is create field (optional)
-  derived?: boolean;
-
-  // description
-  description: string;
+  // Field 별칭
+  alias: string;
 
   // for UI
+  seq: number;
   useFilter: boolean = false;
   useChartFilter: boolean = false;
   useChart: boolean = false;
@@ -188,7 +178,6 @@ export class Field {
   isValidReplaceValue?: boolean;
   replaceValidMessage?: string;
   timeFormatValidMessage?: string;
-  unloaded?: boolean;
   checked?: boolean;
 
   // [UI] for Alias
@@ -372,12 +361,6 @@ export enum SourceType {
   IMPORT = <any>'IMPORT',
   SNAPSHOT = <any>'SNAPSHOT',
   NONE = <any>'NONE'
-}
-
-export enum BIType {
-  DIMENSION = <any>'DIMENSION',
-  MEASURE = <any>'MEASURE',
-  TIMESTAMP = <any>'TIMESTAMP'
 }
 
 export enum Status {

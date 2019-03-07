@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../../common/service/abstract.service';
-import { CommonUtil } from '../../../common/util/common.util';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '../../../common/service/abstract.service';
+import {CommonUtil} from '../../../common/util/common.util';
 
 @Injectable()
 export class CodeTableService extends AbstractService {
