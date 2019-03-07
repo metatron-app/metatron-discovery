@@ -13,7 +13,7 @@
  */
 
 import * as _ from 'lodash';
-import { AbstractFilterPopupComponent } from '../abstract-filter-popup.component';
+import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
 import {
   Component,
   ElementRef,
@@ -25,12 +25,12 @@ import {
   SimpleChange,
   SimpleChanges
 } from '@angular/core';
-import { Dashboard } from '../../../domain/dashboard/dashboard';
-import { Field } from '../../../domain/datasource/datasource';
-import { CustomField } from '../../../domain/workbook/configurations/field/custom-field';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { Candidate } from '../../../domain/workbook/configurations/filter/inclusion-filter';
-import { TimeListFilter } from '../../../domain/workbook/configurations/filter/time-list-filter';
+import {Dashboard} from '../../../domain/dashboard/dashboard';
+import {Field} from '../../../domain/datasource/datasource';
+import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {Candidate} from '../../../domain/workbook/configurations/filter/inclusion-filter';
+import {TimeListFilter} from '../../../domain/workbook/configurations/filter/time-list-filter';
 
 @Component({
   selector: 'app-time-list-filter',
@@ -57,7 +57,7 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public useAll:boolean = false;
+  public useAll: boolean = false;
 
   public isOnlyShowCandidateValues: boolean = false;   // 표시할 후보값만 표시 여부
 
@@ -116,8 +116,13 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
    */
   public ngOnChanges(changes: SimpleChanges) {
     const filterChanges: SimpleChange = changes.inputFilter;
-    if (filterChanges) {
-      this.setData(filterChanges.currentValue, !filterChanges.firstChange );
+    const prevFilter: TimeListFilter = filterChanges.previousValue;
+    const currFilter: TimeListFilter = filterChanges.currentValue;
+    if (currFilter && (
+      !prevFilter || prevFilter.field !== currFilter.field ||
+      0 < _.difference(prevFilter.valueList, currFilter.valueList).length ||
+      0 < _.difference(prevFilter.candidateValues, currFilter.candidateValues).length)) {
+      this.setData(filterChanges.currentValue, !filterChanges.firstChange);
     }
   } // function - ngOnChanges
 
@@ -136,7 +141,7 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
    * @param {TimeListFilter} filter
    * @param {boolean} isBroadcast
    */
-  public setData(filter: TimeListFilter, isBroadcast:boolean = false ) {
+  public setData(filter: TimeListFilter, isBroadcast: boolean = false) {
 
     // 값 정보 설정
     if (filter.valueList && 0 < filter.valueList.length) {
@@ -178,7 +183,7 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
   public sortCandidateValues(filter: TimeListFilter, target: string, type: string) {
     if (this._isApiSort) {
       // 후보값 불러오기
-      this._loadCandidateList(filter, ( 'FREQUENCY' === target ) ? 'COUNT' : 'VALUE' );
+      this._loadCandidateList(filter, ('FREQUENCY' === target) ? 'COUNT' : 'VALUE');
     } else {
       // 정렬 정보 저장
       filter['sortTarget'] = target;
@@ -322,7 +327,7 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
     if (checked) {
       this._selectedValues.push(item);
     } else {
-      _.remove(this._selectedValues, { name: item.name });
+      _.remove(this._selectedValues, {name: item.name});
     }
 
     // 값 변경 전달
@@ -343,7 +348,7 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
    */
   public candidateShowToggle(item: Candidate) {
     if (this.isShowItem(item)) {
-      _.remove(this._candidateValues, { name: item.name });
+      _.remove(this._candidateValues, {name: item.name});
     } else {
       this._candidateValues.push(item);
     }
@@ -367,25 +372,25 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
    * @param {boolean} isBroadcast
    * @private
    */
-  private _loadCandidateList(filter: TimeListFilter, sortBy: string = 'VALUE', isBroadcast:boolean = false ) {
+  private _loadCandidateList(filter: TimeListFilter, sortBy: string = 'VALUE', isBroadcast: boolean = false) {
     this.loadingShow();
-    this.datasourceService.getCandidateForFilter(filter, this.dashboard, [], null, sortBy ).then(result => {
+    this.datasourceService.getCandidateForFilter(filter, this.dashboard, [], null, sortBy).then(result => {
       this._setCandidateResult(result, filter, sortBy);
       this.targetFilter = filter;
       this.safelyDetectChanges();
 
       // 전체 선택 기능 체크 및 전체 선택 기능이 비활성 일떄, 초기값 기본 선택 - for Essential Filter
-      if( this.targetField ) {
-        this.useAll = !( -1 < this.targetField.filteringSeq );
+      if (this.targetField) {
+        this.useAll = !(-1 < this.targetField.filteringSeq);
       } else {
         this.useAll = true;
       }
-      if( false === this.useAll && 0 === this._selectedValues.length ) {
-        this._selectedValues.push( this._candidateList[0] );
+      if (false === this.useAll && 0 === this._selectedValues.length) {
+        this._selectedValues.push(this._candidateList[0]);
       }
 
       // 변경사항 전파
-      ( isBroadcast ) && ( this.changeEvent.emit(this.getData()) );
+      (isBroadcast) && (this.changeEvent.emit(this.getData()));
 
       this.loadingHide();
     }).catch(err => this.commonExceptionHandler(err));
@@ -412,7 +417,7 @@ export class TimeListFilterComponent extends AbstractFilterPopupComponent implem
 
     // 정렬
     if (this._isApiSort) {
-      targetFilter['sortTarget'] = ( 'VALUE' === sortBy ) ? 'ALPHNUMERIC' : 'FREQUENCY';
+      targetFilter['sortTarget'] = ('VALUE' === sortBy) ? 'ALPHNUMERIC' : 'FREQUENCY';
       targetFilter['sortType'] = 'ASC';
 
       if ('WIDGET' === this.mode) {
