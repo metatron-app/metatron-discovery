@@ -15,7 +15,7 @@
 .popup-prep-create-complete {}
 .popup-prep-create-complete .ddp-wrap-complete {width:860px; height:100%; margin:0 auto; text-align:left;}
 .popup-prep-create-complete .ddp-wrap-boxtype {width:100%; height:160px; margin:0; }
-.popup-prep-create-complete .ddp-wrap-sheet-list {height:100%; margin-top:-160px; padding:170px 0 0 0; box-sizing:border-box;}
+.popup-prep-create-complete .ddp-wrap-sheet-list {height:100%; margin-top:-200px; padding:210px 0 0 0; box-sizing:border-box;}
 .popup-prep-create-complete .ddp-ui-sheet-list {border:1px solid #d6d7dc; height:100%; box-sizing:border-box; overflow:auto;}
 .popup-prep-create-complete table.ddp-table-sheet {width:100%; table-layout:fixed;}
 .popup-prep-create-complete table.ddp-table-sheet tr th {padding:8px 20px 8px 20px; text-align:left; font-weight:normal; color:#90969f; font-size:12px; border-bottom:1px solid #e7e7ea;}
@@ -102,6 +102,86 @@
 .popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-buttons a.ddp-btn-pop {width:100%;}
 .popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-box-info dl.ddp-dl-detail2 {padding-bottom:20px;}
 
+
+
+/**************************************************************
+    popup : 99_데이터프리퍼레이션_02데이터셋_01생성_file1_popup
+**************************************************************/
+.popup-prep-create .ddp-box-file-create {position:relative; overflow:auto;}
+.popup-prep-create .ddp-box-file-create .ddp-wrap-upload {display:inline-block; position:relative; padding:23px 0 0 0;width:323px; text-align:left;}
+.popup-prep-create .ddp-box-file-create .ddp-wrap-upload .ddp-box-upload-type {padding:15px 20px 15px 17px;border-radius:5px; background-color:#ececef;}
+.popup-prep-create .ddp-box-file-create .ddp-wrap-upload .ddp-box-upload-type  .ddp-wrap-edit3 .ddp-ui-edit-option.ddp-type {padding-bottom:0;}
+.popup-prep-create .ddp-box-file-create .ddp-wrap-upload .ddp-box-upload-type .ddp-wrap-edit3.ddp-type .ddp-type-selectbox {width:100%;}
+.popup-prep-create .ddp-box-file-create .ddp-wrap-upload .ddp-box-upload-type  .ddp-wrap-edit3.ddp-type .ddp-label-type {padding:7px 0; font-size:13px;}
+.popup-prep-create .ddp-box-popupcontents.type-info {padding-bottom:40px;box-sizing:border-box;}
+.popup-prep-create .ddp-box-popupcontents.type-info .ddp-box-synch {position:absolute; bottom:0; left:0; right:0;}
+
+.popup-prep-create .ddp-box-file-create .ddp-box-file-progress {position:absolute; top:0; left:0; right:0; bottom:0; background-color:#fff; overflow:auto; z-index:10;}
+.ddp-box-file-progress .ddp-list-file-progress li {position:relative; float:left; width:100%; padding-right:360px; border-bottom:1px solid #e6e6e9; box-sizing:border-box;}
+.ddp-box-file-progress .ddp-list-file-progress li.ddp-disabled:before {position:absolute; top:0; left:0; right:0; bottom:0; background-color:rgba(255,255,255,0.7); content:''; z-index:1;}
+.ddp-box-file-progress .ddp-list-file-progress li .ddp-file-name {position:relative; width:100%; padding:27px 0 20px 66px; box-sizing:border-box;}
+
+.ddp-box-file-progress .ddp-list-file-progress li .ddp-file-name [class*="ddp-icon-flow"] {position:absolute; top:50%; left:30px; margin-top:-10px;}
+.ddp-box-file-progress .ddp-list-file-progress li .ddp-file-name .ddp-data-filename {display:inline-block; max-width:100%; padding-bottom:8px; color:#4b515b; font-size:14px; font-weight:bold;}
+.ddp-box-file-progress .ddp-list-file-progress li .ddp-file-name .ddp-data-filename .ddp-txt-filename {display:block;white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
+.ddp-box-file-progress .ddp-list-file-progress li .ddp-file-name .ddp-data-filename .ddp-txt-subname {float:right;}
+.ddp-box-file-progress .ddp-list-file-progress li .ddp-file-name .ddp-data-size {display:block; color:#91969e; font-size:12px;}
+.ddp-box-file-progress .ddp-list-file-progress .ddp-ui-condition {position:absolute; top:0; right:0; bottom:0; width:360px; padding:37px 0 0 0; box-sizing:border-box;}
+.ddp-box-file-progress .ddp-list-file-progress .ddp-ui-condition .ddp-type-progressbar2 {width:200px;}
+.ddp-box-file-progress .ddp-list-file-progress .ddp-ui-condition.type-failed .ddp-type-progressbar2 .ddp-data-progressbar {background-color:#cd5454;}
+.ddp-box-file-progress .ddp-list-file-progress .ddp-ui-condition .ddp-data-per {display:inline-block; width:48px; padding-right:8px; text-align:right; color:#666eb2; font-weight:bold; vertical-align:middle;}
+.ddp-box-file-progress .ddp-list-file-progress .ddp-ui-condition.type-failed .ddp-data-per {color:#cd5454;}
+.ddp-box-file-progress .ddp-list-file-progress .ddp-ui-condition .ddp-data-condition {display:inline-block; width:65px;padding-left:7px; text-align:center; color:#90969f; vertical-align:middle; }
+.ddp-box-file-progress .ddp-list-file-progress .ddp-ui-condition .ddp-data-condition .ddp-line {width:65px; margin:-12px 0; box-sizing:Border-box;}
+.ddp-box-file-progress .ddp-list-file-progress .ddp-ui-condition .ddp-data-condition .ddp-txt-error {position:relative; font-style:normal; cursor:pointer;}
+.ddp-box-file-progress .ddp-list-file-progress .ddp-ui-condition .ddp-data-condition .ddp-txt-error .ddp-box-layout4 {display:none; position:absolute; top:100%; right:0; margin-top:4px; width:275px; text-align:left; z-index:2;}
+.ddp-box-file-progress .ddp-list-file-progress .ddp-ui-condition .ddp-data-condition .ddp-txt-error:hover .ddp-box-layout4 {display:block;}
+.ddp-box-file-progress .ddp-list-file-progress .ddp-ui-condition .ddp-data-condition .ddp-txt-error .ddp-box-layout4 .ddp-data-det { font-weight:normal; color:#4b515b;}
+.ddp-box-file-progress .ddp-list-file-progress li.ddp-disabled .ddp-type-progressbar2 .ddp-data-progressbar {display:none;}
+
+.ddp-ui-create-file {width:100%; height:100%; border:1px solid #d0d1d8; box-sizing:border-box;}
+.ddp-ui-create-file .ddp-list-create-file {display:;float:left; width:250px; max-width:250px; height:100%; border-right:1px solid #d0d1d8; overflow:auto; box-sizing:border-box;}
+.ddp-ui-create-file .ddp-wrap-create-detail {float:left; margin-left:-250px; padding-left:250px; width:100%; height:100%; box-sizing:border-box;}
+.ddp-ui-create-file .ddp-wrap-create-detail .ddp-ui-create-detail {position:relative; width:100%; height:100%;}
+.ddp-ui-create-file .ddp-list-file-name .ddp-wrap-checkbox {position:relative; padding:14px 35px 14px 34px;  cursor:pointer;}
+
+.ddp-ui-create-file .ddp-list-file-name > li {position:relative; border-bottom:1px solid #e6e6e9;}
+
+.ddp-ui-create-file .ddp-list-file-name > li .ddp-wrap-checkbox:hover,
+.ddp-ui-create-file .ddp-list-file-name > li.ddp-selected > .ddp-wrap-checkbox,
+.ddp-ui-create-file .ddp-list-sub-file > li.ddp-selected > .ddp-wrap-checkbox,
+.ddp-ui-create-file .ddp-list-sub-file > li > .ddp-wrap-checkbox:hover {background-color:#f6f6f7; font-weight:bold;}
+.ddp-ui-create-file .ddp-list-file-name > li > .ddp-wrap-checkbox:after,
+.ddp-ui-create-file .ddp-list-sub-file > li > .ddp-wrap-checkbox:after {display:none; position:absolute; top:50%; right:17px; margin-top:-6px; width:6px; height:11px; background:url(../../../images/icon_dataview.png) no-repeat; background-position:left -68px; content:'';}
+.ddp-ui-create-file .ddp-list-file-name > li > .ddp-wrap-checkbox:hover:after,
+.ddp-ui-create-file .ddp-list-file-name > li.ddp-selected > .ddp-wrap-checkbox:after,
+.ddp-ui-create-file .ddp-list-sub-file > li > .ddp-wrap-checkbox:hover:after,
+.ddp-ui-create-file .ddp-list-sub-file > li.ddp-selected > .ddp-wrap-checkbox:after {display:Block;}
+.ddp-ui-create-file .ddp-list-file-name li .ddp-label-checkbox {padding-left:0; max-width:100%; box-sizing:border-box;}
+.ddp-ui-create-file .ddp-list-file-name .ddp-wrap-checkbox .ddp-label-checkbox {position:absolute; top:0; left:0; bottom:0; width:34px;}
+
+.ddp-ui-create-file .ddp-list-file-name .ddp-wrap-checkbox .ddp-label-checkbox .ddp-icon-checkbox {left:14px;}
+
+.ddp-ui-create-file .ddp-list-file-name li .ddp-label-checkbox i.ddp-icon-checkbox { left:-19px;}
+.ddp-ui-create-file .ddp-list-file-name li span.ddp-txt-checkbox {display:inline-block; max-width:100%; font-size:13px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+.ddp-ui-create-file .ddp-list-file-name li span.ddp-txt-checkbox .ddp-txt-subname {float:right; font-size:13px;}
+.ddp-ui-create-file .ddp-list-file-name li .ddp-label-checkbox .ddp-txt-filename {display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+.ddp-ui-create-file .ddp-list-sub-file {border-top:1px solid #e6e6e9;}
+
+.ddp-ui-create-file .ddp-list-sub-file > li .ddp-wrap-checkbox {position:relative; padding:10px 35px 10px 60px;border-bottom:none;}
+
+.ddp-ui-create-file .ddp-list-file-name .ddp-list-sub-file .ddp-wrap-checkbox .ddp-label-checkbox {left:25px !important;}
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-grid-option {border-bottom:1px solid red; overflow:hidden; background-color:#f6f6f7; border-bottom:1px solid #d7d8dd;}
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-grid-option .ddp-data-total {float:right; padding:14px 0 15px 0; }
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-grid-option .ddp-data-total .ddp-txt-data {color:#4b515b; font-weight:300;margin-right:15px;}
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-grid-option .ddp-data-total .ddp-txt-data .ddp-txt-num {font-weight:normal;}
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-grid-option .ddp-data-name {position:relative; padding:14px 0 14px 43px; color:#4c515a; font-size:13px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-grid-option .ddp-data-name [class*="ddp-icon-flow-"] {position:absolute; top:50%; left:15px; margin-top:-10px;}
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-grid {position:absolute; top:45px; left:0; right:0; bottom:43px; }
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-column-option {position:absolute; bottom:0; left:0; right:0; padding:5px 0 5px 14px; border-top:1px solid #d7d8dd; background-color:#f6f6f7;}
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-column-option  .ddp-wrap-edit3.ddp-type .ddp-label-type {font-size:13px;}
+.ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-column-option  .ddp-wrap-edit3.ddp-type .ddp-txt-error {margin-left:5px;}
+.popup-prep-create-complete table.ddp-table-sheet tr td [class*="ddp-icon-flow-"] {margin-right:5px;}
 
 
 
