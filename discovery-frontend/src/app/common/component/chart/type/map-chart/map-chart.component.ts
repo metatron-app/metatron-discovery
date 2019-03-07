@@ -936,9 +936,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.changeDetect.detectChanges();
 
     // Map data place fit
-    if (this.drawByType && 'Infinity'.indexOf(source.getExtent()[0]) == -1) {
+    if (this.drawByType && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&  (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'] == true) ) {
       this.olmap.getView().fit(source.getExtent());
-    } else {      // set saved data zoom
+    } else {
+      // set saved data zoom
       if (this.uiOption.chartZooms && this.uiOption.chartZooms.length > 0) {
         this.olmap.getView().setCenter([this.uiOption.chartZooms[0].startValue, this.uiOption.chartZooms[0].endValue]);
         this.olmap.getView().setZoom(this.uiOption.chartZooms[0].count);
@@ -2747,18 +2748,24 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     if( Number(preLowerCorner[0]).toFixed(10) != currentMapExtent[0].toFixed(10) && Number(preLowerCorner[1]).toFixed(10) != currentMapExtent[1].toFixed(10)
       && Number(preUpperCorner[0]).toFixed(10) != currentMapExtent[2].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) != currentMapExtent[3].toFixed(10) ){
 
-      // map ui lat, lng
-      this.setUiExtent(event);
-      if( mapUIOption.upperCorner.indexOf('NaN') != -1 || mapUIOption.lowerCorner.indexOf('NaN') != -1 ) {
-        return;
-      }
-
-      // coverage value reset
+      let isAllChangeCoverage: boolean = false;
       mapUIOption.layers.forEach( (layer) => {
-        if(!_.isUndefined(layer['changeCoverage'])){
-          layer['changeCoverage'] = false;
+        if( !_.isUndefined(layer['changeCoverage']) && layer['changeCoverage'] == true ) {
+          isAllChangeCoverage = true;
         }
       });
+
+      // map ui lat, lng
+      this.setUiExtent(event);
+      if( mapUIOption.upperCorner.indexOf('NaN') != -1 || mapUIOption.lowerCorner.indexOf('NaN') != -1 || isAllChangeCoverage ) {
+        // coverage value reset
+        mapUIOption.layers.forEach( (layer) => {
+          if(!_.isUndefined(layer['changeCoverage'])){
+            layer['changeCoverage'] = false;
+          }
+        });
+        return;
+      }
 
       // zoom size
       mapUIOption.zoomSize = Math.round(event.frameState.viewState.zoom);
