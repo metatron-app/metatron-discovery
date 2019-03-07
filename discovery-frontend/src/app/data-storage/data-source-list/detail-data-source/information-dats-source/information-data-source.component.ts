@@ -228,7 +228,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    * @return {string}
    */
   public getConvertedSourceDescription(): string {
-    return StringUtil.isEmpty(this.datasource.description) ? this.translateService.instant('msg.storage.ui.none.source.desc') : this.datasource.description.replace(/\r\n|\n/gi, '<br>');
+    return this.datasource.description.replace(/\r\n|\n/gi, '<br>');
   }
 
   /**
@@ -236,7 +236,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    */
   public updateSourceDescription(): void {
     // 설명 길이 체크
-    if (CommonUtil.getByte(this.descriptionChangeText) > 450) {
+    if (CommonUtil.getByte(this.descriptionChangeText.trim()) > 450) {
       Alert.warning(this.translateService.instant('msg.alert.edit.description.len'));
       return;
     }
@@ -244,7 +244,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     // set hide modified guide message
     this.isShowModifiedGuideMessage = false;
     // update
-    this._updateDatasource.emit({description: this.descriptionChangeText});
+    this._updateDatasource.emit({description: this.descriptionChangeText.trim()});
   }
 
   /**
