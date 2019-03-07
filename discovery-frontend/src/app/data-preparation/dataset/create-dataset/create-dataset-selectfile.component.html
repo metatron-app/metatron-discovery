@@ -12,102 +12,131 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-prep-create">
   <!-- 닫기 버튼 -->
-  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <a href="javascript:" class="ddp-btn-close" (click)="closeCheck()"></a>
   <!-- //닫기 버튼 -->
   <div class="ddp-icon-name">
     <div class="ddp-ui-name2 ddp-type3">
-      {{'msg.dp.ui.ds.create.title' | translate : {type : 'File'} }}
-      <span class="ddp-txt-info ddp-type">{{'msg.dp.ui.ds-sel.create.title' | translate}}</span>
-      <em class="ddp-bg-order-line2-type"></em>
+      Create a file type dataset
+      <span class="ddp-txt-info ddp-type">Please select data</span>
+      <em class="ddp-bg-order-line3-type"></em>
     </div>
   </div>
-
   <!-- contents in  -->
   <div class="ddp-type-contents-in ddp-full">
-
-    <div class="ddp-box-popupcontents">
+    <div class="ddp-box-popupcontents type-info">
       <!-- file create -->
-      <div class="ddp-box-file-create" #drop_container >
-
-        <div *ngIf="isUploading===true">
-          <!-- progress -->
-          <div class="ddp-wrap-progress" style="">
-            <!-- loading box -->
-            <div class="ddp-box-loading ddp-pop ddp-progress" style="">
-              <span class="ddp-data-loading">Uploading file <strong>{{this.progressPercent}}%</strong></span>
-              <a href="javascript:" class="ddp-btn-cancel" (click)="cancelClick(true)" >{{'msg.comm.btn.cancl' | translate}}</a>
-              <!-- bar -->
-              <div class="ddp-type-progressbar2" >
-                <em class="ddp-data-progressbar" [ngStyle]="{'width': progressbarWidth}"></em>
-              </div>
-              <!-- //bar -->
-            </div>
-            <!-- //loading box -->
-          </div>
-          <!-- //progress -->
-          <!-- progress (cancel) -->
-          <div class="ddp-wrap-progress" style="display:none;">
-            <!-- loading box -->
-            <div class="ddp-box-loading ddp-pop ddp-progress ddp-disabled" style="">
-              <span class="ddp-data-loading">Uploading file  <strong style="display: none;">{{this.progressPercent}}%</strong></span>
-              <a href="javascript:" class="ddp-btn-cancel">{{'msg.comm.btn.cancl' | translate}}</a>
-              <!-- bar -->
-              <div class="ddp-type-progressbar2">
-                <em class="ddp-data-progressbar" [ngStyle]="{'width': progressbarWidth}"></em>
-              </div>
-              <!-- //bar -->
-            </div>
-            <!-- //loading box -->
-
-            <div class="ddp-box-loading ddp-pop ddp-cancel" style="">
-
-              <!-- buttons -->
-              <div class="ddp-pop-buttons">
-                <div class="ddp-txt-info">{{'msg.dp.ui.snapshot.cancel.confirm' | translate}}</div>
-                <a href="javascript:" class="ddp-btn-line" (click)="cancelClick(false)">{{'msg.dp.ui.no' | translate }}</a>
-                <a href="javascript:" class="ddp-btn-solid ddp-bg-black " (click)="cancelUpload()">{{'msg.dp.ui.yes' | translate }}</a>
-              </div>
-              <!-- //buttons -->
-
-            </div>
-          </div>
-          <!-- //progress -->
-        </div>
-
-
+      <div class="ddp-box-file-create">
         <!-- default -->
-        <div class="ddp-box-default">
-          <div class="ddp-txt-file-info">
-            <div class="ddp-link-file" >
-              <input type="file"   #pickfiles>
-              {{'msg.dp.ui.file.import' | translate}}
+        <div class="ddp-box-default" #drop_container [ngStyle]="{'visibility': supportedFileCount==0?'visible':'hidden'}">
+
+          <div class="ddp-txt-file-info" >
+            <div class="ddp-link-file">
+              <input type="file" #pickfiles />
+              Import
             </div>
-            {{'msg.dp.ui.file.drop' | translate}}
+            or drop file here
           </div>
           <div class="ddp-txt-file-info2">
-            {{'msg.dp.ui.file.upload.description' | translate}}
+            xls, .xlsx, .txt, .csv and .json formats are allowed
           </div>
+          <!-- upload -->
+          <div class="ddp-wrap-upload">
+            <div class="ddp-box-upload-type">
+              <div class="ddp-wrap-edit3 ddp-type">
+                <label class="ddp-label-type">Upload Location</label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option ddp-type">
+                  <!-- select -->
+                  <component-select
+                    [array]="fileLocations"
+                    [isUpSelect]="false"
+                    [isFull]="false"
+                    [viewKey]="'label'"
+                    [defaultIndex]="fileLocationDefaultIdx"
+                    (onSelected)="onSelected($event)">
+                  </component-select>
+                  <!--//select-->
+                </div>
+                <!-- //edit option -->
+              </div>
+            </div>
+
+          </div>
+
+          <!-- //upload -->
         </div>
         <!-- //default -->
+
+        <!-- file progress -->
+        <div class="ddp-box-file-progress" [ngStyle]="{'visibility': supportedFileCount>0?'visible':'hidden'}">
+          <!--<div class="ddp-box-file-progress" [ngStyle]="{'visibility': 'hidden'}">-->
+          <!-- list -->
+          <ul class="ddp-list-file-progress">
+            <li *ngFor="let item of upFiles">
+              <!-- name -->
+              <div class="ddp-file-name">
+                <!--<em class="ddp-icon-flow-file"></em>-->
+                <em [ngClass]="{'xls':'ddp-icon-flow-xls','xlsx':'ddp-icon-flow-xls','json':'ddp-icon-flow-json','csv':'ddp-icon-flow-csv','txt':'ddp-icon-flow-csv'}[item.extension]"></em>
+                <div class="ddp-data-filename">
+                  <span class="ddp-txt-subname">{{item.fileExtension}}</span>
+                  <span class="ddp-txt-filename">{{item.fileName}}.</span>
+
+                </div>
+                <span class="ddp-data-size">{{formatBytes(item.size,1)}}</span>
+              </div>
+              <!-- //name -->
+
+              <!-- 상태 -->
+              <div class="ddp-ui-condition" [ngClass]="{'type-failed': item.isFailed==true}">
+                <span class="ddp-data-per">{{item.progressPercent}} %</span>
+                <!-- bar -->
+                <div class="ddp-type-progressbar2">
+                  <em class="ddp-data-progressbar" [ngStyle]="{'width': item.progressPercent>0? item.progressPercent+'%':'0%'}"></em>
+                </div>
+                <!-- //bar -->
+                <div class="ddp-data-condition">
+                  <a href="javascript:" class="ddp-btn-selection ddp-line" *ngIf="item.isUploading==true" (click)="cancelUpload(item)" >{{'msg.comm.btn.cancl' | translate}}</a>
+
+                  <div class="ddp-data-condition" *ngIf="item.isCanceled==true">{{'msg.dp.ui.file.upload.canceled' | translate}}</div>
+                  <div class="ddp-data-condition" *ngIf="item.isUploaded==true">{{'msg.dp.ui.file.upload.uploaded' | translate}}</div>
+                  <span class="ddp-txt-error" *ngIf="item.isFailed==true"><em class="ddp-icon-error"></em>{{'msg.storage.ui.list.failed' | translate}}
+                    <!-- popup -->
+                    <div class="ddp-box-layout4 ">
+                    <div class="ddp-data-det">
+                    {{item.response.message}}
+                    </div>
+                    </div>
+                    <!-- //popup -->
+                  </span>
+                </div>
+
+              </div>
+              <!-- //상태 -->
+            </li>
+          </ul>
+          <!-- list -->
+        </div>
+        <!-- //file progress -->
       </div>
       <!-- //file create -->
+      <div class="ddp-box-synch type-error" [ngStyle]="{'visibility': unsupportedFileView?'visible':'hidden'}">
+        <div class="ddp-txt-synch">
+          <em class="ddp-icon-info"></em>{{'msg.dp.ui.file.upload.explain.unsupported' | translate}}
+        </div>
+      </div>
     </div>
   </div>
   <!-- //contents in  -->
-
-
-
-
-
-
   <!-- buttons -->
   <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="closeCheck()">Cancel</a>
     <!-- disabled 시 ddp-disabled 추가 -->
-    <!--<a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">Next</a>-->
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " [ngClass]="{'ddp-disabled':!isNext}" (click)="next()">Next</a>
   </div>
   <!-- //buttons -->
 
 </div>
+
+<app-delete-modal (deleteConfirm)="confirmClose()" [enableCloseOutput]="true" (closeOutput)="cancelClose()"></app-delete-modal>

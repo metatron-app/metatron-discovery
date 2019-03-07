@@ -156,6 +156,9 @@ export class PrDatasetFile extends PrDataset {
   public sheetIndex: number;
   public selectedSheets: any[] = [];
   public sheetInfo: SheetInfo[];
+  public fileName: string;
+  public fileExtension: string;
+  public selected : boolean = false;
 }
 
 export class PrDatasetHive extends PrDataset {

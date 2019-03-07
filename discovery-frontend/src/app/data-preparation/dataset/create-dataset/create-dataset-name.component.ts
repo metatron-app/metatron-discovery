@@ -14,7 +14,10 @@
 
 import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
 import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {PrDatasetFile, PrDatasetHive, PrDatasetJdbc, RsType} from '../../../domain/data-preparation/pr-dataset';
+import {
+  FileFormat, PrDatasetFile, PrDatasetHive, PrDatasetJdbc,
+  RsType
+} from '../../../domain/data-preparation/pr-dataset';
 import {PopupService} from '../../../common/service/popup.service';
 import {DatasetService} from '../service/dataset.service';
 import {isUndefined} from 'util';
@@ -50,7 +53,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   public datasetJdbc: PrDatasetJdbc;
 
   @Input()
-  public datasetFile : PrDatasetFile;
+  public datasetFiles : any;
 
   @Input() // [DB, STAGING, FILE]
   public type : string;
@@ -69,6 +72,8 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
   public datasetInfo : DatasetInfo[] = [];
   public fileExtension: string;
+
+  public dsfileInformations: any;
 
   public isMultiSheet: boolean = false;
   public names : string [] = [];
@@ -96,6 +101,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   public ngOnInit() {
     super.ngOnInit();
 
+    this.dsfileInformations = [];
 
     // Set default name
     this._setDefaultDatasetName(this.type);
@@ -169,10 +175,11 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
       // List of parameters used to make multiple dataSets
       const params = this.names.map((name:string,index:number) => {
-        this.datasetFile.dsName = name;
-        this.datasetFile.dsDesc = this.descriptions[index];
-        this.datasetFile.sheetName = this.datasetFile.selectedSheets[index];
-        return this._getFileParams(this.datasetFile);
+        this.datasetFiles[this.dsfileInformations[index].datasetFileIndex].dsName = name;
+        this.datasetFiles[this.dsfileInformations[index].datasetFileIndex].dsDesc = this.descriptions[index];
+        this.datasetFiles[this.dsfileInformations[index].datasetFileIndex].sheetName = this.datasetFiles[this.dsfileInformations[index].datasetFileIndex].selectedSheets[index];
+
+        return this._getFileParams(this.datasetFiles[this.dsfileInformations[index].datasetFileIndex]);
       });
 
       // Make list of params into observable using from.
@@ -351,32 +358,59 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     if ('FILE' === type) {
 
-      let file = PreparationCommonUtil.getFileNameAndExtension(this.datasetFile.filenameBeforeUpload);
-      this.fileExtension = file[1];
-      let fileName = file[0];
-      if(this.fileExtension.toUpperCase() === 'XLSX' || this.fileExtension.toUpperCase() === 'XLS') {
-
-        this.datasetFile.selectedSheets.forEach((item) => {
-          this.names.push(`${fileName} - ${item} (EXCEL)`);
-          this.descriptions.push('');
-          this.nameErrors.push('');
-          this.descriptionErrors.push('');
-        });
-
-        // For placeholder
-        this.clonedNames = _.cloneDeep(this.names);
-
-        if (this.names.length > 1) {
-          this.isMultiSheet = true;
-        } else {
-          this.names[0] = `${fileName} - ${this.datasetFile.selectedSheets[0]} (EXCEL)`;
+      this.datasetFiles.forEach((dsFile, index)=>{
+        if(dsFile.sheetInfo){
+          if(dsFile.fileFormat === FileFormat.EXCEL){
+            dsFile.sheetInfo.forEach((sheet)=>{
+              if (sheet.selected){
+                this.names.push(`${dsFile.fileName} - ${sheet.sheetName} (${dsFile.fileFormat.toString()})`);
+                this.descriptions.push('');
+                this.nameErrors.push('');
+                this.descriptionErrors.push('');
+                this.dsfileInformations.push({datasetFileIndex : index, fileName: dsFile.filenameBeforeUpload, fileFormat: dsFile.fileFormat.toString()});
+              }
+            })
+          } else {
+            if(dsFile.selected){
+              this.names.push(`${dsFile.fileName} (${dsFile.fileFormat.toString()})`);
+              this.descriptions.push('');
+              this.nameErrors.push('');
+              this.descriptionErrors.push('');
+              this.dsfileInformations.push({datasetFileIndex : index, fileName: dsFile.filenameBeforeUpload, fileFormat: dsFile.fileFormat.toString()});
+            }
+          }
         }
+      })
+      // For placeholder
+      this.clonedNames = _.cloneDeep(this.names);
 
-      } else if (this.fileExtension.toUpperCase() === 'JSON') {
-        this.names[0] = `${fileName} (JSON)`;
-      } else {
-        this.names[0] = `${fileName} (CSV)`;
-      }
+      // let file = PreparationCommonUtil.getFileNameAndExtension(this.datasetFile.filenameBeforeUpload);
+      // this.fileExtension = file[1];
+      // let fileName = file[0];
+      // if(this.fileExtension.toUpperCase() === 'XLSX' || this.fileExtension.toUpperCase() === 'XLS') {
+      //
+      //   this.datasetFile.selectedSheets.forEach((item) => {
+      //     this.names.push(`${fileName} - ${item} (EXCEL)`);
+      //     this.descriptions.push('');
+      //     this.nameErrors.push('');
+      //     this.descriptionErrors.push('');
+      //   });
+      //
+      //   // For placeholder
+      //   this.clonedNames = _.cloneDeep(this.names);
+      //
+      //   if (this.names.length > 1) {
+      //     this.isMultiSheet = true;
+      //   } else {
+      //     this.names[0] = `${fileName} - ${this.datasetFile.selectedSheets[0]} (EXCEL)`;
+      //   }
+      //
+      // } else if (this.fileExtension.toUpperCase() === 'JSON') {
+      //   this.names[0] = `${fileName} (JSON)`;
+      // } else {
+      //   this.names[0] = `${fileName} (CSV)`;
+      // }
+
     } else if ('DB' === type) {
 
       // When table
@@ -410,15 +444,15 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     if ('FILE' === this.type) {
 
-      this.datasetInfo.push({name : this.translateService.instant('msg.dp.ui.list.file'), value : this.datasetFile.filenameBeforeUpload});
-
-      if ('XLSX' === this.fileExtension.toUpperCase() || 'XLS' === this.fileExtension.toUpperCase()) {
-
-        if (!this.isMultiSheet) {
-          this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.datasetFile.selectedSheets[0]});
-        }
-
-      }
+      // this.datasetInfo.push({name : this.translateService.instant('msg.dp.ui.list.file'), value : this.datasetFile.filenameBeforeUpload});
+      //
+      // if ('XLSX' === this.fileExtension.toUpperCase() || 'XLS' === this.fileExtension.toUpperCase()) {
+      //
+      //   if (!this.isMultiSheet) {
+      //     this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.datasetFile.selectedSheets[0]});
+      //   }
+      //
+      // }
 
     } else if ('DB' === this.type) {
 
@@ -628,4 +662,5 @@ class DatasetInfo {
   name : string;
   value : any;
 }
+
 

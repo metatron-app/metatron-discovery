@@ -5158,8 +5158,9 @@ em.ddp-icon-flow-tibero,
 em.ddp-icon-flow-file,
 em.ddp-icon-flow-xls,
 em.ddp-icon-flow-xlsx,
-em.ddp-icon-flow-csv ,
-em.ddp-icon-flow-sql {display:inline-block; background:url(../images/icon_flow.png) no-repeat; vertical-align: middle;}
+em.ddp-icon-flow-csv,
+em.ddp-icon-flow-sql,
+em.ddp-icon-flow-json {display:inline-block; background:url(../images/icon_flow.png) no-repeat; vertical-align: middle;}
 
 em.ddp-icon-flow-dataset {width:19px; height:19px;}
 em.ddp-icon-flow-wrangled {width:16px; height:16px; background-position:left -20px;}
@@ -5178,7 +5179,7 @@ em.ddp-icon-flow-xls {width:22px; height:20px; background-position:left -236px;}
 em.ddp-icon-flow-xlsx {width:22px; height:20px; background-position:left -257px;}
 em.ddp-icon-flow-csv {width:22px; height:20px; background-position:left -278px;}
 em.ddp-icon-flow-sql {width:22px; height:20px; background-position:left -299px;}
-
+em.ddp-icon-flow-json {width:22px; height:20px; background-position:left -336px;}
 /****	상세보기  *****/
 table.ddp-table-detail tbody tr td .ddp-box-sub {width:710px;}
 table.ddp-table-detail tbody tr td .ddp-txt-cut{
