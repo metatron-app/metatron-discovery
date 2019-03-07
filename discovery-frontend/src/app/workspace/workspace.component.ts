@@ -44,6 +44,8 @@ import {EventBroadcaster} from '../common/event/event.broadcaster';
 import {PageResult} from '../domain/common/page';
 import {ChangeOwnerWorkspaceComponent} from './component/management/change-owner-workspace.component';
 import {WorkspacePermissionSchemaSetComponent} from './component/permission/workspace-permission-schema-set.component';
+import {ConnectionType} from '../domain/dataconnection/dataconnection';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-workspace',
@@ -211,6 +213,8 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
 
   // 노트북 서버 설정 여부
   public isSetNotebookServer: boolean = false;
+
+  public readonly CONNECTION_TYPE = ConnectionType;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -812,6 +816,14 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
       return Promise.resolve();
     }
   } // function - loadWorkspace
+
+  public getConnType(book: Book) {
+    return _.get(book, 'contents.connType', ConnectionType.NONE);
+  }
+
+  public getConnName(book: Book) {
+    return _.get(book, 'contents.connName', '');
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | CRUD 관련 Method
@@ -1672,7 +1684,6 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     }
     return filteredList;
   } // function - _getDisplayItems
-
 }
 
 

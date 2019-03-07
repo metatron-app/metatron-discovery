@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.workbench;
 
+import com.google.common.collect.Maps;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -73,7 +75,11 @@ public class Workbench extends Book {
 		Map<String, Object> projection = super.listViewProjection();
 		projection.put("type", "workbench");
 
-		// TODO: Editor 명 목록을 전달할까?
+		Map<String, Object> contents = Maps.newLinkedHashMap();
+		contents.put("connType", dataConnection.getImplementor());
+		contents.put("connName", dataConnection.getName());
+
+		projection.put("contents", contents);
 
 		return projection;
 	}

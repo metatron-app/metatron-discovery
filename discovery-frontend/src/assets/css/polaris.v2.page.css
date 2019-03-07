@@ -2385,7 +2385,7 @@ em.ddp-icon-control-cut .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {righ
 .ddp-box-block .ddp-ui-box-contents {padding:0 43px 0 43px;}
 .ddp-box-block .ddp-ui-box-contents span.ddp-data-name {display:block; font-size:18px; color:#545b65; font-weight:bold;  overflow:hidden; text-overflow:ellipsis; word-wrap:normal; white-space:nowrap;}
 
-.ddp-box-block .ddp-ui-box-contents span.ddp-data-name.ddp-data-line2 {height:44px; white-space:normal; overflow: hidden;
+.ddp-box-block .ddp-ui-box-contents span.ddp-data-name.ddp-data-line2 {max-height:44px; white-space:normal; overflow: hidden;
 	text-overflow: ellipsis;
 	display: -webkit-box;
 	-webkit-line-clamp: 2; /* 라인수 */
@@ -2393,6 +2393,9 @@ em.ddp-icon-control-cut .ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {righ
 	word-wrap:normal;}
 .ddp-box-block .ddp-ui-box-contents span.ddp-data-date {display:block; padding:7px 0 0 0; font-size:12px; color:#c5c6cd; }
 .ddp-box-block .ddp-ui-box-contents span.ddp-data-date span.ddp-data-ago {color:#4c515a;}
+
+.ddp-box-block .ddp-type-connection {position:absolute; bottom:30px; left:35px; right:15px; color:#90969f; font-size:12px; text-overflow:ellipsis; white-space:nowrap; overflow:hidden;}
+.ddp-box-block .ddp-type-connection .ddp-icon-type {display:inline-block; width:24px; height:24px;}
 .ddp-box-block .ddp-box-bottom {position:absolute; bottom:0; left:0; right:0; background-color:#f6f6f7;}
 .ddp-box-block .ddp-box-bottom .ddp-wrap-num {padding:10px 16px; }
 .ddp-box-block .ddp-box-bottom .ddp-wrap-num span.ddp-data-num {padding-right:20px; color:#90969f; font-size:12px;}
@@ -8794,6 +8797,16 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .icon-file-json-b .st3{fill:none;stroke:#6E727B;}
 .icon-file-json-b .st4{fill:#6E727B;}
 .icon-file-json-b .st5{display:inline;fill:#6E727B;}
+
+.icon-db-rds .st0{fill:#205B98;}
+.icon-db-rds .st1{fill:#5294CF;}
+.icon-db-rds .st2{fill:#2D72B8;}
+
+
+.icon-db-rds-w .st0{fill:#A5A5A5;}
+.icon-db-rds-w .st1{fill:#EBEBEB;}
+.icon-db-rds-w .st2{fill:#BFBFBF;}
+
 .icon-file-json-b .st6{display:inline;fill:#E7EAEB;}
 .icon-file-json-b .st7{display:inline;fill:#E7EAEB;stroke:#6E727B;}
 .icon-file-json-b .st8{display:inline;fill:#FFFFFF;}
