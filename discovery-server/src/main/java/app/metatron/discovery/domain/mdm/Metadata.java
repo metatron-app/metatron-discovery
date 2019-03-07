@@ -103,7 +103,7 @@ public class Metadata extends AbstractHistoryEntity implements MetatronDomain<St
     MetadataSource metadataSource = new MetadataSource(SourceType.ENGINE, dataSource.getId(), dataSource.getName());
 
     this.name = dataSource.getName();
-    this.description = dataSource.getName();
+    this.description = dataSource.getDescription();
     this.sourceType = SourceType.ENGINE;
     this.source = metadataSource;
 
