@@ -14,47 +14,53 @@
 
 <div class="ddp-wrap-dropmenu">
 
-    <div class="ddp-ui-dropmenu" [class.ddp-selected]="'analysis' === dataLayerKey">
+  <div class="ddp-ui-dropmenu" [class.ddp-selected]="'analysis' === dataLayerKey">
 
-        <div class="ddp-ui-drop-title" #panel>
+    <div class="ddp-ui-drop-title" #panel>
 
-            <!-- label : Analysis -->
-            <!--{{LABEL.ANALYSIS}}-->
-            {{'msg.page.prediction.analysis' | translate}}
-            <em class="ddp-icon-drop-view"></em>
-        </div>
-
-        <div class="ddp-ui-drop-contents">
-
-            <!-- list drop -->
-            <!-- 클릭시 ddp-selected 추가 -->
-
-            <!-- 고급분석 - 예측선 -->
-            <analysis-prediction [dataSubLayerKey]="dataSubLayerKey"
-                                 [selectChart]="selectChart"
-                                 [isChartShow]="isChartShow"
-                                 [widgetConfiguration]="widgetConfiguration"
-                                 [dataLayerKey]="dataLayerKey"
-                                 (changeAnalysisPredictionNoti)="changeAnalysisPredictionNoti();"
-                                 (changeForecastNoti)="changeForecastNoti();"
-                                 (changeConfidenceNoti)="changeConfidenceNoti();">
-            </analysis-prediction>
-            <!-- //고급분석 - 예측선 -->
-
-            <!-- 고급분석 - 추세선 -->
-            <!--<trend-line-component [dataSubLayerKey]="dataSubLayerKey"></trend-line-component>-->
-            <!-- //고급분석 - 추세선 -->
-
-            <!-- 클러스터 TODO 작업중 by juhee-->
-            <!--<analysis-cluster [dataSubLayerKey]="dataSubLayerKey">-->
-            <!--</analysis-cluster>-->
-            <!-- //클러스터 -->
-
-            <!-- //list drop -->
-
-            <!-- list drop -->
-        </div>
-
+      <!-- label : Analysis -->
+      <!--{{LABEL.ANALYSIS}}-->
+      {{'msg.page.prediction.analysis' | translate}}
+      <em class="ddp-icon-drop-view"></em>
     </div>
+
+    <div class="ddp-ui-drop-contents">
+
+      <!-- list drop -->
+      <!-- 클릭시 ddp-selected 추가 -->
+
+      <!-- 고급분석 - 예측선 -->
+      <analysis-prediction [dataSubLayerKey]="dataSubLayerKey"
+                           [selectChart]="selectChart"
+                           [isChartShow]="isChartShow"
+                           [widgetConfiguration]="widgetConfiguration"
+                           [dataLayerKey]="dataLayerKey"
+                           (changeAnalysisPredictionNoti)="changeAnalysisPredictionNoti();"
+                           (changeForecastNoti)="changeForecastNoti();"
+                           (changeConfidenceNoti)="changeConfidenceNoti();">
+      </analysis-prediction>
+      <!-- //고급분석 - 예측선 -->
+
+      <!-- 고급분석 - 추세선 -->
+      <!--<trend-line-component [dataSubLayerKey]="dataSubLayerKey"></trend-line-component>-->
+      <!-- //고급분석 - 추세선 -->
+
+      <!-- 클러스터 TODO 작업중 by juhee-->
+      <!--<analysis-cluster [dataSubLayerKey]="dataSubLayerKey">-->
+      <!--</analysis-cluster>-->
+      <!-- //클러스터 -->
+
+      <!-- //list drop -->
+      <!-- list drop -->
+
+      <!--map-spatial-->
+      <!--<map-spatial *ngIf="selectChart==='map'"-->
+                   <!--[uiOption]="uiOption"-->
+                   <!--(changeAnalysisNoti)="changeAnalysisNoti($event);">-->
+      <!--</map-spatial>-->
+      <!-- // map-spatial-->
+    </div>
+
+  </div>
 
 </div>

@@ -22,6 +22,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Optional;
 
 import app.metatron.discovery.AbstractIntegrationTest;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
+import app.metatron.discovery.query.druid.queries.GeoBoundaryFilterQuery;
+import app.metatron.discovery.query.druid.queries.SelectStreamQuery;
+import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
 
 /**
  * Created by kyungtaak on 2016. 8. 22..
@@ -37,6 +42,41 @@ public class DruidEngineRepositoryTest extends AbstractIntegrationTest {
 
     Optional<JsonNode> node = druidEngineRepository.query(query, JsonNode.class);
     System.out.println(node.get());
+  }
+
+  @Test
+  public void selectStreamQuery() {
+
+    SelectStreamQuery selectStreamQuery1 = SelectStreamQuery.builder(new DefaultDataSource("estate"))
+                                                            .virtualColumns(new ExprVirtualColumn("concat('POINT (', \"gis.lon\", ' ', \"gis.lat\",')')", "__geom.vc"))
+                                                            .columns("gu", "__geom.vc")
+                                                            .build();
+
+    String strStreamQuery1 = GlobalObjectMapper.writeValueAsString(selectStreamQuery1);
+
+    Optional<JsonNode> node = druidEngineRepository.query(strStreamQuery1, JsonNode.class);
+    System.out.println(node.get());
+
+    SelectStreamQuery selectStreamQuery2 = SelectStreamQuery.builder(new DefaultDataSource("seoul_loads"))
+                                                            .virtualColumns(new ExprVirtualColumn("shape_fromWKT(geom)", "shape"),
+                                                                            new ExprVirtualColumn("shape_toWKT(shape_buffer(shape, 100, endCapStyle=2))", "geom_buf"))
+                                                            .columns("geom_buf", "name")
+                                                            .build();
+
+    String strStreamQuery2 = GlobalObjectMapper.writeValueAsString(selectStreamQuery2);
+    Optional<JsonNode> node2 = druidEngineRepository.query(strStreamQuery2, JsonNode.class);
+    System.out.println(node2.get());
+
+    GeoBoundaryFilterQuery geoBoundaryQuery = GeoBoundaryFilterQuery.builder()
+                                                                    .query(selectStreamQuery1)
+                                                                    .point("gis.coord")
+                                                                    .boundary(selectStreamQuery2, "geom_buf")
+                                                                    .build();
+
+    String strGeoBoundaryQuery = GlobalObjectMapper.writeValueAsString(geoBoundaryQuery);
+    Optional<JsonNode> node3 = druidEngineRepository.query(strGeoBoundaryQuery, JsonNode.class);
+    System.out.println(node3.get());
+
   }
 
 }

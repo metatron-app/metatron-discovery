@@ -14,13 +14,25 @@
 
 package app.metatron.discovery.domain.workbook.configurations.datasource;
 
+import com.google.common.base.Preconditions;
+
 import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonTypeName;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import app.metatron.discovery.domain.datasource.data.QueryRequest;
+import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
+import app.metatron.discovery.domain.workbook.configurations.analysis.Analysis;
+import app.metatron.discovery.domain.workbook.configurations.analysis.GeoSpatialAnalysis;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
 
 /**
  *
@@ -29,14 +41,17 @@ import java.util.Map;
 public class MultiDataSource extends DataSource {
 
   /**
-   * 선택된 데이터 소스 목록
+   * list of datasource
    */
   List<DataSource> dataSources;
 
   /**
-   * 데이터 소스간 연결 정보
+   * association with datasources
    */
   List<Association> associations;
+
+  @JsonIgnore
+  DataSource mainDataSource;
 
   public MultiDataSource() {
   }
@@ -48,12 +63,75 @@ public class MultiDataSource extends DataSource {
     this.associations = associations;
   }
 
+  /**
+   * find datasource by name (in multiple datasource)
+   */
+  public Optional<DataSource> getDatasourceByName(String name) {
+    Preconditions.checkNotNull(name, "Name of datasource is required.");
+
+    for (DataSource dataSource : dataSources) {
+      if (name.equals(dataSource.getName())) {
+        return Optional.of(dataSource);
+      }
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Elect main datasource from search request
+   */
+  public void electMainDataSource(QueryRequest queryRequest) {
+
+    if (queryRequest != null && queryRequest instanceof SearchQueryRequest) {
+      SearchQueryRequest searchQueryRequest = (SearchQueryRequest) queryRequest;
+      Shelf shelf = searchQueryRequest.getShelf();
+      Analysis analysis = searchQueryRequest.getAnalysis();
+
+      if (shelf != null && shelf instanceof GeoShelf) {
+        GeoShelf geoShelf = (GeoShelf) shelf;
+        MapViewLayer mainLayer;
+        if (analysis != null && analysis instanceof GeoSpatialAnalysis) {
+          String mainLayerName = ((GeoSpatialAnalysis) analysis).getMainLayer();
+          mainLayer = geoShelf.getLayerByName(mainLayerName)
+                              .orElseThrow(() -> new IllegalArgumentException("layer({}) in shelf not found"));
+        } else {
+          mainLayer = geoShelf.getLayers().get(0);
+        }
+        mainDataSource = this.getDatasourceByName(mainLayer.getRef())
+                             .orElseThrow(() -> new IllegalArgumentException("'ref' value in layer doesn't include multi-datasource"));
+      } else {
+        mainDataSource = this.getDataSources().get(0);
+      }
+    } else {
+      mainDataSource = this.getDataSources().get(0);
+    }
+  }
+
+  /**
+   * Elect main datasource from map view layer
+   */
+  public void electMainDataSource(MapViewLayer layer) {
+    this.mainDataSource = getDatasourceByName(layer.getRef())
+        .orElseThrow(() -> new IllegalArgumentException("Invalid datasource name in layer"));
+  }
+
+  public app.metatron.discovery.domain.datasource.DataSource getMetaDataSource() {
+    if (mainDataSource == null) {
+      return dataSources.get(0).getMetaDataSource();
+    }
+    return mainDataSource.getMetaDataSource();
+  }
+
   public List<DataSource> getDataSources() {
     return dataSources;
   }
 
   public List<Association> getAssociations() {
     return associations;
+  }
+
+  public DataSource getMainDataSource() {
+    return mainDataSource;
   }
 
   @Override
@@ -67,17 +145,17 @@ public class MultiDataSource extends DataSource {
   public static class Association implements Serializable {
 
     /**
-     * 주 연결 데이터 소스 명 (engineName)
+     * source datasource name
      */
     String source;
 
     /**
-     * 타겟 연결 데이터 소스 명 (engineName)
+     * target datasource name
      */
     String target;
 
     /**
-     * 연결 컬럼 정보 ("주 연결 데이터소스 컬럼명" : "주 연결 데이터소스 컬럼명")
+     * column pair for association ("column name of source datasource" : "column name of target datasource")
      */
     Map<String, String> columnPair;
 

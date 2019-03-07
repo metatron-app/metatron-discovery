@@ -52,6 +52,4 @@ public interface IngestionJob {
 
   String process();
 
-  void setDataStoreOnGeoserver();
-
 }

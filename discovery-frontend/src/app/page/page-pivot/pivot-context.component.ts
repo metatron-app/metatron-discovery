@@ -626,7 +626,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     let list = [];
 
     if (ChartType.MAP === this.uiOption.type) {
-      list = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum];
+      list = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields;
     } else {
       list = _.concat(this.pivot.columns, this.pivot.rows, this.pivot.aggregations);
     }

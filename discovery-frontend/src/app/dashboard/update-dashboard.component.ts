@@ -67,7 +67,7 @@ import {WidgetShowType} from '../domain/dashboard/dashboard.globalOptions';
 import {FilterUtil} from './util/filter.util';
 import {ChartType} from '../common/component/chart/option/define/common';
 import {UIMapOption} from '../common/component/chart/option/ui-option/map/ui-map-chart';
-import {Shelf} from '../domain/workbook/configurations/shelf/shelf';
+import {Shelf, ShelfLayers} from '../domain/workbook/configurations/shelf/shelf';
 
 @Component({
   selector: 'app-update-dashboard',
@@ -946,10 +946,26 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       const pivot: Pivot = widget.configuration['pivot'];
 
       // set shelf layers (map chart)
-      const shelf: Shelf = widget.configuration['shelf'];
+      let shelf: any = widget.configuration['shelf'];
       const layerNum: number = widget.configuration['chart'].layerNum;
-      if (shelf && undefined !== layerNum && shelf.layers[layerNum] && shelf.layers[layerNum].length > 0) {
-        arrFields = arrFields.concat(shelf.layers[layerNum].map(item => {
+      if (shelf && undefined !== layerNum && shelf.layers[layerNum] && ( shelf.layers[layerNum].length > 0 || shelf.layers[layerNum].fields.length > 0)) {
+
+        // 기존 스펙이 남아있을경우 변환
+        if( _.isUndefined( shelf.layers[layerNum].fields ) ){
+          let tempShelf : Shelf = new Shelf();
+          for(let idx=0; idx<shelf.layers.length; idx++) {
+            let tempLayer : any = _.cloneDeep(shelf.layers[idx]);
+            if( _.isUndefined(tempShelf.layers[idx]) ){
+              let shelfLayers : ShelfLayers = new ShelfLayers();
+              tempShelf.layers.push( shelfLayers );
+            }
+            tempShelf.layers[idx].fields = tempLayer;
+          }
+          widget.configuration['shelf'] = tempShelf;
+          shelf = widget.configuration['shelf'];
+        }
+
+        arrFields = arrFields.concat(shelf.layers[layerNum].fields.map(item => {
           if (item.alias) {
             return item.alias;
           } else {
@@ -1516,7 +1532,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     if (customFields) {
       customFields.forEach((field: CustomField) => {
         if (FieldRole.DIMENSION === field.role) {
-          shelf.layers[layerNum].some(layer => {
+          shelf.layers[layerNum].fields.some(layer => {
             if (layer.name === field['oriColumnName']) {
               layer.field = _.merge(layer.field, field);
               layer['expr'] = field['expr'];
@@ -1526,7 +1542,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
           });
         } else if (FieldRole.MEASURE === field.role) {
           const customFieldPivotIdxs: number[] = [];
-          shelf.layers[layerNum].forEach((agg, idx: number) => {
+          shelf.layers[layerNum].fields.forEach((agg, idx: number) => {
             if (agg.name === field['oriColumnName']) {
               customFieldPivotIdxs.push(idx);
             }
@@ -1534,10 +1550,10 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
           if (1 < customFieldPivotIdxs.length) {
             customFieldPivotIdxs.splice(0, 1);
             customFieldPivotIdxs.reverse().forEach(idx => {
-              shelf.layers[layerNum].splice(idx, 1);
+              shelf.layers[layerNum].fields.splice(idx, 1);
             });
           }
-          shelf.layers[layerNum].forEach(agg => {
+          shelf.layers[layerNum].fields.forEach(agg => {
             if (agg.name === field['oriColumnName']) {
               agg.field = _.merge(agg.field, field);
               agg['expr'] = field['expr'];

@@ -48,6 +48,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -61,6 +62,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.CommonLocalVariable;
+import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.datasource.data.forward.ResultForward;
 import app.metatron.discovery.domain.datasource.data.result.SearchResultFormat;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
@@ -76,11 +78,12 @@ import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
 
 /**
  * Request model for search query
- *
  */
 public class SearchQueryRequest extends AbstractQueryRequest implements QueryRequest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchQueryRequest.class);
+
+  public static final String CXT_KEY_USE_STREAM = "useStream";
 
   /**
    * Filters
@@ -148,6 +151,9 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
    */
   @JsonIgnore
   Boolean includeTotalCount;
+
+  @JsonIgnore
+  Map<String, String> resultFieldMapper;
 
   public SearchQueryRequest() {
     // Empty Constructor
@@ -226,26 +232,24 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
 
   /**
    * Check whether the aggregated Expression Field is declared in the measure field
-   *
-   * @return
    */
   public boolean checkAggregatedExpressionField() {
-    if(CollectionUtils.isEmpty(this.getUserFields())) {
+    if (CollectionUtils.isEmpty(this.getUserFields())) {
       return false;
     }
 
     Set<String> measureFieldNames = this.getProjections().stream()
-                                      .filter(field -> field instanceof MeasureField)
-                                      .map(field -> field.getName())
-                                      .collect(Collectors.toSet());
+                                        .filter(field -> field instanceof MeasureField)
+                                        .map(field -> field.getName())
+                                        .collect(Collectors.toSet());
 
-    if(measureFieldNames.isEmpty()) {
+    if (measureFieldNames.isEmpty()) {
       return false;
     }
 
     // if there are user-defined columns and aggregated fields declared in the measure field
     for (UserDefinedField userDefinedField : this.getUserFields()) {
-      if(measureFieldNames.contains(userDefinedField.getName()) &&
+      if (measureFieldNames.contains(userDefinedField.getName()) &&
           userDefinedField instanceof ExpressionField &&
           ((ExpressionField) userDefinedField).isAggregated()) {
         return true;
@@ -264,7 +268,7 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
   }
 
   public List<Filter> getFilters() {
-    if(filters == null) {
+    if (filters == null) {
       return Lists.newArrayList();
     }
     return filters;
@@ -288,7 +292,7 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
 
   public List<Field> getProjections() {
 
-    if(CollectionUtils.isNotEmpty(projections)) {
+    if (CollectionUtils.isNotEmpty(projections)) {
       return projections;
     }
 
@@ -310,22 +314,22 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
 
   public void setProjections(Pivot pivot, boolean original) {
 
-    if(projections == null) {
+    if (projections == null) {
       projections = Lists.newArrayList();
     }
 
-    if(original && checkAggregatedExpressionField()) {
+    if (original && checkAggregatedExpressionField()) {
       throw new QueryTimeExcetpion("original data do not allow aggregated user-defined field.");
     }
 
-    for(Field field : pivot.getAllFields()) {
-      if(original && field instanceof MeasureField) {
+    for (Field field : pivot.getAllFields()) {
+      if (original && field instanceof MeasureField) {
         // 측정값 필드는 집계를 포함하지 않도록 처리
         MeasureField measureField = (MeasureField) field;
         measureField.setAggregationType(MeasureField.AggregationType.NONE);
         measureField.setAlias(measureField.getName());
         this.projections.add(field);
-      } else if(field instanceof MeasureField
+      } else if (field instanceof MeasureField
           && UserDefinedField.REF_NAME.equals(field.getRef())) {
         // follow ui rule
         field.setAlias(((MeasureField) field).getUserDefinedAlias());
@@ -337,7 +341,7 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
   }
 
   public List<UserDefinedField> getUserFields() {
-    if(userFields == null) {
+    if (userFields == null) {
       return Lists.newArrayList();
     }
     return userFields;
@@ -424,6 +428,14 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
     this.context = context;
   }
 
+  public Map<String, String> getResultFieldMapper() {
+    return resultFieldMapper;
+  }
+
+  public void setResultFieldMapper(Map<String, String> resultFieldMapper) {
+    this.resultFieldMapper = resultFieldMapper;
+  }
+
   public JsonNode makeResult(JsonNode root) {
 
     if (root == null || root.size() == 0) {
@@ -431,6 +443,22 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
     }
 
     // Result Type 판별
+    // Case "select.stream"
+    if (root.isArray() && root.get(0).isArray()) {
+      ArrayNode eventNodes = GlobalObjectMapper.getDefaultMapper().createArrayNode();
+      int resultSize = resultFieldMapper.size();
+      List<String> fields = Lists.newArrayList(resultFieldMapper.values());
+      ObjectNode targetNode;
+      for (JsonNode node : root) {
+        ArrayNode arrayNode = (ArrayNode) node;
+        targetNode = GlobalObjectMapper.getDefaultMapper().createObjectNode();
+        for (int i = 0; i < resultSize; i++) {
+          targetNode.set(fields.get(i), arrayNode.get(i));
+        }
+        eventNodes.add(targetNode);
+      }
+      return eventNodes;
+    }
     //
     // Case "groupBy"
     if (!root.get(0).has("result")) {
@@ -438,7 +466,7 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
       for (JsonNode node : root) {
         ObjectNode targetNode = (ObjectNode) node;
         // 불필요 노드 삭제
-        if(deleteVersion) {
+        if (deleteVersion) {
           targetNode.remove("version");
         }
         targetNode.remove("timestamp");
@@ -454,7 +482,7 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
     }
     // Case "select", "selectMeta"
     else {
-      if(root.get(0).get("result").has("events")) {
+      if (root.get(0).get("result").has("events")) {
         JsonNode eventNodes = root.get(0).get("result").get("events");
         for (JsonNode eventNode : eventNodes) {
           ObjectNode targetNode = (ObjectNode) eventNode;

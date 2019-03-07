@@ -1,12 +1,22 @@
 package app.metatron.discovery.domain.workbook.configurations.filter;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class SpatialBboxFilter extends SpatialFilter  {
+import org.apache.commons.lang3.StringUtils;
+
+public class SpatialBboxFilter extends SpatialFilter {
 
   String lowerCorner;
+
   String upperCorner;
+
+  @JsonIgnore
+  String[] uppers;
+
+  @JsonIgnore
+  String[] lowers;
 
   @JsonCreator
   public SpatialBboxFilter(@JsonProperty("dataSource") String dataSource,
@@ -15,8 +25,28 @@ public class SpatialBboxFilter extends SpatialFilter  {
                            @JsonProperty("lowerCorner") String lowerCorner,
                            @JsonProperty("upperCorner") String upperCorner) {
     super(dataSource, field, ref);
-    this.lowerCorner = lowerCorner;
-    this.upperCorner = upperCorner;
+
+    uppers = StringUtils.split(upperCorner, " ");
+    if (uppers.length == 2) {
+      this.upperCorner = upperCorner;
+    } else {
+      throw new IllegalArgumentException("Invalid upperCorner format : " + upperCorner);
+    }
+
+    lowers = StringUtils.split(lowerCorner, " ");
+    if (lowers.length == 2) {
+      this.lowerCorner = lowerCorner;
+    } else {
+      throw new IllegalArgumentException("Invalid lowerCorner format : " + upperCorner);
+    }
+  }
+
+  public double[] findLatitudes() {
+    return new double[]{Double.parseDouble(lowers[1]), Double.parseDouble(uppers[1])};
+  }
+
+  public double[] findLongitudes() {
+    return new double[]{Double.parseDouble(uppers[0]), Double.parseDouble(lowers[0])};
   }
 
   public String getLowerCorner() {

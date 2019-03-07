@@ -358,6 +358,9 @@ export class FilterUtil {
       case 'regexpr' :
         keyMap = ['expr'];
         break;
+      case 'spatial_bbox' :
+        keyMap = ['lowerCorner', 'upperCorner'];
+        break;
     }
     keyMap = keyMap.concat(['type', 'field', 'ref', 'dataSource']);
     for (let key of Object.keys(filter)) {

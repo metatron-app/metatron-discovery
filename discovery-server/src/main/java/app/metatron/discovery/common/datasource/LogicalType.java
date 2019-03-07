@@ -52,6 +52,13 @@ public enum LogicalType {
     return Lists.newArrayList("lat", "lon", "coord");
   }
 
+  public boolean isGeoType() {
+    if (this == GEO_POINT || this == GEO_LINE || this == GEO_POLYGON) {
+      return true;
+    }
+    return false;
+  }
+
   public String toEngineMetricType() {
     switch (this) {
       case STRING:
