@@ -44,10 +44,7 @@
           <div class="ddp-edit-description ddp-line" [class.ddp-edit]="isEditSourceDescription" >
             <!-- data -->
             <div class="ddp-data-description" (click)="enableEditDescription()">
-              <div class="ddp-txt-description" *ngIf="datasource.description && datasource.description.length !== 0" [innerHTML]="getConvertedSourceDescription()">
-              </div>
-              <div class="ddp-txt-description" *ngIf="!datasource.description || datasource.description.length === 0">
-                <span class="ddp-data-none" *ngIf="!datasource.description || datasource.description.trim() === '' ">{{'msg.storage.ui.none.source.desc' | translate}}</span>
+              <div class="ddp-txt-description" [class.ddp-nodata]="!datasource.description || datasource.description.length === 0" [innerHTML]="getConvertedSourceDescription()">
               </div>
               <a href="javascript:" class="ddp-btn-edit"><em class="ddp-icon-edit"></em>{{'msg.comm.btn.edit' | translate}}</a>
             </div>
