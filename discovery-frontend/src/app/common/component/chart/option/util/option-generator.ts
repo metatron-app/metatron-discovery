@@ -99,7 +99,7 @@ import { UIRadarChart } from '../ui-option/ui-radar-chart';
 
 import { CustomSymbol } from '../../../../../domain/workbook/configurations/format';
 import { UIChartAxisLabel, UIChartAxisLabelCategory, UIChartAxisLabelValue } from '../ui-option/ui-axis';
-import {MapLineStyle, MapThickness, MapType} from '../define/map/map-common';
+import {MapLayerStyle, MapLineStyle, MapThickness, MapType} from '../define/map/map-common';
 import { UIMapOption } from '../ui-option/map/ui-map-chart';
 import {CommonConstant} from "../../../../constant/common.constant";
 
@@ -2024,11 +2024,12 @@ export namespace OptionGenerator {
      */
     export function defaultMapViewChartUIOption(): UIMapOption {
 
-      let defaultStyle:string = 'TangoGis';
+      let defaultStyle:string = MapLayerStyle.TANGO_GIS.toString();
       const propMapConf = sessionStorage.getItem( CommonConstant.PROP_MAP_CONFIG );
+
       if ( propMapConf ) {
         const objConf = JSON.parse( propMapConf );
-        ( objConf && objConf.defaultBaseMap ) && ( defaultStyle = objConf.defaultBaseMap );
+        ( objConf && objConf.defaultBaseMap );
       }
 
       return <any>{
