@@ -138,12 +138,12 @@ export class MapPagePivotComponent extends PagePivotComponent {
     let diffDataSourceFl: boolean = false;
 
     // 같은 선반에 동일한 필드가 있을경우
-    let cnt : number = 0;
+    let cnt: number = 0;
     currentMapLayer.forEach((item) => {
-      if ( item.field.dsId == targetField.field.dsId && item.field.name == targetField.field.name ){
+      if (item.field.dsId == targetField.field.dsId && item.field.name == targetField.field.name) {
         cnt++;
       }
-      if( cnt > 1 ){
+      if (cnt > 1) {
         returnValue = false;
         return;
       }
@@ -458,7 +458,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
       // set layer alias
       this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkAlias);
 
-      // init layer
+      // layer 생성 (page.component에서 uiOption을 default로 생성하기 때문에 추가 layer 생성하기 위해서 0번째를 복사)
       let addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
 
       // layer name setting
@@ -794,7 +794,40 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * 공간연산 버튼 클릭시
    */
   public spatialAnalysisBtnClicked(value) {
+    // 공간연산 정보
     this.uiOption = value;
+
+    // // 공간연산 layer 추가
+    // let layers = {
+    //   name: '',
+    //   ref: '',
+    //   // view : {
+    //   //   "type": "hash",
+    //   //   "method": "h3",
+    //   //   "precision": 5
+    //   // },
+    //   fields: []
+    // };
+    //
+    // // add empty layer
+    // this.shelf.layers.push(layers);
+    //
+    // // set current layer number
+    // this.uiOption.layerNum = this.shelf.layers.length - 1;
+    //
+    // // set layer alias
+    // this.shelf.layers[this.uiOption.layerNum].fields = this.shelf.layers[this.uiOption.layerNum].fields.map(this.checkAlias);
+    //
+    // // layer 생성 (page.component에서 uiOption 전체를 생성함 layer만 추가 하기 추가 layer 생성하기 위해서 0번째를 복사)
+    // let addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
+    //
+    // // layer name setting
+    // addUiOptionLayer.name = 'SpatialLayer'
+    //
+    // this.uiOption.layers.push(addUiOptionLayer);
+    //
+    // // emit
+    // this.changeLayerEvent.emit(this.shelf);
   }
 
   /**
@@ -808,6 +841,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
       delete this.uiOption.analysis.compareLayer;
       delete this.uiOption.analysis.type;
       this.uiOption['analysis']['use'] = false;
+      this.uiOption.layerNum = this.uiOption.layers.length - 1;
     }
   }
 }

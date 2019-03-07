@@ -209,7 +209,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         unit: unitData
       }
     };
-    mapUIOption.layerNum = -1;
+    // mapUIOption.layerNum = -1;
     this.changeAnalysis.emit(mapUIOption);
   }
 
