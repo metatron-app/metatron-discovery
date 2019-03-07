@@ -487,13 +487,33 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
   public toggleDisplayMoreLayer() {
     this.isShowMore = !this.isShowMore;
     if (this.isShowMore) {
-      this.$element.closest('.lm_header')
-        .attr( 'style', 'display: block; height: 25px; z-index:21 !important;');
+      this.mouseOverHeader();
     } else {
-      this.$element.closest('.lm_header')
-        .attr( 'style', 'display: block; height: 25px;');
+      this.mouseOutHeader(true);
     }
   } // function - toggleDisplayMoreLayer
+
+  /**
+   * Header 에 마우스 오버 했을 때의 동작
+   */
+  public mouseOverHeader() {
+    if( 0 === $( '.sys-widget-header-layer:visible' ).length ) {
+      this.$element.closest('.lm_header')
+        .attr('style', 'display: block; height: 25px; z-index:21 !important;');
+    }
+  } // function - mouseOverHeader
+
+  /**
+   * Header 에 마우스 아웃 했을 때의 상황
+   */
+  public mouseOutHeader(isForce: boolean = false) {
+    if (isForce || !this.isShowMore) {
+      this.$element.closest('.lm_header')
+        .attr('style', 'display: block; height: 25px;');
+      this.isShowMore = false;
+    }
+  } // function - mouseOutHeader
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

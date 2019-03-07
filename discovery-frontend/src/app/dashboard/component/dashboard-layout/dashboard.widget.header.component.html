@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-wrap-widget">
+<div class="ddp-wrap-widget" (mouseover)="mouseOverHeader()" (mouseout)="mouseOutHeader()" >
 
   <!-- 해상도 작아질때 ddp-box-size 추가 -->
   <div #controlContainer class="ddp-box-widget" [class.ddp-box-size] = "isMiniHeader" >
@@ -222,15 +222,15 @@
 
         <!-- 좁은 헤더일 떄의 More 영역 - 편집 모드일때만 사용 -->
         <div class="ddp-ui-buttons" *ngIf="isMiniHeader" >
-          <div class="ddp-wrap-morebutton ddp-hover-tooltip"
+          <div (click)="toggleDisplayMoreLayer()"
                [class.ddp-selected]="isShowMore"
-               (click)="toggleDisplayMoreLayer()" >
+               class="ddp-wrap-morebutton ddp-hover-tooltip">
             <em class="ddp-icon-more"></em>
             <div class="ddp-ui-tooltip-info ddp-down">
               <em class="ddp-icon-view-top"></em> {{ 'msg.comm.ui.more' | translate }}
             </div>
 
-            <div class="ddp-wrap-popup2" >
+            <div class="sys-widget-header-layer ddp-wrap-popup2" >
               <!-- 위젯 속성 변경 버튼 모음 -->
               <ul class="ddp-list-popup" >
                 <li *ngIf="!isTextWidget" (click)="toggleTitle()">
