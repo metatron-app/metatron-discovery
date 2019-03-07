@@ -485,6 +485,8 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     }
     super.close();
 
+    this.chunk_uploader.stop();
+
     this.popupService.notiPopup({
       name: 'close-create',
       data: null

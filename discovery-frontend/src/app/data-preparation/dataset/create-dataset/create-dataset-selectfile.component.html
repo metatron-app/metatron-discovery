@@ -14,7 +14,7 @@
 
 <div class="ddp-type-contents ddp-resize2 ddp-type2 popup-prep-create">
   <!-- 닫기 버튼 -->
-  <a href="javascript:" class="ddp-btn-close" (click)="closeCheck()"></a>
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
   <div class="ddp-icon-name">
     <div class="ddp-ui-name2 ddp-type3">
@@ -131,7 +131,7 @@
   <!-- //contents in  -->
   <!-- buttons -->
   <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="closeCheck()">Cancel</a>
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">Cancel</a>
     <!-- disabled 시 ddp-disabled 추가 -->
     <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " [ngClass]="{'ddp-disabled':!isNext}" (click)="next()">Next</a>
   </div>
