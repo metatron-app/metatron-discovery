@@ -12,20 +12,20 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { CodeTable } from '../../../domain/meta-data-management/code-table';
-import { CreateCodeTableComponent } from '../../code-table/create-code-table/create-code-table.component';
-import { CodeTableService } from '../../code-table/service/code-table.service';
-import { isUndefined } from 'util';
-import { ColumnDictionaryService } from '../../column-dictionary/service/column-dictionary.service';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {CodeTable} from '../../../domain/meta-data-management/code-table';
+import {CreateCodeTableComponent} from '../../code-table/create-code-table/create-code-table.component';
+import {CodeTableService} from '../../code-table/service/code-table.service';
+import {isUndefined} from 'util';
+import {ColumnDictionaryService} from '../../column-dictionary/service/column-dictionary.service';
 import * as _ from 'lodash';
-import { Alert } from '../../../common/util/alert.util';
-import { CodeValuePair } from '../../../domain/meta-data-management/code-value-pair';
+import {Alert} from '../../../common/util/alert.util';
+import {CodeValuePair} from '../../../domain/meta-data-management/code-value-pair';
 
 @Component({
   selector: 'app-choose-code-table',
-  templateUrl: './choose-code-table.component.html'
+  templateUrl: './choose-code-table.component.html',
 })
 export class ChooseCodeTableComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -75,10 +75,11 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private _columnDictionaryService: ColumnDictionaryService,
-              private _codeTableService: CodeTableService,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    private _columnDictionaryService: ColumnDictionaryService,
+    private _codeTableService: CodeTableService,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -133,7 +134,7 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
    * @returns {boolean}
    */
   public isMoreContents(): boolean {
-    return (this.pageResult.number < this.pageResult.totalPages -1);
+    return (this.pageResult.number < this.pageResult.totalPages - 1);
   }
 
   /**
@@ -168,7 +169,7 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
   public onClickDone(): void {
     // 생성모드일 경우 선택한 테이블 전달
     // 수정모드일 경우 현재 컬럼 사전에 선택한 코드 테이블 연결 또는 연결해제
-    this._mode === 'CREATE' ? this._emitCodeTable(): this._updateCodeTable();
+    this._mode === 'CREATE' ? this._emitCodeTable() : this._updateCodeTable();
   }
 
   /**
@@ -277,7 +278,7 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
    */
   public onClickCodeTableDetails(codeTable: CodeTable): void {
     // 해당 코드 테이블 상세화면으로 이동
-    this.router.navigate(['management/metadata/code-table', codeTable.id])
+    this.router.navigate(['management/metadata/code-table', codeTable.id]);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -329,16 +330,16 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 현재 컬럼사전에 선택한 코드 테이블 연결
-    this._columnDictionaryService.linkCodeTableWithColumnDictionary(this._dictionaryId, this.selectedCodeTable.id)
-      .then((result) => {
+    this._columnDictionaryService.linkCodeTableWithColumnDictionary(this._dictionaryId, this.selectedCodeTable.id).
+      then((result) => {
         // 로딩 hide
         this.loadingHide();
         // alert
         Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
         // close
         this._emitCodeTable();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+      }).
+      catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -349,16 +350,15 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 현재 컬럼사전에 선택한 코드 테이블 연결
-    this._columnDictionaryService.unlinkCodeTableWithColumnDictionary(this._dictionaryId, this._originSelectedCodeTable.id)
-      .then((result) => {
-        // 로딩 hide
-        this.loadingHide();
-        // alert
-        Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
-        // close
-        this._emitCodeTable();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._columnDictionaryService.unlinkCodeTableWithColumnDictionary(this._dictionaryId,
+      this._originSelectedCodeTable.id).then((result) => {
+      // 로딩 hide
+      this.loadingHide();
+      // alert
+      Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
+      // close
+      this._emitCodeTable();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -392,18 +392,16 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 코드 테이블 리스트 조회
-    this._codeTableService.getCodeTableList(this._getCodeTableListParams())
-      .then((result) => {
-        // 전달 받은 page number가 0 이면 코드 테이블 리스트 초기화
-        this.pageResult.number === 0 && (this.codeTableList = []);
-        // page 객체
-        this.pageResult = result.page;
-        // 코드 테이블 리스트
-        this.codeTableList = result['_embedded'] ? this.codeTableList.concat(result['_embedded'].codetables) : [];
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._codeTableService.getCodeTableList(this._getCodeTableListParams()).then((result) => {
+      // 전달 받은 page number가 0 이면 코드 테이블 리스트 초기화
+      this.pageResult.number === 0 && (this.codeTableList = []);
+      // page 객체
+      this.pageResult = result.page;
+      // 코드 테이블 리스트
+      this.codeTableList = result['_embedded'] ? this.codeTableList.concat(result['_embedded'].codetables) : [];
+      // 로딩 hide
+      this.loadingHide();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -415,7 +413,7 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
     const params = {
       size: this.pageResult.size,
       page: this.pageResult.number,
-      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
+      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,
     };
     // 검색어
     if (!isUndefined(this.searchText) && this.searchText.trim() !== '') {
@@ -433,14 +431,12 @@ export class ChooseCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 코드 테이블 상세조회
-    this._codeTableService.getCodeTableDetail(codeTableId)
-      .then((result) => {
-        // 코드 테이블 상세조회 데이터
-        this._codeTableDetailList.push(result);
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._codeTableService.getCodeTableDetail(codeTableId).then((result) => {
+      // 코드 테이블 상세조회 데이터
+      this._codeTableDetailList.push(result);
+      // 로딩 hide
+      this.loadingHide();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 }
 

@@ -23,7 +23,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import {AbstractPopupComponent} from '../common/component/abstract-popup.component';
 import {PageWidget, PageWidgetConfiguration} from '../domain/dashboard/widget/page-widget';
@@ -31,15 +31,7 @@ import {PopupService} from '../common/service/popup.service';
 
 import {StringUtil} from '../common/util/string.util';
 import {Pivot} from '../domain/workbook/configurations/pivot';
-import {
-  BIType,
-  ConnectionType,
-  Datasource,
-  Field,
-  FieldPivot,
-  FieldRole,
-  LogicalType
-} from '../domain/datasource/datasource';
+import {ConnectionType, Datasource, Field, FieldPivot, FieldRole, LogicalType} from '../domain/datasource/datasource';
 import {
   BarMarkType,
   ChartColorType,
@@ -753,11 +745,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       // 서버에 저장될필요 없는 파라미터 제거
       param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);
 
-      // 필터 설정
-      for (let filter of param.configuration.filters) {
-        filter = FilterUtil.convertToServerSpecForDashboard(filter);
-      }
-
       const pageConf: PageWidgetConfiguration = param.configuration as PageWidgetConfiguration;
       // 미니맵 범위 저장
       if (!_.isEmpty(this.chart.saveDataZoomRange())) pageConf.chart.chartZooms = this.chart.saveDataZoomRange();
@@ -816,11 +803,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       // 서버에 저장될필요 없는 파라미터 제거
       param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);
-
-      // 필터 설정
-      for (let filter of param.configuration.filters) {
-        filter = FilterUtil.convertToServerSpecForDashboard(filter);
-      }
 
       const pageConf: PageWidgetConfiguration = param.configuration as PageWidgetConfiguration;
       // 미니맵 범위 저장
@@ -1430,10 +1412,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     }
 
     // // 공간연산 tooltip이 제대로 적용이 되지 않을 경우
-    if(this.uiOption['analysis'] != null && this.uiOption['analysis']['use'] == true) {
-      $('.ddp-wrap-chart-menu a').mouseover(function(){
+    if (this.uiOption['analysis'] != null && this.uiOption['analysis']['use'] == true) {
+      $('.ddp-wrap-chart-menu a').mouseover(function () {
         let $tooltipTop = $(this).offset().top;
-        $(this).find('.ddp-ui-tooltip-info').css('top',$tooltipTop+15)
+        $(this).find('.ddp-ui-tooltip-info').css('top', $tooltipTop + 15)
       });
     }
 
@@ -1891,7 +1873,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (selectedField.useFilter) {
 
       // 필수필터이면 제거 불가능
-      if (selectedField.role === FieldRole.TIMESTAMP && selectedField.biType === BIType.TIMESTAMP) {
+      if (selectedField.role === FieldRole.TIMESTAMP && selectedField.type === 'TIMESTAMP') {
         Alert.warning(this.translateService.instant('msg.board.alert.timestamp.del.error'));
         return;
       }
@@ -1976,10 +1958,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       // 스펙 변경
       widget.configuration = DashboardUtil.convertPageWidgetSpecToServer(widget.configuration);
-      // 필터 설정
-      for (let filter of widget.configuration.filters) {
-        filter = FilterUtil.convertToServerSpecForDashboard(filter);
-      }
 
       this.loadingShow();
       this.widgetService.updateWidget(this.widget.id, widget).then((page: Widget) => {
@@ -2373,7 +2351,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     let pivotFiled: any = {
       name: targetField.name,
       alias: targetField.alias,
-      biType: targetField.biType
+      role: targetField.role,
+      type: targetField.type
     };
 
     // 이미 선반에 들어가있는지 여부
@@ -3272,7 +3251,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     let valid: boolean = true;
 
     // 공간연산 실행시 disable
-    if('map' == this.selectChart && this.uiOption['analysis'] != null && this.uiOption['analysis']['use'] == true) {
+    if ('map' == this.selectChart && this.uiOption['analysis'] != null && this.uiOption['analysis']['use'] == true) {
       return valid;
     }
 
@@ -3453,9 +3432,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (totalFields && totalFields.length > 0) {
       totalFields = DashboardUtil.getFieldsForMainDataSource(boardConf, this.dataSource.engineName);
       totalFields.forEach((field) => {
-        if (field.biType === BIType.MEASURE) {
+        if (field.role === FieldRole.MEASURE) {
           this.measures.push(field);
-        } else if (field.biType === BIType.DIMENSION || field.biType === BIType.TIMESTAMP) {
+        } else if (field.role === FieldRole.DIMENSION || field.role === FieldRole.TIMESTAMP) {
           this.dimensions.push(field);
         } else {
           // 정의되지 않은 필드 세팅 필요
@@ -3479,7 +3458,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
             const dimension: Field = new Field();
             dimension.type = field.type;
-            dimension.biType = BIType.DIMENSION;
             dimension.role = field.role;
             dimension.name = field.name;
             dimension.alias = field.name;
@@ -3492,7 +3470,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
             const measure: Field = new Field();
             measure.type = field.type;
-            measure.biType = BIType.MEASURE;
             measure.role = field.role;
             measure.name = field.name;
             measure.alias = field.name;
@@ -3539,7 +3516,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
         this.widgetConfiguration.pivot.rows
           .forEach((abstractField) => {
-            if (String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+            if (String(field.type) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
               abstractField.field = field;
               field.pivot = field.pivot ? field.pivot : [];
               field.pivot.push(FieldPivot.ROWS);
@@ -3548,7 +3525,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
         this.widgetConfiguration.pivot.columns
           .forEach((abstractField) => {
-            if (String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+            if (String(field.type) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
               abstractField.field = field;
               field.pivot = field.pivot ? field.pivot : [];
               field.pivot.push(FieldPivot.COLUMNS);
@@ -3557,7 +3534,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
         this.widgetConfiguration.pivot.aggregations
           .forEach((abstractField) => {
-            if (String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+            if (String(field.type) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
               abstractField.field = field;
               field.pivot = field.pivot ? field.pivot : [];
               field.pivot.push(FieldPivot.AGGREGATIONS);
@@ -3568,8 +3545,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           for (let layerIndex = 0; layerIndex < this.widgetConfiguration.chart['layers'].length; layerIndex++) {
             // set map chart layers pivot
             let fieldPivot: FieldPivot = layerIndex == 1 ? FieldPivot.MAP_LAYER1 : layerIndex == 2 ? FieldPivot.MAP_LAYER2 : FieldPivot.MAP_LAYER0;
-            this.widgetConfiguration.shelf.layers[layerIndex].fields.forEach((abstractField) => {
-              if (String(field.biType) == abstractField.type.toUpperCase() && field.dataSource == abstractField.field.dataSource && field.name == abstractField.name) {
+            this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']].fields.forEach((abstractField) => {
+              if (String(field.type) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
                 abstractField.field = field;
                 field.pivot = field.pivot ? field.pivot : [];
                 field.pivot.push(fieldPivot);
@@ -4095,7 +4072,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       }
 
       // spatial analysis
-      if( !_.isUndefined(cloneQuery.analysis) ) {
+      if (!_.isUndefined(cloneQuery.analysis)) {
         delete cloneQuery.analysis.layerNum;
         delete cloneQuery.analysis.operation.unit;
         delete cloneQuery.analysis.use;

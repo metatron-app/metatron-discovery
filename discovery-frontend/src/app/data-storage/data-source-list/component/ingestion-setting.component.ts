@@ -29,7 +29,7 @@ import { StringUtil } from '../../../common/util/string.util';
 import { Alert } from '../../../common/util/alert.util';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
 import { CommonUtil } from '../../../common/util/common.util';
-import { GranularityService } from '../../service/granularity.service';
+import {GranularityObject, GranularityService} from '../../service/granularity.service';
 
 declare let moment: any;
 /**
@@ -45,7 +45,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _sourceData: DatasourceInfo;
 
   // granularity list
-  private _granularityList: any[] = this._granularityService.granularityList;
+  private _granularityList: GranularityObject[] = this._granularityService.granularityList;
   // scope type list (only engine source type)
   private _scopeTypeList: any[] = [
     { label: this.translateService.instant('msg.storage.th.dsource.scope-incremental'), value: 'INCREMENTAL' },
@@ -85,16 +85,16 @@ export class IngestionSettingComponent extends AbstractComponent {
   public partitionKeyList: any[] = [];
 
   // segment granularity list
-  public segmentGranularityList: any[];
+  public segmentGranularityList: GranularityObject[];
   // selected segment granularity
-  public selectedSegmentGranularity: any;
+  public selectedSegmentGranularity: GranularityObject;
   // segment granularity list show flag
   public isShowSegmentGranularityList: boolean = false;
 
   // query granularity list
-  public queryGranularityList: any[];
+  public queryGranularityList: GranularityObject[];
   // selected query granularity
-  public selectedQueryGranularity: any;
+  public selectedQueryGranularity: GranularityObject;
   // query granularity list show flag
   public isShowQueryGranularityList: boolean = false;
 
@@ -258,6 +258,11 @@ export class IngestionSettingComponent extends AbstractComponent {
         this.partitionKeyList.push(_.cloneDeep(this._sourceData.databaseData.selectedTableDetail.partitionFields));
         // set enable partition
         this.selectedPartitionType = this.partitionTypeList[1];
+      } else if (this.createType === 'SNAPSHOT-STAGING') {
+        const partitionList = JSON.parse(this._sourceData.snapshotData.selectedSnapshot.partitionColNames.toString());
+        partitionList.length > 0 && this.partitionKeyList.push(partitionList.map((item) => {
+          return {name: item};
+        }));
       }
     }
   }
@@ -768,7 +773,7 @@ export class IngestionSettingComponent extends AbstractComponent {
       return false;
     }
     // If create type is StagingDB and strict mode
-    if (this.createType === 'STAGING' && this.isStrictMode && this.partitionKeyList.length !== 0 && !this.partitionValidationResult) {
+    if ((this.createType === 'STAGING' || this.createType === 'SNAPSHOT-STAGING') && this.isStrictMode && this.partitionKeyList.length !== 0 && !this.partitionValidationResult) {
       return false;
     }
     // valid interval granularity (only column TIMESTAMP)
@@ -982,7 +987,7 @@ export class IngestionSettingComponent extends AbstractComponent {
       this.cronText = ingestionData.cronText;
     }
     // if create type is StagingDB
-    if (this.createType === 'STAGING') {
+    if (this.createType === 'STAGING' || this.createType === 'SNAPSHOT-STAGING') {
       // load selected data range type
       // load selected partition type
       this.selectedPartitionType = ingestionData.selectedPartitionType;
@@ -1060,7 +1065,7 @@ export class IngestionSettingComponent extends AbstractComponent {
       sourceData['ingestionData'].cronText = this.cronText;
     }
     // if create type Staging
-    if (this.createType === 'STAGING') {
+    if (this.createType === 'STAGING' || this.createType === 'SNAPSHOT-STAGING') {
       // save selected partition type
       sourceData['ingestionData'].selectedPartitionType = this.selectedPartitionType;
       // selected job properties

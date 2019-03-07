@@ -139,7 +139,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       { command: 'drop', alias: 'Dp'},
       { command: 'pivot', alias: 'Pv'},
       { command: 'unpivot', alias: 'Up'},
-      { command: 'Join', alias: 'Jo'},
+      { command: 'join', alias: 'Jo'},
       { command: 'extract', alias: 'Ex'},
       { command: 'flatten', alias: 'Fl'},
       { command: 'merge', alias: 'Me'},
@@ -148,7 +148,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       { command: 'aggregate', alias: 'Ag'},
       { command: 'sort', alias: 'So'},
       { command: 'move', alias: 'Mv'},
-      { command: 'Union', alias: 'Ui'},
+      { command: 'union', alias: 'Ui'},
       { command: 'window', alias: 'Wn'},
       { command: 'setformat', alias: 'Sf'}
     ];
@@ -823,12 +823,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       let ruleInfo: Command = new Command();
       let ruleVO = JSON.parse(rule['jsonRuleString']);
       ruleInfo.command = ruleVO['name'];
-
-      if (ruleInfo.command === 'join') {
-        ruleInfo.command = 'Join'
-      } else if (ruleInfo.command === 'union') {
-        ruleInfo.command = 'Union'
-      }
 
       const idx = commandNames.indexOf(ruleInfo.command);
 

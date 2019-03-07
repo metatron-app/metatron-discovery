@@ -312,7 +312,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     let valid: boolean = false;
 
-
     if (shelf.layers) {
 
       for (let index: number = 0; index < shelf.layers.length; index++) {
@@ -323,9 +322,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           }
         }
       }
-
     }
-
     return valid;
   }
 
@@ -944,7 +941,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         this.olmap.getView().setZoom(this.uiOption.chartZooms[0].count);
       }
     }
-
   }
 
   /**
@@ -2125,7 +2121,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           }
 
           // Element apply
-          this.changeDetect.detectChanges();
+          this.safelyDetectChanges();
+          // // Element apply
+          // this.changeDetect.detectChanges();
 
           if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
             let extent = event.map.getView().calculateExtent(event.map.getSize());
@@ -2138,7 +2136,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         }
       }
     }
-  }
+  };
 
   /**
    * create drag interaction (for selection filter)

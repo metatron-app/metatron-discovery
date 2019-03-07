@@ -88,30 +88,28 @@
       </div>
       <!-- //edit -->
       <!-- source name -->
-      <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidName">
+      <div class="ddp-wrap-edit2" [class.ddp-error]="createCompleteData.isInvalidName">
         <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
         <input type="text" class="ddp-input-type"
                maxlength="50"
-               (keyup.esc)="datasourceName=''"
-               [(ngModel)]="datasourceName"
                placeholder="{{'msg.comm.ui.create.name' | translate}}"
-               (focus)="isInvalidName=false"/>
+               [(ngModel)]="createCompleteData.sourceName"
+               (focus)="createCompleteData.isInvalidName = false"/>
         <!-- error -->
-        <span class="ddp-ui-error">{{errMsgName}}</span>
+        <span class="ddp-ui-error">{{createCompleteData.nameInvalidMessage}}</span>
         <!-- error -->
       </div>
       <!-- //source name -->
       <!-- source desc -->
-      <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidDesc">
+      <div class="ddp-wrap-edit2" [class.ddp-error]="createCompleteData.isInvalidDesc">
         <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
         <input type="text" class="ddp-input-type"
                maxlength="150"
-               (keyup.esc)="datasourceDesc=''"
-               [(ngModel)]="datasourceDesc"
                placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-               (focus)="isInvalidDesc=false"/>
+               [(ngModel)]="createCompleteData.sourceDescription"
+               (focus)="createCompleteData.isInvalidDesc=false"/>
         <!-- error -->
-        <span class="ddp-ui-error">{{errMsgDesc}}</span>
+        <span class="ddp-ui-error">{{createCompleteData.descInvalidMessage}}</span>
         <!-- error -->
       </div>
       <!-- //source desc -->

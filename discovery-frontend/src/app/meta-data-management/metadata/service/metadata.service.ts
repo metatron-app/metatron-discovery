@@ -12,9 +12,10 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../../common/service/abstract.service';
-import { CommonUtil } from '../../../common/util/common.util';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '../../../common/service/abstract.service';
+import {CommonUtil} from '../../../common/util/common.util';
+import * as _ from 'lodash';
 
 @Injectable()
 export class MetadataService extends AbstractService {
@@ -23,8 +24,8 @@ export class MetadataService extends AbstractService {
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Dictionary url
-  private URL_METADATA = this.API_URL + 'metadatas';
+  private readonly URL_METADATA = this.API_URL + 'metadatas';
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -37,7 +38,6 @@ export class MetadataService extends AbstractService {
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
   constructor(protected injector: Injector) {
     super(injector);
   }
@@ -86,7 +86,6 @@ export class MetadataService extends AbstractService {
     return this.get(url + `&projection=${projection}`);
   }
 
-
   /**
    * 메타데이터  삭제
    * @param {string} id
@@ -103,11 +102,10 @@ export class MetadataService extends AbstractService {
    * @param {any} params
    * @returns {Promise<any>}
    */
-  public updateMetadata(id: string, params : any): Promise<any> {
+  public updateMetadata(id: string, params: any): Promise<any> {
 
-    return this.patch(this.URL_METADATA + `/${id}`,params);
+    return this.patch(this.URL_METADATA + `/${id}`, params);
   }
-
 
   /**
    * 메타데이터 이름 중복 체크
@@ -115,7 +113,7 @@ export class MetadataService extends AbstractService {
    * @returns {Promise<any>}
    */
   public getDuplicateMetaDataName(name: string): Promise<any> {
-    return this.get(this.URL_METADATA + `/name/${name}/duplicated`)
+    return this.get(this.URL_METADATA + `/name/${name}/duplicated`);
   }
 
   /**
@@ -138,10 +136,9 @@ export class MetadataService extends AbstractService {
     return this.patch(this.URL_METADATA + `/${metaDataId}/columns`, params);
   }
 
-
   public linkMetadataWithCatalog(metadataId, catalogId): Promise<any> {
     let catId = this.API_URL + 'catalogs/' + catalogId;
-    return this.patch(this.URL_METADATA + `/${metadataId}/catalogs`, catId,'text/uri-list');
+    return this.patch(this.URL_METADATA + `/${metadataId}/catalogs`, catId, 'text/uri-list');
   }
 
   public deleteCatalogLinkFromMetadata(metadataId, catalogId): Promise<any> {
@@ -149,23 +146,28 @@ export class MetadataService extends AbstractService {
   }
 
   public addTagToMetadata(metadataId, params): Promise<any> {
-    return this.post(this.URL_METADATA + `/${metadataId}/tags/attach`, params );
+    return this.post(this.URL_METADATA + `/${metadataId}/tags/attach`, params);
   }
+
   public deleteTagFromMetadata(metadataId, params): Promise<any> {
     return this.post(this.URL_METADATA + `/${metadataId}/tags/detach`, params);
   }
 
-  public getMetadataTags() : Promise<any> {
+  public getMetadataTags(): Promise<any> {
     return this.get(this.URL_METADATA + `/tags`);
   }
 
   /**
    * 데이터 소스에 대한 메타데이터 조회
    * @param {string} sourceId
+   * @param projection
    * @returns {Promise<any>}
    */
-  public getMetadataForDataSource(sourceId:string):Promise<any> {
-    return this.post(this.URL_METADATA + `/metasources/${sourceId}?projection=forItemView`, {});
+  public getMetadataForDataSource(
+    sourceId: string, projection: 'forItemView' | 'forDetailView' = 'forItemView'): Promise<any> {
+    return this.post(
+      this.URL_METADATA + `/metasources/${sourceId}?projection=${_.isNil(projection) ? 'forItemView' : projection}`,
+      {});
   } // function - getMetadataForDataSource
 
   /**
@@ -176,12 +178,13 @@ export class MetadataService extends AbstractService {
    * @param {string} projection
    * @returns {Promise<any>}
    */
-  public getMetadataByConnection(connId: string, schemaName: string, tableName: object, projection: string = 'forItemView'): Promise<any> {
+  public getMetadataByConnection(
+    connId: string, schemaName: string, tableName: object, projection: string = 'forItemView'): Promise<any> {
     // param data 생성
     let param = {
-      "schema"  : schemaName,
-      "table"   : tableName
+      'schema': schemaName,
+      'table': tableName,
     };
-    return this.post(this.URL_METADATA + `/metasources/${connId}?projection=${projection}`, param );
+    return this.post(this.URL_METADATA + `/metasources/${connId}?projection=${projection}`, param);
   }
 }

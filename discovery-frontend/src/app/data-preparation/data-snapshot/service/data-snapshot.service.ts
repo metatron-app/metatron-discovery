@@ -15,12 +15,11 @@
 import { Injectable, Injector } from '@angular/core';
 import { HttpHeaders } from '@angular/common/http';
 import { AbstractService } from '../../../common/service/abstract.service';
-//import { DataSnapshot, DataSnapshots } from '../../../domain/data-preparation/data-snapshot';
-import { PrDataSnapshot, DataSnapshots, SsType } from '../../../domain/data-preparation/pr-snapshot';
-import { Page } from '../../../domain/common/page';
+import { PrDataSnapshot, SsType } from '../../../domain/data-preparation/pr-snapshot';
 import { CommonUtil } from '../../../common/util/common.util';
 import { CookieConstant } from '../../../common/constant/cookie.constant';
 import { Observable } from 'rxjs';
+import {LogicalType} from "../../../domain/datasource/datasource";
 
 @Injectable()
 export class DataSnapshotService extends AbstractService {
@@ -29,21 +28,15 @@ export class DataSnapshotService extends AbstractService {
     super(injector);
   }
 
-  // 데이터 스냅샷 목록 조회
-  public getDataSnapshots(searchText: string, page:Page, projection?: string): Promise<DataSnapshots> {
-    let url = this.API_URL + `preparationsnapshots/search/findBySsNameContaining?ssName=${encodeURIComponent(searchText)}`;
-    if (projection) {
-      url = url + '&projection=' + projection;
-    }
+  private _baseUrl: string = this.API_URL + '/preparationsnapshots/';
 
-    url += '&' + CommonUtil.objectToUrlString(page);
-    return this.get(url);
-  }
-
-  // 데이터 스냅샷 상태별 목록 조회
-  public getDataSnapshotsByStatus(param): Promise<DataSnapshots> {
+  /**
+   * Get snapshot list
+   * @param param
+   */
+  public getDataSnapshotsByStatus(param): Promise<PrDataSnapshot[]> {
     let statuses = '';
-    // except CANCELED starus
+
     if( 'all'== param.status) {
       statuses = 'SUCCEEDED,FAILED,NOT_AVAILABLE,INITIALIZING,RUNNING,WRITING,TABLE_CREATING';
     } else if( 'success'== param.status ) {
@@ -54,7 +47,7 @@ export class DataSnapshotService extends AbstractService {
       statuses = 'INITIALIZING,RUNNING,WRITING,TABLE_CREATING,CANCELING';
     }
 
-    let url = this.API_URL + `preparationsnapshots/search/findBySsNameContainingAndStatusInAndSsTypeIn?ssName=${encodeURIComponent(param.searchText)}&statuses=${statuses}`;
+    let url = `${this._baseUrl}search/findBySsNameContainingAndStatusInAndSsTypeIn?ssName=${encodeURIComponent(param.searchText)}&statuses=${statuses}`;
 
     if (!param.ssType) {
       url +=  `&ssTypes=${SsType.URI},${SsType.DATABASE},${SsType.STAGING_DB},${SsType.DRUID}`;
@@ -71,25 +64,42 @@ export class DataSnapshotService extends AbstractService {
     return this.get(url);
   }
 
-  // 데이터스냅샷 상세 조회
-  //public getDataSnapshot(ssId: string): Promise<DataSnapshot> {
+
+  /**
+   * Snapshot detail
+   * @param ssId
+   */
   public getDataSnapshot(ssId: string): Promise<PrDataSnapshot> {
-    const url = this.API_URL + 'preparationsnapshots/' + ssId + '?projection=detail';
+    const url = this._baseUrl + ssId + '?projection=detail';
     return this.get(url);
   }
 
-  // 데이터스냅샷 삭제
+
+  /**
+   * Delete snapshot
+   * @param ssId
+   */
   public deleteDataSnapshot(ssId: string) {
-    return this.delete(this.API_URL + 'preparationsnapshots/' + ssId);
+    return this.delete(this._baseUrl+ ssId);
   }
 
 
-  // 데이터스냅샷 그리드 데이터
+  /**
+   * Get snapshot grid data
+   * @param ssId
+   * @param offset
+   * @param target
+   */
   public getDataSnapshotGridData(ssId: string, offset: number, target: number) {
-    //console.info(ssId, offset, target);
-    return this.get(this.API_URL + `preparationsnapshots/${ssId}/contents?offset=${offset}&target=${target}`);
+    return this.get(`${this._baseUrl}${ssId}/contents?offset=${offset}&target=${target}`);
   }
 
+
+  /**
+   * Download snapshot
+   * @param ssId
+   * @param fileFormat
+   */
   public downloadSnapshot(ssId: string, fileFormat: string): Observable<any> {
     let mineType: string;
     if (fileFormat === 'csv') {
@@ -109,25 +119,58 @@ export class DataSnapshotService extends AbstractService {
       responseType: 'blob'
     };
 
-    return this.http.get(this.API_URL + `preparationsnapshots/${ssId}/download?fileType=`+fileFormat, option)
+    return this.http.get(`${this._baseUrl}${ssId}/download?fileType=`+fileFormat, option)
       .map((res) => {
         return new Blob([res], { type: 'application/csv' })
       });
   }
-  /** 처리 중 스냅샷 취소*/
+
+
+  /**
+   * Snapshot creation cancel
+   * @param ssId
+   */
   public cancelSnapshot(ssId) {
-    let url = `/api/preparationsnapshots/${ssId}/cancel`;
+    let url = `${this._baseUrl}${ssId}/cancel`;
     return this.post(url,{});
   }
 
 
   /**
-   * Edit snapshotname
+   * Edit snapshot Name
    * @param {{ssId: string, ssName: string}} data
    * @returns {Promise<any>}
    */
   public editSnapshot(data : {ssId: string, ssName: string}) {
-    let url = `/api/preparationsnapshots/${data.ssId}`;
+    let url = `${this._baseUrl}${data.ssId}`;
     return this.patch(url,{ssName : data.ssName});
+  }
+
+  /**
+   * Get logical type (only create source)
+   * @param {string} type
+   * @return {LogicalType}
+   * @private
+   */
+  public getConvertTypeToLogicalType(type: string): LogicalType {
+    switch (type) {
+      case 'STRING':
+        return LogicalType.STRING;
+      case 'INTEGER':
+      case 'LONG':
+        return LogicalType.INTEGER;
+      case 'DOUBLE':
+        return LogicalType.DOUBLE;
+      case 'TIMESTAMP':
+        return LogicalType.TIMESTAMP;
+      case 'BOOLEAN':
+        return LogicalType.BOOLEAN;
+      case 'ARRAY':
+        return LogicalType.ARRAY;
+      case 'MAP':
+        return LogicalType.MAP;
+      default:
+        return LogicalType.STRING;
+    }
   }
 }

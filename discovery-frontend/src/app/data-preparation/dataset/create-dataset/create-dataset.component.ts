@@ -39,6 +39,7 @@ export class CreateDatasetComponent extends AbstractComponent implements  OnInit
   public step: string;
 
   public datasetFile: PrDatasetFile;
+  public datasetFiles: any;
   public datasetHive: PrDatasetHive;
   public datasetJdbc: PrDatasetJdbc;
 
@@ -56,6 +57,7 @@ export class CreateDatasetComponent extends AbstractComponent implements  OnInit
     //this.datasetHive = new DatasetHive();
     //this.datasetJdbc = new DatasetJdbc();
     this.datasetFile = new PrDatasetFile();
+    this.datasetFiles = [];
     this.datasetHive = new PrDatasetHive();
     this.datasetJdbc = new PrDatasetJdbc();
   }
@@ -91,6 +93,7 @@ export class CreateDatasetComponent extends AbstractComponent implements  OnInit
     //this.datasetHive = new DatasetHive();
     //this.datasetJdbc = new DatasetJdbc();
     this.datasetFile = new PrDatasetFile();
+    this.datasetFiles = [];
     this.datasetHive = new PrDatasetHive();
     this.datasetJdbc = new PrDatasetJdbc();
   }

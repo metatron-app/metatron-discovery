@@ -12,25 +12,25 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { DeleteModalComponent } from '../../../common/component/modal/delete/delete.component';
-import { Modal } from '../../../common/domain/modal';
-import { ActivatedRoute } from '@angular/router';
-import { ColumnDictionaryService } from '../service/column-dictionary.service';
-import { Alert } from '../../../common/util/alert.util';
-import { CommonUtil } from '../../../common/util/common.util';
-import { ColumnDictionary } from '../../../domain/meta-data-management/column-dictionary';
-import { ChooseCodeTableComponent } from '../../component/choose-code-table/choose-code-table.component';
-import { CodeTable } from '../../../domain/meta-data-management/code-table';
-import { FieldFormatType, LogicalType } from '../../../domain/datasource/datasource';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
+import {Modal} from '../../../common/domain/modal';
+import {ActivatedRoute} from '@angular/router';
+import {ColumnDictionaryService} from '../service/column-dictionary.service';
+import {Alert} from '../../../common/util/alert.util';
+import {CommonUtil} from '../../../common/util/common.util';
+import {ColumnDictionary} from '../../../domain/meta-data-management/column-dictionary';
+import {ChooseCodeTableComponent} from '../../component/choose-code-table/choose-code-table.component';
+import {CodeTable} from '../../../domain/meta-data-management/code-table';
+import {FieldFormatType, LogicalType} from '../../../domain/datasource/datasource';
 import * as _ from 'lodash';
-import { LinkedMetadataComponent } from '../../component/linked-metadata-columns/linked-metadata.component';
-import { LinkedMetaDataColumn } from '../../../domain/meta-data-management/metadata-column';
+import {LinkedMetadataComponent} from '../../component/linked-metadata-columns/linked-metadata.component';
+import {LinkedMetaDataColumn} from '../../../domain/meta-data-management/metadata-column';
 
 @Component({
   selector: 'app-detail-column-dictionary',
-  templateUrl: './detail-column-dictionary.component.html'
+  templateUrl: './detail-column-dictionary.component.html',
 })
 export class DetailColumnDictionaryComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -112,10 +112,11 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private _columnDictionaryService: ColumnDictionaryService,
-              private _activatedRoute: ActivatedRoute,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    private _columnDictionaryService: ColumnDictionaryService,
+    private _activatedRoute: ActivatedRoute,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -157,14 +158,13 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // 로딩 show
     this.loadingShow();
     // 컬럼 사전 제거
-    this._columnDictionaryService.deleteColumnDictionary(this._columnDictionaryId)
-      .then((result) => {
-        // alert
-        Alert.success(this.translateService.instant('msg.metadata.ui.dictionary.delete.success', {value: this.columnDictionary.logicalName}));
-        // 컬럼 사전 목록으로 돌아가기
-        this.router.navigate(['/management/metadata/column-dictionary']);
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._columnDictionaryService.deleteColumnDictionary(this._columnDictionaryId).then((result) => {
+      // alert
+      Alert.success(this.translateService.instant('msg.metadata.ui.dictionary.delete.success',
+        {value: this.columnDictionary.logicalName}));
+      // 컬럼 사전 목록으로 돌아가기
+      this.router.navigate(['/management/metadata/column-dictionary']);
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -200,7 +200,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
    * @returns {LinkedMetaDataColumn[]}
    */
   public getLinkedMetaDataColumn(): LinkedMetaDataColumn[] {
-    return this.linkedMetadataList.slice(0,3);
+    return this.linkedMetadataList.slice(0, 3);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -221,7 +221,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
   public onClickDeleteColumnDictionary(): void {
     const modal = new Modal();
     modal.name = this.translateService.instant('msg.metadata.ui.dictionary.delete.title');
-    modal.description =  this.columnDictionary.logicalName;
+    modal.description = this.columnDictionary.logicalName;
     modal.btnName = this.translateService.instant('msg.comm.ui.del');
     this._deleteComp.init(modal);
   }
@@ -263,7 +263,9 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
    */
   public onChangeTimeFormatMode(): void {
     this.timeFormatEditFl = true;
-    this.reTimeFormat = (this.columnDictionary.format && this.columnDictionary.format.hasOwnProperty('format')) ? this.columnDictionary.format.format : this.columnDictionary.format;
+    this.reTimeFormat = (this.columnDictionary.format && this.columnDictionary.format.hasOwnProperty('format')) ?
+      this.columnDictionary.format.format :
+      this.columnDictionary.format;
   }
 
   /**
@@ -324,12 +326,13 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // 로딩 show
     this.loadingShow();
     // 논리명이 중복인지 확인
-    this._columnDictionaryService.getDuplicateLogicalNameInColumnDictionary(this.reLogicalName.trim())
-      .then((result) => {
+    this._columnDictionaryService.getDuplicateLogicalNameInColumnDictionary(this.reLogicalName.trim()).
+      then((result) => {
         // 중복
         if (result['duplicated']) {
           // alert
-          Alert.warning(this.translateService.instant('msg.metadata.ui.dictionary.create.valid.logical.name.duplicated', {value: this.reLogicalName.trim()}));
+          Alert.warning(this.translateService.instant('msg.metadata.ui.dictionary.create.valid.logical.name.duplicated',
+            {value: this.reLogicalName.trim()}));
           // 로딩 hide
           this.loadingHide();
         } else {
@@ -340,8 +343,8 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
           // 컬럼 사전 업데이트
           this._updateColumnDictionary({logicalName: this.reLogicalName.trim()});
         }
-      })
-      .catch(error => this.commonExceptionHandler(error));
+      }).
+      catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -417,10 +420,12 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // blur
     // this.descElement.nativeElement.blur();
     // 컬럼 사전 업데이트
-    this._updateColumnDictionary({format: {
-      format: this.reTimeFormat.trim(),
-      type: FieldFormatType.DATE_TIME
-    }});
+    this._updateColumnDictionary({
+      format: {
+        format: this.reTimeFormat.trim(),
+        type: FieldFormatType.DATE_TIME,
+      },
+    });
   }
 
   /**
@@ -437,7 +442,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
    */
   public onClickCodeTableDetails(codeTable: CodeTable): void {
     // 해당 코드 테이블 상세화면으로 이동
-    this.router.navigate(['management/metadata/code-table', codeTable.id])
+    this.router.navigate(['management/metadata/code-table', codeTable.id]);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -471,18 +476,17 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
    * @param {Object} params
    * @private
    */
-  private _updateColumnDictionary(params? : object): void {
+  private _updateColumnDictionary(params?: object): void {
     // 로딩 show
     this.loadingShow();
     // 컬럼 사전 업데이트
-    this._columnDictionaryService.updateColumnDictionary(this._columnDictionaryId, params || this._getUpdateColumnDictionaryParams())
-      .then((result) => {
-        // alert
-        Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
-        // 재조회
-        this._getDetailColumnDictionary();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._columnDictionaryService.updateColumnDictionary(this._columnDictionaryId,
+      params || this._getUpdateColumnDictionaryParams()).then((result) => {
+      // alert
+      Alert.success(this.translateService.instant('msg.comm.alert.confirm.success'));
+      // 재조회
+      this._getDetailColumnDictionary();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -497,16 +501,15 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // 로딩 show
     this.loadingShow();
     // 컬럼 사전 상세조회
-    this._columnDictionaryService.getColumnDictionaryDetail(this._columnDictionaryId)
-      .then((result) => {
-        // 상세정보
-        this.columnDictionary = result;
-        // 설명이 존재한다면 enter가 있는지
-        this.columnDictionary.description && (this.description = this.columnDictionary.description.replace( /\r\n|\n/gi, '<br>' ));
-        // 현재 컬럼 사전에 연결된 메타데이터 목록 조회
-        this._getMetadataInColumnDictionary();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._columnDictionaryService.getColumnDictionaryDetail(this._columnDictionaryId).then((result) => {
+      // 상세정보
+      this.columnDictionary = result;
+      // 설명이 존재한다면 enter가 있는지
+      this.columnDictionary.description &&
+      (this.description = this.columnDictionary.description.replace(/\r\n|\n/gi, '<br>'));
+      // 현재 컬럼 사전에 연결된 메타데이터 목록 조회
+      this._getMetadataInColumnDictionary();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -517,14 +520,12 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // 로딩 show
     this.loadingShow();
     // 코드 테이블 조회
-    this._columnDictionaryService.getCodeTableInColumnDictionary(this._columnDictionaryId)
-      .then((result) => {
-        // 코드테이블
-        this.columnDictionary.codeTable = result;
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._columnDictionaryService.getCodeTableInColumnDictionary(this._columnDictionaryId).then((result) => {
+      // 코드테이블
+      this.columnDictionary.codeTable = result;
+      // 로딩 hide
+      this.loadingHide();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -535,16 +536,15 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // 로딩 show
     this.loadingShow();
     // 메타데이터 조회
-    this._columnDictionaryService.getMetadataInColumnDictionary(this._columnDictionaryId, {sort:'metadataName,asc', size: 15, page: 0})
-      .then((result) => {
-        // 메타데이터 목록 저장
-        this.linkedMetadataList = result['_embedded'] ? result['_embedded'].metacolumns : [];
-        // 목록 수
-        this.linkedMetadataTotalCount = result['page'].totalElements;
-        // 코드 테이블이 있다면 코드테이블 조회
-        this.columnDictionary.linkCodeTable ? this._getCodeTableInColumnDictionary() : this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._columnDictionaryService.getMetadataInColumnDictionary(this._columnDictionaryId,
+      {sort: 'metadataName,asc', size: 15, page: 0}).then((result) => {
+      // 메타데이터 목록 저장
+      this.linkedMetadataList = result['_embedded'] ? result['_embedded'].metacolumns : [];
+      // 목록 수
+      this.linkedMetadataTotalCount = result['page'].totalElements;
+      // 코드 테이블이 있다면 코드테이블 조회
+      this.columnDictionary.linkCodeTable ? this._getCodeTableInColumnDictionary() : this.loadingHide();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -553,9 +553,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
    * @private
    */
   private _getUpdateColumnDictionaryParams(): object {
-    const params = {
-
-    };
+    const params = {};
     return params;
   }
 

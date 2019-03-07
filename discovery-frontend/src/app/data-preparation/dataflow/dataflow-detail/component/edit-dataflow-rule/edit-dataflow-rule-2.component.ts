@@ -27,7 +27,6 @@ import { Alert } from '../../../../../common/util/alert.util';
 import { PreparationAlert } from '../../../../util/preparation-alert.util';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
 import { DataflowService } from '../../../service/dataflow.service';
-import { MulticolumnRenameComponent } from './multicolumn-rename.component';
 import { ExtendInputFormulaComponent } from './extend-input-formula.component';
 import { EditRuleGridComponent } from './edit-rule-grid/edit-rule-grid.component';
 import { EditRuleComponent } from './edit-rule/edit-rule.component';
@@ -51,9 +50,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @ViewChild(EditRuleGridComponent)
   private _editRuleGridComp: EditRuleGridComponent;
-
-  @ViewChild(MulticolumnRenameComponent)
-  private multicolumnRenameComponent: MulticolumnRenameComponent;
 
   @ViewChild(MultipleRenamePopupComponent)
   private multipleRenamePopupComponent: MultipleRenamePopupComponent;
@@ -86,18 +82,15 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public isInitDataLoaded: boolean = false;
 
   @Input()
-  //public dataflow: Dataflow;
   public dataflow: PrDataflow;
 
   @Input()
-  //public selectedDataSet: Dataset;
   public selectedDataSet: PrDataset;
 
   @Output()
   public closeEditRule = new EventEmitter();
 
   @Output()
-  //public changeDataset = new EventEmitter<Dataset>();
   public changeDataset = new EventEmitter<PrDataset>();
 
   @Input()
@@ -107,7 +100,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public commandSearchText: string = '';
 
   // 조인 편집시 필요한 데이터
-  //public rightDataset: Dataset;
   public rightDataset: PrDataset;
 
   // Layer show/hide
@@ -158,8 +150,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   // tell if union is updating or just adding
   public isUpdate: boolean = false;
 
-  // select box 에서 선택됐는지 여부
-  public selectboxFlag: boolean = false;
 
   // Histogram
   public charts: any = [];
@@ -261,7 +251,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this._split = [];
     this._split.push(Split(['.rule-left', '.rule-right'], {
         sizes: [80, 20],
-      minSize: [300, 300],
+        minSize: [300, 300],
         onDragEnd: (() => {
           this._editRuleGridComp.resizeGrid();
         }),
@@ -447,97 +437,34 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     switch (this.ruleVO.command) {
       case 'setformat':
-        let setformatList = this.selectedDataSet.gridData.fields.filter((item) => {
-          return item.type === 'TIMESTAMP'
-        });
-        let selectedsetformatList = selectedFields.filter((item) => {
-          return item.type === 'TIMESTAMP'
-        });
         let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
           return item.type === 'TIMESTAMP'
         });
         this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
         this._editRuleComp.setValue('colTypes', colDescs);
-        this._editRuleComp.init(setformatList, selectedsetformatList);
         break;
       case 'settype':
         this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
         this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
-        this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields);
-
         break;
-      case 'flatten' :
-        let flattenList = this.selectedDataSet.gridData.fields.filter((item) => {
-          return item.type === 'ARRAY'
-        });
-        let selectedFlattenList = selectedFields.filter((item) => {
-          return item.type === 'ARRAY'
-        });
-        this._editRuleComp.init(flattenList, selectedFlattenList);
-        break;
-      case 'unnest':
-        let unnestList = this.selectedDataSet.gridData.fields.filter((item) => {
-          return item.type === 'ARRAY' || item.type === 'MAP'
-        });
-        let selectedUnnestList = selectedFields.filter((item) => {
-          return item.type === 'ARRAY' || item.type === 'MAP'
-        });
-        this._editRuleComp.init(unnestList, selectedUnnestList);
-        break;
-      case 'Join':
-        //this.rightDataset = new Dataset();
+      case 'join':
         this.rightDataset = new PrDataset();
         this.rightDataset.dsId = '';
         this.isRuleJoinModalShow = true;
         break;
-      case 'Union':
+      case 'union':
         this.editJoinOrUnionRuleStr = '';
         this.isRuleUnionModalShow = true;
         break;
-      default:
-        this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields );
-        break;
     }
+
+    if (command.command !== 'join' && command.command !== 'union') {
+      this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields);
+    }
+
     this.initSelectedCommand(this.filteredCommandList);
   }
 
-  /**
-   * 컬럼을 선택하면 무조건 실행된다. 그리드 헤거 클릭 or select box 에서 클릭도 !
-   * @param col
-   * @param {Field[]} fields
-   */
-  public setColSeq(col, fields?: Field[]) {
-
-    (fields) || (fields = this.selectedDataSet.gridData.fields);
-
-    if (col.selected) {
-
-      if (isUndefined(this.ruleVO.cols)) {
-        this.ruleVO.cols = [];
-      }
-      if (this.ruleVO.cols.indexOf(col.name) === -1) {
-        this.ruleVO.cols.push(col.name);
-      }
-      col.seq = this.ruleVO.cols.length;
-    } else {
-
-      const fieldNames = fields.map((field) => {
-        return field.name;
-      });
-
-      if (this.ruleVO.cols && this.ruleVO.cols.length > 0) {
-        this.ruleVO.cols.forEach((column) => {
-          const idx = fieldNames.indexOf(column);
-          if (idx !== -1) {
-            if (fields[idx].seq > col.seq) {
-              fields[idx].seq -= 1;
-            }
-          }
-        });
-        this.ruleVO.cols.splice(this.ruleVO.cols.indexOf(col.name), 1);
-      }
-    }
-  }
 
   /**
    * Rule cancel or 초기 세팅
@@ -596,11 +523,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this._isExecAddRule = true;
 
-    // // When no command is selected
-    // if (this.ruleVO.command === '' || isNullOrUndefined(this.ruleVO.command)) {
-    //   return;
-    // }
-    //
     let rule: any = {};
     if (this.editorUseFlag === false) {
 
@@ -628,10 +550,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         return;
       }
       rule = {
-        command: this.inputRuleCmd.substring(0, this.inputRuleCmd.indexOf(' ')),
         op: this.opString,
-        rownum: this.opString === 'APPEND' ? this.ruleList.length + 1 : this.ruleVO.rownum,
-        ruleString: this.inputRuleCmd
+        ruleIdx: this.serverSyncIndex,
+        ruleString: this.inputRuleCmd,
+        uiRuleString: {isBuilder: false}
       };
     }
     if (!isUndefined(rule)) {
@@ -657,132 +579,78 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   public setEditInfo(rule, gridData:any) {
 
-    // 선택된 컬럼이 있다면 클리어 한다.
-    this._editRuleGridComp.unSelectionAll('COL');
-
     try {
 
-      // Set rulestring for builder
+      const jsonRuleString = JSON.parse(rule.jsonRuleString);
+
+      // Set ruleString for editor
       this.inputRuleCmd = rule.ruleString;
 
+      // If editor
+      if (!jsonRuleString.isBuilder) {
+        this.editorUseFlag = true;
+        return;
+      }
 
-      this.selectboxFlag = true;
-      this.initRule();
-      this.opString = 'UPDATE';
+      // TODO : eventually remove ruleVO
+      // this.initRule(); --> Check if this is necessary here
+
       this.ruleVO = rule['ruleVO'];
       ('' === this.ruleVO.command) && (this.ruleVO.command = this.ruleVO['name']);
 
       this.safelyDetectChanges();
 
-      switch (this.ruleVO.command) {
-        case 'settype':
-          this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
-          this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
-          this._editRuleComp.init(gridData.fields, [], {ruleString : rule.ruleString, jsonRuleString : JSON.parse(rule.jsonRuleString)});
-          break;
-        case 'setformat' :
-          let setformatList = gridData.fields.filter((item) => {
-            return item.type === 'TIMESTAMP'
-          });
-          let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
-            return item.type === 'TIMESTAMP'
-          });
-          this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
-          this._editRuleComp.setValue('colTypes', colDescs);
-          this._editRuleComp.init(setformatList, [],{ruleString : rule.ruleString, jsonRuleString : JSON.parse(rule.jsonRuleString)});
-          break;
-        case 'flatten' :
-          let flattenList = gridData.fields.filter((item) => {
-            return item.type === 'ARRAY'
-          });
-          this._editRuleComp.init(flattenList, [], {ruleString : rule.ruleString, jsonRuleString : JSON.parse(rule.jsonRuleString)});
-          break;
-        case 'unnest' :
-          let unnest = gridData.fields.filter((item) => {
-            return item.type === 'ARRAY' || item.type === 'MAP'
-          });
-          this._editRuleComp.init(unnest, [], {ruleString : rule.ruleString, jsonRuleString : JSON.parse(rule.jsonRuleString)});
-          break;
-        case 'rename' :
-          if (!(this.ruleVO.col['value'] && 'string' === typeof this.ruleVO.col['value'])) {
-            let tos = [];
-            this.ruleVO.to['value'].forEach((item) => {
-              if (item.startsWith('\'') && item.endsWith('\'')) {
-                tos.push(item.substring(1, item.length - 1));
-              }
-            });
-            // let cols = _.cloneDeep(this.ruleVO.col['value']);
-            // this.multicolumnRenameComponent.init({
-            //   data: _.cloneDeep(gridData),
-            //   datasetName: this.selectedDataSet.dsName,
-            //   ruleCurIdx: rule['ruleNo'],
-            //   cols: cols,
-            //   to: tos
-            // });
-
-            let cols = _.cloneDeep(this.ruleVO.col['value']);
-            this.multipleRenamePopupComponent.init({
-              gridData: _.cloneDeep(gridData),
-              dsName: this.selectedDataSet.dsName,
-              typeDesc: this.selectedDataSet.gridResponse.colDescs,
-              editInfo: {ruleCurIdx: this.ruleVO['ruleNo'],
-                cols: cols,
-                to: tos}
-            });
-
-
-            // TODO : ... 지우면 안되는데..
-            this.ruleVO.col = '';
-            this.ruleVO.to = '';
-          }
-          this.safelyDetectChanges();
-          this._editRuleComp.init(gridData.fields, [], {ruleString : rule.ruleString, jsonRuleString : JSON.parse(rule.jsonRuleString)});
-          break;
-        case 'delete' :
-        case 'keep' :
-        case 'derive' :
-        case 'set' :
-        case 'drop' :
-        case 'replace' :
-        case 'merge' :
-        case 'sort' :
-        case 'header' :
-        case 'nest' :
-        case 'unpivot' :
-        case 'move' :
-        case 'split' :
-        case 'extract' :
-        case 'countpattern' :
-        case 'aggregate' :
-        case 'pivot' :
-        case 'window' :
-          this._editRuleComp.init(gridData.fields, [], {ruleString : rule.ruleString, jsonRuleString : JSON.parse(rule.jsonRuleString)});
-          break;
-        case 'Union' :
-          if (this.selectedDataSet.gridData.data.length > 1) {
-            this.editJoinOrUnionRuleStr = rule['jsonRuleString'];
-            this.isUpdate = true;
-            this.isRuleUnionModalShow = true;
-          } else {
-            Alert.warning('No rows to union');
-          }
-
-          break;
-        case 'Join' :
-
-          if (this.selectedDataSet.gridData.data.length > 1) {
-            this.editJoinOrUnionRuleStr = rule['jsonRuleString'];
-            this.setJoinEditInfo(rule);
-          } else {
-            Alert.warning('No rows to join');
-          }
-          break;
-        default:
-          break;
+      if (jsonRuleString.name === 'settype') {
+        this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
+        this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
       }
 
-      // TODO : for editor
-      // this.inputRuleCmd = PreparationCommonUtil.makeRuleResult(this.ruleVO);
+      if (jsonRuleString.name === 'setformat') {
+        let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
+          return item.type === 'TIMESTAMP'
+        });
+        this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
+        this._editRuleComp.setValue('colTypes', colDescs);
+      }
+
+      if (jsonRuleString.name === 'rename') {
+        if (jsonRuleString.col.length !== 1) {
+          this.multipleRenamePopupComponent.init({
+            gridData: _.cloneDeep(gridData),
+            dsName: this.selectedDataSet.dsName,
+            typeDesc: this.selectedDataSet.gridResponse.colDescs,
+            editInfo: {ruleCurIdx: this.ruleVO['ruleNo'],
+              cols: jsonRuleString.col,
+              to: jsonRuleString.to}
+          });
+        }
+      }
+
+      if (jsonRuleString.name === 'join') {
+        if (this.selectedDataSet.gridData.data.length > 1) {
+          this.editJoinOrUnionRuleStr = rule['jsonRuleString'];
+          this.setJoinEditInfo(rule);
+        } else {
+          Alert.warning('No rows to join');
+        }
+      }
+
+      if (jsonRuleString.name === 'union') {
+        if (this.selectedDataSet.gridData.data.length > 1) {
+          this.editJoinOrUnionRuleStr = rule['jsonRuleString'];
+          this.isUpdate = true;
+          this.isRuleUnionModalShow = true;
+        } else {
+          Alert.warning('No rows to union');
+        }
+      }
+
+      const ruleNames : string[] = ['union', 'join'];
+
+      if (-1 === ruleNames.indexOf(jsonRuleString.name)) {
+        this._editRuleComp.init(gridData.fields, [], {jsonRuleString : jsonRuleString});
+      }
+
     } catch (e) {
       Alert.error(this.translateService.instant('msg.dp.alert.rule.edit.fail'));
     }
@@ -795,8 +663,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   public setEditData(editInfo) {
 
-    // unselect all columns in current grid
-    this._editRuleGridComp.unSelectionAll('COL');
+    this._editRuleGridComp.unSelectionAll('COL'); // unselect all columns in current grid
+    this.ruleVO.command = '';  // remove currently selected rule component (set선택된 상태에서 set을 edit하면 에러나는 문제 해결)
 
     // set current index (when editing subtract 1 from index)
     let ruleIdx = editInfo.ruleNo-1;
@@ -841,9 +709,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   /**
    * Change to different dataset in same dataflow
-   * @param dataset {Dataset}
+   * @param dataset {PrDataset}
    */
-  //public changeWrangledDataset(dataset : Dataset) {
   public changeWrangledDataset(dataset : PrDataset) {
     this.loadingShow();
 
@@ -852,9 +719,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     delete this.selectedDataSet;
     this.selectedDataSet = dataset;
 
-    // if (!this.selectedDataSet['_embedded']) {
-    //   this.selectedDataSet['_embedded'] = {};
-    // }
     if (!this.selectedDataSet.dataflows && null != dataflows) {
       this.selectedDataSet.dataflows = dataflows;
     }
@@ -1152,27 +1016,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   /**
    * Open advanced formula input popup (set, keep, derive, delete)
-   * @param {string} command
+   * @param data
    */
   public openPopupFormulaInput(data: {command : string, val : string, needCol?:boolean}) {
     const fields: Field[] = this.selectedDataSet.gridData.fields;
-
-    // variables vary according to the rule name
-    // use this._editRuleComp.getValue({}) to get condition of each rule
-    // let val : string = 'rowNum';
-    // if (command === 'derive') {
-    //   val = 'deriveVal';
-    // } else if (command === 'set') {
-    //   val = 'inputValue';
-    // } else if (command === 'replace' || command === 'setCondition') {
-    //   val = 'condition';
-    // } else if (command === 'keep') {
-    //   val = 'keepRow';
-    // }
-
-  
-    //this.extendInputFormulaComponent.open(fields, data.command, this._editRuleComp.getValue( data.val ));
-
     data.val = this._editRuleComp.getValue( data.val );
     this.extendInputFormulaComponent.open(fields, data);
   }
@@ -1185,214 +1032,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this._editRuleComp.doneInputFormula(data);
   }
 
-  /**
-   * 전체 컬럼에 대한 Rename 실행
-   * @param data
-   */
-  public applyMultiColumnRename(data) {
-    if( 'UPDATE' === data.op ) {
-      this.dataflowService.getSearchCountDataSets(this.selectedDataSet.dsId, data['ruleCurIdx'], 0, 2)
-        .then(() => {  // ruleIdx 값을 맞추기 위해서 호출 후에 제거해야 함
-          this.applyRule(data);
-        });
-    } else {
-      this.applyRule(data);
-    }
-  } // function - applyMultiColumnRename
-
-  /**
-   * Simplify Rule List
-   * @param rule
-   * @param ruleString
-   */
-  public simplifyRule(rule: any, ruleString?: string) {
-
-    let result: string;
-    let column: string;
-
-    if (rule.col) {
-      if ('string' === typeof rule.col) {
-        column = rule.col;
-      } else if ('string' === typeof rule.col.value) {
-        column = rule.col.value;
-      } else if (rule.col.value.length === 2) {
-        column = rule.col.value.join(', ');
-      } else {
-        column = `${rule.col.value.length} columns`;
-      }
-    }
-
-    switch (rule.command) {
-      case 'create':
-        result = `Create with DS ${rule.with}`;
-        break;
-      case 'header':
-        result = `Convert row${rule.rownum} to header`;
-        break;
-      case 'keep':
-        let row = ruleString.split(': ');
-        result = `Keep rows where ` + row[1];
-        break;
-      case 'rename':
-
-        let toString: string = '';
-        if ('string' === typeof rule.to.value) {
-          toString = ` to '${rule.to['escapedValue']}'`;
-        } else if (rule.to.value.length === 2) {
-          toString = ` to ${rule.to['value'].join(', ')}`;
-        }
-        result = `Rename ${column}${toString}`;
-        break;
-      case 'nest' :
-        result = `Convert ${column} into ${rule.into}`;
-        break;
-      case 'unnest' :
-        result = `Create new columns from ${column}`;
-        break;
-      case 'setformat':
-        let fomatStr: string;
-        if ('string' === typeof rule.col.value) {
-          fomatStr = `${column} type`
-        } else if (rule.col.value.length === 2) {
-          fomatStr = `${column} types`;
-        } else {
-          fomatStr = column;
-        }
-        result = `Set ${fomatStr} format to ${ rule.format }`;
-        break;
-      case 'settype':
-
-        let columnStr: string;
-        if ('string' === typeof rule.col.value) {
-          columnStr = `${column} type`
-        } else if (rule.col.value.length === 2) {
-          columnStr = `${column} types`;
-        } else {
-          columnStr = column;
-        }
-
-        result = `Change ${columnStr} to ${ rule.type }`;
-
-        break;
-      case 'delete':
-        const deleteCondition = ruleString.split('row: ');
-        result = `Delete rows where ${deleteCondition[1]}`;
-        break;
-      case 'set':
-        let rowString = ruleString.split('value: ');
-        result = `Set ${column} to ${rowString[1]}`;
-        break;
-      case 'split':
-        result = `Split ${rule.col} into ${rule.limit + 1 > 1 ? rule.limit + 1 + ' columns' : rule.limit + 1 + ' column'} on ${rule.on.value}`;
-        break;
-      case 'extract':
-        result = `Extract ${rule.on.value} ${rule.limit > 1 ? rule.limit + ' times' : rule.limit + ' time'} from ${rule.col}`;
-        break;
-      case 'flatten':
-        result = `Convert arrays in ${rule.col} to rows`;
-        break;
-      case 'countpattern':
-        result = `Count occurrences of ${rule.on.value} in ${column}`;
-        break;
-      case 'sort':
-        if ('string' === typeof rule.order.value) {
-          result = `Sort row by ${rule.type && rule.type['escapedValue'] === 'desc' ? '-' + rule.order.value : rule.order.value}`;
-          break;
-        } else {
-          result = `Sort rows by ${rule.type && rule.type['escapedValue'] === 'desc' ? '-' + rule.order.value.toString() : rule.order.value.toString()}`;
-          break;
-        }
-      case 'replace':
-        result = `Replace ${rule.on.value} from `;
-        if ('string' === typeof rule.col.value) {
-          result += `${rule.col.value} with ${rule.with['value']}`;
-        } else if (rule.col.value.length === 2) {
-          result += `${rule.col.value.join(', ')} with ${rule.with['value']}`;
-        } else {
-          result += column;
-        }
-        break;
-      case 'merge':
-        result = `Concatenate ${column} separated by ${rule.with}`;
-        break;
-      case 'aggregate':
-        result = `Aggregate with ${rule.value.escapedValue ? rule.value.escapedValue : rule.value.value.length + ' functions'} grouped by `;
-        if ('string' === typeof rule.group.value) {
-          result += `${rule.group.value}`
-        } else if (rule.group.value.length === 2) {
-          result += `${rule.group.value.join(', ')}`
-        } else {
-          result += `${rule.group.value.length} columns`
-        }
-        break;
-      case 'move':
-        result = `Move ${column}`;
-        result += `${rule.before ? ' before ' + rule.before : ' after ' + rule.after }`;
-        break;
-      case 'Union':
-      case 'Join':
-        result = `${rule.command} with `;
-
-        let datasetIds = [];
-        if (rule.dataset2.escapedValue) {
-          datasetIds = [rule.dataset2.escapedValue]
-        } else {
-          rule.dataset2.value.forEach((item) => {
-            datasetIds.push(item.substring(1, item.length - 1))
-          })
-        }
-
-        if (datasetIds.length === 1) {
-          result += `${this.selectedDataSet.gridResponse.slaveDsNameMap[datasetIds[0]]}`;
-        } else if (datasetIds.length === 2) {
-          result += `${this.selectedDataSet.gridResponse.slaveDsNameMap[datasetIds[0]]}, ${this.selectedDataSet.gridResponse.slaveDsNameMap[datasetIds[1]]}`;
-        } else {
-          result += `${datasetIds.length} datasets`;
-        }
-
-        break;
-      case 'derive':
-        let deriveCondition = ruleString.split('value: ');
-        deriveCondition = deriveCondition[1].split(' as: ');
-        result = `Create ${rule.as} from ${deriveCondition[0]}`;
-        break;
-      case 'pivot':
-        let formula = '';
-        if (rule.value.escapedValue) {
-          formula = rule.value.escapedValue
-        } else {
-          let list = [];
-          rule.value.value.forEach((item) => {
-            list.push(item.substring(1, item.length - 1));
-          });
-          formula = list.toString();
-        }
-        result = `Pivot ${column} and compute ${formula} grouped by`;
-
-        if ('string' === typeof rule.group.value || rule.group.value.length === 2) {
-          result += ` ${rule.group.value}`;
-        } else {
-          result += ` ${rule.group.value.length} columns`;
-        }
-        break;
-      case 'unpivot':
-        result = `Convert `;
-        if ('string' === typeof rule.col.value) {
-          result += `${rule.col.value} into row`;
-        } else if (rule.col.value.length > 1) {
-          result += `${column} into rows`;
-        }
-        break;
-      case 'drop':
-        result = `Drop ${column}`;
-        break;
-      default:
-        result = '';
-        break;
-
-    }
-    return result
-  }
 
   /**
    * Multicolumn rename popup open
@@ -1434,70 +1073,53 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * Context Menu Rule 적용 이벤트
    * @param data
    */
-  public applyRuleFromContextMenu(data) {
+  public onContextMenuInfo(data) {
 
     if (data.more) {
       this.ruleVO.command = data.more.command;
       this.safelyDetectChanges();
-      switch (data.more.command) {
-        case 'nest':
-        case 'merge':
-        case 'replace':
-        case 'countpattern':
-        case 'split':
-        case 'extract':
-        case 'rename':
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ));
-          break;
-        case 'unnest':
-          let unnestList = this.selectedDataSet.gridData.fields.filter((item) => {
-            return item.type === 'ARRAY' || item.type === 'MAP'
-          });
-          let selectedUnnestList =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ).filter((item) => {
-            return item.type === 'ARRAY' || item.type === 'MAP'
-          });
-          this._editRuleComp.init(unnestList, selectedUnnestList);
-          break;
-        case 'setformat':
-          let setformatList = this.selectedDataSet.gridData.fields.filter((item) => {
-            return item.type === 'TIMESTAMP'
-          });
-          let setformatSel =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ).filter((item) => {
-            return item.type === 'TIMESTAMP'
-          });
-          let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
-            return item.type === 'TIMESTAMP'
-          });
-          this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
-          this._editRuleComp.setValue('colTypes', colDescs);
-          this._editRuleComp.init(setformatList, setformatSel);
-          break;
-        case 'move':
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ), {ruleString : '', jsonRuleString : data.more});
-          break;
-        case 'set':
 
-          if (data.more.contextMenu) {
-            this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ), {ruleString : '', jsonRuleString : data.more});
-          } else {
-            this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ));
-          }
+      const selCols = this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.uuid ) );
 
-          break;
-        case 'derive':
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, []);
-          break;
-        case 'settype':
-          this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
-          this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
-          this._editRuleComp.setValue('selectedType', data.more.type);
-          let idx = this.selectedDataSet.gridResponse.colDescs.findIndex((item) => {
-            return item.type === data.more.type.toUpperCase();
-          });
-          this._editRuleComp.setValue('defaultIndex', idx);
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ));
-          break;
+      if (data.more.command === 'setformat') {
+        let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
+          return item.type === 'TIMESTAMP'
+        });
+        this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
+        this._editRuleComp.setValue('colTypes', colDescs);
       }
+
+      if (data.more.command === 'move') {
+        this._editRuleComp.init(this.selectedDataSet.gridData.fields, selCols, {jsonRuleString : data.more});
+      }
+
+      if (data.more.command === 'set') {
+
+        if (data.more.contextMenu) {
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, selCols, {jsonRuleString : data.more});
+        } else {
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, selCols);
+        }
+      }
+
+
+      if (data.more.command === 'settype') {
+
+        this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
+        this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
+        this._editRuleComp.setValue('selectedType', data.more.type);
+        let idx = this.selectedDataSet.gridResponse.colDescs.findIndex((item) => {
+          return item.type === data.more.type.toUpperCase();
+        });
+        this._editRuleComp.setValue('defaultIndex', idx);
+      }
+
+      const ruleNames : string[] = ['move', 'set'];
+      if (-1 === ruleNames.indexOf(data.more.command)) {
+        this._editRuleComp.init(this.selectedDataSet.gridData.fields, selCols);
+      }
+
+
     } else {
 
       data['ruleCurIdx'] = this.opString === 'UPDATE' ? this.serverSyncIndex-1 : this.serverSyncIndex;
@@ -1646,58 +1268,14 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   @HostListener('document:keydown.enter', ['$event'])
   private onEnterKeydownHandler(event: KeyboardEvent) {
 
-    /*
-      1. 편집중이 아닐 떄 : 동작 안함
-      2. 편집중일떄
-        2.0. 일반적인 경우 : 동작
-        2.1. 콤보박스 : 동작 안함
-        2.2. 자동완성 : 레이어가 닫혀있거나, 레이어에 포커스가 안된 상태에서만 동작
-        2.3. 설명레이어 : 관계 없이 동작
-        2.4. 팝업 : 동작 안함
-     */
-    if( !isNullOrUndefined( this.ruleVO.command ) && ( 'BODY' === event.target['tagName'] || 0 < $( event.target ).closest( '.ddp-wrap-addrule' ).length )  ) {
-      // enter key only works when there is not popup or selectbox opened
+    if (this.multipleRenamePopupComponent.isPopupOpen
+      || this.createSnapshotPopup.isShow
+      || this.extendInputFormulaComponent.isShow) {
+      return;
+    }
 
-      const openComboList = $( '.ddp-list-selectbox:visible' );
-
-      if( 0 < openComboList.length ) {
-        const isAutoComple:boolean = 0 < openComboList.closest( 'rule-condition-input' ).length;
-        if( isAutoComple ) {
-          // 자동완성 : 레이어가 열려있음
-
-          let isPrevBackColor:string = '';
-          let isFocus:boolean = false;
-          $( '.ddp-list-selectbox:visible' ).find( 'li a' ).each( ( idx, val ) => {
-            const $listItem = $( val );
-            if( 0 === idx ) {
-              isPrevBackColor = $listItem.css( 'background-color' );
-            } else {
-              if( isPrevBackColor !== $listItem.css( 'background-color' ) ) {
-                isFocus = true;
-                return;
-              } else {
-                isPrevBackColor = $listItem.css( 'background-color' );
-              }
-            }
-          });
-
-          if( isFocus ) {
-            // 포커스가 된 상태 - 동작 안함
-            return;
-          } else {
-            // 포커스가 안 된 상태 - 동작
-            this.addRule();
-          }
-        } else {
-          // 콤보박스 : 열림 상태 - 동작 안함
-          return;
-        }
-      } else if( 0 < $( '.ddp-bg-popup:visible' ).length ) {
-        // 팝업 : 열림 상태 - 동작 안함
-        return;
-      } else {
-        this.addRule();
-      }
+    if (event.keyCode === 13) {
+      this.addRule();
     }
 
   } // function - onEnterKeydownHandler
@@ -1719,12 +1297,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       rule['ruleVO'] = JSON.parse(rule['jsonRuleString']);
       rule['ruleVO']['command'] = rule['ruleVO']['name'];
       rule['ruleVO']['ruleNo'] = rule['ruleNo'];
-
-      if (rule['ruleVO'].command === 'join') {
-        rule['ruleVO'].command = 'Join'
-      } else if (rule['ruleVO'].command === 'union') {
-        rule['ruleVO'].command = 'Union'
-      }
 
       const idx = commandNames.indexOf(rule['ruleVO'].command);
       if (idx > -1) {
@@ -1843,7 +1415,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         isHover: false,
         command_h: ['ㅕㅜ','ㅕㅞㅑ','ㅕㅞㅑㅍ','ㅕㅞㅑ패','ㅕㅞㅑ팻']
       },
-      { command: 'Join',
+      { command: 'join',
         alias: 'Jo',
         desc: this.translateService.instant('msg.dp.li.jo.description'),
         isHover: false,
@@ -1905,7 +1477,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         command_h: ['ㅡㅐㅍㄷ']
       },
       {
-        command: 'Union',
+        command: 'union',
         alias: 'Ui',
         desc: this.translateService.instant('msg.dp.li.ui.description'),
         isHover: false,
@@ -1955,17 +1527,19 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this.changeDetect.detectChanges();
 
-    // TODO : Check if necessary - Unselect all columns
-    // this.selectedRows = [];
-    // this.editColumnList = [];
-
     this.isJumped = false;
-    (command === 'multipleRename') && (this.multicolumnRenameComponent.showFlag = false);
-
 
     this.opString = rule['op'];
 
-    this._setEditRuleInfo({op: this.opString, ruleIdx : this.serverSyncIndex, count: 100, ruleString : rule['ruleString'] }).then((data: { apiData: any, gridData: any }) => {
+    const param = {
+      op: this.opString,
+      ruleIdx : this.serverSyncIndex,
+      count: 100,
+      ruleString : rule['ruleString'],
+      uiRuleString : JSON.stringify(rule['uiRuleString'])
+    };
+
+    this._setEditRuleInfo(param).then((data: { apiData: any, gridData: any }) => {
 
       this._isExecAddRule = false;
 
@@ -2013,6 +1587,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param rule
    */
   private setJoinEditInfo(rule) {
+
+    const jsonRuleString = JSON.parse(rule['jsonRuleString']);
+
     //this.rightDataset = new Dataset();
     this.rightDataset = new PrDataset();
 
@@ -2023,42 +1600,19 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.rightDataset.ruleNo = rule['ruleNo'];
 
     // dataset id
-    this.rightDataset.dsId = this.ruleVO['dataset2']['escapedValue'];
+    this.rightDataset.dsId = jsonRuleString.dataset2;
+    this.rightDataset.selectedJoinType = jsonRuleString.joinType;
+    this.rightDataset.rightSelectCol = jsonRuleString.rightCol;
+    this.rightDataset.leftSelectCol = jsonRuleString.leftCol;
 
-    //  join type
-    this.rightDataset.selectedJoinType = this.ruleVO['joinType'].substring(1, this.ruleVO['joinType'].length - 1);
+    this.rightDataset.joinRuleList = [];
 
-    let rlist = []; // container for rightcolumns
-    let llist = []; // container for leftcolumns
-    typeof this.ruleVO['rightSelectCol'].value === 'string' ? (rlist[0] = this.ruleVO['rightSelectCol'].value)
-      : this.rightDataset.rightSelectCol = this.ruleVO['rightSelectCol'].value;
-    typeof this.ruleVO['leftSelectCol'].value === 'string' ? (llist[0] = this.ruleVO['leftSelectCol'].value)
-      : this.rightDataset.leftSelectCol = this.ruleVO['leftSelectCol'].value;
-
-    rlist.length > 0 ? this.rightDataset.rightSelectCol = rlist : null;
-    llist.length > 0 ? this.rightDataset.leftSelectCol = llist : null;
-    let list = [];
-
-    if (this.ruleVO['condition'].hasOwnProperty('children')) {
-      list = this.ruleVO['condition']['children'];
-      this.rightDataset.joinRuleList = [];
-      list.forEach((item) => {
-        const info = new JoinInfo();
-        info.leftJoinKey = item['left'].value;
-        info.rightJoinKey = item['right'].value;
-        this.rightDataset.joinRuleList.push(info);
-
-      });
-    } else {
-
-      list = this.ruleVO['condition'];
-      this.rightDataset.joinRuleList = [];
+    jsonRuleString.leftJoinKey.forEach((item,index) => {
       const info = new JoinInfo();
-      info.leftJoinKey = list['left'].value;
-      info.rightJoinKey = list['right'].value;
+      info.leftJoinKey = item;
+      info.rightJoinKey = jsonRuleString.rightJoinKey[index];
       this.rightDataset.joinRuleList.push(info);
-    }
-
+    });
     this.isRuleJoinModalShow = true;
     this.changeDetect.detectChanges();
   }

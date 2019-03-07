@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
@@ -164,6 +165,8 @@ public class DataSourceProjections extends BaseProjections {
     IngestionInfo getIngestion();
 
     DataConnection getConnection();
+
+    PrSnapshot getSnapshot();
 
     Integer getLinkedWorkspaces();
 

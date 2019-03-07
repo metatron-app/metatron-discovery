@@ -18,9 +18,9 @@ import {
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import {isNullOrUndefined, isUndefined} from "util";
-import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 import * as _ from 'lodash';
+import {DeriveRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector : 'edit-rule-derive',
@@ -95,7 +95,7 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    * Rule 형식 정의 및 반환
    * @return
    */
-  public getRuleData(): { command: string, ruleString:string} {
+  public getRuleData(): { command: string, ruleString:string, uiRuleString: DeriveRule} {
     
     this.deriveVal = this.valueInput.getFormula();
     let val = _.cloneDeep(this.deriveVal);
@@ -119,7 +119,13 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
 
     return {
       command: 'derive',
-      ruleString: 'derive value: ' + val + ' as: ' + deriveAs
+      ruleString: 'derive value: ' + val + ' as: ' + deriveAs,
+      uiRuleString: {
+        name: 'derive',
+        expression: this.deriveVal,
+        newCol: this.deriveAs,
+        isBuilder: true
+      }
     }
     
   } // function - getRuleData
@@ -167,19 +173,12 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
 
   /**
    * parse rule string
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * @param data ({jsonRuleString : DeriveRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {jsonRuleString : DeriveRule}) {
 
-    // EXPRESSION
-    let val = data.ruleString.split('value: ')[1];
-    this.deriveVal = val.split(' as: ')[0];
-    // this.deriveVal = data.jsonRuleString.value.value;
-
-
-    // NEW COLUMN NAME
-    this.deriveAs = data.jsonRuleString.as;
-    this.deriveAs = PreparationCommonUtil.removeQuotation(this.deriveAs);
+    this.deriveVal = data.jsonRuleString.expression;
+    this.deriveAs = data.jsonRuleString.newCol;
 
   } // function - parsingRuleString
 

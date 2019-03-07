@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-pop-preview ddp-type popup-prep-snapshot" *ngIf="isShow">
+<div class="ddp-pop-preview ddp-type popup-prep-snapshot" *ngIf="isShow && !isCreateSourceMode">
   <!-- top -->
   <div class="ddp-ui-top">
     <div class="ddp-data-name">
@@ -185,7 +185,7 @@
       <!--이름-->
        <div class="ddp-view-title type-edit" [ngClass]="{'ddp-selected':isSsNameEditing}" (clickOutside)="changeSsNameEditingState(false)">
         <div class="ddp-ui-input">
-          <textarea #ssName maxlength="50" (keyup.enter)="editSnapshotName()"></textarea>
+          <input type="text" #ssName maxlength="50" (keyup.enter)="editSnapshotName()">
           <span class="ddp-btn-check" (click)="editSnapshotName()"></span>
         </div>
         <span class="ddp-txt-title">
@@ -250,10 +250,16 @@
         </div>
         <!-- //info -->
       </div>
-
+      <div class="ddp-view-buttons" *ngIf="isEnableCreateDatasource">
+        <a href="javascript:" class=" ddp-btn-pop ddp-bg-black" (click)="createDatasource()"><em class="ddp-icon-add2"></em>{{'msg.storage.btn.create.source' | translate}}</a>
+      </div>
     </div>
     <!-- //right -->
-
   </div>
   <!-- //contents -->
 </div>
+<!-- create data source popup -->
+<app-create-data-source *ngIf="isCreateSourceMode"
+                        [step]="'snapshot-configure'"
+                        [sourceData]="sourceData"
+                        (sourceCreateClose)="closedSourceCreate()"></app-create-data-source>

@@ -31,11 +31,6 @@
         <!-- 검색 -->
         <div class="ddp-form-search ddp-fleft">
           <em class="ddp-icon-search"></em>
-          <!--<input type="text" placeholder="{{'msg.comm.search.ds' | translate}}"-->
-                 <!--(keypress)="onSearchText($event)"-->
-                 <!--(keyup.esc)="onSearchTextInit()"-->
-                 <!--[ngModel]="searchText">-->
-          <!--<em class="ddp-btn-search-close" *ngIf="searchText" (click)="onSearchTextInit()"></em>-->
           <component-input
             [compType]="'search'"
             [value]="searchText"
@@ -44,10 +39,7 @@
           </component-input>
         </div>
         <!-- //검색 -->
-
-
         <div class="ddp-ui-rightoption">
-
           <!-- 공개 -->
           <label class="ddp-label-checkbox" (click)="onSelectedOnlyPublished()">
             <input type="checkbox" [checked]="searchPublished">
@@ -55,7 +47,6 @@
             <span class="ddp-txt-checkbox">{{'msg.board.th.allowance' | translate}}</span>
           </label>
           <!-- //공개 -->
-
           <!-- form -->
           <div class="ddp-form-label2">
             <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}</label>
@@ -78,100 +69,98 @@
       <!-- 설명 나올때 ddp-selected 추가 -->
       <div class="ddp-wrap-variable">
         <div class="ddp-wrap-grid" [class.ddp-selected]="selectedDatasource">
-        <div class="ddp-wrap-viewtable ddp-add">
-          <!-- 테이블 -->
-          <div class="ddp-box-viewtable">
-            <!-- gridhead -->
-            <div class="ddp-ui-gridhead">
-              <table class="ddp-table-form ddp-table-type2">
-                <colgroup>
-                  <col width="51px">
-                  <col width="*">
-                  <col width="10%">
-                  <col width="15%">
-                  <col width="15%">
-                </colgroup>
-                <thead>
-                <tr>
-                  <th class="ddp-txt-center">
-                    {{'msg.comm.th.no' | translate}}
-                  </th>
-                  <th class="ddp-cursor" (click)="onClickSort('name')">
-                    {{'msg.comm.th.ds' | translate}}
-                    <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
-                    <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'"></em>
-                    <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'"></em>
-                  </th>
-                  <th>
-                    {{'msg.comm.th.type' | translate}}
-                  </th>
-                  <th class="ddp-cursor" (click)="onClickSort('linkedWorkspaces')">
-                    {{'msg.comm.th.used' | translate}}
-                    <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'linkedWorkspaces' || selectedContentSort.sort === 'default'"></em>
-                    <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'linkedWorkspaces' && selectedContentSort.sort === 'asc'"></em>
-                    <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'linkedWorkspaces' && selectedContentSort.sort === 'desc'"></em>
-                  </th>
-                  <th class="ddp-cursor" (click)="onClickSort('modifiedTime')">
-                    {{'msg.comm.th.updated' | translate}}
-                    <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'modifiedTime' || selectedContentSort.sort === 'default'"></em>
-                    <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'asc'"></em>
-                    <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'desc'"></em>
-                  </th>
-                </tr>
-                </thead>
+          <div class="ddp-wrap-viewtable ddp-add">
+            <!-- 테이블 -->
+            <div class="ddp-box-viewtable">
+              <!-- gridhead -->
+              <div class="ddp-ui-gridhead">
+                <table class="ddp-table-form ddp-table-type2">
+                  <colgroup>
+                    <col width="51px">
+                    <col width="*">
+                    <col width="10%">
+                    <col width="15%">
+                    <col width="15%">
+                  </colgroup>
+                  <thead>
+                  <tr>
+                    <th class="ddp-txt-center">
+                      {{'msg.comm.th.no' | translate}}
+                    </th>
+                    <th class="ddp-cursor" (click)="onClickSort('name')">
+                      {{'msg.comm.th.ds' | translate}}
+                      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
+                      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'"></em>
+                      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'"></em>
+                    </th>
+                    <th>
+                      {{'msg.comm.th.type' | translate}}
+                    </th>
+                    <th class="ddp-cursor" (click)="onClickSort('linkedWorkspaces')">
+                      {{'msg.comm.th.used' | translate}}
+                      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'linkedWorkspaces' || selectedContentSort.sort === 'default'"></em>
+                      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'linkedWorkspaces' && selectedContentSort.sort === 'asc'"></em>
+                      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'linkedWorkspaces' && selectedContentSort.sort === 'desc'"></em>
+                    </th>
+                    <th class="ddp-cursor" (click)="onClickSort('modifiedTime')">
+                      {{'msg.comm.th.updated' | translate}}
+                      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'modifiedTime' || selectedContentSort.sort === 'default'"></em>
+                      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'asc'"></em>
+                      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'desc'"></em>
+                    </th>
+                  </tr>
+                  </thead>
 
-              </table>
+                </table>
+              </div>
+              <!--// gridhead -->
+              <!-- gridbody -->
+              <div class="ddp-ui-gridbody">
+                <table class="ddp-table-form ddp-table-type2 ddp-table-select">
+                  <colgroup>
+                    <col width="51px">
+                    <col width="*">
+                    <col width="10%">
+                    <col width="15%">
+                    <col width="15%">
+                  </colgroup>
+                  <tbody>
+                  <tr *ngFor="let source of datasourceList; let i = index"
+                      [class.ddp-selected]="selectedDatasource?.id === source.id"
+                      (click)="onSelectedDatasource(source)">
+                    <td class="ddp-txt-center">
+                      {{getDatasourceIndex(i)}}
+                    </td>
+                    <td>
+                      <div class="ddp-txt-long" [class.ddp-global]="source.published">
+                        {{source.name}}
+                        <span class="ddp-txt-colortype" *ngIf="source.description">- {{source.description}}</span>
+                        <em class="ddp-tag-global" *ngIf="source.published">{{'msg.comm.ui.list.ds.opendata' | translate}}</em>
+                      </div>
+                    </td>
+                    <td>
+                      {{source.connType && source.connType.toString() === 'ENGINE' ? ('msg.comm.ui.list.ds.type.engine' | translate) : ('msg.comm.ui.list.ds.type.link' | translate)}}
+                    </td>
+                    <td>
+                      {{source.published ? ('msg.space.ui.allworkspace' | translate) : (source.linkedWorkspaces == undefined ? 'not used' : source.linkedWorkspaces + ' Workspaces')}}
+                    </td>
+                    <td>
+                      {{source.modifiedTime | mdate:'YYYY-MM-DD'}}
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+              <!--// gridbody -->
             </div>
-            <!--// gridhead -->
-
-            <!-- gridbody -->
-            <div class="ddp-ui-gridbody">
-              <table class="ddp-table-form ddp-table-type2 ddp-table-select">
-                <colgroup>
-                  <col width="51px">
-                  <col width="*">
-                  <col width="10%">
-                  <col width="15%">
-                  <col width="15%">
-                </colgroup>
-                <tbody>
-                <tr *ngFor="let source of datasourceList; let i = index"
-                    [class.ddp-selected]="selectedDatasource?.id === source.id"
-                    (click)="onSelectedDatasource(source)">
-                  <td class="ddp-txt-center">
-                    {{getDatasourceIndex(i)}}
-                  </td>
-                  <td>
-                    <div class="ddp-txt-long" [class.ddp-global]="source.published">
-                      {{source.name}}
-                      <span class="ddp-txt-colortype" *ngIf="source.description">- {{source.description}}</span>
-                      <em class="ddp-tag-global" *ngIf="source.published">{{'msg.comm.ui.list.ds.opendata' | translate}}</em>
-                    </div>
-                  </td>
-                  <td>
-                    {{source.connType && source.connType.toString() === 'ENGINE' ? ('msg.comm.ui.list.ds.type.engine' | translate) : ('msg.comm.ui.list.ds.type.link' | translate)}}
-                  </td>
-                  <td>
-                    {{source.published ? ('msg.space.ui.allworkspace' | translate) : (source.linkedWorkspaces == undefined ? 'not used' : source.linkedWorkspaces + ' Workspaces')}}
-                  </td>
-                  <td>
-                    {{source.modifiedTime | mdate:'YYYY-MM-DD'}}
-                  </td>
-                </tr>
-                </tbody>
-              </table>
-
+            <!-- //테이블 -->
+            <div class="ddp-box-add-link3"
+                 [class.ddp-disabled]="!isMoreContents()"
+                 (click)="onClickMoreList()">
+              <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}}<em class="ddp-icon-view"></em></span>
             </div>
-            <!--// gridbody -->
-          </div>
-          <!-- //테이블 -->
-          <div class="ddp-box-add-link3"
-               [class.ddp-disabled]="!isMoreContents()"
-               (click)="onClickMoreList()">
-            <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}}<em class="ddp-icon-view"></em></span>
           </div>
         </div>
-      </div>
       </div>
       <!-- //그리드 영역 -->
       <!-- 설명 -->

@@ -812,7 +812,7 @@
           <div class="ddp-ui-chart-contents" [ngClass]="{'ddp-map-chart' : 'map' == selectChart,
                                                           'ddp-shelf1' : 'map' == selectChart && 0 == shelf.layers.length-1,
                                                           'ddp-shelf2' : 'map' == selectChart && 1 == shelf.layers.length-1,
-                                                          'ddp-shelf3' : 'map' == selectChart && uiOption.analysis != null && uiOption.analysis['use'] == true}">
+                                                          'ddp-shelf3' : 'map' == selectChart && uiOption['analysis'] != null && uiOption['analysis']['use'] == true}">
             <div class="ddp-wrap-chart-layout">
               <!-- 차트 기본 선택 화면 -->
               <div class="ddp-ui-chart-basic" *ngIf="selectChart==''">

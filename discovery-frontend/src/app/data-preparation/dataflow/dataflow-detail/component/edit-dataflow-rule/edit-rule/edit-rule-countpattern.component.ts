@@ -14,13 +14,12 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import * as _ from 'lodash';
+import {CountPatternRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector : 'edit-rule-countpattern',
@@ -81,7 +80,7 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
    * returns rule string
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: CountPatternRule } {
 
     // column
     if (0 === this.selectedFields.length) {
@@ -101,12 +100,8 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
       return undefined;
     }
 
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
-
     // rule string
-    let ruleString = 'countpattern col: ' + columnsStr
+    let ruleString = 'countpattern col: ' + this.getColumnNamesInArray(this.selectedFields, true).toString()
       + ' on: ' + patternResult[1] + ' ignoreCase: ' + this.isIgnoreCase;
 
     // Ignore between characters
@@ -120,7 +115,18 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
       }
     }
 
-    return { command : 'countpattern', ruleString: ruleString };
+    return {
+      command : 'countpattern',
+      ruleString: ruleString,
+      uiRuleString: {
+        name: 'countpattern',
+        ignore: this.ignore,
+        col: this.getColumnNamesInArray(this.selectedFields),
+        pattern: this.pattern,
+        ignoreCase: this.isIgnoreCase,
+        isBuilder: true
+      }
+    };
 
   } // function - getRuleData
 
@@ -164,26 +170,20 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
 
   /**
    * parse rule string
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * @param data ({jsonRuleString : CountPatternRule})
    */
-  protected parsingRuleString(data : {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data : {jsonRuleString : CountPatternRule}) {
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-
-    if (data.jsonRuleString.on.value.startsWith('/') && data.jsonRuleString.on.value.endsWith('/')) {
-      this.pattern = data.jsonRuleString.on.value;
-    }  else {
-      this.pattern = data.jsonRuleString.on.escapedValue;
-    }
-
+    this.pattern = data.jsonRuleString.pattern;
 
     this.isIgnoreCase = Boolean(data.jsonRuleString.ignoreCase);
 
-    if (data.jsonRuleString.quote) {
-      this.ignore = data.jsonRuleString.quote.escapedValue;
+    if (data.jsonRuleString.ignore) {
+      this.ignore = data.jsonRuleString.ignore;
     }
 
   } // function - _parsingRuleString

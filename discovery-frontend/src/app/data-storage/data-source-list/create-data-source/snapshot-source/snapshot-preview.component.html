@@ -1,0 +1,110 @@
+<!-- 설명 -->
+<div class="ddp-box-grid-detail" *ngIf="snapshotData">
+  <a href="javascript:" class="ddp-btn-close-s" (click)="closePreview()"></a>
+  <div class="ddp-data-detailinfo">
+    <span class="ddp-data-name">{{snapshotData.ssName}}</span>
+    <!-- detail -->
+    <div class="ddp-ui-detail">
+      <em class="ddp-icon-detail" (click)="onClickDetail()"></em>
+      <div class="ddp-ui-tooltip-info">
+        <em class="ddp-icon-view-top"></em>
+        {{'msg.comm.detail.details' | translate}}
+      </div>
+    </div>
+    <!-- //detail -->
+  </div>
+  <!-- part -->
+  <div class="ddp-wrap-datadetail ">
+    <!-- detail -->
+    <dl class="ddp-dl-detail">
+      <dt>
+        {{'msg.comm.detail.type' | translate}}
+      </dt>
+      <dd>
+        {{getSnapshotTypeLabel(snapshotData)}}
+      </dd>
+    </dl>
+    <!-- //detail -->
+    <!-- only stagingDB -->
+    <ng-container *ngIf="snapshotData.ssType === snapshotType.STAGING_DB">
+      <dl class="ddp-dl-detail">
+        <dt>
+          {{'msg.storage.ui.list.schema' | translate}}
+        </dt>
+        <dd>
+          {{snapshotData.dbName}}
+        </dd>
+      </dl>
+      <dl class="ddp-dl-detail">
+        <dt>
+          {{'msg.lineage.ui.list.title.table' | translate}}
+        </dt>
+        <dd>
+          {{snapshotData.tblName}}
+        </dd>
+      </dl>
+    </ng-container>
+    <!-- //only stagingDB -->
+    <!-- only file -->
+    <dl class="ddp-dl-detail" *ngIf="snapshotData.ssType === snapshotType.URI">
+      <dt>
+        {{'msg.dp.th.file.uri' | translate}}
+      </dt>
+      <dd>
+        {{getSnapshotUriType(snapshotData)}}
+        <div class="ddp-dl-sub-detail">
+          <a href="javascript:" class="ddp-link-url" title="{{snapshotData.storedUri}}">{{snapshotData.storedUri}}</a>
+        </div>
+      </dd>
+    </dl>
+    <!-- //only file -->
+    <!-- detail -->
+    <dl class="ddp-dl-detail">
+      <dt>
+        {{'msg.storage.ui.dsource.preview.summary' | translate}}
+      </dt>
+      <dd>
+        {{sourceData.fieldData.length}} {{'msg.comm.detail.rows' | translate}} <br/>
+        {{sourceData.fieldList.length}} {{'msg.comm.detail.columns' | translate}}
+      </dd>
+    </dl>
+    <dl class="ddp-dl-detail">
+      <dt>
+        {{'msg.storage.th.elapsed.time' | translate}}
+      </dt>
+      <dd>
+        {{getElapsedTime(snapshotData)}}
+      </dd>
+    </dl>
+    <dl class="ddp-dl-detail">
+      <dt>
+        {{'msg.comm.detail.created' | translate}}
+      </dt>
+      <dd>
+        {{snapshotData.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}
+      </dd>
+    </dl>
+    <!-- //detail -->
+  </div>
+  <div class="ddp-script-preview">
+    <div class="ddp-txt-error3" *ngIf="isErrorSnapshot">{{'msg.storage.ui.cannot.load.data' | translate}}</div>
+    <table class="ddp-table-listview" *ngIf="!isErrorSnapshot">
+      <colgroup>
+        <col width="10%">
+        <col width="*">
+      </colgroup>
+      <tbody>
+      <tr *ngFor="let field of sourceData.fieldList">
+        <td class="ddp-txt-center">
+          <em class="{{getFieldTypeIconClass(field.type)}}"></em>
+        </td>
+        <td>
+          {{field.name}}
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- //설명 -->
+<app-data-snapshot-detail></app-data-snapshot-detail>

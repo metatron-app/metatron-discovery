@@ -134,8 +134,8 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   @Output('selectHeader')
   public selectHeaderEvent: EventEmitter<any> = new EventEmitter();
 
-  @Output('selectContextMenu')
-  public selectContextMenuEvent: EventEmitter<any> = new EventEmitter();
+  @Output('contextMenuItemInfo')
+  public contextMenuItemInfo: EventEmitter<any> = new EventEmitter();
 
   @ViewChild('typeListElement')
   public typeListElement: ElementRef;
@@ -826,32 +826,24 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
    * Context Menu Rule 적용 이벤트
    * @param data
    */
-  public applyRuleFromContextMenu(data) {
+  public onContextMenuItemClick(data) {
 
     if (data.more) {
       this._gridComp.columnAllUnSelection();
 
-      const singleSelectionMap: string[] = ['rename', 'unnest'];
-      const multiSelectionMap: string[] = ['merge', 'replace', 'set', 'nest', 'settype', 'setformat', 'move', 'countpattern', 'extract', 'split'];
+      this._selectedColumns = data.more.col;
 
-      if (-1 < singleSelectionMap.indexOf(data.more.command)) {
-        this._gridComp.selectColumn(data.more.col.value[0], true);
-      } else if (-1 < multiSelectionMap.indexOf(data.more.command)) {
-        this._selectedColumns = data.more.col.value;
-        // let originalSelectedDatasets = _.cloneDeep(this._selectedColumns);
-        // let idx = originalSelectedDatasets.indexOf(data.more.col);
-        // if (idx === -1) {
-        //   originalSelectedDatasets.push(data.more.col);
-        // }
-        this._selectedColumns.forEach((item) => {
-          this._gridComp.selectColumn(item, true);
-        });
-      } else if ('derive' === data.more.command) {
+      this._selectedColumns.forEach((item) => {
+        this._gridComp.selectColumn(item, true);
+      });
+
+      if ('derive' === data.more.command) {
         this._selectedRows = [];
       }
+
     }
 
-    this.selectContextMenuEvent.emit(data);
+    this.contextMenuItemInfo.emit(data);
 
   } // function - applyRuleFromContextMenu
 

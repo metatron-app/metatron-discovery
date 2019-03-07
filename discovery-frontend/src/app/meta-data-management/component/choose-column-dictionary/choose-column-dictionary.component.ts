@@ -12,16 +12,16 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { ColumnDictionary } from '../../../domain/meta-data-management/column-dictionary';
-import { ColumnDictionaryService } from '../../column-dictionary/service/column-dictionary.service';
-import { isUndefined } from 'util';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {ColumnDictionary} from '../../../domain/meta-data-management/column-dictionary';
+import {ColumnDictionaryService} from '../../column-dictionary/service/column-dictionary.service';
+import {isUndefined} from 'util';
 import * as _ from 'lodash';
 
 @Component({
   selector: 'app-choose-column-dictionary',
-  templateUrl: './choose-column-dictionary.component.html'
+  templateUrl: './choose-column-dictionary.component.html',
 })
 export class ChooseColumnDictionaryComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -65,9 +65,10 @@ export class ChooseColumnDictionaryComponent extends AbstractComponent implement
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private _dictionaryService: ColumnDictionaryService,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    private _dictionaryService: ColumnDictionaryService,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -124,7 +125,7 @@ export class ChooseColumnDictionaryComponent extends AbstractComponent implement
    * @returns {boolean}
    */
   public isMoreContents(): boolean {
-    return (this.pageResult.number < this.pageResult.totalPages -1);
+    return (this.pageResult.number < this.pageResult.totalPages - 1);
   }
 
   /**
@@ -147,7 +148,7 @@ export class ChooseColumnDictionaryComponent extends AbstractComponent implement
   public onClickDone(): void {
     // 생성모드일 경우 선택한 컬럼 사전 전달
     // 수정모드일 경우 TODO
-    this._mode === 'CREATE' ? this._emitColumnDictionary() :  this._updateColumnDictionary();
+    this._mode === 'CREATE' ? this._emitColumnDictionary() : this._updateColumnDictionary();
   }
 
   /**
@@ -202,7 +203,8 @@ export class ChooseColumnDictionaryComponent extends AbstractComponent implement
    * @param {ColumnDictionary} columnDictionary
    */
   public onSelectColumnDictionary(columnDictionary: ColumnDictionary): void {
-    this.selectedColumnDictionary = (this.selectedColumnDictionary && this.selectedColumnDictionary.id === columnDictionary.id) ? null : columnDictionary;
+    this.selectedColumnDictionary = (this.selectedColumnDictionary && this.selectedColumnDictionary.id ===
+      columnDictionary.id) ? null : columnDictionary;
   }
 
   /**
@@ -270,7 +272,9 @@ export class ChooseColumnDictionaryComponent extends AbstractComponent implement
    */
   private _updateColumnDictionary(): void {
     // 기존의 선택한 컬럼 사전이 있다면
-    (this._originSelectedColumnDictionary && !this.selectedColumnDictionary) ? this._unLinkColumnDictionary() : this._linkColumnDictionary();
+    (this._originSelectedColumnDictionary && !this.selectedColumnDictionary) ?
+      this._unLinkColumnDictionary() :
+      this._linkColumnDictionary();
   }
 
   /**
@@ -303,18 +307,18 @@ export class ChooseColumnDictionaryComponent extends AbstractComponent implement
     // 로딩 show
     this.loadingShow();
     // 컬럼 사전 목록 조회
-    this._dictionaryService.getColumnDictionaryList(this._getColumnDictionaryListParams())
-      .then((result) => {
-        // 전달 받은 page number가 0 이면 컬럼 사전 리스트 초기화
-        this.pageResult.number === 0 && (this.columnDictionaryList = []);
-        // page 객체
-        this.pageResult = result.page;
-        // 컬럼 사전 리스트
-        this.columnDictionaryList = result['_embedded'] ? this.columnDictionaryList.concat(result['_embedded'].dictionaries) : [];
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._dictionaryService.getColumnDictionaryList(this._getColumnDictionaryListParams()).then((result) => {
+      // 전달 받은 page number가 0 이면 컬럼 사전 리스트 초기화
+      this.pageResult.number === 0 && (this.columnDictionaryList = []);
+      // page 객체
+      this.pageResult = result.page;
+      // 컬럼 사전 리스트
+      this.columnDictionaryList = result['_embedded'] ?
+        this.columnDictionaryList.concat(result['_embedded'].dictionaries) :
+        [];
+      // 로딩 hide
+      this.loadingHide();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -326,7 +330,7 @@ export class ChooseColumnDictionaryComponent extends AbstractComponent implement
     const params = {
       size: this.pageResult.size,
       page: this.pageResult.number,
-      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
+      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,
     };
     // 검색어
     if (!isUndefined(this.searchText) && this.searchText.trim() !== '') {

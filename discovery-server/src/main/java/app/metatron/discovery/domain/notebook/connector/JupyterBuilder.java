@@ -52,11 +52,12 @@ public abstract class JupyterBuilder implements JupyterAction {
      */
     private String getSparkHome() {
         String path;
-        if (System.getProperty("spark.home.dir") == null && System.getProperty("spark.home.dir").isEmpty()) {
+        String sparkHome = System.getenv("METATRON_SPARK_HOME");
+        if (null == sparkHome || sparkHome.isEmpty()) {
             LOGGER.warn("METATRON_SPARK_HOME is not set.");
             path = DEFAULT_SPARK_HOME;
         } else {
-            path = System.getProperty("spark.home.dir") + File.separator + "bin" + File.separator;
+            path = sparkHome + File.separator + "bin" + File.separator;
         }
         LOGGER.info("METATRON_SPARK_HOME = " + path);
         return path;

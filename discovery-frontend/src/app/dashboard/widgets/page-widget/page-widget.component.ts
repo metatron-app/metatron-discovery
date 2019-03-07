@@ -57,10 +57,7 @@ import {GridChartComponent} from '../../../common/component/chart/type/grid-char
 import {BarChartComponent} from '../../../common/component/chart/type/bar-chart/bar-chart.component';
 import {LineChartComponent} from '../../../common/component/chart/type/line-chart/line-chart.component';
 import {OptionGenerator} from '../../../common/component/chart/option/util/option-generator';
-import {
-  BoardSyncOptions, BoardWidgetOptions,
-  WidgetShowType
-} from '../../../domain/dashboard/dashboard.globalOptions';
+import {BoardSyncOptions, BoardWidgetOptions, WidgetShowType} from '../../../domain/dashboard/dashboard.globalOptions';
 import {DataDownloadComponent} from '../../../common/component/data-download/data.download.component';
 import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
 import {ChartLimitInfo, DashboardUtil} from '../../util/dashboard.util';
@@ -1089,7 +1086,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
       if (ChartType.MAP === (<PageWidgetConfiguration>this.widget.configuration).chart.type) {
 
-        if( 'default' === this.widgetConfiguration.dataSource.type ) {
+        if ('default' === this.widgetConfiguration.dataSource.type) {
           // Pivot 내 누락된 필드 정보 설정
           const widgetDataSource: Datasource
             = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
@@ -1118,7 +1115,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
               this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']].fields
                 .forEach((abstractField) => {
                   if (isNullOrUndefined(abstractField.field)
-                    && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                    && String(field.type) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
                     abstractField.field = field;
                   }
                 });
@@ -1150,12 +1147,14 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         } else {
           // If the widget has a data source
 
+          this.isMissingDataSource = false;
+
           const fields: Field[] = DashboardUtil.getFieldsForMainDataSource(this.widget.dashBoard.configuration, widgetDataSource.engineName);
           fields.forEach((field) => {
             this.widgetConfiguration.pivot.rows
               .forEach((abstractField) => {
                 if (isNullOrUndefined(abstractField.field)
-                  && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                  && String(field.type) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
                   abstractField.field = field;
                 }
               });
@@ -1163,7 +1162,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             this.widgetConfiguration.pivot.columns
               .forEach((abstractField) => {
                 if (isNullOrUndefined(abstractField.field)
-                  && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                  && String(field.type) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
                   abstractField.field = field;
                 }
               });
@@ -1171,7 +1170,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             this.widgetConfiguration.pivot.aggregations
               .forEach((abstractField) => {
                 if (isNullOrUndefined(abstractField.field)
-                  && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                  && String(field.type) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
                   abstractField.field = field;
                 }
               });
@@ -1194,7 +1193,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @param {PageWidget} widget
    * @private
    */
-  private _setCommonConfig(widget: PageWidget) {
+  private _setCommonConfig(widget : PageWidget ) {
 
     this.isMissingDataSource = false;
 
@@ -1246,7 +1245,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @param {Filter[]} selectionFilters
    * @private
    */
-  private _search(globalFilters?: Filter[], selectionFilters?: Filter[]) {
+  private _search(globalFilters ?: Filter[], selectionFilters ?: Filter[]) {
 
     if (selectionFilters && selectionFilters.some(item => -1 < this._childWidgetIds.indexOf(item['selectedWidgetId']))) {
       return;
@@ -1322,7 +1321,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     const uiCloneQuery = _.cloneDeep(query);
 
-    if( 'default' === this.widgetConfiguration.dataSource.type ) {
+    if ('default' === this.widgetConfiguration.dataSource.type) {
       // General or Single Layer Map Chart
 
       // 필터 설정
@@ -1458,11 +1457,11 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     });
   } // function - _search
 
-  // noinspection JSMethodCanBeStatic
+// noinspection JSMethodCanBeStatic
   /**
    * 서버시에 필요없는 ui에서만 사용되는 파라미터 제거
    */
-  private _makeSearchQueryParam(cloneQuery): SearchQueryRequest {
+  private _makeSearchQueryParam(cloneQuery) : SearchQueryRequest {
 
     // 선반 데이터 설정
     for (let field of _.concat(cloneQuery.pivot.columns, cloneQuery.pivot.rows, cloneQuery.pivot.aggregations)) {
@@ -1525,7 +1524,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @returns {string}
    * @private
    */
-  private _findParentWidgetId(widgetId: string, relations: DashboardPageRelation[]): string {
+  private _findParentWidgetId(widgetId :string, relations : DashboardPageRelation[]): string {
     let parentId: string = '';
 
     relations.some(item => {
@@ -1553,7 +1552,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @return {string}
    * @private
    */
-  private _findChildWidgetIds(widgetId: string, relations: DashboardPageRelation[], isCollect: boolean = false): string[] {
+  private _findChildWidgetIds(widgetId : string, relations : DashboardPageRelation[], isCollect : boolean = false ): string[] {
     let childIds: string[] = [];
 
     relations.forEach(item => {
@@ -1570,22 +1569,22 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     return childIds;
   } // function - _findChildWidgetIds
 
-  // ----------------------------------------------------
-  // 고급분석 예측선 관련
-  // ----------------------------------------------------
+// ----------------------------------------------------
+// 고급분석 예측선 관련
+// ----------------------------------------------------
 
   /**
    * 고급분석 예측선 활성화 여부 검사
    * @returns {boolean}
    */
-  private isAnalysisPredictionEnabled(): boolean {
+  private isAnalysisPredictionEnabled() : boolean {
     return !_.isUndefined(this.widgetConfiguration.analysis) && !_.isEmpty(this.widgetConfiguration.analysis);
   }
 
   /**
    * 고급분석 예측선을 사용안하는 경우 처리
    */
-  private predictionLineDisabled(): void {
+  private predictionLineDisabled() : void {
     this.chart.analysis = null;
     this.chart.resultData = this.resultData;
   }
@@ -1593,8 +1592,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /**
    * 고급분석 예측선 API 호출
    */
-  private getAnalysis(): void {
-    if (this.isAnalysisPredictionEnabled()) {
+  private getAnalysis() : void {
+    if (this.isAnalysisPredictionEnabled() ) {
       Promise
         .resolve()
         .then(() => {

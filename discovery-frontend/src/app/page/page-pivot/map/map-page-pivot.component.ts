@@ -14,7 +14,7 @@
 
 import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
 import {Pivot} from '../../../domain/workbook/configurations/pivot';
-import {BIType, Field, FieldPivot, LogicalType} from '../../../domain/datasource/datasource';
+import {FieldRole, Field, FieldPivot, LogicalType} from '../../../domain/datasource/datasource';
 import {
   ChartType,
   EventType,
@@ -86,10 +86,6 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
   @Output('changeLayer')
   public changeLayerEvent: EventEmitter<any> = new EventEmitter();
-
-  // @Output('selectLayer')
-  // public selectLayerEvent: EventEmitter<any> = new EventEmitter();
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -234,22 +230,23 @@ export class MapPagePivotComponent extends PagePivotComponent {
     }
 
     const idx = shelf.findIndex((field) => {
-      return field.name === targetField.name && targetField.biType === field.biType;
+      return field.name === targetField.name && targetField.role === field.role;
     });
 
     if (idx > -1) {
       let field;
 
       // timestamp biType이거나, biType이 dimension이면서 logicalType이 timestamp인 경우
-      if (targetField.biType === BIType.TIMESTAMP ||
-        (targetField.biType === BIType.DIMENSION && targetField.logicalType === LogicalType.TIMESTAMP)) {
+      if (targetField.role === FieldRole.TIMESTAMP ||
+        (targetField.role === FieldRole.DIMENSION && targetField.logicalType === LogicalType.TIMESTAMP)) {
 
         // 타입필드로 설정
         const timeField = new TimestampField();
         field = timeField;
-      } else if (targetField.biType === BIType.DIMENSION) {
+      }
+      else if (targetField.role === FieldRole.DIMENSION) {
         field = new DimensionField();
-      } else if (targetField.biType === BIType.MEASURE) {
+      } else if (targetField.role === FieldRole.MEASURE) {
 
         // default로 aggregationType은 SUM으로 설정
         field = new MeasureField();
@@ -387,8 +384,8 @@ export class MapPagePivotComponent extends PagePivotComponent {
       }
 
       // 타임스탬프일때
-      if (targetField.biType === BIType.TIMESTAMP ||
-        (targetField.biType === BIType.DIMENSION && targetField.logicalType === LogicalType.TIMESTAMP)) {
+      if (targetField.role === FieldRole.TIMESTAMP ||
+        (targetField.role === FieldRole.DIMENSION && targetField.logicalType === LogicalType.TIMESTAMP)) {
 
         const timestampIndex = shelf.findIndex((field) => {
           return field.name === targetField.name && targetField.role === field.field.role && targetField.granularity === field.granularity && -1 !== targetField.format['type'].indexOf('time');
@@ -410,8 +407,8 @@ export class MapPagePivotComponent extends PagePivotComponent {
             pivotField.currentPivot = fieldPivot;
           }
         }
-        // 타임스탬프가 아닐때
       } else {
+        // 타임스탬프가 아닐때
 
         // 기존의 피봇값 제거
         targetField.pivot.splice(targetField.pivot.indexOf(pivotField.currentPivot), 1);

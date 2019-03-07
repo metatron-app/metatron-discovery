@@ -13,13 +13,10 @@
 */
 
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-
 export class PrDataSnapshot extends AbstractHistoryEntity{
 
 public ssId: string;
 public ssName: string;
-
-
 public storageType: StorageType;
 public dbName: string;
 public tblName: string;
@@ -30,11 +27,9 @@ public mismatchedLines: number;
 public missingLines: number;
 public totalLines: number;
 public totalBytes: number;
-public serverLog: string;
 
 public elapsedTime: ElapsedTime = new ElapsedTime();
-//public location : string;
-public storedUri : string; // fileURL : string;
+public storedUri : string;
 
 public sourceInfo: LineageInfo;
 public connectionInfo: ConnectionInfo;
@@ -42,7 +37,6 @@ public ruleStringInfo: any;
 
 // 생성시 필요한 필드
 public ssType: SsType;
-public uriFileFormat: UriFileFormat;
 public hiveFileFormat: HiveFileFormat;
 public hiveFileCompression: HiveFileCompression;
 public appendMode: AppendMode;
@@ -55,8 +49,6 @@ public ruleCntDone : number;
 public ruleCntTotal : number;
 
 public custom: any;
-public lineageInfo: string;
-public jsonLineageInfo: any;
 public isCancel : boolean = false;
 
 public displayStatus: string;
@@ -80,44 +72,13 @@ export class LineageInfo {
 
     public dsId: string;
     public dsName: string;
-    public dsCreatedBy: string;
-    public dsCreatedTime: string;
-    public dsModifiedBy: string;
-    public dsModifiedTime: string;
-
-    public origDsId: string;
     public origDsName: string;
-    public origDsImportType: string;
-    public origDsStoredUri: string;
-    public origDsDbName: string;
-    public origDsTblName: string;
     public origDsQueryStmt: string;
-    public origDsCreatedBy: string;
     public origDsCreatedTime: string;
-    public origDsModifiedBy: string;
-    public origDsModifiedTime: string;
-
-    public origConnectionInfo: ConnectionInfo;
 }
 
 export class ConnectionInfo {
     public dcId: string;
-    public dcImplementor: string;
-    public dcName: string;
-    public dcDesc: string;
-    public dcType: string; string: string;
-    public dcHostname: string;
-    public dcPort: number;
-    public dcUsername: string;
-    public dcPassword: string;
-    public dcUrl: string;
-}
-
-export class DataSnapshots {
-private  dataSnapshots: PrDataSnapshot[];
-public getList() {
-    return this.dataSnapshots;
-  }
 }
 
 export class ElapsedTime {
@@ -145,8 +106,7 @@ export enum AppendMode {
 export enum HiveFileCompression {
   NONE = <any>'NONE',
   SNAPPY = <any>'SNAPPY',
-  ZLIB = <any>'ZLIB',
-  LZO = <any>'LZO'
+  ZLIB = <any>'ZLIB'
 }
 
 export enum StorageType {
@@ -165,8 +125,7 @@ export enum HiveFileFormat {
 }
 
 export enum Engine {
-  EMBEDDED = <any>'EMBEDDED',
-  TWINKLE = <any>'TWINKLE'
+  EMBEDDED = <any>'EMBEDDED'
 }
 
 export enum Status {

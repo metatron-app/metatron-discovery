@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-import { FieldFormat, LogicalType } from '../datasource/datasource';
-import { DataType } from '../dataconnection/connectionrequest';
-import { CodeTable } from './code-table';
-import { AbstractHistoryEntity } from '../common/abstract-history-entity';
-import { MetadataColumn } from './metadata-column';
+import {LogicalType} from '../datasource/datasource';
+import {DataType} from '../dataconnection/connectionrequest';
+import {CodeTable} from './code-table';
+import {AbstractHistoryEntity} from '../common/abstract-history-entity';
+import {MetadataColumn} from './metadata-column';
 
 export class ColumnDictionary extends AbstractHistoryEntity {
   // id

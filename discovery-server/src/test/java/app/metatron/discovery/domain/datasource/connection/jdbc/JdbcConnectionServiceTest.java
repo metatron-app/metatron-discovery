@@ -14,6 +14,15 @@
 
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
+import com.google.common.collect.Lists;
+
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.ConnectionRequest;
@@ -27,13 +36,6 @@ import app.metatron.discovery.domain.workbook.configurations.field.TimestampFiel
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
-import com.google.common.collect.Lists;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 import static app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo.DataType.TABLE;
 
@@ -102,12 +104,12 @@ public class JdbcConnectionServiceTest {
 
     Field field = new Field();
     field.setName("City");
-    field.setAlias("city");
+    field.setLogicalName("city");
     fieldList.add(field);
 
     field = new Field();
     field.setName("Category");
-    field.setAlias("category");
+    field.setLogicalName("category");
     fieldList.add(field);
 
     System.out.println(new JdbcConnectionService().selectQueryToCsv(connection, ingestionInfo, dataSourceName, fieldList, 120));
@@ -133,17 +135,17 @@ public class JdbcConnectionServiceTest {
 
     Field field = new Field();
     field.setName("City");
-    field.setAlias("city");
+    field.setLogicalName("city");
     fieldList.add(field);
 
     field = new Field();
     field.setName("Category");
-    field.setAlias("category");
+    field.setLogicalName("category");
     fieldList.add(field);
 
     field = new Field();
     field.setName("OrderDate");
-    field.setAlias("orderDate");
+    field.setLogicalName("orderDate");
     fieldList.add(field);
 
     List<Filter> filterList = new ArrayList<>();
@@ -177,12 +179,10 @@ public class JdbcConnectionServiceTest {
 
     Field metaDimensionField = new Field();
     metaDimensionField.setName("Category");
-    metaDimensionField.setAlias("Category");
     metaDimensionField.setLogicalType(LogicalType.STRING);
 
     Field metaTimestampField = new Field();
     metaTimestampField.setName("OrderDate");
-    metaTimestampField.setAlias("OrderDate");
     metaTimestampField.setLogicalType(LogicalType.TIMESTAMP);
 
     app.metatron.discovery.domain.workbook.configurations.field.Field dimensionField = new DimensionField("Category", "Category");
@@ -223,12 +223,10 @@ public class JdbcConnectionServiceTest {
 
     Field metaDimensionField = new Field();
     metaDimensionField.setName("sales.Category");
-    metaDimensionField.setAlias("sales.Category");
     metaDimensionField.setLogicalType(LogicalType.STRING);
 
     Field metaTimestampField = new Field();
     metaTimestampField.setName("sales.OrderDate");
-    metaTimestampField.setAlias("sales.OrderDate");
     metaTimestampField.setLogicalType(LogicalType.TIMESTAMP);
 
     app.metatron.discovery.domain.workbook.configurations.field.Field dimensionField = new DimensionField("sales.Category", "sales.Category");
@@ -269,12 +267,10 @@ public class JdbcConnectionServiceTest {
 
     Field metaDimensionField = new Field();
     metaDimensionField.setName("sales.Category");
-    metaDimensionField.setAlias("sales.Category");
     metaDimensionField.setLogicalType(LogicalType.STRING);
 
     Field metaTimestampField = new Field();
     metaTimestampField.setName("sales.OrderDate");
-    metaTimestampField.setAlias("sales.OrderDate");
     metaTimestampField.setLogicalType(LogicalType.TIMESTAMP);
 
     app.metatron.discovery.domain.workbook.configurations.field.Field dimensionField = new DimensionField("sales.Category", "sales.Category");
@@ -315,12 +311,10 @@ public class JdbcConnectionServiceTest {
 
     Field metaDimensionField = new Field();
     metaDimensionField.setName("sales_part2.ymd");
-    metaDimensionField.setAlias("sales_part2.ymd");
     metaDimensionField.setLogicalType(LogicalType.STRING);
 
     Field metaTimestampField = new Field();
     metaTimestampField.setName("sales_part2.OrderDate");
-    metaTimestampField.setAlias("sales_part2.OrderDate");
     metaTimestampField.setLogicalType(LogicalType.TIMESTAMP);
 
     app.metatron.discovery.domain.workbook.configurations.field.Field dimensionField = new DimensionField("sales_part2.ymd", "sales_part2.ymd");
@@ -361,12 +355,10 @@ public class JdbcConnectionServiceTest {
 
     Field metaDimensionField = new Field();
     metaDimensionField.setName("sales_part2.ymd");
-    metaDimensionField.setAlias("sales_part2.ymd");
     metaDimensionField.setLogicalType(LogicalType.STRING);
 
     Field metaTimestampField = new Field();
     metaTimestampField.setName("OrderDate");
-    metaTimestampField.setAlias("OrderDate");
     metaTimestampField.setLogicalType(LogicalType.TIMESTAMP);
 
     app.metatron.discovery.domain.workbook.configurations.field.Field dimensionField = new DimensionField("sales_part2.ymd", "sales_part2.ymd");

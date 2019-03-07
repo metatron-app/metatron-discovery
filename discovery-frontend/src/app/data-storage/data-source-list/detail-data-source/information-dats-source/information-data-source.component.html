@@ -20,10 +20,48 @@
       <em class="ddp-icon-btn-sync"></em>{{'msg.storage.ui.dsource.synchronization.btn' | translate}}
     </a>
   </div>
-
+  <div class="ddp-box-synch type-info" *ngIf="isShowModifiedGuideMessage">
+    <div class="ddp-txt-synch">
+      <em class="ddp-icon-info"></em>
+      {{'msg.storage.ui.guide.meta.modified' | translate}}
+    </div>
+  </div>
   <!-- datadetail -->
   <div class="ddp-ui-datadetail ddp-border-none">
+    <a href="javascript:" class="ddp-btn-solid2 ddp-dark type-link" (click)="onClickLinkMasterData()" *ngIf="metaData">{{'msg.storage.btn.master.data.link' | translate}}</a>
     <label class="ddp-label-detail">{{'msg.storage.ui.data.info' | translate}}</label>
+    <table class="ddp-table-detail">
+      <colgroup>
+        <col width="170px">
+        <col width="*">
+      </colgroup>
+      <tbody>
+      <tr>
+        <th>
+          {{'msg.comm.ui.description' | translate}}
+        </th>
+        <td>
+          <div class="ddp-edit-description ddp-line" [class.ddp-edit]="isEditSourceDescription" >
+            <!-- data -->
+            <div class="ddp-data-description" (click)="enableEditDescription()">
+              <div class="ddp-txt-description" [class.ddp-nodata]="!datasource.description || datasource.description.length === 0" [innerHTML]="getConvertedSourceDescription()">
+              </div>
+              <a href="javascript:" class="ddp-btn-edit"><em class="ddp-icon-edit"></em>{{'msg.comm.btn.edit' | translate}}</a>
+            </div>
+            <!-- //data -->
+            <div class="ddp-box-textarea">
+              <textarea [(ngModel)]="descriptionChangeText" (blur)="onClickDescriptionOutside($event)" maxlength="150" placeholder="{{'msg.storage.ph.source.desc' | translate}}"></textarea>
+              <div class="ddp-textarea-buttons">
+                <a href="javascript:" class="ddp-box-btn" (click)="isEditSourceDescription = false; isShowModifiedGuideMessage = false"><em class="ddp-icon-cancel"></em></a>
+                <a href="javascript:" class="ddp-box-btn " (click)="updateSourceDescription()"><em class="ddp-icon-check"></em></a>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
     <!-- Data info -->
     <table class="ddp-table-detail">
       <colgroup>
@@ -106,7 +144,7 @@
               </ng-container>
               <!-- //stagingDB -->
               <!-- DB -->
-              <ng-container *ngIf="isFileType() || isJdbcType()">
+              <ng-container *ngIf="!isHiveType()">
                 <div class="ddp-list-status">
                   <!-- 데이터 이관 -->
                   <div class="ddp-status"
@@ -319,6 +357,31 @@
               <!-- //edit option -->
             </div>
             <!-- //edit -->
+            <!-- only snapshot type (STAGING_DB) -->
+            <ng-container *ngIf="datasource.srcType.toString() === 'SNAPSHOT' && datasource.snapshot.ssType.toString() === 'STAGING_DB'">
+              <!-- Database -->
+              <div class="ddp-wrap-edit3 ddp-type">
+                <label class="ddp-label-type">{{'msg.storage.li.db' | translate}}</label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option">
+                  {{datasource.snapshot.dbName}}
+                </div>
+                <!-- //edit option -->
+              </div>
+              <!-- //Database -->
+              <!-- Table -->
+              <div class="ddp-wrap-edit3 ddp-type">
+                <label class="ddp-label-type">{{'msg.storage.btn.table' | translate}}
+                </label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option">
+                  {{datasource.snapshot.tblName}}
+                </div>
+                <!-- //edit option -->
+              </div>
+              <!-- //Table -->
+            </ng-container>
+            <!-- //only snapshot type (STAGING_DB) -->
             <!-- only file type -->
             <ng-container *ngIf="isFileType()">
               <!-- //edit -->
@@ -511,8 +574,8 @@
         </tbody>
       </table>
       <!-- //ingestion settings -->
-      <!-- timestamp settings -->
-      <table class="ddp-table-detail" *ngIf="isHiveType()">
+      <!-- partition settings -->
+      <table class="ddp-table-detail" *ngIf="isHiveType() || (datasource.srcType.toString() === 'SNAPSHOT' && datasource.snapshot.ssType.toString() === 'STAGING_DB')">
         <colgroup>
           <col width="170px" />
           <col width="*" />
@@ -539,7 +602,7 @@
         </tr>
         </tbody>
       </table>
-      <!-- //timestamp settings -->
+      <!-- //partition settings -->
       <!-- roll up -->
       <table class="ddp-table-detail">
         <colgroup>

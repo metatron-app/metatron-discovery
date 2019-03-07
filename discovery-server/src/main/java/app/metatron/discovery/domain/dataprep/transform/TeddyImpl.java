@@ -134,27 +134,29 @@ public class TeddyImpl {
     for (int i = startIdx; i < rev.size(); i++) {
       DataFrame nextDf;
       String ruleString = rev.get(i).ruleString;
+      String jsonRuleString = rev.get(i).jsonRuleString;
 
       try {
-        nextDf = apply(newRev.get(-1), ruleString);   // apply trailing rules of the original revision into the new revision.
+        nextDf = apply(newRev.get(-1), ruleString, jsonRuleString);   // apply trailing rules of the original revision into the new revision.
       } catch (Exception e) {
         nextDf = new DataFrame(newRev.get(-1));
         nextDf.setRuleString(ruleString);
         nextDf.setValid(false);
       }
+      nextDf.setJsonRuleString(jsonRuleString);
       newRev.add(nextDf);
     }
   }
 
   // APPEND *AFTER* stageIdx
-  public DataFrame append(String dsId, int stageIdx, String ruleString, boolean suppress) {
+  public DataFrame append(String dsId, int stageIdx, String ruleString, String jsonRuleString, boolean suppress) {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
     Revision newRev = new Revision(rev, stageIdx + 1);
     DataFrame newDf = null;
     boolean suppressed = false;
 
     try {
-      newDf = apply(rev.get(stageIdx), ruleString);
+      newDf = apply(rev.get(stageIdx), ruleString, jsonRuleString);
     } catch (TeddyException te) {
       if (suppress == false) {
         throw PrepException.fromTeddyException(te);   // RuntimeException
@@ -166,6 +168,7 @@ public class TeddyImpl {
     if (suppressed) {
       newDf = new DataFrame(rev.get(stageIdx));
       newDf.setRuleString(ruleString);
+      newDf.setJsonRuleString(jsonRuleString);
       newDf.setValid(false);
     }
 
@@ -182,7 +185,7 @@ public class TeddyImpl {
 
   public DataFrame preview(String dsId, int stageIdx, String ruleString) throws TeddyException {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
-    return apply(rev.get(stageIdx), ruleString);
+    return apply(rev.get(stageIdx), ruleString, null);
   }
 
   public DataFrame fetch(String dsId, Integer stageIdx) {
@@ -190,7 +193,7 @@ public class TeddyImpl {
     return rev.get(stageIdx); // if null, get curStage
   }
 
-  private DataFrame apply(DataFrame df, String ruleString) throws TeddyException {
+  private DataFrame apply(DataFrame df, String ruleString, String jsonRuleString) throws TeddyException {
     List<DataFrame> slaveDfs = null;
 
     List<String> slaveDsIds = DataFrameService.getSlaveDsIds(ruleString);
@@ -203,7 +206,9 @@ public class TeddyImpl {
       }
     }
 
-    return dataFrameService.applyRule(df, ruleString, slaveDfs);
+    DataFrame newDf = dataFrameService.applyRule(df, ruleString, slaveDfs);
+    newDf.setJsonRuleString(jsonRuleString);
+    return newDf;
   }
 
   public DataFrame undo(String dsId) {
@@ -239,12 +244,12 @@ public class TeddyImpl {
     addRev(dsId, newRev);
   }
 
-  public void update(String dsId, int stageIdx, String ruleString) throws TeddyException {    // used in DELETE only
+  public void update(String dsId, int stageIdx, String ruleString, String jsonRuleString) throws TeddyException {    // used in DELETE only
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
     Revision newRev = new Revision(rev, stageIdx);   // apply previous rules until the update target.
 
     // replace with the new, updated DF
-    DataFrame newDf = apply(rev.get(stageIdx - 1), ruleString);
+    DataFrame newDf = apply(rev.get(stageIdx - 1), ruleString, jsonRuleString);
     newRev.add(newDf);
 
     appendNewDfs(newRev, rev, stageIdx + 1);
@@ -354,6 +359,15 @@ public class TeddyImpl {
       ruleStrings.add(df.getRuleString());
     }
     return ruleStrings;
+  }
+
+  public List<String> getJsonRuleStrings(String dsId) {
+    List<String> jsonRuleStrings = new ArrayList<>();
+    Revision rev = getCurRev(dsId);
+    for (DataFrame df : rev.dfs) {
+      jsonRuleStrings.add(df.getJsonRuleString());
+    }
+    return jsonRuleStrings;
   }
 
   public List<Boolean> getValids(String dsId) {

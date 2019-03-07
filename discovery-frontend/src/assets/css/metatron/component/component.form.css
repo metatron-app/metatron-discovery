@@ -162,6 +162,8 @@
 .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-data-error {position:absolute; bottom:4px; left:0; color:#e70000; font-size:12px; font-style:italic;}
 .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-data-error:before {display:inline-block; width:13px; height:13px; vertical-align:middle; background:url(../../../images/icon_info.png) no-repeat; background-position:-28px top; content:'';}
 
+.ddp-wrap-edit3 .ddp-ui-edit-option.ddp-error .ddp-data-error {bottom:-15px;}
+
 .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-box-slider {padding:6px 0 0 0;}
 .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-box-slider .ddp-checkbox-slide.ddp-checkbox-automatic2 {padding-left:30px; margin-bottom:10px}
 

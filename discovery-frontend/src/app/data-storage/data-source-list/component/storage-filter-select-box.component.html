@@ -1,0 +1,10 @@
+<div class="ddp-type-selectbox" [class.ddp-selected]="isListShow" (click)="isListShow = !isListShow">
+  <span class="ddp-txt-selectbox">{{selectedFilter.label}}</span>
+  <ul class="ddp-list-selectbox ddp-selectdown">
+    <li *ngFor="let filter of filterList">
+      <a href="javascript:" (click)="onChangedFilter(filter)">
+        {{filter.label}}
+      </a>
+    </li>
+  </ul>
+</div>

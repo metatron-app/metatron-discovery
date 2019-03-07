@@ -17,6 +17,12 @@ import { GranularityType } from '../workbook/configurations/field/timestamp-fiel
 import { Dataconnection } from '../dataconnection/dataconnection';
 import { MetadataColumn } from '../meta-data-management/metadata-column';
 import { CodeTable } from '../meta-data-management/code-table';
+import {
+  CreateSnapShotData,
+  CreateSourceCompleteData,
+  CreateSourceConfigureData
+} from "../../data-storage/service/data-source-create.service";
+import {PrDataSnapshot} from "../data-preparation/pr-snapshot";
 
 export class Datasource extends AbstractHistoryEntity {
   id: string;             // ID
@@ -36,6 +42,7 @@ export class Datasource extends AbstractHistoryEntity {
   linkedWorkspaces: number;   // 연결된 workspaces 개수
   ingestion: any;             // 데이터 소스 적재 정보
   fields: Field[];            // 데이터 소스 필드 정보
+  snapshot?: PrDataSnapshot;
   // workspaces
   // dashBoards
   connection: Dataconnection;
@@ -106,63 +113,53 @@ export class DatasourceHive {
 
 // package com.metatron.discovery.domain.datasource.Field
 export class Field {
-
-  // Field 별칭
-  alias: string;
-
-  // BI 타입
-  biType: BIType;
-
   // 필드 아이디
   id: string;
-
-  // logical type
-  logicalType: LogicalType;
-
   // Field 명
   name: string;
+  // logical name
+  logicalName?: string;
+  // description
+  description: string;
 
+  // Physical data type on engine
+  type: string;
+  // logical type
+  logicalType: LogicalType;
   // 필드 타입
   role: FieldRole;
-
-  seq: number;
-
-  // 데이터 타입
-  type: string;
-
   // Partition 대상 필드 인지 여부
   partitioned: boolean;
 
   // 필수적으로 필터링을 수행해야하는 필드인지 여부
   filtering: boolean;
-
   // 필수 필터링 순서 지정
   filteringSeq: number;
-
   // 필터링 옵션
   filteringOptions: any;
 
-  // 기존 물리적인 필드를 매핑하여 신규 필드를 구성할 경우 관련 필드 정보
-  mappedField: Field[];
-
+  // is create field (optional)
+  derived?: boolean;
+  // Whether to exclude what to load to engine
+  unloaded?: boolean;
+  // derivationRule
+  derivationRule?: DerivationRule;
   // IngestionRule
   ingestionRule: IngestionRule;
 
-  // derivationRule
-  derivationRule?: DerivationRule;
+  // 기존 물리적인 필드를 매핑하여 신규 필드를 구성할 경우 관련 필드 정보
+  mappedField: Field[];
 
   // format
   // TODO 추후 FieldFormat으로 변환
   // format: FieldFormat;
   format: any;
 
-  // is create field (optional)
-  derived?: boolean;
-
-  // description
-  description: string;
+  // Field 별칭
+  alias: string;
 
   // for UI
+  seq: number;
   useFilter: boolean = false;
   useChartFilter: boolean = false;
   useChart: boolean = false;
@@ -181,7 +178,6 @@ export class Field {
   isValidReplaceValue?: boolean;
   replaceValidMessage?: string;
   timeFormatValidMessage?: string;
-  unloaded?: boolean;
   checked?: boolean;
 
   // [UI] for Alias
@@ -255,6 +251,15 @@ export class Field {
 
 // 데이터소스 생성시 사용하는 정보
 export class DatasourceInfo {
+  // src type
+  public type: SourceType;
+  public dsType: DataSourceType;
+  // conn type
+  public connType: ConnectionType;
+  // field list data
+  public fieldList: any;
+  // field data
+  public fieldData: any;
 
   // 1step 커넥션 정보
   public connectionData: any;
@@ -263,23 +268,25 @@ export class DatasourceInfo {
   public databaseData: any;
   // 2step 파일 정보
   public fileData: any;
+  // snapshot
+  public snapshotData: CreateSnapShotData;
 
   // 3step 스키마 정보
+  // TODO configureData로 변경
   public schemaData: any;
+  public configureData: CreateSourceConfigureData;
 
   // 4step
+  // TODO CreateSourceIngestionData로 타입 변경
   public ingestionData: any;
 
   // 5step 생성정보
-  public createData: any;
+  public completeData: CreateSourceCompleteData;
 
   // 분기를 위한 플래그
+  // TODO isDisableDataSelect로 변경
   public workbenchFl: boolean;
-
-  // field list data
-  public fieldList: any;
-  // field data
-  public fieldData: any;
+  public isDisableDataSelect: boolean;
 }
 
 export class IngestionRule {
@@ -331,17 +338,20 @@ export enum IngestionStatus {
   PASS = <any>'PASS'
 }
 
+// dsType
 export enum DataSourceType {
   MASTER = <any>'MASTER',
   JOIN = <any>'JOIN',
   VOLATILITY = <any>'VOLATILITY'
 }
 
+// connType
 export enum ConnectionType {
   ENGINE = <any>'ENGINE',
   LINK = <any>'LINK'
 }
 
+// srcType
 export enum SourceType {
   FILE = <any>'FILE',
   HDFS = <any>'HDFS',
@@ -351,12 +361,6 @@ export enum SourceType {
   IMPORT = <any>'IMPORT',
   SNAPSHOT = <any>'SNAPSHOT',
   NONE = <any>'NONE'
-}
-
-export enum BIType {
-  DIMENSION = <any>'DIMENSION',
-  MEASURE = <any>'MEASURE',
-  TIMESTAMP = <any>'TIMESTAMP'
 }
 
 export enum Status {

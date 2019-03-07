@@ -13,24 +13,41 @@
  */
 
 import {
-  Component, ElementRef, Injector, OnInit, ViewChild, OnDestroy, Output,
-  HostListener, EventEmitter
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
 } from '@angular/core';
-import { PrDataSnapshot, Status, OriginDsInfo, SsType } from '../../domain/data-preparation/pr-snapshot';
-import { DataSnapshotService } from './service/data-snapshot.service';
-import { PopupService } from '../../common/service/popup.service';
-import { GridComponent } from '../../common/component/grid/grid.component';
-import { header, SlickGridHeader } from '../../common/component/grid/grid.header';
-import { Field } from '../../domain/data-preparation/pr-dataset';
-import { GridOption } from '../../common/component/grid/grid.option';
-import { Alert } from '../../common/util/alert.util';
-import { PreparationAlert } from '../util/preparation-alert.util';
-import { isNull, isUndefined, isNullOrUndefined } from 'util';
-import { saveAs } from 'file-saver';
+import {OriginDsInfo, PrDataSnapshot, SsType, Status} from '../../domain/data-preparation/pr-snapshot';
+import {DataSnapshotService} from './service/data-snapshot.service';
+import {PopupService} from '../../common/service/popup.service';
+import {GridComponent} from '../../common/component/grid/grid.component';
+import {header, SlickGridHeader} from '../../common/component/grid/grid.header';
+import {Field} from '../../domain/data-preparation/pr-dataset';
+import {GridOption} from '../../common/component/grid/grid.option';
+import {Alert} from '../../common/util/alert.util';
+import {PreparationAlert} from '../util/preparation-alert.util';
+import {isNull, isNullOrUndefined, isUndefined} from 'util';
+import {saveAs} from 'file-saver';
 import * as pixelWidth from 'string-pixel-width';
-import { AbstractComponent } from '../../common/component/abstract.component';
+import {AbstractComponent} from '../../common/component/abstract.component';
 import * as $ from "jquery";
 import {PreparationCommonUtil} from "../util/preparation-common.util";
+import {
+  ConnectionType,
+  DatasourceInfo,
+  DataSourceType,
+  FieldRole,
+  LogicalType,
+  SourceType
+} from "../../domain/datasource/datasource";
+import {CreateSnapShotData} from "../../data-storage/service/data-source-create.service";
+
 declare let moment: any;
 
 @Component({
@@ -59,7 +76,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     { command: 'drop', alias: 'Dp'},
     { command: 'pivot', alias: 'Pv'},
     { command: 'unpivot', alias: 'Up'},
-    { command: 'Join', alias: 'Jo'},
+    { command: 'join', alias: 'Jo'},
     { command: 'extract', alias: 'Ex'},
     { command: 'flatten', alias: 'Fl'},
     { command: 'merge', alias: 'Me'},
@@ -68,7 +85,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     { command: 'aggregate', alias: 'Ag'},
     { command: 'sort', alias: 'So'},
     { command: 'move', alias: 'Mv'},
-    { command: 'Union', alias: 'Ui'},
+    { command: 'union', alias: 'Ui'},
     { command: 'window', alias: 'Wn'},
     { command: 'setformat', alias: 'Sf'}];
 
@@ -82,6 +99,14 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
   @Output()
   public navigateToDataflow = new EventEmitter();
+
+  // is used datasource flag
+  public isEnableCreateDatasource: boolean;
+  // source data
+  public sourceData: DatasourceInfo;
+  // is create source flag
+  public isCreateSourceMode: boolean;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -167,7 +192,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
    * @param ssId
    * @param isFromDataflow
    */
-  public init(ssId : string, isFromDataflow : boolean = false) {
+  public init(ssId : string, isFromDataflow : boolean = false, isEnableCreateDatasource?: boolean) {
 
     this.selectedDataSnapshot = new PrDataSnapshot();
     this.originDsInfo = new OriginDsInfo();
@@ -177,6 +202,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     this.ssId = ssId;
     this.isShow = true;
     this.colCnt = 0;
+    // set used datasource flag
+    this.isEnableCreateDatasource = isEnableCreateDatasource;
 
     $('body').removeClass('body-hidden').addClass('body-hidden');
 
@@ -196,7 +223,35 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     this.snapshotDetailCloseEvent.emit();
   } // end of method close
 
+  /**
+   * Create datasource
+   */
+  public createDatasource(): void {
+    // set source data
+    this.sourceData = new DatasourceInfo();
+    this.sourceData.isDisableDataSelect = true;
+    this.sourceData.snapshotData = new CreateSnapShotData();
+    this.sourceData.snapshotData.selectedSnapshot = this.selectedDataSnapshot;
+    this.sourceData.fieldList = this.selectedDataSnapshot.gridData.fields;
+    this.sourceData.fieldData = this.selectedDataSnapshot.gridData.data.slice(0,50);
+    this.sourceData.type = SourceType.SNAPSHOT;
+    this.sourceData.connType = ConnectionType.ENGINE;
+    this.sourceData.dsType = DataSourceType.MASTER;
+    // show create datasource popup
+    this.isCreateSourceMode = true;
+  }
 
+  /**
+   * Closed source create popup
+   */
+  public closedSourceCreate(): void {
+    // close source
+    this.isCreateSourceMode = false;
+    // detect
+    this.safelyDetectChanges();
+    // update grid
+    this.updateGrid(this.selectedDataSnapshot.gridData);
+  }
 
   public getRows() {
     let rows = '0';
@@ -256,6 +311,22 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       this.navigateToDataflow.emit();
     }
   } // function - navigateDataflow
+
+  /**
+   * Get role type (only create source)
+   * @param {string} type
+   * @return {FieldRole}
+   * @private
+   */
+  private _getRoleType(type: string): FieldRole {
+    switch (type) {
+      case 'INTEGER':
+      case 'FLOAT':
+        return FieldRole.MEASURE;
+      default:
+        return FieldRole.DIMENSION;
+    }
+  }
 
   /**
    * 데이터셋 아이디 저장
@@ -412,6 +483,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         this.loadingHide();
 
         this.selectedDataSnapshot = snapshot;
+        // set Only success enable create datasource
+        this.isEnableCreateDatasource !== false && (this.isEnableCreateDatasource = snapshot.status === Status.SUCCEEDED);
 
         // clear interval
         this._clearSnapshotInterval();
@@ -520,11 +593,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       rule['ruleVO']['command'] = rule['ruleVO']['name'];
       rule['ruleVO']['ruleNo'] = rule['ruleNo'];
 
-      if (rule['ruleVO'].command === 'join') {
-        rule['ruleVO'].command = 'Join'
-      } else if (rule['ruleVO'].command === 'union') {
-        rule['ruleVO'].command = 'Union'
-      }
 
       const idx = commandNames.indexOf(rule['ruleVO'].command);
       if (idx > -1) {
@@ -597,11 +665,12 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           data: [],
           fields: []
         };
-
         for ( let idx = 0; idx < this.colCnt; idx++ ) {
           griddata.fields.push({
             name: colNames[idx],
             type: colTypes[idx].type,
+            logicalType: this.datasnapshotservice.getConvertTypeToLogicalType(colTypes[idx].type),
+            role: this._getRoleType(colTypes[idx].type),
             seq: idx
           });
         }
@@ -613,6 +682,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           }
           griddata.data.push(obj);
         });
+        // if not exist griddata
+        (griddata.fields.length === 0 || griddata.data.length === 0) && (this.isEnableCreateDatasource = false);
 
         this.selectedDataSnapshot.gridData = griddata;
         this.updateGrid(this.selectedDataSnapshot.gridData);
@@ -621,6 +692,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       .catch((error) => {
         this.loadingHide();
         Alert.error(error.details);
+        // set disable create datasource
+        this.isEnableCreateDatasource = false;
       });
   } // end of method getGridData
 

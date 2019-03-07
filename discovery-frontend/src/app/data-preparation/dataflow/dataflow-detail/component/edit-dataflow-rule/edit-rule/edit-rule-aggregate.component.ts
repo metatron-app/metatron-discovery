@@ -13,15 +13,12 @@
  */
 
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren, QueryList} from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { StringUtil } from '../../../../../../common/util/string.util';
-import {RuleConditionInputComponent} from "./rule-condition-input.component";
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
-import * as _ from 'lodash';
 import {isUndefined} from "util";
+import {AggregateRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 interface formula {
   id: number;
@@ -39,10 +36,6 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
   @ViewChildren(RuleSuggestInputComponent)
   private ruleSuggestInput : QueryList<RuleSuggestInputComponent>;
 
-  /*
-  @ViewChildren(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
-  */
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -58,8 +51,6 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(
     protected elementRef: ElementRef,
     protected injector: Injector) {
@@ -69,28 +60,20 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 컴포넌트 초기 실행
-   */
   public ngOnInit() {
     super.ngOnInit();
     this.formulas = [ {id:0, value:''} ];
-  } // function - ngOnInit
+  }
 
-  /**
-   * 화면 초기화
-   */
+
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-  } // function - ngAfterViewInit
+  }
 
-  /**
-   * 컴포넌트 제거
-   */
+
   public ngOnDestroy() {
     super.ngOnDestroy();
-  } // function - ngOnDestroy
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
@@ -100,7 +83,7 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
    * Rule 형식 정의 및 반환
    * @return {{command: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: AggregateRule } {
 
     // 수식
     const formulaValueList = this.ruleSuggestInput
@@ -120,20 +103,18 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
       return undefined;
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
-
     return {
       command: 'aggregate',
-      ruleString: `aggregate value: ${value} group: ${columnsStr}`
+      ruleString: `aggregate value: ${value} group: ${this.getColumnNamesInArray(this.selectedFields, true).toString()}`,
+      uiRuleString: {
+        name: 'aggregate',
+        expression: formulaValueList,
+        col: this.getColumnNamesInArray(this.selectedFields),
+        isBuilder: true
+      }
     };
 
   } // function - getRuleData
-
-  public getRuleDataWithoutValidation() {
-
-  } // function - getRuleDataWithoutValidation
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
@@ -191,21 +172,18 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
 
   /**
    * rule string 을 분석한다.
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * @param data ({jsonRuleString : AggregateRule})
    */
-  protected parsingRuleString(data : {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data : {jsonRuleString : AggregateRule}) {
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.group.value === 'string' ? [data.jsonRuleString.group.value] : data.jsonRuleString.group.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
-
+    this.formulaList = [];
     this.formulas = [];
-    let strFormulaList:string = this.getAttrValueInRuleString( 'value', data.ruleString );
-    if( '' !== strFormulaList) {
-      this.formulaList = strFormulaList.split( ',' ).map( item => item.replace( /'/g, '' ) );
-      this.formulaList.forEach((item,idx)=>{
-        this.formulas.push({id:idx, value: item});
-      })
-    }
+    this.formulaList = data.jsonRuleString.expression;
+    this.formulaList.forEach((item,index) => {
+      this.formulas.push({id:index, value: item});
+    });
 
   } // function - parsingRuleString
 

@@ -12,16 +12,16 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, HostListener, Injector } from '@angular/core';
-import { MetadataService } from '../service/metadata.service';
-import { Metadata } from '../../../domain/meta-data-management/metadata';
-import { MetadataColumn } from '../../../domain/meta-data-management/metadata-column';
-import { ActivatedRoute } from '@angular/router';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Component, ElementRef, HostListener, Injector} from '@angular/core';
+import {MetadataService} from '../service/metadata.service';
+import {Metadata} from '../../../domain/meta-data-management/metadata';
+import {MetadataColumn} from '../../../domain/meta-data-management/metadata-column';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-embedded-metadata-detail',
-  templateUrl: './embedded-metadata-detail.component.html'
+  templateUrl: './embedded-metadata-detail.component.html',
 })
 export class EmbeddedMetadataDetailComponent extends AbstractComponent {
 
@@ -56,10 +56,11 @@ export class EmbeddedMetadataDetailComponent extends AbstractComponent {
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private _metaDataService: MetadataService,
-              private _activatedRoute: ActivatedRoute,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    private _metaDataService: MetadataService,
+    private _activatedRoute: ActivatedRoute,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -118,7 +119,6 @@ export class EmbeddedMetadataDetailComponent extends AbstractComponent {
     return (column.popularity || 0) + '%';
   }
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -135,14 +135,12 @@ export class EmbeddedMetadataDetailComponent extends AbstractComponent {
     // 로딩 show
     this.loadingShow();
     // 메타데이터 상세정보 조회
-    this._metaDataService.getDetailMetaData(this._metaDataId)
-      .then((result) => {
-        // 메타데이터 정보
-        this.metaData = result;
-        // 컬럼 스키마 목록 조회
-        this._getColumnSchemaList();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._metaDataService.getDetailMetaData(this._metaDataId).then((result) => {
+      // 메타데이터 정보
+      this.metaData = result;
+      // 컬럼 스키마 목록 조회
+      this._getColumnSchemaList();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -153,13 +151,11 @@ export class EmbeddedMetadataDetailComponent extends AbstractComponent {
     // 로딩 show
     this.loadingShow();
     // 컬럼 조회
-    this._metaDataService.getColumnSchemaListInMetaData(this._metaDataId)
-      .then((result) => {
-        // 컬럼 데이터
-        this.columnList = result;
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._metaDataService.getColumnSchemaListInMetaData(this._metaDataId).then((result) => {
+      // 컬럼 데이터
+      this.columnList = result;
+      // 로딩 hide
+      this.loadingHide();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 }

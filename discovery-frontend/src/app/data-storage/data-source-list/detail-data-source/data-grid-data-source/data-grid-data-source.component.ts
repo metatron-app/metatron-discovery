@@ -164,7 +164,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     // change search text keyword
     this.searchTextKeyword = text;
     // update grid
-    this._updateGrid(this._gridData, this.fields);
+    this._updateGrid(this._gridData, this.datasource.fields);
   }
 
   /**
@@ -172,7 +172,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    * @param args
    */
   public extendGridHeader(args: any): void {
-    $(`<div class="slick-data">${_.find(this.metaData.columns, {'physicalName': args.column.id}).name}</div>`).appendTo(args.node);
+    $(`<div class="slick-data">${_.find(this.datasource.fields, {'name': args.column.id}).logicalName || ''}</div>`).appendTo(args.node);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

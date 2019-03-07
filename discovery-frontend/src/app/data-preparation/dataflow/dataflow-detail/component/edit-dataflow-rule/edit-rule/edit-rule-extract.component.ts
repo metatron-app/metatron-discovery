@@ -14,13 +14,12 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
-import {isNullOrUndefined, isUndefined} from "util";
+import {isNullOrUndefined} from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import * as _ from 'lodash';
+import {ExtractRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector : 'edit-rule-extract',
@@ -95,7 +94,7 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: ExtractRule } {
 
     // Column (must select more than one)
     if (0 === this.selectedFields.length) {
@@ -105,7 +104,7 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
 
     // pattern
     let clonedPattern = this.pattern;
-    if (isUndefined(clonedPattern) || '' === clonedPattern || clonedPattern === '//' || clonedPattern === '\'\'') {
+    if (isNullOrUndefined(clonedPattern) || '' === clonedPattern || clonedPattern === '//' || clonedPattern === '\'\'') {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
       return undefined;
     }
@@ -117,16 +116,13 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
     clonedPattern = patternResult[1];
 
     // limit
-    if (isUndefined(this.limit) ) {
+    if (isNullOrUndefined(this.limit) ) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.times'));
       return undefined;
     }
 
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
 
-    let ruleString = 'extract col: ' + columnsStr
+    let ruleString = 'extract col: ' + this.getColumnNamesInArray(this.selectedFields, true).toString()
       + ' on: ' + clonedPattern + ' limit : ' + this.limit + ' ignoreCase: ' + this.isIgnoreCase;
 
     // 다음 문자 사이 무시
@@ -142,7 +138,16 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
 
     return {
       command : 'extract',
-      ruleString: ruleString
+      ruleString: ruleString,
+      uiRuleString: {
+        name: 'extract',
+        col: this.getColumnNamesInArray(this.selectedFields),
+        pattern : this.pattern,
+        limit: this.limit,
+        ignore: this.ignore,
+        ignoreCase: this.isIgnoreCase,
+        isBuilder: true
+      }
     };
 
   } // function - getRuleData
@@ -187,31 +192,24 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
 
   /**
    * Parse rule string
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * @param data ({jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {jsonRuleString : ExtractRule}) {
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     // NUMBER OF MATCHES
     this.limit = data.jsonRuleString.limit;
 
     // PATTERN
-    if (data.jsonRuleString.on.value.startsWith('/') && data.jsonRuleString.on.value.endsWith('/')) {
-      this.pattern = data.jsonRuleString.on.value;
-    }  else {
-      this.pattern = data.jsonRuleString.on.escapedValue;
-    }
+    this.pattern = data.jsonRuleString.pattern;
 
     // IGNORE CASE
     this.isIgnoreCase = Boolean(data.jsonRuleString.ignoreCase);
 
-    // IGNORE BETWEEN CHARACTERS
-    if (!isNullOrUndefined(data.jsonRuleString.quote)) {
-      this.ignore = data.jsonRuleString.quote.escapedValue;
-    }
+    this.ignore = data.jsonRuleString.ignore;
 
   } // function - _parsingRuleString
 

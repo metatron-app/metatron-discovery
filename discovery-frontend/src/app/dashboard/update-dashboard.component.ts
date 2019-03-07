@@ -431,10 +431,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       if ('page' === item.type) {
         // 스펙 변경
         item.configuration = DashboardUtil.convertPageWidgetSpecToServer(item.configuration);
-        // 필터 설정
-        for (let filter of item.configuration['filters']) {
-          filter = FilterUtil.convertToServerSpecForDashboard(filter);
-        }
       } else if ('filter' === item.type) {
         item.configuration['filter'] = FilterUtil.convertToServerSpecForDashboard(item.configuration['filter']);
       }
@@ -696,12 +692,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
           } else {
             // 스펙 변경
             param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);
-
-            // 필터 설정
-            for (let filter of param.configuration['filters']) {
-              filter = FilterUtil.convertToServerSpecForDashboard(filter);
-            }
-
             promises.push(() => this.widgetService.updateWidget(result.id, param));   // update widget
           }
         } else if ('filter' === result.type) {

@@ -34,11 +34,11 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
   @Input('sourceData')
   public sourceData: DatasourceInfo;
 
-  @Input()
-  public step: string;
+  @Input('step')
+  private _step: string;
 
-  @Output()
-  public stepChange: EventEmitter<string> = new EventEmitter();
+  @Output('stepChange')
+  private _stepChange: EventEmitter<string> = new EventEmitter();
 
   // 생성자
   constructor(protected element: ElementRef,
@@ -60,24 +60,6 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
   }
 
   /**
-   * Move to previous page
-   * @private
-   */
-  private _moveToPrevPage() {
-    this.step = 'file-select';
-    this.stepChange.emit(this.step);
-  }
-
-  /**
-   * Move to next page
-   * @private
-   */
-  private _moveToNextPage() {
-    this.step = 'file-ingestion';
-    this.stepChange.emit(this.step);
-  }
-
-  /**
    * Step change click event
    * @param {string} route
    */
@@ -90,6 +72,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    * @param {string} route
    */
   public onChangedStep(route: string): void {
-    route === 'prev' ? this._moveToPrevPage() : this._moveToNextPage();
+    this._step = route === 'prev' ? 'file-select' : 'file-ingestion';
+    this._stepChange.emit(this._step);
   }
 }

@@ -27,6 +27,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.FileSystemResource;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,6 +35,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
@@ -94,7 +100,7 @@ public class SshUtils {
 
         String srcPath = srcPaths.get(i);
 
-        File srcFile = new File(srcPath);
+        File srcFile = getFileFromPathString(srcPath);
         if (!srcFile.isFile()) {
           if(checkSrcPath) {
             throw new RuntimeException("No source file(" + srcPath + ") to copy via SSH.");
@@ -398,5 +404,16 @@ public class SshUtils {
 
     return copiedFiles;
 
+  }
+  public static File getFileFromPathString(String filePath){
+    try {
+      // First try to resolve as URL (file:...)
+      Path path = Paths.get(new URL(filePath).toURI());
+      FileSystemResource resource = new FileSystemResource(path.toFile());
+      return resource.getFile();
+    } catch (URISyntaxException | MalformedURLException e) {
+      // If given file string isn't an URL, fall back to using a normal file
+      return new FileSystemResource(filePath).getFile();
+    }
   }
 }

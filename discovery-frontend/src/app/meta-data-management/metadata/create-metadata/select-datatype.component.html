@@ -21,26 +21,17 @@
       <div class="ddp-pop-detail">
         <!-- 데이터 선택 -->
         <div class="ddp-ui-data-select">
-          <a href="javascript:" class="ddp-btn-select" (click)="onSelectedDataType('datasource')">
-            <em class="ddp-icon-boxbtn-database"></em>
-            {{'msg.metadata.ui.metadata.create.type.ds' | translate}}
-          </a>
-
           <a href="javascript:" class="ddp-btn-select" (click)="onSelectedDataType('hive')">
             <em class="ddp-icon-boxbtn-hive"></em>
             {{'msg.metadata.ui.metadata.create.type.hive' | translate}}
           </a>
-
           <a href="javascript:" class="ddp-btn-select" [class.ddp-disabled]="!isEnableStageDB()" (click)="onSelectedDataType('staging')">
             <em class="ddp-icon-boxbtn-staging"></em>
             {{'msg.metadata.ui.metadata.create.type.staging' | translate}}
           </a>
-
         </div>
         <!-- //데이터 선택 -->
-
       </div>
-
       <!-- button -->
       <div class="ddp-ui-buttons">
         <a href="javascript:" class="ddp-btn-type-popup" (click)="showFlag = false">{{'msg.comm.btn.cancl' | translate}}</a>

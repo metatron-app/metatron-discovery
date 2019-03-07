@@ -12,16 +12,16 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { StringUtil } from '../../../common/util/string.util';
-import { ConnectionType } from '../../../domain/datasource/datasource';
-import { MetadataModelService } from '../service/metadata.model.service';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {StringUtil} from '../../../common/util/string.util';
+import {ConnectionType} from '../../../domain/datasource/datasource';
+import {MetadataModelService} from '../service/metadata.model.service';
+import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
 
 @Component({
   selector: 'app-ds-select-datasource',
-  templateUrl: './ds-select-datasource.component.html'
+  templateUrl: './ds-select-datasource.component.html',
 })
 export class DsSelectDatasourceComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
@@ -59,10 +59,11 @@ export class DsSelectDatasourceComponent extends AbstractPopupComponent implemen
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(public metaDataModelService: MetadataModelService,
-              private _datasourceService: DatasourceService,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    public metaDataModelService: MetadataModelService,
+    private _datasourceService: DatasourceService,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -77,7 +78,8 @@ export class DsSelectDatasourceComponent extends AbstractPopupComponent implemen
     // ui init
     this._initView();
     // sourceStep 이 있는경우에만 load data
-    this.metaDataModelService.getCreateData().hasOwnProperty('sourceStep') && this._loadData(this.metaDataModelService.getCreateData()['sourceStep']);
+    this.metaDataModelService.getCreateData().hasOwnProperty('sourceStep') &&
+    this._loadData(this.metaDataModelService.getCreateData()['sourceStep']);
     // 목록이 존재하지 않을 경우 재조회
     this.datasourceList.length === 0 && this.getDatasourceListPageInit();
   }
@@ -273,16 +275,16 @@ export class DsSelectDatasourceComponent extends AbstractPopupComponent implemen
     this.typeList = [
       {
         label: this.translateService.instant('msg.comm.ui.list.all'),
-        value: 'all'
+        value: 'all',
       },
       {
         label: this.translateService.instant('msg.comm.ui.list.ds.type.engine'),
-        value: ConnectionType.ENGINE.toString()
+        value: ConnectionType.ENGINE.toString(),
       },
       {
         label: this.translateService.instant('msg.comm.ui.list.ds.type.link'),
-        value: ConnectionType.LINK.toString()
-      }
+        value: ConnectionType.LINK.toString(),
+      },
     ];
     this.selectedType = this.typeList[0];
     // page
@@ -342,7 +344,7 @@ export class DsSelectDatasourceComponent extends AbstractPopupComponent implemen
       // 정렬
       selectedContentSort: this.selectedContentSort,
       // 데이터소스 목록 페이지
-      pageResult: this.pageResult
+      pageResult: this.pageResult,
     };
 
     this.metaDataModelService.patchCreateData('sourceStep', sourceStep);
@@ -360,20 +362,20 @@ export class DsSelectDatasourceComponent extends AbstractPopupComponent implemen
     // 로딩 show
     this.loadingShow();
     // 데이터 소스 조회 요청
-    this._datasourceService.getAllDatasource(this._getDatasourceParams())
-      .then((datasources) => {
-        // 페이지 객체
-        this.pageResult = datasources['page'];
-        // 페이지가 첫번째면
-        this.pageResult.number === 0 && (this.datasourceList = []);
-        // 데이터 있다면
-        this.datasourceList = datasources['_embedded'] ? this.datasourceList.concat(datasources['_embedded'].datasources) : [];
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch((error) => {
-        this.commonExceptionHandler(error);
-      });
+    this._datasourceService.getAllDatasource(this._getDatasourceParams()).then((datasources) => {
+      // 페이지 객체
+      this.pageResult = datasources['page'];
+      // 페이지가 첫번째면
+      this.pageResult.number === 0 && (this.datasourceList = []);
+      // 데이터 있다면
+      this.datasourceList = datasources['_embedded'] ?
+        this.datasourceList.concat(datasources['_embedded'].datasources) :
+        [];
+      // 로딩 hide
+      this.loadingHide();
+    }).catch((error) => {
+      this.commonExceptionHandler(error);
+    });
   }
 
   /**
@@ -386,14 +388,15 @@ export class DsSelectDatasourceComponent extends AbstractPopupComponent implemen
     const params = {
       size: 15,
       page: this.pageResult.number,
-      linkedMetadata: false
+      linkedMetadata: false,
     };
     // 검색어
     (!StringUtil.isEmpty(this.searchText)) && (params['nameContains'] = this.searchText.trim());
     // 공개여부
     this.searchPublished && (params['published'] = this.searchPublished);
     // 정렬
-    this.selectedContentSort.sort !== 'default' && (params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort);
+    this.selectedContentSort.sort !== 'default' &&
+    (params['sort'] = this.selectedContentSort.key + ',' + this.selectedContentSort.sort);
     // 타입
     this.selectedType.value !== 'all' && (params['connType'] = this.selectedType.value);
     return params;

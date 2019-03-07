@@ -483,7 +483,7 @@ export class GranularityService {
 
 }
 
-enum Granularity {
+export enum Granularity {
   NONE = <any>'NONE',
   SECOND = <any>'SECOND',
   MINUTE = <any>'MINUTE',
@@ -493,7 +493,7 @@ enum Granularity {
   YEAR = <any>'YEAR'
 }
 
-interface GranularityObject {
+export interface GranularityObject {
   label: string,
   value: Granularity
 }

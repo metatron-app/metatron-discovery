@@ -984,6 +984,8 @@
   "msg.dp.th.ss.rows": "Rows",
   "msg.dp.th.ss.table": "表",
   "msg.dp.th.ss.valid": "Valid",
+  "msg.dp.ui.ss.select.db" : "Please select database",
+  "msg.dp.alert.ss.table.name" : "Only numbers, alphabet and _ can be used.",
   "msg.dp.th.status": "状态",
   "msg.dp.th.string": "string",
   "msg.dp.th.summary": "概括",
@@ -1042,6 +1044,11 @@
   "msg.dp.ui.file.import": "Import",
   "msg.dp.ui.file.upload.description": "Only .csv format is allowed.",
   "msg.dp.ui.file.upload.location": "上传位置",
+  "msg.dp.ui.file.upload.canceled" : "Canceled",
+  "msg.dp.ui.file.upload.uploaded" : "Uploaded",
+  "msg.dp.ui.file.upload.explain.unsupported" : "Includes formats that can not be loaded",
+  "msg.dp.ui.file.upload.cancel.title" : "Cancel data set creation",
+  "msg.dp.ui.file.upload.cancel.description" : "There is a file being uploaded. Are you sure you want to cancel?",
   "msg.dp.ui.flows": "数据流",
   "msg.dp.ui.grid.view": "表格视图",
   "msg.dp.ui.imported": "IMPORTED",
@@ -1235,6 +1242,8 @@
   "msg.dp.ui.change.input.dataset": "置換输入数据组",
   "msg.dp.ui.search-by.dataset": "请用数据组名进行搜索",
   "msg.dp.ui.one.col.required": "需要一个以上的列",
+  "msg.dp.ss.check.error" : "Please check the error item.",
+  "msg.dp.ss.name.required" : "Snapshot name required",
 
   "msg.board.create.add-ds": "添加数据源",
   "msg.board.create.add-ds.desc": "请添加视觉化数据源并设置关系",
@@ -3006,6 +3015,8 @@
   "msg.metadata.dictionary.used.metadata": "已连接的元数据",
   "msg.metadata.ui.info": "元数据信息",
   "msg.metadata.ui.enter.tag": "标签类型",
+  "msg.metadata.ui.description": "當修改數據時,數據來源也更新。",
+  "msg.metadata.ui.move.datasource": "去達塔索斯",
   "msg.metadata.th.column.logical.tooltip.title": "逻辑列名是什么？",
   "msg.metadata.th.column.logical.tooltip.desc": "在Metatron中，逻辑列名是用户普遍所使用的列名。生成用户的商务用语或者索引时，指定逻辑名。逻辑列名是在metatron中，制作图表或者工作台时所被使用。"
 }

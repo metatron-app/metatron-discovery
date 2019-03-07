@@ -179,7 +179,7 @@ public class DfWindow extends DataFrame {
             if(!args.isEmpty()) {
                 String refColName = args.get(0).toString();
                 newColName = newColName + "_" + refColName;
-                newColPosition = getColnoByColName(refColName) + 1;
+                newColPosition = getColnoByColName(refColName) + i;
             }
 
             //column type
