@@ -330,6 +330,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
   public changeClustering(obj: any, $event: any, index: number) {
     this.uiOption.layers[index]['coverage']= $event.from;
+    (<UIMapOption>this.uiOption).layers[index]['changeCoverage'] = true;
     this.applyLayers({type : EventType.MAP_CHANGE_OPTION});
   }
 
@@ -340,7 +341,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       return;
     } else {
       (<UISymbolLayer>this.uiOption.layers[index])['coverage'] = inputValue;
-      this.applyLayers();
+      (<UIMapOption>this.uiOption).layers[index]['changeCoverage'] = true;
+      this.applyLayers({type : EventType.MAP_CHANGE_OPTION});
     }
   }
 
