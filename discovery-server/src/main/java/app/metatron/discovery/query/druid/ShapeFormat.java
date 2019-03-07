@@ -14,14 +14,24 @@
 
 package app.metatron.discovery.query.druid;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum SpatialOperations {
-
-  CONTAINS, WITHIN, INTERSECTS, BBOX_WINTHIN;
+/**
+ */
+public enum ShapeFormat {
+  GEOJSON,
+  WKT,
+  POLYGON;
 
   @JsonValue
   public String getName() {
     return name().toLowerCase();
   }
+
+  @JsonCreator
+  public static ShapeFormat fromString(String name) {
+    return name == null ? WKT : valueOf(name.toUpperCase());
+  }
+
 }

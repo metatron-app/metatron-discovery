@@ -23,7 +23,7 @@ public class LucenePointFilter implements Filter {
 
   String field;
 
-  PointQueryType queryType;
+  PointQueryType query;
 
   double[] latitudes;
 
@@ -35,23 +35,23 @@ public class LucenePointFilter implements Filter {
   }
 
   public LucenePointFilter(String field,
-                           PointQueryType queryType,
+                           PointQueryType query,
                            double[] latitudes,
                            double[] longitudes,
                            double radiusMeters) {
 
     this.field = Preconditions.checkNotNull(field, "field can not be null");
-    this.queryType = Preconditions.checkNotNull(queryType, "type can not be null");
+    this.query = Preconditions.checkNotNull(query, "type can not be null");
     this.latitudes = latitudes;
     this.longitudes = longitudes;
-    this.radiusMeters = queryType == PointQueryType.DISTANCE ? radiusMeters : 0;
+    this.radiusMeters = query == PointQueryType.DISTANCE ? radiusMeters : 0;
 
     Preconditions.checkArgument(getLatitudes().length == getLongitudes().length, "invalid coordinates");
   }
 
   public LucenePointFilter(SpatialBboxFilter filter) {
-    this.field = filter.getField();
-    this.queryType = PointQueryType.BBOX;
+    this.field = filter.getField() + ".coord";
+    this.query = PointQueryType.BBOX;
     this.latitudes = filter.findLatitudes();
     this.longitudes = filter.findLongitudes();
     this.radiusMeters = 0.0f;
@@ -65,8 +65,8 @@ public class LucenePointFilter implements Filter {
     this.field = field;
   }
 
-  public PointQueryType getQueryType() {
-    return queryType;
+  public PointQueryType getQuery() {
+    return query;
   }
 
   public double[] getLatitudes() {
