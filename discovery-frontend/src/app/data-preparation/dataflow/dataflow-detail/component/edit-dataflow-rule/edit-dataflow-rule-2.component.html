@@ -57,7 +57,7 @@
       <div class="left-component rule-left" style="float: left; height: 100%;">
         <div *ngIf="isInitDataLoaded" class="ddp-wrap-flow-grid" style="position:relative; top:0; left:0; right:0; min-height:100%;">
           <edit-rule-grid (selectHeader)="setRuleInfoFromGridHeader($event)"
-                          (selectContextMenu)="applyRuleFromContextMenu($event)" [isAggregationIncluded]="isAggregationIncluded"></edit-rule-grid>
+                          (contextMenuItemInfo)="onContextMenuInfo($event)" [isAggregationIncluded]="isAggregationIncluded"></edit-rule-grid>
         </div>
       </div>
       <div class="right-component rule-right" style="float: left; height: 100%;">
@@ -314,9 +314,5 @@
                           (navigateToDataflow)="prev()">
 </app-data-snapshot-detail>
 <!-- // Snapshot detail popup -->
-
-<!-- Multi column rename -->
-<!--<multicolumn-rename (renameEvent)="applyMultiColumnRename($event)"></multicolumn-rename>-->
-<!-- // Multi column rename -->
 
 <multiple-rename-popup (renameMultiColumns)="onRenameMultiColumns($event);"></multiple-rename-popup>

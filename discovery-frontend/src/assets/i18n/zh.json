@@ -984,6 +984,8 @@
   "msg.dp.th.ss.rows": "Rows",
   "msg.dp.th.ss.table": "表",
   "msg.dp.th.ss.valid": "Valid",
+  "msg.dp.ui.ss.select.db" : "Please select database",
+  "msg.dp.alert.ss.table.name" : "Only numbers, alphabet and _ can be used.",
   "msg.dp.th.status": "状态",
   "msg.dp.th.string": "string",
   "msg.dp.th.summary": "概括",
@@ -1235,6 +1237,8 @@
   "msg.dp.ui.change.input.dataset": "置換输入数据组",
   "msg.dp.ui.search-by.dataset": "请用数据组名进行搜索",
   "msg.dp.ui.one.col.required": "需要一个以上的列",
+  "msg.dp.ss.check.error" : "Please check the error item.",
+  "msg.dp.ss.name.required" : "Snapshot name required",
 
   "msg.board.create.add-ds": "添加数据源",
   "msg.board.create.add-ds.desc": "请添加视觉化数据源并设置关系",

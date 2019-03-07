@@ -751,5 +751,8 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .ddp-box-synch.type-error {border-color:#ffcedb; background-color:#ffedf2; color:#dc494f;}
 .ddp-box-synch.type-error .ddp-icon-info {background-position:left -55px;}
 .ddp-btn-blue {padding:7px 17px 8px 17px; border-radius:2px; background-color:#6174b3; color:#fff; font-size:13px;}
+.ddp-box-synch.type-warning {border-color:#fbe4b3; background-color:#fef6e4; color:#e9b017;}
+.ddp-box-synch.type-warning .ddp-icon-info {background-position:left -67px;}
 .ddp-btn-blue:hover {color:#fff;}
 .ddp-btn-blue .ddp-icon-btn-sync {display:inline-block; margin-right:6px; width:13px; height:12px; background:url(../images/icon_buttons.png) no-repeat; background-position:left -363px;}
+

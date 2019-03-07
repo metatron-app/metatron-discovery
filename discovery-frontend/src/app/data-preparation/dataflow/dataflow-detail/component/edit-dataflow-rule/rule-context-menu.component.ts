@@ -16,6 +16,7 @@ import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Outpu
 import { AbstractComponent } from '../../../../../common/component/abstract.component';
 import { Alert } from '../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../common/event/event.broadcaster';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-rule-context-menu',
@@ -28,7 +29,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Output()
-  private applyRuleEvent = new EventEmitter();
+  private contextMenuItemClick = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -51,8 +52,6 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
               private broadCaster: EventBroadcaster) {
@@ -212,126 +211,79 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
     if (!(command.children && 0 < command.children.length)) { // 하위 메뉴가 있으면 클릭 불가
 
       // change coluuid list to col name list
-      let columnNames = this.changeUUIDtoNames(this.originalSelectedColIds);
-      const columnsStr: string = columnNames.map((item) => {
-        return '`' + item + '`';
-      }).join(', ');
+      const columnNames = this.changeUUIDtoNames(this.originalSelectedColIds);
+      const columnNamesWithBackTick: string = this._getColumnNamesInArray(columnNames, true).toString();
 
       const selCol = '`' + this.contextInfo.columnName + '`';
 
-      let rule = {};
+      let rule: ContextMenuParam = new ContextMenuParam();
       switch(command.command) {
+
         case 'rename':
-          rule['more'] = { command : 'rename', col : {value : this.contextInfo.columnId}};
+
+          rule.more = { command : 'rename', col : [this.contextInfo.columnId]};
           break;
+
         case 'drop':
-          if (this.contextInfo.gridResponse.colNames.length === 1) { // at least one column must exist
-            Alert.warning('Cannot delete all columns');
+
+          rule = this._setDropParam(rule, columnNamesWithBackTick, columnNames);
+          if (_.isNil(rule)) {
             return;
           }
-          rule['ruleString'] = command.value + ' col: ' + columnsStr;
           break;
+
         case 'settype':
-          switch(command.value) {
-            case 'Long':
-            case 'Double':
-            case 'Boolean':
-              rule['ruleString'] = 'settype col: ' + columnsStr + ' type: ' + command.value;
-              break;
-            case 'String':
-              if(this.contextInfo.columnType.toUpperCase() === 'TIMESTAMP') {
-                // timestamp 타입일 때 string으로 바꾼다면 .
-                rule['more'] = { command : 'settype', col :  {value : this.originalSelectedColIds}, type : command.value};
-              } else {
-                rule['ruleString'] = 'settype col: ' + columnsStr + ' type: ' + command.value;
-              }
-              break;
-            case 'Timestamp':
-              rule['more'] = { command : 'settype', col :  {value : this.originalSelectedColIds}, type : command.value};
-              break;
-          }
+
+          rule = this._setSetTypeParam(command.value, rule, columnNamesWithBackTick, columnNames);
           break;
+
         case 'setformat':
-          rule['more'] = { command : 'setformat', col : {value : this.originalSelectedColIds}, type : command.value};
+
+          rule.more = { command : 'setformat', col : this.originalSelectedColIds, type : command.value};
           break;
+
         case 'sort':
-          rule['ruleString'] = 'sort order: ' + columnsStr;
-          if (command.value === 'desc') {
-            rule['ruleString'] += ' type:\'desc\'';
-          }
+
+          rule = this._setSortParam(command.value === 'desc', rule, columnNamesWithBackTick, columnNames );
           break;
+
         case 'move':
-          if (command.value === 'first') {
-            const first = '`' + this.contextInfo.gridResponse.colNames[0] + '`' ;
-            rule['ruleString'] = `move col: ${columnsStr} before: ${first}`;
-          } else if (command.value === 'last') {
-            const last = '`' +this.contextInfo.gridResponse.colNames[this.contextInfo.gridResponse.colNames.length-1] + '`';
-            rule['ruleString'] = `move col: ${columnsStr} after: ${last}`;
-          } else if (command.value === 'before' || command.value === 'after') {
-            rule['more'] = {command : 'move', col : {value : columnNames}};
-            rule['more'][command.value] = '';
-          }
+
+          rule = this._setMoveParam(command.value, rule, columnNamesWithBackTick, columnNames);
           break;
+
         case 'edit':
+
           if (command.value === 'replace' || command.value === 'set') {
-            rule['more'] = { command : command.value, col : {value :  this.originalSelectedColIds}};
-          } else if (command.value === 'keep' || command.value === 'delete') {
-            let result = '';
-            if (this.isColumnSelect) {
-              let list = [];
-              this.histogramData.forEach((item) => {
-                if ('matched' === item) {
-                  list.push(`!ismismatched(${selCol},'${this.contextInfo.columnType}')`)
-                } else if ('missing' === item) {
-                  list.push( `ismissing(${selCol})`)
-                } else if ('mismatched' === item) {
-                  list.push(`ismismatched(${selCol},'${this.contextInfo.columnType}')`)
-                }
-              });
-              result = list.join(' && ');
-            } else if (this.contextInfo.columnType === 'DOUBLE' || this.contextInfo.columnType === 'LONG') {
-              this.histogramData.forEach((item,index) => {
-                let idx = this.labelsForNumbers.indexOf(item);
-                result += this.histogramData.length-1 !== index ? `${selCol} >= ${item} && ${selCol} < ${this.labelsForNumbers[idx+1]} || ` : `${selCol} >= ${item} && ${selCol} < ${this.labelsForNumbers[idx+1]}`;
-              })
-            } else if (this.contextInfo.columnType === 'TIMESTAMP') {
-              this.histogramData.forEach((item,index) => {
-                let idx = this.labelsForNumbers.indexOf(item);
-                result += this.histogramData.length-1 !== index ? `time_between(${selCol},'${this.contextInfo.timestampStyle[idx]}','${this.contextInfo.timestampStyle[idx+1]}') || ` : `time_between(${selCol},'${this.contextInfo.timestampStyle[idx]}','${this.contextInfo.timestampStyle[idx+1]}')`;
-              });
-            } else {
-              this.histogramData.forEach((item,index) => {
-                result += this.histogramData.length-1 !== index ? selCol + ' == ' +'\''+ item +'\''+ ' || ' : selCol + ' == ' +'\''+ item +'\'';
-              })
-            }
-            rule['ruleString'] = `${command.value} row: ${result}`;
+            rule['more'] = { command : command.value, col : this.originalSelectedColIds};
+          }
+
+          if (command.value === 'keep' || command.value === 'delete') {
+            rule = this._setKeepDeleteParam(command.value, rule);
           }
           break;
+
         case 'generate':
           switch(command.value) {
             case 'derive':
-              rule['more'] = { command : 'derive'};
+              rule['more'] = { command : 'derive', col: []};
               break;
             case 'duplicate':
               let newCol = `${this.contextInfo.columnName}_1`;
-              newCol = '`'+ newCol + '`';
-              rule['ruleString'] = `derive value: ${selCol} as: ${newCol}`;
-              break;
-            case 'split':
-            case 'countpattern':
-            case 'extract':
-            case 'merge':
-            case 'nest':
-            case 'unnest':
-              rule['more'] = { command : command.value, col : { value : this.originalSelectedColIds}};
+              rule.ruleString = `derive value: ${selCol} as: \`${newCol}\``;
+              rule.uiRuleString = {name: 'derive', expression: this.contextInfo.columnName ,newCol: newCol, isBuilder: true };
               break;
             case 'flatten':
-              rule['ruleString'] = 'flatten col: ' + selCol;
+              rule.ruleString = 'flatten col: ' + selCol;
+              rule.uiRuleString = {name: 'flatten', col: [this.contextInfo.columnName], isBuilder: true};
+              break;
+            default:
+              rule['more'] = { command : command.value, col : this.originalSelectedColIds};
               break;
           }
           break;
         case 'clean':
-          rule['ruleString'] = `delete row: `;
+          rule.ruleString = `delete row: `;
           let res = [];
           switch(command.value) {
 
@@ -340,8 +292,8 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
                 res.push('ismismatched(' + '`' + item + '`' + `,'${this.contextInfo.columnType}')`);
               });
 
-              rule['ruleString'] += res.join(' || ');
-
+              rule.ruleString += res.join(' || ');
+              rule.uiRuleString = {name: 'delete', condition : res.join(' || '), isBuilder: true};
               break;
             case 'direct-missing':
               // delete row: isnull(c) || isnull(`space col`)
@@ -349,19 +301,20 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
                 res.push('isnull(' + '`' + item + '`' + ')');
               });
 
-              rule['ruleString'] += res.join(' || ');
+              rule.ruleString += res.join(' || ');
+              rule.uiRuleString = {name: 'delete', condition : res.join(' || '), isBuilder: true};
               break;
 
             case 'mismatch':
-              rule['more'] = {contextMenu : true,  command : 'set', col : {value : this.originalSelectedColIds}, condition : `ismismatched(${selCol},'${this.contextInfo.columnType}')`};
+              rule['more'] = {contextMenu : true,  command : 'set', col : this.originalSelectedColIds, condition : `ismismatched(${selCol},'${this.contextInfo.columnType}')`};
               break;
             case 'missing':
-              rule['more'] = {contextMenu : true, command : 'set', col : {value : this.originalSelectedColIds}, condition : `ismissing(${selCol})`};
+              rule['more'] = {contextMenu : true, command : 'set', col : this.originalSelectedColIds, condition : `ismissing(${selCol})`};
               break;
           }
           break;
       }
-      this.applyRuleEvent.emit(rule);
+      this.contextMenuItemClick.emit(rule);
     }
 
     this.isShow = false;
@@ -375,5 +328,176 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  /**
+   * Make drop param
+   * @param rule
+   * @param colStr
+   * @param colNames
+   * @private
+   */
+  private _setDropParam(rule: ContextMenuParam, colStr: string, colNames: string[]) {
+    if (this.contextInfo.gridResponse.colNames.length === 1) { // at least one column must exist
+      Alert.warning('Cannot delete all columns');
+      return undefined;
+    }
+    rule.ruleString = `drop col: ${colStr}`;
+    rule.uiRuleString = {name:'drop', col: colNames, isBuilder: true};
+    return rule;
+  }
 
+
+  /**
+   * Make settype param
+   * @param type
+   * @param rule
+   * @param columnStr
+   * @param columnNames
+   * @private
+   */
+  private _setSetTypeParam(type: string, rule: ContextMenuParam, columnStr: string, columnNames: string[]) {
+
+    if (
+      (type === 'String' && this.contextInfo.columnType.toUpperCase() === 'TIMESTAMP')
+      || 'Timestamp' === type
+    ) {
+      rule.more = { command : 'settype', col : this.originalSelectedColIds, type : type};
+    } else {
+      rule.ruleString = 'settype col: ' + columnStr + ' type: ' + type.toLowerCase();
+      rule.uiRuleString = {name: 'settype', col:columnNames, type: type, isBuilder: true}
+    }
+
+    return rule;
+
+  }
+
+
+  /**
+   * Make sort param
+   * @param isDesc
+   * @param rule
+   * @param columnStr
+   * @param columnNames
+   * @private
+   */
+  private _setSortParam(isDesc: boolean, rule: ContextMenuParam, columnStr: string, columnNames: string[]) {
+
+    rule.ruleString = 'sort order: ' + columnStr;
+    rule.uiRuleString = {name: 'sort', col: columnNames, sortBy: 'asc', isBuilder: true};
+    if (isDesc) {
+      rule.ruleString += ' type:\'desc\'';
+      rule.uiRuleString['sortBy'] = 'desc';
+    }
+
+    return rule;
+  }
+
+
+  /**
+   * Make move param
+   * @param type
+   * @param rule
+   * @param columnStr
+   * @param columnNames
+   * @private
+   */
+  private _setMoveParam(type: string, rule: ContextMenuParam, columnStr: string, columnNames: string[]) {
+
+    if (type === 'first') {
+      const first = this.contextInfo.gridResponse.colNames[0];
+      rule.ruleString = `move col: ${columnStr} before: \`${first}\``;
+      rule.uiRuleString = {
+        beforeAfter: 'before',
+        refColumn: first,
+      }
+    }
+
+    if (type === 'last') {
+      const last = this.contextInfo.gridResponse.colNames[this.contextInfo.gridResponse.colNames.length-1];
+      rule.ruleString = `move col: ${columnStr} after: \`${last}\``;
+      rule.uiRuleString = {
+        beforeAfter: 'after',
+        refColumn: last,
+      }
+    }
+
+    if (rule.uiRuleString && rule.uiRuleString.beforeAfter) {
+      rule.uiRuleString.name =  'move';
+      rule.uiRuleString.col =  columnNames;
+      rule.uiRuleString.isBuilder = true;
+    }
+
+    if (type === 'before' || type === 'after') {
+      rule['more'] = {command : 'move', col : columnNames, beforeAfter: type};
+    }
+
+    return rule;
+  }
+
+
+  /**
+   * Make keep or delete param
+   * @param command
+   * @param rule
+   * @private
+   */
+  private _setKeepDeleteParam(command: string, rule: ContextMenuParam) {
+    const colName: string = this.contextInfo.columnName;
+    const colType: string = this.contextInfo.columnType;
+    let result = '';
+    if (this.isColumnSelect) {
+      let list = [];
+      this.histogramData.forEach((item) => {
+        if ('matched' === item) {
+          list.push(`!ismismatched(${colName},'${colType}')`)
+        } else if ('missing' === item) {
+          list.push( `ismissing(${colName})`)
+        } else if ('mismatched' === item) {
+          list.push(`ismismatched(${colName},'${colType}')`)
+        }
+      });
+      result = list.join(' && ');
+    } else if (colType === 'DOUBLE' || colType === 'LONG') {
+      this.histogramData.forEach((item,index) => {
+        let idx = this.labelsForNumbers.indexOf(item);
+        result += this.histogramData.length-1 !== index ? `${colName} >= ${item} && ${colName} < ${this.labelsForNumbers[idx+1]} || ` : `${colName} >= ${item} && ${colName} < ${this.labelsForNumbers[idx+1]}`;
+      })
+    } else if (colType === 'TIMESTAMP') {
+      this.histogramData.forEach((item,index) => {
+        let idx = this.labelsForNumbers.indexOf(item);
+        result += this.histogramData.length-1 !== index ? `time_between(${colName},'${this.contextInfo.timestampStyle[idx]}','${this.contextInfo.timestampStyle[idx+1]}') || ` : `time_between(${colName},'${this.contextInfo.timestampStyle[idx]}','${this.contextInfo.timestampStyle[idx+1]}')`;
+      });
+    } else {
+      this.histogramData.forEach((item,index) => {
+        result += this.histogramData.length-1 !== index ? colName + ' == ' +'\''+ item +'\''+ ' || ' : colName + ' == ' +'\''+ item +'\'';
+      })
+    }
+
+    rule.ruleString = `${command} row: ${result}`;
+    rule.uiRuleString = {name: command, condition: result, isBuilder: true};
+    return rule;
+  }
+
+
+  /**
+   * Make columns into array
+   * @param fields
+   * @param isWrap
+   * @private
+   */
+  private _getColumnNamesInArray(fields: any, isWrap:boolean = false) :string[] {
+    return fields.map((item) => {
+      if (isWrap) {
+        return '`' + item + '`'
+      } else {
+        return item
+      }
+    });
+  }
+
+}
+
+class ContextMenuParam {
+  public more?:any;
+  public ruleString?: string;
+  public uiRuleString?: any;
 }

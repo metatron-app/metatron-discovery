@@ -13,15 +13,12 @@
  */
 
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChildren, QueryList} from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
-import {StringUtil} from "../../../../../../common/util/string.util";
 import {isNullOrUndefined,isUndefined} from "util";
-import * as _ from 'lodash';
-import {RuleConditionInputComponent} from "./rule-condition-input.component";
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
+import {WindowRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 interface formula {
   id: number;
@@ -41,10 +38,6 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   @ViewChildren(RuleSuggestInputComponent)
   private ruleSuggestInput : QueryList<RuleSuggestInputComponent>;
 
-  /*
-  @ViewChildren(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
-  */
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -52,19 +45,16 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  // public formulaList:string[] = [''];
-  // public selectedGroupFields: Field[] = [];
   public selectedSortFields: Field[] = [];
   public sortList : any [];
   public defaultIndex : number = 0;
   public sortBy : string;
 
   public formulas: formula[];
+  public formulaList:string[] = [''];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(
     protected elementRef: ElementRef,
     protected injector: Injector) {
@@ -146,7 +136,7 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, col: string, ruleString: string } {
+  public getRuleData(): {command: string, col: string, ruleString: string, uiRuleString: WindowRule} {
     
     // 수식
     const formulaValueList = this.ruleSuggestInput
@@ -163,17 +153,13 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     // 그룹
     let groupStr: string = '';
     if (this.selectedFields.length !== 0) {
-      groupStr = this.selectedFields.map((item) => {
-        return '`' + item.name + '`';
-      }).join(', ');
+      groupStr = this.getColumnNamesInArray(this.selectedFields, true).toString()
     }
 
     // 정렬
     let sortStr: string = '';
     if (this.selectedSortFields.length !== 0) {
-      sortStr = this.selectedSortFields.map((item) => {
-        return '`' + item.name + '`';
-      }).join(', ');
+      sortStr = this.getColumnNamesInArray(this.selectedSortFields, true).toString()
     }
 
     let resultRuleString : string = `window value: ${value}`;
@@ -188,7 +174,14 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     return {
       command: 'window',
       col: groupStr,
-      ruleString: resultRuleString
+      ruleString: resultRuleString,
+      uiRuleString: {
+        name: 'window',
+        expression: formulaValueList,
+        groupBy: this.getColumnNamesInArray(this.selectedFields),
+        sortBy: this.getColumnNamesInArray(this.selectedSortFields),
+        isBuilder: true
+      }
     };
 
   } // function - getRuleData
@@ -196,6 +189,15 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Sort by 선택
+   * @param data
+   */
+  public selectItem(data) {
+    this.sortBy = data.type;
+
+  } // function - selectItem
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -215,65 +217,31 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
 
   /**
    * rule string 을 분석한다.
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * @param data ({ruleString : string, jsonRuleString : WindowRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {jsonRuleString : WindowRule}) {
 
-    // Group - can be null
-    if (!isNullOrUndefined(data.jsonRuleString.group)) {
-      let groupFields:string[] = typeof data.jsonRuleString.group.value === 'string' ? [data.jsonRuleString.group.value] : data.jsonRuleString.group.value;
+    // col
+    if (!isNullOrUndefined(data.jsonRuleString.groupBy)) {
+      let groupFields:string[] = data.jsonRuleString.groupBy;
       this.selectedFields = groupFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
     // Order
-    if (!isNullOrUndefined(data.jsonRuleString.order)) {
-      let orderFields: string[] = typeof data.jsonRuleString.order.value === 'string' ? [data.jsonRuleString.order.value] : data.jsonRuleString.order.value;
+    if (!isNullOrUndefined(data.jsonRuleString.sortBy)) {
+      let orderFields: string[] = data.jsonRuleString.sortBy;
       this.selectedSortFields = orderFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
     // Formula
+    this.formulaList = [];
+    this.formulaList = data.jsonRuleString.expression;
     this.formulas = [];
-    if (data.jsonRuleString.value.hasOwnProperty('functions')) {
-      data.jsonRuleString.value.functions.forEach((item, idx) => {
-        this.formulas.push({id:idx, value: this.getJoinedExpression(item)});
-      })
-    } else {
-      this.formulas.push({id:0, value: this.getJoinedExpression(data.jsonRuleString.value) });
-    }
+    this.formulaList.forEach((item,index) => {
+      this.formulas.push({id:index, value: item});
+    });
 
   } // function - _parsingRuleString
-
-  /**
-   * Returns joined Expression
-   * @param value
-   * @returns {string}
-   */
-  public getJoinedExpression(value:any) : string {
-
-    let result = value.name;
-    if (value.args.length !== 0) {
-      let list = value.args.map((item) => {
-        if (item.value.toString().indexOf(' ') !== -1) {
-          return '`' + item.value + '`'
-        } else {
-          return item.value
-        }
-      });
-      result += `(${list.join(',')})`;
-    } else {
-      result += '()';
-    }
-    return result;
-  }
-
-  /**
-   * Sort by 선택
-   * @param data
-   */
-  public selectItem(data) {
-    this.sortBy = data.type;
-
-  } // function - selectItem
 
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

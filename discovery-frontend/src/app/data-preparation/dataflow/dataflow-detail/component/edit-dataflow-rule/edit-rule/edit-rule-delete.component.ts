@@ -28,7 +28,7 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { isUndefined } from "util";
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 import * as _ from 'lodash';
-import {PreparationCommonUtil} from "../../../../../util/preparation-common.util";
+import {DeleteRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector : 'edit-rule-delete',
@@ -41,11 +41,6 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @ViewChild('delete_row_input')
   private rowInput : RuleSuggestInputComponent;
-
-  /*
-  @ViewChild(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
-  */
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -54,7 +49,6 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public rowNum : string = '';
-//  public forceCondition : string = '';
 
   @Output()
   public advancedEditorClickEvent = new EventEmitter();
@@ -101,7 +95,7 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
    * Rule 형식 정의 및 반환
    * @return
    */
-  public getRuleData(): { command: string, ruleString:string} {
+  public getRuleData(): { command: string, ruleString:string, uiRuleString: DeleteRule} {
 
     this.rowNum = this.rowInput.getFormula();
     let val = _.cloneDeep(this.rowNum);
@@ -112,7 +106,12 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
 
     return {
       command: 'delete',
-      ruleString: 'delete row: ' + val
+      ruleString: 'delete row: ' + val,
+      uiRuleString: {
+        name: 'delete',
+        condition: this.rowNum,
+        isBuilder: true
+      }
     };
     
   } // function - getRuleData
@@ -157,15 +156,11 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
 
   /**
    * parse rule string
-   * @param data ({ruleString : string, jsonRuleString : any})
+   * @param data ({jsonRuleString : DeleteRule})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {jsonRuleString : DeleteRule}) {
 
-    let targetStr  = data.ruleString.split('delete ')[1];
-    let regex = /(row *: {1})/gi;
-
-    const ruleStr = PreparationCommonUtil.getRuleString(targetStr, regex);
-    this.rowNum = ruleStr['row: '];
+    this.rowNum = data.jsonRuleString.condition;
 
   } // function - _parsingRuleString
 

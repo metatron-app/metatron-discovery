@@ -14,11 +14,10 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import * as _ from 'lodash';
+import {FlattenRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector : 'edit-rule-flatten',
@@ -86,7 +85,7 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string, uiRuleString: FlattenRule } {
 
     // 선택된 컬럼
     if (0 === this.selectedFields.length) {
@@ -94,15 +93,16 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
       return undefined
     }
 
-    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
-
-    let ruleString = 'flatten col: ' + columnsStr;
+    let ruleString = 'flatten col: ' + this.getColumnNamesInArray(this.selectedFields, true).toString();
 
     return {
       command : 'flatten',
-      ruleString: ruleString
+      ruleString: ruleString,
+      uiRuleString: {
+        name: 'flatten',
+        isBuilder: true,
+        col: this.getColumnNamesInArray(this.selectedFields)
+      }
     };
 
   } // function - getRuleData
@@ -136,6 +136,13 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
    * @protected
    */
   protected beforeShowComp() {
+    this.fields = this.fields.filter((item) => {
+      return item.type === 'ARRAY'
+    });
+
+    this.selectedFields = this.selectedFields.filter((item) => {
+      return item.type === 'ARRAY'
+    });
   } // function - _beforeShowComp
 
   /**
@@ -150,9 +157,9 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
    * parse ruleString
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {jsonRuleString : FlattenRule}) {
 
-    let arrFields:string[] = [data.jsonRuleString.col];
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
   } // function - _parsingRuleString

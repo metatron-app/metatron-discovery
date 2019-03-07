@@ -24,11 +24,11 @@ import {
   SimpleChanges,
   EventEmitter, Output
 } from '@angular/core';
-import { AbstractFilterPopupComponent } from '../abstract-filter-popup.component';
-import { Dashboard } from '../../../domain/dashboard/dashboard';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { TimeRangeFilter } from '../../../domain/workbook/configurations/filter/time-range-filter';
-import { TimeRange, TimeRangeData } from '../component/time-range.component';
+import {AbstractFilterPopupComponent} from '../abstract-filter-popup.component';
+import {Dashboard} from '../../../domain/dashboard/dashboard';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {TimeRangeFilter} from '../../../domain/workbook/configurations/filter/time-range-filter';
+import {TimeRange, TimeRangeData} from '../component/time-range.component';
 
 @Component({
   selector: 'app-time-range-filter',
@@ -55,7 +55,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
 
   public rangeBoundary: RangeBoundary;
   public timeRangeList: TimeRange[];
-  public isEarliestTime:boolean = false;
+  public isEarliestTime: boolean = false;
   public isLatestTime: boolean = false;
 
   // 초기 입력 정보 정의
@@ -101,10 +101,12 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
   public ngOnChanges(changes: SimpleChanges) {
     const filterChanges: SimpleChange = changes.inputFilter;
     if (filterChanges) {
-      const prevFilter:TimeRangeFilter = filterChanges.previousValue;
-      const currFilter:TimeRangeFilter = filterChanges.currentValue;
-      if( !prevFilter || prevFilter.field !== currFilter.field ) {
-        this.setData(filterChanges.currentValue, !filterChanges.firstChange);
+      const prevFilter: TimeRangeFilter = filterChanges.previousValue;
+      const currFilter: TimeRangeFilter = filterChanges.currentValue;
+      if (currFilter && (
+        !prevFilter || prevFilter.field !== currFilter.field ||
+        0 < _.difference(prevFilter.intervals, currFilter.intervals).length)) {
+        this.setData(filterChanges.currentValue, true);
       }
     }
   } // function - ngOnChanges
@@ -124,15 +126,15 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
    * @param {TimeRangeFilter} filter
    * @param {boolean} isBroadcast
    */
-  public setData(filter: TimeRangeFilter, isBroadcast:boolean = false ) {
+  public setData(filter: TimeRangeFilter, isBroadcast: boolean = false) {
     this.loadingShow();
-    const cloneFilter:TimeRangeFilter = _.cloneDeep(filter);
+    const cloneFilter: TimeRangeFilter = _.cloneDeep(filter);
     this.datasourceService.getCandidateForFilter(cloneFilter, this.dashboard).then((result) => {
       this.targetFilter = this._setRangeFilter(result, cloneFilter);
       this.safelyDetectChanges();
 
       // 변경사항 전파
-      ( isBroadcast ) && ( this._broadcastChange() );
+      (isBroadcast) && (this._broadcastChange());
 
       this.loadingHide();
     }).catch(err => this.commonExceptionHandler(err));
@@ -153,7 +155,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
    * @param {TimeRange} item
    * @return {TimeRangeData}
    */
-  public getTimeRangeData(item:TimeRange): TimeRangeData {
+  public getTimeRangeData(item: TimeRange): TimeRangeData {
     return new TimeRangeData(this.rangeBoundary.minTime, this.rangeBoundary.maxTime, item, false, this.targetFilter.timeUnit);
   } // function - getIntervalRangeData
 
@@ -284,7 +286,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
    * @private
    */
   private _broadcastChange() {
-    const filterData:TimeRangeFilter = this.getData();
+    const filterData: TimeRangeFilter = this.getData();
     // 결과 값이 다를 경우만 이벤트 전달하여 차트 갱신
     if (this.lastIntervals != filterData.intervals.join('')) {
       this.lastIntervals = filterData.intervals.join('');
@@ -299,7 +301,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
    * @returns {TimeRangeFilter}
    * @private
    */
-  private _setRangeFilter(result: RangeBoundary, targetFilter: TimeRangeFilter):TimeRangeFilter {
+  private _setRangeFilter(result: RangeBoundary, targetFilter: TimeRangeFilter): TimeRangeFilter {
 
     // 초기화
     this.isEarliestTime = false;
@@ -310,17 +312,17 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
       const items: any[] = [];
       targetFilter.intervals.forEach(item => {
         const arrInterval: any[] = item.split('/');
-        if( TimeRangeFilter.EARLIEST_DATETIME === arrInterval[0] ) {
+        if (TimeRangeFilter.EARLIEST_DATETIME === arrInterval[0]) {
           this.isEarliestTime = true;
         }
-        if( TimeRangeFilter.LATEST_DATETIME === arrInterval[1] ) {
+        if (TimeRangeFilter.LATEST_DATETIME === arrInterval[1]) {
           this.isLatestTime = true;
         }
         items.push(new TimeRange(arrInterval[0], arrInterval[1]));
       });
       this.timeRangeList = items;
     } else {
-      const item:TimeRange = new TimeRange(result.minTime, result.maxTime);
+      const item: TimeRange = new TimeRange(result.minTime, result.maxTime);
       this.timeRangeList = [item];
       targetFilter.intervals = [item.toInterval()];
     }

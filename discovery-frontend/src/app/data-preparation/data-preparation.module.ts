@@ -41,13 +41,11 @@ import { DatasetDetailComponent } from './dataset/dataset-detail.component';
 import { DatasetInfoPopupComponent } from './dataflow/dataflow-detail/component/dataset-info-popup/dataset-info-popup.component';
 import { CreateDatasetNameComponent } from './dataset/create-dataset/create-dataset-name.component';
 import { RuleListComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-list.component';
-import { MulticolumnRenameComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/multicolumn-rename.component';
 import { RuleContextMenuComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-context-menu.component';
 import { ExtendInputFormulaComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/extend-input-formula.component';
 import { ScrollLoadingGridComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule-grid/scroll-loading-grid.component';
 import { EditDataflowRule2Component } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-dataflow-rule-2.component';
 import { EditRuleGridComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule-grid/edit-rule-grid.component';
-import { RuleSnapshotListComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-snapshot-list.component';
 import { CreateDataflowNameDescComponent } from './dataflow/create-dataflow-name-desc.component';
 import { DatasetSummaryComponent } from './component/dataset-summary.component';
 import { EditRuleHeaderComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-header.component';
@@ -129,7 +127,6 @@ const dataPreparationRoutes: Routes = [
     DatasetInfoPopupComponent,
     CreateDatasetNameComponent,
     RuleListComponent,
-    MulticolumnRenameComponent,
     RuleContextMenuComponent,
     ExtendInputFormulaComponent,
     EditRuleGridComponent,
@@ -159,7 +156,6 @@ const dataPreparationRoutes: Routes = [
     EditRulePivotComponent,
     EditRuleSettypeComponent,
     EditRuleWindowComponent,
-    RuleSnapshotListComponent,
     CreateDataflowNameDescComponent,
     DatasetSummaryComponent,
     CreateSnapshotPopup,
@@ -180,7 +176,8 @@ const dataPreparationRoutes: Routes = [
     DataflowService,
     DatasetService,
     DataPreparationGuard,
-    DataflowModelService
+    DataflowModelService,
+    DataconnectionService
   ],
   exports: [
   ]

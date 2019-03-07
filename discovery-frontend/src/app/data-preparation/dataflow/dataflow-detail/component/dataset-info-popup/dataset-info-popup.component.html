@@ -19,11 +19,10 @@
        (clickOutside)="isDatasetNameEdit ? setDatasetName(): null;">
     <em class="{{ prepCommonUtil.getIconClass(selectedDataSet.dsType === DsType.WRANGLED ? 'dataset' : 'hive') }}"></em>
     <div class="ddp-ui-input">
-      <textarea #dsName maxlength="50"
-                placeholder="{{'msg.comm.ui.create.name' | translate}}"
-                (keyup.enter)="isDatasetNameEdit ? updateDataset() : null;"
-                [(ngModel)]="datasetName">
-      </textarea>
+      <input type="text" #dsName maxlength="50"
+             placeholder="{{'msg.comm.ui.create.name' | translate}}"
+             (keyup.enter)="isDatasetNameEdit ? updateDataset() : null;"
+             [(ngModel)]="datasetName" />
       <span class="ddp-btn-check" (click)="$event.stopPropagation(); updateDataset();"></span>
     </div>
     <span class="ddp-txt-filename">{{selectedDataSet.dsName}}
@@ -36,19 +35,21 @@
   <div class="ddp-data-explain" [class.ddp-selected]="isDatasetDescEdit">
     <div class="ddp-ui-input">
       <textarea #dsDesc placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-                (keyup.enter)="isDatasetDescEdit ? updateDataset() : null;"
                 (clickOutside)="isDatasetDescEdit ? setDatasetDescription(): null;"
                 [(ngModel)]="datasetDesc"
                 maxlength="150">
       </textarea>
       <span class="ddp-btn-check" (click)="$event.stopPropagation(); updateDataset();"></span>
     </div>
-    <span class="ddp-txt-explain">{{selectedDataSet.dsDesc || 'msg.groups.ui.create.ph.desc' | translate }}
-      <a href="javascript:" class="ddp-link-edit"
-         (click)="!isDatasetDescEdit ? onDatasetDescEdit($event):$event.stopPropagation();">
+
+    <span class="ddp-txt-explain">
+        <span  [innerHTML]="getDescriptionWithBR(selectedDataSet.dsDesc)"></span>
+        <a href="javascript:" class="ddp-link-edit"
+           (click)="!isDatasetDescEdit ? onDatasetDescEdit($event):$event.stopPropagation();">
         <em class="ddp-icon-edit2"></em>
       </a>
-    </span>
+      </span>
+
   </div>
 
   <!--[class.ddp-type]="selectedDataSet.dsType && selectedDataSet.dsType.toString() === 'WRANGLED'"-->

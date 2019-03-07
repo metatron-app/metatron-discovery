@@ -25,7 +25,6 @@ import {
   Output, SimpleChange, SimpleChanges,
   ViewChild
 } from '@angular/core';
-//import { Field, Rule } from '../../../../../../domain/data-preparation/dataset';
 import { Field, Rule } from '../../../../../../domain/data-preparation/pr-dataset';
 import { PreparationAlert } from '../../../../../util/preparation-alert.util';
 import { DataflowService } from '../../../../service/dataflow.service';

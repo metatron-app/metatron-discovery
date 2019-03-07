@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.workbench;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.audit.Audit;
 import app.metatron.discovery.domain.audit.AuditRepository;
@@ -412,6 +413,14 @@ public class QueryEditorService {
 
     //2. get field info from resultset
     List<Field> fieldList = jdbcConnectionService.getFieldList(resultSet, false);
+
+    //we don't know about timestamp's format...
+    //so convert to STRING type for Temporary datasource
+    if(fieldList != null) {
+      fieldList.stream()
+               .filter(field -> field.getType() == DataType.TIMESTAMP)
+               .forEach(field -> field.setType(DataType.STRING));
+    }
 
     //3. write csv
     int rowNumber = jdbcConnectionService.writeResultSetToCSV(

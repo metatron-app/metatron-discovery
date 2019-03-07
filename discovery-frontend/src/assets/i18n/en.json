@@ -1051,6 +1051,8 @@
   "msg.dp.th.ss.rows" : "Rows",
   "msg.dp.th.ss.table" : "Table",
   "msg.dp.th.ss.valid" : "Valid",
+  "msg.dp.ui.ss.select.db" : "Please select database",
+  "msg.dp.alert.ss.table.name" : "Only numbers, alphabet and _ can be used.",
   "msg.dp.th.status": "Status",
   "msg.dp.th.string": "string",
   "msg.dp.th.summary": "Summary",
@@ -1326,6 +1328,8 @@
   "msg.dp.th.sheet.name" : "sheet name",
   "msg.dp.alert.dataset.fail.to.create" : "Failed to create dataset",
   "msg.dp.alert.num.fail.dataset" : "{{value}} dataset generation failed",
+  "msg.dp.ss.check.error" : "Please check the error item.",
+  "msg.dp.ss.name.required" : "Snapshot name required",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",

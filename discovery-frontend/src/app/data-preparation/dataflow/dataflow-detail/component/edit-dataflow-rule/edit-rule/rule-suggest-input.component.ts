@@ -256,6 +256,11 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
    * @param $event 
    */
   public onKeyDown( $event) {
+
+    if (this.isSuggestOpen) {
+      $event.stopPropagation();
+    }
+
     try{
       const keyCode = $event.keyCode;
 
@@ -288,6 +293,10 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
    * @param $event 
    */
   public onKeyUp( $event) {
+
+    if (this.isSuggestOpen) {
+      $event.stopPropagation();
+    }
 
     try{
       return this.prcessEvent($event);
@@ -655,7 +664,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
       // 자동완성 선택이 있으면 
       this.onSelectAutoComplete(this.suggestItems[this.selectedIndex]);
 
-      if( $event &&  $event.preventDefault ) {
+      if( $event && $event.preventDefault ) {
         $event.preventDefault();
       }
 

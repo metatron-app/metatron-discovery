@@ -185,7 +185,7 @@
       <!--이름-->
        <div class="ddp-view-title type-edit" [ngClass]="{'ddp-selected':isSsNameEditing}" (clickOutside)="changeSsNameEditingState(false)">
         <div class="ddp-ui-input">
-          <textarea #ssName maxlength="50" (keyup.enter)="editSnapshotName()"></textarea>
+          <input type="text" #ssName maxlength="50" (keyup.enter)="editSnapshotName()">
           <span class="ddp-btn-check" (click)="editSnapshotName()"></span>
         </div>
         <span class="ddp-txt-title">

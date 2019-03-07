@@ -14,7 +14,6 @@
 
 import { EditRuleComponent } from './edit-rule.component';
 import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-//import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
@@ -23,6 +22,7 @@ import { StringUtil } from '../../../../../../common/util/string.util';
 import { isNullOrUndefined } from 'util';
 import { PrepSelectBoxComponent } from "../../../../../util/prep-select-box.component";
 import { PrepSelectBoxCustomComponent } from '../../../../../util/prep-select-box-custom.component';
+import {SetTypeRule} from "../../../../../../domain/data-preparation/prep-rules";
 
 @Component({
   selector : 'edit-rule-settype',
@@ -54,11 +54,9 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
   public selectedTimestamp : string = '';
   public selectedType : string = '';
-  public customTimestamp: string; // custom format
   public typeList : string [] = ['long', 'double', 'string', 'boolean', 'timestamp'];
 
   public defaultIndex : number = -1;
-  public defaultTimestampIndex : number = -1;
 
   @ViewChild(PrepSelectBoxComponent)
   protected prepSelectBoxComponent : PrepSelectBoxComponent;
@@ -148,7 +146,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
     for (let key in result) {
       // if (result.hasOwnProperty(key)) {
-        keyList.push(key);
+      keyList.push(key);
       // }
     }
 
@@ -214,7 +212,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * Set rule string and returns it
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString: string } {
+  public getRuleData(): {command: string, ruleString: string, uiRuleString: Object} {
 
     // selected column
     if (0 === this.selectedFields.length) {
@@ -228,39 +226,33 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
       return undefined;
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
-      return '`' + item.name + '`';
-    }).join(', ');
+    let ruleString = 'settype col: ' + this.getColumnNamesInArray(this.selectedFields, true).toString() + ` type: ${this.selectedType}`;
 
-    let ruleString = 'settype col: ' + columnsStr + ` type: ${this.selectedType}`;
+
+    let copiedTimestamp: string = this.selectedTimestamp;
 
     // Timestamp
-    if (this.isTimestamp && '' !== this.selectedTimestamp) {
+    if (this.isTimestamp && '' !== copiedTimestamp) {
       ruleString += ' format: ';
-      if ('Custom format' === this.selectedTimestamp) {
-        let check:any = StringUtil.checkSingleQuote(this.customTimestamp, { isPairQuote: true, isWrapQuote: true });
-        if (check[0] === false) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
-          return undefined;
-        } else {
-          this.customTimestamp = check[1];
-        }
-        ruleString += this.customTimestamp
+      let check:any = StringUtil.checkSingleQuote(this.selectedTimestamp, { isPairQuote: true, isWrapQuote: true });
+      if (check[0] === false) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
+        return undefined;
       } else {
-        let check:any = StringUtil.checkSingleQuote(this.selectedTimestamp, { isPairQuote: true, isWrapQuote: true });
-        if (check[0] === false) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
-          return undefined;
-        } else {
-          this.selectedTimestamp = check[1];
-        }
-        ruleString += this.selectedTimestamp;
+        this.selectedTimestamp = check[1];
       }
+      ruleString += this.selectedTimestamp;
     }
 
     return {
       command : 'settype',
-      ruleString: ruleString
+      ruleString: ruleString,
+      uiRuleString: {
+        name: 'settype',
+        col : this.getColumnNamesInArray(this.selectedFields),
+        type: this.selectedType,
+        format: copiedTimestamp,
+        isBuilder: true}
     };
 
   } // function - getRuleData
@@ -318,7 +310,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
       this.isTimestamp = false;
     }
   }
- 
+
   /**
    * Show/hide pattern tooltip
    * @param {boolean} isShow
@@ -374,14 +366,20 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * parse rule string (When editing)
    * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+  protected parsingRuleString(data: {jsonRuleString : SetTypeRule}) {
+
+    if (typeof data.jsonRuleString.col === 'string') {
+      data.jsonRuleString.col = [data.jsonRuleString.col];
+    }
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    let arrFields:string[] = data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     // TYPE
     this.selectedType = data.jsonRuleString.type.toLowerCase();
+
+    // TODO :
     this.defaultIndex = this.typeList.indexOf(this.selectedType);
 
     // FORMAT
