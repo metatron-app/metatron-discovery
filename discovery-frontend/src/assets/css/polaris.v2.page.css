@@ -5268,6 +5268,7 @@ table.ddp-table-detail tbody tr td .ddp-ui-summary ul.ddp-list-sub li a {color:#
 .ddp-edit-description.ddp-line:after {position:absolute; bottom:0; left:0; right:0;border-bottom:1px dotted #ccc; content:'';}
 .ddp-edit-description .ddp-box-textarea {display:none;}
 .ddp-edit-description .ddp-txt-description {position:relative; top:-3px;  font-size:13px; line-height:18px; cursor:pointer;}
+.ddp-edit-description .ddp-txt-description.ddp-nodata {color:#b7bac1;}
 .ddp-edit-description .ddp-data-description {position:relative; padding-bottom:30px;}
 .ddp-edit-description .ddp-data-description:hover .ddp-btn-edit {display:inline-block;}
 .ddp-edit-description .ddp-data-description .ddp-btn-edit {display:none; padding:4px 7px; position:absolute; bottom:0; left:0;  height:21px; color:#91969e; font-size:12px; font-style:italic; background-color:#f3f3f4; box-sizing:border-box;}
