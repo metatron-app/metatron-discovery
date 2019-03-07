@@ -150,7 +150,7 @@
 .ddp-ui-create-file .ddp-list-file-name > li .ddp-wrap-checkbox:hover,
 .ddp-ui-create-file .ddp-list-file-name > li.ddp-selected > .ddp-wrap-checkbox,
 .ddp-ui-create-file .ddp-list-sub-file > li.ddp-selected > .ddp-wrap-checkbox,
-.ddp-ui-create-file .ddp-list-sub-file > li > .ddp-wrap-checkbox:hover {background-color:#f6f6f7;}
+.ddp-ui-create-file .ddp-list-sub-file > li > .ddp-wrap-checkbox:hover {background-color:#f6f6f7; font-weight:bold;}
 .ddp-ui-create-file .ddp-list-file-name > li > .ddp-wrap-checkbox:after,
 .ddp-ui-create-file .ddp-list-sub-file > li > .ddp-wrap-checkbox:after {display:none; position:absolute; top:50%; right:17px; margin-top:-6px; width:6px; height:11px; background:url(../../../images/icon_dataview.png) no-repeat; background-position:left -68px; content:'';}
 .ddp-ui-create-file .ddp-list-file-name > li > .ddp-wrap-checkbox:hover:after,
@@ -158,13 +158,19 @@
 .ddp-ui-create-file .ddp-list-sub-file > li > .ddp-wrap-checkbox:hover:after,
 .ddp-ui-create-file .ddp-list-sub-file > li.ddp-selected > .ddp-wrap-checkbox:after {display:Block;}
 .ddp-ui-create-file .ddp-list-file-name li .ddp-label-checkbox {padding-left:0; max-width:100%; box-sizing:border-box;}
-.ddp-ui-create-file .ddp-list-file-name li .ddp-label-checkbox input {display:inline-block; position:absolute; top:-7px; left:-34px; bottom:-14px; width:34px; height:44px;z-index:1;}
+.ddp-ui-create-file .ddp-list-file-name .ddp-wrap-checkbox .ddp-label-checkbox {position:absolute; top:0; left:0; bottom:0; width:34px;}
+
+.ddp-ui-create-file .ddp-list-file-name .ddp-wrap-checkbox .ddp-label-checkbox .ddp-icon-checkbox {left:14px;}
+
 .ddp-ui-create-file .ddp-list-file-name li .ddp-label-checkbox i.ddp-icon-checkbox { left:-19px;}
 .ddp-ui-create-file .ddp-list-file-name li span.ddp-txt-checkbox {display:inline-block; max-width:100%; font-size:13px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-ui-create-file .ddp-list-file-name li span.ddp-txt-checkbox .ddp-txt-subname {float:right; font-size:13px;}
 .ddp-ui-create-file .ddp-list-file-name li .ddp-label-checkbox .ddp-txt-filename {display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
 .ddp-ui-create-file .ddp-list-sub-file {border-top:1px solid #e6e6e9;}
-.ddp-ui-create-file .ddp-list-sub-file > li .ddp-wrap-checkbox {position:relative; padding:10px 35px 10px 44px;border-bottom:none;}
+
+.ddp-ui-create-file .ddp-list-sub-file > li .ddp-wrap-checkbox {position:relative; padding:10px 35px 10px 60px;border-bottom:none;}
+
+.ddp-ui-create-file .ddp-list-file-name .ddp-list-sub-file .ddp-wrap-checkbox .ddp-label-checkbox {left:25px !important;}
 .ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-grid-option {border-bottom:1px solid red; overflow:hidden; background-color:#f6f6f7; border-bottom:1px solid #d7d8dd;}
 .ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-grid-option .ddp-data-total {float:right; padding:14px 0 15px 0; }
 .ddp-ui-create-file .ddp-ui-create-detail .ddp-wrap-grid-option .ddp-data-total .ddp-txt-data {color:#4b515b; font-weight:300;margin-right:15px;}

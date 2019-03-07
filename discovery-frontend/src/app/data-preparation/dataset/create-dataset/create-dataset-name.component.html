@@ -188,7 +188,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let name of names; let index = index">
+            <tr *ngFor="let name of dsfileInformations; let index = index">
               <td>
                 <em [ngClass]="{'EXCEL':'ddp-icon-flow-xls','JSON':'ddp-icon-flow-json','CSV':'ddp-icon-flow-csv'}[dsfileInformations[index].fileFormat]"></em>
                 {{dsfileInformations[index].fileName}}

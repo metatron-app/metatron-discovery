@@ -569,7 +569,12 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
    */
   private _getFileParams(file): object {
     const params: any = {};
-    params.delimiter = file.delimiter;
+    if (file.fileFormat === FileFormat.EXCEL){
+      params.delimiter = ',';
+    } else {
+      params.delimiter = file.delimiter;
+    }
+
     params.dsName = file.dsName;
     params.dsDesc = file.dsDesc;
     params.dsType = 'IMPORTED';

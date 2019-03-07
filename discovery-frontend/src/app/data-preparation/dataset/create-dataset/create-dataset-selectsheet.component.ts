@@ -98,12 +98,14 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         this.datasetFiles[index].selectedSheets = [];
         this.datasetFiles[index].selected = false;
 
-        this.currDelimiter = ( index === 0 && this.datasetFiles[index].fileFormat === FileFormat.CSV ? ',' : '');
+        if(index === 0) {
+          this.isCSV = (  this.datasetFiles[index].fileFormat === FileFormat.CSV);
+          this.currDelimiter = ( this.datasetFiles[index].fileFormat === FileFormat.CSV ? ',' : '');
+        }
         let option: string = ( index === 0 ? 'draw' : '');
 
         this._getGridInformation(index, this._getParamForGrid(dsFile), option);
       });
-
     } else {
       this.datasetFiles.forEach((dsFile, index)=>{
         let dsIdx : number = -1;
@@ -119,16 +121,16 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
           this.currDSIndex = index;
           return;
         } else if ( dsIdx > 0){
-          this.currDSIndex = index;
+          this.currDSIndex = dsIdx;
           return;
         }
-      })
+      });
 
+      this.isCSV = (this.datasetFiles[this.currDSIndex].fileFormat == FileFormat.CSV);
       this._setDetailInfomation(this.currDSIndex, this.currSheetIndex);
       this._updateGrid(this.datasetFiles[this.currDSIndex].sheetInfo[0].data, this.datasetFiles[this.currDSIndex].sheetInfo[this.currSheetIndex].fields);
       this._isNextBtnDisable();
     }
-
   }
 
 

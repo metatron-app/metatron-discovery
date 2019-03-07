@@ -33,48 +33,54 @@
         <div class="ddp-list-create-file">
           <ul class="ddp-list-file-name" >
 
+            <li class="">
+
+            </li>
+
             <ng-container *ngFor="let file of datasetFiles; let i = index">
             <li [ngClass]="{'ddp-selected':currDSIndex===i && file.fileFormat.toString() !='EXCEL'}"  >
 
               <ng-container *ngIf="file.fileFormat.toString()==='CSV' || file.fileFormat.toString()==='JSON'">
                 <!-- checkbox -->
-                <div class="ddp-wrap-checkbox" (click)="selectFile($event,i);checkGroup($event, i)" >
-                  <label class="ddp-label-checkbox" >
-                    <input type="checkbox" [checked]="file.selected" >
+                <div class="ddp-wrap-checkbox" (click)="selectFile($event,i)">
+                  <label class="ddp-label-checkbox" (click)="checkGroup($event, i)">
+                    <input type="checkbox" [checked]="file.selected">
                     <i class="ddp-icon-checkbox"></i>
-                    <span class="ddp-txt-checkbox">
-                      <span class="ddp-txt-subname">{{file.fileExtension}}</span>
-                      <span class="ddp-txt-filename">{{file.fileName}}.</span>
-                    </span>
                   </label>
+                  <span class="ddp-txt-checkbox">
+                    <span class="ddp-txt-subname">{{file.fileExtension}}</span>
+                    <span class="ddp-txt-filename">{{file.fileName}}.</span>
+                  </span>
                 </div>
                 <!-- //checkbox -->
               </ng-container>
 
               <ng-container *ngIf="file.fileFormat.toString()==='EXCEL'">
                 <!-- checkbox -->
-                <div class="ddp-wrap-checkbox" (click)="selectFile($event,i);checkGroup($event, i)">
-                  <label class="ddp-label-checkbox" >
-                    <input type="checkbox" [checked]="file.selected" >
+                <div class="ddp-wrap-checkbox" (click)="selectFile($event,i)">
+                  <label class="ddp-label-checkbox" (click)="checkGroup($event, i)">
+                    <input type="checkbox" [checked]="file.selected">
                     <i class="ddp-icon-checkbox"></i>
-                    <span class="ddp-txt-checkbox">
-                      <span class="ddp-txt-subname">{{file.fileExtension}}</span>
-                      <span class="ddp-txt-filename">{{file.fileName}}.</span>
-                   </span>
                   </label>
+                  <span class="ddp-txt-checkbox">
+                    <span class="ddp-txt-subname">{{file.fileExtension}}</span>
+                    <span class="ddp-txt-filename">{{file.fileName}}.</span>
+                  </span>
                 </div>
                 <!-- //checkbox -->
                 <!-- sub -->
                 <ul class="ddp-list-sub-file"  *ngFor="let item of file.sheetInfo; let j = index">
-
-                  <li [ngClass]="{'ddp-selected':currSheetIndex===j && currDSIndex===i}" >
+                  <li [ngClass]="{'ddp-selected':currSheetIndex===j && currDSIndex===i}">
                     <!-- checkbox -->
-                    <div class="ddp-wrap-checkbox" (click)="selectSheet($event, i, item.sheetName, j);checkSheet($event, i, j)">
-                      <label class="ddp-label-checkbox" >
-                        <input type="checkbox" [checked]="item.selected" >
+                    <div class="ddp-wrap-checkbox" (click)="selectSheet($event, i, item.sheetName, j)">
+                      <label class="ddp-label-checkbox" (click)="checkSheet($event, i, j)">
+                        <input type="checkbox" [checked]="item.selected">
                         <i class="ddp-icon-checkbox"></i>
-                        <span class="ddp-txt-checkbox">{{item.sheetName}}</span>
                       </label>
+                      <span class="ddp-txt-checkbox">
+                        <span class="ddp-txt-subname"></span>
+                        <span class="ddp-txt-filename">{{item.sheetName}}</span>
+                      </span>
                     </div>
                     <!-- //checkbox -->
                   </li>
@@ -126,7 +132,7 @@
                 <!-- edit option -->
                 <div class="ddp-ui-edit-option">
                   <!-- apply -->
-                  <div class="ddp-input-apply">
+                  <div class="ddp-input-apply" [ngClass]="{'ddp-disabled': !isCSV}">
                     <input type="text" placeholder="Enter column delimiter" class="ddp-input-txt " [(ngModel)]="currDelimiter" (keyup)="changeDelimiter()">
                     <em class="ddp-icon-apply" (click)="changeDelimiter()" ></em>
                   </div>
