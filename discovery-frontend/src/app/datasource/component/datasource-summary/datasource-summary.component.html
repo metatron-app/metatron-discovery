@@ -44,7 +44,7 @@
       <tr>
         <th> {{ 'msg.comm.detail.desc' | translate }} </th>
         <td>
-          <div class="ddp-data-det"> {{ ( metadata && metadata.description ) ? metadata.description : datasource.description }} </div>
+          <div class="ddp-data-det" title="{{ ( metadata && metadata.description ) ? metadata.description : datasource.description }}"> {{ ( metadata && metadata.description ) ? metadata.description : datasource.description }} </div>
         </td>
       </tr>
       <tr>

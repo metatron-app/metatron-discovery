@@ -12,9 +12,8 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
 import { AbstractUserManagementComponent } from '../../../abstract.user-management.component';
-import { isUndefined } from 'util';
 import { Alert } from '../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { CommonUtil } from '../../../../../common/util/common.util';
@@ -25,51 +24,31 @@ import { CommonUtil } from '../../../../../common/util/common.util';
 })
 export class CreateUserManagementGroupsComponent extends AbstractUserManagementComponent {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 그룹 모달 show hide 설정
-  private _createModalShowFl: boolean = false;
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   // 그룹 이름
   public groupName: string;
   // 그룹 설명
   public groupDesc: string;
 
-  // name error message
-  public nameMessage: string;
-  // desc error message
-  public descMessage: string;
-  // name result
-  public resultName: boolean;
-  // desc result
-  public resultDesc: boolean;
+  // name valid message
+  public nameValidMessage: string;
+  // desc valid message
+  public descValidMessage: string;
+  // name valid result
+  public isValidName: boolean;
+  // desc valid result
+  public isValidDesc: boolean;
+
+  // show flag
+  public isShowPopup: boolean;
 
   @Output()
-  public createComplete: EventEmitter<any> = new EventEmitter();
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public readonly createComplete: EventEmitter<any> = new EventEmitter();
 
   // 생성자
   constructor(protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // Init
   public ngOnInit() {
@@ -85,19 +64,18 @@ export class CreateUserManagementGroupsComponent extends AbstractUserManagementC
     super.ngOnDestroy();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
    * init
-   * @param {User} user
    */
   public init(): void {
-    // ui init
-    this._initView();
+    this.groupName = undefined;
+    this.groupDesc = undefined;
+    this.isValidName = undefined;
+    this.isValidDesc = undefined;
+    this.nameValidMessage = undefined;
+    this.descValidMessage = undefined;
     // 모달 show
-    this._createModalShowFl = true;
+    this.isShowPopup = true;
   }
 
   /**
@@ -105,14 +83,14 @@ export class CreateUserManagementGroupsComponent extends AbstractUserManagementC
    */
   public createCancel(): void {
     // 모달 hide
-    this._createModalShowFl = false;
+    this.isShowPopup = undefined;
   }
 
   /**
    * done
    */
   public createDone(): void {
-    if (this.doneValidation()) {
+    if (this.isValidName && (StringUtil.isEmpty(this.groupDesc) ? true : this.isValidDesc)) {
       // 로딩 show
       this.loadingShow();
       // 사용자에게 확인 이메일 전달
@@ -123,59 +101,11 @@ export class CreateUserManagementGroupsComponent extends AbstractUserManagementC
           // 로딩 hide
           this.loadingHide();
           // 모달 hide
-          this._createModalShowFl = false;
+          this.isShowPopup = false;
           this.createComplete.emit();
         })
-        .catch((error) => {
-          // alert
-          Alert.error(error);
-          // 로딩 hide
-          this.loadingHide();
-        })
+        .catch(error => this.commonExceptionHandler(error));
     }
-  }
-
-  /**
-   * init name validation
-   */
-  public initNameValidation(): void {
-    this.resultName = undefined;
-  }
-
-  /**
-   * init desc validation
-   */
-  public initDescValidation(): void {
-    this.resultDesc = undefined;
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - getter
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * modal show flag
-   * @returns {boolean}
-   */
-  public get getShowFlag(): boolean {
-    return this._createModalShowFl;
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - validation
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * done validation
-   * @returns {boolean}
-   */
-  public doneValidation(): boolean {
-    // 이름
-    if (!this.resultName) {
-      this.nameValidation();
-      return false;
-    }
-    return this.resultName && (this.resultDesc !== false);
   }
 
   /**
@@ -183,53 +113,32 @@ export class CreateUserManagementGroupsComponent extends AbstractUserManagementC
    */
   public nameValidation(): void {
     // 그룹 이름이 비어 있다면
-    if (isUndefined(this.groupName) || this.groupName.trim() === ''){
-      this.resultName = false;
-      this.nameMessage = this.translateService.instant('msg.groups.alert.name.empty');
+    if (StringUtil.isEmpty(this.groupName)) {
+      this.isValidName = false;
+      this.nameValidMessage = this.translateService.instant('msg.groups.alert.name.empty');
       return;
     }
     // 이름 길이 체크
     if (CommonUtil.getByte(this.groupName.trim()) > 150) {
-      this.resultName = false;
-      this.nameMessage = this.translateService.instant('msg.groups.alert.name.len');
+      this.isValidName = false;
+      this.nameValidMessage = this.translateService.instant('msg.groups.alert.name.len');
       return;
     }
     // 중복 체크
-    this._checkDuplicateGroupName(this.groupName.trim());
+    this._checkDuplicateGroupName(StringUtil.replaceURIEncodingInQueryString(this.groupName.trim()));
   }
 
   /**
    * description validation
    */
   public descValidation(): void {
-    if (!isUndefined(this.groupDesc) && this.groupDesc.trim() !== '') {
-      // 설명 길이 체크
-      if (this.groupDesc.trim() !== ''
-        && CommonUtil.getByte(this.groupDesc.trim()) > 450) {
-        this.resultDesc = false;
-        this.descMessage = this.translateService.instant('msg.alert.edit.description.len');
-        return;
-      }
-      this.resultDesc = true;
+    // 설명 길이 체크
+    if (StringUtil.isNotEmpty(this.groupDesc) && CommonUtil.getByte(this.groupDesc.trim()) > 450) {
+      this.isValidDesc = undefined;
+      this.descValidMessage = this.translateService.instant('msg.alert.edit.description.len');
+      return;
     }
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * init view
-   * @private
-   */
-  private _initView(): void {
-    // 초기화
-    this.groupName = '';
-    this.groupDesc = '';
+    this.isValidDesc = true;
   }
 
   /**
@@ -243,7 +152,7 @@ export class CreateUserManagementGroupsComponent extends AbstractUserManagementC
       predefined: false
     };
     // 설명이 있는 경우
-    if (this.groupDesc.trim() !== '') {
+    if (StringUtil.isNotEmpty(this.groupDesc)) {
       result['description'] = this.groupDesc.trim();
     }
     return result;
@@ -256,16 +165,14 @@ export class CreateUserManagementGroupsComponent extends AbstractUserManagementC
    */
   private _checkDuplicateGroupName(groupName: string): void {
     this.groupsService.getResultDuplicatedGroupName(groupName)
-      .then((result) => {
+      .then((result: {duplicated: boolean}) => {
         // 아이디 사용 가능한 여부
-        this.resultName = !result['duplicated'];
+        this.isValidName = !result.duplicated;
         // 아이디가 중복 이라면
-        if (result['duplicated']) {
-          this.nameMessage = this.translateService.instant('msg.groups.alert.name.used');
+        if (result.duplicated) {
+          this.nameValidMessage = this.translateService.instant('msg.groups.alert.name.used');
         }
       })
-      .catch((error) => {
-
-      });
+      .catch(error => this.commonExceptionHandler(error));
   }
 }
