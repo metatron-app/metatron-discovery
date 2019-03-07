@@ -32,6 +32,7 @@
             <!-- data -->
             <div class="ddp-data-description">
               <div class="ddp-txt-description"
+                   [class.ddp-nodata]="metadataModelService.getMetadata().description.length === 0"
                    [innerHtml]="getDescription(metadataModelService.getMetadata().description)">
               </div>
               <a href="javascript:" class="ddp-btn-edit"
