@@ -30,11 +30,12 @@ import { ChangePasswordComponent } from '../../user/profile/change-password/chan
 import { MembersService } from '../../admin/user-management/service/members.service';
 import { MetadataManagementGuard } from '../../common/gaurd/metadata-management.guard';
 import {CommonService} from "../../common/service/common.service";
-import {StorageService} from "../../data-storage/service/storage.service";
+import {StagedbEnabledGuard} from '../../common/gaurd/stagedb-enabled.guard';
+import {StorageService} from '../../data-storage/service/storage.service';
 
 const layoutRoutes: Routes = [
   {
-    path: '', component: LayoutComponent,
+    path: '', component: LayoutComponent, canActivate: [StagedbEnabledGuard],
     children: [
       { path: '', redirectTo: 'workspace', pathMatch: 'full' },
       { path: 'workspace', loadChildren: 'app/workspace/workspace.module#WorkspaceModule' },
@@ -99,9 +100,10 @@ const layoutRoutes: Routes = [
     MembersService,
     WorkspaceService,
     CommonService,
-    StorageService,
     MetadataManagementGuard,
-    DatasourceManagementGuard
+    DatasourceManagementGuard,
+    StorageService,
+    StagedbEnabledGuard,
   ]
 })
 export class LayoutModule {
