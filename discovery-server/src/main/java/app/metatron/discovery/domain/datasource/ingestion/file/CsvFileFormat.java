@@ -23,19 +23,19 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 @JsonTypeName("csv")
 public class CsvFileFormat implements FileFormat {
 
-  public static final String DEFAULT_DELIMETER = ",";
+  public static final String DEFAULT_DELIMITER = ",";
 
   public static final String DEFAULT_LINE_SEPARATOR = "\n";
 
-  String delimeter = DEFAULT_DELIMETER;
+  String delimiter = DEFAULT_DELIMITER;
 
   String lineSeparator = DEFAULT_LINE_SEPARATOR;
 
   public CsvFileFormat() {
   }
 
-  public CsvFileFormat(String delimeter, String lineSeparator) {
-    this.delimeter = delimeter;
+  public CsvFileFormat(String delimiter, String lineSeparator) {
+    this.delimiter = delimiter;
     this.lineSeparator = lineSeparator;
   }
 
@@ -46,17 +46,17 @@ public class CsvFileFormat implements FileFormat {
 
   @JsonIgnore
   public boolean isDefaultCsvMode() {
-    return DEFAULT_DELIMETER.equals(delimeter)
+    return DEFAULT_DELIMITER.equals(delimiter)
         && DEFAULT_LINE_SEPARATOR.equals(DEFAULT_LINE_SEPARATOR)
         ? true : false;
   }
 
-  public String getDelimeter() {
-    return delimeter;
+  public String getDelimiter() {
+    return delimiter;
   }
 
-  public void setDelimeter(String delimeter) {
-    this.delimeter = delimeter;
+  public void setDelimiter(String delimiter) {
+    this.delimiter = delimiter;
   }
 
   public String getLineSeparator() {

@@ -815,7 +815,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     currentEditorResultTabs = this._getCurrentEditorResultTabs();
     if (currentEditorResultTabs.length > 0) {
-      let showTabInfo: ResultTab = currentEditorResultTabs[removeIdx - 1];
+      let targetIdx:number = removeIdx - 1;
+      ( 0 > targetIdx ) && ( targetIdx = 0 );
+      let showTabInfo: ResultTab = currentEditorResultTabs[targetIdx];
       this.changeResultTabHandler(showTabInfo.id);
     }
   } // function - closeResultTab

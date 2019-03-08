@@ -309,6 +309,17 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
     return this;
   }
 
+  public SelectStreamQueryBuilder queryId(String queryId) {
+    this.queryId = queryId;
+    return this;
+  }
+
+  public SelectStreamQueryBuilder emptyQueryId() {
+    queryId = null;
+
+    return this;
+  }
+
   @Override
   public SelectStreamQuery build() {
 
