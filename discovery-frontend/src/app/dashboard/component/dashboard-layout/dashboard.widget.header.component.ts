@@ -291,7 +291,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    * 이름 변경 등록
    * @param {string} inputName
    */
-  public changeWidgetName(inputName:string) {
+  public changeWidgetName(inputName: string) {
     this.isEditTitle = false;
     inputName = inputName ? inputName.trim() : '';
     if (inputName && 0 < inputName.length) {
@@ -391,10 +391,10 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    */
   public editWidget() {
     if (this.isMissingDataSource) {
-      Alert.warning( this.translateService.instant('msg.board.alert.can-not-edit-missing-datasource') );
+      Alert.warning(this.translateService.instant('msg.board.alert.can-not-edit-missing-datasource'));
       return;
     }
-    this.broadCaster.broadcast('EDIT_WIDGET', { widgetId: this.widget.id, widgetType: this.widget.type });
+    this.broadCaster.broadcast('EDIT_WIDGET', {widgetId: this.widget.id, widgetType: this.widget.type});
   } // function - editWidget
 
   /**
@@ -402,10 +402,10 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    */
   public copyPageWidget() {
     if (this.isMissingDataSource) {
-      Alert.warning( this.translateService.instant('msg.board.alert.can-not-copy-missing-datasource') );
+      Alert.warning(this.translateService.instant('msg.board.alert.can-not-copy-missing-datasource'));
       return;
     }
-    this.broadCaster.broadcast('COPY_WIDGET', { widgetId: this.widget.id });
+    this.broadCaster.broadcast('COPY_WIDGET', {widgetId: this.widget.id});
   } // function - copyPageWidget
 
   /**
@@ -480,6 +480,39 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
       this.broadCaster.broadcast('CHANGE_FILTER_SELECTOR', {widget: this.widget, filter: filter});
     }
   } // function - setSelectorTypeCombo
+
+  /**
+   * 추가 설정 레이어 표시 On/Off
+   */
+  public toggleDisplayMoreLayer() {
+    this.isShowMore = !this.isShowMore;
+    if (this.isShowMore) {
+      this.mouseOverHeader();
+    } else {
+      this.mouseOutHeader(true);
+    }
+  } // function - toggleDisplayMoreLayer
+
+  /**
+   * Header 에 마우스 오버 했을 때의 동작
+   */
+  public mouseOverHeader() {
+    if( 0 === $( '.sys-widget-header-layer:visible' ).length ) {
+      this.$element.closest('.lm_header')
+        .attr('style', 'display: block; height: 25px; z-index:21 !important;');
+    }
+  } // function - mouseOverHeader
+
+  /**
+   * Header 에 마우스 아웃 했을 때의 상황
+   */
+  public mouseOutHeader(isForce: boolean = false) {
+    if (isForce || !this.isShowMore) {
+      this.$element.closest('.lm_header')
+        .attr('style', 'display: block; height: 25px;');
+      this.isShowMore = false;
+    }
+  } // function - mouseOutHeader
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

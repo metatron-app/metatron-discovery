@@ -303,7 +303,7 @@
             <!-- // Title -->
             <!-- Filter List Contents -->
             <div class="ddp-ui-boardside-scroll">
-              <div class="ddp-box-down" >
+              <div class="ddp-box-down" [class.ddp-border-none]="0 === boardUtil.getFilterWidgets(dashboard).length">
                 <div *ngFor="let item of boardUtil.getFilterWidgets(dashboard);trackBy:filterListTrackByFn;let idx = index"
                      (click)="openIndexFilterPanel = idx" [class.ddp-selected]="idx === openIndexFilterPanel"
                      class="ddp-wrap-divide ddp-dropdown" >

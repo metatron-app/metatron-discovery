@@ -18,9 +18,9 @@
 
 import { AfterViewInit, Component, ElementRef, Injector, OnInit } from '@angular/core';
 import {
-  AxisType, CHART_STRING_DELIMITER, ChartSelectMode, ChartType, Orient, Position, SeriesType, ShelveFieldType,
+  CHART_STRING_DELIMITER, ChartSelectMode, ChartType, Position, SeriesType, ShelveFieldType,
   ShelveType, UIChartDataLabelDisplayType,
-  UIOrient, WaterfallBarColor
+  WaterfallBarColor
 } from '../../option/define/common';
 import { OptionGenerator } from '../../option/util/option-generator';
 import { Series } from '../../option/define/series';
@@ -33,8 +33,6 @@ import { BaseOption } from '../../option/base-option';
 import {FormatOptionConverter} from "../../option/converter/format-option-converter";
 import { UIChartFormat } from '../../option/ui-option/ui-format';
 import { UIWaterfallChart } from '../../option/ui-option/ui-waterfall-chart';
-
-declare let echarts_4_1: any;
 
 @Component({
   selector: 'waterfall-chart',
@@ -49,8 +47,6 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  protected echarts: any = echarts_4_1;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
