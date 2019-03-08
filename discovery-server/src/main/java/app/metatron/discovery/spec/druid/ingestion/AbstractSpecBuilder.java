@@ -281,6 +281,7 @@ public class AbstractSpecBuilder {
             csvStreamParser.setDimensionsSpec(dimensionsSpec);
             csvStreamParser.setColumns(columns);
             csvStreamParser.setDelimiter(csvFormat.getDelimiter());
+            csvStreamParser.setRecordSeparator(csvFormat.getLineSeparator());
 
             parser = csvStreamParser;
           }
