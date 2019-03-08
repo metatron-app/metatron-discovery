@@ -45,7 +45,6 @@
             <a href="javascript:" class="ddp-btn-selection ddp-gray" (click)="onClickCreateCodeTable()"><em class="ddp-icon-create"></em>{{'msg.metadata.ui.codetable.create.btn' | translate}}</a>
           </div>
         </div>
-
         <div class="ddp-wrap-viewtable ">
           <!-- 테이블 -->
           <div class="ddp-box-viewtable">
@@ -70,11 +69,9 @@
                   </th>
                 </tr>
                 </thead>
-
               </table>
             </div>
             <!--// gridhead -->
-
             <!-- gridbody -->
             <div class="ddp-ui-gridbody">
               <table class="ddp-table-form ddp-table-type2 ddp-cursor ddp-inherit">
@@ -83,7 +80,6 @@
                   <col width="*">
                   <col width="100px">
                 </colgroup>
-
                 <tbody>
                 <tr [class.ddp-selected]="selectedCodeTable && table.id === selectedCodeTable.id"
                     (click)="onSelectCodeTable(table)"
@@ -99,13 +95,12 @@
                       {{table.description}}
                     </div>
                   </td>
-
                   <td>
                     <div class="ddp-box-select" [class.ddp-selected]="table['previewShowFl']">
                       <a href="javascript:" (click)="onClickCodeTablePreview(table)">{{'msg.metadata.ui.codetable.choose.code.table.preview' | translate}}</a>
                       <!-- popup -->
                       <div class="ddp-box-layout4" style="">
-                        <a  href="javascript:" class="ddp-btn-close" (click)="$event.stopImmediatePropagation(); table['previewShowFl'] = false"></a>
+                        <a href="javascript:" class="ddp-btn-close" (click)="$event.stopImmediatePropagation(); table['previewShowFl'] = false"></a>
                         <div class="ddp-data-title">
                           {{'msg.metadata.ui.codetable.choose.code.table.preview.title' | translate}}
                         </div>
@@ -161,6 +156,7 @@
     </div>
   </div>
 </div>
+
 <!-- 코드 테이블 생성 컴포넌트 -->
 <app-create-code-table (createComplete)="getCodeTableListPageInit()"></app-create-code-table>
 <!-- //코드 테이블 생성 컴포넌트 -->

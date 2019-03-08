@@ -54,12 +54,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.RawJsonString;
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
@@ -75,11 +77,13 @@ import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
 import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
 import app.metatron.discovery.domain.datasource.data.SummaryQueryRequest;
 import app.metatron.discovery.domain.datasource.data.result.ChartResultFormat;
+import app.metatron.discovery.domain.datasource.data.result.GeoJsonResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.GraphResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
 import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.Sort;
+import app.metatron.discovery.domain.workbook.configurations.analysis.GeoSpatialAnalysis;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
@@ -88,12 +92,15 @@ import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedFi
 import app.metatron.discovery.domain.workbook.configurations.filter.AdvancedFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
 import app.metatron.discovery.query.druid.Query;
 import app.metatron.discovery.query.druid.meta.AnalysisType;
 import app.metatron.discovery.query.druid.queries.*;
 
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 import static app.metatron.discovery.domain.datasource.DataSourceQueryHistory.EngineQueryType.*;
+import static app.metatron.discovery.query.druid.AbstractQueryBuilder.GEOMETRY_BOUNDARY_COLUMN_NAME;
 import static app.metatron.discovery.query.druid.meta.AnalysisType.CARDINALITY;
 import static app.metatron.discovery.query.druid.meta.AnalysisType.INGESTED_NUMROW;
 import static app.metatron.discovery.query.druid.meta.AnalysisType.QUERYGRANULARITY;
@@ -163,11 +170,12 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
   public Object search(SearchQueryRequest request) {
 
     StopWatch stopWatch = new StopWatch();
+
     DataSource metaDataSource = request.getDataSource().getMetaDataSource();
     List<Filter> filters = request.getFilters();
 
     // Do not check essential filter in Preview mode
-    if (BooleanUtils.isFalse(request.getPreview())) {
+    if (metaDataSource != null && BooleanUtils.isFalse(request.getPreview())) {
       checkRequriedFilter(metaDataSource, filters, request.getProjections());
     }
 
@@ -178,79 +186,12 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
     // If GraphResultFormat, handle it separately.
     if (request.getResultFormat() instanceof GraphResultFormat) {
+      return searchGraphQuery(request);
+    }
 
-      GraphResultFormat graphResultFormat = (GraphResultFormat) request.getResultFormat();
-
-      ObjectNode objectNode = GlobalObjectMapper.getDefaultMapper().createObjectNode();
-
-      List<app.metatron.discovery.domain.workbook.configurations.field.Field> fields = request.getProjections();
-
-      // 차원값 추출
-      List<app.metatron.discovery.domain.workbook.configurations.field.Field> dimFields =
-          fields.stream()
-                .filter(field -> field instanceof DimensionField)
-                .collect(Collectors.toList());
-
-      // 측정값 추출, 1개만 처리 및 Alias를 value로 변경
-      MeasureField measureField = (MeasureField) fields.stream()
-                                                       .filter(field -> field instanceof MeasureField)
-                                                       .findFirst().get();
-      measureField.setAlias("value");
-
-      /* Node Size 지정 */
-      SearchQueryRequest sizeRequest = request.copyOf();
-      final List<List<String>> groupingSets = Lists.newArrayList();
-      dimFields.forEach(field ->
-                            groupingSets.add(Lists.newArrayList(field.getAlias()))
-      );
-      sizeRequest.setGroupingSets(groupingSets);
-      sizeRequest.setResultFormat(new ObjectResultFormat());
-
-      objectNode.set("nodes", (ArrayNode) search(sizeRequest));
-
-      /* Node/Link 구성 */
-
-      ArrayNode linkNodes = GlobalObjectMapper.getDefaultMapper().createArrayNode();
-      for (int i = 0; i < dimFields.size() - 1; i++) {
-        // 신규 쿼리 요청 작성, Deep Copy
-        SearchQueryRequest newRequest = SerializationUtils.clone(request);
-
-        List<app.metatron.discovery.domain.workbook.configurations.field.Field> newProjection = Lists.newArrayList();
-
-        // source 필드 지정
-        app.metatron.discovery.domain.workbook.configurations.field.Field source = SerializationUtils.clone(fields.get(i));
-        String originalFieldName = source.getAlias();
-        source.setAlias("source");
-        newProjection.add(source);
-
-        newRequest.addUserDefinedFields(new ExpressionField("sourceField", "'" + originalFieldName + "'", "dimension"));
-        newProjection.add(new DimensionField("sourceField", "sourceField", UserDefinedField.REF_NAME, null));
-
-        // target 필드 지정
-        app.metatron.discovery.domain.workbook.configurations.field.Field target = SerializationUtils.clone(fields.get(i + 1));
-        originalFieldName = target.getAlias();
-        target.setAlias("target");
-        newProjection.add(target);
-
-        newRequest.addUserDefinedFields(new ExpressionField("targetField", "'" + originalFieldName + "'", "dimension"));
-        newProjection.add(new DimensionField("targetField", "targetField", UserDefinedField.REF_NAME, null));
-
-        if (BooleanUtils.isTrue(graphResultFormat.getUseLinkCount())) {
-          measureField.setAggregationType(MeasureField.AggregationType.COUNT);
-        }
-        newProjection.add(measureField);
-
-        newRequest.setProjections(newProjection);
-
-        newRequest.setResultFormat(new ObjectResultFormat());
-
-        // source - target 지정후 (차원값 개수 - 1) 만큼 호출
-        linkNodes.addAll((ArrayNode) search(newRequest));
-      }
-
-      objectNode.set("links", linkNodes);
-
-      return request.getResultFormat().makeResult(objectNode);
+    // If GeoJsonResultFormat, handle it separately.
+    if (request.getShelf() instanceof GeoShelf) {
+      return searchGeoQuery(request);
     }
 
     stopWatch.start("Query Generation Time");
@@ -268,13 +209,24 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
       } else {
 
         QueryHistoryTeller.setEngineQueryType(SELECT); // for history
-        query = SelectQuery.builder(request.getDataSource())
-                           .initVirtualColumns(request.getUserFields())
-                           .fields(request.getProjections())
-                           .filters(filters)
-                           .limit(request.getLimits())
-                           .forward(request.getResultForward())
-                           .build();
+        if (BooleanUtils.isTrue(request.getContextValue(SearchQueryRequest.CXT_KEY_USE_STREAM))) {
+          query = SelectStreamQuery.builder(request.getDataSource())
+                                   .initVirtualColumns(request.getUserFields())
+                                   .fields(request.getProjections())
+                                   .filters(filters)
+                                   .limit(request.getLimits())
+                                   .forward(request.getResultForward())
+                                   .build();
+          request.setResultFieldMapper(((SelectStreamQuery) query).getFieldMapper());
+        } else {
+          query = SelectQuery.builder(request.getDataSource())
+                             .initVirtualColumns(request.getUserFields())
+                             .fields(request.getProjections())
+                             .filters(filters)
+                             .limit(request.getLimits())
+                             .forward(request.getResultForward())
+                             .build();
+        }
       }
     } else {
 
@@ -326,6 +278,166 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
     return result;
 
+  }
+
+  private Object searchGeoQuery(SearchQueryRequest request) {
+
+    GeoShelf geoShelf = (GeoShelf) request.getShelf();
+    request.setResultFormat(new GeoJsonResultFormat());
+
+    StringJoiner resultJoiner = new StringJoiner(",", "[", "]");
+    String queryString = null;
+
+    if (request.getAnalysis() != null && request.getAnalysis() instanceof GeoSpatialAnalysis) {
+      GeoSpatialAnalysis geoSpatialAnalysis = (GeoSpatialAnalysis) request.getAnalysis();
+      MapViewLayer mainLayer = geoShelf.getLayerByName(geoSpatialAnalysis.getMainLayer())
+                                       .orElseThrow(() -> new IllegalArgumentException("Invalid name of main layer"));
+      MapViewLayer compareLayer = geoShelf.getLayerByName(geoSpatialAnalysis.getCompareLayer())
+                                          .orElseThrow(() -> new IllegalArgumentException("Invalid name of compare layer"));
+
+      SelectStreamQuery mainLayerQuery = SelectStreamQuery.builder(request.getDataSource())
+                                                          .layer(mainLayer)
+                                                          .fields(mainLayer.getFields())
+                                                          .filters(request.getFilters())
+                                                          .limit(request.getLimits())
+                                                          .build();
+
+      SelectStreamQuery compareLayerQuery = SelectStreamQuery.builder(request.getDataSource())
+                                                             .layer(compareLayer)
+                                                             .filters(request.getFilters())
+                                                             .compareLayer(compareLayer.getFields(), geoSpatialAnalysis.getOperation())
+                                                             .build();
+
+      GeoBoundaryFilterQuery geoBoundaryQuery = GeoBoundaryFilterQuery.builder()
+                                                                      .query(mainLayerQuery)
+                                                                      .geometry(mainLayerQuery.getGeometry())
+                                                                      .boundary(compareLayerQuery, GEOMETRY_BOUNDARY_COLUMN_NAME)
+                                                                      .build();
+
+      request.setResultFieldMapper(mainLayerQuery.getFieldMapper());
+
+      queryString = GlobalObjectMapper.writeValueAsString(geoBoundaryQuery);
+
+      LOGGER.info("[{}] Generated Druid Query : {}", CommonLocalVariable.getQueryId(), queryString);
+
+      Optional<JsonNode> engineResult = engineRepository.query(queryString, JsonNode.class);
+      Object geoJsonResult = request.getResultFormat().makeResult(request.makeResult(engineResult.get()));
+      resultJoiner.add(GlobalObjectMapper.writeValueAsString(geoJsonResult));
+
+    } else {
+
+
+      for (MapViewLayer layer : geoShelf.getLayers()) {
+        if (layer.getView().needAggregation()) {
+          GroupByQuery groupByQuery = GroupByQuery.builder(request.getDataSource())
+                                                  .layer(layer)
+                                                  .initVirtualColumns(request.getUserFields())
+                                                  .fields(layer.getFields())
+                                                  .filters(request.getFilters())
+                                                  .limit(request.getLimits())
+                                                  .build();
+
+          queryString = GlobalObjectMapper.writeValueAsString(groupByQuery);
+
+        } else {
+          SelectStreamQuery streamQuery = SelectStreamQuery.builder(request.getDataSource())
+                                                           .layer(layer)
+                                                           .initVirtualColumns(request.getUserFields())
+                                                           .fields(layer.getFields())
+                                                           .filters(request.getFilters())
+                                                           .limit(request.getLimits())
+                                                           .build();
+
+          request.setResultFieldMapper(streamQuery.getFieldMapper());
+
+          queryString = GlobalObjectMapper.writeValueAsString(streamQuery);
+        }
+
+        LOGGER.info("[{}] Generated Druid Query : {}", CommonLocalVariable.getQueryId(), queryString);
+
+        Optional<JsonNode> engineResult = engineRepository.query(queryString, JsonNode.class);
+        Object geoJsonResult = request.getResultFormat().makeResult(request.makeResult(engineResult.get()));
+        resultJoiner.add(GlobalObjectMapper.writeValueAsString(geoJsonResult));
+      }
+    }
+
+    return new RawJsonString(resultJoiner.toString());
+  }
+
+  private Object searchGraphQuery(SearchQueryRequest request) {
+
+    GraphResultFormat graphResultFormat = (GraphResultFormat) request.getResultFormat();
+
+    ObjectNode objectNode = GlobalObjectMapper.getDefaultMapper().createObjectNode();
+
+    List<app.metatron.discovery.domain.workbook.configurations.field.Field> fields = request.getProjections();
+
+    // 차원값 추출
+    List<app.metatron.discovery.domain.workbook.configurations.field.Field> dimFields =
+        fields.stream()
+              .filter(field -> field instanceof DimensionField)
+              .collect(Collectors.toList());
+
+    // 측정값 추출, 1개만 처리 및 Alias를 value로 변경
+    MeasureField measureField = (MeasureField) fields.stream()
+                                                     .filter(field -> field instanceof MeasureField)
+                                                     .findFirst().get();
+    measureField.setAlias("value");
+
+    /* Node Size 지정 */
+    SearchQueryRequest sizeRequest = request.copyOf();
+    final List<List<String>> groupingSets = Lists.newArrayList();
+    dimFields.forEach(field ->
+                          groupingSets.add(Lists.newArrayList(field.getAlias()))
+    );
+    sizeRequest.setGroupingSets(groupingSets);
+    sizeRequest.setResultFormat(new ObjectResultFormat());
+
+    objectNode.set("nodes", (ArrayNode) search(sizeRequest));
+
+    /* Node/Link 구성 */
+
+    ArrayNode linkNodes = GlobalObjectMapper.getDefaultMapper().createArrayNode();
+    for (int i = 0; i < dimFields.size() - 1; i++) {
+      // 신규 쿼리 요청 작성, Deep Copy
+      SearchQueryRequest newRequest = SerializationUtils.clone(request);
+
+      List<app.metatron.discovery.domain.workbook.configurations.field.Field> newProjection = Lists.newArrayList();
+
+      // source 필드 지정
+      app.metatron.discovery.domain.workbook.configurations.field.Field source = SerializationUtils.clone(fields.get(i));
+      String originalFieldName = source.getAlias();
+      source.setAlias("source");
+      newProjection.add(source);
+
+      newRequest.addUserDefinedFields(new ExpressionField("sourceField", "'" + originalFieldName + "'", "dimension"));
+      newProjection.add(new DimensionField("sourceField", "sourceField", UserDefinedField.REF_NAME, null));
+
+      // target 필드 지정
+      app.metatron.discovery.domain.workbook.configurations.field.Field target = SerializationUtils.clone(fields.get(i + 1));
+      originalFieldName = target.getAlias();
+      target.setAlias("target");
+      newProjection.add(target);
+
+      newRequest.addUserDefinedFields(new ExpressionField("targetField", "'" + originalFieldName + "'", "dimension"));
+      newProjection.add(new DimensionField("targetField", "targetField", UserDefinedField.REF_NAME, null));
+
+      if (BooleanUtils.isTrue(graphResultFormat.getUseLinkCount())) {
+        measureField.setAggregationType(MeasureField.AggregationType.COUNT);
+      }
+      newProjection.add(measureField);
+
+      newRequest.setProjections(newProjection);
+
+      newRequest.setResultFormat(new ObjectResultFormat());
+
+      // source - target 지정후 (차원값 개수 - 1) 만큼 호출
+      linkNodes.addAll((ArrayNode) search(newRequest));
+    }
+
+    objectNode.set("links", linkNodes);
+
+    return request.getResultFormat().makeResult(objectNode);
   }
 
   @Override

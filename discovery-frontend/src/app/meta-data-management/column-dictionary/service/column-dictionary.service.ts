@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../../common/service/abstract.service';
-import { CommonUtil } from '../../../common/util/common.util';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '../../../common/service/abstract.service';
+import {CommonUtil} from '../../../common/util/common.util';
 
 @Injectable()
 export class ColumnDictionaryService extends AbstractService {
@@ -118,7 +118,8 @@ export class ColumnDictionaryService extends AbstractService {
    * @returns {Promise<any>}
    */
   public linkCodeTableWithColumnDictionary(dictionaryId: string, codeTableId: string): Promise<any> {
-    return this.put(this.URL_DICTIONARY + `/${dictionaryId}/codetable`,`/api/codetables/${codeTableId}` ,'text/uri-list')
+    return this.put(this.URL_DICTIONARY + `/${dictionaryId}/codetable`, `/api/codetables/${codeTableId}`,
+      'text/uri-list');
   }
 
   /**
@@ -148,7 +149,8 @@ export class ColumnDictionaryService extends AbstractService {
    * @param {string} projection
    * @returns {Promise<any>}
    */
-  public getMetadataInColumnDictionary(dictionaryId: string, params: object, projection: string = 'forDictionaryListView'): Promise<any> {
+  public getMetadataInColumnDictionary(
+    dictionaryId: string, params: object, projection: string = 'forDictionaryListView'): Promise<any> {
     let url = this.URL_DICTIONARY + `/${dictionaryId}/columns?projection=${projection}`;
     (params) && (url += '&' + CommonUtil.objectToUrlString(params));
     return this.get(url);

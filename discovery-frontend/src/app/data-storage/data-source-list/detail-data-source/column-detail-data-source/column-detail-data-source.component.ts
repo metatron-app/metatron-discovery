@@ -78,12 +78,28 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   public filteredColumnList: any[];
 
   // role type filter list
-  public roleTypeFilterList: any[];
+  public roleTypeFilterList: any[] = [
+    { label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL' },
+    { label: this.translateService.instant('msg.comm.name.dim'), value: 'DIMENSION' },
+    { label: this.translateService.instant('msg.comm.name.mea'), value: 'MEASURE' },
+  ];
   // selected role type filter
   public selectedRoleTypeFilter: any;
 
   // type filter list
-  public typeFilterList: any[];
+  public typeFilterList: any[] = [
+    { label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL' },
+    { label: this.translateService.instant('msg.storage.ui.list.string'), value: 'STRING' },
+    { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
+    { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER', measure: true },
+    { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', measure: true  },
+    { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
+    { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
+    { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' },
+    { label: this.translateService.instant('msg.storage.ui.list.geo.point'), value: 'GEO_POINT', derived: true },
+    { label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), value: 'GEO_POLYGON', derived: true },
+    { label: this.translateService.instant('msg.storage.ui.list.geo.line'), value: 'GEO_LINE', derived: true },
+  ];
   // selected type filter
   public selectedTypeFilter: any;
   // type filter show | hide flag
@@ -519,7 +535,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    * Configure schema click event
    */
   public onClickConfigureSchema(): void {
-    this._editConfigSchemaComp.init(this.datasource.id, this.datasource.fields);
+    this._editConfigSchemaComp.init(this.datasource.id, this.datasource.fields, this.roleTypeFilterList, this.typeFilterList);
     // change markup position
     $('#edit-config-schema').appendTo($('#layout-contents'));
   }
@@ -529,25 +545,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    * @private
    */
   private _initView(): void {
-    this.typeFilterList = [
-      { label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL' },
-      { label: this.translateService.instant('msg.storage.ui.list.string'), value: 'STRING' },
-      { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
-      { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER', measure: true },
-      { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', measure: true  },
-      { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
-      { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
-      { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' },
-      { label: this.translateService.instant('msg.storage.ui.list.geo.point'), value: 'GEO_POINT', derived: true },
-      { label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), value: 'GEO_POLYGON', derived: true },
-      { label: this.translateService.instant('msg.storage.ui.list.geo.line'), value: 'GEO_LINE', derived: true },
-    ];
     this.selectedTypeFilter = this.typeFilterList[0];
-    this.roleTypeFilterList = [
-      { label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL' },
-      { label: this.translateService.instant('msg.comm.name.dim'), value: 'DIMENSION' },
-      { label: this.translateService.instant('msg.comm.name.mea'), value: 'MEASURE' },
-    ];
     this.selectedRoleTypeFilter = this.roleTypeFilterList[0];
     // search
     this.searchTextKeyword = '';
@@ -644,24 +642,10 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    */
   private _setMetaDataField(field: Field): void {
     const fieldMetaData: MetadataColumn = _.find(this.metaData.columns, {'physicalName': field.name});
-    // logical name
-    field['logicalName'] = fieldMetaData.name;
     // code table
     field['codeTable'] = fieldMetaData.codeTable;
     // dictionary
     field['dictionary'] = fieldMetaData.dictionary;
-    // type
-    if (fieldMetaData.type) {
-      field['metaType'] = fieldMetaData.type;
-    }
-    // description
-    if (fieldMetaData.description) {
-      field['description'] = fieldMetaData.description;
-    }
-    // format
-    if (fieldMetaData.format) {
-      field['format'] = fieldMetaData.format;
-    }
   }
 
   /**

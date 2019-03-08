@@ -1015,24 +1015,10 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     // 메타데이터가 존재한다면
     if (this.isExistMetaData(source)) {
       const fieldMetaData: MetadataColumn = _.find(source.uiMetaData.columns, {'physicalName': field.name});
-      // logical name
-      field['logicalName'] = fieldMetaData.name;
       // code table
       field['codeTable'] = fieldMetaData.codeTable;
       // dictionary
       field['dictionary'] = fieldMetaData.dictionary;
-      // type
-      if (fieldMetaData.type) {
-        field['metaType'] = fieldMetaData.type;
-      }
-      // description
-      if (fieldMetaData.description) {
-        field['description'] = fieldMetaData.description;
-      }
-      // format
-      if (fieldMetaData.format) {
-        field['format'] = fieldMetaData.format;
-      }
     }
   }
 
@@ -1237,8 +1223,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    */
   public createMetaDataHeader(args: any): void {
     // TODO 추후 그리드 자체에서 생성하도록 변경하기
-    $('<div class="slick-data">' + (_.find(this.columns, {'name': args.column.id}).logicalName || '') + '</div>')
-      .appendTo(args.node);
+    $('<div class="slick-data">' + (_.find(this.columns, {'name': args.column.id}).logicalName || '') + '</div>').appendTo(args.node);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

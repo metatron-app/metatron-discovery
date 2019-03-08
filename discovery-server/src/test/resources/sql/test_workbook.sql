@@ -1,10 +1,26 @@
+INSERT INTO DATACONNECTION(DC_IMPLEMENTOR, ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, DC_DESC, DC_HOSTNAME, DC_NAME, DC_OPTIONS, DC_PASSWORD, DC_PORT, DC_TYPE, DC_URL, DC_USERNAME, DC_DATABASE, PATH, DC_CATALOG, DC_SID) VALUES
+('MYSQL', 'mysql-connection', 'polaris', now(), 'polaris', '2017-08-13T15:11:07', 0, NULL, 'localhost', 'mysql-local-conn', NULL, 'polaris', 3306, 'JDBC', NULL, 'polaris', 'polaris', NULL, NULL, NULL);
+
+-- 링크할 테스트 데이터 소스
+INSERT INTO datasource(id, ds_name, ds_engine_name, ds_owner_id, ds_desc, ds_type, ds_conn_type, ds_src_type, ds_granularity, ds_status, ds_published, ds_linked_workspaces, dc_id, version, created_time, created_by, modified_time, modified_by) values
+('ds-test-01', 'test1', 'test1', 'polaris', 'test1 data', 'MASTER', 'ENGINE', 'IMPORT', 'DAY', 'ENABLED', TRUE, 0, 'mysql-connection', 1.0, NOW(), 'polaris',  NOW(), 'polaris'),
+('ds-test-02', 'test2', 'test2', 'polaris', 'test2 data', 'MASTER', 'ENGINE', 'IMPORT', 'DAY', 'ENABLED', TRUE, 0, 'mysql-connection', 1.0, NOW(), 'polaris',  NOW(), 'polaris');
+
 -- 테스트 Workbook 생성
-INSERT INTO BOOK(TYPE, ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, BOOK_DESC, BOOK_FAVORITE, BOOK_FOLDER_ID, BOOK_NAME, BOOK_TAG, WS_ID) VALUES
+INSERT INTO book(TYPE, ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, BOOK_DESC, BOOK_FAVORITE, BOOK_FOLDER_ID, BOOK_NAME, BOOK_TAG, WS_ID) VALUES
 ('workbook', 'wb-001', 'admin', now(), 'admin', now(), 0, NULL, FALSE, 'ROOT', 'testworkbook-1', '', 'ws-02');
-INSERT INTO BOOK_WORKBOOK(ID) VALUES('wb-001');
+INSERT INTO book_workbook(ID) VALUES('wb-001');
+
+-- workbench
+INSERT INTO book(TYPE, ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, BOOK_DESC, BOOK_FAVORITE, BOOK_FOLDER_ID, BOOK_NAME, BOOK_TAG, WS_ID) VALUES
+('workbench','workbench-01','admin',NOW(),'admin',NOW(),1.0,'',FALSE,'ROOT','TEST-Workbench-01','','ws-02');
+INSERT INTO book_workbench (workbench_global_var, id, dc_id) VALUES
+('[{"globalNm":"var1","globalVar":"20170701","globalType":"c"},{"globalNm":"var2","globalVar":"limit 10","globalType":"t"}]', 'workbench-01', 'mysql-connection');
+
 INSERT INTO BOOK(TYPE, ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, BOOK_DESC, BOOK_FAVORITE, BOOK_FOLDER_ID, BOOK_NAME, BOOK_TAG, WS_ID) VALUES
 ('workbook', 'wb-002', 'admin', now(), 'admin', now(), 0, NULL, FALSE, 'ROOT', 'testworkbook-2', '', 'ws-02');
 INSERT INTO BOOK_WORKBOOK(ID) VALUES('wb-002');
+
 -- 테스트 folder 생성
 INSERT INTO BOOK(TYPE, ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, BOOK_DESC, BOOK_FAVORITE, BOOK_FOLDER_ID, BOOK_NAME, BOOK_TAG, WS_ID) VALUES
 ('folder', 'wb-folder-001', 'admin', now(), 'admin', now(), 0, NULL, FALSE, 'ROOT', 'testfolder-1', '', 'ws-02');
@@ -16,14 +32,6 @@ INSERT INTO PUBLIC.BOOK_TREE(BOOK_ANCESTOR, BOOK_DESCENDANT, BOOK_DEPTH) VALUES
 ('wb-folder-001', 'wb-folder-001', 0),
 ('wb-003', 'wb-003', 0),
 ('wb-folder-001', 'wb-003', 1);
-
-INSERT INTO DATACONNECTION(DC_IMPLEMENTOR, ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, DC_DESC, DC_HOSTNAME, DC_NAME, DC_OPTIONS, DC_PASSWORD, DC_PORT, DC_TYPE, DC_URL, DC_USERNAME, DC_DATABASE, PATH, DC_CATALOG, DC_SID) VALUES
-('MYSQL', 'mysql-connection', 'polaris', now(), 'polaris', '2017-08-13T15:11:07', 0, NULL, 'localhost', 'mysql-local-conn', NULL, 'polaris', 3306, 'JDBC', NULL, 'polaris', 'polaris', NULL, NULL, NULL);
-
--- 링크할 테스트 데이터 소스
-INSERT INTO datasource(id, ds_name, ds_engine_name, ds_owner_id, ds_desc, ds_type, ds_conn_type, ds_src_type, ds_granularity, ds_status, ds_published, ds_linked_workspaces, dc_id, version, created_time, created_by, modified_time, modified_by) values
-('ds-test-01', 'test1', 'test1', 'polaris', 'test1 data', 'MASTER', 'ENGINE', 'IMPORT', 'DAY', 'ENABLED', TRUE, 0, 'mysql-connection', 1.0, NOW(), 'polaris',  NOW(), 'polaris'),
-('ds-test-02', 'test2', 'test2', 'polaris', 'test2 data', 'MASTER', 'ENGINE', 'IMPORT', 'DAY', 'ENABLED', TRUE, 0, 'mysql-connection', 1.0, NOW(), 'polaris',  NOW(), 'polaris');
 
 INSERT INTO datasource_workspace(ws_id, ds_id) VALUES
 ('ws-00', 'ds-test-01'),

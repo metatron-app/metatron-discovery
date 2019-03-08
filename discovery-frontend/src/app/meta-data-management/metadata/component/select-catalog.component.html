@@ -30,12 +30,9 @@
       <div class="ddp-page-catalog">
         <!-- root -->
         <div class="ddp-ui-root">
-          <!--<a href="javascript:" class="ddp-btn-bg" [ngClass]="{'ddp-disabled':isCreateAllowed()}" (click)="createCatalog()"><em class="ddp-icon-add"></em>{{'msg.metadata.cat.btn.new-cat' | translate}}</a>-->
           <!-- create -->
           <div class="ddp-data-create">
             <a href="javascript:" class="ddp-btn-back" *ngIf="isRoot()" (click)="goBack()"></a>
-
-
             <span class="ddp-data-name">{{currentRoot.name}}</span>
             <!-- 편집 -->
             <div class="ddp-data-input" *ngIf="isCreateCatalog">
@@ -45,10 +42,8 @@
             <!-- //편집 -->
           </div>
           <!-- //create -->
-
         </div>
         <!-- //root -->
-
         <div class="ddp-select-catalog" *ngIf="!isCreateCatalog">
           <ul class="ddp-list-workspace">
             <!--
@@ -57,7 +52,6 @@
             -->
             <li class="ddp-txt" *ngIf="catalogs.length === 0 && !isRoot()">
               <a href="javascript:">
-
                 <em class="ddp-icon-question2"></em>
                 <div class="ddp-wrap-name ">
                   <!-- new 일때 ddp-data-new 추가 -->
@@ -66,7 +60,6 @@
                 <!-- 편집 -->
               </a>
             </li>
-
             <li [ngClass]="{'ddp-selected':selectedCatalog && selectedCatalog.id === catalog.id && !catalog.editing, 'ddp-box-edit': catalog.editing, 'ddp-sub':catalog }"
                 *ngFor="let catalog of catalogs; let index = index"
                 (click)="selectCatalog(catalog)"
@@ -83,40 +76,18 @@
                   <em class="ddp-icon-control-check" (click)="updateCatalog(catalog, index)"></em>
                 </div>
                 <!-- //편집 -->
-
-                <div class="ddp-btn-control">
-                  <!--<em class="ddp-icon-control-edit2 ddp-hover-tooltip" (click)="$event.stopImmediatePropagation(); editCatalog(catalog, index)">-->
-                    <!-- 툴팁 -->
-                    <!--<div class="ddp-ui-tooltip-info ddp-down">-->
-                      <!--<em class="ddp-icon-view-top" ></em>-->
-                      <!--{{'msg.comm.ui.edit' | translate}}-->
-                    <!--</div>-->
-                    <!--&lt;!&ndash; //툴팁 &ndash;&gt;-->
-                  <!--</em>-->
-                  <!--<em class="ddp-icon-control-cut ddp-hover-tooltip"  (click)="$event.stopImmediatePropagation(); confirmDelete(catalog)">-->
-
-                    <!-- 툴팁 -->
-                    <!--<div class="ddp-ui-tooltip-info ddp-down">-->
-                      <!--<em class="ddp-icon-view-top"></em>-->
-                      <!--{{'msg.comm.ui.del' | translate}}-->
-                    <!--</div>-->
-                    <!-- //툴팁 -->
-                  <!--</em>-->
-                </div>
+                <div class="ddp-btn-control"></div>
                 <em class="ddp-view" (click)="catalogDetail(catalog)"></em>
               </a>
             </li>
           </ul>
         </div>
-
         <!-- no data -->
-        <!--<div class="ddp-nodata" *ngIf="isCreateCatalog">{{'msg.metadata.cat.create.root' | translate : { value : selectedCatalog.name || currentRoot.name} }}</div>-->
         <div class="ddp-nodata" *ngIf="0 === catalogs.length && !isCreateCatalog && 'Root' === currentRoot.name">{{'msg.metadata.catalog.ui.no.cat' | translate }}</div>
         <!-- //no data -->
       </div>
-
     </div>
-
   </div>
 </div>
+
 <app-delete-modal (deleteConfirm)="deleteCatalog()" (closeOutput)="closeDelete()" [enableCloseOutput]="true"></app-delete-modal>

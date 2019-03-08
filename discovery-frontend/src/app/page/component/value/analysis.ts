@@ -44,6 +44,16 @@ export class Analysis {
   // Embedded Analysis 관련 설정안에서 사용할 analysis 데이터
   analysis: analysis;
 
+
+  // map chart analysis spatial
+  type? : string;
+
+  mainLayer? : string;
+
+  compareLayer? : string;
+
+  operation? : Operation;
+
 }
 
 // ----------------------------------------------------------------------
@@ -259,5 +269,15 @@ export class LineStyle {
    * isMultiple: boolean;
    */
   multiple: boolean;
+
+}
+
+/**
+ * map chart analysis option
+ */
+export class Operation {
+
+  type : string;
+  distance : number;
 
 }

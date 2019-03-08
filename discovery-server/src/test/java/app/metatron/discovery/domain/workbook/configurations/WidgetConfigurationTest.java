@@ -27,8 +27,8 @@ import app.metatron.discovery.domain.workbook.configurations.chart.ChartLegend;
 import app.metatron.discovery.domain.workbook.configurations.chart.ChartToolTip;
 import app.metatron.discovery.domain.workbook.configurations.chart.MapChart;
 import app.metatron.discovery.domain.workbook.configurations.chart.MapChartLayer;
-import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
+import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
@@ -41,6 +41,8 @@ import app.metatron.discovery.domain.workbook.configurations.widget.FilterWidget
 import app.metatron.discovery.domain.workbook.configurations.widget.PageWidgetConfiguration;
 import app.metatron.discovery.domain.workbook.configurations.widget.TextWidgetConfiguration;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.LayerView;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
 
 public class WidgetConfigurationTest {
@@ -102,17 +104,18 @@ public class WidgetConfigurationTest {
   @Test
   public void de_serializeMapPageWidgetConfiguration() throws IOException {
 
-    DataSource dataSource = new DefaultDataSource("datasource_name");
+    MultiDataSource dataSource = new MultiDataSource(Lists.newArrayList(new DefaultDataSource("datasource_name1"),
+                                                                        new DefaultDataSource("datasource_name2")), null);
 
     List<Filter> filters = Lists.newArrayList(
         new InclusionFilter("f1", Lists.newArrayList("v1", "v2", "v3"))
     );
 
+    MapViewLayer layer1 = new MapViewLayer("layer1", "datasource_name1", Lists.newArrayList(new DimensionField("Geo1"), new DimensionField("region")), new LayerView.OriginalLayerView());
+    MapViewLayer layer2 = new MapViewLayer("layer2", "datasource_name2", Lists.newArrayList(new DimensionField("Geo1"), new DimensionField("Geo2"), new MeasureField("measure")), new LayerView.HashLayerView("h3", 5));
+
     Shelf geoShelf = new GeoShelf(
-        Lists.newArrayList(
-            Lists.newArrayList(Lists.newArrayList(new DimensionField("Geo1"), new DimensionField("region"))),
-            Lists.newArrayList(Lists.newArrayList(new DimensionField("Geo1"), new DimensionField("Geo2"), new MeasureField("measure")))
-        )
+        Lists.newArrayList(layer1, layer2)
     );
 
     // Layers
@@ -135,8 +138,8 @@ public class WidgetConfigurationTest {
                                                     "auto", new NumberFieldFormat.CustomSymbol("원", "after"));
     ChartLegend mapChartLegend = new ChartLegend(null, null, "RIGHT_BOTTOM");
     ChartToolTip chartToolTip = new ChartToolTip(
-        org.assertj.core.util.Lists.newArrayList("layer_name", "location_info", "data_value"),
-        org.assertj.core.util.Lists.newArrayList("column1", "column2"),
+        Lists.newArrayList("layer_name", "location_info", "data_value"),
+        Lists.newArrayList("column1", "column2"),
         null
     );
 

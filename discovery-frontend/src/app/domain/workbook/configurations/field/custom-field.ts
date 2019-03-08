@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { BIType, Field, FieldPivot, FieldRole, IngestionRule, LogicalType } from '../../../datasource/datasource';
+import { Field, FieldRole, IngestionRule, LogicalType } from '../../../datasource/datasource';
 import { UserDefinedField } from './user-defined-field';
 
 export class CustomField extends UserDefinedField {
@@ -40,7 +40,6 @@ export class CustomField extends UserDefinedField {
   public useChartFilter: boolean = false;
 
   // for ui ( Spec 정리 후에 삭제 예정 ) - S
-  biType: BIType;   // BI 타입
   id: string;       // 필드 아이디
   logicalType: LogicalType; // logical type
   seq: number;

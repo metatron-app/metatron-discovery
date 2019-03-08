@@ -46,6 +46,7 @@ import {isNullOrUndefined} from "util";
 import { UIMapOption } from '../ui-option/map/ui-map-chart';
 import { ChartUtil } from '../util/chart-util';
 import { GeoField } from '../../../../../domain/workbook/configurations/field/geo-field';
+import {MapLayerType} from "../define/map/map-common";
 
 /**
  * 색상 패널 converter
@@ -496,6 +497,11 @@ export class ColorOptionConverter {
     let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
 
     let alias = ChartUtil.getFieldAlias(uiOption.layers[layerIndex].color.column, layers, uiOption.layers[layerIndex].color.aggregationType);
+
+    // symbol 타입 , cluster 사용일 경우
+    if( uiOption.layers[layerIndex].type == MapLayerType.SYMBOL && uiOption.layers[layerIndex]['clustering'] ){
+      alias = 'count';
+    }
 
     // less than 0, set minValue
     const minValue = _.cloneDeep(data.valueRange[alias].minValue);

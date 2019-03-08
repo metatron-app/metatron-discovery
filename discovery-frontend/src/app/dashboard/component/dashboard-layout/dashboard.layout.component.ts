@@ -72,6 +72,7 @@ import {TimeFilter} from '../../../domain/workbook/configurations/filter/time-fi
 import {IntervalFilter} from '../../../domain/workbook/configurations/filter/interval-filter';
 import {TimeUnit} from '../../../domain/workbook/configurations/field/timestamp-field';
 import {CommonConstant} from "../../../common/constant/common.constant";
+import {ChartType} from "../../../common/component/chart/option/define/common";
 
 declare let GoldenLayout: any;
 
@@ -1228,6 +1229,30 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
       // Data migration
       {
+        // convert map old spec
+        boardInfo.widgets.forEach(widget => {
+          if ('page' === widget.type && ChartType.MAP === (<PageWidgetConfiguration>widget.configuration).chart.type) {
+            const widgetConf: PageWidgetConfiguration = <PageWidgetConfiguration>widget.configuration;
+            widgetConf.shelf.layers
+              = widgetConf.shelf.layers.map((layer, idx: number) => {
+              if (Array === layer.constructor) {
+                // Old Spec ( Only Single Layer )
+                return {
+                  name: 'layer' + (idx + 1),
+                  ref: widgetConf.dataSource.engineName,
+                  fields: [].concat(layer)
+                };
+              } else {
+                if ('' === layer.ref) {
+                  layer.ref = boardInfo.configuration.fields.find(field => field.name === layer.fields[0].name).dataSource;
+                }
+                return layer;
+              }
+            });
+            widgetConf.dataSource = boardInfo.configuration.dataSource; // 무조건!! 위 shelf migration 보다 나중에!! 실행되어야 한다.
+          }
+        });
+
         // remove duplicate filters
         let filters: Filter[] = boardInfo.configuration.filters;
         if (filters) {

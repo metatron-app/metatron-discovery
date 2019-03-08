@@ -67,7 +67,8 @@ export enum ConnectionType {
   NVACCEL = <any>'NVACCEL',
   STAGE = <any>'STAGE',
   DRUID = <any>'DRUID',
-  FILE = <any>'FILE'
+  FILE = <any>'FILE',
+  NONE = <any>'NONE'
 }
 
 export enum AuthenticationType {

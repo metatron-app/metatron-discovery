@@ -12,14 +12,15 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {AbstractComponent} from '../../../common/component/abstract.component';
 
 @Component({
-  selector: 'app-select-dictionary',
-  templateUrl: './select-dictionary.component.html'
+  selector: '[top-info]',
+  templateUrl: './top-info.component.html',
+  host: {'[class.ddp-box-message]': 'true'},
 })
-export class SelectDictionaryComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class TopInfoComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -37,26 +38,25 @@ export class SelectDictionaryComponent extends AbstractComponent implements OnIn
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
-  constructor(protected element: ElementRef,
-              protected injector: Injector) {
-    super(element, injector);
+  constructor(
+    protected elementRef: ElementRef,
+    protected injector: Injector) {
+    super(elementRef, injector);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Init
   public ngOnInit() {
-    // Init
     super.ngOnInit();
   }
 
-  // Destory
-  public ngOnDestroy() {
+  public ngAfterViewInit() {
+    super.ngAfterViewInit();
+  }
 
-    // Destory
+  public ngOnDestroy() {
     super.ngOnDestroy();
   }
 
@@ -72,10 +72,4 @@ export class SelectDictionaryComponent extends AbstractComponent implements OnIn
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method - getter
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-
 }
-

@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { CommonUtil } from '../../../common/util/common.util';
-import { AbstractService } from '../../../common/service/abstract.service';
+import {Injectable, Injector} from '@angular/core';
+import {CommonUtil} from '../../../common/util/common.util';
+import {AbstractService} from '../../../common/service/abstract.service';
 
 @Injectable()
 export class CatalogService extends AbstractService {
@@ -50,14 +50,13 @@ export class CatalogService extends AbstractService {
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-
   /**
    * 카타로그 생성
    * @param {string} name
    * @returns {Promise<any>}
    */
   public createCatalog(params: any): Promise<any> {
-    return this.post(this.URL_CATALOG,params)
+    return this.post(this.URL_CATALOG, params);
   }
 
   /**
@@ -66,7 +65,7 @@ export class CatalogService extends AbstractService {
    * @returns {Promise<any>}
    */
   public deleteCatalog(id: string): Promise<any> {
-    return this.delete(this.URL_CATALOG + `/${id}`)
+    return this.delete(this.URL_CATALOG + `/${id}`);
   }
 
   /**
@@ -75,9 +74,8 @@ export class CatalogService extends AbstractService {
    * @returns {Promise<any>}
    */
   public updateCatalog(id: string, name: string): Promise<any> {
-    return this.patch(this.URL_CATALOG + `/${id}`,{name : name})
+    return this.patch(this.URL_CATALOG + `/${id}`, {name: name});
   }
-
 
   /**
    * 카탈로그내 포함되어 있는 메타데이터를 조회합니다.
@@ -86,12 +84,12 @@ export class CatalogService extends AbstractService {
    * @param pageable
    * @return
    */
-  public getMetadataInCatalog(id : string, params? : any) : Promise<any> {
+  public getMetadataInCatalog(id: string, params?: any): Promise<any> {
     let url = this.URL_CATALOG + `/${id}/metadatas`;
     if (params) {
       url += '?' + CommonUtil.objectToUrlString(params);
     }
-    return this.get(url + `&projection=default&allSubCatalogs=true`)
+    return this.get(url + `&projection=default&allSubCatalogs=true`);
   }
 
   /**
@@ -99,8 +97,8 @@ export class CatalogService extends AbstractService {
    * @param id
    * @return
    */
-  public getTreeCatalogs(id : string) : Promise<any> {
-    return this.get(this.URL_CATALOG+`/${id}/tree`)
+  public getTreeCatalogs(id: string): Promise<any> {
+    return this.get(this.URL_CATALOG + `/${id}/tree`);
   }
 
   /**
@@ -108,11 +106,11 @@ export class CatalogService extends AbstractService {
    * @param param
    * @return
    */
-  public getCatalogs(params : any) : Promise<any> {
+  public getCatalogs(params: any): Promise<any> {
 
     let url = this.URL_CATALOG;
     url += '?' + CommonUtil.objectToUrlString(params);
-    return this.get(url + `&projection=forListView`)
+    return this.get(url + `&projection=forListView`);
   }
 
 }

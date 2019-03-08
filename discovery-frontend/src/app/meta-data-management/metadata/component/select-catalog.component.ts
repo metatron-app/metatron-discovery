@@ -12,20 +12,20 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild, } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { CatalogService } from '../../catalog/service/catalog.service';
-import { Alert } from '../../../common/util/alert.util';
-import { Modal } from '../../../common/domain/modal';
-import { DeleteModalComponent } from '../../../common/component/modal/delete/delete.component';
-import { MetadataService } from '../service/metadata.service';
-import { MetadataModelService } from '../service/metadata.model.service';
-import { isUndefined } from 'util';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {CatalogService} from '../../catalog/service/catalog.service';
+import {Alert} from '../../../common/util/alert.util';
+import {Modal} from '../../../common/domain/modal';
+import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
+import {MetadataService} from '../service/metadata.service';
+import {MetadataModelService} from '../service/metadata.model.service';
+import {isUndefined} from 'util';
 import * as _ from 'lodash';
 
 @Component({
   selector: 'app-select-catalog',
-  templateUrl: './select-catalog.component.html'
+  templateUrl: './select-catalog.component.html',
 })
 export class SelectCatalogComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -44,43 +44,44 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
   public deleteModalComponent: DeleteModalComponent;
 
   // 화면 show/hide
-  public showFlag : boolean = false;
+  public showFlag: boolean = false;
 
-  public catalogs : any;
-  public metadatas : any;
+  public catalogs: any;
+  public metadatas: any;
 
   // 선택된 카타로그 한개
-  public selectedCatalog : Catalog;
+  public selectedCatalog: Catalog;
 
-  public isCreateCatalog : boolean = false;
+  public isCreateCatalog: boolean = false;
 
-  public isEditCatalogName : boolean = false;
+  public isEditCatalogName: boolean = false;
 
   // 현재 보고있는 root
-  public currentRoot :any =  {name : 'Root', id : 'ROOT'};
+  public currentRoot: any = {name: 'Root', id: 'ROOT'};
 
   // 뒤로가기를 하기 위한 path 저장
-  public catalogPath : any = [{name : 'Root', id : 'ROOT'}];
+  public catalogPath: any = [{name: 'Root', id: 'ROOT'}];
 
   public selectedContentSort: Order = new Order();
 
-  public inProcess : boolean = false;
+  public inProcess: boolean = false;
 
   @ViewChild('catalogInput')
   private catalogInput: ElementRef;
 
   @ViewChild('newCatalogName')
-  private newCatalogName : ElementRef;
+  private newCatalogName: ElementRef;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected element: ElementRef,
-              protected catalogService : CatalogService,
-              protected metadataService : MetadataService,
-              protected metadataModelService : MetadataModelService,
-              protected injector: Injector) {
+  constructor(
+    protected element: ElementRef,
+    protected catalogService: CatalogService,
+    protected metadataService: MetadataService,
+    protected metadataModelService: MetadataModelService,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -108,12 +109,12 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
    * 팝업 초기화
    * @param isClose 팝업을 닫을때인지 ?
    */
-  public init(isClose?:boolean) {
+  public init(isClose?: boolean) {
 
-    if(!isClose) {
+    if (!isClose) {
       this.showFlag = true;
-      this.currentRoot = {name : 'Root', id : 'ROOT'};
-      this.catalogPath = [{name : 'Root', id : 'ROOT'}];
+      this.currentRoot = {name: 'Root', id: 'ROOT'};
+      this.catalogPath = [{name: 'Root', id: 'ROOT'}];
 
       // 정렬 초기화
       this.selectedContentSort = new Order();
@@ -153,10 +154,11 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
    * 새로운 카타로그 생성 API 호출
    */
   public createCatalogDone() {
-    if(!isUndefined(this.newCatalogName.nativeElement.value) && this.newCatalogName.nativeElement.value.trim() !== '') {
+    if (!isUndefined(this.newCatalogName.nativeElement.value) && this.newCatalogName.nativeElement.value.trim() !==
+      '') {
 
-      let params = {name : this.newCatalogName.nativeElement.value};
-      this.currentRoot.id  !== 'ROOT' ? params['parentId'] = this.currentRoot.id : null;
+      let params = {name: this.newCatalogName.nativeElement.value};
+      this.currentRoot.id !== 'ROOT' ? params['parentId'] = this.currentRoot.id : null;
       if (this.inProcess === false) {
         this.inProcess = true;
         this.catalogService.createCatalog(params).then(() => {
@@ -165,7 +167,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
         }).catch((error) => {
           this.inProcess = false;
           Alert.warning(error);
-        })
+        });
       }
     } else {
       Alert.warning('Check catalog name');
@@ -182,7 +184,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
    * 루트 폴더인지 확인
    */
   public isRoot() {
-    if(this.isCreateCatalog) {
+    if (this.isCreateCatalog) {
       return true;
     } else {
       return this.catalogPath.length !== 1;
@@ -204,8 +206,8 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
 
       let currentRootId = ids.indexOf(this.currentRoot.id);
 
-      this.currentRoot = this.catalogPath[currentRootId-1];
-      this.catalogPath.splice(currentRootId,1);
+      this.currentRoot = this.catalogPath[currentRootId - 1];
+      this.catalogPath.splice(currentRootId, 1);
       this.getCatalogList();
 
     }
@@ -217,21 +219,21 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
    * @param catalog
    * @param index
    */
-  public updateCatalog(catalog,index) {
+  public updateCatalog(catalog, index) {
     if (!isUndefined(this.catalogInput.nativeElement.value) && this.catalogInput.nativeElement.value.trim() !== '') {
 
-      let idx = this.catalogs.map((catalog,idx) => {
-        if(idx !== index) {
-          return catalog.name
+      let idx = this.catalogs.map((catalog, idx) => {
+        if (idx !== index) {
+          return catalog.name;
         }
       }).indexOf(this.catalogInput.nativeElement.value);
-      if(idx === -1) {
+      if (idx === -1) {
         this.catalogService.updateCatalog(catalog.id, this.catalogInput.nativeElement.value).then(() => {
           this.init(true);
           this.getMetadataDetail();
         }).catch((error) => {
           Alert.error(error);
-        })
+        });
       } else {
         Alert.warning('Catalog already exists');
         return;
@@ -263,24 +265,23 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
     } else {
       let metadata = this.metadataModelService.getMetadata();
       let idx = metadata.catalogs.map((item) => {
-        return item.id
+        return item.id;
       }).indexOf(this.selectedCatalog.id);
       if (idx === -1) {
-        this.catalogPath.push({name : this.selectedCatalog.name, id : this.selectedCatalog.id});
-        this.metadataService.linkMetadataWithCatalog(metadata.id,this.selectedCatalog.id).then(()=> {
+        this.catalogPath.push({name: this.selectedCatalog.name, id: this.selectedCatalog.id});
+        this.metadataService.linkMetadataWithCatalog(metadata.id, this.selectedCatalog.id).then(() => {
           this.showFlag = false;
           Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
           this.getMetadataDetail();
           this.init(true);
         }).catch((error) => {
           Alert.error(error);
-        })
+        });
       } else {
         this.showFlag = false;
         Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
         this.init(true);
       }
-
 
     }
   }
@@ -298,7 +299,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
     }).catch((error) => {
       Alert.error(error);
       this.loadingHide();
-    })
+    });
   } // function - getMetadataDetail
 
   /**
@@ -316,27 +317,27 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
    * @param catalog
    */
   public catalogDetail(catalog) {
-      this.currentRoot = {name : catalog.name, id : catalog.id};
-      this.catalogPath.push(this.currentRoot);
-      this.getCatalogList();
+    this.currentRoot = {name: catalog.name, id: catalog.id};
+    this.catalogPath.push(this.currentRoot);
+    this.getCatalogList();
   }
 
-  public getMetadataInCatalog() : Promise<any> {
-    return new Promise<any>((resolve,reject) => {
-      this.catalogService.getMetadataInCatalog(this.selectedCatalog.id,this._getMetadataParams()).then((result) => {
+  public getMetadataInCatalog(): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
+      this.catalogService.getMetadataInCatalog(this.selectedCatalog.id, this._getMetadataParams()).then((result) => {
         this.pageResult.number === 0 && (this.metadatas = []);
         // page 객체
         this.pageResult = result.page;
         // 컬럼 사전 리스트
         this.metadatas = result['_embedded'] ? this.metadatas.concat(result['_embedded']['metadatas']) : [];
         this.metadatas = this.metadatas.map((item) => {
-          return item.name
+          return item.name;
         });
         resolve(this.metadatas);
-      }).catch((error)=> {
-        reject(error)
-      })
-    })
+      }).catch((error) => {
+        reject(error);
+      });
+    });
   }
 
   /**
@@ -349,14 +350,14 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
       this.selectedCatalog = new Catalog();
       this.catalogs = result;
 
-      if(this.currentRoot.id === 'ROOT') {
+      if (this.currentRoot.id === 'ROOT') {
         this.metadatas = [];
       }
       // this.getMetadataInCatalog();
     }).catch((error) => {
       Alert.error(error);
       this.loadingHide();
-    })
+    });
   }
 
   /**
@@ -388,18 +389,19 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
     this.selectedCatalog = _.cloneDeep(catalog);
     this.getMetadataInCatalog().then((result) => {
       const modal = new Modal();
-      modal.name = `${this.translateService.instant('msg.metadata.catalog.delete.header',{catalogName : catalog.name})}`;
+      modal.name = `${this.translateService.instant('msg.metadata.catalog.delete.header',
+        {catalogName: catalog.name})}`;
       if (result.length > 0) {
         modal.name += ' ' + this.translateService.instant('msg.metadata.catalog.delete.header-plural');
       }
 
       // 데이터가 1개 ~ 3개일때
       if (result.length > 1 && result.length < 4) {
-        this.metadatas =`${result.join(', ')}`;
+        this.metadatas = `${result.join(', ')}`;
       }
       // 데이터가 3개 이상일 때
       else if (result.length > 3) {
-        this.metadatas =`${result.splice(0,3).join(', ')} ...`;
+        this.metadatas = `${result.splice(0, 3).join(', ')} ...`;
       }
 
       modal.btnName = this.translateService.instant('msg.comm.ui.del');
@@ -422,7 +424,7 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
     }).catch((error) => {
       this.loadingHide();
       Alert.error(error);
-    })
+    });
   }
 
   public closeDelete() {
@@ -430,20 +432,20 @@ export class SelectCatalogComponent extends AbstractComponent implements OnInit,
     this.selectedCatalog = new Catalog();
   }
 
-
   /**
    * get params for meta data list
    * @returns object
    * @private
    */
-  private _getMetadataParams() : Object {
+  private _getMetadataParams(): Object {
 
     return {
       size: 15,
       page: 0,
-      sort: 'createdTime,desc'
+      sort: 'createdTime,desc',
     };
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     | Protected Method
     |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

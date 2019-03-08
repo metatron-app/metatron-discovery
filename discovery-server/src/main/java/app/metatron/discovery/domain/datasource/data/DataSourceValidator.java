@@ -101,17 +101,24 @@ public class DataSourceValidator {
       }
     }
 
-    validateQuery(queryRequest.getDataSource());
+    validateQuery(queryRequest.getDataSource(), queryRequest);
 
   }
 
   public void validateQuery(DataSource dataSource) {
+    validateQuery(dataSource, null);
+  }
+
+  public void validateQuery(DataSource dataSource, QueryRequest queryRequest) {
 
     if(dataSource instanceof MultiDataSource) {
       MultiDataSource multiDataSource = (MultiDataSource) dataSource;
       for (DataSource source : multiDataSource.getDataSources()) {
-        validateQuery(source);
+        validateQuery(source, queryRequest);
       }
+
+      multiDataSource.electMainDataSource(queryRequest);
+
       return;
     }
 

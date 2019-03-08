@@ -24,6 +24,7 @@ import java.util.List;
 
 import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
+import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataController;
 import app.metatron.discovery.domain.workbook.DashboardRepository;
 
@@ -56,15 +57,13 @@ public class MetaSourceService {
    * @param sourceId
    * @return
    */
-  public Object getSourcesBySourceId(MetadataSource.MetadataSourceType type, String sourceId) {
+  public Object getSourcesBySourceId(Metadata.SourceType type, String sourceId) {
 
     switch (type) {
       case ENGINE:
         return dataSourceRepository.findOne(sourceId);
       case JDBC:
         return dataConnectionRepository.findOne(sourceId);
-      case DASHBOARD:
-        return dashboardRepository.findOne(sourceId);
     }
 
     return null;

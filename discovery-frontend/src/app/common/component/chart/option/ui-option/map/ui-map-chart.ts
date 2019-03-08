@@ -55,4 +55,14 @@ export interface UIMapOption extends UIOption {
 
   // current layer number (0 - 2)
   layerNum?: number;
+
+  // map current lat, lng
+  lowerCorner? : string;
+  upperCorner? : string;
+
+  // spatial analysis
+  analysis : any;
+
+  // zoom size
+  zoomSize? : number;
 }

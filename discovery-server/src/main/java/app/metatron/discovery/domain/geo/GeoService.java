@@ -44,8 +44,8 @@ import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.geo.model.GeoDataStore;
 import app.metatron.discovery.domain.geo.query.model.GeoQuery;
 import app.metatron.discovery.domain.geo.query.model.GetFeature;
-import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
 
 @Component
 public class GeoService {
@@ -77,10 +77,11 @@ public class GeoService {
     StringJoiner resultJoiner = new StringJoiner(",", "[", "]");
     if (searchQueryRequest.getShelf() instanceof GeoShelf) {
       GeoShelf geoShelf = (GeoShelf) searchQueryRequest.getShelf();
-      for (List<Field> fields : geoShelf.getLayers()) {
+      for (MapViewLayer layer : geoShelf.getLayers()) {
         GeoQuery geoQuery = GeoQuery.builder(searchQueryRequest.getDataSource())
+                                    .dataSourceRole(Lists.newArrayList(layer), searchQueryRequest.getAnalysis())
                                     .initVirtualColumns(searchQueryRequest.getUserFields())
-                                    .projections(fields)
+                                    .projections(layer.getFields())
                                     .filters(searchQueryRequest.getFilters())
                                     .limit(searchQueryRequest.getLimits())
                                     .build();

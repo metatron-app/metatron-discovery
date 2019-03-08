@@ -42,7 +42,6 @@
 
 package app.metatron.discovery.query.druid;
 
-import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -79,8 +78,10 @@ import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.MapField;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
+import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
 import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
@@ -96,6 +97,8 @@ import app.metatron.discovery.query.druid.extractionfns.LookupFunction;
 import app.metatron.discovery.query.druid.filters.AndFilter;
 import app.metatron.discovery.query.druid.filters.ExprFilter;
 import app.metatron.discovery.query.druid.filters.InFilter;
+import app.metatron.discovery.query.druid.filters.LucenePointFilter;
+import app.metatron.discovery.query.druid.filters.LuceneSpatialFilter;
 import app.metatron.discovery.query.druid.filters.MathFilter;
 import app.metatron.discovery.query.druid.filters.OrFilter;
 import app.metatron.discovery.query.druid.filters.RegExpFilter;
@@ -137,6 +140,12 @@ public abstract class AbstractQueryBuilder {
    * Default Intervals, Define if interval is null.
    */
   public static final List<String> DEFAULT_INTERVALS = Lists.newArrayList("1900-01-01T00:00:00.0Z/2051-01-01T00:00:00.0Z");
+
+  public static final String VC_COLUMN_GEO_COORD = "__geom.vc";
+
+  public static final String GEOMETRY_COLUMN_NAME = "__geometry";
+
+  public static final String GEOMETRY_BOUNDARY_COLUMN_NAME = "__geomBoundary";
 
   /**
    * Partition 관련 처리, 추후 지원여부 확인 필요
@@ -219,6 +228,26 @@ public abstract class AbstractQueryBuilder {
   protected List<WindowingSpec> windowingSpecs = Lists.newArrayList();
 
   /**
+   * process min/max
+   */
+  protected List<String> minMaxFields = Lists.newArrayList();
+
+  /**
+   * Target map view layer
+   */
+  protected MapViewLayer mapViewLayer;
+
+  /**
+   * Geometry Field
+   */
+  protected app.metatron.discovery.domain.datasource.Field geometry;
+
+  /**
+   * need to geojson format
+   */
+  protected boolean geoJsonFormat;
+
+  /**
    * 엔진에 질의할 때 필요한 추가 정보
    */
   protected Map<String, Object> context = Maps.newHashMap();
@@ -244,16 +273,22 @@ public abstract class AbstractQueryBuilder {
 
     // make list of field
     if (dataSource instanceof DefaultDataSource) {
+
       mainMetaDataSource = dataSource.getMetaDataSource();
       metaFieldMap.putAll(mainMetaDataSource.getMetaFieldMap(false, ""));
 
     } else if (dataSource instanceof MultiDataSource) {
+
       MultiDataSource multiDataSource = (MultiDataSource) dataSource;
       for (DataSource source : multiDataSource.getDataSources()) {
         metaFieldMap.putAll(source.getMetaDataSource().getMetaFieldMap(true, null));
         metaDataSourceMap.put(source.getName(), source.getMetaDataSource());
       }
+
+      mainMetaDataSource = multiDataSource.getMetaDataSource();
+
     } else {
+
       mainMetaDataSource = dataSource.getMetaDataSource();
 
       MappingDataSource mappingDataSource = (MappingDataSource) dataSource;
@@ -292,6 +327,8 @@ public abstract class AbstractQueryBuilder {
   protected app.metatron.discovery.query.druid.datasource.DataSource getDataSourceSpec(DataSource dataSource) {
     if (dataSource instanceof DefaultDataSource) {
       return new TableDataSource(dataSource.getName());
+    } else if (dataSource instanceof MultiDataSource) {
+      return new TableDataSource(((MultiDataSource) dataSource).getMainDataSource().getName());
     } else {
       return new QueryDataSource(JoinQuery.builder(dataSource).build());
     }
@@ -340,6 +377,17 @@ public abstract class AbstractQueryBuilder {
 
       }
 
+    }
+  }
+
+  protected void enableMapLayer(MapViewLayer mapViewLayer) {
+    this.mapViewLayer = mapViewLayer;
+    this.geoJsonFormat = true;
+
+    if (dataSource instanceof MultiDataSource) {
+      MultiDataSource multiDataSource = (MultiDataSource) dataSource;
+      multiDataSource.electMainDataSource(mapViewLayer);
+      mainMetaDataSource = multiDataSource.getMetaDataSource();
     }
   }
 
@@ -456,9 +504,14 @@ public abstract class AbstractQueryBuilder {
 
     for (app.metatron.discovery.domain.workbook.configurations.filter.Filter reqFilter : reqFilters) {
 
-      String column = checkColumnName(reqFilter.getColumn());
-      if (!column.equals(reqFilter.getColumn())) {
-        reqFilter.setRef(StringUtils.substringBeforeLast(column, FIELD_NAMESPACE_SEP));
+      if (isNotMainDataSourceColumn(reqFilter)) {
+        continue;
+      }
+
+      String fieldName = checkColumnName(reqFilter.getColumn());
+      String engineColumnName = engineColumnName(fieldName);
+      if (!fieldName.equals(reqFilter.getColumn())) {
+        reqFilter.setRef(StringUtils.substringBeforeLast(fieldName, FIELD_NAMESPACE_SEP));
       }
 
 
@@ -470,13 +523,13 @@ public abstract class AbstractQueryBuilder {
           continue;
         }
 
-        if (virtualColumns.containsKey(column)) {
-          if (virtualColumns.get(column) instanceof IndexVirtualColumn) {
-            IndexVirtualColumn indexVirtualColumn = (IndexVirtualColumn) virtualColumns.get(column);
-            indexVirtualColumn.setKeyFilter(new InFilter(column, inclusionFilter.getValueList()));
+        if (virtualColumns.containsKey(fieldName)) {
+          if (virtualColumns.get(fieldName) instanceof IndexVirtualColumn) {
+            IndexVirtualColumn indexVirtualColumn = (IndexVirtualColumn) virtualColumns.get(fieldName);
+            indexVirtualColumn.setKeyFilter(new InFilter(fieldName, inclusionFilter.getValueList()));
           } else {
             filter.addField(new InFilter(inclusionFilter.getColumn(), inclusionFilter.getValueList()));
-            unUsedVirtualColumnName.remove(column);
+            unUsedVirtualColumnName.remove(fieldName);
           }
         } else {
           // Value Alias가 있는 경우 처리
@@ -490,7 +543,7 @@ public abstract class AbstractQueryBuilder {
 
             filter.addField(orFilter);
           } else {
-            filter.addField(new InFilter(inclusionFilter.getColumn(), inclusionFilter.getValueList()));
+            filter.addField(new InFilter(engineColumnName, inclusionFilter.getValueList()));
           }
         }
 
@@ -511,15 +564,9 @@ public abstract class AbstractQueryBuilder {
 
         LikeFilter likeFilter = (LikeFilter) reqFilter;
 
-        filter.addField(new RegExpFilter(column, PolarisUtils.convertSqlLikeToRegex(likeFilter.getExpr(), false)));
+        filter.addField(new RegExpFilter(fieldName, PolarisUtils.convertSqlLikeToRegex(likeFilter.getExpr(), false)));
 
-      } else if (reqFilter instanceof RegExprFilter) {
-
-        RegExprFilter regExprFilter = (RegExprFilter)reqFilter;
-
-        filter.addField(new RegExpFilter(column, regExprFilter.getExpr()));
-
-      } if (reqFilter instanceof IntervalFilter) {
+      } else if (reqFilter instanceof IntervalFilter) {
 
         IntervalFilter intervalFilter = (IntervalFilter) reqFilter;
 
@@ -528,11 +575,11 @@ public abstract class AbstractQueryBuilder {
           continue;
         }
 
-        if (!metaFieldMap.containsKey(column)) {
+        if (!metaFieldMap.containsKey(fieldName)) {
           continue;
         }
 
-        app.metatron.discovery.domain.datasource.Field datasourceField = this.metaFieldMap.get(column);
+        app.metatron.discovery.domain.datasource.Field datasourceField = this.metaFieldMap.get(fieldName);
 
         if (datasourceField.getRole() == TIMESTAMP) {
           intervals.addAll(intervalFilter.getEngineIntervals());
@@ -542,7 +589,7 @@ public abstract class AbstractQueryBuilder {
           for (String interval : curIntervals) {
             String[] splitedInterval = StringUtils.split(interval, "/");
             String expr = String.format("(timestamp(%s, format='%s') >= timestamp('%s') && (timestamp(%s, format='%s') <= timestamp('%s')",
-                                        column, datasourceField.getTimeFormat(), splitedInterval[0], column, datasourceField.getFormat(), splitedInterval[1]);
+                                        engineColumnName, datasourceField.getTimeFormat(), splitedInterval[0], engineColumnName, datasourceField.getFormat(), splitedInterval[1]);
 
             orFilter.addField(new MathFilter(expr));
           }
@@ -553,17 +600,17 @@ public abstract class AbstractQueryBuilder {
       } else if (reqFilter instanceof TimestampFilter) {
 
         TimestampFilter timestampFilter = (TimestampFilter) reqFilter;
-        if (!metaFieldMap.containsKey(column)) {
+        if (!metaFieldMap.containsKey(fieldName)) {
           continue;
         }
 
-        app.metatron.discovery.domain.datasource.Field datasourceField = this.metaFieldMap.get(column);
+        app.metatron.discovery.domain.datasource.Field datasourceField = this.metaFieldMap.get(fieldName);
 
-        String field = null;
+        String field;
         if (datasourceField.getRole() == TIMESTAMP) {
           field = "__time";
         } else {
-          DateTimeMillisFunc millisFunc = new DateTimeMillisFunc(reqFilter.getColumn(),
+          DateTimeMillisFunc millisFunc = new DateTimeMillisFunc(engineColumnName,
                                                                  datasourceField.getTimeFormat(),
                                                                  null, null);
           field = millisFunc.toExpression();
@@ -578,6 +625,22 @@ public abstract class AbstractQueryBuilder {
         InFunc inFunc = new InFunc(timeFormatFunc.toExpression(), timestampFilter.getSelectedTimestamps());
 
         filter.addField(new ExprFilter(inFunc.toExpression()));
+      } else if (reqFilter instanceof SpatialBboxFilter) {
+        SpatialBboxFilter reqBboxFilter = (SpatialBboxFilter) reqFilter;
+        app.metatron.discovery.domain.datasource.Field datasourceField = this.metaFieldMap.get(fieldName);
+        if (!datasourceField.getLogicalType().isGeoType()) {
+          return;
+        }
+
+        Filter spatialFilter = null;
+        if (datasourceField.getLogicalType() == LogicalType.GEO_POINT) {
+          spatialFilter = new LucenePointFilter(reqBboxFilter);
+        } else {
+          spatialFilter = new LuceneSpatialFilter(reqBboxFilter);
+        }
+
+        filter.addField(spatialFilter);
+
       } else if (reqFilter instanceof TimeFilter) {
         addTimeFilter(filter, (TimeFilter) reqFilter, intervals);
       }
@@ -591,23 +654,35 @@ public abstract class AbstractQueryBuilder {
       return;
     }
 
-    String columnName = timeFilter.getColumn();
-    app.metatron.discovery.domain.datasource.Field datasourceField = this.metaFieldMap.get(columnName);
+    String fieldName = timeFilter.getColumn();
+    String engineColumnName = engineColumnName(fieldName);
+    app.metatron.discovery.domain.datasource.Field datasourceField = this.metaFieldMap.get(fieldName);
 
     if (datasourceField.getRole() == TIMESTAMP && !(timeFilter instanceof TimeListFilter)) {
       intervals.addAll(timeFilter.getEngineIntervals(datasourceField));
     } else {
-      String expr = timeFilter.getExpression(columnName, datasourceField);
+      String expr = timeFilter.getExpression(engineColumnName, datasourceField);
       if (StringUtils.isNotEmpty(expr)) {
-        filter.addField(new ExprFilter(timeFilter.getExpression(columnName, datasourceField)));
+        filter.addField(new ExprFilter(timeFilter.getExpression(engineColumnName, datasourceField)));
       }
     }
 
   }
 
+  private boolean isNotMainDataSourceColumn(app.metatron.discovery.domain.workbook.configurations.filter.Filter filter) {
+
+    if (dataSource instanceof MultiDataSource
+        && mainMetaDataSource.getEngineName().equals(filter.getDataSource())) {
+      return false;
+    }
+
+    return true;
+  }
+
+
   protected void addAggregationFunction(MeasureField measureField) {
 
-    String fieldName = dataSource instanceof MultiDataSource ? measureField.getName() : measureField.getColunm();
+    String fieldName = engineColumnName(measureField.getColunm());
     String aliasName = measureField.getAlias();
     String paramName = null;
     String dataType = "double";
@@ -759,6 +834,11 @@ public abstract class AbstractQueryBuilder {
    */
   public String checkColumnName(final String name) {
 
+    // If it doesn't need a name.. ex ExpressionFilter
+    if (StringUtils.isEmpty(name)) {
+      return "";
+    }
+
     // to escape column name for regular expression
     String escapedName = PolarisUtils.escapeSpecialRegexChars(name);
     Pattern pattern = Pattern.compile(String.format(PATTERN_FIELD_NAME_STRING, escapedName));
@@ -772,6 +852,26 @@ public abstract class AbstractQueryBuilder {
     } else {
       throw new QueryTimeExcetpion(CONFUSING_FIELD_CODE, String.format("Confusing '%s' field name.", name));
     }
+  }
+
+  /**
+   * Check field name.
+   *
+   * @param name valid field name.
+   */
+  public String engineColumnName(final String name) {
+
+    // If it doesn't need a name.. ex ExpressionFilter
+    if (StringUtils.isEmpty(name)) {
+      return "";
+    }
+
+    String dataSourceStartWith = mainMetaDataSource.getEngineName() + FIELD_NAMESPACE_SEP;
+    if (!isJoinQuery && name.startsWith(dataSourceStartWith)) {
+      return StringUtils.removeStart(name, dataSourceStartWith);
+    }
+
+    return name;
   }
 
   protected void addContext(String key, Object value) {

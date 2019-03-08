@@ -12,20 +12,20 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { StringUtil } from '../../../common/util/string.util';
-import { CommonUtil } from '../../../common/util/common.util';
-import { MetadataService } from '../service/metadata.service';
-import { Alert } from '../../../common/util/alert.util';
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import { MetadataModelService } from '../service/metadata.model.service';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {StringUtil} from '../../../common/util/string.util';
+import {CommonUtil} from '../../../common/util/common.util';
+import {MetadataService} from '../service/metadata.service';
+import {Alert} from '../../../common/util/alert.util';
+import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
+import {MetadataModelService} from '../service/metadata.model.service';
 
 /**
  * Creating metadata - complete step
  */
 @Component({
   selector: 'app-complete-create-metadata',
-  templateUrl: './complete-create-metadata.component.html'
+  templateUrl: './complete-create-metadata.component.html',
 })
 export class CompleteCreateMetadataComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
@@ -41,15 +41,14 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
   public nameValidationMsg: string = '';
   public descValidationMsg: string = '';
 
-
   // constructor
-  constructor(public metaDataModelService: MetadataModelService,
-              private _metaDataService: MetadataService,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    public metaDataModelService: MetadataModelService,
+    private _metaDataService: MetadataService,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
-
 
   /**
    * ngOnInit
@@ -66,7 +65,6 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
   public ngOnDestroy() {
     super.ngOnDestroy();
   }
-
 
   /**
    * Get metadata create type
@@ -220,16 +218,15 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
     // 로딩 show
     this.loadingShow();
     // 메타데이터 생성하기
-    this._metaDataService.createMetaData(this._getCreateMetaDataParams())
-      .then((result) => {
-        // alert
-        Alert.success(this.translateService.instant('msg.metadata.alert.create.success', {value: this.createName.trim()}));
-        // complete
-        this.createComplete.emit();
-      })
-      .catch((error) => {
-        this.commonExceptionHandler(error);
-      });
+    this._metaDataService.createMetaData(this._getCreateMetaDataParams()).then((result) => {
+      // alert
+      Alert.success(
+        this.translateService.instant('msg.metadata.alert.create.success', {value: this.createName.trim()}));
+      // complete
+      this.createComplete.emit();
+    }).catch((error) => {
+      this.commonExceptionHandler(error);
+    });
   }
 
   /**
@@ -240,19 +237,18 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
     // loading show
     this.loadingShow();
     // check duplicate name
-    this._metaDataService.getDuplicateMetaDataName(this.createName.trim())
-      .then((result) => {
-        // if duplicated
-        if (result['duplicated']) {
-          // message
-          this.nameValidationMsg = this.translateService.instant('msg.metadata.ui.dictionary.create.valid.logical.name.duplicated', {value: this.createName.trim()});
-          // loading hide
-          this.loadingHide();
-        } else {
-          this._createMetaData();
-        }
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._metaDataService.getDuplicateMetaDataName(this.createName.trim()).then((result) => {
+      // if duplicated
+      if (result['duplicated']) {
+        // message
+        this.nameValidationMsg = this.translateService.instant(
+          'msg.metadata.ui.dictionary.create.valid.logical.name.duplicated', {value: this.createName.trim()});
+        // loading hide
+        this.loadingHide();
+      } else {
+        this._createMetaData();
+      }
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -288,7 +284,7 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
   private _getCreateMetaDataParams(): object {
     const params = {
       name: this.createName.trim(),
-      description: this.createDescription ?  this.createDescription.trim() : ''
+      description: this.createDescription ? this.createDescription.trim() : '',
     };
     // data source type
     if (this.isCreateType('datasource')) {
@@ -296,7 +292,7 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
         name: this.getSelectedDatasource()['name'],
         // type: this.getSelectedDatasource()['connType'],
         type: 'ENGINE',
-        sourceId: this.getSelectedDatasource()['id']
+        sourceId: this.getSelectedDatasource()['id'],
       };
       // params['sourceType'] = this.getSelectedDatasource()['connType'];
       params['sourceType'] = 'ENGINE';
@@ -308,7 +304,7 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
         type: 'JDBC',
         sourceId: this.getConnectionStep()['selectedConnectionPreset'].id,
         schema: this.getSchemaStep()['selectedDatabase'],
-        table: this.getSchemaStep()['selectedTable']
+        table: this.getSchemaStep()['selectedTable'],
       };
       params['sourceType'] = 'JDBC';
       params['source'] = source;
@@ -316,12 +312,12 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
       // staging DB
       const source = {
         name: 'Stage DB',
-        type: 'STAGE',
+        type: 'STAGEDB',
         sourceId: 'STAGE',
         schema: this.getSchemaStep()['selectedDatabase'],
-        table: this.getSchemaStep()['selectedTable']
+        table: this.getSchemaStep()['selectedTable'],
       };
-      params['sourceType'] = 'STAGING';
+      params['sourceType'] = 'STAGEDB';
       params['source'] = source;
     }
     return params;

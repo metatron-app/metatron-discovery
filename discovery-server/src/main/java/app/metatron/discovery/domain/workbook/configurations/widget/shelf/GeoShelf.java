@@ -14,12 +14,15 @@
 
 package app.metatron.discovery.domain.workbook.configurations.widget.shelf;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
+import java.util.Optional;
 
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
 
@@ -28,21 +31,36 @@ public class GeoShelf implements Shelf {
   /**
    * GEO Layers
    */
-  List<List<Field>> layers;
+  List<MapViewLayer> layers;
 
   @JsonCreator
-  public GeoShelf(@JsonProperty("layers") List<List<Field>> layers) {
+  public GeoShelf(@JsonProperty("layers") List<MapViewLayer> layers) {
     this.layers = layers;
+  }
+
+  /**
+   * find datasource by name (in multiple datasource)
+   */
+  @JsonIgnore
+  public Optional<MapViewLayer> getLayerByName(String name) {
+    Preconditions.checkNotNull(name, "Name of layer is required.");
+
+    for (MapViewLayer mapViewLayer : layers) {
+      if (name.equals(mapViewLayer.getName())) {
+        return Optional.of(mapViewLayer);
+      }
+    }
+    return Optional.empty();
   }
 
   @Override
   public List<Field> getFields() {
     List<Field> collectedFields = Lists.newArrayList();
-    layers.forEach(fields -> collectedFields.addAll(fields));
+    layers.forEach(layer -> collectedFields.addAll(layer.getFields()));
     return collectedFields;
   }
 
-  public List<List<Field>> getLayers() {
+  public List<MapViewLayer> getLayers() {
     return layers;
   }
 
@@ -52,4 +70,5 @@ public class GeoShelf implements Shelf {
         "layers=" + layers +
         '}';
   }
+
 }

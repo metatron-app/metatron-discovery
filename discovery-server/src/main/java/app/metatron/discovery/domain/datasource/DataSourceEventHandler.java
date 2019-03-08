@@ -28,6 +28,7 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.domain.mdm.MetadataService;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -109,6 +110,9 @@ public class DataSourceEventHandler {
 
   @Autowired
   DataSourceService dataSourceService;
+
+  @Autowired
+  MetadataService metadataService;
 
   @Autowired
   GeoService geoService;
@@ -290,9 +294,6 @@ public class DataSourceEventHandler {
       LOGGER.info("Successfully register batch ingestion : {}", dataSource.getName());
     }
 
-    // Context 정보 저장, ID 가 지정후 생성 필요
-    contextService.saveContextFromDomain(dataSource);
-
   }
 
   @HandleBeforeSave
@@ -375,20 +376,12 @@ public class DataSourceEventHandler {
           }
         }
       } else if (ingestionInfo instanceof RealtimeIngestionInfo) {
-        // 기존 동작하고 있는 적재 task 가 존재하는지 확인 (재정의 필요)
-        //        List<IngestionHistory> ingestionHistories = ingestionHistoryRepository
-        //            .findByDataSourceIdAndStatus(dataSource.getId(), IngestionHistory.IngestionStatus.RUNNING);
-        //
-        //        if (CollectionUtils.isNotEmpty(ingestionHistories)) {
-        //          // TODO: Excetpion 정의
-        //          throw new RuntimeException("Ingestion task already exist.");
-        //        }
-        //
-        //        engineIngestionService.realtimeIngestion(dataSource).ifPresent(
-        //            ingestionHistroy -> ingestionHistoryRepository.save(ingestionHistroy)
-        //        );
+        // TODO: 기존 동작하고 있는 적재 task 가 존재하는지 확인 (재정의 필요)
       }
     }
+
+    // update metadata from datasource
+    metadataService.updateFromDataSource(dataSource, false);
   }
 
   @HandleBeforeDelete
@@ -434,14 +427,6 @@ public class DataSourceEventHandler {
       // Shutdown Ingestion Task
       engineIngestionService.shutDownIngestionTask(dataSource.getId());
       LOGGER.debug("Successfully shutdown ingestion tasks in datasource ({})", dataSource.getId());
-
-      // Delete datastore on geoserver if datasource include geo column
-      if (dataSource.getIncludeGeo() == null) {
-        LOGGER.debug("Datasource with previous schema, skip removing geo service");
-      } else if (dataSource.getIncludeGeo()) {
-        geoService.deleteDataStore(dataSource.getEngineName());
-        LOGGER.debug("Successfully delete datastore on geoserver ({})", dataSource.getId());
-      }
 
       // Disable DataSource
       try {

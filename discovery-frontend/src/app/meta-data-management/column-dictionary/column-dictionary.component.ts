@@ -12,23 +12,22 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { isUndefined } from 'util';
-import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
-import { Modal } from '../../common/domain/modal';
-import { ColumnDictionary } from '../../domain/meta-data-management/column-dictionary';
-import { ColumnDictionaryService } from './service/column-dictionary.service';
-import { PeriodComponent } from '../../common/component/period/period.component';
-import * as _ from 'lodash';
-import { Alert } from '../../common/util/alert.util';
-import { CreateColumnDictionaryComponent } from './create-column-dictionary/create-column-dictionary.component';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {isUndefined} from 'util';
+import {DeleteModalComponent} from '../../common/component/modal/delete/delete.component';
+import {Modal} from '../../common/domain/modal';
+import {ColumnDictionary} from '../../domain/meta-data-management/column-dictionary';
+import {ColumnDictionaryService} from './service/column-dictionary.service';
+import {PeriodComponent} from '../../common/component/period/period.component';
+import {Alert} from '../../common/util/alert.util';
+import {CreateColumnDictionaryComponent} from './create-column-dictionary/create-column-dictionary.component';
 
 declare let moment: any;
 
 @Component({
   selector: 'app-column-dictionary',
-  templateUrl: './column-dictionary.component.html'
+  templateUrl: './column-dictionary.component.html',
 })
 export class ColumnDictionaryComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -71,9 +70,10 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private _columnDictionaryService: ColumnDictionaryService,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    private _columnDictionaryService: ColumnDictionaryService,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -107,7 +107,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
    * @returns {boolean}
    */
   public isMoreContents(): boolean {
-    return (this.pageResult.number < this.pageResult.totalPages -1);
+    return (this.pageResult.number < this.pageResult.totalPages - 1);
   }
 
   /**
@@ -118,17 +118,16 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     // 로딩 show
     this.loadingShow();
     // 컬럼 사전 제거
-    this._columnDictionaryService.deleteColumnDictionary(modal['dictionaryId'])
-      .then((result) => {
-        // alert
-        Alert.success(this.translateService.instant('msg.metadata.ui.dictionary.delete.success', modal['dictionaryName']));
-        // 재조회
-        this.getColumnDictionaryListPageInit();
-      })
-      .catch((error) => {
-        // 로딩 hide
-        this.loadingHide();
-      });
+    this._columnDictionaryService.deleteColumnDictionary(modal['dictionaryId']).then((result) => {
+      // alert
+      Alert.success(
+        this.translateService.instant('msg.metadata.ui.dictionary.delete.success', modal['dictionaryName']));
+      // 재조회
+      this.getColumnDictionaryListPageInit();
+    }).catch((error) => {
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**
@@ -156,7 +155,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
   /**
    * 컬럼 사전 생성 클릭 이벤트
    */
-  public onClickCreateColumnDictionary (): void {
+  public onClickCreateColumnDictionary(): void {
     this._createColumnDictionaryComp.init();
   }
 
@@ -179,7 +178,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
 
     const modal = new Modal();
     modal.name = this.translateService.instant('msg.metadata.ui.dictionary.delete.title');
-    modal.description =  columnDictionary.logicalName;
+    modal.description = columnDictionary.logicalName;
     modal.btnName = this.translateService.instant('msg.comm.ui.del');
     modal['dictionaryId'] = columnDictionary.id;
     modal['dictionaryName'] = columnDictionary.logicalName;
@@ -199,7 +198,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     // 검색조건 초기화
     this.searchText = '';
     // 페이지 초기화
-    this.pageResult.number  = 0;
+    this.pageResult.number = 0;
     // date 필터 init
     this.periodComponent.setAll();
   }
@@ -313,21 +312,21 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     // 로딩 show
     this.loadingShow();
     // 컬럼 사전 리스트 조회
-    this._columnDictionaryService.getColumnDictionaryList(this._getColumnDictionaryListParams())
-      .then((result) => {
-        // 전달 받은 page number가 0 이면 컬럼 사전 리스트 초기화
-        this.pageResult.number === 0 && (this.columnDictionaryList = []);
-        // page 객체
-        this.pageResult = result.page;
-        // 컬럼 사전 리스트
-        this.columnDictionaryList = result['_embedded'] ? this.columnDictionaryList.concat(result['_embedded'].dictionaries) : [];
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch((error) => {
-        // 로딩 hide
-        this.loadingHide();
-      });
+    this._columnDictionaryService.getColumnDictionaryList(this._getColumnDictionaryListParams()).then((result) => {
+      // 전달 받은 page number가 0 이면 컬럼 사전 리스트 초기화
+      this.pageResult.number === 0 && (this.columnDictionaryList = []);
+      // page 객체
+      this.pageResult = result.page;
+      // 컬럼 사전 리스트
+      this.columnDictionaryList = result['_embedded'] ?
+        this.columnDictionaryList.concat(result['_embedded'].dictionaries) :
+        [];
+      // 로딩 hide
+      this.loadingHide();
+    }).catch((error) => {
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**
@@ -339,7 +338,7 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     const params = {
       size: this.pageResult.size,
       page: this.pageResult.number,
-      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
+      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,
     };
     // 검색어
     if (!isUndefined(this.searchText) && this.searchText.trim() !== '') {

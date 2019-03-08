@@ -12,17 +12,17 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { CodeTableService } from '../service/code-table.service';
-import { Alert } from '../../../common/util/alert.util';
+import {Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {CodeTableService} from '../service/code-table.service';
+import {Alert} from '../../../common/util/alert.util';
 import * as _ from 'lodash';
-import { CodeValuePair } from '../../../domain/meta-data-management/code-value-pair';
-import { CommonUtil } from '../../../common/util/common.util';
-import { AbstractComponent } from '../../../common/component/abstract.component';
+import {CodeValuePair} from '../../../domain/meta-data-management/code-value-pair';
+import {CommonUtil} from '../../../common/util/common.util';
+import {AbstractComponent} from '../../../common/component/abstract.component';
 
 @Component({
   selector: 'app-create-code-table',
-  templateUrl: './create-code-table.component.html'
+  templateUrl: './create-code-table.component.html',
 })
 export class CreateCodeTableComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -57,15 +57,15 @@ export class CreateCodeTableComponent extends AbstractComponent implements OnIni
   @Output()
   public createComplete: EventEmitter<any> = new EventEmitter();
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private _codeTableService: CodeTableService,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    private _codeTableService: CodeTableService,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -97,7 +97,6 @@ export class CreateCodeTableComponent extends AbstractComponent implements OnIni
     // show flag
     this.showFl = true;
   }
-
 
   /**
    * 코드 테이블 쌍이 하나 이상인지
@@ -140,7 +139,6 @@ export class CreateCodeTableComponent extends AbstractComponent implements OnIni
   public onKeypressTableDesc(): void {
     this.tableDescValidationMsg = null;
   }
-
 
   /**
    * code table validation init
@@ -224,21 +222,24 @@ export class CreateCodeTableComponent extends AbstractComponent implements OnIni
     // 테이블 이름이 비어있는지 확인
     if (this.tableName.trim() === '') {
       // message
-      this.tableNameValidationMsg = this.translateService.instant('msg.metadata.ui.codetable.create.valid.table.name.required');
+      this.tableNameValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.codetable.create.valid.table.name.required');
       // return
       return false;
     }
     // 테이블 이름 길이 체크
     if (CommonUtil.getByte(this.tableName.trim()) > 150) {
       // message
-      this.tableNameValidationMsg = this.translateService.instant('msg.metadata.ui.codetable.create.valid.table.name.length');
+      this.tableNameValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.codetable.create.valid.table.name.length');
       // return
       return false;
     }
     // 테이블 설명 길이 체크
     if (CommonUtil.getByte(this.tableDescription.trim()) > 900) {
       // message
-      this.tableDescValidationMsg = this.translateService.instant('msg.metadata.ui.codetable.create.valid.table.desc.length');
+      this.tableDescValidationMsg = this.translateService.instant(
+        'msg.metadata.ui.codetable.create.valid.table.desc.length');
       // return
       return false;
     }
@@ -254,23 +255,22 @@ export class CreateCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 테이블 이름이 중복인지 확인
-    this._codeTableService.getDuplicateTableNameInCodeTable(this.tableName.trim())
-      .then((result) => {
-        // 중복
-        if (result['duplicated']) {
-          // message
-          this.tableNameValidationMsg = this.translateService.instant('msg.metadata.ui.codetable.create.valid.table.name.duplicated' , {value: this.tableName.trim()});
-          // 로딩 hide
-          this.loadingHide();
-        } else {
-          // 테이블 생성
-          this._createCodeTable();
-        }
-      })
-      .catch((error) => {
+    this._codeTableService.getDuplicateTableNameInCodeTable(this.tableName.trim()).then((result) => {
+      // 중복
+      if (result['duplicated']) {
+        // message
+        this.tableNameValidationMsg = this.translateService.instant(
+          'msg.metadata.ui.codetable.create.valid.table.name.duplicated', {value: this.tableName.trim()});
         // 로딩 hide
         this.loadingHide();
-      });
+      } else {
+        // 테이블 생성
+        this._createCodeTable();
+      }
+    }).catch((error) => {
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**
@@ -281,18 +281,17 @@ export class CreateCodeTableComponent extends AbstractComponent implements OnIni
     // 로딩 show
     this.loadingShow();
     // 코드 테이블 생성
-    this._codeTableService.createCodeTable(this._getCreateCodeTableParams())
-      .then((result) => {
-        // alert
-        Alert.success(this.translateService.instant('msg.metadata.ui.codetable.create.success', {value: this.tableName.trim()}));
-        // close
-        this.createComplete.emit();
-        this.onClickCancel();
-      })
-      .catch((error) => {
-        // 로딩 hide
-        this.loadingHide();
-      });
+    this._codeTableService.createCodeTable(this._getCreateCodeTableParams()).then((result) => {
+      // alert
+      Alert.success(
+        this.translateService.instant('msg.metadata.ui.codetable.create.success', {value: this.tableName.trim()}));
+      // close
+      this.createComplete.emit();
+      this.onClickCancel();
+    }).catch((error) => {
+      // 로딩 hide
+      this.loadingHide();
+    });
   }
 
   /**
@@ -303,7 +302,8 @@ export class CreateCodeTableComponent extends AbstractComponent implements OnIni
   private _codeListValidation(): boolean {
     for (let i = 0; i < this.codeTableList.length; i++) {
       // code나 value 둘 중 하나가 비어있으면 validation message 표시
-      if (this.codeTableList[i].code && this.codeTableList[i].value && this.codeTableList[i].code.trim() !== '' && this.codeTableList[i].value.trim() !== '') {
+      if (this.codeTableList[i].code && this.codeTableList[i].value && this.codeTableList[i].code.trim() !== '' &&
+        this.codeTableList[i].value.trim() !== '') {
         this.codeTableList[i]['invalid'] = false;
       } else {
         this.codeTableList[i]['invalid'] = true;
@@ -322,7 +322,7 @@ export class CreateCodeTableComponent extends AbstractComponent implements OnIni
     const params = {
       name: this.tableName.trim(),
       description: this.tableDescription.trim(),
-      codes: this._getCodesParams()
+      codes: this._getCodesParams(),
     };
     return params;
   }

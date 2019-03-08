@@ -15,7 +15,7 @@
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Field, Field as AbstractField } from '../../domain/workbook/configurations/field/field';
-import { BIType, FieldRole } from '../../domain/datasource/datasource';
+import { FieldRole } from '../../domain/datasource/datasource';
 import { Alert } from '../../common/util/alert.util';
 import * as _ from 'lodash';
 import { StringUtil } from '../../common/util/string.util';
@@ -94,7 +94,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
   public onChangeFilter($event): void {
 
     // 필수필터이면 제거 불가능
-    if (this.editingField.field.role === FieldRole.TIMESTAMP && this.editingField.field.biType === BIType.TIMESTAMP) {
+    if (this.editingField.field.role === FieldRole.TIMESTAMP && this.editingField.field.type === 'TIMESTAMP') {
       $event.target ? $event.target.checked = true : $event.currentTarget.checked = true;
       Alert.warning(this.translateService.instant('msg.board.alert.timestamp.del.error'));
       return;
@@ -626,7 +626,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     let list = [];
 
     if (ChartType.MAP === this.uiOption.type) {
-      list = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum];
+      list = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields;
     } else {
       list = _.concat(this.pivot.columns, this.pivot.rows, this.pivot.aggregations);
     }

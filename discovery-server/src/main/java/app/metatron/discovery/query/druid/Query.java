@@ -31,6 +31,7 @@ import app.metatron.discovery.query.druid.queries.*;
     @JsonSubTypes.Type(value = DataSourceMetadataQuery.class, name = "dataSourceMetadata"),
     @JsonSubTypes.Type(value = SegmentMetaDataQuery.class, name = "segmentMetadata"),
     @JsonSubTypes.Type(value = SelectQuery.class, name = "select"),
+    @JsonSubTypes.Type(value = SelectStreamQuery.class, name = "select.stream"),
     @JsonSubTypes.Type(value = SelectMetaQuery.class, name = "selectMeta"),
     @JsonSubTypes.Type(value = SummaryQuery.class, name = "summary"),
     @JsonSubTypes.Type(value = CovarianceQuery.class, name = "covariance"),
@@ -38,7 +39,8 @@ import app.metatron.discovery.query.druid.queries.*;
     @JsonSubTypes.Type(value = TopNQuery.class, name = "topN"),
     @JsonSubTypes.Type(value = PartitionRegexQuery.class, name = "partitioned"),
     @JsonSubTypes.Type(value = UnionAllQuery.class, name = "unionAll"),
-    @JsonSubTypes.Type(value = SketchQuery.class, name = "sketch")
+    @JsonSubTypes.Type(value = SketchQuery.class, name = "sketch"),
+    @JsonSubTypes.Type(value = GeoBoundaryFilterQuery.class, name = "geo.boundary")
 })
 public abstract class Query {
 

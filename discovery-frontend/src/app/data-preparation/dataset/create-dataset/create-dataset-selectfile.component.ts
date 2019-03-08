@@ -12,16 +12,24 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef, Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
+  ViewChild
+} from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
 import { CommonConstant } from '../../../common/constant/common.constant';
 import { CookieConstant } from '../../../common/constant/cookie.constant';
 //import { DatasetFile } from '../../../domain/data-preparation/dataset';
-import { PrDatasetFile } from '../../../domain/data-preparation/pr-dataset';
+import { PrDatasetFile,StorageType,FileFormat } from '../../../domain/data-preparation/pr-dataset';
 import { Alert } from '../../../common/util/alert.util';
 import { isUndefined } from 'util';
 import { DatasetService } from "../service/dataset.service";
+//import {ConfirmModalComponent} from "../../../common/component/modal/confirm/confirm.component";
+
+import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
+import {Modal} from '../../../common/domain/modal';
+import {PreparationCommonUtil} from "../../util/preparation-common.util";
 
 declare let plupload: any;
 
@@ -30,13 +38,6 @@ export class UploadNegotitationParameters {
   public storage_types: string[] = [];
   public timestamp: number = 0 ;
   public upload_id: string = '';
-}
-
-export class UploadChunkStatus {
-  public total_chunks:number = 0;
-  public uploading_chunks:number = 0;
-  public succeeded_chunks:number = 0;
-  public failed_chunks:number = 0;
 }
 
 @Component({
@@ -55,7 +56,11 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   @ViewChild('drop_container')
   private drop_container: ElementRef;
 
-  private interval : any;
+  @ViewChild(DeleteModalComponent)
+  public deleteModalComponent: DeleteModalComponent;
+
+  private _isFileAdded : boolean = false;
+  private _isFileAddedInterval : any;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -63,22 +68,31 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @Input()
-  //public datasetFile: DatasetFile;
-  public datasetFile: PrDatasetFile;
 
-  // file uploade result
-  //public uploadResult;
+  @Input()
+  public datasetFiles: any;
 
   // file uploader
   public chunk_uploader: any;
 
   public uploadNegoParams: UploadNegotitationParameters;
-  public chunkStatus : UploadChunkStatus;
-  private isUploadCancel :boolean = false;
-  public progressbarWidth: string = '100%';
-  public progressPercent : number = 0;
+
   public isUploading : boolean = false;
+
+  public changeDetect: ChangeDetectorRef;
+
+  public fileLocations: any[];
+  public fileLocation: string;
+  public fileLocationDefaultIdx : number = 0;
+
+  public limitSize : number;
+
+  public upFiles : any[];
+  public sucessFileCount : number = 0;
+  public supportedFileCount : number = 0;
+  public unsupportedFileCount : number = 0;
+  public unsupportedFileView : boolean = false;
+  public isNext : boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -106,6 +120,26 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
 
       this.uploadNegoParams = JSON.parse(JSON.stringify(params)); // deep copy for negotiation parameters
 
+      this.fileLocations = [];
+      if(this.uploadNegoParams.storage_types && this.uploadNegoParams.storage_types.length > 0){
+        this.uploadNegoParams.storage_types.forEach((storage_type)=>{
+          // FIXME: The storage type is currently LOCAL.
+          if( storage_type === 'LOCAL' )
+            this.fileLocations.push( { 'value': storage_type, 'label': storage_type } );
+        })
+      } else {
+        this.fileLocations.push( { 'value': 'LOCAL', 'label': 'LOCAL' } );
+      }
+
+      let idx = this.fileLocations.findIndex((item) => {
+        return item.value.toUpperCase() === 'LOCAL';
+      });
+      if (idx == -1) idx = 0;
+      this.fileLocationDefaultIdx = idx;
+      this.fileLocation = this.fileLocations[idx].value;
+
+      this.limitSize = this.uploadNegoParams.limit_size;
+
       this.initPlupload();
     }).catch((reason) => {
       console.log(reason);
@@ -116,54 +150,16 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
 
   public ngOnDestroy() {
     super.ngOnDestroy();
-    //this.uploader = null;
-
     this.chunk_uploader = null;
 
+    clearInterval(this._isFileAddedInterval);
+    this._isFileAddedInterval = null;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  public cancelClick(param:boolean){
-    let elm = $('.ddp-wrap-progress');
-    if (param) {
-      if(this.progressPercent === 100) {
-        Alert.info('Generating completed');
-        this.isUploadCancel = false;
-        this.chunk_uploader.start();
-        this.isUploading = false;
-
-      } else {
-        this.isUploadCancel = true;
-        this.chunk_uploader.stop();
-        elm[0].style.display = "none";
-        elm[1].style.display = "";
-      }
-    } else {
-      this.isUploadCancel = false;
-      this.chunk_uploader.start();
-      elm[0].style.display = "";
-      elm[1].style.display = "none";
-    }
-  }
-
-  public cancelUpload(){
-    this.isUploadCancel = true;
-    this.chunk_uploader.stop();
-    this.chunk_uploader.start();
-    this.isUploadCancel = false;
-    this.isUploading = false;
-  }
-  public startUpload(){
-    this.isUploading = true;
-    this.isUploadCancel = false;
-    this.chunk_uploader.start();
-  }
-
   public initPlupload() {
-    //let uploadNegoParams = this.uploadNegoParams;
 
     this.chunk_uploader = new plupload.Uploader({
       runtimes : 'html5,html4',
@@ -191,88 +187,160 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
       },
       init: {
         PostInit: () => {
-          for ( let idx in this.chunk_uploader.settings.multipart_params){
-            this.chunk_uploader.settings.multipart_params[idx] = ''
-          };
-        },
-
-        FilesAdded: (up, files) => {
-          this.chunkStatus = new UploadChunkStatus();
-
-          if (files && files.length > 1){
-            plupload.each(files, (file) => {
-              up.removeFile(file);
-            });
-            Alert.error('Only one file can be uploaded.');
-          } else {
-            plupload.each(files, (file) => {
-              this.chunk_uploader.settings.multipart_params.total_size = file.size;
-
-              // get and set upload_id, chunk_size, storage_type
-              let chunk_size = this.uploadNegoParams.limit_size;
-              this.chunk_uploader.setOption('chunk_size', chunk_size );
-              this.chunk_uploader.settings.multipart_params.chunk_size = chunk_size;
-              this.chunk_uploader.settings.multipart_params.upload_id = this.uploadNegoParams.upload_id;
-
-              // FIXME: storage type is always LOCAL now
-              this.chunk_uploader.settings.multipart_params.storage_type = this.uploadNegoParams.storage_types[0];
-
-            });
-            this.startUpload();
-
+          for ( let item in this.chunk_uploader.settings.multipart_params){
+            this.chunk_uploader.settings.multipart_params[item] = ''
           }
+        },
+        QueueChanged: (up)=>{
+          //console.log('[QueueChanged] up, upFiles',up,this.upFiles);
+        },
+        FilesAdded: (up, files) => {
+          this.chunk_uploader.setOption('chunk_size', this.limitSize );
+          plupload.each(files, (file, idx) => {
+            this.chunk_uploader.settings.multipart_params.upload_id = null;
+            this.chunk_uploader.settings.multipart_params.chunk_size = null;
+            this.chunk_uploader.settings.multipart_params.total_size = null;
+
+            file.uploadIndex = idx;
+            file.upload_id = null;
+            file.isUploaded = false;
+            file.isUploading = false;
+            file.isCanceled = false;
+            file.isFailed = false;
+            file.total_chunks = 0;
+            file.uploading_chunks = 0;
+            file.succeeded_chunks = 0;
+            file.failed_chunks = 0;
+            file.progressPercent = 0;
+
+            let tmp = PreparationCommonUtil.getFileNameAndExtension(file.name);
+
+            file.fileName = tmp[0];
+            file.fileExtension = tmp[1];
+            file.response = null;
+
+            this.datasetService.getFileUploadNegotiation().then((params) => {
+              this.uploadNegoParams = JSON.parse(JSON.stringify(params));
+              file.upload_id = this.uploadNegoParams.upload_id;
+
+              this.supportedFileCount++;
+              this.changeDetect.detectChanges();
+            });
+          });
+
+          this.upFiles = files;
+
+          this._isFileAddedCheck();
         },
 
         UploadProgress: (up, file) => {
-          this.progressPercent = file.percent;
-          this.progressbarWidth = file.percent + "%";
-          this.drop_container.nativeElement.click();
+          this.upFiles[file.uploadIndex].progressPercent = file.percent;
+          //this.drop_container.nativeElement.click();
+          this.changeDetect.detectChanges();
         },
 
-        // BeforeUpload: (up, file)=>{
-        // },
+        BeforeUpload: (up, file)=>{
+          //console.log('[BeforeUpload] ', file.uploadIndex, file.upload_id);
+
+          this.chunk_uploader.settings.multipart_params.upload_id = file.upload_id;
+          this.chunk_uploader.settings.multipart_params.chunk_size = this.limitSize;
+          this.chunk_uploader.settings.multipart_params.total_size = file.size;
+
+          this.chunk_uploader.settings.multipart_params.storage_type = this.fileLocation;
+
+          //console.log('[BeforeUpload] this.chunk_uploader.settings.multipart_params', this.chunk_uploader.settings.multipart_params);
+
+          //this.drop_container.nativeElement.click();
+          this.changeDetect.detectChanges();
+        },
+
 
         UploadFile: (up,file)=>{
-          if (this.isUploadCancel) {
-            up.removeFile(file);
-            for ( let idx in this.chunk_uploader.settings.multipart_params){
-              this.chunk_uploader.settings.multipart_params[idx] = ''
-            };
-          }
+          //this.drop_container.nativeElement.click();
+          this.changeDetect.detectChanges();
         },
 
         FileUploaded: (up, file, info)=>{
           let response = JSON.parse(info.response);
+
+          this.isUploading = false;
+          file.isUploading = false;
+
+          file.response = response;
           if( response.chunkIdx == 0 ) {
-            this.chunkStatus.uploading_chunks--;
+            file.uploading_chunks--;
+
             if( response.success==true ) {
-              this.chunkStatus.succeeded_chunks++;
+              file.succeeded_chunks++;
             } else {
-              this.chunkStatus.failed_chunks++;
+              file.failed_chunks++;
             }
           }
 
-          this.isUploading = false;
+          if( file.succeeded_chunks == file.total_chunks ){
+            file.isUploaded = true;
+            file.storedUri = response.storedUri;
+            this.sucessFileCount++;
+          } else {
+            file.isUploaded = false;
+            file.storedUri = '';
+          }
 
-          //const success = true;
-          //this.uploadResult = { success, res };
-          this.checkIfUploaded(response);
+          this.upFiles[file.uploadIndex].response = file.response;
+          this.upFiles[file.uploadIndex].uploading_chunks = file.uploading_chunks;
+          this.upFiles[file.uploadIndex].succeeded_chunks = file.succeeded_chunks;
+          this.upFiles[file.uploadIndex].failed_chunks = file.failed_chunks;
+          this.upFiles[file.uploadIndex].isUploading = file.isUploading;
+          this.upFiles[file.uploadIndex].isUploaded = file.isUploaded;
+          this.upFiles[file.uploadIndex].storedUri = file.storedUri;
+
+
+          //this.drop_container.nativeElement.click();
+          this.changeDetect.detectChanges();
+
         },
 
-        BeforeChunkUpload: (up, file, args, blob, offset)=>{
-          this.chunkStatus.total_chunks++;
-          this.chunkStatus.uploading_chunks++;
+        BeforeChunkUpload: (up, file, result)=>{
+          this.isUploading = true;
+
+          file.total_chunks++;
+          file.uploading_chunks++;
+          file.isUploading = true;
+
+          this.upFiles[file.uploadIndex].total_chunks = file.total_chunks;
+          this.upFiles[file.uploadIndex].uploading_chunks = file.uploading_chunks;
+          this.upFiles[file.uploadIndex].isUploading = file.isUploading;
+
+          //this.drop_container.nativeElement.click();
+          this.changeDetect.detectChanges();
         },
         ChunkUploaded: (up, file, info)=>{
           let response = JSON.parse(info.response);
-          this.chunkStatus.uploading_chunks--;
-          if( response.success==true ) {
-            this.chunkStatus.succeeded_chunks++;
-          } else {
-            this.chunkStatus.failed_chunks++;
-          }
-        },
 
+          this.isUploading = true;
+
+          file.isUploading = true;
+          file.uploading_chunks--;
+          if( response.success==true ) {
+            file.succeeded_chunks++;
+          } else {
+            file.failed_chunks++;
+          }
+
+          this.upFiles[file.uploadIndex].isUploading = file.isUploading;
+          this.upFiles[file.uploadIndex].uploading_chunks = file.uploading_chunks;
+          this.upFiles[file.uploadIndex].succeeded_chunks = file.succeeded_chunks;
+          this.upFiles[file.uploadIndex].failed_chunks = file.failed_chunks;
+
+          //this.drop_container.nativeElement.click();
+          this.changeDetect.detectChanges();
+        },
+        UploadComplete: (up, files) => {
+          //console.log('[UploadComplete]');
+          this.isUploading = false;
+          this.fileUploadComplete();
+          this.changeDetect.detectChanges();
+        },
         /* error define
         -100 GENERIC_ERROR
         -200 HTTP_ERROR
@@ -285,138 +353,165 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
         -701 MEMORY_ERROR
          */
         Error: (up, err) => {
-          this.cancelUpload();
-          this.drop_container.nativeElement.click();
           switch (err.code){
             case -601:
-              Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
+              this.unsupportedFileCount++;
+              this.unsupportedFileView = true;
+              this._unsupportedFileView();
+              //Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
+              break;
+            case -100:
+              console.log('GENERIC_ERROR', err);
+              break;
+            case -200:
+              console.log('HTTP_ERROR', err);
+              break;
+            case -300:
+              console.log('IO_ERROR', err);
               break;
             default:
-              Alert.error(err.message);
+              console.log('unknow error', err);
+              break;
           }
-          console.log('error',err);
         }
       }
     });
-
     this.chunk_uploader.init();
   }
 
+  /**
+   * File Upload Location Selected
+   */
+  public onSelected(event){
+    this.fileLocation = event.value;
+  }
+
+  /**
+   * File Upload Cancel(Plupload)
+   */
+  public cancelUpload(item){
+    if (item.status == plupload.UPLOADING) {
+      this.chunk_uploader.stop();
+      this.chunk_uploader.removeFile(item);
+      this.upFiles[item.uploadIndex].isUploading = false;
+      this.upFiles[item.uploadIndex].isCanceled = true;
+      this.chunk_uploader.start();
+    }
+  }
+  /**
+   * File Upload Start(Plupload)
+   */
+  public startUpload(){
+    this.isUploading = true;
+    this.chunk_uploader.start();
+  }
+  /**
+   * Files Upload Complete(Plupload)
+   */
+  public fileUploadComplete(){
+    if (this.sucessFileCount < 1 && isUndefined(this.datasetFiles)) {
+      console.log('fileUploadComplete : this.sucessFileCount < 1 ');
+      return;
+    }
+
+    for(let i=0; i< this.upFiles.length ; i++) {
+      if (this.upFiles[i].isUploaded === true ){
+        let datasetFile = new PrDatasetFile();
+
+        datasetFile.filenameBeforeUpload = this.upFiles[i].name;
+        datasetFile.storedUri = this.upFiles[i].storedUri;
+        datasetFile.storageType = this._getStorageType(this.fileLocation);
+        datasetFile.fileFormat = this._getFileformat(this.upFiles[i].fileExtension);
+        if( datasetFile.fileFormat === FileFormat.CSV || datasetFile.fileFormat === FileFormat.EXCEL ) datasetFile.delimiter = ',';
+        datasetFile.fileName = this.upFiles[i].fileName;
+        datasetFile.fileExtension = this.upFiles[i].fileExtension;
+
+        this.datasetFiles.push(datasetFile);
+      }
+    }
+
+    this.isNext = ( !this.isUploading && this.sucessFileCount > 0) ;
+
+  }
+
+  /**
+   * Next (select sheet)
+   */
   public next() {
-    //if (!isUndefined(this.datasetFile.filename)) {
-    if (!isUndefined(this.datasetFile.filenameBeforeUpload)) {
+    if ( this.sucessFileCount < 1 ){
+      //Alert.warning('업로드된 파일이 없습니다.');
+      return;
+    }
+    if(this.isUploading){
+      //Alert.warning('업로드 중인 파일이 있습니다');
+      return;
+    }
+
+    //if (!isUndefined(this.datasetFile.filenameBeforeUpload)) {
+    if (!isUndefined(this.datasetFiles[0].filenameBeforeUpload)) {
       this.popupService.notiPopup({
         name: 'select-sheet',
         data: null
       });
-
-
     }
   }
+  /**
+   * Close Check
+   */
+  public closeCheck(){
+    if(this.isUploading){
 
-  public prev() {
-    super.close();
-    this.popupService.notiPopup({
-      name: 'close-create',
-      data: null
-    });
+      event.stopPropagation();
+      this.chunk_uploader.stop();
 
+      const modal = new Modal();
+      modal.isShowCancel = true;
+      modal.name = this.translateService.instant('msg.dp.ui.file.upload.cancel.title');
+      modal.description = this.translateService.instant('msg.dp.ui.file.upload.cancel.description');
+      //modal.subDescription = '';
+
+      this.deleteModalComponent.init(modal);
+    } else {
+      this.close();
+    }
   }
-
+  /**
+   * Close Imported Popup
+   */
   public close() {
-
     // Check if came from dataflow
     if (this.datasetService.dataflowId) {
       this.datasetService.dataflowId = undefined;
     }
-
     super.close();
+
+    this.chunk_uploader.stop();
 
     this.popupService.notiPopup({
       name: 'close-create',
       data: null
     });
   }
-
-
   /**
-   * Get grid information of file
+   * Cancel and Close on Uploading
    */
-  public getDataFile(response: any) {
-    if (isUndefined(this.datasetFile)) {
-      return;
-    }
-
-    //const response: any = this.uploadResult.response;
-    /*
-    this.datasetFile.filename = response.filename;
-    this.datasetFile.filepath = response.filepath;
-    this.datasetFile.sheets = response.sheets;
-    if (response.sheets && response.sheets.length > 0) {
-      this.datasetFile.sheetname = response.sheets[0];
-    }
-    */
-    this.datasetFile.filenameBeforeUpload = response.filenameBeforeUpload;
-    this.datasetFile.storedUri = response.storedUri;
-    // this.datasetFile.sheets = response.sheets;
-
-    //if (!isUndefined(this.datasetFile.filename)) {
-    if (!isUndefined(this.datasetFile.storedUri)) {
-      this.popupService.notiPopup({
-        name: 'select-sheet',
-        data: null
-      });
-
-      this.drop_container.nativeElement.click();
-    }
+  public confirmClose(){
+    this.close();
   }
-
   /**
-   * Check if uploaded
-   * @param response
+   * Upload Continue on Uploading
    */
-  public checkIfUploaded(response: any) {
-    if( false==this.isUploading && 0==this.chunkStatus.uploading_chunks && 0<this.chunkStatus.total_chunks ) {
-      if( this.chunkStatus.succeeded_chunks == this.chunkStatus.total_chunks ) {
-        //this.uploadResult.response = response;
-        this.getDataFile(response);
-      } else {
-        console.log( 'failed chunks : ' + this.chunkStatus.failed_chunks );
-      }
-    }
-
-    // doesn't need pollings
-    /*
-    this.fetchUploadStatus(res.storedUri);
-    this.interval = setInterval(() => {
-      this.fetchUploadStatus(res.storedUri);
-    }, 1000)
-    */
+  public cancelClose(){
+    this.chunk_uploader.start();
   }
-
   /**
-   * Polling
-   * @param {string} fileKey
+   * Show formatBytes
    */
-  /*
-  public fetchUploadStatus(storedUri: string) {
-    this.datasetService.checkFileUploadStatus(storedUri).then((result) => {
-      this.loadingHide();
-
-      if (result.state === 'done' && result.success) { // Upload finished
-        clearInterval(this.interval);
-        this.interval = undefined;
-        this.uploadResult.response = result;
-        this.getDataFile();
-      } else if (result.success === false) { // upload failed
-        Alert.error(this.translateService.instant('Failed to upload. Please select another file'));
-        clearInterval(this.interval);
-        this.interval = undefined;
-        return;
-      }
-    });
+  public formatBytes(a,b) { // a=크기 , b=소숫점자릿
+    if(0==a) return "0 Bytes";
+    let c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));
+    return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]
   }
-  */
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
@@ -425,6 +520,52 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * File Attach Check(Plupload)
+   */
+  private _isFileAddedCheck(){
+    this._isFileAddedInterval = setInterval(()=>{
+      for(let i=0; i< this.upFiles.length ; i++) {
+        if (this.upFiles.length == i + 1 && this.upFiles[i].upload_id != null ) {
+          this._isFileAdded = true;
 
+          clearInterval(this._isFileAddedInterval);
+          this._isFileAddedInterval = null;
+          this.startUpload();
+        }
+      }
+    }, 1000);
+  }
+  /**
+   * Unsupported File Wanning
+   */
+  private _unsupportedFileView(){
+    if (this.unsupportedFileView) {
+      setTimeout(() => {
+        this.unsupportedFileView = false;
+      }, 3000);
+    }
+  }
 
+  private _getStorageType(location){
+    for (let sType in StorageType) {
+      if (StorageType[sType] == location) {
+        let enumType :StorageType = StorageType["" + sType];
+        return enumType;
+      }
+    }
+    return StorageType.LOCAL;
+  }
+
+  private _getFileformat(fileExtension) {
+    let fileType : string = fileExtension.toUpperCase();
+    if (fileType === 'CSV' || fileType === 'TXT'){
+      return FileFormat.CSV;
+    } else if (fileType === 'XLSX' || fileType === 'XLS'){
+      return FileFormat.EXCEL
+    } else if (fileType === 'JSON'){
+      return FileFormat.JSON
+    }
+  }
 }
+

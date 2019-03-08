@@ -489,6 +489,8 @@ export enum EventType {
   CUMULATIVE = <any>'cumulativeMode',
   // 선반 변경시
   CHANGE_PIVOT = <any>'changePivot',
+  // 맵차트 옵션 변경시
+  MAP_CHANGE_OPTION = <any>'mapChangeOption',
   // 그리드차트 피봇/원본
   GRID_ORIGINAL = <any>'gridViewType',
   // 바차트 병렬 / 중첩
@@ -927,6 +929,15 @@ export enum ShelfType {
   PIVOT = <any>'pivot',
   GRAPH = <any>'graph',
   GEO = <any>'geo'
+}
+
+/**
+ * shelf layer view type
+ */
+export enum LayerViewType {
+  ORIGINAL = <any>'original',
+  HASH = <any>'hash',
+  CLUSTERING = <any>'clustering'
 }
 
 /**

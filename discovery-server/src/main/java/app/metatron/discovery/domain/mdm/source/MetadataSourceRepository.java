@@ -20,6 +20,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import java.util.Set;
 
+import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataProjections;
 
 /**
@@ -30,6 +31,7 @@ import app.metatron.discovery.domain.mdm.MetadataProjections;
 public interface MetadataSourceRepository extends JpaRepository<MetadataSource, String>,
     QueryDslPredicateExecutor<MetadataSource> {
 
-  Set<MetadataSource> findMetadataSourcesByTypeAndSchema(MetadataSource.MetadataSourceType type, String schema);
-  Set<MetadataSource> findMetadataSourcesByTypeAndSchemaAndSourceId(MetadataSource.MetadataSourceType type, String schema, String sourceId);
+  Set<MetadataSource> findMetadataSourcesByTypeAndSchema(Metadata.SourceType type, String schema);
+
+  Set<MetadataSource> findMetadataSourcesByTypeAndSchemaAndSourceId(Metadata.SourceType type, String schema, String sourceId);
 }

@@ -40,7 +40,7 @@
 
     <logger name="org.springframework.web.client" level="info"/>
 
-    <logger name="org.springframework.web.servlet.mvc" level="info"/>
+    <logger name="org.springframework.web.servlet.mvc" level="debug"/>
 
     <logger name="org.apache.http" level="info"/>
 

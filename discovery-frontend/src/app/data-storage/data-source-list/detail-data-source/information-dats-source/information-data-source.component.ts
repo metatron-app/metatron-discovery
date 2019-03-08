@@ -38,8 +38,9 @@ import {StringUtil} from '../../../../common/util/string.util';
 import {ConfirmModalComponent} from "../../../../common/component/modal/confirm/confirm.component";
 import {Modal} from "../../../../common/domain/modal";
 import {Alert} from "../../../../common/util/alert.util";
-import {IngestionLogComponent} from './component/ingestion-log/ingestion-log.component';
-import {CommonUtil} from '../../../../common/util/common.util';
+import { IngestionLogComponent } from './component/ingestion-log/ingestion-log.component';
+import { CommonUtil } from '../../../../common/util/common.util';
+import {Metadata} from "../../../../domain/meta-data-management/metadata";
 
 declare let echarts: any;
 
@@ -76,8 +77,14 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   @ViewChild(ConfirmModalComponent)
   private confirmModal: ConfirmModalComponent;
 
+  @Output('updateDatasource')
+  private _updateDatasource: EventEmitter<any> = new EventEmitter();
+
   @Output()
   public changeDatasource: EventEmitter<any> = new EventEmitter();
+
+  @Input()
+  public isShowModifiedGuideMessage: boolean;
 
   // scope types
   private ingestionScopeTypeList: any[];
@@ -126,8 +133,11 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   @Input()
   public timestampColumn: Field;
 
-  // 리스트 flag
-  public detailFl: boolean = false;
+  @Input()
+  public metaData: Metadata;
+
+  // source description edit flag
+  public isEditSourceDescription: boolean = false;
   // advanced setting show flag
   public isShowAdvancedSetting: boolean = false;
 
@@ -136,6 +146,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
 
   // partitionKeyList
   public partitionKeyList: string[];
+
+  // description
+  public descriptionChangeText: string;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -189,6 +202,10 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
         }
       }
     }
+    // when hide source name edit, if edit desc mode, set show modified guide message
+    if (changes.isShowModifiedGuideMessage && !changes.isShowModifiedGuideMessage.currentValue && this.isEditSourceDescription) {
+      this.isShowModifiedGuideMessage = true;
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -196,10 +213,60 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
+   * Enable edit datasource description
+   */
+  public enableEditDescription(): void {
+    this.isEditSourceDescription = true;
+    // set show modified guide message
+    this.isShowModifiedGuideMessage = true;
+    // set desc text
+    this.descriptionChangeText = this.datasource.description;
+  }
+
+  /**
+   * Get converted datasource description
+   * @return {string}
+   */
+  public getConvertedSourceDescription(): string {
+    return StringUtil.isEmpty(this.datasource.description) ? this.translateService.instant('msg.storage.ui.none.source.desc') : this.datasource.description.replace(/\r\n|\n/gi, '<br>');
+  }
+
+  /**
+   * Update datasource description
+   */
+  public updateSourceDescription(): void {
+    // 설명 길이 체크
+    if (CommonUtil.getByte(this.descriptionChangeText.trim()) > 450) {
+      Alert.warning(this.translateService.instant('msg.alert.edit.description.len'));
+      return;
+    }
+    this.isEditSourceDescription = false;
+    // set hide modified guide message
+    this.isShowModifiedGuideMessage = false;
+    // update
+    this._updateDatasource.emit({description: this.descriptionChangeText.trim()});
+  }
+
+  /**
+   * Click description outside
+   * @param {MouseEvent} event
+   */
+  public onClickDescriptionOutside(event: MouseEvent): void {
+    !$(event.relatedTarget).hasClass('ddp-box-btn') && this.updateSourceDescription();
+  }
+
+  /**
    * ingestion details click event
    */
   public onClickIngestionDetails(): void {
     this._ingestionLogComp.init(this.datasource.id, this.historyId, this._ingestionProgress.message, this._ingestionProgress.failResults);
+  }
+
+  /**
+   * Link master data click event
+   */
+  public onClickLinkMasterData(): void {
+    this.router.navigate([`/management/metadata/metadata/${this.metaData.id}`]).then();
   }
 
   /**

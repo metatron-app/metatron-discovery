@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { CodeTableService } from '../../code-table/service/code-table.service';
-import { ColumnDictionary } from '../../../domain/meta-data-management/column-dictionary';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Component, ElementRef, Injector, OnDestroy, OnInit} from '@angular/core';
+import {CodeTableService} from '../../code-table/service/code-table.service';
+import {ColumnDictionary} from '../../../domain/meta-data-management/column-dictionary';
 
 @Component({
   selector: 'app-linked-column-dictionary',
-  templateUrl: './linked-column-dictionary.component.html'
+  templateUrl: './linked-column-dictionary.component.html',
 })
 export class LinkedColumnDictionaryComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -50,9 +50,10 @@ export class LinkedColumnDictionaryComponent extends AbstractComponent implement
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private _codeTableService: CodeTableService,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    private _codeTableService: CodeTableService,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
 
@@ -98,7 +99,7 @@ export class LinkedColumnDictionaryComponent extends AbstractComponent implement
    * @returns {boolean}
    */
   public isMoreContents(): boolean {
-    return (this.pageResult.number < this.pageResult.totalPages -1);
+    return (this.pageResult.number < this.pageResult.totalPages - 1);
   }
 
   /**
@@ -165,7 +166,6 @@ export class LinkedColumnDictionaryComponent extends AbstractComponent implement
     this.router.navigate(['management/metadata/column-dictionary', columnDictionary.id]);
   }
 
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -196,18 +196,19 @@ export class LinkedColumnDictionaryComponent extends AbstractComponent implement
     // 로딩 show
     this.loadingShow();
     // 컬럼 사전 목록 조회
-    this._codeTableService.getColumnDictionaryInCodeTable(this._codeTableId, this._getColumnDictionaryListParams(), 'forListView')
-      .then((result) => {
-        // 전달 받은 page number가 0 이면 연결된 컬럼 사전 목록 초기화
-        this.pageResult.number === 0 && (this.columnDictionaryList = []);
-        // page
-        this.pageResult = result['page'];
-        // 연결된 물리 컬럼 목록
-        this.columnDictionaryList = result['_embedded'] ? this.columnDictionaryList.concat(result['_embedded'].dictionaries) : [];
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._codeTableService.getColumnDictionaryInCodeTable(this._codeTableId, this._getColumnDictionaryListParams(),
+      'forListView').then((result) => {
+      // 전달 받은 page number가 0 이면 연결된 컬럼 사전 목록 초기화
+      this.pageResult.number === 0 && (this.columnDictionaryList = []);
+      // page
+      this.pageResult = result['page'];
+      // 연결된 물리 컬럼 목록
+      this.columnDictionaryList = result['_embedded'] ?
+        this.columnDictionaryList.concat(result['_embedded'].dictionaries) :
+        [];
+      // 로딩 hide
+      this.loadingHide();
+    }).catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -230,7 +231,7 @@ export class LinkedColumnDictionaryComponent extends AbstractComponent implement
     const params = {
       size: this.pageResult.size,
       page: this.pageResult.number,
-      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
+      sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort,
     };
 
     return params;

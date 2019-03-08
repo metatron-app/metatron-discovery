@@ -32,7 +32,9 @@ import app.metatron.discovery.query.druid.filters.*;
     @JsonSubTypes.Type(value = RangeFilter.class, name = "bound"),
     @JsonSubTypes.Type(value = InFilter.class, name = "in"),
     @JsonSubTypes.Type(value = ExprFilter.class, name = "expr"),
-    @JsonSubTypes.Type(value = MathFilter.class, name = "math")
+    @JsonSubTypes.Type(value = MathFilter.class, name = "math"),
+    @JsonSubTypes.Type(value = LucenePointFilter.class, name = "lucene.point"),
+    @JsonSubTypes.Type(value = LuceneSpatialFilter.class, name = "lucene.spatial")
 })
 public interface Filter {
 }

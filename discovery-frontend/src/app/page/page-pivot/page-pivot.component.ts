@@ -23,12 +23,12 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../common/component/abstract.component';
-import { Pivot } from '../../domain/workbook/configurations/pivot';
-import { Field as AbstractField } from '../../domain/workbook/configurations/field/field';
-import { BIType, Field, FieldPivot, FieldRole, LogicalType } from '../../domain/datasource/datasource';
-import { DimensionField } from '../../domain/workbook/configurations/field/dimension-field';
-import { AggregationType, MeasureField } from '../../domain/workbook/configurations/field/measure-field';
+import {AbstractComponent} from '../../common/component/abstract.component';
+import {Pivot} from '../../domain/workbook/configurations/pivot';
+import {Field as AbstractField} from '../../domain/workbook/configurations/field/field';
+import {Field, FieldPivot, FieldRole, LogicalType} from '../../domain/datasource/datasource';
+import {DimensionField} from '../../domain/workbook/configurations/field/dimension-field';
+import {AggregationType, MeasureField} from '../../domain/workbook/configurations/field/measure-field';
 import {
   ByTimeUnit,
   GranularityType,
@@ -38,8 +38,8 @@ import {
 import * as $ from 'jquery';
 
 import * as _ from 'lodash';
-import { ClickOutsideDirective } from 'ng-click-outside';
-import { PageWidget, PageWidgetConfiguration } from '../../domain/dashboard/widget/page-widget';
+import {ClickOutsideDirective} from 'ng-click-outside';
+import {PageWidget, PageWidgetConfiguration} from '../../domain/dashboard/widget/page-widget';
 import {
   BarMarkType,
   ChartType,
@@ -50,14 +50,14 @@ import {
   UIFormatNumericAliasType,
   UIFormatType
 } from '../../common/component/chart/option/define/common';
-import { Format } from '../../domain/workbook/configurations/format';
-import { Filter } from '../../domain/workbook/configurations/filter/filter';
-import { UIChartAxis, UIChartColorByValue, UIOption } from '../../common/component/chart/option/ui-option';
-import { Modal } from '../../common/domain/modal';
-import { Shelf } from '../../domain/workbook/configurations/shelf/shelf';
-import { Alert } from '../../common/util/alert.util';
-import { StringUtil } from '../../common/util/string.util';
-import { DIRECTION } from '../../domain/workbook/configurations/sort';
+import {Format} from '../../domain/workbook/configurations/format';
+import {Filter} from '../../domain/workbook/configurations/filter/filter';
+import {UIChartAxis, UIChartColorByValue, UIOption} from '../../common/component/chart/option/ui-option';
+import {Modal} from '../../common/domain/modal';
+import {Shelf} from '../../domain/workbook/configurations/shelf/shelf';
+import {Alert} from '../../common/util/alert.util';
+import {StringUtil} from '../../common/util/string.util';
+import {DIRECTION} from '../../domain/workbook/configurations/sort';
 import {fromEvent} from "rxjs";
 import {debounceTime, map} from "rxjs/operators";
 
@@ -260,7 +260,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     const resizeEvent$ = fromEvent(window, 'resize')
       .pipe(
-        map( () => document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight ),
+        map(() => document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight),
         debounceTime(500)
       );
 
@@ -302,7 +302,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     this.pivot.rows = this.pivot.rows.map(this.checkAlias);
     this.pivot.aggregations = this.pivot.aggregations.map(this.checkAlias);
 
-    this.changePivotEvent.emit({ pivot: this.pivot, eventType: eventType });
+    this.changePivotEvent.emit({pivot: this.pivot, eventType: eventType});
   }
 
   /**
@@ -504,7 +504,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     }
 
     const idx = shelf.findIndex((field) => {
-      return field.name === targetField.name && targetField.biType === field.biType;
+      return field.name === targetField.name && targetField.role === field.role;
     });
 
     // GEO data is only usable in map chart
@@ -518,17 +518,16 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       let field;
 
       // timestamp biType이거나, biType이 dimension이면서 logicalType이 timestamp인 경우
-      if (targetField.biType === BIType.TIMESTAMP ||
-        (targetField.biType === BIType.DIMENSION && targetField.logicalType === LogicalType.TIMESTAMP)) {
+      if (targetField.role === FieldRole.TIMESTAMP ||
+        (targetField.role === FieldRole.DIMENSION && targetField.logicalType === LogicalType.TIMESTAMP)) {
 
         // 타입필드로 설정
         const timeField = new TimestampField();
         //timeField.alias = timeField.granularity.toString().toUpperCase() + `(${targetField.name})`;
         field = timeField;
-      }
-      else if (targetField.biType === BIType.DIMENSION) {
+      } else if (targetField.role === FieldRole.DIMENSION) {
         field = new DimensionField();
-      } else if (targetField.biType === BIType.MEASURE) {
+      } else if (targetField.role === FieldRole.MEASURE) {
         // default로 aggregationType은 SUM으로 설정
         field = new MeasureField();
         field.aggregated = targetField.aggregated;
@@ -541,16 +540,15 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       field.field = targetField;
 
       if (targetField.name !== targetField.alias
-        && ( !targetField.nameAlias || targetField.nameAlias.nameAlias !== targetField.alias )) {
+        && (!targetField.nameAlias || targetField.nameAlias.nameAlias !== targetField.alias)) {
         field.alias = targetField.alias;
       }
-      ( targetField.nameAlias ) && ( field.fieldAlias = targetField.nameAlias.nameAlias );
+      (targetField.nameAlias) && (field.fieldAlias = targetField.nameAlias.nameAlias);
       field.granularity = targetField.granularity;
       field.segGranularity = targetField.segGranularity;
       if (!_.isUndefined(targetField.ref)) {
         field.ref = targetField.ref;
-      }
-      else if (targetField.type == 'user_expr') {
+      } else if (targetField.type == 'user_expr') {
         field.ref = 'user_defined';
       }
 
@@ -644,8 +642,8 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     if (pivotField.currentPivot !== pivot) {
 
       // 타임스탬프일때
-      if (targetField.biType === BIType.TIMESTAMP ||
-          (targetField.biType === BIType.DIMENSION && targetField.logicalType === LogicalType.TIMESTAMP)) {
+      if (targetField.role === FieldRole.TIMESTAMP ||
+        (targetField.role === FieldRole.DIMENSION && targetField.logicalType === LogicalType.TIMESTAMP)) {
 
         const timestampIndex = shelf.findIndex((field) => {
           return field.name === targetField.name && targetField.role === field.field.role && targetField.granularity === field.granularity && -1 !== targetField.format['type'].indexOf('time');
@@ -670,7 +668,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             pivotField.currentPivot = pivot;
           }
         }
-      // 타임스탬프가 아닐때
+        // 타임스탬프가 아닐때
       } else {
 
         // 기존의 피봇값 제거
@@ -711,7 +709,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   public onChangeFilter($event): void {
 
     // 필수필터이면 제거 불가능
-    if (this.editingField.field.role === FieldRole.TIMESTAMP && this.editingField.field.biType === BIType.TIMESTAMP) {
+    if (this.editingField.field.role === FieldRole.TIMESTAMP && this.editingField.field.type === 'TIMESTAMP') {
       $event.target ? $event.target.checked = true : $event.currentTarget.checked = true;
       Alert.warning(this.translateService.instant('msg.board.alert.timestamp.del.error'));
       return;
@@ -749,8 +747,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       }
       field.format.type = formatType;
       this.changeFormatEvent.emit(field);
-    }
-    else {
+    } else {
       this.fix2DepthContext = false;
       this.editingField = null;
       this.changeFormatEvent.emit(null);
@@ -973,29 +970,29 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         || _.eq(this.chartType, ChartType.COMBINE)
         || _.eq(this.chartType, ChartType.GRID)) {
 
-        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.over.desc',{value:'1'}) : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.over.desc', {value: '1'}) : 'ddp-box-dimension';
       }
       // 1 measure
       else if (_.eq(this.chartType, ChartType.SCATTER)) {
 
-        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc',{value:'1'}) : 'ddp-box-measure';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc', {value: '1'}) : 'ddp-box-measure';
       }
       // 1 time dimension
       else if (_.eq(this.chartType, ChartType.CONTROL)
         || _.eq(this.chartType, ChartType.WATERFALL)) {
 
-        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.desc',{value:'1'}) : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.desc', {value: '1'}) : 'ddp-box-dimension';
       }
       // 1 dimension
       // TODO 태호: 차후 네트워크 차트 수치값 적용시 1-2 dimension
       else if (_.eq(this.chartType, ChartType.NETWORK)
         || _.eq(this.chartType, ChartType.TREEMAP)) {
 
-        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.desc',{value:'1'}) : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.desc', {value: '1'}) : 'ddp-box-dimension';
       }
       // 3 or more dimension
       else if (_.eq(this.chartType, ChartType.SANKEY)) {
-        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.over.desc',{value:'2'}) : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.over.desc', {value: '2'}) : 'ddp-box-dimension';
       }
     }
     // 열
@@ -1006,19 +1003,19 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         || _.eq(this.chartType, ChartType.TREEMAP)
         || _.eq(this.chartType, ChartType.GAUGE)) {
 
-        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.over.desc',{value:'1'}) : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.over.desc', {value: '1'}) : 'ddp-box-dimension';
       }
       // 1 measure
       else if (_.eq(this.chartType, ChartType.SCATTER)) {
 
-        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc',{value:'1'}) : 'ddp-box-measure';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc', {value: '1'}) : 'ddp-box-measure';
       }
       // 1 dimension
       // TODO 태호: 차후 네트워크 차트 수치값 적용시 1-2 dimension
       else if (_.eq(this.chartType, ChartType.NETWORK)
         || _.eq(this.chartType, ChartType.BOXPLOT)) {
 
-        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.desc',{value:'1'}) : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.desc', {value: '1'}) : 'ddp-box-dimension';
       }
     }
     // 교차
@@ -1030,34 +1027,37 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         || _.eq(this.chartType, ChartType.CONTROL)
         || _.eq(this.chartType, ChartType.GRID)) {
 
-        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.over.desc',{value:'1'}) : 'ddp-box-measure';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.over.desc', {value: '1'}) : 'ddp-box-measure';
       }
       // 1 measure & 1 or more dimension
       else if (_.eq(this.chartType, ChartType.WORDCLOUD)) {
 
         return isText
-          ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc',{value:'1'}) + this.translateService.instant('msg.page.pivot.layout.condition.dimension.and.over.desc',{value:'1'})
+          ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc', {value: '1'}) + this.translateService.instant('msg.page.pivot.layout.condition.dimension.and.over.desc', {value: '1'})
           : 'ddp-box-measure';
       }
       // 1 or more measure & 1 or more dimension
       else if (_.eq(this.chartType, ChartType.PIE)) {
 
         return isText
-          ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc',{value:'1'}) + this.translateService.instant('msg.page.pivot.layout.condition.dimension.and.desc',{value:'1'})
+          ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc', {value: '1'}) + this.translateService.instant('msg.page.pivot.layout.condition.dimension.and.desc', {value: '1'})
           : 'ddp-box-measure';
       }
       // 1 or more measure & 1 dimension
       else if (_.eq(this.chartType, ChartType.RADAR)) {
 
         return isText
-          ? this.translateService.instant('msg.page.pivot.layout.condition.measure.over.desc',{value:'1'}) + this.translateService.instant('msg.page.pivot.layout.condition.dimension.and.desc',{value:'1'})
+          ? this.translateService.instant('msg.page.pivot.layout.condition.measure.over.desc', {value: '1'}) + this.translateService.instant('msg.page.pivot.layout.condition.dimension.and.desc', {value: '1'})
           : 'ddp-box-measure';
       }
       // 2~4 measure
       else if (_.eq(this.chartType, ChartType.COMBINE)) {
 
         return isText
-          ? this.translateService.instant('msg.page.pivot.layout.condition.measure.range',{valueFirst:'2',valueSecond:'4'})
+          ? this.translateService.instant('msg.page.pivot.layout.condition.measure.range', {
+            valueFirst: '2',
+            valueSecond: '4'
+          })
           : 'ddp-box-measure';
       }
       // 1 measure
@@ -1069,12 +1069,12 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
         || _.eq(this.chartType, ChartType.GAUGE)
         || _.eq(this.chartType, ChartType.TREEMAP)) {
 
-        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc',{value:'1'}) : 'ddp-box-measure';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.measure.desc', {value: '1'}) : 'ddp-box-measure';
       }
       // 1 or more dimension
       else if (_.eq(this.chartType, ChartType.SCATTER)) {
 
-        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.over.desc',{value:'1'}) : 'ddp-box-dimension';
+        return isText ? this.translateService.instant('msg.page.pivot.layout.condition.dimension.over.desc', {value: '1'}) : 'ddp-box-dimension';
       }
     }
 
@@ -1090,7 +1090,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     if (field.alias) {
       return field.alias;
     } else {
-      return ( field.fieldAlias ) ? field.fieldAlias : field.name;
+      return (field.fieldAlias) ? field.fieldAlias : field.name;
     }
   } // function - getDisplayPivotName
 
@@ -1137,8 +1137,8 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    * @return {string}
    */
   public getAliasPlaceholder(field: AbstractField): string {
-    const displayName: string = ( field.fieldAlias ) ? field.fieldAlias : field.name;
-    return ( field['aggregationType'] ) ? ( field['aggregationType'] + '(' + displayName + ')' ) : displayName;
+    const displayName: string = (field.fieldAlias) ? field.fieldAlias : field.name;
+    return (field['aggregationType']) ? (field['aggregationType'] + '(' + displayName + ')') : displayName;
   } // function - getAliasPlaceholder
 
   /**
@@ -1162,10 +1162,10 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     });
     if (duppIndex == -1) {
       this.widget.dashBoard.configuration['fields'].forEach((field, index) => {
-          if( field.nameAlias && field.nameAlias['nameAlias'] == this.editingFieldAlias ) {
-            duppIndex = index;
-            return false;
-          }
+        if (field.nameAlias && field.nameAlias['nameAlias'] == this.editingFieldAlias) {
+          duppIndex = index;
+          return false;
+        }
       });
     }
 
@@ -1217,8 +1217,8 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    * @param {Field} editingField
    */
   public setEditingFieldAlias(editingField: AbstractField) {
-    if( this.isSetPivotAlias(editingField) ) {
-      if( editingField.pivotAlias ) {
+    if (this.isSetPivotAlias(editingField)) {
+      if (editingField.pivotAlias) {
         this.editingFieldAlias = editingField.pivotAlias.trim();
       } else {
         this.editingFieldAlias = editingField.alias.trim();
@@ -1249,8 +1249,8 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     if (editingField.pivotAlias) {
       return true;
     } else {
-      return ( editingField.alias && editingField.alias !== editingField.name
-        && editingField.fieldAlias !== editingField.alias );
+      return (editingField.alias && editingField.alias !== editingField.name
+        && editingField.fieldAlias !== editingField.alias);
     }
   } // function - isSetPivotAlias
 
@@ -1279,7 +1279,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     let scope = this;
 
     // 선반에 animation 설정
-    $(event.currentTarget.parentElement).find('.ddp-wrap-default').animate({ marginLeft: 0 }, {
+    $(event.currentTarget.parentElement).find('.ddp-wrap-default').animate({marginLeft: 0}, {
       duration: 1500, step: function () {
 
         if (scope.animationPause) {
@@ -1307,7 +1307,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     let moveWidth = totalWidth - $currentShelve.find('.ddp-ui-drag-slide-in').width();
 
     // 선반에 animation 설정
-    $(event.currentTarget.parentElement).find('.ddp-wrap-default').animate({ marginLeft: -moveWidth - 80 }, {
+    $(event.currentTarget.parentElement).find('.ddp-wrap-default').animate({marginLeft: -moveWidth - 80}, {
       duration: 1500, step: function () {
 
         if (scope.animationPause) {
@@ -1434,8 +1434,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     // 현재필드의 보조축인지 체크
     if (this.uiOption.secondaryAxis && this.uiOption.secondaryAxis.name == this.editingField.alias) {
       return true;
-    }
-    else {
+    } else {
       return false;
     }
   }
@@ -1626,12 +1625,12 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     } else {
 
-      if (field.biType === BIType.DIMENSION) {
+      if (field.role === FieldRole.DIMENSION) {
         targetField = new DimensionField();
-      } else if (field.biType === BIType.MEASURE) {
+      } else if (field.role === FieldRole.MEASURE) {
         targetField = new MeasureField();
         targetField.aggregationType = !field.aggregated ? AggregationType.SUM : AggregationType.NONE;
-      } else if (field.biType === BIType.TIMESTAMP) {
+      } else if (field.role === FieldRole.TIMESTAMP) {
         targetField = new TimestampField();
       }
       targetField.name = field.name;
@@ -1717,7 +1716,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       const modal = new Modal();
       modal.name = this.translateService.instant('msg.page.chart.color.measure.range.grid.original.description');
       modal.data = {
-        data: { discontinuous: discontinuous, unit: unit, byUnit: byUnit },
+        data: {discontinuous: discontinuous, unit: unit, byUnit: byUnit},
         eventType: EventType.GRANULARITY
       }
 
@@ -1758,8 +1757,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     if (!discontinuous) {
       return (!field.format.discontinuous && field.format.unit == TimeUnit[unit]);
-    }
-    else {
+    } else {
       return (field.format.discontinuous && field.format.unit == TimeUnit[unit])
         && (!byUnit || (byUnit && field.format.byUnit == ByTimeUnit[byUnit]));
     }
@@ -1802,6 +1800,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     return duplicateList;
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1840,30 +1839,30 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     this.$editFieldLayer = $('#editFieldLayer');
 
     // aggregation 함수 리스트 설정
-    this.aggTypeList = [{ label: 'Sum', id: AggregationType.SUM },
-      { label: 'Average', id: AggregationType.AVG },
-      { label: 'Count', id: AggregationType.COUNT },
-      { label: 'Median', id: AggregationType.MEDIAN },
-      { label: 'Min', id: AggregationType.MIN },
-      { label: 'Max', id: AggregationType.MAX },
+    this.aggTypeList = [{label: 'Sum', id: AggregationType.SUM},
+      {label: 'Average', id: AggregationType.AVG},
+      {label: 'Count', id: AggregationType.COUNT},
+      {label: 'Median', id: AggregationType.MEDIAN},
+      {label: 'Min', id: AggregationType.MIN},
+      {label: 'Max', id: AggregationType.MAX},
       {
         label: 'Percentile',
         id: AggregationType.PERCENTILE,
-        options: [{ decimal: 0.25, fraction: '1/4' }, { decimal: 0.75, fraction: '3/4' }]
+        options: [{decimal: 0.25, fraction: '1/4'}, {decimal: 0.75, fraction: '3/4'}]
       }];
 
     // timestamp 타입 리스트 설정
     this.timestampTypeList = [
       // 초단위 제거 요청으로 주석처리
       // { label: 'Second', id: GranularityType.SECOND, discontinuous: false },
-      { label: 'Minute', id: GranularityType.MINUTE, discontinuous: false },
-      { label: 'Hour', id: GranularityType.HOUR, discontinuous: false },
-      { label: 'Day', id: GranularityType.DAY, discontinuous: false },
-      { label: 'Week', id: GranularityType.WEEK, discontinuous: false },
-      { label: 'Month', id: GranularityType.MONTH, discontinuous: false },
-      { label: 'Quarter', id: GranularityType.QUARTER, discontinuous: false },
-      { label: 'Year', id: GranularityType.YEAR, discontinuous: false },
-      { label: 'None', id: GranularityType.NONE, discontinuous: false }];
+      {label: 'Minute', id: GranularityType.MINUTE, discontinuous: false},
+      {label: 'Hour', id: GranularityType.HOUR, discontinuous: false},
+      {label: 'Day', id: GranularityType.DAY, discontinuous: false},
+      {label: 'Week', id: GranularityType.WEEK, discontinuous: false},
+      {label: 'Month', id: GranularityType.MONTH, discontinuous: false},
+      {label: 'Quarter', id: GranularityType.QUARTER, discontinuous: false},
+      {label: 'Year', id: GranularityType.YEAR, discontinuous: false},
+      {label: 'None', id: GranularityType.NONE, discontinuous: false}];
   }
 
   /**
@@ -1922,7 +1921,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
               if (aggTypeId && item2.aggregationType && aggTypeId === item2.aggregationType) {
 
-                copiedAggregation.splice(_.findIndex(copiedAggregation, { id: aggTypeId }), 1);
+                copiedAggregation.splice(_.findIndex(copiedAggregation, {id: aggTypeId}), 1);
                 continue loop1;
               }
             }
@@ -1972,7 +1971,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
               if (timestampTypeId && item2.format && timestampTypeId === item2.format.unit && timeDiscontinuous === item2.format.discontinuous) {
 
-                copiedTimestampList.splice(_.findLastIndex(copiedTimestampList, { id: timestampTypeId }), 1);
+                copiedTimestampList.splice(_.findLastIndex(copiedTimestampList, {id: timestampTypeId}), 1);
                 continue loop1;
               }
             }
@@ -1991,7 +1990,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             // none값의 순서변경
             if (shelf[idx].field.role === FieldRole.DIMENSION) {
 
-              const noneIndex = _.findIndex(copiedTimestampList, (obj) => { return obj.id === 'NONE'; });
+              const noneIndex = _.findIndex(copiedTimestampList, (obj) => {
+                return obj.id === 'NONE';
+              });
 
               // none이 있는경우
               if (-1 !== noneIndex) {
@@ -2009,7 +2010,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             shelf[idx].format.type = String(UIFormatType.TIME_CONTINUOUS);
             shelf[idx].format.discontinuous = false;
             shelf[idx].format.unit = copiedTimestampList[0].id;
-            if( field.field && field.field.format ) {
+            if (field.field && field.field.format) {
               shelf[idx].format.timeZone = field.field.format.timeZone;
             }
           }
@@ -2024,18 +2025,17 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
             shelf[idx].format.type = String(UIFormatType.TIME_CONTINUOUS);
             shelf[idx].format.discontinuous = false;
             shelf[idx].format.unit = copiedTimestampList[0].id;
-            if( field.field && field.field.format ) {
+            if (field.field && field.field.format) {
               shelf[idx].format.timeZone = field.field.format.timeZone;
             }
-          }
-          else if (shelf[idx].field.role === FieldRole.DIMENSION) {
+          } else if (shelf[idx].field.role === FieldRole.DIMENSION) {
 
             // NONE
             shelf[idx].format = new Format();
             shelf[idx].format.type = String(UIFormatType.TIME_CONTINUOUS);
             shelf[idx].format.discontinuous = false;
             shelf[idx].format.unit = TimeUnit.NONE;
-            if( field.field && field.field.format ) {
+            if (field.field && field.field.format) {
               shelf[idx].format.timeZone = field.field.format.timeZone;
             }
           }
@@ -2204,7 +2204,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
           } else {
 
             // 아이템이 올라간 선반 표시 아이콘 제거
-            this.deletePivotItem.emit({ data: item, addType: fieldPivot, deleteType: deleteType });
+            this.deletePivotItem.emit({data: item, addType: fieldPivot, deleteType: deleteType});
           }
         }
       }
@@ -2653,7 +2653,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
           getFieldList(item);
 
           // data 패널에 표시
-          this.deletePivotItem.emit({ data: item, list: list, deleteType: item.currentPivot });
+          this.deletePivotItem.emit({data: item, list: list, deleteType: item.currentPivot});
         }
       });
     }

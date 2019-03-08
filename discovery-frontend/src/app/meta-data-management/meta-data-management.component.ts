@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-import { AbstractComponent } from '../common/component/abstract.component';
-import { Component, ElementRef, Injector } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {AbstractComponent} from '../common/component/abstract.component';
+import {Component, ElementRef, Injector} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 import * as _ from 'lodash';
 
 @Component({
   selector: 'app-meta-data-management',
-  templateUrl: './meta-data-management.component.html'
+  templateUrl: './meta-data-management.component.html',
 })
 export class MetaDataManagementComponent extends AbstractComponent {
 
@@ -32,7 +32,7 @@ export class MetaDataManagementComponent extends AbstractComponent {
     {id: 'metadata'},
     {id: 'column-dictionary'},
     {id: 'code-table'},
-    {id: 'catalog'}
+    {id: 'catalog'},
   ];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -52,16 +52,17 @@ export class MetaDataManagementComponent extends AbstractComponent {
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private activatedRoute: ActivatedRoute,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  constructor(
+    private activatedRoute: ActivatedRoute,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
 
     // path variable
     this.activatedRoute.params.subscribe((params) => {
 
       // tabId가 tabList에 없다면
-      if (-1 === _.findIndex(this._tabList, { id: params['tabId'] })) {
+      if (-1 === _.findIndex(this._tabList, {id: params['tabId']})) {
 
         // metadata 리스트 페이지로 redirect
         // TODO 추후 metadata-list로 변경
