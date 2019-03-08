@@ -201,7 +201,7 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   public confirmDelete(event : Event, dataset : PrDataset) {
 
     event.stopPropagation();
-    this.dataflowService.getDataset(dataset.dsId).then(() => {
+    //this.dataflowService.getDataset(dataset.dsId).then(() => {
 
       const modal = new Modal();
       modal.name = this.translateService.instant('msg.comm.ui.del.description');
@@ -211,10 +211,10 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
       this.selectedDeletedsId = dataset.dsId;
       this.deleteModalComponent.init(modal);
 
-    }).catch(() => {
-      Alert.warning(this.translateService.instant('msg.dp.alert.df.del.fail'));
-      return;
-    })
+    // }).catch(() => {
+    //   Alert.warning(this.translateService.instant('msg.dp.alert.df.del.fail'));
+    //   return;
+    // })
 
   }
 
