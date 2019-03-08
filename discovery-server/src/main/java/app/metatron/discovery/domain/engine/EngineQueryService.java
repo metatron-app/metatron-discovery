@@ -300,12 +300,14 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
                                                           .fields(mainLayer.getFields())
                                                           .filters(request.getFilters())
                                                           .limit(request.getLimits())
+                                                          .emptyQueryId()
                                                           .build();
 
       SelectStreamQuery compareLayerQuery = SelectStreamQuery.builder(request.getDataSource())
                                                              .layer(compareLayer)
                                                              .filters(request.getFilters())
                                                              .compareLayer(compareLayer.getFields(), geoSpatialAnalysis.getOperation())
+                                                             .emptyQueryId()
                                                              .build();
 
       GeoBoundaryFilterQuery geoBoundaryQuery = GeoBoundaryFilterQuery.builder()
@@ -326,8 +328,10 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
     } else {
 
-
       for (MapViewLayer layer : geoShelf.getLayers()) {
+
+        CommonLocalVariable.generateQueryId();
+
         if (layer.getView().needAggregation()) {
           GroupByQuery groupByQuery = GroupByQuery.builder(request.getDataSource())
                                                   .layer(layer)

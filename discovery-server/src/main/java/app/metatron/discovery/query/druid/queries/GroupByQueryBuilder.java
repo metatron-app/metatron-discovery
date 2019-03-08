@@ -759,6 +759,17 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
 
   }
 
+  public GroupByQueryBuilder queryId(String queryId) {
+    this.queryId = queryId;
+    return this;
+  }
+
+  public GroupByQueryBuilder emptyQueryId() {
+    queryId = null;
+
+    return this;
+  }
+
   @Override
   public GroupByQuery build() {
 

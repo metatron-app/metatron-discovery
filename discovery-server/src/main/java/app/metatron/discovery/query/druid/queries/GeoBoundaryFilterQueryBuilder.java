@@ -16,8 +16,11 @@ package app.metatron.discovery.query.druid.queries;
 
 import com.google.common.collect.Maps;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Map;
 
+import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.query.druid.Query;
@@ -37,9 +40,12 @@ public class GeoBoundaryFilterQueryBuilder {
 
   SpatialOperations operation;
 
-  Map<String, Object> context;
+  Map<String, Object> context = Maps.newLinkedHashMap();
+
+  String queryId;
 
   public GeoBoundaryFilterQueryBuilder() {
+    queryId = CommonLocalVariable.getQueryId();
   }
 
   public GeoBoundaryFilterQueryBuilder query(Query query) {
@@ -89,6 +95,10 @@ public class GeoBoundaryFilterQueryBuilder {
   }
 
   public GeoBoundaryFilterQuery build() {
+
+    if (StringUtils.isNotEmpty(queryId)) {
+      context.put("queryId", queryId);
+    }
 
     GeoBoundaryFilterQuery geoBoundaryQuery = new GeoBoundaryFilterQuery(
         query,
