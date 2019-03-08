@@ -245,7 +245,7 @@ public class AbstractSpecBuilder {
           parseSpec.setDimensionsSpec(dimensionsSpec);
           parseSpec.setColumns(columns);
 
-          parseSpec.setDelimiter(csvFormat.getDelimeter());
+          parseSpec.setDelimiter(csvFormat.getDelimiter());
           parseSpec.setListDelimiter(csvFormat.getLineSeparator());
 
           parser = new StringParser(parseSpec);
@@ -273,14 +273,14 @@ public class AbstractSpecBuilder {
             csvStreamParser.setTimestampSpec(timestampSpec);
             csvStreamParser.setDimensionsSpec(dimensionsSpec);
             csvStreamParser.setColumns(columns);
-            csvStreamParser.setDelimiter(csvFormat.getDelimeter());
+            csvStreamParser.setDelimiter(csvFormat.getDelimiter());
 
             parser = csvStreamParser;
           } else {
             csvStreamParser.setTimestampSpec(timestampSpec);
             csvStreamParser.setDimensionsSpec(dimensionsSpec);
             csvStreamParser.setColumns(columns);
-            csvStreamParser.setDelimiter(csvFormat.getDelimeter());
+            csvStreamParser.setDelimiter(csvFormat.getDelimiter());
 
             parser = csvStreamParser;
           }

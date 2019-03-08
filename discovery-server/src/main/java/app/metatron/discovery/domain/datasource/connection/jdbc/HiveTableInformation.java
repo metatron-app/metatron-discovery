@@ -74,7 +74,7 @@ public class HiveTableInformation {
             delimiter = "\t";
           }
           CsvFileFormat csvFileFormat = new CsvFileFormat();
-          csvFileFormat.setDelimeter(delimiter);
+          csvFileFormat.setDelimiter(delimiter);
           return csvFileFormat;
         default:
           return null;
