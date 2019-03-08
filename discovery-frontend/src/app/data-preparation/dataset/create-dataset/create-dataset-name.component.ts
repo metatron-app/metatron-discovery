@@ -177,7 +177,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       const params = this.names.map((name:string,index:number) => {
         this.datasetFiles[this.dsfileInformations[index].datasetFileIndex].dsName = name;
         this.datasetFiles[this.dsfileInformations[index].datasetFileIndex].dsDesc = this.descriptions[index];
-        this.datasetFiles[this.dsfileInformations[index].datasetFileIndex].sheetName = this.datasetFiles[this.dsfileInformations[index].datasetFileIndex].selectedSheets[index];
+        this.datasetFiles[this.dsfileInformations[index].datasetFileIndex].sheetName = this.dsfileInformations[index].sheetName;
 
         return this._getFileParams(this.datasetFiles[this.dsfileInformations[index].datasetFileIndex]);
       });
@@ -367,7 +367,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
                 this.descriptions.push('');
                 this.nameErrors.push('');
                 this.descriptionErrors.push('');
-                this.dsfileInformations.push({datasetFileIndex : index, fileName: dsFile.filenameBeforeUpload, fileFormat: dsFile.fileFormat.toString()});
+                this.dsfileInformations.push({datasetFileIndex : index, fileName: dsFile.filenameBeforeUpload, fileFormat: dsFile.fileFormat.toString(), sheetName:sheet.sheetName});
               }
             })
           } else {
@@ -376,7 +376,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
               this.descriptions.push('');
               this.nameErrors.push('');
               this.descriptionErrors.push('');
-              this.dsfileInformations.push({datasetFileIndex : index, fileName: dsFile.filenameBeforeUpload, fileFormat: dsFile.fileFormat.toString()});
+              this.dsfileInformations.push({datasetFileIndex : index, fileName: dsFile.filenameBeforeUpload, fileFormat: dsFile.fileFormat.toString(), sheetName:''});
             }
           }
         }
