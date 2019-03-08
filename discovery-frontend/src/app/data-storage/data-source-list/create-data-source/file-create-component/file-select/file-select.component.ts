@@ -74,7 +74,7 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
   public uploader: FileUploader;
 
   // 그리드 row
-  public rowNum: number = 100;
+  public rowNum: number;
 
   // csv 파일 구분자
   public delimiter: string = ',';
@@ -136,7 +136,7 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
         // 업로드한 파일 정보 세팅
         this._setFileResult(this._uploadResult);
         // set file detail data
-        this._setFileDetail();
+        this._setFileDetail(true);
       }
     };
 
@@ -263,7 +263,7 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
       // change selected sheet
       this.fileResult.selectedSheet = sheet;
       // set file detail
-      this._setFileDetail();
+      this._setFileDetail(true);
     }
   }
 
@@ -274,7 +274,7 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     // change first header row flag
     this.isFirstHeaderRow = !this.isFirstHeaderRow;
     // set file detail
-    this._setFileDetail();
+    this._setFileDetail(true);
   }
 
   /**
@@ -473,9 +473,10 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
 
   /**
    * Set file detail data
+   * @param {boolean} initRowNum
    * @private
    */
-  private _setFileDetail(): void {
+  private _setFileDetail(initRowNum?: boolean): void {
     // init selected file detail data
     this.selectedFileDetailData = undefined;
     // grid hide
@@ -486,6 +487,8 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
     }
     // 로딩 show
     this.loadingShow();
+    // if init row num
+    initRowNum && (this.rowNum = 100);
     // 파일 조회
     this.datasourceService.getDatasourceFile(this.fileResult.fileKey, this._getFileParams())
       .then((result: FileDetail) => {
