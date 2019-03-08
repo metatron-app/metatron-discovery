@@ -299,7 +299,7 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
       return;
     }
     // file data 조회
-    this._setFileDetail();
+    this._setFileDetail(true);
   }
 
   /**
@@ -312,7 +312,7 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
       return;
     }
     // file data 조회
-    this._setFileDetail();
+    this._setFileDetail(true);
   }
 
 
