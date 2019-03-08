@@ -1247,7 +1247,7 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-area-boardside .ddp-ui-down-title2:hover .ddp-wrap-datalock em.ddp-icon-lock-s2 {background-color:#e7e7ea; border:1px solid #e7e7ea;}
 .ddp-area-boardside .ddp-ui-down-title2:hover .ddp-wrap-datarecommend em.ddp-icon-recommend-s2 {background-color:#e7e7ea; border:1px solid #e7e7ea;}
 
-.ddp-area-boardside .ddp-box-down {padding:0 0 10px 0;}
+.ddp-area-boardside .ddp-box-down {padding:0 0 10px 17px;}
 .ddp-area-boardside .ddp-box-down.ddp-border-none {border-bottom:none;}
 
 .ddp-area-boardside .ddp-wrap-divide .ddp-ui-divide {clear:both;padding-bottom:10px; padding-right:10px;}
@@ -1381,9 +1381,9 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
         page: 필터 new add filter        **********************************************************************************/
 
 .ddp-pop-filter {position:absolute; top:85px; left:50%; bottom:85px; margin:0px 0 0 -300px; width:600px; background-color:#fff; z-index:127;
-	-moz-box-shadow: 0 0 20px rgba(0,0,0,.3); /* drop shadow */
-	-webkit-box-shadow: 0 0 20px rgba(0,0,0,.3); /* drop shadow */
-	box-shadow: 0 0 20px rgba(0,0,0,.3); /* drop shadow */
+  -moz-box-shadow: 0 0 20px rgba(0,0,0,.3); /* drop shadow */
+  -webkit-box-shadow: 0 0 20px rgba(0,0,0,.3); /* drop shadow */
+  box-shadow: 0 0 20px rgba(0,0,0,.3); /* drop shadow */
 }
 .ddp-pop-filter .ddp-txt-title-name {padding:17px 25px; color:#4b515b; font-size:16px;}
 .ddp-pop-filter .ddp-txt-title-name .ddp-icon-filter {display:inline-block; width:15px; height:13px; margin-right:5px; background:url(../images/icon_title.png) no-repeat; vertical-align:middle;}
@@ -1394,8 +1394,10 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-pop-filter .ddp-wrap-tab-contents {height:100%;}
 .ddp-pop-filter .ddp-ui-tab-contents {position:relative;margin-top:-60px; padding:60px 28px 0 28px; height:100%; box-sizing:border-box;}
 .ddp-pop-filter .ddp-filter0 {position:absolute; top:67px; left:0; right:0; bottom:63px; padding:0 28px;}
-.ddp-pop-filter .ddp-filter0 .ddp-list-filter {position:absolute; top:50px; left:0; right:0; bottom:0; overflow:auto;}
+.ddp-pop-filter .ddp-filter0 .ddp-list-filter {position:absolute; top:0px; left:0; right:0; bottom:0; overflow:auto;}
 .ddp-pop-filter .ddp-ui-buttons {position:absolute; bottom:0; left:0; right:0; padding:12px 0; text-align:center; border-top:1px solid #e7e7ea;}
+.ddp-pop-filter .ddp-ui-buttons [class*="ddp-btn-type"] {margin:0 2px;}
+
 .ddp-pop-filter .ddp-top-filter {position:relative; float:left; width:100%; height:60px; z-index:1;}
 .ddp-pop-filter .ddp-top-filter .ddp-ui-tooltip-info {position:absolute; top:100%; left:90px;}
 .ddp-pop-filter .ddp-top-filter .ddp-ui-tooltip-info em.ddp-icon-view-top {left:30px; margin-left:0;}
@@ -5660,11 +5662,12 @@ ul.ddp-list-top-tab li.ddp-selected a {border-bottom:3px solid #666eb2; color:#6
 .ddp-wrap-edit .ddp-ui-edit-option.ddp-inline .ddp-label-radio.type-unscheduled span.ddp-txt-radio {font-size:11px; color:#90969f; font-weight:bold;}
 .ddp-wrap-edit .ddp-ui-edit-option.ddp-inline .ddp-label-radio.type-creating span.ddp-txt-radio {font-size:11px; color:#e8a900; font-weight:bold;}
 
-.ddp-wrap-edit .ddp-ui-edit-option a.ddp-btn-toggle {display:inline-block; padding:7px; background-color:#d0d1d8; border-radius:3px; color:#4b515b; font-size:12px; text-align:center; box-sizing:border-box;}
+.ddp-wrap-edit .ddp-ui-edit-option a.ddp-btn-toggle {display:inline-block; padding:7px; margin-right:4px; background-color:#d0d1d8; border-radius:3px; color:#4b515b; font-size:12px; text-align:center; box-sizing:border-box;}
 .ddp-wrap-edit .ddp-ui-edit-option a.ddp-btn-toggle.ddp-selected {background-color:#4b515b; color:#fff;}
 .ddp-wrap-edit .ddp-ui-edit-option a.ddp-btn-toggle.ddp-all {width:58px;}
 .ddp-wrap-edit .ddp-ui-edit-option a.ddp-btn-toggle.ddp-today {width:83px;}
 .ddp-wrap-edit .ddp-ui-edit-option a.ddp-btn-toggle.ddp-last {width:89px;}
+.ddp-wrap-edit .ddp-ui-edit-option .ddp-ui-calen {margin-right:4px;}
 
 /**********************************************************************************
 	모델 매니저리스트
