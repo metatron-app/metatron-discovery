@@ -39,12 +39,20 @@ public class CommonLocalVariable {
     localVariable.setQueryId(queryId);
   }
 
+  public static void generateQueryId() {
+    LocalVariable localVariable = getLocalVariable();
+    localVariable.setQueryId(IdGenerator.queryId());
+  }
+
   public static String getQueryId() {
     return getLocalVariable().getQueryId();
   }
 
   public static class LocalVariable {
 
+    /**
+     * Query Id
+     */
     String queryId;
 
     public String getQueryId() {
