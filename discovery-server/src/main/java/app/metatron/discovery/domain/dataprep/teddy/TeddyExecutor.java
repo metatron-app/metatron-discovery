@@ -35,7 +35,9 @@ import app.metatron.discovery.domain.datasource.connection.jdbc.*;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.Maps;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.FilenameUtils;
@@ -244,7 +246,7 @@ public class TeddyExecutor {
         try {
             for (int rowno = 0; rowno < df.rows.size(); cancelCheck(ssId, ++rowno)) {
                 Row row = df.rows.get(rowno);
-                Map<String, Object> jsonRow = new HashMap<>();
+                Map<String, Object> jsonRow = new LinkedHashMap<>();
 
                 for (int colno = 0; colno < df.getColCnt(); ++colno) {
                     if(df.getColType(colno).equals(ColumnType.TIMESTAMP)) {

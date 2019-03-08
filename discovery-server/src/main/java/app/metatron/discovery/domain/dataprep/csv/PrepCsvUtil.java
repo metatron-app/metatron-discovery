@@ -21,6 +21,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -99,14 +100,14 @@ public class PrepCsvUtil {
    * @param strDelim    Delimiter as String (to be Char)
    * @param limitRows   Read not more than this
    * @param conf        Hadoop configuration which is mandatory when the url's protocol is hdfs
-   * @param skipHeader  If true, skip the first line
+   * @param header      If true, skip the first line and put into result.header instead.
    * @param onlyCount   If true, just fill result.totalRows and result.totalBytes
    *
    * @return PrepCsvParseResult: grid, header, maxColCnt
    *
    *  Sorry for so many try-catches. Sacrificed readability for end-users' usability.
    */
-  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf, boolean skipHeader, boolean onlyCount) {
+  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf, boolean header, boolean onlyCount) {
     PrepCsvParseResult result = new PrepCsvParseResult();
     Reader reader;
     URI uri;
@@ -174,7 +175,6 @@ public class PrepCsvUtil {
         throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, strUri);
     }
 
-    // get colNames
     CSVParser parser;
     try {
       parser = CSVParser.parse(reader, CSVFormat.DEFAULT.withDelimiter(delim).withEscape('\\'));  // \", "" both become " by default
@@ -209,8 +209,12 @@ public class PrepCsvUtil {
       int colCnt = csvRow.size();
       result.maxColCnt = Math.max(result.maxColCnt, colCnt);
 
-      if (skipHeader) {
-        skipHeader = false;
+      if (header) {
+        result.colNames = new ArrayList();
+        for (int i = 0; i < colCnt; i++) {
+          result.colNames.add(csvRow.get(i));
+        }
+        header = false;
         continue;
       }
 
