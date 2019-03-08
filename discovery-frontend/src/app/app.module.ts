@@ -30,6 +30,8 @@ import { SsoGuard } from './common/gaurd/sso.guard';
 import { UserService } from './user/service/user.service';
 import { CookieService } from 'ng2-cookies';
 import { ClipboardModule } from 'ngx-clipboard';
+import {StagedbEnabledGuard} from './common/gaurd/stagedb-enabled.guard';
+import {StorageService} from './data-storage/service/storage.service';
 
 // 다국어 파일 경로 지정
 export function createTranslateLoader(http: HttpClient) {
@@ -52,7 +54,7 @@ const appRoutes: Routes = [
   { path: 'dashboard', loadChildren: 'app/embedded/embedded-view.module#EmbeddedViewModule' },
   { path: 'embedded', loadChildren: 'app/embedded/embedded-view.module#EmbeddedViewModule' },
   { path: 'chart', loadChildren: 'app/chart-test/chart-test.module#ChartTestModule' },
-  { path: '', loadChildren: 'app/layout/layout/layout.module#LayoutModule', canActivate:[SsoGuard] },
+  { path: '', loadChildren: 'app/layout/layout/layout.module#LayoutModule', canActivate:[SsoGuard], canLoad: [StagedbEnabledGuard] },
   // 존재하지 않는 URL
   { path: '**', redirectTo: '/user/login', pathMatch: 'full' }
 ];
@@ -72,6 +74,8 @@ const appRoutes: Routes = [
     { provide: APP_BASE_HREF, useValue: environment.baseHref },
     PopupService,
     SsoGuard,
+    StorageService,
+    StagedbEnabledGuard,
     UserService,
     CookieService,
     CanDeactivateGuard,
