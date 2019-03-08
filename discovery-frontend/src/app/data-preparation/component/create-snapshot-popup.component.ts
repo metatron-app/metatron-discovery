@@ -278,6 +278,11 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     this.snapshot = new SnapShotCreateDomain();
     this.snapshot.ssName = this.ssName;
     this.snapshot.ssType = ssType;
+    this.isErrorShow = false;
+    this.fileUrlErrorMsg = '';
+    this.tblErrorMsg = '';
+    this.ssNameErrorMsg = '';
+
 
     if (ssType === SsType.STAGING_DB) {
       this.snapshot.dbName = this.dbList[0];

@@ -3,20 +3,6 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specic language governing permissions and
- * limitations under the License.
- */
-
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -891,7 +877,7 @@ public class DataSourceController {
   ResponseEntity<?> getPreviewFromFile(@PathVariable(value = "fileKey") String fileKey,
                                        @RequestParam(value = "sheet", required = false) String sheetName,
                                        @RequestParam(value = "lineSep", required = false, defaultValue = "\n") String lineSep,
-                                       @RequestParam(value = "columnSeq", required = false, defaultValue = ",") String delimiter,
+                                       @RequestParam(value = "delimiter", required = false, defaultValue = ",") String delimiter,
                                        @RequestParam(value = "limit", required = false, defaultValue = "100") int limit,
                                        @RequestParam(value = "firstHeaderRow", required = false, defaultValue = "true") boolean firstHeaderRow) {
 

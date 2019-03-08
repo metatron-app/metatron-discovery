@@ -157,9 +157,11 @@
             <!-- 클릭시 ddp-selected 추가 -->
             <div class="ddp-txt-edit" [class.ddp-selected]="shortNameEditFl" (clickOutside)="shortNameEditFl = false">
               <!-- data -->
-              <span class="ddp-data-name" (click)="onChangeShortNameMode()">
-              {{columnDictionary.suggestionShortName}}
-                <em class="ddp-icon-edit2"></em>
+              <span class="ddp-data-name"
+                    [class.ddp-data-none]="!columnDictionary.suggestionShortName"
+                    (click)="onChangeShortNameMode()">
+              {{ columnDictionary.suggestionShortName && columnDictionary.suggestionShortName.length > 0 ? columnDictionary.suggestionShortName : 'msg.metadata.ui.codetable.detail.used.column.dictionary.no.name' | translate }}
+              <em class="ddp-icon-edit2"></em>
             </span>
               <!-- //data -->
               <!-- edit -->
@@ -184,8 +186,10 @@
             <!-- 클릭시 ddp-selected 추가 -->
             <div class="ddp-txt-edit" [class.ddp-selected]="descEditFl" (clickOutside)="descEditFl = false">
               <!-- data -->
-              <span class="ddp-data-name" (click)="onChangeDescMode()">
-              <span [innerHtml]="description"></span>
+              <span class="ddp-data-name"
+                    [class.ddp-data-none]="!description"
+                    (click)="onChangeDescMode()">
+              <span [innerHtml]="description && description.length > 0 ? description : ('msg.metadata.ui.codetable.detail.used.column.dictionary.no.description' | translate)"></span>
               <em class="ddp-icon-edit2"></em>
             </span>
               <!-- //data -->
@@ -209,8 +213,8 @@
           </th>
           <td>
             <div class="ddp-select-search" [class.ddp-selected]="isShowCodeTableDetail" (clickOutside)="isShowCodeTableDetail = false">
-              <a href="javascript:" class="ddp-ui-search2" (click)="onClickShowCodeTableDetail()">
-                {{columnDictionary.codeTable?.name}}
+              <a href="javascript:" class="ddp-ui-search2" [class.ddp-data-none]="!(columnDictionary.codeTable && columnDictionary.codeTable.name && columnDictionary.codeTable.name.length > 0)" (click)="onClickShowCodeTableDetail()">
+                {{ (columnDictionary.codeTable && columnDictionary.codeTable.name && columnDictionary.codeTable.name.length > 0) ? columnDictionary.codeTable.name : ('msg.metadata.ui.codetable.detail.used.column.dictionary.no.code.table' | translate) }}
                 <span class="ddp-icon-search" (click)="onClickChooseCodeTable(); $event.stopImmediatePropagation()"></span>
               </a>
               <!-- hover -->

@@ -242,11 +242,13 @@ dl.ddp-dl-detail dd br {display:block; margin-top:5px;}
 .ddp-box-grid-detail .ddp-wrap-datadetail dl.ddp-dl-detail dd span.ddp-txt-det + span.ddp-txt-det {padding-top:5px;}
 .ddp-box-grid-detail .ddp-wrap-datadetail dl.ddp-dl-detail dd .ddp-data-det,
 .ddp-box-grid-detail .ddp-wrap-datadetail .ddp-dl-detail td .ddp-data-det {overflow: hidden;
-	text-overflow: ellipsis;
-	display: -webkit-box;
-	-webkit-line-clamp: 2; /* 라인수 */
-	-webkit-box-orient: vertical;
-	word-wrap:break-word; overflow:Hidden;}
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 라인수 */
+  /* autoprefixer: off */
+  -webkit-box-orient: vertical;
+  /* autoprefixer: on */
+  word-wrap:break-word; overflow:Hidden;}
 .ddp-box-grid-detail .ddp-wrap-datadetail dl.ddp-dl-detail dd .ddp-tags {max-width:110px; padding:6px; border-radius:3px; background-color:#f2f1f8; color:#666eb2; font-size:13px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal; }
 .ddp-box-grid-detail .ddp-wrap-datadetail dl.ddp-dl-detail dd .ddp-tags + .ddp-tags {margin-left:5px;}
 
@@ -1246,6 +1248,8 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-area-boardside .ddp-ui-down-title2:hover .ddp-wrap-datarecommend em.ddp-icon-recommend-s2 {background-color:#e7e7ea; border:1px solid #e7e7ea;}
 
 .ddp-area-boardside .ddp-box-down {padding:0 0 10px 17px;}
+.ddp-area-boardside .ddp-box-down.ddp-border-none {border-bottom:none;}
+
 .ddp-area-boardside .ddp-wrap-divide .ddp-ui-divide {clear:both;padding-bottom:10px; padding-right:10px;}
 .ddp-area-boardside .ddp-wrap-divide .ddp-ui-divide .ddp-ui-page.ddp-center {overflow:hidden; padding-top:10px; text-align:center;}
 .ddp-area-boardside .ddp-wrap-divide .ddp-ui-divide .ddp-ui-page.ddp-center * {display:inline-block; float:inherit; vertical-align:middle;}
@@ -5285,8 +5289,7 @@ table.ddp-table-detail tbody tr td .ddp-ui-summary ul.ddp-list-sub li a {color:#
 .ddp-edit-description .ddp-box-textarea {display:none;}
 .ddp-edit-description .ddp-txt-description {position:relative; top:-3px;  font-size:13px; line-height:18px; cursor:pointer;}
 .ddp-edit-description .ddp-txt-description.ddp-nodata {color:#b7bac1;}
-
-.ddp-edit-description .ddp-data-description {position:relative; padding-bottom:20px;}
+.ddp-edit-description .ddp-data-description {position:relative; padding-bottom:30px;}
 .ddp-edit-description .ddp-data-description:hover .ddp-btn-edit {display:inline-block;}
 .ddp-edit-description .ddp-data-description .ddp-btn-edit {display:none; padding:4px 7px; position:absolute; bottom:0; left:0;  height:21px; color:#91969e; font-size:12px; font-style:italic; background-color:#f3f3f4; box-sizing:border-box;}
 .ddp-edit-description .ddp-data-description .ddp-btn-edit .ddp-icon-edit {display:inline-block; width:12px; height:13px; margin-right:3px; background:url(../images/icon_control.png) no-repeat; background-position:-39px -96px; vertical-align:top;}

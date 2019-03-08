@@ -149,6 +149,7 @@ public class JdbcConnectionService {
   private static final Logger LOGGER = LoggerFactory.getLogger(JdbcConnectionService.class);
 
   private static final String RESULTSET_COLUMN_PREFIX = SelectQueryBuilder.TEMP_TABLE_NAME + ".";
+  private static final String ANONYMOUS_COLUMN_PREFIX = "anonymous";
 
   private static final String[] RESULTSET_TABLE_TYPES = new String[]{"TABLE", "VIEW"};
   private static final String[] RESULTSET_TABLE_TYPES_PRESTO = new String[]{"TABLE"};
@@ -2060,6 +2061,10 @@ public class JdbcConnectionService {
     for (int i = 1; i <= colNum; i++) {
 
       String columnLabel = metaData.getColumnLabel(i);
+
+      if(StringUtils.isEmpty(columnLabel)){
+        columnLabel = ANONYMOUS_COLUMN_PREFIX + i;
+      }
 
       String fieldName;
       String tableName;

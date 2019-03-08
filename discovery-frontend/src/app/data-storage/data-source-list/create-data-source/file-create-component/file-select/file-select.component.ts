@@ -491,13 +491,18 @@ export class FileSelectComponent extends AbstractPopupComponent implements OnIni
       .then((result: FileDetail) => {
         // 로딩 hide
         this.loadingHide();
-        // if SUCCESS
+        // if SUCCESS FAIL
         if (result.success === false) {
           Alert.warning(this.translateService.instant('msg.storage.alert.file.import.error'));
           return;
         }
         // set file detail data
         this.selectedFileDetailData = result;
+        // if total row is smaller than rowNum
+        if (result.totalRows < this.rowNum) {
+          // set row num
+          this.rowNum = result.totalRows;
+        }
         // if result is parsable
         if (result.isParsable && result.isParsable.valid) {
           // grid 출력

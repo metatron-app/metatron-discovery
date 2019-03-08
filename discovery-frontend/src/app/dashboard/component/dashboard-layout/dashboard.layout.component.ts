@@ -858,7 +858,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
           this._invalidLayoutWidgets.forEach(item => {
             const tempData = this._layoutObj.root.getItemsById(item);
-            (tempData) && (tempData[0].remove());
+            (tempData && tempData[0]) && (tempData[0].remove());
           });
         });
 
