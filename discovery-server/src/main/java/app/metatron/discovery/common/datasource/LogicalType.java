@@ -65,8 +65,9 @@ public enum LogicalType {
         return "string";
       case INTEGER:
         return "long";
+      case ARRAY:
+        return "array.double";
       case DOUBLE:
-        return "double";
       default:
         return "double";
     }

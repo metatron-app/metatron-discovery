@@ -11,6 +11,7 @@ expr : ('-'|'!') expr                                 # unaryOpExpr
      | '(' expr ')'                                   # nestedExpr
      | IDENTIFIER '(' fnArgs? ')'                     # functionExpr
      | IDENTIFIER                                     # identifierExpr
+     | IDENTIFIER '[' LONG ']'                        # identifierExpr
      | DOUBLE                                         # doubleExpr
      | LONG                                           # longExpr
      | STRING                                         # string
