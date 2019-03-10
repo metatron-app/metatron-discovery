@@ -761,4 +761,30 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
     return metaData.get(0);
   }
+
+  public Map<String, Object> geoBoundary(String dataSourceName, List<Field> geoFields) {
+
+    if (CollectionUtils.isEmpty(geoFields)) {
+      return Maps.newHashMap();
+    }
+
+    // TODO: consider multiple geo column (later)
+    Field geoField = geoFields.get(0);
+
+    TimeseriesQuery timeseriesQuery = TimeseriesQuery.builder(new DefaultDataSource(dataSourceName))
+                                                     .geoBoundary(geoField.getName(), geoField.getLogicalType().isShape())
+                                                     .build();
+
+    String queryString = GlobalObjectMapper.writeValueAsString(timeseriesQuery);
+    LOGGER.info("[{}] Generated Druid Query : {}", CommonLocalVariable.getQueryId(), queryString);
+
+    Optional<JsonNode> engineResult = engineRepository.query(queryString, JsonNode.class);
+
+    JsonNode node = new SearchQueryRequest().makeResult(engineResult.get());
+    if (!node.isArray()) {
+      return Maps.newHashMap();
+    }
+
+    return GlobalObjectMapper.getDefaultMapper().convertValue(node.get(0), Map.class);
+  }
 }

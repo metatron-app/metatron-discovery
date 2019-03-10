@@ -68,7 +68,6 @@ import app.metatron.discovery.domain.workbook.configurations.field.TimestampFiel
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import app.metatron.discovery.domain.workbook.configurations.format.ContinuousTimeFormat;
-import app.metatron.discovery.domain.workbook.configurations.format.GeoHashFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.LayerView;
@@ -1966,13 +1965,12 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         //new ExpressionFilter("amt < 50000 && amt > 40000")
     );
 
-    GeoHashFormat hashFormat = new GeoHashFormat("geohex", 5);
-    DimensionField geoDimensionField = new DimensionField("gis", null, hashFormat);
+    DimensionField geoDimensionField = new DimensionField("gis");
 
     List<Field> fields = Lists.newArrayList(geoDimensionField,
                                             new MeasureField("py", null, MeasureField.AggregationType.AVG),
                                             new MeasureField("amt", null, MeasureField.AggregationType.SUM));
-    MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields, null);
+    MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields, new LayerView.HashLayerView("geohex", 5));
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);

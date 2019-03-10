@@ -35,7 +35,8 @@ import app.metatron.discovery.query.druid.aggregations.*;
     @JsonSubTypes.Type(value = DistinctSketchAggregation.class, name = "thetaSketch"),
     @JsonSubTypes.Type(value = ApproxHistogramAggregation.class, name = "approxHistogram"),
     @JsonSubTypes.Type(value = ApproxHistogramFoldAggregation.class, name = "approxHistogramFold"),
-    @JsonSubTypes.Type(value = FilteredAggregation.class, name = "filtered")
+    @JsonSubTypes.Type(value = FilteredAggregation.class, name = "filtered"),
+    @JsonSubTypes.Type(value = EnvelopeAggregation.class, name = "envelope")
 })
 public interface Aggregation {
 
