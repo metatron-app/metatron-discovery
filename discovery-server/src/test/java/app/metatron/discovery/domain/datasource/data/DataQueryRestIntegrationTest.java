@@ -2197,7 +2197,9 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     Limit limit = new Limit();
     limit.setLimit(10);
 
-    List<Filter> filters = Lists.newArrayList();
+    List<Filter> filters = Lists.newArrayList(
+        new SpatialBboxFilter("estate", "gis", null, "127.066436 37.484505", "127.007656 37.521752")
+    );
 
     List<Field> fields1 = Lists.newArrayList(new DimensionField("gis", null, null), new DimensionField("gu"), new MeasureField("amt", null, MeasureField.AggregationType.NONE));
     MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields1, null);
@@ -2207,7 +2209,56 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1, layer2));
 
-    GeoSpatialOperation operation = new GeoSpatialOperation.DistanceWithin(100);
+    GeoSpatialOperation operation = new GeoSpatialOperation.DistanceWithin(10000);
+    GeoSpatialAnalysis geoSpatialAnalysis = new GeoSpatialAnalysis("layer1", "layer2", operation);
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
+    ChartResultFormat format = new ChartResultFormat("map");
+    request.setResultFormat(format);
+    request.setAnalysis(geoSpatialAnalysis);
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .log().all();
+//      .statusCode(HttpStatus.SC_OK);
+
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_gis_datasource.sql")
+  public void searchQueryIntersectsEstateRoadWithMapChart() throws JsonProcessingException {
+
+    DataSource dataSource1 = new MultiDataSource(Lists.newArrayList(new DefaultDataSource("sales_geo"),
+                                                                    new DefaultDataSource("usa_states")),
+                                                 null);
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(10);
+
+    List<Filter> filters = Lists.newArrayList(
+        new InclusionFilter("sales_geo", "State", null, Lists.newArrayList("California"))
+    );
+
+    List<Field> fields1 = Lists.newArrayList(new DimensionField("location", null, null), new DimensionField("City"), new MeasureField("Sales", null, MeasureField.AggregationType.NONE));
+    MapViewLayer layer1 = new MapViewLayer("layer1", "sales_geo", fields1, null);
+
+    List<Field> fields2 = Lists.newArrayList(new DimensionField("state_geom", null, null));
+    MapViewLayer layer2 = new MapViewLayer("layer2", "usa_states", fields2, null);
+
+    Shelf geoShelf = new GeoShelf(Arrays.asList(layer1, layer2));
+
+    GeoSpatialOperation operation = new GeoSpatialOperation.Intersects(null);
     GeoSpatialAnalysis geoSpatialAnalysis = new GeoSpatialAnalysis("layer1", "layer2", operation);
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);

@@ -23,6 +23,7 @@ import java.util.Map;
 import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.workbook.configurations.analysis.GeoSpatialOperation;
 import app.metatron.discovery.query.druid.Query;
 import app.metatron.discovery.query.druid.SpatialOperations;
 
@@ -59,11 +60,6 @@ public class GeoBoundaryFilterQueryBuilder {
     return this;
   }
 
-  public GeoBoundaryFilterQueryBuilder boundary(SpatialOperations operation) {
-    this.operation = operation;
-    return this;
-  }
-
   public GeoBoundaryFilterQueryBuilder context(String key, Object value) {
     if (context == null) {
       context = Maps.newLinkedHashMap();
@@ -91,6 +87,26 @@ public class GeoBoundaryFilterQueryBuilder {
 
   public GeoBoundaryFilterQueryBuilder shape(String shapeColumn) {
     this.shapeColumn = shapeColumn;
+    return this;
+  }
+
+  public GeoBoundaryFilterQueryBuilder operation(GeoSpatialOperation geoSpatialOperation) {
+
+    if (geoSpatialOperation instanceof GeoSpatialOperation.DistanceWithin) {
+      if (StringUtils.isNotEmpty(pointColumn)) {
+        this.operation = SpatialOperations.CONTAINS; // not support WITHIN if base geometry is type of point
+      } else {
+        this.operation = SpatialOperations.WITHIN;
+      }
+    } else if (geoSpatialOperation instanceof GeoSpatialOperation.Intersects) {
+      if (StringUtils.isNotEmpty(pointColumn)) {
+        this.operation = SpatialOperations.CONTAINS; // not support INTERSECTS if base geometry is type of point
+      } else {
+        this.operation = SpatialOperations.INTERSECTS;
+      }
+    } else {
+      throw new IllegalArgumentException("Invalid operation");
+    }
     return this;
   }
 

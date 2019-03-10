@@ -117,6 +117,11 @@ public class InclusionFilter extends Filter {
     this.valueList = valueList;
   }
 
+  public InclusionFilter(String dataSource, String field, String ref, List<String> valueList) {
+    super(dataSource, field, ref);
+    this.valueList = valueList;
+  }
+
   @Override
   public boolean compare(Filter filter) {
     if(!(filter instanceof InclusionFilter)) {

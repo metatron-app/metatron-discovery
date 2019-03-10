@@ -859,7 +859,7 @@ public abstract class AbstractQueryBuilder {
    *
    * @param name valid field name.
    */
-  public String engineColumnName(final String name) {
+  protected String engineColumnName(final String name) {
 
     // If it doesn't need a name.. ex ExpressionFilter
     if (StringUtils.isEmpty(name)) {
@@ -872,6 +872,14 @@ public abstract class AbstractQueryBuilder {
     }
 
     return name;
+  }
+
+  protected ExprVirtualColumn concatPointExprColumn(String engineColumnName, String outputName) {
+    String lat = engineColumnName + "." + LogicalType.GEO_POINT.getGeoPointKeys().get(0);
+    String lon = engineColumnName + "." + LogicalType.GEO_POINT.getGeoPointKeys().get(1);
+    String concatExpr = "concat('POINT (', \"" + lon + "\", ' ', \"" + lat + "\",')')";
+
+    return new ExprVirtualColumn(concatExpr, outputName);
   }
 
   protected void addContext(String key, Object value) {

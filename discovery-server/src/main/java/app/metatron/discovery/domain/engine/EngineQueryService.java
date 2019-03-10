@@ -314,6 +314,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
                                                                       .query(mainLayerQuery)
                                                                       .geometry(mainLayerQuery.getGeometry())
                                                                       .boundary(compareLayerQuery, GEOMETRY_BOUNDARY_COLUMN_NAME)
+                                                                      .operation(geoSpatialAnalysis.getOperation())
                                                                       .build();
 
       request.setResultFieldMapper(mainLayerQuery.getFieldMapper());

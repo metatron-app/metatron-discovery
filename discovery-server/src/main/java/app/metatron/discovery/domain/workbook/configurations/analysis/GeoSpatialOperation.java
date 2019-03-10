@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.workbook.configurations.analysis;
 
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -25,9 +26,12 @@ import java.io.Serializable;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
 @JsonSubTypes({
     @JsonSubTypes.Type(value = GeoSpatialOperation.DistanceWithin.class, name = "dwithin"),
-    @JsonSubTypes.Type(value = GeoSpatialOperation.Intersect.class, name = "intersects")
+    @JsonSubTypes.Type(value = GeoSpatialOperation.Intersects.class, name = "intersects")
 })
 public interface GeoSpatialOperation extends Serializable {
+
+  @JsonIgnore
+  Integer getBuffer();
 
   class DistanceWithin implements GeoSpatialOperation {
 
@@ -44,22 +48,33 @@ public interface GeoSpatialOperation extends Serializable {
     public Integer getDistance() {
       return distance;
     }
+
+    @Override
+    public Integer getBuffer() {
+      return distance;
+    }
   }
 
-  class Intersect implements GeoSpatialOperation {
+  class Intersects implements GeoSpatialOperation {
 
     String aggrColumn;
 
-    public Intersect() {
+    public Intersects() {
     }
 
     @JsonCreator
-    public Intersect(@JsonProperty("aggrColumn") String aggrColumn) {
+    public Intersects(@JsonProperty("aggrColumn") String aggrColumn) {
       this.aggrColumn = aggrColumn;
     }
 
     public String getAggrColumn() {
       return aggrColumn;
     }
+
+    @Override
+    public Integer getBuffer() {
+      return 0;
+    }
   }
+
 }
