@@ -375,6 +375,27 @@ public class TeddyImpl {
     return valids;
   }
 
+  private boolean looksLikeHeadered(DataFrame df) {
+    if (df.rows.size() == 0) {
+      return false;
+    }
+
+    Set<Object> strSet = new HashSet();
+    for (int i = 0; i < df.getColCnt(); i++) {
+      Object obj = df.rows.get(0).get(i);
+      if (obj == null || !(obj instanceof String)) {
+        return false;
+      }
+
+      if (strSet.contains(obj)) {
+        return false;
+      }
+      strSet.add(obj);
+    }
+
+    return true;
+  }
+
   // Get header and settype rule strings via inspecting 100 rows.
   public List<String> getAutoTypingRules(DataFrame df) throws TeddyException {
     String[] ruleStrings = new String[3];
@@ -395,7 +416,7 @@ public class TeddyImpl {
     //If all column types of row 0 elements is String and predicted column types is not all String.
     //Then add Header rule and change column name.
     if(Collections.frequency(columnTypesRow0, ColumnType.STRING) == df.colCnt &&
-            Collections.frequency(columnTypes, ColumnType.STRING) != df.colCnt) {
+        Collections.frequency(columnTypes, ColumnType.STRING) != df.colCnt && looksLikeHeadered(df)) {
       String ruleString = "header rownum: 1";
 
       setTypeRules.add(ruleString);
