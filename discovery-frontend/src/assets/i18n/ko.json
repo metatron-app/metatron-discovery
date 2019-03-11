@@ -2118,6 +2118,7 @@
   "msg.storage.ui.method": "방법",
   "msg.storage.ui.geo.coordinate": "좌표계",
   "msg.storage.ui.config.extension.no.data": "표현식 타입은 미리보기를 지원하지 않습니다",
+  "msg.storage.ui.config.linked-geo.no.data": "연결형 데이터는 Geo타입에 대한 데이터 미리보기를 지원하지 않습니다",
   "msg.storage.ui.config.no.data": "데이터가 없습니다",
   "msg.storage.alert.clipboard.copy": "복사되었습니다",
   "msg.storage.ui.criterion.status": "상태",

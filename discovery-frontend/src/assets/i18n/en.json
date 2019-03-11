@@ -2119,6 +2119,7 @@
   "msg.storage.ui.method": "Method",
   "msg.storage.ui.geo.coordinate": "Geo coordinates",
   "msg.storage.ui.config.extension.no.data": "Extension type does not support preview",
+  "msg.storage.ui.config.linked-geo.no.data": "Linked data does not support preview for GEO type",
   "msg.storage.ui.config.no.data": "No data",
   "msg.storage.alert.clipboard.copy": "Success copy",
   "msg.storage.ui.criterion.status": "Status",
