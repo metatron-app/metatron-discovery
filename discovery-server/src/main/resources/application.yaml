@@ -262,9 +262,7 @@ polaris:
     localBaseDir: ${user.home}/dataprep
 #    hadoopConfDir: /etc/hadoop
 #    stagingBaseDir: hdfs://localhost:9000/user/hive/dataprep
-#    hive:
-#      hostname: localhost
-#   sampling:
+#    sampling:
 #      timeout: 20
 #    etl:
 #      timeout: 36000
