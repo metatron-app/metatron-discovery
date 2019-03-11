@@ -15,7 +15,15 @@
 import {AbstractPopupComponent} from '../../../../common/component/abstract-popup.component';
 import {Component, ElementRef, Injector, Input, OnInit, ViewChild} from '@angular/core';
 import {GridComponent} from '../../../../common/component/grid/grid.component';
-import {Datasource, Field, FieldFormat, FieldFormatType, LogicalType} from '../../../../domain/datasource/datasource';
+import {
+  ConnectionType,
+  Datasource,
+  Field,
+  FieldFormat,
+  FieldFormatType,
+  FieldRole,
+  LogicalType
+} from '../../../../domain/datasource/datasource';
 import {QueryParam} from '../../../../domain/dashboard/dashboard';
 import * as _ from 'lodash';
 import {DatasourceService} from '../../../../datasource/service/datasource.service';
@@ -24,14 +32,9 @@ import {GridOption} from '../../../../common/component/grid/grid.option';
 import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
 import {Metadata} from '../../../../domain/meta-data-management/metadata';
 import {isUndefined} from 'util';
-import {ConnectionType, Dataconnection} from '../../../../domain/dataconnection/dataconnection';
+import {AuthenticationType, Dataconnection, ImplementorType} from '../../../../domain/dataconnection/dataconnection';
 import {TimezoneService} from "../../../service/timezone.service";
-
-enum FieldRoleType {
-  ALL = <any>'ALL',
-  DIMENSION = <any>'DIMENSION',
-  MEASURE = <any>'MEASURE'
-}
+import {DataSourceCreateService, TypeFilterObject} from "../../../service/data-source-create.service";
 
 @Component({
   selector: 'data-grid-datasource',
@@ -39,23 +42,11 @@ enum FieldRoleType {
 })
 export class DataGridDataSourceComponent extends AbstractPopupComponent implements OnInit {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   @ViewChild("main")
   private _gridComponent: GridComponent;
 
   // grid data
   private _gridData: any[];
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
   public datasource: Datasource;
@@ -64,15 +55,14 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   @Input()
   public metaData: Metadata;
 
-  // Field Role
-  public fieldRoleType = FieldRoleType;
-  public selectedFieldRole: FieldRoleType = this.fieldRoleType.ALL;
+  // 필드 목록
+  public fields: Field[];
 
-  // logical type list
-  public logicalTypes: any[];
-  public selectedLogicalType: any;
-  // logical type list flag
-  public isShowLogicalTypesFl: boolean = false;
+  // filter list
+  public roleTypeFilterList: TypeFilterObject[] = this.datasourceCreateService.getRoleTypeFilterList();
+  public selectedRoleTypeFilter: TypeFilterObject;
+  public logicalTypeFilterList: TypeFilterObject[] = this.datasourceCreateService.getLogicalTypeFilterList();
+  public selectedLogicalTypeFilter: TypeFilterObject;
 
   // 검색어
   public searchTextKeyword: string;
@@ -80,30 +70,20 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   // 그리도 data num
   public rowNum: number = 100;
 
-  // 필드 목록
-  public fields: Field[] = [];
-
-  // 현재 마스터 데이터소스의 연결 타입
-  public connType: string;
   // exist timestamp flag
   public isExistTimestamp: boolean;
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // derived field list
+  public derivedFieldList: Field[];
 
   // 생성자
-  constructor(private datasourceService: DatasourceService,
+  constructor(private datasourceCreateService: DataSourceCreateService,
+              private datasourceService: DatasourceService,
               private connectionService: DataconnectionService,
               private timezoneService: TimezoneService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // Init
   public ngOnInit() {
@@ -114,17 +94,13 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     // 그리드 데이터 조회
     this.fields = this.datasource.fields;
     // set exist timestamp flag
-    this.isExistTimestamp = this.datasource.fields.some(field => field.logicalType === LogicalType.TIMESTAMP && (this.timezoneService.isEnableTimezoneInDateFormat(field.format) || field.format && field.format.type === FieldFormatType.UNIX_TIME));
-    // 마스터 소스 타입
-    this.connType = this.datasource.hasOwnProperty('connType') ? this.datasource.connType.toString() : 'ENGINE';
-    // linked인 경우
-    if (this.connType === 'LINK') {
-      // 연결형일때 데이터 조회
-      this._getQueryDataInLinked(this.datasource);
-    } else {
-      // 수집형일 때
-      this._getQueryData(this.datasource);
-    }
+    this.isExistTimestamp = this.fields.some(field => field.logicalType === LogicalType.TIMESTAMP && (this.timezoneService.isEnableTimezoneInDateFormat(field.format) || field.format && field.format.type === FieldFormatType.UNIX_TIME));
+    // derived field list
+    this._setDerivedFieldList(this.fields);
+    // set field data list
+    this._setFieldDataList(this.datasource)
+      .then(result => this._updateGrid(this._gridData, this.fields))
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   // Destory
@@ -133,10 +109,6 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     // Destory
     super.ngOnDestroy();
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * 메타데이터가 있는지
@@ -147,16 +119,6 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   }
 
   /**
-   * Is unix type field
-   * @param {Field} field
-   * @return {boolean}
-   */
-  public isUnixTypeField(field: Field): boolean {
-    return field.format && field.format.type === FieldFormatType.UNIX_TIME;
-  }
-
-
-  /**
    * Change search text keyword and update grid list
    * @param text
    */
@@ -164,7 +126,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     // change search text keyword
     this.searchTextKeyword = text;
     // update grid
-    this._updateGrid(this._gridData, this.datasource.fields);
+    this._updateGrid(this._gridData, this.fields);
   }
 
   /**
@@ -172,39 +134,34 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    * @param args
    */
   public extendGridHeader(args: any): void {
-    $(`<div class="slick-data">${_.find(this.datasource.fields, {'name': args.column.id}).logicalName || ''}</div>`).appendTo(args.node);
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - event
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * role type 필터링 변경 이벤트
-   * @param {FieldRoleType} type
-   */
-  public onChangeRoleType(type: FieldRoleType): void {
-    // role type change
-    this.selectedFieldRole = type;
-    // grid update
-    this._updateGrid(this._gridData, this.fields);
+    $(`<div class="slick-data">${_.find(this.fields, {'name': args.column.id}).logicalName || ''}</div>`).appendTo(args.node);
   }
 
   /**
-   * logical type 필터링 변경 이벤트
-   * @param {MouseEvent} event
-   * @param type
+   * Change role type event
+   * @param {TypeFilterObject} type
    */
-  public onChangeLogicalType(event: MouseEvent, type): void {
-    // event stop
-    event.stopPropagation();
-    event.preventDefault();
-    // flag
-    this.isShowLogicalTypesFl = false;
-    // change logical type
-    this.selectedLogicalType = type;
-    // grid update
-    this._updateGrid(this._gridData, this.fields);
+  public onChangeRoleType(type: TypeFilterObject): void {
+    if (this.selectedRoleTypeFilter.value !== type.value) {
+      // role type change
+      this.selectedRoleTypeFilter = type;
+      // grid update
+      this._updateGrid(this._gridData, this.fields);
+    }
+  }
+
+
+  /**
+   * Change logical type event
+   * @param {TypeFilterObject} type
+   */
+  public onChangeLogicalType(type: TypeFilterObject): void {
+    if (this.selectedLogicalTypeFilter.value !== type.value) {
+      // change logical type
+      this.selectedLogicalTypeFilter = type;
+      // grid update
+      this._updateGrid(this._gridData, this.fields);
+    }
   }
 
   /**
@@ -213,10 +170,10 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   public onClickResetFilter(): void {
     // 검색어 초기화
     this.searchTextKeyword = '';
-    // role type
-    this.selectedFieldRole = FieldRoleType.ALL;
-    // logical type
-    this.selectedLogicalType = this.logicalTypes[0];
+    // set selected role type filter
+    this.selectedRoleTypeFilter = this.roleTypeFilterList[0];
+    // set selected logical type filter
+    this.selectedLogicalTypeFilter = this.logicalTypeFilterList[0];
     // grid
     this._updateGrid(this._gridData, this.fields);
   }
@@ -240,36 +197,17 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     }
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
    * ui init
    * @private
    */
   private _initView(): void {
-    // logicalType
-    this.logicalTypes = [
-      { label: this.translateService.instant('msg.comm.ui.list.all'), value: 'all' },
-      { label: this.translateService.instant('msg.storage.ui.list.string'), value: 'STRING' },
-      { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
-      { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER' },
-      { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE' },
-      { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
-      { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
-      { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
-    ];
-    this.selectedLogicalType = this.logicalTypes[0];
     // search
     this.searchTextKeyword = '';
-    // filter
-    this.fieldRoleType = FieldRoleType;
-    this.selectedFieldRole = this.fieldRoleType.ALL;
+    // set selected role type filter
+    this.selectedRoleTypeFilter = this.roleTypeFilterList[0];
+    // set selected logical type filter
+    this.selectedLogicalTypeFilter = this.logicalTypeFilterList[0];
   }
 
   /**
@@ -280,7 +218,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    */
   private _updateGrid(data: any, fields: any): void {
     // 헤더정보 생성
-    const headers: header[] = this._getGridHeader(fields);
+    const headers: header[] = this._getGridHeader(this._getFilteredFieldList(fields));
     // rows
     let rows: any[] = data;
     // row and headers가 있을 경우에만 그리드 생성
@@ -320,6 +258,17 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   }
 
   /**
+   * Get filtered field list
+   * @param {Field[]} field
+   * @return {Field[]}
+   * @private
+   */
+  private _getFilteredFieldList(field: Field[]): Field[] {
+    return field.filter(field => (this.selectedRoleTypeFilter.value === 'ALL' ? true : (FieldRole.DIMENSION === this.selectedRoleTypeFilter.value && FieldRole.TIMESTAMP === field.role ? field : this.selectedRoleTypeFilter.value === field.role))
+      && (this.selectedLogicalTypeFilter.value === 'ALL' ? true : (this.selectedLogicalTypeFilter.value === LogicalType.USER_DEFINED && field.logicalType === LogicalType.STRING ? true : this.selectedLogicalTypeFilter.value === field.logicalType)));
+  }
+
+  /**
    * Get timezone label
    * @param {FieldFormat} format
    * @return {string}
@@ -340,18 +289,40 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    * @private
    */
   private _getGridHeader(fields: Field[]): header[] {
-    // header 생성
-    return fields
-      .filter((item: Field) => {
-        // role
-        let isValidRole: boolean = ( FieldRoleType.ALL === this.selectedFieldRole )
-          ? true
-          : ( item.role.toString() === 'TIMESTAMP' ? this.selectedFieldRole.toString() === 'DIMENSION' : item.role.toString() === this.selectedFieldRole.toString());
-        // type
-        let isValidType: boolean = ( 'all' === this.selectedLogicalType.value ) ? true : ( item.logicalType === this.selectedLogicalType.value );
-        return ( isValidRole && isValidType );
-      })
-      .map((field: Field) => {
+    // if exist derived field list
+    if (this.derivedFieldList.length > 0) {
+      // Style
+      const defaultStyle: string = 'line-height:30px;';
+      const nullStyle: string = 'color:#b6b9c1;';
+      const noPreviewGuideMessage: string = this.translateService.instant('msg.dp.ui.no.preview');
+
+      return fields.map((field: Field) => {
+        const headerName: string = field.headerKey || field.name;
+        return new SlickGridHeader()
+          .Id(headerName)
+          .Name(this._getGridHeaderName(field, headerName))
+          .Field(headerName)
+          .Behavior('select')
+          .Selectable(false)
+          .CssClass('cell-selection')
+          .Width(10 * (headerName.length) + 20)
+          .MinWidth(100)
+          .CannotTriggerInsert(true)
+          .Resizable(true)
+          .Unselectable(true)
+          .Sortable(true)
+          .Formatter((row, cell, value) => {
+            // if derived expression type or LINK geo type
+            if (field.derived && (field.logicalType === LogicalType.STRING || this.datasource.connType === ConnectionType.LINK)) {
+              return '<div  style="' + defaultStyle + nullStyle + '">' + noPreviewGuideMessage + '</div>';
+            } else {
+              return value;
+            }
+          })
+          .build();
+      });
+    } else {
+      return fields.map((field: Field) => {
         const headerName: string = field.headerKey || field.name;
         return new SlickGridHeader()
           .Id(headerName)
@@ -368,6 +339,8 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
           .Sortable(true)
           .build();
       });
+    }
+
   }
 
   /**
@@ -416,57 +389,28 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   }
 
   /**
-   * Get query data for linked type
-   * @param {Datasource} source
-   * @param {boolean} extractColumnName
-   * @private
-   */
-  private _getQueryDataInLinked(source: Datasource): void {
-    // 로딩 show
-    this.loadingShow();
-    // 프리셋을 생성한 연결형 : source.connection 사용
-    // 커넥션 정보로 생성한 연결형 : source.ingestion.connection 사용
-    const connection: Dataconnection = source.connection || source.ingestion.connection;
-    const params = source.ingestion && connection
-      ? this._getConnectionParams(source.ingestion, connection)
-      : {};
-    this.connectionService.getTableDetailWitoutId(params, connection.implementor === ConnectionType.HIVE ? true : false)
-      .then((data) => {
-        // grid data
-        this._gridData = data['data'];
-        // set fields
-        this.fields = data['fields'];
-        // grid update
-        this._updateGrid(this._gridData, this.fields);
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch(error => this.commonExceptionHandler(error));
-  }
-
-  /**
-   * 커넥션 파라메터
+   * Get connection params
    * @param {any} ingestion
-   * @param {any} connection
+   * @param {Dataconnection} connection
    * @returns {{connection: {hostname; port; username; password; implementor}; database: any; type: any; query: any}}
    * @private
    */
-  private _getConnectionParams(ingestion: any, connection: any) {
+  private _getConnectionParams(ingestion: any, connection: Dataconnection) {
     const params = {
       connection: {
         hostname: connection.hostname,
         port: connection.port,
         implementor: connection.implementor,
-        authenticationType: connection.authenticationType || 'MANUAL'
+        authenticationType: connection.authenticationType || AuthenticationType.MANUAL
       },
       database: ingestion.database,
       type: ingestion.dataType,
       query: ingestion.query
     };
     // if security type is not USERINFO, add password and username
-    if (connection.authenticationType !== 'USERINFO') {
-      params['connection']['username'] = connection.authenticationType === 'DIALOG' ? ingestion.connectionUsername : connection.username;
-      params['connection']['password'] = connection.authenticationType === 'DIALOG' ? ingestion.connectionPassword : connection.password;
+    if (connection.authenticationType !== AuthenticationType.USERINFO) {
+      params['connection']['username'] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionUsername : connection.username;
+      params['connection']['password'] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionPassword : connection.password;
     }
 
     // 데이터 베이스가 있는경우
@@ -475,5 +419,61 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     }
 
     return params;
+  }
+
+  /**
+   * Set derived field list
+   * @param {Field[]} fieldList
+   * @private
+   */
+  private _setDerivedFieldList(fieldList: Field[]): void {
+    this.derivedFieldList = fieldList.filter(field => field.derived);
+  }
+
+  /**
+   * Set field data list
+   * @param {Datasource} datasource
+   * @return {Promise<any>}
+   * @private
+   */
+  public _setFieldDataList(datasource: Datasource): Promise<any> {
+    return new Promise((resolve, reject) => {
+      // 로딩 show
+      this.loadingShow();
+      // Linked datasource
+      if (datasource.connType === ConnectionType.LINK) {
+        // used preset : source.connection
+        // not used preset : source.ingestion.connection
+        const connection: Dataconnection = datasource.connection || datasource.ingestion.connection;
+        this.connectionService.getTableDetailWitoutId(this._getConnectionParams(datasource.ingestion, connection), connection.implementor === ImplementorType.HIVE)
+          .then((data) => {
+            // grid data
+            this._gridData = data['data'];
+            // set fields
+            this.fields = data['fields'];
+            // 로딩 hide
+            this.loadingHide();
+            resolve(data);
+          })
+          .catch(error => reject(error));
+      } else if (datasource.connType === ConnectionType.ENGINE) { // Engine datasource
+        // params
+        const params = new QueryParam();
+        params.limits.limit = ( this.rowNum < 1 || 0 === this.rowNum) ? 100 : this.rowNum;
+        params.dataSource.name = datasource.engineName;
+        params.dataSource.engineName = datasource.engineName;
+        params.dataSource.connType = 'ENGINE';
+        params.dataSource.type = 'default';
+        this.datasourceService.getDatasourceQuery(params)
+          .then((data) => {
+            // grid data
+            this._gridData = data;
+            // 로딩 hide
+            this.loadingHide();
+            resolve(data);
+          })
+          .catch(error => reject(error));
+      }
+    });
   }
 }

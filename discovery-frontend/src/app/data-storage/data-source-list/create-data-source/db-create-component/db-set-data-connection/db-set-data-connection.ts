@@ -342,6 +342,7 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
    */
   public onChangeIngestionType(type: any): void {
     this.selectedIngestionType = type;
+    this._sourceData.connType = type.value;
   }
 
   /**

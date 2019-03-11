@@ -35,26 +35,12 @@
         <!-- edit option -->
         <div class="ddp-ui-edit-option ddp-inline">
           <div class="ddp-ui-option-in">
-            <label class="ddp-label-radio">
+            <label class="ddp-label-radio" *ngFor="let type of roleTypeFilterList">
               <input type="radio"
-                     (change)="onChangeRoleType(fieldRoleType.ALL)"
-                     [checked]="selectedFieldRole === fieldRoleType.ALL">
+                     (change)="onChangeRoleType(type)"
+                     [checked]="selectedRoleTypeFilter.value === type.value">
               <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{'msg.comm.ui.list.all' | translate}}</span>
-            </label>
-            <label class="ddp-label-radio">
-              <input type="radio"
-                     (change)="onChangeRoleType(fieldRoleType.DIMENSION)"
-                     [checked]="selectedFieldRole === fieldRoleType.DIMENSION">
-              <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{'msg.comm.name.dim' | translate}}</span>
-            </label>
-            <label class="ddp-label-radio">
-              <input type="radio"
-                     (change)="onChangeRoleType(fieldRoleType.MEASURE)"
-                     [checked]="selectedFieldRole === fieldRoleType.MEASURE">
-              <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{'msg.comm.name.mea' | translate}}</span>
+              <span class="ddp-txt-radio">{{type.label}}</span>
             </label>
           </div>
         </div>
@@ -66,26 +52,14 @@
       <div class="ddp-wrap-edit">
         <label class="ddp-label-type">{{'msg.storage.ui.type' | translate}}</label>
         <!-- edit option -->
-        <div class="ddp-ui-edit-option"
-             (click)="isShowLogicalTypesFl = !isShowLogicalTypesFl"
-             (clickOutside)="isShowLogicalTypesFl = false">
+        <div class="ddp-ui-edit-option">
           <!-- selectbox -->
           <!-- 선택시 : ddp-selected 추가 -->
-          <div class="ddp-type-selectbox" [ngClass]="{'ddp-selected' : isShowLogicalTypesFl}">
-            <span class="ddp-txt-selectbox">{{selectedLogicalType.label}}</span>
-            <div class="ddp-wrap-popup2 ddp-types">
-              <ul class="ddp-list-popup">
-                <li [ngClass]="{'ddp-selected' : selectedLogicalType.value === type.value}"
-                    (click)="onChangeLogicalType($event,type)" *ngFor="let type of logicalTypes">
-                  <a href="javascript:">
-                    <em class="{{getFieldTypeIconClass(type.value)}}"></em>
-                    {{type.label}}
-                    <em class="ddp-icon-check" *ngIf="selectedLogicalType.value === type.value"></em>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <storage-filter-select-box
+            [filterList]="logicalTypeFilterList"
+            [selectedFilter]="selectedLogicalTypeFilter"
+            [isEnableIcon]="true"
+            (changedFilter)="onChangeLogicalType($event)"></storage-filter-select-box>
           <!-- //selectbox -->
         </div>
         <!-- //edit option -->
