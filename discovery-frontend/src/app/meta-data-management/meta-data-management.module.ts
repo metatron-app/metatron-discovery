@@ -35,7 +35,6 @@ import {SelectCatalogComponent} from './metadata/component/select-catalog.compon
 import {SelectDatatypeComponent} from './metadata/create-metadata/select-datatype.component';
 import {CompleteCreateMetadataComponent} from './metadata/create-metadata/complete-create-metadata.component';
 import {MetadataDetailInformationComponent} from './metadata/metadata-detail-information.component';
-import {MetadataDetailColumnschemaComponent} from './metadata/metadata-detail-columnschema.component';
 import {DatasourceService} from '../datasource/service/datasource.service';
 import {DatasourceShareModule} from '../datasource/datasource-share.module';
 import {DsSelectDatasourceComponent} from './metadata/create-metadata/ds-select-datasource.component';
@@ -49,10 +48,12 @@ import {ChooseColumnDictionaryComponent} from './component/choose-column-diction
 import {CatalogComponent} from './catalog/catalog.component';
 import {MetadataManagementGuard} from '../common/gaurd/metadata-management.guard';
 import {TopInfoComponent} from './metadata/component/top-info.component';
+import {DetailModule} from './detail/detail.module';
 
 @NgModule({
   imports: [
     CommonModule,
+    DetailModule,
     DatasourceShareModule,
     RouterModule.forChild([
       {path: '', component: MetaDataManagementComponent, canActivate: [MetadataManagementGuard]},
@@ -102,7 +103,6 @@ import {TopInfoComponent} from './metadata/component/top-info.component';
 
     SelectCatalogComponent,
     MetadataDetailInformationComponent,
-    MetadataDetailColumnschemaComponent,
     CatalogComponent,
     TopInfoComponent,
   ],

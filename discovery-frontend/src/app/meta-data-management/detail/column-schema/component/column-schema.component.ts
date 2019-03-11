@@ -13,20 +13,20 @@
  */
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChildren} from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {Datasource, FieldFormat, FieldFormatType, LogicalType, SourceType} from '../../domain/datasource/datasource';
+import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {Datasource, FieldFormat, FieldFormatType, LogicalType, SourceType} from '../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
-import {MetadataService} from './service/metadata.service';
-import {MetadataModelService} from './service/metadata.model.service';
-import {MetadataColumn} from '../../domain/meta-data-management/metadata-column';
-import {CodeTable} from '../../domain/meta-data-management/code-table';
-import {ColumnDictionary} from '../../domain/meta-data-management/column-dictionary';
-import {CodeTableService} from '../code-table/service/code-table.service';
-import {CodeValuePair} from '../../domain/meta-data-management/code-value-pair';
-import {ColumnDictionaryService} from '../column-dictionary/service/column-dictionary.service';
-import {Alert} from '../../common/util/alert.util';
-import {CommonConstant} from '../../common/constant/common.constant';
-import {MetadataSourceType} from '../../domain/meta-data-management/metadata';
+import {MetadataService} from '../../../metadata/service/metadata.service';
+import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
+import {MetadataColumn} from '../../../../domain/meta-data-management/metadata-column';
+import {CodeTable} from '../../../../domain/meta-data-management/code-table';
+import {ColumnDictionary} from '../../../../domain/meta-data-management/column-dictionary';
+import {CodeTableService} from '../../../code-table/service/code-table.service';
+import {CodeValuePair} from '../../../../domain/meta-data-management/code-value-pair';
+import {ColumnDictionaryService} from '../../../column-dictionary/service/column-dictionary.service';
+import {Alert} from '../../../../common/util/alert.util';
+import {CommonConstant} from '../../../../common/constant/common.constant';
+import {MetadataSourceType} from '../../../../domain/meta-data-management/metadata';
 
 class Order {
   key: string = 'physicalName';
@@ -35,9 +35,9 @@ class Order {
 
 @Component({
   selector: 'app-metadata-detail-columnschema',
-  templateUrl: './metadata-detail-columnschema.component.html',
+  templateUrl: './column-schema.component.html',
 })
-export class MetadataDetailColumnschemaComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class ColumnSchemaComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
