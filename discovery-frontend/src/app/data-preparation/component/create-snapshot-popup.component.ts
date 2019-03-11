@@ -90,6 +90,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(private _connectionService: DataconnectionService,
+              private storageService: StorageService,
               protected popupService: PopupService,
               protected dataflowService: DataflowService,
               protected datasetService: DatasetService,
@@ -321,7 +322,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * Check if staging is enabled
    */
   public isStagingEnabled() :boolean {
-    return StorageService.isEnableStageDB
+    return this.storageService.isEnableStageDB();
   }
 
 

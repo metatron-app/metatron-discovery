@@ -82,10 +82,11 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
   // 생성자
   constructor(
     protected element: ElementRef,
+    protected injector: Injector,
     protected metadataService: MetadataService,
     protected catalogService: CatalogService,
     public sanitizer: DomSanitizer,
-    protected injector: Injector) {
+    private storageService: StorageService) {
     super(element, injector);
   }
 
@@ -444,7 +445,7 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
    * @private
    */
   private _initView() {
-    this.sourceTypeList = StorageService.isEnableStageDB
+    this.sourceTypeList = this.storageService.isEnableStageDB()
       ? [
         {label: 'All', value: ''},
         {label: 'Datasource', value: SourceType.ENGINE},

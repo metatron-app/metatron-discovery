@@ -87,6 +87,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   constructor(private dataSnapshotService: DataSnapshotService,
+              private storageService: StorageService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -106,7 +107,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
       // {label: 'DRUID', value : SsType.DRUID}
     ];
 
-    if (StorageService.isEnableStageDB) {
+    if (this.storageService.isEnableStageDB()) {
       this.snapshotTypes.push({label: 'Staging DB', value : SsType.STAGING_DB});
     }
 

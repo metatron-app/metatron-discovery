@@ -34,7 +34,8 @@ export class SelectTypeComponent extends AbstractPopupComponent implements OnIni
 
   // 생성자
   constructor(protected elementRef: ElementRef,
-              protected injector: Injector) {
+              protected injector: Injector,
+              private storageService: StorageService) {
 
     super(elementRef, injector);
   }
@@ -93,6 +94,6 @@ export class SelectTypeComponent extends AbstractPopupComponent implements OnIni
    * @return {boolean}
    */
   public isEnableStageDB(): boolean {
-    return StorageService.isEnableStageDB;
+    return this.storageService.isEnableStageDB();
   }
 }

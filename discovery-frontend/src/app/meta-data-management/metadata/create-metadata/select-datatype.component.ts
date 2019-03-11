@@ -48,6 +48,7 @@ export class SelectDatatypeComponent extends AbstractComponent implements OnInit
   // 생성자
   constructor(
     public metaDataModelService: MetadataModelService,
+    private storageService: StorageService,
     protected element: ElementRef,
     protected injector: Injector) {
     super(element, injector);
@@ -133,7 +134,7 @@ export class SelectDatatypeComponent extends AbstractComponent implements OnInit
    * @return {boolean}
    */
   public isEnableStageDB(): boolean {
-    return StorageService.isEnableStageDB;
+    return this.storageService.isEnableStageDB();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

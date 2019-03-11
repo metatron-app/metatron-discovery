@@ -1,13 +1,18 @@
 import {AbstractService} from '../../common/service/abstract.service';
 import {Injectable, Injector} from '@angular/core';
+import * as _ from 'lodash';
 
 @Injectable()
 export class StorageService extends AbstractService {
 
-  public static isEnableStageDB: boolean;
+  private isEnableStageDatabase: boolean;
 
   constructor(protected injector: Injector) {
     super(injector);
+  }
+
+  public isEnableStageDB() {
+    return this.isEnableStageDatabase;
   }
 
   /**
@@ -16,11 +21,11 @@ export class StorageService extends AbstractService {
    */
   public checkEnableStageDB() {
     return new Promise((resolve, reject) => {
-      this.get(this.API_URL + `storage/stagedb`).then(result => {
-        StorageService.isEnableStageDB = result ? true : false;
+      this.get( `${this.API_URL}storage/stagedb`).then(result => {
+        this.isEnableStageDatabase = _.negate(_.isNil)(result);
         resolve(result);
       }).catch(error => {
-        StorageService.isEnableStageDB = false;
+        this.isEnableStageDatabase = false;
         reject(error);
       });
     });

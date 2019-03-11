@@ -44,6 +44,7 @@ export class CreateDatasetDataTypeComponent extends AbstractPopupComponent imple
 
   // 생성자
   constructor(private popupService: PopupService,
+              private storageService: StorageService,
               private datasetService : DatasetService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -136,7 +137,7 @@ export class CreateDatasetDataTypeComponent extends AbstractPopupComponent imple
    * Check if staging db is enabled
    */
   public isStagingEnabled() : boolean {
-    return StorageService.isEnableStageDB
+    return this.storageService.isEnableStageDB();
   }
 
 
