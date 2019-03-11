@@ -51,25 +51,13 @@
       <div class="ddp-wrap-edit">
         <label class="ddp-label-type">{{'msg.storage.ui.type' | translate}}</label>
         <!-- edit option -->
-        <div class="ddp-ui-edit-option"
-             (click)="isShowTypeFilterList = !isShowTypeFilterList"
-             (clickOutside)="isShowTypeFilterList = false">
+        <div class="ddp-ui-edit-option">
           <!-- selectbox -->
-          <div class="ddp-type-selectbox" [class.ddp-selected]="isShowTypeFilterList">
-            <span class="ddp-txt-selectbox">{{selectedTypeFilter.label}}</span>
-            <div class="ddp-wrap-popup2 ddp-types">
-              <ul class="ddp-list-popup">
-                <li [class.ddp-selected]="selectedTypeFilter === type"
-                     *ngFor="let type of typeFilterList">
-                  <a href="javascript:" (click)="onChangeTypeFilter(type)">
-                    <em class="{{getFieldTypeIconClass(type.value)}}"></em>
-                    {{type.label}}
-                    <em class="ddp-icon-check" *ngIf="selectedTypeFilter === type"></em>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <storage-filter-select-box
+            [filterList]="logicalTypeFilterList"
+            [selectedFilter]="selectedLogicalTypeFilter"
+            [isEnableIcon]="true"
+            (changedFilter)="onChangeLogicalTypeFilter($event)"></storage-filter-select-box>
           <!-- //selectbox -->
         </div>
         <!-- //edit option -->
@@ -210,24 +198,7 @@
                   {{'msg.storage.ui.type' | translate}}
                 </th>
                 <td>
-                  <span class="ddp-icon-type-txt" *ngIf="selectedField.role === 'TIMESTAMP' || isDerivedColumn(selectedField)"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em>{{getColumnTypeLabel(selectedField.logicalType, physicalTypeList)}}</span>
-                  <!-- 클릭시 ddp-selected 추가 -->
-                  <div class="ddp-hover-selectbox" [class.ddp-selected]="isShowPhysicalTypeFl"
-                       *ngIf="selectedField.role !== 'TIMESTAMP' && !isDerivedColumn(selectedField)"
-                       (click)="isShowPhysicalTypeFl = !isShowPhysicalTypeFl" (clickOutside)="isShowPhysicalTypeFl = false">
-                    <a href="javascript:" class="ddp-icon-type"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em> {{getColumnTypeLabel(selectedField.logicalType, physicalTypeList)}}</a>
-                    <div class="ddp-wrap-popup2 ddp-types">
-                      <ul class="ddp-list-popup">
-                        <li [class.ddp-selected]="" *ngFor="let physicalType of getEnableChangePhysicalTypeList()">
-                          <a href="javascript:" (click)="onChangeFieldPhysicalType(selectedField, physicalType)">
-                            <em class="{{getFieldTypeIconClass(physicalType.value)}}"></em>
-                            {{physicalType.label}}
-                            <em class="ddp-icon-check"></em>
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
+                  <span class="ddp-icon-type-txt"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em>{{getColumnTypeLabel(selectedField.logicalType)}}</span>
                 </td>
               </tr>
               </tbody>
