@@ -100,11 +100,6 @@ public class TeddyImpl {
     return rs.get().getCurStageIdx();
   }
 
-  public int getCurStageCnt(String dsId) {
-    RevisionSet rs = revisionSetCache.get(dsId);
-    return rs.get().getCurStageCnt();
-  }
-
   public int getRevCnt(String dsId) {
     return revisionSetCache.get(dsId).revs.size();
   }
@@ -251,6 +246,7 @@ public class TeddyImpl {
     // replace with the new, updated DF
     DataFrame newDf = apply(rev.get(stageIdx - 1), ruleString, jsonRuleString);
     newRev.add(newDf);
+    newRev.setCurStageIdx(stageIdx);
 
     appendNewDfs(newRev, rev, stageIdx + 1);
 
