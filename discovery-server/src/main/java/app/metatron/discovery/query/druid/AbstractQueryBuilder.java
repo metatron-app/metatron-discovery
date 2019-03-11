@@ -672,11 +672,11 @@ public abstract class AbstractQueryBuilder {
   private boolean isNotMainDataSourceColumn(app.metatron.discovery.domain.workbook.configurations.filter.Filter filter) {
 
     if (dataSource instanceof MultiDataSource
-        && mainMetaDataSource.getEngineName().equals(filter.getDataSource())) {
-      return false;
+        && !mainMetaDataSource.getEngineName().equals(filter.getDataSource())) {
+      return true;
     }
 
-    return true;
+    return false;
   }
 
 
