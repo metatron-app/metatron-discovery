@@ -100,6 +100,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     }
   }
 
+  // layer type change
+  private isChangeLayerType: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -417,6 +420,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // Creation layer
       this.createLayer(source, emptySource, isMapCreation, layerIndex);
     }
+
+    ( (isNullOrUndefined(this.drawByType) || _.isEmpty(this.drawByType) ) ? this.isChangeLayerType = false : this.isChangeLayerType = true );
 
     // Chart resize
     this.olmap.updateSize();
@@ -933,7 +938,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.changeDetect.detectChanges();
 
     // Map data place fit
-    if (this.drawByType && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&  (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'] == true) ) {
+    if (this.drawByType && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&
+      (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'] == true) &&
+      (_.isUndefined(this.uiOption['layers'][layerIndex]['changeTileRadius']) || this.uiOption['layers'][layerIndex]['changeTileRadius'] == true) ) {
       this.olmap.getView().fit(source.getExtent());
     } else {
       // set saved data zoom
@@ -2730,11 +2737,17 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * @param event
    */
   private zoomFunction = (event) => {
+
+    const that = this;
     // save current chartzoom
     this.uiOption.chartZooms = this.additionalSaveDataZoomRange();
 
     let mapUIOption = (<UIMapOption>this.uiOption);
-    if( _.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner) ){
+    // zoom size
+    mapUIOption.zoomSize = Math.round(event.frameState.viewState.zoom);
+
+    if( (_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.isChangeLayerType ){
+      this.isChangeLayerType = false;
       this.setUiExtent(event);
       return;
     }
@@ -2748,27 +2761,32 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       && Number(preUpperCorner[0]).toFixed(10) != currentMapExtent[2].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) != currentMapExtent[3].toFixed(10) ){
 
       let isAllChangeCoverage: boolean = false;
+      let isAllChangeTileRadius: boolean = false;
       mapUIOption.layers.forEach( (layer) => {
         if( !_.isUndefined(layer['changeCoverage']) && layer['changeCoverage'] == true ) {
           isAllChangeCoverage = true;
+        }
+        if( !_.isUndefined(layer['changeTileRadius']) && layer['changeTileRadius'] == true ) {
+          isAllChangeTileRadius = true;
         }
       });
 
       // map ui lat, lng
       this.setUiExtent(event);
-      if( mapUIOption.upperCorner.indexOf('NaN') != -1 || mapUIOption.lowerCorner.indexOf('NaN') != -1 || isAllChangeCoverage ) {
+      if( mapUIOption.upperCorner.indexOf('NaN') != -1 || mapUIOption.lowerCorner.indexOf('NaN') != -1 || isAllChangeCoverage || isAllChangeTileRadius ) {
         // coverage value reset
         mapUIOption.layers.forEach( (layer) => {
-          if(!_.isUndefined(layer['changeCoverage'])){
+          if( isAllChangeCoverage && !_.isUndefined(layer['changeCoverage'])){
             layer['changeCoverage'] = false;
+          }
+          if( isAllChangeTileRadius && !_.isUndefined(layer['changeTileRadius'])){
+            layer['changeTileRadius'] = false;
           }
         });
         return;
       }
 
-      // zoom size
-      mapUIOption.zoomSize = Math.round(event.frameState.viewState.zoom);
-
+      this.isChangeLayerType = false;
       this.changeDrawEvent.emit();
     }
 

@@ -3255,6 +3255,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       return valid;
     }
 
+    if( _.isUndefined( this.shelf.layers[layerNum] ) ){
+      return valid;
+    }
+
     let layers = this.shelf.layers[layerNum].fields;
     if (layers) {
       for (let layer of layers) {
