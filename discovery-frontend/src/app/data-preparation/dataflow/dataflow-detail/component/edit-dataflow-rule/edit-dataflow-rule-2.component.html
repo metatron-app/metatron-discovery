@@ -22,12 +22,12 @@
         <!-- name -->
         <!-- 클릭시 ddp-selected 추가 -->
         <div class="ddp-wrap-naviname" [ngClass]="{'ddp-selected':isOtherDatasetListShow}" (click)="showDatasets()" (clickOutside)="isOtherDatasetListShow = false">
-          <span class="ddp-data-naviname">{{selectedDataSet.dsName}}<em class="ddp-icon-menuview"></em>
+          <span class="ddp-data-naviname">{{dsName}}<em class="ddp-icon-menuview"></em>
           </span>
           <!-- popup -->
           <div class="ddp-wrap-popup2 ddp-type">
             <div class="ddp-ui-label ">
-              {{'msg.dp.ui.num.ds.flow' | translate : {value:dataflow['wrangledDsCount']} }}
+              {{'msg.dp.ui.num.ds.flow' | translate : {value:dataflow?.wrangledDsCount} }}
             </div>
 
             <ul class="ddp-list-popup ddp-list-dataset">
@@ -55,7 +55,7 @@
   <div class="ddp-wrap-flow" style="position:fixed; left:0; top:48px; bottom:0; right:0; box-sizing:border-box; overflow:hidden;">
     <div class="rule-top">
       <div class="left-component rule-left" style="float: left; height: 100%;">
-        <div *ngIf="isInitDataLoaded" class="ddp-wrap-flow-grid" style="position:relative; top:0; left:0; right:0; min-height:100%;">
+        <div class="ddp-wrap-flow-grid" style="position:relative; top:0; left:0; right:0; min-height:100%;">
           <edit-rule-grid (selectHeader)="setRuleInfoFromGridHeader($event)"
                           (contextMenuItemInfo)="onContextMenuInfo($event)" [isAggregationIncluded]="isAggregationIncluded"></edit-rule-grid>
         </div>
@@ -63,7 +63,7 @@
       <div class="right-component rule-right" style="float: left; height: 100%;">
 
         <!-- Rule list -->
-        <app-rule-list [dsId]="selectedDataSet.dsId"
+        <app-rule-list [dsId]="dsId"
                        [ruleList]="ruleList"
                        [redoable]="redoable"
                        [undoable]="undoable"
@@ -288,7 +288,7 @@
                      [serverSyncIndex]="serverSyncIndex"
                      (joinComplete)="ruleJoinComplete($event);"
                      *ngIf="isRuleJoinModalShow"
-                     [dfId]="dataflow.dfId"
+                     [dfId]="dfId"
                      [rightDataset]="rightDataset"
                      [editRuleStr]="editJoinOrUnionRuleStr">
 </app-rule-join-popup>
@@ -297,7 +297,7 @@
 <!-- Union rule popup -->
 <app-rule-union-popup [masterDataset]="selectedDataSet"
                       [serverSyncIndex]="serverSyncIndex"
-                      [dfId]="dataflow.dfId"
+                      [dfId]="dfId"
                       [editRuleStr]="editJoinOrUnionRuleStr"
                       (unionComplete)="ruleUnionComplete($event);"
                       *ngIf="isRuleUnionModalShow">

@@ -86,12 +86,14 @@ import {AddDatasetDataflowComponent} from "./dataset/add-dataset-dataflow.compon
 import {MultipleRenamePopupComponent} from "./dataflow/dataflow-detail/component/edit-dataflow-rule/multiple-rename-popup.component";
 import {DataSourceCreateModule} from "../data-storage/data-source-list/create-data-source/data-source-create.module";
 import {DataconnectionService} from "../dataconnection/service/dataconnection.service";
+import {DataflowDetail2Component} from "./dataflow/dataflow-detail/dataflow-detail2.component";
 
 
 const dataPreparationRoutes: Routes = [
   { path: '', component: DatasetComponent },
   { path: 'dataflow', component: DataflowComponent },
-  { path: 'dataflow/:id', component: DataflowDetailComponent, canDeactivate: [DataPreparationGuard] },
+  { path: 'dataflow/:id', component: DataflowDetail2Component, canDeactivate: [DataPreparationGuard] },
+  { path: 'dataflow/:dfId/rule/:dsId', component: EditDataflowRule2Component },
   { path: 'dataset', component: DatasetComponent },
   { path: 'dataset/new', component: DatasetComponent },
   { path: 'dataset/:id', component: DatasetDetailComponent },
@@ -168,7 +170,8 @@ const dataPreparationRoutes: Routes = [
     CheckboxSelectDatasetComponent,
     LongUpdatePopupComponent,
     AddDatasetDataflowComponent,
-    MultipleRenamePopupComponent
+    MultipleRenamePopupComponent,
+    DataflowDetail2Component
   ],
   providers: [
     DataconnectionService,
