@@ -14,6 +14,14 @@
 
 import {Pipe, PipeTransform} from '@angular/core';
 
+/**
+ * Simple utility pipe to use when searching in collections
+ *
+ * e.g )
+ *  <li *ngFor="let user of users | filter:{ name: searchKey }:false">
+ *    ...
+ *  </li>
+ */
 @Pipe({
   name: 'filter',
 })
