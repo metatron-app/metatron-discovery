@@ -260,6 +260,12 @@ public class DataSourceEventHandler {
       ingestionHistoryRepository.save(histroy);
     }
 
+    // save context from domain
+    contextService.saveContextFromDomain(dataSource);
+
+    // create metadata from datasource
+    metadataService.saveFromDataSource(dataSource);
+
     // 수집 경로가 아닌 경우 Pass
     if (dataSource.getIngestion() == null) {
       return;
@@ -427,6 +433,14 @@ public class DataSourceEventHandler {
       // Shutdown Ingestion Task
       engineIngestionService.shutDownIngestionTask(dataSource.getId());
       LOGGER.debug("Successfully shutdown ingestion tasks in datasource ({})", dataSource.getId());
+
+      // Delete datastore on geoserver if datasource include geo column
+      if (dataSource.getIncludeGeo() == null) {
+        LOGGER.debug("Datasource with previous schema, skip removing geo service");
+      } else if (dataSource.getIncludeGeo()) {
+        geoService.deleteDataStore(dataSource.getEngineName());
+        LOGGER.debug("Successfully delete datastore on geoserver ({})", dataSource.getId());
+      }
 
       // Disable DataSource
       try {
