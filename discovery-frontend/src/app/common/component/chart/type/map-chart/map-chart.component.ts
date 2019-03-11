@@ -1007,16 +1007,17 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           source.addFeature(features[i]);
         } else if (data!=null && data.features[i] != null && data.features[i].geometry != null&&  data.features[i].geometry.type.toString().toLowerCase().indexOf('line') != -1) {
           let line = new ol.geom.LineString(data.features[i].geometry.coordinates);
-          lines.appendLineString(line);
+          // lines.appendLineString(line);
+          let lineFeature = new ol.Feature({geometry: line});
+          if( !_.isNull(this.getUiMapOption().layers[layerIndex].color.column) ){
+            const alias = ChartUtil.getFieldAlias(this.getUiMapOption().layers[layerIndex].color.column, this.shelf.layers[layerIndex].fields, this.getUiMapOption().layers[layerIndex].color.aggregationType);
+            lineFeature.set( alias, data.features[i].properties[alias] );
+          }
+          lineFeature.set('layerNum', layerIndex);
+          features.push(lineFeature);
+          source.addFeature(lineFeature);
         }
       } // end - features for
-      // adding line features
-      if( !_.isUndefined(lines) && lines.getLineStrings().length>0) {
-        let lineFeature = new ol.Feature({geometry: lines});
-        lineFeature.set('layerNum', layerIndex);
-        features.push(lineFeature)
-        source.addFeature(lineFeature);
-      }
     }
   }
 
