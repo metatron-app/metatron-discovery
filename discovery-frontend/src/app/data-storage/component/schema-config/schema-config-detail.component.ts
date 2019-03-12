@@ -259,7 +259,7 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
         // params
         const params = {
           format: field.format.type === FieldFormatType.UNIX_TIME ? 'time_unix' : field.format.format,
-          samples: field.ingestionRule.value
+          samples: [field.ingestionRule.value]
         };
         // if format type is UNIX, add format unit
         if (field.format.type === FieldFormatType.UNIX_TIME) {
@@ -555,7 +555,7 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
                   // if enable timezone, set browser timezone at field
                   if (this._timezoneService.isEnableTimezoneInDateFormat(field.format)) {
                     !field.format.timeZone && (field.format.timeZone = this._timezoneService.browserTimezone.momentName);
-                    field.format.locale = this._timezoneService.browserLocal;
+                    field.format.locale = this._timezoneService.browserLocale;
                   } else { // if not enable timezone
                     field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
                   }
@@ -734,7 +734,7 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
           // if enable timezone, set browser timezone at field
           if (this._timezoneService.isEnableTimezoneInDateFormat(field.format)) {
             !field.format.timeZone && (field.format.timeZone = this._timezoneService.browserTimezone.momentName);
-            field.format.locale = this._timezoneService.browserLocal;
+            field.format.locale = this._timezoneService.browserLocale;
           } else { // if not enable timezone
             field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
           }
