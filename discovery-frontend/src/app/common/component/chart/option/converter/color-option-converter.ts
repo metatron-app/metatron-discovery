@@ -503,13 +503,20 @@ export class ColorOptionConverter {
       alias = 'count';
     }
 
-    // less than 0, set minValue
-    const minValue = _.cloneDeep(data.valueRange[alias].minValue);
+    let minValue = 0;
+    let maxValue = 0;
+    if( !_.isUndefined( data.valueRange[alias] ) ){
+      // less than 0, set minValue
+      minValue = _.cloneDeep(data.valueRange[alias].minValue);
+      maxValue = _.cloneDeep(data.valueRange[alias].maxValue);
+    }
+
+    // uiOption.minValue = minValue;
+    ( _.isUndefined(uiOption.layers[layerIndex].color.minValue) || uiOption.layers[layerIndex].color.minValue > minValue ? uiOption.layers[layerIndex].color.minValue = minValue : minValue = uiOption.layers[layerIndex].color.minValue);
+    ( _.isUndefined(uiOption.layers[layerIndex].color.maxValue) || uiOption.layers[layerIndex].color.maxValue < maxValue ? uiOption.layers[layerIndex].color.maxValue = maxValue : maxValue = uiOption.layers[layerIndex].color.maxValue);
 
     // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-    const addValue = (data.valueRange[alias].maxValue - minValue) / (colorListLength + 1);
-
-    let maxValue = _.cloneDeep(data.valueRange[alias].maxValue);
+    const addValue = (maxValue - minValue) / (colorListLength + 1);
 
     let shape;
 
@@ -519,9 +526,9 @@ export class ColorOptionConverter {
     });
 
     // decimal min value
-    let formatMinValue = formatValue(data.valueRange[alias].minValue);
+    let formatMinValue = formatValue(minValue);
     // decimal max value
-    let formatMaxValue = formatValue(data.valueRange[alias].maxValue);
+    let formatMaxValue = formatValue(maxValue);
 
     // set ranges
     for (let index = colorListLength; index >= 0; index--) {

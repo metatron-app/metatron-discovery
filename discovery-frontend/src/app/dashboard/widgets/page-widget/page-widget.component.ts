@@ -1067,6 +1067,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this._dataGridComp.search(this.srchText);
   } // function - setSearchText
 
+  /**
+   * redraw chart
+   */
+  public changeDraw(value?: any) {
+    this._search();
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

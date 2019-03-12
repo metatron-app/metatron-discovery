@@ -65,6 +65,10 @@ interface SymbolColor {
   // color by measure custom color setting
   ranges?: ColorRange[];
 
+  // min max range
+  minValue?: number;
+  maxValue?: number;
+
   // Column Aggregation type (measure)
   aggregationType?: string;
 

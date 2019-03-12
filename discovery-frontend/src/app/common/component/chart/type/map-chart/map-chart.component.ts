@@ -108,8 +108,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     }
   }
 
-  // layer type change
-  private isChangeLayerType: boolean = false;
+  // layer change stop
+  private isStopLayer: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -434,7 +434,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       this.createLayer(source, emptySource, isMapCreation, layerIndex);
     }
 
-    ((isNullOrUndefined(this.drawByType) || _.isEmpty(this.drawByType)) ? this.isChangeLayerType = false : this.isChangeLayerType = true);
+    ((isNullOrUndefined(this.drawByType) || _.isEmpty(this.drawByType)) ? this.isStopLayer = false : this.isStopLayer = true);
 
     // Chart resize
     this.olmap.updateSize();
@@ -1960,6 +1960,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         // Add event
         ////////////////////////////////////////////////////////
 
+        this.isStopLayer = true;
+
         this.olmap.un('pointermove', this.tooltipFunction);
         this.olmap.on('pointermove', this.tooltipFunction);
         this.olmap.on('moveend', this.zoomFunction);
@@ -2755,8 +2757,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // zoom size
     mapUIOption.zoomSize = Math.round(event.frameState.viewState.zoom);
 
-    if ((_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.isChangeLayerType) {
-      this.isChangeLayerType = false;
+    if ((_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.isStopLayer) {
+      this.isStopLayer = false;
       this.setUiExtent(event);
       return;
     }
@@ -2795,7 +2797,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         return;
       }
 
-      this.isChangeLayerType = false;
+      this.isStopLayer = false;
       this.changeDrawEvent.emit();
     }
 
@@ -3032,22 +3034,38 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   private setMinMax() {
 
-    let layer: UILayers = this.getUiMapOption().layers[this.getUiMapOption().layerNum];
-    let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[this.getUiMapOption().layerNum].fields);
+    if( this.shelf.layers.length == 0 ){
+      return;
+    }
 
-    if (!_.isEmpty(layer.color.column) && this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal && this.data && this.data.length > 0) {
-
+    for(let idx=0; idx<this.shelf.layers.length; idx++) {
+      let layer: UILayers = this.getUiMapOption().layers[idx];
+      let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[idx].fields);
       let alias = ChartUtil.getFieldAlias(layer.color.column, shelf, layer.color.aggregationType);
 
-      if (_.isUndefined(this.data[this.getUiMapOption().layerNum])) {
-        return;
+      // symbol 타입 , cluster 사용일 경우
+      if( layer.type == MapLayerType.SYMBOL && layer['clustering'] ){
+        alias = 'count';
       }
 
       let valueRange = _.cloneDeep(this.data[this.getUiMapOption().layerNum]['valueRange'][alias]);
       if (valueRange) {
-        this.uiOption.minValue = valueRange.minValue;
-        this.uiOption.maxValue = valueRange.maxValue;
+
+        // layer.color.minValue = valueRange.minValue;
+        ( _.isUndefined(layer.color.minValue) || layer.color.minValue > valueRange.minValue ? layer.color.minValue = valueRange.minValue : layer.color.minValue);
+
+        // layer.color.maxValue = valueRange.maxValue;
+        ( _.isUndefined(layer.color.maxValue) || layer.color.maxValue < valueRange.maxValue ? layer.color.maxValue = valueRange.maxValue : layer.color.maxValue);
+
+        console.info( 'minValue : ', layer.color.minValue + ' maxValue : ', layer.color.maxValue );
       }
+
+      // _.each(shelf, (field) => {
+      //   if (_.eq(field.type, ShelveFieldType.MEASURE)) {
+      // layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[idx], this.getColorList(layer), idx, shelf);
+      //   }
+      // });
+
     }
   }
 
