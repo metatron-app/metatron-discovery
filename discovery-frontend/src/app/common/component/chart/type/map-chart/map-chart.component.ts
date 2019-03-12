@@ -3180,7 +3180,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * analysis를 위한 map draw
    */
   private drawAnalysis() {
-    // let isMapCreation: boolean = this.createMap();
+    let isMapCreation: boolean = this.createMap();
     // Source
     let source = new ol.source.Vector({crossOrigin: 'anonymous'});
     // Line & Polygon Source
@@ -3189,7 +3189,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.createFeature(source, 0);
     // Creation layer
     // this.createLayer(source, emptySource, isMapCreation, 0);
-    this.createLayer(source, emptySource, false, 0);
+    this.createLayer(source, emptySource, isMapCreation, 0);
     // Chart resize
     this.olmap.updateSize();
     // 완료
