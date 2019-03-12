@@ -3048,16 +3048,15 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         alias = 'count';
       }
 
+      if( _.isUndefined(this.data[this.getUiMapOption().layerNum]) ){
+        continue;
+      }
+
       let valueRange = _.cloneDeep(this.data[this.getUiMapOption().layerNum]['valueRange'][alias]);
       if (valueRange) {
-
-        // layer.color.minValue = valueRange.minValue;
         ( _.isUndefined(layer.color.minValue) || layer.color.minValue > valueRange.minValue ? layer.color.minValue = valueRange.minValue : layer.color.minValue);
 
-        // layer.color.maxValue = valueRange.maxValue;
         ( _.isUndefined(layer.color.maxValue) || layer.color.maxValue < valueRange.maxValue ? layer.color.maxValue = valueRange.maxValue : layer.color.maxValue);
-
-        console.info( 'minValue : ', layer.color.minValue + ' maxValue : ', layer.color.maxValue );
       }
 
       // _.each(shelf, (field) => {
