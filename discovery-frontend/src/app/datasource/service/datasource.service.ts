@@ -564,13 +564,6 @@ export class DatasourceService extends AbstractService {
             // when it's dimension
           } else if ('dimension' === layer.type) {
 
-            // set current layer datasource
-            // if (layer.field.dataSource && layer.field.dsId) {
-            //   query.dataSource.dataSources[0].engineName = layer.field.dataSource;
-            //   query.dataSource.dataSources[0].name = layer.field.dataSource;
-            //   query.dataSource.dataSources[0].id = layer.field.dsId;
-            // }
-
             let radius = (<UITileLayer>(<UIMapOption>pageConf.chart).layers[idx]).radius;
 
             // to make reverse (bigger radius => set small precision), get precision from 0 - 100
@@ -635,10 +628,25 @@ export class DatasourceService extends AbstractService {
                   //   precision: precision
                   // };
 
+                  // radius precision 값 변경
+                  let chart = (<UIMapOption>pageConf.chart);
+                  let radiusPrecision : number = precision;
+                  if(chart['layers'][idx]['changeTileRadius']){
+                    // radius 값 변경
+                    radiusPrecision = precision;
+                  } else {
+                    // zoom size 변경
+                    let zoomSize = chart.zoomSize - 2;
+                    radiusPrecision = Math.round((18 + (zoomSize-18)) / 1.5);
+                  }
+
+                  if (radiusPrecision > 12) radiusPrecision = 12;
+                  if (radiusPrecision < 1) radiusPrecision = 1;
+
                   query.shelf.layers[idx].view = <GeoHashFormat>{
                     type: LayerViewType.HASH.toString(),
                     method: "geohex",
-                    precision: precision
+                    precision: radiusPrecision
                   };
                 }
 
