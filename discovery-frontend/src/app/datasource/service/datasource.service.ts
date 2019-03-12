@@ -29,7 +29,7 @@ import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid
 import {FilterUtil} from '../../dashboard/util/filter.util';
 import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
 import {BoardDataSource, Dashboard} from '../../domain/dashboard/dashboard';
-import {Datasource, Field, LogicalType} from '../../domain/datasource/datasource';
+import {Datasource, Field, FieldFormat, FieldFormatType, LogicalType} from '../../domain/datasource/datasource';
 import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
 import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
 import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
@@ -54,6 +54,7 @@ import {Shelf} from "../../domain/workbook/configurations/shelf/shelf";
 import {TypeFilterObject} from "../../data-storage/service/data-source-create.service";
 import {RegExprFilter} from "../../domain/workbook/configurations/filter/reg-expr-filter";
 import {SpatialFilter} from "../../domain/workbook/configurations/filter/spatial-filter";
+import {TranslateService} from "@ngx-translate/core";
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -62,9 +63,12 @@ export class DatasourceService extends AbstractService {
 
   private _timezoneSvc: TimezoneService;
 
+  private _translateSvc: TranslateService;
+
   constructor(protected injector: Injector) {
     super(injector);
     this._timezoneSvc = this.injector.get(TimezoneService);
+    this._translateSvc = this.injector.get(TranslateService);
   }
 
   /**
@@ -366,7 +370,7 @@ export class DatasourceService extends AbstractService {
                   delete field.format['locale'];
                 } else {
                   field.format['timeZone'] = this._timezoneSvc.browserTimezone.momentName;
-                  field.format['locale'] = this._timezoneSvc.browserLocal;
+                  field.format['locale'] = this._timezoneSvc.browserLocale;
                 }
               }
             });
@@ -392,7 +396,7 @@ export class DatasourceService extends AbstractService {
                 delete column.format['locale'];
               } else {
                 column.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
-                column.format.locale = this._timezoneSvc.browserLocal;
+                column.format.locale = this._timezoneSvc.browserLocale;
               }
             }
           });
@@ -408,7 +412,7 @@ export class DatasourceService extends AbstractService {
                 delete row.format['locale'];
               } else {
                 row.format.timeZone = this._timezoneSvc.browserTimezone.momentName;
-                row.format.locale = this._timezoneSvc.browserLocal;
+                row.format.locale = this._timezoneSvc.browserLocale;
               }
             }
           });
@@ -753,6 +757,59 @@ export class DatasourceService extends AbstractService {
    */
   public checkValidationDateTime(param: any): Promise<any> {
     return this.post(this.API_URL + 'datasources/validation/datetime', param);
+  }
+
+  /**
+   * Check valid date time format in field
+   * @param {Field} field
+   * @param {string[]} fieldDataList
+   * @param {boolean} isInitValid
+   * @return {Promise<any>}
+   */
+  public checkValidDateTimeFormatInField(field: Field, fieldDataList: string[], isInitValid?: boolean): Promise<any> {
+    const params: {samples: string[], format?: string} = {
+      samples: fieldDataList.slice(0,19)
+    };
+    // if not exist format in field, init format
+    (!field.format) && (field.format = new FieldFormat());
+    // if not init valid, set format in params
+    (!isInitValid) && (params.format = field.format.format);
+    return new Promise<any>((resolve, reject) => {
+      this.post(this.API_URL + 'datasources/validation/datetime', params)
+        .then((result: {valid?: boolean, pattern?: string}) =>{
+          // if valid or exist pattern
+          if (result.valid || result.pattern) {
+            // set time format valid TRUE
+            field.isValidTimeFormat = true;
+            // if exist pattern, set time format in field
+            (result.pattern) && (field.format.format = result.pattern);
+            // if enable timezone, set browser timezone at field
+            if (this._timezoneSvc.isEnableTimezoneInDateFormat(field.format)) {
+              !field.format.timeZone && (field.format.timeZone = this._timezoneSvc.browserTimezone.momentName);
+              field.format.locale = this._timezoneSvc.browserLocale;
+            } else { // if not enable timezone
+              field.format.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
+            }
+          } else { // invalid
+            // set time format valid FALSE
+            field.isValidTimeFormat = false;
+            // set time format valid message
+            field.timeFormatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.column.format.null');
+          }
+          // if valid format, set enable time format
+          (result.valid) && (field.isValidTimeFormat = true);
+          resolve(field);
+        })
+        .catch((error) => {
+          // if init valid, set default time format in field
+          (isInitValid) && (field.format.format = 'yyyy-MM-dd');
+          // set time format valid FALSE
+          field.isValidTimeFormat = false;
+          // set time format valid message
+          field.timeFormatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.column.format.null');
+          reject(field);
+        });
+    });
   }
 
   /**
