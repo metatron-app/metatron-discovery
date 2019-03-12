@@ -161,11 +161,19 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     this.unitIndex = this.unitList.findIndex((unitItem) => unitItem === value);
   }
 
-  public analysisBtn() {
+  public spatialAnalysisBtn() {
+
+    if(!_.isUndefined(this.uiOption['analysis']) && this.uiOption['analysis']['use'] == true) {
+      // Alert.warning(this.translateService.instant('msg'));
+      Alert.warning('이미 공간 연산중 입니다.');
+      return;
+    }
+
     let baseData: string = this.baseList.layers[this.baseIndex];
     let compareData: string = this.compareList.layers[this.compareIndex];
     let spatialData: string = this.calSpatialList[this.calSpatialIndex];
     let unitData: string = this.unitList[this.unitIndex];
+
     if (_.isUndefined(baseData)) {
       // Alert.warning(this.translateService.instant('msg'));
       Alert.warning('기준 레이어를 선택해주세요.');
@@ -196,6 +204,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     } else if( spatialData == 'Distance within' ){
       spatialDataValue = 'dwithin';
     }
+
     let mapUIOption = (<UIMapOption>this.uiOption);
     mapUIOption.analysis = {
       use           : true,
@@ -209,6 +218,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         unit: unitData
       }
     };
+
     this.changeAnalysis.emit(mapUIOption);
   }
 

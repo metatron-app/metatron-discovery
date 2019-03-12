@@ -3255,7 +3255,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       return valid;
     }
 
-    if( _.isUndefined( this.shelf.layers[layerNum] ) ){
+    if (_.isUndefined(this.shelf.layers[layerNum])) {
       return valid;
     }
 
@@ -3940,6 +3940,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.datasourceService.searchQuery(cloneQuery).then(
       (data) => {
 
+        const that = this;
+
         const resultData = {
           data: data,
           config: uiCloneQuery,
@@ -4077,7 +4079,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       // spatial analysis
       if (!_.isUndefined(cloneQuery.analysis)) {
-        if(cloneQuery.analysis.use == true) {
+        if (cloneQuery.analysis.use == true) {
           // 공간연산 사용
           delete cloneQuery.analysis.operation.unit;
           delete cloneQuery.analysis.layer;
