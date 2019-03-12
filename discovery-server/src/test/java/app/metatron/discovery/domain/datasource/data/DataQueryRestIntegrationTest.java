@@ -2210,7 +2210,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1, layer2));
 
     GeoSpatialOperation operation = new GeoSpatialOperation.DistanceWithin(10000, false);
-    GeoSpatialAnalysis geoSpatialAnalysis = new GeoSpatialAnalysis("layer1", "layer2", operation);
+    GeoSpatialAnalysis geoSpatialAnalysis = new GeoSpatialAnalysis("layer1", "layer2", true, operation);
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
     ChartResultFormat format = new ChartResultFormat("map");
@@ -2260,7 +2260,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1, layer2));
 
     GeoSpatialOperation operation = new GeoSpatialOperation.DistanceWithin(10000, true);
-    GeoSpatialAnalysis geoSpatialAnalysis = new GeoSpatialAnalysis("layer1", "layer2", operation);
+    GeoSpatialAnalysis geoSpatialAnalysis = new GeoSpatialAnalysis("layer1", "layer2", false, operation);
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
     ChartResultFormat format = new ChartResultFormat("map");
@@ -2308,8 +2308,8 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1, layer2));
 
-    GeoSpatialOperation operation = new GeoSpatialOperation.Intersects(null);
-    GeoSpatialAnalysis geoSpatialAnalysis = new GeoSpatialAnalysis("layer1", "layer2", operation);
+    GeoSpatialOperation operation = new GeoSpatialOperation.Intersects(0, false, null);
+    GeoSpatialAnalysis geoSpatialAnalysis = new GeoSpatialAnalysis("layer1", "layer2", false, operation);
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
     ChartResultFormat format = new ChartResultFormat("map");
@@ -2357,8 +2357,8 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1, layer2));
 
-    GeoSpatialOperation operation = new GeoSpatialOperation.Intersects(true);
-    GeoSpatialAnalysis geoSpatialAnalysis = new GeoSpatialAnalysis("layer1", "layer2", operation);
+    GeoSpatialOperation operation = new GeoSpatialOperation.Intersects(0, false, null);
+    GeoSpatialAnalysis geoSpatialAnalysis = new GeoSpatialAnalysis("layer1", "layer2", false, operation);
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
     ChartResultFormat format = new ChartResultFormat("map");

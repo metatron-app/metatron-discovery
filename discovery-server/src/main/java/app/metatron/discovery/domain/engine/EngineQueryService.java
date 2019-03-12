@@ -302,6 +302,20 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
                                                              .compareLayer(compareLayer.getFields(), geoSpatialAnalysis.getOperation())
                                                              .emptyQueryId()
                                                              .build();
+
+      if (geoSpatialAnalysis.isIncludeCompareLayer()) {
+
+        request.setResultFieldMapper(compareLayerQuery.getFieldMapper());
+
+        queryString = GlobalObjectMapper.writeValueAsString(compareLayerQuery);
+
+        LOGGER.info("[{}] Generated Druid Query : {}", CommonLocalVariable.getQueryId(), queryString);
+
+        Optional<JsonNode> engineResult = engineRepository.query(queryString, JsonNode.class);
+        Object geoJsonResult = request.getResultFormat().makeResult(request.makeResult(engineResult.get()));
+        resultJoiner.add(GlobalObjectMapper.writeValueAsString(geoJsonResult));
+      }
+
       Query operationQuery = null;
       if (geoSpatialAnalysis.enableChoropleth()) {
         GroupByQuery mainLayerQuery = GroupByQuery.builder(request.getDataSource())

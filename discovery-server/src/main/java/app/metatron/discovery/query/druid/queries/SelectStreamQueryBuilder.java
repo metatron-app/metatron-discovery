@@ -259,6 +259,7 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
     }
 
     columns.add(GEOMETRY_BOUNDARY_COLUMN_NAME);
+    fieldMapper.put(GEOMETRY_BOUNDARY_COLUMN_NAME, GEOMETRY_COLUMN_NAME);
 
     return this;
   }

@@ -16,7 +16,6 @@ package app.metatron.discovery.domain.workbook.configurations.analysis;
 
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -25,14 +24,16 @@ import org.apache.commons.lang3.BooleanUtils;
 
 import java.io.Serializable;
 
+import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
 @JsonSubTypes({
     @JsonSubTypes.Type(value = GeoSpatialOperation.DistanceWithin.class, name = "dwithin"),
+    @JsonSubTypes.Type(value = GeoSpatialOperation.Within.class, name = "within"),
     @JsonSubTypes.Type(value = GeoSpatialOperation.Intersects.class, name = "intersects")
 })
 public interface GeoSpatialOperation extends Serializable {
 
-  @JsonIgnore
   Integer getBuffer();
 
   boolean isChoropleth();
@@ -68,23 +69,29 @@ public interface GeoSpatialOperation extends Serializable {
     }
   }
 
-  class Intersects implements GeoSpatialOperation {
+  class Intersects extends AbstractGeoSpatialOperation implements GeoSpatialOperation {
 
-    boolean choropleth;
+    public Intersects() {
+    }
 
     @JsonCreator
-    public Intersects(@JsonProperty("choropleth") Boolean choropleth) {
-      this.choropleth = BooleanUtils.isTrue(choropleth);
+    public Intersects(@JsonProperty("buffer") Integer buffer,
+                      @JsonProperty("choropleth") Boolean choropleth,
+                      @JsonProperty("aggregation") MeasureField.AggregationType aggregation) {
+      super(buffer, choropleth, aggregation);
+    }
+  }
+
+  class Within extends AbstractGeoSpatialOperation implements GeoSpatialOperation {
+
+    public Within() {
     }
 
-    @Override
-    public Integer getBuffer() {
-      return 0;
-    }
-
-    @Override
-    public boolean isChoropleth() {
-      return choropleth;
+    @JsonCreator
+    public Within(@JsonProperty("buffer") Integer buffer,
+                  @JsonProperty("choropleth") Boolean choropleth,
+                  @JsonProperty("aggregation") MeasureField.AggregationType aggregation) {
+      super(buffer, choropleth, aggregation);
     }
   }
 
