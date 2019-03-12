@@ -4073,9 +4073,16 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       // spatial analysis
       if (!_.isUndefined(cloneQuery.analysis)) {
-        delete cloneQuery.analysis.layerNum;
-        delete cloneQuery.analysis.operation.unit;
-        delete cloneQuery.analysis.use;
+        if(cloneQuery.analysis.use == true) {
+          // 공간연산 사용
+          delete cloneQuery.analysis.operation.unit;
+          delete cloneQuery.analysis.layer;
+          delete cloneQuery.analysis.layerNum;
+          delete cloneQuery.analysis.use;
+        } else {
+          // 공간연산 미사용
+          delete cloneQuery.analysis;
+        }
       }
     }
 
@@ -4251,7 +4258,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // when shelf is empty, convert shelf from pivot
     // if (0 === shelf.layers[(<UIMapOption>this.uiOption).layerNum].length) {
     const currentLayer: ShelfLayers = shelf.layers[(<UIMapOption>this.uiOption).layerNum];
-    if (0 === currentLayer.fields.length) {
+    if (!_.isUndefined(currentLayer) && 0 === currentLayer.fields.length) {
 
       currentLayer.ref = this.dataSource.engineName;
 
@@ -4315,4 +4322,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   //   // 차트별 선반위치 변경
   //   this.changeDetect.detectChanges();
   // }
+
+  public removeAnalysisLayer(value) {
+    this.uiOption = value;
+    this.drawChart();
+    this.changeDetect.detectChanges();
+  }
 }

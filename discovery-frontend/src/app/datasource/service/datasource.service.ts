@@ -329,6 +329,11 @@ export class DatasourceService extends AbstractService {
       for (let layer of query.shelf.layers) {
         layerNum++;
 
+        // 3번째 layer는 공간연산 layer 이기 떄문에, 미포함
+        if(layerNum>1) {
+          break;
+        }
+
         // layer name
         query.shelf.layers[layerNum].name = (<UIMapOption>pageConf.chart).layers[layerNum].name;
 
@@ -375,7 +380,7 @@ export class DatasourceService extends AbstractService {
         // timezone 처리 - E
       } // end for - shelf.layers
 
-      allPivotFields = _.concat(query.shelf.layers[(<UIMapOption>pageConf.chart).layerNum]);
+      // allPivotFields = _.concat(query.shelf.layers[(<UIMapOption>pageConf.chart).layerNum]);
     } else {
 
       // timezone 처리 - S
@@ -579,7 +584,7 @@ export class DatasourceService extends AbstractService {
               if (layer.field.logicalType && layer.field.logicalType.toString().indexOf('GEO') > -1) {
                 layer.format = {
                   type: FormatType.GEO.toString()
-                }
+                };
 
                 // clustering
                 let chart = (<UIMapOption>pageConf.chart);
@@ -607,14 +612,14 @@ export class DatasourceService extends AbstractService {
                   };
                 }
 
-                let spatialFilter = new SpatialFilter();
-                spatialFilter.dataSource = query.shelf.layers[idx].ref;
-                spatialFilter.ref = query.shelf.layers[idx].ref;
-                spatialFilter.field = layer.field.name;
-                // 최초 default 값 sales-geo 초기값으로 고정 (빈값일 경우 에러리턴)
-                spatialFilter.lowerCorner = _.isUndefined(chart['lowerCorner']) ? '-123.0998 25.4766' : chart['lowerCorner'];
-                spatialFilter.upperCorner = _.isUndefined(chart['upperCorner']) ? '-68.7918 48.7974' : chart['upperCorner'];
-                query.filters.push( spatialFilter );
+                // let spatialFilter = new SpatialFilter();
+                // spatialFilter.dataSource = query.shelf.layers[idx].ref;
+                // spatialFilter.ref = query.shelf.layers[idx].ref;
+                // spatialFilter.field = layer.field.name;
+                // // 최초 default 값 sales-geo 초기값으로 고정 (빈값일 경우 에러리턴)
+                // spatialFilter.lowerCorner = _.isUndefined(chart['lowerCorner']) ? '-123.0998 25.4766' : chart['lowerCorner'];
+                // spatialFilter.upperCorner = _.isUndefined(chart['upperCorner']) ? '-68.7918 48.7974' : chart['upperCorner'];
+                // query.filters.push( spatialFilter );
               }
 
               // when logicalType => geo point

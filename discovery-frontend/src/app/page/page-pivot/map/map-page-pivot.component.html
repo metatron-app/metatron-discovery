@@ -14,121 +14,125 @@
 
 <div class="ddp-wrap-shelf ddp-mapview">
   <!-- shelf -->
-  <div *ngFor="let item of shelf.layers; let index = index" id="layer{{index}}" class="ddp-ui-shelf"
-       (click)="selectedLayer(index)" [ngClass]="{'ddp-add-self' : index==uiOption.layerNum, 'ddp-disabled' : uiOption['analysis'] != null && uiOption['analysis']['use'] == true}">
-    <em class="ddp-icon-mapview{{index + 1}}"></em>
-    <!-- drag slide -->
-    <div class="ddp-ui-drag-slide">
-      <a (mouseover)="mouseOverPrev($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-prev">
-        <em class="ddp-icon-prev"></em>
-      </a>
-      <div class="ddp-slide-control">
-        <a (mouseover)="mouseOverNext($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-next"><em class="ddp-icon-next"></em></a>
-        <a *ngIf="shelf.layers.length < 2" href="javascript:" class="ddp-btn-plus" (click)="$event.stopPropagation(); addLayer(index)"></a>
-        <a *ngIf="shelf.layers.length > 1" href="javascript:" class="ddp-btn-minus" (click)="$event.stopPropagation(); removeLayer(index)"></a>
-      </div>
-      <div class="ddp-ui-drag-slide-in">
-        <div class="ddp-wrap-default" [dragula]="'dragbag'" [dragulaModel]="item.fields"
-             [attr.data-container]="'layer'+ index">
-          <!-- box shelf -->
-          <div class="dragIgnore ddp-wrap-example" *ngIf="chartType == '' && item.fields.length == 0">
-            <div class="ddp-box-shelf">
-              {{'msg.page.ui.place.data' | translate}}
+  <!--<div *ngFor="let item of shelf.layers; let index = index">-->
+    <!--<div *ngIf="index<2"-->
+    <div *ngFor="let item of shelf.layers; let index = index"
+         id="layer{{index}}" class="ddp-ui-shelf"
+         (click)="selectedLayer(index)"
+         [ngClass]="{'ddp-add-self' : index==uiOption.layerNum, 'ddp-disabled' : uiOption['analysis'] != null && uiOption['analysis']['use'] == true}">
+      <em class="ddp-icon-mapview{{index + 1}}"></em>
+      <!-- drag slide -->
+      <div class="ddp-ui-drag-slide">
+        <a (mouseover)="mouseOverPrev($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-prev">
+          <em class="ddp-icon-prev"></em>
+        </a>
+        <div class="ddp-slide-control">
+          <a (mouseover)="mouseOverNext($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-next"><em class="ddp-icon-next"></em></a>
+          <a *ngIf="shelf.layers.length < 2" href="javascript:" class="ddp-btn-plus" (click)="$event.stopPropagation(); addLayer(index)"></a>
+          <a *ngIf="shelf.layers.length > 1" href="javascript:" class="ddp-btn-minus" (click)="$event.stopPropagation(); removeLayer(index)"></a>
+        </div>
+        <div class="ddp-ui-drag-slide-in">
+          <div class="ddp-wrap-default" [dragula]="'dragbag'" [dragulaModel]="item.fields"
+               [attr.data-container]="'layer'+ index">
+            <!-- box shelf -->
+            <div class="dragIgnore ddp-wrap-example" *ngIf="chartType == '' && item.fields.length == 0">
+              <div class="ddp-box-shelf">
+                {{'msg.page.ui.place.data' | translate}}
+              </div>
             </div>
-          </div>
-          <!-- //box shelf -->
-          <!-- Pivot -->
-          <div class="ddp-ui-default" *ngFor="let field of item.fields; let i = index"
-               [ngStyle]="{display: finishAnimation ? 'block' : 'none'}">
-            <a href="javascript:" unselectable="on"
-               [class.ddp-ui-dimension-wrap]="field.type == 'dimension' || field.type == 'timestamp'"
-               [class.ddp-ui-measure-wrap]="field.type == 'measure'"
-               (mousedown)="dragField = item.fields.slice(i, i+1)[0]">
-              <!-- timestamp type -->
-              <span class="ddp-type-value"
-                    *ngIf="field.type && 'timestamp' === field.type">{{getGranularityName(field)}}</span>
-              <!-- //timestamp type -->
-              <!-- aggregation type -->
-              <span class="ddp-type-value" *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && 'measure' == field.type && ((field.aggregationType && 'user_expr' !== field.subType)
+            <!-- //box shelf -->
+            <!-- Pivot -->
+            <div class="ddp-ui-default" *ngFor="let field of item.fields; let i = index"
+                 [ngStyle]="{display: finishAnimation ? 'block' : 'none'}">
+              <a href="javascript:" unselectable="on"
+                 [class.ddp-ui-dimension-wrap]="field.type == 'dimension' || field.type == 'timestamp'"
+                 [class.ddp-ui-measure-wrap]="field.type == 'measure'"
+                 (mousedown)="dragField = item.fields.slice(i, i+1)[0]">
+                <!-- timestamp type -->
+                <span class="ddp-type-value"
+                      *ngIf="field.type && 'timestamp' === field.type">{{getGranularityName(field)}}</span>
+                <!-- //timestamp type -->
+                <!-- aggregation type -->
+                <span class="ddp-type-value" *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && 'measure' == field.type && ((field.aggregationType && 'user_expr' !== field.subType)
               || (!field.aggregated && 'tile' === uiOption.layers[uiOption.layerNum].type.toString() && 'user_expr' == field.subType))">
                 {{field.aggregationType}}</span>
-              <!-- //aggregation type -->
-              <!-- geo-point type -->
-              <em class="ddp-icon-point-w ddp-icon-map-view-w"
-                  *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && field.field?.logicalType && 'GEO_POINT' == field.field?.logicalType"></em>
-              <!-- //geo-point type -->
-              <!-- geo-line type -->
-              <em class="ddp-icon-line-w ddp-icon-map-view-w"
-                  *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && field.field?.logicalType && 'GEO_LINE' == field.field?.logicalType"></em>
-              <!-- //geo-line type -->
-              <!-- geo-polygon type -->
-              <em class="ddp-icon-polygon-w ddp-icon-map-view-w"
-                  *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && field.field?.logicalType && 'GEO_POLYGON' == field.field?.logicalType"></em>
-              <!-- //geo-polygon type -->
-              <span class="ddp-data">{{getDisplayPivotName(field)}}</span>
-              <div class="ddp-ui-icons">
-                <em class="ddp-icon-control-calculat"
-                    *ngIf="field.subType == 'user_expr' && field.type == 'measure'"></em>
-                <em class="ddp-icon-control-user"
-                    *ngIf="field.subType == 'user_expr' && field.type == 'dimension'"></em>
-                <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field"
-                      (click)="openFieldSetting($event, field)"><em></em></span>
-                <span class="ddp-icon-close" (click)="removeField($event, 'MAP_LAYER'+ index, item.fields, i)"><em></em></span>
+                <!-- //aggregation type -->
+                <!-- geo-point type -->
+                <em class="ddp-icon-point-w ddp-icon-map-view-w"
+                    *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && field.field?.logicalType && 'GEO_POINT' == field.field?.logicalType"></em>
+                <!-- //geo-point type -->
+                <!-- geo-line type -->
+                <em class="ddp-icon-line-w ddp-icon-map-view-w"
+                    *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && field.field?.logicalType && 'GEO_LINE' == field.field?.logicalType"></em>
+                <!-- //geo-line type -->
+                <!-- geo-polygon type -->
+                <em class="ddp-icon-polygon-w ddp-icon-map-view-w"
+                    *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && field.field?.logicalType && 'GEO_POLYGON' == field.field?.logicalType"></em>
+                <!-- //geo-polygon type -->
+                <span class="ddp-data">{{getDisplayPivotName(field)}}</span>
+                <div class="ddp-ui-icons">
+                  <em class="ddp-icon-control-calculat"
+                      *ngIf="field.subType == 'user_expr' && field.type == 'measure'"></em>
+                  <em class="ddp-icon-control-user"
+                      *ngIf="field.subType == 'user_expr' && field.type == 'dimension'"></em>
+                  <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field"
+                        (click)="openFieldSetting($event, field)"><em></em></span>
+                  <span class="ddp-icon-close" (click)="removeField($event, 'MAP_LAYER'+ index, item.fields, i)"><em></em></span>
+                </div>
+              </a>
+            </div>
+            <!-- //Pivot -->
+            <!-- Guide -->
+            <div class="dragIgnore ddp-wrap-example">
+              <div *ngIf="getMapGuideText(index, 'geo')" class="ddp-box-dimension">
+                {{'GEO_POINT' === geoType?.toString() ? '1 or more geo dimension' : '1 geo dimension'}}
               </div>
-            </a>
+              <div *ngIf="getMapGuideText(index)" class="ddp-box-dimension">
+                1 or more dimension
+              </div>
+              <div *ngIf="getMapGuideText(index)" class="ddp-box-measure">
+                1 or more measure
+              </div>
+            </div>
+            <!-- //Guide -->
           </div>
-          <!-- //Pivot -->
-          <!-- Guide -->
-          <div class="dragIgnore ddp-wrap-example">
-            <div *ngIf="getMapGuideText(index, 'geo')" class="ddp-box-dimension">
-              {{'GEO_POINT' === geoType?.toString() ? '1 or more geo dimension' : '1 geo dimension'}}
-            </div>
-            <div *ngIf="getMapGuideText(index)" class="ddp-box-dimension">
-              1 or more dimension
-            </div>
-            <div *ngIf="getMapGuideText(index)" class="ddp-box-measure">
-              1 or more measure
-            </div>
-          </div>
-          <!-- //Guide -->
         </div>
       </div>
+      <!-- //drag slide -->
     </div>
-    <!-- //drag slide -->
-  </div>
-  <!-- //shelf -->
+    <!-- //shelf -->
 
-  <!--analysis layer-->
-  <div *ngIf="uiOption.analysis != null && uiOption.analysis['use'] == true" class="ddp-ui-shelf ddp-add-self">
-    <em class="ddp-icon-analysis"></em>
-    <!--analysis drag slide-->
-    <div class="ddp-ui-drag-slide">
-      <!-- analysis -->
-      <div class="ddp-ui-analysis">
-        공간 연산 결과 =
-        <span class="ddp-tag-layer">기준 레이어</span>
-        <span class="ddp-txt-data">
+    <!--analysis layer-->
+    <!--<div *ngIf="index == 2 && uiOption.analysis != null && uiOption.analysis['use'] == true" class="ddp-ui-shelf ddp-add-self">-->
+    <div *ngIf="uiOption.analysis != null && uiOption.analysis['use'] == true" class="ddp-ui-shelf ddp-add-self">
+      <em class="ddp-icon-analysis"></em>
+      <!--analysis drag slide-->
+      <div class="ddp-ui-drag-slide">
+        <!-- analysis -->
+        <div class="ddp-ui-analysis">
+          공간 연산 결과 =
+          <span class="ddp-tag-layer">기준 레이어</span>
+          <span class="ddp-txt-data">
           <em [ngClass]="{'ddp-icon-layer1' : uiOption.analysis['layerNum'] == 0, 'ddp-icon-layer2' : uiOption.analysis['layerNum'] == 1}"></em>
-          {{uiOption.analysis['mainLayer']}}
+            {{uiOption.analysis['mainLayer']}}
         </span>
-        <span class="ddp-tag-layer2">비교 레이어</span>
-        <span class="ddp-txt-data">
+          <span class="ddp-tag-layer2">비교 레이어</span>
+          <span class="ddp-txt-data">
           <em [ngClass]="{'ddp-icon-layer2' : uiOption.analysis['layerNum'] == 0, 'ddp-icon-layer1' : uiOption.analysis['layerNum'] == 1}"></em>
-          {{uiOption.analysis['compareLayer']}}
+            {{uiOption.analysis['compareLayer']}}
         </span>
-        <span class="ddp-tag-analysis">{{uiOption.analysis['operation']['type']}}</span>
-        <span class="ddp-txt-data">{{uiOption.analysis['operation']['distance']}},{{uiOption.analysis['operation']['unit']}}</span>
+          <span class="ddp-tag-analysis">{{uiOption.analysis['operation']['type']}}</span>
+          <span class="ddp-txt-data">{{uiOption.analysis['operation']['distance']}},{{uiOption.analysis['operation']['unit']}}</span>
+        </div>
+        <!-- //analysis -->
+        <div class="ddp-slide-control">
+          <a (click)="removeAnalysis()" href="javascript:" class="ddp-btn-minus"></a>
+        </div>
       </div>
-      <!-- //analysis -->
-      <div class="ddp-slide-control">
-        <!--<a href="javascript:" class="ddp-btn-next"><em class="ddp-icon-next"></em></a>-->
-        <a (click)="stopAnalysisBtn()" href="javascript:" class="ddp-btn-minus"></a>
-      </div>
+      <!-- //analysis drag slide -->
     </div>
-    <!-- //analysis drag slide -->
-  </div>
-  <!-- // analysis layer-->
-
+    <!-- // analysis layer-->
+  <!--</div>-->
 </div>
 
 

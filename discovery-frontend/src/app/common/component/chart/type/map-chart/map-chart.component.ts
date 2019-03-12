@@ -13,7 +13,14 @@
  */
 
 import {
-  AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Injector, Input, Output,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Input,
+  Output,
   ViewChild,
 } from '@angular/core';
 import {BaseChart, ChartSelectInfo} from '../../base-chart';
@@ -34,7 +41,8 @@ import {ColorRange} from '../../option/ui-option/ui-color';
 import {
   ChartColorList,
   ChartSelectMode,
-  ChartType, EventType,
+  ChartType,
+  EventType,
   ShelveFieldType,
   UIChartDataLabelDisplayType,
   UIPosition,
@@ -88,7 +96,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
   @Input('needToRemoveMapLayer')
   set removeAllLayer(isChartShow: boolean) {
-    if(isChartShow == false) {
+    if (isChartShow == false) {
       if (this.olmap) {
         this.layerMap.forEach(item => this.olmap.removeLayer(item.layerValue));
         this.layerMap = [];
@@ -351,11 +359,46 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     return valid;
   }
 
+  private drawAnalysis() {
+    // Source
+    let source = new ol.source.Vector({crossOrigin: 'anonymous'});
+    // Line & Polygon Source
+    let emptySource = new ol.source.Vector();
+
+    // Creation feature
+    this.createFeature(source, 0);
+
+    // Creation layer
+    this.createLayer(source, emptySource, false, 0);
+
+    // Chart resize
+    this.olmap.updateSize();
+
+    // Creation tooltip
+    this.createTooltip();
+
+    // Creation legend
+    this.createLegend();
+
+    ////////////////////////////////////////////////////////
+    // Apply
+    ////////////////////////////////////////////////////////
+
+    // 완료
+    this.drawFinished.emit();
+
+  }
+
   /**
    * Map chart draw
    * @param isKeepRange
    */
   public draw(isKeepRange?: boolean): void {
+
+    if( this.getUiMapOption().layerNum == -1) {
+      this.drawAnalysis();
+      return;
+    }
 
     ////////////////////////////////////////////////////////
     // Valid Check
@@ -380,13 +423,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     ////////////////////////////////////////////////////////
     // Check option (spec)
     ////////////////////////////////////////////////////////
-
     this.checkOption(this.getUiMapOption());
 
     ////////////////////////////////////////////////////////
     // Creation map & layer
     ////////////////////////////////////////////////////////
-
     // 엘리먼트 반영
     this.changeDetect.detectChanges();
 
@@ -405,9 +446,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       let emptySource = new ol.source.Vector();
 
       // 데이터가 없는경우 dummy data 추가
-      if( this.data.length != this.getUiMapOption().layers.length && !this.isGeoFieldCheck(this.shelf.layers, layerIndex) ){
-        if( layerIndex == 0 ){
-          this.data = _.concat( {features : []}, this.data[0] );
+      if (this.data.length != this.getUiMapOption().layers.length && !this.isGeoFieldCheck(this.shelf.layers, layerIndex)) {
+        if (layerIndex == 0) {
+          this.data = _.concat({features: []}, this.data[0]);
         }
       }
 
@@ -556,7 +597,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let layerNum = (<UIMapOption>this.uiOption).layerNum ? (<UIMapOption>this.uiOption).layerNum : 0;
 
     let shelve: any = [];
-    if( !this.shelf || _.isUndefined(this.shelf.layers[layerNum]) ) {
+    if (!this.shelf || _.isUndefined(this.shelf.layers[layerNum])) {
       shelve = [];
     } else {
       shelve = _.cloneDeep(this.shelf.layers[layerNum].fields);
@@ -608,7 +649,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let layerNum = (<UIMapOption>this.uiOption).layerNum ? (<UIMapOption>this.uiOption).layerNum : 0;
 
     let shelve: any = [];
-    if( !this.shelf || _.isUndefined(this.shelf.layers[layerNum]) ) {
+    if (!this.shelf || _.isUndefined(this.shelf.layers[layerNum])) {
       shelve = [];
     } else {
       shelve = _.cloneDeep(this.shelf.layers[layerNum].fields);
@@ -761,47 +802,47 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       if (_.eq(layer.type, MapLayerType.SYMBOL)) {
         /** 화면에서 하는 cluster */
-        // let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
-        //////////////////////////
-        // Cluster layer
-        //////////////////////////
-        // if (symbolLayer.clustering) {
-        //   // Create
-        //   let clusterLayer = new ol.layer.Vector({
-        //     source: _.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource,
-        //     style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(layerIndex, this.data) : new ol.style.Style()
-        //   });
-        //   // this.clusterLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource);
-        //   clusterLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource);
-        //   // set z index (the default value is 0 and higher would be 1)
-        //   // this.clusterLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
-        //   clusterLayer.setZIndex(5);
-        //   this.layerMap.push({id: layerIndex, layerValue: clusterLayer});
-        //   // Init
-        //   if (isMapCreation && this.getUiMapOption().showMapLayer) {
-        //     // Add layer
-        //     this.olmap.addLayer(clusterLayer);
-        //   } else {
-        //     if (this.getUiMapOption().showMapLayer) {
-        //
-        //       // Add layer
-        //       this.olmap.addLayer(clusterLayer);
-        //       // Set style
-        //       clusterLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(layerIndex, this.data) : new ol.style.Style());
-        //     } else {
-        //       // Remove layer
-        //       this.olmap.removeLayer(clusterLayer);
-        //     }
-        //   }
-        // } else {
-        //////////////////////////
-        // Point layer
-        //////////////////////////
-        // Create
+          // let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
+          //////////////////////////
+          // Cluster layer
+          //////////////////////////
+          // if (symbolLayer.clustering) {
+          //   // Create
+          //   let clusterLayer = new ol.layer.Vector({
+          //     source: _.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource,
+          //     style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(layerIndex, this.data) : new ol.style.Style()
+          //   });
+          //   // this.clusterLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource);
+          //   clusterLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? clusterSource : emptySource);
+          //   // set z index (the default value is 0 and higher would be 1)
+          //   // this.clusterLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
+          //   clusterLayer.setZIndex(5);
+          //   this.layerMap.push({id: layerIndex, layerValue: clusterLayer});
+          //   // Init
+          //   if (isMapCreation && this.getUiMapOption().showMapLayer) {
+          //     // Add layer
+          //     this.olmap.addLayer(clusterLayer);
+          //   } else {
+          //     if (this.getUiMapOption().showMapLayer) {
+          //
+          //       // Add layer
+          //       this.olmap.addLayer(clusterLayer);
+          //       // Set style
+          //       clusterLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(layerIndex, this.data) : new ol.style.Style());
+          //     } else {
+          //       // Remove layer
+          //       this.olmap.removeLayer(clusterLayer);
+          //     }
+          //   }
+          // } else {
+          //////////////////////////
+          // Point layer
+          //////////////////////////
+          // Create
         let symbolLayer = new ol.layer.Vector({
-          source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
-          style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(layerIndex, this.data) : new ol.style.Style()
-        });
+            source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
+            style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(layerIndex, this.data) : new ol.style.Style()
+          });
         symbolLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource);
         // set z index (the default value is 0 and higher would be 1)
         // this.symbolLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
@@ -933,7 +974,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.changeDetect.detectChanges();
 
     // Map data place fit
-    if (this.drawByType && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&  (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'] == true) ) {
+    if (this.drawByType && 'Infinity'.indexOf(source.getExtent()[0]) == -1 && (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'] == true)) {
       this.olmap.getView().fit(source.getExtent());
     } else {
       // set saved data zoom
@@ -970,10 +1011,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       ////////////////////////////////////////////////////////
       let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[layerIndex].fields);
       this.checkFieldList(shelf);
-
-      // line string type
-      let lines =  new ol.geom.MultiLineString([]);
-
       // Data set
       for (let i = 0; i < data.features.length; i++) {
         // geo type
@@ -1005,13 +1042,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           polygonFeature.set('layerNum', layerIndex);
           features[i] = polygonFeature;
           source.addFeature(features[i]);
-        } else if (data!=null && data.features[i] != null && data.features[i].geometry != null&&  data.features[i].geometry.type.toString().toLowerCase().indexOf('line') != -1) {
+        } else if (data != null && data.features[i] != null && data.features[i].geometry != null && data.features[i].geometry.type.toString().toLowerCase().indexOf('line') != -1) {
           let line = new ol.geom.LineString(data.features[i].geometry.coordinates);
-          // lines.appendLineString(line);
           let lineFeature = new ol.Feature({geometry: line});
-          if( !_.isNull(this.getUiMapOption().layers[layerIndex].color.column) ){
+          if (!_.isNull(this.getUiMapOption().layers[layerIndex].color.column)) {
             const alias = ChartUtil.getFieldAlias(this.getUiMapOption().layers[layerIndex].color.column, this.shelf.layers[layerIndex].fields, this.getUiMapOption().layers[layerIndex].color.aggregationType);
-            lineFeature.set( alias, data.features[i].properties[alias] );
+            lineFeature.set(alias, data.features[i].properties[alias]);
           }
           lineFeature.set('layerNum', layerIndex);
           features.push(lineFeature);
@@ -1293,7 +1329,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       let size: number = 0;
       let isClustering: boolean = false;
 
-      if (!_.isUndefined(feature.getProperties()) && !_.isUndefined(feature.getProperties()['isClustering']) && feature.getProperties()['isClustering'] == true ) {
+      if (!_.isUndefined(feature.getProperties()) && !_.isUndefined(feature.getProperties()['isClustering']) && !_.isUndefined(feature.getProperties().count)
+        && feature.getProperties()['isClustering'] == true) {
         isClustering = true;
         size = feature.getProperties().count;
       }
@@ -1987,7 +2024,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         && !_.isUndefined(feature.getProperties()['isClustering'])
         && feature.getProperties()['isClustering'] == true
         && !_.isUndefined(feature.getProperties()['count'])
-        && feature.getProperties()['count'] > 1) ) {
+        && feature.getProperties()['count'] > 1)) {
       // Disable tooltip
       this.tooltipInfo.enable = false;
       this.tooltipLayer.setPosition(undefined);
@@ -2734,7 +2771,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.uiOption.chartZooms = this.additionalSaveDataZoomRange();
 
     let mapUIOption = (<UIMapOption>this.uiOption);
-    if( _.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner) ){
+    if (_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) {
       this.setUiExtent(event);
       return;
     }
@@ -2744,22 +2781,22 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let currentMapExtent = this.olmap.getView().calculateExtent(event.map.getSize());
 
     // 이전 좌표와 다를 경우에만 다시 호출
-    if( Number(preLowerCorner[0]).toFixed(10) != currentMapExtent[0].toFixed(10) && Number(preLowerCorner[1]).toFixed(10) != currentMapExtent[1].toFixed(10)
-      && Number(preUpperCorner[0]).toFixed(10) != currentMapExtent[2].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) != currentMapExtent[3].toFixed(10) ){
+    if (Number(preLowerCorner[0]).toFixed(10) != currentMapExtent[0].toFixed(10) && Number(preLowerCorner[1]).toFixed(10) != currentMapExtent[1].toFixed(10)
+      && Number(preUpperCorner[0]).toFixed(10) != currentMapExtent[2].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) != currentMapExtent[3].toFixed(10)) {
 
       let isAllChangeCoverage: boolean = false;
-      mapUIOption.layers.forEach( (layer) => {
-        if( !_.isUndefined(layer['changeCoverage']) && layer['changeCoverage'] == true ) {
+      mapUIOption.layers.forEach((layer) => {
+        if (!_.isUndefined(layer['changeCoverage']) && layer['changeCoverage'] == true) {
           isAllChangeCoverage = true;
         }
       });
 
       // map ui lat, lng
       this.setUiExtent(event);
-      if( mapUIOption.upperCorner.indexOf('NaN') != -1 || mapUIOption.lowerCorner.indexOf('NaN') != -1 || isAllChangeCoverage ) {
+      if (mapUIOption.upperCorner.indexOf('NaN') != -1 || mapUIOption.lowerCorner.indexOf('NaN') != -1 || isAllChangeCoverage) {
         // coverage value reset
-        mapUIOption.layers.forEach( (layer) => {
-          if(!_.isUndefined(layer['changeCoverage'])){
+        mapUIOption.layers.forEach((layer) => {
+          if (!_.isUndefined(layer['changeCoverage'])) {
             layer['changeCoverage'] = false;
           }
         });
@@ -3012,7 +3049,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       let alias = ChartUtil.getFieldAlias(layer.color.column, shelf, layer.color.aggregationType);
 
-      if( _.isUndefined( this.data[this.getUiMapOption().layerNum] ) ){
+      if (_.isUndefined(this.data[this.getUiMapOption().layerNum])) {
         return;
       }
 
@@ -3074,14 +3111,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   /**
    * current map ui lat, lng setting
    */
-  private setUiExtent(event){
+  private setUiExtent(event) {
     let mapUIOption = (<UIMapOption>this.uiOption);
-    if( event ){
+    if (event) {
       let map = event.map;
       let mapExtent = map.getView().calculateExtent(map.getSize());
 
       // projection 값 체크
-      mapExtent = new ol.proj.transformExtent( mapExtent, new ol.proj.get('EPSG:4326'), new ol.proj.get('EPSG:3857') );
+      mapExtent = new ol.proj.transformExtent(mapExtent, new ol.proj.get('EPSG:4326'), new ol.proj.get('EPSG:3857'));
 
       let bottomLeft = new ol.proj.toLonLat(new ol.extent.getBottomLeft(mapExtent));
       let topRight = new ol.proj.toLonLat(new ol.extent.getTopRight(mapExtent));

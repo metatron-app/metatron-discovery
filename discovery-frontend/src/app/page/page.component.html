@@ -805,7 +805,8 @@
             (changeFormat)="onChangePivotFormat($event)"
             (customField)="openCustomFieldPopup($event)"
             (showPopup)="onShowPopup($event)"
-            (changeLayer)="onChangeLayer(shelf)">
+            (changeLayer)="onChangeLayer(shelf)"
+            (removeAnalysisLayer)="removeAnalysisLayer($event)">
             <!--(selectLayer)="onSelectLayer($event)">-->
           </map-page-pivot>
           <!-- //선반 -->
@@ -1716,8 +1717,8 @@
       <!-- side menu -->
       <div class="ddp-wrap-chart-menu">
 
-        <a href="javascript:" (click)="toggleRnb('filter')" [class.ddp-selected]="rnbMenu=='filter'"><em
-          class="ddp-icon-menu-filter"></em></a>
+        <a href="javascript:" (click)="toggleRnb('filter')" [class.ddp-selected]="rnbMenu=='filter'">
+          <em class="ddp-icon-menu-filter"></em></a>
         <span class="ddp-ui-menu-layout" (mouseover)="drawChartTooltip($event)">
             <!-- 공통패널 -->
             <a *ngIf="possibleChartCheck('common', selectChart)" href="javascript:"
@@ -1895,30 +1896,34 @@
           <!-- //맵뷰: 공통 설정 -->
           <!-- 맵뷰: 레이어 설정 -->
             <div *ngIf="selectChart == 'map'">
-              <a *ngFor="let item of shelf.layers; let index = index" href="javascript:"
-                 (click)="toggleMapLayer('mapLayer'+(index+1), index)"
-                 [ngClass]="{'ddp-disabled': !isChartShow || setDisableShelf(index) || 'map' == selectChart && uiOption['analysis'] != null && uiOption['analysis']['use'] == true}"
-                 [class.ddp-selected]="isChartShow && rnbMenu=='mapLayer'+(index+1) && !setDisableShelf(index)">
-                <em *ngIf="index == 0" class="ddp-icon-menu-mapview1"></em>
-                <em *ngIf="index == 1" class="ddp-icon-menu-mapview2"></em>
-                <!-- 툴팁 -->
-                <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+              <!--<div *ngFor="let item of shelf.layers; let index = index;">-->
+                <!--<a *ngIf="index<2" (click)="toggleMapLayer('mapLayer'+(index+1), index)"-->
+                <a *ngFor="let item of shelf.layers; let index = index;" (click)="toggleMapLayer('mapLayer'+(index+1), index)"
+                   [ngClass]="{'ddp-disabled': !isChartShow || setDisableShelf(index) || 'map' == selectChart && uiOption['analysis'] != null && uiOption['analysis']['use'] == true}"
+                   [class.ddp-selected]="isChartShow && rnbMenu=='mapLayer'+(index+1) && !setDisableShelf(index)"
+                   href="javascript:">
+                  <em *ngIf="index == 0" class="ddp-icon-menu-mapview1"></em>
+                  <em *ngIf="index == 1" class="ddp-icon-menu-mapview2"></em>
+                  <!-- 툴팁 -->
+                  <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                      <em class="ddp-icon-view-right"></em>
+                    {{'msg.page.first.draw.chart' | translate}}
+                  </div>
+                  <!-- //툴팁 -->
+                </a>
+                <!-- 공간연산 option -->
+                <!--<a *ngIf="index == 2 && 'map' == selectChart && uiOption['analysis'] != null && uiOption['analysis']['use'] == true">-->
+                <a *ngIf="'map' == selectChart && uiOption['analysis'] != null && uiOption['analysis']['use'] == true">
+                  <em class="ddp-icon-menu-analysis"></em>
+                  <!-- 툴팁 -->
+                  <div class="ddp-ui-tooltip-info">
                     <em class="ddp-icon-view-right"></em>
-                  {{'msg.page.first.draw.chart' | translate}}
-                </div>
-                <!-- //툴팁 -->
-              </a>
-              <!-- 공간연산 option -->
-              <a *ngIf="'map' == selectChart && uiOption['analysis'] != null && uiOption['analysis']['use'] == true">
-                <em class="ddp-icon-menu-analysis"></em>
-                <!-- 툴팁 -->
-                <div class="ddp-ui-tooltip-info">
-                  <em class="ddp-icon-view-right"></em>
-                  Analysis
-                </div>
-                <!-- //툴팁 -->
-              </a>
-              <!-- // 공간연산 option-->
+                    Analysis
+                  </div>
+                  <!-- //툴팁 -->
+                </a>
+                <!-- // 공간연산 option-->
+              <!--</div>-->
             </div>
           <!-- //맵뷰: 레이어 설정 -->
           <!-- 맵뷰: 범례 설정 -->

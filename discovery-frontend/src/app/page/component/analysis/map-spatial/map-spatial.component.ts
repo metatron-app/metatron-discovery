@@ -54,8 +54,8 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   public compareIndex: number = 0;
 
   public calSpatialList: any = [
-    // 'Intersection' // 서버 미구현
-    // , 'Symmetrical difference' // 서버상에 현재 키 값이 없음
+    'Intersection', // 서버 미구현
+    // 'Symmetrical difference', // 서버상에 현재 키 값이 없음
     'Distance within'
   ];
   public calSpatialIndex: number = 0;
@@ -209,7 +209,6 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         unit: unitData
       }
     };
-    // mapUIOption.layerNum = -1;
     this.changeAnalysis.emit(mapUIOption);
   }
 
