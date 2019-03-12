@@ -231,9 +231,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
         if (data.id === 'toggleList') {
           this.isMultiColumnListShow = data.isShow;
-        } else if(data.id === 'enterKey') {
-          this.isEnterKeyPressedFromOuter = true;
-        } else {
+        }  else {
           this.isMultiColumnListShow = data.isShow;
           this.isCommandListShow = false;
         }
@@ -392,7 +390,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public showCommandList() {
 
     // Close all opened select box from rule
-    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : 'commandList', isShow : false } );
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : 'toggleList', isShow : false } );
 
     // 포커스 이동
     setTimeout(() => $('#commandSearch').trigger('focus'));

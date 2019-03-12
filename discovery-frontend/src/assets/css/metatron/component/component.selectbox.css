@@ -48,11 +48,11 @@
 
 ul.ddp-list-popup {padding:3px 0;}
 ul.ddp-list-popup li {position:relative;}
-ul.ddp-list-popup li span.ddp-noresult {display:block;padding:5px 10px; color:#b7b9c2; font-size:13px;}
+ul.ddp-list-popup li span.ddp-noresult {display:block;padding:5px 10px; color:#b7b9c2; font-size:13px; cursor:default;}
 ul.ddp-list-popup li a {display:block; position:relative; padding:6px 14px 6px 14px; font-size:13px; color:#4b515b; white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
 
 ul.ddp-list-popup li a:hover {background-color:#f6f6f7;}
-ul.ddp-list-popup li.ddp-selected > a {color:#666eb2; padding-right:28px;}
+ul.ddp-list-popup li.ddp-selected > a {color:#666eb2 !important; padding-right:28px;}
 ul.ddp-list-popup.ddp-type li.ddp-selected > a {padding-right:14px;}
 ul.ddp-list-popup.ddp-hover-none li a:hover {background:none !important;}
 ul.ddp-list-popup li.ddp-selected > a em.ddp-icon-check {display:block;}

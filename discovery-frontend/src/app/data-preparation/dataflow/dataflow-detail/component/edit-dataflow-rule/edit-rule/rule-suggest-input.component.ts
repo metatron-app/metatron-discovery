@@ -30,6 +30,7 @@ import { Field } from '../../../../../../domain/data-preparation/pr-dataset';
 import { EventBroadcaster } from "../../../../../../common/event/event.broadcaster";
 import { RuleSuggest } from '../rule/suggest/rule.suggest';
 import { TokenInfo } from '../rule/suggest/rule.checker';
+import {CommonUtil} from "../../../../../../common/util/common.util";
 
 @Component({
   selector: 'rule-suggest-input',
@@ -68,6 +69,10 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   /** 데이타 변경 시 호출  */
   @Output()
   public onChange: EventEmitter<string> = new EventEmitter();
+
+  /** 데이타 변경 시 호출  */
+  @Output()
+  public selectBoxClose: EventEmitter<string> = new EventEmitter();
 
   @Input()
   public placeholder : string = this.getMsg('msg.dp.th.condition.ph');
@@ -115,6 +120,8 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   /** 현재 포지션에서 선택된 토큰 */
   private selectedTokenInfo: TokenInfo;
 
+  private readonly _FIELD_COMBO_ID:string;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -129,7 +136,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
       super(elementRef, injector);
       // 룰 제안 초기화
       this.ruleSuggest = new RuleSuggest();
-
+    this._FIELD_COMBO_ID = CommonUtil.getUUID();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -182,7 +189,9 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   public setBroadcast() {
     
     this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe((data: { id : string, isShow : boolean }) => {
-      this.closeSuggest();
+      if (this._FIELD_COMBO_ID !== data.id) {
+        this.isSuggestOpen = false;
+      }
     })
   
   } 
@@ -274,8 +283,12 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
               // 화살표가 suggetion 위에 있을 경우 아무 일도 하지 않는다.
               $event.preventDefault();  
             } else {
-              // 화살표가 input box에 있을 경우 원래 동작 한다.
-              this.initSuggest();
+              // 리스트 맨 아래 아이템이 선택된다
+              this.selectedIndex = this.suggestItems.length;
+
+              setTimeout(() => { // 커서가 맨 앞으로 이동해서 맨 뒤로 강제로 이동시킴
+                $event.target.setSelectionRange(this.formula.length,this.formula.length);
+              });
             }
           }  else if( keyCode == 40 ) {
             $event.preventDefault();
@@ -355,6 +368,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
     if( itemList && itemList.length > 0 ){
       this.isSuggestOpen = true;
+      this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : this._FIELD_COMBO_ID, isShow : true } );
       this.suggestItems = itemList;
       this.selectedIndex = -1;
     } else {
@@ -422,6 +436,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
     if( itemList && itemList.length > 0 ){
       this.isSuggestOpen = true;
+      this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : this._FIELD_COMBO_ID, isShow : true } );
       this.suggestItems = itemList;
       this.selectedIndex = -1;
     } else {
@@ -615,6 +630,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     }
 
     this.isSuggestOpen = false;
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: this._FIELD_COMBO_ID, isSelectOrToggle: false });
     this.selectedIndex = -1;
   }
 
@@ -644,7 +660,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
       // 화살표 움직임시 스크롤바 조정 
       let sHeight = this.selectedIndex * this.itemHeight;
-      this.$element.find('.ddp-list-command').scrollTop(sHeight);
+      this.$element.find('.ddp-wrap-popup2').scrollTop(sHeight);
 
       if( $event &&  $event.preventDefault ) {
         $event.stopPropagation();
