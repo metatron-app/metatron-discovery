@@ -26,7 +26,6 @@ import {AbstractComponent} from "../../../../../common/component/abstract.compon
 import {header, SlickGridHeader} from "../../../../../common/component/grid/grid.header";
 import {Field} from "../../../../../domain/data-preparation/pr-dataset";
 import {GridOption} from "../../../../../common/component/grid/grid.option";
-import {GridComponent} from "../../../../../common/component/grid/grid.component";
 import {ScrollLoadingGridComponent} from "./edit-rule-grid/scroll-loading-grid.component";
 import {ScrollLoadingGridModel} from "./edit-rule-grid/scroll-loading-grid.model";
 import {isNullOrUndefined} from "util";
@@ -43,9 +42,6 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Output()
   private renameMultiColumns = new EventEmitter();
-
-  @ViewChild(GridComponent)
-  private gridComponent: GridComponent;
 
   @ViewChild(ScrollLoadingGridComponent)
   private _gridComp: ScrollLoadingGridComponent;
@@ -72,6 +68,10 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   public currentIdx: number;
 
   public typeDesc: any;
+
+  private _$gridElm: any;
+
+  private _savedViewPort: { top: number, left: number };
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -343,8 +343,11 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
         column.isEditing = false;
       }
 
+      this._savePosition();
       // 그리드 업데이트
       this._updateGrid(this.gridData.fields, this.gridData.data);
+
+      this._moveToSavedPosition();
     }
 
   }
@@ -464,6 +467,8 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
       0,
       0
     );
+
+    this._$gridElm = this._gridComp.getGridJQueryObject();
   }
 
 
@@ -544,6 +549,26 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
     return strFormatVal;
   } // function - _setFieldFormatter
 
+
+  /**
+   * Save scroll position
+   */
+  private _savePosition() {
+    const viewPort = this._$gridElm.find('.slick-viewport').get(0);
+    this._savedViewPort = {
+      top: viewPort.scrollTop,
+      left: viewPort.scrollLeft
+    };
+  }
+
+  /**
+   * Move to saved scroll position
+   */
+  public _moveToSavedPosition() {
+    const $viewPort = this._$gridElm.find('.slick-viewport');
+    $viewPort.scrollTop(this._savedViewPort.top);
+    $viewPort.scrollLeft(this._savedViewPort.left);
+  }
 
 
 }
