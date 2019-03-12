@@ -300,6 +300,9 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
               dimensions.add(new DefaultDimension(VC_COLUMN_GEO_COORD));
               postAggregations.add(new ExprPostAggregator(hashLayerView.toWktExpression(VC_COLUMN_GEO_COORD, geoColumnName)));
             }
+
+            // set geometry
+            geometry = datasourceField;
             break;
           default:
             dimensions.add(new DefaultDimension(engineColumnName, aliasName, datasourceField.getLogicalType()));
@@ -770,6 +773,18 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     return this;
   }
 
+  public GroupByQueryBuilder enableChropoleth() {
+
+    List<String> dimName = dimensions.stream()
+                                     .map(dimension -> dimension.getOutputName())
+                                     .collect(Collectors.toList());
+
+    outputColumns.removeAll(dimName);
+    outputColumns.remove(GEOMETRY_COLUMN_NAME);
+
+    return this;
+  }
+
   @Override
   public GroupByQuery build() {
 
@@ -786,6 +801,8 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     groupByQuery.setOutputColumns(outputColumns);
 
     groupByQuery.setGroupingSets(groupingSet);
+
+    groupByQuery.setGeometry(geometry);
 
     if (CollectionUtils.isEmpty(filter.getFields())) {
       groupByQuery.setFilter(null);
