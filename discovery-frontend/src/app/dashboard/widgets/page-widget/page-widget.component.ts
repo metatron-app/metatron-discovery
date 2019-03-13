@@ -1488,6 +1488,20 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           delete layer['segGranularity'];
         }
       }
+
+      // spatial analysis
+      if (!_.isUndefined(cloneQuery.analysis)) {
+        if (cloneQuery.analysis.use == true) {
+          // 공간연산 사용
+          delete cloneQuery.analysis.operation.unit;
+          delete cloneQuery.analysis.layer;
+          delete cloneQuery.analysis.layerNum;
+          delete cloneQuery.analysis.use;
+        } else {
+          // 공간연산 미사용
+          delete cloneQuery.analysis;
+        }
+      }
     }
 
     // 필터 설정
@@ -1499,6 +1513,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     cloneQuery.filters = cloneQuery.filters.filter(item => {
       return (item.type === 'include' && item['valueList'] && 0 < item['valueList'].length) ||
         (item.type === 'bound' && item['min'] != null) ||
+        item.type === 'spatial_bbox' ||
         FilterUtil.isTimeAllFilter(item) ||
         FilterUtil.isTimeRelativeFilter(item) ||
         FilterUtil.isTimeRangeFilter(item) ||
