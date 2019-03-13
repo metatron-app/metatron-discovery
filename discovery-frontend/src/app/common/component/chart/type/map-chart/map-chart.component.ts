@@ -108,8 +108,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     }
   }
 
-  // layer change stop
-  private isStopLayer: boolean = false;
   // previous zoom size
   private preZoomSize : number = 0;
 
@@ -435,8 +433,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // Creation layer
       this.createLayer(source, emptySource, isMapCreation, layerIndex);
     }
-
-    // ((isNullOrUndefined(this.drawByType) || _.isEmpty(this.drawByType)) ? this.isStopLayer = false : this.isStopLayer = true);
 
     // Chart resize
     this.olmap.updateSize();
@@ -2759,10 +2755,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // zoom size
     mapUIOption.zoomSize = Math.round(event.frameState.viewState.zoom);
 
-    // if ((_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.isStopLayer || that.preZoomSize == 0 ) {
     if ((_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.preZoomSize == 0 ) {
       this.preZoomSize = mapUIOption.zoomSize;
-      // this.isStopLayer = false;
       this.setUiExtent(event);
       return;
     }
@@ -2776,31 +2770,25 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       && Number(preUpperCorner[0]).toFixed(10) != currentMapExtent[2].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) != currentMapExtent[3].toFixed(10))
       || (that.preZoomSize != mapUIOption.zoomSize ) ) {
 
-      if( mapUIOption.layers.length == 1 ){
-        mapUIOption.layers[0]['changeCoverage'] = false;
-      } else {
-        // multi layer 일 경우만
-        let isAllChangeCoverage: boolean = false;
+      let isAllChangeCoverage: boolean = false;
+      mapUIOption.layers.forEach((layer) => {
+        if (!_.isUndefined(layer['changeCoverage']) && layer['changeCoverage'] == true) {
+          isAllChangeCoverage = true;
+        }
+      });
+
+      // map ui lat, lng
+      this.setUiExtent(event);
+      if (mapUIOption.upperCorner.indexOf('NaN') != -1 || mapUIOption.lowerCorner.indexOf('NaN') != -1 || isAllChangeCoverage ) {
+        // coverage value reset
         mapUIOption.layers.forEach((layer) => {
-          if (!_.isUndefined(layer['changeCoverage']) && layer['changeCoverage'] == true) {
-            isAllChangeCoverage = true;
+          if (isAllChangeCoverage && !_.isUndefined(layer['changeCoverage'])) {
+            layer['changeCoverage'] = false;
           }
         });
-
-        // map ui lat, lng
-        this.setUiExtent(event);
-        if (mapUIOption.upperCorner.indexOf('NaN') != -1 || mapUIOption.lowerCorner.indexOf('NaN') != -1 || isAllChangeCoverage ) {
-          // coverage value reset
-          mapUIOption.layers.forEach((layer) => {
-            if (isAllChangeCoverage && !_.isUndefined(layer['changeCoverage'])) {
-              layer['changeCoverage'] = false;
-            }
-          });
-          return;
-        }
+        return;
       }
 
-      // this.isStopLayer = false;
       this.changeDrawEvent.emit();
     }
 
