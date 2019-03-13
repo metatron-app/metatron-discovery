@@ -110,6 +110,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
   // layer change stop
   private isStopLayer: boolean = false;
+  // previous zoom size
+  private preZoomSize : number = 0;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -952,8 +954,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     // Map data place fit
     if (this.drawByType && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&
-      (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'] == true) &&
-      (_.isUndefined(this.uiOption['layers'][layerIndex]['changeTileRadius']) || this.uiOption['layers'][layerIndex]['changeTileRadius'] == true)) {
+      (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'] ) ) {
       this.olmap.getView().fit(source.getExtent());
     } else {
       // set saved data zoom
@@ -1960,7 +1961,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         // Add event
         ////////////////////////////////////////////////////////
 
-        this.isStopLayer = true;
+        if( !_.isNull( this.olmap.frameState_) )
+          this.preZoomSize = Math.round(this.olmap.frameState_.viewState.zoom);
 
         this.olmap.un('pointermove', this.tooltipFunction);
         this.olmap.on('pointermove', this.tooltipFunction);
@@ -2750,14 +2752,15 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   private zoomFunction = (event) => {
 
     const that = this;
-    // save current chartzoom
+    // save current chart zoom
     this.uiOption.chartZooms = this.additionalSaveDataZoomRange();
 
     let mapUIOption = (<UIMapOption>this.uiOption);
     // zoom size
     mapUIOption.zoomSize = Math.round(event.frameState.viewState.zoom);
 
-    if ((_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.isStopLayer) {
+    if ((_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.isStopLayer || that.preZoomSize == 0 ) {
+      this.preZoomSize = mapUIOption.zoomSize;
       this.isStopLayer = false;
       this.setUiExtent(event);
       return;
@@ -2767,31 +2770,25 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     let preUpperCorner = mapUIOption.upperCorner.split(' ');
     let currentMapExtent = this.olmap.getView().calculateExtent(event.map.getSize());
 
-    // 이전 좌표와 다를 경우에만 다시 호출
-    if (Number(preLowerCorner[0]).toFixed(10) != currentMapExtent[0].toFixed(10) && Number(preLowerCorner[1]).toFixed(10) != currentMapExtent[1].toFixed(10)
-      && Number(preUpperCorner[0]).toFixed(10) != currentMapExtent[2].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) != currentMapExtent[3].toFixed(10)) {
+    // 이전 좌표 및 줌 레벨이 다를 경우에만 다시 호출
+    if ((Number(preLowerCorner[0]).toFixed(10) != currentMapExtent[0].toFixed(10) && Number(preLowerCorner[1]).toFixed(10) != currentMapExtent[1].toFixed(10)
+      && Number(preUpperCorner[0]).toFixed(10) != currentMapExtent[2].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) != currentMapExtent[3].toFixed(10))
+      || (that.preZoomSize != mapUIOption.zoomSize ) ) {
 
       let isAllChangeCoverage: boolean = false;
-      let isAllChangeTileRadius: boolean = false;
       mapUIOption.layers.forEach((layer) => {
         if (!_.isUndefined(layer['changeCoverage']) && layer['changeCoverage'] == true) {
           isAllChangeCoverage = true;
-        }
-        if (!_.isUndefined(layer['changeTileRadius']) && layer['changeTileRadius'] == true) {
-          isAllChangeTileRadius = true;
         }
       });
 
       // map ui lat, lng
       this.setUiExtent(event);
-      if (mapUIOption.upperCorner.indexOf('NaN') != -1 || mapUIOption.lowerCorner.indexOf('NaN') != -1 || isAllChangeCoverage || isAllChangeTileRadius) {
+      if (mapUIOption.upperCorner.indexOf('NaN') != -1 || mapUIOption.lowerCorner.indexOf('NaN') != -1 || isAllChangeCoverage ) {
         // coverage value reset
         mapUIOption.layers.forEach((layer) => {
           if (isAllChangeCoverage && !_.isUndefined(layer['changeCoverage'])) {
             layer['changeCoverage'] = false;
-          }
-          if (isAllChangeTileRadius && !_.isUndefined(layer['changeTileRadius'])) {
-            layer['changeTileRadius'] = false;
           }
         });
         return;

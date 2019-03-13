@@ -601,7 +601,7 @@ export class DatasourceService extends AbstractService {
                     type: LayerViewType.CLUSTERING.toString(),
                     method: "h3",
                     // 0~99 퍼센트 값을 1~12값으로 변환
-                    precision: clusterPrecision
+                    precision: (_.isNaN(clusterPrecision) ? 6 : clusterPrecision)
                   };
                 }
 
@@ -638,6 +638,9 @@ export class DatasourceService extends AbstractService {
                     // zoom size 변경
                     let zoomSize = chart.zoomSize - 2;
                     radiusPrecision = Math.round((18 + (zoomSize-18)) / 1.5);
+                    // radius 값 지정
+                    chart['layers'][idx]['changeTileRadius'] = true;
+                    chart['layers'][idx]['radius'] = Math.round(100 - (radiusPrecision * 8.33));
                   }
 
                   if (radiusPrecision > 12) radiusPrecision = 12;

@@ -192,7 +192,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       if( isNullOrUndefined(this.uiOption.layers[layerIndex]['blur']) ) {
         this.uiOption.layers[layerIndex]['blur'] = 20;
       }
-      this.uiOption.layers[layerIndex]['radius'] = 20;
+      if( isNullOrUndefined(this.uiOption.layers[layerIndex]['radius']) ) {
+        this.uiOption.layers[layerIndex]['radius'] = 20;
+      }
 
       measureList = this.fieldList[layerIndex]['measureList'];
 
@@ -223,7 +225,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     } else if (MapLayerType.TILE === layerType) {
       // set color by shelf
       this.uiOption.layers[layerIndex] = this.setColorByShelf(true, layerIndex);
-      this.uiOption.layers[layerIndex]['radius'] = 20;
+      if( isNullOrUndefined(this.uiOption.layers[layerIndex]['radius']) ) {
+        this.uiOption.layers[layerIndex]['radius'] = 20;
+      }
 
       // remove color by dimension list
       _.remove(this.colorByList, ( item ) => { return item.value === MapBy.DIMENSION; });
