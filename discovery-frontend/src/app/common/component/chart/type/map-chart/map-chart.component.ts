@@ -839,11 +839,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           }
         }
         // }
-      }
-      ////////////////////////////////////////////////////////
-      // Line, Polygon layer
-      ////////////////////////////////////////////////////////
-      if (_.eq(layer.type, MapLayerType.LINE) || _.eq(layer.type, MapLayerType.POLYGON)) {
+      } else if (_.eq(layer.type, MapLayerType.LINE) || _.eq(layer.type, MapLayerType.POLYGON)) {
+        ////////////////////////////////////////////////////////
+        // Line, Polygon layer
+        ////////////////////////////////////////////////////////
         // Create
         let symbolLayer = new ol.layer.Vector({
           source: source,
@@ -1929,11 +1928,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         // set tooltip position
         if (this.uiOption.toolTip) {
 
-          let yOffset = 20;
+          let yOffset = 10;
 
-          if (MapLayerType.LINE === this.getUiMapOption().layers[toolTipIndex].type) {
-            yOffset = 50;
-          }
+          // if (MapLayerType.LINE === this.getUiMapOption().layers[toolTipIndex].type) {
+          //   yOffset = 50;
+          // }
 
           let offset = [-92, -yOffset];
           let displayTypeList = _.filter(_.cloneDeep(this.uiOption.toolTip.displayTypes), (item) => {

@@ -110,7 +110,10 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     this.uiOption = <UIMapOption>uiOption;
     this.shelf = shelf;
     this.baseList.layers = [];
+    this.compareList.layers = [];
+    // 레이어가 추가/제거 될때 자동으로 selectbox의 레이어 선택
     if (!_.isUndefined(this.shelf) && this.shelf.layers.length > 0) {
+      let isChanged = false;
       let shelfIndex = 0;
       this.shelf.layers.forEach(layer => {
         if (!_.isUndefined(layer.fields) && layer.fields.length > 0) {
@@ -120,17 +123,20 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
               if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption.layers)
                 && this.uiOption.layers.length > 0 && !_.isUndefined(this.uiOption.layers[shelfIndex].name)) {
                 this.baseList.layers.push(this.uiOption.layers[shelfIndex].name);
-                this.baseList['selectedNum'] = shelfIndex;
+                if( !isChanged ) {
+                  this.baseList['selectedNum'] = shelfIndex;
+                  isChanged = true;
+                }
               }
             }
           });
         }
         shelfIndex++;
       });
-      this.compareList.layers = [];
       if (this.baseList.layers.length > 1) {
         this.compareList.layers = _.cloneDeep(this.baseList.layers);
-        this.compareList.layers = this.compareList.layers.splice(this.baseList['selectedNum'], 1);
+        this.compareList.layers.splice(this.baseList['selectedNum'], 1);
+        // this.compareList.layers = this.compareList.layers.splice(this.baseList['selectedNum'], 1);
         this.compareIndex = 0;
       }
     }

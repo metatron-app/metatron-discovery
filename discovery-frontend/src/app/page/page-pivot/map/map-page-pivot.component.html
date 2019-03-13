@@ -122,7 +122,11 @@
             {{uiOption.analysis['compareLayer']}}
         </span>
           <span class="ddp-tag-analysis">{{uiOption.analysis['operation']['type']}}</span>
-          <span class="ddp-txt-data">{{uiOption.analysis['operation']['distance']}},{{uiOption.analysis['operation']['unit']}}</span>
+          <span class="ddp-txt-data">
+            {{(uiOption.analysis['operation']['unit'] === 'Meters')
+            ?uiOption.analysis['operation']['distance']:(uiOption.analysis['operation']['distance']/1000)}}
+            {{uiOption.analysis['operation']['unit']}}
+          </span>
         </div>
         <!-- //analysis -->
         <div class="ddp-slide-control">

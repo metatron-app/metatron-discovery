@@ -3940,8 +3940,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.datasourceService.searchQuery(cloneQuery).then(
       (data) => {
 
-        const that = this;
-
         const resultData = {
           data: data,
           config: uiCloneQuery,
@@ -4101,6 +4099,12 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     cloneQuery.filters = cloneQuery.filters.filter(item => !(item.type === 'bound' && item['min'] == null));
 
     cloneQuery.userFields = CommonUtil.objectToArray(cloneQuery.userFields);
+
+    // TODO 임시 analysis query
+    // if(!_.isUndefined(cloneQuery.analysis)) {
+    //   cloneQuery.analysis['includeCompareLayer'] = true;
+    //   cloneQuery.analysis['operation']['choropleth'] = true;
+    // }
 
     return cloneQuery;
   }
