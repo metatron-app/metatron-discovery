@@ -7382,6 +7382,8 @@ ul.ddp-ui-tab li.ddp-selected em.ddp-icon-group-s2 {opacity:1;}
 .ddp-datagrid .ddp-ui-option .ddp-btn-bg {float:left; margin-left:10px;}
 .ddp-datagrid .ddp-ui-option .ddp-btn-bg em.ddp-icon-widget-gridsave {margin-right:5px;}
 .ddp-fix-grid {position:fixed; bottom:45px; right:65px; top:246px; left:65px; border:1px solid #d5d6db;}
+.ddp-fix-grid.ddp-msg-info1 {top:267px;}
+.ddp-fix-grid.ddp-msg-info2 {top:302px;}
 
 /**********************************************************************************
 	page : 워크스페이스 관리

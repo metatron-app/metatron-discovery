@@ -284,7 +284,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
       type : RsType.TABLE
     };
 
-    this.connectionService.getTableDetailWitoutId(params).then((result) => {
+    this.connectionService.getTableDetailWitoutId(params, false).then((result) => {
 
       this.loadingHide();
       if (result.fields.length > 0 ) {
@@ -446,7 +446,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     this.queryErrorMsg = '';
 
     // Get grid info using query
-    this.connectionService.getTableDetailWitoutId(param)
+    this.connectionService.getTableDetailWitoutId(param, false)
       .then((result) => {
 
         this.loadingHide();

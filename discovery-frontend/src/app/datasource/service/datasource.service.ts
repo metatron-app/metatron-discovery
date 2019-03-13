@@ -742,8 +742,9 @@ export class DatasourceService extends AbstractService {
   }
 
   // 데이터소스 상세
-  public getDatasourceDetail(datasourceId: string, projection: string = 'forDetailView'): Promise<any> {
-    return this.get(this.API_URL + `datasources/${datasourceId}?projection=${projection}`);
+  public getDatasourceDetail(datasourceId: string, includeUnloadedField?: boolean): Promise<any> {
+    const url = this.API_URL + (includeUnloadedField ? `datasources/${datasourceId}?projection=forDetailView&includeUnloadedField=${includeUnloadedField}` : `datasources/${datasourceId}?projection=forDetailView`);
+    return this.get(url);
   }
 
   /**

@@ -2179,6 +2179,8 @@
   "msg.storage.ph.search.snapshot": "Search snapshot",
   "msg.storage.ph.source.desc": "Please insert datasource description",
   "msg.storage.ui.none.source.desc": "No description",
+  "msg.storage.ui.linked.source.preview.include.geo": "Linked data does not support preview for Geo type.",
+  "msg.storage.ui.linked.source.preview": "This data grid is source data, not ingested data. This may differ from the temporarily ingested data value when creating a dashboard.",
 
   "msg.storage.ui.timezone.country.zimbabwe": "Zimbabwe",
   "msg.storage.ui.timezone.country.zambia": "Zambia",

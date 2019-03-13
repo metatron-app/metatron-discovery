@@ -504,7 +504,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
     // loading show
     this.loadingShow();
     // 테이블 상세 조회
-    this.connectionService.getTableDetailWitoutId(this._getResultParmas(databaseName, tableOrQueryText))
+    this.connectionService.getTableDetailWitoutId(this._getResultParmas(databaseName, tableOrQueryText), false)
       .then((result: QueryDataResult) => {
         // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
         if (this._sourceData.connectionData.selectedDbType.value === 'HIVE') {

@@ -14,6 +14,26 @@
 
 <!-- tab contents -->
 <div class="ddp-ui-tab-contents">
+  <!-- guide message -->
+  <div class="ddp-box-message" *ngIf="datasource.connType === CONN_TYPE.LINK">
+    <!-- if only linked source -->
+    <div class="ddp-box-synch type-info">
+      <div class="ddp-txt-synch">
+        <em class="ddp-icon-info"></em>
+        {{'msg.storage.ui.linked.source.preview' | translate}}
+      </div>
+    </div>
+    <!-- //if only linked source -->
+    <!-- if linked source include geo type-->
+    <div class="ddp-box-synch type-info" *ngIf="derivedFieldList.length > 0">
+      <div class="ddp-txt-synch">
+        <em class="ddp-icon-info"></em>
+        {{'msg.storage.ui.linked.source.preview.include.geo' | translate}}
+      </div>
+    </div>
+    <!-- //if linked source include geo type-->
+  </div>
+  <!-- //guide message -->
   <!-- datagrid -->
   <div class="ddp-datagrid">
     <!-- option -->
@@ -84,7 +104,7 @@
     </div>
     <!-- //option -->
     <!-- fix grid -->
-    <div class="ddp-fix-grid" [class.meta-grid]="isExistTimestamp" [class.meta-grid-type]="isExistMetaData()"
+    <div class="ddp-fix-grid" [class.meta-grid]="isExistTimestamp" [class.meta-grid-type]="metaData" [class.ddp-msg-info1]="datasource.connType === CONN_TYPE.LINK && derivedFieldList.length === 0" [class.ddp-msg-info2]="datasource.connType === CONN_TYPE.LINK && derivedFieldList.length > 0"
          #main grid-component
          (onHeaderRowCellRendered)="extendGridHeader($event)">
     </div>

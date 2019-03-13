@@ -31,7 +31,7 @@ import {header, SlickGridHeader} from '../../../../common/component/grid/grid.he
 import {GridOption} from '../../../../common/component/grid/grid.option';
 import {DataconnectionService} from '../../../../dataconnection/service/dataconnection.service';
 import {Metadata} from '../../../../domain/meta-data-management/metadata';
-import {isUndefined} from 'util';
+import {isNullOrUndefined} from 'util';
 import {AuthenticationType, Dataconnection, ImplementorType} from '../../../../domain/dataconnection/dataconnection';
 import {TimezoneService} from "../../../service/timezone.service";
 import {DataSourceCreateService, TypeFilterObject} from "../../../service/data-source-create.service";
@@ -49,19 +49,19 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   private _gridData: any[];
 
   @Input()
-  public datasource: Datasource;
+  public readonly datasource: Datasource;
 
   // 메타데이터 정보
   @Input()
-  public metaData: Metadata;
+  public readonly metaData: Metadata;
 
   // 필드 목록
   public fields: Field[];
 
   // filter list
-  public roleTypeFilterList: TypeFilterObject[] = this.datasourceCreateService.getRoleTypeFilterList();
+  public readonly roleTypeFilterList: TypeFilterObject[] = this.datasourceCreateService.getRoleTypeFilterList();
   public selectedRoleTypeFilter: TypeFilterObject;
-  public logicalTypeFilterList: TypeFilterObject[] = this.datasourceCreateService.getLogicalTypeFilterList();
+  public readonly logicalTypeFilterList: TypeFilterObject[] = this.datasourceCreateService.getLogicalTypeFilterList().filter(type => type.value !== LogicalType.USER_DEFINED);
   public selectedLogicalTypeFilter: TypeFilterObject;
 
   // 검색어
@@ -74,6 +74,9 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   public isExistTimestamp: boolean;
   // derived field list
   public derivedFieldList: Field[];
+
+  // enum
+  public readonly CONN_TYPE: any = ConnectionType;
 
   // 생성자
   constructor(private datasourceCreateService: DataSourceCreateService,
@@ -108,14 +111,6 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
 
     // Destory
     super.ngOnDestroy();
-  }
-
-  /**
-   * 메타데이터가 있는지
-   * @returns {boolean}
-   */
-  public isExistMetaData(): boolean {
-    return !isUndefined(this.metaData);
   }
 
   /**
@@ -169,7 +164,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    */
   public onClickResetFilter(): void {
     // 검색어 초기화
-    this.searchTextKeyword = '';
+    this.searchTextKeyword = undefined;
     // set selected role type filter
     this.selectedRoleTypeFilter = this.roleTypeFilterList[0];
     // set selected logical type filter
@@ -192,8 +187,10 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   public onChangeRowNumber(event: KeyboardEvent): void {
     if (13 === event.keyCode) {
       this.rowNum = event.target['value'];
-      // Query Data
-      this._getQueryData(this.datasource);
+      // set field data list
+      this._setFieldDataList(this.datasource)
+        .then(result => this._updateGrid(this._gridData, this.fields))
+        .catch(error => this.commonExceptionHandler(error));
     }
   }
 
@@ -202,8 +199,6 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    * @private
    */
   private _initView(): void {
-    // search
-    this.searchTextKeyword = '';
     // set selected role type filter
     this.selectedRoleTypeFilter = this.roleTypeFilterList[0];
     // set selected logical type filter
@@ -234,24 +229,24 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
       // dom 이 모두 로드되었을때 작동
       this.changeDetect.detectChanges();
       // 그리드 생성
-      this.isExistMetaData()
+      isNullOrUndefined(this.metaData)
         ? this._gridComponent.create(headers, rows, new GridOption()
+        .SyncColumnCellResize(true)
+        .MultiColumnSort(true)
+        .RowHeight(32)
+        .build())
+        : this._gridComponent.create(headers, rows, new GridOption()
         .SyncColumnCellResize(true)
         .MultiColumnSort(true)
         .RowHeight(32)
         .ShowHeaderRow(true)
         .HeaderRowHeight(32)
         .ExplicitInitialization(true)
-        .build())
-        : this._gridComponent.create(headers, rows, new GridOption()
-        .SyncColumnCellResize(true)
-        .MultiColumnSort(true)
-        .RowHeight(32)
         .build());
       // search
-      this._gridComponent.search(this.searchTextKeyword);
+      this._gridComponent.search(this.searchTextKeyword || '');
       // ExplicitInitialization 을 true 로 줬기 떄문에 init해줘야 한다.
-      this.isExistMetaData() && this._gridComponent.grid.init();
+      !isNullOrUndefined(this.metaData) && this._gridComponent.grid.init();
     } else {
       this._gridComponent.destroy();
     }
@@ -357,38 +352,6 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   }
 
   /**
-   * Get query data
-   * @param {Datasource} source
-   * @private
-   */
-  private _getQueryData(source: Datasource): void {
-      // 로딩 show
-      this.loadingShow();
-      // params
-      const params = new QueryParam();
-      params.limits.limit = ( this.rowNum < 1 || 0 === this.rowNum) ? 100 : this.rowNum;
-      // 데이터소스인 경우
-      const dsInfo = _.cloneDeep(source);
-      params.dataSource.name = dsInfo.engineName;
-      params.dataSource.engineName = dsInfo.engineName;
-      params.dataSource.connType = dsInfo.connType.toString();
-      params.dataSource.type = 'default';
-      // 조회
-      this.datasourceService.getDatasourceQuery(params)
-        .then((data) => {
-          if (data && 0 < data.length) {
-            // grid data
-            this._gridData = data;
-            // grid update
-            this._updateGrid(this._gridData, this.fields);
-          }
-          // 로딩 hide
-          this.loadingHide();
-        })
-        .catch(error => this.commonExceptionHandler(error));
-  }
-
-  /**
    * Get connection params
    * @param {any} ingestion
    * @param {Dataconnection} connection
@@ -445,15 +408,15 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
         // used preset : source.connection
         // not used preset : source.ingestion.connection
         const connection: Dataconnection = datasource.connection || datasource.ingestion.connection;
-        this.connectionService.getTableDetailWitoutId(this._getConnectionParams(datasource.ingestion, connection), connection.implementor === ImplementorType.HIVE)
-          .then((data) => {
+        this.connectionService.getTableDetailWitoutId(this._getConnectionParams(datasource.ingestion, connection), connection.implementor === ImplementorType.HIVE, this.rowNum)
+          .then((result: {data: any, fields: Field[], totalRows: number}) => {
             // grid data
-            this._gridData = data['data'];
-            // set fields
-            this.fields = data['fields'];
+            this._gridData = result.data;
+            // if row num over data length
+            (this.rowNum > result.data.length) && (this.rowNum = result.data.length);
             // 로딩 hide
             this.loadingHide();
-            resolve(data);
+            resolve(result);
           })
           .catch(error => reject(error));
       } else if (datasource.connType === ConnectionType.ENGINE) { // Engine datasource
