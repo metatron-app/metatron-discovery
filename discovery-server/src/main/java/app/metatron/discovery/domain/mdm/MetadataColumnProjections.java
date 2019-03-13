@@ -19,6 +19,7 @@ import org.springframework.data.rest.core.config.Projection;
 
 import app.metatron.discovery.common.BaseProjections;
 import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
 
 public class MetadataColumnProjections extends BaseProjections {
@@ -54,6 +55,8 @@ public class MetadataColumnProjections extends BaseProjections {
     Double getPopularity();
 
     LogicalType getType();
+
+    Field.FieldRole getRole();
 
     ColumnDictionary getDictionary();
 
