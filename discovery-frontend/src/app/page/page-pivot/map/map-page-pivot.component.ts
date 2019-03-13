@@ -797,7 +797,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
    */
   public selectedLayer(index: number) {
     if (this.uiOption.layerNum != index
-      && !_.isUndefined(this.uiOption.analysis) && this.uiOption['analysis']['use'] == false) {
+      && (_.isUndefined(this.uiOption.analysis) || (!_.isUndefined(this.uiOption.analysis) && this.uiOption['analysis']['use'] == false))) {
       this.uiOption.layerNum = index;
       // this.selectLayerEvent.emit(index);
     }
