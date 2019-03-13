@@ -648,6 +648,8 @@ public class PrDatasetController {
 
             response = this.datasetFileService.uploadFileChunk( uploadFile, chunkIdx, chunkSize, file );
 
+            this.uploadFileRepository.saveAndFlush(uploadFile);
+
             if(uploadFile.getRestChunk()==0) {
                 if (uploadFile.getStorageType() == PrUploadFile.STORAGE_TYPE.LOCAL) {
                     // just ok.
