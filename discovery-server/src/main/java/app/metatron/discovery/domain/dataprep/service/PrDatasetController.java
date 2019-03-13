@@ -18,13 +18,16 @@ import app.metatron.discovery.domain.dataprep.*;
 import app.metatron.discovery.domain.dataprep.entity.PrDataflow;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.entity.PrDatasetProjections;
+import app.metatron.discovery.domain.dataprep.entity.PrUploadFile;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.repository.PrDatasetRepository;
 import app.metatron.discovery.domain.dataprep.repository.PrSnapshotRepository;
+import app.metatron.discovery.domain.dataprep.repository.PrUploadFileRepository;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
+import app.metatron.discovery.domain.storage.StorageProperties;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FilenameUtils;
@@ -49,7 +52,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @RequestMapping(value = "/preparationdatasets")
 @RepositoryRestController
@@ -63,19 +65,19 @@ public class PrDatasetController {
     @Autowired
     PrepPreviewLineService previewLineService;
 
-    @Autowired(required = false)
+    @Autowired
     private PrepDatasetFileService datasetFileService;
 
-    @Autowired(required = false)
+    @Autowired
     private PrepDatasetDatabaseService datasetJdbcService;
 
-    @Autowired(required = false)
+    @Autowired
     private PrepDatasetStagingDbService datasetStagingDbService;
 
-    @Autowired(required = false)
+    @Autowired
     private PrepHdfsService hdfsService;
 
-    @Autowired(required = false)
+    @Autowired
     private PrDatasetService datasetService;
 
     @Autowired
@@ -84,11 +86,17 @@ public class PrDatasetController {
     @Autowired
     private PrSnapshotRepository snapshotRepository;
 
-    @Autowired(required = false)
+    @Autowired
+    private PrUploadFileRepository uploadFileRepository;
+
+    @Autowired
     PrepTransformService transformService;
 
-    @Autowired(required = false)
+    @Autowired
     PrepProperties prepProperties;
+
+    @Autowired
+    StorageProperties storageProperties;
 
     @Value("${spring.http.multipart.max-file-size}")
     String maxFileSize;
@@ -130,7 +138,11 @@ public class PrDatasetController {
             savedDataset = datasetRepository.save(dataset);
             LOGGER.debug(savedDataset.toString());
 
-            this.datasetService.afterCreate(savedDataset, storageType);
+            if(dataset.getImportType() == PrDataset.IMPORT_TYPE.UPLOAD || dataset.getImportType() == PrDataset.IMPORT_TYPE.URI) {
+                this.datasetService.changeFileFormatToCsv(dataset);
+            }
+
+            this.datasetService.savePreview(savedDataset);
 
             this.datasetRepository.flush();
         } catch (Exception e) {
@@ -559,19 +571,28 @@ public class PrDatasetController {
         try {
             response = Maps.newHashMap();
 
-            // WARNING: UUID is almost unique. but a collision cause overwriting.
-            // If you want a completely unique ID, you should save the IDs on DB.
-            String upload_id = UUID.randomUUID().toString();
+            PrUploadFile uploadFile = new PrUploadFile();
+            uploadFile = this.uploadFileRepository.save(uploadFile);
+
+            String upload_id = uploadFile.getUploadId();
             response.put("upload_id", upload_id);
 
-            DateTime now = DateTime.now();
+            DateTime now = uploadFile.getCreatedTime();
             response.put("timestamp", now.getMillis());
 
             response.put("limit_size", getLimitSize());
 
             List<PrDataset.STORAGE_TYPE> storageTypes = Lists.newArrayList();
-            for(PrDataset.STORAGE_TYPE storageType : PrDataset.STORAGE_TYPE.values()) {
-                storageTypes.add(storageType);
+            if(prepProperties.getLocalBaseDir() != null) {
+                storageTypes.add(PrDataset.STORAGE_TYPE.LOCAL);
+            }
+            StorageProperties.StageDBConnection stageDBConnection = storageProperties.getStagedb();
+            if(prepProperties.getStagingBaseDir() != null && storageProperties.getStagedb()!=null ) {
+                storageTypes.add(PrDataset.STORAGE_TYPE.HDFS);
+            }
+            StorageProperties.S3Connection s3Connection = storageProperties.getS3();
+            if(storageProperties.getS3()!=null ) {
+                storageTypes.add(PrDataset.STORAGE_TYPE.S3);
             }
             response.put("storage_types", storageTypes);
         } catch (Exception e) {
@@ -594,18 +615,51 @@ public class PrDatasetController {
     ) {
         Map<String, Object> response = null;
         try {
-            String originalFilename = name;
             String uploadId = upload_id;
+            PrUploadFile uploadFile = this.uploadFileRepository.findOne(upload_id);
+            if(uploadFile==null) {
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_KEY_MISSING, uploadId + " is not a valid file key");
+            }
+
+            if(uploadFile.getOriginalFilename()==null) {
+                String originalFilename = name;
+                uploadFile.setOriginalFilename(originalFilename);
+            }
+            if(uploadFile.getStorageType()==null) {
+                PrUploadFile.STORAGE_TYPE storageType = PrUploadFile.STORAGE_TYPE.valueOf(storage_type);
+                uploadFile.setStorageType(storageType);
+            }
+            if(uploadFile.getFileSize()==null) {
+                Long totalSize = Long.valueOf(total_size);
+                uploadFile.setFileSize(totalSize);
+            }
+            if(uploadFile.getRestChunk()==null) {
+                Integer chunkTotal = Integer.valueOf(chunks);
+                uploadFile.setRestChunk(chunkTotal);
+            }
+
             Integer chunkIdx = Integer.valueOf(chunk);
-            Integer chunkTotal = Integer.valueOf(chunks);
-            Integer chunkSize = Integer.valueOf(chunk_size);
-            Integer totalSize = Integer.valueOf(total_size);
-            PrDataset.STORAGE_TYPE storageType = PrDataset.STORAGE_TYPE.valueOf(storage_type);
+            Long chunkSize = Long.valueOf(chunk_size);
 
-            response = this.datasetFileService.uploadFileChunk(
-                      originalFilename, uploadId, chunkIdx, chunkTotal, chunkSize, totalSize, storageType,
-                      file);
+            String storedUri = this.datasetFileService.getStoredUri( uploadFile );
+            uploadFile.setFileUri(storedUri);
+            String localUri = this.datasetFileService.getPathLocalBase(uploadFile.getFilename());
+            uploadFile.setLocalUri(localUri);
 
+            response = this.datasetFileService.uploadFileChunk( uploadFile, chunkIdx, chunkSize, file );
+
+            if(uploadFile.getRestChunk()==0) {
+                if (uploadFile.getStorageType() == PrUploadFile.STORAGE_TYPE.LOCAL) {
+                    // just ok.
+                } else if (uploadFile.getStorageType() == PrUploadFile.STORAGE_TYPE.HDFS) {
+                    this.datasetFileService.copyLocalToStaging(uploadFile);
+                } else if (uploadFile.getStorageType() == PrUploadFile.STORAGE_TYPE.S3) {
+                    // not implemented yet
+                    this.datasetFileService.copyLocalToS3(uploadFile);
+                } else {
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, uploadFile.getStorageType() + " is not supported");
+                }
+            }
         } catch (Exception e) {
             LOGGER.error("file_upload POST(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
