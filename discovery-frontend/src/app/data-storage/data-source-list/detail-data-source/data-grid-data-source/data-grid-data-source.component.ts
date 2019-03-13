@@ -260,7 +260,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
    */
   private _getFilteredFieldList(field: Field[]): Field[] {
     return field.filter(field => (this.selectedRoleTypeFilter.value === 'ALL' ? true : (FieldRole.DIMENSION === this.selectedRoleTypeFilter.value && FieldRole.TIMESTAMP === field.role ? field : this.selectedRoleTypeFilter.value === field.role))
-      && (this.selectedLogicalTypeFilter.value === 'ALL' ? true : (this.selectedLogicalTypeFilter.value === LogicalType.USER_DEFINED && field.logicalType === LogicalType.STRING ? true : this.selectedLogicalTypeFilter.value === field.logicalType)));
+      && (this.selectedLogicalTypeFilter.value === 'ALL' ? true : this.selectedLogicalTypeFilter.value === field.logicalType));
   }
 
   /**
@@ -335,7 +335,6 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
           .build();
       });
     }
-
   }
 
   /**
@@ -408,12 +407,12 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
         // used preset : source.connection
         // not used preset : source.ingestion.connection
         const connection: Dataconnection = datasource.connection || datasource.ingestion.connection;
-        this.connectionService.getTableDetailWitoutId(this._getConnectionParams(datasource.ingestion, connection), connection.implementor === ImplementorType.HIVE, this.rowNum)
+        this.connectionService.getTableDetailWitoutId(this._getConnectionParams(datasource.ingestion, connection), connection.implementor === ImplementorType.HIVE, this.rowNum < 1 ? 100 : this.rowNum)
           .then((result: {data: any, fields: Field[], totalRows: number}) => {
             // grid data
             this._gridData = result.data;
-            // if row num over data length
-            (this.rowNum > result.data.length) && (this.rowNum = result.data.length);
+            // if row num different data length
+            (this.rowNum !== result.data.length) && (this.rowNum = result.data.length);
             // 로딩 hide
             this.loadingHide();
             resolve(result);
@@ -422,18 +421,20 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
       } else if (datasource.connType === ConnectionType.ENGINE) { // Engine datasource
         // params
         const params = new QueryParam();
-        params.limits.limit = ( this.rowNum < 1 || 0 === this.rowNum) ? 100 : this.rowNum;
+        params.limits.limit = this.rowNum < 1 ? 100 : this.rowNum;
         params.dataSource.name = datasource.engineName;
         params.dataSource.engineName = datasource.engineName;
         params.dataSource.connType = 'ENGINE';
         params.dataSource.type = 'default';
         this.datasourceService.getDatasourceQuery(params)
-          .then((data) => {
+          .then((result) => {
             // grid data
-            this._gridData = data;
+            this._gridData = result;
+            // if row num different data length
+            (this.rowNum !== result.length) && (this.rowNum = result.length);
             // 로딩 hide
             this.loadingHide();
-            resolve(data);
+            resolve(result);
           })
           .catch(error => reject(error));
       }
