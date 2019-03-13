@@ -7272,6 +7272,7 @@ ul.ddp-list-value li.ddp-total {color:#b7b9c2;}
 .ddp-wrap-value-setting .ddp-ui-setting ul.ddp-list-dataview {margin:0 -12px; border-top:1px solid #e9e9ec; border-bottom:1px solid #e9e9ec}
 .ddp-wrap-value-setting .ddp-ui-setting ul.ddp-list-dataview li {padding:5px 17px; color:#4b525b; font-size:13px;}
 .ddp-wrap-value-setting .ddp-ui-setting ul.ddp-list-dataview li.ddp-total {color:#b7b9c2; font-size:12px;}
+.ddp-wrap-value-setting .ddp-ui-setting ul.ddp-list-dataview li.ddp-nodata {color:#b6b9c1; font-size:13px;}
 .ddp-wrap-value-setting .ddp-ui-setting ul.ddp-list-dataview li:nth-child(odd) {background-color:#fafafa;}
 
 .ddp-wrap-value-setting .ddp-ui-setting .ddp-wrap-edit3 .ddp-data-time {margin-top:3px;}
