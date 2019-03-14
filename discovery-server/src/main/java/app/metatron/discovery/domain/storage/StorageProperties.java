@@ -18,18 +18,18 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
 
 @Component
 @ConfigurationProperties(prefix = "polaris.storage")
 public class StorageProperties {
 
   public enum StorageType{
-    STAGEDB
+    STAGEDB,
+    S3
   }
 
   StageDBConnection stagedb;
+  S3Connection s3;
 
   public StorageProperties() {
   }
@@ -150,6 +150,35 @@ public class StorageProperties {
 
     public void setMetastorePassword(String metastorePassword) {
       this.metastorePassword = metastorePassword;
+    }
+  }
+
+  public S3Connection getS3() {
+    return s3;
+  }
+
+  public void setS3(S3Connection s3) {
+    this.s3 = s3;
+  }
+
+  public static class S3Connection implements Serializable {
+    String bucket;
+    String region;
+
+    public String getBucket() {
+      return bucket;
+    }
+
+    public void setBucket(String bucket) {
+      this.bucket = bucket;
+    }
+
+    public String getRegion() {
+      return region;
+    }
+
+    public void setRegion(String region) {
+      this.region = region;
     }
   }
 }
