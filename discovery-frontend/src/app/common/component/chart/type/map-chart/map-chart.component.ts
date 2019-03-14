@@ -1929,11 +1929,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         if (this.uiOption.toolTip) {
 
           let yOffset = 10;
-
-          // if (MapLayerType.LINE === this.getUiMapOption().layers[toolTipIndex].type) {
-          //   yOffset = 50;
-          // }
-
           let offset = [-92, -yOffset];
           let displayTypeList = _.filter(_.cloneDeep(this.uiOption.toolTip.displayTypes), (item) => {
             if (!_.isEmpty(item) && item !== UIChartDataLabelDisplayType.DATA_VALUE) return item
@@ -1995,7 +1990,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // console.log(this.olmap.getFeaturesAtPixel(event.pixel));
     // console.log(this.olmap.hasFeatureAtPixel(event.pixel));
 
-    // feature check
+    // feature check (if no features hide tooltip)
     if (!feature
       ||
       (!_.isUndefined(feature.getProperties())
@@ -2035,7 +2030,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           feature = features[0];
         }
 
-        // 점 > 선 > 면
         if (tooltipTypeToShow == null || this.getUiMapOption().layers[toolTipIndex].type == MapLayerType.SYMBOL) {
           // Layer num & name
           if (this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[17] !== null) {
@@ -2059,15 +2053,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           // Coordinates (Geo Info)
           ////////////////////////////////////////////////////////
           let coords = [0, 0];
-          let pointerX = coords[0].toFixed(4);
-          let pointerY = coords[1].toFixed(4);
-
-          if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.POINT)) || _.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
-            coords = feature.getGeometry().getCoordinates();
-          } else {
-            let extent = feature.getGeometry().getExtent();
-            coords = ol.extent.getCenter(extent);
-          }
+          let extent = feature.getGeometry().getExtent();
+          coords = ol.extent.getCenter(extent);
 
           this.tooltipInfo.coords = [];
 
@@ -2142,13 +2129,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           // // Element apply
           // this.changeDetect.detectChanges();
 
+          // show tooltip position
+          let toShowCoords = event.coordinate;
           if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
-            let extent = event.map.getView().calculateExtent(event.map.getSize());
-            coords = ol.extent.getCenter(extent);
-            this.tooltipLayer.setPosition(coords);
+            // line 일 경우 tooltip coordinator 위치를 살짝 위로 설정
+            toShowCoords[toShowCoords.length-1] = toShowCoords[toShowCoords.length-1] + 0.0018;
+            this.tooltipLayer.setPosition(toShowCoords);
           } else {
-            this.tooltipLayer.setPosition(event.coordinate);
-
+            this.tooltipLayer.setPosition(toShowCoords);
           }
         }
       }
