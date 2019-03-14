@@ -13,23 +13,96 @@
   -->
 
 <!-- tab contents -->
+<!--suppress NsUnresolvedStyleClassReference -->
 <div class="ddp-ui-tab-contents">
   <div top-info *ngIf="isDatasourceSourceTypeIsJdbc() && isMetadataSourceTypeIsEngine() && (isEnableSave() || isNameEdit)"></div>
-  <!-- column option -->
-  <div class="ddp-option-column">
-    <a href="javascript:" class="ddp-reset" (click)="onClickRestore()">
-      <em class="ddp-btn-reset3"> </em>
-      {{'msg.metadata.ui.codetable.detail.restore.btn' | translate}}
-      <!-- tooltip -->
-      <div class="ddp-ui-tooltip-info">
-        <em class="ddp-icon-view-top"></em>
-        {{'msg.metadata.ui.codetable.detail.restore.btn' | translate}}
+
+  <div class="ddp-datagrid">
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear">
+      <div class="ddp-wrap-edit">
+        <!-- search -->
+        <component-input
+          [compType]="'search'"
+          [showClear]="true"
+          [value]="keyword"
+          [placeHolder]="'msg.storage.ui.search.data' | translate"
+          (changeValue)="changeKeyword($event)">
+        </component-input>
+        <!-- //search -->
       </div>
-      <!-- //tooltip -->
-    </a>
-    <a href="javascript:" class="ddp-btn-pop ddp-bg-black" [class.ddp-disabled]="!isEnableSave()" (click)="onClickSave()">{{'msg.comm.btn.save' | translate}}</a>
+      <!-- label -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{ 'msg.comm.th.role' | translate }}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option ddp-inline">
+          <div class="ddp-ui-option-in">
+            <label *ngFor="let role of roleTypeFilters; let index = index;" class="ddp-label-radio">
+              <input type="radio"
+                     [attr.name]="'metadata_role_radio_input_' + UUID"
+                     [attr.id]="'metadata_role_radio_input_' + UUID + index"
+                     [checked]="role.checked"
+                     (click)="selectRoleFilter(role)">
+              <i class="ddp-icon-radio"></i>
+              <span class="ddp-txt-radio">{{ role.label }}</span>
+            </label>
+          </div>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //label -->
+      <!-- label -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.storage.ui.type' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option"
+             (click)="isShowTypeFilters = !isShowTypeFilters"
+             (clickOutside)="isShowTypeFilters = false">
+          <!-- selectbox -->
+          <div class="ddp-type-selectbox" [class.ddp-selected]="isShowTypeFilters">
+            <span class="ddp-txt-selectbox">{{selectedType.label}}</span>
+            <div class="ddp-wrap-popup2 ddp-types">
+              <ul class="ddp-list-popup">
+                <li [class.ddp-selected]="selectedType === type"
+                    *ngFor="let type of typeFilters">
+                  <a href="javascript:" (click)="selectTypeFilter(type)">
+                    <!--suppress NsUnresolvedStyleClassReference -->
+                    <em class="{{ getFieldTypeIconClass(type.value) }}"></em>
+                    {{type.label}}
+                    <em class="ddp-icon-check" *ngIf="selectedType === type"></em>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <!-- //selectbox -->
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //label -->
+      <div class="ddp-reset">
+        <a href="javascript:" class="ddp-btn-reset3" (click)="filterInitialize()"></a>
+      </div>
+
+      <!-- column option -->
+      <div class="ddp-option-column">
+        <a href="javascript:" class="ddp-reset" (click)="onClickRestore()">
+          <em class="ddp-btn-reset3"> </em>
+          {{'msg.metadata.ui.codetable.detail.restore.btn' | translate}}
+          <!-- tooltip -->
+          <div class="ddp-ui-tooltip-info">
+            <em class="ddp-icon-view-top"></em>
+            {{'msg.metadata.ui.codetable.detail.restore.btn' | translate}}
+          </div>
+          <!-- //tooltip -->
+        </a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" [class.ddp-disabled]="!isEnableSave()" (click)="onClickSave()">{{'msg.comm.btn.save' | translate}}</a>
+      </div>
+      <!-- //column option -->
+    </div>
+    <!-- //option -->
   </div>
-  <!-- //column option -->
+
   <div class="ddp-data-details ddp-ui-preview-contents"
        [class.ddp-info]="isDatasourceSourceTypeIsJdbc() && isMetadataSourceTypeIsEngine() && (isEnableSave() || isNameEdit)"
        (scroll)="onScrollColumnView()">
@@ -157,7 +230,7 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let column of columnList; let i = index">
+      <tr *ngFor="let column of getColumns(); let i = index">
         <td *ngIf="isDatasourceSourceTypeIsJdbc() && isMetadataSourceTypeIsEngine()"
             class="ddp-disabled">
           {{column.role}}

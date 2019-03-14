@@ -38,6 +38,8 @@ export class MetadataColumn {
   public codeTable: CodeTable;
   // 인기도
   public popularity: number;
+  // 역할
+  public role: string;
 }
 
 export class LinkedMetaDataColumn extends MetadataColumn {

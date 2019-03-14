@@ -27,6 +27,9 @@ import {ColumnDictionaryService} from '../../../column-dictionary/service/column
 import {Alert} from '../../../../common/util/alert.util';
 import {CommonConstant} from '../../../../common/constant/common.constant';
 import {MetadataSourceType} from '../../../../domain/meta-data-management/metadata';
+import {ConstantService} from '../../../shared/service/constant.service';
+import {Constant} from '../../../shared/domain/constant';
+import {CommonUtil} from '../../../../common/util/common.util';
 
 class Order {
   key: string = 'physicalName';
@@ -111,17 +114,27 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   @Input()
   public isNameEdit: boolean;
 
+  public readonly UUID = CommonUtil.getUUID();
+
+  public selectedRole: Constant.FilterType.Role = this.constant.getRoleTypeFilterFirst();
+  public selectedType: Constant.FilterType.Type = this.constant.getTypeFiltersFirst();
+  public roleTypeFilters = this.constant.getRoleTypeFilters();
+  public typeFilters = this.constant.getTypeFilters();
+  public keyword: number | string = '';
+  public isShowTypeFilters: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   constructor(
+    public metaDataModelService: MetadataModelService,
+    public constant: ConstantService,
+    protected element: ElementRef,
+    protected injector: Injector,
     private _columnDictionaryService: ColumnDictionaryService,
     private _codeTableService: CodeTableService,
-    private _metaDataService: MetadataService,
-    public metaDataModelService: MetadataModelService,
-    protected element: ElementRef,
-    protected injector: Injector) {
+    private _metaDataService: MetadataService) {
     super(element, injector);
     this._initView();
   }
@@ -460,6 +473,39 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     this.columnList = _.orderBy(this.columnList, this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc');
   }
 
+  public changeKeyword(keyword: number | string) {
+    this.keyword = keyword;
+  }
+
+  public selectTypeFilter(type: Constant.FilterType.Type) {
+    this.selectedType = type;
+  }
+
+  public selectRoleFilter(role: Constant.FilterType.Role) {
+    this.selectedRole.checked = false;
+    role.checked = true;
+    this.selectedRole = role;
+  }
+
+  public getColumns() {
+    // @formatter:off
+    let keyword = _.cloneDeep(this.keyword as string);
+    keyword = _.isNil(keyword) ? '' : keyword;
+    return this.columnList
+      .filter(column => _.isNil(this.selectedType) || this.selectedType.value === 'ALL' ? true : column.type.toString() === this.selectedType.value)
+      .filter(column => _.isNil(this.selectedRole) || this.selectedRole.value === 'ALL' ? true : column.role === this.selectedRole.value)
+      .filter(column => column.physicalName.indexOf(keyword) !== -1);
+    // @formatter:on
+  }
+
+  public filterInitialize() {
+    this.keyword = '';
+    this.selectedRole = this.constant.getRoleTypeFilterFirst();
+    this.selectedType = this.constant.getTypeFiltersFirst();
+    this.roleTypeFilters = this.constant.getRoleTypeFilters();
+    this.typeFilters = this.constant.getTypeFilters();
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -489,6 +535,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     this.logicalTypeList = this.getMetaDataLogicalTypeList();
     this.logicalTypeEtcList = this.getMetaDataLogicalTypeEtcList();
     this._codeTableDetailList = [];
+    this.filterInitialize();
   }
 
   /**
