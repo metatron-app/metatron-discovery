@@ -188,7 +188,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     return (column.popularity || 0) + '%';
   }
 
-  public isSourceTypeDatasource() {
+  public isDatasourceSourceTypeIsJdbc() {
 
     if (_.isNil(this.metaDataModelService.getMetadata().source.source)) {
       return false;
@@ -240,7 +240,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     return column.type === logicalType;
   }
 
-  public isEngine() {
+  public isMetadataSourceTypeIsEngine() {
     return new MetadataSourceType(this.metaDataModelService.getMetadata().sourceType).isEngine();
   }
 

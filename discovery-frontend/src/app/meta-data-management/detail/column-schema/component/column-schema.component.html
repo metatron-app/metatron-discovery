@@ -14,7 +14,7 @@
 
 <!-- tab contents -->
 <div class="ddp-ui-tab-contents">
-  <div top-info *ngIf="isSourceTypeDatasource() && isEngine() && (isEnableSave() || isNameEdit)"></div>
+  <div top-info *ngIf="isDatasourceSourceTypeIsJdbc() && isMetadataSourceTypeIsEngine() && (isEnableSave() || isNameEdit)"></div>
   <!-- column option -->
   <div class="ddp-option-column">
     <a href="javascript:" class="ddp-reset" (click)="onClickRestore()">
@@ -31,12 +31,13 @@
   </div>
   <!-- //column option -->
   <div class="ddp-data-details ddp-ui-preview-contents"
-       [class.ddp-info]="isSourceTypeDatasource() && isEngine() && (isEnableSave() || isNameEdit)"
+       [class.ddp-info]="isDatasourceSourceTypeIsJdbc() && isMetadataSourceTypeIsEngine() && (isEnableSave() || isNameEdit)"
        (scroll)="onScrollColumnView()">
     <!-- header -->
     <table class="ddp-table-form ddp-table-type2 ddp-table-details ddp-type-input">
       <colgroup>
-        <col width="160px">
+        <col *ngIf="isDatasourceSourceTypeIsJdbc() && isMetadataSourceTypeIsEngine()" width="100px">
+        <col width="100px">
         <col width="180px">
         <col width="180px">
         <col width="150px">
@@ -47,6 +48,11 @@
       </colgroup>
       <thead>
       <tr>
+        <th class="ddp-cursor" *ngIf="isDatasourceSourceTypeIsJdbc() && isMetadataSourceTypeIsEngine()">
+          <div class="ddp-th-long">
+            <span class="ddp-th-txt" title="Role">{{ 'msg.comm.th.role' | translate }}</span>
+          </div>
+        </th>
         <th class="ddp-cursor" (click)="onClickSort('popularity')">
           <div class="ddp-th-long">
             <div class="ddp-th-icons">
@@ -152,6 +158,10 @@
       </thead>
       <tbody>
       <tr *ngFor="let column of columnList; let i = index">
+        <td *ngIf="isDatasourceSourceTypeIsJdbc() && isMetadataSourceTypeIsEngine()"
+            class="ddp-disabled">
+          {{column.role}}
+        </td>
         <!-- 인기도 -->
         <td class="">
           <div class="ddp-bar">
