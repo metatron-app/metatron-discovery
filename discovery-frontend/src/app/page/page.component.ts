@@ -4105,10 +4105,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     cloneQuery.userFields = CommonUtil.objectToArray(cloneQuery.userFields);
 
     // TODO 임시 analysis query
-    // if(!_.isUndefined(cloneQuery.analysis)) {
-    //   cloneQuery.analysis['includeCompareLayer'] = true;
-    //   cloneQuery.analysis['operation']['choropleth'] = true;
-    // }
+    if(!_.isUndefined(cloneQuery.analysis)) {
+      cloneQuery.analysis['includeCompareLayer'] = true;
+      cloneQuery.analysis['operation']['choropleth'] = true;
+      cloneQuery.analysis['operation']['buffer'] = 100;
+    }
 
     return cloneQuery;
   }
@@ -4339,7 +4340,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
   public removeAnalysisLayer(value) {
     this.uiOption = value;
-    this.drawChart();
-    this.changeDetect.detectChanges();
+    this.changeDraw();
   }
+
 }

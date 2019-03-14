@@ -368,14 +368,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   public draw(isKeepRange?: boolean): void {
 
-    if (this.getUiMapOption().layerNum == -1) {
-      this.drawAnalysis();
-      return;
-    }
-
     ////////////////////////////////////////////////////////
     // Valid Check
     ////////////////////////////////////////////////////////
+    // check is enabled analysis
+    if (this.getUiMapOption().layerNum == -1) {
+      return;
+    }
 
     if (!this.isValid(this.pivot, this.shelf)) {
       // No Data 이벤트 발생
@@ -3151,26 +3150,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       }
     }
     return valid;
-  }
-
-  /**
-   * analysis를 위한 map draw
-   */
-  private drawAnalysis() {
-    let isMapCreation: boolean = this.createMap();
-    // Source
-    let source = new ol.source.Vector({crossOrigin: 'anonymous'});
-    // Line & Polygon Source
-    let emptySource = new ol.source.Vector();
-    // Creation feature
-    this.createFeature(source, 0);
-    // Creation layer
-    // this.createLayer(source, emptySource, isMapCreation, 0);
-    this.createLayer(source, emptySource, isMapCreation, 0);
-    // Chart resize
-    this.olmap.updateSize();
-    // 완료
-    this.drawFinished.emit();
   }
 
 }
