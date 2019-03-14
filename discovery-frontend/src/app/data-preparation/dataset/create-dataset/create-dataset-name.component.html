@@ -60,8 +60,8 @@
           <input type="text" #nameElement
                  class="ddp-input-type"
                  placeholder="{{clonedNames[0]}}"
-                 (keydown)="showNameError? hideNameError(0) :null"
-                 [(ngModel)]="names[0]" maxlength="50"
+                 (keydown)="keyDownEvent($event, 0)"
+                 [(ngModel)]="names[0]" maxlength="150"
                  (keyup)="keyupEvent($event)">
           <span class="ddp-ui-error">{{nameErrors[0]}}</span>
         </div>
@@ -72,7 +72,7 @@
           <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
           <input type="text" class="ddp-input-type"
                  placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-                 (keydown)="showDescError ? hideDescError(0): null"
+                 (keydown)="keyDownDescEvent($event,0)"
                  [(ngModel)]="descriptions[0]" maxlength="150"
                  (keyup)="keyupEvent($event)">
           <span class="ddp-ui-error">{{descriptionErrors[0]}}</span>
@@ -82,58 +82,6 @@
 
     </div>
     <!-- //contents in  -->
-
-    <div class="ddp-type-contents-in ddp-sheet-resize" *ngIf="isMultiSheet">
-      <div class="ddp-wrap-complete ">
-        <div class="ddp-wrap-sheet-list">
-          <div class="ddp-ui-sheet-list">
-            <table class="ddp-table-sheet">
-              <colgroup>
-                <col width="60px">
-                <col width="350px">
-                <col width="*">
-              </colgroup>
-              <thead>
-              <tr>
-                <th>{{'No' | translate}}</th>
-                <th>{{'msg.comm.ui.name' | translate}}</th>
-                <th>{{'msg.comm.ui.description' | translate}}</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr *ngFor="let name of datasetFile.selectedSheets; let index = index">
-                <td>{{index+1}}</td>
-                <td>
-                  <div class="ddp-sheet-form">
-                    <input class="ddp-input-typebasic"
-                           placeholder="{{clonedNames[index]}}"
-                           (keyup)="keyupEvent($event)"
-                           [(ngModel)]="names[index]" maxlength="50"
-                           (keydown)="nameErrors[index] !== ''? hideNameError(index) :null">
-                    <span class="ddp-data-error" *ngIf="nameErrors[index] !== ''"> {{nameErrors[index]}}</span>
-                  </div>
-                </td>
-                <td>
-                  <div class="ddp-textarea-resize">
-                    <div class="ddp-sheet-form">
-                        <textarea  placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-                                   [(ngModel)]="descriptions[index]" maxlength="150"
-                                   (keyup)="keyupEvent($event)"
-                                   (keydown)="descriptionErrors[index] !== ''? hideDescError(index) :null">
-                        </textarea>
-                      <span class="ddp-data-error" *ngIf="descriptionErrors[index] !== ''"> {{descriptionErrors[index]}}</span>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-
-          </div>
-
-        </div>
-      </div>
-    </div>
 
     <!-- buttons -->
     <div class="ddp-ui-buttons">
@@ -146,9 +94,8 @@
       <!-- disabled 시 ddp-disabled 추가 -->
       <a href="javascript:"
          class="ddp-btn-type-popup ddp-bg-black"
-         (click)="complete()"
-         [ngClass]="{'ddp-disabled': isBtnDisabled() }">
-      >{{'msg.comm.btn.done2' | translate}}
+         (click)="complete()">
+        {{'msg.comm.btn.done2' | translate}}
       </a>
     </div>
     <!-- //buttons -->
@@ -198,19 +145,22 @@
                   <input class="ddp-input-typebasic"
                          placeholder="{{clonedNames[index]}}"
                          (keyup)="keyupEvent($event)"
-                         [(ngModel)]="names[index]" maxlength="50"
-                         (keydown)="nameErrors[index] !== ''? hideNameError(index) :null">
+                         [(ngModel)]="names[index]" maxlength="150"
+                         (keydown)="keyDownEvent($event, index)">
                   <span class="ddp-data-error" *ngIf="nameErrors[index] !== ''"> {{nameErrors[index]}}</span>
                 </div>
               </td>
               <td>
                 <div class="ddp-textarea-resize">
                   <div class="ddp-sheet-form">
+                    <div class="ddp-textarea-resize">
                       <textarea  placeholder="{{'msg.comm.ui.create.desc' | translate}}"
                                  [(ngModel)]="descriptions[index]" maxlength="150"
                                  (keyup)="keyupEvent($event)"
-                                 (keydown)="descriptionErrors[index] !== ''? hideDescError(index) :null">
+                                 style="height: 30px"
+                                 (keydown)="keyDownDescEvent($event,index)">
                       </textarea>
+                    </div>
                     <span class="ddp-data-error" *ngIf="descriptionErrors[index] !== ''"> {{descriptionErrors[index]}}</span>
                   </div>
                 </div>
@@ -236,8 +186,7 @@
       <!-- disabled 시 ddp-disabled 추가 -->
       <a href="javascript:"
          class="ddp-btn-type-popup ddp-bg-black"
-         (click)="complete()"
-         [ngClass]="{'ddp-disabled': isBtnDisabled() }">
+         (click)="complete()">
         {{'msg.comm.btn.done2' | translate}}
       </a>
     </div>
