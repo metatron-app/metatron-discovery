@@ -96,6 +96,7 @@ import {UIMapOption} from '../common/component/chart/option/ui-option/map/ui-map
 import {MapLayerType} from '../common/component/chart/option/define/map/map-common';
 import {fromEvent} from "rxjs";
 import {debounceTime, map} from "rxjs/operators";
+import {MapChartAnalysisComponent} from "../common/component/chart/type/map-chart/map-chart-analysis.component";
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -158,6 +159,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
   @ViewChild(MapChartComponent)
   private mapChart: MapChartComponent;
+
+  @ViewChild(MapChartAnalysisComponent)
+  private mapChartAnalysis: MapChartAnalysisComponent;
 
   @ViewChild('gridChart')
   private gridChart: GridChartComponent;

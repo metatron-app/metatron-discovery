@@ -1602,9 +1602,9 @@
                                  [resizeDelay]="500">
                     </gauge-chart>
                     <map-chart #chart
+                               *ngIf="(selectChart == 'map' && (uiOption['analysis'] == null || uiOption['analysis'] == undefined || uiOption['analysis']['use'] == false))"
                                [isPage]="true"
                                [needToRemoveMapLayer]="isChartShow"
-                               *ngIf="selectChart == 'map'"
                                [uiOption]="uiOption"
                                (uiOptionUpdated)="updateUIOption($event)"
                                (noData)="onNoData()"
@@ -1612,8 +1612,19 @@
                                (changeDraw)="changeDraw($event)"
                                [resizeDelay]="500">
                     </map-chart>
-
-
+                    <!-- analysis 를 위한 mapView -->
+                    <map-chart-analysis #chart
+                               *ngIf="selectChart == 'map' && uiOption['analysis'] != null && uiOption['analysis'] != undefined && uiOption['analysis']['use'] == true"
+                               [isPage]="true"
+                               [needToRemoveMapLayer]="isChartShow"
+                               [uiOption]="uiOption"
+                               (uiOptionUpdated)="updateUIOption($event)"
+                               (noData)="onNoData()"
+                               (chartSelectInfo)="chartSelectInfo($event)"
+                               (changeDraw)="changeDraw($event)"
+                               [resizeDelay]="500">
+                    </map-chart-analysis>
+                    <!-- // analysis 를 위한 mapView -->
                   </div>
                   <!-- //page -->
 
