@@ -66,6 +66,11 @@ public abstract class TimeFieldFormat {
     this.filteringType = EnumUtils.getUpperCaseEnum(FilteringType.class, filteringType);
   }
 
+  public void setUTC() {
+    timeZone = "UTC";
+    locale = "en";
+  }
+
   public String selectTimezone() {
     if (DISABLE_TIMEZONE.equalsIgnoreCase(timeZone)) {
       return "UTC";

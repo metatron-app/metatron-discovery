@@ -41,16 +41,8 @@ public class Revision {
     curStageIdx = until - 1;
   }
 
-  public Revision(Revision rev) {
-    this(rev, rev.size());
-  }
-
   public int getCurStageIdx() {
     return curStageIdx;
-  }
-
-  public int getCurStageCnt() {
-    return dfs.size();
   }
 
   public void setCurStageIdx(Integer curStageIdx) {

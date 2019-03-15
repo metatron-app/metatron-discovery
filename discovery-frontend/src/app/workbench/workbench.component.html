@@ -406,7 +406,8 @@
           </div>
           <!-- //wrap name -->
           <!--  테이블 리스트 -->
-          <detail-workbench-table [inputParams]="tableParam"
+          <detail-workbench-table [connTargetType]="connTargetType"
+                                  [inputParams]="tableParam"
                                   [setClose]="closeEvent"
                                   [disable]="isExecutingQuery"
                                   (openTableSchemaEvent)="openTableSchema($event)"
