@@ -16,6 +16,7 @@ import { FieldFormat, LogicalType } from '../datasource/datasource';
 import { ColumnDictionary } from './column-dictionary';
 import { CodeTable } from './code-table';
 import { MetadataSource } from './metadata-source';
+import {Type} from '../../shared/datasource-metadata/domain/type';
 
 export class MetadataColumn {
   // id
@@ -39,7 +40,7 @@ export class MetadataColumn {
   // 인기도
   public popularity: number;
   // 역할
-  public role: string;
+  public role: Type.Role;
 }
 
 export class LinkedMetaDataColumn extends MetadataColumn {
