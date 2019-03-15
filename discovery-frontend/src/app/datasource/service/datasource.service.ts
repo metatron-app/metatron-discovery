@@ -641,6 +641,7 @@ export class DatasourceService extends AbstractService {
                     // radius 값 지정
                     chart['layers'][idx]['changeTileRadius'] = true;
                     chart['layers'][idx]['radius'] = Math.round(100 - (radiusPrecision * 8.33));
+                    chart['layers'][idx]['tileRadius'] = chart['layers'][idx]['radius'];
                   }
 
                   if (radiusPrecision > 12) radiusPrecision = 12;

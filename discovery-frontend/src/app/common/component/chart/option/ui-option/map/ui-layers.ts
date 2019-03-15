@@ -32,10 +32,10 @@ export interface UILayers {
   ////////////////////////
 
   // heatMap radius
-  heatMapRadius : number;
+  heatMapRadius? : number;
 
   // tile radius
-  tileRadius : number;
+  tileRadius? : number;
 }
 
 /**
@@ -84,62 +84,14 @@ interface SymbolColor {
   // custom color on / off
   settingUseFl: boolean;
 
+  // type schema, transparency
+  symbolSchema? : string;
+  symbolTransparency? : number;
 
-  // symbol
-  symbolType? : SymbolType;
+  heatMapSchema? : string;
+  heatMapTransparency? : number;
 
-  // heatMap
-  heatMapType? : HeatMapType;
-
-  // heatMap
-  tileType? : TileType;
-
-}
-
-interface SymbolType {
-
-  // Color specification criteria
-  by?: MapBy;
-
-  // Column Name
-  column?: string;
-
-  // Color code or schema code
-  schema?: string;
-
-  // Transparency (0~100)
-  transparency?: number;
-
-}
-
-interface HeatMapType {
-
-  // Color specification criteria
-  by?: MapBy;
-
-  // Column Name
-  column?: string;
-
-  // Color code or schema code
-  schema?: string;
-
-  // Transparency (0~100)
-  transparency?: number;
-
-}
-
-interface TileType {
-
-  // Color specification criteria
-  by?: MapBy;
-
-  // Column Name
-  column?: string;
-
-  // Color code or schema code
-  schema?: string;
-
-  // Transparency (0~100)
-  transparency?: number;
+  tileSchema? : string;
+  tranTransparency? : number;
 
 }

@@ -159,6 +159,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
               protected injector: Injector) {
 
     super(elementRef, injector);
+
   }
 
   /**
@@ -192,20 +193,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     const preLayerType : MapLayerType = cloneLayerType;
     let cloneLayer = _.cloneDeep( layer );
     if (MapLayerType.HEATMAP === preLayerType) {
-      layer.color.heatMapType.by = cloneLayer.color.by;
-      layer.color.heatMapType.schema = cloneLayer.color.schema;
-      layer.color.heatMapType.column = cloneLayer.color.column;
-      layer.color.heatMapType.transparency = cloneLayer.color.transparency;
+      layer.heatMapRadius = cloneLayer.heatMapRadius;
+      layer.color.heatMapSchema = cloneLayer.color.schema;
+      layer.color.heatMapTransparency = cloneLayer.color.transparency;
     } else if (MapLayerType.SYMBOL === preLayerType) {
-      layer.color.symbolType.by = cloneLayer.color.by;
-      layer.color.symbolType.schema = cloneLayer.color.schema;
-      layer.color.symbolType.column = cloneLayer.color.column;
-      layer.color.symbolType.transparency = cloneLayer.color.transparency;
+      layer.color.symbolSchema = cloneLayer.color.schema;
+      layer.color.symbolTransparency = cloneLayer.color.transparency;
     } else if (MapLayerType.TILE === preLayerType) {
-      layer.color.tileType.by = cloneLayer.color.by;
-      layer.color.tileType.schema = cloneLayer.color.schema;
-      layer.color.tileType.column = cloneLayer.color.column;
-      layer.color.tileType.transparency = cloneLayer.color.transparency;
+      layer.tileRadius = cloneLayer.tileRadius;
+      layer.color.tileSchema = cloneLayer.color.schema;
+      layer.color.tranTransparency = cloneLayer.color.transparency;
     }
 
     // change layer type
@@ -218,13 +215,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     if (MapLayerType.HEATMAP === layerType) {
 
       layer = this.setColorByShelf(false, layerIndex);
-
+      if( isNullOrUndefined(layer.color.heatMapTransparency) ) {
+        layer.color.heatMapTransparency = 10;
+      }
+      layer.color.transparency = layer.color.heatMapTransparency;
       if( isNullOrUndefined(layer['blur']) ) {
         layer['blur'] = 20;
       }
-      if( isNullOrUndefined(layer['radius']) ) {
-        layer['radius'] = 20;
+      if( isNullOrUndefined(layer.heatMapRadius) ) {
+        layer.heatMapRadius = 20;
       }
+      layer['radius'] = layer.heatMapRadius;
 
       measureList = this.fieldList[layerIndex]['measureList'];
 
@@ -242,6 +243,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     } else if (MapLayerType.SYMBOL === layerType) {
       // set color by shelf
       layer = this.setColorByShelf(false, layerIndex);
+      if( isNullOrUndefined(layer.color.symbolTransparency) ) {
+        layer.color.symbolTransparency = 10;
+      }
+      layer.color.transparency = layer.color.symbolTransparency;
 
       // add color by dimension list
       if (dimensionList.length > 0 && -1 === _.findIndex(this.colorByList, ( item ) => { return item.value === MapBy.DIMENSION; })) {
@@ -254,9 +259,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     } else if (MapLayerType.TILE === layerType) {
       // set color by shelf
       layer = this.setColorByShelf(true, layerIndex);
-      if( isNullOrUndefined(layer['radius']) ) {
-        layer['radius'] = 20;
+      if( isNullOrUndefined(layer.color.tranTransparency) ) {
+        layer.color.tranTransparency = 10;
       }
+      layer.color.transparency = layer.color.tranTransparency;
+      if( isNullOrUndefined(layer.tileRadius) ) {
+        layer.tileRadius = 20;
+      }
+      layer['radius'] = layer.tileRadius;
 
       // remove color by dimension list
       _.remove(this.colorByList, ( item ) => { return item.value === MapBy.DIMENSION; });
@@ -295,7 +305,18 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * @param {number} index
    */
   public changeTransparency(obj: any, slider: any, index: number) {
-    this.uiOption.layers[index].color.transparency = slider.from;
+
+    const layer = this.uiOption.layers[index];
+    if (MapLayerType.HEATMAP === layer.type) {
+      layer.color.heatMapTransparency = slider.from;
+      layer.color.transparency = layer.color.heatMapTransparency;
+    } else if (MapLayerType.SYMBOL === layer.type) {
+      layer.color.symbolTransparency = slider.from;
+      layer.color.transparency = layer.color.symbolTransparency;
+    } else if (MapLayerType.TILE === layer.type) {
+      layer.color.tranTransparency = slider.from;
+      layer.color.transparency = layer.color.tranTransparency;
+    }
     this.applyLayers();
   }
 
@@ -312,7 +333,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       $event.target.value = this.uiOption.layers[index].color.transparency;
       return;
     } else {
-      this.uiOption.layers[index].color.transparency = inputValue;
+      const layer = this.uiOption.layers[index];
+      if (MapLayerType.HEATMAP === layer.type) {
+        layer.color.heatMapTransparency = inputValue;
+        layer.color.transparency = layer.color.heatMapTransparency;
+      } else if (MapLayerType.SYMBOL === layer.type) {
+        layer.color.symbolTransparency = inputValue;
+        layer.color.transparency = layer.color.symbolTransparency;
+      } else if (MapLayerType.TILE === layer.type) {
+        layer.color.tranTransparency = inputValue;
+        layer.color.transparency = layer.color.tranTransparency;
+      }
       this.applyLayers();
     }
   }
@@ -612,7 +643,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * @param slider
    */
   public changeRadius(obj: any, slider: any, index: number) {
-    (<UIHeatmapLayer>this.uiOption.layers[index]).radius = slider.from;
+    let heatMapLayer = (<UIHeatmapLayer>this.uiOption.layers[index]);
+    heatMapLayer.heatMapRadius = slider.from;
+    heatMapLayer.radius = heatMapLayer.heatMapRadius;
     this.applyLayers();
   }
   public changeRadiusText($event: any, index: number) {
@@ -621,7 +654,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       $event.target.value = this.uiOption.layers[index]['radius'];
       return;
     } else {
-      (<UIHeatmapLayer>this.uiOption.layers[index]).radius = inputValue;
+      let heatMapLayer = (<UIHeatmapLayer>this.uiOption.layers[index]);
+      heatMapLayer.heatMapRadius = inputValue;
+      heatMapLayer.radius = heatMapLayer.heatMapRadius;
       this.applyLayers();
     }
   }
@@ -632,7 +667,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    * @param slider
    */
   public changeHexagonRadius(obj: any, slider: any, layerIndex : number) {
-    (<UITileLayer>this.uiOption.layers[layerIndex]).radius = slider.from;
+    let tileLayer = (<UITileLayer>this.uiOption.layers[layerIndex]);
+    tileLayer.tileRadius = slider.from;
+    tileLayer.radius = tileLayer.tileRadius;
     (<UIMapOption>this.uiOption).layers[layerIndex]['changeTileRadius'] = true;
     this.applyLayers({});
   }
@@ -650,8 +687,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       return;
     } else {
       // when they are not same
-      if ((<UITileLayer>this.uiOption.layers[layerIndex]).radius !== inputValue) {
-        (<UITileLayer>this.uiOption.layers[layerIndex]).radius = inputValue;
+      let tileLayer = (<UITileLayer>this.uiOption.layers[layerIndex]);
+      if (tileLayer.radius !== inputValue) {
+        tileLayer.tileRadius = inputValue;
+        tileLayer.radius = tileLayer.tileRadius;
         (<UIMapOption>this.uiOption).layers[layerIndex]['changeTileRadius'] = true;
         this.applyLayers({});
       }
@@ -1317,14 +1356,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     if( isNone ) {
       layer.color.by = MapBy.NONE;
       if( layerType == MapLayerType.HEATMAP ){
-        (layer.color.heatMapType.schema == '' ? layer.color.heatMapType.schema = 'HC1' : layer.color.heatMapType.schema);
-        layer.color.schema = layer.color.heatMapType.schema;
+        (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema == '' ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
+        layer.color.schema = layer.color.heatMapSchema;
       } else if (layerType == MapLayerType.SYMBOL) {
-        (layer.color.symbolType.schema == '' ? layer.color.symbolType.schema = '#6344ad' : layer.color.symbolType.schema);
-        layer.color.schema = layer.color.symbolType.schema;
+        (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema == '' ? layer.color.symbolSchema = '#6344ad' : layer.color.symbolSchema);
+        layer.color.schema = layer.color.symbolSchema;
       } else if (layerType == MapLayerType.TILE) {
-        (layer.color.tileType.schema == '' ? layer.color.tileType.schema = '#6344ad' : layer.color.tileType.schema);
-        layer.color.schema = layer.color.tileType.schema;
+        (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema == '' ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
+        layer.color.schema = layer.color.tileSchema;
       }
       layer.color.column = null;
       layer.color.aggregationType = null;
@@ -1336,14 +1375,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     else if( isMeasure ) {
       layer.color.by = MapBy.MEASURE;
       if( layerType == MapLayerType.HEATMAP ){
-        (layer.color.heatMapType.schema.indexOf('HC') == -1 ? layer.color.heatMapType.schema = 'HC1' : layer.color.heatMapType.schema);
-        layer.color.schema = layer.color.heatMapType.schema;
+        (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema.indexOf('HC') == -1 ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
+        layer.color.schema = layer.color.heatMapSchema;
       } else if (layerType == MapLayerType.SYMBOL) {
-        (layer.color.symbolType.schema.indexOf('VC') == -1 ? layer.color.symbolType.schema = 'VC1' : layer.color.symbolType.schema);
-        layer.color.schema = layer.color.symbolType.schema;
+        (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('VC') == -1 ? layer.color.symbolSchema = 'VC1' : layer.color.symbolSchema);
+        layer.color.schema = layer.color.symbolSchema;
       } else if (layerType == MapLayerType.TILE) {
-        (layer.color.tileType.schema.indexOf('VC') == -1 ? layer.color.tileType.schema = 'VC1' : layer.color.tileType.schema);
-        layer.color.schema = layer.color.tileType.schema;
+        (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('VC') == -1 ? layer.color.tileSchema = 'VC1' : layer.color.tileSchema);
+        layer.color.schema = layer.color.tileSchema;
       }
       layer.color.column = measureList[0]['name'];
       if (aggregationFl) layer.color.aggregationType = measureList[0]['aggregationType'];
@@ -1355,19 +1394,19 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     // hexagon && isDimension => init as none
     else if ( MapLayerType.TILE === layerType && isDimension ) {
       layer.color.by = MapBy.NONE;
-      (layer.color.tileType.schema.indexOf('#') == -1 ? layer.color.tileType.schema = '#6344ad' : layer.color.tileType.schema);
-      layer.color.schema = layer.color.tileType.schema;
+      (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('#') == -1 ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
+      layer.color.schema = layer.color.tileSchema;
       layer.color.column = null;
       layer.color.aggregationType = null;
     }
     else if( isDimension ) {
       layer.color.by = MapBy.DIMENSION;
       if (layerType == MapLayerType.SYMBOL) {
-        (layer.color.symbolType.schema.indexOf('SC') == -1 ? layer.color.symbolType.schema = 'SC1' : layer.color.symbolType.schema);
-        layer.color.schema = layer.color.symbolType.schema;
+        (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('SC') == -1 ? layer.color.symbolSchema = 'SC1' : layer.color.symbolSchema);
+        layer.color.schema = layer.color.symbolSchema;
       } else if (layerType == MapLayerType.TILE) {
-        (layer.color.tileType.schema.indexOf('SC') == -1 ? layer.color.tileType.schema = 'SC1' : layer.color.tileType.schema);
-        layer.color.schema = layer.color.tileType.schema;
+        (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('SC') == -1 ? layer.color.tileSchema = 'SC1' : layer.color.tileSchema);
+        layer.color.schema = layer.color.tileSchema;
       }
       layer.color.column = dimensionList[0]['name'];
       layer.color.aggregationType = null;

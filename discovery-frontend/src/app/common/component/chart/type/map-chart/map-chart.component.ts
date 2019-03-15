@@ -2586,15 +2586,15 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       ///////////////////////////
       if (isNone) {
         layer.color.by = MapBy.NONE;
-        if (layerType == MapLayerType.HEATMAP) {
-          (layer.color.heatMapType.schema.indexOf('HC') == -1 ? layer.color.heatMapType.schema = 'HC1' : layer.color.heatMapType.schema);
-          layer.color.schema = layer.color.heatMapType.schema;
+        if( layerType == MapLayerType.HEATMAP ){
+          (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema == '' ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
+          layer.color.schema = layer.color.heatMapSchema;
         } else if (layerType == MapLayerType.SYMBOL) {
-          (layer.color.symbolType.schema.indexOf('#') == -1 ? layer.color.symbolType.schema = '#6344ad' : layer.color.symbolType.schema);
-          layer.color.schema = layer.color.symbolType.schema;
+          (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema == '' ? layer.color.symbolSchema = '#6344ad' : layer.color.symbolSchema);
+          layer.color.schema = layer.color.symbolSchema;
         } else if (layerType == MapLayerType.TILE) {
-          (layer.color.tileType.schema.indexOf('#') == -1 ? layer.color.tileType.schema = '#6344ad' : layer.color.tileType.schema);
-          layer.color.schema = layer.color.tileType.schema;
+          (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema == '' ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
+          layer.color.schema = layer.color.tileSchema;
         }
         layer.color.column = null;
         layer.color.aggregationType = null;
@@ -2605,15 +2605,15 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // remove not isDimension => exceptional case select dimension and remove dimension
       else if (isMeasure) {
         layer.color.by = MapBy.MEASURE;
-        if (layerType == MapLayerType.HEATMAP) {
-          (layer.color.heatMapType.schema.indexOf('HC') == -1 ? layer.color.heatMapType.schema = 'HC1' : layer.color.heatMapType.schema);
-          layer.color.schema = layer.color.heatMapType.schema;
+        if( layerType == MapLayerType.HEATMAP ){
+          (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema.indexOf('HC') == -1 ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
+          layer.color.schema = layer.color.heatMapSchema;
         } else if (layerType == MapLayerType.SYMBOL) {
-          (layer.color.symbolType.schema.indexOf('VC') == -1 ? layer.color.symbolType.schema = 'VC1' : layer.color.symbolType.schema);
-          layer.color.schema = layer.color.symbolType.schema;
+          (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('VC') == -1 ? layer.color.symbolSchema = 'VC1' : layer.color.symbolSchema);
+          layer.color.schema = layer.color.symbolSchema;
         } else if (layerType == MapLayerType.TILE) {
-          (layer.color.tileType.schema.indexOf('VC') == -1 ? layer.color.tileType.schema = 'VC1' : layer.color.tileType.schema);
-          layer.color.schema = layer.color.tileType.schema;
+          (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('VC') == -1 ? layer.color.tileSchema = 'VC1' : layer.color.tileSchema);
+          layer.color.schema = layer.color.tileSchema;
         }
         layer.color.column = uiOption.fieldMeasureList[0]['name'];
         layer.color.aggregationType = uiOption.fieldMeasureList[0]['aggregationType'];
@@ -2625,17 +2625,17 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // hexagon && isDimension => init as none
       else if (MapLayerType.TILE === layer.type && isDimension) {
         layer.color.by = MapBy.NONE;
-        (layer.color.tileType.schema.indexOf('#') == -1 ? layer.color.tileType.schema = '#6344ad' : layer.color.tileType.schema);
+        (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('#') == -1 ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
         layer.color.column = null;
         layer.color.aggregationType = null;
       } else if (isDimension) {
         layer.color.by = MapBy.DIMENSION;
         if (layerType == MapLayerType.SYMBOL) {
-          (layer.color.symbolType.schema.indexOf('SC') == -1 ? layer.color.symbolType.schema = 'SC1' : layer.color.symbolType.schema);
-          layer.color.schema = layer.color.symbolType.schema;
+          (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('SC') == -1 ? layer.color.symbolSchema = 'SC1' : layer.color.symbolSchema);
+          layer.color.schema = layer.color.symbolSchema;
         } else if (layerType == MapLayerType.TILE) {
-          (layer.color.tileType.schema.indexOf('SC') == -1 ? layer.color.tileType.schema = 'SC1' : layer.color.tileType.schema);
-          layer.color.schema = layer.color.tileType.schema;
+          (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('SC') == -1 ? layer.color.tileSchema = 'SC1' : layer.color.tileSchema);
+          layer.color.schema = layer.color.tileSchema;
         }
         layer.color.column = uiOption.fielDimensionList[0]['name'];
         layer.color.aggregationType = null;
