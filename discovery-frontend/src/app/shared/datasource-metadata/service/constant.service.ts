@@ -3,6 +3,9 @@ import {TranslateService} from '@ngx-translate/core';
 import {Constant} from '../domain/constant';
 import * as _ from 'lodash';
 
+/**
+ * Service to be shared by the datasource and metadata
+ */
 @Injectable()
 export class ConstantService {
 

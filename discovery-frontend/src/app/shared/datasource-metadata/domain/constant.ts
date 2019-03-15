@@ -1,3 +1,6 @@
+/**
+ * Constants to be shared by the datasource and metadata
+ */
 export namespace Constant {
   export namespace Filter {
     export type Role = (
