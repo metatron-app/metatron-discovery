@@ -174,11 +174,17 @@ export class Field {
   segGranularity?: GranularityType;  // segGranularity
 
   // [UI] for Create Datasource
+  isValidType?: boolean;
   isValidTimeFormat?: boolean;
   isValidReplaceValue?: boolean;
+  typeValidMessage?: string;
   replaceValidMessage?: string;
   timeFormatValidMessage?: string;
   checked?: boolean;
+
+  // [UI] valid layer popup
+  isShowTypeList?: boolean;
+  isShowTypeValidPopup?: boolean;
 
   // [UI] for Alias
   dsId?:string;                   // 데이터소스 아이디
