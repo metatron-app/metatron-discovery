@@ -236,8 +236,10 @@
       <tbody>
       <tr *ngFor="let column of getColumns(); let i = index">
         <td *ngIf="isDatasourceSourceTypeIsJdbc() && isMetadataSourceTypeIsEngine()" class="ddp-disabled">
-          <span class="ddp-box-tag-value" [class.ddp-measure]="column.role.toString() === 'MEASURE'" [class.ddp-dimension]="column.role.toString() === 'DIMENSION'">
-            {{column.role.toString() === 'MEASURE' ? ('msg.comm.name.mea' | translate) : ('msg.comm.name.dim' | translate)}}
+          <span class="ddp-box-tag-value"
+                [class.ddp-measure]="column.role === ROLE.MEASURE"
+                [class.ddp-dimension]="column.role === ROLE.DIMENSION">
+            {{ column.role === ROLE.MEASURE ? ('msg.comm.name.mea' | translate) : ('msg.comm.name.dim' | translate) }}
           </span>
         </td>
         <!-- 인기도 -->

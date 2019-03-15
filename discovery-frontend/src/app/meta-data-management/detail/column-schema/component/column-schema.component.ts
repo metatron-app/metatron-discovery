@@ -30,6 +30,7 @@ import {MetadataSourceType} from '../../../../domain/meta-data-management/metada
 import {CommonUtil} from '../../../../common/util/common.util';
 import {ConstantService} from '../../../../shared/datasource-metadata/service/constant.service';
 import {Constant} from '../../../../shared/datasource-metadata/domain/constant';
+import {Type} from '../../../../shared/datasource-metadata/domain/type';
 
 class Order {
   key: string = 'physicalName';
@@ -122,6 +123,8 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   public typeFilters = this.constant.getTypeFilters();
   public keyword: number | string = '';
   public isShowTypeFilters: boolean = false;
+
+  public readonly ROLE = Type.Role;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
