@@ -2038,7 +2038,25 @@ export namespace OptionGenerator {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
               schema: "#6344ad",
-              transparency: 10
+              transparency: 10,
+              symbolType : {
+                by: "",
+                column: "",
+                schema: "",
+                transparency: 0,
+              },
+              heatMapType : {
+                by: "",
+                column: "",
+                schema: "",
+                transparency: 0
+              },
+              tileType : {
+                by: "",
+                column: "",
+                schema: "",
+                transparency: 0,
+              }
             },
             size: {
               "by": "NONE",

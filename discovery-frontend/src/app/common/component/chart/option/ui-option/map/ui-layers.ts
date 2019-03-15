@@ -30,6 +30,12 @@ export interface UILayers {
   ////////////////////////
   ///// UI Spec
   ////////////////////////
+
+  // heatMap radius
+  heatMapRadius : number;
+
+  // tile radius
+  tileRadius : number;
 }
 
 /**
@@ -77,4 +83,63 @@ interface SymbolColor {
 
   // custom color on / off
   settingUseFl: boolean;
+
+
+  // symbol
+  symbolType? : SymbolType;
+
+  // heatMap
+  heatMapType? : HeatMapType;
+
+  // heatMap
+  tileType? : TileType;
+
+}
+
+interface SymbolType {
+
+  // Color specification criteria
+  by?: MapBy;
+
+  // Column Name
+  column?: string;
+
+  // Color code or schema code
+  schema?: string;
+
+  // Transparency (0~100)
+  transparency?: number;
+
+}
+
+interface HeatMapType {
+
+  // Color specification criteria
+  by?: MapBy;
+
+  // Column Name
+  column?: string;
+
+  // Color code or schema code
+  schema?: string;
+
+  // Transparency (0~100)
+  transparency?: number;
+
+}
+
+interface TileType {
+
+  // Color specification criteria
+  by?: MapBy;
+
+  // Column Name
+  column?: string;
+
+  // Color code or schema code
+  schema?: string;
+
+  // Transparency (0~100)
+  transparency?: number;
+
 }

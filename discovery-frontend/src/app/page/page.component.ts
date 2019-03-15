@@ -3783,7 +3783,12 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
             this.networkChart.draw();
           } else if (this.chart.uiOption.type === ChartType.MAP) {
-            this.mapChart.resize();
+            if( !_.isUndefined( this.mapChart ) )
+              this.mapChart.resize();
+
+            if( !_.isUndefined( this.mapChartAnalysis ) )
+              this.mapChartAnalysis.resize();
+
           } else {
             if (this.chart && this.chart.chart) this.chart.chart.resize();
           }
@@ -3927,14 +3932,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // 서버 조회용 파라미터 (서버 조회시 필요없는 파라미터 제거)
     const cloneQuery = this.makeSearchQueryParam(_.cloneDeep(uiCloneQuery));
-
-    // Map Chart spatial analysis init
-    // if ('map' == this.selectChart && !_.isUndefined(uiCloneQuery.analysis) ) {
-    //   delete uiCloneQuery.analysis.operation;
-    //   delete uiCloneQuery.analysis.mainLayer;
-    //   delete uiCloneQuery.analysis.compareLayer;
-    //   delete uiCloneQuery.analysis.type;
-    // }
 
     this.query = cloneQuery;
     if (this.selectChart === 'label') {
@@ -4105,11 +4102,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     cloneQuery.userFields = CommonUtil.objectToArray(cloneQuery.userFields);
 
     // TODO 임시 analysis query
-    if(!_.isUndefined(cloneQuery.analysis)) {
-      cloneQuery.analysis['includeCompareLayer'] = true;
-      cloneQuery.analysis['operation']['choropleth'] = true;
-      cloneQuery.analysis['operation']['buffer'] = 100;
-    }
+    // if(!_.isUndefined(cloneQuery.analysis)) {
+    //   cloneQuery.analysis['includeCompareLayer'] = true;
+    //   cloneQuery.analysis['operation']['choropleth'] = true;
+    //   cloneQuery.analysis['operation']['buffer'] = 100;
+    // }
 
     return cloneQuery;
   }
@@ -4338,6 +4335,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   //   this.changeDetect.detectChanges();
   // }
 
+  /**
+   * remove analysis layer
+   * @param value
+   */
   public removeAnalysisLayer(value) {
     this.uiOption = value;
     this.changeDraw();

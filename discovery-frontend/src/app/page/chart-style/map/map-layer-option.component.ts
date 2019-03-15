@@ -11,7 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, ElementRef, EventEmitter, Injector, Input, Output, ViewChild } from '@angular/core';
+import {
+  AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Injector, Input, Output,
+  ViewChild
+} from '@angular/core';
 import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
 import {
   MapBy,
@@ -53,7 +56,7 @@ import UI = OptionGenerator.UI;
   selector: 'map-layer-option',
   templateUrl: './map-layer-option.component.html'
 })
-export class MapLayerOptionComponent extends BaseOptionComponent {
+export class MapLayerOptionComponent extends BaseOptionComponent implements AfterViewChecked {
 
   // current layer index (0-1)
   public index: number = 0;
@@ -62,6 +65,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public data: Object[];
 
   public rnbMenu: string;
+
+  public ngAfterViewChecked() {
+    this.changeDetect.detectChanges();
+  }
 
   @Input('rnbMenu')
   public set setRnbMenu( rnbMenu: string ) {
@@ -176,24 +183,47 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // deep copy layer type
     let cloneLayerType = _.cloneDeep(this.uiOption.layers[layerIndex].type);
 
-    // change layer type
-    this.uiOption.layers[layerIndex].type = layerType;
-
     let dimensionList = this.fieldList[layerIndex].dimensionList;
     let measureList = this.fieldList[layerIndex].measureList;
+
+    let layer : UILayers = this.uiOption.layers[layerIndex];
+
+    // 기존 레이어 타입 설정 셋팅
+    const preLayerType : MapLayerType = cloneLayerType;
+    let cloneLayer = _.cloneDeep( layer );
+    if (MapLayerType.HEATMAP === preLayerType) {
+      layer.color.heatMapType.by = cloneLayer.color.by;
+      layer.color.heatMapType.schema = cloneLayer.color.schema;
+      layer.color.heatMapType.column = cloneLayer.color.column;
+      layer.color.heatMapType.transparency = cloneLayer.color.transparency;
+    } else if (MapLayerType.SYMBOL === preLayerType) {
+      layer.color.symbolType.by = cloneLayer.color.by;
+      layer.color.symbolType.schema = cloneLayer.color.schema;
+      layer.color.symbolType.column = cloneLayer.color.column;
+      layer.color.symbolType.transparency = cloneLayer.color.transparency;
+    } else if (MapLayerType.TILE === preLayerType) {
+      layer.color.tileType.by = cloneLayer.color.by;
+      layer.color.tileType.schema = cloneLayer.color.schema;
+      layer.color.tileType.column = cloneLayer.color.column;
+      layer.color.tileType.transparency = cloneLayer.color.transparency;
+    }
+
+    // change layer type
+    this.uiOption.layers[layerIndex].type = layerType;
 
     // init color, legend
     this.initOptionSymbolLayer(layerIndex);
 
     // change color type by layer type
     if (MapLayerType.HEATMAP === layerType) {
-      this.uiOption.layers[layerIndex].color.by = MapBy.MEASURE;
-      this.uiOption.layers[layerIndex].color.schema = 'HC1';
-      if( isNullOrUndefined(this.uiOption.layers[layerIndex]['blur']) ) {
-        this.uiOption.layers[layerIndex]['blur'] = 20;
+
+      layer = this.setColorByShelf(false, layerIndex);
+
+      if( isNullOrUndefined(layer['blur']) ) {
+        layer['blur'] = 20;
       }
-      if( isNullOrUndefined(this.uiOption.layers[layerIndex]['radius']) ) {
-        this.uiOption.layers[layerIndex]['radius'] = 20;
+      if( isNullOrUndefined(layer['radius']) ) {
+        layer['radius'] = 20;
       }
 
       measureList = this.fieldList[layerIndex]['measureList'];
@@ -203,7 +233,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
         // this.uiOption.legend.showName = false;
         this.uiOption.legend.auto = false;
       } else {
-        this.uiOption.layers[layerIndex].color.column = measureList[0]['name'];
+        layer.color.column = measureList[0]['name'];
       }
 
       // remove measure aggregation type in shelf
@@ -211,10 +241,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     } else if (MapLayerType.SYMBOL === layerType) {
       // set color by shelf
-      this.uiOption.layers[layerIndex] = this.setColorByShelf(false, layerIndex);
+      layer = this.setColorByShelf(false, layerIndex);
 
       // add color by dimension list
-      // if (dimensionList.length > 0 && -1 === _.findIndex(this.colorByList, {'value' : MapBy.DIMENSION})) {
       if (dimensionList.length > 0 && -1 === _.findIndex(this.colorByList, ( item ) => { return item.value === MapBy.DIMENSION; })) {
         this.colorByList.splice(1, 0, {name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION});
       }
@@ -224,9 +253,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     } else if (MapLayerType.TILE === layerType) {
       // set color by shelf
-      this.uiOption.layers[layerIndex] = this.setColorByShelf(true, layerIndex);
-      if( isNullOrUndefined(this.uiOption.layers[layerIndex]['radius']) ) {
-        this.uiOption.layers[layerIndex]['radius'] = 20;
+      layer = this.setColorByShelf(true, layerIndex);
+      if( isNullOrUndefined(layer['radius']) ) {
+        layer['radius'] = 20;
       }
 
       // remove color by dimension list
@@ -679,7 +708,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public findColorIndex(colorList: Object[], layerIndex : number) {
     if (this.colorTemplate) {
       let obj = _.find(colorList, {colorNum : this.uiOption.layers[layerIndex].color.schema});
-      if (obj) return obj['index'];
+      if (obj) {
+        // this.changeDetect.detectChanges();
+        return obj['index'];
+      }
       return 1;
     }
     return 1;
@@ -1274,6 +1306,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     const isDimension = preference['isDimension'];
 
     let layer: UILayers = this.uiOption.layers[layerIndex];
+    let layerType = layer.type;
 
     let dimensionList = this.fieldList[layerIndex].dimensionList;
     let measureList = this.fieldList[layerIndex].measureList;
@@ -1283,7 +1316,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     ///////////////////////////
     if( isNone ) {
       layer.color.by = MapBy.NONE;
-      layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : '#6344ad';
+      if( layerType == MapLayerType.HEATMAP ){
+        (layer.color.heatMapType.schema == '' ? layer.color.heatMapType.schema = 'HC1' : layer.color.heatMapType.schema);
+        layer.color.schema = layer.color.heatMapType.schema;
+      } else if (layerType == MapLayerType.SYMBOL) {
+        (layer.color.symbolType.schema == '' ? layer.color.symbolType.schema = '#6344ad' : layer.color.symbolType.schema);
+        layer.color.schema = layer.color.symbolType.schema;
+      } else if (layerType == MapLayerType.TILE) {
+        (layer.color.tileType.schema == '' ? layer.color.tileType.schema = '#6344ad' : layer.color.tileType.schema);
+        layer.color.schema = layer.color.tileType.schema;
+      }
       layer.color.column = null;
       layer.color.aggregationType = null;
     }
@@ -1293,7 +1335,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // remove not isDimension => exceptional case select dimension and remove dimension
     else if( isMeasure ) {
       layer.color.by = MapBy.MEASURE;
-      layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : 'VC1';
+      if( layerType == MapLayerType.HEATMAP ){
+        (layer.color.heatMapType.schema.indexOf('HC') == -1 ? layer.color.heatMapType.schema = 'HC1' : layer.color.heatMapType.schema);
+        layer.color.schema = layer.color.heatMapType.schema;
+      } else if (layerType == MapLayerType.SYMBOL) {
+        (layer.color.symbolType.schema.indexOf('VC') == -1 ? layer.color.symbolType.schema = 'VC1' : layer.color.symbolType.schema);
+        layer.color.schema = layer.color.symbolType.schema;
+      } else if (layerType == MapLayerType.TILE) {
+        (layer.color.tileType.schema.indexOf('VC') == -1 ? layer.color.tileType.schema = 'VC1' : layer.color.tileType.schema);
+        layer.color.schema = layer.color.tileType.schema;
+      }
       layer.color.column = measureList[0]['name'];
       if (aggregationFl) layer.color.aggregationType = measureList[0]['aggregationType'];
       else layer.color.aggregationType = null;
@@ -1302,15 +1353,22 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // Color by Dimension
     ///////////////////////////
     // hexagon && isDimension => init as none
-    else if ( MapLayerType.TILE === layer.type && isDimension ) {
+    else if ( MapLayerType.TILE === layerType && isDimension ) {
       layer.color.by = MapBy.NONE;
-      layer.color.schema = '#6344ad';
+      (layer.color.tileType.schema.indexOf('#') == -1 ? layer.color.tileType.schema = '#6344ad' : layer.color.tileType.schema);
+      layer.color.schema = layer.color.tileType.schema;
       layer.color.column = null;
       layer.color.aggregationType = null;
     }
     else if( isDimension ) {
       layer.color.by = MapBy.DIMENSION;
-      layer.color.schema = 'SC1';
+      if (layerType == MapLayerType.SYMBOL) {
+        (layer.color.symbolType.schema.indexOf('SC') == -1 ? layer.color.symbolType.schema = 'SC1' : layer.color.symbolType.schema);
+        layer.color.schema = layer.color.symbolType.schema;
+      } else if (layerType == MapLayerType.TILE) {
+        (layer.color.tileType.schema.indexOf('SC') == -1 ? layer.color.tileType.schema = 'SC1' : layer.color.tileType.schema);
+        layer.color.schema = layer.color.tileType.schema;
+      }
       layer.color.column = dimensionList[0]['name'];
       layer.color.aggregationType = null;
       if (dimensionList[0]['format']) layer.color.granularity = dimensionList[0]['format']['unit'].toString();

@@ -2584,7 +2584,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       ///////////////////////////
       if (isNone) {
         layer.color.by = MapBy.NONE;
-        layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : '#6344ad';
+        if( layerType == MapLayerType.HEATMAP ){
+          (layer.color.heatMapType.schema.indexOf('HC') == -1 ? layer.color.heatMapType.schema = 'HC1' : layer.color.heatMapType.schema);
+          layer.color.schema = layer.color.heatMapType.schema;
+        } else if (layerType == MapLayerType.SYMBOL) {
+          (layer.color.symbolType.schema.indexOf('#') == -1 ? layer.color.symbolType.schema = '#6344ad' : layer.color.symbolType.schema);
+          layer.color.schema = layer.color.symbolType.schema;
+        } else if (layerType == MapLayerType.TILE) {
+          (layer.color.tileType.schema.indexOf('#') == -1 ? layer.color.tileType.schema = '#6344ad' : layer.color.tileType.schema);
+          layer.color.schema = layer.color.tileType.schema;
+        }
         layer.color.column = null;
         layer.color.aggregationType = null;
       }
@@ -2594,10 +2603,17 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // remove not isDimension => exceptional case select dimension and remove dimension
       else if (isMeasure) {
         layer.color.by = MapBy.MEASURE;
-        layer.color.schema = _.eq(layer.type, MapLayerType.HEATMAP) ? 'HC1' : 'VC1';
+        if( layerType == MapLayerType.HEATMAP ){
+          (layer.color.heatMapType.schema.indexOf('HC') == -1 ? layer.color.heatMapType.schema = 'HC1' : layer.color.heatMapType.schema);
+          layer.color.schema = layer.color.heatMapType.schema;
+        } else if (layerType == MapLayerType.SYMBOL) {
+          (layer.color.symbolType.schema.indexOf('VC') == -1 ? layer.color.symbolType.schema = 'VC1' : layer.color.symbolType.schema);
+          layer.color.schema = layer.color.symbolType.schema;
+        } else if (layerType == MapLayerType.TILE) {
+          (layer.color.tileType.schema.indexOf('VC') == -1 ? layer.color.tileType.schema = 'VC1' : layer.color.tileType.schema);
+          layer.color.schema = layer.color.tileType.schema;
+        }
         layer.color.column = uiOption.fieldMeasureList[0]['name'];
-        // ( isUndefined(uiOption.fieldMeasureList[0]['alias'] ) ? layer.color.column = uiOption.fieldMeasureList[0]['name'] : layer.color.column = uiOption.fieldMeasureList[0]['alias'] );
-        // ( layer.color.column == null ? layer.color.column = uiOption.fieldMeasureList[0]['name'] : layer.color.column );
         layer.color.aggregationType = uiOption.fieldMeasureList[0]['aggregationType'];
         layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(uiOption, this.data[index], this.getColorList(layer), index, shelf);
       }
@@ -2607,12 +2623,18 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // hexagon && isDimension => init as none
       else if (MapLayerType.TILE === layer.type && isDimension) {
         layer.color.by = MapBy.NONE;
-        layer.color.schema = '#6344ad';
+        (layer.color.tileType.schema.indexOf('#') == -1 ? layer.color.tileType.schema = '#6344ad' : layer.color.tileType.schema);
         layer.color.column = null;
         layer.color.aggregationType = null;
       } else if (isDimension) {
         layer.color.by = MapBy.DIMENSION;
-        layer.color.schema = 'SC1';
+        if (layerType == MapLayerType.SYMBOL) {
+          (layer.color.symbolType.schema.indexOf('SC') == -1 ? layer.color.symbolType.schema = 'SC1' : layer.color.symbolType.schema);
+          layer.color.schema = layer.color.symbolType.schema;
+        } else if (layerType == MapLayerType.TILE) {
+          (layer.color.tileType.schema.indexOf('SC') == -1 ? layer.color.tileType.schema = 'SC1' : layer.color.tileType.schema);
+          layer.color.schema = layer.color.tileType.schema;
+        }
         layer.color.column = uiOption.fielDimensionList[0]['name'];
         layer.color.aggregationType = null;
         if (uiOption.fielDimensionList[0]['format']) layer.color.granularity = uiOption.fielDimensionList[0]['format']['unit'].toString();
