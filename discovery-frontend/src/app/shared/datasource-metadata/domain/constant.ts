@@ -1,6 +1,3 @@
-/**
- * Objects to be shared by the data source and metadata
- */
 export namespace Constant {
   export namespace Filter {
     export type Role = (
