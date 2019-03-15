@@ -31,6 +31,7 @@ import {ScrollLoadingGridComponent} from "./edit-rule-grid/scroll-loading-grid.c
 import {ScrollLoadingGridModel} from "./edit-rule-grid/scroll-loading-grid.model";
 import {isNullOrUndefined} from "util";
 declare const moment: any;
+import * as Aromanize from 'aromanize';
 
 @Component({
   selector: 'multiple-rename-popup',
@@ -73,6 +74,10 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
 
   public typeDesc: any;
 
+  public subTitle: string = '';
+
+  public indexForName: number = 1;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -103,7 +108,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
     gridData : {data: any, fields: any},
     dsName : string,
     typeDesc: any,
-    editInfo? : {ruleCurIdx : number, cols: string[], to : string[]}}) {
+    editInfo? : {ruleCurIdx : number, cols: string[], to : string[]}, isFromSnapshot?:boolean}) {
 
     // open popup
     this.isPopupOpen = true;
@@ -117,6 +122,10 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
     this.datasetName = dsInfo.dsName;
 
     this.typeDesc = dsInfo.typeDesc;
+
+    if (dsInfo.isFromSnapshot) {
+      this.subTitle = 'for hive-type snapshot';
+    }
 
     // Set column information (right side)
     if (dsInfo.editInfo) {
@@ -149,6 +158,8 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
   public close() {
     this.isPopupOpen = false;
     this.errorEsg = null;
+    this.subTitle = '';
+    this.indexForName = 1;
 
     if (this.op === 'UPDATE') {
       this.renameMultiColumns.emit(null);
@@ -235,6 +246,8 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
 
     // close popup
     this.isPopupOpen = false;
+    this.subTitle = '';
+    this.indexForName = 1;
 
     // If nothing is changed, returns null
     this.renameMultiColumns.emit(originals.length > 0 ? {
@@ -405,14 +418,51 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
           isEditing: false
         });
       } else {
-        this.columns.push({
-          original : item.name,
-          renamedAs: item.name,
-          isError: false,
-          isEditing: false
-        });
+        if (this.subTitle !== '') { // Came from snapshot popup
+          this.columns.push({
+            original : item.name,
+            renamedAs: this._getNameForHive(item.name),
+            isError: false,
+            isEditing: false
+          });
+        } else {
+          this.columns.push({
+            original : item.name,
+            renamedAs: item.name,
+            isError: false,
+            isEditing: false
+          });
+        }
       }
     })
+  }
+
+
+  /**
+   * Returns appropriate name for each column name
+   * @param name
+   * @private
+   */
+  private _getNameForHive(name: string): string {
+
+    const enCheckReg = /^[A-Za-z0-9_ㄱ-ㅎ|ㅏ-ㅣ|가-힣 ]+$/;
+    let result = name;
+
+    // Only English, Korean, Number, _ is allowed
+    if (!enCheckReg.test(name)) {
+
+      // column1, column2 ..
+      result = 'column' + this.indexForName;
+      this.indexForName += 1;
+    } else {
+
+      // change korean to english
+      // replace all whiteSpace to underscore
+      // change to lowercase
+      result = Aromanize.romanize(name).toLowerCase().replace(/ /gi, '_');
+
+    }
+    return result;
   }
 
   /**

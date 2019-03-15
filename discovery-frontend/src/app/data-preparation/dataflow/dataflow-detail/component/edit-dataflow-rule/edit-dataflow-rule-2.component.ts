@@ -306,10 +306,20 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   /**
    * Create snapshot popup close
+   * @Param data (when coming from snapshot popup)
    */
-  public snapshotCreateClose() {
+  public snapshotCreateClose(data?) {
     if (1 === this.ruleListComponent.tabNumber) {
       this.ruleListComponent.getSnapshotList();
+    }
+
+    if (data) { // Open rename popup for hive rename
+      this.multipleRenamePopupComponent.init(
+        {
+          gridData: _.cloneDeep(this.selectedDataSet.gridData),
+          dsName: this.selectedDataSet.dsName,
+          typeDesc: this.selectedDataSet.gridResponse.colDescs,
+          isFromSnapshot : true});
     }
   }
 
@@ -336,7 +346,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.createSnapshotPopup.init({
       id: this.selectedDataSet.dsId,
       name: this.selectedDataSet.dsName,
-      fields: this.selectedDataSet.gridData.fields
+      fields: this.selectedDataSet.gridData.fields, isFromMainGrid: true
     });
   }
 

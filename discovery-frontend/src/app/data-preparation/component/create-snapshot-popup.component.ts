@@ -12,13 +12,25 @@
  * limitations under the License.
  */
 
+import {ConfirmModalComponent} from "../../common/component/modal/confirm/confirm.component";
+
 declare let moment : any;
 import * as _ from 'lodash';
 import {isUndefined} from 'util';
 import {Alert} from '../../common/util/alert.util';
 import {PreparationAlert} from '../util/preparation-alert.util';
 
-import {Component, ElementRef, EventEmitter, HostListener, Injector, OnDestroy, OnInit, Output} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector, Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import {AbstractPopupComponent} from '../../common/component/abstract-popup.component';
 import {DatasetService} from '../dataset/service/dataset.service';
 import {DataflowService} from '../dataflow/service/dataflow.service';
@@ -27,6 +39,7 @@ import {HiveFileCompression, Engine, SsType, UriFileFormat, AppendMode, HiveFile
 import {Field} from '../../domain/data-preparation/pr-dataset';
 import {DataconnectionService} from "../../dataconnection/service/dataconnection.service";
 import {StorageService} from "../../data-storage/service/storage.service";
+import {Modal} from "../../common/domain/modal";
 
 @Component({
   selector: 'create-snapshot-popup',
@@ -86,6 +99,11 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   @Output()
   public snapshotCloseEvent = new EventEmitter();
 
+  @ViewChild(ConfirmModalComponent)
+  private confirmModalComponent: ConfirmModalComponent;
+
+  @Input()
+  public isFromMainGrid?: boolean = false;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -118,11 +136,15 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * Initial
    * @param {id:string, name : string, fields : Field[]} data
    */
-  public init(data : {id: string, name: string, fields: Field[]}) {
+  public init(data : {id: string, name: string, fields: Field[], isFromMainGrid?: boolean}) {
 
     this.datasetId = data.id;
     this.datasetName = data.name;
     this.fields = data.fields;
+
+    if (data.isFromMainGrid) { // Check if snapshot popup is open from main grid
+      this.isFromMainGrid = true;
+    }
 
     this._initialiseValues();
 
@@ -143,13 +165,36 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
 
   /**
+   * Open rename popup
+   */
+  public openRenamePopup() {
+
+    this.snapshotCloseEvent.emit('hive');
+    this.isShow = false;
+  }
+
+
+  /**
    * Complete making snapshot
    */
   public complete() {
 
     if (this.isErrorShow) {
       return;
-  }
+    }
+
+    // Only check field names for hive when isFromMainGrid
+    // If Hive type (ssType)
+    // open modal If there is inappropriate name for hive snapshot
+    if (this.isFromMainGrid && this.snapshot.ssType === SsType.STAGING_DB && !this._isFieldsValidationPass()) {
+
+      const modal = new Modal();
+      modal.name = this.translateService.instant('msg.dp.alert.hive.column.error');
+      modal.btnName = this.translateService.instant('msg.comm.ui.ok');
+      this.confirmModalComponent.init(modal);
+
+      return;
+    }
 
     // Snapshot name cannot be empty
     if (this.snapshot.ssName.trim() === '') {
@@ -553,6 +598,22 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
       PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
 
     });
+  }
+
+
+  /**
+   * Returns true is all fields only consists of small alphabet, numbers and _
+   * @private
+   */
+  private _isFieldsValidationPass(): boolean {
+
+    const names = this.fields.map((item) => item.name);
+    let enCheckReg = /^[a-z0-9_]+$/;
+    let idx = names.findIndex((item) => {
+      return (-1 !== item.indexOf(' ')) || !enCheckReg.test(item)
+    });
+
+    return idx === -1
   }
 
 }

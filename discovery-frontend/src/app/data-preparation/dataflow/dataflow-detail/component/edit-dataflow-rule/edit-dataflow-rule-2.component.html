@@ -277,8 +277,7 @@
 
 <!-- Snapshot create popup -->
 <create-snapshot-popup (snapshotCreateFinishEvent)="initSnapshotList()"
-                       (snapshotCloseEvent)="snapshotCreateClose()">
-
+                       (snapshotCloseEvent)="snapshotCreateClose($event)">
 </create-snapshot-popup>
 <!-- // Snapshot create popup -->
 
