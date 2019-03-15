@@ -85,18 +85,22 @@
       </div>
 
       <!-- column option -->
-      <div class="ddp-option-column">
-        <a href="javascript:" class="ddp-reset" (click)="onClickRestore()">
-          <em class="ddp-btn-reset3"> </em>
+      <div class="ddp-option-column ddp-fright">
+        <!-- 클릭시 ddp-selected 추가 -->
+        <a href="javascript:"
+           class="ddp-reset"
+           (click)="onClickRestore()">
+          <em class="ddp-icon-redo"
+              (click)="onClickRestore()">
+          </em>
           {{'msg.metadata.ui.codetable.detail.restore.btn' | translate}}
-          <!-- tooltip -->
-          <div class="ddp-ui-tooltip-info">
-            <em class="ddp-icon-view-top"></em>
-            {{'msg.metadata.ui.codetable.detail.restore.btn' | translate}}
-          </div>
-          <!-- //tooltip -->
         </a>
-        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" [class.ddp-disabled]="!isEnableSave()" (click)="onClickSave()">{{'msg.comm.btn.save' | translate}}</a>
+        <a href="javascript:"
+           class="ddp-btn-pop ddp-bg-black"
+           [class.ddp-disabled]="!isEnableSave()"
+           (click)="onClickSave()">
+          {{'msg.comm.btn.save' | translate}}
+        </a>
       </div>
       <!-- //column option -->
     </div>
