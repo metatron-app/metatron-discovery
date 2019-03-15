@@ -354,7 +354,8 @@ dl.ddp-dl-detail dd br {display:block; margin-top:5px;}
 .ddp-pop-preview:before {display:inline-block; content:''; position:fixed; left:0; right:0; bottom:0; top:0; background-color:rgba(208,209,216,0.5);}
 .ddp-pop-preview.ddp-pop-database em.ddp-icon-view {display:inline-block; position:absolute; top:66px; left:-8px; width:8px; height:12px; background:url(../images/icon_dataview.png) no-repeat; background-position:left -27px; z-index:3;}
 .ddp-pop-preview .ddp-ui-top {position:relative; height:38px; background-color:#4b515b; border:1px solid #4b515b;}
-.ddp-pop-preview .ddp-ui-top .ddp-data-name {position:relative; padding:10px 0 10px 15px;color:#fff; font-size:14px; font-weight:bold;}
+.ddp-pop-preview .ddp-ui-top .ddp-data-name {position:relative; padding:10px 0 10px 15px;color:#fff; font-size:14px; font-weight:bold; }
+.ddp-pop-preview .ddp-ui-top .ddp-data-name.ddp-cut {padding-right:30px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-pop-preview .ddp-ui-top .ddp-data-name .ddp-txt-detail {display:inline-block; margin-left:5px; font-weight:normal; font-size:13px;}
 .ddp-pop-preview .ddp-ui-top .ddp-data-name em.ddp-icon-database-s2 {margin-right:5px;}
 .ddp-pop-preview .ddp-ui-top .ddp-data-name .ddp-wrap-info {display:inline-block;}
@@ -8775,11 +8776,17 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .icon-db-tibero .st1{fill:#EA1B22;}
 
 .icon-db-hive-b {display:inline-block; width:24px; height:22px;}
-.icon-db-hive-b .st0{fill:#D8D8D8;}
+/*.icon-db-hive-b .st0{fill:#D8D8D8;}*/
+/*.icon-db-hive-b .st1{fill:#B5B5B5;}*/
+/*.icon-db-hive-b .st2{fill:#F7F7F7;}*/
+/*.icon-db-hive-b .st3{fill:#333333;}*/
+/*.icon-db-hive-b .st4{fill:#FFFFFF;}*/
+
+.icon-db-hive-b .st0{fill:#EAEAEA;}
 .icon-db-hive-b .st1{fill:#B5B5B5;}
 .icon-db-hive-b .st2{fill:#F7F7F7;}
-.icon-db-hive-b .st3{fill:#333333;}
-.icon-db-hive-b .st4{fill:#FFFFFF;}
+.icon-db-hive-b .st3{fill:#FFFFFF;}
+.icon-db-hive-b .st4{stroke:#000000;stroke-width:0.114;}
 
 .icon-db-hdfs-b {display:inline-block; width:24px; height:22px;}
 .icon-db-hdfs-b .st0{fill:#D8D8D8;}
