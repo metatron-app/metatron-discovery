@@ -79,6 +79,7 @@ import app.metatron.discovery.domain.workbook.configurations.field.MapField;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.filter.*;
+import app.metatron.discovery.domain.workbook.configurations.format.ContinuousTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
@@ -406,6 +407,12 @@ public abstract class AbstractQueryBuilder {
                                           timeFormat.getLocale());
 
     } else {
+      if (timeFormat instanceof ContinuousTimeFormat
+          && ((ContinuousTimeFormat) timeFormat).getUnit() == TimeFieldFormat.TimeUnit.NONE) {
+        // convert original time format, if unit is NONE
+        ((ContinuousTimeFormat) timeFormat).setOriginalFormat(originalTimeFormat.getFormat());
+      }
+
       timeFormatFunc = new TimeFormatFunc("\"" + fieldName + "\"",
                                           originalTimeFormat.getFormat(),
                                           originalTimeFormat.selectTimezone(),

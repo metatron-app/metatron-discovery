@@ -188,6 +188,11 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
               TimeFieldFormat originalTimeFormat = (TimeFieldFormat) originalFormat;
               TimeFieldFormat timeFormat = (TimeFieldFormat) format;
 
+              if (datasourceField.backwardTime()) {
+                originalTimeFormat.setUTC();
+                timeFormat.setUTC();
+              }
+
               TimeFormatFunc timeFormatFunc = createTimeFormatFunc(fieldName, originalTimeFormat, timeFormat);
 
               dimensions.add(new ExpressionDimension(aliasName, timeFormatFunc.toExpression()));
@@ -222,6 +227,10 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
         TimeFieldFormat timeFormat = (TimeFieldFormat) timestampField.getFormat();
         if (timeFormat == null) {
           timeFormat = originalTimeFormat;
+        }
+
+        if (datasourceField.backwardTime()) {
+          timeFormat.setUTC();
         }
 
         TimeFormatFunc timeFormatFunc = new TimeFormatFunc(timestampField.getPredefinedColumn(dataSource instanceof MappingDataSource),
