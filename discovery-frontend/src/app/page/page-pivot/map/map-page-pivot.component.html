@@ -102,7 +102,7 @@
     <!-- //shelf -->
 
     <!--analysis layer-->
-    <div *ngIf="uiOption['analysis'] != null && uiOption['analysis']['use'] && index == shelf.layers.length-1" class="ddp-ui-shelf ddp-add-self">
+    <div *ngIf="uiOption['analysis'] != null && uiOption['analysis']['use'] == true && index == shelf.layers.length-1" class="ddp-ui-shelf ddp-add-self">
       <em class="ddp-icon-analysis"></em>
       <!--analysis drag slide-->
       <div class="ddp-ui-drag-slide">
