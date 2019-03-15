@@ -52,6 +52,8 @@ import app.metatron.discovery.domain.workbook.widget.Widget;
 import app.metatron.discovery.domain.workbook.widget.WidgetRepository;
 import app.metatron.discovery.util.AuthUtils;
 
+import java.util.ArrayList;
+
 import static app.metatron.discovery.config.ApiResourceConfig.REDIRECT_PATH_URL;
 
 @RepositoryRestController
@@ -161,6 +163,8 @@ public class DashBoardController {
       resultFormat.setRequest(request);
       request.setResultFormat(resultFormat);
     }
+
+    request.setProjections(new ArrayList<>());
 
     // 데이터 Limit 처리 최대 백만건까지 확인 가능함
     if(request.getLimits() == null) {
