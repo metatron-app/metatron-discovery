@@ -14,9 +14,8 @@
 
 <div class="ddp-wrap-shelf ddp-mapview">
   <!-- shelf -->
-  <!--<div *ngFor="let item of shelf.layers; let index = index">-->
-    <!--<div *ngIf="index<2"-->
-    <div *ngFor="let item of shelf.layers; let index = index"
+  <div *ngFor="let item of shelf.layers; let index = index">
+    <div *ngIf="uiOption['analysis'] == null || uiOption['analysis']['use'] == null || uiOption['analysis']['use'] == false || (uiOption['analysis']['use'] && index != shelf.layers.length-1)"
          id="layer{{index}}" class="ddp-ui-shelf"
          (click)="selectedLayer(index)"
          [ngClass]="{'ddp-add-self' : index==uiOption.layerNum, 'ddp-disabled' : uiOption['analysis'] != null && uiOption['analysis']['use'] == true}">
@@ -103,8 +102,7 @@
     <!-- //shelf -->
 
     <!--analysis layer-->
-    <!--<div *ngIf="index == 2 && uiOption.analysis != null && uiOption.analysis['use'] == true" class="ddp-ui-shelf ddp-add-self">-->
-    <div *ngIf="uiOption.analysis != null && uiOption.analysis['use'] == true" class="ddp-ui-shelf ddp-add-self">
+    <div *ngIf="uiOption['analysis'] != null && uiOption['analysis']['use'] && index == shelf.layers.length-1" class="ddp-ui-shelf ddp-add-self">
       <em class="ddp-icon-analysis"></em>
       <!--analysis drag slide-->
       <div class="ddp-ui-drag-slide">
@@ -136,6 +134,7 @@
       <!-- //analysis drag slide -->
     </div>
     <!-- // analysis layer-->
+  </div>
   <!--</div>-->
 </div>
 

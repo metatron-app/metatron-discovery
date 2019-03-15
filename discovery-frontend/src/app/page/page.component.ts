@@ -4330,8 +4330,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * remove analysis layer
    * @param value
    */
-  public removeAnalysisLayer(value) {
-    this.uiOption = value;
+  public removeAnalysisLayer() {
     this.changeDraw();
   }
 

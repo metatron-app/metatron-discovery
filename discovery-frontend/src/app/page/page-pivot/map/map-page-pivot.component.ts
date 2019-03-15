@@ -807,31 +807,28 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * 공간연산 버튼 클릭시
    */
   public spatialAnalysisBtnClicked(value) {
-    // let layers = {
-    //   name: 'SpatialLayer',
-    //   ref: '',
-    //   // view : {
-    //   //   "type": "hash",
-    //   //   "method": "h3",
-    //   //   "precision": 5
-    //   // },
-    //   fields: []
-    // };
-    //
-    // // add empty layer
-    // this.shelf.layers.push(layers);
-
+    let layers = {
+      name: 'SpatialLayer',
+      ref: '',
+      // view : {
+      //   "type": "hash",
+      //   "method": "h3",
+      //   "precision": 5
+      // },
+      fields: []
+    };
+    // add empty layer
+    this.shelf.layers.push(layers);
     // layer 생성 (page.component에서 uiOption 전체를 생성함, layer만 추가 하기, 추가 layer 생성하기 위해서 0번째를 복사)
     let addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
-
     // layer name setting
     addUiOptionLayer.name = 'SpatialLayer';
     this.uiOption.analysis['layer'] = addUiOptionLayer;
+    this.uiOption.layers.push(addUiOptionLayer);
     // 0 ~ 1 은 multi-layer, 그래서 공간연산 layer 값은 2
-    this.uiOption.layerNum = -1;
+    this.uiOption.layerNum = this.uiOption.layers.length - 1;
     // 공간연산 정보
     this.uiOption = value;
-
     // emit
     this.changeLayerEvent.emit(this.shelf);
   }
@@ -842,14 +839,15 @@ export class MapPagePivotComponent extends PagePivotComponent {
   public removeAnalysis() {
     // Map Chart spatial analysis delete
     if (!_.isUndefined(this.uiOption.analysis) && this.uiOption['analysis']['use'] == true) {
+      this.shelf.layers.pop();
+      this.uiOption.layers.pop();
+      this.uiOption.layerNum = this.uiOption.layers.length - 1;
+      this.uiOption['analysis']['use'] = false;
       delete this.uiOption.analysis.operation;
       delete this.uiOption.analysis.mainLayer;
       delete this.uiOption.analysis.compareLayer;
       delete this.uiOption.analysis.type;
-      this.uiOption['analysis']['use'] = false;
-      this.uiOption.layerNum = this.uiOption.layers.length - 1;
-      // this.shelf.layers.pop();
-      this.removeAnalysisLayerEvent.emit(this.uiOption);
+      this.removeAnalysisLayerEvent.emit();
     }
   }
 }

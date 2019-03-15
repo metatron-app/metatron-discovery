@@ -806,7 +806,7 @@
             (customField)="openCustomFieldPopup($event)"
             (showPopup)="onShowPopup($event)"
             (changeLayer)="onChangeLayer(shelf)"
-            (removeAnalysisLayer)="removeAnalysisLayer($event)">
+            (removeAnalysisLayer)="removeAnalysisLayer()">
             <!--(selectLayer)="onSelectLayer($event)">-->
           </map-page-pivot>
           <!-- //선반 -->
@@ -1893,9 +1893,8 @@
           <!-- //맵뷰: 공통 설정 -->
           <!-- 맵뷰: 레이어 설정 -->
             <div *ngIf="selectChart == 'map'">
-              <!--<div *ngFor="let item of shelf.layers; let index = index;">-->
-                <!--<a *ngIf="index<2" (click)="toggleMapLayer('mapLayer'+(index+1), index)"-->
-                <a *ngFor="let item of shelf.layers; let index = index;" (click)="toggleMapLayer('mapLayer'+(index+1), index)"
+              <div *ngFor="let item of shelf.layers; let index = index;">
+                <a *ngIf="index< uiOption['layers']['length']-1" (click)="toggleMapLayer('mapLayer'+(index+1), index)"
                    [ngClass]="{'ddp-disabled': !isChartShow || setDisableShelf(index) || 'map' == selectChart && uiOption['analysis'] != null && uiOption['analysis']['use'] == true}"
                    [class.ddp-selected]="isChartShow && rnbMenu=='mapLayer'+(index+1) && !setDisableShelf(index)"
                    href="javascript:">
@@ -1909,8 +1908,7 @@
                   <!-- //툴팁 -->
                 </a>
                 <!-- 공간연산 option -->
-                <!--<a *ngIf="index == 2 && 'map' == selectChart && uiOption['analysis'] != null && uiOption['analysis']['use'] == true">-->
-                <a *ngIf="'map' == selectChart && uiOption['analysis'] != null && uiOption['analysis']['use'] == true">
+                <a *ngIf="index == uiOption['layers']['length']-1 && 'map' == selectChart && uiOption['analysis'] != null && uiOption['analysis']['use'] == true">
                   <em class="ddp-icon-menu-analysis"></em>
                   <!-- 툴팁 -->
                   <div class="ddp-ui-tooltip-info">
@@ -1920,7 +1918,7 @@
                   <!-- //툴팁 -->
                 </a>
                 <!-- // 공간연산 option-->
-              <!--</div>-->
+              </div>
             </div>
           <!-- //맵뷰: 레이어 설정 -->
           <!-- 맵뷰: 범례 설정 -->

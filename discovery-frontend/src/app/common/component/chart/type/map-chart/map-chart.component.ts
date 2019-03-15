@@ -109,7 +109,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   }
 
   // previous zoom size
-  private preZoomSize : number = 0;
+  private preZoomSize: number = 0;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -369,7 +369,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   public draw(isKeepRange?: boolean): void {
 
     // analysis
-    if (this.getUiMapOption().layerNum == -1) {
+    if (!_.isUndefined(this.getUiMapOption().analysis) && !_.isUndefined(this.getUiMapOption().analysis['use']) && this.getUiMapOption().analysis['use'] == true
+      && this.getUiMapOption().layerNum == this.getUiMapOption().layers.length - 1) {
       this.drawAnalysis();
       return;
     }
@@ -949,7 +950,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     // Map data place fit
     if (this.drawByType == EventType.CHANGE_PIVOT && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&
-      (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'] ) ) {
+      (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'])) {
       this.olmap.getView().fit(source.getExtent());
     } else {
       // set saved data zoom
@@ -1951,7 +1952,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         // Add event
         ////////////////////////////////////////////////////////
 
-        if( !_.isNull( this.olmap.frameState_) )
+        if (!_.isNull(this.olmap.frameState_))
           this.preZoomSize = Math.round(this.olmap.frameState_.viewState.zoom);
 
         this.olmap.un('pointermove', this.tooltipFunction);
@@ -2133,7 +2134,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           let toShowCoords = event.coordinate;
           if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
             // line 일 경우 tooltip coordinator 위치를 살짝 위로 설정
-            toShowCoords[toShowCoords.length-1] = toShowCoords[toShowCoords.length-1] + 0.0018;
+            toShowCoords[toShowCoords.length - 1] = toShowCoords[toShowCoords.length - 1] + 0.0018;
             this.tooltipLayer.setPosition(toShowCoords);
           } else {
             this.tooltipLayer.setPosition(toShowCoords);
@@ -2585,7 +2586,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       ///////////////////////////
       if (isNone) {
         layer.color.by = MapBy.NONE;
-        if( layerType == MapLayerType.HEATMAP ){
+        if (layerType == MapLayerType.HEATMAP) {
           (layer.color.heatMapType.schema.indexOf('HC') == -1 ? layer.color.heatMapType.schema = 'HC1' : layer.color.heatMapType.schema);
           layer.color.schema = layer.color.heatMapType.schema;
         } else if (layerType == MapLayerType.SYMBOL) {
@@ -2604,7 +2605,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // remove not isDimension => exceptional case select dimension and remove dimension
       else if (isMeasure) {
         layer.color.by = MapBy.MEASURE;
-        if( layerType == MapLayerType.HEATMAP ){
+        if (layerType == MapLayerType.HEATMAP) {
           (layer.color.heatMapType.schema.indexOf('HC') == -1 ? layer.color.heatMapType.schema = 'HC1' : layer.color.heatMapType.schema);
           layer.color.schema = layer.color.heatMapType.schema;
         } else if (layerType == MapLayerType.SYMBOL) {
@@ -2764,7 +2765,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // zoom size
     mapUIOption.zoomSize = Math.round(event.frameState.viewState.zoom);
 
-    if ((_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.preZoomSize == 0 ) {
+    if ((_.isUndefined(mapUIOption.lowerCorner) && _.isUndefined(mapUIOption.upperCorner)) || that.preZoomSize == 0) {
       this.preZoomSize = mapUIOption.zoomSize;
       this.setUiExtent(event);
       return;
@@ -2777,7 +2778,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // 이전 좌표 및 줌 레벨이 다를 경우에만 다시 호출
     if ((Number(preLowerCorner[0]).toFixed(10) != currentMapExtent[0].toFixed(10) && Number(preLowerCorner[1]).toFixed(10) != currentMapExtent[1].toFixed(10)
       && Number(preUpperCorner[0]).toFixed(10) != currentMapExtent[2].toFixed(10) && Number(preUpperCorner[1]).toFixed(10) != currentMapExtent[3].toFixed(10))
-      || (that.preZoomSize != mapUIOption.zoomSize ) ) {
+      || (that.preZoomSize != mapUIOption.zoomSize)) {
 
       let isAllChangeCoverage: boolean = false;
       mapUIOption.layers.forEach((layer) => {
@@ -2788,7 +2789,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       // map ui lat, lng
       this.setUiExtent(event);
-      if (mapUIOption.upperCorner.indexOf('NaN') != -1 || mapUIOption.lowerCorner.indexOf('NaN') != -1 || isAllChangeCoverage ) {
+      if (mapUIOption.upperCorner.indexOf('NaN') != -1 || mapUIOption.lowerCorner.indexOf('NaN') != -1 || isAllChangeCoverage) {
         // coverage value reset
         mapUIOption.layers.forEach((layer) => {
           if (isAllChangeCoverage && !_.isUndefined(layer['changeCoverage'])) {
@@ -3034,29 +3035,29 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    */
   private setMinMax() {
 
-    if( this.shelf.layers.length == 0 ){
+    if (this.shelf.layers.length == 0) {
       return;
     }
 
-    for(let idx=0; idx<this.shelf.layers.length; idx++) {
+    for (let idx = 0; idx < this.shelf.layers.length; idx++) {
       let layer: UILayers = this.getUiMapOption().layers[idx];
       let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[idx].fields);
       let alias = ChartUtil.getFieldAlias(layer.color.column, shelf, layer.color.aggregationType);
 
       // symbol 타입 , cluster 사용일 경우
-      if( layer.type == MapLayerType.SYMBOL && layer['clustering'] ){
+      if (layer.type == MapLayerType.SYMBOL && layer['clustering']) {
         alias = 'count';
       }
 
-      if( _.isUndefined(this.data[this.getUiMapOption().layerNum]) ){
+      if (_.isUndefined(this.data[this.getUiMapOption().layerNum])) {
         continue;
       }
 
       let valueRange = _.cloneDeep(this.data[this.getUiMapOption().layerNum]['valueRange'][alias]);
       if (valueRange) {
-        ( _.isUndefined(layer.color.minValue) || layer.color.minValue > valueRange.minValue ? layer.color.minValue = valueRange.minValue : layer.color.minValue);
+        (_.isUndefined(layer.color.minValue) || layer.color.minValue > valueRange.minValue ? layer.color.minValue = valueRange.minValue : layer.color.minValue);
 
-        ( _.isUndefined(layer.color.maxValue) || layer.color.maxValue < valueRange.maxValue ? layer.color.maxValue = valueRange.maxValue : layer.color.maxValue);
+        (_.isUndefined(layer.color.maxValue) || layer.color.maxValue < valueRange.maxValue ? layer.color.maxValue = valueRange.maxValue : layer.color.maxValue);
       }
 
       // _.each(shelf, (field) => {
@@ -3179,20 +3180,242 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
    * analysis를 위한 map draw
    */
   private drawAnalysis() {
+
+    this.loadingShow();
+
     let isMapCreation: boolean = this.createMap();
-    // Source
-    let source = new ol.source.Vector({crossOrigin: 'anonymous'});
-    // Line & Polygon Source
-    let emptySource = new ol.source.Vector();
-    // Creation feature
-    this.createFeature(source, 0);
-    // Creation layer
-    // this.createLayer(source, emptySource, isMapCreation, 0);
-    this.createLayer(source, emptySource, isMapCreation, 0);
+
+    for (let dataIndex = 0; dataIndex < this.data.length; dataIndex++) {
+      // Source
+      let source = new ol.source.Vector({crossOrigin: 'anonymous'});
+      // Line & Polygon Source
+      let emptySource = new ol.source.Vector();
+      // Creation feature
+      this.createAnalysisFeature(source, dataIndex);
+      // Creation layer
+      this.createAnalysisLayer(source, emptySource, isMapCreation, dataIndex);
+    }
     // Chart resize
     this.olmap.updateSize();
+
+    this.loadingHide();
+
     // 완료
     this.drawFinished.emit();
   }
+
+  /**
+   * analysis Feature
+   */
+  private createAnalysisFeature(source, dataIndex): void {
+    let data = this.data[dataIndex];
+    ////////////////////////////////////////////////////////
+    // Generate feature
+    ////////////////////////////////////////////////////////
+    // Feature list
+    let features = [];
+    // Data set
+    for (let i = 0; i < data.features.length; i++) {
+      // geo type
+      if (data.features[i].geometry.type.toString().toLowerCase().indexOf('point') != -1) {
+        // point
+        let pointFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
+        pointFeature.set('layerNum', this.getUiMapOption().layerNum);
+        pointFeature.set('isClustering', this.getUiMapOption().layers[this.getUiMapOption().layerNum]['clustering']);
+        features[i] = pointFeature;
+        source.addFeature(features[i]);
+      } else if (data.features[i].geometry.type.toString().toLowerCase().indexOf('polygon') != -1) {
+        // polygon
+        let polygonFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
+        polygonFeature.set('layerNum', this.getUiMapOption().layerNum);
+        features[i] = polygonFeature;
+        source.addFeature(features[i]);
+      } else if (data != null && data.features[i] != null && data.features[i].geometry != null && data.features[i].geometry.type.toString().toLowerCase().indexOf('line') != -1) {
+        let line = new ol.geom.LineString(data.features[i].geometry.coordinates);
+        let lineFeature = new ol.Feature({geometry: line});
+        if (!_.isNull(this.getUiMapOption().layers[this.getUiMapOption().layerNum].color.column)) {
+          const alias = ChartUtil.getFieldAlias(this.getUiMapOption().layers[this.getUiMapOption().layerNum].color.column, this.shelf.layers[this.getUiMapOption().layerNum].fields, this.getUiMapOption().layers[this.getUiMapOption().layerNum].color.aggregationType);
+          lineFeature.set(alias, data.features[i].properties[alias]);
+        }
+        lineFeature.set('layerNum', this.getUiMapOption().layerNum);
+        features.push(lineFeature);
+        source.addFeature(lineFeature);
+      }
+    } // end - features for
+  }
+
+  /**
+   * analysis Layer
+   */
+  private createAnalysisLayer(source: any, emptySource: any, isMapCreation: boolean, dataIndex: number): void {
+    ////////////////////////////////////////////////////////
+    // Create layer
+    ////////////////////////////////////////////////////////
+    // Layer
+    let layer: UILayers = this.getUiMapOption().layers[dataIndex];
+    ////////////////////////////////////////////////////////
+    // Cluster & Point layer
+    ////////////////////////////////////////////////////////
+    let field = null;
+    _.each(this.shelf.layers[dataIndex].fields, (fieldTemp) => {
+      if (fieldTemp.field.logicalType && fieldTemp.field.logicalType.toString().indexOf('GEO') != -1) {
+        field = fieldTemp;
+        return false;
+      }
+    });
+    if (field != null && field.field != null && field.field.logicalType != null) {
+      let geomType = field.field.logicalType.toString();
+
+      if (_.eq(layer.type, MapLayerType.SYMBOL)) {
+        //////////////////////////
+        // Point layer
+        //////////////////////////
+        // Create
+        let symbolLayer = new ol.layer.Vector({
+          source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
+          style: _.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(dataIndex, this.data) : new ol.style.Style()
+        });
+        symbolLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource);
+        // set z index (the default value is 0 and higher would be 1)
+        // this.symbolLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
+        symbolLayer.setZIndex(4);
+        this.layerMap.push({id: dataIndex, layerValue: symbolLayer});
+        // Init
+        if (isMapCreation && this.getUiMapOption().showMapLayer) {
+          // Add layer
+          this.olmap.addLayer(symbolLayer);
+        } else {
+          if (this.getUiMapOption().showMapLayer) {
+            // Add layer
+            this.olmap.addLayer(symbolLayer);
+            // Set style
+            symbolLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.clusterStyleFunction(dataIndex, this.data) : new ol.style.Style());
+          } else {
+            // Remove layer
+            this.olmap.removeLayer(symbolLayer);
+          }
+        }
+        // }
+      } else if (_.eq(layer.type, MapLayerType.LINE) || _.eq(layer.type, MapLayerType.POLYGON)) {
+        ////////////////////////////////////////////////////////
+        // Line, Polygon layer
+        ////////////////////////////////////////////////////////
+        // Create
+        let symbolLayer = new ol.layer.Vector({
+          source: source,
+          style: this.mapStyleFunction(dataIndex, this.data)
+        });
+        symbolLayer.setSource(source);
+        // set z index (the default value is 0 and higher would be 1)
+        // this.symbolLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
+        symbolLayer.setZIndex(3);
+        this.layerMap.push({id: dataIndex, layerValue: symbolLayer});
+        // Init
+        if (isMapCreation && this.getUiMapOption().showMapLayer) {
+          // Add layer
+          this.olmap.addLayer(symbolLayer);
+        } else {
+          if (this.getUiMapOption().showMapLayer) {
+            // Add layer
+            this.olmap.addLayer(symbolLayer);
+            // Set style
+            symbolLayer.setStyle(this.mapStyleFunction(dataIndex, this.data));
+          } else {
+            // Remove layer
+            this.olmap.removeLayer(symbolLayer);
+          }
+        }
+      } else if (_.eq(layer.type, MapLayerType.HEATMAP)) {
+        ////////////////////////////////////////////////////////
+        // Heatmap layer
+        ////////////////////////////////////////////////////////
+        let getHeatMapLayerValue: UIHeatmapLayer = <UIHeatmapLayer>layer;
+        // Create
+        let heatmapLayer = new ol.layer.Heatmap({
+          source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
+          // Style
+          gradient: HeatmapColorList[getHeatMapLayerValue.color.schema],
+          opacity: 1 - (getHeatMapLayerValue.color.transparency * 0.01),
+          radius: getHeatMapLayerValue.radius,
+          blur: getHeatMapLayerValue.blur * 0.7
+        });
+        heatmapLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource);
+        // set z index (the default value is 0 and higher would be 1)
+        // this.heatmapLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
+        heatmapLayer.setZIndex(0);
+        this.layerMap.push({id: dataIndex, layerValue: heatmapLayer});
+        // Init
+        if (isMapCreation && this.getUiMapOption().showMapLayer) {
+          // Add layer
+          this.olmap.addLayer(heatmapLayer);
+        } else {
+          if (this.getUiMapOption().showMapLayer) {
+            // Add layer
+            this.olmap.addLayer(heatmapLayer);
+
+            // Set style
+            if (isUndefined(HeatmapColorList[getHeatMapLayerValue.color.schema])) {
+              heatmapLayer.setGradient(HeatmapColorList['HC1']);
+            } else {
+              heatmapLayer.setGradient(HeatmapColorList[getHeatMapLayerValue.color.schema]);
+            }
+            heatmapLayer.setOpacity(1 - (getHeatMapLayerValue.color.transparency * 0.01));
+            heatmapLayer.setRadius(getHeatMapLayerValue.radius);
+            heatmapLayer.setBlur(getHeatMapLayerValue.blur * 0.7);
+            if (!_.eq(geomType, LogicalType.GEO_POINT)) {
+              // Set style
+              heatmapLayer.setStyle(new ol.style.Style());
+            }
+          } else {
+            // Remove layer
+            this.olmap.removeLayer(heatmapLayer);
+          }
+        }
+      } else if (_.eq(layer.type, MapLayerType.TILE)) {
+        ////////////////////////////////////////////////////////
+        // Hexgon layer
+        ////////////////////////////////////////////////////////
+        // Create
+        let hexagonLayer = new ol.layer.Vector({
+          source: _.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource,
+          style: _.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(dataIndex, this.data) : new ol.style.Style()
+        });
+        hexagonLayer.setSource(_.eq(geomType, LogicalType.GEO_POINT) ? source : emptySource);
+        // set z index (the default value is 0 and higher would be 1)
+        // this.hexagonLayer.setZIndex(this.getUiMapOption().layerNum == num? 1 : 0);
+        hexagonLayer.setZIndex(1);
+        this.layerMap.push({id: dataIndex, layerValue: hexagonLayer});
+        // Init
+        if (isMapCreation && this.getUiMapOption().showMapLayer) {
+          // Add layer
+          this.olmap.addLayer(hexagonLayer);
+        } else {
+          if (this.getUiMapOption().showMapLayer) {
+            // Add layer
+            this.olmap.addLayer(hexagonLayer);
+            // Set style
+            hexagonLayer.setStyle(_.eq(geomType, LogicalType.GEO_POINT) ? this.hexagonStyleFunction(dataIndex, this.data) : new ol.style.Style());
+          } else {
+            // Remove layer
+            this.olmap.removeLayer(hexagonLayer);
+          }
+        }
+      }
+    }
+    this.changeDetect.detectChanges();
+
+    // Map data place fit
+    if (this.drawByType == EventType.CHANGE_PIVOT && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&
+      (_.isUndefined(this.uiOption['layers'][dataIndex]['changeCoverage']) || this.uiOption['layers'][dataIndex]['changeCoverage'])) {
+      this.olmap.getView().fit(source.getExtent());
+    } else {
+      // set saved data zoom
+      if (this.uiOption.chartZooms && this.uiOption.chartZooms.length > 0) {
+        this.olmap.getView().setCenter([this.uiOption.chartZooms[0].startValue, this.uiOption.chartZooms[0].endValue]);
+        this.olmap.getView().setZoom(this.uiOption.chartZooms[0].count);
+      }
+    }
+  }
+
 
 }
