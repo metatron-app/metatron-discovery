@@ -33,7 +33,6 @@ import { TreeMapChartComponent } from './component/chart/type/treemap-chart/tree
 import { CombineChartComponent } from './component/chart/type/combine-chart/combine-chart.component';
 import { LabelChartComponent } from './component/chart/type/label-chart/label-chart.component';
 import { MapChartComponent } from './component/chart/type/map-chart/map-chart.component';
-import {MapChartAnalysisComponent} from "./component/chart/type/map-chart/map-chart-analysis.component";
 
 @NgModule({
   imports: [
@@ -57,8 +56,7 @@ import {MapChartAnalysisComponent} from "./component/chart/type/map-chart/map-ch
     NetworkChartComponent,
     SankeyChartComponent,
     GaugeChartComponent,
-    MapChartComponent,
-    MapChartAnalysisComponent
+    MapChartComponent
   ],
   exports: [
     BarChartComponent,
@@ -78,8 +76,7 @@ import {MapChartAnalysisComponent} from "./component/chart/type/map-chart/map-ch
     NetworkChartComponent,
     SankeyChartComponent,
     GaugeChartComponent,
-    MapChartComponent,
-    MapChartAnalysisComponent
+    MapChartComponent
   ],
   providers: [ChartTestService]
 })

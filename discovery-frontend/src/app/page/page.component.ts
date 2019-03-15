@@ -96,7 +96,6 @@ import {UIMapOption} from '../common/component/chart/option/ui-option/map/ui-map
 import {MapLayerType} from '../common/component/chart/option/define/map/map-common';
 import {fromEvent} from "rxjs";
 import {debounceTime, map} from "rxjs/operators";
-import {MapChartAnalysisComponent} from "../common/component/chart/type/map-chart/map-chart-analysis.component";
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -159,9 +158,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
   @ViewChild(MapChartComponent)
   private mapChart: MapChartComponent;
-
-  @ViewChild(MapChartAnalysisComponent)
-  private mapChartAnalysis: MapChartAnalysisComponent;
 
   @ViewChild('gridChart')
   private gridChart: GridChartComponent;
@@ -3783,12 +3779,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
             this.networkChart.draw();
           } else if (this.chart.uiOption.type === ChartType.MAP) {
-            if( !_.isUndefined( this.mapChart ) )
-              this.mapChart.resize();
-
-            if( !_.isUndefined( this.mapChartAnalysis ) )
-              this.mapChartAnalysis.resize();
-
+            this.mapChart.resize();
           } else {
             if (this.chart && this.chart.chart) this.chart.chart.resize();
           }
