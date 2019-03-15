@@ -46,12 +46,22 @@ public class CsvProcessor {
 
   private static int MAX_HEADER_NAME = 50;
 
+  Integer csvMaxCharsPerColumn;
+
   public CsvProcessor() {
 
   }
 
   public CsvProcessor(File targetFile) throws IOException {
     this.targetFile = targetFile;
+  }
+
+  public Integer getCsvMaxCharsPerColumn() {
+    return csvMaxCharsPerColumn;
+  }
+
+  public void setCsvMaxCharsPerColumn(Integer csvMaxCharsPerColumn) {
+    this.csvMaxCharsPerColumn = csvMaxCharsPerColumn;
   }
 
   public IngestionDataResultResponse getData(String lineSep, String delimiter, int limit, boolean firstHeaderRow) throws IOException {
@@ -64,7 +74,9 @@ public class CsvProcessor {
     settings.getFormat().setLineSeparator(lineSep);
     settings.getFormat().setDelimiter(delimiter.charAt(0));
     settings.setHeaderExtractionEnabled(firstHeaderRow);
-    settings.setMaxCharsPerColumn(1024 * 12);
+    if(csvMaxCharsPerColumn != null && csvMaxCharsPerColumn > 0){
+      settings.setMaxCharsPerColumn(csvMaxCharsPerColumn);
+    }
 
     RowListProcessor rowProcessor = new RowListProcessor();
     settings.setProcessor(rowProcessor);

@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-
 import com.univocity.parsers.common.TextParsingException;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -66,6 +65,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.CommonLocalVariable;
+import app.metatron.discovery.common.MetatronProperties;
 import app.metatron.discovery.common.criteria.ListCriterion;
 import app.metatron.discovery.common.criteria.ListFilter;
 import app.metatron.discovery.common.datasource.DataType;
@@ -165,6 +165,9 @@ public class DataSourceController {
 
   @Autowired
   WorkbenchProperties workbenchProperties;
+
+  @Autowired
+  MetatronProperties metatronProperties;
 
   DataSourceProjections dataSourceProjections = new DataSourceProjections();
 
@@ -900,7 +903,9 @@ public class DataSourceController {
       if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
         resultResponse = new ExcelProcessor(tempFile).getSheetData(sheetName, limit, firstHeaderRow);
       } else if ("csv".equals(extensionType)) {
-        resultResponse = new CsvProcessor(tempFile).getData(lineSep, delimiter, limit, firstHeaderRow);
+        CsvProcessor csvProcessor = new CsvProcessor(tempFile);
+        csvProcessor.setCsvMaxCharsPerColumn(metatronProperties.getCsvMaxCharsPerColumn());
+        resultResponse = csvProcessor.getData(lineSep, delimiter, limit, firstHeaderRow);
       } else {
         throw new BadRequestException("Invalid temporary file.");
       }
