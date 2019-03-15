@@ -99,7 +99,7 @@ public class Field implements MetatronDomain<Long> {
 
   public final static String FIELD_NAME_CURRENT_TIMESTAMP = "__ctime";
   public final static String COLUMN_NAME_CURRENT_DATETIME = "current_datetime";
-  public final static String[] RESERVED_FIELDS = { "count", "__ctime" };
+  public final static String[] RESERVED_FIELDS = { "count", "__time" };
 
   static final Comparator<Field> FILTERING_COMPARATOR = new Ordering<Field>() {
     @Override
