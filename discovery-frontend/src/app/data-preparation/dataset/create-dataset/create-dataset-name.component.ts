@@ -15,7 +15,7 @@
 import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
 import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {
-  FileFormat, PrDatasetFile, PrDatasetHive, PrDatasetJdbc,
+  FileFormat, PrDatasetHive, PrDatasetJdbc,
   RsType
 } from '../../../domain/data-preparation/pr-dataset';
 import {PopupService} from '../../../common/service/popup.service';
@@ -23,7 +23,6 @@ import {DatasetService} from '../service/dataset.service';
 import {isUndefined} from 'util';
 import {StringUtil} from '../../../common/util/string.util';
 import {Alert} from '../../../common/util/alert.util';
-import {PreparationCommonUtil} from "../../util/preparation-common.util";
 import * as _ from 'lodash';
 import { concatMap } from 'rxjs/operators';
 import { from} from "rxjs/observable/from";
@@ -326,14 +325,6 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
 
   /**
-   * Check if next button is disabled or not
-   */
-  public isBtnDisabled() : boolean {
-    return this.showNameError || this.showDescError;
-  }
-
-
-  /**
    * Keyup event
    * @param event
    */
@@ -343,6 +334,12 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     }
   }
 
+
+  /**
+   * Keyboard down event on name input
+   * @param event
+   * @param index
+   */
   public keyDownEvent(event, index) {
 
     if (this.names[index].length > 149 && this.isKeyPressedWithChar(event.keyCode) && !this.isMaxLengthError) {
@@ -362,8 +359,13 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     }
   }
 
-  public keyDownDescEvent(event, index) {
 
+  /**
+   * Keyboard press down event on description input
+   * @param event
+   * @param index
+   */
+  public keyDownDescEvent(event, index) {
 
     if (this.descriptions[index].length > 149 && this.isKeyPressedWithChar(event.keyCode) && !this.isMaxLengthError) {
       this.isMaxLengthError = true;
@@ -380,6 +382,11 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
   }
 
+  /**
+   * Returns true if something is typed on the keyboard
+   * Returns false if shift, tab etc is pressed
+   * @param keyCode
+   */
   public isKeyPressedWithChar(keyCode: number): boolean {
     const exceptionList: number[] = [8,9,13,16,17,18,19,20,27,33,34,35,36,37,38,39,40,45,46,91,92,219,220,93,144,145];
     return exceptionList.indexOf(keyCode) === -1
