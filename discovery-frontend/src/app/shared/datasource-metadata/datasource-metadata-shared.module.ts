@@ -1,5 +1,5 @@
 import {NgModule} from '@angular/core';
-import {ConstantService as Constant} from './service/constant.service';
+import {ConstantService} from './service/constant.service';
 import {CommonModule} from '../../common/common.module';
 
 @NgModule({
@@ -7,8 +7,8 @@ import {CommonModule} from '../../common/common.module';
     CommonModule,
   ],
   providers: [
-    Constant,
+    ConstantService,
   ],
 })
-export class SharedModule {
+export class DatasourceMetadataSharedModule {
 }

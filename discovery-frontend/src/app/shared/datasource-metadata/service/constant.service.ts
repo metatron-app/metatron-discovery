@@ -6,13 +6,13 @@ import * as _ from 'lodash';
 @Injectable()
 export class ConstantService {
 
-  private readonly roleTypeFilters: Constant.FilterType.Role[] = [
+  private readonly roleTypeFilters: Constant.Filter.Role[] = [
     {label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL', checked: true},
     {label: this.translateService.instant('msg.comm.name.dim'), value: 'DIMENSION', checked: false},
     {label: this.translateService.instant('msg.comm.name.mea'), value: 'MEASURE', checked: false},
   ];
 
-  private readonly typeFilters: Constant.FilterType.Type[] = [
+  private readonly typeFilters: Constant.Filter.Type[] = [
     {label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL'},
     {label: this.translateService.instant('msg.storage.ui.list.string'), value: 'STRING'},
     {label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN'},

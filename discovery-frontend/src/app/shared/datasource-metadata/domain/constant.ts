@@ -1,6 +1,5 @@
 export namespace Constant {
-
-  export namespace FilterType {
+  export namespace Filter {
     export type Role = (
       {
         label: string | any;

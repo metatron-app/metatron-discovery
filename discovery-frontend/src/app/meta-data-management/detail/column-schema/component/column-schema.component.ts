@@ -27,9 +27,9 @@ import {ColumnDictionaryService} from '../../../column-dictionary/service/column
 import {Alert} from '../../../../common/util/alert.util';
 import {CommonConstant} from '../../../../common/constant/common.constant';
 import {MetadataSourceType} from '../../../../domain/meta-data-management/metadata';
-import {ConstantService} from '../../../shared/service/constant.service';
-import {Constant} from '../../../shared/domain/constant';
 import {CommonUtil} from '../../../../common/util/common.util';
+import {ConstantService} from '../../../../shared/datasource-metadata/service/constant.service';
+import {Constant} from '../../../../shared/datasource-metadata/domain/constant';
 
 class Order {
   key: string = 'physicalName';
@@ -116,8 +116,8 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   public readonly UUID = CommonUtil.getUUID();
 
-  public selectedRole: Constant.FilterType.Role = this.constant.getRoleTypeFilterFirst();
-  public selectedType: Constant.FilterType.Type = this.constant.getTypeFiltersFirst();
+  public selectedRole: Constant.Filter.Role = this.constant.getRoleTypeFilterFirst();
+  public selectedType: Constant.Filter.Type = this.constant.getTypeFiltersFirst();
   public roleTypeFilters = this.constant.getRoleTypeFilters();
   public typeFilters = this.constant.getTypeFilters();
   public keyword: number | string = '';
@@ -477,11 +477,11 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     this.keyword = keyword;
   }
 
-  public selectTypeFilter(type: Constant.FilterType.Type) {
+  public selectTypeFilter(type: Constant.Filter.Type) {
     this.selectedType = type;
   }
 
-  public selectRoleFilter(role: Constant.FilterType.Role) {
+  public selectRoleFilter(role: Constant.Filter.Role) {
     this.selectedRole.checked = false;
     role.checked = true;
     this.selectedRole = role;
