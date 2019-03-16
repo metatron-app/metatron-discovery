@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.dataprep.teddy;
+package app.metatron.discovery.domain.dataprep.etl;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_CORES;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
@@ -25,6 +25,7 @@ import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_URL;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.PrepUtil;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrSnapshot;
@@ -37,6 +38,11 @@ import app.metatron.discovery.domain.dataprep.jdbc.PrepJdbcService;
 import app.metatron.discovery.domain.dataprep.json.PrepJsonParseResult;
 import app.metatron.discovery.domain.dataprep.json.PrepJsonUtil;
 import app.metatron.discovery.domain.dataprep.service.PrSnapshotService;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnDescription;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrameService;
+import app.metatron.discovery.domain.dataprep.teddy.Row;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcTypeNotSupportedException;
@@ -54,7 +60,6 @@ import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -64,8 +69,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -114,7 +117,8 @@ public class TeddyExecutor {
     @Autowired
     PrSnapshotService snapshotService;
 
-    public String  hadoopConfDir;
+    public String hadoopConfDir = null;
+    Configuration hadoopConf = null;
 
     public String  hiveHostname;
     public Integer hivePort;
@@ -136,8 +140,6 @@ public class TeddyExecutor {
     private Map<String, DataFrame> cache = Maps.newHashMap();
     private Map<String, Long> snapshotRuleDoneCnt = new HashMap<>();
 
-    Configuration conf;
-
     private Long incrRuleCntDone(String ssId){
         Long cnt = snapshotRuleDoneCnt.get(ssId);
         snapshotRuleDoneCnt.put(ssId, ++cnt);
@@ -158,13 +160,11 @@ public class TeddyExecutor {
         limitRows     = (Integer) prepPropertiesInfo.get(ETL_LIMIT_ROWS);
 
         if (hadoopConfDir != null) {
-            conf = new Configuration();
-            conf.addResource(new Path(hadoopConfDir + File.separator + "core-site.xml"));
-            conf.addResource(new Path(hadoopConfDir + File.separator + "hdfs-site.xml"));
+            hadoopConf = PrepUtil.getHadoopConf(hadoopConfDir);
         }
     }
 
-    @Async("threadPoolTaskExecutor")
+    @Async("prepThreadPoolTaskExecutor")
     public Future<String> run(String[] argv) throws Throwable {
         Future<String> result;
         String ssId="";
@@ -226,7 +226,7 @@ public class TeddyExecutor {
     }
 
     private int writeCsv(String strUri, DataFrame df, String ssId) {
-        CSVPrinter printer = PrepCsvUtil.getPrinter(strUri, conf);
+        CSVPrinter printer = PrepCsvUtil.getPrinter(strUri, hadoopConf);
         String errmsg = null;
 
         try {
@@ -259,9 +259,9 @@ public class TeddyExecutor {
         return df.rows.size();
     }
 
-    private int writeJSON(String strUri, DataFrame df, String ssId) {
-        LOGGER.debug("TeddyExecutor.wirteJSON(): strUri={} conf={}", strUri, conf);
-        PrintWriter printWriter = PrepJsonUtil.getJsonPrinter(strUri, conf);
+    private int writeJson(String strUri, DataFrame df, String ssId) {
+        LOGGER.debug("TeddyExecutor.wirteJSON(): strUri={} hadoopConfDir={}", strUri, hadoopConfDir);
+        PrintWriter printWriter = PrepJsonUtil.getJsonPrinter(strUri, hadoopConf);
         ObjectMapper mapper = new ObjectMapper();
         String errmsg = null;
 
@@ -325,7 +325,7 @@ public class TeddyExecutor {
                 writeCsv(storedUri, df, ssId);
                 break;
             case JSON:
-                writeJSON(storedUri, df, ssId);
+                writeJson(storedUri, df, ssId);
                 break;
             default:
                 assert false : storedUri;
@@ -534,7 +534,7 @@ public class TeddyExecutor {
 
         LOGGER.info("loadCsvFile(): dsId={} strUri={} delemiter={}", dsId, strUri, delimiter);
 
-        PrepCsvParseResult result = PrepCsvUtil.parse(strUri, delimiter, limitRows, conf);
+        PrepCsvParseResult result = PrepCsvUtil.parse(strUri, delimiter, limitRows, hadoopConf);
         df.setByGrid(result);
 
         LOGGER.info("loadCsvFile(): done");
@@ -546,7 +546,7 @@ public class TeddyExecutor {
 
         LOGGER.info("loadJsonFile(): dsId={} strUri={}", dsId, strUri);
 
-        PrepJsonParseResult result = PrepJsonUtil.parseJson(strUri, limitRows, conf);
+        PrepJsonParseResult result = PrepJsonUtil.parseJson(strUri, limitRows, hadoopConf);
         df.setByGridWithJson(result);
 
         LOGGER.info("loadJsonFile(): done");
@@ -738,60 +738,10 @@ public class TeddyExecutor {
         }
     }
 
-    private int writeCsvForUriSnapshot(String ssId, DataFrame df, BufferedWriter br, List<String> colNames) throws IOException {
-        LOGGER.trace("writeCsvForUriSnapshot(): start");
-
-        if (colNames != null) {
-            for (int colno = 0; colno < df.getColCnt(); colno++) {
-                if (colno > 0) {
-                    br.write(",");
-                }
-                br.write(colNames.get(colno));
-            }
-            br.write("\n");
-        }
-
-        for (int rowno = 0; rowno < df.rows.size(); cancelCheck(ssId, ++rowno)) {
-            Row row = df.rows.get(rowno);
-            for (int colno = 0; colno < df.getColCnt(); colno++) {
-                if (colno > 0) {
-                    br.write(",");
-                }
-                Object obj = row.get(colno);
-                if (obj != null) {
-                    String str;
-                    if (obj instanceof DateTime) {
-                        str = ((DateTime) obj).toString(df.getColTimestampStyle(colno));
-                    } else if (obj instanceof Double) {
-                        DecimalFormat decimalFormat = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
-                        decimalFormat.setMaximumFractionDigits(340);
-                        str = decimalFormat.format(obj);
-                    } else {
-                        str = obj.toString();
-                    }
-
-                    // check , in any case. for safety.
-                    if (str.contains(",")) {
-                        br.write("\"");
-                        br.write(str);
-                        br.write("\"");
-                    } else {
-                        br.write(str);
-                    }
-                }
-            }
-            br.write("\n");
-        }
-        br.close();
-
-        LOGGER.trace("writeCsvForUriSnapshot(): end");
-        return df.rows.size();
-    }
-
     public String writeCsvForStagingDbSnapshot(String ssId, String dsId, String extHdfsDir, String dbName, String tblName,
                                                HIVE_FILE_FORMAT hiveFileFormat, HIVE_FILE_COMPRESSION compression) throws IOException, IllegalColumnNameForHiveException {
         Integer[] rowCnt = new Integer[2];
-        FileSystem fs = FileSystem.get(conf);
+        FileSystem fs = FileSystem.get(hadoopConf);
 
         LOGGER.trace("writeCsvForStagingDbSnapshot(): start");
         assert extHdfsDir.equals("") == false : extHdfsDir;
@@ -813,7 +763,7 @@ public class TeddyExecutor {
                 df.lowerColNames();
                 Path file = new Path(dir.toString() + File.separator + "part-00000-" + dsId + ".orc");
                 TeddyOrcWriter orcWriter = new TeddyOrcWriter();
-                rowCnt = orcWriter.writeOrc(df, conf, file, compression);
+                rowCnt = orcWriter.writeOrc(df, hadoopConf, file, compression);
                 break;
             default:
                 assert false : hiveFileFormat;

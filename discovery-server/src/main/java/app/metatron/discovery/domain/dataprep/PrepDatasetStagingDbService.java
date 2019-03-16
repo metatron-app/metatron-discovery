@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import static app.metatron.discovery.domain.dataprep.entity.PrDataset.RS_TYPE.QUERY;
+
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
@@ -32,20 +34,16 @@ import app.metatron.discovery.domain.storage.StorageProperties.StageDBConnection
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.apache.hive.jdbc.HiveConnection;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.support.JdbcUtils;
-import org.springframework.stereotype.Service;
-
-import javax.servlet.ServletOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,8 +53,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static app.metatron.discovery.domain.dataprep.entity.PrDataset.RS_TYPE.QUERY;
+import javax.servlet.ServletOutputStream;
+import org.apache.hive.jdbc.HiveConnection;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.stereotype.Service;
 
 @Service
 public class PrepDatasetStagingDbService {

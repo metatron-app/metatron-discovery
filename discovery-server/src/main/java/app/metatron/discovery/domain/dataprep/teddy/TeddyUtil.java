@@ -14,54 +14,12 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import com.google.common.collect.Lists;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import java.sql.Timestamp;
+import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 
-import java.io.*;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-
-public class Util {
-  public static int getLengthUTF8(CharSequence sequence) {
-    if (sequence == null) {
-      return 0;
-    }
-    int count = 0;
-    for (int i = 0, len = sequence.length(); i < len; i++) {
-      char ch = sequence.charAt(i);
-      if (ch <= 0x7F) {
-        count++;
-      } else if (ch <= 0x7FF) {
-        count += 2;
-      } else if (Character.isHighSurrogate(ch)) {
-        count += 4;
-        ++i;
-      } else {
-        count += 3;
-      }
-    }
-    return count;
-  }
-
-  public final static double EPSILON = 1.0e-20;
-
-  public static Double round(double val) {
-    return Double.valueOf(String.format("%.16f", Math.abs(val) < EPSILON ? 0.0 : val));
-  }
-
+public class TeddyUtil {
   static void showSep(List<Integer> widths) {
     System.out.print("+");
     for (int width : widths) {
@@ -107,15 +65,6 @@ public class Util {
     System.out.println("");
   }
 
-
-  public static Date jodatToSQLDate(LocalDateTime localDateTime) {
-    return new Date(localDateTime.toDateTime().getMillis());
-  }
-
-  public static Timestamp jodaToSQLTimestamp(LocalDateTime localDateTime) {
-    return new Timestamp(localDateTime.toDateTime().getMillis());
-  }
-
   public static LocalDateTime sqlTimestampToJodaLocalDateTime(Timestamp timestamp) {
     return LocalDateTime.fromDateFields(timestamp);
   }
@@ -123,5 +72,4 @@ public class Util {
   public static DateTime sqlTimestampToJodaDateTime(Timestamp timestamp) {
     return sqlTimestampToJodaLocalDateTime(timestamp).toDateTime();
   }
-
 }

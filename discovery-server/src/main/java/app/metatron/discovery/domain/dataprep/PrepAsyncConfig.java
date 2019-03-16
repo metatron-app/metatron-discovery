@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.dataprep.teddy;
+package app.metatron.discovery.domain.dataprep;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,18 +28,18 @@ import java.util.concurrent.Future;
 
 @Configuration
 @EnableAsync
-public class TeddyAsyncConfig {
+public class PrepAsyncConfig {
 
   protected Logger logger = LoggerFactory.getLogger(getClass());
   protected Logger errorLogger = LoggerFactory.getLogger("error");
 
-  @Bean(name = "threadPoolTaskExecutor")
-  public Executor threadPoolTaskExecutor() {
+  @Bean(name = "prepThreadPoolTaskExecutor")
+  public Executor prepThreadPoolTaskExecutor() {
     ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
     taskExecutor.setCorePoolSize(30);
     taskExecutor.setMaxPoolSize(30);
     taskExecutor.setQueueCapacity(1000);
-    taskExecutor.setThreadNamePrefix("TeddyThread-");
+    taskExecutor.setThreadNamePrefix("PrepThread-");
     taskExecutor.initialize();
     return new HandlingExecutor(taskExecutor); // HandlingExecutor로 wrapping 합니다.
   }
