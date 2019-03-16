@@ -14,6 +14,9 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import com.google.common.collect.Maps;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -47,13 +50,28 @@ public class PrepHdfsService {
         return uploadHdfsPath;
     }
 
+    private boolean existsLocal(String path) {
+        File f = new File(path);
+        return f.exists();
+    }
+
     public Configuration getConf() {
         if(null==hadoopConf) {
             hadoopConf = new Configuration();
-            String hadoopConfDir = prepProperties.getHadoopConfDir(false);      // FIXME: after implementing specifying upload locations
+            String hadoopConfDir = prepProperties.getHadoopConfDir(true);
             if(null!=hadoopConfDir) {
-                hadoopConf.addResource(new Path(hadoopConfDir + File.separator + "core-site.xml"));
-                hadoopConf.addResource(new Path(hadoopConfDir + File.separator + "hdfs-site.xml"));
+                String coreSite = hadoopConfDir + File.separator + "core-site.xml";
+                String hdfsSite = hadoopConfDir + File.separator + "hdfs-site.xml";
+
+                if (!existsLocal(coreSite)) {
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_CORE_SITE_NOT_FOUND, coreSite);
+                }
+                if (!existsLocal(hdfsSite)) {
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_HDFS_SITE_NOT_FOUND, hdfsSite);
+                }
+
+                hadoopConf.addResource(new Path(coreSite));
+                hadoopConf.addResource(new Path(hdfsSite));
             }
         }
         return hadoopConf;
