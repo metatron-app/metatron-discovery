@@ -19,6 +19,7 @@ import {TimezoneService} from "./timezone.service";
 import {TranslateService} from "@ngx-translate/core";
 import {StringUtil} from "../../common/util/string.util";
 import {isNullOrUndefined} from "util";
+import {Type} from '../../shared/datasource-metadata/domain/type';
 
 @Injectable()
 export class FieldConfigService extends AbstractService {
@@ -138,10 +139,10 @@ export class FieldConfigService extends AbstractService {
         targetField.typeValidMessage = this._translateSvc.instant('msg.storage.ui.schema.column.no.data');
         resolve(targetField);
       } else {
-        const WktKeyword: string = this._getKeywordWKT(targetField);
+        const wktKeyword = this._getKeywordWKT(targetField);
         const params = {
           geoType: targetField.logicalType,
-          values: fieldDataList.slice(0, 19).map(data => `${WktKeyword} (${data.replace(/,/, ' ')})`)
+          values: fieldDataList.slice(0, 19).map(data => `${wktKeyword} (${data.replace(/,/, ' ')})`)
         };
         // api result
         this.post(this.API_URL + 'datasources/validation/wkt', params)
@@ -165,16 +166,16 @@ export class FieldConfigService extends AbstractService {
   /**
    * Get keyword WKT
    * @param {Field} targetField
-   * @return {string}
+   * @return {Type.WKT}
    * @private
    */
-  private _getKeywordWKT(targetField: Field): string {
+  private _getKeywordWKT(targetField: Field) {
     if (targetField.logicalType === LogicalType.GEO_POINT) {
-      return 'POINT';
+      return Type.WKT.POINT;
     } else if (targetField.logicalType === LogicalType.GEO_LINE) {
-      return 'LINESTRING';
+      return Type.WKT.LINESTRING;
     } else if (targetField.logicalType === LogicalType.GEO_POLYGON) {
-      return 'POLYGON';
+      return Type.WKT.POLYGON;
     }
   }
 }

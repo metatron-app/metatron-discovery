@@ -6,8 +6,14 @@ export namespace Type {
     MEASURE = 'MEASURE',
     DIMENSION = 'DIMENSION'
   }
-  
+
+  export enum WKT {
+    POINT = 'POINT',
+    LINESTRING = 'LINESTRING',
+    POLYGON = 'POLYGON'
+  }
+
   export enum Logical {
-    
+
   }
 }
