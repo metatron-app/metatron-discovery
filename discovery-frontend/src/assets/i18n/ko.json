@@ -1886,10 +1886,12 @@
   "msg.storage.ui.th.time-zone-designator" : "표준시간대",
   "msg.storage.ui.schema.column.no.data" : "데이터 값이 없어서 시간타입을 설정할 수 없습니다",
   "msg.storage.ui.schema.column.format.required" : "시간 표시 형식은 필수값입니다",
-  "msg.storage.ui.schema.column.format.null" : "데이터 값과 동일한 형식으로 입력하십시오",
+  "msg.storage.ui.schema.valid.required.check" : "Please check valid",
+  "msg.storage.ui.schema.valid.required.match.data" : "데이터 값과 동일한 형식으로 입력하십시오",
   "msg.storage.ui.schema.valid.timestamp" : "시간 형식을 입력하거나 공백을 입력하세요",
   "msg.storage.ui.schema.valid.timestamp.null" : "위에 설정된 시간 표시 형식을 입력하세요",
   "msg.storage.ui.schema.valid.timestamp.pre.valid" : "위의 시간 표시 형식을 확인하세요",
+
   "msg.storage.ui.schema.valid.boolean" : "true, false 또는 공백을 입력하세요",
   "msg.storage.ui.schema.valid.string" : "문자열을 입력하거나 공백을 입력하세요",
   "msg.storage.ui.schema.valid.integer" : "정수를 입력하거나 공백을 입력하세요",

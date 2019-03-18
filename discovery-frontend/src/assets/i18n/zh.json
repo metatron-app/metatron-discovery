@@ -1792,6 +1792,8 @@
   "msg.storage.ui.th.time-zone-designator": "time zone designator",
   "msg.storage.ui.schema.column.no.data": "Can not set Time-type because there is no data value",
   "msg.storage.ui.schema.column.format.required": "The time display format is required",
+  "msg.storage.ui.schema.valid.required.check" : "Please check valid",
+  "msg.storage.ui.schema.valid.required.match.data" : "데이터 값과 동일한 형식으로 입력하십시오",
   "msg.storage.ui.schema.column.format.null": "Please enter in the same format as the data value",
   "msg.storage.ui.schema.valid.timestamp": "Type in time format or leave it blank",
   "msg.storage.ui.schema.valid.timestamp.null": "Please enter the time display format set above",

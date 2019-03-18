@@ -33,7 +33,7 @@ import { DndModule } from 'ng2-dnd';
 import { CanDeactivateGuard } from '../common/gaurd/can.deactivate.guard';
 import { DataGridDataSourceComponent } from './data-source-list/detail-data-source/data-grid-data-source/data-grid-data-source.component';
 import { ColumnDetailDataSourceComponent } from './data-source-list/detail-data-source/column-detail-data-source/column-detail-data-source.component';
-import { EditConfigSchemaComponent } from './data-source-list/detail-data-source/column-detail-data-source/edit-config-schema/edit-config-schema.component';
+import { EditConfigSchemaComponent } from './data-source-list/detail-data-source/column-detail-data-source/edit-config-schema.component';
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
 import { EditFilterDataSourceComponent } from './data-source-list/detail-data-source/edit-filter-data-source.component';
 import { IngestionLogComponent } from './data-source-list/detail-data-source/information-dats-source/component/ingestion-log/ingestion-log.component';
@@ -43,6 +43,8 @@ import { CriterionTimeRadioboxComponent } from './component/criterion/criterion-
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
 import {DataSourceCreateModule} from "./data-source-list/create-data-source/data-source-create.module";
 import {StorageFilterSelectBoxComponent} from "./data-source-list/component/storage-filter-select-box.component";
+import {DatetimeValidPopupComponent} from "./data-source-list/component/datetime-valid-popup.component";
+import {FieldConfigService} from "./service/field-config.service";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -76,7 +78,8 @@ const storageRoutes: Routes = [
     EditFilterDataSourceComponent,
     EditConfigSchemaComponent,
     IngestionLogComponent,
-
+    // time valid layer popup
+    DatetimeValidPopupComponent,
     // data connection
     DataConnectionComponent,
     HandlerDataConnectionComponent,
@@ -99,6 +102,7 @@ const storageRoutes: Routes = [
     DatasourceManagementGuard,
     MetadataService,
     DataConnectionCreateService,
+    FieldConfigService,
   ]
 })
 export class DataStorageModule {

@@ -742,13 +742,13 @@ export class SchemaConfigDetailComponent extends AbstractComponent implements On
           // set time format valid FALSE
           field.isValidTimeFormat = false;
           // set time format valid message
-          field.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.format.null');
+          field.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.required.match.data');
         }})
       .catch((error) => {
         // set time format valid FALSE
         field.isValidTimeFormat = false;
         // set time format valid message
-        field.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.format.null');
+        field.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.required.match.data');
       });
   }
 

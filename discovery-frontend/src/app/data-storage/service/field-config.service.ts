@@ -140,7 +140,7 @@ export class FieldConfigService extends AbstractService {
       } else {
         const params = {
           geoType: targetField.logicalType,
-          values: fieldDataList
+          values: fieldDataList.slice(0, 19)
         };
         // api result
         this.post(this.API_URL + 'datasources/validation/wkt', params)

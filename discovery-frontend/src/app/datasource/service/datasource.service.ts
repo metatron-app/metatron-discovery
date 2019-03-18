@@ -794,7 +794,7 @@ export class DatasourceService extends AbstractService {
             // set time format valid FALSE
             field.isValidTimeFormat = false;
             // set time format valid message
-            field.timeFormatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.column.format.null');
+            field.timeFormatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.valid.required.match.data');
           }
           // if valid format, set enable time format
           (result.valid) && (field.isValidTimeFormat = true);
@@ -806,7 +806,7 @@ export class DatasourceService extends AbstractService {
           // set time format valid FALSE
           field.isValidTimeFormat = false;
           // set time format valid message
-          field.timeFormatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.column.format.null');
+          field.timeFormatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.valid.required.match.data');
           reject(field);
         });
     });

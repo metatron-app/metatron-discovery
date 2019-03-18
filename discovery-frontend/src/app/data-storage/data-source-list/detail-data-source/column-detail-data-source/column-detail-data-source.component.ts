@@ -35,7 +35,7 @@ import { isUndefined } from 'util';
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { EditFilterDataSourceComponent } from '../edit-filter-data-source.component';
 import { FilteringOptions, FilteringOptionType } from '../../../../domain/workbook/configurations/filter/filter';
-import { EditConfigSchemaComponent } from './edit-config-schema/edit-config-schema.component';
+import { EditConfigSchemaComponent } from './edit-config-schema.component';
 import {TimezoneService} from "../../../service/timezone.service";
 import {FormatType} from "../../../../common/component/chart/option/define/common";
 import {StringUtil} from "../../../../common/util/string.util";
@@ -76,6 +76,10 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   @Input()
   public metaData: Metadata;
 
+  // enum
+  public readonly FIELD_ROLE: any = FieldRole;
+  public readonly LOGICAL_TYPE: any = LogicalType;
+
   // filtered column list
   public filteredColumnList: any[];
 
@@ -85,7 +89,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   public selectedRoleTypeFilter: TypeFilterObject;
 
   // logical type filter list
-  public logicalTypeFilterList: TypeFilterObject[] = this.datasourceCreateService.getLogicalTypeFilterList();
+  public logicalTypeFilterList: TypeFilterObject[] = this.datasourceCreateService.getLogicalTypeFilterList().filter(type => type.value !== LogicalType.USER_DEFINED);
   // selected logical type filter
   public selectedLogicalTypeFilter: TypeFilterObject;
 
@@ -98,7 +102,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   public statsData: any = {};
 
   // search text keyword
-  public searchTextKeyword: string = '';
+  public searchTextKeyword: string;
 
   @Output()
   public changeDatasource: EventEmitter<any> = new EventEmitter();
@@ -237,10 +241,9 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   /**
    * Get column type label
    * @param {string} type
-   * @param typeList
    * @returns {string}
    */
-  public getColumnTypeLabel(type:string): string {
+  public getColumnTypeLabel(type: string): string {
     return this.logicalTypeFilterList.find(filter => filter.value === type).label;
   }
 
@@ -352,7 +355,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    */
   public onClickResetFilter(): void {
     // init search text keyword
-    this.searchTextKeyword = '';
+    this.searchTextKeyword = undefined;
     // init selected role type filter
     this.selectedRoleTypeFilter = this.roleTypeFilterList[0];
     // init selected type fliter
@@ -378,8 +381,8 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     if (!this.isLinkedTypeSource(source) && !this.isGeoType(field)) {
       // if role is TIMESTAMP and __time variable not exist in statsData,
       // else if role is not TIMESTAMP and field name not existed in statsData
-      if ((this.selectedField.role === 'TIMESTAMP' && !this.statsData.hasOwnProperty('__time'))
-        || (this.selectedField.role !== 'TIMESTAMP' && !this.statsData.hasOwnProperty(field.name))) {
+      if ((this.selectedField.role === FieldRole.TIMESTAMP && !this.statsData.hasOwnProperty('__time'))
+        || (this.selectedField.role !== FieldRole.TIMESTAMP && !this.statsData.hasOwnProperty(field.name))) {
         // loading show
         this.loadingShow();
         // get stats data
@@ -404,7 +407,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
       }
 
       // if role is MEASURE and field name not existed in covarianceData
-      if (field.role === 'MEASURE' && !this.covarianceData.hasOwnProperty(field.name)) {
+      if (field.role === FieldRole.MEASURE && !this.covarianceData.hasOwnProperty(field.name)) {
         // loading show
         this.loadingShow();
         // get covariance data
@@ -418,7 +421,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
             this._updateCovarianceChart(engineName);
           })
           .catch(error => this.commonExceptionHandler(error));
-      } else if (field.role === 'MEASURE' && this.covarianceData.hasOwnProperty(field.name)) {
+      } else if (field.role === FieldRole.MEASURE && this.covarianceData.hasOwnProperty(field.name)) {
         // update covariance chart
         this._updateCovarianceChart(engineName);
       }
@@ -438,7 +441,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    * Configure schema click event
    */
   public onClickConfigureSchema(): void {
-    this._editConfigSchemaComp.init(this.datasource.id, this.datasource.fields, this.roleTypeFilterList, this.logicalTypeFilterList);
+    this._editConfigSchemaComp.init(this.datasource.id, this.datasource.fields, this.datasource);
     // change markup position
     $('#edit-config-schema').appendTo($('#layout-contents'));
   }
@@ -450,8 +453,6 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   private _initView(): void {
     this.selectedLogicalTypeFilter = this.logicalTypeFilterList[0];
     this.selectedRoleTypeFilter = this.roleTypeFilterList[0];
-    // search
-    this.searchTextKeyword = '';
     // init data
     this.statsData = {};
     this.covarianceData = {};

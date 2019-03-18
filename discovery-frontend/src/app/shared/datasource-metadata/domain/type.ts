@@ -6,4 +6,8 @@ export namespace Type {
     MEASURE = 'MEASURE',
     DIMENSION = 'DIMENSION'
   }
+  
+  export enum Logical {
+    
+  }
 }
