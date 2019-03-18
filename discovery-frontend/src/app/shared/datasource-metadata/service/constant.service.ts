@@ -12,7 +12,7 @@ import Logical = Type.Logical;
 export class ConstantService {
 
   private readonly roleTypeFilters: Filter.Role[] = [
-    new Filter.Role(this.translateService.instant('msg.comm.ui.list.all'), 'ALL', true),
+    new Filter.Role(this.translateService.instant('msg.comm.ui.list.all'), Type.Role.ALL, true),
     new Filter.Role(this.translateService.instant('msg.comm.name.dim'), Type.Role.DIMENSION, false),
     new Filter.Role(this.translateService.instant('msg.comm.name.mea'), Type.Role.MEASURE, false),
   ];

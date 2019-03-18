@@ -5,7 +5,12 @@ export namespace Type {
   export enum Role {
     MEASURE = 'MEASURE',
     DIMENSION = 'DIMENSION',
-    TIMESTAMP = 'TIMESTAMP'
+    TIMESTAMP = 'TIMESTAMP',
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Value to be used only on View
+    ////////////////////////////////////////////////////////////////////////////
+    ALL = 'ALL'
   }
 
   export enum WKT {

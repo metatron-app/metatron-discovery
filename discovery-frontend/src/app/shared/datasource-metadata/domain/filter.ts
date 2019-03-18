@@ -3,9 +3,9 @@ import {Type} from './type';
 export namespace Filter {
   export class Logical {
     label: string;
-    value: Type.Logical | 'ALL';
+    value: Type.Logical;
 
-    constructor(label: string, value: Type.Logical | 'ALL') {
+    constructor(label: string, value: Type.Logical) {
       this.label = label;
       this.value = value;
     }
@@ -13,10 +13,10 @@ export namespace Filter {
 
   export class Role {
     label: string | any;
-    value: Type.Role | 'ALL';
+    value: Type.Role;
     checked: boolean;
 
-    constructor(label: string | any, value: Type.Role | 'ALL', checked: boolean) {
+    constructor(label: string | any, value: Type.Role, checked: boolean) {
       this.label = label;
       this.value = value;
       this.checked = checked;
