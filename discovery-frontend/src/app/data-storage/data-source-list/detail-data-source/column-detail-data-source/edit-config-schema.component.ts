@@ -221,7 +221,6 @@ export class EditConfigSchemaComponent extends AbstractComponent {
         this._setIsExistErrorInFieldListFlag();
         // remove valid flag
         delete targetField.isValidType;
-``
       } else if (prevLogicalType === LogicalType.TIMESTAMP) {  // 만약 기존 타입이 타임타입이라면
         // remove format
         delete targetField.format;
