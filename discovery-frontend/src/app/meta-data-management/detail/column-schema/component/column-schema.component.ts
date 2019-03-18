@@ -29,8 +29,8 @@ import {CommonConstant} from '../../../../common/constant/common.constant';
 import {MetadataSourceType} from '../../../../domain/meta-data-management/metadata';
 import {CommonUtil} from '../../../../common/util/common.util';
 import {ConstantService} from '../../../../shared/datasource-metadata/service/constant.service';
-import {Constant} from '../../../../shared/datasource-metadata/domain/constant';
 import {Type} from '../../../../shared/datasource-metadata/domain/type';
+import {Filter} from '../../../../shared/datasource-metadata/domain/filter';
 
 class Order {
   key: string = 'physicalName';
@@ -117,10 +117,10 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   public readonly UUID = CommonUtil.getUUID();
 
-  public selectedRole: Constant.Filter.Role = this.constant.getRoleTypeFilterFirst();
-  public selectedType: Constant.Filter.Type = this.constant.getTypeFiltersFirst();
-  public roleTypeFilters = this.constant.getRoleTypeFilters();
-  public typeFilters = this.constant.getTypeFilters();
+  public selectedRole: Filter.Role = this.constant.getRoleTypeFilterFirst();
+  public selectedType: Filter.Logical = this.constant.getTypeFiltersFirst();
+  public roleTypeFilters: Filter.Role[] = this.constant.getRoleTypeFilters();
+  public typeFilters: Filter.Logical[] = this.constant.getTypeFilters();
   public keyword: number | string = '';
   public isShowTypeFilters: boolean = false;
 
@@ -480,11 +480,11 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     this.keyword = keyword;
   }
 
-  public selectTypeFilter(type: Constant.Filter.Type) {
+  public selectTypeFilter(type: Filter.Logical) {
     this.selectedType = type;
   }
 
-  public selectRoleFilter(role: Constant.Filter.Role) {
+  public selectRoleFilter(role: Filter.Role) {
     this.selectedRole.checked = false;
     role.checked = true;
     this.selectedRole = role;

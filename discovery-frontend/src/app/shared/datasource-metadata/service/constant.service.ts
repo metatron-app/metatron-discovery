@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
-import {Constant} from '../domain/constant';
 import * as _ from 'lodash';
-import {Type} from "../domain/type";
+import {Type} from '../domain/type';
+import {Filter} from '../domain/filter';
 import Logical = Type.Logical;
 
 /**
@@ -11,24 +11,24 @@ import Logical = Type.Logical;
 @Injectable()
 export class ConstantService {
 
-  private readonly roleTypeFilters: Constant.Filter.Role[] = [
-    {label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL', checked: true},
-    {label: this.translateService.instant('msg.comm.name.dim'), value: 'DIMENSION', checked: false},
-    {label: this.translateService.instant('msg.comm.name.mea'), value: 'MEASURE', checked: false},
+  private readonly roleTypeFilters: Filter.Role[] = [
+    new Filter.Role(this.translateService.instant('msg.comm.ui.list.all'), 'ALL', true),
+    new Filter.Role(this.translateService.instant('msg.comm.name.dim'), Type.Role.DIMENSION, false),
+    new Filter.Role(this.translateService.instant('msg.comm.name.mea'), Type.Role.MEASURE, false),
   ];
 
-  private readonly typeFilters: Constant.Filter.Logical[] = [
-    {label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL'},
-    {label: this.translateService.instant('msg.storage.ui.list.string'), value: Logical.STRING},
-    {label: this.translateService.instant('msg.storage.ui.list.boolean'), value: Logical.BOOLEAN},
-    {label: this.translateService.instant('msg.storage.ui.list.integer'), value: Logical.INTEGER},
-    {label: this.translateService.instant('msg.storage.ui.list.double'), value: Logical.DOUBLE},
-    {label: this.translateService.instant('msg.storage.ui.list.date'), value: Logical.TIMESTAMP},
-    {label: this.translateService.instant('msg.storage.ui.list.lnt'), value: Logical.LNT},
-    {label: this.translateService.instant('msg.storage.ui.list.lng'), value: Logical.LNG},
-    {label: this.translateService.instant('msg.storage.ui.list.geo.point'), value: Logical.GEO_POINT},
-    {label: this.translateService.instant('msg.storage.ui.list.geo.polygon'), value: Logical.GEO_POLYGON},
-    {label: this.translateService.instant('msg.storage.ui.list.geo.line'), value: Logical.GEO_LINE},
+  private readonly typeFilters: Filter.Logical[] = [
+    new Filter.Logical(this.translateService.instant('msg.comm.ui.list.all'), 'ALL'),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.string'), Logical.STRING),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.boolean'), Logical.BOOLEAN),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.integer'), Logical.INTEGER),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.double'), Logical.DOUBLE),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.date'), Logical.TIMESTAMP),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.lnt'), Logical.LNT),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.lng'), Logical.LNG),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.point'), Logical.GEO_POINT),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.polygon'), Logical.GEO_POLYGON),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.line'), Logical.GEO_LINE),
   ];
 
   constructor(private translateService: TranslateService) {
