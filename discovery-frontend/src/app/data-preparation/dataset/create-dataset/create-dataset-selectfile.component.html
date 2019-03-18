@@ -73,7 +73,7 @@
         <!-- //default -->
 
         <!-- file progress -->
-        <div class="ddp-box-file-progress" [ngStyle]="{'visibility': supportedFileCount>0?'visible':'hidden'}">
+        <div class="ddp-box-file-progress" [ngStyle]="{'visibility': supportedFileCount>0?'visible':'hidden'}" >
           <div class="ddp-file-progress">
 
             <!-- title -->
@@ -87,7 +87,7 @@
             <!-- //title -->
 
             <!-- list -->
-            <ul class="ddp-list-file-progress">
+            <ul class="ddp-list-file-progress" (dragenter)="disableEvent($event)" (dragover)="disableEvent($event)" (drop)="disableEvent($event)">
               <li *ngFor="let item of upFiles" [ngClass]="{'ddp-disabled' : item.isCanceled}" >
                 <!-- name -->
                 <div class="ddp-file-name">

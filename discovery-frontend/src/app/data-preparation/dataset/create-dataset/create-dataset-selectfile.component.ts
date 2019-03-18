@@ -208,6 +208,8 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
         // },
 
         FilesAdded: (up, files) => {
+          this.isNext = false;
+
           this.chunk_uploader.setOption('chunk_size', this.limitSize );
 
           plupload.each(files, (file, idx) => {
@@ -423,6 +425,8 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
         // },
 
         FilesAdded: (up, files) => {
+          this.isNext = false;
+
           if(this.isUploading) {
             this.chunk_uploader2.disableBrowse(true);
 
@@ -432,8 +436,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
               }
             });
 
-            Alert.warning('Can not add files during file upload.');
-            //Alert.success(this.translateService.instant('msg.dp.alert.modify.sSname'));
+            //Alert.warning('Can not add files during file upload.');
             return;
           }
 
@@ -625,6 +628,12 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
    * File Upload Reset
    */
   public reset(){
+    this.sucessFileCount = 0;
+    this.supportedFileCount = 0;
+    this.unsupportedFileCount = 0;
+    this.unsupportedFileView = false;
+    this.isNext = false;
+
     this.chunk_uploader.splice();
     this.chunk_uploader2.splice();
     this.upFiles.splice(0, this.upFiles.length);
@@ -634,25 +643,26 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   /**
    * File Upload Cancel(Plupload)
    */
-  public cancelUpload(item){
-    if (item.status == plupload.UPLOADING) {
-      let idx = this.upFiles.findIndex((upFile)=>{ return upFile.id === item.id});
+  public cancelUpload(file){
+    if (file.status == plupload.UPLOADING) {
+      let idx = this.upFiles.findIndex((upFile)=>{ return upFile.id === file.id});
 
-      if(item.uploaderNo === 1) {
+      if(file.uploaderNo === 1) {
         this.chunk_uploader.stop();
-        this.chunk_uploader.removeFile(item);
+        this.chunk_uploader.removeFile(file);
         this.upFiles[idx].isUploading = false;
         this.upFiles[idx].isCanceled = true;
         this.chunk_uploader.start();
       } else {
         this.chunk_uploader2.stop();
-        this.chunk_uploader2.removeFile(item);
+        this.chunk_uploader2.removeFile(file);
         this.upFiles[idx].isUploading = false;
         this.upFiles[idx].isCanceled = true;
         this.chunk_uploader2.start();
       }
     }
   }
+
   /**
    * File Upload Start(Plupload)
    */
@@ -660,12 +670,24 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     this.isUploading = true;
     this.chunk_uploader2.disableBrowse(true);
 
+    $('.ddp-list-file-progress').scrollTop(422 * (this.upFiles.length +1));
+
     if (pluploadNo===1){
       this.chunk_uploader.start();
     } else {
       this.chunk_uploader2.start();
     }
   }
+
+  /**
+   * Disable Drag and Drop in File list area
+   */
+  public disableEvent(event:Event){
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+  }
+
   /**
    * Files Upload Complete(Plupload)
    */
