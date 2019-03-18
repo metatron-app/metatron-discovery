@@ -82,12 +82,12 @@
     <!-- // Unit select box-->
 
     <!-- 단계구분도 보기 on/off (on 일때 ddp-selected 추가) -->
-    <div class="ddp-wrap-slider-down" *ngIf="calSpatialList[calSpatialIndex].value != 'symmetricdiff'" [ngClass]="{'ddp-selected':isClassificationOn}">
+    <div class="ddp-wrap-slider-down" *ngIf="calSpatialList[calSpatialIndex].value != 'symmetricdiff'" [ngClass]="{'ddp-selected':isChoroplethOn}">
       <div class="ddp-wrap-option-slider">
         <span class="ddp-label-slider type-label">단계구분도 보기</span>
         <!-- Slide THREE -->
         <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-          <input (click)="classificationBtn();" type="checkbox" value="None" id="check2" name="check">
+          <input (click)="choroplethBtn();" type="checkbox" value="None" id="check2" name="check">
           <label for="check2"><span class="ddp-slide"></span></label>
         </div>
         <!-- //Slide THREE -->
