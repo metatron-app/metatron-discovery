@@ -846,8 +846,17 @@ public abstract class AbstractQueryBuilder {
       return "";
     }
 
+    // remove prefix, if default datasource get ref value in field or filter
+    String checkName = name;
+    if (dataSource instanceof DefaultDataSource) {
+      String dataSourceStartWith = mainMetaDataSource.getEngineName() + FIELD_NAMESPACE_SEP;
+      if (name.startsWith(dataSourceStartWith)) {
+        checkName = StringUtils.removeStart(name, dataSourceStartWith);
+      }
+    }
+
     // to escape column name for regular expression
-    String escapedName = PolarisUtils.escapeSpecialRegexChars(name);
+    String escapedName = PolarisUtils.escapeSpecialRegexChars(checkName);
     Pattern pattern = Pattern.compile(String.format(PATTERN_FIELD_NAME_STRING, escapedName));
 
     List<String> validColumn = validColumnNames.parallelStream()
