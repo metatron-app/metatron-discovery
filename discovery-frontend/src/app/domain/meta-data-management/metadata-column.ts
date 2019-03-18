@@ -47,7 +47,6 @@ export class MetadataColumn {
   ////////////////////////////////////////////////////////////////////////////
   isValidType?: boolean;
   isValidTimeFormat?: boolean;
-  typeValidMessage?: string;
   timeFormatValidMessage?: string;
   isShowTypeValidPopup?: boolean;
 }
