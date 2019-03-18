@@ -4905,6 +4905,7 @@ ul.ddp-list-rule2 li.ddp-disabled2 .ddp-wrap-line-add {display:block;}
 .ddp-box-contents .ddp-wrap-part .ddp-box-part.ddp-box-s {width:170px;}
 .ddp-box-contents .ddp-wrap-part .ddp-box-part.ddp-editor {width:inherit;}
 .ddp-box-contents .ddp-wrap-part .ddp-box-part.ddp-editor input {width:278px; float:left;}
+.ddp-box-contents .ddp-wrap-part .ddp-box-part.ddp-editor .ddp-input-selectbox {float:left;}
 
 .ddp-box-contents .ddp-wrap-part .ddp-box-part .ddp-btn-bg {display:inline-block; margin-left:7px; padding:8px 12px; vertical-align:middle;}
 .ddp-wrap-addrule {position:absolute; bottom:0; left:0; right:0;}

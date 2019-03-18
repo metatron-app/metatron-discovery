@@ -108,7 +108,7 @@
         </div>
         <div class="ddp-wrap-rulecontents"
              [ngClass]="{'ddp-inherit': isCommandListShow || isFocus || isMultiColumnListShow || editorUseFlag }">
-          <div class="ddp-box-contents ddp-clear">
+          <div class="ddp-box-contents ddp-clear" [style.left]="scrollLeft">
             <!-- editor -->
             <div class="ddp-wrap-switch-editor" *ngIf="editorUseFlag">
               <!-- switch 클릭시 ddp-box-full 추가 -->
