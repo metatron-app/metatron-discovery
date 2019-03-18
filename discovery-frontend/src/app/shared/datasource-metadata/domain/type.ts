@@ -4,7 +4,8 @@
 export namespace Type {
   export enum Role {
     MEASURE = 'MEASURE',
-    DIMENSION = 'DIMENSION'
+    DIMENSION = 'DIMENSION',
+    TIMESTAMP = 'TIMESTAMP'
   }
 
   export enum WKT {
