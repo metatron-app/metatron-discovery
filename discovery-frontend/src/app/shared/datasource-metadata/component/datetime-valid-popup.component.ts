@@ -28,22 +28,10 @@ import {MetadataColumn} from "../../../domain/meta-data-management/metadata-colu
 })
 export class DatetimeValidPopupComponent extends AbstractComponent {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   private _fieldData: string[];
 
   @Input('fieldDataList')
   private readonly _dateList: any;
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
   public readonly field: Field | MetadataColumn;
@@ -62,10 +50,6 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
   // enum
   public readonly FIELD_FORMAT_TYPE: any = FieldFormatType;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   constructor(
     private fieldConfigService: FieldConfigService,
     private timezoneService: TimezoneService,
@@ -73,10 +57,6 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
     protected injector: Injector) {
     super(element, injector);
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   ngOnInit() {
     super.ngOnInit();
@@ -102,10 +82,6 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
       this.closed.emit();
     }
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public cancel(): void {
     this.field.isShowTypeValidPopup = undefined;
@@ -162,14 +138,6 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
       this._checkFormatValidation(false);
     }
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * Check format validation
