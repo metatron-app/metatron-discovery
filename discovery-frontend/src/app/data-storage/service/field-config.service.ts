@@ -138,9 +138,10 @@ export class FieldConfigService extends AbstractService {
         targetField.typeValidMessage = this._translateSvc.instant('msg.storage.ui.schema.column.no.data');
         resolve(targetField);
       } else {
+        const WktKeyword: string = this._getKeywordWKT(targetField);
         const params = {
           geoType: targetField.logicalType,
-          values: fieldDataList.slice(0, 19)
+          values: fieldDataList.slice(0, 19).map(data => `${WktKeyword} (${data.replace(/,/, ' ')})`)
         };
         // api result
         this.post(this.API_URL + 'datasources/validation/wkt', params)
@@ -159,5 +160,21 @@ export class FieldConfigService extends AbstractService {
           });
       }
     });
+  }
+
+  /**
+   * Get keyword WKT
+   * @param {Field} targetField
+   * @return {string}
+   * @private
+   */
+  private _getKeywordWKT(targetField: Field): string {
+    if (targetField.logicalType === LogicalType.GEO_POINT) {
+      return 'POINT';
+    } else if (targetField.logicalType === LogicalType.GEO_LINE) {
+      return 'LINESTRING';
+    } else if (targetField.logicalType === LogicalType.GEO_POLYGON) {
+      return 'POLYGON';
+    }
   }
 }
