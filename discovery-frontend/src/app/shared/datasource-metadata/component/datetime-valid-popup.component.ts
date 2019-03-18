@@ -13,26 +13,37 @@
  * limitations under the License.
  */
 
-
-import {AbstractComponent} from "../../../common/component/abstract.component";
-import {Component, ElementRef, EventEmitter, Injector, Input, OnChanges, Output} from "@angular/core";
-import {TimezoneService} from "../../service/timezone.service";
-import {Field, FieldFormat, FieldFormatType, FieldFormatUnit, LogicalType} from "../../../domain/datasource/datasource";
-import {StringUtil} from "../../../common/util/string.util";
-import {FieldConfigService} from "../../service/field-config.service";
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
+import {TimezoneService} from '../../../data-storage/service/timezone.service';
+import {Field, FieldFormat, FieldFormatType, FieldFormatUnit} from '../../../domain/datasource/datasource';
+import {StringUtil} from '../../../common/util/string.util';
+import {FieldConfigService} from '../../../data-storage/service/field-config.service';
 import {isNullOrUndefined} from 'util';
 import {MetadataColumn} from "../../../domain/meta-data-management/metadata-column";
 
 @Component({
   selector: 'datetime-valid-popup',
-  templateUrl: 'datetime-valid-popup.component.html',
+  templateUrl: './datetime-valid-popup.component.html',
 })
 export class DatetimeValidPopupComponent extends AbstractComponent {
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Variables
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   private _fieldData: string[];
 
   @Input('fieldDataList')
   private readonly _dateList: any;
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Protected Variables
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Variables
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
   public readonly field: Field | MetadataColumn;
@@ -43,7 +54,7 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
   @Output()
   public readonly closed: EventEmitter<any> = new EventEmitter();
 
-  public readonly formatUnitList: {label: string, value: FieldFormatUnit}[] = [
+  public readonly formatUnitList: { label: string, value: FieldFormatUnit }[] = [
     {label: this.translateService.instant('msg.storage.ui.format.unit.milli-second'), value: FieldFormatUnit.MILLISECOND},
     {label: this.translateService.instant('msg.storage.ui.format.unit.second'), value: FieldFormatUnit.SECOND},
   ];
@@ -51,12 +62,21 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
   // enum
   public readonly FIELD_FORMAT_TYPE: any = FieldFormatType;
 
-  constructor(private fieldConfigService: FieldConfigService,
-              private timezoneService: TimezoneService,
-              protected element: ElementRef,
-              protected injector: Injector) {
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Constructor
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  constructor(
+    private fieldConfigService: FieldConfigService,
+    private timezoneService: TimezoneService,
+    protected element: ElementRef,
+    protected injector: Injector) {
     super(element, injector);
   }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Override Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   ngOnInit() {
     super.ngOnInit();
@@ -82,6 +102,10 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
       this.closed.emit();
     }
   }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public cancel(): void {
     this.field.isShowTypeValidPopup = undefined;
@@ -120,7 +144,7 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
     }
   }
 
-  public onChangeUnixType(type: {label: string, value: FieldFormatUnit}) {
+  public onChangeUnixType(type: { label: string, value: FieldFormatUnit }) {
     if (this.field.format.unit !== type.value) {
       // change unit
       this.field.format.unit = type.value;
@@ -132,14 +156,20 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
   public onClickFormatValidation(): void {
     // if empty format in field
     if (StringUtil.isEmpty(this.field.format.format)) {
-     this.field.isValidTimeFormat = false;
-     this.field.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.format.required');
+      this.field.isValidTimeFormat = false;
+      this.field.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.format.required');
     } else {
       this._checkFormatValidation(false);
     }
   }
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Protected Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * Check format validation
@@ -148,16 +178,14 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
    */
   private _checkFormatValidation(isInitValid?: boolean): void {
     this.loadingShow();
-    this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField(this.field, this._fieldData, isInitValid)
-      .then((field: Field) => {
-        this.loadingHide();
-        // set format in defaultFormatObj
-        if (isInitValid) {
-          this.defaultFormatObj[field.name] = field.format.format;
-        }
-      })
-      .catch((error) => {
-        this.loadingHide();
-      });
+    this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField(this.field, this._fieldData, isInitValid).then((field: Field) => {
+      this.loadingHide();
+      // set format in defaultFormatObj
+      if (isInitValid) {
+        this.defaultFormatObj[field.name] = field.format.format;
+      }
+    }).catch(() => {
+      this.loadingHide();
+    });
   }
 }
