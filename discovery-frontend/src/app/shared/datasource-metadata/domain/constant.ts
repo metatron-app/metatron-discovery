@@ -1,6 +1,8 @@
 /**
  * Constants to be shared by the datasource and metadata
  */
+import {Type} from "./type";
+
 export namespace Constant {
   export namespace Filter {
     export type Role = (
@@ -10,6 +12,10 @@ export namespace Constant {
         checked: boolean
       }
       );
+    export type Logical = ({
+      label: string;
+      value: Type.Logical | 'ALL';
+    });
 
     export type Type = (
       {
