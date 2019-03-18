@@ -65,7 +65,7 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   @ViewChild(TrendLineComponent)
   private trendLineComponent: TrendLineComponent;
 
-  @ViewChild('mapSpatialComponent')
+  @ViewChild('MapSpatialComponent')
   private mapSpatialComponent: MapSpatialComponent;
 
   // ---------------------------------------

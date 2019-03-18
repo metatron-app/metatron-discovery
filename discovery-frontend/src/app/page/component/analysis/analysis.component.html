@@ -54,7 +54,8 @@
       <!-- list drop -->
 
       <!--map-spatial-->
-      <map-spatial *ngIf="selectChart==='map'"
+      <map-spatial #MapSpatialComponent
+                   *ngIf="selectChart==='map'"
                    [uiOption]="uiOption"
                    [shelf]="shelf"
                    (changeAnalysisNoti)="changeAnalysisNoti($event);">

@@ -36,7 +36,7 @@ export enum MapLayerType {
   LINE = <any>'line',
   POLYGON = <any>'polygon',
   HEATMAP = <any>'heatmap',
-  TILE = <any>'tile',
+  TILE = <any>'tile'
 }
 
 /**

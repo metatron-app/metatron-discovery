@@ -823,7 +823,6 @@ export class MapPagePivotComponent extends PagePivotComponent {
     let addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
     // layer name setting
     addUiOptionLayer.name = 'SpatialAnalysisLayer';
-    this.uiOption.analysis['layer'] = addUiOptionLayer;
     this.uiOption.layers.push(addUiOptionLayer);
     // 0 ~ 1 은 multi-layer, 그래서 공간연산 layer 값은 2
     this.uiOption.layerNum = this.uiOption.layers.length - 1;
