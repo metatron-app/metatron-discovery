@@ -951,7 +951,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.changeDetect.detectChanges();
 
     // Map data place fit
-    if ( (this.drawByType == EventType.CHANGE_PIVOT && isLogicalType && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length-1].field.logicalType != null ) && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&
+    if ((this.drawByType == EventType.CHANGE_PIVOT && isLogicalType && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length - 1].field.logicalType != null) && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&
       (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'])) {
       this.olmap.getView().fit(source.getExtent());
     } else {
@@ -2015,7 +2015,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     for (let toolTipIndex = 0; this.getUiMapOption().layers.length > toolTipIndex; toolTipIndex++) {
       // do not set tooltip for HEATMAP
-      if (this.getUiMapOption().layers[toolTipLayerNum].type !== MapLayerType.HEATMAP) {
+      if (!_.isUndefined(this.getUiMapOption().layers[toolTipLayerNum].type)
+        && this.getUiMapOption().layers[toolTipLayerNum].type !== MapLayerType.HEATMAP) {
 
         // set z-index for tooltip
         if (!this.isPage) $(document).find('.ddp-ui-dash-contents').addClass('ddp-tooltip');
@@ -2588,7 +2589,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       ///////////////////////////
       if (isNone) {
         layer.color.by = MapBy.NONE;
-        if( layerType == MapLayerType.HEATMAP ){
+        if (layerType == MapLayerType.HEATMAP) {
           (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema == '' ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
           layer.color.schema = layer.color.heatMapSchema;
         } else if (layerType == MapLayerType.SYMBOL) {
