@@ -808,7 +808,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
    */
   public spatialAnalysisBtnClicked(value) {
     let layers = {
-      name: 'SpatialLayer',
+      name: 'SpatialAnalysisLayer',
       ref: '',
       // view : {
       //   "type": "hash",
@@ -822,7 +822,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     // layer 생성 (page.component에서 uiOption 전체를 생성함, layer만 추가 하기, 추가 layer 생성하기 위해서 0번째를 복사)
     let addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
     // layer name setting
-    addUiOptionLayer.name = 'SpatialLayer';
+    addUiOptionLayer.name = 'SpatialAnalysisLayer';
     this.uiOption.analysis['layer'] = addUiOptionLayer;
     this.uiOption.layers.push(addUiOptionLayer);
     // 0 ~ 1 은 multi-layer, 그래서 공간연산 layer 값은 2

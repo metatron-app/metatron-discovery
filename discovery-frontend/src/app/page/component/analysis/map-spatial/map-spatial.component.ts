@@ -54,19 +54,36 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   public compareIndex: number = 0;
 
   public calSpatialList: any = [
-    'Intersection', // 서버 미구현
-    // 'Symmetrical difference', // 서버상에 현재 키 값이 없음
-    'Distance within'
+    {name: 'Distance within', value: 'dwithin'}
+    , {name: 'With In', value: 'within'}
+    , {name: 'Intersection', value: 'intersects'}
+    , {name: 'Symmetrical difference', value: 'symmetricdiff'} // 서버상에 현재 키 값이 없음
   ];
   public calSpatialIndex: number = 0;
 
   public unitList: any = [
-    'Meters'
-    , 'Kilometers'
+    {name: 'Meters', value: 'meters'}
+    , {name: 'Kilometers', value: 'kilometers'}
   ];
   public unitIndex: number = 0;
 
   public unitInput: string = '100';
+
+  // choropleth 관련 사항 (Buffer를 선택시 choropleth를 true로 설정 후 백엔드에 호출)
+  public bufferList: any = [
+    '100'
+    , '200'
+    , '300'
+    , '400'
+    , '500'
+    , '700'
+    , '1000'
+  ];
+  public bufferIndex: number;
+
+  // 단계구분도 보기
+  public isClassificationOn: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -123,7 +140,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
               if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption.layers)
                 && this.uiOption.layers.length > 0 && !_.isUndefined(this.uiOption.layers[shelfIndex].name)) {
                 this.baseList.layers.push(this.uiOption.layers[shelfIndex].name);
-                if( !isChanged ) {
+                if (!isChanged) {
                   this.baseList['selectedNum'] = shelfIndex;
                   isChanged = true;
                 }
@@ -167,65 +184,201 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     this.unitIndex = this.unitList.findIndex((unitItem) => unitItem === value);
   }
 
+  public onSelectBuffer(value) {
+    let isNoneInBufferList = false;
+    this.bufferList.forEach((buffer) => {
+      if (buffer.indexOf('Buffer') >= 0) {
+        isNoneInBufferList = true;
+      }
+    });
+    if (isNoneInBufferList == false) {
+      this.bufferList.unshift('Buffer');
+    }
+    this.bufferIndex = this.bufferList.findIndex((bufferItem) => bufferItem === value);
+  }
+
+  public classificationBtn() {
+    this.isClassificationOn = !this.isClassificationOn;
+  }
+
+  /**
+   * 공간연산 버튼
+   */
   public spatialAnalysisBtn() {
 
-    if(!_.isUndefined(this.uiOption['analysis']) && this.uiOption['analysis']['use'] == true) {
+    if (!_.isUndefined(this.uiOption['analysis']) && this.uiOption['analysis']['use'] == true) {
       // Alert.warning(this.translateService.instant('msg'));
       Alert.warning('이미 공간 연산중 입니다.');
       return;
     }
 
+    let spatialDataValue: string = this.calSpatialList[this.calSpatialIndex].value;
     let baseData: string = this.baseList.layers[this.baseIndex];
     let compareData: string = this.compareList.layers[this.compareIndex];
-    let spatialData: string = this.calSpatialList[this.calSpatialIndex];
-    let unitData: string = this.unitList[this.unitIndex];
 
+    let bufferData: string = this.bufferList[this.bufferIndex];
+    let unitData: string = this.unitList[this.unitIndex].value;
+
+    // Validation
+    if (this.spatialAnalysisCommonValidation(baseData, compareData) == false) {
+      return;
+    }
+    let mapUIOption = (<UIMapOption>this.uiOption);
+    switch (spatialDataValue) {
+      case 'dwithin':
+        // Validation
+        if (this.spatialAnalysisAdditionalValidation(bufferData, spatialDataValue) == false) {
+          return;
+        }
+        // set data
+        mapUIOption = this.dWithinSetData(baseData, compareData, unitData, spatialDataValue, mapUIOption);
+        break;
+      case 'within':
+        // Validation
+        if (this.spatialAnalysisAdditionalValidation(bufferData, spatialDataValue) == false) {
+          return;
+        }
+        // set data
+        mapUIOption = this.withinOrIntersectsSetData(baseData, compareData, bufferData, spatialDataValue, mapUIOption);
+        break;
+      case 'intersects':
+        // Validation
+        if (this.spatialAnalysisAdditionalValidation(bufferData, spatialDataValue) == false) {
+          return;
+        }
+        // set data
+        mapUIOption = this.withinOrIntersectsSetData(baseData, compareData, bufferData, spatialDataValue, mapUIOption);
+        break;
+      case 'symmetricdiff':
+        // set data
+        mapUIOption = this.symmetricalSetData(baseData, compareData, spatialDataValue, mapUIOption);
+        break;
+      default:
+        // Alert.warning(this.translateService.instant('msg'));
+        Alert.warning('공간연산 타입을 선택해주세요.');
+        return;
+    }
+    this.changeAnalysis.emit(mapUIOption);
+  }
+
+  /**
+   * common analysis validation
+   */
+  private spatialAnalysisCommonValidation(baseData: string, compareData: string): boolean {
     if (_.isUndefined(baseData)) {
       // Alert.warning(this.translateService.instant('msg'));
       Alert.warning('기준 레이어를 선택해주세요.');
-      return;
+      return false;
     }
     if (_.isUndefined(compareData)) {
       // Alert.warning(this.translateService.instant('msg'));
       Alert.warning('비교 레이어를 선택해주세요.');
-      return;
+      return false;
     }
-    if (_.isUndefined(spatialData)) {
-      // Alert.warning(this.translateService.instant('msg'));
-      Alert.warning('공간 연산 타입을 선택해주세요.');
-      return;
-    }
+    return true;
+  }
+
+  /**
+   * intersects & distanceWithin validation
+   */
+  private spatialAnalysisAdditionalValidation(bufferData: string, spatialDataValue: string): boolean {
     if (_.isUndefined(this.unitInput) || this.unitInput.trim() === '' || isNaN(Number(this.unitInput.trim()))) {
       // Alert.warning(this.translateService.instant('msg'));
       Alert.warning('공간 연산 범위를 입력 또는 숫자만 가능합니다.');
-      return;
+      return false;
     }
+    // intersects, within 경우 buffer 값 validation
+    if ((spatialDataValue === 'intersects' || spatialDataValue === 'within')
+      && (_.isUndefined(bufferData) || bufferData === 'Buffer')) {
+      // Alert.warning(this.translateService.instant('msg'));
+      Alert.warning(spatialDataValue + ' 경우, Buffer 값을 설정해야 합니다.');
+      return false;
+    }
+    // within 경우 choropleth 가 true 여야 함
+    if (spatialDataValue === 'within' && this.isClassificationOn == false) {
+      Alert.warning('With in 경우 단계구분도(choropleth) 설정이 on으로 되어 있어야합니다.');
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * distance within set data
+   */
+  private dWithinSetData(baseData: string, compareData: string, unitData: string, spatialDataValue: string, mapUIOption: UIMapOption): UIMapOption {
+
     let unitInputData: number = Number(this.unitInput.trim());
-    if( unitData == 'Kilometers' ){
+    if (unitData == 'kilometers') {
       unitInputData = unitInputData * 1000;
     }
-    let spatialDataValue : string = '';
-    if( spatialData == 'Intersection' ){
-      spatialDataValue = 'intersects';
-    } else if( spatialData == 'Distance within' ){
-      spatialDataValue = 'dwithin';
-    }
 
-    let mapUIOption = (<UIMapOption>this.uiOption);
     mapUIOption.analysis = {
-      use           : true,
-      type          : 'geo',
-      layerNum      : this.baseIndex,
-      mainLayer     : baseData,
-      compareLayer  : compareData,
-      operation   : {
+      use: true,
+      type: 'geo',
+      layerNum: this.baseIndex,
+      mainLayer: baseData,
+      compareLayer: compareData,
+      operation: {
         type: spatialDataValue,
         distance: unitInputData,
         unit: unitData
       }
     };
 
-    this.changeAnalysis.emit(mapUIOption);
+    // 단계구분도 설정 (단계구분도가 -> choropleth 이것인지 확인필요)
+    mapUIOption.analysis['operation']['choropleth'] = this.isClassificationOn;
+
+    return mapUIOption;
   }
+
+  /**
+   * Within & intersects set data
+   */
+  private withinOrIntersectsSetData(baseData: string, compareData: string, bufferData: string, spatialDataValue: string, mapUIOption: UIMapOption): UIMapOption {
+
+    let bufferDataValue: number = -1;
+    if (!_.isUndefined(bufferData) && bufferData !== 'Buffer') {
+      bufferDataValue = Number(bufferData);
+    }
+
+    mapUIOption.analysis = {
+      use: true,
+      type: 'geo',
+      layerNum: this.baseIndex,
+      mainLayer: baseData,
+      compareLayer: compareData,
+      operation: {
+        type: spatialDataValue
+      }
+    };
+
+    // buffer 설정
+    if (bufferDataValue > 0) {
+      mapUIOption.analysis['operation']['buffer'] = bufferDataValue;
+    }
+
+    // 단계구분도 설정 (단계구분도가 -> choropleth 이것인지 확인필요)
+    mapUIOption.analysis['operation']['choropleth'] = this.isClassificationOn;
+
+    return mapUIOption;
+  }
+
+  /**
+   * symmetrical set data
+   */
+  private symmetricalSetData(baseData: string, compareData: string, spatialDataValue: string, mapUIOption: UIMapOption): UIMapOption {
+    mapUIOption.analysis = {
+      use: true,
+      type: 'geo',
+      layerNum: this.baseIndex,
+      mainLayer: baseData,
+      compareLayer: compareData,
+      operation: {
+        type: spatialDataValue
+      }
+    };
+    return mapUIOption;
+  }
+
 
 }

@@ -2589,16 +2589,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       if (isNone) {
         layer.color.by = MapBy.NONE;
         if( layerType == MapLayerType.HEATMAP ){
-          (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema.indexOf('HC') == -1 ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
+          (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema == '' ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
           layer.color.schema = layer.color.heatMapSchema;
         } else if (layerType == MapLayerType.SYMBOL) {
-          (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('#') == -1 ? layer.color.symbolSchema = '#6344ad' : layer.color.symbolSchema);
+          (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema == '' ? layer.color.symbolSchema = '#6344ad' : layer.color.symbolSchema);
           layer.color.schema = layer.color.symbolSchema;
         } else if (layerType == MapLayerType.TILE) {
-          (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('#') == -1 ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
+          (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema == '' ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
           layer.color.schema = layer.color.tileSchema;
-        } else {
-          layer.color.schema = '#6344ad';
         }
         layer.color.column = null;
         layer.color.aggregationType = null;
@@ -2609,7 +2607,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // remove not isDimension => exceptional case select dimension and remove dimension
       else if (isMeasure) {
         layer.color.by = MapBy.MEASURE;
-        if( layerType == MapLayerType.HEATMAP ){
+        if (layerType == MapLayerType.HEATMAP) {
           (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema.indexOf('HC') == -1 ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
           layer.color.schema = layer.color.heatMapSchema;
         } else if (layerType == MapLayerType.SYMBOL) {

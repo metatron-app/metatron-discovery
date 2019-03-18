@@ -120,7 +120,7 @@
             {{uiOption.analysis['compareLayer']}}
         </span>
           <span class="ddp-tag-analysis">{{uiOption.analysis['operation']['type']}}</span>
-          <span class="ddp-txt-data">
+          <span class="ddp-txt-data" *ngIf="uiOption.analysis['operation']['distance']">
             {{(uiOption.analysis['operation']['unit'] === 'Meters')
             ?uiOption.analysis['operation']['distance']:(uiOption.analysis['operation']['distance']/1000)}}
             {{uiOption.analysis['operation']['unit']}}
