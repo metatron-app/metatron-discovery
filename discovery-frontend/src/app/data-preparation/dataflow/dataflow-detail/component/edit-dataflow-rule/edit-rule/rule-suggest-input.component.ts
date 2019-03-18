@@ -557,6 +557,11 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
    * suggestion 닫기
    */
   public closeSuggest() {
+
+    // window, aggr 때는 셀렉트 박스 닫힐때 broadcast 하지 않음 (replace 때문에 함 - scroll 위치 잡아야함 )
+    if (this.funcType !== 'window' && this.funcType !== 'aggr') {
+      this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: this._FIELD_COMBO_ID, isShow: false });
+    }
     this.initSuggest();
   }
 
@@ -671,7 +676,6 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     }
 
     this.isSuggestOpen = false;
-    // this.broadCaster.broadcast('MULTIPLE_LAYER_SHOW_HIDE', { id: this._FIELD_COMBO_ID, isShow: false });
     this.selectedIndex = -1;
   }
 
