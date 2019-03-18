@@ -693,6 +693,7 @@
                                 (changeForecastNoti)="changeForecast();"
                                 (changeConfidenceNoti)="changeConfidence();"
                                 [uiOption]="uiOption"
+                                [shelf]="shelf"
                                 (changeAnalysisNoti)="changeDraw($event);">
             </analysis-component>
             <!-- //down menu -->
@@ -1438,7 +1439,8 @@
                                 [isPage]="true"
                                 *ngIf="selectChart == 'line'"
                                 [uiOption]="uiOption"
-                                (uiOptionUpdated)="updateUIOption($event); analysisComponent.changeOption();"
+                                (uiOptionUpdated)="updateUIOption($event);
+                                analysisComponent.changeOption();"
                                 (noData)="onNoData()"
                                 (chartSelectInfo)="chartSelectInfo($event)"
                                 (drawFinished)="lineChartDrawComplete($event);"

@@ -49,6 +49,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   @Input('uiOption')
   public uiOption: UIMapOption;
 
+  @Input('shelf')
   public shelf: Shelf;
 
   public baseList: any = {'layers': []};
@@ -85,7 +86,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   public bufferIndex: number;
 
   // 단계구분도 보기
-  public isClassificationOn: boolean = false;
+  public isChoroplethOn: boolean = false;
 
   // dimension, measure List
   public fieldList : any = {
@@ -220,8 +221,8 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     this.bufferIndex = this.bufferList.findIndex((bufferItem) => bufferItem === value);
   }
 
-  public classificationBtn() {
-    this.isClassificationOn = !this.isClassificationOn;
+  public choroplethBtn() {
+    this.isChoroplethOn = !this.isChoroplethOn;
   }
 
   /**
@@ -329,8 +330,8 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       return false;
     }
     // within 경우 choropleth 가 true 여야 함
-    if (spatialDataValue === 'within' && this.isClassificationOn == false) {
-      Alert.warning('With in 경우 단계구분도(choropleth) 설정이 on으로 되어 있어야합니다.');
+    if (spatialDataValue === 'within' && this.isChoroplethOn == false) {
+      Alert.warning('With in 경우 단계구분도 설정이 on으로 되어 있어야합니다.');
       return false;
     }
     return true;
@@ -359,8 +360,8 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       }
     };
 
-    // 단계구분도 설정 (단계구분도가 -> choropleth 이것인지 확인필요)
-    mapUIOption.analysis['operation']['choropleth'] = this.isClassificationOn;
+    // 단계구분도 설정 (단계구분도 = choropleth)
+    mapUIOption.analysis['operation']['choropleth'] = this.isChoroplethOn;
 
     return mapUIOption;
   }
@@ -391,8 +392,8 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       mapUIOption.analysis['operation']['buffer'] = bufferDataValue;
     }
 
-    // 단계구분도 설정 (단계구분도가 -> choropleth 이것인지 확인필요)
-    mapUIOption.analysis['operation']['choropleth'] = this.isClassificationOn;
+    // 단계구분도 설정 (단계구분도 = choropleth)
+    mapUIOption.analysis['operation']['choropleth'] = this.isChoroplethOn;
 
     return mapUIOption;
   }
