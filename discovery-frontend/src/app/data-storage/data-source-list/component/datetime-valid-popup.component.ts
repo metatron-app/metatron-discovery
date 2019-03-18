@@ -21,6 +21,7 @@ import {Field, FieldFormat, FieldFormatType, FieldFormatUnit, LogicalType} from 
 import {StringUtil} from "../../../common/util/string.util";
 import {FieldConfigService} from "../../service/field-config.service";
 import {isNullOrUndefined} from 'util';
+import {MetadataColumn} from "../../../domain/meta-data-management/metadata-column";
 
 @Component({
   selector: 'datetime-valid-popup',
@@ -31,16 +32,16 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
   private _fieldData: string[];
 
   @Input('fieldDataList')
-  private _dateList: any;
+  private readonly _dateList: any;
 
   @Input()
-  public field: Field;
+  public readonly field: Field | MetadataColumn;
 
   @Input()
-  public defaultFormatObj: any;
+  public readonly defaultFormatObj: any;
 
   @Output()
-  public closed: EventEmitter<any> = new EventEmitter();
+  public readonly closed: EventEmitter<any> = new EventEmitter();
 
   public readonly formatUnitList: {label: string, value: FieldFormatUnit}[] = [
     {label: this.translateService.instant('msg.storage.ui.format.unit.milli-second'), value: FieldFormatUnit.MILLISECOND},
@@ -91,7 +92,7 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
    * @param {Field} field
    * @return {string}
    */
-  public getTimezoneLabel(field: Field): string {
+  public getTimezoneLabel(field: Field | MetadataColumn): string {
     return this.timezoneService.getTimezoneObject(field.format).label;
   }
 

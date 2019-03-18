@@ -41,6 +41,15 @@ export class MetadataColumn {
   public popularity: number;
   // 역할
   public role: Type.Role;
+
+  ////////////////////////////////////////////////////////////////////////////
+  // Value to be used only on View
+  ////////////////////////////////////////////////////////////////////////////
+  isValidType?: boolean;
+  isValidTimeFormat?: boolean;
+  typeValidMessage?: string;
+  timeFormatValidMessage?: string;
+  isShowTypeValidPopup?: boolean;
 }
 
 export class LinkedMetaDataColumn extends MetadataColumn {

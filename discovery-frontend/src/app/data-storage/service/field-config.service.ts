@@ -20,6 +20,7 @@ import {TranslateService} from "@ngx-translate/core";
 import {StringUtil} from "../../common/util/string.util";
 import {isNullOrUndefined} from "util";
 import {Type} from '../../shared/datasource-metadata/domain/type';
+import {MetadataColumn} from "../../domain/meta-data-management/metadata-column";
 
 @Injectable()
 export class FieldConfigService extends AbstractService {
@@ -40,7 +41,7 @@ export class FieldConfigService extends AbstractService {
    * @param {any[]} originDataList
    * @return {string[]}
    */
-  public getFieldDataList(targetField: Field, originDataList: any[]): string[] {
+  public getFieldDataList(targetField: Field | MetadataColumn, originDataList: any[]): string[] {
     return originDataList.reduce((acc, data) => {
       !isNullOrUndefined(data[targetField.name]) && acc.push(data[targetField.name]);
       return acc;
@@ -54,7 +55,7 @@ export class FieldConfigService extends AbstractService {
    * @param {boolean} isInitValid
    * @return {Promise<any>}
    */
-  public checkEnableDateTimeFormatAndSetValidationResultInField(field: Field, fieldDataList: string[], isInitValid?: boolean): Promise<any> {
+  public checkEnableDateTimeFormatAndSetValidationResultInField(field: Field | MetadataColumn, fieldDataList: string[], isInitValid?: boolean): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       // if not exist field data list
       if (fieldDataList.length < 1) {
