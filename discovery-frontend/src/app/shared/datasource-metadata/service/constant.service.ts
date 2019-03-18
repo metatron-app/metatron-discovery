@@ -51,7 +51,13 @@ export class ConstantService {
   }
 
   public getTypeFiltersInDimension() {
-    return _.cloneDeep(this.typeFilters.filter(type => type.value !== 'ALL' && type.value !== Logical.GEO_POINT && type.value !== Logical.GEO_POLYGON && type.value !== Logical.GEO_LINE));
+    return _.cloneDeep(
+      this.typeFilters.filter(type => {
+        return type.value !== 'ALL'
+          && type.value !== Logical.GEO_POINT
+          && type.value !== Logical.GEO_POLYGON
+          && type.value !== Logical.GEO_LINE;
+      }));
   }
 
   public getTypeFiltersInDimensionOnlyBaseTypeString() {
@@ -59,6 +65,9 @@ export class ConstantService {
   }
 
   public getTypeFiltersInMeasure() {
-    return _.cloneDeep(this.typeFilters.filter(type => type.value !== 'ALL' && (type.value === Logical.INTEGER || type.value === Logical.DOUBLE)));
+    return _.cloneDeep(
+      this.typeFilters.filter(type => {
+        return type.value !== 'ALL' && (type.value === Logical.INTEGER || type.value === Logical.DOUBLE);
+      }));
   }
 }
