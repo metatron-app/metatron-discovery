@@ -37,6 +37,8 @@ public class MetatronProperties {
 
     private final List<Cors> cors = Lists.newArrayList();
 
+    private Integer csvMaxCharsPerColumn = 1024 * 30;
+
     public Map<String, Object> getFormat() {
         return format;
     }
@@ -63,7 +65,15 @@ public class MetatronProperties {
         return formats;
     }
 
-    public static class Mail {
+  public Integer getCsvMaxCharsPerColumn() {
+    return csvMaxCharsPerColumn;
+  }
+
+  public void setCsvMaxCharsPerColumn(Integer csvMaxCharsPerColumn) {
+    this.csvMaxCharsPerColumn = csvMaxCharsPerColumn;
+  }
+
+  public static class Mail {
 
         private String from = "admin@metatron.com";
 

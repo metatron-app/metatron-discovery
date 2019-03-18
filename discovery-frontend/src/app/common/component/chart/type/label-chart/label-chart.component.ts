@@ -17,32 +17,46 @@
  */
 
 import {
-  AfterViewInit, Component, ElementRef, Injector, OnInit, OnDestroy, HostListener,
-  ViewChild, Input
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild
 } from '@angular/core';
-import { BaseChart } from '../../base-chart';
+import {BaseChart} from '../../base-chart';
 import {BaseOption} from "../../option/base-option";
 import {
-  ChartType, ShelveType, ShelveFieldType, LabelLayoutType, LabelSecondaryIndicatorMarkType, LabelSecondaryIndicatorType,
-  LabelSecondaryIndicatorPeriod
+  ChartType,
+  LabelLayoutType,
+  LabelSecondaryIndicatorMarkType,
+  LabelSecondaryIndicatorPeriod,
+  LabelSecondaryIndicatorType,
+  ShelveFieldType,
+  ShelveType
 } from '../../option/define/common';
 import {OptionGenerator} from '../../option/util/option-generator';
 import {Pivot} from "../../../../../domain/workbook/configurations/pivot";
 import * as _ from 'lodash';
 import {UIChartFormatItem} from '../../option/ui-option';
-import UI = OptionGenerator.UI;
 import {FormatOptionConverter} from "../../option/converter/format-option-converter";
 import {
-  UILabelChart, UILabelChartSeries, UILabelIcon, UILabelAnnotation,
+  UILabelAnnotation,
+  UILabelChart,
+  UILabelChartSeries,
+  UILabelIcon,
   UILabelSecondaryIndicator
 } from "../../option/ui-option/ui-label-chart";
 import {DatasourceService} from "../../../../../datasource/service/datasource.service";
 import {TimeCompareRequest} from "../../../../../domain/datasource/data/time-compare-request";
 import {SearchQueryRequest} from "../../../../../domain/datasource/data/search-query-request";
 import {PageWidget} from "../../../../../domain/dashboard/widget/page-widget";
-import {FieldRole, LogicalType, Field} from "../../../../../domain/datasource/datasource";
-import { Field as AbstractField } from '../../../../../domain/workbook/configurations/field/field';
-import {TimestampField, GranularityType} from "../../../../../domain/workbook/configurations/field/timestamp-field";
+import {Field, FieldRole, LogicalType} from "../../../../../domain/datasource/datasource";
+import {Field as AbstractField} from '../../../../../domain/workbook/configurations/field/field';
+import {TimestampField} from "../../../../../domain/workbook/configurations/field/timestamp-field";
 
 export class KPI {
   public show: boolean;
@@ -642,7 +656,7 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
         query.measures = measures;
         query.timeUnit = String(option.secondaryIndicators[num].rangeUnit);
         query.value = 1;
-        query.timezone = "Asia/Seoul";
+        query.timeZone = "Asia/Seoul";
 
         //////////////////////////////
         // 데이터 조회
