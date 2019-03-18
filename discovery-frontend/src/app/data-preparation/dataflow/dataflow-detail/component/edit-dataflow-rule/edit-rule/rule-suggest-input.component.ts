@@ -31,6 +31,8 @@ import { EventBroadcaster } from "../../../../../../common/event/event.broadcast
 import { RuleSuggest } from '../rule/suggest/rule.suggest';
 import { TokenInfo } from '../rule/suggest/rule.checker';
 import {CommonUtil} from "../../../../../../common/util/common.util";
+import {DataflowModelService} from "../../../../service/dataflow.model.service";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'rule-suggest-input',
@@ -42,6 +44,9 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @ViewChild('inputElem')
   private _inputElem: ElementRef;
+
+  @Input()
+  public index:number = 0;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -122,6 +127,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
   private readonly _FIELD_COMBO_ID:string;
 
+  private scrollSubscription: Subscription;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -130,6 +136,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
   // 생성자
   constructor(
     private broadCaster: EventBroadcaster,
+    private dataflowModelService: DataflowModelService,
     protected elementRef: ElementRef,
     protected injector: Injector) {
     
@@ -147,6 +154,11 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
    * 컴포넌트 초기 실행
    */
   public ngOnInit() {
+
+    this.scrollSubscription = this.dataflowModelService.scrollClose$.subscribe(() => {
+      this.isSuggestOpen = false;
+    });
+
     super.ngOnInit();
 
     this.setBroadcast();
@@ -180,6 +192,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
    * 컴포넌트 제거
    */
   public ngOnDestroy() {
+    this.scrollSubscription.unsubscribe();
     super.ngOnDestroy();
   } // function - ngOnDestroy
 
@@ -368,13 +381,41 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
     if( itemList && itemList.length > 0 ){
       this.isSuggestOpen = true;
-      this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : this._FIELD_COMBO_ID, isShow : true } );
+      this.broadCastOpenCloseSelectBox();
       this.suggestItems = itemList;
       this.selectedIndex = -1;
     } else {
       this.initSuggest();
     }
     
+  }
+
+  @ViewChild('dataPrepddpInputSelectbox')
+  public dataPrepddpInputSelectbox: ElementRef;
+
+  private broadCastOpenCloseSelectBox() {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : this._FIELD_COMBO_ID, isShow: true } );
+
+    // select box 위치 잡기
+    if (this.funcType === 'window' || this.funcType === 'aggr') {
+      const selectbox: ClientRect | DOMRect = $('.ddp-wrap-boxwrap .ddp-wrap-boxadd .ddp-input-selectbox')[this.index].getBoundingClientRect();
+      const $inputSelectTop = selectbox.top;
+      const $inputSelectLeft = selectbox.left;
+      const $inputSelectWidth =  selectbox.width;
+      setTimeout(() => {
+
+        const $inputSelectPopHeight =  $('.ddp-wrap-boxwrap .ddp-wrap-boxadd .ddp-input-selectbox .ddp-wrap-popup2')[this.index].getBoundingClientRect();
+
+        $('.ddp-wrap-popup2').css({
+          'position':'fixed',
+          'left': $inputSelectLeft,
+          'top' : $inputSelectTop-$inputSelectPopHeight.height-3,
+          'bottom' : 'inherit',
+          'min-width' : $inputSelectWidth
+        })
+      })
+    }
+
   }
 
   /**
@@ -436,7 +477,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
 
     if( itemList && itemList.length > 0 ){
       this.isSuggestOpen = true;
-      this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : this._FIELD_COMBO_ID, isShow : true } );
+      this.broadCastOpenCloseSelectBox();
       this.suggestItems = itemList;
       this.selectedIndex = -1;
     } else {
@@ -630,7 +671,7 @@ export class RuleSuggestInputComponent extends AbstractComponent implements OnIn
     }
 
     this.isSuggestOpen = false;
-    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: this._FIELD_COMBO_ID, isSelectOrToggle: false });
+    // this.broadCaster.broadcast('MULTIPLE_LAYER_SHOW_HIDE', { id: this._FIELD_COMBO_ID, isShow: false });
     this.selectedIndex = -1;
   }
 
