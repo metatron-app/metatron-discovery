@@ -14,6 +14,16 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_CORES;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_LIMIT_ROWS;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.ETL_TIMEOUT;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_HOSTNAME;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PASSWORD;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_PORT;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_URL;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.STAGEDB_USERNAME;
+
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
@@ -31,34 +41,19 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnName
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcTypeNotSupportedException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.domain.datasource.connection.jdbc.*;
+import app.metatron.discovery.domain.datasource.connection.jdbc.DruidConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.OracleConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.PostgresqlConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.PrestoConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.TiberoConnection;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.Maps;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import javax.sql.DataSource;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -71,14 +66,41 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.*;
+import javax.sql.DataSource;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class TeddyExecutor {
@@ -587,6 +609,21 @@ public class TeddyExecutor {
             case TIMESTAMP:
                 return "timestamp";
             case ARRAY:
+                ColumnType uniformSubType = colDesc.hasUniformSubType();
+                switch (uniformSubType) {
+                    case STRING:
+                        return "array<string>";
+                    case LONG:
+                        return "array<bigint>";
+                    case DOUBLE:
+                        return "array<double>";
+                    case BOOLEAN:
+                        return "array<boolean>";
+                    case TIMESTAMP:
+                        return "array<timestamp>";
+                    default:
+                        /* fall through */
+                }
                 StringBuffer sb = new StringBuffer();
                 sb.append("struct<");
                 for (int i = 0; i < colDesc.getArrColDesc().size(); i++) {

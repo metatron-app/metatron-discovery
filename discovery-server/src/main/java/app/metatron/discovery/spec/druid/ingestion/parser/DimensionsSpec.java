@@ -26,7 +26,7 @@ import javax.validation.constraints.NotNull;
 public class DimensionsSpec {
 
   @NotNull
-  List<String> dimensions;
+  List<Object> dimensions;
 
   List<String> dimensionExclusions;
 
@@ -35,17 +35,17 @@ public class DimensionsSpec {
   public DimensionsSpec() {
   }
 
-  public DimensionsSpec(List<String> dimensions) {
+  public DimensionsSpec(List<Object> dimensions) {
     this.dimensions = dimensions;
     this.dimensionExclusions = Lists.newArrayList();
     this.spatialDimensions = Lists.newArrayList();
   }
 
-  public List<String> getDimensions() {
+  public List<Object> getDimensions() {
     return dimensions;
   }
 
-  public void setDimensions(List<String> dimensions) {
+  public void setDimensions(List<Object> dimensions) {
     this.dimensions = dimensions;
   }
 
