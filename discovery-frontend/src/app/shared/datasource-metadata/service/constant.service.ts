@@ -18,7 +18,7 @@ export class ConstantService {
   ];
 
   private readonly typeFilters: Filter.Logical[] = [
-    new Filter.Logical(this.translateService.instant('msg.comm.ui.list.all'), 'ALL'),
+    new Filter.Logical(this.translateService.instant('msg.comm.ui.list.all'), Logical.ALL),
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.string'), Logical.STRING),
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.boolean'), Logical.BOOLEAN),
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.integer'), Logical.INTEGER),
@@ -53,7 +53,7 @@ export class ConstantService {
   public getTypeFiltersInDimension() {
     return _.cloneDeep(
       this.typeFilters.filter(type => {
-        return type.value !== 'ALL'
+        return type.value !== Logical.ALL
           && type.value !== Logical.GEO_POINT
           && type.value !== Logical.GEO_POLYGON
           && type.value !== Logical.GEO_LINE;
@@ -61,13 +61,13 @@ export class ConstantService {
   }
 
   public getTypeFiltersInDimensionOnlyBaseTypeString() {
-    return _.cloneDeep(this.typeFilters.filter(type => type.value !== 'ALL'));
+    return _.cloneDeep(this.typeFilters.filter(type => type.value !== Logical.ALL));
   }
 
   public getTypeFiltersInMeasure() {
     return _.cloneDeep(
       this.typeFilters.filter(type => {
-        return type.value !== 'ALL' && (type.value === Logical.INTEGER || type.value === Logical.DOUBLE);
+        return type.value !== Logical.ALL && (type.value === Logical.INTEGER || type.value === Logical.DOUBLE);
       }));
   }
 }

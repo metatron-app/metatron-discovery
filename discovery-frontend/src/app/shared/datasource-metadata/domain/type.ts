@@ -39,6 +39,11 @@ export namespace Type {
     POSTAL_CODE = 'POSTAL_CODE',
     PHONE_NUMBER = 'PHONE_NUMBER', // Phone Number
     URL = 'URL',
-    HTTP_CODE = 'HTTP_CODE'
+    HTTP_CODE = 'HTTP_CODE',
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Value to be used only on View
+    ////////////////////////////////////////////////////////////////////////////
+    ALL = 'ALL'
   }
 }

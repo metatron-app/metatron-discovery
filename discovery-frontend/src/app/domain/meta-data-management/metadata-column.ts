@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-import { FieldFormat, LogicalType } from '../datasource/datasource';
-import { ColumnDictionary } from './column-dictionary';
-import { CodeTable } from './code-table';
-import { MetadataSource } from './metadata-source';
+import {FieldFormat} from '../datasource/datasource';
+import {ColumnDictionary} from './column-dictionary';
+import {CodeTable} from './code-table';
+import {MetadataSource} from './metadata-source';
 import {Type} from '../../shared/datasource-metadata/domain/type';
 
 export class MetadataColumn {
@@ -28,7 +28,7 @@ export class MetadataColumn {
   // 컬럼 이름
   public name: string;
   // 컬럼 타입
-  public type: LogicalType;
+  public type: Type.Logical;
   // 설명
   public description: string;
   // 연결된 컬럼 사전

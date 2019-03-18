@@ -119,7 +119,6 @@
         <col width="180px">
         <col width="150px">
         <col width="150px">
-        <col width="200px">
         <col width="150px">
         <col width="300px">
       </colgroup>
@@ -212,13 +211,6 @@
         </th>
         <th>
           <div class="ddp-th-long">
-            <span class="ddp-th-txt" title="{{'msg.storage.ui.th.format' | translate}}">
-              {{'msg.storage.ui.th.format' | translate}}
-            </span>
-          </div>
-        </th>
-        <th>
-          <div class="ddp-th-long">
             <span class="ddp-th-txt" title="{{'msg.storage.ui.th.code.table' | translate}}">
               {{'msg.storage.ui.th.code.table' | translate}}
             </span>
@@ -292,36 +284,36 @@
                 </span>
             <div class="ddp-wrap-popup2 ddp-types ddp-scroll-none ddp-pop-fix" #logicalTypeList>
               <ul class="ddp-list-popup">
-                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, DATASOURCE_LOGICAL_TYPE.STRING)">
-                  <a href="javascript:" (click)="onChangeLogicalType(column, DATASOURCE_LOGICAL_TYPE.STRING)">
+                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.STRING)">
+                  <a href="javascript:" (click)="onChangeLogicalType(column, LOGICAL.STRING)">
                     <em class="ddp-icon-type-ab"></em>
                     {{'msg.metadata.ui.dictionary.type.string' | translate}}
                     <em class="ddp-icon-check"></em>
                   </a>
                 </li>
-                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, DATASOURCE_LOGICAL_TYPE.BOOLEAN)">
-                  <a href="javascript:" (click)="onChangeLogicalType(column,  DATASOURCE_LOGICAL_TYPE.BOOLEAN)">
+                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.BOOLEAN)">
+                  <a href="javascript:" (click)="onChangeLogicalType(column,  LOGICAL.BOOLEAN)">
                     <em class="ddp-icon-type-tf"></em>
                     {{'msg.metadata.ui.dictionary.type.boolean' | translate}}
                     <em class="ddp-icon-check"></em>
                   </a>
                 </li>
-                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, DATASOURCE_LOGICAL_TYPE.INTEGER)">
-                  <a href="javascript:" (click)="onChangeLogicalType(column, DATASOURCE_LOGICAL_TYPE.INTEGER)">
+                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.INTEGER)">
+                  <a href="javascript:" (click)="onChangeLogicalType(column, LOGICAL.INTEGER)">
                     <em class="ddp-icon-type-int"></em>
                     {{'msg.metadata.ui.dictionary.type.integer' | translate}}
                     <em class="ddp-icon-check"></em>
                   </a>
                 </li>
-                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, DATASOURCE_LOGICAL_TYPE.DOUBLE)">
-                  <a href="javascript:" (click)="onChangeLogicalType(column, DATASOURCE_LOGICAL_TYPE.DOUBLE)">
+                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.DOUBLE)">
+                  <a href="javascript:" (click)="onChangeLogicalType(column, LOGICAL.DOUBLE)">
                     <em class="ddp-icon-type-float"></em>
                     {{'msg.metadata.ui.dictionary.type.double' | translate}}
                     <em class="ddp-icon-check"></em>
                   </a>
                 </li>
-                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, DATASOURCE_LOGICAL_TYPE.TIMESTAMP)">
-                  <a href="javascript:" (click)="onChangeLogicalType(column, DATASOURCE_LOGICAL_TYPE.TIMESTAMP)">
+                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.TIMESTAMP)">
+                  <a href="javascript:" (click)="onChangeLogicalType(column, LOGICAL.TIMESTAMP)">
                     <em class="ddp-icon-type-calen"></em>
                     {{'msg.metadata.ui.dictionary.type.timestamp' | translate}}
                     <em class="ddp-icon-check"></em>
@@ -329,15 +321,15 @@
                 </li>
               </ul>
               <ul class="ddp-list-popup">
-                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, DATASOURCE_LOGICAL_TYPE.LNT)">
-                  <a href="javascript:" (click)="onChangeLogicalType(column, DATASOURCE_LOGICAL_TYPE.LNT)">
+                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.LNT)">
+                  <a href="javascript:" (click)="onChangeLogicalType(column, LOGICAL.LNT)">
                     <em class="ddp-icon-type-latitude"></em>
                     {{'msg.metadata.ui.dictionary.type.latitude' | translate}}
                     <em class="ddp-icon-check"></em>
                   </a>
                 </li>
-                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, DATASOURCE_LOGICAL_TYPE.LNG)">
-                  <a href="javascript:" (click)="onChangeLogicalType(column, DATASOURCE_LOGICAL_TYPE.LNG)">
+                <li [class.ddp-selected]="isSelectedColumnLogicalType(column, LOGICAL.LNG)">
+                  <a href="javascript:" (click)="onChangeLogicalType(column, LOGICAL.LNG)">
                     <em class="ddp-icon-type-longitude"></em>
                     {{'msg.metadata.ui.dictionary.type.longitude' | translate}}
                     <em class="ddp-icon-check"></em>
@@ -350,17 +342,6 @@
           <!-- //select -->
         </td>
         <!-- //logical type -->
-        <!-- Format -->
-        <td [class.ddp-padding-none]="!isSelectedDictionary(column)" [class.ddp-disabled]="isSelectedDictionary(column)">
-          <span *ngIf="isTimeType(column) && isSelectedDictionary(column)">{{column.dictionary.format.format}}</span>
-          <div class="ddp-input-form" *ngIf="isTimeType(column) && !isSelectedDictionary(column) && column.format">
-            <input type="text" class="ddp-txt-input"
-                   [ngModel]="column.format.format"
-                   (ngModelChange)="column.format.format = $event; column.replaceFl = true">
-            <em class="ddp-bg-select"></em>
-          </div>
-        </td>
-        <!-- //Format -->
         <!-- Code Table -->
         <td [class.ddp-disabled]="isSelectedDictionary(column)">
           <div class=" ddp-select-search ddp-pop-select ddp-hover-tooltip"

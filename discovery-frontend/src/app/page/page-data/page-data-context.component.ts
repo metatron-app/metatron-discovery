@@ -25,6 +25,7 @@ import { DatasourceAliasService } from '../../datasource/service/datasource-alia
 import { BoardDataSource } from '../../domain/dashboard/dashboard';
 import * as _ from 'lodash';
 import { isNullOrUndefined, isString } from 'util';
+import {Type} from '../../shared/datasource-metadata/domain/type';
 
 @Component({
   selector: 'page-data-context',
@@ -344,10 +345,10 @@ export class PageDataContextComponent extends AbstractComponent {
     let metaData = this.selectedField.uiMetaData;
     if( metaData ) {
       switch( metaData.type ) {
-        case LogicalType.LNT :
+        case Type.Logical.LNT :
           name = 'LATITUDE';
           break;
-        case LogicalType.LNG :
+        case Type.Logical.LNG :
           name = 'LONGITUDE';
           break;
         default :

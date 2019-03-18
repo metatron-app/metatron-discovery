@@ -14,7 +14,7 @@
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChildren} from '@angular/core';
 import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {Datasource, FieldFormat, FieldFormatType, LogicalType, SourceType} from '../../../../domain/datasource/datasource';
+import {Datasource, FieldFormat, FieldFormatType, SourceType} from '../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import {MetadataService} from '../../../metadata/service/metadata.service';
 import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
@@ -108,19 +108,19 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   public readonly selectedContentSort: Order = new Order();
 
   /**
-   * Datasource LogicalType Enum
+   * Logical
    */
-  public readonly DATASOURCE_LOGICAL_TYPE = LogicalType;
+  public readonly LOGICAL = Type.Logical;
 
   @Input()
   public isNameEdit: boolean;
 
   public readonly UUID = CommonUtil.getUUID();
 
-  public selectedRole: Filter.Role = this.constant.getRoleTypeFilterFirst();
-  public selectedType: Filter.Logical = this.constant.getTypeFiltersFirst();
-  public roleTypeFilters: Filter.Role[] = this.constant.getRoleTypeFilters();
-  public typeFilters: Filter.Logical[] = this.constant.getTypeFilters();
+  public selectedRole: Filter.Role = this.constantService.getRoleTypeFilterFirst();
+  public selectedType: Filter.Logical = this.constantService.getTypeFiltersFirst();
+  public roleTypeFilters: Filter.Role[] = this.constantService.getRoleTypeFilters();
+  public typeFilters = this.constantService.getTypeFilters();
   public keyword: number | string = '';
   public isShowTypeFilters: boolean = false;
 
@@ -132,7 +132,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   constructor(
     public metaDataModelService: MetadataModelService,
-    public constant: ConstantService,
+    public constantService: ConstantService,
     protected element: ElementRef,
     protected injector: Injector,
     private _columnDictionaryService: ColumnDictionaryService,
@@ -234,7 +234,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    * @returns {boolean}
    */
   public isTimeType(column: MetadataColumn): boolean {
-    return column.type && column.type === LogicalType.TIMESTAMP;
+    return column.type && column.type === Type.Logical.TIMESTAMP;
   }
 
   /**
@@ -252,7 +252,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    * @param column
    * @param logicalType
    */
-  public isSelectedColumnLogicalType(column: MetadataColumn, logicalType: LogicalType): boolean {
+  public isSelectedColumnLogicalType(column: MetadataColumn, logicalType: Type.Logical): boolean {
     return column.type === logicalType;
   }
 
@@ -318,11 +318,11 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    * @param {MetadataColumn} column
    * @param logicalType
    */
-  public onChangeLogicalType(column: MetadataColumn, logicalType: LogicalType): void {
+  public onChangeLogicalType(column: MetadataColumn, logicalType: Type.Logical): void {
     // 변경이벤트 체크
     this.onChangedValue(column);
     // 만약 변경될 타입이 logicalType이라면 format init
-    if (logicalType === LogicalType.TIMESTAMP) {
+    if (logicalType === Type.Logical.TIMESTAMP) {
       column.format = new FieldFormat();
       column.format.type = FieldFormatType.DATE_TIME;
     }
@@ -503,10 +503,10 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   public filterInitialize() {
     this.keyword = '';
-    this.selectedRole = this.constant.getRoleTypeFilterFirst();
-    this.selectedType = this.constant.getTypeFiltersFirst();
-    this.roleTypeFilters = this.constant.getRoleTypeFilters();
-    this.typeFilters = this.constant.getTypeFilters();
+    this.selectedRole = this.constantService.getRoleTypeFilterFirst();
+    this.selectedType = this.constantService.getTypeFiltersFirst();
+    this.roleTypeFilters = this.constantService.getRoleTypeFilters();
+    this.typeFilters = this.constantService.getTypeFilters();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
