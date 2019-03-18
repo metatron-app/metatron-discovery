@@ -54,6 +54,8 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   //
   // @Input()
   // public websocketId: string;
+  @Input()
+  public connTargetType:string = '';
 
   @Input()
   public disable: boolean = false;
@@ -393,10 +395,17 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
     });
   }
 
-  // 테이블 선택시.
+  /**
+   * 테이블 선택시.
+   * @param item
+   */
   public setTableSql(item) {
-    this.sqlIntoEditorEvent.emit('\nSELECT * FROM ' + this.inputParams.dataconnection.database + '.' + item + ';');
-  }
+    if( 'DRUID' === this.connTargetType ) {
+      this.sqlIntoEditorEvent.emit('\nSELECT * FROM ' + this.inputParams.dataconnection.database + '."' + item + '";');
+    } else {
+      this.sqlIntoEditorEvent.emit('\nSELECT * FROM ' + this.inputParams.dataconnection.database + '.' + item + ';');
+    }
+  } // function - setTableSql
 
   /**
    * 테이블 검색 이벤트

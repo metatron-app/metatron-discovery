@@ -14,20 +14,8 @@
 
 package app.metatron.discovery.domain.workbench.hive;
 
-import app.metatron.discovery.common.exception.BadRequestException;
-import app.metatron.discovery.common.exception.GlobalErrorCodes;
-import app.metatron.discovery.common.exception.MetatronException;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.workbench.WorkbenchErrorCodes;
-import app.metatron.discovery.domain.workbench.WorkbenchException;
-import app.metatron.discovery.domain.workbench.WorkbenchProperties;
-import app.metatron.discovery.domain.workbench.dto.ImportCsvFile;
-import app.metatron.discovery.domain.workbench.dto.ImportFile;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
-import app.metatron.discovery.util.csv.CsvTemplate;
 import com.google.common.collect.Maps;
+
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +31,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import app.metatron.discovery.common.MetatronProperties;
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.GlobalErrorCodes;
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.workbench.WorkbenchErrorCodes;
+import app.metatron.discovery.domain.workbench.WorkbenchException;
+import app.metatron.discovery.domain.workbench.WorkbenchProperties;
+import app.metatron.discovery.domain.workbench.dto.ImportCsvFile;
+import app.metatron.discovery.domain.workbench.dto.ImportFile;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.util.csv.CsvTemplate;
+
 @Service
 public class WorkbenchHiveService {
   private static Logger LOGGER = LoggerFactory.getLogger(WorkbenchHiveService.class);
@@ -52,6 +55,8 @@ public class WorkbenchHiveService {
   private WorkbenchProperties workbenchProperties;
 
   private JdbcConnectionService jdbcConnectionService;
+
+  private MetatronProperties metatronProperties;
 
   @Autowired
   public void setWorkbenchProperties(WorkbenchProperties workbenchProperties) {
@@ -66,6 +71,11 @@ public class WorkbenchHiveService {
   @Autowired
   public void setJdbcConnectionService(JdbcConnectionService jdbcConnectionService) {
     this.jdbcConnectionService = jdbcConnectionService;
+  }
+
+  @Autowired
+  public void setMetatronProperties(MetatronProperties metatronProperties) {
+    this.metatronProperties = metatronProperties;
   }
 
   public void importFileToPersonalDatabase(HiveConnection hiveConnection, ImportFile importFile) {
@@ -146,6 +156,7 @@ public class WorkbenchHiveService {
 
   private DataTable convertCsvFileToDataTable(File uploadedFile, Boolean firstRowHeadColumnUsed, String delimiter, String lineSep) {
     CsvTemplate csvTemplate = new CsvTemplate(uploadedFile);
+    csvTemplate.setCsvMaxCharsPerColumn(metatronProperties.getCsvMaxCharsPerColumn());
     Map<Integer, String> headers = Maps.newTreeMap();
     List<Map<String, Object>> records = csvTemplate.getRows(lineSep, delimiter,
         (rowNumber, row) -> {
