@@ -29,6 +29,9 @@ import {Shelf} from "../../../../domain/workbook/configurations/shelf/shelf";
 import {UIMapOption} from "../../../../common/component/chart/option/ui-option/map/ui-map-chart";
 import {LogicalType} from "../../../../domain/datasource/datasource";
 import {Alert} from "../../../../common/util/alert.util";
+import {ShelveFieldType} from "../../../../common/component/chart/option/define/common";
+import {Field as AbstractField, Field } from "../../../../domain/workbook/configurations/field/field";
+import {ChartUtil} from "../../../../common/component/chart/option/util/chart-util";
 
 @Component({
   selector: 'map-spatial',
@@ -83,6 +86,24 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
 
   // 단계구분도 보기
   public isClassificationOn: boolean = false;
+
+  // dimension, measure List
+  public fieldList : any = {
+    measureList    : [],
+    dimensionList  : []
+  };
+
+  public aggregateTypes = [
+    {name : 'SUM', value: 'SUM'},
+    {name : 'AVG', value: 'AVG'},
+    {name : 'CNT', value: 'COUNT'},
+    {name : 'MED', value: 'MEDIAN'},
+    {name : 'MIN', value: 'MIN'},
+    {name : 'MAX', value: 'MAX'},
+    {name : 'PCT1/4', value: 'PCT1/4'}, // 값 확인 필요
+    {name : 'PCT3/4', value: 'PCT3/4'}  // 값 확인 필요
+  ];
+  public selectAggregateType = [{name : this.translateService.instant('msg.comm.ui.please.select'), value: 'SUM'}];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -155,6 +176,8 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         this.compareList.layers.splice(this.baseList['selectedNum'], 1);
         // this.compareList.layers = this.compareList.layers.splice(this.baseList['selectedNum'], 1);
         this.compareIndex = 0;
+
+        this.setMeasureList();
       }
     }
   }
@@ -259,6 +282,17 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         return;
     }
     this.changeAnalysis.emit(mapUIOption);
+  }
+
+  /**
+   * select aggregate type
+   * @param item
+   */
+  public selectAggregate(item) {
+
+    console.info("item : ", item);
+    this.selectAggregateType = item;
+
   }
 
   /**
@@ -378,6 +412,49 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       }
     };
     return mapUIOption;
+  }
+
+  /**
+   * 측정값 리스트
+   */
+  private setMeasureList() {
+
+    let shelf = this.shelf;
+
+    this.fieldList = [];
+    let tempObj : object = {};
+    let measureList: Field[];
+    let dimensionList: Field[];
+
+    for(let index=0; index < shelf.layers.length; index++) {
+
+      if( this.uiOption.layers[index].name != this.baseList.layers[this.baseIndex] ) {
+        continue;
+      }
+
+      let layers = _.cloneDeep(shelf.layers[index].fields);
+
+      const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
+        const resultList: AbstractField[] = [];
+        shelve.map((item) => {
+          if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
+            item['alias'] = ChartUtil.getAlias(item);
+            resultList.push(item);
+          }
+        });
+        return resultList;
+      });
+
+      measureList = getShelveReturnField(layers, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
+      dimensionList = getShelveReturnField(layers, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+      tempObj = {
+        'measureList'    : measureList,
+        'dimensionList'  : dimensionList
+      };
+      this.fieldList = tempObj;
+
+    }
+
   }
 
 

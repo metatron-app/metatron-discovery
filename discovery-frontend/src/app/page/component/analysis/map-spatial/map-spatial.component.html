@@ -82,12 +82,12 @@
     <!-- // Unit select box-->
 
     <!-- 단계구분도 보기 on/off (on 일때 ddp-selected 추가) -->
-    <div class="ddp-wrap-slider-down" *ngIf="calSpatialList[calSpatialIndex].value != 'symmetricdiff'" [ngClass]="{'ddp-selected':isClassificationOn}" (click)="classificationBtn()">
+    <div class="ddp-wrap-slider-down" *ngIf="calSpatialList[calSpatialIndex].value != 'symmetricdiff'" [ngClass]="{'ddp-selected':isClassificationOn}">
       <div class="ddp-wrap-option-slider">
         <span class="ddp-label-slider type-label">단계구분도 보기</span>
         <!-- Slide THREE -->
         <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-          <input type="checkbox" value="None" id="check2" name="check">
+          <input (click)="classificationBtn();" type="checkbox" value="None" id="check2" name="check">
           <label for="check2"><span class="ddp-slide"></span></label>
         </div>
         <!-- //Slide THREE -->
@@ -96,56 +96,44 @@
         <div class="ddp-divide2">
           <div class="ddp-list-label">Color by</div>
           <!-- 클릭시 ddp-selected 추가 -->
-          <div class="ddp-type-selectbox ">
-            <span class="ddp-txt-selectbox"> <span class="ddp-type-txt"><em class="ddp-icon-measure-ab"></em>Point</span></span>
-            <div class="ddp-wrap-popup2 ddp-types">
-              <ul class="ddp-list-popup">
-                <li class="">
-                  <a href="javascript:">
-                    <em class="ddp-icon-measure-ab"></em>
-                    차원값 A
-                  </a>
-                </li>
-                <li>
-                  <a href="javascript:">
-                    <em class="ddp-icon-dimension-sharp"></em>
-                    B
-                  </a>
-                </li>
-                <li>
-                  <a href="javascript:">
-                    <em class="ddp-icon-dimension-ab"></em>
-                    2열
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <!--<div class="ddp-type-selectbox ">-->
+            <!--<span class="ddp-txt-selectbox"> <span class="ddp-type-txt"><em *ngIf="fieldList['measureList'].length != 0" class="ddp-icon-measure-sharp"></em></span>{{selectAggregateType['name']}}</span>-->
+            <!--<div class="ddp-wrap-popup2 ddp-types">-->
+              <!--<ul class="ddp-list-popup">-->
+                <!--<li *ngFor="let item of fieldList['measureList']" class=""-->
+                    <!--(click)="selectAggregate($event)">-->
+                  <!--<a href="javascript:">-->
+                    <!--<em class="ddp-icon-measure-sharp"></em>-->
+                    <!--{{item.alias}}-->
+                  <!--</a>-->
+                <!--</li>-->
+                <!--<li *ngIf="fieldList['measureList'].length == 0" class="">-->
+                  <!--<a href="javascript:">-->
+                    <!--<em class="ddp-icon-measure-sharp"></em>-->
+                    <!--{{'msg.comm.ui.no.rslt' | translate}}-->
+                  <!--</a>-->
+                <!--</li>-->
+              <!--</ul>-->
+            <!--</div>-->
+          <!--</div>-->
+          <!-- SELECTBOX -->
+          <component-select
+            [array]="fieldList['measureList']"
+            [defaultIndex]="0"
+            [viewKey]="'alias'"
+          ></component-select>
+          <!-- //SELECTBOX -->
         </div>
         <div class="ddp-divide2">
           <div class="ddp-list-label">Aggregate by</div>
 
           <!-- 클릭시 ddp-selected 추가 -->
-          <div class="ddp-type-selectbox">
-            <span class="ddp-txt-selectbox">SUM</span>
-            <ul class="ddp-list-selectbox ddp-selectdown">
-              <li>
-                <a href="#">
-                  1
-                </a>
-              </li>
-              <li>
-                <a href="#">
-                  2
-                </a>
-              </li>
-              <li>
-                <a href="#">
-                  3
-                </a>
-              </li>
-            </ul>
-          </div>
+          <component-select
+            [array]="aggregateTypes"
+            [defaultIndex]="0"
+            [viewKey]="'name'"
+            (onSelected)="selectAggregate($event)"
+          ></component-select>
         </div>
 
       </div>
