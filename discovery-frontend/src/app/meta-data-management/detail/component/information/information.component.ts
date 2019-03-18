@@ -13,20 +13,20 @@
  */
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild, ViewChildren} from '@angular/core';
-import {AbstractComponent} from '../../common/component/abstract.component';
-import {MetadataService} from './service/metadata.service';
-import {Alert} from '../../common/util/alert.util';
-import {MetadataModelService} from './service/metadata.model.service';
-import {InputComponent} from '../../common/component/input/input.component';
+import {AbstractComponent} from '../../../../common/component/abstract.component';
+import {MetadataService} from '../../../metadata/service/metadata.service';
+import {Alert} from '../../../../common/util/alert.util';
+import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
+import {InputComponent} from '../../../../common/component/input/input.component';
 import * as _ from 'lodash';
-import {MetadataSourceType} from '../../domain/meta-data-management/metadata';
-import {Datasource, SourceType as DatasourceSourceType} from '../../domain/datasource/datasource';
+import {MetadataSourceType} from '../../../../domain/meta-data-management/metadata';
+import {Datasource, SourceType as DatasourceSourceType} from '../../../../domain/datasource/datasource';
 
 @Component({
   selector: 'app-metadata-detail-information',
-  templateUrl: './metadata-detail-information.component.html',
+  templateUrl: './information.component.html',
 })
-export class MetadataDetailInformationComponent extends AbstractComponent implements OnInit, OnDestroy {
+export class InformationComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables

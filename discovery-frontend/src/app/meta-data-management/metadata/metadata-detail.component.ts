@@ -23,7 +23,7 @@ import {ActivatedRoute} from '@angular/router';
 import {MetadataModelService} from './service/metadata.model.service';
 import {SelectCatalogComponent} from './component/select-catalog.component';
 import {ChooseCodeTableComponent} from '../component/choose-code-table/choose-code-table.component';
-import {ColumnSchemaComponent} from '../detail/column-schema/component/column-schema.component';
+import {ColumnSchemaComponent} from '../detail/component/column-schema/column-schema.component';
 import {ChooseColumnDictionaryComponent} from '../component/choose-column-dictionary/choose-column-dictionary.component';
 import {ColumnDictionary} from '../../domain/meta-data-management/column-dictionary';
 import {CodeTable} from '../../domain/meta-data-management/code-table';
