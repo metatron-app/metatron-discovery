@@ -1690,7 +1690,7 @@
                              [(uiOption)]="uiOption"></map-common-option>
 
           <map-layer-option #mapLayerOption
-                            *ngIf="isChartShow && ('mapLayer1' === rnbMenu || 'mapLayer2' === rnbMenu) && !setDisableMapLayer()"
+                            *ngIf="isChartShow && ('mapLayer1' === rnbMenu || 'mapLayer2' === rnbMenu || 'mapLayer3' === rnbMenu) && !setDisableMapLayer()"
                             [(uiOption)]="uiOption"
                             [rnbMenu]="rnbMenu"
                             (drawChartParam)="onSetDrawChartParam($event)"
@@ -1910,7 +1910,8 @@
                   <!-- //툴팁 -->
                 </a>
                 <!-- 공간연산 option -->
-                <a *ngIf="uiOption['analysis'] != null && uiOption['analysis']['use'] == true && index == shelf.layers.length-1">
+                <a *ngIf="uiOption['analysis'] != null && uiOption['analysis']['use'] == true && index == shelf.layers.length-1"
+                   (click)="toggleMapLayer('mapLayer'+(index+1), index)">
                   <em class="ddp-icon-menu-analysis"></em>
                   <!-- 툴팁 -->
                   <div class="ddp-ui-tooltip-info">

@@ -3250,8 +3250,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     let valid: boolean = true;
 
-    // 공간연산 실행시 disable
+    // 공간연산 실행시 나머지 옵션 레이어 disable
     if ('map' == this.selectChart && this.uiOption['analysis'] != null && this.uiOption['analysis']['use'] == true) {
+      ( layerNum == this.shelf.layers.length-1 ? valid = false : valid = true );
       return valid;
     }
 
