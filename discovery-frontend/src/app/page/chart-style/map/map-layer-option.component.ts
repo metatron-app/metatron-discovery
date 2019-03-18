@@ -1356,14 +1356,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     if( isNone ) {
       layer.color.by = MapBy.NONE;
       if( layerType == MapLayerType.HEATMAP ){
-        (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema == '' ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
+        (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema.indexOf('HC') == -1 ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
         layer.color.schema = layer.color.heatMapSchema;
       } else if (layerType == MapLayerType.SYMBOL) {
-        (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema == '' ? layer.color.symbolSchema = '#6344ad' : layer.color.symbolSchema);
+        (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('#') == -1 ? layer.color.symbolSchema = '#6344ad' : layer.color.symbolSchema);
         layer.color.schema = layer.color.symbolSchema;
       } else if (layerType == MapLayerType.TILE) {
-        (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema == '' ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
+        (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('#') == -1 ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
         layer.color.schema = layer.color.tileSchema;
+      } else {
+        layer.color.schema = '#6344ad';
       }
       layer.color.column = null;
       layer.color.aggregationType = null;
@@ -1383,6 +1385,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       } else if (layerType == MapLayerType.TILE) {
         (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('VC') == -1 ? layer.color.tileSchema = 'VC1' : layer.color.tileSchema);
         layer.color.schema = layer.color.tileSchema;
+      } else {
+        layer.color.schema = 'VC1';
       }
       layer.color.column = measureList[0]['name'];
       if (aggregationFl) layer.color.aggregationType = measureList[0]['aggregationType'];
@@ -1407,6 +1411,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       } else if (layerType == MapLayerType.TILE) {
         (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('SC') == -1 ? layer.color.tileSchema = 'SC1' : layer.color.tileSchema);
         layer.color.schema = layer.color.tileSchema;
+      } else {
+        layer.color.schema = 'SC1';
       }
       layer.color.column = dimensionList[0]['name'];
       layer.color.aggregationType = null;

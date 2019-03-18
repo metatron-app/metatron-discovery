@@ -773,7 +773,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         return false;
       }
     });
+    let isLogicalType = false;
     if (field != null && field.field != null && field.field.logicalType != null) {
+      isLogicalType = true;
       let geomType = field.field.logicalType.toString();
 
       if (_.eq(layer.type, MapLayerType.SYMBOL)) {
@@ -949,7 +951,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     this.changeDetect.detectChanges();
 
     // Map data place fit
-    if (this.drawByType == EventType.CHANGE_PIVOT && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&
+    if ( (this.drawByType == EventType.CHANGE_PIVOT && isLogicalType && this.shelf.layers[layerIndex].fields[this.shelf.layers[layerIndex].fields.length-1].field.logicalType != null ) && 'Infinity'.indexOf(source.getExtent()[0]) == -1 &&
       (_.isUndefined(this.uiOption['layers'][layerIndex]['changeCoverage']) || this.uiOption['layers'][layerIndex]['changeCoverage'])) {
       this.olmap.getView().fit(source.getExtent());
     } else {
@@ -2587,14 +2589,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       if (isNone) {
         layer.color.by = MapBy.NONE;
         if( layerType == MapLayerType.HEATMAP ){
-          (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema == '' ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
+          (_.isUndefined(layer.color.heatMapSchema) || layer.color.heatMapSchema.indexOf('HC') == -1 ? layer.color.heatMapSchema = 'HC1' : layer.color.heatMapSchema);
           layer.color.schema = layer.color.heatMapSchema;
         } else if (layerType == MapLayerType.SYMBOL) {
-          (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema == '' ? layer.color.symbolSchema = '#6344ad' : layer.color.symbolSchema);
+          (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('#') == -1 ? layer.color.symbolSchema = '#6344ad' : layer.color.symbolSchema);
           layer.color.schema = layer.color.symbolSchema;
         } else if (layerType == MapLayerType.TILE) {
-          (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema == '' ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
+          (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('#') == -1 ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
           layer.color.schema = layer.color.tileSchema;
+        } else {
+          layer.color.schema = '#6344ad';
         }
         layer.color.column = null;
         layer.color.aggregationType = null;
@@ -2614,6 +2618,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         } else if (layerType == MapLayerType.TILE) {
           (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('VC') == -1 ? layer.color.tileSchema = 'VC1' : layer.color.tileSchema);
           layer.color.schema = layer.color.tileSchema;
+        } else {
+          layer.color.schema = 'VC1';
         }
         layer.color.column = uiOption.fieldMeasureList[0]['name'];
         layer.color.aggregationType = uiOption.fieldMeasureList[0]['aggregationType'];
@@ -2636,6 +2642,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         } else if (layerType == MapLayerType.TILE) {
           (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('SC') == -1 ? layer.color.tileSchema = 'SC1' : layer.color.tileSchema);
           layer.color.schema = layer.color.tileSchema;
+        } else {
+          layer.color.schema = 'SC1';
         }
         layer.color.column = uiOption.fielDimensionList[0]['name'];
         layer.color.aggregationType = null;
