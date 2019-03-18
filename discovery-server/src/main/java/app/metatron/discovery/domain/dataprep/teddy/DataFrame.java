@@ -893,11 +893,7 @@ public class DataFrame implements Serializable, Transformable {
             try {
               return Long.valueOf(obj.toString());
             } catch(Exception e) {
-              try {
-                return Double.valueOf(obj.toString()).longValue();
-              } catch (Exception e2){
-                return obj;
-              }
+              return obj;
             }
           case BOOLEAN:
             return (boolean)obj ? 1L : 0L;
