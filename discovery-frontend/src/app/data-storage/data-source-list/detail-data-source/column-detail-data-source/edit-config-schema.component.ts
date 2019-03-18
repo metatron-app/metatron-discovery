@@ -33,32 +33,37 @@ import {AuthenticationType, Dataconnection, ImplementorType} from "../../../../d
 import {QueryParam} from "../../../../domain/dashboard/dashboard";
 import {DataconnectionService} from "../../../../dataconnection/service/dataconnection.service";
 import {FieldConfigService} from "../../../service/field-config.service";
+import {ConstantService} from "../../../../shared/datasource-metadata/service/constant.service";
+import {Filter} from "../../../../shared/datasource-metadata/domain/filter";
+import {Type} from "../../../../shared/datasource-metadata/domain/type";
+import Role = Type.Role;
 
 @Component({
   selector: 'edit-config-schema',
   templateUrl: './edit-config-schema.component.html'
 })
 export class EditConfigSchemaComponent extends AbstractComponent {
-
   // 데이터소스 아이디
   private _sourceId: string;
   // origin field list
   private _originFieldList: Field[];
   // data list
-  private _dataList: any[];
+  public fieldDataList: any[];
 
+  // default format object
+  public defaultFormatObj: any = {};
   // search keyword
   public searchTextKeyword: string;
   // filtered field list
   public filteredFieldList: Field[];
 
   // filter list
-  public roleTypeFilterList: TypeFilterObject[];
-  public selectedRoleTypeFilter: TypeFilterObject;
-  public logicalTypeFilterList: TypeFilterObject[];
-  public selectedLogicalTypeFilter: TypeFilterObject;
+  public roleTypeFilterList: Filter.Role[];
+  public selectedRoleTypeFilter: Filter.Role;
+  public logicalTypeFilterList: Filter.Logical[];
+  public selectedLogicalTypeFilter: Filter.Logical;
   // convertible type list
-  public convertibleTypeList: TypeFilterObject[];
+  public convertibleTypeList: Filter.Logical[];
 
   // show flag
   public isShowPopup: boolean;
@@ -68,7 +73,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   public readonly LOGICAL_TYPE: any = LogicalType;
   public readonly FIELD_FORMAT_TYPE: any = FieldFormatType;
 
-  //
+  // error flag
   public isExistErrorInFieldList: boolean;
 
   @Output()
@@ -83,6 +88,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
               private datasourceCreateService: DataSourceCreateService,
               private fieldConfigService: FieldConfigService,
               private connectionService: DataconnectionService,
+              public constant: ConstantService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -99,10 +105,10 @@ export class EditConfigSchemaComponent extends AbstractComponent {
     // 데이터소스 아이디
     this._sourceId = datasourceId;
     // set filter list
-    this.logicalTypeFilterList = this.datasourceCreateService.getLogicalTypeFilterList().filter(type => type.value !== LogicalType.USER_DEFINED);
-    this.selectedLogicalTypeFilter = this.logicalTypeFilterList[0];
-    this.roleTypeFilterList = this.datasourceCreateService.getRoleTypeFilterList();
-    this.selectedRoleTypeFilter = this.roleTypeFilterList[0];
+    this.logicalTypeFilterList = this.constant.getTypeFilters();
+    this.selectedLogicalTypeFilter = this.constant.getTypeFiltersFirst();
+    this.roleTypeFilterList = this.constant.getRoleTypeFilters();
+    this.selectedRoleTypeFilter = this.constant.getRoleTypeFilterFirst();
     // set origin field list
     this._originFieldList = _.cloneDeep(fields);
     this._originFieldList.forEach((column) => {
@@ -119,8 +125,14 @@ export class EditConfigSchemaComponent extends AbstractComponent {
     this.isShowPopup = true;
   }
 
+  /**
+   *
+   * @private
+   */
   private _setIsExistErrorInFieldListFlag(): void {
-    this.isExistErrorInFieldList = this._originFieldList.some(field => (field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POLYGON || field.logicalType === LogicalType.TIMESTAMP) && field.isValidType == false);
+    this.isExistErrorInFieldList = this._originFieldList.some(field =>
+      ((field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POLYGON) && field.isValidType === false)
+      || (field.logicalType === LogicalType.TIMESTAMP && field.isValidTimeFormat === false));
   }
 
 
@@ -146,6 +158,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
     this.roleTypeFilterList = undefined;
     this.filteredFieldList = undefined;
     this.convertibleTypeList = undefined;
+    this.isExistErrorInFieldList = undefined;
   }
 
   /**
@@ -174,14 +187,24 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * @returns {string}
    */
   public getSelectedLogicalTypeLabel(field: Field): string {
-    return (this.logicalTypeFilterList.find(type => type.value === field.logicalType) || this.logicalTypeFilterList[1]).label;
+    return (this.logicalTypeFilterList.find(type => type.value === field.logicalType.toString()) || this.logicalTypeFilterList[1]).label;
+  }
+
+  /**
+   * Click info icon
+   * @param {Field} field
+   */
+  public onClickInfoIcon(field: Field): void {
+    if (field.logicalType === LogicalType.TIMESTAMP) {
+      field.isShowTypeValidPopup = true;
+    }
   }
 
   /**
    * Changed role type filter
    * @param {TypeFilterObject} filter
    */
-  public onChangedRoleTypeFilter(filter: TypeFilterObject): void {
+  public onChangedRoleTypeFilter(filter: Filter.Role): void {
     if (this.selectedRoleTypeFilter.value !== filter.value) {
       // set selected role type filter
       this.selectedRoleTypeFilter = filter;
@@ -194,7 +217,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * Change logical type filter
    * @param {TypeFilterObject} filter
    */
-  public onChangedLogicalTypeFilter(filter: TypeFilterObject): void {
+  public onChangedLogicalTypeFilter(filter: Filter.Logical): void {
     if (this.selectedLogicalTypeFilter.value !== filter.value) {
       // set selected type filter
       this.selectedLogicalTypeFilter = filter;
@@ -233,7 +256,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
         // loading show
         this.loadingShow();
         // valid WKT
-        this.fieldConfigService.checkEnableGeoTypeAndSetValidationResult(targetField, this.fieldConfigService.getFieldDataList(targetField, this._dataList))
+        this.fieldConfigService.checkEnableGeoTypeAndSetValidationResult(targetField, this.fieldConfigService.getFieldDataList(targetField, this.fieldDataList))
           .then((result) => {
             this._setIsExistErrorInFieldListFlag();
             // loading hide
@@ -250,7 +273,6 @@ export class EditConfigSchemaComponent extends AbstractComponent {
     }
   }
 
-
   /**
    * Change type list show flag
    * @param {Field} field
@@ -258,8 +280,10 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   public onChangeTypeListShowFlag(field: Field): void {
     // if not derived and TIMESTAMP
     if (!field.derived && field.role !== FieldRole.TIMESTAMP) {
-      !field['isShowTypeList'] && this._setConvertedTypeList(field);
-      field['isShowTypeList'] = !field['isShowTypeList'];
+      if (!field.isShowTypeList) {
+        this._setConvertedTypeList(field);
+      }
+      field.isShowTypeList = !field.isShowTypeList;
     }
   }
 
@@ -270,8 +294,8 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   private _updateFilteredFieldList(): void {
     // set filtered field list
     this.filteredFieldList = this._originFieldList.filter(field =>
-      (this.selectedRoleTypeFilter.value === 'ALL' ? true : (FieldRole.DIMENSION === this.selectedRoleTypeFilter.value && FieldRole.TIMESTAMP === field.role ? field : this.selectedRoleTypeFilter.value === field.role))
-      && (this.selectedLogicalTypeFilter.value === 'ALL' ? true : this.selectedLogicalTypeFilter.value === field.logicalType)
+      (this.selectedRoleTypeFilter.value === 'ALL' ? true : (Role.DIMENSION === this.selectedRoleTypeFilter.value && FieldRole.TIMESTAMP === field.role ? field : this.selectedRoleTypeFilter.value === field.role.toString()))
+      && (this.selectedLogicalTypeFilter.value === 'ALL' ? true : this.selectedLogicalTypeFilter.value === field.logicalType.toString())
       && (StringUtil.isEmpty(this.searchTextKeyword) ? true : field.name.toUpperCase().includes(this.searchTextKeyword.toUpperCase().trim())));
   }
 
@@ -367,7 +391,13 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    * @private
    */
   private _setConvertedTypeList(field: Field): void {
-    this.convertibleTypeList = this.datasourceCreateService.getConvertibleLogicalTypeList(field.role === FieldRole.DIMENSION, field.type === 'STRING');
+    if (field.role === FieldRole.MEASURE) {
+      this.convertibleTypeList = this.constant.getTypeFiltersInMeasure();
+    } else if (field.role === FieldRole.DIMENSION && field.type === LogicalType.STRING.toString()) {
+      this.convertibleTypeList = this.constant.getTypeFiltersInDimensionOnlyBaseTypeString();
+    } else {
+      this.convertibleTypeList = this.constant.getTypeFiltersInDimension();
+    }
   }
 
 
@@ -387,7 +417,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
       this.connectionService.getTableDetailWitoutId(this._getConnectionParams(datasource.ingestion, connection), connection.implementor === ImplementorType.HIVE)
         .then((result: {data: any, fields: Field[], totalRows: number}) => {
           // grid data
-          this._dataList = result.data;
+          this.fieldDataList = result.data;
           // 로딩 hide
           this.loadingHide();
         })
@@ -403,7 +433,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
       this.datasourceService.getDatasourceQuery(params)
         .then((result) => {
           // grid data
-          this._dataList = result;
+          this.fieldDataList = result;
           // 로딩 hide
           this.loadingHide();
         })

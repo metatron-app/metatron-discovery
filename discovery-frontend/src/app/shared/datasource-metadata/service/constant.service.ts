@@ -27,8 +27,8 @@ export class ConstantService {
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.lnt'), Logical.LNT),
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.lng'), Logical.LNG),
     new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.point'), Logical.GEO_POINT),
-    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.polygon'), Logical.GEO_POLYGON),
-    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.line'), Logical.GEO_LINE),
+    // new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.polygon'), Logical.GEO_POLYGON),
+    // new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.line'), Logical.GEO_LINE),
   ];
 
   constructor(private translateService: TranslateService) {

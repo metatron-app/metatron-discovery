@@ -184,10 +184,10 @@
                 <em class="ddp-bg-select"></em>
               </div>
             </td>
-            <td class="ddp-inherit ddp-info" [class.ddp-selected]="column.isShowTypeValidPopup"  (clickOutside)="column.isShowTypeValidPopup = undefined">
+            <td class="ddp-inherit ddp-info" [class.ddp-selected]="column.isShowTypeValidPopup">
               <!-- select -->
-              <div class="ddp-ui-selected-option" [class.ddp-selected]="column['isShowTypeList']"
-                   (clickOutside)="column['isShowTypeList'] = false" (click)="onChangeTypeListShowFlag(column)">
+              <div class="ddp-ui-selected-option" [class.ddp-selected]="column.isShowTypeList"
+                   (clickOutside)="column.isShowTypeList = false" (click)="onChangeTypeListShowFlag(column)">
                 <span class="ddp-link-text ddp-txt-icon">
                   <em class="{{getFieldTypeIconClass(column.logicalType)}}"></em>
                   {{column.role === FIELD_ROLE.TIMESTAMP ? ('msg.storage.ui.list.timestamp' | translate) : getSelectedLogicalTypeLabel(column)}}
@@ -210,9 +210,9 @@
               </div>
               <!-- //select -->
               <div class="ddp-ui-info" [class.ddp-selected]="column.isShowTypeValidPopup" *ngIf="column.role !== FIELD_ROLE.TIMESTAMP && (column.logicalType === LOGICAL_TYPE.TIMESTAMP || column.logicalType === LOGICAL_TYPE.GEO_POINT || column.logicalType === LOGICAL_TYPE.GEO_LINE || column.logicalType === LOGICAL_TYPE.GEO_POLYGON)">
-                <em [class.ddp-icon-sinfo2]="column.isValidType" [class.ddp-icon-error2]="column.isValidType === false"></em>
+                <em [class.ddp-icon-sinfo2]="column.isValidType || column.isValidTimeFormat !== false" [class.ddp-icon-error2]="column.isValidType === false || column.isValidTimeFormat === false" (click)="onClickInfoIcon(column)"></em>
                 <!-- format layer -->
-                <!--<datetime-valid-popup [field]="column" *ngIf="column.logicalType === LOGICAL_TYPE.TIMESTAMP && column.isShowTypeValidPopup"></datetime-valid-popup>-->
+                <datetime-valid-popup *ngIf="column.logicalType === LOGICAL_TYPE.TIMESTAMP && column.isShowTypeValidPopup" [field]="column" [defaultFormatObj]="defaultFormatObj" [fieldDataList]="fieldDataList" (closed)="_setIsExistErrorInFieldListFlag()"></datetime-valid-popup>
                 <!-- //format layer -->
               </div>
 

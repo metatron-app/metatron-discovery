@@ -15,72 +15,128 @@
 <div class="ddp-box-layout4 type-time">
   <a href="javascript:" class="ddp-btn-close" (click)="cancel()"></a>
   <div class="ddp-data-title">
-    Date/Time type setting
+    {{'msg.storage.ui.schema.column.format.title' | translate}}
   </div>
   <div class="ddp-data-det">
     <!--edit -->
     <div class="ddp-wrap-edit3">
       <div class="ddp-view-label">
         <label class="ddp-ui-label-name ">
-          Time display format
+          {{'msg.storage.ui.time.display.format' | translate}}
           <!-- 설명 -->
           <div class="ddp-wrap-hover-info">
             <em class="ddp-icon-info3"></em>
             <!-- popup -->
             <div class="ddp-box-layout4" >
               <div class="ddp-data-title">
-                추천 필터 설정이란?
+                {{'msg.storage.ui.display.format.guide' | translate}}
               </div>
               <div class="ddp-data-det">
-                대용량 데이터를 포함한 컬럼이 있을 경우,
-                데이터 소스 로딩시 긴 시간이 소요되어
-                타임아웃 에러가 발생할 수 있습니다.
-                데이터 관리자는 이와 같은 에러가 예상되는
-                컬럼을 추천 필터로 등록하여 대시보드나
-                차트 구성이 원할히 이루어 질 수 있도록
-                도와 줄 수 있습니다. 대시보드 관리자가
-                추천 필터를 제거할 수 없으며,  대시보드
-                구성 시에 반드시 필터값을 설정하도록
-                되어 있습니다.
-                <div class="ddp-txt-tip">
-                  TIP! 데이터의 용량이 매우 큰 경우, 단일값만 허용함에 체크하세요
-
-                </div>
+                <dl class="ddp-dl-det">
+                  <dt>
+                    yyyy
+                  </dt>
+                  <dd>
+                    <em>=</em> {{'msg.storage.ui.th.four-digit-year' | translate}}
+                  </dd>
+                </dl>
+                <dl class="ddp-dl-det">
+                  <dt>
+                    MM
+                  </dt>
+                  <dd>
+                    <em>=</em> {{'msg.storage.ui.th.two-digit-month' | translate}}
+                  </dd>
+                </dl>
+                <dl class="ddp-dl-det">
+                  <dt>
+                    dd
+                  </dt>
+                  <dd>
+                    <em>=</em> {{'msg.storage.ui.th.two-digit-day' | translate}}<br />
+                    {{'msg.storage.ui.th.two-digit-day-thorough' | translate}}
+                  </dd>
+                </dl>
+                <dl class="ddp-dl-det">
+                  <dt>
+                    HH
+                  </dt>
+                  <dd>
+                    <em>=</em> {{'msg.storage.ui.th.four-digit-hour' | translate}}<br />
+                    {{'msg.storage.ui.th.four-digit-hour-allowed' | translate}}
+                  </dd>
+                </dl>
+                <dl class="ddp-dl-det">
+                  <dt>
+                    mm 
+                  </dt>
+                  <dd>
+                    <em>=</em> {{'msg.storage.ui.th.two-digit-minute' | translate}}<br />
+                    {{'msg.storage.ui.th.two-digit-minute-thorough' | translate}}
+                  </dd>
+                </dl>
+                <dl class="ddp-dl-det">
+                  <dt>
+                    ss
+                  </dt>
+                  <dd>
+                    <em>=</em> {{'msg.storage.ui.th.two-digit-second' | translate}}<br />
+                    {{'msg.storage.ui.th.two-digit-second-thorough' | translate}}
+                  </dd>
+                </dl>
+                <dl class="ddp-dl-det">
+                  <dt>
+                    S
+                  </dt>
+                  <dd>
+                    <em>=</em> {{'msg.storage.ui.th.one-more-digit' | translate}} <br />
+                    {{'msg.storage.ui.th.one-more-digit-decimal' | translate}}
+                  </dd>
+                </dl>
+                <dl class="ddp-dl-det">
+                  <dt>
+                    TZD
+                  </dt>
+                  <dd>
+                    <em>=</em>
+                    {{'msg.storage.ui.th.time-zone-designator' | translate}} <br />
+                    (Z or +hh:mm or -hh:mm)
+                  </dd>
+                </dl>
               </div>
-
             </div>
             <!-- //popup -->
           </div>
           <!-- //설명 -->
         </label>
-        <div class="ddp-type-format ">
+        <div class="ddp-type-format" (click)="onChangeEnableUnixType(); $event.preventDefault()">
           <label class="ddp-label-checkbox">
-            <input type="checkbox">
+            <input type="checkbox" [checked]=" field.format.type === FIELD_FORMAT_TYPE.UNIX_TIME">
             <i class="ddp-icon-checkbox"></i>
-            <span class="ddp-txt-checkbox">It’s Unix code</span>
+            <span class="ddp-txt-checkbox">{{'msg.storage.ui.enable.unix' | translate}}</span>
           </label>
         </div>
       </div>
       <!-- edit option -->
       <div class="ddp-ui-option-in">
         <!-- apply -->
-        <div class="ddp-type-apply">
+        <div class="ddp-type-apply" *ngIf="field.format.type === FIELD_FORMAT_TYPE.DATE_TIME">
           <!-- input text 입력시 ddp-edit 추가 -->
-          <div class="ddp-input-apply" (click)="onClickFormatValidation()">
-            <input type="text" placeholder="Enter column delimiter" class="ddp-input-txt" [(ngModel)]="formatText" (ngModelChange)="field.isValidType = undefined">
-            <em class="ddp-icon-apply"></em>
+          <div class="ddp-input-apply">
+            <input type="text" placeholder="Enter column delimiter" class="ddp-input-txt" [(ngModel)]="field.format.format" (ngModelChange)="field.isValidTimeFormat = undefined">
+            <em class="ddp-icon-apply" (click)="onClickFormatValidation()"></em>
           </div>
-          <div class="ddp-txt-error" *ngIf="field.isValidType === false">
+          <div class="ddp-txt-error" *ngIf="field.isValidTimeFormat === false">
             <em class="ddp-icon-error-s"></em>{{field.timeFormatValidMessage}}
           </div>
         </div>
         <!-- //apply -->
 
         <!-- checkbox -->
-        <ul class="ddp-list-checktype">
+        <ul class="ddp-list-checktype" *ngIf="field.format.type === FIELD_FORMAT_TYPE.UNIX_TIME">
           <li *ngFor="let type of formatUnitList">
             <label class="ddp-label-radio" (click)="onChangeUnixType(type)">
-              <input type="radio">
+              <input type="radio" [checked]="field.format.unit === type.value">
               <i class="ddp-icon-radio"></i>
               <span class="ddp-txt-radio">{{type.label}}</span>
             </label>
@@ -92,12 +148,9 @@
     </div>
     <!--//edit -->
     <!-- edit -->
-    <div class="ddp-wrap-edit3 type-det" >
-      Time zone
-      <span class="ddp-txt-det">
-                                                        +09:00 Asia/Seoul
-                                                    </span>
-
+    <div class="ddp-wrap-edit3 type-det" *ngIf="field.format.type === FIELD_FORMAT_TYPE.DATE_TIME && field.format.timeZone !== 'DISABLE_ZONE'">
+      {{'msg.storage.ui.timezone' | translate}}
+      <span class="ddp-txt-det">{{getTimezoneLabel(field)}}</span>
     </div>
     <!-- //edit -->
   </div>

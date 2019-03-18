@@ -2663,7 +2663,7 @@ table.ddp-table-form2 tbody tr td em.ddp-icon-group {float:left; margin-right:7p
 table.ddp-table-form2 tbody tr td span.ddp-data-username {display:block; overflow:hidden;}
 
 .ddp-ui-selected-option span.ddp-link-text {display:inline-block; position:relative; width:100%; padding-right:19px; cursor:pointer; box-sizing:border-box;}
-.ddp-ui-selected-option span.ddp-link-text.ddp-txt-icon {padding-left:30px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
+.ddp-ui-selected-option span.ddp-link-text.ddp-txt-icon {padding-left:30px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal; vertical-align:middle; vertical-align:middle;}
 .ddp-ui-selected-option span.ddp-link-text span.ddp-wrap-icons {display:inline-block; position:absolute; top:50%; right:0; width:17px; height:17px; margin-top:-9px; cursor:pointer;}
 .ddp-ui-selected-option.ddp-selected span.ddp-link-text span.ddp-wrap-icons {background-color:#f6f6f7;}
 .ddp-ui-selected-option span.ddp-link-text span.ddp-wrap-icons:before {display:inline-block; content:''; width:6px; height:4px; position:absolute; top:50%; left:50%; margin:-2px 0 0 -3px; background:url(../images/icon_selecview.png) no-repeat; background-position:left -22px;}

@@ -1886,6 +1886,7 @@
   "msg.storage.ui.th.one-more-digit-decimal" : "a decimal fraction of a second",
   "msg.storage.ui.th.time-zone-designator" : "time zone designator",
   "msg.storage.ui.schema.column.no.data" : "Can not set Time-type because there is no data value",
+  "msg.storage.ui.schema.column.format.title" : "Date/Time type setting",
   "msg.storage.ui.schema.column.format.required" : "The time display format is required",
   "msg.storage.ui.schema.valid.required.check" : "Please check valid",
   "msg.storage.ui.schema.valid.required.match.data" : "Please enter in the same format as the data value",

@@ -45,6 +45,7 @@ import {DataSourceCreateModule} from "./data-source-list/create-data-source/data
 import {StorageFilterSelectBoxComponent} from "./data-source-list/component/storage-filter-select-box.component";
 import {DatetimeValidPopupComponent} from "./data-source-list/component/datetime-valid-popup.component";
 import {FieldConfigService} from "./service/field-config.service";
+import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/datasource-metadata-shared.module";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -59,6 +60,7 @@ const storageRoutes: Routes = [
     DndModule,
     DataPreviewModule,
     DataSourceCreateModule,
+    DatasourceMetadataSharedModule,
     RouterModule.forChild(storageRoutes)
   ],
   declarations: [
