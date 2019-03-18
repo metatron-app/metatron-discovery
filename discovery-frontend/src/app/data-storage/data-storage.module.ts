@@ -43,7 +43,6 @@ import { CriterionTimeRadioboxComponent } from './component/criterion/criterion-
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
 import {DataSourceCreateModule} from "./data-source-list/create-data-source/data-source-create.module";
 import {StorageFilterSelectBoxComponent} from "./data-source-list/component/storage-filter-select-box.component";
-import {DatetimeValidPopupComponent} from "./data-source-list/component/datetime-valid-popup.component";
 import {FieldConfigService} from "./service/field-config.service";
 import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/datasource-metadata-shared.module";
 
@@ -80,8 +79,6 @@ const storageRoutes: Routes = [
     EditFilterDataSourceComponent,
     EditConfigSchemaComponent,
     IngestionLogComponent,
-    // time valid layer popup
-    DatetimeValidPopupComponent,
     // data connection
     DataConnectionComponent,
     HandlerDataConnectionComponent,
