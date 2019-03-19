@@ -3252,7 +3252,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // 공간연산 실행시 나머지 옵션 레이어 disable
     if ('map' == this.selectChart && this.uiOption['analysis'] != null && this.uiOption['analysis']['use'] == true) {
-      ( layerNum == this.shelf.layers.length-1 ? valid = false : valid = true );
+      (layerNum == this.shelf.layers.length - 1 ? valid = false : valid = true);
       return valid;
     }
 
@@ -4002,10 +4002,33 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         }
       }
     ).catch((reason) => {
-      console.error('Search Query Error =>', reason);
+      let err = {};
+      // only analysis 사용할때 에러 발생시 예외 처리
+      if (!_.isUndefined(this.uiOption['analysis']) && this.uiOption['analysis']['use'] == true) {
+        if (!_.isUndefined(reason) && (!_.isUndefined(reason['message']) || !_.isUndefined(reason['details']))) {
+          err['code'] = reason.code;
+          // 에러 메시지가 형식대로 떨어질 경우
+          let message = reason['message'];
+          let detailMessage = reason['details'];
+          // message 길 경우
+          if (!_.isUndefined(message) && message.length > 30) {
+            err['message'] = 'Spatial Config Error <br/>' + message.substring(0, 30);
+            err['details'] = message + '<br/>' + detailMessage;
+          } else {
+            err['message'] = 'Spatial Config Error';
+            err['details'] = message + '<br/>' + detailMessage;
+          }
+        } else {
+          err['message'] = 'Spatial Config Error <br/>';
+          err['details'] = reason;
+        }
+      } else {
+        err = reason;
+      }
+      console.error('Search Query Error =>', err);
       this.isChartShow = false;
       this.isError = true;
-      this.commonExceptionHandler(reason);
+      this.commonExceptionHandler(err);
 
       // 변경사항 반영
       this.changeDetect.detectChanges();
