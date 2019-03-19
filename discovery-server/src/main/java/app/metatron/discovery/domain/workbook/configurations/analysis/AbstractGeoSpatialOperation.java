@@ -17,20 +17,18 @@ package app.metatron.discovery.domain.workbook.configurations.analysis;
 
 import org.apache.commons.lang3.BooleanUtils;
 
-import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
-
 public abstract class AbstractGeoSpatialOperation implements GeoSpatialOperation {
 
   Integer buffer;
 
   boolean choropleth;
 
-  MeasureField.AggregationType aggregation;
+  ChoroplethAggregation aggregation;
 
   public AbstractGeoSpatialOperation() {
   }
 
-  public AbstractGeoSpatialOperation(Integer buffer, Boolean choropleth, MeasureField.AggregationType aggregation) {
+  public AbstractGeoSpatialOperation(Integer buffer, Boolean choropleth, ChoroplethAggregation aggregation) {
     this.buffer = buffer;
     this.choropleth = BooleanUtils.isTrue(choropleth);
     this.aggregation = aggregation;
@@ -46,7 +44,8 @@ public abstract class AbstractGeoSpatialOperation implements GeoSpatialOperation
     return choropleth;
   }
 
-  public MeasureField.AggregationType getAggregation() {
+  @Override
+  public ChoroplethAggregation getAggregation() {
     return aggregation;
   }
 }

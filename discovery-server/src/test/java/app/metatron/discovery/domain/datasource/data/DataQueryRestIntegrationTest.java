@@ -2254,7 +2254,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1, layer2));
 
-    GeoSpatialOperation operation = new GeoSpatialOperation.DistanceWithin(10000, false);
+    GeoSpatialOperation operation = new GeoSpatialOperation.Within(1000, false, null);
     GeoSpatialAnalysis geoSpatialAnalysis = new GeoSpatialAnalysis("layer1", "layer2", true, operation);
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
@@ -2304,7 +2304,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1, layer2));
 
-    GeoSpatialOperation operation = new GeoSpatialOperation.DistanceWithin(10000, true);
+    GeoSpatialOperation operation = new GeoSpatialOperation.Within(1000, true, new GeoSpatialOperation.ChoroplethAggregation(MeasureField.AggregationType.SUM, "py"));
     GeoSpatialAnalysis geoSpatialAnalysis = new GeoSpatialAnalysis("layer1", "layer2", false, operation);
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);

@@ -98,7 +98,7 @@ public class ChoroplethMapQueryBuilder {
 
   public ChoroplethMapQueryBuilder operation(GeoSpatialOperation geoSpatialOperation) {
 
-    if (geoSpatialOperation instanceof GeoSpatialOperation.DistanceWithin) {
+    if (geoSpatialOperation instanceof GeoSpatialOperation.Within) {
       if (StringUtils.isNotEmpty(pointColumn)) {
         this.operation = SpatialOperations.CONTAINS; // not support WITHIN if base geometry is type of point
       } else {

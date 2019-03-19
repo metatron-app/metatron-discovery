@@ -323,7 +323,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
                                                   .fields(mainLayer.getFields())
                                                   .filters(request.getFilters())
                                                   .limit(request.getLimits())
-                                                  .enableChropoleth()
+                                                  .enableChropoleth(geoSpatialAnalysis.getOperation().getAggregation())
                                                   .emptyQueryId()
                                                   .build();
 
