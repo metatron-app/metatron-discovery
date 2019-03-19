@@ -57,7 +57,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
     { label: 'MySQL', value: 'MYSQL' },
     { label: 'Hive', value: 'HIVE' },
     { label: 'Presto', value: 'PRESTO' },
-    { label: 'Tibero', value: 'TIBERO' }
+    { label: 'PostgreSQL', value: 'POSTGRESQL' }
   ];
 
   // 선택한 URL 타입

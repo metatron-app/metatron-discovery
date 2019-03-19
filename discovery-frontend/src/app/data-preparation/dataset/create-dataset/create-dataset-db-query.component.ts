@@ -696,15 +696,24 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     if (!this.datasetJdbc.dataconnection.connection) {
       this.datasetJdbc.dcId = this.datasetJdbc.dataconnection.id;
       this.datasetJdbc.dataconnection = {connection : {
-        hostname: this.datasetJdbc.dataconnection.hostname,
-        implementor: this.datasetJdbc.dataconnection.implementor,
-        password: this.datasetJdbc.dataconnection.password,
-        port: this.datasetJdbc.dataconnection.port,
-        url: this.datasetJdbc.dataconnection.url,
-        username: this.datasetJdbc.dataconnection.username,
-        authenticationType: this.datasetJdbc.dataconnection.authenticationType
-      }
+          hostname: this.datasetJdbc.dataconnection.hostname,
+          implementor: this.datasetJdbc.dataconnection.implementor,
+          password: this.datasetJdbc.dataconnection.password,
+          port: this.datasetJdbc.dataconnection.port,
+          url: this.datasetJdbc.dataconnection.url,
+          username: this.datasetJdbc.dataconnection.username,
+          authenticationType: this.datasetJdbc.dataconnection.authenticationType
+        }
       };
+
+      if (this.datasetJdbc.dataconnection.implementor === 'POSTGRESQL') {
+        this.datasetJdbc.dataconnection.connection.database = this.datasetJdbc.dataconnection.database;
+      }
+
+      if (this.datasetJdbc.dataconnection.implementor === 'PRESTO') {
+        this.datasetJdbc.dataconnection.connection.catalog = this.datasetJdbc.dataconnection.catalog;
+      }
+
     }
 
 
