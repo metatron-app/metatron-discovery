@@ -30,7 +30,7 @@ import {UIMapOption} from "../../../../common/component/chart/option/ui-option/m
 import {LogicalType} from "../../../../domain/datasource/datasource";
 import {Alert} from "../../../../common/util/alert.util";
 import {ShelveFieldType} from "../../../../common/component/chart/option/define/common";
-import {Field as AbstractField, Field } from "../../../../domain/workbook/configurations/field/field";
+import {Field as AbstractField, Field} from "../../../../domain/workbook/configurations/field/field";
 import {ChartUtil} from "../../../../common/component/chart/option/util/chart-util";
 
 @Component({
@@ -59,18 +59,18 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
 
   public calSpatialList: any = [
     // {name: 'Distance within', value: 'dwithin'}
-      {name: 'With In', value: 'within'}
+    {name: 'With In', value: 'within'}
     , {name: 'Intersection', value: 'intersects'}
     // , {name: 'Symmetrical difference', value: 'symmetricdiff'} // 서버상에 현재 키 값이 없음
   ];
   public calSpatialIndex: number = 0;
 
   public unitList: any = [
-      {name: 'Meters', value: 'meters'}
+    {name: 'Meters', value: 'meters'}
     , {name: 'Kilometers', value: 'kilometers'}
   ];
   public bufferList: any = [
-      {name: 'Meters', value: 'meters'}
+    {name: 'Meters', value: 'meters'}
     , {name: 'Kilometers', value: 'kilometers'}
   ];
   public unitIndex: number = 0;
@@ -98,23 +98,23 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   public isChoroplethOn: boolean = false;
 
   // dimension, measure List
-  public fieldList : any = {
-    measureList    : [ { alias : 'Count', column : 'count' } ],
-    dimensionList  : []
+  public fieldList: any = {
+    measureList: [{alias: 'Count', column: 'count'}],
+    dimensionList: []
   };
 
 
-  public selectChoroplethColor : any = {alias : 'Count', column : 'count'};
+  public selectChoroplethColor: any = {alias: 'Count', column: 'count'};
 
   public aggregateTypes = [
-    {name : 'SUM', value: 'SUM'},
-    {name : 'AVG', value: 'AVG'},
-    {name : 'CNT', value: 'COUNT'},
-    {name : 'MED', value: 'MEDIAN'},
-    {name : 'MIN', value: 'MIN'},
-    {name : 'MAX', value: 'MAX'},
-    {name : 'PCT1/4', value: 'PCT1/4'}, // 값 확인 필요
-    {name : 'PCT3/4', value: 'PCT3/4'}  // 값 확인 필요
+    {name: 'SUM', value: 'SUM'},
+    {name: 'AVG', value: 'AVG'},
+    {name: 'CNT', value: 'COUNT'},
+    {name: 'MED', value: 'MEDIAN'},
+    {name: 'MIN', value: 'MIN'},
+    {name: 'MAX', value: 'MAX'},
+    {name: 'PCT1/4', value: 'PCT1/4'}, // 값 확인 필요
+    {name: 'PCT3/4', value: 'PCT3/4'}  // 값 확인 필요
   ];
   public selectAggregateType = {};
 
@@ -334,6 +334,19 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.select.comparelayer'));
       return false;
     }
+
+    // 기준 레이어는 무조건 point, 비교레이어는 무조건 line
+    let baseLayerNum = this.baseIndex;
+    let compareLayerNum = baseLayerNum == 0 ? 1 : 0;
+
+    if (this.uiOption.layers[baseLayerNum].type.toString().toLowerCase() != 'symbol') {
+      Alert.warning('기준 레이어는 point로 설정 해주세요.');
+      return false;
+    } else if (this.uiOption.layers[compareLayerNum].type.toString().toLowerCase() != 'line') {
+      Alert.warning('비교 레이어는 line으로 설정 해주세요.');
+      return false;
+    }
+
     return true;
   }
 
@@ -351,7 +364,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     //   Alert.warning(spatialDataValue + this.translateService.instant('msg.page.chart.map.spatial.select.buffer'));
     //   return false;
     // }
-    if ( !this.isBufferOn || _.isUndefined(this.bufferInput) || this.bufferInput.trim() === '' || isNaN(Number(this.bufferInput.trim()))) {
+    if (!this.isBufferOn || _.isUndefined(this.bufferInput) || this.bufferInput.trim() === '' || isNaN(Number(this.bufferInput.trim()))) {
       Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.select.buffer'));
       return false;
     }
@@ -459,16 +472,16 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     let shelf = this.shelf;
 
     this.fieldList = {
-        measureList    : [ { alias : 'Count', column : 'count' } ],
-        dimensionList  : []
+      measureList: [{alias: 'Count', column: 'count'}],
+      dimensionList: []
     };
-    let tempObj : object = {};
+    let tempObj: object = {};
     let measureList: Field[];
     let dimensionList: Field[];
 
-    for(let index=0; index < shelf.layers.length; index++) {
+    for (let index = 0; index < shelf.layers.length; index++) {
 
-      if( this.uiOption.layers[index].name != this.baseList.layers[this.baseIndex] ) {
+      if (this.uiOption.layers[index].name != this.baseList.layers[this.baseIndex]) {
         continue;
       }
 
@@ -477,10 +490,10 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
         const resultList: any[] = [];
         shelve.map((item) => {
-          if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
+          if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')))) {
             item['alias'] = ChartUtil.getAlias(item);
-            if( resultList.length == 0 ){
-              resultList.push( { alias : 'Count', column : 'count' }  );
+            if (resultList.length == 0) {
+              resultList.push({alias: 'Count', column: 'count'});
             }
             resultList.push(item);
           }
@@ -491,10 +504,10 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       measureList = getShelveReturnField(layers, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
       // dimensionList = getShelveReturnField(layers, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
       tempObj = {
-        'measureList'    : measureList,
-        'dimensionList'  : dimensionList
+        'measureList': measureList,
+        'dimensionList': dimensionList
       };
-      if( measureList.length > 0 )
+      if (measureList.length > 0)
         this.fieldList = tempObj;
 
     }
