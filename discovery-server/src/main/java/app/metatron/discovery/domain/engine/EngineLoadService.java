@@ -148,15 +148,24 @@ public class EngineLoadService {
 
     String sendTopicUri = String.format(TOPIC_LOAD_PROGRESS, temporaryId);
 
-    //if reserved field name...add prefix
+    //if reserved field name...add postfix
     if(Field.RESERVED_FIELDS.length > 0){
       for(Field field : dataSource.getFields()){
         final String compareFieldName = field.getName();
-        long reservedFieldMatched = Arrays.stream(Field.RESERVED_FIELDS)
-                                          .filter(reserved -> reserved.equals(compareFieldName))
-                                          .count();
-        if(reservedFieldMatched > 0){
-          field.setName("__" + compareFieldName);
+        boolean reservedFieldMatched = Arrays.stream(Field.RESERVED_FIELDS)
+                                             .anyMatch(reserved -> reserved.equals(compareFieldName));
+
+        if(reservedFieldMatched){
+          String newFieldName = compareFieldName;
+          boolean fieldNameDuplicated = true;
+          while(fieldNameDuplicated){
+            newFieldName = newFieldName + "_";
+            final String compareField = newFieldName;
+            fieldNameDuplicated = dataSource.getFields()
+                                            .stream()
+                                            .anyMatch(legacyField -> legacyField.getName().equals(compareField));
+          }
+          field.setName(newFieldName);
         }
       }
     }
