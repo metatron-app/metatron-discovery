@@ -349,7 +349,7 @@ public class JdbcConnectionService {
         Map<String, Object> detailInfoMap = new LinkedHashMap<>();
         Map<String, Object> storageInfoMap = new LinkedHashMap<>();
 
-        for (int rowCnt = 2; rowCnt < tableDescList.size(); ++rowCnt) {
+        for (int rowCnt = 0; rowCnt < tableDescList.size(); ++rowCnt) {
           Map<String, Object> tableDescRow = tableDescList.get(rowCnt);
           String columnName = StringUtils.trim((String) tableDescRow.get("col_name"));
           String descType = StringUtils.trim((String) tableDescRow.get("data_type"));
