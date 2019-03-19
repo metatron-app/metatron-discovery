@@ -18,17 +18,17 @@ export class ConstantService {
   ];
 
   private readonly typeFilters: Filter.Logical[] = [
-    new Filter.Logical(this.translateService.instant('msg.comm.ui.list.all'), Logical.ALL),
-    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.string'), Logical.STRING),
-    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.boolean'), Logical.BOOLEAN),
-    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.integer'), Logical.INTEGER),
-    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.double'), Logical.DOUBLE),
-    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.date'), Logical.TIMESTAMP),
-    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.lnt'), Logical.LNT),
-    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.lng'), Logical.LNG),
-    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.point'), Logical.GEO_POINT),
-    // new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.polygon'), Logical.GEO_POLYGON),
-    // new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.line'), Logical.GEO_LINE),
+    new Filter.Logical(this.translateService.instant('msg.comm.ui.list.all'), Type.Logical.ALL),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.string'), Type.Logical.STRING),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.boolean'), Type.Logical.BOOLEAN),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.integer'), Type.Logical.INTEGER),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.double'), Type.Logical.DOUBLE),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.date'), Type.Logical.TIMESTAMP),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.lnt'), Type.Logical.LNT),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.lng'), Type.Logical.LNG),
+    new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.point'), Type.Logical.GEO_POINT),
+    // new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.polygon'), Type.Logical.GEO_POLYGON),
+    // new Filter.Logical(this.translateService.instant('msg.storage.ui.list.geo.line'), Type.Logical.GEO_LINE),
   ];
 
   constructor(private translateService: TranslateService) {
@@ -48,6 +48,12 @@ export class ConstantService {
 
   public getTypeFilters() {
     return _.cloneDeep(this.typeFilters);
+  }
+
+  public getTypeFiltersInCreateStep() {
+    const filters = _.cloneDeep(this.typeFilters);
+    filters.push(new Filter.Logical(this.translateService.instant('msg.storage.ui.list.user'), Type.Logical.USER_DEFINED));
+    return filters;
   }
 
   public getTypeFiltersInDimension() {
