@@ -4734,6 +4734,7 @@ a:hover em.ddp-icon-shot {background-position:-17px top;}
 .ddp-wrap-flow .ddp-wrap-rules-flow .ddp-box-title {position:relative;}
 .ddp-wrap-flow .ddp-wrap-rules-flow.ddp-split {position:relative; top:0; left:0; right:0; bottom:0; width:inherit; height:100%;}
 .ddp-type-preview .ddp-wrap-grid-option {background-color:#f6f6f7; border-bottom:1px solid #e7e7ea;}
+.ddp-type-contents-in .ddp-wrap-grid-option.ddp-top-option {padding-bottom:0; margin-bottom:0;}
 .ddp-wrap-grid-option {position:relative; z-index:50;}
 .ddp-wrap-grid-option .ddp-part-left {float:left;}
 .ddp-wrap-grid-option .ddp-part-right {float:right; padding-right:15px;}
@@ -6366,7 +6367,7 @@ table.ddp-table-detail tr td .ddp-box-sub dl.ddp-dl-detail:last-of-type {margin-
 .ddp-pop-datadetail .ddp-wrap-grid-option .ddp-data-form {padding:9px 13px 10px 13px;}
 .ddp-type-preview .ddp-ui-tab-contents.ddp-pop-datadetail .ddp-ui-grid2 {top:53px}
 .ddp-pop-datadetail .ddp-wrap-colum-detail {position:absolute; top:44px; left:0; right:0; bottom:0;}
-
+.ddp-pop-datadetail .ddp-wrap-colum-detail.ddp-info {top:75px;}
 
 .ddp-pop-datadetail .ddp-wrap-detail.ddp-type .ddp-ui-detail .ddp-ui-title2  {padding:10px 20px 25px 20px; font-size:13px; font-weight:bold;}
 

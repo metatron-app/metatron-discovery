@@ -176,6 +176,9 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
   public downloadPreview: PreviewResult;
 
+  // is exist derived column
+  public isExistDerivedField: boolean;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1124,6 +1127,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     // initialize data
     this.mainDatasource = dataSource;
     this.rowNum = 100;
+    this.isExistDerivedField = dataSource.fields.some(field => field.derived);
     // seletedfield init
     this.selectedField = null;
     this.timestampField = null;
