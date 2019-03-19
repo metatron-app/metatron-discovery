@@ -1989,7 +1989,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     for (let toolTipIndex = 0; this.getUiMapOption().layers.length > toolTipIndex; toolTipIndex++) {
       // do not set tooltip for HEATMAP
-      if (!_.isUndefined(this.getUiMapOption().layers[toolTipLayerNum].type)
+      if (!_.isUndefined(this.getUiMapOption().layers[toolTipLayerNum]) && !_.isUndefined(this.getUiMapOption().layers[toolTipLayerNum].type)
         && this.getUiMapOption().layers[toolTipLayerNum].type !== MapLayerType.HEATMAP) {
 
         // set z-index for tooltip
@@ -3165,8 +3165,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
     for (let dataIndex = 0; dataIndex < this.data.length; dataIndex++) {
 
-      let dataType = this.data[dataIndex]['features'][0]['geometry']['type'].toString().toLowerCase();
-      if(dataType == 'polygon' && this.getUiMapOption().analysis.includeCompareLayer == true) {
+      let dataType = _.isUndefined(this.data[dataIndex]['features']) || this.data[dataIndex]['features'].length <= 0 ? null : this.data[dataIndex]['features'][0]['geometry']['type'].toString().toLowerCase();
+
+      if(dataType == 'polygon' && this.getUiMapOption().analysis.includeCompareLayer == true && dataIndex == 0) {
         this.includeCompareLayer(dataIndex, isMapCreation);
       } else {
         // Source
