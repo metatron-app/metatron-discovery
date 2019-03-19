@@ -72,6 +72,7 @@ import app.metatron.discovery.domain.datasource.data.result.SearchResultFormat;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.Sort;
 import app.metatron.discovery.domain.workbook.configurations.analysis.Analysis;
+import app.metatron.discovery.domain.workbook.configurations.analysis.GeoSpatialOperation;
 import app.metatron.discovery.domain.workbook.configurations.analysis.PredictionAnalysis;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MappingDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
@@ -819,14 +820,29 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     return this;
   }
 
-  public GroupByQueryBuilder enableChropoleth() {
+  public GroupByQueryBuilder enableChropoleth(GeoSpatialOperation.ChoroplethAggregation aggregation) {
 
-    List<String> dimName = dimensions.stream()
-                                     .map(dimension -> dimension.getOutputName())
-                                     .collect(Collectors.toList());
+    //    List<String> dimName = dimensions.stream()
+    //                                     .map(dimension -> dimension.getOutputName())
+    //                                     .collect(Collectors.toList());
+    //
+    //    outputColumns.removeAll(dimName);
+    //    outputColumns.remove(GEOMETRY_COLUMN_NAME);
 
-    outputColumns.removeAll(dimName);
-    outputColumns.remove(GEOMETRY_COLUMN_NAME);
+    outputColumns.clear();
+    aggregations.clear();
+    postAggregations.clear();
+
+    aggregations.add(new CountAggregation("count"));
+    outputColumns.add("count");
+
+    if (!"count".equals(aggregation.getColumn())) {
+      MeasureField measureField = new MeasureField(aggregation.getColumn(),
+                                                   aggregation.getColumn().startsWith("user_defined.") ? "user_defined" : null,
+                                                   aggregation.getType());
+      addAggregationFunction(measureField);
+      outputColumns.add(measureField.getAlias());
+    }
 
     return this;
   }
