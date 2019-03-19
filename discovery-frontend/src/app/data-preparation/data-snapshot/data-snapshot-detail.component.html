@@ -15,7 +15,7 @@
 <div class="ddp-pop-preview ddp-type popup-prep-snapshot" *ngIf="isShow && !isCreateSourceMode">
   <!-- top -->
   <div class="ddp-ui-top">
-    <div class="ddp-data-name">
+    <div class="ddp-data-name ddp-cut" title="{{ selectedDataSnapshot.ssName }}">
       {{ selectedDataSnapshot.ssName }}
     </div>
     <em class="ddp-btn-popup-close" (click)="close()"></em>
