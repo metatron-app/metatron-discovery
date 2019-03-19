@@ -51,6 +51,7 @@ import { FormatOptionConverter } from '../../../common/component/chart/option/co
 import { ColorOptionConverter } from '../../../common/component/chart/option/converter/color-option-converter';
 import { OptionGenerator } from '../../../common/component/chart/option/util/option-generator';
 import UI = OptionGenerator.UI;
+import {MapChartComponent} from "../../../common/component/chart/type/map-chart/map-chart.component";
 
 @Component({
   selector: 'map-layer-option',
@@ -155,6 +156,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
   public minValue: string;
   public maxValue: string;
 
+  // 공간연산
+  @ViewChild(MapChartComponent)
+  public mapChartCompnent: MapChartComponent;
+
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -200,6 +205,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       layer.color.symbolSchema = cloneLayer.color.schema;
       layer.color.symbolTransparency = cloneLayer.color.transparency;
     } else if (MapLayerType.TILE === preLayerType) {
+      layer.tileRadius = cloneLayer.tileRadius;
+      layer.color.tileSchema = cloneLayer.color.schema;
+      layer.color.tranTransparency = cloneLayer.color.transparency;
+    } else if (MapLayerType.POLYGON === preLayerType) {
       layer.tileRadius = cloneLayer.tileRadius;
       layer.color.tileSchema = cloneLayer.color.schema;
       layer.color.tranTransparency = cloneLayer.color.transparency;
@@ -316,6 +325,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     } else if (MapLayerType.TILE === layer.type) {
       layer.color.tranTransparency = slider.from;
       layer.color.transparency = layer.color.tranTransparency;
+    } else if (MapLayerType.POLYGON === layer.type) {
+      layer.color.tranTransparency = slider.from;
+      layer.color.transparency = layer.color.tranTransparency;
     }
     this.applyLayers();
   }
@@ -341,6 +353,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         layer.color.symbolTransparency = inputValue;
         layer.color.transparency = layer.color.symbolTransparency;
       } else if (MapLayerType.TILE === layer.type) {
+        layer.color.tranTransparency = inputValue;
+        layer.color.transparency = layer.color.tranTransparency;
+      } else if (MapLayerType.POLYGON === layer.type) {
         layer.color.tranTransparency = inputValue;
         layer.color.transparency = layer.color.tranTransparency;
       }
@@ -1507,6 +1522,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    */
   private getLayerIndex() {
     ( this.rnbMenu.indexOf('1') != -1 ? this.index = 0 : this.index = (Number(this.rnbMenu.split('mapLayer')[1]) -1));
+  }
+
+  /**
+   * 공간연산 / 비교 레이어 영역
+   */
+  public analysisVisibilityBtn() {
+    this.uiOption['analysis']['includeCompareLayer'] = !this.uiOption['analysis']['includeCompareLayer'];
+    this.applyLayers({type : EventType.MAP_CHANGE_OPTION});
   }
 
 }
