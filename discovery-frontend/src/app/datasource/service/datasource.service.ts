@@ -607,7 +607,7 @@ export class DatasourceService extends AbstractService {
 
                 let spatialFilter = new SpatialFilter();
                 spatialFilter.dataSource = query.shelf.layers[idx].ref;
-                spatialFilter.ref = query.shelf.layers[idx].ref;
+                // spatialFilter.ref = query.shelf.layers[idx].ref;
                 spatialFilter.field = layer.field.name;
                 // 최초 default 값 sales-geo 초기값으로 고정 (빈값일 경우 에러리턴)
                 spatialFilter.lowerCorner = _.isUndefined(chart['lowerCorner']) ? '-123.0998 25.4766' : chart['lowerCorner'];

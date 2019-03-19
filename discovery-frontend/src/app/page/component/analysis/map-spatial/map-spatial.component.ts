@@ -58,41 +58,53 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   public compareIndex: number = 0;
 
   public calSpatialList: any = [
-    {name: 'Distance within', value: 'dwithin'}
-    , {name: 'With In', value: 'within'}
+    // {name: 'Distance within', value: 'dwithin'}
+      {name: 'With In', value: 'within'}
     , {name: 'Intersection', value: 'intersects'}
-    , {name: 'Symmetrical difference', value: 'symmetricdiff'} // 서버상에 현재 키 값이 없음
+    // , {name: 'Symmetrical difference', value: 'symmetricdiff'} // 서버상에 현재 키 값이 없음
   ];
   public calSpatialIndex: number = 0;
 
   public unitList: any = [
-    {name: 'Meters', value: 'meters'}
+      {name: 'Meters', value: 'meters'}
+    , {name: 'Kilometers', value: 'kilometers'}
+  ];
+  public bufferList: any = [
+      {name: 'Meters', value: 'meters'}
     , {name: 'Kilometers', value: 'kilometers'}
   ];
   public unitIndex: number = 0;
+  public bufferIndex: number = 0;
 
   public unitInput: string = '100';
+  public bufferInput: string = '100';
 
   // choropleth 관련 사항 (Buffer를 선택시 choropleth를 true로 설정 후 백엔드에 호출)
-  public bufferList: any = [
-    '100'
-    , '200'
-    , '300'
-    , '400'
-    , '500'
-    , '700'
-    , '1000'
-  ];
-  public bufferIndex: number;
+  // public bufferList: any = [
+  //   '100'
+  //   , '200'
+  //   , '300'
+  //   , '400'
+  //   , '500'
+  //   , '700'
+  //   , '1000'
+  // ];
+  // public bufferIndex: number;
+
+  // buffer
+  public isBufferOn: boolean = false;
 
   // 단계구분도 보기
   public isChoroplethOn: boolean = false;
 
   // dimension, measure List
   public fieldList : any = {
-    measureList    : [],
+    measureList    : [ { alias : 'Count', column : 'count' } ],
     dimensionList  : []
   };
+
+
+  public selectChoroplethColor : any = {alias : 'Count', column : 'count'};
 
   public aggregateTypes = [
     {name : 'SUM', value: 'SUM'},
@@ -104,7 +116,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     {name : 'PCT1/4', value: 'PCT1/4'}, // 값 확인 필요
     {name : 'PCT3/4', value: 'PCT3/4'}  // 값 확인 필요
   ];
-  public selectAggregateType = [{name : this.translateService.instant('msg.comm.ui.please.select'), value: 'SUM'}];
+  public selectAggregateType = {};
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -209,20 +221,25 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   }
 
   public onSelectBuffer(value) {
-    let isNoneInBufferList = false;
-    this.bufferList.forEach((buffer) => {
-      if (buffer.indexOf('Buffer') >= 0) {
-        isNoneInBufferList = true;
-      }
-    });
-    if (isNoneInBufferList == false) {
-      this.bufferList.unshift('Buffer');
-    }
-    this.bufferIndex = this.bufferList.findIndex((bufferItem) => bufferItem === value);
+    this.bufferIndex = this.bufferList.findIndex((unitItem) => unitItem === value);
+    // let isNoneInBufferList = false;
+    // this.bufferList.forEach((buffer) => {
+    //   if (buffer.indexOf('Buffer') >= 0) {
+    //     isNoneInBufferList = true;
+    //   }
+    // });
+    // if (isNoneInBufferList == false) {
+    //   this.bufferList.unshift('Buffer');
+    // }
+    // this.bufferIndex = this.bufferList.findIndex((bufferItem) => bufferItem === value);
   }
 
   public choroplethBtn() {
     this.isChoroplethOn = !this.isChoroplethOn;
+  }
+
+  public bufferBtn() {
+    this.isBufferOn = !this.isBufferOn;
   }
 
   /**
@@ -239,7 +256,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     let baseData: string = this.baseList.layers[this.baseIndex];
     let compareData: string = this.compareList.layers[this.compareIndex];
 
-    let bufferData: string = this.bufferList[this.bufferIndex];
+    let bufferData: string = this.bufferList[this.bufferIndex].value;
     let unitData: string = this.unitList[this.unitIndex].value;
 
     // Validation
@@ -284,6 +301,17 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   }
 
   /**
+   * select color type
+   * @param item
+   */
+  public selectColor(item) {
+
+    console.info("item : ", item);
+    this.selectChoroplethColor = item;
+
+  }
+
+  /**
    * select aggregate type
    * @param item
    */
@@ -318,11 +346,17 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       return false;
     }
     // intersects, within 경우 buffer 값 validation
-    if ((spatialDataValue === 'intersects' || spatialDataValue === 'within')
-      && (_.isUndefined(bufferData) || bufferData === 'Buffer')) {
-      Alert.warning(spatialDataValue + this.translateService.instant('msg.page.chart.map.spatial.select.buffer'));
+    // if ((spatialDataValue === 'intersects' || spatialDataValue === 'within')
+    //   && (_.isUndefined(bufferData) || bufferData === 'Buffer')) {
+    //   Alert.warning(spatialDataValue + this.translateService.instant('msg.page.chart.map.spatial.select.buffer'));
+    //   return false;
+    // }
+    if ( !this.isBufferOn || _.isUndefined(this.bufferInput) || this.bufferInput.trim() === '' || isNaN(Number(this.bufferInput.trim()))) {
+      Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.select.buffer'));
       return false;
     }
+
+
     // within 경우 choropleth 가 true 여야 함
     if (spatialDataValue === 'within' && this.isChoroplethOn == false) {
       Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.select.step'));
@@ -350,7 +384,11 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       operation: {
         type: spatialDataValue,
         distance: unitInputData,
-        unit: unitData
+        unit: unitData,
+        aggregation: {
+          column: this.selectChoroplethColor['column'],
+          type: this.selectAggregateType['value']
+        }
       }
     };
 
@@ -365,9 +403,9 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    */
   private withinOrIntersectsSetData(baseData: string, compareData: string, bufferData: string, spatialDataValue: string, mapUIOption: UIMapOption): UIMapOption {
 
-    let bufferDataValue: number = -1;
-    if (!_.isUndefined(bufferData) && bufferData !== 'Buffer') {
-      bufferDataValue = Number(bufferData);
+    let bufferDataValue: number = Number(this.bufferInput.trim());
+    if (bufferData == 'kilometers') {
+      bufferDataValue = bufferDataValue * 1000;
     }
 
     mapUIOption.analysis = {
@@ -377,7 +415,11 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       mainLayer: baseData,
       compareLayer: compareData,
       operation: {
-        type: spatialDataValue
+        type: spatialDataValue,
+        aggregation: {
+          column: this.selectChoroplethColor['column'],
+          type: this.selectAggregateType['value']
+        }
       }
     };
 
@@ -416,7 +458,10 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
 
     let shelf = this.shelf;
 
-    this.fieldList = [];
+    this.fieldList = {
+        measureList    : [ { alias : 'Count', column : 'count' } ],
+        dimensionList  : []
+    };
     let tempObj : object = {};
     let measureList: Field[];
     let dimensionList: Field[];
@@ -430,10 +475,13 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       let layers = _.cloneDeep(shelf.layers[index].fields);
 
       const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
-        const resultList: AbstractField[] = [];
+        const resultList: any[] = [];
         shelve.map((item) => {
           if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
             item['alias'] = ChartUtil.getAlias(item);
+            if( resultList.length == 0 ){
+              resultList.push( { alias : 'Count', column : 'count' }  );
+            }
             resultList.push(item);
           }
         });
@@ -441,12 +489,13 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       });
 
       measureList = getShelveReturnField(layers, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
-      dimensionList = getShelveReturnField(layers, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+      // dimensionList = getShelveReturnField(layers, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
       tempObj = {
         'measureList'    : measureList,
         'dimensionList'  : dimensionList
       };
-      this.fieldList = tempObj;
+      if( measureList.length > 0 )
+        this.fieldList = tempObj;
 
     }
 

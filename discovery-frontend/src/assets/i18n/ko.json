@@ -3722,7 +3722,7 @@
   "msg.page.chart.map.spatial.select.mainlayer": "기준 레이어를 선택해주세요.",
   "msg.page.chart.map.spatial.select.comparelayer": "비교 레이어를 선택해주세요.",
   "msg.page.chart.map.spatial.select.range": "공간 연산 범위를 입력 또는 숫자만 가능합니다.",
-  "msg.page.chart.map.spatial.select.buffer": " 경우, Buffer 값을 설정해야 합니다.",
+  "msg.page.chart.map.spatial.select.buffer": "공간 연산 Buffer 값을 설정해야 합니다.",
   "msg.page.chart.map.spatial.select.step": "With in 경우 단계구분도 설정이 on으로 되어 있어야합니다.",
 
   "msg.spaces.ui.permission.schemas": "퍼미션 스키마",
