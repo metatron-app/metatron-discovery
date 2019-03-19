@@ -231,8 +231,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   public spatialAnalysisBtn() {
 
     if (!_.isUndefined(this.uiOption['analysis']) && this.uiOption['analysis']['use'] == true) {
-      // Alert.warning(this.translateService.instant('msg'));
-      Alert.warning('이미 공간 연산중 입니다.');
+      Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.already'));
       return;
     }
 
@@ -278,8 +277,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         mapUIOption = this.symmetricalSetData(baseData, compareData, spatialDataValue, mapUIOption);
         break;
       default:
-        // Alert.warning(this.translateService.instant('msg'));
-        Alert.warning('공간연산 타입을 선택해주세요.');
+        Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.select.analysis'));
         return;
     }
     this.changeAnalysis.emit(mapUIOption);
@@ -301,13 +299,11 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    */
   private spatialAnalysisCommonValidation(baseData: string, compareData: string): boolean {
     if (_.isUndefined(baseData)) {
-      // Alert.warning(this.translateService.instant('msg'));
-      Alert.warning('기준 레이어를 선택해주세요.');
+      Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.select.mainlayer'));
       return false;
     }
     if (_.isUndefined(compareData)) {
-      // Alert.warning(this.translateService.instant('msg'));
-      Alert.warning('비교 레이어를 선택해주세요.');
+      Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.select.comparelayer'));
       return false;
     }
     return true;
@@ -318,20 +314,18 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    */
   private spatialAnalysisAdditionalValidation(bufferData: string, spatialDataValue: string): boolean {
     if (_.isUndefined(this.unitInput) || this.unitInput.trim() === '' || isNaN(Number(this.unitInput.trim()))) {
-      // Alert.warning(this.translateService.instant('msg'));
-      Alert.warning('공간 연산 범위를 입력 또는 숫자만 가능합니다.');
+      Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.select.range'));
       return false;
     }
     // intersects, within 경우 buffer 값 validation
     if ((spatialDataValue === 'intersects' || spatialDataValue === 'within')
       && (_.isUndefined(bufferData) || bufferData === 'Buffer')) {
-      // Alert.warning(this.translateService.instant('msg'));
-      Alert.warning(spatialDataValue + ' 경우, Buffer 값을 설정해야 합니다.');
+      Alert.warning(spatialDataValue + this.translateService.instant('msg.page.chart.map.spatial.select.buffer'));
       return false;
     }
     // within 경우 choropleth 가 true 여야 함
     if (spatialDataValue === 'within' && this.isChoroplethOn == false) {
-      Alert.warning('With in 경우 단계구분도 설정이 on으로 되어 있어야합니다.');
+      Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.select.step'));
       return false;
     }
     return true;

@@ -16,7 +16,7 @@
 
     <!--base layer select box-->
     <div class="ddp-divide2">
-      <div class="ddp-list-label">기준 레이어</div>
+      <div class="ddp-list-label">{{'msg.page.chart.map.spatial.mainlayer' | translate}}</div>
       <!-- select box -->
       <component-select [array]="baseList.layers"
                         [(defaultIndex)]="baseIndex"
@@ -28,7 +28,7 @@
 
     <!--compare layer select box-->
     <div class="ddp-divide2">
-      <div class="ddp-list-label">비교 레이어</div>
+      <div class="ddp-list-label">{{'msg.page.chart.map.spatial.comparelayer' | translate}}</div>
       <!-- select box -->
       <component-select [array]="compareList.layers"
                         [(defaultIndex)]="compareIndex"
@@ -40,7 +40,7 @@
 
     <!--analysis type select box-->
     <div class="ddp-divide2">
-      <div class="ddp-list-label">공간 연산</div>
+      <div class="ddp-list-label">{{'msg.page.chart.map.spatial.analysis' | translate}}</div>
       <!-- select box -->
       <component-select [array]="calSpatialList"
                         [(defaultIndex)]="calSpatialIndex"
@@ -84,7 +84,7 @@
     <!-- 단계구분도 보기 on/off (on 일때 ddp-selected 추가) -->
     <div class="ddp-wrap-slider-down" *ngIf="calSpatialList[calSpatialIndex].value != 'symmetricdiff'" [ngClass]="{'ddp-selected':isChoroplethOn}">
       <div class="ddp-wrap-option-slider">
-        <span class="ddp-label-slider type-label">단계구분도 보기</span>
+        <span class="ddp-label-slider type-label">{{'msg.page.chart.map.spatial.step' | translate}}</span>
         <!-- Slide THREE -->
         <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
           <input (click)="choroplethBtn();" type="checkbox" value="None" id="check2" name="check">
