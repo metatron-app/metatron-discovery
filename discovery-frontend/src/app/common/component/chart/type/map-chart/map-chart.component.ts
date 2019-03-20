@@ -1971,10 +1971,15 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     if (!feature
       ||
       (!_.isUndefined(feature.getProperties())
+        // clustering의 경우 tooltip 안보이게 함
         && !_.isUndefined(feature.getProperties()['isClustering'])
         && feature.getProperties()['isClustering'] == true
         && !_.isUndefined(feature.getProperties()['count'])
-        && feature.getProperties()['count'] > 1)) {
+        && feature.getProperties()['count'] > 1)
+      ||
+      (!_.isUndefined(feature.getProperties()['layerNum'])
+        // 비교레이어 영역 layer에 마우스 오버시 tooltip 안보이게 함
+        && feature.getProperties()['layerNum'] == -5)) {
       // Disable tooltip
       this.tooltipInfo.enable = false;
       this.tooltipLayer.setPosition(undefined);
@@ -3394,7 +3399,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     for (let i = 0; i < data.features.length; i++) {
       // polygon
       let polygonFeature = (new ol.format.GeoJSON()).readFeature(data.features[i]);
-      polygonFeature.set('layerNum', this.getUiMapOption().layerNum);
+      polygonFeature.set('layerNum', -5);
       features[i] = polygonFeature;
       source.addFeature(features[i]);
     } // end - features for
