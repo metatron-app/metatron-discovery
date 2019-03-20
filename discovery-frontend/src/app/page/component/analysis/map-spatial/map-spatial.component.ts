@@ -336,17 +336,16 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       return false;
     }
 
-    // 기준 레이어는 무조건 point, 비교레이어는 무조건 line
-    let baseLayerNum = this.baseIndex;
-    let compareLayerNum = baseLayerNum == 0 ? 1 : 0;
-
-    if (this.uiOption.layers[baseLayerNum].type.toString().toLowerCase() != 'symbol') {
-      Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.mainlayer.setting'));
-      return false;
-    } else if (this.uiOption.layers[compareLayerNum].type.toString().toLowerCase() != 'line') {
-      Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.comparelayer.setting'));
-      return false;
-    }
+    // // 기준 레이어는 무조건 point, 비교레이어는 무조건 line
+    // let baseLayerNum = this.baseIndex;
+    // let compareLayerNum = baseLayerNum == 0 ? 1 : 0;
+    // if (this.uiOption.layers[baseLayerNum].type.toString().toLowerCase() != 'symbol') {
+    //   Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.mainlayer.setting'));
+    //   return false;
+    // } else if (this.uiOption.layers[compareLayerNum].type.toString().toLowerCase() != 'line') {
+    //   Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.comparelayer.setting'));
+    //   return false;
+    // }
 
     return true;
   }
@@ -355,6 +354,8 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    * intersects & distanceWithin validation
    */
   private spatialAnalysisAdditionalValidation(bufferData: string, spatialDataValue: string): boolean {
+
+    // input box number만 가능
     if (_.isUndefined(this.unitInput) || this.unitInput.trim() === '' || isNaN(Number(this.unitInput.trim()))) {
       Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.select.range'));
       return false;
@@ -365,17 +366,18 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     //   Alert.warning(spatialDataValue + this.translateService.instant('msg.page.chart.map.spatial.select.buffer'));
     //   return false;
     // }
-    if (!this.isBufferOn || _.isUndefined(this.bufferInput) || this.bufferInput.trim() === '' || isNaN(Number(this.bufferInput.trim()))) {
-      Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.select.buffer'));
-      return false;
-    }
 
+    // // buffer 가 무조건 on 이여야 함
+    // if (!this.isBufferOn || _.isUndefined(this.bufferInput) || this.bufferInput.trim() === '' || isNaN(Number(this.bufferInput.trim()))) {
+    //   Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.select.buffer'));
+    //   return false;
+    // }
 
-    // within 경우 choropleth 가 true 여야 함
-    if (spatialDataValue === 'within' && this.isChoroplethOn == false) {
-      Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.select.step'));
-      return false;
-    }
+    // // within 경우 choropleth 가 true 여야 함
+    // if (spatialDataValue === 'within' && this.isChoroplethOn == false) {
+    //   Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.select.step'));
+    //   return false;
+    // }
     return true;
   }
 
