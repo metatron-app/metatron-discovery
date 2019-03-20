@@ -21,6 +21,7 @@ import {GridOption} from '../../../common/component/grid/grid.option';
 import {GridComponent} from '../../../common/component/grid/grid.component';
 import * as pixelWidth from 'string-pixel-width';
 import {Field} from '../../../domain/datasource/datasource';
+import {isNullOrUndefined} from "util";
 
 /**
  * Creating metadata with Hive - schema step
@@ -436,7 +437,9 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
       // name
       item.name = this._sliceTableName(item.name);
       // if exist alias, convert alias
-      item.alias && (item.alias = this._sliceTableName(item.alias));
+      if (!isNullOrUndefined(item.alias)) {
+        item.alias = this._sliceTableName(item.alias);
+      }
       return item;
     });
   }

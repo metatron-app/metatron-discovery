@@ -27,6 +27,7 @@ import {GridOption} from "../../../../../common/component/grid/grid.option";
 import {Alert} from "../../../../../common/util/alert.util";
 import * as pixelWidth from 'string-pixel-width';
 import * as _ from "lodash";
+import {isNullOrUndefined} from "util";
 
 
 @Component({
@@ -435,8 +436,10 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
     return fields.map((item) => {
       // name
       item.name = this._sliceTableName(item.name);
-      // alias
-      item.alias = this._sliceTableName(item.alias);
+      // if exist alias, convert alias
+      if (!isNullOrUndefined(item.alias)) {
+        item.alias = this._sliceTableName(item.alias);
+      }
       return item;
     });
   }
