@@ -159,6 +159,7 @@ export class PrDatasetFile extends PrDataset {
   public fileName: string;
   public fileExtension: string;
   public selected : boolean = false;
+  public error : any;
 }
 
 export class PrDatasetHive extends PrDataset {
