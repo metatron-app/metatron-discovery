@@ -622,6 +622,12 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
    */
   public onSelected(event){
     this.fileLocation = event.value;
+
+    let idx = this.fileLocations.findIndex((item) => {
+      return item.value.toUpperCase() === event.value;
+    });
+    if (idx == -1) idx = 0;
+    this.fileLocationDefaultIdx = idx;
   }
 
   /**
@@ -696,7 +702,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
       console.log('fileUploadComplete : this.sucessFileCount < 1 ');
       return;
     }
-
+console.log('this.upFiles',this.upFiles);
     this.datasetFiles.splice(0, this.datasetFiles.length);
     for(let i=0; i< this.upFiles.length ; i++) {
       if (this.upFiles[i].isUploaded === true ){
