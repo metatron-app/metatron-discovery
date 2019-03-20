@@ -14,7 +14,7 @@
 
 import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChildren} from '@angular/core';
 import {AbstractComponent} from '../../common/component/abstract.component';
-import {Datasource, FieldFormat, FieldFormatType, LogicalType, SourceType} from '../../domain/datasource/datasource';
+import {FieldFormat, FieldFormatType, LogicalType} from '../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import {MetadataService} from './service/metadata.service';
 import {MetadataModelService} from './service/metadata.model.service';
@@ -26,7 +26,6 @@ import {CodeValuePair} from '../../domain/meta-data-management/code-value-pair';
 import {ColumnDictionaryService} from '../column-dictionary/service/column-dictionary.service';
 import {Alert} from '../../common/util/alert.util';
 import {CommonConstant} from '../../common/constant/common.constant';
-import {MetadataSourceType} from '../../domain/meta-data-management/metadata';
 
 class Order {
   key: string = 'physicalName';
