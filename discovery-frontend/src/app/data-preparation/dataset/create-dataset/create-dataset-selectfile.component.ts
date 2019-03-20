@@ -702,7 +702,6 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
       console.log('fileUploadComplete : this.sucessFileCount < 1 ');
       return;
     }
-console.log('this.upFiles',this.upFiles);
     this.datasetFiles.splice(0, this.datasetFiles.length);
     for(let i=0; i< this.upFiles.length ; i++) {
       if (this.upFiles[i].isUploaded === true ){
