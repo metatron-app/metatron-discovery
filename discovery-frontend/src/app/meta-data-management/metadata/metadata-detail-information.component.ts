@@ -281,11 +281,13 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
    * @returns {any}
    */
   public getDescription(description: string) {
+    if (_.isNil(description)) {
+      return;
+    }
     if (description === '') {
       return this.translateService.instant('msg.metadata.ui.no.description');
-    } else {
-      return description.replace(/\r\n|\n/gi, '<br>');
     }
+    return description.replace(/\r\n|\n/gi, '<br>');
   }
 
   public gotoDatasource() {
@@ -297,17 +299,8 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
     this.router.navigate([`/management/storage/datasource/${datasourceId}`]);
   }
 
-  public isEngine() {
-    return new MetadataSourceType(this.metadataModelService.getMetadata().sourceType).isEngine();
-  }
-
   public isSourceTypeDatasource() {
-
-    if (_.isNil(this.metadataModelService.getMetadata().source.source)) {
-      return false;
-    }
-
-    return (this.metadataModelService.getMetadata().source.source as Datasource).srcType === DatasourceSourceType.JDBC;
+    return !_.isNil(this.metadataModelService.getMetadata().source.source);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

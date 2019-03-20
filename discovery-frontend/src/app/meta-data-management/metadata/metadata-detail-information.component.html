@@ -15,11 +15,11 @@
 <!-- tab contents -->
 <!--suppress NsUnresolvedStyleClassReference -->
 <div class="ddp-ui-tab-contents" *ngIf="metadataModelService.getMetadata()">
-  <div top-info *ngIf="isSourceTypeDatasource() && isEngine() && (isDescEdit || isNameEdit)"></div>
+  <div top-info *ngIf="isSourceTypeDatasource() && (isDescEdit || isNameEdit)"></div>
   <!-- datadetail -->
   <div class="ddp-ui-datadetail ddp-border-none">
     <a href="javascript:" class="ddp-btn-solid2 ddp-dark type-link"
-       *ngIf="isSourceTypeDatasource() && isEngine()"
+       *ngIf="isSourceTypeDatasource()"
        (click)="gotoDatasource()">{{ 'msg.metadata.ui.move.datasource' | translate }}</a>
     <label class="ddp-label-detail">{{'msg.metadata.ui.info' | translate}}</label>
     <table class="ddp-table-detail">
@@ -37,12 +37,12 @@
             <!-- data -->
             <div class="ddp-data-description">
               <div class="ddp-txt-description"
-                   [class.ddp-nodata]="metadataModelService.getMetadata().description.length === 0"
-                   [innerHtml]="getDescription(metadataModelService.getMetadata().description)"
+                   [class.ddp-nodata]="metadataModelService.getMetadata()?.description?.length === 0"
+                   [innerHtml]="getDescription(metadataModelService.getMetadata()?.description)"
                    (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();">
               </div>
               <a href="javascript:" class="ddp-btn-edit"
-                 (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();" [ngClass]="{'ddp-data-none' : metadataModelService.getMetadata().description === ''}"><em class="ddp-icon-edit"></em>Edit</a>
+                 (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();" [ngClass]="{'ddp-data-none' : metadataModelService.getMetadata()?.description === ''}"><em class="ddp-icon-edit"></em>Edit</a>
             </div>
             <!-- //data -->
             <div class="ddp-box-textarea" (clickOutside)="isDescEdit ? onDescChange() : null">

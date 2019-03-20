@@ -189,12 +189,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   }
 
   public isSourceTypeDatasource() {
-
-    if (_.isNil(this.metaDataModelService.getMetadata().source.source)) {
-      return false;
-    }
-
-    return (this.metaDataModelService.getMetadata().source.source as Datasource).srcType === SourceType.JDBC;
+    return !_.isNil(this.metaDataModelService.getMetadata().source.source);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -238,10 +233,6 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
    */
   public isSelectedColumnLogicalType(column: MetadataColumn, logicalType: LogicalType): boolean {
     return column.type === logicalType;
-  }
-
-  public isEngine() {
-    return new MetadataSourceType(this.metaDataModelService.getMetadata().sourceType).isEngine();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
