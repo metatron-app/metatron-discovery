@@ -60,16 +60,16 @@
                         <!--(onSelected)="onSelectBuffer($event)">-->
       <!--</component-select>-->
     <!--</div>-->
-    <div class="ddp-divide2">
-      <div class="ddp-wrap-slider-down" *ngIf="calSpatialList[calSpatialIndex].value != 'symmetricdiff' && calSpatialList[calSpatialIndex].value != 'dwithin'" [ngClass]="{'ddp-selected':isBufferOn}">
-        <div class="ddp-wrap-option-slider">
-          <span class="ddp-label-slider type-label">Buffer</span>
-          <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-            <input (click)="bufferBtn();" type="checkbox" value="None" id="check3" name="check">
-            <label for="check2"><span class="ddp-slide"></span></label>
-          </div>
+    <div class="ddp-wrap-slider-down" *ngIf="calSpatialList[calSpatialIndex].value != 'symmetricdiff' && calSpatialList[calSpatialIndex].value != 'dwithin'" [ngClass]="{'ddp-selected':isBufferOn}">
+      <div class="ddp-wrap-option-slider">
+        <span class="ddp-label-slider type-label">Buffer</span>
+        <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+          <input (click)="bufferBtn();" type="checkbox" value="None" id="check3" name="check">
+          <label for="check2"><span class="ddp-slide"></span></label>
         </div>
-        <div class="ddp-list-part-sub">
+      </div>
+      <div class="ddp-list-part-sub">
+        <div class="ddp-divide2 ddp-form ddp-clear">
           <div class="ddp-col-6">
             <input type="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="bufferInput">
           </div>
@@ -83,7 +83,6 @@
         </div>
       </div>
     </div>
-    <br/><br/>
     <!-- // buffer select box-->
 
     <!--Unit select box-->
