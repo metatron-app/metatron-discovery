@@ -622,7 +622,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @private
    */
   private _setDefaultAreaForBBox(dataSource:Datasource) {
-    if( isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner'] ) && dataSource.summary ) {
+    if( (isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner']) || !this.isChartShow ) && dataSource.summary ) {
       this.widgetConfiguration.chart['lowerCorner'] = dataSource.summary['geoLowerCorner'];
       this.widgetConfiguration.chart['upperCorner'] = dataSource.summary['geoUpperCorner'];
     }
