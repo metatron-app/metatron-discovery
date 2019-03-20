@@ -1,5 +1,7 @@
 import {AbstractService} from "../../../common/service/abstract.service";
 import {Injectable} from "@angular/core";
+//import {Dataset} from "../../../domain/data-preparation/dataset";
+import {Subject} from "rxjs";
 import {DsType, PrDataset} from "../../../domain/data-preparation/pr-dataset";
 import * as _ from 'lodash' ;
 
@@ -9,6 +11,9 @@ export class DataflowModelService extends AbstractService {
   private datasetsFromDataflow: PrDataset[] = [];
 
   private upstreamList = [];
+
+  public scrollClose = new Subject();
+  public scrollClose$ = this.scrollClose.asObservable();
 
   private _selectedDsId: string;
 

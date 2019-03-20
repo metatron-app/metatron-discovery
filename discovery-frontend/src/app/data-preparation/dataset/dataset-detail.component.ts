@@ -244,7 +244,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     }
 
     // 이름 validation
-    if (this.datasetName.length > 50) {
+    if (this.datasetName.length > 150) {
       Alert.warning(this.translateService.instant('msg.dp.alert.name.error.description'));
       return;
     }

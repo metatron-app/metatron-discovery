@@ -26,14 +26,27 @@ public class CsvTemplate {
 
   private File targetFile;
 
+  Integer csvMaxCharsPerColumn;
+
   public CsvTemplate(File targetFile) {
     this.targetFile = targetFile;
+  }
+
+  public Integer getCsvMaxCharsPerColumn() {
+    return csvMaxCharsPerColumn;
+  }
+
+  public void setCsvMaxCharsPerColumn(Integer csvMaxCharsPerColumn) {
+    this.csvMaxCharsPerColumn = csvMaxCharsPerColumn;
   }
 
   public <T> List<T> getRows(String lineSep, String delimiter, CsvRowMapper<T> rowMapper) {
     CsvParserSettings settings = new CsvParserSettings();
     settings.getFormat().setLineSeparator(lineSep);
     settings.getFormat().setDelimiter(delimiter.charAt(0));
+    if(csvMaxCharsPerColumn != null && csvMaxCharsPerColumn > 0){
+      settings.setMaxCharsPerColumn(csvMaxCharsPerColumn);
+    }
 
     RowListProcessor rowProcessor = new RowListProcessor();
     settings.setProcessor(rowProcessor);

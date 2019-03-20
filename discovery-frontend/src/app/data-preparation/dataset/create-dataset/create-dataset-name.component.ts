@@ -87,6 +87,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   public nameErrors: string[] = [];
   public descriptionErrors: string[] = [];
   public currentIndex: number = 0;
+  public isMaxLengthError: boolean = false;
   public results: any[] = [];
 
   public isChecked: boolean = true; // jump to dataflow main grid
@@ -141,7 +142,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
         this.showNameError = true;
       }
 
-      if (item.length > 50) {
+      if (item.length > 150) {
         this.showNameError = true;
         this.nameErrors[index] = this.translateService.instant('msg.dp.alert.name.error.description');
       }
@@ -312,10 +313,9 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
    * @param index
    * */
   public hideNameError(index: number) {
-    if (isUndefined(this.names[index]) || this.names[index].length > 0 || this.names[index].length < 50) {
+    if (isUndefined(this.names[index]) || this.names[index].length > 0 || this.names[index].length <= 150) {
       this.showNameError = false;
       this.nameErrors[index] = '';
-
     }
   }
 
@@ -324,7 +324,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
    * @param index
    * */
   public hideDescError(index: number) {
-    if (isUndefined(this.descriptions[index]) || this.descriptions[index].length < 150) {
+    if (isUndefined(this.descriptions[index]) || this.descriptions[index].length <= 150) {
       this.showDescError = false;
       this.descriptionErrors[index] = '';
     }
@@ -359,6 +359,65 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     }
   }
 
+
+  /**
+   * Keyboard down event on name input
+   * @param event
+   * @param index
+   */
+  public keyDownEvent(event, index) {
+
+    if (this.names[index].length > 149 && this.isKeyPressedWithChar(event.keyCode) && !this.isMaxLengthError) {
+      this.isMaxLengthError = true;
+      if(this.type !== 'FILE') {
+        this.showNameError = true;
+      }
+      this.nameErrors[index] = this.translateService.instant('msg.dp.ui.max.length.error');
+      setTimeout(() => {
+        this.hideNameError(index);
+        this.isMaxLengthError = false;
+      }, 2000);
+    }
+
+    if (this.nameErrors[index] !== '' && !this.isMaxLengthError) {
+      this.hideNameError(index);
+    }
+  }
+
+
+  /**
+   * Keyboard press down event on description input
+   * @param event
+   * @param index
+   */
+  public keyDownDescEvent(event, index) {
+
+    if (this.descriptions[index].length > 149 && this.isKeyPressedWithChar(event.keyCode) && !this.isMaxLengthError) {
+      this.isMaxLengthError = true;
+      this.descriptionErrors[index] = this.translateService.instant('msg.dp.ui.max.length.error');
+      setTimeout(() => {
+        this.hideDescError(index);
+        this.isMaxLengthError = false;
+      }, 2000);
+    }
+
+    if (this.descriptionErrors[index] !== '' && !this.isMaxLengthError) {
+      this.hideDescError(index);
+    }
+
+  }
+
+  /**
+   * Returns true if something is typed on the keyboard
+   * Returns false if shift, tab etc is pressed
+   * @param keyCode
+   */
+  public isKeyPressedWithChar(keyCode: number): boolean {
+    const exceptionList: number[] = [8,9,13,16,17,18,19,20,27,33,34,35,36,37,38,39,40,45,46,91,92,219,220,93,144,145];
+    return exceptionList.indexOf(keyCode) === -1
+  }
+
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -380,7 +439,8 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
           if(dsFile.fileFormat === FileFormat.EXCEL){
             dsFile.sheetInfo.forEach((sheet)=>{
               if (sheet.selected){
-                this.names.push(`${dsFile.fileName} - ${sheet.sheetName} (${dsFile.fileFormat.toString()})`);
+                let name = `${dsFile.fileName} - ${sheet.sheetName} (${dsFile.fileFormat.toString()})`;
+                this.names.push(name.slice(0,150));
                 this.descriptions.push('');
                 this.nameErrors.push('');
                 this.descriptionErrors.push('');
@@ -389,7 +449,8 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
             })
           } else {
             if(dsFile.selected){
-              this.names.push(`${dsFile.fileName} (${dsFile.fileFormat.toString()})`);
+              let name = `${dsFile.fileName} (${dsFile.fileFormat.toString()})`;
+              this.names.push(name.slice(0,150));
               this.descriptions.push('');
               this.nameErrors.push('');
               this.descriptionErrors.push('');

@@ -61,6 +61,34 @@ public class ColumnDescription implements Serializable {
     this.arrColDesc = arrColDesc;
   }
 
+  public ColumnType hasUniformSubType() {
+    ColumnType prev = ColumnType.UNKNOWN;
+
+    for (ColumnDescription colDesc : arrColDesc) {
+      switch (colDesc.getType()) {
+        case STRING:
+        case LONG:
+        case DOUBLE:
+        case BOOLEAN:
+        case TIMESTAMP:
+          if (prev == ColumnType.UNKNOWN) {
+            prev = colDesc.getType();
+          } else {
+            if (prev != colDesc.getType()) {
+              return ColumnType.UNKNOWN;
+            }
+          }
+          break;
+        case ARRAY:
+        case MAP:
+          return ColumnType.UNKNOWN;
+        case UNKNOWN:
+          assert false : colDesc;
+      }
+    }
+    return prev;
+  }
+
   public Map<String, ColumnDescription> getMapColDesc() {
     return mapColDesc;
   }

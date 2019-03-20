@@ -129,8 +129,6 @@ public class PrDatasetService {
         String csvStrUri = null;
         if(dataset.getFileFormat() == PrDataset.FILE_FORMAT.EXCEL) {
             csvStrUri = this.datasetFilePreviewService.moveExcelToCsv(storedUri, sheetName, delimiter);
-        //} else if(dataset.getFileFormat() == PrDataset.FILE_FORMAT.JSON) {
-        //    csvStrUri = this.datasetFilePreviewService.moveJsonToCsv(storedUri, null, delimiter);
         }
         if(csvStrUri!=null) {
             dataset.setStoredUri(csvStrUri);

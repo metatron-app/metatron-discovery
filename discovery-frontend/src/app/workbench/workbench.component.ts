@@ -2815,9 +2815,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     };
 
     this.loadingShow();
-    this.datasourceService.createDatasourceTemporary(param).then((tempDsInfo) => {
-      this.setPageWidget(tempDsInfo);
-      setTimeout(() => this.loadingHide(), 500);
+    this.datasourceService.createDatasourceTemporary(param).then((createInfo) => {
+      this.datasourceService.getDatasourceDetail( createInfo.id ).then( ( tempDsInfo ) => {
+        this.setPageWidget(tempDsInfo);
+        setTimeout(() => this.loadingHide(), 500);
+      });
     }).catch((error) => {
       this.loadingHide();
       // 로딩 hide
@@ -2829,18 +2831,18 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   /**
    * 차트 미리보기를 위한 페이지 위젯 정보 구성
-   * @param {Object} temporary
+   * @param {Datasource} tempDsInfo
    */
-  public setPageWidget(temporary: Object) {
+  public setPageWidget(tempDsInfo: Datasource) {
     const tempWidget = new PageWidget();
 
     // 데이터소스 구성
     const boardDataSource: BoardDataSource = new BoardDataSource();
     {
-      boardDataSource.id = temporary['dataSourceId'];
+      boardDataSource.id = tempDsInfo.temporary.dataSourceId;
       boardDataSource.type = 'default';
-      boardDataSource.name = temporary['name']; // this.pageEngineName;
-      boardDataSource.engineName = temporary['name']; // this.pageEngineName;
+      boardDataSource.name = tempDsInfo.temporary.name; // this.pageEngineName;
+      boardDataSource.engineName = tempDsInfo.temporary.name; // this.pageEngineName;
       boardDataSource.connType = 'LINK';
       boardDataSource.temporary = true;
       // boardDataSource.fields = this._totalResultTabList[this.selectedGridTabNum]['data']['fields'];
@@ -2860,16 +2862,14 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       dashboard.workBook = workbook;
 
       // 대시보드 필드 정보 설정
-      const currentEditorResultTabs: ResultTab[] = this._getCurrentEditorResultTabs();
-      const currentResultTab: ResultTab = currentEditorResultTabs.find(item => item.selected);
-      let fields = currentResultTab.result.fields;
+      let fields = tempDsInfo.fields.filter( item => '__ctime' !== item.name );
 
-      const currentDateTimeField: Field = new Field();
-      currentDateTimeField.name = CommonConstant.COL_NAME_CURRENT_DATETIME;
-      currentDateTimeField.role = FieldRole.TIMESTAMP;
-      currentDateTimeField.type = 'TIMESTAMP';
-      currentDateTimeField.logicalType = LogicalType.TIMESTAMP;
-      currentDateTimeField.dataSource = boardDataSource.engineName;
+      // const currentDateTimeField: Field = new Field();
+      // currentDateTimeField.name = CommonConstant.COL_NAME_CURRENT_DATETIME;
+      // currentDateTimeField.role = FieldRole.TIMESTAMP;
+      // currentDateTimeField.type = 'TIMESTAMP';
+      // currentDateTimeField.logicalType = LogicalType.TIMESTAMP;
+      // currentDateTimeField.dataSource = boardDataSource.engineName;
       // fields = [currentDateTimeField].concat( fields );
       fields.forEach(item => item.dataSource = boardDataSource.engineName);
       dashboard.configuration.fields = fields;
@@ -2884,8 +2884,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         const datasource: Datasource = new Datasource();
         datasource.id = boardDataSource.id;
         datasource.fields = fields;
-        datasource.name = temporary['name'];
-        datasource.engineName = temporary['name'];
+        datasource.name = tempDsInfo.temporary.name;
+        datasource.engineName = tempDsInfo.temporary.name;
         dashboard.dataSources = [datasource];
       }
 

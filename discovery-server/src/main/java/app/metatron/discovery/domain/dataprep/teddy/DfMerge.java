@@ -53,17 +53,26 @@ public class DfMerge extends DataFrame {
     }
 
     // 마지막 목적 컬럼까지만 추가 하기 위해
-    int newColPos = 0;
+    int lastColPos = 0;
     for(String colName : targetColNames) {
-      newColPos = prevDf.getColnoByColName(colName) > newColPos ? prevDf.getColnoByColName(colName) : newColPos;
+      lastColPos = prevDf.getColnoByColName(colName) > lastColPos ? prevDf.getColnoByColName(colName) : lastColPos;
     }
-    newColPos++;
 
-    this.addColumnWithDfAll(prevDf);
+    for (int colno = 0; colno < prevDf.getColCnt(); colno++) {
+      String colName = prevDf.getColName(colno);
+      if (targetColNames.contains(colName)) {
+        continue;
+      }
+      addColumnWithDf(prevDf, colno);
+    }
+
+    // target columns will not be dropped.
+    int newColPos = lastColPos - targetColNames.size() + 1;
+
     newColName = this.addColumn(newColPos, newColName, ColumnType.STRING);  // 중간 삽입
     this.interestedColNames.add(newColName);
 
-    preparedArgs.add(newColPos);
+    preparedArgs.add(lastColPos);
     preparedArgs.add(targetColNames);
     preparedArgs.add(with);
     preparedArgs.add(newColName);
@@ -73,7 +82,7 @@ public class DfMerge extends DataFrame {
   @Override
   public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
     List<Row> rows = new ArrayList<>();
-    int newColPos = (int) preparedArgs.get(0);
+    int lastColPos = (int) preparedArgs.get(0);
     List<String> targetColNames = (List<String>) preparedArgs.get(1);
     String with = (String) preparedArgs.get(2);
     String newColName = (String) preparedArgs.get(3);
@@ -86,7 +95,11 @@ public class DfMerge extends DataFrame {
       Row newRow = new Row();
 
       // 마지막 목적 컬럼까지만 추가
-      for (colno = 0; colno < newColPos; colno++) {
+      for (colno = 0; colno < lastColPos; colno++) {
+        String colName = prevDf.getColName(colno);
+        if (targetColNames.contains(colName)) {
+          continue;
+        }
         newRow.add(prevDf.getColName(colno), row.get(colno));
       }
 
@@ -100,7 +113,7 @@ public class DfMerge extends DataFrame {
       newRow.add(newColName, sb.toString());
 
       // 나머지 추가
-      for (colno = newColPos; colno < prevDf.getColCnt(); colno++) {
+      for (colno = lastColPos + 1; colno < prevDf.getColCnt(); colno++) {
         newRow.add(prevDf.getColName(colno), row.get(colno));
       }
 

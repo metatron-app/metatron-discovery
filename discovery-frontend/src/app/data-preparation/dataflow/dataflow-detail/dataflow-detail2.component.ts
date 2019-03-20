@@ -342,7 +342,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
     }
 
     // 이름 validation
-    if (this.dataflowName.length > 50) {
+    if (this.dataflowName.length > 150) {
       Alert.warning(this.translateService.instant('msg.dp.alert.name.error.description'));
       return;
     }
@@ -1263,7 +1263,11 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
       position: 'bottom',
       textStyle: { color: '#000000', fontWeight: 'bold' },
       formatter(params) {
-        return params.data.dsName;
+        if (params.data.dsName.length > 20) {
+          return params.data.dsName.slice(0,20) + ' ...'
+        } else {
+          return params.data.dsName;
+        }
       }
     };
     this.label = {

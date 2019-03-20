@@ -78,7 +78,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public openContextMenu(data : {contextInfo : any , fields : string[], selectedColumnIds : string[], params : any}) {
 
-    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : false } );
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', {id:'toggleList', isShow : false } );
 
     this.contextInfo = data.contextInfo;
     this.contextInfo.fields = data.fields;

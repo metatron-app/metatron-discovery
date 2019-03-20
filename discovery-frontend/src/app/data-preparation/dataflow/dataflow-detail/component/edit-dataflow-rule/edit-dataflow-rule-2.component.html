@@ -22,7 +22,9 @@
         <!-- name -->
         <!-- 클릭시 ddp-selected 추가 -->
         <div class="ddp-wrap-naviname" [ngClass]="{'ddp-selected':isOtherDatasetListShow}" (click)="showDatasets()" (clickOutside)="isOtherDatasetListShow = false">
-          <span class="ddp-data-naviname">{{dsName}}<em class="ddp-icon-menuview"></em>
+          <span class="ddp-data-naviname" title="{{dsName}}">
+            {{dsName}}
+            <em class="ddp-icon-menuview"></em>
           </span>
           <!-- popup -->
           <div class="ddp-wrap-popup2 ddp-type">
@@ -34,7 +36,9 @@
               <li [ngClass]="{'ddp-selected': dataset.current}" *ngFor="let dataset of filteredWrangledDatasets">
                 <a href="javascript:" (click)="changeWrangledDataset(dataset)">
                   <em class="ddp-icon-dataset3"></em>
-                  <span class="ddp-data-name">{{dataset.dsName}}</span>
+                  <span class="ddp-data-name" title="{{dataset.dsName}}">
+                    {{dataset.dsName}}
+                  </span>
                 </a>
               </li>
             </ul>
@@ -104,7 +108,7 @@
         </div>
         <div class="ddp-wrap-rulecontents"
              [ngClass]="{'ddp-inherit': isCommandListShow || isFocus || isMultiColumnListShow || editorUseFlag }">
-          <div class="ddp-box-contents ddp-clear">
+          <div class="ddp-box-contents ddp-clear" [style.left]="scrollLeft">
             <!-- editor -->
             <div class="ddp-wrap-switch-editor" *ngIf="editorUseFlag">
               <!-- switch 클릭시 ddp-box-full 추가 -->

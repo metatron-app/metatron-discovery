@@ -172,9 +172,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   // APPEND (룰 등록) / UPDATE (룰 수정) / JUMP / PREPARE_UPDATE (룰 수정하기 위해 jump) / DELETE
   public opString: string = 'APPEND';
 
-  public isEnterKeyPressedFromOuter: boolean = false;
-
   public isAggregationIncluded: boolean = false;
+
+  public scrollLeft: string;
 
   get filteredWrangledDatasets() {
     if (_.isNil(this.dsList) || this.dsList.length === 0) return [];
@@ -258,11 +258,17 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
         if (data.id === 'toggleList') {
           this.isMultiColumnListShow = data.isShow;
-        } else if(data.id === 'enterKey') {
-          this.isEnterKeyPressedFromOuter = true;
-        } else {
+        }  else {
           this.isMultiColumnListShow = data.isShow;
           this.isCommandListShow = false;
+        }
+
+        // scroll 위치 조정
+        if (this.isMultiColumnListShow) {
+          const left = $('.ddp-wrap-rulecontents')[0].scrollLeft;
+          this.scrollLeft = '-' + left + 'px';
+        } else {
+          this.scrollLeft = '';
         }
 
       })
@@ -385,7 +391,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public showCommandList() {
 
     // Close all opened select box from rule
-    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : 'commandList', isShow : false } );
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : 'toggleList', isShow : false } );
 
     // 포커스 이동
     setTimeout(() => $('#commandSearch').trigger('focus'));
@@ -1231,14 +1237,17 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   @HostListener('document:keydown.enter', ['$event'])
   private onEnterKeydownHandler(event: KeyboardEvent) {
 
-    if (this.multipleRenamePopupComponent.isPopupOpen
-      || this.createSnapshotPopup.isShow
-      || this.extendInputFormulaComponent.isShow) {
-      return;
-    }
+    if( !isNullOrUndefined( this.ruleVO.command ) && ( 'BODY' === event.target['tagName'] || 0 < $( event.target ).closest( '.ddp-wrap-addrule' ).length )  ) {
+      if (this.multipleRenamePopupComponent.isPopupOpen
+        || this.createSnapshotPopup.isShow
+        || this.extendInputFormulaComponent.isShow) {
+        return;
+      }
 
-    if (event.keyCode === 13) {
-      this.addRule();
+      if (event.keyCode === 13) {
+        this.addRule();
+      }
+
     }
 
   } // function - onEnterKeydownHandler

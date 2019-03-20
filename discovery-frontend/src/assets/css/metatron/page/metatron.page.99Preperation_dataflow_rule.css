@@ -18,8 +18,10 @@
 .page-prep-dataflow ul.ddp-list-snapshot li > .ddp-txt-snapshot {border-bottom:none;}
 .page-prep-dataflow ul.ddp-list-snapshot li {border-bottom:1px solid #eaeaec}
 .page-prep-dataflow .ddp-input-selectbox {position:relative;}
-.page-prep-dataflow .ddp-input-selectbox .ddp-wrap-popup2 {display:none; position:absolute; bottom:100%; left:0; right:inherit; min-width:100%; max-height:150px; box-sizing:Border-box; overflow:auto;}
+.page-prep-dataflow .ddp-input-selectbox .ddp-wrap-popup2 {display:none; position:absolute; left:0; right:inherit; bottom:100%; margin-bottom:3px; min-width:100%; max-height:150px; box-sizing:Border-box; overflow:auto;}
+.page-prep-dataflow .ddp-input-selectbox .ddp-wrap-popup2.ddp-fix {position:fixed; bottom:inherit; min-width:auto; margin-bottom:0;}
 .page-prep-dataflow .ddp-input-selectbox.ddp-selected .ddp-wrap-popup2 {display:block;}
+.page-prep-dataflow .ddp-type-selectbox ul.ddp-list-selectbox.ddp-fix {position:fixed; bottom:inherit;}
 
 
 .page-prep-dataflow .ddp-box-contents .ddp-box-part .ddp-box-title span.ddp-box-title-in {padding-right:19px;}
