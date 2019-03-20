@@ -247,8 +247,9 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    */
   public spatialAnalysisBtn() {
 
+    // 공간연산 실행 체크 (Validation)
     if (!_.isUndefined(this.uiOption['analysis']) && this.uiOption['analysis']['use'] == true) {
-      Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.already'));
+      // Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.already'));
       return;
     }
 
@@ -340,10 +341,10 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     let compareLayerNum = baseLayerNum == 0 ? 1 : 0;
 
     if (this.uiOption.layers[baseLayerNum].type.toString().toLowerCase() != 'symbol') {
-      Alert.warning('기준 레이어는 point로 설정 해주세요.');
+      Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.mainlayer.setting'));
       return false;
     } else if (this.uiOption.layers[compareLayerNum].type.toString().toLowerCase() != 'line') {
-      Alert.warning('비교 레이어는 line으로 설정 해주세요.');
+      Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.comparelayer.setting'));
       return false;
     }
 
