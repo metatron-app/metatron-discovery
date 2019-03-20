@@ -15,7 +15,7 @@
 import {AbstractPopupComponent} from '../../../common/component/abstract-popup.component';
 import {Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {
-  FileFormat, PrDatasetFile, PrDatasetHive, PrDatasetJdbc,
+  FileFormat, PrDatasetHive, PrDatasetJdbc,
   RsType
 } from '../../../domain/data-preparation/pr-dataset';
 import {PopupService} from '../../../common/service/popup.service';
@@ -23,10 +23,12 @@ import {DatasetService} from '../service/dataset.service';
 import {isUndefined} from 'util';
 import {StringUtil} from '../../../common/util/string.util';
 import {Alert} from '../../../common/util/alert.util';
-import {PreparationCommonUtil} from "../../util/preparation-common.util";
 import * as _ from 'lodash';
 import { concatMap } from 'rxjs/operators';
 import { from} from "rxjs/observable/from";
+import {DataflowService} from "../../dataflow/service/dataflow.service";
+import {PrDataflow} from "../../../domain/data-preparation/pr-dataflow";
+declare let moment;
 
 @Component({
   selector: 'app-create-dataset-name',
@@ -58,6 +60,9 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   @Input() // [DB, STAGING, FILE]
   public type : string;
 
+  @Input()
+  public isFromDatasetList: boolean = true;
+
   // name error msg show/hide
   public showNameError: boolean = false;
 
@@ -82,7 +87,9 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   public nameErrors: string[] = [];
   public descriptionErrors: string[] = [];
   public currentIndex: number = 0;
-  public results: {dsId: string}[] = [];
+  public results: any[] = [];
+
+  public isChecked: boolean = true; // jump to dataflow main grid
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -90,6 +97,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(private popupService: PopupService,
               private datasetService: DatasetService,
+              private dataflowService: DataflowService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -184,6 +192,8 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
       // Make list of params into observable using from.
       // used concatMap to send multiple sequential HTTP requests
+      this.flag = true;
+      this.results = [];
       const streams = from(params).pipe(
         concatMap(stream => this._createFileDataset(stream)
         .catch((error) => {
@@ -197,35 +207,69 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
         // because this information is required in
         // complete() but no way to access them
         if (result) {
-          this.results.push({dsId : result.dsId});
+          this.results.push({dsId: result.dsId, dsName: result.dsName, link : result['_links'].self.href});
         }
 
       },(error) => {
         console.error(error);
       },() => {
+
+        this.flag = false;
+        this.loadingHide();
+
+        // Find number of errors
         const errorNum = this.names.length - this.results.length;
         if (errorNum > 0) {
           Alert.error(this.translateService.instant('msg.dp.alert.num.fail.dataset', {value : errorNum}));
         }
 
-        // Close popup when all observables are subscribed
-        this.loadingHide();
-        if (this.datasetService.dataflowId) {
-          sessionStorage.setItem('DATASET_ID', this.results[0].dsId);
-          this.router.navigate(['/management/datapreparation/dataflow/' + this.datasetService.dataflowId]);
-        }
-        this.close();
+        // 데이터셋 리스트에서 진입과 체크됐다면(데이터플로우로 바로 이동)
+        if (this.isChecked && this.isFromDatasetList && this.names.length === 1) {
+          this._makeShortCutToDataFlow();
+        } else {
 
-        if (this.results.length > 0) {
+          // 리스트로 돌아간다.
           this.popupService.notiPopup({
             name: 'complete-dataset-create',
-            data: this.results[0].dsId
+            data: this.results.length > 0 ? this.results[0].dsId : null
           });
         }
       })
 
     }
 
+  }
+
+  /**
+   * Short cut to dataFlow
+   * @private
+   */
+  private _makeShortCutToDataFlow() {
+
+    let today = moment();
+    const df = new PrDataflow();
+    this.loadingShow();
+    df.datasets = [this.results[0].link];
+    df.dfName = `${this.results[0].dsName}_${today.format('MM')}${today.format('DD')}_${today.format('HH')}${today.format('mm')}`  ;
+
+    // 1. create dataflow with dataset
+    this.dataflowService.createDataflow(df).then((result1) => {
+      this.loadingHide();
+      if (result1) {
+
+        // 2. Find wrangled dataset
+        // 3. Move to dataFlow main grid (navigate)
+        this.router.navigate([`/management/datapreparation/dataflow/${result1['dfId']}/rule/${result1.datasets[1].dsId}`]);
+      } else {
+        this.close();
+      }
+
+    }).catch(() => {
+
+      // If error move to d
+      this.loadingHide();
+      this.close();
+    });
   }
 
   /** go to previous step */
@@ -256,13 +300,8 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   public close() {
     super.close();
 
-    // Check if came from dataflow
-    if (this.datasetService.dataflowId) {
-      this.datasetService.dataflowId = undefined;
-    }
-
     this.popupService.notiPopup({
-      name: 'close-dataset-create',
+      name: 'complete-dataset-create',
       data: null
     });
   }
@@ -290,28 +329,6 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       this.descriptionErrors[index] = '';
     }
   }
-
-
-  /**
-   * Success action
-   * @param result
-   */
-  public successAction(result) {
-
-    this.flag = false;
-    if (this.datasetService.dataflowId) {
-      sessionStorage.setItem('DATASET_ID', result.dsId);
-      this.router.navigate(['/management/datapreparation/dataflow/' + this.datasetService.dataflowId]);
-    }
-
-    this.close();
-    this.popupService.notiPopup({
-      name: 'complete-dataset-create',
-      data: result.dsId
-    });
-
-  }
-
 
   /**
    * Error action
@@ -380,36 +397,9 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
             }
           }
         }
-      })
+      });
       // For placeholder
       this.clonedNames = _.cloneDeep(this.names);
-
-      // let file = PreparationCommonUtil.getFileNameAndExtension(this.datasetFile.filenameBeforeUpload);
-      // this.fileExtension = file[1];
-      // let fileName = file[0];
-      // if(this.fileExtension.toUpperCase() === 'XLSX' || this.fileExtension.toUpperCase() === 'XLS') {
-      //
-      //   this.datasetFile.selectedSheets.forEach((item) => {
-      //     this.names.push(`${fileName} - ${item} (EXCEL)`);
-      //     this.descriptions.push('');
-      //     this.nameErrors.push('');
-      //     this.descriptionErrors.push('');
-      //   });
-      //
-      //   // For placeholder
-      //   this.clonedNames = _.cloneDeep(this.names);
-      //
-      //   if (this.names.length > 1) {
-      //     this.isMultiSheet = true;
-      //   } else {
-      //     this.names[0] = `${fileName} - ${this.datasetFile.selectedSheets[0]} (EXCEL)`;
-      //   }
-      //
-      // } else if (this.fileExtension.toUpperCase() === 'JSON') {
-      //   this.names[0] = `${fileName} (JSON)`;
-      // } else {
-      //   this.names[0] = `${fileName} (CSV)`;
-      // }
 
     } else if ('DB' === type) {
 
@@ -444,15 +434,16 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     if ('FILE' === this.type) {
 
-      // this.datasetInfo.push({name : this.translateService.instant('msg.dp.ui.list.file'), value : this.datasetFile.filenameBeforeUpload});
-      //
-      // if ('XLSX' === this.fileExtension.toUpperCase() || 'XLS' === this.fileExtension.toUpperCase()) {
-      //
-      //   if (!this.isMultiSheet) {
-      //     this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.datasetFile.selectedSheets[0]});
-      //   }
-      //
-      // }
+      if (this.names.length === 1) {
+        this.datasetInfo.push({name : this.translateService.instant('msg.dp.ui.list.file'), value : this.datasetFiles[0].fileName});
+
+        if ('XLSX' === this.datasetFiles[0].fileExtension.toUpperCase() || 'XLS' === this.datasetFiles[0].fileExtension.toUpperCase()) {
+          this.datasetInfo.push({
+            name: this.translateService.instant('msg.dp.th.sheet'),
+            value: this.datasetFiles[0].sheetName
+          });
+        }
+      }
 
     } else if ('DB' === this.type) {
 
@@ -627,10 +618,22 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     }
 
     this.loadingShow();
+    this.flag = true;
     this.datasetService.createDataSet(params).then((result) => {
+      this.flag = false;
       this.loadingHide();
-      this.successAction(result);
-
+      if (result) {
+        this.results = [];
+        this.results.push({dsId: result.dsId, dsName: result.dsName, link : result['_links'].self.href});
+        if (this.isChecked && this.isFromDatasetList) {
+          this._makeShortCutToDataFlow();
+        } else {
+          this.popupService.notiPopup({
+            name: 'complete-dataset-create',
+            data: this.results.length > 0 ? this.results[0].dsId : null
+          });
+        }
+      }
     }).catch((error) => {
 
       type.tableInfo = tableInfo;

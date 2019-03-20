@@ -47,6 +47,7 @@ import {MultipleRenamePopupComponent} from "./multiple-rename-popup.component";
 import {DataflowModelService} from "../../../service/dataflow.model.service";
 import {ActivatedRoute} from "@angular/router";
 import {CommonConstant} from "../../../../../common/constant/common.constant";
+import {Observable} from "rxjs";
 
 declare let Split;
 
@@ -234,11 +235,16 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this.dsId = params['dsId'];
       this.dfId = params['dfId'];
     });
+    this.useUnloadConfirm = false;
   }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Override Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public canDeactive(): Observable<boolean> | boolean {
+    return this.useUnloadConfirm;
+  }
 
   // Init
   public ngOnInit() {
@@ -313,6 +319,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // save id and type for dataflow detail page
     this.dataflowModelService.setSelectedDsId(this.dsId);
     this.dataflowModelService.setSelectedDsType(DsType.WRANGLED);
+    this.useUnloadConfirm = true;
     this.router.navigate([`/management/datapreparation/dataflow/${this.dfId}`]);
   }
 
@@ -700,7 +707,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public changeWrangledDataset(dataset : PrDataset) {
     this.dataflowModelService.setSelectedDsId(this.dsId);
     this.dataflowModelService.setSelectedDsType(DsType.WRANGLED);
-    window.location.href = CommonConstant.API_CONSTANT.BASE_URL +`/management/datapreparation/dataflow/${this.dataflow.dfId}/rule/${dataset.dsId}` ;
+    window.location.href = CommonConstant.API_CONSTANT.BASE_URL +`management/datapreparation/dataflow/${this.dataflow.dfId}/rule/${dataset.dsId}` ;
   }
 
   /**
@@ -1617,18 +1624,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         this._editRuleGridComp.gridAllContextClose();
       })
     }));
-    this._setEditRuleInfo({op:'INITIAL', ruleIdx: null, count: 100, offset: 0}).then((data)=> {
-
-      if (data['error']) {
-        let prep_error = this.dataprepExceptionHandler(data['error']);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        return;
-      }
-
-      this.serverSyncIndex = data.apiData.ruleCurIdx;
-      this.ruleListComponent.selectedRuleIdx = this.serverSyncIndex; // 처음 들어갔을 때 전에 jump 한 곳으로 나와야 하기 떄문에
-      this.setRuleListColorWhenJumped(this.serverSyncIndex);
-    });
   }
 
   private _destroySplit() {

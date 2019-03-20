@@ -189,11 +189,6 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   public close() {
     super.close();
 
-    // Check if came from dataflow
-    if (this.datasetService.dataflowId) {
-      this.datasetService.dataflowId = undefined;
-    }
-
     this.popupService.notiPopup({
       name: 'close-create',
       data: null

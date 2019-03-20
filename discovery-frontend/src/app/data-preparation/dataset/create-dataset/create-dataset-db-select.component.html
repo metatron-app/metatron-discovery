@@ -138,7 +138,7 @@
             <!-- url input -->
             <div class="ddp-wrap-edit2 ddp-col-12" *ngIf="isUrl" [class.ddp-error]="isShowUrlRequired">
               <label class="ddp-label-type">{{'msg.storage.ui.conn.url' | translate}}</label>
-              <input class="ddp-input-type"
+              <input class="ddp-input-type"z
                      [readonly]="dataconnection.id || connectionList.length === 0"
                      placeholder="{{'msg.storage.ui.conn.url.ph' | translate}}"
                      [ngModel]="dataconnection.url"

@@ -60,11 +60,6 @@ export class CreateDatasetDataTypeComponent extends AbstractPopupComponent imple
 
     super.ngOnInit();
 
-    if (sessionStorage.getItem('DATAFLOW_ID')) {
-      this.datasetService.dataflowId = sessionStorage.getItem('DATAFLOW_ID');
-      sessionStorage.removeItem('DATAFLOW_ID');
-    }
-
   }
 
   // Destory
@@ -118,12 +113,6 @@ export class CreateDatasetDataTypeComponent extends AbstractPopupComponent imple
    */
   public close() {
     super.close();
-
-
-    // Check if came from dataflow
-    if (this.datasetService.dataflowId) {
-      this.datasetService.dataflowId = undefined;
-    }
 
     this.popupService.notiPopup({
       name: 'close-create',

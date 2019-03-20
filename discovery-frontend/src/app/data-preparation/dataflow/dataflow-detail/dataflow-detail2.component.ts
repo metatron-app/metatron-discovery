@@ -173,14 +173,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    | Override Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public canDeactive(): Observable<boolean> | boolean {
-    if (false == this.canNavigationBack) {
-      this.canNavigationBack = true;
-      return false;
-    }
-    return true;
-  }
-
   /**
    * 초기 설정
    */
@@ -190,18 +182,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
     // navigation back check
     this.step = '';
     this.canNavigationBack = true;
-    this.locationSubscription = this.commonLocation.subscribe((data) => {
-      if ('update-rules' == this.step) {
-        console.log('navigation back from update-rules');
-        this.canNavigationBack = false;
-      } else if ('' == this.step && false == data.url.endsWith('/datapreparation/dataflow')) {
-        console.log('navigation back to wrong path');
-      }
-
-      if (false == this.canNavigationBack) {
-        window.history.go(1);
-      }
-    });
 
     // 초기화
     this.init();
@@ -213,7 +193,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    * View 종료
    */
   public ngOnDestroy() {
-    this.locationSubscription.unsubscribe();
     super.ngOnDestroy();
   } // function - ngOnDestroy
 

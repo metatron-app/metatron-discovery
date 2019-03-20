@@ -79,7 +79,6 @@ import { PrepSelectBoxComponent } from './util/prep-select-box.component';
 import { PrepSelectBoxCustomComponent } from './util/prep-select-box-custom.component';
 import { DataflowModelService } from "./dataflow/service/dataflow.model.service";
 import {EditRuleWindowComponent} from "./dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-window.component";
-import {CheckboxSelectDatasetComponent} from "./component/checkbox-select-dataset.component";
 import {LongUpdatePopupComponent} from "./component/long-update-popup.component";
 import {RadioSelectDatasetComponent} from "./component/radio-select-dataset.component";
 import {AddDatasetDataflowComponent} from "./dataset/add-dataset-dataflow.component";
@@ -93,7 +92,7 @@ const dataPreparationRoutes: Routes = [
   { path: '', component: DatasetComponent },
   { path: 'dataflow', component: DataflowComponent },
   { path: 'dataflow/:id', component: DataflowDetail2Component, canDeactivate: [DataPreparationGuard] },
-  { path: 'dataflow/:dfId/rule/:dsId', component: EditDataflowRule2Component },
+  { path: 'dataflow/:dfId/rule/:dsId', component: EditDataflowRule2Component, canDeactivate: [DataPreparationGuard] },
   { path: 'dataset', component: DatasetComponent },
   { path: 'dataset/new', component: DatasetComponent },
   { path: 'dataset/:id', component: DatasetDetailComponent },
@@ -167,7 +166,6 @@ const dataPreparationRoutes: Routes = [
     PrepSelectBoxComponent,
     PrepSelectBoxCustomComponent,
     RadioSelectDatasetComponent,
-    CheckboxSelectDatasetComponent,
     LongUpdatePopupComponent,
     AddDatasetDataflowComponent,
     MultipleRenamePopupComponent,
