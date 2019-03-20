@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-layout-popuptype" *ngIf="isShowFl">
+<div class="ddp-layout-popuptype" *ngIf="isShowPopup">
   <em class="ddp-bg-popup"></em>
   <div class="ddp-ui-popup">
     <!-- title -->
@@ -27,9 +27,15 @@
       <!-- det -->
     </div>
     <!-- //title -->
-    <div class="ddp-ui-popup-contents ddp-configure-schema ddp-info">
+    <div class="ddp-ui-popup-contents ddp-configure-schema" [class.ddp-info]="!isExistErrorInFieldList" [class.ddp-info2]="isExistErrorInFieldList">
       <!-- message -->
       <div class="ddp-box-message">
+        <div class="ddp-box-synch type-error" *ngIf="isExistErrorInFieldList">
+          <div class="ddp-txt-synch">
+            <em class="ddp-icon-info"></em>
+            {{'msg.storage.ui.schema.valid.desc' | translate}}
+          </div>
+        </div>
         <div class="ddp-box-synch type-info">
           <div class="ddp-txt-synch">
             <em class="ddp-icon-info"></em>
@@ -46,14 +52,14 @@
           [optionalClass]="'ddp-fleft'"
           [showClear]="true"
           [value]="searchTextKeyword"
-          [placeHolder]="'Search by column name'"
+          [placeHolder]="'msg.storage.ui.column.search.description' | translate"
           (changeValue)="searchText($event)">
         </component-input>
         <!-- //search -->
         <div class="ddp-ui-rightoption ddp-type-schema">
           <!-- edit -->
           <div class="ddp-form-label2 ddp-fleft">
-            <label class="ddp-label-type">Role</label>
+            <label class="ddp-label-type">{{'msg.comm.th.role' | translate}}</label>
             <div class="ddp-wrap-dropdown">
               <!-- select box -->
               <storage-filter-select-box
@@ -66,13 +72,13 @@
           <!-- //edit -->
           <!-- edit -->
           <div class="ddp-form-label2 ddp-fleft">
-            <label class="ddp-label-type">Type</label>
+            <label class="ddp-label-type">{{'msg.storage.ui.type' | translate}}</label>
             <div class="ddp-wrap-dropdown">
               <!-- select box -->
               <storage-filter-select-box
-                [filterList]="typeFilterList"
-                [selectedFilter]="selectedTypeFilter"
-                (changedFilter)="onChangedTypeFilter($event)"></storage-filter-select-box>
+                [filterList]="logicalTypeFilterList"
+                [selectedFilter]="selectedLogicalTypeFilter"
+                (changedFilter)="onChangedLogicalTypeFilter($event)"></storage-filter-select-box>
               <!-- //select box -->
             </div>
           </div>
@@ -82,44 +88,44 @@
               클릭시 ddp-selected 추가
           -->
           <!--<div class="ddp-ui-setbtn ddp-selected ">-->
-            <!--<a href="javascript:" class="ddp-btn-setting"></a>-->
-            <!--<div class="ddp-wrap-popup2">-->
-                                <!--<span class="ddp-txt-label2">-->
-                                    <!--Column order setting-->
-                                <!--</span>-->
-              <!--<ul class="ddp-list-popup">-->
-                <!--<li class="ddp-selected">-->
-                  <!--<a href="javascript:">-->
-                    <!--In order of data-->
-                    <!--<em class="ddp-icon-check"></em>-->
-                  <!--</a>-->
-                <!--</li>-->
-                <!--<li>-->
-                  <!--<a href="javascript:">-->
-                    <!--A-Z-->
-                    <!--<em class="ddp-icon-check"></em>-->
-                  <!--</a>-->
-                <!--</li>-->
-                <!--<li>-->
-                  <!--<a href="javascript:">-->
-                    <!--Z-A-->
-                    <!--<em class="ddp-icon-check"></em>-->
-                  <!--</a>-->
-                <!--</li>-->
-                <!--<li>-->
-                  <!--<a href="javascript:">-->
-                    <!--High Frequency → low-->
-                    <!--<em class="ddp-icon-check"></em>-->
-                  <!--</a>-->
-                <!--</li>-->
-                <!--<li>-->
-                  <!--<a href="javascript:">-->
-                    <!--Low Frequency → high-->
-                    <!--<em class="ddp-icon-check"></em>-->
-                  <!--</a>-->
-                <!--</li>-->
-              <!--</ul>-->
-            <!--</div>-->
+          <!--<a href="javascript:" class="ddp-btn-setting"></a>-->
+          <!--<div class="ddp-wrap-popup2">-->
+          <!--<span class="ddp-txt-label2">-->
+          <!--Column order setting-->
+          <!--</span>-->
+          <!--<ul class="ddp-list-popup">-->
+          <!--<li class="ddp-selected">-->
+          <!--<a href="javascript:">-->
+          <!--In order of data-->
+          <!--<em class="ddp-icon-check"></em>-->
+          <!--</a>-->
+          <!--</li>-->
+          <!--<li>-->
+          <!--<a href="javascript:">-->
+          <!--A-Z-->
+          <!--<em class="ddp-icon-check"></em>-->
+          <!--</a>-->
+          <!--</li>-->
+          <!--<li>-->
+          <!--<a href="javascript:">-->
+          <!--Z-A-->
+          <!--<em class="ddp-icon-check"></em>-->
+          <!--</a>-->
+          <!--</li>-->
+          <!--<li>-->
+          <!--<a href="javascript:">-->
+          <!--High Frequency → low-->
+          <!--<em class="ddp-icon-check"></em>-->
+          <!--</a>-->
+          <!--</li>-->
+          <!--<li>-->
+          <!--<a href="javascript:">-->
+          <!--Low Frequency → high-->
+          <!--<em class="ddp-icon-check"></em>-->
+          <!--</a>-->
+          <!--</li>-->
+          <!--</ul>-->
+          <!--</div>-->
           <!--</div>-->
           <!--&lt;!&ndash; //setting 버튼 &ndash;&gt;-->
           <!--<a href="javascript:" class="ddp-btn-selection ddp-gray"><em class="ddp-icon-plus"></em>Add column</a>-->
@@ -137,9 +143,7 @@
             <col width="114px">
             <col width="150px">
             <col width="185px">
-            <!--<col width="110px">-->
             <col width="300px">
-
           </colgroup>
           <thead>
           <tr>
@@ -158,9 +162,6 @@
             <th>
               {{'msg.storage.ui.th.format' | translate}}
             </th>
-            <!--<th>-->
-              <!--Code table-->
-            <!--</th>-->
             <th>
               {{'msg.storage.ui.th.description' | translate}}
             </th>
@@ -169,9 +170,10 @@
           <tbody>
           <tr *ngFor="let column of filteredFieldList">
             <td class="ddp-txt-center">
-              <span class="ddp-box-tag-value" [class.ddp-measure]="column.role === fieldRole.MEASURE"
-                    [class.ddp-dimension]="column.role === fieldRole.DIMENSION || column.role === fieldRole.TIMESTAMP">
-                          {{(column.role === fieldRole.MEASURE ? 'msg.comm.name.mea' : 'msg.comm.name.dim') | translate}}
+              <span class="ddp-box-tag-value"
+                    [class.ddp-measure]="column.role === FIELD_ROLE.MEASURE"
+                    [class.ddp-dimension]="column.role === FIELD_ROLE.DIMENSION || column.role === FIELD_ROLE.TIMESTAMP">
+                {{(column.role === FIELD_ROLE.MEASURE ? 'msg.comm.name.mea' : 'msg.comm.name.dim') | translate}}
               </span>
             </td>
             <td>
@@ -182,24 +184,21 @@
             <td>
               <div class="ddp-input-form">
                 <input type="text" class="ddp-txt-input"
-                       (ngModelChange)="onChangeValue(column)"
-                       [(ngModel)]="column.logicalName">
+                       (ngModelChange)="setReplaceFlag(column)" [(ngModel)]="column.logicalName">
                 <em class="ddp-bg-select"></em>
               </div>
             </td>
-            <td class="ddp-inherit">
+            <td class="ddp-inherit ddp-info">
               <!-- select -->
-              <div class="ddp-ui-selected-option"
-                   (clickOutside)="column['isShowTypeList'] = false"
-                   (click)="onChangeTypeListShowFlag(column)"
-                   [class.ddp-selected]="column['isShowTypeList']">
+              <div class="ddp-ui-selected-option" [class.ddp-selected]="column.isShowTypeList"
+                   (clickOutside)="column.isShowTypeList = false" (click)="onChangeTypeListShowFlag(column)">
                 <span class="ddp-link-text ddp-txt-icon">
                   <em class="{{getFieldTypeIconClass(column.logicalType)}}"></em>
-                  {{column.role === fieldRole.TIMESTAMP ? ('msg.storage.ui.list.timestamp' | translate) : getSelectedLogicalTypeLabel(column)}}
-                  <span class="ddp-wrap-icons" *ngIf="column.role !== fieldRole.TIMESTAMP && !column.derived"></span>
+                  {{column.role === FIELD_ROLE.TIMESTAMP ? ('msg.storage.ui.list.timestamp' | translate) : getSelectedLogicalTypeLabel(column)}}
+                  <span class="ddp-wrap-icons" *ngIf="column.role !== FIELD_ROLE.TIMESTAMP && !column.derived"></span>
                 </span>
                 <!-- popup -->
-                <div class="ddp-wrap-popup2 ddp-types">
+                <div class="ddp-wrap-popup2 ddp-types ddp-scroll-none" *ngIf="column.role !== FIELD_ROLE.TIMESTAMP && !column.derived">
                   <ul class="ddp-list-popup">
                     <li *ngFor="let type of convertibleTypeList"
                         [ngClass]="{'ddp-selected' : column.logicalType === type.value}">
@@ -214,26 +213,42 @@
                 <!-- //popup -->
               </div>
               <!-- //select -->
+              <div class="ddp-ui-info" *ngIf="isShowInformationIcon(column)">
+                <em [class.ddp-icon-error2]="isInvalidInformationIcon(column)"></em>
+                <!-- format layer -->
+                <!--<datetime-valid-popup *ngIf="column.isShowTimestampValidPopup"-->
+                                      <!--[format]="column?.format"-->
+                                      <!--[defaultFormat]="defaultFormatObj[column.name]"-->
+                                      <!--[fieldDataList]="fieldDataList"-->
+                                      <!--[name]="column.name"-->
+                                      <!--(changedFieldFormat)="column.format = $event"-->
+                                      <!--(changedDefaultFormat)="defaultFormatObj[column.name] = $event"-->
+                                      <!--(closed)="column.isShowTimestampValidPopup = undefined; setIsExistErrorInFieldListFlag()"></datetime-valid-popup>-->
+                <!-- //format layer -->
+              </div>
+
             </td>
             <!-- format -->
             <td>
-              <div class="ddp-input-form" *ngIf="column.logicalType.toString() === 'TIMESTAMP'">
+              <div class="ddp-input-form" *ngIf="column.logicalType === LOGICAL_TYPE.TIMESTAMP && column.format">
                 <input type="text" class="ddp-txt-input"
-                       [readOnly]="column.role === fieldRole.TIMESTAMP"
-                       (ngModelChange)="onChangeValue(column)"
+                       [readOnly]="column.role === FIELD_ROLE.TIMESTAMP"
+                       (ngModelChange)="setReplaceFlag(column)"
                        [(ngModel)]="column.format.format">
                 <em class="ddp-bg-select"></em>
               </div>
             </td>
             <!-- //format -->
+            <!-- description -->
             <td>
               <div class="ddp-input-form">
                 <input type="text" class="ddp-txt-input"
-                       (ngModelChange)="onChangeValue(column)"
+                       (ngModelChange)="setReplaceFlag(column)"
                        [(ngModel)]="column.description">
                 <em class="ddp-bg-select"></em>
               </div>
             </td>
+            <!-- //description -->
           </tr>
           </tbody>
 

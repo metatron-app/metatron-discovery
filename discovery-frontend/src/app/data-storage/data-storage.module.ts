@@ -33,7 +33,7 @@ import { DndModule } from 'ng2-dnd';
 import { CanDeactivateGuard } from '../common/gaurd/can.deactivate.guard';
 import { DataGridDataSourceComponent } from './data-source-list/detail-data-source/data-grid-data-source/data-grid-data-source.component';
 import { ColumnDetailDataSourceComponent } from './data-source-list/detail-data-source/column-detail-data-source/column-detail-data-source.component';
-import { EditConfigSchemaComponent } from './data-source-list/detail-data-source/column-detail-data-source/edit-config-schema/edit-config-schema.component';
+import { EditConfigSchemaComponent } from './data-source-list/detail-data-source/column-detail-data-source/edit-config-schema.component';
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
 import { EditFilterDataSourceComponent } from './data-source-list/detail-data-source/edit-filter-data-source.component';
 import { IngestionLogComponent } from './data-source-list/detail-data-source/information-dats-source/component/ingestion-log/ingestion-log.component';
@@ -43,6 +43,8 @@ import { CriterionTimeRadioboxComponent } from './component/criterion/criterion-
 import {DataConnectionCreateService} from "./service/data-connection-create.service";
 import {DataSourceCreateModule} from "./data-source-list/create-data-source/data-source-create.module";
 import {StorageFilterSelectBoxComponent} from "./data-source-list/component/storage-filter-select-box.component";
+import {FieldConfigService} from "./service/field-config.service";
+import {DatasourceMetadataSharedModule} from "../shared/datasource-metadata/datasource-metadata-shared.module";
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -57,6 +59,7 @@ const storageRoutes: Routes = [
     DndModule,
     DataPreviewModule,
     DataSourceCreateModule,
+    DatasourceMetadataSharedModule,
     RouterModule.forChild(storageRoutes)
   ],
   declarations: [
@@ -76,7 +79,6 @@ const storageRoutes: Routes = [
     EditFilterDataSourceComponent,
     EditConfigSchemaComponent,
     IngestionLogComponent,
-
     // data connection
     DataConnectionComponent,
     HandlerDataConnectionComponent,
@@ -99,6 +101,7 @@ const storageRoutes: Routes = [
     DatasourceManagementGuard,
     MetadataService,
     DataConnectionCreateService,
+    FieldConfigService,
   ]
 })
 export class DataStorageModule {

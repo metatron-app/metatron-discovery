@@ -1,10 +1,35 @@
-<div class="ddp-type-selectbox" [class.ddp-selected]="isListShow" (click)="isListShow = !isListShow">
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-selectbox" [class.ddp-selected]="isListShow" (click)="isListShow = !isListShow" >
   <span class="ddp-txt-selectbox">{{selectedFilter.label}}</span>
-  <ul class="ddp-list-selectbox ddp-selectdown">
+  <ul class="ddp-list-selectbox ddp-selectdown" *ngIf="!isEnableIcon">
     <li *ngFor="let filter of filterList">
       <a href="javascript:" (click)="onChangedFilter(filter)">
         {{filter.label}}
       </a>
     </li>
   </ul>
+  <div class="ddp-wrap-popup2 ddp-types" *ngIf="isEnableIcon">
+    <ul class="ddp-list-popup">
+      <li [class.ddp-selected]="selectedFilter.value === filter.value" *ngFor="let filter of filterList">
+        <a href="javascript:" (click)="onChangedFilter(filter)">
+          <em class="{{filter.icon}}"></em>
+          {{filter.label}}
+          <em class="ddp-icon-check" *ngIf="selectedFilter.value === filter.value"></em>
+        </a>
+      </li>
+    </ul>
+  </div>
 </div>

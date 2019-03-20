@@ -28,8 +28,7 @@ export class TimezoneService {
 
   public browserTimezone: TimeZoneObject;
 
-  // TODO 추후 local => locale로 수정
-  public browserLocal: string;
+  public browserLocale: string;
 
   // if not used TIMEZONE, set this key in timeZone property
   public static DISABLE_TIMEZONE_KEY = 'DISABLE_ZONE';
@@ -57,7 +56,7 @@ export class TimezoneService {
    * @return {TimeZoneObject}
    */
   public getTimezoneObject(format: FieldFormat): TimeZoneObject {
-     return format && format.timeZone ? (this.timeZoneList.find(timezone => timezone.momentName === format.timeZone) || this.browserTimezone) : this.browserTimezone;
+    return format && format.timeZone ? (this.timeZoneList.find(timezone => timezone.momentName === format.timeZone) || this.browserTimezone) : this.browserTimezone;
   }
 
   /**
@@ -108,7 +107,7 @@ export class TimezoneService {
    * @private
    */
   private _initBrowserLocale(): void {
-    this.browserLocal = moment.locale();
+    this.browserLocale = moment.locale();
   }
 
   /**
