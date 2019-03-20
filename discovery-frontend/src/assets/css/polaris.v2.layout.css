@@ -536,7 +536,7 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 .ddp-box-popup3 .ddp-pop-detail{clear:both;padding:35px 0px 0px 0px; font-size:14px; color:#90969f; text-align:center; line-height:24px;}
 .ddp-box-popup.ddp-box-popup-type2 .ddp-pop-title {padding:190px 100px 52px 100px; height:80px;}
 .ddp-box-popup.ddp-box-popup-type3 .ddp-pop-title {padding:80px 0 0 0;}
-.ddp-box-popup.ddp-box-popup-type3 .ddp-box-detail {display:table; position:absolute; top:180px; left:0; right:0; width:100%; min-height:240px; text-align:center; vertical-align: middle;}
+.ddp-box-popup.ddp-box-popup-type3 .ddp-box-detail {display:table; table-layout:fixed; position:absolute; top:180px; left:0; right:0; width:100%; min-height:240px; text-align:center; vertical-align: middle;}
 .ddp-box-popup.ddp-box-popup-type3 .ddp-box-detail .ddp-box-detail-in {display:table-cell; width:100%; height:100%; padding:0 100px; vertical-align:middle; box-sizing:border-box;}
 .ddp-box-popup.ddp-box-popup-type3 .ddp-box-detail .ddp-box-detail-in .ddp-txt-detail {max-height:240px; overflow:auto;}
 .ddp-box-popup.ddp-box-popup-type3 .ddp-box-detail .ddp-box-detail-in .ddp-txt-detail.ddp-word-break {word-break:break-all}
