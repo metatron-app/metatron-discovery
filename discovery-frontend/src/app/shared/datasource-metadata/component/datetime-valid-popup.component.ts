@@ -28,19 +28,28 @@ import {MetadataColumn} from "../../../domain/meta-data-management/metadata-colu
 })
 export class DatetimeValidPopupComponent extends AbstractComponent {
 
-  private _fieldData: string[];
+  private _valueList: string[];
 
   @Input('fieldDataList')
-  private readonly _dateList: any;
+  private readonly _dateList;
 
   @Input()
-  public readonly field: Field | MetadataColumn;
+  public format: FieldFormat;
 
   @Input()
-  public readonly defaultFormatObj: any;
+  public name: string;
+
+  @Input()
+  public readonly defaultFormat;
 
   @Output()
-  public readonly closed: EventEmitter<any> = new EventEmitter();
+  public readonly closed = new EventEmitter();
+
+  @Output()
+  public readonly changedDefaultFormat = new EventEmitter();
+
+  @Output()
+  public readonly changedFieldFormat = new EventEmitter();
 
   public readonly formatUnitList: { label: string, value: FieldFormatUnit }[] = [
     {label: this.translateService.instant('msg.storage.ui.format.unit.milli-second'), value: FieldFormatUnit.MILLISECOND},
@@ -48,7 +57,7 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
   ];
 
   // enum
-  public readonly FIELD_FORMAT_TYPE: any = FieldFormatType;
+  public readonly FIELD_FORMAT_TYPE = FieldFormatType;
 
   constructor(
     private fieldConfigService: FieldConfigService,
@@ -60,40 +69,49 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
 
   ngOnInit() {
     super.ngOnInit();
-    this._fieldData = this.fieldConfigService.getFieldDataList(this.field, this._dateList);
-    // if not exist format
-    if (!this.field.format) {
-      this.field.format = new FieldFormat();
-      // if init format
-      if (!this.defaultFormatObj[this.field.name]) {
+    // init field format
+    if (isNullOrUndefined(this.format)) {
+      this.format = new FieldFormat();
+    }
+    // set value list
+    this._valueList = this._dateList.reduce((acc, data) => {
+      if (!isNullOrUndefined(data[this.name])) {
+        acc.push(data[this.name]);
+      }
+      return acc;
+    }, []);
+    // if init format
+    if (StringUtil.isEmpty(this.format.format)) {
+      if (isNullOrUndefined(this.defaultFormat)) {
         this._checkFormatValidation(true);
       } else {
-        this.field.format.format = this.defaultFormatObj[this.field.name];
-        this.field.isValidTimeFormat = true;
+        this.format.format = this.defaultFormat;
+        this.format.isValidTimeFormat = true;
       }
     }
   }
 
   ngOnDestroy() {
     super.ngOnDestroy();
-    // if not exist isValidTimeFormat property in field, set false
-    if (isNullOrUndefined(this.field.isValidTimeFormat)) {
-      this.field.isValidTimeFormat = false;
-      this.closed.emit();
-    }
   }
 
   public cancel(): void {
-    this.field.isShowTypeValidPopup = undefined;
+    // if not exist isValidTimeFormat property in field, set false
+    if (isNullOrUndefined(this.format.isValidTimeFormat)) {
+      this.format.isValidTimeFormat = false;
+      this.format.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.required.check');
+    }
+    this.changedFieldFormat.emit(this.format);
+    this.closed.emit();
   }
+
 
   /**
    * Get timezone label
-   * @param {Field} field
    * @return {string}
    */
-  public getTimezoneLabel(field: Field | MetadataColumn): string {
-    return this.timezoneService.getTimezoneObject(field.format).label;
+  public getTimezoneLabel(): string {
+    return this.timezoneService.getTimezoneObject(this.format).label;
   }
 
   /**
@@ -101,39 +119,39 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
    */
   public onChangeEnableUnixType(): void {
     // if format type is DATE_TIME
-    if (this.field.format.type === FieldFormatType.DATE_TIME) {
+    if (this.format.type === FieldFormatType.DATE_TIME) {
       // init format unit
-      this.field.format.unit = this.formatUnitList[0].value;
+      this.format.unit = this.formatUnitList[0].value;
       // set type
-      this.field.format.type = FieldFormatType.UNIX_TIME;
+      this.format.type = FieldFormatType.UNIX_TIME;
       // set time format valid TRUE
-      this.field.isValidTimeFormat = true;
-    } else if (this.field.format.type === FieldFormatType.UNIX_TIME) { // if format type is UNIX_TIME
+      this.format.isValidTimeFormat = true;
+    } else if (this.format.type === FieldFormatType.UNIX_TIME) { // if format type is UNIX_TIME
       // remove format unit
-      delete this.field.format.unit;
+      delete this.format.unit;
       // set type
-      this.field.format.type = FieldFormatType.DATE_TIME;
+      this.format.type = FieldFormatType.DATE_TIME;
       // set time format valid FALSE
-      this.field.isValidTimeFormat = false;
+      this.format.isValidTimeFormat = false;
       // set validation message
-      this.field.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.required.check');
+      this.format.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.required.check');
     }
   }
 
   public onChangeUnixType(type: { label: string, value: FieldFormatUnit }) {
-    if (this.field.format.unit !== type.value) {
+    if (this.format.unit !== type.value) {
       // change unit
-      this.field.format.unit = type.value;
+      this.format.unit = type.value;
       // set time format valid TRUE
-      this.field.isValidTimeFormat = true;
+      this.format.isValidTimeFormat = true;
     }
   }
 
   public onClickFormatValidation(): void {
     // if empty format in field
-    if (StringUtil.isEmpty(this.field.format.format)) {
-      this.field.isValidTimeFormat = false;
-      this.field.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.format.required');
+    if (StringUtil.isEmpty(this.format.format)) {
+      this.format.isValidTimeFormat = false;
+      this.format.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.format.required');
     } else {
       this._checkFormatValidation(false);
     }
@@ -146,11 +164,11 @@ export class DatetimeValidPopupComponent extends AbstractComponent {
    */
   private _checkFormatValidation(isInitValid?: boolean): void {
     this.loadingShow();
-    this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField(this.field, this._fieldData, isInitValid).then((field: Field) => {
+    this.fieldConfigService.checkEnableDateTimeFormatAndSetValidationResultInField1(this.format, this._valueList, isInitValid).then((format: FieldFormat) => {
       this.loadingHide();
       // set format in defaultFormatObj
       if (isInitValid) {
-        this.defaultFormatObj[field.name] = field.format.format;
+        this.changedDefaultFormat.emit(this.format.format);
       }
     }).catch(() => {
       this.loadingHide();

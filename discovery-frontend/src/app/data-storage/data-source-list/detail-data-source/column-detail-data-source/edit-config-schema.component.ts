@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Output, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {
   ConnectionType,
   Datasource,
@@ -43,6 +43,7 @@ import Role = Type.Role;
   templateUrl: './edit-config-schema.component.html'
 })
 export class EditConfigSchemaComponent extends AbstractComponent {
+
   // 데이터소스 아이디
   private _sourceId: string;
   // origin field list
@@ -54,6 +55,8 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   public defaultFormatObj: any = {};
   // search keyword
   public searchTextKeyword: string;
+  // field list
+  public fieldList: Field[];
   // filtered field list
   public filteredFieldList: Field[];
 
@@ -111,7 +114,8 @@ export class EditConfigSchemaComponent extends AbstractComponent {
     this.selectedRoleTypeFilter = this.constant.getRoleTypeFilterFirst();
     // set origin field list
     this._originFieldList = _.cloneDeep(fields);
-    this._originFieldList.forEach((column) => {
+    this.fieldList = _.cloneDeep(fields);
+    this.fieldList.forEach((column) => {
       // 타임스탬프인데 format이 없는경우 init
       if (column.logicalType === LogicalType.TIMESTAMP && !column.format) {
         column.format = new FieldFormat();
@@ -126,15 +130,13 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   }
 
   /**
-   *
-   * @private
+   * Set exist error in field list flag
    */
-  private _setIsExistErrorInFieldListFlag(): void {
-    this.isExistErrorInFieldList = this._originFieldList.some(field =>
-      ((field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POLYGON) && field.isValidType === false)
-      || (field.logicalType === LogicalType.TIMESTAMP && field.isValidTimeFormat === false));
+  public setIsExistErrorInFieldListFlag(): void {
+    this.isExistErrorInFieldList = this.fieldList.some(field =>
+      ((field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POLYGON) && !field.isValidType)
+      || (field.logicalType === LogicalType.TIMESTAMP && !field.isValidTimeFormat));
   }
-
 
   /**
    * save
@@ -182,6 +184,36 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   }
 
   /**
+   * Is show information icon
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isShowInformationIcon(field: Field): boolean {
+    // if not TIMESTAMP field
+    // is field logicalType TIMESTAMP OR invalid GEO types
+    return field.role !== FieldRole.TIMESTAMP
+      && (field.logicalType === LogicalType.TIMESTAMP || (field.isValidType === false && (field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POLYGON)));
+  }
+
+  /**
+   * Is invalid information icon
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isInvalidInformationIcon(field: Field): boolean {
+    return field.isValidType === false || (field.format && field.format.isValidTimeFormat === false);
+  }
+
+  /**
+   * Is valid information icon
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isValidInformationIcon(field: Field): boolean {
+    return (field.format && field.format.isValidTimeFormat);
+  }
+
+  /**
    * Get selected logical type label
    * @param {Field} field
    * @returns {string}
@@ -196,7 +228,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    */
   public onClickInfoIcon(field: Field): void {
     if (field.logicalType === LogicalType.TIMESTAMP) {
-      field.isShowTypeValidPopup = true;
+      field.isShowTimestampValidPopup = true;
     }
   }
 
@@ -241,13 +273,13 @@ export class EditConfigSchemaComponent extends AbstractComponent {
       targetField.logicalType = typeToChange.value;
       // 만약 기존 타입이 GEO 타입이라면
       if ((prevLogicalType ===  LogicalType.GEO_POINT || prevLogicalType === LogicalType.GEO_POLYGON || prevLogicalType === LogicalType.GEO_LINE) && targetField.hasOwnProperty('isValidType')) {
-        this._setIsExistErrorInFieldListFlag();
+        this.setIsExistErrorInFieldListFlag();
         // remove valid flag
         delete targetField.isValidType;
       } else if (prevLogicalType === LogicalType.TIMESTAMP) {  // 만약 기존 타입이 타임타입이라면
         // remove format
         delete targetField.format;
-        this._setIsExistErrorInFieldListFlag();
+        this.setIsExistErrorInFieldListFlag();
         // if exist timestamp valid result
         (targetField.hasOwnProperty('isValidTimeFormat')) && (delete targetField.isValidTimeFormat);
       }
@@ -258,17 +290,17 @@ export class EditConfigSchemaComponent extends AbstractComponent {
         // valid WKT
         this.fieldConfigService.checkEnableGeoTypeAndSetValidationResult(targetField, this.fieldConfigService.getFieldDataList(targetField, this.fieldDataList))
           .then((result) => {
-            this._setIsExistErrorInFieldListFlag();
+            this.setIsExistErrorInFieldListFlag();
             // loading hide
             this.loadingHide();
           })
           .catch((error) => {
+            this.setIsExistErrorInFieldListFlag();
             // loading hide
             this.loadingHide();
           });
       } else if (typeToChange.value === LogicalType.TIMESTAMP) {  // 변경될 타입이 TIMESTAMP 타입이라면
-        // show layer
-        targetField.isShowTypeValidPopup = true;
+        targetField.isShowTimestampValidPopup = true;
       }
     }
   }
@@ -293,7 +325,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    */
   private _updateFilteredFieldList(): void {
     // set filtered field list
-    this.filteredFieldList = this._originFieldList.filter(field =>
+    this.filteredFieldList = this.fieldList.filter(field =>
       (this.selectedRoleTypeFilter.value === 'ALL' ? true : (Role.DIMENSION === this.selectedRoleTypeFilter.value && FieldRole.TIMESTAMP === field.role ? field : this.selectedRoleTypeFilter.value === field.role.toString()))
       && (this.selectedLogicalTypeFilter.value === 'ALL' ? true : this.selectedLogicalTypeFilter.value === field.logicalType.toString())
       && (StringUtil.isEmpty(this.searchTextKeyword) ? true : field.name.toUpperCase().includes(this.searchTextKeyword.toUpperCase().trim())));

@@ -48,6 +48,75 @@ export class FieldConfigService extends AbstractService {
     }, []);
   }
 
+  public checkEnableDateTimeFormatAndSetValidationResultInField1(fieldFormat: FieldFormat, dateList: string[], isInitValid?: boolean) {
+    return new Promise((resolve, reject) => {
+      // if not exist fieldFormat data list
+      if (dateList.length < 1) {
+        // set time fieldFormat valid FALSE
+        fieldFormat.isValidTimeFormat = false;
+        // set time fieldFormat valid message
+        fieldFormat.timeFormatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.column.no.data');
+        resolve(fieldFormat);
+      } else {  // if exist fieldFormat data list
+        const params: {samples: string[], format?: string} = {
+          samples: dateList.slice(0,19)
+        };
+        // if not init valid, set fieldFormat in params
+        if(!isInitValid) {
+          // if empty fieldFormat
+          if (StringUtil.isEmpty(fieldFormat.format)) {
+            // set time fieldFormat valid FALSE
+            fieldFormat.isValidTimeFormat = false;
+            // set time fieldFormat valid message
+            fieldFormat.timeFormatValidMessage = this._translateSvc.instant('msg.common.ui.required');
+            resolve(fieldFormat);
+          } else {  // if not empty fieldFormat
+            // set fieldFormat in params
+            (params.format = fieldFormat.format);
+          }
+        }
+        this.post(this.API_URL + 'datasources/validation/datetime', params)
+          .then((result: {valid?: boolean, pattern?: string}) =>{
+            // if valid or exist pattern
+            if (result.valid || result.pattern) {
+              // set time fieldFormat valid TRUE
+              fieldFormat.isValidTimeFormat = true;
+              // if exist pattern, set time fieldFormat in fieldFormat
+              (result.pattern) && (fieldFormat.format = result.pattern);
+              // if enable timezone, set browser timezone at fieldFormat
+              if (this._timezoneSvc.isEnableTimezoneInDateFormat(fieldFormat)) {
+                !fieldFormat.timeZone && (fieldFormat.timeZone = this._timezoneSvc.browserTimezone.momentName);
+                fieldFormat.locale = this._timezoneSvc.browserLocale;
+              } else { // if not enable timezone
+                fieldFormat.timeZone = TimezoneService.DISABLE_TIMEZONE_KEY;
+              }
+            } else { // invalid
+              // set time fieldFormat valid FALSE
+              fieldFormat.isValidTimeFormat = false;
+              // set time fieldFormat valid message
+              fieldFormat.timeFormatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.valid.required.match.data');
+            }
+            // if valid fieldFormat, set enable time fieldFormat
+            (result.valid) && (fieldFormat.isValidTimeFormat = true);
+            resolve(fieldFormat);
+          })
+          .catch((error) => {
+            // if init valid, set default time fieldFormat in fieldFormat
+            if (isInitValid)  {
+              fieldFormat.formatInitialize();
+            }
+            // set time fieldFormat valid FALSE
+            fieldFormat.isValidTimeFormat = false;
+            // set time fieldFormat valid message
+            fieldFormat.timeFormatValidMessage = this._translateSvc.instant('msg.storage.ui.schema.valid.required.match.data');
+            reject(fieldFormat);
+          });
+
+      }
+    });
+  }
+
+
   /**
    * Check valid date time format in field
    * @param {Field} field
@@ -111,7 +180,7 @@ export class FieldConfigService extends AbstractService {
           })
           .catch((error) => {
             // if init valid, set default time format in field
-            (isInitValid) && (field.format.format = 'yyyy-MM-dd');
+            (isInitValid) && (field.format.formatInitialize());
             // set time format valid FALSE
             field.isValidTimeFormat = false;
             // set time format valid message

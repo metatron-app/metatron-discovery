@@ -4,10 +4,12 @@ export namespace Filter {
   export class Logical {
     label: string;
     value: Type.Logical;
+    icon: string;
 
-    constructor(label: string, value: Type.Logical) {
+    constructor(label: string, value: Type.Logical, icon: string) {
       this.label = label;
       this.value = value;
+      this.icon = icon;
     }
   }
 

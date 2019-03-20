@@ -125,8 +125,10 @@ export class Field {
   // Physical data type on engine
   type: string;
   // logical type
+  // TODO type.Logical 변경 필요
   logicalType: LogicalType;
   // 필드 타입
+  // TODO type.Role 변경 필요
   role: FieldRole;
   // Partition 대상 필드 인지 여부
   partitioned: boolean;
@@ -184,7 +186,7 @@ export class Field {
 
   // [UI] valid layer popup
   isShowTypeList?: boolean;
-  isShowTypeValidPopup?: boolean;
+  isShowTimestampValidPopup?: boolean;
 
   // [UI] for Alias
   dsId?:string;                   // 데이터소스 아이디
@@ -460,6 +462,16 @@ export class FieldFormat {
   // timezone (default browser) TODO 추후 서비스 로직에서 default 설정
   timeZone: string;
   locale: string;
+  ////////////////////////////////////////////////////////////////////////////
+  // Value to be used only on View
+  ////////////////////////////////////////////////////////////////////////////
+  isValidTimeFormat?: boolean;
+  timeFormatValidMessage?: string;
+
+  formatInitialize() {
+    this.format = 'yyyy-MM-dd';
+  }
+
   constructor() {
     this.unit = FieldFormatUnit.MILLISECOND;
     this.type = FieldFormatType.DATE_TIME;

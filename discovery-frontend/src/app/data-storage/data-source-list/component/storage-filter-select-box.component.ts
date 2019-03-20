@@ -26,13 +26,16 @@ import {AbstractComponent} from "../../../common/component/abstract.component";
 export class StorageFilterSelectBoxComponent extends AbstractComponent {
 
   @Output('changedFilter')
-  private _changedFilter: EventEmitter<any> = new EventEmitter();
+  private readonly _changedFilter: EventEmitter<any> = new EventEmitter();
+
+  /**
+   * Only {label: string, value: any} array
+   */
+  @Input()
+  public readonly filterList: any;
 
   @Input()
   public readonly isEnableIcon: boolean;
-
-  @Input()
-  public filterList: any;
 
   @Input()
   public selectedFilter: any;
@@ -58,6 +61,10 @@ export class StorageFilterSelectBoxComponent extends AbstractComponent {
     }
   }
 
+  /**
+   * Change filter
+   * @param filter
+   */
   public onChangedFilter(filter: any): void {
     // change filter
     this.selectedFilter = filter;

@@ -184,16 +184,6 @@ export class DataSourceCreateService {
         value: LogicalType.GEO_POINT
       },
       {
-        label: this._translateService.instant('msg.storage.ui.list.geo.line'),
-        icon: 'ddp-icon-type-line',
-        value: LogicalType.GEO_LINE
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.geo.polygon'),
-        icon: 'ddp-icon-type-polygon',
-        value: LogicalType.GEO_POLYGON
-      },
-      {
         label: this._translateService.instant('msg.storage.ui.list.expression'),
         icon: 'ddp-icon-type-expression',
         value: LogicalType.USER_DEFINED
@@ -242,16 +232,6 @@ export class DataSourceCreateService {
         label: this._translateService.instant('msg.storage.ui.list.geo.point'),
         icon: 'ddp-icon-type-point',
         value: LogicalType.GEO_POINT
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.geo.line'),
-        icon: 'ddp-icon-type-line',
-        value: LogicalType.GEO_LINE
-      },
-      {
-        label: this._translateService.instant('msg.storage.ui.list.geo.polygon'),
-        icon: 'ddp-icon-type-polygon',
-        value: LogicalType.GEO_POLYGON
       },
       {
         label: this._translateService.instant('msg.storage.ui.list.expression'),
@@ -323,7 +303,7 @@ export class DataSourceCreateService {
     // if exist tuning options
     sourceInfo.ingestionData.tuningConfig.some(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)) && (result.tuningOptions = this._toObject(sourceInfo.ingestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value))));
     // if not used current_time TIMESTAMP, set intervals
-    if (sourceInfo.schemaData.selectedTimestampType !== ConfigureTimestampType.CURRENT) {
+    if (sourceInfo.schemaData.selectedTimestampType !== ConfigureTimestampType.CURRENT_TIME) {
       result.intervals =  [this._granularityService.getIntervalUsedParam(sourceInfo.ingestionData.startIntervalText, sourceInfo.ingestionData.selectedSegmentGranularity) + '/' + this._granularityService.getIntervalUsedParam(sourceInfo.ingestionData.endIntervalText, sourceInfo.ingestionData.selectedSegmentGranularity)];
     }
     // DB
@@ -431,7 +411,7 @@ export class DataSourceCreateService {
    */
   private _getFieldParams(schemaData: any): Field[] {
     // timestamp enable
-    const isCreateTimestamp = schemaData.selectedTimestampType === ConfigureTimestampType.CURRENT;
+    const isCreateTimestamp = schemaData.selectedTimestampType === ConfigureTimestampType.CURRENT_TIME;
     // fields param clone
     let fields = _.cloneDeep(schemaData._originFieldList);
     // seq number
@@ -534,8 +514,10 @@ export class DataSourceCreateService {
 }
 
 export enum ConfigureTimestampType {
-  FIELD = <any>'FIELD',
-  CURRENT = <any>'CURRENT',
+  // FIELD = <any>'FIELD',
+  // CURRENT = <any>'CURRENT',
+  CURRENT_TIME = 'CURRENT_TIME',
+  TIMESTAMP_FIELD = 'TIMESTAMP_FIELD'
 }
 
 // 타입 셀렉트 필터
