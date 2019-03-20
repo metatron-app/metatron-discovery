@@ -353,7 +353,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     const widgetDataSource: Datasource
       = DashboardUtil.getDataSourceFromBoardDataSource(widget.dashBoard, widget.configuration.dataSource);
-    this.selectDataSource(widgetDataSource ? widgetDataSource : this.dataSourceList[0]);
+    this.selectDataSource(widgetDataSource ? widgetDataSource : this.dataSourceList[0], false);
   }
 
   @Input('dashboard')
@@ -622,7 +622,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @private
    */
   private _setDefaultAreaForBBox(dataSource:Datasource) {
-    if( (isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner'])) && dataSource.summary ) {
+    if( (isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner']) || !this.isChartShow ) && dataSource.summary ) {
       this.widgetConfiguration.chart['lowerCorner'] = dataSource.summary['geoLowerCorner'];
       this.widgetConfiguration.chart['upperCorner'] = dataSource.summary['geoUpperCorner'];
     }
@@ -632,7 +632,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * 데이터소스 선택 및 차트 초기화
    * @param {Datasource} dataSource
    */
-  public selectDataSource(dataSource: Datasource) {
+  public selectDataSource(dataSource: Datasource, isBBoxChange : boolean) {
 
     (this.widget) || (this.widget = _.cloneDeep(this.originalWidget));
 
@@ -640,7 +640,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.widget.configuration.dataSource.engineName);
       this.dataSource = dataSource;
 
-      this._setDefaultAreaForBBox( dataSource );
+      if( isBBoxChange )
+        this._setDefaultAreaForBBox( dataSource );
 
       // 데이터 필드 설정 (data panel의 pivot 설정)
       this.setDatasourceFields(true);
