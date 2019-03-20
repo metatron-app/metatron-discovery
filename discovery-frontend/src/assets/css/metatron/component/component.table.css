@@ -16,9 +16,10 @@ table.ddp-table-form thead tr th .ddp-wrap-type-filter .ddp-wrap-popup2 {display
 table.ddp-table-form thead tr th .ddp-wrap-type-filter.ddp-selected .ddp-wrap-popup2 {display:block;}
 table.ddp-table-form tbody tr td {position:relative; padding:5px 10px; border-right:1px solid #eaeaed; color:#4b525b; font-size:12px;}
 
-table.ddp-table-form tbody tr:nth-child(odd) td {background-color:#fafafa;}
+table.ddp-table-form tbody tr:nth-child(odd) td {background-color:#fafafa; border:1px solid #fafafa;}
 
 table.ddp-table-form tbody tr td.ddp-inherit {overflow:inherit;}
+table.ddp-table-form tbody tr td.ddp-hover:hover {background-color:#f1f1f3 !important; cursor:pointer;}
 table.ddp-table-form tbody tr.ddp-disabled td:before {display:inline-block; content:'';position:absolute; top:0; right:0; bottom:0; left:0; background-color:rgba(255,255,255,0.5); z-index:3; cursor: no-drop;}
 table.ddp-table-form tbody tr.ddp-disabled:hover td .ddp-btn-control {display:none;}
 
@@ -144,7 +145,7 @@ table.ddp-table-type2 thead tr th:last-of-type {border-right:1px solid transpare
 table.ddp-table-type2 thead tr th .ddp-th-long {display:inline-block;   position:relative; max-width:100%; box-sizing:border-box;}
 table.ddp-table-type2 thead tr th .ddp-th-long .ddp-th-txt {display:block; overflow:hidden; white-space:nowrap;text-overflow:ellipsis; line-height:19px;}
 
-table.ddp-table-type2 tbody tr > td {position:relative; padding:13px 10px 14px 10px; font-size:13px; border:none;}
+table.ddp-table-type2 tbody tr > td {position:relative; padding:13px 10px 14px 10px; font-size:13px; border:1px solid #fff;}
 table.ddp-table-type2 tbody tr > td.ddp-disabled:hover {background:none;}
 table.ddp-table-type2 tbody tr > td.ddp-disabled:before {position:absolute; top:0; right:0; bottom:0; left:0; z-index:15; content:''; cursor:no-drop;}
 table.ddp-table-type2 tbody tr > td.ddp-disabled em.ddp-bg-select {display:none !important;}
