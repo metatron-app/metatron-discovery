@@ -427,6 +427,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
         // find geo type from dimension list
         this.geoType = this.getMapGeoType();
+
+        this._setDefaultAreaForBBox(this.dataSource);
+
       } else {
         this.pivot = this.convertShelfToPivot(this.pivot, deepCopyUiOption);
       }
@@ -613,6 +616,17 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Multi DataSource
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * BBox 필터를 위한 기본 영역 설정
+   * @param dataSource
+   * @private
+   */
+  private _setDefaultAreaForBBox(dataSource:Datasource) {
+    if( isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner'] ) && dataSource.summary ) {
+      this.widgetConfiguration.chart['lowerCorner'] = dataSource.summary['geoLowerCorner'];
+      this.widgetConfiguration.chart['upperCorner'] = dataSource.summary['geoUpperCorner'];
+    }
+  } // function - _setDefaultAreaForBBox
 
   /**
    * 데이터소스 선택 및 차트 초기화
@@ -625,6 +639,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (ChartType.MAP === this.widget.configuration.chart.type) {
       this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.widget.configuration.dataSource.engineName);
       this.dataSource = dataSource;
+
+      this._setDefaultAreaForBBox( dataSource );
 
       // 데이터 필드 설정 (data panel의 pivot 설정)
       this.setDatasourceFields(true);
@@ -1847,17 +1863,15 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    */
   public toggleFilter(field: Field, $event?: MouseEvent) {
 
+    ( $event ) && ( $event.stopPropagation() );
+
     // 사용자 정의 측정값 필터는 사용할 수 없다고 해서 막음
     if (this.isCustomMeasureField(field)) {
-      event.stopPropagation();
       return;
     }
 
     // custom measure필드에서 aggregation 함수가 쓰인경우 필터 적용못하게 막기
     if (field.aggregated) {
-
-      event.stopPropagation();
-
       Alert.info(this.translateService.instant('msg.page.custom.measure.aggregation.unavailable'));
       return;
     }
@@ -1868,9 +1882,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     else selectedField = field;
 
     this.rnbMenu = 'filter';
-    if ($event) event.stopPropagation();
-    // 제거
     if (selectedField.useFilter) {
+      // 제거
 
       // 필수필터이면 제거 불가능
       if (selectedField.role === FieldRole.TIMESTAMP && selectedField.type === 'TIMESTAMP') {
@@ -1899,80 +1912,81 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.getPivotComp().setWidgetConfig = this.widgetConfiguration;
 
       return;
-    }
-    // 추가
-    selectedField.useFilter = true;
-
-
-    if (selectedField.logicalType === LogicalType.TIMESTAMP) {
-      // 시간 필터
-      const timeFilter = FilterUtil.getTimeAllFilter(selectedField);
-
-      // widgetId set
-      timeFilter.ui.widgetId = this.widget.id;
-      if (this.isNewWidget()) {
-        timeFilter.ui.widgetId = 'NEW';
-      }
-
-      this.widgetConfiguration.filters.push(timeFilter);
-
-    } else if (selectedField.role === FieldRole.MEASURE) {
-      // 측정값 필터
-      const boundFilter = FilterUtil.getBasicBoundFilter(selectedField);
-      // widgetId set
-      boundFilter.ui.widgetId = this.widget.id;
-      if (this.isNewWidget()) {
-        boundFilter.ui.widgetId = 'NEW';
-      }
-
-      // 사용자 필드일경우
-      if (selectedField.type === 'user_expr') {
-        boundFilter.ref = 'user_defined';
-      }
-
-      this.widgetConfiguration.filters.push(boundFilter);
     } else {
-      // inclusion필터
-      const inclusionFilter = FilterUtil.getBasicInclusionFilter(selectedField);
+      // 추가
 
-      // widgetId set
-      inclusionFilter.ui.widgetId = this.widget.id;
-      if (this.isNewWidget()) {
-        inclusionFilter.ui.widgetId = 'NEW';
-      }
+      selectedField.useFilter = true;
 
-      // 사용자 필드일경우
-      if (selectedField.type === 'user_expr') {
-        inclusionFilter.ref = 'user_defined';
-      }
+      if (selectedField.logicalType === LogicalType.TIMESTAMP) {
+        // 시간 필터
+        const timeFilter = FilterUtil.getTimeAllFilter(selectedField);
 
-      this.widgetConfiguration.filters.push(inclusionFilter);
-    }
-
-
-    // 필터 업데이트
-    if (!this.isNewWidget()) {
-      // 글로벌 필터 업데이트
-      const widget = {configuration: _.cloneDeep(this.originalWidgetConfiguration)};
-      widget.configuration.filters = _.cloneDeep(this.widgetConfiguration.filters);
-
-      // 스펙 변경
-      widget.configuration = DashboardUtil.convertPageWidgetSpecToServer(widget.configuration);
-
-      this.loadingShow();
-      this.widgetService.updateWidget(this.widget.id, widget).then((page: Widget) => {
-        this.loadingHide();
-        return page;
-      }).catch((error) => {
-        this.loadingHide();
-        if (!isUndefined(error.details)) {
-          Alert.error(error.details);
-        } else if (!isUndefined(error.message)) {
-          Alert.error(error.message);
-        } else {
-          Alert.error(error);
+        // widgetId set
+        timeFilter.ui.widgetId = this.widget.id;
+        if (this.isNewWidget()) {
+          timeFilter.ui.widgetId = 'NEW';
         }
-      });
+
+        this.widgetConfiguration.filters.push(timeFilter);
+
+      } else if (selectedField.role === FieldRole.MEASURE) {
+        // 측정값 필터
+        const boundFilter = FilterUtil.getBasicBoundFilter(selectedField);
+        // widgetId set
+        boundFilter.ui.widgetId = this.widget.id;
+        if (this.isNewWidget()) {
+          boundFilter.ui.widgetId = 'NEW';
+        }
+
+        // 사용자 필드일경우
+        if (selectedField.type === 'user_expr') {
+          boundFilter.ref = 'user_defined';
+        }
+
+        this.widgetConfiguration.filters.push(boundFilter);
+      } else {
+        // inclusion필터
+        const inclusionFilter = FilterUtil.getBasicInclusionFilter(selectedField);
+
+        // widgetId set
+        inclusionFilter.ui.widgetId = this.widget.id;
+        if (this.isNewWidget()) {
+          inclusionFilter.ui.widgetId = 'NEW';
+        }
+
+        // 사용자 필드일경우
+        if (selectedField.type === 'user_expr') {
+          inclusionFilter.ref = 'user_defined';
+        }
+
+        this.widgetConfiguration.filters.push(inclusionFilter);
+      }
+
+
+      // 필터 업데이트
+      if (!this.isNewWidget()) {
+        // 글로벌 필터 업데이트
+        const widget = {configuration: _.cloneDeep(this.originalWidgetConfiguration)};
+        widget.configuration.filters = _.cloneDeep(this.widgetConfiguration.filters);
+
+        // 스펙 변경
+        widget.configuration = DashboardUtil.convertPageWidgetSpecToServer(widget.configuration);
+
+        this.loadingShow();
+        this.widgetService.updateWidget(this.widget.id, widget).then((page: Widget) => {
+          this.loadingHide();
+          return page;
+        }).catch((error) => {
+          this.loadingHide();
+          if (!isUndefined(error.details)) {
+            Alert.error(error.details);
+          } else if (!isUndefined(error.message)) {
+            Alert.error(error.message);
+          } else {
+            Alert.error(error);
+          }
+        });
+      }
     }
   } // function - toggleFilter
 
