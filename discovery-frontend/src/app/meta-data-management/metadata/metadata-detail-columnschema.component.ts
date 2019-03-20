@@ -489,14 +489,29 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
   private _getColumnSchemas(): void {
     this.loadingShow();
     this._metaDataService.getColumnSchemaListInMetaData(this.metaDataModelService.getMetadata().id).then((result) => {
-      this._hideCurrentTime(result);
-      this._saveColumnDataOriginal();
-      this.loadingHide();
+      this._getMetadataDetail().then(metadata => {
+        _.get(metadata, 'columns', []).forEach((column, index) => {
+          const format = _.get(column, 'format', undefined);
+          if (this._isNotNil(format)) {
+            if (!(result[index].physicalName === CommonConstant.COL_NAME_CURRENT_DATETIME && result[index].physicalType === 'TIMESTAMP')) {
+              result[index].format = format;
+            }
+          }
+        });
+        this._hideCurrentTime(result);
+        this._saveColumnDataOriginal();
+        this.loadingHide();
+      }).catch(error => this.commonExceptionHandler(error));
     }).catch(error => this.commonExceptionHandler(error));
   }
 
+  // noinspection JSMethodCanBeStatic
+  private _isNotNil(format) {
+    return _.negate(_.isNil)(format);
+  }
+
   private _hideCurrentTime(result) {
-    this.columnList = result.filter((item) => item.physicalName !== CommonConstant.COL_NAME_CURRENT_DATETIME && item.physicalType !== 'TIMESTAMP');
+    this.columnList = result.filter((item) => !(item.physicalName === CommonConstant.COL_NAME_CURRENT_DATETIME && item.physicalType === 'TIMESTAMP'));
   }
 
   /**
@@ -720,5 +735,14 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
    */
   private _setCodeTableForSelectedColumn(result) {
     this._selectedColumn.codeTable = result;
+  }
+
+  /**
+   * Get metadata detail information
+   */
+  private _getMetadataDetail() {
+    return this._metaDataService.getDetailMetaData(this.metaDataModelService.getMetadata().id).then((result) => {
+      return result;
+    });
   }
 }
