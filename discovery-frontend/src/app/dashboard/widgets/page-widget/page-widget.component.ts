@@ -52,7 +52,7 @@ import {EventBroadcaster} from '../../../common/event/event.broadcaster';
 import {FilterUtil} from '../../util/filter.util';
 import {NetworkChartComponent} from '../../../common/component/chart/type/network-chart/network-chart.component';
 import {DashboardPageRelation} from '../../../domain/dashboard/widget/page-widget.relation';
-import {BoardConfiguration, LayoutMode} from '../../../domain/dashboard/dashboard';
+import {BoardConfiguration, BoardDataSource, LayoutMode} from '../../../domain/dashboard/dashboard';
 import {GridChartComponent} from '../../../common/component/chart/type/grid-chart/grid-chart.component';
 import {BarChartComponent} from '../../../common/component/chart/type/bar-chart/bar-chart.component';
 import {LineChartComponent} from '../../../common/component/chart/type/line-chart/line-chart.component';
@@ -1305,6 +1305,23 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       const chartCustomField: CustomField[] = this.widgetConfiguration.customFields;
       if (!chartCustomField || chartCustomField.length !== boardCustomFields.length) {
         this.widgetConfiguration.customFields = $.extend(chartCustomField, _.cloneDeep(boardCustomFields));
+      }
+    }
+
+    if (ChartType.MAP === this.widgetConfiguration.chart.type) {
+      let targetDs:Datasource;
+      if( 'multi' === boardConf.dataSource.type ) {
+        const targetBoardDs:BoardDataSource = boardConf.dataSource.dataSources.find( item => {
+          return item.engineName === this.widgetConfiguration.shelf.layers[0].ref
+        });
+        targetDs = DashboardUtil.getDataSourceFromBoardDataSource( this.widget.dashBoard, targetBoardDs );
+      } else {
+        targetDs = DashboardUtil.getDataSourceFromBoardDataSource( this.widget.dashBoard, boardConf.dataSource );
+      }
+
+      if (isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner']) && targetDs.summary) {
+        this.widgetConfiguration.chart['lowerCorner'] = targetDs.summary['geoLowerCorner'];
+        this.widgetConfiguration.chart['upperCorner'] = targetDs.summary['geoUpperCorner'];
       }
     }
 

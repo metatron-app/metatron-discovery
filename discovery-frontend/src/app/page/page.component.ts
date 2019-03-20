@@ -427,6 +427,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
         // find geo type from dimension list
         this.geoType = this.getMapGeoType();
+
+        this._setDefaultAreaForBBox(this.dataSource);
+
       } else {
         this.pivot = this.convertShelfToPivot(this.pivot, deepCopyUiOption);
       }
@@ -613,6 +616,17 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Multi DataSource
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * BBox 필터를 위한 기본 영역 설정
+   * @param dataSource
+   * @private
+   */
+  private _setDefaultAreaForBBox(dataSource:Datasource) {
+    if( isNullOrUndefined(this.widgetConfiguration.chart['lowerCorner'] ) && dataSource.summary ) {
+      this.widgetConfiguration.chart['lowerCorner'] = dataSource.summary['geoLowerCorner'];
+      this.widgetConfiguration.chart['upperCorner'] = dataSource.summary['geoUpperCorner'];
+    }
+  } // function - _setDefaultAreaForBBox
 
   /**
    * 데이터소스 선택 및 차트 초기화
@@ -625,6 +639,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (ChartType.MAP === this.widget.configuration.chart.type) {
       this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.widget.configuration.dataSource.engineName);
       this.dataSource = dataSource;
+
+      this._setDefaultAreaForBBox( dataSource );
 
       // 데이터 필드 설정 (data panel의 pivot 설정)
       this.setDatasourceFields(true);
