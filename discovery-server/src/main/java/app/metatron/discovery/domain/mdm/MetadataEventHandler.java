@@ -29,17 +29,19 @@ import java.util.Map;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
+import app.metatron.discovery.domain.dataconnection.accessor.HiveDataAccessor;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceService;
 import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.HiveTableInformation;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
 import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.mdm.source.MetaSourceService;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
 import app.metatron.discovery.domain.storage.StorageProperties;
+import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
 
 /**
  * Created by kyungtaak on 2016. 5. 13..
@@ -108,15 +110,19 @@ public class MetadataEventHandler {
         throw new IllegalArgumentException("DataConnection info. required.");
       }
 
-      JdbcDataConnection jdbcDataConnection = (JdbcDataConnection) metaSourceService
+      DataConnection jdbcDataConnection = (DataConnection) metaSourceService
           .getSourcesBySourceId(metadataSource.getType(), metadataSource.getSourceId());
       String schema = metadataSource.getSchema();
       String tableName = metadataSource.getTable();
 
-      if (jdbcDataConnection instanceof HiveConnection) {
-        HiveTableInformation hiveTableInformation =
-            jdbcConnectionService.showHiveTableDescription(jdbcDataConnection,
-                                                           schema, tableName, false);
+      JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(jdbcDataConnection);
+      if (jdbcDataAccessor instanceof HiveDataAccessor) {
+        HiveTableInformation hiveTableInformation
+            = ((HiveDataAccessor) jdbcDataAccessor).showHiveTableDescription(jdbcDataConnection,
+                                                                             jdbcDataConnection.getCatalog(),
+                                                                             schema,
+                                                                             tableName,
+                                                                             false);
 
         //Column 목록 저장하기
         for (Field field : hiveTableInformation.getFields()) {
@@ -132,7 +138,12 @@ public class MetadataEventHandler {
 
         metadataSource.setSourceInfo(GlobalObjectMapper.writeValueAsString(detailInfo));
       } else {
-        List<Map<String, Object>> columns = jdbcConnectionService.showTableColumns(jdbcDataConnection, schema, tableName);
+        List<Map<String, Object>> columns = jdbcConnectionService.getTableColumnNames(jdbcDataConnection,
+                                                                                       null,
+                                                                                       schema,
+                                                                                       tableName,
+                                                                                       null,
+                                                                                       null);
         for (Map<String, Object> column : columns) {
           MetadataColumn metadataColumn = new MetadataColumn();
           metadataColumn.setName((String) column.get("columnName"));
@@ -154,16 +165,21 @@ public class MetadataEventHandler {
         throw new IllegalArgumentException("Staging Hive DB info. required.");
       }
 
-      HiveConnection hiveConnection = new HiveConnection();
+      DataConnection hiveConnection = new DataConnection();
       hiveConnection.setUrl(stageDBConnection.getUrl());
       hiveConnection.setHostname(stageDBConnection.getHostname());
       hiveConnection.setPort(stageDBConnection.getPort());
       hiveConnection.setUsername(stageDBConnection.getUsername());
       hiveConnection.setPassword(stageDBConnection.getPassword());
+      hiveConnection.setImplementor("STAGE");
 
-      HiveTableInformation hiveTableInformation =
-          jdbcConnectionService.showHiveTableDescription(hiveConnection,
-                                                         schema, tableName, false);
+      JdbcAccessor jdbcDataAccessor = DataConnectionHelper.getAccessor(hiveConnection);
+      HiveTableInformation hiveTableInformation
+          = ((HiveDataAccessor) jdbcDataAccessor).showHiveTableDescription(hiveConnection,
+                                                                           hiveConnection.getCatalog(),
+                                                                           schema,
+                                                                           tableName,
+                                                                           false);
 
       //Column 목록 저장하기
       for (Field field : hiveTableInformation.getFields()) {

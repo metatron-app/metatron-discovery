@@ -14,7 +14,9 @@
 
 package app.metatron.discovery.spec.druid.ingestion.firehose;
 
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
+
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
 
 /**
  * Created by kyungtaak on 2016. 6. 18..
@@ -28,9 +30,9 @@ public class ConnectorConfig {
   public ConnectorConfig() {
   }
 
-  public ConnectorConfig(JdbcDataConnection dataConnection) {
+  public ConnectorConfig(DataConnection dataConnection) {
     this.createTables = true;
-    this.connectURI = dataConnection.getConnectUrl();
+    this.connectURI = DataConnectionHelper.getConnectionUrl(dataConnection);
     this.user = dataConnection.getUsername();
     this.password = new Password(dataConnection.getPassword());
   }

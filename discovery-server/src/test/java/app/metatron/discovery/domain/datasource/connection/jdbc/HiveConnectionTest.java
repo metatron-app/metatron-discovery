@@ -20,23 +20,29 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.supercsv.prefs.CsvPreference;
 
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-import javax.sql.DataSource;
-
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnectionHelper;
+import app.metatron.discovery.domain.dataconnection.dialect.HiveDialect;
+import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
+import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionErrorCodes;
+import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionException;
 
 /**
  * Created by kyungtaak on 2016. 6. 16..
@@ -47,7 +53,7 @@ public class HiveConnectionTest {
 
   @Test
   public void checkHiveConnection() {
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setUsername("hive");
     connection.setPassword("hive");
@@ -58,44 +64,43 @@ public class HiveConnectionTest {
 
   @Test
   public void showHiveSchemas() {
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
-    //    //connection.setDatabase("default");
+//    connection.setDatabase("default");
     connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(10000);
 
-    DataSource dataSource = jdbcConnectionService.getDataSource(connection, true);
-    System.out.println(jdbcConnectionService.showSchemas(connection, dataSource));
+    System.out.println(jdbcConnectionService.getDatabases(connection, null, null));
   }
 
   @Test
   public void showHiveTables() {
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(10000);
 
-    System.out.println(new JdbcConnectionService().showTables(connection, null));
+    System.out.println(jdbcConnectionService.getTableNames(connection, connection.getDatabase(), null));
 
   }
 
   @Test
   public void findTablesInDatabase() {
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(10000);
 
-    System.out.println(new JdbcConnectionService().findTablesInDatabase(connection, "default", null));
+    System.out.println(jdbcConnectionService.getTableNames(connection, "default", null));
 
   }
 
   @Test
   public void searchHiveTables() {
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setUsername("hive");
     connection.setPassword("hive");
@@ -105,7 +110,7 @@ public class HiveConnectionTest {
     String searchKeyword = "";
     String schema = "default";
 
-    Map<String, Object> tableMap = jdbcConnectionService.searchTables(connection, schema, searchKeyword, pageRequest);
+    Map<String, Object> tableMap = jdbcConnectionService.getTables(connection, schema, searchKeyword, pageRequest);
     List<Map<String, Object>> tableList = (List) tableMap.get("tables");
     Map<String, Object> pageInfo = (Map) tableMap.get("page");
     System.out.println("pageInfo = " + pageInfo);
@@ -117,24 +122,8 @@ public class HiveConnectionTest {
   }
 
   @Test
-  public void searchHiveSchemas() {
-    HiveConnection connection = new HiveConnection();
-    connection.setHostname("localhost");
-    //connection.setDatabase("default");
-    connection.setUsername("hive");
-    connection.setPassword("hive");
-    connection.setPort(10000);
-
-    PageRequest pageRequest = new PageRequest(0, 20);
-    String searchKeyword = "";
-
-    Map<String, Object> databaseList = jdbcConnectionService.searchSchemas(connection, searchKeyword, pageRequest);
-    System.out.println(databaseList);
-  }
-
-  @Test
   public void showTableColumnHive() throws SQLException{
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setUsername("hive");
     connection.setPassword("hive");
@@ -146,7 +135,7 @@ public class HiveConnectionTest {
     String columnNamePattern = "";
     PageRequest pageRequest = new PageRequest(0, 20);
 
-    Map<String, Object> columnMaps = jdbcConnectionService.searchTableColumns(connection, schemaName, tableName, columnNamePattern, pageRequest);
+    Map<String, Object> columnMaps = jdbcConnectionService.getTableColumns(connection, schemaName, tableName, columnNamePattern, pageRequest);
     List<Map> columnList = (List) columnMaps.get("columns");
     Map<String, Object> pageInfo = (Map) columnMaps.get("page");
     System.out.println("pageInfo = " + pageInfo);
@@ -157,7 +146,7 @@ public class HiveConnectionTest {
 
   @Test
   public void showTableInfoHive() {
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setUsername("hive");
     connection.setPassword("hive");
@@ -174,20 +163,20 @@ public class HiveConnectionTest {
 
   @Test
   public void createCSVHive() throws IOException{
-    HiveConnection connection = new HiveConnection();
-    connection.setHostname("localhost");
-    connection.setUsername("hive");
-    connection.setPassword("hive");
-    connection.setPort(10000);
+    DataConnection dataConnection = new DataConnection("HIVE");
+    dataConnection.setHostname("localhost");
+    dataConnection.setUsername("hive");
+    dataConnection.setPassword("hive");
+    dataConnection.setPort(10000);
 
     String query = "select * from default.sales limit 10";
     String csvFilePath = "/tmp/temp_csv001.csv";
 
-    DataSource dataSource = jdbcConnectionService.getDataSource(connection, true);
+    JdbcAccessor jdbcAccessor = DataConnectionHelper.getAccessor(dataConnection);
+    Connection connection = jdbcAccessor.getConnection(true);
 
     JdbcCSVWriter jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(csvFilePath), CsvPreference.STANDARD_PREFERENCE);
     jdbcCSVWriter.setConnection(connection);
-    jdbcCSVWriter.setDataSource(dataSource);
     jdbcCSVWriter.setQuery(query);
     jdbcCSVWriter.setFileName(csvFilePath);
     jdbcCSVWriter.write();
@@ -204,11 +193,11 @@ public class HiveConnectionTest {
 
   @Test
   public void createHiveTable() throws IOException{
-    HiveConnection connection = new HiveConnection();
-    connection.setHostname("localhost");
-    connection.setUsername("hive");
-    connection.setPassword("hive");
-    connection.setPort(10000);
+    DataConnection dataConnection = new DataConnection("HIVE");
+    dataConnection.setHostname("localhost");
+    dataConnection.setUsername("hive");
+    dataConnection.setPassword("hive");
+    dataConnection.setPort(10000);
 
     List<String> querys = new ArrayList<>();
     querys.add("create schema col_test");
@@ -229,11 +218,13 @@ public class HiveConnectionTest {
 //              "COMMENT '" + tableComment + "'");
 //    }
 
-    DataSource dataSource = jdbcConnectionService.getDataSource(connection, true);
+    JdbcAccessor jdbcAccessor = DataConnectionHelper.getAccessor(dataConnection);
 
+    Connection connection = null;
     Statement stmt = null;
     try {
-      stmt = dataSource.getConnection().createStatement();
+      connection = jdbcAccessor.getConnection(true);
+      stmt = connection.createStatement();
 
       // Set Fetch size
       stmt.setFetchSize(10000);
@@ -242,10 +233,10 @@ public class HiveConnectionTest {
       }
     } catch (SQLException e) {
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
-              "Fail to query : " + e.getMessage());
+                                            "Fail to query : " + e.getMessage());
     } finally {
       try{ JdbcUtils.closeStatement(stmt); } catch(Exception e){ }
-      try{ JdbcUtils.closeConnection(dataSource.getConnection()); } catch(Exception e){}
+      try{ JdbcUtils.closeConnection(connection); } catch(Exception e){}
     }
   }
 
@@ -279,49 +270,54 @@ public class HiveConnectionTest {
 
   @Test
   public void changeDatabase() {
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(10000);
 
+    JdbcDialect dialect = DataConnectionHelper.lookupDialect(connection);
+
     String webSocketId = "test1";
     String database = "test1";
 
-    DataSource dataSource = WorkbenchDataSourceUtils.createDataSourceInfo(connection, webSocketId, true).
-                            getSingleConnectionDataSource();
-
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-    List<Map<String, Object>> tables1 = jdbcTemplate.queryForList(connection.getShowTableQuery(null));
-
-    jdbcConnectionService.changeDatabase(connection, dataSource, database);
-
-    List<Map<String, Object>> tables2 = jdbcTemplate.queryForList(connection.getShowTableQuery(null));
-
-    System.out.println(tables1);
-    System.out.println(tables2);
+//    DataSource dataSource = WorkbenchDataSourceManager.createDataSourceInfo(connection, webSocketId, true).
+//                            getSingleConnectionDataSource();
+//
+//    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+//
+//    List<Map<String, Object>> tables1 = jdbcTemplate.queryForList(dialect.getTableQuery(connection, null, null, null, null, null, null));
+//
+//    jdbcConnectionService.changeDatabase(connection, database, dataSource);
+//
+//    List<Map<String, Object>> tables2 = jdbcTemplate.queryForList(dialect.getTableQuery(connection, null, null, null, null, null, null));
+//
+//    System.out.println(tables1);
+//    System.out.println(tables2);
 
   }
 
   @Test
   public void searchTableWithMetastoreInfo() {
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(10000);
-    connection.setMetastoreHost("localhost");
-    connection.setMetastorePort("3306");
-    connection.setMetastoreSchema("hivemeta");
-    connection.setMetastoreUserName("hiveuser");
-    connection.setMetastorePassword("hive1234");
+
+    Map<String, String> propMap = new HashMap<>();
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_HOST, "localhost");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_PORT, "3306");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_SCHEMA, "metastore2");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_USERNAME, "hiveuser");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_PASSWORD, "password");
+    connection.setProperties(GlobalObjectMapper.writeValueAsString(propMap));
 
     PageRequest pageRequest = new PageRequest(0, 20);
     String searchKeyword = "";
     String schema = "default";
 
-    Map<String, Object> tableMap = jdbcConnectionService.searchTables(connection, schema, searchKeyword, pageRequest);
+    Map<String, Object> tableMap = jdbcConnectionService.getTables(connection, schema, searchKeyword, pageRequest);
     List<String> tableList = (List) tableMap.get("tables");
     Map<String, Object> pageInfo = (Map) tableMap.get("page");
     System.out.println("pageInfo = " + pageInfo);
@@ -334,53 +330,33 @@ public class HiveConnectionTest {
 
   @Test
   public void searchTableWithMetastoreInfo2() {
-    HiveConnection connection = new HiveConnection();
+    DataConnection connection = new DataConnection("HIVE");
     connection.setHostname("localhost");
     connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(10000);
-    connection.setMetastoreHost("localhost");
-    connection.setMetastorePort("3306");
-    connection.setMetastoreSchema("metastore");
-    connection.setMetastoreUserName("hiveuser");
-    connection.setMetastorePassword("password");
+
+    Map<String, String> propMap = new HashMap<>();
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_HOST, "localhost");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_PORT, "3306");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_SCHEMA, "metastore2");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_USERNAME, "hiveuser");
+    propMap.put(HiveDialect.PROPERTY_KEY_METASTORE_PASSWORD, "password");
+    connection.setProperties(GlobalObjectMapper.writeValueAsString(propMap));
 
     PageRequest pageRequest = new PageRequest(0, 20);
     String searchKeyword = "";
     String schema = "default";
 
-    Map<String, Object> tableMap = jdbcConnectionService.searchTables(connection, schema, searchKeyword, pageRequest);
+    Map<String, Object> tableMap = jdbcConnectionService.getTables(connection, schema, searchKeyword, pageRequest);
     List<Map<String, Object>> tableList = (List) tableMap.get("tables");
     Map<String, Object> pageInfo = (Map) tableMap.get("page");
     System.out.println("pageInfo = " + pageInfo);
-    for(Map<String, Object> tableMapObj : tableList){
+    for (Map<String, Object> tableMapObj : tableList) {
       System.out.println(tableMapObj);
       String tableName = (String) tableMapObj.get("name");
       Assert.assertTrue(StringUtils.containsIgnoreCase(tableName, searchKeyword));
     }
-
-  }
-
-  @Test
-  public void runQuery(){
-
-    String query = "select * from sales_test1";
-
-    HiveConnection connection = new HiveConnection();
-    connection.setHostname("localhost");
-    connection.setUsername("hive");
-    connection.setPassword("hive");
-    connection.setPort(10000);
-    connection.setMetastoreHost("localhost");
-    connection.setMetastorePort("3306");
-    connection.setMetastoreSchema("metastore");
-    connection.setMetastoreUserName("hiveuser");
-    connection.setMetastorePassword("password");
-
-    DataSource ds = jdbcConnectionService.getDataSource(connection, true);
-
-    JdbcTemplate template = new JdbcTemplate(ds);
-
 
   }
 

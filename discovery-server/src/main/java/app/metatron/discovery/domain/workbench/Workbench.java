@@ -29,7 +29,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.workspace.Book;
 import app.metatron.discovery.domain.workspace.Workspace;
 

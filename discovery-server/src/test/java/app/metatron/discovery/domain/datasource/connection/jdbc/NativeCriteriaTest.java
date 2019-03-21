@@ -24,24 +24,20 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.NativeCriteria;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeBetweenExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeConjunctionExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeDisjunctionExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeEqExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeJoin;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeLikeExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeOrderExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeProjection;
-
-import static app.metatron.discovery.domain.datasource.connection.DataConnection.Implementor.HIVE;
-import static app.metatron.discovery.domain.datasource.connection.DataConnection.Implementor.ORACLE;
+import app.metatron.discovery.domain.dataconnection.query.NativeCriteria;
+import app.metatron.discovery.domain.dataconnection.query.expression.NativeBetweenExp;
+import app.metatron.discovery.domain.dataconnection.query.expression.NativeConjunctionExp;
+import app.metatron.discovery.domain.dataconnection.query.expression.NativeDisjunctionExp;
+import app.metatron.discovery.domain.dataconnection.query.expression.NativeEqExp;
+import app.metatron.discovery.domain.dataconnection.query.expression.NativeJoin;
+import app.metatron.discovery.domain.dataconnection.query.expression.NativeLikeExp;
+import app.metatron.discovery.domain.dataconnection.query.expression.NativeOrderExp;
+import app.metatron.discovery.domain.dataconnection.query.expression.NativeProjection;
 
 public class NativeCriteriaTest {
   @Test
   public void selectAllTest(){
-    DataConnection.Implementor implementor = HIVE;
+    String implementor = "HIVE";
 
     NativeCriteria nativeCriteria = new NativeCriteria(implementor);
     nativeCriteria
@@ -54,7 +50,7 @@ public class NativeCriteriaTest {
 
   @Test
   public void selectTest(){
-    DataConnection.Implementor implementor = HIVE;
+    String implementor = "HIVE";
 
     Map<String, String> columnMap = new HashMap<>();
     columnMap.put("col5", "col5_alias");
@@ -82,7 +78,7 @@ public class NativeCriteriaTest {
 
   @Test
   public void selectDistinctTest(){
-    DataConnection.Implementor implementor = HIVE;
+    String implementor = "HIVE";
 
     NativeProjection nativeProjection = new NativeProjection();
     nativeProjection.addProjection("sales.col1", "sales_col1")
@@ -101,7 +97,7 @@ public class NativeCriteriaTest {
 
   @Test
   public void selectFromSubqueryTest(){
-    DataConnection.Implementor implementor = HIVE;
+    String implementor = "HIVE";
 
     NativeCriteria subNativeCriteria = new NativeCriteria(implementor);
     subNativeCriteria
@@ -123,7 +119,7 @@ public class NativeCriteriaTest {
 
   @Test
   public void selectWhereTest(){
-    DataConnection.Implementor implementor = HIVE;
+    String implementor = "HIVE";
 
     NativeCriteria nativeCriteria = new NativeCriteria(implementor);
     nativeCriteria
@@ -143,7 +139,7 @@ public class NativeCriteriaTest {
 
   @Test
   public void selectSimpleInnerJoinTest(){
-    DataConnection.Implementor implementor = HIVE;
+    String implementor = "HIVE";
 
     NativeCriteria nativeCriteria = new NativeCriteria(implementor);
     nativeCriteria
@@ -156,7 +152,7 @@ public class NativeCriteriaTest {
 
   @Test
   public void selectJoinWithSubQueryTest(){
-    DataConnection.Implementor implementor = HIVE;
+    String implementor = "HIVE";
 
     NativeCriteria subNativeCriteria = new NativeCriteria(implementor);
     subNativeCriteria
@@ -176,7 +172,7 @@ public class NativeCriteriaTest {
 
   @Test
   public void selectGroupByTest(){
-    DataConnection.Implementor implementor = HIVE;
+    String implementor = "HIVE";
 
     NativeProjection nativeProjection = new NativeProjection();
     nativeProjection
@@ -194,7 +190,7 @@ public class NativeCriteriaTest {
 
   @Test
   public void selectAggregateGroupByTest(){
-    DataConnection.Implementor implementor = HIVE;
+    String implementor = "HIVE";
 
     NativeProjection nativeProjection = new NativeProjection();
     nativeProjection
@@ -215,7 +211,7 @@ public class NativeCriteriaTest {
 
   @Test
   public void selectLimitTest(){
-    DataConnection.Implementor implementor = ORACLE;
+    String implementor = "ORACLE";
 
     NativeProjection nativeProjection = new NativeProjection();
     nativeProjection
@@ -238,7 +234,7 @@ public class NativeCriteriaTest {
 
   @Test
   public void selectOrderbyTest(){
-    DataConnection.Implementor implementor = ORACLE;
+    String implementor = "ORACLE";
 
     NativeProjection nativeProjection = new NativeProjection();
     nativeProjection
@@ -258,7 +254,7 @@ public class NativeCriteriaTest {
 
   @Test
   public void selectWhereBetweenTest(){
-    DataConnection.Implementor implementor = HIVE;
+    String implementor = "HIVE";
 
     DateTime dateTime = DateTime.parse(
             DateTime.now(DateTimeZone.forID("UTC")).toString(ISODateTimeFormat.dateHourMinuteSecond()),

@@ -20,7 +20,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import app.metatron.discovery.AbstractIntegrationTest;
-import app.metatron.discovery.domain.datasource.connection.jdbc.PrestoConnection;
+import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.datasource.data.forward.CsvResultForward;
 import app.metatron.discovery.domain.datasource.data.forward.JsonResultForward;
 
@@ -37,7 +37,7 @@ public class LiveJdbcEngineRepositoryTest extends AbstractIntegrationTest {
 
 //    LiveJdbcEngineRepository liveJdbcEngineRepository = new LiveJdbcEngineRepository();
 
-    PrestoConnection connection = new PrestoConnection();
+    DataConnection connection = new DataConnection("PRESTO");
     connection.setHostname("localhost");
     connection.setCatalog("hive");
     connection.setUsername("hive");
