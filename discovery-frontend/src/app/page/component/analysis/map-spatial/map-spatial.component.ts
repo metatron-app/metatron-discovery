@@ -139,7 +139,10 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
 
   // onChanges
   public ngOnChanges(changes: SimpleChanges): void {
-    if (!_.isUndefined(changes) && !_.isUndefined(changes['uiOption'])) {
+    if (!_.isUndefined(changes) && !_.isUndefined(changes['uiOption'])
+      && !_.isUndefined(changes['uiOption']['currentValue']['analysis']['use'])
+      && !_.isUndefined(changes['uiOption']['currentValue']['analysis'])
+      && changes['uiOption']['currentValue']['analysis']['use'] == false) {
       this.uiOption = (<UIMapOption>changes['uiOption'].currentValue);
       this.mapSpatialChanges(this.uiOption, this.shelf);
     }
@@ -545,7 +548,8 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    */
   private doEnableAnalysisBtn() {
     if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true) {
-      this.changeAnalysis.emit('removeAnalysisLayerEvent');
+      setTimeout(() => this.changeAnalysis.emit('removeAnalysisLayerEvent'), 800);
+
     }
   }
 

@@ -629,6 +629,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    */
   public changeByNoneColor(colorCode: string, layerIndex : number) {
 
+    let layerType = this.uiOption.layers[layerIndex].type;
+    if (MapLayerType.HEATMAP === layerType) {
+      this.uiOption.layers[layerIndex].color['heatMapSchema'] = colorCode;
+    } else if (MapLayerType.SYMBOL === layerType) {
+      this.uiOption.layers[layerIndex].color['symbolSchema'] = colorCode;
+    } else if (MapLayerType.TILE === layerType) {
+      this.uiOption.layers[layerIndex].color['tileSchema'] = colorCode;
+    } else if (MapLayerType.POLYGON === layerType) {
+      this.uiOption.layers[layerIndex].color['polygonSchema'] = colorCode;
+    }
     this.uiOption.layers[layerIndex].color.schema = colorCode;
 
     this.applyLayers();
