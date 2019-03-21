@@ -140,6 +140,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   // onChanges
   public ngOnChanges(changes: SimpleChanges): void {
     if (!_.isUndefined(changes) && !_.isUndefined(changes['uiOption'])
+      && !_.isUndefined(changes['uiOption']['currentValue']['analysis'])
       && !_.isUndefined(changes['uiOption']['currentValue']['analysis']['use'])
       && !_.isUndefined(changes['uiOption']['currentValue']['analysis'])
       && changes['uiOption']['currentValue']['analysis']['use'] == false) {
