@@ -884,7 +884,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     // custom user color is show, set ranges
     const ranges = this.uiOption.layers[layerIndex].color.settingUseFl ? colorOption.ranges : [];
 
-    this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], <any>ChartColorList[colorOption.schema], layerIndex, this.shelf.layers[layerIndex].fields, ranges);
+    if( !_.isUndefined(this.uiOption['analysis']) && !_.isUndefined(this.uiOption['analysis']['use']) && this.uiOption['analysis']['use'] ) {
+      let dataIndex = 0;
+      ( this.data.length > 1 ? dataIndex = this.data.length-1 : dataIndex = 0 );
+      this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[dataIndex], <any>ChartColorList[colorOption.schema], layerIndex, this.shelf.layers[layerIndex].fields, ranges);
+    } else {
+      this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], <any>ChartColorList[colorOption.schema], layerIndex, this.shelf.layers[layerIndex].fields, ranges);
+    }
+    // this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], <any>ChartColorList[colorOption.schema], layerIndex, this.shelf.layers[layerIndex].fields, ranges);
 
     this.applyLayers();
   }
@@ -1268,10 +1275,24 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
       const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
         const resultList: AbstractField[] = [];
+
+        let uiOption = this.uiOption;
+        let analysisCountAlias : string;
+        if( !_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use'] ) {
+          if( !_.isUndefined(uiOption['analysis']['operation']['aggregation']) && !_.isUndefined(uiOption['analysis']['operation']['aggregation']['column'])
+            && uiOption['analysis']['operation']['aggregation']['column'] == 'count') {
+            analysisCountAlias = uiOption['analysis']['operation']['aggregation']['column'];
+          }
+        }
+
         shelve.map((item) => {
-          if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
-            item['alias'] = ChartUtil.getAlias(item);
+          if( !_.isUndefined(analysisCountAlias) && analysisCountAlias == item.alias ){
             resultList.push(item);
+          } else {
+            if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
+              item['alias'] = ChartUtil.getAlias(item);
+              resultList.push(item);
+            }
           }
         });
         return resultList;

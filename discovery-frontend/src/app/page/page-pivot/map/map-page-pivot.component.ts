@@ -810,7 +810,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     let layers = {
       name: 'SpatialAnalysisLayer',
       ref: '',
-      fields: this.shelf.layers[this.uiOption.analysis.layerNum].fields
+      fields: _.cloneDeep(this.shelf.layers[this.uiOption.analysis.layerNum].fields)
     };
     // add empty layer
     this.shelf.layers.push(layers);
@@ -823,6 +823,29 @@ export class MapPagePivotComponent extends PagePivotComponent {
     this.uiOption.layerNum = this.uiOption.layers.length - 1;
     // 공간연산 정보
     this.uiOption = value;
+
+    // 공간연산에서 choropleth 를 활성화 하고 default 값인 count를 지정할 경우 count에 대한 정보를 강제 입력
+    if(this.uiOption['analysis']['operation']['choropleth'] == true ) {
+      let field = {
+        alias: 'count',
+        type: 'measure',
+        subRole: 'measure',
+        name: 'count'
+      };
+
+      let uiOption = this.uiOption;
+      this.shelf.layers.forEach( (layer) => {
+        if(layer.name === 'SpatialAnalysisLayer') {
+          layer.fields.push(_.cloneDeep(field));
+          layer.fields.forEach( (field) => {
+            if( uiOption['analysis']['operation']['aggregation']['column'] == field.alias ){
+              field.aggregationType = uiOption['analysis']['operation']['aggregation']['type'];
+            }
+          });
+        }
+      });
+    }
+
     // emit
     this.changeLayerEvent.emit(this.shelf);
   }

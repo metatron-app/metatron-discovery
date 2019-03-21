@@ -503,6 +503,13 @@ export class ColorOptionConverter {
       alias = 'count';
     }
 
+    if( !_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use'] ) {
+      if( !_.isUndefined(uiOption['analysis']['operation']['aggregation']) && !_.isUndefined(uiOption['analysis']['operation']['aggregation']['column'])
+        && uiOption['analysis']['operation']['aggregation']['column'] == 'count') {
+        alias = uiOption['analysis']['operation']['aggregation']['column'];
+      }
+    }
+
     let minValue = 0;
     let maxValue = 0;
     if( !_.isUndefined( data.valueRange[alias] ) ){
