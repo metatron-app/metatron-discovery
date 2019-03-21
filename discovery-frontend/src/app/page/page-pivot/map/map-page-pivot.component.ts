@@ -812,6 +812,14 @@ export class MapPagePivotComponent extends PagePivotComponent {
       ref: '',
       fields: _.cloneDeep(this.shelf.layers[this.uiOption.analysis.layerNum].fields)
     };
+
+    if( !this.uiOption['analysis']['operation']['choropleth'] ) {
+      let tempLayer = layers.fields.filter((item) => {
+        return item.field.logicalType.toString().indexOf('GEO') != -1;
+      })
+      layers.fields = _.cloneDeep(tempLayer);
+    }
+
     // add empty layer
     this.shelf.layers.push(layers);
     // layer 생성 (page.component에서 uiOption 전체를 생성함, layer만 추가 하기, 추가 layer 생성하기 위해서 0번째를 복사)
