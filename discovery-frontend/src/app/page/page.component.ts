@@ -629,8 +629,23 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   } // function - _setDefaultAreaForBBox
 
   /**
+   * 현재 레이어에 데이터 소스를 설정한다.
+   * @param dataSource
+   * @private
+   */
+  private _setDataSourceCurrentLayer(dataSource:Datasource) {
+    if (this.widgetConfiguration.shelf) {
+      const currentLayer: ShelfLayers = this.widgetConfiguration.shelf.layers[(<UIMapOption>this.uiOption).layerNum];
+      if (0 === currentLayer.fields.length) {
+        currentLayer.ref = dataSource.engineName;
+      }
+    }
+  } // function - _setDataSourceCurrentLayer
+
+  /**
    * 데이터소스 선택 및 차트 초기화
    * @param {Datasource} dataSource
+   * @param {boolean} isBBoxChange
    */
   public selectDataSource(dataSource: Datasource, isBBoxChange : boolean) {
 
@@ -640,8 +655,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.boardFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, this.widget.configuration.dataSource.engineName);
       this.dataSource = dataSource;
 
-      if( isBBoxChange )
-        this._setDefaultAreaForBBox( dataSource );
+      ( isBBoxChange ) && ( this._setDefaultAreaForBBox( dataSource ) );
 
       // 데이터 필드 설정 (data panel의 pivot 설정)
       this.setDatasourceFields(true);
@@ -650,12 +664,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.widget.configuration.dataSource = this.widget.dashBoard.configuration.dataSource;
 
       // Shelf 내 타겟 데이터소스 설정
-      if (this.widget.configuration.shelf) {
-        const currentLayer: ShelfLayers = this.widget.configuration.shelf.layers[(<UIMapOption>this.uiOption).layerNum];
-        if (0 === currentLayer.fields.length) {
-          currentLayer.ref = this.dataSource.engineName;
-        }
-      }
+      this._setDataSourceCurrentLayer( dataSource );
 
       // find geo type from dimension list
       this.geoType = this.getMapGeoType();
@@ -2379,6 +2388,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // when it's map
     if (_.eq(this.selectChart, ChartType.MAP)) {
 
+      // 선반에 아이템이 존재한 상태에서 데이터소스가 변경되고, 새로 아이템을 추가할 경우에 맞추기 위해서...
+      this._setDataSourceCurrentLayer( this.dataSource );
+
       let layerNum = (<UIMapOption>this.uiOption).layerNum;
       let currentMapLayer = this.shelf.layers[layerNum].fields;
 
@@ -3362,6 +3374,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // drag 이벤트
     const dragulaDragSubs = this.dragulaService.drag.subscribe((value) => {
       // console.log('drag', value);
+      if (_.eq(this.selectChart, ChartType.MAP)) {
+        // 선반에 아이템이 존재한 상태에서 데이터소스가 변경되고, 새로 아이템을 추가할 경우에 맞추기 위해서...
+        this._setDataSourceCurrentLayer(this.dataSource);
+      }
     });
 
     const dragulaDropSubs = this.dragulaService.drop.subscribe((value) => {
@@ -3409,6 +3425,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       }
 
       if (acceptsContainer.indexOf(info.target) > -1) {
+
         if (info.target.includes('guide') && targetField) {
           // 가이드를 통해 넣은 경우
           this.getPivotComp().addField(targetField, info.target.replace(/-.*$/, ''), this.getPivotComp().dragField);
