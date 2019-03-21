@@ -186,6 +186,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   @Output('changeDraw')
   public changeDrawEvent: EventEmitter<any> = new EventEmitter();
 
+  // 화면을 다시 그려줄 경우
+  @Output('shelf')
+  public shelfEvent: EventEmitter<any> = new EventEmitter();
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -3251,6 +3255,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     if (!this.isPage) {
       this.selection();
     }
+
+    this.shelfEvent.emit(this.shelf);
   }
 
   /**
