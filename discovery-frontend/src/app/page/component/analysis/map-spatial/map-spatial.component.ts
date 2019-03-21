@@ -67,7 +67,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
 
   public unitList: any = [
     {name: 'Meters', value: 'meters'}
-    , {name: 'Kilometers', value: 'kilometers'}
+    ,{name: 'Kilometers', value: 'kilometers'}
   ];
   public bufferList: any = [
     {name: 'Meters', value: 'meters'}
@@ -99,12 +99,10 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
 
   // dimension, measure List
   public fieldList: any = {
-    measureList: [{alias: 'Count', column: 'count'}],
+    measureList: [{name: 'Count', alias: 'count'}],
     dimensionList: []
   };
-
-
-  public selectChoroplethColor: any = {alias: 'Count', column: 'count'};
+  public colorByIndex: number = 0;
 
   public aggregateTypes = [
     {name: 'SUM', value: 'SUM'},
@@ -113,10 +111,10 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     {name: 'MED', value: 'MEDIAN'},
     {name: 'MIN', value: 'MIN'},
     {name: 'MAX', value: 'MAX'},
-    {name: 'PCT1/4', value: 'PCT1/4'}, // 값 확인 필요
-    {name: 'PCT3/4', value: 'PCT3/4'}  // 값 확인 필요
+    {name: 'PCT1/4', value: 'PERCENTILE'}, // 값 확인 필요
+    {name: 'PCT3/4', value: 'PERCENTILE'}  // 값 확인 필요
   ];
-  public selectAggregateType = {};
+  public aggregateTypesIndex: number = 0;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -268,6 +266,28 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   }
 
   /**
+   * select color type
+   * @param item
+   */
+  public selectColor(item) {
+
+    this.doEnableAnalysisBtn();
+
+    this.colorByIndex = this.fieldList['measureList'].findIndex((colorByItem) => colorByItem === item);
+  }
+
+  /**
+   * select aggregate type
+   * @param item
+   */
+  public selectAggregate(item) {
+
+    this.doEnableAnalysisBtn();
+
+    this.colorByIndex = this.aggregateTypes.findIndex((aggregateItem) => aggregateItem === item);
+  }
+
+  /**
    * 공간연산 버튼
    */
   public spatialAnalysisBtn() {
@@ -325,28 +345,6 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     }
 
     this.changeAnalysis.emit(mapUIOption);
-  }
-
-  /**
-   * select color type
-   * @param item
-   */
-  public selectColor(item) {
-
-    console.info("item : ", item);
-    this.selectChoroplethColor = item;
-
-  }
-
-  /**
-   * select aggregate type
-   * @param item
-   */
-  public selectAggregate(item) {
-
-    console.info("item : ", item);
-    this.selectAggregateType = item;
-
   }
 
   /**
@@ -428,8 +426,8 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         distance: unitInputData,
         unit: unitData,
         aggregation: {
-          column: this.selectChoroplethColor['column'],
-          type: this.selectAggregateType['value']
+          column: this.fieldList['measureList'][this.colorByIndex]['alias'],
+          type: this.aggregateTypes[this.aggregateTypesIndex]['value']
         }
       }
     };
@@ -459,8 +457,8 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       operation: {
         type: spatialDataValue,
         aggregation: {
-          column: this.selectChoroplethColor['column'],
-          type: this.selectAggregateType['value']
+          column: this.fieldList['measureList'][this.colorByIndex]['alias'],
+          type: this.aggregateTypes[this.aggregateTypesIndex]['value']
         }
       }
     };
@@ -501,7 +499,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     let shelf = this.shelf;
 
     this.fieldList = {
-      measureList: [{alias: 'Count', column: 'count'}],
+      measureList: [{name: 'Count', alias: 'count'}],
       dimensionList: []
     };
     let tempObj: object = {};
@@ -522,7 +520,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
           if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')))) {
             item['alias'] = ChartUtil.getAlias(item);
             if (resultList.length == 0) {
-              resultList.push({alias: 'Count', column: 'count'});
+              resultList.push({name: 'Count', alias: 'count'});
             }
             resultList.push(item);
           }

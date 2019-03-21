@@ -139,20 +139,20 @@
           <!--</div>-->
           <!-- SELECTBOX -->
           <component-select
-            [array]="fieldList['measureList']"
-            [defaultIndex]="0"
-            [viewKey]="'alias'"
+              [array]="fieldList['measureList']"
+            [defaultIndex]="colorByIndex"
+            [viewKey]="'name'"
             (onSelected)="selectColor($event)"
           ></component-select>
           <!-- //SELECTBOX -->
         </div>
-        <div class="ddp-divide2" *ngIf="fieldList['measureList'].length > 1 && (selectChoroplethColor['alias'] != 'Count' && selectChoroplethColor['alias'] != undefined)">
+        <div class="ddp-divide2" *ngIf="fieldList['measureList'].length > 1 && (this.fieldList['measureList'][this.colorByIndex]['alias'] != 'count' && this.fieldList['measureList'][this.colorByIndex]['alias'] != undefined)">
           <div class="ddp-list-label">Aggregate by</div>
 
           <!-- 클릭시 ddp-selected 추가 -->
           <component-select
             [array]="aggregateTypes"
-            [defaultIndex]="0"
+            [defaultIndex]="aggregateTypesIndex"
             [viewKey]="'name'"
             (onSelected)="selectAggregate($event)"
           ></component-select>
