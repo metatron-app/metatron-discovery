@@ -163,38 +163,24 @@ public class PrDatasetService {
         return;
     }
 
-    public void uploadFileToHdfs(PrDataset dataset) throws Exception {
-        String storedUri = dataset.getStoredUri();
+    public void uploadFileToHdfs(PrDataset dataset) throws IOException{
+        Configuration conf = this.hdfsService.getConf();
+        FileSystem fs = FileSystem.get(conf);
+        String uploadPath = this.hdfsService.getUploadPath();
 
-        Map<String, Object> check = this.hdfsService.checkHdfs();
-        if(check.get("stagingBaseDir")!=null) {
-            Configuration conf = this.hdfsService.getConf();
-            FileSystem fs = FileSystem.get(conf);
+        String localStoredUri = dataset.getStoredUri();
+        String hdfsStoredUri = uploadPath + File.separator + FilenameUtils.getName(localStoredUri);
 
-            String uploadPath = this.hdfsService.getUploadPath();
-            if (null != uploadPath) {
-                String fileName = FilenameUtils.getName(storedUri);
-                String hdfsStoredUri = uploadPath + File.separator + fileName;
+        Path pathLocalFile = new Path(localStoredUri);
+        Path pathHdfsFile = new Path(uploadPath);
 
-                Path pathLocalFile = new Path(storedUri);
-                Path pathHdfsFile = new Path(hdfsStoredUri);
-
-                Path pathStagingBase = pathHdfsFile.getParent();
-                if( false==fs.exists(pathStagingBase) ) {
-                    fs.mkdirs(pathStagingBase);
-                }
-
-                fs.copyFromLocalFile(true, true, pathLocalFile, pathHdfsFile);
-
-                dataset.setStoredUri(hdfsStoredUri);
-            } else {
-                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "dataprep.stagingBaseDir");
-            }
-        } else {
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "dataprep.hadoopConfDir");
+        Path pathStagingBase = pathHdfsFile.getParent();
+        if (fs.exists(pathStagingBase) == false) {
+            fs.mkdirs(pathStagingBase);
         }
 
-        return;
+        fs.copyFromLocalFile(true, true, pathLocalFile, pathHdfsFile);
+        dataset.setStoredUri(hdfsStoredUri);
     }
 
     public Map<String,Object> getConnectionInfo(String dcId) {
