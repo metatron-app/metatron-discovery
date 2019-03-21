@@ -594,12 +594,13 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
    */
   private _getJdbcParams(jdbc) : object {
 
+    // For postgre dbName is database not databaseName!
     if (jdbc.rsType === RsType.QUERY) {
-      jdbc.dbName = jdbc.sqlInfo.databaseName;
       jdbc.queryStmt = jdbc.sqlInfo.queryStmt;
+      jdbc.dbName = jdbc.dataconnection.connection.implementor === 'POSTGRESQL'? jdbc.dataconnection.connection.database : jdbc.sqlInfo.databaseName;
     } else {
       jdbc.tblName = jdbc.tableInfo.tableName;
-      jdbc.dbName = jdbc.tableInfo.databaseName;
+      jdbc.dbName = jdbc.dataconnection.connection.implementor === 'POSTGRESQL'? jdbc.dataconnection.connection.database : jdbc.tableInfo.databaseName;
     }
     return jdbc
   }
