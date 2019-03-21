@@ -513,7 +513,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       this.uiOption.layers[layerIndex].color.granularity = null;
       // init ranges
       const colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[layerIndex].color['schema']]);
-      this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+
+      if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true ) {
+        this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[this.uiOption.analysis['layerNum']], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+      } else {
+        this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+      }
     // granularity
     } else {
       if (data.format) this.uiOption.layers[layerIndex].color.granularity = data.format.unit.toString();
@@ -1300,8 +1305,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
         shelve.map((item) => {
           if( !_.isUndefined(analysisCountAlias) && _.eq(item.type, typeList[0]) && _.eq(item.type, ShelveFieldType.MEASURE) ){
-            item['alias'] = ChartUtil.getAlias(item);
-            resultList.push(item);
+            if( analysisCountAlias == 'count' && analysisCountAlias == item.alias ){
+              item['alias'] = ChartUtil.getAlias(item);
+              resultList.push(item);
+            } else if( analysisCountAlias != 'count' ){
+              item['alias'] = ChartUtil.getAlias(item);
+              resultList.push(item);
+            }
           } else {
             if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {
               item['alias'] = ChartUtil.getAlias(item);
