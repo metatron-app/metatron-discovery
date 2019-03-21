@@ -768,10 +768,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
    * Close Imported Popup
    */
   public close() {
-    // Check if came from dataflow
-    if (this.datasetService.dataflowId) {
-      this.datasetService.dataflowId = undefined;
-    }
+
     super.close();
 
     this.chunk_uploader.stop();
