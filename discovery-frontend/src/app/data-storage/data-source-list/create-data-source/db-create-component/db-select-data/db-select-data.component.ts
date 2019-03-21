@@ -436,7 +436,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
       // name
       item.name = this._sliceTableName(item.name);
       // alias
-      item.alias = this._sliceTableName(item.alias);
+      item.alias = ( item.alias ) ? this._sliceTableName(item.alias) : item.name;
       return item;
     });
   }
