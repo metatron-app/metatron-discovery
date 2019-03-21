@@ -838,7 +838,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
         if(layer.name === 'SpatialAnalysisLayer') {
           layer.fields.push(_.cloneDeep(field));
           layer.fields.forEach( (field) => {
-            if( uiOption['analysis']['operation']['aggregation']['column'] == field.alias ){
+            if( uiOption['analysis']['operation']['aggregation']['column'] == field.name ){
               field.aggregationType = uiOption['analysis']['operation']['aggregation']['type'];
             }
           });
