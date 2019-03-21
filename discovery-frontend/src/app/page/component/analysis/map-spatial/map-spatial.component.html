@@ -71,7 +71,7 @@
       <div class="ddp-list-part-sub">
         <div class="ddp-divide2 ddp-form ddp-clear">
           <div class="ddp-col-6">
-            <input type="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="bufferInput">
+            <input type="text" class="ddp-input-typebasic ddp-txt-right" (keyup)="bufferInputChange()" [(ngModel)]="bufferInput">
           </div>
           <div class="ddp-col-6">
             <component-select [array]="bufferList"

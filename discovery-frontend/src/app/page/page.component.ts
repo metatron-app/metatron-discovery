@@ -3314,8 +3314,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    */
   public changeDraw(value?: any) {
 
-    // 공간연산 analysis btn 클릭시 layer 추가
-    if (!_.isUndefined(value)) {
+    // 공간연산 analysis layer 관련 event 구현
+    if (!_.isUndefined(value) && value == 'removeAnalysisLayerEvent') {
+      this.mapPivot.removeAnalysis();
+    } else if (!_.isUndefined(value)) {
       this.mapPivot.spatialAnalysisBtnClicked(value);
     }
 

@@ -196,6 +196,9 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   }
 
   public onSelectBase(value) {
+
+    this.doEnableAnalysisBtn();
+
     this.baseList['selectedNum'] = this.baseList.layers.findIndex((baseItem) => baseItem === value);
     this.baseIndex = this.baseList['selectedNum'];
     this.compareList.layers = [];
@@ -208,19 +211,35 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   }
 
   public onSelectCompare(value) {
+
+    this.doEnableAnalysisBtn();
+
     this.compareList['selectedNum'] = this.compareList.layers.findIndex((compareItem) => compareItem === value);
     this.compareIndex = this.compareList['selectedNum'];
   }
 
   public onSelectSpatial(value) {
+
+    this.doEnableAnalysisBtn();
+
     this.calSpatialIndex = this.calSpatialList.findIndex((spatialItem) => spatialItem === value);
   }
 
   public onSelectUnit(value) {
+
+    this.doEnableAnalysisBtn();
+
     this.unitIndex = this.unitList.findIndex((unitItem) => unitItem === value);
   }
 
+  public bufferInputChange() {
+    this.doEnableAnalysisBtn();
+  }
+
   public onSelectBuffer(value) {
+
+    this.doEnableAnalysisBtn();
+
     this.bufferIndex = this.bufferList.findIndex((unitItem) => unitItem === value);
     // let isNoneInBufferList = false;
     // this.bufferList.forEach((buffer) => {
@@ -235,10 +254,16 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
   }
 
   public choroplethBtn() {
+
+    this.doEnableAnalysisBtn();
+
     this.isChoroplethOn = !this.isChoroplethOn;
   }
 
   public bufferBtn() {
+
+    this.doEnableAnalysisBtn();
+
     this.isBufferOn = !this.isBufferOn;
   }
 
@@ -298,6 +323,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         Alert.warning(this.translateService.instant('msg.page.chart.map.spatial.select.analysis'));
         return;
     }
+
     this.changeAnalysis.emit(mapUIOption);
   }
 
@@ -514,8 +540,15 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
         this.fieldList = tempObj;
 
     }
-
   }
 
+  /**
+   * 공간연산 실행 이후 option 변경시 자동으로 공간연산 실행 중단
+   */
+  private doEnableAnalysisBtn() {
+    if(this.uiOption.analysis['use'] == true) {
+      this.changeAnalysis.emit('removeAnalysisLayerEvent');
+    }
+  }
 
 }

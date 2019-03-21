@@ -810,12 +810,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     let layers = {
       name: 'SpatialAnalysisLayer',
       ref: '',
-      // view : {
-      //   "type": "hash",
-      //   "method": "h3",
-      //   "precision": 5
-      // },
-      fields: []
+      fields: this.shelf.layers[this.uiOption.analysis.layerNum].fields
     };
     // add empty layer
     this.shelf.layers.push(layers);
@@ -846,6 +841,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
       delete this.uiOption.analysis.mainLayer;
       delete this.uiOption.analysis.compareLayer;
       delete this.uiOption.analysis.type;
+      // emit
       this.removeAnalysisLayerEvent.emit();
     }
   }
