@@ -445,24 +445,26 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
    */
   private _getNameForHive(name: string): string {
 
-    const enCheckReg = /^[A-Za-z0-9_ㄱ-ㅎ|ㅏ-ㅣ|가-힣 ]+$/;
-    let result = name;
+    const validCheckReg = /([A-Za-z0-9_ㄱ-ㅎㅏ-ㅣ가-힣])+/g;
+    const koCheckReg = /[ㄱ-ㅎㅏ-ㅣ]+/g;
 
-    // Only English, Korean, Number, _ is allowed
-    if (!enCheckReg.test(name)) {
-
-      // column1, column2 ..
-      result = 'column' + this.indexForName;
-      this.indexForName += 1;
+    // Check if has any character other than alphabet, number, korean and _
+    if (isNullOrUndefined(name.match(validCheckReg))) {
+      name = 'column' + this.indexForName;
+      this.indexForName++;
     } else {
 
-      // change korean to english
-      // replace all whiteSpace to underscore
-      // change to lowercase
-      result = Aromanize.romanize(name).toLowerCase().replace(/ /gi, '_');
+      // Change korean to english 안녕 -> annyeong
+      name = Aromanize.romanize(name).toLowerCase().replace(/ /gi, '_');
+      const matched = name.match(koCheckReg);
 
+      // if name is 안녕ㅎㅎㅎ -> ㅎㅎㅎ is not changed
+      if (!isNullOrUndefined(matched) && matched.length > 0) {
+        name = 'column' + this.indexForName;
+        this.indexForName++;
+      }
     }
-    return result;
+    return name;
   }
 
   /**
