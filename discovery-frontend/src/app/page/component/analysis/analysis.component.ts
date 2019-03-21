@@ -95,6 +95,8 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  public whatKindOfChart: string = '';
+
   public dataSubLayerKey: string = '';
 
   // ---------------------------------------
@@ -139,6 +141,9 @@ export class AnalysisComponent extends AbstractComponent implements OnInit, OnDe
       if (changes['dataLayerKey'].currentValue !== 'analysis') {
         this.dataSubLayerKey = '';
       }
+    }
+    if (!_.isUndefined(changes['selectChart'])) {
+      this.selectChart = changes['selectChart']['currentValue'];
     }
   }
 

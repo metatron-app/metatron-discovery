@@ -30,7 +30,8 @@
       <!-- 클릭시 ddp-selected 추가 -->
 
       <!-- 고급분석 - 예측선 -->
-      <analysis-prediction [dataSubLayerKey]="dataSubLayerKey"
+      <analysis-prediction *ngIf="selectChart === 'line'"
+                           [dataSubLayerKey]="dataSubLayerKey"
                            [selectChart]="selectChart"
                            [isChartShow]="isChartShow"
                            [widgetConfiguration]="widgetConfiguration"
