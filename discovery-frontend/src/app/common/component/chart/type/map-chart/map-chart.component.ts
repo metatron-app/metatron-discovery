@@ -2629,7 +2629,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         }
         layer.color.column = uiOption.fieldMeasureList[0]['name'];
         layer.color.aggregationType = uiOption.fieldMeasureList[0]['aggregationType'];
-
+        if( isAnalysisUse ) {
+          uiOption.fieldMeasureList.forEach((item) => {
+            if( item.name == analysisAggrColumn ){
+              layer.color.column = item.name;
+              layer.color.aggregationType = item.aggregationType;
+            }
+          });
+        }
         if( isAnalysisUse ) {
           let dataIndex = 0;
           ( this.data.length > 1 ? dataIndex = this.data.length-1 : dataIndex = 0 );
