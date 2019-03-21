@@ -2586,8 +2586,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       ////////////////////////////////////////////////////////
 
       // init custom user color setting
-      layer.color.ranges = undefined;
-      layer.color['settingUseFl'] = false;
+      if( !isAnalysisUse ) {
+        layer.color.ranges = undefined;
+        layer.color['settingUseFl'] = false;
+      }
 
       ///////////////////////////
       // Color by None
@@ -3226,6 +3228,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   private drawAnalysis() {
 
     this.loadingShow();
+
+    this.setMinMax();
 
     this.checkOption(this.getUiMapOption());
 
