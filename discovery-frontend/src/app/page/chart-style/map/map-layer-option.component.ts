@@ -209,8 +209,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       layer.color.tileSchema = cloneLayer.color.schema;
       layer.color.tranTransparency = cloneLayer.color.transparency;
     } else if (MapLayerType.POLYGON === preLayerType) {
-      layer.tileRadius = cloneLayer.tileRadius;
-      layer.color.tileSchema = cloneLayer.color.schema;
+      layer.color.polygonSchema = cloneLayer.color.schema;
       layer.color.tranTransparency = cloneLayer.color.transparency;
     }
 
@@ -739,13 +738,28 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    */
   public changeColor(data: any, layerIndex : number) {
 
+    let layerType = this.uiOption.layers[layerIndex].type;
+    if (MapLayerType.HEATMAP === layerType) {
+      this.uiOption.layers[layerIndex].color['heatMapSchema'] = data.colorNum;
+    } else if (MapLayerType.SYMBOL === layerType) {
+      this.uiOption.layers[layerIndex].color['symbolSchema'] = data.colorNum;
+    } else if (MapLayerType.TILE === layerType) {
+      this.uiOption.layers[layerIndex].color['tileSchema'] = data.colorNum;
+    } else if (MapLayerType.POLYGON === layerType) {
+      this.uiOption.layers[layerIndex].color['polygonSchema'] = data.colorNum;
+    }
     this.uiOption.layers[layerIndex].color.schema = data.colorNum;
 
     const colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[layerIndex].color['schema']]);
 
     // not heatmap => set ranges
     if (MapLayerType.HEATMAP !== this.uiOption.layers[layerIndex].type && MapBy.MEASURE === this.uiOption.layers[layerIndex].color.by) {
-      this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+      // check whether analysis or not
+      if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true ) {
+        this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[this.uiOption.analysis['layerNum']], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+      } else {
+        this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+      }
     // heatmap => init ranges
     } else {
       this.uiOption.layers[layerIndex].color.ranges = undefined;
@@ -1400,6 +1414,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       } else if (layerType == MapLayerType.TILE) {
         (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('#') == -1 ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
         layer.color.schema = layer.color.tileSchema;
+      } else if (layerType == MapLayerType.POLYGON) {
+        (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('#') == -1 ? layer.color.polygonSchema = '#6344ad' : layer.color.polygonSchema);
+        layer.color.schema = layer.color.polygonSchema;
       } else {
         layer.color.schema = '#6344ad';
       }
@@ -1421,6 +1438,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       } else if (layerType == MapLayerType.TILE) {
         (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('VC') == -1 ? layer.color.tileSchema = 'VC1' : layer.color.tileSchema);
         layer.color.schema = layer.color.tileSchema;
+      } else if (layerType == MapLayerType.POLYGON) {
+        (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('VC') == -1 ? layer.color.polygonSchema = 'VC1' : layer.color.polygonSchema);
+        layer.color.schema = layer.color.polygonSchema;
       } else {
         layer.color.schema = 'VC1';
       }
@@ -1438,8 +1458,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       layer.color.schema = layer.color.tileSchema;
       layer.color.column = null;
       layer.color.aggregationType = null;
-    }
-    else if( isDimension ) {
+    } else if( isDimension ) {
       layer.color.by = MapBy.DIMENSION;
       if (layerType == MapLayerType.SYMBOL) {
         (_.isUndefined(layer.color.symbolSchema) || layer.color.symbolSchema.indexOf('SC') == -1 ? layer.color.symbolSchema = 'SC1' : layer.color.symbolSchema);
@@ -1447,6 +1466,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       } else if (layerType == MapLayerType.TILE) {
         (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('SC') == -1 ? layer.color.tileSchema = 'SC1' : layer.color.tileSchema);
         layer.color.schema = layer.color.tileSchema;
+      } else if (layerType == MapLayerType.POLYGON) {
+        (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('SC') == -1 ? layer.color.polygonSchema = 'SC1' : layer.color.polygonSchema);
+        layer.color.schema = layer.color.polygonSchema;
       } else {
         layer.color.schema = 'SC1';
       }

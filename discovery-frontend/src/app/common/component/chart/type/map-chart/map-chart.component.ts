@@ -2603,6 +2603,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         } else if (layerType == MapLayerType.TILE) {
           (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('#') == -1 ? layer.color.tileSchema = '#6344ad' : layer.color.tileSchema);
           layer.color.schema = layer.color.tileSchema;
+        } else if (layerType == MapLayerType.POLYGON) {
+          (_.isUndefined(layer.color.tileSchema) || layer.color.polygonSchema.indexOf('#') == -1 ? layer.color.polygonSchema = '#6344ad' : layer.color.polygonSchema);
+          layer.color.schema = layer.color.polygonSchema;
         } else {
           layer.color.schema = '#6344ad';
         }
@@ -2624,6 +2627,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         } else if (layerType == MapLayerType.TILE) {
           (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('VC') == -1 ? layer.color.tileSchema = 'VC1' : layer.color.tileSchema);
           layer.color.schema = layer.color.tileSchema;
+        } else if(layerType == MapLayerType.POLYGON) {
+          (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('VC') == -1 ? layer.color.polygonSchema= 'VC1' : layer.color.polygonSchema);
+          layer.color.schema = layer.color.polygonSchema;
         } else {
           layer.color.schema = 'VC1';
         }
@@ -2656,6 +2662,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         } else if (layerType == MapLayerType.TILE) {
           (_.isUndefined(layer.color.tileSchema) || layer.color.tileSchema.indexOf('SC') == -1 ? layer.color.tileSchema = 'SC1' : layer.color.tileSchema);
           layer.color.schema = layer.color.tileSchema;
+        } else if (layerType == MapLayerType.POLYGON) {
+          (_.isUndefined(layer.color.polygonSchema) || layer.color.polygonSchema.indexOf('SC') == -1 ? layer.color.polygonSchema = 'SC1' : layer.color.polygonSchema);
+          layer.color.schema = layer.color.polygonSchema;
         } else {
           layer.color.schema = 'SC1';
         }

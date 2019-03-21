@@ -94,4 +94,6 @@ interface SymbolColor {
   tileSchema? : string;
   tranTransparency? : number;
 
+  polygonSchema? : string;
+
 }
