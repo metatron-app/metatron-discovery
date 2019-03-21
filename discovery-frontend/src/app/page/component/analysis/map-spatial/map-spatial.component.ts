@@ -546,7 +546,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
    * 공간연산 실행 이후 option 변경시 자동으로 공간연산 실행 중단
    */
   private doEnableAnalysisBtn() {
-    if(this.uiOption.analysis['use'] == true) {
+    if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true) {
       this.changeAnalysis.emit('removeAnalysisLayerEvent');
     }
   }
