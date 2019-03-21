@@ -1246,6 +1246,7 @@
   "msg.dp.ss.name.required" : "Snapshot name required",
   "msg.dp.ui.max.length.error" : "You can enter up to 150 characters",
   "msg.dp.alert.hive.column.error" : "There are column names that are not eligible to be stored in Hive. Would you like to view and change the column name?",
+  "mgs.dp.ui.continue.new.rule": "Continue to edit rules with this dataset in a new dataflow",
 
   "msg.board.create.add-ds": "添加数据源",
   "msg.board.create.add-ds.desc": "请添加视觉化数据源并设置关系",

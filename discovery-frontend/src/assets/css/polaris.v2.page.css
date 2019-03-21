@@ -7533,6 +7533,7 @@ ddp-box-source-create.ddp-box-type .ddp-wrap-edit3.ddp-type .ddp-type-selectbox 
 table.ddp-wrap-boxdata {margin:-5px 0; table-layout:auto;}
 table.ddp-wrap-boxdata tr th {line-height:1.5em; padding:5px 20px 5px 0; font-size:13px; color:#b7bac1; font-weight:normal; white-space:nowrap; vertical-align: top;}
 table.ddp-wrap-boxdata tr td {padding:5px 0 5px 0; font-size:13px; color:#4b515b; line-height:1.5em; vertical-align: top;}
+table.ddp-wrap-boxdata tr td [class*="ddp-icon-flow"] {margin-right:8px;}
 table.ddp-wrap-boxdata tr td .ddp-list-set li {padding:7px 0; font-size:13px;}
 table.ddp-wrap-boxdata tr td .ddp-list-set li:first-of-type {padding-top:0;}
 table.ddp-wrap-boxdata tr td .ddp-data-txt {display:block; padding-bottom:5px; font-size:13px; color:#4b515b; line-height:1.5em;}

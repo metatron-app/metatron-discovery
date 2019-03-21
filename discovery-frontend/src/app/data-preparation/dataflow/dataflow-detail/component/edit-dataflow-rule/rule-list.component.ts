@@ -21,6 +21,7 @@ import {Rule} from '../../../../../domain/data-preparation/pr-dataset';
 import {DataSnapshotService} from "../../../../data-snapshot/service/data-snapshot.service";
 import {Alert} from "../../../../../common/util/alert.util";
 import {PreparationCommonUtil} from "../../../../util/preparation-common.util";
+import {Observable} from "rxjs";
 
 @Component({
   selector: 'app-rule-list',
@@ -30,6 +31,9 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
 
   @Output()
   private snapshotDetailEvent = new EventEmitter();
+
+  @Output()
+  private snapshotListJump = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -320,6 +324,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
    * Navigate to snapshot list
    */
   public goToSnapshotList() {
+    this.snapshotListJump.emit();
     this.router.navigate(['/management/datapreparation/datasnapshot']);
   } // function - goToSnapshotList
 
