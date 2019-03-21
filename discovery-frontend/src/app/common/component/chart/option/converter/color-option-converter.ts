@@ -511,9 +511,16 @@ export class ColorOptionConverter {
       maxValue = _.cloneDeep(data.valueRange[alias].maxValue);
     }
 
-    // uiOption.minValue = minValue;
-    ( _.isUndefined(uiOption.layers[layerIndex].color.minValue) || uiOption.layers[layerIndex].color.minValue > minValue ? uiOption.layers[layerIndex].color.minValue = minValue : minValue = uiOption.layers[layerIndex].color.minValue);
-    ( _.isUndefined(uiOption.layers[layerIndex].color.maxValue) || uiOption.layers[layerIndex].color.maxValue < maxValue ? uiOption.layers[layerIndex].color.maxValue = maxValue : maxValue = uiOption.layers[layerIndex].color.maxValue);
+    // map 챠트에서 aggregation 타입이 변경 될 경우 min / max 값을 변경해야함
+    if(!_.isUndefined(uiOption.layers[uiOption.layerNum]['isAggChangedType']) && uiOption.layers[uiOption.layerNum]['isAggChangedType']) {
+      delete uiOption.layers[uiOption.layerNum]['isAggChangedType'];
+      uiOption.layers[layerIndex].color.minValue = minValue;
+      uiOption.layers[layerIndex].color.maxValue = maxValue;
+    } else {
+      // uiOption.minValue = minValue;
+      ( _.isUndefined(uiOption.layers[layerIndex].color.minValue) || uiOption.layers[layerIndex].color.minValue > minValue ? uiOption.layers[layerIndex].color.minValue = minValue : minValue = uiOption.layers[layerIndex].color.minValue);
+      ( _.isUndefined(uiOption.layers[layerIndex].color.maxValue) || uiOption.layers[layerIndex].color.maxValue < maxValue ? uiOption.layers[layerIndex].color.maxValue = maxValue : maxValue = uiOption.layers[layerIndex].color.maxValue);
+    }
 
     // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
     const addValue = (maxValue - minValue) / (colorListLength + 1);
