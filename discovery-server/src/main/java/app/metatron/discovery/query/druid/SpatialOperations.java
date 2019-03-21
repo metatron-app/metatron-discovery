@@ -18,10 +18,24 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum SpatialOperations {
 
-  CONTAINS, WITHIN, INTERSECTS, BBOX_WINTHIN;
+  CONTAINS, WITHIN, INTERSECTS, BBOX_WINTHIN, BBOX_INTERSECTS;
 
   @JsonValue
   public String getName() {
     return name().toLowerCase();
+  }
+
+  public boolean isFilterOperation() {
+    return (this == WITHIN || this == INTERSECTS);
+  }
+
+  public SpatialOperations toBBoxFilterOperation() {
+    if (this == WITHIN) {
+      return BBOX_WINTHIN;
+    } else if (this == INTERSECTS) {
+      return BBOX_INTERSECTS;
+    }
+
+    return BBOX_INTERSECTS;
   }
 }

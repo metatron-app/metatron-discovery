@@ -16,6 +16,7 @@ package app.metatron.discovery.query.druid.filters;
 import com.google.common.base.Preconditions;
 
 import app.metatron.discovery.domain.workbook.configurations.filter.SpatialBboxFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.SpatialShapeFilter;
 import app.metatron.discovery.query.druid.Filter;
 import app.metatron.discovery.query.druid.ShapeFormat;
 import app.metatron.discovery.query.druid.SpatialOperations;
@@ -46,9 +47,18 @@ public class LuceneSpatialFilter implements Filter {
 
   public LuceneSpatialFilter(SpatialBboxFilter filter) {
     this.field = filter.getField();
-    this.operation = SpatialOperations.BBOX_WINTHIN;
+    this.operation = filter.getOperation().toBBoxFilterOperation();
     this.shapeFormat = ShapeFormat.WKT;
     this.shapeString = pointToShape(filter);
+  }
+
+  public LuceneSpatialFilter(SpatialShapeFilter filter, boolean isPoint) {
+    this.field = filter.getField();
+    if (isPoint) this.field += ".coord";
+
+    this.operation = filter.getOperation();
+    this.shapeFormat = filter.getShapeFormat();
+    this.shapeString = filter.getShapeString();
   }
 
   public String pointToShape(SpatialBboxFilter filter) {

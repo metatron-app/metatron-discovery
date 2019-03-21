@@ -66,6 +66,13 @@ public enum LogicalType {
     return false;
   }
 
+  public boolean isPoint() {
+    if (this == GEO_POINT) {
+      return true;
+    }
+    return false;
+  }
+
   public String toEngineMetricType() {
     switch (this) {
       case STRING:

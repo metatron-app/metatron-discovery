@@ -632,27 +632,43 @@ public abstract class AbstractQueryBuilder {
         InFunc inFunc = new InFunc(timeFormatFunc.toExpression(), timestampFilter.getSelectedTimestamps());
 
         filter.addField(new ExprFilter(inFunc.toExpression()));
-      } else if (reqFilter instanceof SpatialBboxFilter) {
-        SpatialBboxFilter reqBboxFilter = (SpatialBboxFilter) reqFilter;
+      } else if (reqFilter instanceof SpatialFilter) {
+
         app.metatron.discovery.domain.datasource.Field datasourceField = this.metaFieldMap.get(fieldName);
         if (!datasourceField.getLogicalType().isGeoType()) {
           return;
         }
 
-        Filter spatialFilter = null;
-        if (datasourceField.getLogicalType() == LogicalType.GEO_POINT) {
-          spatialFilter = new LucenePointFilter(reqBboxFilter);
-        } else {
-          spatialFilter = new LuceneSpatialFilter(reqBboxFilter);
-        }
-
-        filter.addField(spatialFilter);
+        addSpatialFilter(filter, (SpatialFilter) reqFilter, datasourceField);
 
       } else if (reqFilter instanceof TimeFilter) {
         addTimeFilter(filter, (TimeFilter) reqFilter, intervals);
       }
     }
 
+  }
+
+  public void addSpatialFilter(AndFilter filter, SpatialFilter reqFilter, app.metatron.discovery.domain.datasource.Field datasourceField) {
+
+    Filter spatialFilter = null;
+
+    if (reqFilter instanceof SpatialBboxFilter) {
+      SpatialBboxFilter reqBboxFilter = (SpatialBboxFilter) reqFilter;
+
+      if (datasourceField.getLogicalType().isPoint()) {
+        spatialFilter = new LucenePointFilter(reqBboxFilter);
+      } else {
+        spatialFilter = new LuceneSpatialFilter(reqBboxFilter);
+      }
+    } else if (reqFilter instanceof SpatialPointFilter) {
+      spatialFilter = new LucenePointFilter((SpatialPointFilter) reqFilter, datasourceField.getLogicalType().isPoint());
+    } else if (reqFilter instanceof SpatialShapeFilter) {
+      spatialFilter = new LuceneSpatialFilter((SpatialShapeFilter) reqFilter, datasourceField.getLogicalType().isPoint());
+    } else {
+      throw new IllegalArgumentException("Not support spatial filter");
+    }
+
+    filter.addField(spatialFilter);
   }
 
   public void addTimeFilter(AndFilter filter, TimeFilter timeFilter, List<String> intervals) {
