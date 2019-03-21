@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.workbook;
 
 import com.querydsl.core.BooleanBuilder;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -164,7 +165,9 @@ public class DashBoardController {
       request.setResultFormat(resultFormat);
     }
 
-    request.setProjections(new ArrayList<>());
+    if(CollectionUtils.isEmpty(request.getProjections())) {
+      request.setProjections(new ArrayList<>());
+    }
 
     // 데이터 Limit 처리 최대 백만건까지 확인 가능함
     if(request.getLimits() == null) {
