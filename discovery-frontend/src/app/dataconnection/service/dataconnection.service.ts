@@ -20,6 +20,7 @@ import {isNullOrUndefined} from "util";
 import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
 import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
 import {Observable} from "rxjs/Observable";
+import {ConnectionSample} from "../../domain/dataconnection/dataconnection";
 
 @Injectable()
 export class DataconnectionService extends AbstractService {

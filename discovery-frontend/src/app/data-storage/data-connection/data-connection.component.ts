@@ -16,8 +16,6 @@ import { Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/cor
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { ConnectionType, Dataconnection } from '../../domain/dataconnection/dataconnection';
 import { DataconnectionService } from '../../dataconnection/service/dataconnection.service';
-import { SubscribeArg } from '../../common/domain/subscribe-arg';
-import { PopupService } from '../../common/service/popup.service';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
 import { Modal } from '../../common/domain/modal';
 import { Alert } from '../../common/util/alert.util';
@@ -26,6 +24,8 @@ import { StringUtil } from '../../common/util/string.util';
 import { CriterionKey, ListCriterion } from '../../domain/datasource/listCriterion';
 import { CriteriaFilter } from '../../domain/datasource/criteriaFilter';
 import { ListFilter } from '../../domain/datasource/listFilter';
+import {CreateConnectionComponent} from "./create-connection.component";
+import {UpdateConnectionComponent} from "./update-connection.component";
 
 @Component({
   selector: 'app-data-connection',
@@ -44,6 +44,11 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
   // origin more criterion filter more list
   private _originMoreCriterionList: ListCriterion[] = [];
 
+  @ViewChild(CreateConnectionComponent)
+  private _createConnectionComponent: CreateConnectionComponent;
+  @ViewChild(UpdateConnectionComponent)
+  private _updateConnectionComponent: UpdateConnectionComponent;
+
   // 공통 삭제 팝업 모달
   @ViewChild(DeleteModalComponent)
   private deleteModalComponent: DeleteModalComponent;
@@ -53,9 +58,6 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
 
   // connection list
   public connectionList: Dataconnection[] = [];
-
-  // selected connection
-  public selectedConnection: Dataconnection = new Dataconnection();
 
   // search
   public searchKeyword: string;
@@ -74,7 +76,6 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
 
   // Constructor
   constructor(private dataconnectionService: DataconnectionService,
-              private popupService: PopupService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -105,18 +106,6 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
         // set connection list
         this._setConnectionList();
       }).catch(reason => this.commonExceptionHandler(reason));
-    // 커넥션 생성 step 구독
-    const popupSubscription = this.popupService.view$.subscribe((data: SubscribeArg) => {
-      this.connectionStep = data.name;
-      // created connection
-      if (data.name === 'reload-connection') {
-        // 페이지 초기화
-        this.page.page = 0;
-        // set connection list
-        this._setConnectionList();
-      }
-    });
-    this.subscriptions.push(popupSubscription);
   }
 
   /**
@@ -199,9 +188,7 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
    * create connection click event
    */
   public onClickCreateConnection(): void {
-    // open create connection
-    this.connectionStep = 'create-connection';
-    this.selectedConnection = new Dataconnection();
+    this._createConnectionComponent.init();
   }
 
   /**
@@ -209,9 +196,7 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
    * @param {Dataconnection} connection
    */
   public onClickConnection(connection: Dataconnection): void {
-    // open connection detail
-    this.connectionStep = 'update-connection';
-    this.selectedConnection = connection;
+    this._updateConnectionComponent.init(connection.id);
   }
 
   /**
@@ -296,6 +281,8 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
         return 'Presto';
       case ConnectionType.MSSQL:
         return 'MsSQL';
+      case ConnectionType.DRUID:
+        return 'Druid';
       case ConnectionType.STAGE:
         return 'StagingDB';
       case ConnectionType.FILE:

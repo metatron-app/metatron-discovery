@@ -6109,6 +6109,7 @@ dl.ddp-dl-store dd {display:block; padding:28px 0 0 0; overflow:hidden;}
 .ddp-ui-dbconnect .ddp-type-selectbox.ddp-connection {width:390px;}
 .ddp-ui-dbconnect .ddp-wrap-edit3 {margin-top:30px;}
 .ddp-ui-dbconnect > .ddp-wrap-edit3:first-of-type {margin-top:0;}
+.ddp-ui-dbconnect .ddp-wrap-edit2.ddp-mgt30 {margin-top:30px;}
 .ddp-ui-dbconnect .ddp-wrap-edit2 {margin-top:30px;}
 .ddp-ui-dbconnect > .ddp-wrap-edit2:first-of-type {margin-top:0;}
 .ddp-ui-dbconnect .ddp-wrap-edit2 .ddp-data-result {padding-bottom:9px;color:#4b515b; font-weight:300;}
