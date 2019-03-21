@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Injector, Output, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Output} from '@angular/core';
 import {
   ConnectionType,
   Datasource,
@@ -208,7 +208,8 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   public isShowInformationIcon(field: Field): boolean {
     // TODO if not TIMESTAMP field
     // is field logicalType TIMESTAMP OR invalid GEO types
-    return field.role !== FieldRole.TIMESTAMP && (field.format && !field.format.isValidFormat && (field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POLYGON));
+    // return field.role !== FieldRole.TIMESTAMP && (field.format && !field.format.isValidFormat && (field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POLYGON));
+    return false;
   }
 
   /**
@@ -227,6 +228,15 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    */
   public isValidInformationIcon(field: Field): boolean {
     return (field.format && field.format.isValidFormat);
+  }
+
+  /**
+   * Is disable chagne type
+   * @param {Field} field
+   * @return {boolean}
+   */
+  public isDisableChangeType(field: Field): boolean {
+    return field.derived || field.role === FieldRole.TIMESTAMP || (field.logicalType === LogicalType.GEO_LINE || field.logicalType === LogicalType.GEO_POINT || field.logicalType === LogicalType.GEO_POLYGON);
   }
 
   /**
@@ -326,7 +336,7 @@ export class EditConfigSchemaComponent extends AbstractComponent {
    */
   public onChangeTypeListShowFlag(field: Field): void {
     // if not derived and TIMESTAMP
-    if (!field.derived && field.role !== FieldRole.TIMESTAMP) {
+    if (!this.isDisableChangeType(field)) {
       if (!field.isShowTypeList) {
         this._setConvertedTypeList(field);
       }
@@ -426,9 +436,10 @@ export class EditConfigSchemaComponent extends AbstractComponent {
   private _setConvertedTypeList(field: Field): void {
     if (field.role === FieldRole.MEASURE) {
       this.convertibleTypeList = this.constant.getTypeFiltersInMeasure();
-    } else if (field.role === FieldRole.DIMENSION && field.type === LogicalType.STRING.toString()) {
-      this.convertibleTypeList = this.constant.getTypeFiltersInDimensionOnlyBaseTypeString();
-    } else {
+    }
+    // else if (field.role === FieldRole.DIMENSION && field.type === LogicalType.STRING.toString()) {
+    //   this.convertibleTypeList = this.constant.getTypeFiltersInDimensionOnlyBaseTypeString(); }
+    else {
       this.convertibleTypeList = this.constant.getTypeFiltersInDimension();
     }
   }
