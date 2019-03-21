@@ -440,6 +440,10 @@ public class DataSourceController {
     }
     request.setDataSource(defaultDataSource);
 
+    if(CollectionUtils.isEmpty(request.getProjections())) {
+      request.setProjections(new ArrayList<>());
+    }
+
     // 데이터 Limit 처리 최대 백만건까지 확인 가능함
     if (request.getLimits() == null) {
       if (limit == null) {
