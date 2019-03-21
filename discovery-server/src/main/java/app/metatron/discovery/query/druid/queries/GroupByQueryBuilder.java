@@ -256,6 +256,11 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
             TimeFieldFormat originalTimeFormat = (TimeFieldFormat) datasourceField.getFormatObject();
             TimeFieldFormat timeFormat = (TimeFieldFormat) format;
 
+            if (datasourceField.backwardTime()) {
+              originalTimeFormat.setUTC();
+              timeFormat.setUTC();
+            }
+
             // set time format using function
             String innerFieldName = aliasName + Query.POSTFIX_INNER_FIELD;
 
@@ -319,8 +324,18 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
 
       } else if (field instanceof TimestampField) {
 
+        app.metatron.discovery.domain.datasource.Field datasourceField = this.metaFieldMap.get(fieldName);
+        TimeFieldFormat originalTimeFormat = (TimeFieldFormat) datasourceField.getFormatObject();
+
         TimestampField timestampField = (TimestampField) field;
         TimeFieldFormat timeFormat = (TimeFieldFormat) timestampField.getFormat();
+        if (timeFormat == null) {
+          timeFormat = originalTimeFormat;
+        }
+
+        if (datasourceField.backwardTime()) {
+          timeFormat.setUTC();
+        }
 
         // set time format using function
         String innerFieldName = aliasName + Query.POSTFIX_INNER_FIELD;

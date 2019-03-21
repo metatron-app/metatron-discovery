@@ -102,6 +102,8 @@ public class Histogram implements Serializable {
     Map<String, Integer> map = new HashMap();
     Map<String, List<Integer>> mapRownos = new HashMap();
 
+    LOGGER.trace("updateHistMap() start: colno={}", colno);
+
     for (int rowno = 0; rowno < rows.size(); rowno++) {
       Object obj = rows.get(rowno).get(colno);
 
@@ -134,6 +136,7 @@ public class Histogram implements Serializable {
     }
 
     if (map.size() == 0) {
+      LOGGER.trace("updateHistMap() end: colno={} map.size()=0", colno);
       return;
     }
     distinctValCount = map.size();
@@ -150,12 +153,16 @@ public class Histogram implements Serializable {
 
     // 내용이 없으면 최대 count는 0. 아니면 제일 앞의 값.
     maxCount = counts.size() == 0 ? 0 : counts.get(0);
+
+    LOGGER.trace("updateHistMap() end: colno={}", colno);
   }
 
   // 각 원소들의 unique한 값들 distinct count 내림차순
   private void updateHistArray(int colno, List<Row> rows) {
     Map<String, Integer> map = new HashMap();
     Map<String, List<Integer>> mapRownos = new HashMap();
+
+    LOGGER.trace("updateHistArray() start: colno={}", colno);
 
     for (int rowno = 0; rowno < rows.size(); rowno++) {
       Object obj = rows.get(rowno).get(colno);
@@ -188,6 +195,7 @@ public class Histogram implements Serializable {
     }
 
     if (map.size() == 0) {
+      LOGGER.trace("updateHistArray() end: colno={} map.size()=0", colno);
       return;
     }
     distinctValCount = map.size();
@@ -204,11 +212,15 @@ public class Histogram implements Serializable {
 
     // 내용이 없으면 최대 count는 0. 아니면 제일 앞의 값.
     maxCount = counts.size() == 0 ? 0 : counts.get(0);
+
+    LOGGER.trace("updateHistArray() end: colno={}", colno);
   }
 
   private void updateHistString(int colno, List<Row> rows) {
     Map<String, Integer> map = new HashMap();
     Map<String, List<Integer>> mapRownos = new HashMap();
+
+    LOGGER.trace("updateHistString() start: colno={}", colno);
 
     for (int rowno = 0; rowno < rows.size(); rowno++) {
       Object obj = rows.get(rowno).get(colno);
@@ -240,6 +252,7 @@ public class Histogram implements Serializable {
     }
 
     if (map.size() == 0) {
+      LOGGER.trace("updateHistString() end: colno={} map.size()=0", colno);
       return;
     }
     distinctValCount = map.size();
@@ -256,11 +269,15 @@ public class Histogram implements Serializable {
 
     // 내용이 없으면 최대 count는 0. 아니면 제일 앞의 값.
     maxCount = counts.size() == 0 ? 0 : counts.get(0);
+
+    LOGGER.trace("updateHistString() end: colno={}", colno);
   }
 
   private void updateHistBoolean(int colno, List<Row> rows) {
     int trueCnt = 0;
     int falseCnt = 0;
+
+    LOGGER.trace("updateHistBoolean() start: colno={}", colno);
 
     labels.add("true");
     labels.add("false");
@@ -302,12 +319,16 @@ public class Histogram implements Serializable {
 
     // 내용이 없으면 최대 count는 0. 아니면 제일 앞의 값.
     maxCount = Math.max(counts.get(0), counts.get(1));
+
+    LOGGER.trace("updateHistBoolean() end: colno={}", colno);
   }
 
   private void updateHistLong(int colno, List<Row> rows) {
     Map<Long, List<Integer>> mapRownos = new HashMap();
     Long min = null;
     Long max = null;
+
+    LOGGER.trace("updateHistLong() start: colno={}", colno);
 
     Map<Long, Integer> map = new HashMap();
     for (int rowno = 0; rowno < rows.size(); rowno++) {
@@ -354,6 +375,7 @@ public class Histogram implements Serializable {
     }
 
     if (map.size() == 0) {
+      LOGGER.trace("updateHistLong() end: colno={}: map.size()=0", colno);
       return;
     }
     distinctValCount = map.size();
@@ -368,6 +390,7 @@ public class Histogram implements Serializable {
       labels.add(this.max);     // 일부러 2번 넣은거 맞음
       counts.add(rows.size());
       rownos.add(mapRownos.get(min));
+      LOGGER.trace("updateHistLong() end: colno={}: single value", colno);
       return;
     }
 
@@ -412,6 +435,8 @@ public class Histogram implements Serializable {
       counts.add(longCounts.get(i));
     }
     labels.add(longLabels.get(i).toString());
+
+    LOGGER.trace("updateHistLong() end: colno={}", colno);
   }
 
   private String trimTimestampIntoString(DateTime dt) {
@@ -530,6 +555,8 @@ public class Histogram implements Serializable {
     DateTime min = null;
     DateTime max = null;
 
+    LOGGER.trace("updateHistTimestamp() start: colno={}", colno);
+
     Map<DateTime, Integer> map = new HashMap();
     for (int rowno = 0; rowno < rows.size(); rowno++) {
       Object obj = rows.get(rowno).get(colno);
@@ -575,6 +602,7 @@ public class Histogram implements Serializable {
     }
 
     if (map.size() == 0) {
+      LOGGER.trace("updateHistTimestamp() end: colno={}: map.size()=0", colno);
       return;
     }
     distinctValCount = map.size();
@@ -589,6 +617,7 @@ public class Histogram implements Serializable {
       labels.add(this.max);     // 일부러 2번 넣은거 맞음
       counts.add(rows.size());
       rownos.add(mapRownos.get(min));
+      LOGGER.trace("updateHistTimestamp() end: colno={}: single value", colno);
       return;
     }
 
@@ -623,12 +652,16 @@ public class Histogram implements Serializable {
       labels.add(getBestFormatter(min, max).print(tsLabels.get(i)));
       timestampLabels.add(tsLabels.get(i).toString());
     }
+
+    LOGGER.trace("updateHistTimestamp() end: colno={}", colno);
   }
 
   private void updateHistDouble(int colno, List<Row> rows) {
     Map<Double, List<Integer>> mapRownos = new HashMap();
     Double min = null;
     Double max = null;
+
+    LOGGER.trace("updateHistDouble() start: colno={}", colno);
 
     Map<Double, Integer> map = new HashMap();
     for (int rowno = 0; rowno < rows.size(); rowno++) {
@@ -675,6 +708,7 @@ public class Histogram implements Serializable {
     }
 
     if (map.size() == 0) {
+      LOGGER.trace("updateHistDouble() end: colno={}: map.size()=0", colno);
       return;
     }
     distinctValCount = map.size();
@@ -689,6 +723,7 @@ public class Histogram implements Serializable {
       labels.add(this.max);     // 일부러 2번 넣은거 맞음
       counts.add(rows.size());
       rownos.add(mapRownos.get(min));
+      LOGGER.trace("updateHistDouble() end: colno={}: single value", colno);
       return;
     }
 
@@ -727,13 +762,15 @@ public class Histogram implements Serializable {
       counts.add(doubleCounts.get(i));
     }
     labels.add(doubleLabels.get(i).toString());
+
+    LOGGER.trace("updateHistDouble() end: colno={}", colno);
   }
 
   public static Histogram createHist(int colWidth, ColumnType colType, List<Row> rows, int colno, String colName) {
     Histogram colHist = new Histogram(colWidth);
     colHist.colName = colName;
 
-//    LOGGER.trace("createHist(): colno={} colName={} colWidth={} colType={}", colno, colName, colWidth, colType);
+    LOGGER.trace("createHist() start: colno={} colName={} colWidth={} colType={}", colno, colName, colWidth, colType);
 
     switch (colType) {
       case STRING:
@@ -761,6 +798,8 @@ public class Histogram implements Serializable {
       case UNKNOWN:
         assert false;
     }
+
+    LOGGER.trace("createHist() end: colno={} labels={}", colno, colHist.labels);
     return colHist;
   }
 
@@ -859,14 +898,15 @@ public class Histogram implements Serializable {
 
   public static List<Long> getLongLabels(long min, long max, int barCnt) {
     List<Long> labels = new ArrayList<>();
-    long incr;
-    long label;
+
+    LOGGER.trace("getLongLabels() start: min={} max={} barCnt={}", min, max, barCnt);
 
     assert min != max : min;
 
     if (barCnt == 1) {
       labels.add(min);
       labels.add(max);
+      LOGGER.trace("getLongLabels() end: single barCnt: labels={}", labels);
       return labels;
     }
 
@@ -877,22 +917,28 @@ public class Histogram implements Serializable {
         labels.add(i);
       }
       labels.add(i);
+      LOGGER.trace("getLongLabels() end: less than barCnt: labels={} barCnt={}", labels, barCnt);
       return labels;
     }
 
-    incr = getIncr(min, max, barCnt);
+    long incr = getIncr(min, max, barCnt);
 
     long border = min - (min % incr);
-    for (label = min < border ? border - incr : border; label <= max; label += incr) {
+    long label0 = min < border ? border - incr : border;
+    long label = label0;
+
+    // If label < label0, it's overflowed.
+    for (/* NOP */; label <= max && label >= label0; label += incr) {
       labels.add(label);
     }
-    labels.add(label);
+    labels.add(label < label0 ? Long.MAX_VALUE : label);
 
     assert min >= labels.get(0) : String.format("min=%d start_label=%d", min, labels.get(0));
     assert min < labels.get(1) : String.format("min=%d start_label=%d", min, labels.get(1));
     assert max >= labels.get(labels.size() - 2) : String.format("max=%d end_label=%d", max, labels.get(labels.size() - 2));
     assert max < labels.get(labels.size() - 1) : String.format("max=%d end_label=%d", max, labels.get(labels.size() - 1));
 
+    LOGGER.trace("getLongLabels() end: labels={}", labels);
     return labels;
   }
 
@@ -997,7 +1043,7 @@ public class Histogram implements Serializable {
 
   private List<DateTime> getFinestLabels(DateTime min, DateTime max, int barCnt, List<DateTime> currentBestLabels,
                                          List<Granule> granules, List<Integer> unitSizes) {
-    LOGGER.trace("getFinestLabels(): granules={} unitSizes={}", granules, unitSizes);
+    LOGGER.trace("getFinestLabels() start: granules={} unitSizes={}", granules, unitSizes);
     assert granules.size() > 0;
     assert granules.size() == unitSizes.size() : String.format("granules.size=%d unitSizes.size=%d",
             granules.size(), unitSizes.size());
@@ -1036,10 +1082,11 @@ public class Histogram implements Serializable {
       }
       if (labels.size() - 1 > barCnt) {   // 마지막 label은 단지 경계값
         bestGranularity = savedBest;
-        return currentBestLabels;
+        break;
       }
       currentBestLabels = labels;
     }
+    LOGGER.trace("getFinestLabels() end: currentBestLabels={}", currentBestLabels);
     return currentBestLabels;
   }
 

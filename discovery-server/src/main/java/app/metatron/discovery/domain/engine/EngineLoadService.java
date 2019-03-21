@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.ResourceAccessException;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -146,6 +147,28 @@ public class EngineLoadService {
     }
 
     String sendTopicUri = String.format(TOPIC_LOAD_PROGRESS, temporaryId);
+
+    //if reserved field name...add postfix
+    if(Field.RESERVED_FIELDS.length > 0){
+      for(Field field : dataSource.getFields()){
+        final String compareFieldName = field.getName();
+        boolean reservedFieldMatched = Arrays.stream(Field.RESERVED_FIELDS)
+                                             .anyMatch(reserved -> reserved.equals(compareFieldName));
+
+        if(reservedFieldMatched){
+          String newFieldName = compareFieldName;
+          boolean fieldNameDuplicated = true;
+          while(fieldNameDuplicated){
+            newFieldName = newFieldName + "_";
+            final String compareField = newFieldName;
+            fieldNameDuplicated = dataSource.getFields()
+                                            .stream()
+                                            .anyMatch(legacyField -> legacyField.getName().equals(compareField));
+          }
+          field.setName(newFieldName);
+        }
+      }
+    }
 
     boolean isVoatile = false;
 

@@ -104,7 +104,7 @@
                         </div>
                       </td>
                       <td>
-                        <div class="ddp-txt-long">
+                        <div class="ddp-txt-long" title="{{item.dsName}} {{item.dsDesc? ' - ' + item.dsDesc : ''}}">
                           {{item.dsName}}
                           <span class="ddp-txt-colortype" *ngIf="item.dsDesc">- {{item.dsDesc}}</span>
                         </div>
@@ -217,7 +217,7 @@
                         </div>
                       </td>
                       <td>
-                        <div class="ddp-txt-long">
+                        <div class="ddp-txt-long"  title="{{item.dsName}} {{item.dsDesc? ' - ' + item.dsDesc : ''}}">
                           {{item.dsName}}
                           <span class="ddp-txt-colortype" *ngIf="item.dsDesc">- {{item.dsDesc}}</span>
                         </div>
@@ -263,7 +263,7 @@
 
 
 
-        </div>
+        </div> 
         <!-- 설명 -->
         <app-dataset-summary *ngIf="selectedDatasetId != null && selectedDatasetId !=''" (close)="onCloseSummary()" [datasetId]="selectedDatasetId"></app-dataset-summary>
         <!-- //설명 -->

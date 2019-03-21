@@ -13,9 +13,9 @@
  */
 
 import * as _ from 'lodash';
-import { TimeFilter } from './time-filter';
-import { Field } from '../../../datasource/datasource';
-import { TimeUnit } from '../field/timestamp-field';
+import {TimeFilter} from './time-filter';
+import {Field} from '../../../datasource/datasource';
+import {TimeUnit} from '../field/timestamp-field';
 
 declare let moment : any;
 
@@ -24,12 +24,12 @@ export class TimeRelativeFilter extends TimeFilter {
   public tense: TimeRelativeTense;
   public relTimeUnit: TimeUnit;
   public value: number;
-  public timezone: string;
+  public timeZone: string;
 
   constructor(field: Field) {
     super(field);
     this.type = 'time_relative';
-    this.timezone = moment.tz.guess();
+    this.timeZone = moment.tz.guess();
   }
 
   public toServerSpec() {
