@@ -1293,14 +1293,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
         let uiOption = this.uiOption;
         let analysisCountAlias : string;
         if( !_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use'] ) {
-          if( !_.isUndefined(uiOption['analysis']['operation']['aggregation']) && !_.isUndefined(uiOption['analysis']['operation']['aggregation']['column'])
-            && uiOption['analysis']['operation']['aggregation']['column'] == 'count') {
+          if( uiOption['analysis']['operation']['choropleth'] ) {
             analysisCountAlias = uiOption['analysis']['operation']['aggregation']['column'];
           }
         }
 
         shelve.map((item) => {
-          if( !_.isUndefined(analysisCountAlias) && analysisCountAlias == item.alias ){
+          if( !_.isUndefined(analysisCountAlias) && _.eq(item.type, typeList[0]) && _.eq(item.type, ShelveFieldType.MEASURE) ){
+            item['alias'] = ChartUtil.getAlias(item);
             resultList.push(item);
           } else {
             if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && ('user_expr' === item.field.type || item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO'))) ) {

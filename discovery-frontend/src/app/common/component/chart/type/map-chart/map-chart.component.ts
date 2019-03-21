@@ -2586,8 +2586,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       ////////////////////////////////////////////////////////
 
       // init custom user color setting
-      layer.color.ranges = undefined;
-      layer.color['settingUseFl'] = false;
+      if( !isAnalysisUse ) {
+        layer.color.ranges = undefined;
+        layer.color['settingUseFl'] = false;
+      }
 
       ///////////////////////////
       // Color by None
@@ -2635,7 +2637,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         }
         layer.color.column = uiOption.fieldMeasureList[0]['name'];
         layer.color.aggregationType = uiOption.fieldMeasureList[0]['aggregationType'];
-
+        if( isAnalysisUse ) {
+          uiOption.fieldMeasureList.forEach((item) => {
+            if( item.name == analysisAggrColumn ){
+              layer.color.column = item.name;
+              layer.color.aggregationType = item.aggregationType;
+            }
+          });
+        }
         if( isAnalysisUse ) {
           let dataIndex = 0;
           ( this.data.length > 1 ? dataIndex = this.data.length-1 : dataIndex = 0 );
@@ -3228,6 +3237,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
   private drawAnalysis() {
 
     this.loadingShow();
+
+    this.setMinMax();
 
     this.checkOption(this.getUiMapOption());
 
