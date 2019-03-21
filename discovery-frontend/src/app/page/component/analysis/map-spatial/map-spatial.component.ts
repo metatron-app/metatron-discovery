@@ -167,7 +167,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
       this.shelf.layers.forEach(layer => {
         if (!_.isUndefined(layer.fields) && layer.fields.length > 0) {
           layer.fields.forEach(field => {
-            if (!_.isUndefined(field) && !_.isUndefined(field.field.logicalType)
+            if (!_.isUndefined(field) && !_.isUndefined(field.field) && !_.isUndefined(field.field.logicalType)
               && (field.field.logicalType === LogicalType.GEO_POINT || field.field.logicalType === LogicalType.GEO_POLYGON || field.field.logicalType === LogicalType.GEO_LINE)) {
               if (!_.isUndefined(this.uiOption) && !_.isUndefined(this.uiOption.layers)
                 && this.uiOption.layers.length > 0 && !_.isUndefined(this.uiOption.layers[shelfIndex].name)) {
