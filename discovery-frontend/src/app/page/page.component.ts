@@ -1018,7 +1018,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (this.getPivotComp()) this.getPivotComp().onShelveAnimation(this.$element.find('.ddp-wrap-default'));
 
     // 차트 리사이즈
-    this.chartResize();
+    if(this.selectChart != 'map' || this.rnbMenu == '') this.chartResize();
   }
 
   public isShowChartInfo(chartType: string) {
