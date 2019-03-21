@@ -764,7 +764,7 @@
   "msg.dp.alert.keep.warn":"유지하려는 레코드의 조건을 입력해 주세요",
   "msg.dp.alert.left.joinkey.error" : "왼쪽 데이터셋에 조인 컬럼( {{leftJoinKey}} )이 포함되어있지 않습니다",
   "msg.dp.alert.name.error" : "이름은 필수값입니다",
-  "msg.dp.alert.name.error.description" : "이름은 50자까지 입력하실 수 있습니다",
+  "msg.dp.alert.name.error.description" : "이름은 150자까지 입력하실 수 있습니다",
   "msg.dp.alert.no.added.ds" : "추가된 데이터셋이 없습니다",
   "msg.dp.alert.no.data":"추가할 내용이 없습니다",
   "msg.dp.alert.no.data.union" : "유니온 할 데이터가 없습니다",
@@ -883,6 +883,7 @@
   "msg.dp.alert.check.insert.expression" : "수식을 입력하십시요",
   "msp.dp.alert.col.empty" : "컬럼 이름을 반드시 입력해야합니다",
   "msg.dp.alert.merge.col.error" : "새로운 컬럼 이름을 확인하세요",
+  "msg.dp.ui.max.length.error" : "150자까지 입력할 수 있습니다",
 
   "msg.dp.alert.teddy.parse.failed" : "Rule 해석에 실패하였습니다.",
   "msg.dp.alert.teddy.parse.failed.by.rulename": "지원하지 않는 Rule입니다.",

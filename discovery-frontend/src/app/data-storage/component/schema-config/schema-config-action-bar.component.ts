@@ -156,6 +156,9 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
   // changed timestamp list
   @Output()
   public changedTimestampList: EventEmitter<any> = new EventEmitter();
+  // changed geo type list
+  @Output()
+  public changedGeoList = new EventEmitter();
   // changed role type
   @Output()
   public changedRoleType: EventEmitter<Field> = new EventEmitter();
@@ -263,7 +266,8 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
         field.unloaded = true;
       });
     } else if ('CHANGE' === this.selectedActionType.value) {  // if CHANGE action
-      this.changedTimestampList.emit(this.checkedFieldList.reduce((acc, field) => {
+      const fieldList = [];
+      this.checkedFieldList.forEach((field) => {
         // if different role type
         if (this.selectedRoleType.value !== field.role) {
           // change role in field
@@ -282,12 +286,12 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
             // set changed timestamp flag
             changedTimestamp = true;
             // push timestamp field
-            acc.push(field);
+            fieldList.push(field);
           }
           // if field logical type change to GEO, not exist originalSrsName
           if (this.selectedLogicalType.value.indexOf('GEO_') !== -1 && !field.format || (field.format && !field.format.originalSrsName)) {
-            // set default
-            field.format = {type: this.selectedLogicalType.value.toLowerCase(), originalSrsName: 'EPSG:4326'};
+            // push timestamp field
+            fieldList.push(field);
           } else if (field.toString().indexOf('GEO_') !== -1 && this.selectedLogicalType.value.indexOf('GEO_') === -1) { // if field logical type is GEO
             // remove format
             delete field.format;
@@ -297,9 +301,13 @@ export class SchemaConfigActionBarComponent extends AbstractComponent {
         }
         // checked FALSE
         field.checked = false;
-        // return
-        return acc;
-      }, []));
+      });
+      // if TIMESTAMP type
+      if (this.selectedLogicalType.value === LogicalType.TIMESTAMP) {
+        this.changedTimestampList.emit(fieldList);
+      } else if (this.selectedLogicalType.value == LogicalType.GEO_POINT || this.selectedLogicalType.value == LogicalType.GEO_POLYGON || this.selectedLogicalType.value == LogicalType.GEO_LINE) {
+        this.changedGeoList.emit(fieldList);
+      }
     }
     //
     changedTimestamp && this.changedTimestamp.emit();

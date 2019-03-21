@@ -184,6 +184,16 @@ export class DataSourceCreateService {
         value: LogicalType.GEO_POINT
       },
       {
+        label: this._translateService.instant('msg.storage.ui.list.geo.polygon'),
+        icon: 'ddp-icon-type-polygon',
+        value: LogicalType.GEO_POLYGON
+      },
+      {
+        label: this._translateService.instant('msg.storage.ui.list.geo.line'),
+        icon: 'ddp-icon-type-line',
+        value: LogicalType.GEO_LINE
+      },
+      {
         label: this._translateService.instant('msg.storage.ui.list.expression'),
         icon: 'ddp-icon-type-expression',
         value: LogicalType.USER_DEFINED

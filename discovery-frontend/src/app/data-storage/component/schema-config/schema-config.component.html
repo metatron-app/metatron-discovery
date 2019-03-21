@@ -160,6 +160,7 @@
           <!-- box action -->
           <schema-config-action-bar (changedTimestamp)="checkAndInitTimestampField()"
                                     (changedTimestampList)="onChangedLogicalTypeToTimestamp($event)"
+                                    (changedGeoList)="onChangedLogicalTypeToGeo($event)"
                                     (changedAction)="setSelectedAction($event)"
                                     (changedRoleType)="changeLogicalTypeListInSelectedField($event)"></schema-config-action-bar>
           <!-- //box action -->

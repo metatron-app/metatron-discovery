@@ -1244,6 +1244,7 @@
   "msg.dp.ui.one.col.required": "需要一个以上的列",
   "msg.dp.ss.check.error" : "Please check the error item.",
   "msg.dp.ss.name.required" : "Snapshot name required",
+  "msg.dp.ui.max.length.error" : "You can enter up to 150 characters",
 
   "msg.board.create.add-ds": "添加数据源",
   "msg.board.create.add-ds.desc": "请添加视觉化数据源并设置关系",

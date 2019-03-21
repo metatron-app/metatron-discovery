@@ -12,12 +12,18 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-selectbox" [class.ddp-selected]="isListShow" (click)="isListShow = !isListShow" >
-  <span class="ddp-txt-selectbox">{{selectedFilter.label}}</span>
+<div class="ddp-type-selectbox" [class.ddp-selected]="isListShow" [class.ddp-disabled]="isDisableList" (click)="onChangeListShow()" >
+  <span class="ddp-txt-selectbox" *ngIf="!isEnableIcon">{{isOnlyStringList ? selectedFilter : selectedFilter.label}}</span>
+  <span class="ddp-txt-selectbox" *ngIf="isEnableIcon">
+    <span class="ddp-type-txt">
+        <em class="{{selectedFilter.icon}}"></em>
+      {{selectedFilter.label}}
+    </span>
+  </span>
   <ul class="ddp-list-selectbox ddp-selectdown" *ngIf="!isEnableIcon">
     <li *ngFor="let filter of filterList">
       <a href="javascript:" (click)="onChangedFilter(filter)">
-        {{filter.label}}
+        {{isOnlyStringList ? filter : filter.label}}
       </a>
     </li>
   </ul>

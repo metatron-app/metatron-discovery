@@ -52,11 +52,14 @@ import {DatasourceService} from "../../../datasource/service/datasource.service"
 import {TimezoneService} from "../../service/timezone.service";
 import {DataSnapshotService} from "../../../data-preparation/data-snapshot/service/data-snapshot.service";
 import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
+import {StorageFilterSelectBoxComponent} from "../component/storage-filter-select-box.component";
+import {DatasourceMetadataSharedModule} from "../../../shared/datasource-metadata/datasource-metadata-shared.module";
 
 @NgModule({
   imports: [
     CommonModule,
     WorkbenchEditorModule,
+    DatasourceMetadataSharedModule,
     FileModule,
   ],
   declarations: [

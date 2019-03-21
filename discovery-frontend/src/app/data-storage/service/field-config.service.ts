@@ -17,7 +17,6 @@ import {Injectable, Injector} from "@angular/core";
 import {Field, FieldFormat, FieldFormatType, LogicalType} from "../../domain/datasource/datasource";
 import {TimezoneService} from "./timezone.service";
 import {TranslateService} from "@ngx-translate/core";
-import {StringUtil} from "../../common/util/string.util";
 import {isNullOrUndefined} from "util";
 import {Type} from '../../shared/datasource-metadata/domain/type';
 import {MetadataColumn} from "../../domain/meta-data-management/metadata-column";
@@ -56,6 +55,11 @@ export class FieldConfigService extends AbstractService {
    */
   public checkEnableGeoTypeAndSetValidationResult(fieldFormat: FieldFormat, dataList: string[], targetType: Type.Logical) {
     return new Promise((resolve, reject) => {
+      // if not exist srs name
+      if (isNullOrUndefined(fieldFormat.originalSrsName)) {
+        fieldFormat.geoCoordinateInitialize();
+        fieldFormat.type = this._getSrsName(targetType);
+      }
       // if not exist data list
       if (isNullOrUndefined(dataList) || dataList.length < 1) {
         // set type valid FALSE
@@ -74,11 +78,6 @@ export class FieldConfigService extends AbstractService {
             // is enable GEO type
             if (result.valid) {
               fieldFormat.isValidFormat = true;
-              // if not exist srs name
-              if (isNullOrUndefined(fieldFormat.originalSrsName)) {
-                fieldFormat.geoCoordinateInitialize();
-                fieldFormat.type = this._getSrsName(targetType);
-              }
             } else {  // is disable GEO type
               fieldFormat.isValidFormat = false;
               // set type valid message
@@ -135,6 +134,16 @@ export class FieldConfigService extends AbstractService {
   //     }
   //   });
   // }
+
+  public convertType(logicalType: LogicalType) {
+    if (logicalType === LogicalType.GEO_POINT) {
+      return Type.Logical.GEO_POINT;
+    } else if (logicalType === LogicalType.GEO_LINE) {
+      return Type.Logical.GEO_LINE;
+    } else if (logicalType === LogicalType.GEO_POLYGON) {
+      return Type.Logical.GEO_POLYGON;
+    }
+  }
 
   /**
    * Get keyword WKT
