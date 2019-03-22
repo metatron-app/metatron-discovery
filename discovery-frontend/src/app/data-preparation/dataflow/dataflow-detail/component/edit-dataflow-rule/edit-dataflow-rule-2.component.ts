@@ -312,10 +312,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     if (data) { // Open rename popup for hive rename
       this.multipleRenamePopupComponent.init(
         {
-          gridData: _.cloneDeep(this.selectedDataSet.gridData),
+          gridData: {data: null, fields: null},
           dsName: this.selectedDataSet.dsName,
-          typeDesc: this.selectedDataSet.gridResponse.colDescs,
-          isFromSnapshot : true});
+          typeDesc: null,
+          isFromSnapshot : true, dsId: this.dsId});
     }
   }
 
@@ -347,7 +347,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.createSnapshotPopup.init({
       id: this.dsId,
       name: this.dsName,
-      fields: this.selectedDataSet.gridData.fields, isFromMainGrid: true
+      isFromMainGrid: true,
     });
   }
 
@@ -1515,7 +1515,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     const param = {
       op: this.opString,
-      ruleIdx : this.serverSyncIndex,
+      ruleIdx : rule['ruleIdx'] ? rule['ruleIdx'] : this.serverSyncIndex,
       count: 100,
       ruleString : rule['ruleString'],
       uiRuleString : JSON.stringify(rule['uiRuleString'])

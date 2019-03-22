@@ -137,11 +137,10 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * Initial
    * @param {id:string, name : string, fields : Field[]} data
    */
-  public init(data : {id: string, name: string, fields: Field[], isFromMainGrid?: boolean}) {
+  public init(data : {id: string, name: string, isFromMainGrid?: boolean}) {
 
     this.datasetId = data.id;
     this.datasetName = data.name;
-    this.fields = data.fields;
 
     if (data.isFromMainGrid) { // Check if snapshot popup is open from main grid
       this.isFromMainGrid = true;
@@ -149,7 +148,9 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
     this._initialiseValues();
 
-    this._getConfig();
+    this._getConfig().then(() => {
+      this._getGridData(this.datasetId);
+    });
 
   }
 
@@ -556,20 +557,25 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    */
   private _getConfig() {
 
-    this.dataflowService.getConfiguration(this.datasetId).then((conf) => {
+    return new Promise<any>((resolve, reject) => {
 
-      this.ssName = this._getDefaultSnapshotName(conf['ss_name']);
+      this.dataflowService.getConfiguration(this.datasetId).then((conf) => {
 
-      this._setFileLocationAndUri(conf['file_uri']);
+        this.ssName = this._getDefaultSnapshotName(conf['ss_name']);
 
-      // Show popup
-      this.isShow = true;
+        this._setFileLocationAndUri(conf['file_uri']);
 
-      this._getStagingDb();
+        // Show popup
+        this.isShow = true;
 
-      this.changeSsType(SsType.URI);
+        this._getStagingDb();
 
-      this.loadingHide();
+        this.changeSsType(SsType.URI);
+
+        this.loadingHide();
+        resolve();
+      }).catch((err) => reject(err));
+
     });
   }
 
@@ -615,6 +621,56 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
     return idx === -1
   }
+
+
+  /**
+   * Fetch grid data of dataset
+   * @param dsId
+   * @private
+   */
+  private _getGridData(dsId: string) {
+
+    this.datasetService.getDatasetDetail(dsId).then((result) => {
+      this.fields = this._getGridDataFromGridResponse(result.gridResponse).fields;
+    })
+
+  }
+
+  /**
+   * Change grid data to grid response
+   * @param gridResponse 매트릭스 정보
+   * @returns 그리드 데이터
+   */
+  private _getGridDataFromGridResponse(gridResponse: any) {
+    let colCnt = gridResponse.colCnt;
+    let colNames = gridResponse.colNames;
+    let colTypes = gridResponse.colDescs;
+
+    const gridData = {
+      data: [],
+      fields: []
+    };
+
+    for ( let idx = 0; idx < colCnt; idx++ ) {
+      gridData.fields.push({
+        name: colNames[idx],
+        type: colTypes[idx].type,
+        seq: idx
+      });
+    }
+
+    gridResponse.rows.forEach((row) => {
+      const obj = {};
+      for ( let idx = 0;idx < colCnt; idx++ ) {
+        obj[ colNames[idx] ] = row.objCols[idx];
+      }
+      gridData.data.push(obj);
+    });
+
+    return gridData;
+  } // function - getGridDataFromGridResponse
+
+
 
 }
 
