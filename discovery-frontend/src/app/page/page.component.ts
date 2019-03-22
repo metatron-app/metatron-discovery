@@ -3677,7 +3677,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
      * @param {Field[]} allPivot
      * @returns {number}
      */
-    function getGeoType(logicalType: string, allPivot: AbstractField[]): number {
+    function getGeoType(logicalType: string, allPivot: AbstractField[], uiOption : UIOption): number {
+
+      if( !_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use'] ) {
+        return allPivot.length;
+      }
 
       return allPivot.filter((item: AbstractField) => {
         return item.field.logicalType && -1 !== item.field.logicalType.toString().indexOf(logicalType);
@@ -3698,7 +3702,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (this.shelf && this.shelf.layers && undefined !== (<UIMapOption>this.uiOption).layerNum) pivotList = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum].fields;
     else if (this.pivot) pivotList = this.pivot.aggregations.concat(this.pivot.rows.concat(this.pivot.columns));
 
-    const geoCnt = getGeoType('GEO', pivotList);
+    const geoCnt = getGeoType('GEO', pivotList, this.uiOption);
 
     // map chart
     if (geoCnt > 0) {
@@ -3966,6 +3970,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     this.datasourceService.searchQuery(cloneQuery).then(
       (data) => {
+
+        console.info("data =========>>> ",  data);
 
         const resultData = {
           data: data,

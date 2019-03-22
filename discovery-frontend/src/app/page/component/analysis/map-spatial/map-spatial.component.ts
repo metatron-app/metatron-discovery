@@ -110,9 +110,9 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     {name: 'CNT', value: 'COUNT'},
     {name: 'MED', value: 'MEDIAN'},
     {name: 'MIN', value: 'MIN'},
-    {name: 'MAX', value: 'MAX'},
-    {name: 'PCT1/4', value: 'PERCENTILE'}, // 값 확인 필요
-    {name: 'PCT3/4', value: 'PERCENTILE'}  // 값 확인 필요
+    {name: 'MAX', value: 'MAX'}
+    // {name: 'PCT1/4', value: 'PERCENTILE'}, // 값 확인 필요
+    // {name: 'PCT3/4', value: 'PERCENTILE'}  // 값 확인 필요
   ];
   public aggregateTypesIndex: number = 0;
 
@@ -472,7 +472,11 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     if (bufferDataValue > 0 && this.isBufferOn == true) {
       mapUIOption.analysis['operation']['buffer'] = bufferDataValue;
     } else {
-      delete mapUIOption.analysis['operation']['buffer'];
+      mapUIOption.analysis['operation']['buffer'] = 1;
+    }
+
+    if( mapUIOption.analysis.operation.aggregation.column == 'count' && this.colorByIndex == 0 ){
+      delete mapUIOption.analysis.operation.aggregation.type;
     }
 
     // 단계구분도 설정 (단계구분도 = choropleth)
