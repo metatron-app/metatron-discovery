@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.dataconnection.dialect;
 import com.facebook.presto.jdbc.PrestoArray;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
@@ -30,6 +31,7 @@ import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 /**
  *
  */
+@Order(4)
 @Component
 public class PrestoDialect implements JdbcDialect {
 

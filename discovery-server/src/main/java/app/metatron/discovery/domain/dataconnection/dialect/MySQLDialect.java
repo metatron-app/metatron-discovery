@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataconnection.dialect;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
@@ -29,6 +30,7 @@ import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 /**
  *
  */
+@Order(1)
 @Component
 public class MySQLDialect implements JdbcDialect {
 

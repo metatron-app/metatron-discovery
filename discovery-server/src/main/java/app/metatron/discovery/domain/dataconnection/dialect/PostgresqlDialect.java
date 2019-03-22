@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.dataconnection.dialect;
 import org.apache.commons.lang3.StringUtils;
 import org.postgresql.jdbc.PgArray;
 import org.postgresql.util.PGobject;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
@@ -30,6 +31,7 @@ import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 /**
  *
  */
+@Order(2)
 @Component
 public class PostgresqlDialect implements JdbcDialect {
 

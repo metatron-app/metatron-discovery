@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.dataconnection.dialect;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
@@ -33,6 +34,7 @@ import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 /**
  *
  */
+@Order(3)
 @Component
 public class HiveDialect implements JdbcDialect {
 

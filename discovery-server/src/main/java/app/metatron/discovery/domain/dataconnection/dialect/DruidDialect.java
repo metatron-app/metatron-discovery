@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataconnection.dialect;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
@@ -22,13 +23,13 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import app.metatron.discovery.common.exception.FunctionWithException;
-import app.metatron.discovery.extension.dataconnection.jdbc.ConnectionExtensionInformation;
 import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
 import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 
 /**
  *
  */
+@Order(5)
 @Component
 public class DruidDialect implements JdbcDialect {
 
@@ -36,36 +37,6 @@ public class DruidDialect implements JdbcDialect {
   public static final String DRUID_URL_PATH = "/druid/v2/sql/avatica/";
   private static final String[] EXCLUDE_SCHEMAS = null;
   private static final String[] EXCLUDE_TABLES = null;
-
-  private ConnectionExtensionInformation extensionInfo;
-//
-//  @Override
-//  public ConnectionExtensionInformation getExtensionInfo() {
-//    if(extensionInfo == null){
-//      extensionInfo = new ConnectionExtensionInformation()
-//          .setName("Druid")
-//          .setDialectType(ConnectionExtensionInformation.DialectType.EMBEDDED)
-//          .setImplementor("DRUID")
-//          .setIconResource1("")
-//          .setIconResource2("")
-//          .setIconResource3(null)
-//          .setIconResource4(null)
-//          .setInputMandatorySpec((new ConnectionExtensionInformation.InputMandatorySpec())
-//                                     .setAuthenticationType(ConnectionExtensionInformation.InputMandatory.NONE)
-//                                     .setCatalog(ConnectionExtensionInformation.InputMandatory.NONE)
-//                                     .setSid(ConnectionExtensionInformation.InputMandatory.NONE)
-//                                     .setDatabase(ConnectionExtensionInformation.InputMandatory.NONE)
-//                                     .setUsername(ConnectionExtensionInformation.InputMandatory.NONE)
-//                                     .setPassword(ConnectionExtensionInformation.InputMandatory.NONE));
-//
-//    }
-//    return extensionInfo;
-//  }
-
-  /**
-   * metadata
-   */
-
 
   @Override
   public String getName() {
