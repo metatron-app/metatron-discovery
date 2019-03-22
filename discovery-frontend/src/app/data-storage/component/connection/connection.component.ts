@@ -1,15 +1,30 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {Component, ElementRef, EventEmitter, Injector, Input, Output} from '@angular/core';
 import {AbstractComponent} from "../../../common/component/abstract.component";
 import {isNullOrUndefined} from "util";
 import {
   AuthenticationType,
-  ConnectionSample,
+  JdbcDialect,
   Dataconnection,
-  SpecFlag
+  InputMandatory
 } from "../../../domain/dataconnection/dataconnection";
 import {DataConnectionCreateService} from "../../service/data-connection-create.service";
 import {StringUtil} from "../../../common/util/string.util";
 import {DataconnectionService} from "../../../dataconnection/service/dataconnection.service";
+import {StorageService} from "../../service/storage.service";
 
 @Component({
   selector: 'app-connection',
@@ -20,8 +35,8 @@ export class ConnectionComponent extends AbstractComponent {
   @Input()
   public readonly isDisableChangeConnectionType: boolean;
 
-  @Input()
-  public readonly connectionTypeList: ConnectionSample[];
+  public readonly connectionTypeList: JdbcDialect[] = StorageService.connectionTypeList;
+  public selectedConnectionType: JdbcDialect;
 
   @Input()
   public readonly isUsedNameInitial: boolean;
@@ -29,9 +44,6 @@ export class ConnectionComponent extends AbstractComponent {
   public readonly connectionName: string;
   @Output()
   public readonly createdName: EventEmitter<string> = new EventEmitter();
-
-  @Input()
-  public selectedConnectionType: ConnectionSample;
 
   public readonly authenticationTypeList = this.connectionCreateService.authenticationTypeList;
 
@@ -77,6 +89,7 @@ export class ConnectionComponent extends AbstractComponent {
     if (isNullOrUndefined(connection)) {
       this.properties = [];
       this.selectedAuthenticationType = this.authenticationTypeList[0];
+      this.selectedConnectionType = this.connectionTypeList[0];
     } else {
       this.setConnectionInputInitial(connection);
       this.setConvertedProperties(connection.properties);
@@ -124,6 +137,9 @@ export class ConnectionComponent extends AbstractComponent {
       this.selectedAuthenticationType = this.authenticationTypeList.find(authenticationType => authenticationType.value === connection.authenticationType);
     } else {
       this.selectedAuthenticationType = this.authenticationTypeList[0];
+    }
+    if (connection.implementor) {
+      this.selectedConnectionType = this.connectionTypeList.find(type => type.implementor.toString() === connection.implementor.toString());
     }
   }
 
@@ -368,7 +384,7 @@ export class ConnectionComponent extends AbstractComponent {
    * @return {boolean}
    */
   public isDisableSid() {
-    return this.selectedConnectionType.inputSpec.sid === SpecFlag.NONE;
+    return this.selectedConnectionType.inputSpec.sid === InputMandatory.NONE;
   }
 
   /**
@@ -376,7 +392,7 @@ export class ConnectionComponent extends AbstractComponent {
    * @return {boolean}
    */
   public isDisableDatabase() {
-    return this.selectedConnectionType.inputSpec.database === SpecFlag.NONE;
+    return this.selectedConnectionType.inputSpec.database === InputMandatory.NONE;
   }
 
   /**
@@ -384,7 +400,7 @@ export class ConnectionComponent extends AbstractComponent {
    * @return {boolean}
    */
   public isDisableCatalog() {
-    return this.selectedConnectionType.inputSpec.catalog === SpecFlag.NONE;
+    return this.selectedConnectionType.inputSpec.catalog === InputMandatory.NONE;
   }
 
   /**
@@ -392,7 +408,7 @@ export class ConnectionComponent extends AbstractComponent {
    * @return {boolean}
    */
   public isDisableAuthenticationType() {
-    return this.selectedConnectionType.inputSpec.authenticationType === SpecFlag.NONE;
+    return this.selectedConnectionType.inputSpec.authenticationType === InputMandatory.NONE;
   }
 
   /**
@@ -401,7 +417,7 @@ export class ConnectionComponent extends AbstractComponent {
    * @return {boolean}
    */
   public isDisableUsername(connectionType) {
-    return connectionType.inputSpec.username === SpecFlag.NONE;
+    return connectionType.inputSpec.username === InputMandatory.NONE;
   }
 
   /**
@@ -410,6 +426,6 @@ export class ConnectionComponent extends AbstractComponent {
    * @return {boolean}
    */
   public isDisablePassword(connectionType) {
-    return connectionType.inputSpec.password === SpecFlag.NONE;
+    return connectionType.inputSpec.password === InputMandatory.NONE;
   }
 }

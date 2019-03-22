@@ -33,114 +33,6 @@ import * as _ from 'lodash';
 })
 export class UpdateConnectionComponent extends AbstractComponent {
 
-  // TODO change
-  public connectionTypeList = [
-    {
-      scope:"EMBEDDED",
-      name:"Hive",
-      inputSpec:{
-        authenticationType:"MANDATORY",
-        database:"NONE",
-        sid:"NONE",
-        catalog:"NONE",
-        username:"MANDATORY",
-        password:"MANDATORY"
-      },
-      implementor:"HIVE",
-      iconResource4:null,
-      iconResource3:null,
-      iconResource2:null,
-      iconResource1:null,
-    },
-    {
-      scope:"EMBEDDED",
-      name:"MySQL",
-      inputSpec:{
-        authenticationType:"MANDATORY",
-        database:"NONE",
-        sid:"NONE",
-        catalog:"NONE",
-        username:"MANDATORY",
-        password:"MANDATORY"
-      },
-      implementor:"MYSQL",
-      iconResource4:null,
-      iconResource3:null,
-      iconResource2:null,
-      iconResource1:null,
-    },
-    {
-      scope:"EMBEDDED",
-      name:"Presto",
-      inputSpec:{
-        authenticationType:"MANDATORY",
-        database:"NONE",
-        sid:"NONE",
-        catalog:"MANDATORY",
-        username:"MANDATORY",
-        password:"MANDATORY"
-      },
-      implementor:"PRESTO",
-      iconResource4:null,
-      iconResource3:null,
-      iconResource2:null,
-      iconResource1:null,
-    },
-    {
-      scope:"EMBEDDED",
-      name:"PostgreSQL",
-      inputSpec:{
-        authenticationType:"MANDATORY",
-        database:"MANDATORY",
-        sid:"NONE",
-        catalog:"NONE",
-        username:"MANDATORY",
-        password:"MANDATORY"
-      },
-      implementor:"POSTGRESQL",
-      iconResource4:null,
-      iconResource3:null,
-      iconResource2:null,
-      iconResource1:null,
-    },
-    {
-      scope:"EMBEDDED",
-      name:"Druid",
-      inputSpec:{
-        authenticationType:"NONE",
-        database:"NONE",
-        sid:"NONE",
-        catalog:"NONE",
-        username:"NONE",
-        password:"NONE"
-      },
-      implementor:"DRUID",
-      iconResource4:null,
-      iconResource3:null,
-      iconResource2:null,
-      iconResource1:null,
-    },
-    {
-      scope:"EXTENSION",
-      name:"Tibero",
-      inputSpec:{
-        authenticationType:"MANDATORY",
-        database:"NONE",
-        sid:"MANDATORY",
-        catalog:"NONE",
-        username:"MANDATORY",
-        password:"MANDATORY"
-      },
-      implementor:"TIBERO",
-      iconResource4:null,
-      iconResource3:null,
-      iconResource2:null,
-      iconResource1:null,
-    }
-  ];
-
-  public selectedConnectionType;
-
   // workspace set component
   @ViewChild(SetWorkspacePublishedComponent)
   private readonly _setWorkspaceComponent: SetWorkspacePublishedComponent;
@@ -204,8 +96,6 @@ export class UpdateConnectionComponent extends AbstractComponent {
         this.published = result.published;
         this.linkedWorkspaces = result.linkedWorkspaces;
         this.connectionName = result.name;
-        // set selected connection type
-        this.selectedConnectionType = this.connectionTypeList.find(type => type.implementor === result.implementor.toString());
         // loading hide
         this.loadingHide();
         // show popup

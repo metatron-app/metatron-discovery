@@ -53,26 +53,27 @@ export class Dataconnection extends AbstractHistoryEntity {
   public num:number;
 }
 
-export interface ConnectionSample {
-  scope: ConnectionScope;
+// app.metatron.discovery.extension.dataconnection.jdbc.dialect
+export interface JdbcDialect {
+  scope: Scope;
   name: string;
   implementor: ImplementorType;
-  inputSpec: ConnectionInputSpec;
+  inputSpec: InputSpec;
   iconResource1;
   iconResource2;
   iconResource3;
   iconResource4;
 }
 
-export interface ConnectionInputSpec {
-  implementor: SpecFlag,
-  authenticationType: SpecFlag,
-  options: SpecFlag,
-  database: SpecFlag,
-  sid: SpecFlag,
-  catalog: SpecFlag,
-  username: SpecFlag,
-  password: SpecFlag
+export interface InputSpec {
+  implementor: InputMandatory,
+  authenticationType: InputMandatory,
+  options: InputMandatory,
+  database: InputMandatory,
+  sid: InputMandatory,
+  catalog: InputMandatory,
+  username: InputMandatory,
+  password: InputMandatory
 }
 
 //TODO 데이터소스의 ConnectionType 과 이름이 겹치므로 추후 ImplementorType으로 변경 필요
@@ -112,13 +113,13 @@ export enum ImplementorType {
   NONE = <any>'NONE'
 }
 
-export enum SpecFlag {
+export enum InputMandatory {
   MANDATORY = 'MANDATORY',
   OPTIONAL = 'OPTIONAL',
   NONE = 'NONE'
 }
 
-export enum ConnectionScope {
+export enum Scope {
   EMBEDDED = 'EMBEDDED',
   EXTENSION = 'EXTENSION'
 }

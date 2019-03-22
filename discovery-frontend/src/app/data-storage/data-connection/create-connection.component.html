@@ -28,8 +28,6 @@
     <!-- dp connection -->
     <div class="ddp-ui-dbconnect">
       <app-connection
-                    [connectionTypeList]="connectionTypeList"
-                    [selectedConnectionType]="selectedConnectionType"
                     [isUsedNameInitial]="true"
                     [connectionName]="connectionName"
                     (createdName)="connectionName = $event"></app-connection>

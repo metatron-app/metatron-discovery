@@ -67,9 +67,7 @@
         <!-- error -->
       </div>
       <!-- //name -->
-      <app-connection [connectionTypeList]="connectionTypeList"
-                      [selectedConnectionType]="selectedConnectionType"
-                      [isDisableChangeConnectionType]="true"
+      <app-connection [isDisableChangeConnectionType]="true"
                       [isUsedNameInitial]="true"
                       [connectionName]="connectionName"
                       (createdName)="connectionName = $event"></app-connection>
