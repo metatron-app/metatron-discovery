@@ -325,6 +325,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent {
       connection.hostname = this._sourceData.connectionData.hostname;
       connection.port = this._sourceData.connectionData.port;
     }
+    // TODO #1573 추후 extensions 스펙에 맞게 변경 필요
     // database
     if (this.connectionCreateService.isRequiredDatabase(this._sourceData.connectionData.selectedDbType.value)) {
       connection.database = this._sourceData.connectionData.database;
