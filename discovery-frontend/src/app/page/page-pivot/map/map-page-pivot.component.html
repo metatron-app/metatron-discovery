@@ -108,13 +108,13 @@
       <div class="ddp-ui-drag-slide">
         <!-- analysis -->
         <div class="ddp-ui-analysis">
-          공간 연산 결과 =
-          <span class="ddp-tag-layer">기준 레이어</span>
+          {{'msg.page.chart.map.spatial.analysis.result' | translate}}
+          <span class="ddp-tag-layer">{{'msg.page.chart.map.spatial.mainlayer' | translate}}</span>
           <span class="ddp-txt-data">
           <em [ngClass]="{'ddp-icon-layer1' : uiOption.analysis['layerNum'] == 0, 'ddp-icon-layer2' : uiOption.analysis['layerNum'] == 1}"></em>
             {{uiOption.analysis['mainLayer']}}
         </span>
-          <span class="ddp-tag-layer2">비교 레이어</span>
+          <span class="ddp-tag-layer2">{{'msg.page.chart.map.spatial.comparelayer' | translate}}</span>
           <span class="ddp-txt-data">
           <em [ngClass]="{'ddp-icon-layer2' : uiOption.analysis['layerNum'] == 0, 'ddp-icon-layer1' : uiOption.analysis['layerNum'] == 1}"></em>
             {{uiOption.analysis['compareLayer']}}
