@@ -522,6 +522,23 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
       grid.getContainerNode().querySelector('.slick-viewport').scrollLeft = grid.getContainerNode().querySelector('.slick-header').scrollLeft;
     });
 
+
+    if (this.isCellExternalCopyManagerActivate()) {
+
+      if (false === this._option.enableCellNavigation) {
+        this._option.enableCellNavigation = true;
+      }
+
+      // 셀 드래그 옵션 초기화
+      this.initCellExternalCopyManager(grid);
+    } else {
+
+      // 그리드 로우 선택 기능 활성화
+      grid.setSelectionModel(
+        new Slick.RowSelectionModel({ selectActiveRow: false })
+      );
+    }
+
     return grid;
   } // function - _generateGrid
 
@@ -681,6 +698,8 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
               // 전체 선택 해제
               this.rowAllUnSelection();
+
+              this.initCellExternalCopyManager(this._grid);
             }
           } else {
             if (this._option.enableMultiSelectionWithCtrlAndShift) {
@@ -938,5 +957,27 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
       return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     });
   } // function - _generateUUID
+
+  /**
+   * 셀 드래그 옵션 초기화
+   * @param scope
+   */
+  private initCellExternalCopyManager(grid): void {
+
+    grid.setSelectionModel(
+      new Slick.CellSelectionModel({ selectActiveRow: false })
+    );
+
+    const cellCopyManager = new Slick.CellExternalCopyManager();
+    cellCopyManager.init(grid);
+  }
+
+  /**
+   * 셀 복사 붙여넣기 기능 활성화 여부 검사
+   * @returns {boolean}
+   */
+  private isCellExternalCopyManagerActivate(): boolean {
+    return true === this._option.cellExternalCopyManagerActivate;
+  }
 
 }
