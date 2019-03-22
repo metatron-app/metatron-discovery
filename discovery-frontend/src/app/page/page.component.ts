@@ -3332,7 +3332,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.drawChart();
     } else if (!_.isUndefined(value)) {
       this.mapPivot.spatialAnalysisBtnClicked(value);
-      this.drawChart({type : EventType.CHANGE_PIVOT});
+      // 현재 화면이 벗어나면 짤리므로
+      this.drawChart({type : EventType.MAP_SPATIAL_ANALYSIS});
     } else {
       this.drawChart();
     }

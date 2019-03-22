@@ -3111,8 +3111,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           layer.color.maxValue = valueRange.maxValue;
         }
 
-        this.changeDetect.detectChanges();
-
       } else {
 
         let alias = ChartUtil.getFieldAlias(layer.color.column, shelf, layer.color.aggregationType);

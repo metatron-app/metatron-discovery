@@ -498,15 +498,15 @@ export class ColorOptionConverter {
 
     let alias = ChartUtil.getFieldAlias(uiOption.layers[layerIndex].color.column, layers, uiOption.layers[layerIndex].color.aggregationType);
 
-    // symbol 타입 , cluster 사용일 경우
-    if( uiOption.layers[layerIndex].type == MapLayerType.SYMBOL && uiOption.layers[layerIndex]['clustering'] ){
-      alias = 'count';
-    }
-
     if( !_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use'] ) {
       if( !_.isUndefined(uiOption['analysis']['operation']['aggregation']) && !_.isUndefined(uiOption['analysis']['operation']['aggregation']['column'])
         && uiOption['analysis']['operation']['aggregation']['column'] == 'count') {
         alias = uiOption['analysis']['operation']['aggregation']['column'];
+      }
+    } else {
+      // symbol 타입 , cluster 사용일 경우
+      if( uiOption.layers[layerIndex].type == MapLayerType.SYMBOL && uiOption.layers[layerIndex]['clustering'] ){
+        alias = 'count';
       }
     }
 
