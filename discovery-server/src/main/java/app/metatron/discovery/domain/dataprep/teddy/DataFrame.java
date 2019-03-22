@@ -1376,12 +1376,6 @@ public class DataFrame implements Serializable, Transformable {
     if (m.matches() == false) {
       throw new IllegalColumnNameForHiveException("The column name contains non-alphanumerical characters: " + colName);
     }
-
-    // 그리고, 첫글자는 반드시 영문자
-    char c = colName.charAt(0);
-    if (Character.isDigit(c) || c == '_') {
-      throw new IllegalColumnNameForHiveException("The first character should be alphabetic: " + colName);
-    }
   }
 
   // Hive 테이블로 만들 때에만 이 함수를 사용해서 컬럼명을 제약함
