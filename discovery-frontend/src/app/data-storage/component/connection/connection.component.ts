@@ -457,7 +457,7 @@ export class ConnectionComponent extends AbstractComponent {
           return '../../../../assets/images/img_db/ic_DB.png';
       }
     } else {
-      return connection.iconResource1;
+      return connection.iconResource1 || '../../../../assets/images/img_db/ic_DB.png';
     }
   }
 
