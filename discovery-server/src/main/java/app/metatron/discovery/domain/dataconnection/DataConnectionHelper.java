@@ -42,12 +42,13 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.dataconnection.connector.CachedUserJdbcConnector;
 import app.metatron.discovery.extension.dataconnection.jdbc.JdbcConnectInformation;
 import app.metatron.discovery.extension.dataconnection.jdbc.accessor.JdbcAccessor;
 import app.metatron.discovery.extension.dataconnection.jdbc.connector.JdbcConnector;
 import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
+import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionErrorCodes;
+import app.metatron.discovery.extension.dataconnection.jdbc.exception.JdbcDataConnectionException;
 
 /**
  *
@@ -125,7 +126,8 @@ public class DataConnectionHelper {
     }
 
     if(matchedDialect == null){
-      throw new ResourceNotFoundException("JdbcDialect for " + connectInformation.getImplementor());
+      throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.NOT_FOUND_SUITABLE_DIALECT,
+                                            "not found suitable JdbcDialect for " + connectInformation.getImplementor());
     }
 
     return matchedDialect;
@@ -176,7 +178,8 @@ public class DataConnectionHelper {
     }
 
     if(matchedDataAccessor == null){
-      throw new ResourceNotFoundException("Accessor for " + connectInformation.getImplementor());
+      throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.NOT_FOUND_SUITABLE_DATA_ACCESSOR,
+                                            "not found suitable Accessor for " + connectInformation.getImplementor());
     }
 
     return matchedDataAccessor;

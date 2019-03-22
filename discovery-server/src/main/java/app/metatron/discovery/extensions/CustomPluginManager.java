@@ -51,19 +51,6 @@ public class CustomPluginManager extends DefaultPluginManager {
     return pluginStatusProvider;
   }
 
-  @Override
-  protected void initialize() {
-    System.out.println("===========CustomPluginManager initialize..");
-  }
-
-//  @Override
-//  public void init() {
-//    //initialize pluginStatusProvider before pluginManager init
-//    pluginStatusProvider.initialize(extensionProperties);
-//
-//    super.init();
-//  }
-
   public void injectExtensions() {
     // add extensions from classpath (non plugin)
     Set<String> extensionClassNames = this.getExtensionClassNames(null);
@@ -122,19 +109,15 @@ public class CustomPluginManager extends DefaultPluginManager {
 
   @PostConstruct
   public void postConstruct(){
-    LOGGER.debug("===========postConstruct..");
     super.initialize();
 
     //initialize pluginStatusProvider before load plugins
     pluginStatusProvider.initialize(extensionProperties);
 
-    LOGGER.debug("===========load Plugin..");
     this.loadPlugins();
 
-    LOGGER.debug("===========start Plugin..");
     this.startPlugins();
 
-    LOGGER.debug("===========inject extensions..");
     this.injectExtensions();
   }
 }

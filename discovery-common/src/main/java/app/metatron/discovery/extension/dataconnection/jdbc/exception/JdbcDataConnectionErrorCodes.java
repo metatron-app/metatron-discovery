@@ -40,6 +40,8 @@ public enum JdbcDataConnectionErrorCodes implements ErrorCodes {
   , PARTITION_NOT_EXISTED("JDC0006")
   , NO_SUITABLE_DRIVER("JDC0007")
   , DATASOURCE_CONNECTION_ERROR("JDC0008")
+  , NOT_FOUND_SUITABLE_DIALECT("JDC0009")
+  , NOT_FOUND_SUITABLE_DATA_ACCESSOR("JDC0010")
   , PREVIEW_TABLE_SQL_ERROR("error.dataconnection.jdbc.preview.table")
   , STAGEDB_PREVIEW_TABLE_SQL_ERROR("error.dataconnection.stagedb.preview.table")
   ;
