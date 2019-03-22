@@ -16,10 +16,15 @@ package app.metatron.discovery.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+
+import de.codecentric.boot.admin.jackson.ApplicationDeserializer;
+import de.codecentric.boot.admin.model.Application;
 
 import org.pf4j.PluginManager;
 import org.pf4j.PluginWrapper;
@@ -333,15 +338,20 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
 
     @Bean
     public Jackson2ObjectMapperBuilder jacksonBuilder() {
-        Jackson2ObjectMapperBuilder builder = Jackson2ObjectMapperBuilder.json();
-        builder.indentOutput(false)
-                .dateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"))
-                .failOnUnknownProperties(false)
-                .featuresToEnable(ALLOW_NON_NUMERIC_NUMBERS)
-                .featuresToEnable(ALLOW_SINGLE_QUOTES)
-                .serializationInclusion(JsonInclude.Include.NON_NULL)
-                .modules(new JodaModule(), new Hibernate5Module());
-        return builder;
+      Jackson2ObjectMapperBuilder builder = Jackson2ObjectMapperBuilder.json();
+
+      //add deserializer for managements
+      SimpleModule simpleModule = new SimpleModule("SimpleModule", Version.unknownVersion());
+      simpleModule.addDeserializer(Application.class, new ApplicationDeserializer());
+
+      builder.indentOutput(false)
+              .dateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"))
+              .failOnUnknownProperties(false)
+              .featuresToEnable(ALLOW_NON_NUMERIC_NUMBERS)
+              .featuresToEnable(ALLOW_SINGLE_QUOTES)
+              .serializationInclusion(JsonInclude.Include.NON_NULL)
+              .modules(new JodaModule(), new Hibernate5Module(), simpleModule);
+      return builder;
     }
 
     // TODO: 향후 Spring data rest 관련 설정 파일 분리
