@@ -70,7 +70,7 @@ export class FieldConfigService extends AbstractService {
       } else {
         const params = {
           geoType: targetType,
-          values: dataList.slice(0, 19).map(data => `${this._getKeywordWKT(targetType)} (${data.replace(/,/, ' ')})`)
+          values: dataList.slice(0, 19)
         };
         // api result
         this.post(this.API_URL + 'datasources/validation/wkt', params)
@@ -135,6 +135,11 @@ export class FieldConfigService extends AbstractService {
   //   });
   // }
 
+  /**
+   * Convert type
+   * @param {LogicalType} logicalType
+   * @return {any}
+   */
   public convertType(logicalType: LogicalType) {
     if (logicalType === LogicalType.GEO_POINT) {
       return Type.Logical.GEO_POINT;
@@ -144,23 +149,6 @@ export class FieldConfigService extends AbstractService {
       return Type.Logical.GEO_POLYGON;
     }
   }
-
-  /**
-   * Get keyword WKT
-   * @param {LogicalType} type
-   * @return {any}
-   * @private
-   */
-  private _getKeywordWKT(type: Type.Logical) {
-    if (type === Type.Logical.GEO_POINT) {
-      return Type.WKT.POINT;
-    } else if (type === Type.Logical.GEO_LINE) {
-      return Type.WKT.LINESTRING;
-    } else if (type === Type.Logical.GEO_POLYGON) {
-      return Type.WKT.POLYGON;
-    }
-  }
-
   /**
    * Get geo coordinate
    * @param {Type.Logical} type
