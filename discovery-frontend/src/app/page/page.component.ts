@@ -3329,11 +3329,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // 공간연산 analysis layer 관련 event 구현
     if (!_.isUndefined(value) && value == 'removeAnalysisLayerEvent') {
       this.mapPivot.removeAnalysis();
+      this.drawChart();
     } else if (!_.isUndefined(value)) {
       this.mapPivot.spatialAnalysisBtnClicked(value);
+      this.drawChart({type : EventType.CHANGE_PIVOT});
+    } else {
+      this.drawChart();
     }
-
-    this.drawChart();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

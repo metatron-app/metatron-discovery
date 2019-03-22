@@ -1055,7 +1055,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
           && styleOption['analysis']['operation']['aggregation']['column'] == 'count') {
           alias = styleOption['analysis']['operation']['aggregation']['column'];
         } else {
-          alias = styleLayer.color.aggregationType +"("+ alias +")";
+          if( !_.isUndefined(styleLayer.color.aggregationType) ){
+            alias = styleLayer.color.aggregationType +"("+ alias +")";
+          }
         }
       }
 
@@ -2453,9 +2455,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       // Option panel change cancel, not current shelf change
       if (!this.drawByType || String(this.drawByType) == "" || (EventType.CHANGE_PIVOT == this.drawByType && uiOption.layerNum != index)
         || isNullOrUndefined(field)) {
-        if( !isAnalysisUse ){
           continue;
-        }
       }
 
       let geomType = field.field.logicalType.toString();
@@ -3081,29 +3081,66 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     }
 
     for (let idx = 0; idx < this.shelf.layers.length; idx++) {
-      let layer: UILayers = this.getUiMapOption().layers[idx];
+      let uiOption = this.getUiMapOption();
+      let layer: UILayers = uiOption.layers[idx];
       let shelf: GeoField[] = _.cloneDeep(this.shelf.layers[idx].fields);
-      let alias = ChartUtil.getFieldAlias(layer.color.column, shelf, layer.color.aggregationType);
 
-      // symbol 타입 , cluster 사용일 경우
-      if (layer.type == MapLayerType.SYMBOL && layer['clustering']) {
-        alias = 'count';
+      let isAnalysisUse : boolean = false;
+      if( !_.isUndefined(uiOption['analysis']) && !_.isUndefined(uiOption['analysis']['use']) && uiOption['analysis']['use'] ) {
+        isAnalysisUse = true;
       }
 
-      if (_.isUndefined(this.data[this.getUiMapOption().layerNum])) {
-        continue;
-      }
+      let valueRange;
+      if( isAnalysisUse ){
 
-      let valueRange = _.cloneDeep(this.data[this.getUiMapOption().layerNum]['valueRange'][alias]);
-      if (valueRange) {
-        (_.isUndefined(layer.color.minValue) || layer.color.minValue > valueRange.minValue ? layer.color.minValue = valueRange.minValue : layer.color.minValue);
+        if (idx != this.shelf.layers.length-1) {
+          continue;
+        }
 
-        (_.isUndefined(layer.color.maxValue) || layer.color.maxValue < valueRange.maxValue ? layer.color.maxValue = valueRange.maxValue : layer.color.maxValue);
+        let alias;
+        if( _.isUndefined(layer.color.aggregationType) ){
+          alias = layer.color.column;
+        } else {
+          alias = layer.color.aggregationType +"("+ layer.color.column +")";
+        }
+
+        valueRange = _.cloneDeep(this.data[uiOption.analysis['layerNum']]['valueRange'][alias]);
+
+        if (valueRange) {
+          layer.color.minValue = valueRange.minValue;
+          layer.color.maxValue = valueRange.maxValue;
+        }
+
+        this.changeDetect.detectChanges();
+
+      } else {
+
+        let alias = ChartUtil.getFieldAlias(layer.color.column, shelf, layer.color.aggregationType);
+        // symbol 타입 , cluster 사용일 경우
+        if (layer.type == MapLayerType.SYMBOL && layer['clustering']) {
+          alias = 'count';
+        }
+
+        if (_.isUndefined(this.data[this.getUiMapOption().layerNum])) {
+          continue;
+        }
+        valueRange = _.cloneDeep(this.data[this.getUiMapOption().layerNum]['valueRange'][alias]);
+
+        if (valueRange) {
+          (_.isUndefined(layer.color.minValue) || layer.color.minValue > valueRange.minValue ? layer.color.minValue = valueRange.minValue : layer.color.minValue);
+          (_.isUndefined(layer.color.maxValue) || layer.color.maxValue < valueRange.maxValue ? layer.color.maxValue = valueRange.maxValue : layer.color.maxValue);
+        }
       }
 
       // _.each(shelf, (field) => {
       //   if (_.eq(field.type, ShelveFieldType.MEASURE)) {
-      // layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[idx], this.getColorList(layer), idx, shelf);
+      //     if( !_.isUndefined(layer.color.ranges) ) {
+      //       if( isAnalysisUse ){
+      //         layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[uiOption.analysis['layerNum']], this.getColorList(layer), idx, shelf);
+      //       } else {
+      //         layer.color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.getUiMapOption(), this.data[idx], this.getColorList(layer), idx, shelf);
+      //       }
+      //     }
       //   }
       // });
 
@@ -3272,11 +3309,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
     // 완료
     this.drawFinished.emit();
 
-    if (!this.isPage) {
-      this.selection();
-    }
-
-    this.shelfEvent.emit(this.shelf);
   }
 
   /**
