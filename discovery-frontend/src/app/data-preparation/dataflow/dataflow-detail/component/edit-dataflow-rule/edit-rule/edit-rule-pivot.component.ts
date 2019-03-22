@@ -19,6 +19,7 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleSuggestInputComponent } from './rule-suggest-input.component';
 import {isUndefined} from "util";
 import {PivotRule} from "../../../../../../domain/data-preparation/prep-rules";
+import {DataflowModelService} from "../../../../service/dataflow.model.service";
 
 interface formula {
   id: number;
@@ -54,6 +55,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
 
   // 생성자
   constructor(
+    private dataflowModelService:DataflowModelService,
     protected elementRef: ElementRef,
     protected injector: Injector) {
     super(elementRef, injector);
@@ -174,6 +176,13 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
     return formula.id;
   } // function - trackByFn
 
+
+  /**
+   * When scrolled
+   */
+  public scrollHandler() {
+    this.dataflowModelService.scrollClose.next();
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

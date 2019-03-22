@@ -310,8 +310,8 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
           item.value = this.searchText;
           this.onSelected.emit(item);
           // Emitting event telling not to apply rule !
-          // this.isShowSelectList = false;
-          // this.showHidePatternLayer(this.isShowSelectList);
+          this.isShowSelectList = false;
+          this.showHidePatternLayer(this.isShowSelectList);
         }
         break;
     }

@@ -12,30 +12,42 @@
  * limitations under the License.
  */
 
-import { isNullOrUndefined, isUndefined } from 'util';
+import {isNullOrUndefined, isUndefined} from 'util';
 import * as $ from 'jquery';
 import * as _ from 'lodash';
 import {
-  AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Injector, Input, OnDestroy, OnInit,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
   Output,
   ViewChild
 } from '@angular/core';
-import { PrDataflow } from '../../../../../domain/data-preparation/pr-dataflow';
-import { PrDataset, Field, Rule } from '../../../../../domain/data-preparation/pr-dataset';
-import { StringUtil } from '../../../../../common/util/string.util';
-import { Alert } from '../../../../../common/util/alert.util';
-import { PreparationAlert } from '../../../../util/preparation-alert.util';
-import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { DataflowService } from '../../../service/dataflow.service';
-import { ExtendInputFormulaComponent } from './extend-input-formula.component';
-import { EditRuleGridComponent } from './edit-rule-grid/edit-rule-grid.component';
-import { EditRuleComponent } from './edit-rule/edit-rule.component';
-import { CreateSnapshotPopup } from '../../../../component/create-snapshot-popup.component';
-import { RuleListComponent } from './rule-list.component';
-import { DataSnapshotDetailComponent } from '../../../../data-snapshot/data-snapshot-detail.component';
-import { EventBroadcaster } from '../../../../../common/event/event.broadcaster';
+import {PrDataflow} from '../../../../../domain/data-preparation/pr-dataflow';
+import {DsType, Field, PrDataset, Rule} from '../../../../../domain/data-preparation/pr-dataset';
+import {StringUtil} from '../../../../../common/util/string.util';
+import {Alert} from '../../../../../common/util/alert.util';
+import {PreparationAlert} from '../../../../util/preparation-alert.util';
+import {AbstractPopupComponent} from '../../../../../common/component/abstract-popup.component';
+import {DataflowService} from '../../../service/dataflow.service';
+import {ExtendInputFormulaComponent} from './extend-input-formula.component';
+import {EditRuleGridComponent} from './edit-rule-grid/edit-rule-grid.component';
+import {EditRuleComponent} from './edit-rule/edit-rule.component';
+import {CreateSnapshotPopup} from '../../../../component/create-snapshot-popup.component';
+import {RuleListComponent} from './rule-list.component';
+import {DataSnapshotDetailComponent} from '../../../../data-snapshot/data-snapshot-detail.component';
+import {EventBroadcaster} from '../../../../../common/event/event.broadcaster';
 import {PreparationCommonUtil} from "../../../../util/preparation-common.util";
 import {MultipleRenamePopupComponent} from "./multiple-rename-popup.component";
+import {DataflowModelService} from "../../../service/dataflow.model.service";
+import {ActivatedRoute} from "@angular/router";
+import {CommonConstant} from "../../../../../common/constant/common.constant";
+import {Observable} from "rxjs";
 
 declare let Split;
 
@@ -160,19 +172,17 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   // APPEND (룰 등록) / UPDATE (룰 수정) / JUMP / PREPARE_UPDATE (룰 수정하기 위해 jump) / DELETE
   public opString: string = 'APPEND';
 
-  public isEnterKeyPressedFromOuter: boolean = false;
-
   public isAggregationIncluded: boolean = false;
 
+  public scrollLeft: string;
+
   get filteredWrangledDatasets() {
-    if (this.dataflow.datasets.length === 0) return [];
-
-    let list = this.dataflow.datasets;
-
+    if (_.isNil(this.dsList) || this.dsList.length === 0) return [];
+    let list = this.dsList;
     list = list.filter((dataset) => {
       return dataset.dsType.toString() === 'WRANGLED';
     }).map((data) => {
-      data.current = data.dsId === this.selectedDataSet.dsId;
+      data.current = data.dsId === this.dsId;
       return data;
     });
     return list;
@@ -202,22 +212,39 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   }
 
+  public dfId: string;
+  public dsId: string;
+  public dsName: string;
+  public dsList: PrDataset[];
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
   constructor(private dataflowService: DataflowService,
+              private dataflowModelService: DataflowModelService,
               private broadCaster: EventBroadcaster,
+              private route: ActivatedRoute,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
     super(elementRef, injector);
+
+    this.route.params.subscribe((params) => {
+      this.dsId = params['dsId'];
+      this.dfId = params['dfId'];
+    });
+    this.useUnloadConfirm = false;
   }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Override Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public canDeactive(): Observable<boolean> | boolean {
+    return this.useUnloadConfirm;
+  }
 
   // Init
   public ngOnInit() {
@@ -231,66 +258,35 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
         if (data.id === 'toggleList') {
           this.isMultiColumnListShow = data.isShow;
-        } else if(data.id === 'enterKey') {
-          this.isEnterKeyPressedFromOuter = true;
-        } else {
+        }  else {
           this.isMultiColumnListShow = data.isShow;
           this.isCommandListShow = false;
+        }
+
+        // scroll 위치 조정
+        if (this.isMultiColumnListShow) {
+          const left = $('.ddp-wrap-rulecontents')[0].scrollLeft;
+          this.scrollLeft = '-' + left + 'px';
+        } else {
+          this.scrollLeft = '';
         }
 
       })
     );
 
-    this.initViewPage();
+    this._initialiseValues();
+    this._getDataflowAndDataset();
 
   }
 
-  public ngOnChanges() {}
 
   public ngAfterViewInit() {
-    this._split = [];
-    this._split.push(Split(['.rule-left', '.rule-right'], {
-        sizes: [80, 20],
-        minSize: [300, 300],
-        onDragEnd: (() => {
-          this._editRuleGridComp.resizeGrid();
-        }),
-        onDragStart: (() => {
-          this._editRuleGridComp.gridAllContextClose();
-        })
-      })
-    );
-    this._split.push(Split(['.rule-top', '.rule-bottom'], {
-      direction: 'vertical',
-      sizes: [75, 25],
-      minSize: [400, 110],
-      onDragEnd: (() => {
-        this._editRuleGridComp.resizeGrid();
-      }),
-      onDragStart: (() => {
-        this._editRuleGridComp.gridAllContextClose();
-      })
-    }));
-    this._setEditRuleInfo({op:'INITIAL', ruleIdx: null, count: 100, offset: 0}).then((data)=> {
-
-      if (data['error']) {
-        let prep_error = this.dataprepExceptionHandler(data['error']);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        return;
-      }
-
-      this.serverSyncIndex = data.apiData.ruleCurIdx;
-      this.ruleListComponent.selectedRuleIdx = this.serverSyncIndex; // 처음 들어갔을 때 전에 jump 한 곳으로 나와야 하기 떄문에
-      this.setRuleListColorWhenJumped(this.serverSyncIndex);
-    });
+    this._setSplit();
   }
 
   public ngOnDestroy() {
     super.ngOnDestroy();
-    this._split.forEach((item) => {
-      item.destroy();
-    });
-    this._split = [];
+    this._destroySplit();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -325,7 +321,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * move to previous step
    * */
   public prev() {
-    this.closeEditRule.emit();
+
+    // save id and type for dataflow detail page
+    this.dataflowModelService.setSelectedDsId(this.dsId);
+    this.dataflowModelService.setSelectedDsType(DsType.WRANGLED);
+    this.useUnloadConfirm = true;
+    this.router.navigate([`/management/datapreparation/dataflow/${this.dfId}`]);
   }
 
   /**
@@ -334,8 +335,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public createSnapshot() {
     this.ruleListComponent.clearExistingInterval();
     this.createSnapshotPopup.init({
-      id: this.selectedDataSet.dsId,
-      name: this.selectedDataSet.dsName,
+      id: this.dsId,
+      name: this.dsName,
       fields: this.selectedDataSet.gridData.fields
     });
   }
@@ -380,8 +381,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this.editorUseFlag = false;
       this.editorUseLabel = this.translateService.instant('msg.dp.btn.switch.editor');
 
-      // Reset command when switch to builder
-      // this.initRule();
     } else {
       this.editorUseFlag = true;
       this.editorUseLabel = this.translateService.instant('msg.dp.btn.switch.builder');
@@ -392,7 +391,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public showCommandList() {
 
     // Close all opened select box from rule
-    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : 'commandList', isShow : false } );
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : 'toggleList', isShow : false } );
 
     // 포커스 이동
     setTimeout(() => $('#commandSearch').trigger('focus'));
@@ -440,11 +439,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
           return item.type === 'TIMESTAMP'
         });
-        this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
+        this._editRuleComp.setValue('dsId', this.dsId);
         this._editRuleComp.setValue('colTypes', colDescs);
         break;
       case 'settype':
-        this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
+        this._editRuleComp.setValue('dsId', this.dsId);
         this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
         break;
       case 'join':
@@ -601,7 +600,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this.safelyDetectChanges();
 
       if (jsonRuleString.name === 'settype') {
-        this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
+        this._editRuleComp.setValue('dsId', this.dsId);
         this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
       }
 
@@ -609,7 +608,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
           return item.type === 'TIMESTAMP'
         });
-        this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
+        this._editRuleComp.setValue('dsId', this.dsId);
         this._editRuleComp.setValue('colTypes', colDescs);
       }
 
@@ -617,7 +616,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         if (jsonRuleString.col.length !== 1) {
           this.multipleRenamePopupComponent.init({
             gridData: _.cloneDeep(gridData),
-            dsName: this.selectedDataSet.dsName,
+            dsName: this.dsName,
             typeDesc: this.selectedDataSet.gridResponse.colDescs,
             editInfo: {ruleCurIdx: this.ruleVO['ruleNo'],
               cols: jsonRuleString.col,
@@ -712,29 +711,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param dataset {PrDataset}
    */
   public changeWrangledDataset(dataset : PrDataset) {
-    this.loadingShow();
-
-    let dataflows = this.selectedDataSet.dataflows ? this.selectedDataSet.dataflows : null;
-
-    delete this.selectedDataSet;
-    this.selectedDataSet = dataset;
-
-    if (!this.selectedDataSet.dataflows && null != dataflows) {
-      this.selectedDataSet.dataflows = dataflows;
-    }
-
-    this._setEditRuleInfo({op:'INITIAL', ruleIdx: null, count: 100, offset: 0}).then((data) => {
-
-      if (data['error']) {
-        let prep_error = this.dataprepExceptionHandler(data['error']);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        return;
-      }
-
-      this.selectedDataSet.dsId = data.apiData.dsId;
-      this.changeDataset.emit(data.apiData);
-    });
-
+    this.dataflowModelService.setSelectedDsId(this.dsId);
+    this.dataflowModelService.setSelectedDsType(DsType.WRANGLED);
+    window.location.href = CommonConstant.API_CONSTANT.BASE_URL +`management/datapreparation/dataflow/${this.dataflow.dfId}/rule/${dataset.dsId}` ;
   }
 
   /**
@@ -1040,7 +1019,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     if ('UPDATE' === this.opString) {
       this.multipleRenamePopupComponent.init({gridData: _.cloneDeep(this.selectedDataSet.gridData),
-        dsName: this.selectedDataSet.dsName,
+        dsName: this.dsName,
         typeDesc: this.selectedDataSet.gridResponse.colDescs,
         editInfo: {ruleCurIdx: this.ruleVO['ruleNo'],
           cols: this.ruleVO.cols,
@@ -1048,7 +1027,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       });
     } else {
       this.multipleRenamePopupComponent.init({gridData: _.cloneDeep(this.selectedDataSet.gridData),
-        dsName: this.selectedDataSet.dsName, typeDesc: this.selectedDataSet.gridResponse.colDescs});
+        dsName: this.dsName, typeDesc: this.selectedDataSet.gridResponse.colDescs});
     }
   }
 
@@ -1191,7 +1170,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.isInitDataLoaded = true;
     this.safelyDetectChanges();
 
-    return this._editRuleGridComp.init(this.selectedDataSet.dsId, params)
+    return this._editRuleGridComp.init(this.dsId, params)
       .then((data: { apiData: any, gridData: any }) => {
 
         if (isNullOrUndefined(data.apiData)) {
@@ -1213,22 +1192,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           Alert.warning(this.translateService.instant('msg.dp.alert.ds.retrieve.fail'));
         } else {
 
-          // Todo :
-          let dsId = this.selectedDataSet.dsId;
-          let dsName = this.selectedDataSet.dsName;
-          let _embedded = this.selectedDataSet['_embedded'];
-
           this.selectedDataSet = apiData;
-
-          // 서버에서 돌아오는 데이터에 dsId, dsName, embedded 없음
-          this.selectedDataSet.dsId = dsId;
-          this.selectedDataSet.dsName = dsName;
-          this.selectedDataSet['_embedded'] = _embedded;
-
           this.selectedDataSet.gridData = data.gridData;
+          this.selectedDataSet.dsId = this.dsId;
+          this.selectedDataSet.dsName = this.dsName;
 
           // Set rule list
-          //this.setRuleList(apiData['ruleStringInfos']);
           this.setRuleList(apiData['transformRules']);
           this.isAggregationIncluded = this.hasAggregation();
 
@@ -1268,14 +1237,17 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   @HostListener('document:keydown.enter', ['$event'])
   private onEnterKeydownHandler(event: KeyboardEvent) {
 
-    if (this.multipleRenamePopupComponent.isPopupOpen
-      || this.createSnapshotPopup.isShow
-      || this.extendInputFormulaComponent.isShow) {
-      return;
-    }
+    if( !isNullOrUndefined( this.ruleVO.command ) && ( 'BODY' === event.target['tagName'] || 0 < $( event.target ).closest( '.ddp-wrap-addrule' ).length )  ) {
+      if (this.multipleRenamePopupComponent.isPopupOpen
+        || this.createSnapshotPopup.isShow
+        || this.extendInputFormulaComponent.isShow) {
+        return;
+      }
 
-    if (event.keyCode === 13) {
-      this.addRule();
+      if (event.keyCode === 13) {
+        this.addRule();
+      }
+
     }
 
   } // function - onEnterKeydownHandler
@@ -1325,7 +1297,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   }
 
 
-  private initViewPage() {
+  private _initialiseValues() {
     this.commandList = [
       {
         command: 'header',
@@ -1500,7 +1472,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     ];
 
     // set rule
-    if (this.selectedDataSet.rules && this.selectedDataSet.rules.length > 0) {
+    if (this.selectedDataSet && this.selectedDataSet.rules && this.selectedDataSet.rules.length > 0) {
       this.setRuleList(this.selectedDataSet.rules);
       this.isAggregationIncluded = this.hasAggregation();
     }
@@ -1635,6 +1607,111 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     });
     return !(idx === -1);
   }
+
+
+  private _setSplit() {
+    this._split = [];
+    this._split.push(Split(['.rule-left', '.rule-right'], {
+        sizes: [80, 20],
+        minSize: [300, 300],
+        onDragEnd: (() => {
+          this._editRuleGridComp.resizeGrid();
+        }),
+        onDragStart: (() => {
+          this._editRuleGridComp.gridAllContextClose();
+        })
+      })
+    );
+    this._split.push(Split(['.rule-top', '.rule-bottom'], {
+      direction: 'vertical',
+      sizes: [75, 25],
+      minSize: [400, 110],
+      onDragEnd: (() => {
+        this._editRuleGridComp.resizeGrid();
+      }),
+      onDragStart: (() => {
+        this._editRuleGridComp.gridAllContextClose();
+      })
+    }));
+  }
+
+  private _destroySplit() {
+    this._split.forEach((item) => {
+      item.destroy();
+    });
+    this._split = [];
+  }
+
+
+  /**
+   * Get dataflow info (API)
+   * @private
+   */
+  private _getDataflow() {
+    return new Promise<any>((resolve, reject) => {
+      this.dataflowService.getDataflow(this.dfId).then(result => {
+        resolve(result);
+      }).catch((err) => reject(err));
+    });
+  }
+
+
+  /**
+   * Get dataset info (API)
+   * @private
+   */
+  private _getDataset() {
+    return new Promise<any>((resolve, reject) => {
+      this.dataflowService.getDataset(this.dsId).then(result => {
+        resolve(result);
+      }).catch((err) => reject(err));
+    });
+  }
+
+
+  /**
+   * Get dataflow and dataset info from server (promise)
+   * @private
+   */
+  private _getDataflowAndDataset() {
+    const promise = [];
+    promise.push(this._getDataflow());
+    promise.push(this._getDataset());
+
+    Promise.all(promise).then((result) => {
+      console.info('promise finishe -->', result);
+      this.dataflow = result[0];
+      this.dsName = result[1].dsName;
+      this.dsList = result[0].datasets;
+
+      // set rule
+      if (this.selectedDataSet && this.selectedDataSet.rules && this.selectedDataSet.rules.length > 0) {
+        this.setRuleList(this.selectedDataSet.rules);
+        this.isAggregationIncluded = this.hasAggregation();
+      }
+
+      // init ruleVO
+      this.ruleVO.command = '';
+
+      this._setEditRuleInfo({op:'INITIAL', ruleIdx: null, count: 100, offset: 0}).then((data)=> {
+
+        if (data['error']) {
+          let prep_error = this.dataprepExceptionHandler(data['error']);
+          PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+          return;
+        }
+
+        this.serverSyncIndex = data.apiData.ruleCurIdx;
+        this.ruleListComponent.selectedRuleIdx = this.serverSyncIndex; // 처음 들어갔을 때 전에 jump 한 곳으로 나와야 하기 떄문에
+        this.setRuleListColorWhenJumped(this.serverSyncIndex);
+      });
+
+    }).catch(() => {
+      // 로딩 종료
+      this.loadingHide();
+    });
+  }
+
 
 }
 

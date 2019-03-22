@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Field } from '../../workbook/configurations/field/field';
+import {Field} from '../../workbook/configurations/field/field';
 import {SearchQueryRequest} from "./search-query-request";
 
 export class TimeCompareRequest extends SearchQueryRequest {
@@ -40,6 +40,6 @@ export class TimeCompareRequest extends SearchQueryRequest {
   /**
    * UI 상 타입존 지정
    */
-  timezone: string;
+  timeZone: string;
 
 }

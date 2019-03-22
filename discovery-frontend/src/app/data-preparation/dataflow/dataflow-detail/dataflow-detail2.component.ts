@@ -15,35 +15,32 @@
 import {isNullOrUndefined, isUndefined} from 'util';
 import * as $ from 'jquery';
 import * as _ from 'lodash';
+import {Location} from '@angular/common';
+import {ChangeDetectorRef, Component, ElementRef, Injector, Input, ViewChild} from "@angular/core";
+import {AbstractPopupComponent} from "../../../common/component/abstract-popup.component";
+import {SnapshotLoadingComponent} from "../../component/snapshot-loading.component";
+import {CreateSnapshotPopup} from "../../component/create-snapshot-popup.component";
+import {PrDataflow} from "../../../domain/data-preparation/pr-dataflow";
+import {DeleteModalComponent} from "../../../common/component/modal/delete/delete.component";
+import {DsType, ImportType, PrDataset, Rule} from "../../../domain/data-preparation/pr-dataset";
+import {DataflowService} from "../service/dataflow.service";
+import {DataflowModelService} from "../service/dataflow.model.service";
+import {ActivatedRoute} from "@angular/router";
+import {Observable} from "rxjs";
+import {StringUtil} from "../../../common/util/string.util";
+import {Alert} from "../../../common/util/alert.util";
+import {PreparationAlert} from "../../util/preparation-alert.util";
+import {Modal} from "../../../common/domain/modal";
+import {DatasetInfoPopupComponent} from "./component/dataset-info-popup/dataset-info-popup.component";
+
 declare let echarts: any;
 
-import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
-import {
-  ChangeDetectorRef, Component, ElementRef, Injector, Input, OnInit,
-  ViewChild
-} from '@angular/core';
-import { Location } from '@angular/common';
-import { Observable } from 'rxjs/Observable';
-import { PrDataflow } from '../../../domain/data-preparation/pr-dataflow';
-import { DeleteModalComponent } from '../../../common/component/modal/delete/delete.component';
-import { PrDataset, DsType, ImportType, Rule } from '../../../domain/data-preparation/pr-dataset';
-import { DataflowService } from '../service/dataflow.service';
-import { StringUtil } from '../../../common/util/string.util';
-import { PreparationAlert   } from '../../util/preparation-alert.util';
-import { Alert } from '../../../common/util/alert.util';
-import { Modal } from '../../../common/domain/modal';
-import { ActivatedRoute } from '@angular/router';
-import { DatasetInfoPopupComponent } from './component/dataset-info-popup/dataset-info-popup.component';
-import { SnapshotLoadingComponent } from '../../component/snapshot-loading.component';
-import { CreateSnapshotPopup } from '../../component/create-snapshot-popup.component';
-import {DataflowModelService} from "../service/dataflow.model.service";
-
 @Component({
-  selector: 'app-dataflow-detail',
-  templateUrl: './dataflow-detail.component.html'
+  selector: 'app-dataflow-detail2',
+  templateUrl: './dataflow-detail2.component.html'
 })
 
-export class DataflowDetailComponent extends AbstractPopupComponent implements OnInit {
+export class DataflowDetail2Component extends AbstractPopupComponent {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -128,12 +125,11 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   public chart: any;
 
   // 차트를 그리기 위한 기반 데이터
-  public dataSetList: any[] = [];
+  public dataSetList: PrDataset[];
 
   // delete selected dataflow
   public selectedDataflowId: string;
 
-  //public dataflows: Dataflow[] = [];
   public dataflows: PrDataflow[] = [];
 
   // 룰 리스트 (룰 미리보기)
@@ -155,14 +151,16 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   public isSelectDatasetPopupOpen : boolean = false;    // Swap dataset popup open/close
   public isRadio : boolean = false;                     // If swapping -> true / if Adding -> false
   public swapDatasetId : string;                        // Swapping 대상 imported 면 dataset id wrangled 면 upstreamId
+
+  public dfId: string;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
   constructor(
-    private dataflowService: DataflowService,
-    private dataflowModelService : DataflowModelService,
+    private dfService: DataflowService,
+    private dfModelService : DataflowModelService,
     private commonLocation: Location,
     private activatedRoute: ActivatedRoute,
     protected elementRef: ElementRef,
@@ -175,14 +173,6 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    | Override Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public canDeactive(): Observable<boolean> | boolean {
-    if (false == this.canNavigationBack) {
-      this.canNavigationBack = true;
-      return false;
-    }
-    return true;
-  }
-
   /**
    * 초기 설정
    */
@@ -192,21 +182,6 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     // navigation back check
     this.step = '';
     this.canNavigationBack = true;
-    this.locationSubscription = this.commonLocation.subscribe((data) => {
-      if ('update-rules' == this.step) {
-        console.log('navigation back from update-rules');
-        this.canNavigationBack = false;
-      } else if ('' == this.step && false == data.url.endsWith('/datapreparation/dataflow')) {
-        console.log('navigation back to wrong path');
-      }
-
-      if (false == this.canNavigationBack) {
-        window.history.go(1);
-      }
-    });
-
-    // 초기 세팅
-    this.initViewPage();
 
     // 초기화
     this.init();
@@ -218,7 +193,6 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    * View 종료
    */
   public ngOnDestroy() {
-    this.locationSubscription.unsubscribe();
     super.ngOnDestroy();
   } // function - ngOnDestroy
 
@@ -234,19 +208,6 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     this.createSnapshotPopup.init({id : this.selectedDataSet.dsId , name : this.selectedDataSet.dsName, fields : this.selectedDataSet.gridData.fields});
   }
 
-  /**
-   * 다른 데이터셋으로 변경했을 떄 ..
-   * @Param data 변경된 데이터셋으로 다시 표시
-   */
-  public onDatasetChange(data) {
-
-    this.initSelectedDataSet();
-
-    this.selectedDataSet = data;
-
-    this.getDataflow();
-
-  }
 
   public addDatasets() {
     this.openAddDatasetPopup(null);
@@ -325,57 +286,47 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   /**
    * Dataflow 이름 셋 (this.dataflowName은 container이고 this.dataflow.dfName이 실제 이름임
    */
-  public setDataflowName() {
+  public setDataflowName(dfName: string) {
 
     this.isDataflowNameEditMode = false;
-    if (this.dataflowName !== this.dataflow.dfName) {
-      this.dataflowName = this.dataflow.dfName;
-    }
+    this.dataflowName = dfName;
+
   }
 
   /**
    * Dataflow 섦영 셋 (this.dataflowDesc은 container이고 this.dataflow.dfDesc 실제 설명임
    */
-  public setDataflowDesc() {
+  public setDataflowDesc(dfDesc: string) {
+
     this.isDataflowDescEditMode = false;
-    if (this.dataflowDesc !== this.dataflow.dfDesc) {
-      this.dataflowDesc = this.dataflow.dfDesc;
-    }
+    this.dataflowDesc = !_.isNil(dfDesc) ? dfDesc : '';
+
   }
 
   // 팝업끼리 관리하는 모델들 초기화
   public init() {
-    this.dataflow = new PrDataflow();
-    this.selectedDataSet = new PrDataset();
+
+    this._initialiseValues();
+    this._initialiseChartValues();
 
     // Get param from url
     this.activatedRoute.params.subscribe((params) => {
-      if (params['id']) {
-        this.dataflow.dfId = params['id'];
-      }
-      if (this.cookieService.get('SELECTED_DATASET_ID')) { // From dataset detail
 
-        this.selectedDataSet.dsId = this.cookieService.get('SELECTED_DATASET_ID');
-        let type;
-        switch (this.cookieService.get('SELECTED_DATASET_TYPE')) {
-          case 'WRANGLED' :
-            type = DsType.WRANGLED;
-            break;
-          case 'IMPORTED' :
-            type = DsType.IMPORTED;
-            break;
-        }
-        this.selectedDataSet.dsType = type;
-        this.cookieService.delete('SELECTED_DATASET_ID');
-        this.cookieService.delete('SELECTED_DATASET_TYPE');
-        this.closeEditRule();
+      if (!_.isNil(params['id'])) {
+        this.dfId = params['id'];
+      }
+
+      if (!this.dfModelService.isSelectedDsIdAndDsTypeEmpty()) {
+        this.selectedDataSet.dsId = this.dfModelService.getSelectedDsId();
+        this.selectedDataSet.dsType = this.dfModelService.getSelectedDsType();
+
+        this.dfModelService.emptyDsIdAndDsType();
+
+        this.getDataflow(true);
       } else {
         this.getDataflow();
-        if (sessionStorage.getItem('DATASET_ID')) { // From dataflow detail
-          this.addDatasets();
-        }
-
       }
+
     });
   }
 
@@ -413,7 +364,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     };
 
     this.loadingShow();
-    this.dataflowService.updateDataflow(newDataflow)
+    this.dfService.updateDataflow(newDataflow)
       .then((dataflow) => {
         this.loadingHide();
         this.isDataflowNameEditMode = false;
@@ -448,7 +399,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    */
   public deleteDataflow() {
     this.loadingShow();
-    this.dataflowService.deleteDataflow(this.selectedDataflowId).then(() => {
+    this.dfService.deleteDataflow(this.selectedDataflowId).then(() => {
       Alert.success(this.translateService.instant('msg.comm.alert.delete.success'));
       this.loadingHide();
       this.close();
@@ -490,7 +441,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    */
   public createWrangledDataset() {
     this.loadingShow();
-    this.dataflowService.createWrangledDataset(this.selectedDataSet.dsId, this.dataflow.dfId)
+    this.dfService.createWrangledDataset(this.selectedDataSet.dsId, this.dataflow.dfId)
       .then((result) => {
         this.loadingHide();
         if (isUndefined(result)) {
@@ -519,7 +470,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   public datasetClone(event) {
     this.loadingShow();
     if (!this.cloneFlag) {
-      this.dataflowService.cloneWrangledDataset(event.dsId).then(() => {
+      this.dfService.cloneWrangledDataset(event.dsId).then(() => {
         this.cloneFlag = true;
         this.selectedDataSet.dsId = '';
         this.getDataflow();
@@ -638,127 +589,6 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  private initViewPage() {
-
-    this.symbolInfo = {
-      IMPORTED: {
-        UPLOAD: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png',
-        },
-        DATABASE: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png',
-        },
-        STAGING_DB: {
-          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png'
-        }
-      },
-      WRANGLED: {
-        DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_wrangled.png',
-      },
-      SELECTED: {
-        IMPORTED: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db_focus.png',
-        WRANGLED: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_dataset_focus.png'
-      }
-    };
-
-    this.label = {
-      normal: {
-        show: true,
-        position: 'bottom',
-        textStyle: { color: '#000000', fontWeight: 'bold' },
-        formatter(params) {
-          if (params.data.dsName.length > 20) {
-            return params.data.dsName.slice(0,20) + ' ...'
-          } else {
-            return params.data.dsName;
-          }
-        }
-      },
-      emphasis: {
-        show: true,
-        position: 'bottom',
-        textStyle: { color: '#000000', fontWeight: 'bold' },
-        formatter(params) {
-          if (params.data.dsName.length > 20) {
-            return params.data.dsName.slice(0,20) + ' ...'
-          } else {
-            return params.data.dsName;
-          }
-        }
-      }
-    };
-
-    this.chartOptions = {
-      backgroundColor: '#ffffff',
-      tooltip: { show: false },
-      xAxis: {
-        type: 'value',
-        max: null,
-        interval: 1,
-        splitLine: { show: false },
-        axisLabel: { show: false },
-        axisLine: { show: false },
-        axisTick: { show: false }
-      },
-      yAxis: {
-        type: 'value',
-        max: null,
-        interval: 1,
-        inverse: true,
-        splitLine: { show: false },
-        axisLabel: { show: false },
-        axisLine: { show: false },
-        axisTick: { show: false }
-      },
-      series: [
-        {
-          type: 'graph',
-          legendHoverLink: false,
-          layout: 'none',
-          coordinateSystem: 'cartesian2d',
-          focusNodeAdjacency: false,
-          symbolSize: 40,
-          hoverAnimation: true,
-          roam: false,
-          edgeSymbol: ['none', 'arrow'],
-          draggable: true,
-          itemStyle: { normal: { color: '#ccc', borderColor: '#1af' } },
-          nodes: null,
-          links: null,
-          lineStyle: { normal: { opacity: 1, width: 0.5 } }
-        }
-      ], animation: false
-    };
-
-    this.commandList = [
-      { command: 'create', alias: 'Cr' },
-      { command: 'header', alias: 'He' },
-      { command: 'keep', alias: 'Ke' },
-      { command: 'replace', alias: 'Rp' },
-      { command: 'rename', alias: 'Rm' },
-      { command: 'set', alias: 'Se' },
-      { command: 'settype', alias: 'St' },
-      { command: 'countpattern', alias: 'Co' },
-      { command: 'split', alias: 'Sp' },
-      { command: 'derive', alias: 'Dr' },
-      { command: 'delete', alias: 'De' },
-      { command: 'drop', alias: 'Dp' },
-      { command: 'pivot', alias: 'Pv' },
-      { command: 'unpivot', alias: 'Up' },
-      { command: 'join', alias: 'Jo' },
-      { command: 'extract', alias: 'Ex' },
-      { command: 'flatten', alias: 'Fl' },
-      { command: 'merge', alias: 'Me' },
-      { command: 'nest', alias: 'Ne' },
-      { command: 'unnest', alias: 'Un' },
-      { command: 'aggregate', alias: 'Ag' },
-      { command: 'sort', alias: 'So' },
-      { command: 'move', alias: 'Mv' },
-      { command: 'union', alias: 'Ui' }
-    ];
-
-
-  }
 
   /**
    * 데이터플로우 차트 Height Resize
@@ -804,115 +634,59 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   /**
    * Fetch dataflow info
    */
-  public getDataflow(isOpen: boolean = false) {
+  public getDataflow(isOpen?: boolean) {
 
     this.loadingShow();
 
     // Fetch dataflow info
-    this.dataflowService.getDataflow(this.dataflow.dfId).then((dataflow) => {
+    this.dfService.getDataflow(this.dfId).then((df: PrDataflow) => {
 
-      if (dataflow) {
-        // this.dataflow = dataflow 로 대체 가능한지 확인
-        this.dataflow = $.extend(this.dataflow, dataflow);
+      if (!_.isNil(df)) {
+        this.dataflow = df;
+
+        this.setDataflowName(this.dataflow.dfName);
+        this.setDataflowDesc(this.dataflow.dfDesc);
 
         // canvas height resize
         this.dataflowChartAreaResize();
         // canvas height resize
 
-
+        this.dataSetList = [];
         if (this.dataflow.datasets) { // if dataflow has datasets
           this.dataSetList = this.dataflow.datasets;
-        } else {
-          if (this.dataflow['_embedded'] && this.dataflow['_embedded'].datasets) {
-            this.dataSetList = this.dataflow['_embedded'].datasets;
-          } else {
-            this.dataSetList = [];
-          }
         }
 
-        this.dataSetList = this.dataSetList.filter(function (ds) {
-          if (ds.dsType && 'FULLWRANGLED' !== ds.dsType.toUpperCase()) {
-            return true;
-          }
-        });
+        this.dfService.getUpstreams(this.dataflow.dfId).then((upstreams: Upstream[]) => {
 
-        if (this.dataSetList && 1 < this.dataSetList.length) {
-          this.dataSetList.sort(function (left, right) {
-            const leftTime = Date.parse(left.createdTime);
-            const rightTime = Date.parse(right.createdTime);
-            if (NaN == rightTime) {
-              return -1;
-            } else if (NaN == leftTime) {
-              return 1;
-            }
-            return leftTime < rightTime ? -1 : leftTime > rightTime ? 1 : 0;
+          // 선택된 wrangled dataset의 imported dataset id를 몰라서 넘겨야한다 ;
+          this.dfModelService.setUpstreamList(upstreams);
+
+          let upstreamList = upstreams.filter((upstream: Upstream) => {
+            return upstream.dfId === this.dataflow.dfId;
           });
-        }
 
-        // when there is no datasets left in dataflow
-        if (dataflow.importedDsCount === 0 && dataflow.wrangledDsCount === 0) {
-          this.dataSetList = [];
-          this.dataflow = dataflow;
+          for (let ds of this.dataSetList) {
+            ds.upstreamDsIds = [];
+            for (let upstream of upstreamList) {
+              if (upstream.dsId === ds.dsId) {
+                ds.upstreamDsIds.push(upstream.upstreamDsId);
+              }
+            }
+          }
+
+          this.initChart(); // chart initial
+
+          if (isOpen) {
+            this.changeChartClickStatus(this.selectedDataSet, true);
+            (this.datasetInfoPopup) && (this.datasetInfoPopup.setDataset(this.selectedDataSet));
+          }
+
           this.loadingHide();
-        } else {
-          this.dataflowService.getUpstreams(this.dataflow.dfId)
-            .then((upstreams) => {
 
-              // 선택된 wrangled dataset의 imported dataset id를 몰라서 넘겨야한다 ;
-              this.dataflowModelService.setUpstreamList(upstreams);
-
-              let dfId = this.dataflow.dfId;
-              let upstreamList = upstreams.filter((upstream) => {
-                if (upstream.dfId === dfId) {
-                  return true;
-                }
-              });
-              for (let ds of this.dataSetList) {
-                ds.upstreamDsIds = [];
-                for (let upstream of upstreamList) {
-                  if (upstream.dsId === ds.dsId) {
-                    ds.upstreamDsIds.push(upstream.upstreamDsId);
-                  }
-                }
-              }
-
-
-              this.initChart(); // chart initial
-
-              // set wrangled dataset as selected (from dataset detail)
-              let wrangeldDsId = '';
-              if (this.cookieService.get('FIND_WRANGLED')) {
-
-                let dsId = this.cookieService.get('FIND_WRANGLED');
-                this.cookieService.delete('FIND_WRANGLED');
-                upstreams.forEach((item)=> {
-                  if (item['upstreamDsId'] === dsId) {
-                    wrangeldDsId = item['dsId'];
-                  }
-                });
-                if (wrangeldDsId !== '') {
-                  this.selectedDataSet.dsId = wrangeldDsId;
-                  this.selectedDataSet.dsType = DsType.WRANGLED;
-                  isOpen = true;
-                }
-              }
-
-              if (isOpen) {
-                this.changeChartClickStatus(this.selectedDataSet, true);
-                (this.datasetInfoPopup) && (this.datasetInfoPopup.setDataset(this.selectedDataSet));
-              }
-              this.loadingHide();
-
-            })
-            .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-            });
-        }
-
-        this.setDataflowName();
-        this.setDataflowDesc();
+        }).catch((error) => {
+          this.loadingHide();
+          this.translateService.instant(error.message)
+        });
 
       } else {
         Alert.warning(this.translateService.instant('msg.dp.alert.no.flow.info'));
@@ -941,13 +715,6 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     this.isDatasetNameEditMode = false;
     this.isDatasetDescEditMode = false;
   } // function - initSelectedDataSet
-
-  public closeEditRule() {
-    this.step = '';
-    this.getDataflow(true);
-
-  }
-
 
 
   /**
@@ -1009,7 +776,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
       } else { // 데이터플로우에 선택된 데이터셋의 upstream 있음
 
-        let upstreamDsIds = _.cloneDeep(this.dataflowModelService.getUpstreamList());
+        let upstreamDsIds = _.cloneDeep(this.dfModelService.getUpstreamList());
 
         let currentIdx = upstreamDsIds.findIndex((item) => {
           return item.dsId === this.selectedDataSet.dsId
@@ -1058,7 +825,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
       data.push(ds.dsId);
     });
 
-    this.dataflowService.updateDataSets(this.dataflow.dfId, { dsIds : data }).then((result) => {
+    this.dfService.updateDataSets(this.dataflow.dfId, { dsIds : data }).then((result) => {
       this.loadingHide();
       this.selectedDataSet.dsId = '';
       this.isSelectDatasetPopupOpen = false;
@@ -1074,7 +841,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
   private _addDatasetToDataflow(dfId, datasetLists) {
     return new Promise(((resolve, reject) => {
-      this.dataflowService.updateDataSets(dfId, { dsIds : datasetLists, forSwap: true })
+      this.dfService.updateDataSets(dfId, { dsIds : datasetLists, forSwap: true })
         .then((result) => {
           this.loadingHide();
           Alert.success(this.translateService.instant('msg.dp.alert.add.ds.success'));
@@ -1093,7 +860,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   public datasetSwap(param) {
     this.loadingShow();
 
-    this.dataflowService.swapDataset(param).then((result) => {
+    this.dfService.swapDataset(param).then((result) => {
       // console.info('swapping >>>>>>>>>>>>', result);
       Alert.success('Swap successful');
 
@@ -1149,7 +916,6 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
     this.chart = echarts.init(this.$element.find('#chartCanvas')[0]);
     this.chart.clear();
-    // this.chart.setVi
 
     this.chartNodes = [];
     this.chartLinks = [];
@@ -1436,6 +1202,122 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     });
   } // function - chartClickEventListener
 
+  private _initialiseValues() {
+
+    this.commandList = [
+      { command: 'create', alias: 'Cr' },
+      { command: 'header', alias: 'He' },
+      { command: 'keep', alias: 'Ke' },
+      { command: 'replace', alias: 'Rp' },
+      { command: 'rename', alias: 'Rm' },
+      { command: 'set', alias: 'Se' },
+      { command: 'settype', alias: 'St' },
+      { command: 'countpattern', alias: 'Co' },
+      { command: 'split', alias: 'Sp' },
+      { command: 'derive', alias: 'Dr' },
+      { command: 'delete', alias: 'De' },
+      { command: 'drop', alias: 'Dp' },
+      { command: 'pivot', alias: 'Pv' },
+      { command: 'unpivot', alias: 'Up' },
+      { command: 'join', alias: 'Jo' },
+      { command: 'extract', alias: 'Ex' },
+      { command: 'flatten', alias: 'Fl' },
+      { command: 'merge', alias: 'Me' },
+      { command: 'nest', alias: 'Ne' },
+      { command: 'unnest', alias: 'Un' },
+      { command: 'aggregate', alias: 'Ag' },
+      { command: 'sort', alias: 'So' },
+      { command: 'move', alias: 'Mv' },
+      { command: 'union', alias: 'Ui' }
+    ];
+
+    this.dataflow = new PrDataflow();
+    this.selectedDataSet = new PrDataset();
+  }
+
+
+  private _initialiseChartValues() {
+    this.symbolInfo = {
+      IMPORTED: {
+        UPLOAD: {
+          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png',
+        },
+        DATABASE: {
+          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png',
+        },
+        STAGING_DB: {
+          DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db.png'
+        }
+      },
+      WRANGLED: {
+        DEFAULT: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_wrangled.png',
+      },
+      SELECTED: {
+        IMPORTED: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_db_focus.png',
+        WRANGLED: 'image://' + window.location.origin + '/assets/images/datapreparation/icon_dataset_focus.png'
+      }
+    };
+
+    const labelOption = {
+      show: true,
+      position: 'bottom',
+      textStyle: { color: '#000000', fontWeight: 'bold' },
+      formatter(params) {
+        if (params.data.dsName.length > 20) {
+          return params.data.dsName.slice(0,20) + ' ...'
+        } else {
+          return params.data.dsName;
+        }
+      }
+    };
+    this.label = {
+      normal: labelOption,
+      emphasis: labelOption
+    };
+
+    this.chartOptions = {
+      backgroundColor: '#ffffff',
+      tooltip: { show: false },
+      xAxis: {
+        type: 'value',
+        max: null,
+        interval: 1,
+        splitLine: { show: false },
+        axisLabel: { show: false },
+        axisLine: { show: false },
+        axisTick: { show: false }
+      },
+      yAxis: {
+        type: 'value',
+        max: null,
+        interval: 1,
+        inverse: true,
+        splitLine: { show: false },
+        axisLabel: { show: false },
+        axisLine: { show: false },
+        axisTick: { show: false }
+      },
+      series: [
+        {
+          type: 'graph',
+          legendHoverLink: false,
+          layout: 'none',
+          coordinateSystem: 'cartesian2d',
+          focusNodeAdjacency: false,
+          symbolSize: 40,
+          hoverAnimation: true,
+          roam: false,
+          edgeSymbol: ['none', 'arrow'],
+          draggable: true,
+          itemStyle: { normal: { color: '#ccc', borderColor: '#1af' } },
+          nodes: null,
+          links: null,
+          lineStyle: { normal: { opacity: 1, width: 0.5 } }
+        }
+      ], animation: false
+    };
+  }
+
 
 }
 
@@ -1445,4 +1327,11 @@ class SwapParam {
   dfId : string;
   wrangledDsId? : string;
   dsList? : string[];
+}
+
+class Upstream {
+  dfId: string;
+  dsId: string;
+  upstreamDsId: string;
+  upstreamDsIds?: string[];
 }

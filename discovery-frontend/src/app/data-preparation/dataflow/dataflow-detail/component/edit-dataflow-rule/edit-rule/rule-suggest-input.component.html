@@ -12,27 +12,24 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-wrap-input-info"
-  [ngClass]="{'ddp-selected':isSuggestOpen}"
-  (clickOutside)="closeSuggest()">
+<div class="ddp-input-selectbox"
+     [ngClass]="{'ddp-selected':isSuggestOpen}"
+     (clickOutside)="closeSuggest()">
   <input #inputElem
-        tabindex="{{tabIndex}}"
-        class="ddp-input-typebasic"
-        placeholder="{{ placeholder }}"
-        [(ngModel)]="formula"
-        (click)="onClick($event)"
-        (keydown)="onKeyDown($event)"
-        (keyup)="onKeyUp($event)">
-  <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isSuggestOpen" >
-    <li *ngFor="let item of suggestItems;let idx=index" (click)="onSelectAutoComplete(item)">
-      <a [ngStyle]="getSuggestStyle(idx, item)" href="javascript:">
-        {{item.value}}
-      </a>
-    </li>
-    <!--
-    <li *ngIf="suggestItems.length === 0">
-      <span class="ddp-noresult"> {{'msg.dp.ui.search.no.rslt'}} </span>
-    </li>
-    -->
-  </ul>
+         tabindex="{{tabIndex}}"
+         class="ddp-input-typebasic"
+         placeholder="{{ placeholder }}"
+         [(ngModel)]="formula"
+         (click)="onClick($event)"
+         (keydown)="onKeyDown($event)"
+         (keyup)="onKeyUp($event)">
+  <div class="ddp-wrap-popup2 ddp-multy">
+    <ul class="ddp-list-popup" *ngIf="isSuggestOpen" >
+      <li *ngFor="let item of suggestItems;let idx=index" (click)="onSelectAutoComplete(item)">
+        <a [ngStyle]="getSuggestStyle(idx, item)" href="javascript:">
+          <span class="ddp-data-name">{{item.value}}</span>
+        </a>
+      </li>
+    </ul>
+  </div>
 </div>

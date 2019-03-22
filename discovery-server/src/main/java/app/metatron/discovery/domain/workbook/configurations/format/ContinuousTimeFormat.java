@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import app.metatron.discovery.query.druid.limits.PivotColumn;
 import app.metatron.discovery.util.EnumUtils;
@@ -30,6 +31,12 @@ public class ContinuousTimeFormat extends TimeFieldFormat implements FieldFormat
   TimeUnit unit;
 
   ByTimeUnit byUnit;
+
+  /**
+   * set original format, if unit is NONE
+   */
+  @JsonIgnore
+  String originalFormat;
 
   @JsonCreator
   public ContinuousTimeFormat(@JsonProperty("discontinuous") Boolean discontinuous,
@@ -56,6 +63,10 @@ public class ContinuousTimeFormat extends TimeFieldFormat implements FieldFormat
 
   public ContinuousTimeFormat(Boolean discontinuous, String unit, String byUnit, String filteringType) {
     this(discontinuous, unit, byUnit, null, null, filteringType);
+  }
+
+  public void setOriginalFormat(String originalFormat) {
+    this.originalFormat = originalFormat;
   }
 
   public Boolean getDiscontinuous() {
@@ -85,12 +96,15 @@ public class ContinuousTimeFormat extends TimeFieldFormat implements FieldFormat
   @JsonIgnore
   @Override
   public String getFormat() {
+    if (unit == TimeUnit.NONE && StringUtils.isNotEmpty(originalFormat)) {
+      return originalFormat;
+    }
     return BooleanUtils.isTrue(discontinuous) ? unit.discontFormat(byUnit) : unit.format();
   }
 
   @Override
   public boolean enableSortField() {
-    return BooleanUtils.isFalse(discontinuous) && unit != TimeUnit.YEAR;
+    return BooleanUtils.isFalse(discontinuous) && (unit != TimeUnit.YEAR || unit != TimeUnit.NONE);
   }
 
   @Override

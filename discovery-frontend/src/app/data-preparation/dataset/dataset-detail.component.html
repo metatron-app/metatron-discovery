@@ -42,13 +42,13 @@
           <!-- 클릭시 ddp-selected 추가 -->
           <div class="ddp-box-navi" [ngClass]="{'ddp-selected': isDatasetNameEditMode}">
             <div class="ddp-wrap-naviname" (click)="!isDatasetNameEditMode ? onDatasetNameEdit($event):$event.stopPropagation();">
-            <span class="ddp-data-naviname">{{datasetName}}
+            <span class="ddp-data-naviname" title="{{datasetName}}">{{datasetName}}
               <em class="ddp-icon-edit2"></em>
             </span>
             </div>
             <!-- 편집 input -->
             <div class="ddp-wrap-input">
-              <input class="ddp-input-navi" #dsName maxlength="50"
+              <input class="ddp-input-navi" #dsName maxlength="150"
                      placeholder="{{'msg.comm.ui.create.name' | translate}}"
                      [(ngModel)]="datasetName"
                      (keyup.enter)="isDatasetNameEditMode? updateDataset() : null;"
@@ -63,9 +63,14 @@
           <!-- 클릭시 ddp-selected 추가 -->
           <div class="ddp-box-navidet" [ngClass]="{'ddp-selected': isDatasetDescEditMode}">
             <div class="ddp-wrap-navidet" (click)="!isDatasetDescEditMode? onDatasetDescEdit($event) : $event.stopPropagation();">
-            <span class="ddp-data-navidet">{{datasetDesc || 'msg.comm.ui.create.desc' | translate}}
-              <em class="ddp-icon-edit2"></em>
-            </span>
+              <span class="ddp-data-navidet" *ngIf="datasetDesc; else dsDescEmpty" title="{{datasetDesc}}">{{datasetDesc || 'msg.comm.ui.create.desc' | translate}}
+                <em class="ddp-icon-edit2"></em>
+              </span>
+              <ng-template #dsDescEmpty>
+                <span class="ddp-data-navidet" >{{datasetDesc || 'msg.comm.ui.create.desc' | translate}}
+                  <em class="ddp-icon-edit2"></em>
+                </span>
+              </ng-template>
             </div>
             <!-- 편집 input -->
             <div class="ddp-wrap-input">
