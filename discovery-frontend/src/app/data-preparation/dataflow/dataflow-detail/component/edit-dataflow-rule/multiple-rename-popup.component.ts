@@ -424,7 +424,7 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
         if (this.subTitle !== '') { // Came from snapshot popup
           this.columns.push({
             original : item.name,
-            renamedAs: this._getNameForHive(item.name),
+            renamedAs: this._replaceWhiteSpace(this._aromanizeKorean(item.name),'_').toLowerCase(),
             isError: false,
             isEditing: false
           });
@@ -437,36 +437,66 @@ export class MultipleRenamePopupComponent extends AbstractComponent implements O
           });
         }
       }
-    })
+    });
+
+
+    // Except korean, english, numbers and _ change to default name
+    if (!cols && this.subTitle !== '') {
+      this._changeToDefaultName();
+    }
+  }
+
+
+  /**
+   * Replace white space into '_'
+   * @param name
+   * @param replaceVal
+   * @private
+   */
+  private _replaceWhiteSpace(name: string, replaceVal: string = '_') {
+    return name.replace(/ /gi, replaceVal)
   }
 
 
   /**
    * Returns appropriate name for each column name
+   * @private
+   */
+  private _changeToDefaultName(): void {
+
+    const validCheckReg = /[a-zA-Z0-9_가-힣]/;
+    const koCheckReg = /[ㄱ-ㅎㅏ-ㅣ]+/g;
+
+    this.columns.forEach((item, index) => {
+
+      // if name is 안녕ㅎㅎㅎ -> ㅎㅎㅎ is not changed
+      let koMatched = item.renamedAs.match(koCheckReg);
+
+      // Check if has any character other than alphabet, number, korean and _
+      let otherMatched = validCheckReg.test(item.renamedAs);
+
+      const renamedAs = this.columns.map((item) => item.renamedAs);
+
+      if (!isNullOrUndefined(koMatched) || !otherMatched) {
+        while(-1 !== renamedAs.indexOf('column' + this.indexForName)) {
+          this.indexForName+=1;
+        }
+        this.columns[index].renamedAs = 'column' + this.indexForName;
+      }
+    })
+
+  }
+
+
+  /**
+   * Change korean to english 안녕 --> annyeong
    * @param name
    * @private
    */
-  private _getNameForHive(name: string): string {
-
-    const validCheckReg = /^[A-Za-z0-9_ㄱ-ㅎㅏ-ㅣ가-힣]+$/g;
-    const koCheckReg = /[ㄱ-ㅎㅏ-ㅣ]+/g;
-
-    // Change korean to english 안녕 -> annyeong
-    name = Aromanize.romanize(name).toLowerCase().replace(/ /gi, '_');
-
-    // if name is 안녕ㅎㅎㅎ -> ㅎㅎㅎ is not changed
-    const koMatched = name.match(koCheckReg);
-
-    // Check if has any character other than alphabet, number, korean and _
-    const otherMatched = validCheckReg.test(name);
-
-    if (!isNullOrUndefined(koMatched) || !otherMatched) {
-      name = 'column' + this.indexForName;
-      this.indexForName++;
-    }
-
-    return name;
+  private _aromanizeKorean(name: string): string {
+    return Aromanize.romanize(name);
   }
+
 
   /**
    * Update grid
