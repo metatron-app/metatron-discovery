@@ -4035,7 +4035,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         } else if(this.selectChart == 'map') {
           // map chart 일 경우 aggregation type 변경시 min/max 재설정 필요
           if(!_.isUndefined(params) && !_.isUndefined(params.type) && params.type == EventType.AGGREGATION) {
-            this.uiOption['layers'][this.uiOption['layerNum']]['isAggChangedType'] = true;
+            this.uiOption['layers'][this.uiOption['layerNum']]['isColorOptionChanged'] = true;
           }
           setTimeout(() => {
             this.chart.resultData = resultData;

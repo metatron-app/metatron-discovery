@@ -524,8 +524,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
       } else {
         this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
       }
-    // granularity
     } else {
+      // granularity
       if (data.format) this.uiOption.layers[layerIndex].color.granularity = data.format.unit.toString();
       this.uiOption.layers[layerIndex].color.aggregationType = null;
     }
@@ -634,16 +634,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    */
   public changeByNoneColor(colorCode: string, layerIndex : number) {
 
-    let layerType = this.uiOption.layers[layerIndex].type;
-    if (MapLayerType.HEATMAP === layerType) {
-      this.uiOption.layers[layerIndex].color['heatMapSchema'] = colorCode;
-    } else if (MapLayerType.SYMBOL === layerType) {
-      this.uiOption.layers[layerIndex].color['symbolSchema'] = colorCode;
-    } else if (MapLayerType.TILE === layerType) {
-      this.uiOption.layers[layerIndex].color['tileSchema'] = colorCode;
-    } else if (MapLayerType.POLYGON === layerType) {
-      this.uiOption.layers[layerIndex].color['polygonSchema'] = colorCode;
-    }
     this.uiOption.layers[layerIndex].color.schema = colorCode;
 
     this.applyLayers();
@@ -758,16 +748,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    */
   public changeColor(data: any, layerIndex : number) {
 
-    let layerType = this.uiOption.layers[layerIndex].type;
-    if (MapLayerType.HEATMAP === layerType) {
-      this.uiOption.layers[layerIndex].color['heatMapSchema'] = data.colorNum;
-    } else if (MapLayerType.SYMBOL === layerType) {
-      this.uiOption.layers[layerIndex].color['symbolSchema'] = data.colorNum;
-    } else if (MapLayerType.TILE === layerType) {
-      this.uiOption.layers[layerIndex].color['tileSchema'] = data.colorNum;
-    } else if (MapLayerType.POLYGON === layerType) {
-      this.uiOption.layers[layerIndex].color['polygonSchema'] = data.colorNum;
-    }
     this.uiOption.layers[layerIndex].color.schema = data.colorNum;
 
     const colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[layerIndex].color['schema']]);
