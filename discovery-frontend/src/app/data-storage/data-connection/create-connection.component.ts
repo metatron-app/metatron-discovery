@@ -70,8 +70,6 @@ export class CreateConnectionComponent extends AbstractComponent {
    */
   public init(): void {
     // init
-    // TODO connection type list
-    // TODO selected connection type
     this.connectionName = undefined;
     this.nameErrorMsg = undefined;
     this.isShowConnectionNameRequired = undefined;
@@ -162,6 +160,11 @@ export class CreateConnectionComponent extends AbstractComponent {
       .catch(error => this.commonExceptionHandler(error));
   }
 
+  /**
+   * Get create connection params
+   * @return {{implementor: ImplementorType}}
+   * @private
+   */
   public _getCreateConnectionParams() {
     let result = this._connectionComponent.getConnectionParams();
     result['type'] = 'JDBC';

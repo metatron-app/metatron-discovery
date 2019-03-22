@@ -75,6 +75,7 @@ export class UpdateConnectionComponent extends AbstractComponent {
 
   /**
    * Init
+   * @param {string} connectionId
    */
   public init(connectionId: string): void {
     // init
@@ -83,7 +84,6 @@ export class UpdateConnectionComponent extends AbstractComponent {
     this.isShowConnectionNameRequired = undefined;
     this.published = undefined;
     this.linkedWorkspaces = undefined;
-    // TODO connection type list
     // set connection id
     this._connectionId = connectionId;
     // loading show

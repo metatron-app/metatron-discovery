@@ -12,11 +12,11 @@
   ~ limitations under the License.
   -->
 
-<div *ngIf="isShow">
+<ng-container  *ngIf="isShow">
   <!-- preset box -->
   <!-- //preset box -->
   <!-- implementor list -->
-  <div class="ddp-wrap-edit2 ">
+  <div class="ddp-wrap-edit2">
     <label class="ddp-label-type ddp-bold">{{'msg.storage.ui.db.connection' | translate}}</label>
     <!-- edit option -->
     <div class="ddp-ui-edit-option ddp-type ddp-white-space">
@@ -24,7 +24,10 @@
         <li *ngFor="let connection of connectionTypeList"
             [class.ddp-selected]="connection.implementor === selectedConnectionType.implementor" [class.ddp-disabled]="isDisableChangeConnectionType">
           <a href="javascript:" class="ddp-label-dbtype" (click)="onChangeConnectionType(connection)">
-            {{connection.name}}
+            <em class="ddp-img-icon">
+              <img src="{{connection.iconResource1}}">
+            </em>
+            <span class="ddp-txt-db">{{connection.name}}</span>
           </a>
         </li>
       </ul>
@@ -113,7 +116,7 @@
       <!-- only not used in USERINFO -->
       <div class="ddp-clear" *ngIf="selectedAuthenticationType.value !== AUTHENTICATION_TYPE.USERINFO">
         <!-- username -->
-        <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isUsernameError" *ngIf="!isDisableUsername(selectedConnectionType)">
+        <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isUsernameError" *ngIf="!isDisableUsername()">
           <label class="ddp-label-type">{{'msg.storage.th.user_name' | translate}} <span class="ddp-sub" *ngIf="selectedAuthenticationType.value === AUTHENTICATION_TYPE.DIALOG">{{'msg.storage.ui.for.test' | translate}}</span></label>
           <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.user_name.ph' | translate}}"
                  [ngModel]="username" (ngModelChange)="username = $event; isUsernameError = undefined; connectionValidInitialize()">
@@ -123,7 +126,7 @@
         </div>
         <!-- //username -->
         <!-- Password -->
-        <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isPasswordError" *ngIf="!isDisablePassword(selectedConnectionType)">
+        <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isPasswordError" *ngIf="!isDisablePassword()">
           <label class="ddp-label-type">{{'msg.storage.th.pwd' | translate}} <span class="ddp-sub" *ngIf="selectedAuthenticationType.value === AUTHENTICATION_TYPE.DIALOG">{{'msg.storage.ui.for.test' | translate}}</span></label>
           <input type="password" class="ddp-input-type" placeholder="{{'msg.storage.th.pwd.ph' | translate}}"
                  [ngModel]="password" (ngModelChange)="password = $event; isPasswordError = undefined; connectionValidInitialize()">
@@ -194,4 +197,4 @@
     </div>
   </div>
   <!-- //Server -->
-</div>
+</ng-container>

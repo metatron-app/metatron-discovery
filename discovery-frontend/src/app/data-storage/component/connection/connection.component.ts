@@ -62,7 +62,7 @@ export class ConnectionComponent extends AbstractComponent {
   public password: string;
   public properties: {key: string, value: string, keyError?: boolean, valueError?: boolean, keyValidMessage?: string, valueValidMessage?: string}[];
 
-  //
+  // flag
   public isShow: boolean;
   public isUsedUrl: boolean;
   public isShowAdvancedSettings: boolean;
@@ -85,18 +85,24 @@ export class ConnectionComponent extends AbstractComponent {
     super(element, injector);
   }
 
+  /**
+   * Init
+   * @param {Dataconnection} connection
+   */
   public init(connection?: Dataconnection): void {
     if (isNullOrUndefined(connection)) {
       this.properties = [];
       this.selectedAuthenticationType = this.authenticationTypeList[0];
       this.selectedConnectionType = this.connectionTypeList[0];
     } else {
-      this.setConnectionInputInitial(connection);
-      this.setConvertedProperties(connection.properties);
+      this.connectionInputInitialize(connection);
     }
     this.isShow = true;
   }
 
+  /**
+   * Initial input error
+   */
   public inputErrorInitialize(): void {
     this.isUrlError = undefined;
     this.isHostnameError = undefined;
@@ -108,46 +114,169 @@ export class ConnectionComponent extends AbstractComponent {
     this.isPasswordError = undefined;
   }
 
-  public setConnectionInputInitial(connection: Dataconnection): void {
-    if (connection.port) {
+  /**
+   * Initial connection input
+   * @param {Dataconnection} connection
+   */
+  public connectionInputInitialize(connection: Dataconnection): void {
+    if (StringUtil.isNotEmpty(connection.port)) {
       this.port = Number.parseInt(connection.port);
     }
-    if (connection.hostname) {
+    if (StringUtil.isNotEmpty(connection.hostname)) {
       this.hostname = connection.hostname;
     }
-    if (connection.catalog) {
+    if (StringUtil.isNotEmpty(connection.catalog)) {
       this.catalog = connection.catalog;
     }
-    if (connection.database) {
+    if (StringUtil.isNotEmpty(connection.database)) {
       this.database = connection.database;
     }
-    if (connection.sid) {
+    if (StringUtil.isNotEmpty(connection.sid)) {
       this.sid = connection.sid;
     }
-    if (connection.url) {
+    if (StringUtil.isNotEmpty(connection.url)) {
       this.url = connection.url;
+      this.isUsedUrl = true;
+    } else {
+      this.isUsedUrl = false;
     }
-    if (connection.username) {
+    if (StringUtil.isNotEmpty(connection.username)) {
       this.username = connection.username;
     }
-    if (connection.password) {
+    if (StringUtil.isNotEmpty(connection.password)) {
       this.password = connection.password;
     }
-    if (connection.authenticationType) {
+    if (StringUtil.isNotEmpty(connection.authenticationType)) {
       this.selectedAuthenticationType = this.authenticationTypeList.find(authenticationType => authenticationType.value === connection.authenticationType);
     } else {
       this.selectedAuthenticationType = this.authenticationTypeList[0];
     }
     if (connection.implementor) {
       this.selectedConnectionType = this.connectionTypeList.find(type => type.implementor.toString() === connection.implementor.toString());
+    } else {
+      this.selectedConnectionType = this.connectionTypeList[0];
     }
+    this.setConvertedProperties(connection.properties);
   }
 
+  /**
+   * Initial connection valid
+   */
   public connectionValidInitialize(): void {
     this.isValidConnection = undefined;
     this.isConnectionCheckRequire = undefined;
   }
 
+  /**
+   * Check valid connection
+   */
+  public checkConnection(): void {
+    if (this.isValidConnectionInput()) {
+
+      // loading show
+      this.loadingShow();
+      // check connection
+      this.connectionService.checkConnection({connection: this.getConnectionParams()})
+        .then((result: {connected: boolean}) => {
+          // set connection validation result
+          this.isValidConnection = result.connected;
+          // loading hide
+          this.loadingHide();
+          // if used name initial
+          if (this.isUsedNameInitial && !this.connectionName) {
+            this.createdName.emit(this.isUsedUrl ? `${this.selectedConnectionType.name}-${this.url}` : `${this.selectedConnectionType.name}-${this.hostname}-${this.port}`);
+          }
+        })
+        .catch((error) => {
+          // set connection result fail
+          this.isValidConnection = false;
+          // loading hide
+          this.commonExceptionHandler(error);
+        });
+    }
+  }
+
+  /**
+   * Property key validation
+   * @param {{key: string; keyValidMessage: string; keyError: boolean}} property
+   */
+  public propertyKeyValidation(property: {key: string, keyValidMessage: string, keyError: boolean}): void {
+    // check empty
+    if (StringUtil.isEmpty(property.key)) {
+      // set empty message
+      property.keyValidMessage = this.translateService.instant('msg.storage.ui.required');
+      // set error flag
+      property.keyError = true;
+    }
+    // check special characters, and korean (enable .dot)
+    else if (property.key.trim().match(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\{\}\[\]\/?,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi)) {
+      // set duplicate message
+      property.keyValidMessage = this.translateService.instant('msg.storage.ui.custom.property.special.char.disable');
+      // set error flag
+      property.keyError = true;
+    }
+    // check duplicate
+    else if (this.properties.filter(item => item.key.trim() === property.key.trim()).length > 1) {
+      // set duplicate message
+      property.keyValidMessage = this.translateService.instant('msg.storage.ui.custom.property.duplicated');
+      // set error flag
+      property.keyError = true;
+    }
+  }
+
+
+  /**
+   * Is disable SID
+   * @return {boolean}
+   */
+  public isDisableSid() {
+    return this.selectedConnectionType.inputSpec.sid === InputMandatory.NONE;
+  }
+
+  /**
+   * Is disable database
+   * @return {boolean}
+   */
+  public isDisableDatabase() {
+    return this.selectedConnectionType.inputSpec.database === InputMandatory.NONE;
+  }
+
+  /**
+   * Is disable catalog
+   * @return {boolean}
+   */
+  public isDisableCatalog() {
+    return this.selectedConnectionType.inputSpec.catalog === InputMandatory.NONE;
+  }
+
+  /**
+   * Is disable authentication type
+   * @return {boolean}
+   */
+  public isDisableAuthenticationType() {
+    return this.selectedConnectionType.inputSpec.authenticationType === InputMandatory.NONE;
+  }
+
+  /**
+   * Is disable username
+   * @return {boolean}
+   */
+  public isDisableUsername() {
+    return this.selectedConnectionType.inputSpec.username === InputMandatory.NONE;
+  }
+
+  /**
+   * Is disable password
+   * @return {boolean}
+   */
+  public isDisablePassword() {
+    return this.selectedConnectionType.inputSpec.password === InputMandatory.NONE;
+  }
+
+  /**
+   * Is valid connection input
+   * @return {boolean}
+   */
   public isValidConnectionInput(): boolean {
     let result: boolean = true;
     // not use URL
@@ -180,12 +309,12 @@ export class ConnectionComponent extends AbstractComponent {
     // check enable authentication
     if (!this.isDisableAuthenticationType()) {
       // check username
-      if (!this.isDisableUsername(this.selectedConnectionType) && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO && StringUtil.isEmpty(this.username)) {
+      if (!this.isDisableUsername() && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO && StringUtil.isEmpty(this.username)) {
         this.isUsernameError = true;
         result = false;
       }
       // check password
-      if (!this.isDisablePassword(this.selectedConnectionType) && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO && StringUtil.isEmpty(this.password)) {
+      if (!this.isDisablePassword() && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO && StringUtil.isEmpty(this.password)) {
         this.isPasswordError = true;
         result = false;
       }
@@ -193,10 +322,18 @@ export class ConnectionComponent extends AbstractComponent {
     return result;
   }
 
+  /**
+   * Is exist properties
+   * @return {boolean}
+   */
   public isExistProperties(): boolean {
     return this.properties && this.properties.length > 0;
   }
 
+  /**
+   * Is valid properties
+   * @return {boolean}
+   */
   public isValidProperties(): boolean {
     return this.properties.reduce((acc, property) => {
       // check key empty
@@ -234,32 +371,10 @@ export class ConnectionComponent extends AbstractComponent {
     }, true);
   }
 
-  public checkConnection(): void {
-    if (this.isValidConnectionInput()) {
-
-      // loading show
-      this.loadingShow();
-      // check connection
-      this.connectionService.checkConnection({connection: this.getConnectionParams()})
-        .then((result: {connected: boolean}) => {
-          // set connection validation result
-          this.isValidConnection = result.connected;
-          // loading hide
-          this.loadingHide();
-          // if used name initial
-          if (this.isUsedNameInitial && !this.connectionName) {
-            this.createdName.emit(this.isUsedUrl ? `${this.selectedConnectionType.name}-${this.url}` : `${this.selectedConnectionType.name}-${this.hostname}-${this.port}`);
-          }
-        })
-        .catch((error) => {
-          // set connection result fail
-          this.isValidConnection = false;
-          // loading hide
-          this.commonExceptionHandler(error);
-        });
-    }
-  }
-
+  /**
+   * Set converted properties
+   * @param properties
+   */
   public setConvertedProperties(properties) {
     this.properties = properties
       ? Object.keys(properties).reduce((acc, key) => {
@@ -269,6 +384,10 @@ export class ConnectionComponent extends AbstractComponent {
       : [];
   }
 
+  /**
+   * Get connection params
+   * @return {{implementor: ImplementorType}}
+   */
   public getConnectionParams() {
     let connectionParam = {
       implementor: this.selectedConnectionType.implementor
@@ -292,50 +411,26 @@ export class ConnectionComponent extends AbstractComponent {
     if (!this.isDisableAuthenticationType()) {
       connectionParam['authenticationType'] = this.selectedAuthenticationType.value;
       // check username
-      if (!this.isDisableUsername(this.selectedConnectionType) && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO) {
+      if (!this.isDisableUsername() && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO) {
         connectionParam['username'] = this.username;
       }
       // check password
-      if (!this.isDisablePassword(this.selectedConnectionType) && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO) {
+      if (!this.isDisablePassword() && this.selectedAuthenticationType.value !== AuthenticationType.USERINFO) {
         connectionParam['password'] = this.password;
       }
     }
     return connectionParam;
   }
 
+  /**
+   * Get properties (key-value object)
+   * @return {{}}
+   */
   public getProperties() {
     return this.properties.reduce((acc, property) => {
       acc[property.key.trim()] = property.value.trim();
       return acc;
     }, {});
-  }
-
-  /**
-   * Property key validation
-   * @param {{key: string; keyValidMessage: string; keyError: boolean}} property
-   */
-  public propertyKeyValidation(property: {key: string, keyValidMessage: string, keyError: boolean}): void {
-    // check empty
-    if (StringUtil.isEmpty(property.key)) {
-      // set empty message
-      property.keyValidMessage = this.translateService.instant('msg.storage.ui.required');
-      // set error flag
-      property.keyError = true;
-    }
-    // check special characters, and korean (enable .dot)
-    else if (property.key.trim().match(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\{\}\[\]\/?,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi)) {
-      // set duplicate message
-      property.keyValidMessage = this.translateService.instant('msg.storage.ui.custom.property.special.char.disable');
-      // set error flag
-      property.keyError = true;
-    }
-    // check duplicate
-    else if (this.properties.filter(item => item.key.trim() === property.key.trim()).length > 1) {
-      // set duplicate message
-      property.keyValidMessage = this.translateService.instant('msg.storage.ui.custom.property.duplicated');
-      // set error flag
-      property.keyError = true;
-    }
   }
 
   /**
@@ -353,8 +448,11 @@ export class ConnectionComponent extends AbstractComponent {
     this.properties.splice(index, 1);
   }
 
-
-  public onChangeConnectionType(connectionType): void {
+  /**
+   * Change selected connection type
+   * @param {JdbcDialect} connectionType
+   */
+  public onChangeConnectionType(connectionType: JdbcDialect): void {
     if (!this.isDisableChangeConnectionType && connectionType.implementor !== this.selectedConnectionType.implementor) {
       this.selectedConnectionType = connectionType;
       // input error initial
@@ -363,6 +461,9 @@ export class ConnectionComponent extends AbstractComponent {
     }
   }
 
+  /**
+   * Change use URL
+   */
   public onChangeUseUrl(): void {
     this.isUsedUrl = !this.isUsedUrl;
     // input error initial
@@ -370,6 +471,10 @@ export class ConnectionComponent extends AbstractComponent {
     this.connectionValidInitialize();
   }
 
+  /**
+   * Change selected authentication type
+   * @param authenticationType
+   */
   public onChangeAuthenticationType(authenticationType): void {
     if (this.selectedAuthenticationType.value !== authenticationType.value) {
       this.selectedAuthenticationType = authenticationType;
@@ -377,55 +482,5 @@ export class ConnectionComponent extends AbstractComponent {
       this.inputErrorInitialize();
       this.connectionValidInitialize();
     }
-  }
-
-  /**
-   * Is disable SID
-   * @return {boolean}
-   */
-  public isDisableSid() {
-    return this.selectedConnectionType.inputSpec.sid === InputMandatory.NONE;
-  }
-
-  /**
-   * Is disable database
-   * @return {boolean}
-   */
-  public isDisableDatabase() {
-    return this.selectedConnectionType.inputSpec.database === InputMandatory.NONE;
-  }
-
-  /**
-   * Is disable catalog
-   * @return {boolean}
-   */
-  public isDisableCatalog() {
-    return this.selectedConnectionType.inputSpec.catalog === InputMandatory.NONE;
-  }
-
-  /**
-   * Is disable authentication type
-   * @return {boolean}
-   */
-  public isDisableAuthenticationType() {
-    return this.selectedConnectionType.inputSpec.authenticationType === InputMandatory.NONE;
-  }
-
-  /**
-   * Is disable username
-   * @param connectionType
-   * @return {boolean}
-   */
-  public isDisableUsername(connectionType) {
-    return connectionType.inputSpec.username === InputMandatory.NONE;
-  }
-
-  /**
-   * Is disable password
-   * @param connectionType
-   * @return {boolean}
-   */
-  public isDisablePassword(connectionType) {
-    return connectionType.inputSpec.password === InputMandatory.NONE;
   }
 }
