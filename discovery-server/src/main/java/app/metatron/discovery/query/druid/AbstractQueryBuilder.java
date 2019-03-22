@@ -78,6 +78,7 @@ import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.MapField;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
+import app.metatron.discovery.domain.workbook.configurations.filter.BoundFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import app.metatron.discovery.domain.workbook.configurations.format.ContinuousTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
@@ -96,15 +97,7 @@ import app.metatron.discovery.query.druid.aggregations.VarianceAggregation;
 import app.metatron.discovery.query.druid.datasource.QueryDataSource;
 import app.metatron.discovery.query.druid.datasource.TableDataSource;
 import app.metatron.discovery.query.druid.extractionfns.LookupFunction;
-import app.metatron.discovery.query.druid.filters.AndFilter;
-import app.metatron.discovery.query.druid.filters.ExprFilter;
-import app.metatron.discovery.query.druid.filters.InFilter;
-import app.metatron.discovery.query.druid.filters.LucenePointFilter;
-import app.metatron.discovery.query.druid.filters.LuceneSpatialFilter;
-import app.metatron.discovery.query.druid.filters.MathFilter;
-import app.metatron.discovery.query.druid.filters.OrFilter;
-import app.metatron.discovery.query.druid.filters.RegExpFilter;
-import app.metatron.discovery.query.druid.filters.SelectorFilter;
+import app.metatron.discovery.query.druid.filters.*;
 import app.metatron.discovery.query.druid.funtions.CastFunc;
 import app.metatron.discovery.query.druid.funtions.DateTimeMillisFunc;
 import app.metatron.discovery.query.druid.funtions.InFunc;
@@ -671,7 +664,11 @@ public abstract class AbstractQueryBuilder {
     } else if (reqFilter instanceof SpatialPointFilter) {
       spatialFilter = new LucenePointFilter((SpatialPointFilter) reqFilter, datasourceField.getLogicalType().isPoint());
     } else if (reqFilter instanceof SpatialShapeFilter) {
-      spatialFilter = new LuceneSpatialFilter((SpatialShapeFilter) reqFilter, datasourceField.getLogicalType().isPoint());
+      if (datasourceField.getLogicalType().isPoint()) {
+        spatialFilter = new LuceneLonLatPolygonFilter((SpatialShapeFilter) reqFilter, datasourceField.getLogicalType().isPoint());
+      } else {
+        spatialFilter = new LuceneSpatialFilter((SpatialShapeFilter) reqFilter, datasourceField.getLogicalType().isPoint());
+      }
     } else {
       throw new IllegalArgumentException("Not support spatial filter");
     }
