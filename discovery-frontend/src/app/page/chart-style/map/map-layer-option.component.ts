@@ -486,7 +486,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
       // not heatmap => set ranges
       if (MapLayerType.HEATMAP !== this.uiOption.layers[layerIndex].type && MapBy.MEASURE === this.uiOption.layers[layerIndex].color.by) {
-        this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+
+        if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true ) {
+          this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[this.uiOption.analysis['layerNum']], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+        } else {
+          this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
+        }
       }
 
     } else if (MapBy.NONE === data['value']) {
@@ -914,14 +919,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     const ranges = this.uiOption.layers[layerIndex].color.settingUseFl ? colorOption.ranges : [];
 
     if( !_.isUndefined(this.uiOption['analysis']) && !_.isUndefined(this.uiOption['analysis']['use']) && this.uiOption['analysis']['use'] ) {
-      let dataIndex = 0;
-      ( this.data.length > 1 ? dataIndex = this.data.length-1 : dataIndex = 0 );
-      this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[dataIndex], <any>ChartColorList[colorOption.schema], layerIndex, this.shelf.layers[layerIndex].fields, ranges);
+      this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[this.uiOption.analysis['layerNum']], <any>ChartColorList[colorOption.schema], layerIndex, this.shelf.layers[layerIndex].fields, ranges);
     } else {
       this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], <any>ChartColorList[colorOption.schema], layerIndex, this.shelf.layers[layerIndex].fields, ranges);
     }
-    // this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], <any>ChartColorList[colorOption.schema], layerIndex, this.shelf.layers[layerIndex].fields, ranges);
-
     this.applyLayers();
   }
 
@@ -1193,7 +1194,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
     });
 
     // set color ranges
-    this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, rangeList);
+    if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true ) {
+      this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[this.uiOption.analysis['layerNum']], colorList, layerIndex, this.shelf.layers[layerIndex].fields, rangeList);
+    } else {
+      this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, rangeList);
+    }
+
 
     this.applyLayers();
   }

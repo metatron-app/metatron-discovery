@@ -289,7 +289,7 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
 
     this.doEnableAnalysisBtn();
 
-    this.colorByIndex = this.aggregateTypes.findIndex((aggregateItem) => aggregateItem === item);
+    this.aggregateTypesIndex = this.aggregateTypes.findIndex((aggregateItem) => aggregateItem === item);
   }
 
   /**
