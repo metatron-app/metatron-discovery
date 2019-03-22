@@ -1328,10 +1328,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
         shelve.map((item) => {
           if( !_.isUndefined(analysisCountAlias) && _.eq(item.type, typeList[0]) && _.eq(item.type, ShelveFieldType.MEASURE) ){
-            if( analysisCountAlias == 'count' && analysisCountAlias == item.alias ){
-              item['alias'] = ChartUtil.getAlias(item);
-              resultList.push(item);
-            } else if( analysisCountAlias != 'count' ){
+            if( item.name == 'count' || analysisCountAlias == item.name ){
               item['alias'] = ChartUtil.getAlias(item);
               resultList.push(item);
             }

@@ -3716,6 +3716,7 @@
   "msg.page.chart.map.spatial.mainlayer": "기준 레이어",
   "msg.page.chart.map.spatial.comparelayer": "비교 레이어",
   "msg.page.chart.map.spatial.analysis": "공간 연산",
+  "msg.page.chart.map.spatial.analysis.result": "공간 연산 결과 =",
   "msg.page.chart.map.spatial.step": "단계구분도 보기",
   "msg.page.chart.map.spatial.already": "이미 공간 연산중 입니다.",
   "msg.page.chart.map.spatial.select.analysis": "공간연산 타입을 선택해주세요.",

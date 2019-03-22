@@ -861,9 +861,6 @@ export class MapPagePivotComponent extends PagePivotComponent {
         }
       });
     }
-
-    // emit
-    this.changeLayerEvent.emit(this.shelf);
   }
 
   /**
