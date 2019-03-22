@@ -725,6 +725,7 @@
   "msg.dp.alert.hadoop.not.configured" : "Hadoop not configured",
   "msg.dp.alert.hadoop.core.site.not.found" : "Hadoop core-site.xml not found",
   "msg.dp.alert.hadoop.hdfs.site.not.found" : "Hadoop hdfs-site.xml not found",
+  "msg.dp.alert.hadoop.hdfs.failed.to.connect" : "Failed to connect Hadoop HDFS server",
   "msg.dp.alert.staging.base.dir.not.configured" : "Staging base directory not configured",
   "msg.dp.alert.hive.not.configured" : "Hive not configured",
   "msg.dp.alert.external.jar.not.configured" : "External jar for whole transformation not configured",

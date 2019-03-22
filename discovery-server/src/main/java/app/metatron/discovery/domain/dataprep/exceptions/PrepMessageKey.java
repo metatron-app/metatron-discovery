@@ -40,6 +40,7 @@ public enum PrepMessageKey {
     MSG_DP_ALERT_HADOOP_NOT_CONFIGURED(                          "msg.dp.alert.hadoop.not.configured"),
     MSG_DP_ALERT_HADOOP_CORE_SITE_NOT_FOUND(                     "msg.dp.alert.hadoop.core.site.not.found"),
     MSG_DP_ALERT_HADOOP_HDFS_SITE_NOT_FOUND(                     "msg.dp.alert.hadoop.hdfs.site.not.found"),
+    MSG_DP_ALERT_HADOOP_HDFS_FAILED_TO_CONNECT(                  "msg.dp.alert.hadoop.hdfs.failed.to.connect"),
     MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED(                "msg.dp.alert.staging.base.dir.not.configured"),
     MSG_DP_ALERT_HIVE_NOT_CONFIGURED(                            "msg.dp.alert.hive.not.configured"),
     MSG_DP_ALERT_EXTERNAL_JAR_NOT_CONFIGURED(                    "msg.dp.alert.external.jar.not.configured"),

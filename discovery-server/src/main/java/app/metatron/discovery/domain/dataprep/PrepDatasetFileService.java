@@ -15,6 +15,9 @@
 package app.metatron.discovery.domain.dataprep;
 
 
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
+import static app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey.MSG_DP_ALERT_HADOOP_HDFS_FAILED_TO_CONNECT;
+
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.entity.PrDataset;
@@ -39,9 +42,40 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.monitorjbl.xlsx.StreamingReader;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.ConnectException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -57,20 +91,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
-
 @Service
 public class PrepDatasetFileService {
     private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetFileService.class);
@@ -83,9 +103,6 @@ public class PrepDatasetFileService {
 
     @Autowired
     StorageProperties storageProperties;
-
-    @Autowired
-    PrepHdfsService hdfsService;
 
     @Autowired
     TeddyImpl teddyImpl;
@@ -118,14 +135,17 @@ public class PrepDatasetFileService {
                 switch (extensionType) {
                     case "xlsx":
                     case "xls":
-                        // Excel files are treated as CSV
-                        break;
+                        assert false : "Excel files are treated as CSV";
+                        throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
+                            PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR, "Excel files should have converted as CSV");
                     case "json":
-                        result = PrepJsonUtil.countJson(storedUri, limitRows, hdfsService.getConf());
+                        Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
+                        result = PrepJsonUtil.countJson(storedUri, limitRows, conf);
                         break;
                     default:
+                        conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
                         String delimiterCol = dataset.getDelimiter();
-                        result = PrepCsvUtil.countCsv(storedUri, delimiterCol, limitRows, hdfsService.getConf());
+                        result = PrepCsvUtil.countCsv(storedUri, delimiterCol, limitRows, conf);
                 }
 
                 if(result != null) {
@@ -327,10 +347,7 @@ public class PrepDatasetFileService {
         InputStream is = null;
         switch (uri.getScheme()) {
             case "hdfs":
-                Configuration conf = this.hdfsService.getConf();
-                if (conf == null) {
-                    throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
-                }
+                Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
                 Path path = new Path(uri);
 
                 FileSystem hdfsFs;
@@ -404,9 +421,10 @@ public class PrepDatasetFileService {
     private Map<String, Object> getResponseMapFromJson(String storedUri, int limitRows, boolean autoTyping) throws TeddyException {
         Map<String, Object> responseMap = Maps.newHashMap();
         List<DataFrame> gridResponses = Lists.newArrayList();
+        Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
 
         DataFrame df = new DataFrame("df_for_preview");
-        df.setByGridWithJson(PrepJsonUtil.parseJson(storedUri, limitRows, hdfsService.getConf()));
+        df.setByGridWithJson(PrepJsonUtil.parseJson(storedUri, limitRows, hadoopConf));
 
         if (autoTyping) {
             df = teddyImpl.applyAutoTyping(df);
@@ -421,9 +439,10 @@ public class PrepDatasetFileService {
     private Map<String, Object> getResponseMapFromCsv(String storedUri, int limitRows, String delimiterCol, boolean autoTyping) throws TeddyException {
         Map<String, Object> responseMap = Maps.newHashMap();
         List<DataFrame> gridResponses = Lists.newArrayList();
+        Configuration hadoopConf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
 
         DataFrame df = new DataFrame("df_for_preview");
-        df.setByGrid(PrepCsvUtil.parse(storedUri, delimiterCol, limitRows, hdfsService.getConf()));
+        df.setByGrid(PrepCsvUtil.parse(storedUri, delimiterCol, limitRows, hadoopConf));
 
         if (autoTyping) {
             df = teddyImpl.applyAutoTyping(df);
@@ -651,28 +670,29 @@ public class PrepDatasetFileService {
         String localUri = uploadFile.getLocalUri();
 
         try {
-
             URI uri = new URI(localUri);
             File inFile = new File(uri);
             InputStream in = new BufferedInputStream(new FileInputStream(inFile));
 
-            Configuration conf = this.hdfsService.getConf();
+            Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
             FileSystem fs = FileSystem.get(conf);
             Path outPath = new Path(storedUri);
             OutputStream out = fs.create(outPath);
 
             IOUtils.copyBytes(in, out, 8192, true);
-
         } catch (URISyntaxException e) {
             LOGGER.error("copyLocalToStaging: URISyntaxException", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
         } catch (FileNotFoundException e) {
             LOGGER.error("copyLocalToStaging: FileNotFoundException", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
+        } catch (ConnectException e) {
+            LOGGER.error("copyLocalToStaging: IOException", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,
+                MSG_DP_ALERT_HADOOP_HDFS_FAILED_TO_CONNECT, e.getMessage());
         } catch (IOException e) {
             LOGGER.error("copyLocalToStaging: IOException", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
-        } finally {
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
         }
     }
 
@@ -950,7 +970,7 @@ public class PrepDatasetFileService {
 
         switch(uri.getScheme()) {
             case "hdfs":
-                Configuration conf = hdfsService.getConf();
+                Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
                 if (conf == null) {
                     throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
                 }
@@ -1010,7 +1030,7 @@ public class PrepDatasetFileService {
 
         switch(uri.getScheme()) {
             case "hdfs":
-                Configuration conf = hdfsService.getConf();
+                Configuration conf = PrepUtil.getHadoopConf(prepProperties.getHadoopConfDir(true));
                 if (conf == null) {
                     throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
                 }

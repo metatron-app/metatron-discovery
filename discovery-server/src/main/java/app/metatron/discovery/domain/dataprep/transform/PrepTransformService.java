@@ -24,7 +24,6 @@ import static app.metatron.discovery.domain.dataprep.entity.PrDataset.DS_TYPE.WR
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.PrepDatasetFileService;
-import app.metatron.discovery.domain.dataprep.PrepHdfsService;
 import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
 import app.metatron.discovery.domain.dataprep.PrepSnapshotRequestPost;
@@ -145,7 +144,6 @@ public class PrepTransformService {
   @Autowired
   PrSnapshotRepository snapshotRepository;
   @Autowired DataConnectionRepository connectionRepository;
-  @Autowired PrepHdfsService hdfsService;
   @Autowired
   PrSnapshotService snapshotService;
   @Autowired DataFrameService dataFrameService;

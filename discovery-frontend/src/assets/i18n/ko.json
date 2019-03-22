@@ -725,6 +725,7 @@
   "msg.dp.alert.hadoop.not.configured" : "Hadoop이 설정되지 않았습니다.",
   "msg.dp.alert.hadoop.core.site.not.found" : "Hadoop core-site.xml 을 찾을 수 없습니다.",
   "msg.dp.alert.hadoop.hdfs.site.not.found" : "Hadoop hdfs-site.xml 을 찾을 수 없습니다.",
+  "msg.dp.alert.hadoop.hdfs.failed.to.connect" : "Hadoop HDFS server에 접속할 수 없습니다.",
   "msg.dp.alert.staging.base.dir.not.configured" : "Staging base directory가 설정되지 않았습니다.",
   "msg.dp.alert.hive.not.configured" : "Hive가 설정되지 않았습니다.",
   "msg.dp.alert.external.jar.not.configured" : "전수 처리를 위한 external jar 파일이 설정되지 않았습니다.",
