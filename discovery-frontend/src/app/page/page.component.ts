@@ -4158,13 +4158,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     cloneQuery.userFields = CommonUtil.objectToArray(cloneQuery.userFields);
 
-    // TODO 임시 analysis query
-    // if(!_.isUndefined(cloneQuery.analysis)) {
-    //   cloneQuery.analysis['includeCompareLayer'] = true;
-    //   cloneQuery.analysis['operation']['choropleth'] = true;
-    //   cloneQuery.analysis['operation']['buffer'] = 100;
-    // }
-
     return cloneQuery;
   }
 

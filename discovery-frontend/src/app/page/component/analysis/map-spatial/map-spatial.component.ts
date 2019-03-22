@@ -469,8 +469,10 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     };
 
     // buffer 설정
-    if (bufferDataValue > 0) {
+    if (bufferDataValue > 0 && this.isBufferOn == true) {
       mapUIOption.analysis['operation']['buffer'] = bufferDataValue;
+    } else {
+      delete mapUIOption.analysis['operation']['buffer'];
     }
 
     // 단계구분도 설정 (단계구분도 = choropleth)
