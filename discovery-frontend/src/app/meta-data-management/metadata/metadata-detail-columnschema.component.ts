@@ -26,6 +26,7 @@ import {CodeValuePair} from '../../domain/meta-data-management/code-value-pair';
 import {ColumnDictionaryService} from '../column-dictionary/service/column-dictionary.service';
 import {Alert} from '../../common/util/alert.util';
 import {CommonConstant} from '../../common/constant/common.constant';
+import {MetadataSourceType} from '../../domain/meta-data-management/metadata';
 
 class Order {
   key: string = 'physicalName';
@@ -189,6 +190,10 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
 
   public isSourceTypeDatasource() {
     return !_.isNil(this.metaDataModelService.getMetadata().source.source);
+  }
+
+  public isMetadataSourceTypeIsEngine() {
+    return new MetadataSourceType(this.metaDataModelService.getMetadata().sourceType).isEngine();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
