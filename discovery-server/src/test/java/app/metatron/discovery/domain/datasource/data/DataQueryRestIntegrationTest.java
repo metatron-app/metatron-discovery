@@ -2991,6 +2991,92 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_datasource_array.sql")
+  public void searchSelectWithArray() {
+
+    DataSource dataSource1 = new DefaultDataSource("array_datasource");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(10);
+
+    List<Filter> filters = Lists.newArrayList(
+    );
+
+    List<Field> projections = Lists.newArrayList(
+        new TimestampField("time"),
+        new DimensionField("d"),
+        new DimensionField("sd"),
+        new MeasureField("measureIdx1", MeasureField.AggregationType.NONE),
+        new MeasureField("measureIdx2", MeasureField.AggregationType.NONE)
+    );
+
+    ExpressionField expressionField1 = new ExpressionField("measureIdx1", "\"array_measure\"[0]");
+    ExpressionField expressionField2 = new ExpressionField("measureIdx2", "\"array_measure\"[1]");
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, projections, limit);
+    request.setUserFields(Lists.newArrayList(expressionField1, expressionField2));
+    request.setContext(TestUtils.makeMap(SearchQueryRequest.CXT_KEY_USE_STREAM, true));
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(GlobalObjectMapper.writeValueAsString(request))
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_datasource_array.sql")
+  public void searchGroupByWithMeasureArray() {
+
+    DataSource dataSource1 = new DefaultDataSource("array_datasource");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(10);
+
+    List<Filter> filters = Lists.newArrayList(
+        new InclusionFilter("sd", Lists.newArrayList("a", "b"))
+    );
+
+    ExpressionField expressionField = new ExpressionField("measureIdx1", "\"array_measure\"[0]");
+
+    List<Field> projections = Lists.newArrayList(
+        new TimestampField("time"),
+        new DimensionField("sd"),
+        new MeasureField("measureIdx1", MeasureField.AggregationType.SUM)
+    );
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, projections, limit);
+    request.setUserFields(Lists.newArrayList(expressionField));
+    request.setContext(TestUtils.makeMap(SearchQueryRequest.CXT_KEY_USE_STREAM, true));
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(GlobalObjectMapper.writeValueAsString(request))
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQuery_when_pivot_columns_order_by_desc() {
     // given
     final String requestBody = "{\n" +

@@ -57,7 +57,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
     { label: 'MySQL', value: 'MYSQL' },
     { label: 'Hive', value: 'HIVE' },
     { label: 'Presto', value: 'PRESTO' },
-    { label: 'Tibero', value: 'TIBERO' }
+    { label: 'PostgreSQL', value: 'POSTGRESQL' }
   ];
 
   // 선택한 URL 타입
@@ -188,11 +188,6 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
 
   public close() {
     super.close();
-
-    // Check if came from dataflow
-    if (this.datasetService.dataflowId) {
-      this.datasetService.dataflowId = undefined;
-    }
 
     this.popupService.notiPopup({
       name: 'close-create',

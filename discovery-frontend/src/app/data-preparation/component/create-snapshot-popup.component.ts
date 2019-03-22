@@ -39,6 +39,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private uriFileFormat: UriFileFormat;
 
+  private _isDataprepStagingEnabled: boolean = true;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -321,7 +322,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    * Check if staging is enabled
    */
   public isStagingEnabled() :boolean {
-    return StorageService.isEnableStageDB
+    return StorageService.isEnableStageDB && this._isDataprepStagingEnabled
   }
 
 
@@ -493,15 +494,14 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    */
   private _getStagingDb() {
     this.dbList = [];
-    if (this.isStagingEnabled()) {
-      this._connectionService.getDatabaseForHive().then((data) => {
-        if (data['databases']) {
-          this.dbList = data['databases'];
-        }
-      }).catch((error) => {
-        this.commonExceptionHandler(error);
-      });
-    }
+    this._connectionService.getDatabaseForHive().then((data) => {
+      if (data['databases']) {
+        this.dbList = data['databases'];
+      }
+    }).catch((error) => {
+      console.info('error -> ', error);
+      this._isDataprepStagingEnabled = false;
+    });
   }
 
 

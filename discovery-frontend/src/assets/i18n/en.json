@@ -765,7 +765,7 @@
   "msg.dp.alert.keep.warn": "Please enter a condition for the row you want to keep",
   "msg.dp.alert.left.joinkey.error" : "Left dataset does not contain a join column ({{leftJoinKey}}).",
   "msg.dp.alert.name.error" : "Name is required",
-  "msg.dp.alert.name.error.description" : "Name can only be 50 characters or less.",
+  "msg.dp.alert.name.error.description" : "Name can only be 150 characters or less.",
   "msg.dp.alert.no.added.ds" : "No datasets added.",
   "msg.dp.alert.no.data": "There is nothing to add",
   "msg.dp.alert.no.data.union" : "There is no data to Union.",
@@ -884,6 +884,7 @@
   "msg.dp.alert.check.insert.expression" : "Please enter the expression",
   "msp.dp.alert.col.empty" : "Column name must not be empty",
   "msg.dp.alert.merge.col.error" : "Please check new column name",
+  "msg.dp.ui.max.length.error" : "You can enter up to 150 characters",
 
   "msg.dp.alert.teddy.parse.failed" : "Rule parsing failed.",
   "msg.dp.alert.teddy.parse.failed.by.rulename": "Unsupported rule name.",
@@ -934,6 +935,7 @@
   "msg.dp.alert.teddy.parse.failed.by.join.dataset2": "Join rule parsing failed. Check the second dataset.",
   "msg.dp.alert.teddy.parse.failed.by.join.jointype": "Join rule parsing failed. Check the join type value.",
   "msg.dp.alert.teddy.parse.failed.by.window.value": "Check expression value of window rule",
+  "mgs.dp.ui.continue.new.rule": "Continue to edit rules with this dataset in a new dataflow",
 
   "msg.dp.alert.unsupported.number.format": "Unsupported number format.",
 

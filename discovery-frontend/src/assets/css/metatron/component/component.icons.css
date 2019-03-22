@@ -49,6 +49,7 @@ em.ddp-icon-dataset {display:inline-block; position:relative; top:-3px; width:19
 .ddp-btn-reset3 {background-position:-16px -20px;}
 .ddp-btn-reset3:hover {background-position:-15px -34px;}
 
+.ddp-icon-reset2 {display:inline-block; width:14px; height:13px; background:url(../../../images/icon_reset.png) no-repeat; background-position:-31px -20px;}
 
 .ddp-icon-database-s,
 .ddp-icon-database-s2,

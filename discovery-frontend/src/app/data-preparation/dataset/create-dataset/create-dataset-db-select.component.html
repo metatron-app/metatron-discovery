@@ -112,8 +112,8 @@
             <!-- //SID -->
 
             <!-- DATABASE -->
-            <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowDatabaseRequired"
-                 *ngIf="!isDefaultType() && isDbNameRequired() && !isUrl">
+            <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowDatabaseRequired && !isUrl"
+                 *ngIf="isDefaultType() && isDbNameRequired() && !isUrl">
               <label class="ddp-label-type">{{'msg.storage.th.db_name' | translate}}</label>
               <input class="ddp-input-type" placeholder="{{'msg.storage.th.db_name.ph' | translate}}"
                      [ngModel]="dataconnection.database"
@@ -125,7 +125,7 @@
 
             <!-- Catalog -->
             <div class="ddp-wrap-edit2 ddp-col-6"  [class.ddp-error]="isShowCatalogRequired"
-                 *ngIf="!isDefaultType() && isCatalogRequired() && !isUrl">
+                 *ngIf="isDefaultType() && isCatalogRequired() && !isUrl">
               <label class="ddp-label-type">{{'msg.storage.th.catalog' | translate}}</label>
               <input class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.catalog.ph' | translate}}"
                      [ngModel]="dataconnection.catalog"
@@ -138,7 +138,7 @@
             <!-- url input -->
             <div class="ddp-wrap-edit2 ddp-col-12" *ngIf="isUrl" [class.ddp-error]="isShowUrlRequired">
               <label class="ddp-label-type">{{'msg.storage.ui.conn.url' | translate}}</label>
-              <input class="ddp-input-type"
+              <input class="ddp-input-type"z
                      [readonly]="dataconnection.id || connectionList.length === 0"
                      placeholder="{{'msg.storage.ui.conn.url.ph' | translate}}"
                      [ngModel]="dataconnection.url"

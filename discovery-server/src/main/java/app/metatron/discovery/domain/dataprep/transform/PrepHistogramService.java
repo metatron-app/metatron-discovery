@@ -27,11 +27,6 @@ import java.util.concurrent.Future;
 @Service
 public class PrepHistogramService {
   @Async("threadPoolTaskExecutor")
-  public Future<Histogram> updateHist(String colName, ColumnType colType, List<Row> rows, int colno) {
-    return new AsyncResult<>(Histogram.createHist(colName, colType, rows, colno, null));
-  }
-
-  @Async("threadPoolTaskExecutor")
   public Future<Histogram> updateHistWithColWidth(String colName, ColumnType colType, List<Row> rows, int colno, int colWidth) {
     return new AsyncResult<>(Histogram.createHist(colName, colType, rows, colno, colWidth));
   }
