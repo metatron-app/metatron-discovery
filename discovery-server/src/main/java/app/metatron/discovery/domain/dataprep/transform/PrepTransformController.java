@@ -55,7 +55,7 @@ public class PrepTransformController {
     LOGGER.trace("create(): start");
 
     try {
-      response = transformService.create(importedDsId, request.getDfId(), true);
+      response = transformService.create(importedDsId, request.getDfId(), null);
     } catch (Exception e) {
       LOGGER.error("create(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);

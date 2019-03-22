@@ -257,14 +257,14 @@ public class PrepTransformService {
 
   // create stage0 (POST)
   @Transactional(rollbackFor = Exception.class)
-  public PrepTransformResponse create(String importedDsId, String dfId, boolean needAutoTyping) throws Exception {
+  public PrepTransformResponse create(String importedDsId, String dfId, String cloningDsName) throws Exception {
     LOGGER.trace("create(): start");
 
     PrDataset importedDataset = datasetRepository.findRealOne(datasetRepository.findOne(importedDsId));
     PrDataflow dataflow = dataflowRepository.findOne(dfId);
     assert importedDataset.getDsType() == IMPORTED : importedDataset.getDsType();
 
-    PrDataset wrangledDataset = makeWrangledDataset(importedDataset, dataflow, dfId);
+    PrDataset wrangledDataset = makeWrangledDataset(importedDataset, dataflow, dfId, cloningDsName);
     datasetRepository.save(wrangledDataset);
 
     // We need to save into the repository to get an ID.
@@ -289,8 +289,8 @@ public class PrepTransformService {
     response.setWrangledDsId(wrangledDsId);
     this.putAddedInfo(response, wrangledDataset);
 
-    // Auto type detection and conversion
-    if (needAutoTyping && prepProperties.isAutoTypingEnabled()) {
+    // Auto type detection and conversion (except cloning case)
+    if (cloningDsName == null && prepProperties.isAutoTypingEnabled()) {
       switch (importedDataset.getImportType()) {
         case UPLOAD:
         case URI:
@@ -322,7 +322,7 @@ public class PrepTransformService {
     PrDataset wrangledDataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
     String upstreamDsId = getFirstUpstreamDsId(wrangledDsId);
 
-    PrepTransformResponse response = create(upstreamDsId, wrangledDataset.getCreatorDfId(), false);
+    PrepTransformResponse response = create(upstreamDsId, wrangledDataset.getCreatorDfId(), wrangledDataset.getDsName());
     String cloneDsId = response.getWrangledDsId();
 
     List<PrTransformRule> transformRules = getRulesInOrder(wrangledDsId);
@@ -1154,12 +1154,31 @@ public class PrepTransformService {
     return response;
   }
 
-  private static PrDataset makeWrangledDataset(PrDataset importedDataset, PrDataflow dataflow, String dfId) {
+  private static String getNewDsName(PrDataset importedDataset, PrDataflow dataflow, String dfId, String cloningDsName) {
+    if (cloningDsName == null) {
+      return importedDataset.getDsName().replaceFirst(" \\((EXCEL|CSV|JSON|STAGING|MYSQL|ORACLE|TIBERO|HIVE|POSTGRESQL|MSSQL|PRESTO)\\)$","");
+    }
+
+    List<String> dsNames = new ArrayList();
+    for (PrDataset dataset : dataflow.getDatasets()) {
+      dsNames.add(dataset.getDsName());
+    }
+
+    for (int i = 1; /* NOP */; i++) {
+      String newDsName = String.format("%s (%d)", cloningDsName, i);
+
+      if (!dsNames.contains(newDsName)) {
+        return newDsName;
+      }
+
+      assert i < 100000 : String.format("Too much duplication: cloningDsName=%s" + cloningDsName);
+    }
+  }
+
+  private static PrDataset makeWrangledDataset(PrDataset importedDataset, PrDataflow dataflow, String dfId, String cloningDsName) {
     PrDataset wrangledDataset = new PrDataset();
 
-    //wrangledDataset.setDsName(importedDataset.getDsName() + " [W]");
-    String dsName = importedDataset.getDsName();
-    String newDsName = dsName.replaceFirst(" \\((EXCEL|CSV|JSON|STAGING|MYSQL|ORACLE|TIBERO|HIVE|POSTGRESQL|MSSQL|PRESTO)\\)$","");
+    String newDsName = getNewDsName(importedDataset, dataflow, dfId, cloningDsName);
     wrangledDataset.setDsName(newDsName);
     wrangledDataset.setDsType(WRANGLED);
     wrangledDataset.setCreatorDfId(dfId);
