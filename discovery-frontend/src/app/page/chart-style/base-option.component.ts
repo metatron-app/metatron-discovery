@@ -149,12 +149,12 @@ export class BaseOptionComponent extends AbstractComponent implements OnInit, On
    * uiOption 그대로 속성만 변경하면 자동으로 uiOptionChange 호출 됨
    */
   public update(drawChartParam?: any) {
-    // 서버가 재호출 여부
+
+    // drawChartParam이 빈값이 아닐때 (서버가 재호출되어야 하는경우)
     if (drawChartParam) {
-      // drawChartParam이 빈값이 아니면 서버 재호출
       this.setDrawChartParam.emit(drawChartParam);
+    // drawChartParam이 빈값이 아닐때 (서버가 재호출되지 않아도 되는경우, uiOption만 변경)
     } else {
-      // drawChartParam이 빈값이 아닐때 (서버가 재호출되지 않아도 되는경우, uiOption만 변경)
       this.uiOptionChange.emit(this.uiOption);
     }
   }

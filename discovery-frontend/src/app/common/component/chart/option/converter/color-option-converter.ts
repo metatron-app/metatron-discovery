@@ -519,8 +519,8 @@ export class ColorOptionConverter {
     }
 
     // map 챠트에서 aggregation 타입이 변경 될 경우 min / max 값을 변경해야함
-    if(!_.isUndefined(uiOption.layers[uiOption.layerNum]['isColorOptionChanged']) && uiOption.layers[uiOption.layerNum]['isColorOptionChanged']) {
-      delete uiOption.layers[uiOption.layerNum]['isColorOptionChanged'];
+    if(!_.isUndefined(uiOption.layers[uiOption.layerNum]['isAggChangedType']) && uiOption.layers[uiOption.layerNum]['isAggChangedType']) {
+      delete uiOption.layers[uiOption.layerNum]['isAggChangedType'];
       uiOption.layers[layerIndex].color.minValue = minValue;
       uiOption.layers[layerIndex].color.maxValue = maxValue;
     } else {

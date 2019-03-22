@@ -2429,7 +2429,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
       let analysisAggrColumn : string;
       if( !_.isUndefined(this.uiOption['analysis']) && !_.isUndefined(this.uiOption['analysis']['use']) && this.uiOption['analysis']['use'] ) {
         isAnalysisUse = this.uiOption['analysis']['use'];
-        analysisAggrColumn = uiOption['layers'][uiOption['layerNum']].color.column;
+        analysisAggrColumn = this.uiOption['analysis']['operation']['aggregation']['column'];
         if( index != this.shelf.layers.length-1 ){
           continue;
         }
@@ -2638,16 +2638,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         layer.color.column = uiOption.fieldMeasureList[0]['name'];
         layer.color.aggregationType = uiOption.fieldMeasureList[0]['aggregationType'];
         if( isAnalysisUse ) {
-          if(!_.isUndefined(uiOption['layers'][uiOption['layerNum']]['isCustomField']) && uiOption['layers'][uiOption['layerNum']]['isCustomField'] == true) {
-            layer.color.column = analysisAggrColumn;
-          } else {
-            uiOption.fieldMeasureList.forEach((item) => {
-              if( item.name == analysisAggrColumn ){
-                layer.color.column = item.name;
-                layer.color.aggregationType = item.aggregationType;
-              }
-            });
-          }
+          uiOption.fieldMeasureList.forEach((item) => {
+            if( item.name == analysisAggrColumn ){
+              layer.color.column = item.name;
+              layer.color.aggregationType = item.aggregationType;
+            }
+          });
         }
         if( isAnalysisUse ) {
           let dataIndex = 0;

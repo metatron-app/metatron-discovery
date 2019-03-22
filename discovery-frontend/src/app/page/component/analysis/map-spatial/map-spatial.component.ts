@@ -469,10 +469,10 @@ export class MapSpatialComponent extends AbstractComponent implements OnInit, On
     };
 
     // buffer 설정
-    if (bufferDataValue > 0 && this.isBufferOn == false) {
-      mapUIOption.analysis['operation']['buffer'] = 1;
-    } else {
+    if (bufferDataValue > 0 && this.isBufferOn == true) {
       mapUIOption.analysis['operation']['buffer'] = bufferDataValue;
+    } else {
+      mapUIOption.analysis['operation']['buffer'] = 1;
     }
 
     if( mapUIOption.analysis.operation.aggregation.column == 'count' && this.colorByIndex == 0 ){

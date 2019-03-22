@@ -807,10 +807,6 @@ export class MapPagePivotComponent extends PagePivotComponent {
    * 공간연산 버튼 클릭시
    */
   public spatialAnalysisBtnClicked(value) {
-
-    // 공간연산 정보
-    this.uiOption = value;
-
     let layers = {
       name: 'SpatialAnalysisLayer',
       ref: '',
@@ -826,19 +822,15 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
     // add empty layer
     this.shelf.layers.push(layers);
-
     // layer 생성 (page.component에서 uiOption 전체를 생성함, layer만 추가 하기, 추가 layer 생성하기 위해서 0번째를 복사)
     let addUiOptionLayer = OptionGenerator.initUiOption(this.uiOption)['layers'][0];
     // layer name setting
     addUiOptionLayer.name = 'SpatialAnalysisLayer';
-    // aggregation type setting
-    if(!_.isUndefined(this.uiOption['analysis']['operation']['aggregation']['type'])) {
-      addUiOptionLayer.color.aggregationType = this.uiOption['analysis']['operation']['aggregation']['type'];
-    }
     this.uiOption.layers.push(addUiOptionLayer);
     // 0 ~ 1 은 multi-layer, 그래서 공간연산 layer 값은 2
     this.uiOption.layerNum = this.uiOption.layers.length - 1;
-
+    // 공간연산 정보
+    this.uiOption = value;
 
     // 공간연산에서 choropleth 를 활성화 하고 default 값인 count를 지정할 경우 count에 대한 정보를 강제 입력
     if(this.uiOption['analysis']['operation']['choropleth'] == true ) {
@@ -846,16 +838,16 @@ export class MapPagePivotComponent extends PagePivotComponent {
         alias: 'count',
         type: 'measure',
         subRole: 'measure',
-        name: 'count',
-        isCustomField: true
+        name: 'count'
       };
 
+      let uiOption = this.uiOption;
       this.shelf.layers.forEach( (layer) => {
         if(layer.name === 'SpatialAnalysisLayer') {
           layer.fields.push(_.cloneDeep(field));
           layer.fields.forEach( (field) => {
-            if( this.uiOption['analysis']['operation']['aggregation']['column'] == field.name ){
-              field.aggregationType = this.uiOption['analysis']['operation']['aggregation']['type'];
+            if( uiOption['analysis']['operation']['aggregation']['column'] == field.name ){
+              field.aggregationType = uiOption['analysis']['operation']['aggregation']['type'];
             }
           });
         }
