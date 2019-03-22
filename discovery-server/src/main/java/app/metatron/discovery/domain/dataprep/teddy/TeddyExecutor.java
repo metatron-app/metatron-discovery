@@ -529,24 +529,24 @@ public class TeddyExecutor {
         LOGGER.trace("applyRuleStrings(): end");
     }
 
-    private void loadCsvFile(String dsId, String strUri, String delimiter) throws URISyntaxException {
+    private void loadCsvFile(String dsId, String strUri, String delimiter, Integer columnCount) throws URISyntaxException {
         DataFrame df = new DataFrame();
 
         LOGGER.info("loadCsvFile(): dsId={} strUri={} delemiter={}", dsId, strUri, delimiter);
 
-        PrepCsvParseResult result = PrepCsvUtil.parse(strUri, delimiter, limitRows, conf);
+        PrepCsvParseResult result = PrepCsvUtil.parse(strUri, delimiter, limitRows, columnCount, conf);
         df.setByGrid(result);
 
         LOGGER.info("loadCsvFile(): done");
         cache.put(dsId, df);
     }
 
-    private void loadJsonFile(String dsId, String strUri) throws URISyntaxException {
+    private void loadJsonFile(String dsId, String strUri, Integer columnCount) throws URISyntaxException {
         DataFrame df = new DataFrame();
 
         LOGGER.info("loadJsonFile(): dsId={} strUri={}", dsId, strUri);
 
-        PrepJsonParseResult result = PrepJsonUtil.parseJson(strUri, limitRows, conf);
+        PrepJsonParseResult result = PrepJsonUtil.parseJson(strUri, limitRows, columnCount, conf);
         df.setByGridWithJson(result);
 
         LOGGER.info("loadJsonFile(): done");
@@ -566,12 +566,13 @@ public class TeddyExecutor {
         switch (importType) {
             case "UPLOAD":
                 String storedUri = (String) datasetInfo.get("storedUri");
+                Integer columnCount = (Integer) datasetInfo.get("manualColumnCount");
                 String extensionType = FilenameUtils.getExtension(storedUri).toLowerCase();
                 if(extensionType.equals("json")) {
-                    loadJsonFile(newFullDsId, storedUri);
+                    loadJsonFile(newFullDsId, storedUri, columnCount);
                 } else {
                     String delimiter = (String) datasetInfo.get("delimiter");
-                    loadCsvFile(newFullDsId, storedUri, delimiter);
+                    loadCsvFile(newFullDsId, storedUri, delimiter, columnCount);
                 }
                 break;
 

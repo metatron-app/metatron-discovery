@@ -255,16 +255,16 @@ public class TeddyImpl {
     addRev(dsId, newRev);
   }
 
-  public DataFrame loadFileDataset(String dsId, String strUri, String delimiter, String dsName) {
+  public DataFrame loadFileDataset(String dsId, String strUri, String delimiter, Integer columnCount, String dsName) {
     DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
 
     String extensionType = FilenameUtils.getExtension(strUri);
     switch (extensionType) {
       case "json":
-        df.setByGridWithJson(PrepJsonUtil.parseJson(strUri, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
+        df.setByGridWithJson(PrepJsonUtil.parseJson(strUri, prepProperties.getSamplingLimitRows(), columnCount, hdfsService.getConf()));
         break;
       default: // csv
-        df.setByGrid(PrepCsvUtil.parse(strUri, delimiter, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
+        df.setByGrid(PrepCsvUtil.parse(strUri, delimiter, prepProperties.getSamplingLimitRows(), columnCount, hdfsService.getConf()));
     }
 
     return createStage0(dsId, df);
