@@ -339,6 +339,7 @@ public class JdbcConnectionService {
         //Table 상세 정보 조회
         List<Map<String, Object>> tableDescList = jdbcTemplate.queryForList(tableDescQuery);
 
+        boolean isInit = false;
         boolean isColumnInfo = true;
         boolean isPartitionInfo = false;
         boolean isDetailedInfo = false;
@@ -349,21 +350,28 @@ public class JdbcConnectionService {
         Map<String, Object> detailInfoMap = new LinkedHashMap<>();
         Map<String, Object> storageInfoMap = new LinkedHashMap<>();
 
-        for (int rowCnt = 2; rowCnt < tableDescList.size(); ++rowCnt) {
+        for (int rowCnt = 0; rowCnt < tableDescList.size(); ++rowCnt) {
           Map<String, Object> tableDescRow = tableDescList.get(rowCnt);
           String columnName = StringUtils.trim((String) tableDescRow.get("col_name"));
           String descType = StringUtils.trim((String) tableDescRow.get("data_type"));
           String descValue = StringUtils.trim((String) tableDescRow.get("comment"));
 
+          //유의미한 row에 도달했는지 확인.
+          if(!isInit){
+            //ColumnName이 # col_name 이거나 3가지 값 모두 empty일 경우는 의미없는 Row
+            if (columnName.equals("# col_name")) {
+              continue;
+            }
+            if (StringUtils.isEmpty(columnName) && StringUtils.isEmpty(descType) && StringUtils.isEmpty(descValue)) {
+              continue;
+            }
+
+            isInit = true;
+          }
+
           //Column List 끝났는지 여부.
           if (isColumnInfo && StringUtils.isEmpty(columnName)) {
             isColumnInfo = false;
-          }
-
-          //ColumnName이 # col_name 이거나 3가지 값 모두 empty일 경우는 의미없는 Row
-          if (columnName.equals("# col_name")
-              || (StringUtils.isEmpty(columnName) && StringUtils.isEmpty(descType) && StringUtils.isEmpty(descValue))) {
-            continue;
           }
 
           //아직 Column List 이면 Continue
