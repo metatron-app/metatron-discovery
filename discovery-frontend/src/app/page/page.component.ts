@@ -3325,15 +3325,17 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * redraw chart
    */
   public changeDraw(value?: any) {
-
     // 공간연산 analysis layer 관련 event 구현
     if (!_.isUndefined(value) && value == 'removeAnalysisLayerEvent') {
       this.mapPivot.removeAnalysis();
+      this.drawChart();
     } else if (!_.isUndefined(value)) {
+      let param = {type: EventType.CHANGE_PIVOT};
       this.mapPivot.spatialAnalysisBtnClicked(value);
+      this.drawChart(param);
+    } else {
+      this.drawChart();
     }
-
-    this.drawChart();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -3967,6 +3969,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.datasourceService.searchQuery(cloneQuery).then(
       (data) => {
 
+        console.log('########', data);
+
         const resultData = {
           data: data,
           config: uiCloneQuery,
@@ -4027,7 +4031,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         } else if(this.selectChart == 'map') {
           // map chart 일 경우 aggregation type 변경시 min/max 재설정 필요
           if(!_.isUndefined(params) && !_.isUndefined(params.type) && params.type == EventType.AGGREGATION) {
-            this.uiOption['layers'][this.uiOption['layerNum']]['isAggChangedType'] = true;
+            this.uiOption['layers'][this.uiOption['layerNum']]['isColorOptionChanged'] = true;
           }
           setTimeout(() => {
             this.chart.resultData = resultData;

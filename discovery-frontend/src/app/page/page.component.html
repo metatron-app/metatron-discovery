@@ -1690,8 +1690,8 @@
                          [(uiOption)]="uiOption"></calrow-option>
           <!-- MapView -->
           <map-common-option #mapCommonOption *ngIf="isChartShow && 'mapCommon' === rnbMenu"
-                             [(uiOption)]="uiOption"></map-common-option>
-
+                             [(uiOption)]="uiOption">
+          </map-common-option>
           <map-layer-option #mapLayerOption
                             *ngIf="isChartShow && ('mapLayer1' === rnbMenu || 'mapLayer2' === rnbMenu || 'mapLayer3' === rnbMenu) && !setDisableMapLayer()"
                             [(uiOption)]="uiOption"
@@ -1699,16 +1699,21 @@
                             (drawChartParam)="onSetDrawChartParam($event)"
                             [(shelf)]="shelf"
                             [data]="resultData?.data"
-                            (setZIndex)="onSetZIndex($event)"></map-layer-option>
-          <map-legend-option #mapLegendOption *ngIf="isChartShow && 'mapLegend' === rnbMenu" [(uiOption)]="uiOption"
+                            (setZIndex)="onSetZIndex($event)">
+          </map-layer-option>
+          <map-legend-option #mapLegendOption
+                             *ngIf="isChartShow && 'mapLegend' === rnbMenu" [(uiOption)]="uiOption"
                              (drawChartParam)="onSetDrawChartParam($event)"></map-legend-option>
-          <map-format-option #mapFormatOption *ngIf="isChartShow && 'mapFormat' === rnbMenu"
+          <map-format-option #mapFormatOption
+                             *ngIf="isChartShow && 'mapFormat' === rnbMenu"
                              (changeCommon)="onFormatCommonChange($event)" (changeEach)="onFormatEachChange($event)"
                              (drawChartParam)="onSetDrawChartParam($event)"
-                             [(shelf)]="shelf" [(uiOption)]="uiOption">
+                             [(shelf)]="shelf"
+                             [(uiOption)]="uiOption">
           </map-format-option>
           <map-tooltip-option #mapTooltipOption *ngIf="isChartShow && 'mapTooltip' === rnbMenu" [(uiOption)]="uiOption"
-                              [shelf]="shelf" (drawChartParam)="onSetDrawChartParam($event)"></map-tooltip-option>
+                              [shelf]="shelf" (drawChartParam)="onSetDrawChartParam($event)">
+          </map-tooltip-option>
           <!-- //MapView -->
         </div>
 

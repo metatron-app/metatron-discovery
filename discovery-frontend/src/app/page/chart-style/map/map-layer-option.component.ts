@@ -512,20 +512,27 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
 
     this.uiOption.layers[layerIndex].color.column = data.name;
 
-    // measure
     if ('measure' === data.type) {
+      // measure
       this.uiOption.layers[layerIndex].color.aggregationType = data.aggregationType;
       this.uiOption.layers[layerIndex].color.granularity = null;
+
+      // setting whether custom count field
+      if(!_.isUndefined(data['isCustomField']) && data['isCustomField']) {
+        this.uiOption.layers[layerIndex]['isCustomField'] = true;
+      } else {
+        delete this.uiOption.layers[layerIndex]['isCustomField'];
+      }
       // init ranges
       const colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[layerIndex].color['schema']]);
-
       if(!_.isUndefined(this.uiOption.analysis) && !_.isUndefined(this.uiOption.analysis['use']) && this.uiOption.analysis['use'] == true ) {
+        this.uiOption.layers[layerIndex]['isColorOptionChanged'] = true;
         this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[this.uiOption.analysis['layerNum']], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
       } else {
         this.uiOption.layers[layerIndex].color.ranges = ColorOptionConverter.setMapMeasureColorRange(this.uiOption, this.data[layerIndex], colorList, layerIndex, this.shelf.layers[layerIndex].fields, []);
       }
-    // granularity
     } else {
+      // granularity
       if (data.format) this.uiOption.layers[layerIndex].color.granularity = data.format.unit.toString();
       this.uiOption.layers[layerIndex].color.aggregationType = null;
     }
@@ -634,16 +641,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    */
   public changeByNoneColor(colorCode: string, layerIndex : number) {
 
-    let layerType = this.uiOption.layers[layerIndex].type;
-    if (MapLayerType.HEATMAP === layerType) {
-      this.uiOption.layers[layerIndex].color['heatMapSchema'] = colorCode;
-    } else if (MapLayerType.SYMBOL === layerType) {
-      this.uiOption.layers[layerIndex].color['symbolSchema'] = colorCode;
-    } else if (MapLayerType.TILE === layerType) {
-      this.uiOption.layers[layerIndex].color['tileSchema'] = colorCode;
-    } else if (MapLayerType.POLYGON === layerType) {
-      this.uiOption.layers[layerIndex].color['polygonSchema'] = colorCode;
-    }
+    // let layerType = this.uiOption.layers[layerIndex].type;
+    // if (MapLayerType.HEATMAP === layerType) {
+    //   this.uiOption.layers[layerIndex].color['heatMapSchema'] = colorCode;
+    // } else if (MapLayerType.SYMBOL === layerType) {
+    //   this.uiOption.layers[layerIndex].color['symbolSchema'] = colorCode;
+    // } else if (MapLayerType.TILE === layerType) {
+    //   this.uiOption.layers[layerIndex].color['tileSchema'] = colorCode;
+    // } else if (MapLayerType.POLYGON === layerType) {
+    //   this.uiOption.layers[layerIndex].color['polygonSchema'] = colorCode;
+    // }
     this.uiOption.layers[layerIndex].color.schema = colorCode;
 
     this.applyLayers();
@@ -758,16 +765,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements Afte
    */
   public changeColor(data: any, layerIndex : number) {
 
-    let layerType = this.uiOption.layers[layerIndex].type;
-    if (MapLayerType.HEATMAP === layerType) {
-      this.uiOption.layers[layerIndex].color['heatMapSchema'] = data.colorNum;
-    } else if (MapLayerType.SYMBOL === layerType) {
-      this.uiOption.layers[layerIndex].color['symbolSchema'] = data.colorNum;
-    } else if (MapLayerType.TILE === layerType) {
-      this.uiOption.layers[layerIndex].color['tileSchema'] = data.colorNum;
-    } else if (MapLayerType.POLYGON === layerType) {
-      this.uiOption.layers[layerIndex].color['polygonSchema'] = data.colorNum;
-    }
+    // let layerType = this.uiOption.layers[layerIndex].type;
+    // if (MapLayerType.HEATMAP === layerType) {
+    //   this.uiOption.layers[layerIndex].color['heatMapSchema'] = data.colorNum;
+    // } else if (MapLayerType.SYMBOL === layerType) {
+    //   this.uiOption.layers[layerIndex].color['symbolSchema'] = data.colorNum;
+    // } else if (MapLayerType.TILE === layerType) {
+    //   this.uiOption.layers[layerIndex].color['tileSchema'] = data.colorNum;
+    // } else if (MapLayerType.POLYGON === layerType) {
+    //   this.uiOption.layers[layerIndex].color['polygonSchema'] = data.colorNum;
+    // }
     this.uiOption.layers[layerIndex].color.schema = data.colorNum;
 
     const colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[layerIndex].color['schema']]);
