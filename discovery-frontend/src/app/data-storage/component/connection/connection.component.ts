@@ -17,9 +17,11 @@ import {AbstractComponent} from "../../../common/component/abstract.component";
 import {isNullOrUndefined} from "util";
 import {
   AuthenticationType,
-  JdbcDialect,
   Dataconnection,
-  InputMandatory
+  ImplementorType,
+  InputMandatory,
+  JdbcDialect,
+  Scope
 } from "../../../domain/dataconnection/dataconnection";
 import {DataConnectionCreateService} from "../../service/data-connection-create.service";
 import {StringUtil} from "../../../common/util/string.util";
@@ -431,6 +433,32 @@ export class ConnectionComponent extends AbstractComponent {
       acc[property.key.trim()] = property.value.trim();
       return acc;
     }, {});
+  }
+
+  /**
+   * Get implemntor image icon
+   * @param {JdbcDialect} connection
+   * @return {string}
+   */
+  public getImplementorImageIcon(connection: JdbcDialect): string {
+    if (connection.scope === Scope.EMBEDDED) {
+      switch (connection.implementor) {
+        case ImplementorType.MYSQL:
+          return '../../../../assets/images/img_db/ic_db_mysql.png';
+        case ImplementorType.HIVE:
+          return '../../../../assets/images/img_db/ic_db_hive.png';
+        case ImplementorType.DRUID:
+          return '../../../../assets/images/img_db/ic_db_druid.png';
+        case ImplementorType.POSTGRESQL:
+          return '../../../../assets/images/img_db/ic_db_post.png';
+        case ImplementorType.PRESTO:
+          return '../../../../assets/images/img_db/ic_db_presto.png';
+        default:
+          return '../../../../assets/images/img_db/ic_DB.png';
+      }
+    } else {
+      return connection.iconResource1;
+    }
   }
 
   /**

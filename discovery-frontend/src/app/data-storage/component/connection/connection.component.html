@@ -25,7 +25,7 @@
             [class.ddp-selected]="connection.implementor === selectedConnectionType.implementor" [class.ddp-disabled]="isDisableChangeConnectionType">
           <a href="javascript:" class="ddp-label-dbtype" (click)="onChangeConnectionType(connection)">
             <em class="ddp-img-icon">
-              <img src="{{connection.iconResource1}}">
+              <img src="{{getImplementorImageIcon(connection)}}">
             </em>
             <span class="ddp-txt-db">{{connection.name}}</span>
           </a>

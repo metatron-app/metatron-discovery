@@ -59,10 +59,10 @@ export interface JdbcDialect {
   name: string;
   implementor: ImplementorType;
   inputSpec: InputSpec;
-  iconResource1;
-  iconResource2;
-  iconResource3;
-  iconResource4;
+  iconResource1: string;
+  iconResource2: string;
+  iconResource3: string;
+  iconResource4: string;
 }
 
 export interface InputSpec {
