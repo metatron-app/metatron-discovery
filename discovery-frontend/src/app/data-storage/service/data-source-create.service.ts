@@ -526,8 +526,8 @@ export class DataSourceCreateService {
 export enum ConfigureTimestampType {
   // FIELD = <any>'FIELD',
   // CURRENT = <any>'CURRENT',
-  CURRENT_TIME = 'CURRENT_TIME',
-  TIMESTAMP_FIELD = 'TIMESTAMP_FIELD'
+  CURRENT_TIME = 'CURRENT',
+  TIMESTAMP_FIELD = 'FIELD'
 }
 
 // 타입 셀렉트 필터
