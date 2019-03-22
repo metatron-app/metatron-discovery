@@ -418,6 +418,12 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
   }
 
   public void addDimension(Dimension dimension) {
+
+    if (disableDimension) {
+      outputColumns.remove(dimension.getOutputName());
+      return;
+    }
+
     if (relayType == null) {
       dimensions.add(dimension);
     } else {

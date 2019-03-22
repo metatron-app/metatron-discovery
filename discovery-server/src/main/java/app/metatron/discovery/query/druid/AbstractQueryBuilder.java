@@ -82,6 +82,7 @@ import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import app.metatron.discovery.domain.workbook.configurations.format.ContinuousTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.LayerView;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
 import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
@@ -249,6 +250,11 @@ public abstract class AbstractQueryBuilder {
   protected boolean geoJsonFormat;
 
   /**
+   * case of disabling dimension
+   */
+  protected boolean disableDimension;
+
+  /**
    * 엔진에 질의할 때 필요한 추가 정보
    */
   protected Map<String, Object> context = Maps.newHashMap();
@@ -384,6 +390,8 @@ public abstract class AbstractQueryBuilder {
   protected void enableMapLayer(MapViewLayer mapViewLayer) {
     this.mapViewLayer = mapViewLayer;
     this.geoJsonFormat = true;
+    this.disableDimension = (mapViewLayer.getView() != null)
+        && (mapViewLayer.getView() instanceof LayerView.ClusteringLayerView);
 
     if (dataSource instanceof MultiDataSource) {
       MultiDataSource multiDataSource = (MultiDataSource) dataSource;

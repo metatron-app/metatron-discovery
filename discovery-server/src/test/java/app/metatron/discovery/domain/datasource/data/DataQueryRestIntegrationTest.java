@@ -74,7 +74,6 @@ import app.metatron.discovery.domain.workbook.configurations.widget.shelf.LayerV
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.MapViewLayer;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
 import app.metatron.discovery.query.druid.SpatialOperations;
-import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
 
 import static app.metatron.discovery.domain.datasource.Field.FieldRole.MEASURE;
 import static com.jayway.restassured.RestAssured.given;
@@ -2016,7 +2015,8 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
                                             new MeasureField("amt", null, MeasureField.AggregationType.NONE));
 
     //MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields, new LayerView.HashLayerView("geohex", 5));
-    MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields, new LayerView.AbbreviatedView("geohex", 12, RelayAggregation.Relaytype.FIRST.name()));
+    //    MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields, new LayerView.AbbreviatedView("geohex", 12, RelayAggregation.Relaytype.FIRST.name()));
+    MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields, new LayerView.ClusteringLayerView("geohex", 5));
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
