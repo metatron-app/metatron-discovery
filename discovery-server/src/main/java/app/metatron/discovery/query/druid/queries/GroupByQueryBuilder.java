@@ -460,6 +460,14 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
   }
 
   public GroupByQueryBuilder count(String name) {
+    long count = aggregations.stream()
+                             .filter(aggregation -> aggregation.getName().equals(name))
+                             .count();
+
+    if (count > 0) {
+      return this;
+    }
+
     this.aggregations.add(new CountAggregation(name));
     this.outputColumns.add(name);
     return this;

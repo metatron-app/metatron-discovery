@@ -216,6 +216,7 @@ public class AbstractSpecBuilder {
       }
 
       switch (dimensionfield.getType()) {
+        case TIMESTAMP:
         case STRING:
           dimenstionSchemas.add(dimensionfield.getName());
           break;
