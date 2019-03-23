@@ -2244,16 +2244,16 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Limit
     Limit limit = new Limit();
-    limit.setLimit(10);
+    limit.setLimit(10000);
 
     List<Filter> filters = Lists.newArrayList(
-        new SpatialBboxFilter("estate", "gis", null, "127.066436 37.484505", "127.007656 37.521752", null)
+        //new SpatialBboxFilter("estate", "gis", null, "127.066436 37.484505", "127.007656 37.521752", null)
     );
 
-    List<Field> fields1 = Lists.newArrayList(new DimensionField("gis", null, null), new DimensionField("gu"), new MeasureField("amt", null, MeasureField.AggregationType.NONE));
+    List<Field> fields1 = Lists.newArrayList(new DimensionField("gis"), new MeasureField("amt", null, MeasureField.AggregationType.NONE));
     MapViewLayer layer1 = new MapViewLayer("layer1", "estate", fields1, null);
 
-    List<Field> fields2 = Lists.newArrayList(new DimensionField("geom", null, null));
+    List<Field> fields2 = Lists.newArrayList(new DimensionField("geom"), new DimensionField("name"));
     MapViewLayer layer2 = new MapViewLayer("layer2", "seoul_roads", fields2, null);
 
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1, layer2));

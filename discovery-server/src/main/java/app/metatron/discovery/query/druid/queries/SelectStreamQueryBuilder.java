@@ -231,6 +231,7 @@ public class SelectStreamQueryBuilder extends AbstractQueryBuilder {
         geometry = metaFieldMap.get(fieldName);
       } else {
         columns.add(engineColumnName);
+        fieldMapper.put(engineColumnName, field.getAlias());
       }
     }
 
