@@ -228,6 +228,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
             file.succeeded_chunks = 0;
             file.failed_chunks = 0;
             file.progressPercent = 0;
+            file.storage_type = ('LOCAL' === this.fileLocation? 'Local': this.fileLocation);
 
             let tmp = PreparationCommonUtil.getFileNameAndExtension(file.name);
 
@@ -303,7 +304,6 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
           this.upFiles[idx].isUploading = file.isUploading;
           this.upFiles[idx].isUploaded = file.isUploaded;
           this.upFiles[idx].storedUri = file.storedUri;
-          this.upFiles[idx].storage_type = ('LOCAL' === this.chunk_uploader.settings.multipart_params.storage_type? 'Local': this.chunk_uploader.settings.multipart_params.storage_type);
 
           this.changeDetect.detectChanges();
         },
@@ -458,6 +458,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
             file.succeeded_chunks = 0;
             file.failed_chunks = 0;
             file.progressPercent = 0;
+            file.storage_type = ('LOCAL' === this.fileLocation? 'Local': this.fileLocation);
 
             let tmp = PreparationCommonUtil.getFileNameAndExtension(file.name);
 
@@ -533,8 +534,6 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
           this.upFiles[idx].isUploading = file.isUploading;
           this.upFiles[idx].isUploaded = file.isUploaded;
           this.upFiles[idx].storedUri = file.storedUri;
-          this.upFiles[idx].storage_type = ('LOCAL' === this.chunk_uploader2.settings.multipart_params.storage_type? 'Local': this.chunk_uploader2.settings.multipart_params.storage_type);
-
           this.changeDetect.detectChanges();
         },
 
