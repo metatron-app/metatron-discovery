@@ -1805,6 +1805,93 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  public void createDataSourceWithGeoPointCsvFileIngestionByAsync() throws JsonProcessingException {
+
+    StompHeaders stompHeaders = new StompHeaders();
+    stompHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    StompSession session = null;
+    try {
+      session = stompClient
+          .connect("ws://localhost:{port}/stomp", webSocketHttpHeaders, stompHeaders, new StompSessionHandlerAdapter() {}, serverPort)
+          .get(3, SECONDS);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_point_wkt.csv").getPath();
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName("localFileIngestion_geo_" + PolarisUtils.randomString(5));
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(DAY);
+    dataSource.setSegGranularity(MONTH);
+    dataSource.setSrcType(FILE);
+
+    List<Field> fields = Lists.newArrayList();
+
+    Field geoField = new Field("GeoPoint", DataType.STRING, DIMENSION, 1L);
+    geoField.setLogicalType(LogicalType.GEO_POINT);
+    geoField.setFormat(GlobalObjectMapper.writeValueAsString(new GeoPointFormat(null, null)));
+    fields.add(geoField);
+
+    Field timestampField = new Field("OrderDate", DataType.TIMESTAMP, TIMESTAMP, 0L);
+    timestampField.setFormat(GlobalObjectMapper.writeValueAsString(new CustomDateTimeFormat("yyyy-MM-ddTHH:mm:ss.SSSZ")));
+    fields.add(timestampField);
+
+    fields.add(new Field("Category", DataType.STRING, DIMENSION, 2L));
+    fields.add(new Field("City", DataType.STRING, DIMENSION, 3L));
+    fields.add(new Field("Region", DataType.STRING, DIMENSION, 4L));
+    fields.add(new Field("Sales", DataType.DOUBLE, MEASURE, 5L));
+
+    dataSource.setFields(fields);
+
+    LocalFileIngestionInfo localFileIngestionInfo = new LocalFileIngestionInfo();
+    localFileIngestionInfo.setPath(targetFile);
+    localFileIngestionInfo.setRemoveFirstRow(true);
+    localFileIngestionInfo.setFormat(new CsvFileFormat(",", "\n"));
+
+    dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(localFileIngestionInfo));
+
+    String reqBody = GlobalObjectMapper.writeValueAsString(dataSource);
+
+    System.out.println(reqBody);
+
+    // @formatter:off
+    Response dsRes =
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(reqBody)
+      .log().all()
+    .when()
+      .post("/api/datasources");
+
+    dsRes.then()
+      .statusCode(HttpStatus.SC_CREATED)
+    .log().all();
+    // @formatter:on
+
+    String id = from(dsRes.asString()).get("id");
+
+    StompHeaders stompSubscribeHeaders = new StompHeaders();
+    stompSubscribeHeaders.setDestination("/topic/datasources/" + id + "/progress");
+    stompSubscribeHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    session.subscribe(stompSubscribeHeaders, new DefaultStompFrameHandler());
+
+    try {
+      System.out.println("Sleep!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      Thread.sleep(1000000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithLocalCsvFileIngestion_UnixTimestamp() throws JsonProcessingException {
 
     String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_unix_timestamp_millis.csv").getPath();
