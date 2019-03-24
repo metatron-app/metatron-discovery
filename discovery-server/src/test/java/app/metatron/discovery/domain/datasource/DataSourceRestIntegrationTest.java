@@ -94,6 +94,7 @@ import app.metatron.discovery.domain.workbook.configurations.field.DimensionFiel
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoPointFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.GeoPolygonFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TemporaryTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
 import app.metatron.discovery.util.JsonPatch;
@@ -1844,6 +1845,91 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     fields.add(new Field("City", DataType.STRING, DIMENSION, 3L));
     fields.add(new Field("Region", DataType.STRING, DIMENSION, 4L));
     fields.add(new Field("Sales", DataType.DOUBLE, MEASURE, 5L));
+
+    dataSource.setFields(fields);
+
+    LocalFileIngestionInfo localFileIngestionInfo = new LocalFileIngestionInfo();
+    localFileIngestionInfo.setPath(targetFile);
+    localFileIngestionInfo.setRemoveFirstRow(true);
+    localFileIngestionInfo.setFormat(new CsvFileFormat(",", "\n"));
+
+    dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(localFileIngestionInfo));
+
+    String reqBody = GlobalObjectMapper.writeValueAsString(dataSource);
+
+    System.out.println(reqBody);
+
+    // @formatter:off
+    Response dsRes =
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(reqBody)
+      .log().all()
+    .when()
+      .post("/api/datasources");
+
+    dsRes.then()
+      .statusCode(HttpStatus.SC_CREATED)
+    .log().all();
+    // @formatter:on
+
+    String id = from(dsRes.asString()).get("id");
+
+    StompHeaders stompSubscribeHeaders = new StompHeaders();
+    stompSubscribeHeaders.setDestination("/topic/datasources/" + id + "/progress");
+    stompSubscribeHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    session.subscribe(stompSubscribeHeaders, new DefaultStompFrameHandler());
+
+    try {
+      System.out.println("Sleep!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      Thread.sleep(1000000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  public void createDataSourceWithGeoPolygonCsvFileIngestionByAsync() throws JsonProcessingException {
+
+    StompHeaders stompHeaders = new StompHeaders();
+    stompHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    StompSession session = null;
+    try {
+      session = stompClient
+          .connect("ws://localhost:{port}/stomp", webSocketHttpHeaders, stompHeaders, new StompSessionHandlerAdapter() {}, serverPort)
+          .get(3, SECONDS);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_zipcode_polygon.csv").getPath();
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName("localFileIngestion_geo_" + PolarisUtils.randomString(5));
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(DAY);
+    dataSource.setSegGranularity(MONTH);
+    dataSource.setSrcType(FILE);
+
+    List<Field> fields = Lists.newArrayList();
+
+    Field timestampField = new Field("current_time", DataType.TIMESTAMP, TIMESTAMP, 0L);
+    timestampField.setDerived(true);
+    timestampField.setFormat(GlobalObjectMapper.writeValueAsString(new TemporaryTimeFormat()));
+    fields.add(timestampField);
+
+    Field geoField = new Field("geometry", DataType.STRING, DIMENSION, 1L);
+    geoField.setLogicalType(LogicalType.GEO_POINT);
+    geoField.setFormat(GlobalObjectMapper.writeValueAsString(new GeoPolygonFormat(null, 8)));
+    fields.add(geoField);
+
+    fields.add(new Field("zip_code", DataType.STRING, DIMENSION, 2L));
 
     dataSource.setFields(fields);
 

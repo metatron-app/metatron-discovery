@@ -46,7 +46,7 @@ public class LuceneSpatialFilter implements Filter {
   }
 
   public LuceneSpatialFilter(SpatialBboxFilter filter) {
-    this.field = filter.getField();
+    this.field = filter.getField() + ".shape";
     this.operation = filter.getOperation().toBBoxFilterOperation();
     this.shapeFormat = ShapeFormat.WKT;
     this.shapeString = pointToShape(filter);
@@ -54,7 +54,11 @@ public class LuceneSpatialFilter implements Filter {
 
   public LuceneSpatialFilter(SpatialShapeFilter filter, boolean isPoint) {
     this.field = filter.getField();
-    if (isPoint) this.field += ".coord";
+    if (isPoint) {
+      this.field += ".coord";
+    } else {
+      this.field += ".shape";
+    }
 
     this.operation = filter.getOperation();
     this.shapeFormat = filter.getShapeFormat();
